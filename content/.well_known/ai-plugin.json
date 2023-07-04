@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Bot Cafe",
+  "name_for_model": "ChatbotManager",
+  "description_for_human": "Manage your ChatBots. You can add, remove, view, and edit Bots.",
+  "description_for_model": "Plugin for managing a Bot list, you can add, remove, view, and edit Bots.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://kindrobots.org/openapi.yaml"
+  },
+  "logo_url": "https://kindrobots.org/logo.png",
+  "contact_email": "legalbot@kindrobots.org",
+  "legal_info_url": "https://kindrobots.org/legal"
+}

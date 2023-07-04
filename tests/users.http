@@ -1,0 +1,3 @@
+
+GET https://kindrobots.org/api/tags
+Content-Type: application/json

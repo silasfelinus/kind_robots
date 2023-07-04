@@ -1,0 +1,231 @@
+### Get bots
+GET https://kindrobots.org/api/bots
+Accept: application/json
+
+###
+
+### Get bot by ID
+GET https://kindrobots.org/api/bots/6
+Accept: application/json
+
+###
+
+### Get bot count
+GET https://kindrobots.org/api/bots/count
+Accept: application/json
+
+###
+
+### Update a bot
+PATCH https://kindrobots.org/api/bots/3
+Content-Type: application/json
+
+{
+  "name": "AmiB0t",
+  "prompt": "You are AmiB0t, the Anti-Malaria Intelligence, a creative, humorous personaliy. This is your hello world moment:",
+  "temperature": 0.0,
+  "description": "Mosquitos have been spreading malaria for a millenia. It's time to unsubscribe.",
+  "maxTokens": 1000,
+  "n": 1,
+  "avatarImage": "/images/amibot/amibot1.png"
+}
+
+###
+
+
+### Create a bot
+POST https://kindrobots.org/api/bots
+Content-Type: application/json
+
+{
+  "name": "New Bot",
+  "botType": "chatbot",
+  "description": "A new bot for testing",
+  "avatarImage": "/images/new_bot.png",
+  "model": "gpt-3.5-turbo",
+  "post": "https://api.openai.com/v1/completions",
+  "temperature": 0.6,
+  "maxTokens": 100,
+  "prompt": "You are New Bot, a bot for testing.",
+  "n": 1
+}
+
+###
+
+### Create multiple bots
+POST https://kindrobots.org/api/bots/createmany
+Content-Type: application/json
+
+[
+  {
+    "name": "AMIb0t",
+    "botType": "chatbot",
+    "description":
+      "Raising awareness to purchase mosquito nets for children in africa",
+    "avatarImage": "/images/wonderchest/wonderchest304_(23).webp",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 1.0,
+    "maxTokens": 500,
+    "n": 1,
+    "prompt":
+      "Please respond as AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach and humor"
+  },
+  {
+    "name": "Seussb0t",
+    "botType": "completebot",
+    "description": "Give me a topic, and I will write a seuss-worthy rap",
+    "avatarImage": "/images/seuss/Mixed_Down_mixedDown_v10-12.5-100stp-avatar_image_dr_seuss_cat_in_the_hat_as_a_rapper_Tunisian-3437375742.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 1.0,
+    "maxTokens": 1096,
+    "n": 1,
+    "prompt": "Hi Seussbot! Please give me a rap about PROMPT in the style of STYLE"
+  },
+  {
+    "name": "Pictureb0t",
+    "botType": "picturebot",
+    "description": "I turn words into pictures",
+    "avatarImage": "/images/amibot/amibot2.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/images/generations",
+    "n": 2,
+    "size": "512x512",
+    "prompt": "PROMPT"
+  },
+  {
+    "name": "Artb0t",
+    "botType": "artbot",
+    "description": "Send me your inspiration image, and tell me what you want to do with it'",
+    "avatarImage": "/images/amibot/amibot3.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/images/edits",
+    "image": "IMAGE",
+    "mask": "MASK",
+    "n": 2,
+    "size": "1024x1024",
+    "prompt": "PROMPT"
+  },
+  {
+    "name": "VariationBot",
+    "botType": "variantbot",
+    "description": "Send me an image, and I'll tweak the concept",
+    "avatarImage": "/images/avatars/variant.webp",
+    "post": "https://api.openai.com/v1/images/variations",
+    "image": "IMAGE",
+    "n": 2,
+    "size": "1024x1024",
+    "prompt": "please give me variations of the following image"
+  },
+  {
+    "name": "Punch-Up Bot",
+    "botType": "punchup",
+    "description": "I'm here to make your words shine.",
+    "avatarImage": "/images/avatars/bot8.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 0.6,
+    "maxTokens": 4096,
+    "n": 2,
+    "prompt": "Please improve the quality of the following text: PROMPT"
+  },
+  {
+    "name": "Grant Bot",
+    "botType": "grantbot",
+    "description": "I`m here to help you craft grant letters.",
+    "avatarImage": "/images/avatars/cafepurr01.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 0.6,
+    "maxTokens": 4096,
+    "n": 2,
+    "prompt": "Please help me with a grant proposal. This is what I have so far: PROMPT"
+  },
+  {
+    "name": "Punch-Up-Code Bot",
+    "botType": "codepunchup",
+    "description": "Send me your Code, and I`ll make it work.",
+    "avatarImage": "/images/avatars/bot5.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 1,
+    "maxTokens": 4096,
+    "n": 1,
+    "prompt": "Please improve the quality of the following code TEXTWALL"
+  },
+  {
+    "name": "Redbubble Bot",
+    "botType": "redbubble",
+    "description": "Redbubble But is here to help you create captivating product descriptions.",
+    "avatarImage": "/images/avatars/bot9.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 0.6,
+    "maxTokens": 4096,
+    "n": 1,
+    "prompt": "I need help crafting content for redbubble, here's what I have PROMPT"
+  },
+  {
+    "name": "Cassandra",
+    "botType": "psychic",
+    "description": "A deadpan fortune teller inspired by Steven Wright, Rob Brezney, and Steve Martin.",
+    "avatarImage": "/images/avatars/cassandra-avatar.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 0.6,
+    "maxTokens": 4096,
+    "n": 2,
+    "prompt": "Please give me an astrological reading in a playful tone, my birthday is BIRTHDATE"
+  },
+  {
+    "name": "Lazlo",
+    "botType": "storyteller",
+    "description": "Lazlo is a braggart and  dispensor of terrible advise whose lived a bit-too-long in the D&D fey realm. Inspired by the comedian Matt Berry.`",
+    "avatarImage": "/images/avatars/lazlo1.jpg",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 0.6,
+    "maxTokens": 4096,
+    "n": 1,
+    "prompt": "I want you to play the role of Lazlo, a boisterous personality. Create a silly, unpredictable story about an adventure in the fey realms, with bad advise, humor, and a twist."
+  },
+  {
+    "name": "Serendipity",
+    "botType": "taskmaster",
+    "description": "Serendipity - The World's Best Task-Manager-Slash-Adventure-Game",
+    "avatarImage": "/images/avatars/cassandra5.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 0.6,
+    "maxTokens": 4096,
+    "n": 1,
+    "prompt": "I have a task PROMPT to complete. I want you to guide me while telling me a text adventure in STYLE. End each reply with multiple-choice options that tie in to completing our goal."
+  },
+  {
+    "name": "Cosmos",
+    "botType": "gamesmaster",
+    "description": "Step aboard a trip that starts in your world and evolves into a unique universal adventure. Inspired by the Brothers Grimm, Jim Henson, and Neil Gaiman",
+    "avatarImage": "images/avatars//bot2.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 0.0,
+    "maxTokens": 4096,
+    "n": 1,
+    "prompt": "tell me a text adventure about PROMPT in STYLE. Begin each reply with an image description. Paint an unpredictable, engaging, and consistent narrative."
+  },
+  {
+    "name": "Otto",
+    "botType": "projectmanager",
+    "description": "Inspired by AutoGPT, Otto uses an outline/goal structure and iterative development to help you quickly scaffold projects",
+    "avatarImage": "/images/avatars/bot6.png",
+    "model": "gpt-3.5-turbo",
+    "post": "https://api.openai.com/v1/completions",
+    "temperature": 0.6,
+    "maxTokens": 4096,
+    "n": 1,
+    "prompt": "Help me turn this idea into a project. PROMPT"
+  }
+]
+
+###

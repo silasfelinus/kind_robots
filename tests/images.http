@@ -1,0 +1,21 @@
+@hostname = https://kindrobots.org
+
+###
+
+# This is a GET request to fetch a all images, we're expecting back. 
+GET {{hostname}}/api/galleries/ HTTP/1.1
+
+###
+
+# This is a GET request to fetch users. 
+GET {{hostname}}/api/users/ HTTP/1.1
+Accept: application/json
+
+# This is a POST request to create a new image. 
+POST {{hostname}}/api/images HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+{
+ "id": null, "name": "backtree", "content": "/backtree.webp", "description": "", "highlightImage": null, "isNSFW": false, "isAuth": false, "user": "cafepurr", "createdAt": null, "updatedAt": null, "isFavorite": true }
+  

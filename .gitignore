@@ -1,0 +1,15 @@
+node_modules
+*.log*
+.nuxt
+nuxt
+nuxt/
+.nitro
+.cache
+.output
+.env
+dist
+.DS_Store
+public/images
+*.pem
+.nuxt/
+/mnt/appdata/*

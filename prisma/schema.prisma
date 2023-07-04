@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Bot {
+  id          Int       @id @default(autoincrement())
+  name        String    @default("AMIb0t")
+  botType     String    @default("chatbot")
+  description String    @default("Raising awareness to purchase mosquito nets for children in africa")
+  avatarImage String?   @default("/images/wonderchest/wonderchest304_(23).webp")
+  model       String?   @default("gpt-3.5-turbo")
+  post        String?   @default("https://api.openai.com/v1/completions")
+  temperature Float?    @default(1.0)
+  maxTokens   Int?      @default(500)
+  prompt      String    @default("You are AMIb0t, The Anti-Malaria Intelligence.")
+  image       String?
+  mask        String?
+  style       String?
+  n           Int?      @default(1)
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  intro       String?
+  size        String?
+  training    String?
+}
+
+model Todo {
+  id         Int      @id @default(autoincrement())
+  content    String
+  category   String   @default("default")
+  isFinished Boolean  @default(false)
+  user       String   @default("cafepurr")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Checkpoint {
+  id         Int      @id @default(autoincrement())
+  name       String   @default("")
+  hash       String   @default("")
+  sfwName    String?
+  isNSFW     Boolean  @default(false)
+  civitaiUrl String?
+  huggingUrl String?
+  image1     String?
+  image2     String?
+  image3     String?
+  user       String   @default("cafepurr")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Embedding {
+  id          Int      @id @default(autoincrement())
+  name        String   @default("")
+  content     String   @default("")
+  description String   @default("")
+  prompt      String?
+  civitaiUrl  String?
+  type        String   @default("embedding")
+  image1      String?
+  image2      String?
+  image3      String?
+  isNSFW      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Image {
+  id          Int      @id @default(autoincrement())
+  path        String   @default("")
+  isNSFW      Boolean  @default(false)
+  isFavorite  Boolean  @default(false)
+  prompt      String?
+  description String?
+  negative    String?
+  gallery     String?
+  steps       Int?
+  seed        Int?
+  sampler     String?
+  cfg         String?
+  size        String?
+  modelHash   String?
+  modelName   String?
+  template    String?
+  negTemplate String?
+  promptId    Int?
+  galleryId   Int?
+  creator     String   @default("cafepurr")
+  creatorID   Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Gallery     Gallery? @relation(fields: [galleryId], references: [id])
+}
+
+model Gallery {
+  id             Int      @id @default(autoincrement())
+  name           String   @unique
+  content        String   @default("")
+  description    String   @default("")
+  highlightImage String?
+  isNSFW         Boolean  @default(false)
+  isAuth         Boolean  @default(false)
+  user           String   @default("cafepurr")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  Images         Image[]
+}
+
+model Message {
+  id             Int          @id @default(autoincrement())
+  content        String       @default("")
+  role           String
+  type           MessageType
+  tokenCount     Int?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  conversationId Int
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
+
+enum MessageType {
+  PROMPT
+  RESPONSE
+  IMAGE
+  MASK
+}
+
+model Conversation {
+  id          Int       @id @default(autoincrement())
+  messages    Message[]
+  dateCreated DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  hashedPass  String
+  userName    String?
+  realName    String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  bio         String?
+  avatarImage String?
+  role        Role     @default(USER)
+}
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}
+
+model Wildcard {
+  id        Int      @id @default(autoincrement())
+  name      String   @default("")
+  data      String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

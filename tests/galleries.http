@@ -1,0 +1,145 @@
+### Get all galleries
+GET https://kindrobots.org/api/galleries
+Accept: application/json
+
+###
+
+### Get gallery by ID
+GET https://kindrobots.org/api/galleries/1
+Accept: application/json
+
+###
+
+### Get gallery count
+GET https://kindrobots.org/api/galleries/count
+Accept: application/json
+
+###
+
+### Create a gallery
+POST https://kindrobots.org/api/galleries
+Content-Type: application/json
+
+{
+  "name": "acrocats",
+  "content": "/images/acrocats/gallery.json",
+  "description": "Acrocat Ranch Foster Kitten Rescue",
+  "highlightImage": "/images/acrocats/PXL_20220903_023602144.jpg",
+  "isNSFW": false,
+  "isAuth": false,
+  "user": "cafepurr"
+}
+
+###
+
+### Update a gallery
+PATCH https://kindrobots.org/api/galleries/1
+Content-Type: application/json
+
+{
+  "name": "Updated Gallery Name",
+  "content": "This is some updated content.",
+  "description": "This is a updated description of the gallery.",
+  "highlightImage": "/images/updated_gallery.jpg",
+  "isNSFW": false,
+  "isAuth": true
+}
+
+###
+
+#### Create multiple galleries
+POST https://kindrobots.org/api/galleries/createmany
+Content-Type: application/json
+
+[
+  {
+    "name": "amibot",
+    "content": "/images/amibot/gallery.json",
+    "description": "AMIb0t, The Anti Malaria Intelligence",
+    "highlightImage": "/images/amibot/amibot1.png"
+  },
+  {
+    "name": "avatars",
+    "content": "/images/avatars/gallery.json",
+    "description": "Collection of avatar images",
+    "highlightImage": "/images/avatars/avatar2.png"
+  },
+  {
+    "name": "background",
+    "content": "/images/background/gallery.json",
+    "description": "Assorted background images",
+    "highlightImage": "/images/background/background001.webp"
+  },
+  {
+    "name": "botcafe",
+    "content": "/images/botcafe/gallery.json",
+    "description": "The Bot Cafe Gallery",
+    "highlightImage": "/images/botcafe/botcafe1.png"
+  },
+  {
+    "name": "cafepurr",
+    "content": "/images/cafepurr/gallery.json",
+    "description": "Cafe Purr - A place for cat lovers",
+    "highlightImage": "/images/cafepurr/cafepurr1.png"
+  },
+  {
+    "name": "ducky",
+    "content": "/images/ducky/gallery.json",
+    "description": "Ducky's delightful gallery",
+    "highlightImage": "/images/ducky/ducky1.png"
+  },
+  {
+    "name": "fantasycore",
+    "content": "/images/fantasycore/gallery.json",
+    "description": "FantasyCore: A journey into imagination",
+    "highlightImage": "/images/fantasycore/fantasycore1.png"
+  },
+  {
+    "name": "floof",
+    "content": "/images/floof/gallery.json",
+    "description": "The Fluffy Floof Gallery",
+    "highlightImage": "/images/floof/floof1.png"
+  },
+  {
+    "name": "flower",
+    "content": "/images/flower/gallery.json",
+    "description": "Blossoming Flower Gallery",
+    "highlightImage": "/images/flower/flower1.png"
+  },
+  {
+    "name": "redbubble",
+    "content": "/images/redbubble/gallery.json",
+    "description": "RedBubble - Exploding with color",
+    "highlightImage": "/images/redbubble/redbubble1.png"
+  },
+  {
+    "name": "seuss",
+    "content": "/images/seuss/gallery.json",
+    "description": "The wonderful world of Dr. Seuss",
+    "highlightImage": "/images/seuss/seuss1.png"
+  },
+  {
+    "name": "wonderbot",
+    "content": "/images/wonderbot/gallery.json",
+    "description": "WonderBot - The gallery of a wonder",
+    "highlightImage": "/images/wonderbot/wonderbot1.png"
+  },
+  {
+    "name": "wondercat",
+    "content": "/images/wondercat/gallery.json",
+    "description": "WonderCat: The Purr-fect Gallery",
+    "highlightImage": "/images/wondercat/wondercat1.png"
+  },
+  {
+    "name": "wonderchest",
+    "content": "/images/wonderchest/gallery.json",
+    "description": "The WonderChest - A trove of treasures",
+    "highlightImage": "/images/wonderchest/wonderchest1.png"
+  },
+  {
+    "name": "wondershed",
+    "content": "/images/wondershed/gallery.json",
+    "description": "The WonderShed - A shed full of wonders",
+    "highlightImage": "/images/wondershed/wondershed1.png"
+  }
+]

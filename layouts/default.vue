@@ -32,7 +32,6 @@
         <slot class="w-full md:w-1/2" />
       </div>
       <footer class="mt-4">
-        <dream-status class="md:block" />
         <slot name="footer" />
       </footer>
     </main>

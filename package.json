@@ -31,6 +31,7 @@
   "dependencies": {
     "@pinia/nuxt": "^0.4.11",
     "@prisma/client": "^4.16.0",
+    "axios": "^1.4.0",
     "daisyui": "^2.51.6",
     "interactjs": "^1.10.17",
     "open-simplex-noise": "^2.5.0",

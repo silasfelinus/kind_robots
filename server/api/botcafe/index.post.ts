@@ -14,7 +14,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const response = await fetch(body.post, {
+    const post = body.post
+    console.log('Sending ' + post)
+
+    const response = await fetch(post, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,10 +36,27 @@ export default defineEventHandler(async (event) => {
       throw new Error('Failed to post to botcafe')
     }
 
-    const data = await response.json()
+    const contentType = response.headers.get('Content-Type')
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error(`Unexpected content type: ${contentType}`)
+    }
+
+    let data
+    try {
+      data = await response.json()
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        const text = await response.text()
+        console.error('Error parsing JSON:', text)
+        throw new Error('Received invalid JSON')
+      } else {
+        throw e
+      }
+    }
 
     return data
   } catch (error) {
+    // This is where the closing bracket was missing.
     let errorMessage = 'An error occurred while creating the conversation.'
 
     // Check if error is an instance of Error

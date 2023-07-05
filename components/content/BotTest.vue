@@ -32,7 +32,7 @@
       </div>
       <div v-if="data">
         <h2 class="text-xl font-medium mb-2 text-gray-800">Response:</h2>
-        <pre class="text-gray-900">{{ JSON.stringify(data, null, 2) }}</pre>
+        <pre class="text-gray-900">{{ data }}</pre>
       </div>
       <div v-if="errorMessage">
         <p class="mt-2 p-4 bg-red-100 rounded-md shadow-md text-red-700">
@@ -45,18 +45,16 @@
 
 <script setup>
 import axios from 'axios'
-import { useBotsStore } from '../../stores/bots'
 
 let prompt = ref('')
-let maxTokens = ref(100)
+let maxTokens = ref(1000)
 let data = ref(null)
 let errorMessage = ref('')
-let botsStore = useBotsStore()
 
 const submit = async () => {
   try {
     const response = await axios.post('/api/botcafe/chat', {
-      model: botsStore.activeBot.model,
+      model: 'gpt-3.5-turbo',
       messages: [
         {
           role: 'user',
@@ -72,7 +70,7 @@ const submit = async () => {
       data.value = response.data
       errorMessage.value = ''
     } else {
-      errorMessage.value = response.data?.error?.message
+      errorMessage.value = response?.data?.error?.message
     }
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : String(error)

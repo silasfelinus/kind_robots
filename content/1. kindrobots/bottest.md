@@ -6,4 +6,4 @@ image: wonderchest/wonderchest-002.webp
 gallery: wonderchest
 ---
 
-:bot-prompt
+:bot-test

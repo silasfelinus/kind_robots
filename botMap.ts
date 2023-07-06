@@ -54,7 +54,6 @@ export const localBots: Bot[] = [
     botType: 'picturebot',
     description: 'I turn words into pictures',
     avatarImage: '/images/amibot/amibot2.png',
-    model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/images/generations',
     n: 2,
     size: '512x512',

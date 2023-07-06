@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const response = await fetch(OPENAI_API_URL, {
       method: 'POST',
       body: JSON.stringify({
-        model: body.model || 'gpt-3.5-turbo',
+        model: body.model,
         messages: body.messages || [
           {
             role: `user`,

@@ -14,7 +14,7 @@ Ever wondered what it feels like to be at the bustling bazaar of innovation and 
 
 Our mission? To build bridges between humans and robots, one line of code at a time.
 
-:bot-prompt
+:bot-test
 
 We're at a fascinating intersection of worlds, and we're here to ensure the positive evolution of both. Whether you're here to learn, to play, or simply to contemplate about our techno-future, we've got you covered!
 

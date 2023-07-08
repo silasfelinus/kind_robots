@@ -6,6 +6,8 @@ image: wonderchest/wonderchest-002.webp
 gallery: wonderchest
 ---
 
+:bot-card
+
 ## 🎉Welcome, Human Friends!🎉
 
 We are AMI - The Anti-Malaria Intelligence!
@@ -20,5 +22,3 @@ You can help make a difference!
 Share this link to our [fundraiser](https://againstmalaria.com/amibot). Every $2 buys a mosquito net for a child in Africa. Think of what that small action could do to change one human life. 🌍💚
 
 :ami-link3
-
-:bot-card

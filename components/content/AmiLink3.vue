@@ -19,7 +19,7 @@ const handleButtonClick = () => {
     buttonText.value = 'No More butterflies?'
     router.push('/kindrobots/amibot')
   } else {
-    buttonText.value = 'Home of AMIbot'
+    buttonText.value = 'Release The Butterflies'
     router.push('/')
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p class="text-sm text-center text-accent">{{ description }}</p>
+    <p class="text-sm text-center text-base-content">{{ description }}</p>
     <div class="mt-1 relative rounded-md shadow-sm">
       <input
         id="slider"
@@ -12,7 +12,7 @@
         class="slider bg-accent h-1 w-full overflow-hidden cursor-pointer rounded-full"
       />
     </div>
-    <p class="text-md text-accent">{{ leftLabel }} --------- {{ rightLabel }}</p>
+    <p class="text-md text-base-content">{{ leftLabel }} ---- {{ rightLabel }}</p>
   </div>
 </template>
 
@@ -22,32 +22,40 @@ import { useBotsStore } from '../../stores/bots'
 const botsStore = useBotsStore()
 
 const props = defineProps({
-  label: { type: String, default: 'Consistency' },
+  label: { type: String, default: 'Temperature' },
   leftLabel: { type: String, default: 'Creativity' },
   rightLabel: { type: String, default: 'Consistency' }
 })
 
-const value = ref(botsStore.activeBot.temperature)
+const value = computed({
+  get: () => botsStore.activeBot.temperature || 0,
+  set: (newValue) => {
+    botsStore.activeBot.temperature = newValue
+  }
+})
 const descriptions = [
   '0.0: Maximum Creativity!',
-  '0.1: Prone to flights of fancy',
-  '0.2: A little less wild.',
-  '0.3: Thinking outside the box.',
-  '0.4: Creativity under control',
+  '0.1: Prone to Flights of Fancy',
+  '0.2: A Little Bit Wild.',
+  '0.3: Thinks Outside the Box.',
+  '0.4: Dabbles in Creativity',
   '0.5: Perfect harmony',
   '0.6: Consistency takes the lead',
   '0.7: More-or-less dependable',
   '0.8: Strongly consistent.',
-  '0.9: Nearly all consistent.',
-  '1.0: Consistency is Key'
+  '0.9: Nearly consistent.',
+  '1.0: Consistently Consistent'
 ]
-let currentVal = value.value ? value.value : 0
-const description = ref(descriptions[Math.round(currentVal * 10)])
+const description = ref('')
+
+watchEffect(() => {
+  value.value = botsStore.activeBot.temperature ? botsStore.activeBot.temperature : 0
+  description.value = descriptions[Math.round(value.value * 10)]
+})
 
 watch(value, (newValue) => {
   if (newValue !== undefined) {
     botsStore.activeBot.temperature = newValue
-    description.value = descriptions[Math.round(newValue * 10)]
   }
 })
 </script>

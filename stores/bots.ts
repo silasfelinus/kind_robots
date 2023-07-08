@@ -65,14 +65,14 @@ export const useBotsStore = defineStore('bots', {
     async sendData(data: any) {
       try {
         const response = await axios.post('/api/botcafe/chat', data)
-        // handle response here, update state or trigger actions as necessary
+        return response // This line is added to return the response
       } catch (error) {
         if (error instanceof AxiosError) {
-          // Now you can access the properties of the error:
           console.error(`Failed to send data: ${error.message}`)
         } else {
           console.error('An unknown error occurred:', error)
         }
+        return { data: null } // Ensure an object is returned even in case of an error
       }
     }
   }

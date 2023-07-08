@@ -54,11 +54,7 @@ watchEffect(() => {
 </script>
 <template>
   <div class="relative flex flex-col p-8 bg-base overflow-auto h-screen">
-    <div class="flex items-center space-x-4">
-      <nuxt-link to="/">
-        <img class="w-64 h-64" src="/images/kindtitle.webp" alt="Logo" />
-      </nuxt-link>
-    </div>
+    <div class="flex items-center space-x-4"></div>
     <div
       class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     ></div>
@@ -85,6 +81,7 @@ watchEffect(() => {
           :id="`bot-${bot.id}`"
           :key="bot.id"
           :to="`/kindrobots/`"
+          :style="{ backgroundColor: bot.theme }"
           class="flex flex-col items-center justify-between w-full p-2 cursor-pointer mb-4 transition-colors ease-in-out duration-200"
           :class="{
             'bg-accent text-secondary': activeBot && activeBot.id === bot.id,

@@ -1,7 +1,7 @@
 ---
 title: 'Kind Arcade - Coming Soon'
 description: 'Would you like to play a game?'
-layout: gamescreen
+layout: gamescreen2
 gallery: botcafe
 image: botgames.png
 ---

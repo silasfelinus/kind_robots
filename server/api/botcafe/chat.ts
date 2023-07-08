@@ -8,14 +8,12 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       body: JSON.stringify({
         model: body.model,
-        messages: body.messages || [
-          {
-            role: `user`,
-            content: `Please respond as AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach, humor, and a positive social message. This is your hello world moment. What do you want to say?`
-          }
-        ],
-        temperature: body.temperature || 1,
-        max_tokens: body.max_tokens || 200
+        messages: body.messages,
+        temperature: body.temperature,
+        max_tokens: body.max_tokens,
+        stream: body.stream,
+        n: body.n,
+        mask: body.mask
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +22,7 @@ export default defineEventHandler(async (event) => {
     })
 
     const responseData = await response.json()
-    return responseData
+    return responseData.choices
   } catch (error) {
     throw new Error('An error occurred while fetching data from OpenAI API')
   }

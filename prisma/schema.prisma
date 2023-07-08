@@ -21,12 +21,14 @@ model Bot {
   image       String?
   mask        String?
   style       String?
+  channel     String?
   n           Int?      @default(1)
   createdAt   DateTime? @default(now())
   updatedAt   DateTime? @updatedAt
   intro       String?
   size        String?
   training    String?
+  theme       String?
 }
 
 model Todo {
@@ -101,6 +103,7 @@ model Image {
 model Gallery {
   id             Int      @id @default(autoincrement())
   name           String   @unique
+  channel        String   @default("")
   content        String   @default("")
   description    String   @default("")
   highlightImage String?
@@ -113,29 +116,19 @@ model Gallery {
 }
 
 model Message {
-  id             Int          @id @default(autoincrement())
-  content        String       @default("")
-  role           String
-  type           MessageType
-  tokenCount     Int?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  conversationId Int
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-}
-
-enum MessageType {
-  PROMPT
-  RESPONSE
-  IMAGE
-  MASK
+  id        Int      @id @default(autoincrement())
+  content   String   @default("")
+  role      String
+  channel   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Conversation {
-  id          Int       @id @default(autoincrement())
-  messages    Message[]
-  dateCreated DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id          Int      @id @default(autoincrement())
+  channel        String
+  dateCreated DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Tag {

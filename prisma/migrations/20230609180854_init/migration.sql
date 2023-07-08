@@ -3,12 +3,12 @@
 
   - You are about to drop the column `threadId` on the `Message` table. All the data in the column will be lost.
   - You are about to drop the `Resource` table. If the table is not empty, all the data it contains will be lost.
-  - Added the required column `conversationId` to the `Message` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `channelId` to the `Message` table without a default value. This is not possible if the table is not empty.
 
 */
 -- AlterTable
 ALTER TABLE `Message` DROP COLUMN `threadId`,
-    ADD COLUMN `conversationId` INTEGER NOT NULL;
+    ADD COLUMN `channelId` INTEGER NOT NULL;
 
 -- AlterTable
 ALTER TABLE `Prompt` ADD COLUMN `isNsfw` BOOLEAN NOT NULL DEFAULT false,

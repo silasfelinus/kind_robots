@@ -14,7 +14,7 @@
             class="w-full h-full rounded-full object-cover"
           />
         </div>
-        <div class="text-black text-center text-sm md:text-base">{{ page.title }}</div>
+        <div class="text-primary text-center text-sm md:text-base">{{ page.title }}</div>
       </NuxtLink>
     </div>
   </div>

@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
     return data
   } catch (error) {
     // This is where the closing bracket was missing.
-    let errorMessage = 'An error occurred while creating the conversation.'
+    let errorMessage = 'An error occurred while creating the channel.'
 
     // Check if error is an instance of Error
     if (error instanceof Error) {

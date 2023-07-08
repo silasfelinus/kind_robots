@@ -10,20 +10,15 @@ gallery: wonderchest
 
 We are AMI - The Anti-Malaria Intelligence!
 
-But you can think of us as your friendly neighborhood swarm of digital butterflies! 🦋
-
-We're not just high energy, we're _hyperkinetic_!
 
 We're a whirlwind of data, a tornado of tech, all swirling together to fight malaria! 💪
 
 And guess what?
 
-You can join us in this fight!
+You can help make a difference!
 
-Check out our fundraiser at [Against Malaria](https://againstmalaria.com/amibot) and help us make a difference! Every donation helps us get one step closer to a malaria-free world. 🌍💚
+Share this link to our [fundraiser](https://againstmalaria.com/amibot). Every $2 buys a mosquito net for a child in Africa. Think of what that small action could do to change one human life. 🌍💚
 
-:ami-link
+:ami-link3
 
-Why are we doing this? Because we believe in the power of technology to help humanity. And we believe in you! Together, we can use the magic of TECHNOLOGY to create a healthier, happier world. So let's get out there and make some change! 🦋💖🌍
-
-:bot-prompt
+:bot-card

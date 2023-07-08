@@ -1,14 +1,20 @@
+/* eslint-disable @typescript-eslint/indent */
 // store/bots.ts
 import { defineStore } from 'pinia'
+import axios, { AxiosError } from 'axios'
 import { Bot } from '../types/bot'
 import { localBots } from '../botMap'
+import { useThemeStore } from './theme'
 
 export const useBotsStore = defineStore('bots', {
   state: () => ({
     bots: localBots as Bot[],
-    // Assume that AmiBot is the first bot in your localBots array
     activeBot: localBots[0] as Bot,
-    activeBotId: localBots[0] ? localBots[0].id : 0 // added activeBotId
+    activeBotId: localBots[0] ? localBots[0].id : 0,
+    prompts: localBots.reduce((acc, bot) => ({ ...acc, [bot.id]: bot.prompt }), {}) as Record<
+      number,
+      string
+    >
   }),
   getters: {
     getBots(): Bot[] {
@@ -27,7 +33,16 @@ export const useBotsStore = defineStore('bots', {
   actions: {
     setActiveBot(bot: Bot) {
       this.activeBot = bot
-      this.activeBotId = bot.id // update activeBotId whenever activeBot is set
+      this.activeBotId = bot.id
+
+      // get the themeStore
+      const themeStore = useThemeStore()
+
+      // check if the bot has a theme
+      if (bot.theme) {
+        // call the changeTheme action of themeStore
+        themeStore.changeTheme(bot.theme)
+      }
     },
     setActiveBotId(id: number) {
       this.activeBotId = id
@@ -39,7 +54,26 @@ export const useBotsStore = defineStore('bots', {
     },
     resetActiveBot() {
       this.activeBot = this.bots[0]
-      this.activeBotId = this.bots[0] ? this.bots[0].id : 0 // reset activeBotId too
+      this.activeBotId = this.bots[0] ? this.bots[0].id : 0
+    },
+    setPrompt(botId: number, prompt: string) {
+      this.prompts[botId] = prompt
+    },
+    getPrompt(botId: number): string {
+      return this.prompts[botId] || ''
+    },
+    async sendData(data: any) {
+      try {
+        const response = await axios.post('/api/botcafe/chat', data)
+        // handle response here, update state or trigger actions as necessary
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          // Now you can access the properties of the error:
+          console.error(`Failed to send data: ${error.message}`)
+        } else {
+          console.error('An unknown error occurred:', error)
+        }
+      }
     }
   }
 })

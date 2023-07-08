@@ -1,5 +1,5 @@
 // server/api/messages/[id].get.ts
-import prisma from '../../../prisma'
+import prisma from '../prisma'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)

@@ -17,4 +17,7 @@ export interface Bot {
   updatedAt?: Date
   intro?: string
   size?: string
+  training?: string
+  channel?: string
+  theme?: string
 }

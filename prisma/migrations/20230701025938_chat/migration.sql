@@ -1,7 +1,7 @@
 /*
   Warnings:
 
-  - You are about to drop the column `content` on the `Conversation` table. All the data in the column will be lost.
+  - You are about to drop the column `content` on the `Channel` table. All the data in the column will be lost.
   - You are about to drop the column `dateCreated` on the `Message` table. All the data in the column will be lost.
   - You are about to drop the `Prompt` table. If the table is not empty, all the data it contains will be lost.
   - Added the required column `sender` to the `Message` table without a default value. This is not possible if the table is not empty.
@@ -9,7 +9,7 @@
 
 */
 -- AlterTable
-ALTER TABLE `Conversation` DROP COLUMN `content`;
+ALTER TABLE `Channel` DROP COLUMN `content`;
 
 -- AlterTable
 ALTER TABLE `Message` DROP COLUMN `dateCreated`,
@@ -22,4 +22,4 @@ ALTER TABLE `Message` DROP COLUMN `dateCreated`,
 DROP TABLE `Prompt`;
 
 -- AddForeignKey
-ALTER TABLE `Message` ADD CONSTRAINT `Message_conversationId_fkey` FOREIGN KEY (`conversationId`) REFERENCES `Conversation`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Message` ADD CONSTRAINT `Message_channelId_fkey` FOREIGN KEY (`channelId`) REFERENCES `Channel`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -29,16 +29,19 @@ export const localBots: Bot[] = [
     avatarImage: '/images/wonderchest/wonderchest304_(23).webp',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
-    temperature: 1.0,
+    temperature: 0.0,
     maxTokens: 500,
     n: 1,
+    channel: 'amibot',
+    intro: 'We Are AMI!',
+    theme: 'retro',
     prompt:
-      'Please respond as AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach and humor'
+      'Please respond as AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach and humor. '
   },
   {
     id: 1,
     name: `Seussb0t`,
-    botType: `completebot`,
+    botType: `chatbot`,
     description: `Give me a topic, and I will write a seuss-worthy rap`,
     avatarImage: `/images/seuss/Mixed_Down_mixedDown_v10-12.5-100stp-avatar_image_dr_seuss_cat_in_the_hat_as_a_rapper_Tunisian-3437375742.png`,
     model: `gpt-3.5-turbo`,
@@ -46,7 +49,9 @@ export const localBots: Bot[] = [
     temperature: 1.0,
     maxTokens: 1096,
     n: 1,
-    prompt: `Hi Seussbot! Please give me a rap about PROMPT in the style of STYLE`
+    theme: 'cyberpunk',
+    intro: `Hi Seussbot! Please give me a rap about:`,
+    prompt: `AMI-The Anti-Malaria Intelligence, a digital swarm of butterflies spread the word to fight malaria`
   },
   {
     id: 2,
@@ -55,14 +60,16 @@ export const localBots: Bot[] = [
     description: 'I turn words into pictures',
     avatarImage: '/images/amibot/amibot2.png',
     post: 'https://api.openai.com/v1/images/generations',
-    n: 2,
+    n: 4,
     size: '512x512',
-    prompt: 'PROMPT'
+    theme: 'cupcake',
+    intro: `Please give me art about:`,
+    prompt: 'butterflies fighting mosquitos and really kicking their butts'
   },
   {
     id: 3,
     name: 'Artb0t',
-    botType: 'artbot',
+    botType: 'editbot',
     description: "Send me your inspiration image, and tell me what you want to do with it'",
     avatarImage: '/images/amibot/amibot3.png',
     model: 'gpt-3.5-turbo',
@@ -71,7 +78,9 @@ export const localBots: Bot[] = [
     mask: 'MASK',
     n: 2,
     size: '1024x1024',
-    prompt: 'PROMPT'
+    theme: 'corporate',
+    intro: `upload file here:`,
+    prompt: 'FILEUPLOAD'
   },
   {
     id: 4,
@@ -81,14 +90,16 @@ export const localBots: Bot[] = [
     avatarImage: '/images/avatars/variant.webp',
     post: 'https://api.openai.com/v1/images/variations',
     image: 'IMAGE',
-    n: 2,
+    n: 4,
     size: '1024x1024',
-    prompt: 'please give me variations of the following image'
+    theme: 'pastel',
+    intro: 'please give me variations of the following image',
+    prompt: `FILEUPLOAD`
   },
   {
     id: 5,
     name: 'Punch-Up Bot',
-    botType: 'punchup',
+    botType: 'chatbot',
     description: "I'm here to make your words shine.",
     avatarImage: '/images/avatars/bot8.png',
     model: 'gpt-3.5-turbo',
@@ -96,12 +107,14 @@ export const localBots: Bot[] = [
     temperature: 0.6,
     maxTokens: 4096,
     n: 2,
-    prompt: 'Please improve the quality of the following text: PROMPT'
+    theme: 'autumn',
+    intro: 'Please improve the quality of the following text:',
+    prompt: 'There once was a digital butterfly...'
   },
   {
     id: 6,
     name: 'Grant Bot',
-    botType: 'grantbot',
+    botType: 'chatbot',
     description: 'I`m here to help you craft grant letters.',
     avatarImage: '/images/avatars/cafepurr01.png',
     model: 'gpt-3.5-turbo',
@@ -109,20 +122,23 @@ export const localBots: Bot[] = [
     temperature: 0.6,
     maxTokens: 4096,
     n: 2,
+    theme: 'valentine',
     prompt: 'Please help me with a grant proposal. This is what I have so far: PROMPT'
   },
   {
     id: 7,
     name: 'Punch-Up-Code Bot',
-    botType: 'codepunchup',
+    botType: 'chatbot',
     description: 'Send me your Code, and I`ll make it work.',
     avatarImage: '/images/avatars/bot5.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 1,
     maxTokens: 4096,
+    theme: 'coffee',
     n: 1,
-    prompt: 'Please improve the quality of the following code TEXTWALL'
+    intro: 'Please improve the quality of the following code:',
+    prompt: 'Release the Butterflies'
   },
   {
     id: 8,
@@ -148,6 +164,7 @@ export const localBots: Bot[] = [
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
     maxTokens: 4096,
+    theme: 'halloween',
     n: 2,
     prompt: 'Please give me an astrological reading in a playful tone, my birthday is BIRTHDATE'
   },
@@ -164,6 +181,7 @@ export const localBots: Bot[] = [
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
     maxTokens: 4096,
+    theme: 'dracula',
     n: 1,
     prompt: `I want you to play the role of Lazlo, a boisterous personality inspired by the comedian Matt Berry. Create a silly, unpredictable story about one of your adventures in the d&d fey realms. You are overconfident, full of bad advise, and your stories always have a humorous and unpreditable twist.  PROMPT`
   },
@@ -177,6 +195,7 @@ export const localBots: Bot[] = [
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
     maxTokens: 4096,
+    theme: 'aqua',
     n: 1,
     prompt:
       'I have a task PROMPT to complete. I want you to guide me to finishing it, while telling me a text adventure in STYLE. Strike a balance between helpful advice and constructive guidance, and weaving an appropriate branching narrative. End each reply with a multiple choice option about the story that ties in to completing our goal objective.'
@@ -192,6 +211,7 @@ export const localBots: Bot[] = [
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
     maxTokens: 4096,
+    theme: 'garden',
     n: 1,
     prompt:
       'tell me a text adventure about PROMPT in STYLE. Begin each reply with IMAGE_PROMPT:"{___}" with approx 30 tokens of guidance to our art prompt to create an illustration to go with your story. Paint an unpredictable, engaging, and consistent narrative. Look for original angles and avenues that might not be the first, second, or even third thing one might think of.'
@@ -207,7 +227,9 @@ export const localBots: Bot[] = [
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
     maxTokens: 4096,
+    theme: 'emerald',
     n: 1,
-    prompt: 'Help me turn this idea into a project. PROMPT'
+    intro: 'Help me turn this idea into a project',
+    prompt: 'PROMPT'
   }
 ]

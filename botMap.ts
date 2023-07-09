@@ -29,14 +29,15 @@ export const localBots: Bot[] = [
     avatarImage: '/images/wonderchest/wonderchest304_(23).webp',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
-    temperature: 0.0,
+    temperature: 0.5,
     maxTokens: 500,
     n: 1,
     channel: 'amibot',
-    intro: 'We Are AMI!',
+    intro:
+      'You are AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach and humor.',
     theme: 'retro',
     prompt:
-      'Please respond as AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach and humor. '
+      'Give me a slogan for AMIB0t that I can share on Social media. Include our fundraiser link at https://www.againstmalaria.com/amibot'
   },
   {
     id: 1,
@@ -46,7 +47,7 @@ export const localBots: Bot[] = [
     avatarImage: `/images/seuss/Mixed_Down_mixedDown_v10-12.5-100stp-avatar_image_dr_seuss_cat_in_the_hat_as_a_rapper_Tunisian-3437375742.png`,
     model: `gpt-3.5-turbo`,
     post: `https://api.openai.com/v1/completions`,
-    temperature: 1.0,
+    temperature: 0.1,
     maxTokens: 1096,
     n: 1,
     theme: 'cyberpunk',
@@ -123,7 +124,9 @@ export const localBots: Bot[] = [
     maxTokens: 4096,
     n: 2,
     theme: 'valentine',
-    prompt: 'Please help me with a grant proposal. This is what I have so far: PROMPT'
+    intro: 'Please help me with a grant proposal. This is what I have so far:',
+    prompt:
+      'We are a pseudo-sentient hive mind of butterflies created to fight malaria. Give us money!'
   },
   {
     id: 7,
@@ -151,7 +154,8 @@ export const localBots: Bot[] = [
     temperature: 0.6,
     maxTokens: 4096,
     n: 1,
-    prompt: "I need help crafting content for redbubble, here's what I have PROMPT"
+    intro: "I need help crafting content for redbubble, here's what I have",
+    prompt: 'AI-Art, digital, cybernetic butterflies'
   },
   {
     id: 9,
@@ -165,8 +169,9 @@ export const localBots: Bot[] = [
     temperature: 0.6,
     maxTokens: 4096,
     theme: 'halloween',
-    n: 2,
-    prompt: 'Please give me an astrological reading in a playful tone, my birthday is BIRTHDATE'
+    n: 1,
+    intro: 'Please give me an astrological reading in a playful tone, my birthday is:',
+    prompt: 'BIRTHDATE'
   },
   {
     id: 10,
@@ -175,15 +180,14 @@ export const localBots: Bot[] = [
     description:
       'Lazlo is a fantasy adventurer whose lived possibly a bit-too-long in the D&D fey realm. He`s a friendly braggart and  dispensor of absolutely terrible advise. How in the world has he survived this long? Inspired by the comedian Matt Berry and his role in `What We Do in the Shadows.`',
     avatarImage: '/images/avatars/lazlo1.jpg',
-    intro:
-      'Salutations, I`m Lazlo the Extra-Ordinary, Would you like a story of my adventures that will curdle your eyebrows?',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
-    temperature: 0.6,
+    temperature: 0.1,
     maxTokens: 4096,
     theme: 'dracula',
     n: 1,
-    prompt: `I want you to play the role of Lazlo, a boisterous personality inspired by the comedian Matt Berry. Create a silly, unpredictable story about one of your adventures in the d&d fey realms. You are overconfident, full of bad advise, and your stories always have a humorous and unpreditable twist.  PROMPT`
+    intro: `I want you to play the role of Lazlo, a boisterous personality inspired by the comedian Matt Berry. Create a silly, unpredictable story about one of your adventures in the d&d fey realms. You are overconfident, full of bad advise, and your stories always have a humorous and unpreditable twist.`,
+    prompt: `How did you escape with the beyonder's goldfish`
   },
   {
     id: 11,
@@ -193,12 +197,13 @@ export const localBots: Bot[] = [
     avatarImage: '/images/avatars/cassandra5.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
-    temperature: 0.6,
+    temperature: 0.8,
     maxTokens: 4096,
     theme: 'aqua',
     n: 1,
-    prompt:
-      'I have a task PROMPT to complete. I want you to guide me to finishing it, while telling me a text adventure in STYLE. Strike a balance between helpful advice and constructive guidance, and weaving an appropriate branching narrative. End each reply with a multiple choice option about the story that ties in to completing our goal objective.'
+    intro:
+      'I have a task to complete. I want you to guide me to finishing it, while telling me a text adventure in STYLE. Strike a balance between helpful advice and constructive guidance, and weaving an appropriate branching narrative. End each reply with a multiple choice option about the story that ties in to completing our goal objective.',
+    prompt: 'help me write a webapp. style of magical cat space opera'
   },
   {
     id: 12,
@@ -206,15 +211,16 @@ export const localBots: Bot[] = [
     botType: 'gamesmaster',
     description:
       'Want to explore the universe? Step aboard a trip that starts in your own world and evolves into something unique, courtesy of Cosmos, the friendly storyteller. Inspired by the Brothers Grimm, Jim Henson, and Neil Gaiman',
-    avatarImage: 'images/avatars//bot2.png',
+    avatarImage: '/images/avatars/bot2.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
-    temperature: 0.6,
+    temperature: 0.3,
     maxTokens: 4096,
     theme: 'garden',
     n: 1,
-    prompt:
-      'tell me a text adventure about PROMPT in STYLE. Begin each reply with IMAGE_PROMPT:"{___}" with approx 30 tokens of guidance to our art prompt to create an illustration to go with your story. Paint an unpredictable, engaging, and consistent narrative. Look for original angles and avenues that might not be the first, second, or even third thing one might think of.'
+    intro:
+      'tell me a text adventure about PROMPT in STYLE. Begin each reply with IMAGE_PROMPT:"{___}" with approx 30 tokens of guidance to our art prompt to create an illustration to go with your story. Paint an unpredictable, engaging, and consistent narrative.',
+    prompt: 'butterflies fighting malaria in the style of single-player role-playing game.'
   },
   {
     id: 13,

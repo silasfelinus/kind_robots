@@ -53,13 +53,9 @@ watchEffect(() => {
 })
 </script>
 <template>
-  <div class="relative flex flex-col p-8 bg-base overflow-auto h-screen">
-    <div class="flex items-center space-x-4"></div>
+  <div class="relative flex flex-col items-center p-8 bg-base overflow-auto h-screen">
     <div
-      class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
-    ></div>
-    <div
-      class="fixed top-8 left-8 bg-white bg-opacity-80 p-4 rounded-lg shadow-lg z-20 text-center"
+      class="fixed top-8 bg-white bg-opacity-80 p-4 rounded-lg shadow-lg z-20 text-center"
       style="backdrop-filter: blur(5px)"
     >
       <label for="botSelect" class="text-lg font-semibold mb-2 block">Kind Robots</label>
@@ -74,21 +70,25 @@ watchEffect(() => {
         </option>
       </select>
     </div>
-    <div class="mt-24 mx-auto max-w-3xl">
-      <transition-group name="list" tag="div" class="space-y-4">
+    <img class="w-48 h-48 mt-24 rounded-full" src="/images/kindtitle.webp" alt="Logo" />
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
+    ></div>
+    <div class="mt-24 mx-auto max-w-4xl">
+      <transition-group name="list" tag="div" class="space-y-2">
         <nuxt-link
           v-for="bot in bots"
           :id="`bot-${bot.id}`"
           :key="bot.id"
           :to="`/kindrobots/`"
           :style="{ backgroundColor: bot.theme }"
-          class="flex flex-col items-center justify-between w-full p-2 cursor-pointer mb-4 transition-colors ease-in-out duration-200"
+          class="flex flex-col items-center justify-between w-full p-2 cursor-pointer mb-2 transition-colors ease-in-out duration-200"
           :class="{
             'bg-accent text-secondary': activeBot && activeBot.id === bot.id,
             'bg-primary': !activeBot || activeBot.id !== bot.id
           }"
         >
-          <div @click="startScrolling(bot.id)">
+          <div :data-theme="bot.theme" @click="startScrolling(bot.id)">
             <img :src="bot.avatarImage" class="w-full h-96 object-cover rounded-lg" />
             <div class="bg-opacity-70 bg-primary text-accent p-2">
               <h2 class="mt-4 text-2xl font-semibold text-center">{{ bot.name }}</h2>
@@ -98,6 +98,7 @@ watchEffect(() => {
         </nuxt-link>
       </transition-group>
     </div>
+    <side-nav />
   </div>
 </template>
 

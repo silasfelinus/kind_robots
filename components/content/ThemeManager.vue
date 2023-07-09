@@ -1,5 +1,5 @@
 <template>
-  <div class="theme-selector bg-secondary-info p-4 rounded-md text-center">
+  <div class="theme-selector bg-secondary-info p-4 rounded-md text-center relative">
     <div class="mt-2 text-sm text-primary">Kind Theme</div>
     <button
       tabindex="0"

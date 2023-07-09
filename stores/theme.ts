@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 
 export const useThemeStore = defineStore('theme', {
   state: () => ({
-    currentTheme: 'emerald', // default theme
+    currentTheme: 'retro', // default theme
     botOverride: true, // new botOverride state
     themes: [
       'light',
@@ -25,7 +25,7 @@ export const useThemeStore = defineStore('theme', {
       'fantasy',
       'wireframe',
       'black',
-      // 'luxury',
+      'luxury',
       'dracula',
       'cmyk',
       'autumn',

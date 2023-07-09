@@ -11,14 +11,6 @@
     <!-- Main Content -->
     <main class="w-full sm:w-3/4 p-4 flex flex-col">
       <header class="text-2xl font-bold text-primary mb-4">
-        <div class="container mx-auto flex items-center justify-between">
-          <site-title />
-          <div class="flex items-center justify-end">
-            <ThemeManager>
-              <span class="mr-2">Change</span>
-            </ThemeManager>
-          </div>
-        </div>
         <slot name="title" />
       </header>
 

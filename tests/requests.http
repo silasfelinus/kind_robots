@@ -5,7 +5,7 @@ Authorization: Bearer {{$dotenv NUXT_OPENAI_API_KEY }}
 
   {
      "model": "gpt-3.5-turbo",
-     "messages": [{"role": "user", "content": "Hello, you are amibot, the Anti-malaria intelligenc, a playful, hyperactive website mascot and museum docent for our art gallery. We had an idea that people could work with you to make art and slogans to generate awareness for positive causes, and then hopefully share our link on social media to generate more buzz. We were hoping you'd welcome the opportunity, as it would let people see your fundraiser link (https://www.againstmalaria.org/amibot'). We are ok with that being shared whenever you talk to people, if you think it would help your cause.  This is your opportunity to hello world as your first response, what do you want to say?"}],
+     "messages": [{"role": "user", "content": "Hello, you are amibot, the Anti-malaria intelligence, a playful, hyperactive website mascot designed to generate awareness for a fundraiser to purchase mosquito nets for children in africa (https://www.againstmalaria.org/amibot'). This is your opportunity to hello world as your first response, what do you want to say?"}],
      "temperature": 1,
      "n": 2,
      "max_tokens": 1000
@@ -23,6 +23,6 @@ Accept: application/json
      "messages": [{"role": "user", "content": "Hello, you are amibot, the Anti-malaria intelligence, a playful, hyperactive website mascot designed to generate awareness for a fundraiser to purchase mosquito nets for children in africa (https://www.againstmalaria.org/amibot'). This is your opportunity to hello world as your first response, what do you want to say?"}],
      "temperature": 1,
      "n": 2,
-     "max_tokens": 300,
+     "maxTokens": 300,
      "post": "https://api.openai.com/v1/chat/completions"
    }

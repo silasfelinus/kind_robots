@@ -72,48 +72,35 @@
 </template>
 
 <script setup lang="ts">
-import { AxiosError } from 'axios'
 import { useBotsStore } from '../../stores/bots'
 
 const botsStore = useBotsStore()
 const activeBot = computed(() => botsStore.activeBot)
+let loading = ref(false)
 let sendDataSuccess = ref(false)
 let serverData = ref(null)
+let error = ref(null)
 
 const sendActiveBotData = async () => {
-  if (!activeBot.value) return
+  if (!activeBot.value || loading.value) return
 
-  const data = {
-    prompt: activeBot.value.prompt,
-    model: activeBot.value.model,
-    post: activeBot.value.post,
-    temperature: activeBot.value.temperature,
-    intro: activeBot.value.intro,
-    image: activeBot.value.image,
-    mask: activeBot.value.mask,
-    style: activeBot.value.style,
-    n: activeBot.value.n,
-    maxTokens: activeBot.value.maxTokens
-  }
+  loading.value = true
+  error.value = null
 
   try {
-    const response = await botsStore.sendData(data)
+    const response = await botsStore.sendData(activeBot.value)
     sendDataSuccess.value = true
     serverData.value = response.data
     console.log(response.data)
   } catch (error) {
     sendDataSuccess.value = false
-    if (error instanceof AxiosError) {
-      console.error(`Failed to send data: ${error.message}`)
-      if (error.response) {
-        console.error('Response:', error.response)
-      }
-    } else {
-      console.error('An unknown error occurred:', error)
-    }
+    console.log(error)
+  } finally {
+    loading.value = false
   }
 }
 </script>
+
 <style>
 body {
   font-family: Arial, sans-serif;

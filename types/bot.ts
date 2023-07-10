@@ -20,4 +20,5 @@ export interface Bot {
   training?: string
   channel?: string
   theme?: string
+  messages?: { role: string; content: string }[]
 }

@@ -119,14 +119,13 @@ model Message {
   id        Int      @id @default(autoincrement())
   content   String   @default("")
   role      String
-  channel   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Conversation {
   id          Int      @id @default(autoincrement())
-  channel        String
+  channel     String
   dateCreated DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

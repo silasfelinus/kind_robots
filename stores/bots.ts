@@ -62,10 +62,48 @@ export const useBotsStore = defineStore('bots', {
     getPrompt(botId: number): string {
       return this.prompts[botId] || ''
     },
-    async sendData(data: any) {
+    createChatbotMessages(bot: Bot) {
+      if (bot.botType === 'chatbot') {
+        console.log('Bot is of type chatbot. Creating messages...')
+        return [
+          {
+            role: 'system',
+            content: `You are a helpful ${bot.botType}.`
+          },
+          {
+            role: 'user',
+            content: bot.prompt
+          }
+        ]
+      }
+      console.log('Bot is not of type chatbot. No messages created.')
+      return []
+    },
+    async sendData(bot: Bot) {
       try {
-        const response = await axios.post('/api/botcafe/chat', data)
-        return response // This line is added to return the response
+        const messages = this.createChatbotMessages(bot)
+        const payload = {
+          model: 'gpt-3.5-turbo',
+          messages,
+          temperature: bot.temperature,
+          max_tokens: bot.maxTokens,
+          post: bot.post,
+          n: bot.n
+        }
+
+        console.log('Data being sent:', payload)
+        console.log(
+          `Sending data for bot ID ${bot.id} to https://kindrobots.org/api/botcafe/chat: `,
+          payload
+        )
+
+        const response = await axios.post('https://kindrobots.org/api/botcafe/chat', payload)
+        console.log(
+          'Received response from https://kindrobots.org/api/botcafe/chatchat: ',
+          response
+        )
+
+        return response
       } catch (error) {
         let errorMessage
         if (error instanceof AxiosError) {
@@ -75,6 +113,7 @@ export const useBotsStore = defineStore('bots', {
         } else {
           errorMessage = 'An unknown error occurred'
         }
+        console.error(errorMessage)
         throw new Error(errorMessage)
       }
     }

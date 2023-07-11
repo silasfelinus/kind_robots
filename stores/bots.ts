@@ -93,15 +93,12 @@ export const useBotsStore = defineStore('bots', {
 
         console.log('Data being sent:', payload)
         console.log(
-          `Sending data for bot ID ${bot.id} to https://kindrobots.org/api/botcafe/chat: `,
+          `Sending data for bot ID ${bot.id} to https://kindrobots.org/api/botcafe/chatbot: `,
           payload
         )
 
-        const response = await axios.post('https://kindrobots.org/api/botcafe/chat', payload)
-        console.log(
-          'Received response from https://kindrobots.org/api/botcafe/chatchat: ',
-          response
-        )
+        const response = await axios.post('https://kindrobots.org/api/botcafe/chatbot', payload)
+        console.log('Received response from https://kindrobots.org/api/botcafe/chatbot: ', response)
 
         return response
       } catch (error) {

@@ -23,8 +23,8 @@ const botsStore = useBotsStore()
 
 const props = defineProps({
   label: { type: String, default: 'Temperature' },
-  leftLabel: { type: String, default: 'Creativity' },
-  rightLabel: { type: String, default: 'Consistency' }
+  leftLabel: { type: String, default: 'Consistency' },
+  rightLabel: { type: String, default: 'Creativity' }
 })
 
 const value = computed({
@@ -34,22 +34,22 @@ const value = computed({
   }
 })
 const descriptions = [
-  '0.0: Maximum Creativity!',
-  '0.1: Prone to Flights of Fancy',
-  '0.2: A Little Bit Wild.',
-  '0.3: Thinks Outside the Box.',
-  '0.4: Dabbles in Creativity',
+  '0.0: Consistently Consistent',
+  '0.1: Nearly consistent.',
+  '0.2: Strongly consistent.',
+  '0.3: More-or-less dependable',
+  '0.4: Consistency takes the lead',
   '0.5: Perfect harmony',
-  '0.6: Consistency takes the lead',
-  '0.7: More-or-less dependable',
-  '0.8: Strongly consistent.',
-  '0.9: Nearly consistent.',
-  '1.0: Consistently Consistent'
+  '0.6: Dabbles in Creativity',
+  '0.7: Thinks Outside the Box.',
+  '0.8: A Little Bit Wild.',
+  '0.9: Prone to Flights of Fancy',
+  '1.0: Maximum Creativity!'
 ]
 const description = ref('')
 
 watchEffect(() => {
-  value.value = botsStore.activeBot.temperature ? botsStore.activeBot.temperature : 0
+  value.value = botsStore.activeBot.temperature ? botsStore.activeBot.temperature : 0.1
   description.value = descriptions[Math.round(value.value * 10)]
 })
 

@@ -15,50 +15,31 @@
             />
           </figure>
           <div class="w-full lg:w-auto">
-            <BotSelector :bots="bots" @bot-selected="onBotSelected" />
+            <div>
+              <label for="bot-selection" class="block text-sm font-medium text-gray-700"
+                >Select a Bot:</label
+              >
+              <select
+                id="bot-selection"
+                v-model="activeBotId"
+                name="bot-selection"
+                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                @change="onBotChange"
+              >
+                <option v-for="bot in bots" :key="bot.id" :value="bot.id">
+                  {{ bot.name }}
+                </option>
+              </select>
+            </div>
             <theme-manager />
           </div>
         </div>
         <div class="card-body flex-grow">
           <h1 class="text-5xl font-semibold mb-4 card-title">{{ activeBot.name }}</h1>
           <p class="mt-4 text-2xl">{{ activeBot.description }}</p>
-          <div class="w-40">
-            <label for="n-selection" class="block text-sm font-medium text-gray-700"
-              >Select Number of Iterations:</label
-            >
-            <select
-              id="n-selection"
-              v-model="activeBot.n"
-              name="n-selection"
-              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            >
-              <option v-for="n in 12" :key="n" :value="n">
-                {{ n }}
-              </option>
-            </select>
-          </div>
-          <div v-if="activeBot.size" class="mt-4">
-            <label for="size-selection" class="block text-sm font-medium text-gray-700">
-              Select Size:
-            </label>
-            <select
-              id="size-selection"
-              v-model="activeBot.size"
-              name="size-selection"
-              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            >
-              <option value="512x512">512x512</option>
-              <option value="768x768">768x768</option>
-              <option value="1028x1028">1028x1028</option>
-            </select>
-          </div>
-          <div
-            v-if="activeBot.model || activeBot.post || activeBot.size"
-            class="flex flex-wrap gap-2"
-          >
+          <div v-if="activeBot.model || activeBot.post" class="flex flex-wrap gap-2">
             <p v-if="activeBot.model" class="text-accent-700">Model: {{ activeBot.model }}</p>
             <p v-if="activeBot.post" class="text-accent-700">Post: {{ activeBot.post }}</p>
-            <p v-if="activeBot.size" class="text-accent-700">Size: {{ activeBot.size }}</p>
           </div>
           <div class="mt-4">
             <temperature-slider v-if="activeBot.temperature !== null" />
@@ -84,7 +65,8 @@
             <p>{{ activeBot.name }} is cogitating...</p>
           </div>
           <div v-if="response" class="mt-4 card-body">
-            <bot-response :responses="JSON.stringify(response)"></bot-response>
+            <h2 class="text-2xl font-semibold mb-4">Response:</h2>
+            <pre>{{ JSON.stringify(response, null, 2) }}</pre>
           </div>
           <div v-if="requestError" class="mt-4 text-red-600 card-body">
             <h2 class="text-2xl font-semibold mb-4">Error:</h2>
@@ -95,28 +77,33 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import axios from 'axios'
 import { useBotsStore } from '../../stores/bots'
 
 const botsStore = useBotsStore()
-// use computed() to create a reactive reference to the active bot in the store
-let activeBot = computed(() => botsStore.getActiveBot)
-
-let activeBotId = computed(() => (activeBot.value ? activeBot.value.id : null))
-
+const activeBot = ref(botsStore.activeBot)
+const activeBotId = ref(botsStore.getActiveBotId)
 const bots = ref(botsStore.getBots)
 const response = ref(null)
 const isLoading = ref(false)
 const requestError = ref<string | null>(null)
 
-const onBotSelected = (botId: number) => {
-  const bot = bots.value.find((bot) => bot.id === botId)
+const onBotChange = () => {
+  const bot = bots.value.find((bot) => bot.id === activeBotId.value)
   if (bot) {
+    activeBot.value = bot
     botsStore.setActiveBot(bot)
   }
 }
 
+const requestPayload = {
+  temperature: activeBot.value.temperature,
+  max_tokens: activeBot.value.maxTokens,
+  n: activeBot.value.n,
+  post: activeBot.value.post
+}
 const sendData = async () => {
   try {
     isLoading.value = true
@@ -124,13 +111,7 @@ const sendData = async () => {
       '/api/botcafe/chat',
       {
         model: activeBot.value.model || 'gpt-3.5-turbo',
-        requestPayload: {
-          temperature: activeBot.value.temperature,
-          max_tokens: activeBot.value.maxTokens,
-          n: activeBot.value.n,
-          post: activeBot.value.post,
-          size: activeBot.value.size
-        },
+        requestPayload,
         messages: [
           {
             role: 'system',

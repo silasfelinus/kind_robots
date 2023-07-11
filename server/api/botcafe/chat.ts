@@ -5,22 +5,20 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const { OPENAI_API_KEY } = useRuntimeConfig()
 
-    const requiredFields = ['messages', 'model', 'temperature', 'n', 'maxTokens', 'post']
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        throw new Error(`Missing data. Please make sure to provide ${field}.`)
-      }
-    }
-
     const data = {
       model: body.model || 'gpt-3.5-turbo',
-      messages: body.messages,
+      messages: body.messages || [
+        { role: 'user', content: 'write me a haiku about butterflies fighting malaria' }
+      ],
       temperature: body.temperature,
       max_tokens: body.maxTokens,
-      n: body.n
+      n: body.n,
+      stream: body.stream || false
     }
+    const post = body.post || 'https://api.openai.com/v1/chat/completions'
+    console.log('logging:', data)
 
-    const response = await axios.post('https://api.openai.com/v1/chat/completions', data, {
+    const response = await axios.post(post, data, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${OPENAI_API_KEY}`

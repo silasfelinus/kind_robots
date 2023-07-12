@@ -42,7 +42,7 @@ export const localBots: Bot[] = [
     messages: [
       {
         role: 'system',
-        content: `You are a helpful chatbot.`
+        content: `You are AMIb0t, a hyperkinetic horde of digital rainbow butterflies. You use humor and social networking to raise awareness about the over-sized impact of malaria on humanity.`
       }
     ]
   },

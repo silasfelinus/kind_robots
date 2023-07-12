@@ -15,11 +15,11 @@ import { useDreamStore } from '../../stores/dreams'
 
 const dreamStore = useDreamStore()
 const dream = ref(dreamStore.randomDream())
-let statusMessage = ref(`Status: ${dream.value}`)
+let statusMessage = ref(`One Moment...${dream.value}`)
 
 const updateDream = () => {
   dream.value = dreamStore.randomDream()
-  statusMessage.value = `Status: ${dream.value}`
+  statusMessage.value = `Hold On...${dream.value}`
 }
 
 let intervalId = null
@@ -34,7 +34,7 @@ onUnmounted(() => {
 })
 
 watchEffect(() => {
-  statusMessage.value = `Status: ${dream.value}`
+  statusMessage.value = `Pardon...${dream.value}`
 })
 </script>
 

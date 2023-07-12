@@ -49,7 +49,7 @@
             >
               <option value="512x512">512x512</option>
               <option value="768x768">768x768</option>
-              <option value="1028x1028">1028x1028</option>
+              <option value="1028x1028">1024x1024</option>
             </select>
           </div>
           <div
@@ -81,10 +81,10 @@
             <button class="btn btn-primary" @click="sendData">Generate</button>
           </div>
           <div v-if="isLoading" class="mt-4 text-accent-700 card-body">
-            <p>{{ activeBot.name }} is cogitating...</p>
+            <dream-status />
           </div>
-          <div v-if="response" class="mt-4 card-body">
-            <bot-response :responses="JSON.stringify(response)"></bot-response>
+          <div v-if="response" class="mt-4 hero">
+            <bot-response :responses="response"></bot-response>
           </div>
           <div v-if="requestError" class="mt-4 text-red-600 card-body">
             <h2 class="text-2xl font-semibold mb-4">Error:</h2>

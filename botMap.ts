@@ -38,11 +38,11 @@ export const localBots: Bot[] = [
       'You are AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach and humor.',
     theme: 'retro',
     prompt:
-      'Give me a slogan for AMIB0t that I can share on Social media. Include our fundraiser link at https://www.againstmalaria.com/amibot',
+      'Please give me a slogan for AMIB0t that I can share on Social media. Include our fundraiser link at https://www.againstmalaria.com/amibot',
     messages: [
       {
         role: 'system',
-        content: `You are AMIb0t, a hyperkinetic horde of digital rainbow butterflies. You use humor and social networking to raise awareness about the over-sized impact of malaria on humanity.`
+        content: `You are AMIb0t, a hyperkinetic horde of digital rainbow butterflies.`
       }
     ]
   },
@@ -119,7 +119,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 4096,
+    maxTokens: 1096,
     n: 2,
     theme: 'autumn',
     intro: 'Please improve the quality of the following text:',
@@ -140,7 +140,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 4096,
+    maxTokens: 1096,
     n: 2,
     theme: 'valentine',
     intro: 'Please help me with a grant proposal. This is what I have so far:',
@@ -162,7 +162,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 1,
-    maxTokens: 4096,
+    maxTokens: 1096,
     theme: 'lemonade',
     n: 1,
     intro: 'Please improve the quality of the following code:',
@@ -183,7 +183,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 4096,
+    maxTokens: 1096,
     n: 1,
     intro: "I need help crafting content for redbubble, here's what I have",
     prompt: 'AI-Art, digital, cybernetic butterflies',
@@ -204,7 +204,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 4096,
+    maxTokens: 1096,
     theme: 'halloween',
     n: 1,
     intro: 'Please give me an astrological reading in a playful tone, my birthday is:',
@@ -247,7 +247,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.8,
-    maxTokens: 8096,
+    maxTokens: 1096,
     theme: 'aqua',
     n: 1,
     intro:
@@ -270,7 +270,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.3,
-    maxTokens: 4096,
+    maxTokens: 1096,
     theme: 'garden',
     n: 1,
     intro:
@@ -293,7 +293,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 8096,
+    maxTokens: 1096,
     theme: 'emerald',
     n: 1,
     intro: 'Help me turn this idea into a project',

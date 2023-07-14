@@ -13,6 +13,13 @@ export default defineNuxtConfig({
     enabled: false
   },
   app: {
-    layoutTransition: { name: 'default', mode: 'out-in' }
+    pageTransition: {
+      name: 'rotate',
+      mode: 'out-in' // default
+    },
+    layoutTransition: {
+      name: 'bounce',
+      mode: 'out-in' // default
+    }
   }
 })

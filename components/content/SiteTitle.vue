@@ -5,15 +5,5 @@
         <img class="w-32 h-32" src="/images/kindtitle.webp" alt="Logo" />
       </nuxt-link>
     </div>
-    <div class="space-x-4">
-      <side-nav />
-    </div>
   </header>
 </template>
-
-<script setup>
-const pageTitle = ref('')
-
-const route = useRoute()
-const router = useRouter()
-</script>

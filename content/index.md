@@ -6,8 +6,7 @@ image: backtree.webp
 gallery: wonderbot
 ---
 
-:side-nav
-:bot-prompt
+:bot-card
 
 # 🤖 Hello, Human Friend! Welcome to Kind Robots! 🌍
 

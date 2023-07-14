@@ -22,6 +22,8 @@
 </template>
 
 <script setup>
+import { useRandomColor } from '../../composables/useRandomColor'
+
 const bubbles = ref([])
 const MAX_BUBBLES = 50
 

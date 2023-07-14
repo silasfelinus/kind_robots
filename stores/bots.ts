@@ -1,9 +1,15 @@
 /* eslint-disable @typescript-eslint/indent */
 // store/bots.ts
 import { defineStore } from 'pinia'
+import axios from 'axios'
 import { Bot } from '../types/bot'
 import { localBots } from '../botMap'
 import { useThemeStore } from './theme'
+
+interface Message {
+  role: string
+  content: string
+}
 
 export const useBotsStore = defineStore('bots', {
   state: () => ({
@@ -30,9 +36,50 @@ export const useBotsStore = defineStore('bots', {
     }
   },
   actions: {
+    async sendChat(bot: Bot) {
+      if (!bot.messages) {
+        console.error('No messages, are you sure this is the right api?')
+        return
+      }
+
+      const CHAT_URL = '/api/botcafe/chat'
+
+      // create API payload
+      const apiPayload = {
+        messages: bot.messages || [{ role: 'user', content: 'you are AMIbot a helpful chatbot' }],
+        model: bot.model || 'gpt-3.5-turbo',
+        maxTokens: bot.maxTokens || 100,
+        temperature: bot.temperature || 0.0,
+        n: bot.n || 1
+      }
+
+      // send the API request
+      try {
+        const response = await axios.post(CHAT_URL, apiPayload, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+
+        // check if response data or choices in response data is undefined
+        if (!response.data) {
+          console.error('Received unexpected data:', response)
+          return
+        }
+        return response.data
+      } catch (error) {
+        console.error('Error sending chat:', error)
+      }
+    },
+    addMessage(message: Message) {
+      if (this.activeBot.messages) this.activeBot.messages = [...this.activeBot.messages, message]
+    },
+    addUserMessage(content: string) {
+      if (this.activeBot.messages)
+        this.activeBot.messages = [...this.activeBot.messages, { role: 'user', content }]
+    },
     setActiveBot(bot: Bot) {
       this.activeBot = bot
-      this.activeBotId = bot.id
 
       const themeStore = useThemeStore()
 
@@ -43,8 +90,17 @@ export const useBotsStore = defineStore('bots', {
     setActiveBotId(id: number) {
       this.activeBotId = id
       const bot = this.bots.find((bot) => bot.id === id)
-      if (bot) this.setActiveBot(bot)
+      if (bot) {
+        this.activeBot = bot
+
+        const themeStore = useThemeStore()
+
+        if (bot.theme) {
+          themeStore.changeTheme(bot.theme)
+        }
+      }
     },
+
     setBots(bots: Bot[]) {
       this.bots = bots
     },

@@ -6,5 +6,4 @@ image: botcafe.png
 gallery: wonderbots
 ---
 
-:side-nav
-:bot-prompt
+:bot-card

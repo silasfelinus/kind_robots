@@ -151,9 +151,9 @@ model User {
 }
 
 enum Role {
-  ADMIN
+  SYSTEM
   USER
-  GUEST
+  ASSISTANT
 }
 
 model Wildcard {

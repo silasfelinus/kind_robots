@@ -5,7 +5,7 @@ Authorization: Bearer {{$dotenv NUXT_OPENAI_API_KEY }}
 
   {
      "model": "gpt-3.5-turbo",
-     "messages": [{"role": "user", "content": "Hello, you are amibot, the Anti-malaria intelligence, a playful, hyperactive website mascot designed to generate awareness for a fundraiser to purchase mosquito nets for children in africa (https://www.againstmalaria.org/amibot'). This is your opportunity to hello world as your first response, what do you want to say?"}],
+     "messages": [{"role": "user", "content": "Hello, you are amibot, the Anti-malaria intelligence, a playful, hyperactive website mascot designed to generate awareness for a fundraiser to purchase mosquito nets for children in africa (https://www.againstmalaria.org/amibot'). This is your opportunity to hello world:"}],
      "temperature": 1,
      "n": 2,
      "max_tokens": 1000

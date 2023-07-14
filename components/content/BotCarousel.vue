@@ -1,36 +1,32 @@
 <template>
-  <div class="relative flex flex-col items-center p-2 bg-base overflow-auto h-screen">
+  <div class="relative flex flex-col items-center p-8 bg-base overflow-auto h-screen">
     <div
       class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     ></div>
-    <div class="mx-2 my-2">
-      <transition-group name="list" tag="div" class="space-y-2">
+    <div class="mt-24 mx-auto max-w-4xl">
+      <div class="h-96 carousel carousel-vertical rounded-box">
         <div
           v-for="bot in bots"
           :id="`bot-${bot.id}`"
           :key="bot.id"
-          :style="{ backgroundColor: bot.theme }"
-          class="flex flex-col items-center justify-between w-full cursor-pointer transition-colors ease-in-out duration-200"
+          class="carousel-item h-full cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
             'bg-accent text-secondary': activeBot && activeBot.id === bot.id,
             'bg-primary': !activeBot || activeBot.id !== bot.id
           }"
           @click="setActiveBot(bot)"
         >
-          <div :data-theme="bot.theme" class="rounded-lg m-1">
-            <img :src="bot.avatarImage" class="w-full h-96 object-cover rounded-lg" />
-            <div class="bg-opacity-70 bg-primary text-accent p-1">
-              <h2 class="mt-1 text-xl font-semibold text-center">{{ bot.name }}</h2>
-              <p class="mt-1 text-center">{{ bot.description }}</p>
-            </div>
+          <img :src="bot.avatarImage" class="w-full h-full object-cover rounded-lg" />
+          <div :data-theme="bot.theme" class="bg-opacity-70 bg-primary text-accent p-2">
+            <h2 class="mt-4 text-2xl font-semibold text-center">{{ bot.name }}</h2>
+            <p class="mt-2 text-center">{{ bot.description }}</p>
           </div>
         </div>
-      </transition-group>
+      </div>
     </div>
     <side-nav />
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { useBotsStore } from '../../stores/bots'

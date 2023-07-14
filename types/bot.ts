@@ -21,4 +21,5 @@ export interface Bot {
   channel?: string
   theme?: string
   messages?: { role: string; content: string }[]
+  choices?: string[]
 }

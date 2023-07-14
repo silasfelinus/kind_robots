@@ -1,3 +1,5 @@
+// server/api/botcafe/chat.ts
+
 import axios, { AxiosError } from 'axios'
 
 export default defineEventHandler(async (event) => {
@@ -25,7 +27,7 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    return response.data.choices
+    return response.data
   } catch (error) {
     let errorMessage = 'An error occurred while creating the channel.'
     if (axios.isAxiosError(error)) {

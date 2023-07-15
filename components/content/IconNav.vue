@@ -1,51 +1,72 @@
 <template>
   <div
-    class="flex items-center justify-center w-full md:flex-grow mb-2 md:mb-0 space-x-3 text-lg md:text-2xl"
+    class="icon-container flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent-100"
   >
-    <icon-button
-      icon="emojione:butterfly"
-      title="Kind Butterflies"
-      :active="showAmiSwarm"
-      :class="{
-        glow: showAmiSwarm
-      }"
+    <div
+      class="icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
       @click="toggleAmiSwarm"
-    />
-    <icon-button
-      icon="twemoji:cloud-with-rain"
-      title="Kind Weather"
-      :active="showRainEffect"
-      :class="{ glow: showRainEffect }"
+    >
+      <icon
+        name="emojione:butterfly"
+        title="Kind Butterflies"
+        :active="fxStore.showAmiSwarm"
+        :class="{ glow: fxStore.showAmiSwarm }"
+        class="w-6 h-6 md:w-8 md:h-8"
+      />
+    </div>
+    <div
+      class="icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
       @click="toggleRainEffect"
-    />
-    <icon-button
-      icon="icon-park:soap-bubble"
-      title="Kind Bubbles"
-      :active="showSoapBubbles"
-      :class="{ glow: showSoapBubbles }"
+    >
+      <icon
+        name="twemoji:cloud-with-rain"
+        title="Kind Weather"
+        :active="fxStore.showRainEffect"
+        :class="{ glow: fxStore.showRainEffect }"
+        class="w-6 h-6 md:w-8 md:h-8"
+      />
+    </div>
+    <div
+      class="icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
       @click="toggleSoapBubbles"
-    />
+    >
+      <icon
+        name="icon-park:soap-bubble"
+        title="Kind Bubbles"
+        :active="fxStore.showSoapBubbles"
+        :class="{ glow: fxStore.showSoapBubbles }"
+        class="w-6 h-6 md:w-8 md:h-8"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const showAmiSwarm = ref(false)
-const showRainEffect = ref(false)
-const showSoapBubbles = ref(false)
+import { useFxStore } from '@/stores/fx'
 
-const toggleAmiSwarm = () => {
-  showAmiSwarm.value = !showAmiSwarm.value
-}
-const toggleRainEffect = () => {
-  showRainEffect.value = !showRainEffect.value
-}
-const toggleSoapBubbles = () => {
-  showSoapBubbles.value = !showSoapBubbles.value
-}
+const fxStore = useFxStore()
+
+const toggleAmiSwarm = () => fxStore.toggleAmiSwarm()
+const toggleRainEffect = () => fxStore.toggleRainEffect()
+const toggleSoapBubbles = () => fxStore.toggleSoapBubbles()
 </script>
-
 <style scoped>
+.icon-box {
+  /* existing styles... */
+  border-radius: 50%;
+}
+
 .glow {
-  text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #fff;
+  animation: glow 1s ease-in-out infinite alternate;
+  border-radius: 50%;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px #ffcc00, 0 0 10px #ffcc00, 0 0 15px #ffcc00, 0 0 20px #ffcc00;
+  }
+  to {
+    box-shadow: 0 0 10px #ffaa00, 0 0 20px #ffaa00, 0 0 30px #ffaa00, 0 0 40px #ffaa00;
+  }
 }
 </style>

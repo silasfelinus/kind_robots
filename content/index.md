@@ -5,8 +5,7 @@ layout: default
 image: backtree.webp
 gallery: wonderbot
 ---
-
-:bot-card
+:bot-gallery
 
 # 🤖 Hello, Human Friend! Welcome to Kind Robots! 🌍
 

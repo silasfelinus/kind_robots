@@ -4,17 +4,15 @@
   >
     <!-- Left Section -->
     <div class="flex justify-start items-center space-x-2">
-      <avatar-image class="w-20 h-20 rounded-full" />
+      <avatar-image class="w-20 h-20 p-2 rounded-full" />
     </div>
 
     <!-- Center Section -->
-    <div class="flex justify-center items-center flex-grow">
-      <bot-selector />
-    </div>
+    <div class="flex justify-center items-center flex-grow"><h2>Kind Robots</h2></div>
 
     <!-- Right Section -->
     <div class="flex justify-end items-center space-x-2 flex-shrink-0">
-      <theme-manager />
+      <icon-nav />
     </div>
   </header>
 </template>

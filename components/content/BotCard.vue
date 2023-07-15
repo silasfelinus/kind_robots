@@ -1,5 +1,5 @@
 <template>
-  <div class="bot-prompt"><bot-details /><slot /></div>
+  <div class="bot-prompt"><bot-display /><slot /></div>
 </template>
 <style>
 .slider {

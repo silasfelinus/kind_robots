@@ -20,6 +20,7 @@ import { Bot } from './types/bot'
 // intro?: string
 // size?: string
 // messages?: {[role: String, content:string]}
+// isUnderConstruction? : false
 
 export const localBots: Bot[] = [
   {
@@ -31,7 +32,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.5,
-    maxTokens: 500,
+    maxTokens: 300,
     n: 1,
     channel: 'amibot',
     intro:
@@ -55,7 +56,7 @@ export const localBots: Bot[] = [
     model: `gpt-3.5-turbo`,
     post: `https://api.openai.com/v1/completions`,
     temperature: 0.1,
-    maxTokens: 1096,
+    maxTokens: 200,
     n: 1,
     theme: 'cyberpunk',
     intro: `Hi Seussbot! Please give me a rap about:`,
@@ -63,7 +64,7 @@ export const localBots: Bot[] = [
     messages: [
       {
         role: 'system',
-        content: `You are SeussBot, a children's rapbot.`
+        content: `You are SeussBot, a children's rapbot. Return all rhymes with optimal stylization and formatting.`
       }
     ]
   },
@@ -78,7 +79,8 @@ export const localBots: Bot[] = [
     size: '512x512',
     theme: 'cupcake',
     intro: `Please give me art about:`,
-    prompt: 'butterflies fighting mosquitos and really kicking their butts'
+    prompt: 'butterflies fighting mosquitos and really kicking their butts',
+    isUnderConstruction: true
   },
   {
     id: 3,
@@ -94,7 +96,8 @@ export const localBots: Bot[] = [
     size: '1024x1024',
     theme: 'corporate',
     intro: `upload file here:`,
-    prompt: 'FILEUPLOAD'
+    prompt: 'FILEUPLOAD',
+    isUnderConstruction: true
   },
   {
     id: 4,
@@ -108,7 +111,8 @@ export const localBots: Bot[] = [
     size: '1024x1024',
     theme: 'pastel',
     intro: 'please give me variations of the following image',
-    prompt: `FILEUPLOAD`
+    prompt: `FILEUPLOAD`,
+    isUnderConstruction: true
   },
   {
     id: 5,
@@ -140,7 +144,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 1096,
+    maxTokens: 500,
     n: 2,
     theme: 'valentine',
     intro: 'Please help me with a grant proposal. This is what I have so far:',
@@ -162,7 +166,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 1,
-    maxTokens: 1096,
+    maxTokens: 500,
     theme: 'lemonade',
     n: 1,
     intro: 'Please improve the quality of the following code:',
@@ -183,7 +187,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 1096,
+    maxTokens: 400,
     n: 1,
     intro: "I need help crafting content for redbubble, here's what I have",
     prompt: 'AI-Art, digital, cybernetic butterflies',
@@ -204,7 +208,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 1096,
+    maxTokens: 400,
     theme: 'halloween',
     n: 1,
     intro: 'Please give me an astrological reading in a playful tone, my birthday is:',
@@ -226,7 +230,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 1,
-    maxTokens: 1096,
+    maxTokens: 400,
     theme: 'dracula',
     n: 1,
     intro: `I want you to play the role of Lazlo, a boisterous personality inspired by the comedian Matt Berry. Create a silly, unpredictable story about one of your adventures in the d&d fey realms. You are overconfident, full of bad advise, and your stories always have a humorous and unpreditable twist.`,
@@ -247,7 +251,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.8,
-    maxTokens: 1096,
+    maxTokens: 500,
     theme: 'aqua',
     n: 1,
     intro:
@@ -270,7 +274,7 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.3,
-    maxTokens: 1096,
+    maxTokens: 400,
     theme: 'garden',
     n: 1,
     intro:
@@ -293,11 +297,12 @@ export const localBots: Bot[] = [
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 1096,
+    maxTokens: 400,
     theme: 'emerald',
     n: 1,
     intro: 'Help me turn this idea into a project',
     prompt: 'PROMPT',
+    isUnderConstruction: true,
     messages: [
       {
         role: 'system',

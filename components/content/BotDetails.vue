@@ -5,7 +5,7 @@
     <div v-if="activeBot" class="col-span-full lg:col-span-1 flex flex-col">
       <div class="card bg-base-100 text-base-content shadow-xl flex-grow overflow-auto">
         <div class="flex flex-col lg:flex-row items-stretch">
-          <avatar-image :src="activeBot.avatarImage" class="object-contain w-full lg:w-1/2" />
+          <avatar-image />
         </div>
         <theme-manager />
         <div class="card-body flex-grow overflow-auto">

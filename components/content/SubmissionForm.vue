@@ -3,7 +3,7 @@
     <div class="bg-white max-w-md mx-auto rounded-xl shadow-lg p-10 space-y-5">
       <h1 class="text-4xl font-bold text-center text-indigo-600 mb-10">Hair by Superkate!</h1>
       <div class="flex justify-center mb-5">
-        <img src="/logo.png" alt="logo" class="h-14 w-auto" />
+        <site-logo />
       </div>
       <form class="space-y-5">
         <label class="block text-gray-700">

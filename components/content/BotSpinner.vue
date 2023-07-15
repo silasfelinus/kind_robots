@@ -3,6 +3,8 @@
     <div
       class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     ></div>
+    <bot-selector />
+    <theme-manager />
     <div class="mx-2 my-2">
       <transition-group name="list" tag="div" class="space-y-2">
         <div
@@ -30,7 +32,6 @@
     <side-nav />
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { useBotsStore } from '../../stores/bots'

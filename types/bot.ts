@@ -22,4 +22,5 @@ export interface Bot {
   theme?: string
   messages?: { role: string; content: string }[]
   choices?: string[]
+  isUnderConstruction?: boolean
 }

@@ -2,9 +2,7 @@
   <div class="h-screen flex flex-col sm:flex-row">
     <!-- Left Sidebar -->
     <aside class="w-full sm:w-1/4 bg-secondary-200 p-4 flex flex-col">
-      <header class="mb-4">
-        <bot-spinner />
-      </header>
+      <header class="mb-4"></header>
       <div class="flex-grow overflow-auto"></div>
     </aside>
 

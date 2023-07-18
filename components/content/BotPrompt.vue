@@ -15,7 +15,7 @@
         ></textarea>
         <!-- Button for sending the prompt -->
         <div class="card-actions justify-end">
-          <button class="btn btn-primary" @click="sendData">Generate</button>
+          <button class="btn btn-accent" @click="sendData">Generate</button>
         </div>
         <!-- Loading state -->
         <div v-if="isLoading" class="mt-4 text-accent-700 card-body">
@@ -107,6 +107,21 @@ const sendData = async () => {
       }
     })
 
+    // Add the user prompt to the active bot message array and database
+    const userMessage = activeBot.value.intro + prompt.value
+    botsStore.addUserMessage(userMessage)
+    await addUserMessageToDB(userMessage)
+
+    // ...
+
+    // Add the responses to the active bot message array and database
+    const botMessages = data.choices.map((choice) => ({
+      role: 'assistant',
+      content: choice.message.content
+    }))
+    botsStore.addMessages(botMessages)
+    await addBotMessageToDB(botMessages)
+
     // check if response data or choices in response data is undefined
     if (!data || !data.choices || !data.choices.length) {
       console.error('Received unexpected data:', data)
@@ -114,7 +129,14 @@ const sendData = async () => {
     }
 
     // Set the response value
-    response.value = data.choices[0].message.content
+    // Assuming response.value is an array of strings
+    response.value = data.choices.map((choice) => choice.message.content)
+    botsStore.addMessages(
+      data.choices.map((choice) => ({
+        role: 'assistant',
+        content: choice.message.content
+      }))
+    )
   } catch (error) {
     console.error('Error sending chat:', error)
     return error
@@ -126,4 +148,32 @@ const sendData = async () => {
 watchEffect(() => {
   activeBot.value = botsStore.getActiveBot
 })
+
+const DB_URL = '/api/messages/post'
+
+const addUserMessageToDB = async (message: Message) => {
+  try {
+    await axios.post(`${DB_URL}/user-messages`, {
+      data: {
+        botId: activeBot.value.id,
+        message
+      }
+    })
+  } catch (error) {
+    console.error('Error storing user message:', error)
+  }
+}
+
+const addBotMessageToDB = async (messages: Message[]) => {
+  try {
+    await axios.post(`${DB_URL}/bot-messages`, {
+      data: {
+        botId: activeBot.value.id,
+        messages
+      }
+    })
+  } catch (error) {
+    console.error('Error storing bot messages:', error)
+  }
+}
 </script>

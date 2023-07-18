@@ -1,11 +1,11 @@
 <template>
-  <div class="card bg-base-100 text-base-content shadow-xl overflow-auto p-4 rounded-lg">
-    <div class="inner-card bg-primary text-secondary p-4 rounded-lg flex flex-col items-center">
-      <h3 class="text-xl font-bold mb-2">{{ bot.name }}</h3>
-      <p>Bot ID: {{ bot.id }} / {{ totalBots }}</p>
-      <p>{{ randomMessage }}</p>
-      <div class="mt-4 flex items-center">
-        <site-logo class="mr-2" />
+  <div class="card">
+    <div class="inner-card">
+      <h3 class="font-bold text-sm sm:text-base mb-2">{{ bot.name }}</h3>
+      <p class="text-xs sm:text-sm">Bot: {{ bot.id + 1 }} / {{ totalBots }}</p>
+      <p class="text-xs sm:text-sm">{{ randomMessage }}</p>
+      <div class="mt-2 flex justify-center">
+        <site-logo class="w-4 h-4 sm:w-6 sm:h-6" />
       </div>
     </div>
   </div>
@@ -38,19 +38,27 @@ let randomMessage = ref(randomMessages[Math.floor(Math.random() * randomMessages
 
 <style scoped>
 .card {
+  background-color: var(--bg-base-100);
+  color: var(--text-base-content);
+  box-shadow: var(--shadow-xl);
+  overflow: auto;
+  padding: 1rem;
+  border-radius: var(--rounded-lg);
   display: flex;
-  align-items: center;
   justify-content: center;
-  text-align: center;
+  align-items: center;
 }
 
 .inner-card {
-  width: 100%;
-  height: 100%;
+  background-color: var(--bg-base);
+  padding: 1rem;
+  border-radius: var(--rounded-lg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  max-width: 20rem;
   text-align: center;
 }
 </style>

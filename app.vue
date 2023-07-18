@@ -5,9 +5,11 @@
       <bot-header />
     </header>
 
-    <div class="flex flex-col md:flex-row flex-grow">
+    <div class="flex flex-col md:flex-row flex-grow overflow-hidden">
       <!-- Left aside (bot spinner) -->
-      <aside class="flex flex-col w-full md:w-1/4 md:max-w-xs p-2 border-r border-gray-300">
+      <aside
+        class="flex flex-col w-full md:w-1/4 md:max-w-xs p-2 border-r border-gray-300 overflow-auto"
+      >
         <transition name="slide-fade" class="flex-grow">
           <bot-spinner v-if="showLeftAside" />
         </transition>
@@ -28,11 +30,12 @@
         <transition name="slide-fade">
           <bot-prompt v-if="showRightAside" />
         </transition>
+        <div><image-nav /></div>
       </aside>
     </div>
 
     <!-- Collapsible footer -->
-    <footer class="p-4 border-t">
+    <footer class="p-4 border-t flex-shrink-0">
       <dream-status />
     </footer>
 

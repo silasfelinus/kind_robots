@@ -1,6 +1,6 @@
 <template>
   <header
-    class="w-full flex items-center justify-between bg-primary py-1 px-2 md:px-4 h-16 md:h-20"
+    class="w-full flex items-center justify-between bg-base-100 py-1 px-2 md:px-4 h-16 md:h-20"
   >
     <!-- Left Section -->
     <div class="flex justify-start items-center space-x-2">
@@ -8,7 +8,7 @@
     </div>
 
     <!-- Center Section -->
-    <div class="flex justify-center items-center flex-grow"><h2>Kind Robots</h2></div>
+    <h2 class="text-2xl font-semibold mb-4">Kind Robots</h2>
 
     <!-- Right Section -->
     <div class="flex justify-end items-center space-x-2 flex-shrink-0">

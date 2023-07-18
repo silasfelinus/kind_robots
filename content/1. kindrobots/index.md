@@ -6,4 +6,4 @@ image: botcafe.png
 gallery: wonderbots
 ---
 
-:bot-card
+:flip-card

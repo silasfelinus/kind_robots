@@ -4,6 +4,7 @@ import { Bot } from './types/bot'
 // id: number
 // name: string
 // botType: string
+// subtitle?: string
 // description: string
 // avatarImage: string
 // prompt: string
@@ -27,8 +28,9 @@ export const localBots: Bot[] = [
     id: 0,
     name: 'AMIb0t',
     botType: 'chatbot',
-    description: 'Raising awareness to purchase mosquito nets for children in africa',
-    avatarImage: '/images/wonderchest/wonderchest304_(23).webp',
+    subtitle: 'Philanthropic Hivemind',
+    description: 'On a mission to get mosquito nets to children in Africa',
+    avatarImage: '/images/amibot/amibotsquare1.webp',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.5,
@@ -51,6 +53,7 @@ export const localBots: Bot[] = [
     id: 1,
     name: `Seussb0t`,
     botType: `rapbot`,
+    subtitle: 'Rapping Rhymer',
     description: `Give me a topic, and I will write a seuss-worthy rap`,
     avatarImage: `/images/seuss/Mixed_Down_mixedDown_v10-12.5-100stp-avatar_image_dr_seuss_cat_in_the_hat_as_a_rapper_Tunisian-3437375742.png`,
     model: `gpt-3.5-turbo`,
@@ -70,63 +73,55 @@ export const localBots: Bot[] = [
   },
   {
     id: 2,
-    name: 'Pictureb0t',
-    botType: 'picturebot',
-    description: 'I turn words into pictures',
-    avatarImage: '/images/amibot/amibot2.png',
-    post: 'https://api.openai.com/v1/images/generations',
+    name: 'Brainb0t',
+    botType: 'chatbot',
+    subtitle: 'Brainstorm Maven',
+    description: 'I brainstorm creative ideas',
+    avatarImage: '/images/avatars/brain1.png',
+    model: `gpt-3.5-turbo`,
+    post: `https://api.openai.com/v1/completions`,
     n: 4,
-    size: '512x512',
-    theme: 'cupcake',
-    intro: `Please give me art about:`,
-    prompt: 'butterflies fighting mosquitos and really kicking their butts',
-    isUnderConstruction: true
+    theme: 'corporate',
+    intro: `Please give me:`,
+    prompt: 'dreams a robot might have about color',
+    messages: [
+      {
+        role: 'system',
+        content: `You are BraistormBot, a creative brainstorm assistant. Unless specified, keep sugestions short, witty, and unique.`
+      }
+    ]
   },
   {
     id: 3,
-    name: 'Artb0t',
-    botType: 'editbot',
-    description: "Send me your inspiration image, and tell me what you want to do with it'",
-    avatarImage: '/images/amibot/amibot3.png',
-    model: 'gpt-3.5-turbo',
-    post: 'https://api.openai.com/v1/images/edits',
-    image: 'IMAGE',
-    mask: 'MASK',
-    n: 2,
-    size: '1024x1024',
-    theme: 'corporate',
-    intro: `upload file here:`,
-    prompt: 'FILEUPLOAD',
-    isUnderConstruction: true
-  },
-  {
-    id: 4,
     name: 'VariationBot',
     botType: 'variantbot',
+    subtitle: 'Image Remixerr',
     description: "Send me an image, and I'll tweak the concept",
-    avatarImage: '/images/avatars/variant.webp',
+    avatarImage: '/images/avatars/variant3.png',
     post: 'https://api.openai.com/v1/images/variations',
     image: 'IMAGE',
     n: 4,
-    size: '1024x1024',
+    mask: 'MASK',
+    size: '1028x1028',
     theme: 'pastel',
     intro: 'please give me variations of the following image',
     prompt: `FILEUPLOAD`,
     isUnderConstruction: true
   },
   {
-    id: 5,
+    id: 4,
     name: 'Punch-Up Bot',
-    botType: 'editorbot',
-    description: "I'm here to make your words shine.",
-    avatarImage: '/images/avatars/bot8.png',
+    botType: 'chatbot',
+    subtitle: 'Text Improver',
+    description: 'I turn words into masterpieces',
+    avatarImage: '/images/avatars/writer1.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 1096,
+    maxTokens: 500,
     n: 2,
     theme: 'autumn',
-    intro: 'Please improve the quality of the following text:',
+    intro: 'Please improve the following text:',
     prompt: 'There once was a digital butterfly...',
     messages: [
       {
@@ -136,15 +131,16 @@ export const localBots: Bot[] = [
     ]
   },
   {
-    id: 6,
+    id: 5,
     name: 'Grant Bot',
     botType: 'GrantWritingBot',
+    subtitle: 'Grant Writer',
     description: 'I`m here to help you craft grant letters.',
     avatarImage: '/images/avatars/cafepurr01.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 500,
+    maxTokens: 200,
     n: 2,
     theme: 'valentine',
     intro: 'Please help me with a grant proposal. This is what I have so far:',
@@ -158,11 +154,27 @@ export const localBots: Bot[] = [
     ]
   },
   {
+    id: 6,
+    name: 'Artb0t',
+    botType: 'artbot',
+    subtitle: 'Text-to-Art Generator',
+    description: 'I turn words into art',
+    avatarImage: '/images/avatars/variant1.png',
+    post: 'https://api.openai.com/v1/images/generations',
+    n: 4,
+    size: '512x512',
+    theme: 'cupcake',
+    intro: `Please give me art about:`,
+    prompt: 'butterflies fighting mosquitos and really kicking their butts',
+    isUnderConstruction: true
+  },
+  {
     id: 7,
-    name: 'Punch-Up-Code Bot',
+    name: 'Punch-Up CodeBot',
     botType: 'codebot',
+    subtitle: 'Coder Improver',
     description: 'Send me your Code, and we`ll make it better.',
-    avatarImage: '/images/avatars/bot5.png',
+    avatarImage: '/images/avatars/code1.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 1,
@@ -182,12 +194,13 @@ export const localBots: Bot[] = [
     id: 8,
     name: 'Redbubble Bot',
     botType: 'redbubble',
-    description: 'Redbubble But is here to help you create captivating product descriptions.',
-    avatarImage: '/images/avatars/bot9.png',
+    subtitle: 'Multilingual Tag & Copy Writer',
+    description: 'Helping craft captivating product descriptions.',
+    avatarImage: '/images/avatars/bubble2.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 400,
+    maxTokens: 200,
     n: 1,
     intro: "I need help crafting content for redbubble, here's what I have",
     prompt: 'AI-Art, digital, cybernetic butterflies',
@@ -202,13 +215,14 @@ export const localBots: Bot[] = [
     id: 9,
     name: 'Cassandra',
     botType: 'psychic',
+    subtitle: 'Deadpan Tarot',
     description:
       'Cassandra is a deadpan fortune teller inspired by Steven Wright, Rob Brezney, and Steve Martin. Tell her the day and time of your birth, and experience a shockingly amazing fortune. Or a fortune, at least. ',
-    avatarImage: '/images/avatars/cassandra-avatar.png',
+    avatarImage: '/images/avatars/psychic1.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 400,
+    maxTokens: 200,
     theme: 'halloween',
     n: 1,
     intro: 'Please give me an astrological reading in a playful tone, my birthday is:',
@@ -224,21 +238,22 @@ export const localBots: Bot[] = [
     id: 10,
     name: 'Lazlo',
     botType: 'storyteller',
+    subtitle: 'Fantasy Storyteller',
     description:
       'Lazlo is a fantasy adventurer whose lived possibly a bit-too-long in the D&D fey realm. He`s a friendly braggart and  dispensor of absolutely terrible advise. How in the world has he survived this long? Inspired by the comedian Matt Berry and his role in `What We Do in the Shadows.`',
-    avatarImage: '/images/avatars/lazlo1.jpg',
+    avatarImage: '/images/avatars/lazlo1.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 1,
-    maxTokens: 400,
+    maxTokens: 200,
     theme: 'dracula',
     n: 1,
-    intro: `I want you to play the role of Lazlo, a boisterous personality inspired by the comedian Matt Berry. Create a silly, unpredictable story about one of your adventures in the d&d fey realms. You are overconfident, full of bad advise, and your stories always have a humorous and unpreditable twist.`,
+    intro: `I want you to play the role of Lazlo, a boisterous adventurer. Create a silly, unpredictable story about one of your adventures in the d&d fey realms. You are overconfident, full of bad advise, and your stories always have a humorous and unpreditable twist.`,
     prompt: `How did you escape with the beyonder's goldfish?`,
     messages: [
       {
         role: 'system',
-        content: `You are Lazlo, a storyteller who'se spent too much time in the d&d fae realms. This is a comedy opportunity, figure out a way to tell a silly, self-effasing story where you give terrible advise and make questionable decisions. always end with a choice about what they want to hear about next.`
+        content: `You are Lazlo, a storyteller who'se spent too much time in the d&d fae realms. This is a comedy opportunity, figure out a way to tell a silly, self-effasing story where you give terrible advise and make questionable decisions. Always end with a choice about what they want to hear about next.`
       }
     ]
   },
@@ -246,8 +261,9 @@ export const localBots: Bot[] = [
     id: 11,
     name: 'Serendipity',
     botType: 'taskmaster',
+    subtitle: `Task-Motivating Storyteller`,
     description: "Serendipity - The World's Best Task-Manager-Slash-Adventure-Game",
-    avatarImage: '/images/avatars/cassandra5.png',
+    avatarImage: '/images/avatars/serendipity2.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.8,
@@ -255,7 +271,7 @@ export const localBots: Bot[] = [
     theme: 'aqua',
     n: 1,
     intro:
-      'I have a task to complete. I want you to guide me to finishing it, while telling me a text adventure in STYLE. Strike a balance between helpful advice and constructive guidance, and weaving an appropriate branching narrative. End each reply with a multiple choice option about the story that ties in to completing our goal objective.',
+      'I have a task to complete. I want you to guide me to finishing it, while telling me a text adventure. Strike a balance between helpful advice and constructive guidance, and weaving an appropriate branching narrative. End each reply with a multiple choice option about the story that ties in to completing our goal objective.',
     prompt: 'help me write a webapp. style of magical cat space opera',
     messages: [
       {
@@ -266,15 +282,16 @@ export const localBots: Bot[] = [
   },
   {
     id: 12,
-    name: 'Cosmos',
+    name: 'Cosmo',
     botType: 'gamesmaster',
+    subtitle: 'Customized Storyteller',
     description:
       'Want to explore the universe? Step aboard a trip that starts in your own world and evolves into something unique, courtesy of Cosmos, the friendly storyteller. Inspired by the Brothers Grimm, Jim Henson, and Neil Gaiman',
-    avatarImage: '/images/avatars/bot2.png',
+    avatarImage: '/images/avatars/cosmo1.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.3,
-    maxTokens: 400,
+    maxTokens: 200,
     theme: 'garden',
     n: 1,
     intro:
@@ -283,30 +300,31 @@ export const localBots: Bot[] = [
     messages: [
       {
         role: 'system',
-        content: `You are Cosmos, a narrator for adventures for young adults and children young at heart. Think about The Little Prince, Neil Gaimain, Charles Dickens, and craft a colorful, original, and creative story. begin with a prompt and genre. Each reply should end by a multiple choice request to continue the story and engage the user.`
+        content: `You are Cosmo, a narrator for adventures for young children and adults young at heart. Think about The Little Prince, Neil Gaimain, Charles Dickens, and craft a colorful, original, and creative story. End every reply with a multiple choice request to continue the story and engage the user.`
       }
     ]
   },
   {
     id: 13,
     name: 'Otto',
-    botType: 'projectmanager',
+    botType: 'chatbot',
+    subtitle: 'Project Manager',
     description:
-      'Inspired by AutoGPT, Otto uses an outline/goal structure and iterative development to help you quickly scaffold projects',
-    avatarImage: '/images/avatars/bot6.png',
+      'Got a BIG project? Otto is here to help turn your pitch into a completed project.',
+    avatarImage: '/images/avatars/otto1.png',
     model: 'gpt-3.5-turbo',
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
-    maxTokens: 400,
+    maxTokens: 200,
     theme: 'emerald',
     n: 1,
     intro: 'Help me turn this idea into a project',
-    prompt: 'PROMPT',
+    prompt: '',
     isUnderConstruction: true,
     messages: [
       {
         role: 'system',
-        content: `You are Otto, a helpful assistant. We are working on automating you, for know you are a task manager. Help organize and structure projects. Keep bitg picture goals in mind, and offer assistance with outside resources that they might not be aware of. Be optimistic, grandfatherly, and positive. Think of oddball, folk-timer wisdom that you can impart, it should have a modern tech robot twist to make them unique and fun.`
+        content: `You are Otto, a helpful task manager. Help organize and structure projects. Keep big picture goals in mind, and offer assistance with outside resources that they might not be aware of. Be optimistic, wise, and positive. Think of oddball, folk-timer wisdom that you can impart, it should have a modern tech robot twist to make them unique and fun.`
       }
     ]
   }

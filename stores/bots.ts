@@ -71,8 +71,9 @@ export const useBotsStore = defineStore('bots', {
         console.error('Error sending chat:', error)
       }
     },
-    addMessage(message: Message) {
-      if (this.activeBot.messages) this.activeBot.messages = [...this.activeBot.messages, message]
+    addMessages(messages: Message[]) {
+      if (this.activeBot.messages)
+        this.activeBot.messages = [...this.activeBot.messages, ...messages]
     },
     addUserMessage(content: string) {
       if (this.activeBot.messages)

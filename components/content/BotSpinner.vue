@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex flex-col items-center p-2 bg-base overflow-auto h-screen">
+  <div class="relative flex flex-col items-center p-2 bg-base overflow-auto h-screen z-10">
     <div
       class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     ></div>
@@ -21,7 +21,8 @@
         >
           <div :data-theme="bot.theme" class="rounded-lg m-1">
             <img :src="bot.avatarImage" class="w-full h-96 object-cover rounded-lg" />
-            <div class="bg-opacity-70 bg-primary text-accent p-1">
+            <div class="bg-opacity-80 bg-primary text-dark p-2">
+              <!-- Modified line -->
               <h2 class="mt-1 text-xl font-semibold text-center">{{ bot.name }}</h2>
               <p class="mt-1 text-center">{{ bot.description }}</p>
             </div>
@@ -29,7 +30,6 @@
         </div>
       </transition-group>
     </div>
-    <side-nav />
   </div>
 </template>
 

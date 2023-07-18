@@ -1,18 +1,24 @@
+<script setup lang="ts">
+import { useBotsStore } from '../../stores/bots'
+
+const botsStore = useBotsStore()
+let activeBot = computed(() => botsStore.getActiveBot)
+const bots = ref(botsStore.getBots)
+const toggled = ref(false)
+</script>
 <template>
   <div
-    class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 border-2 border-solid border-secondary bg-primary opacity-90 rounded-lg shadow-lg text-base-content items-start h-auto lg:h-screen"
+    class="card-front grid grid-rows-4 gap-4 p-4 border-2 border-solid border-gray-300 bg-base-200 opacity-90 rounded-lg shadow-lg text-base-content items-start h-auto lg:h-screen my-4"
   >
-    <div v-if="activeBot" class="col-span-full lg:col-span-1 flex flex-col">
-      <div class="card bg-base-100 text-base-content shadow-xl flex-grow overflow-auto">
-        <div class="flex flex-col lg:flex-row items-stretch">
-          <avatar-image />
-        </div>
-        <div class="card-body flex-grow overflow-auto">
-          <h1 class="text-5xl font-semibold mb-4 card-title">{{ activeBot.name }}</h1>
-          <p class="mt-4 text-2xl">{{ activeBot.description }}</p>
+    <div v-if="activeBot" class="row-span-full lg:row-span-1 flex flex-col items-center space-y-4">
+      <div class="card bg-base-100 text-base-content shadow-xl flex-grow overflow-auto w-full">
+        <div class="flex flex-col items-center p-4">
+          <avatar-image class="w-64 h-64 object-cover rounded-full mb-4" />
+          <h1 class="text-4xl font-semibold mb-2 card-title">{{ activeBot.name }}</h1>
+          <p class="mt-2 text-xl">{{ activeBot.description }}</p>
           <div class="w-40">
             <label for="n-selection" class="block text-sm font-medium text-gray-700"
-              >Variations:</label
+              >Select Number of Iterations:</label
             >
             <select
               id="n-selection"
@@ -40,26 +46,32 @@
               <option value="1028x1028">1024x1024</option>
             </select>
           </div>
-          <div
-            v-if="activeBot.model || activeBot.post || activeBot.size"
-            class="flex flex-wrap gap-2"
-          >
-            <p v-if="activeBot.model" class="text-accent-700">Model: {{ activeBot.model }}</p>
-            <p v-if="activeBot.post" class="text-accent-700">Post: {{ activeBot.post }}</p>
+          <div v-if="activeBot.size" class="flex flex-wrap gap-2">
             <p v-if="activeBot.size" class="text-accent-700">Size: {{ activeBot.size }}</p>
           </div>
           <div class="mt-4">
-            <temperature-slider v-if="activeBot.temperature !== null" />
+            <div class="mt-4">
+              <temperature-slider v-if="activeBot.temperature !== null" />
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-<script setup lang="ts">
-import { useBotsStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
-let activeBot = computed(() => botsStore.getActiveBot)
-const bots = ref(botsStore.getBots)
-</script>
+<style scoped>
+.card-front {
+  perspective: 1000px;
+}
+
+.card-front .v-enter-active,
+.card-front .v-leave-active {
+  transition: transform 0.6s;
+}
+
+.card-front .v-enter,
+.card-front .v-leave-to {
+  transform: rotateY(180deg);
+}
+</style>

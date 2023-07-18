@@ -1,12 +1,8 @@
 <template>
   <div class="flip-card" @click="flipped = !flipped">
     <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
-      <div class="flip-card-front">
-        <img :src="currentImage" alt="Avatar" class="avatar-img" />
-      </div>
-      <div class="flip-card-back">
-        <img :src="activeBot.avatarImage" alt="New Avatar" class="avatar-img" />
-      </div>
+      <card-front key="front" class="flip-card-front" :bot="activeBot" />
+      <card-back key="back" class="flip-card-back" :bot="activeBot" />
     </div>
   </div>
 </template>
@@ -16,28 +12,14 @@ import { useBotsStore } from '../../stores/bots'
 
 const botsStore = useBotsStore()
 let activeBot = computed(() => botsStore.getActiveBot)
-let currentImage = ref(activeBot.value.avatarImage)
 let flipped = ref(false)
-
-watch(
-  activeBot,
-  (newVal, oldVal) => {
-    if (newVal.avatarImage !== currentImage.value) {
-      flipped.value = !flipped.value
-      nextTick(() => {
-        currentImage.value = newVal.avatarImage
-      })
-    }
-  },
-  { immediate: true }
-)
 </script>
 
 <style scoped>
 .flip-card {
   perspective: 1000px;
-  width: 100px;
-  height: 100px;
+  width: 300px;
+  height: 500px;
 }
 
 .flip-card-inner {
@@ -59,14 +41,7 @@ watch(
   height: 100%;
   backface-visibility: hidden;
   border: 2px solid var(--bg-base);
-  border-radius: 50%;
-}
-
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
+  border-radius: 5px;
 }
 
 .flip-card-back {

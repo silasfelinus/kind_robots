@@ -1,26 +1,34 @@
 <template>
-  <div class="weather-container">
+  <div class="rain-container">
     <div
-      v-for="(_, index) in numberOfDrops"
+      v-for="(drop, index) in rainDrops"
       :key="index"
       class="rain-drop"
       :style="{
-        left: randomXPosition() + 'px',
-        top: randomYPosition() + 'px',
-        animationDuration: calculateDuration(randomSize) + 's',
-        animationDelay: randomDelay() + 's',
-        width: randomSize + 'px',
-        height: randomSize * 5 + 'px',
-        transform: initialTransform(),
-        backgroundColor: randomColor
+        left: drop.x + 'px',
+        top: drop.y + 'px',
+        animationDuration: drop.duration + 's',
+        animationDelay: drop.delay + 's',
+        width: drop.size + 'px',
+        height: drop.size * 5 + 'px',
+        transform: `translateY(-100%) rotate(${drop.angle}deg)`,
+        'z-index': 9999,
+        'background-color': drop.color
       }"
-    >
-      <div class="splash" :style="{ animationDelay: calculateDuration(randomSize) + 's' }"></div>
-    </div>
+    ></div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+interface RainDrop {
+  x: number
+  y: number
+  duration: number
+  delay: number
+  size: number
+  angle: number
+  color: string
+}
 const props = defineProps({
   intensity: {
     type: Number,
@@ -33,26 +41,53 @@ const props = defineProps({
   windAngle: {
     type: Number,
     default: 0
+  },
+  colors: {
+    type: Array as () => string[], // Added as () => string[] to indicate the array elements are strings
+    default: () => ['#00f', '#0f0', '#f00']
   }
 })
 
-const { randomColor } = useRandomColor()
-
-const randomXPosition = () => Math.floor(Math.random() * window.innerWidth)
-const randomYPosition = () => Math.floor(Math.random() * -window.innerHeight)
-const calculateDuration = (size) => (window.innerHeight / (50 * props.intensity)) * (size / 2)
-const randomDelay = () => Math.random() * 2
-const randomSize = () => 1 + Math.random() * 3
-
-const randomWindAngle = () => props.windAngle + Math.floor(Math.random() * 21) - 10
-
-const initialTransform = () => {
-  const randomAngle = randomWindAngle()
-  document.documentElement.style.setProperty('--wind-angle', `${randomAngle}deg`)
-  return `translateY(-100%) rotate(${randomAngle}deg)`
-}
+const rainDrops: RainDrop[] = Array.from({ length: props.numberOfDrops }).map(() => {
+  const size = 1 + Math.random() * 3
+  const color = props.colors[Math.floor(Math.random() * props.colors.length)]
+  return {
+    x: Math.floor(Math.random() * window.innerWidth),
+    y: Math.floor(Math.random() * -window.innerHeight),
+    duration: (window.innerHeight / (50 * props.intensity)) * (size / 2),
+    delay: Math.random() * 2,
+    size,
+    angle: props.windAngle + Math.floor(Math.random() * 21) - 10,
+    color
+  }
+})
 
 onMounted(() => {
   document.documentElement.style.setProperty('--wind-angle', `${props.windAngle}deg`)
 })
 </script>
+<style scoped>
+.rain-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+.rain-drop {
+  position: absolute;
+  bottom: 100%;
+  opacity: 0.5;
+  animation: fall linear infinite;
+  pointer-events: none;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh) rotate(var(--wind-angle));
+  }
+}
+</style>

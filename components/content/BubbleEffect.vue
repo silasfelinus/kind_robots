@@ -1,12 +1,11 @@
 <template>
-  <div class="soap-bubbles relative w-full h-full overflow-hidden">
+  <div class="soap-bubbles">
     <transition-group name="bubble" tag="div">
       <svg
         v-for="(bubble, index) in bubbles"
         :key="index"
-        class="bubble absolute cursor-pointer"
+        class="bubble"
         :style="bubbleStyle(bubble)"
-        @click="popBubble(index)"
       >
         <circle
           :cx="bubble.size / 2"
@@ -25,28 +24,23 @@
 import { useRandomColor } from '../../composables/useRandomColor'
 
 const bubbles = ref([])
-const MAX_BUBBLES = 50
+const MAX_BUBBLES = 20 // Reduced number of bubbles
 
 const createBubble = () => {
   if (bubbles.value.length < MAX_BUBBLES) {
-    const size = Math.random() * 15 + 3
+    const size = Math.random() * 50 + 10 // Increased range of bubble sizes
     const x = Math.random() * (100 - size)
-    const y = 0
     const speed = Math.random() * 6 + 4
     const { randomColor } = useRandomColor()
     const color = randomColor.value
 
-    bubbles.value.push({ x, y, size, speed, color })
+    bubbles.value.push({ x, size, speed, color })
   }
-}
-
-const popBubble = (index) => {
-  bubbles.value.splice(index, 1)
 }
 
 const bubbleStyle = (bubble) => ({
   left: `${bubble.x}vw`,
-  bottom: `${bubble.y}vh`,
+  bottom: `${Math.random() * 100}vh`, // bubbles start at a random position on screen
   width: `${bubble.size}vw`,
   height: `${bubble.size}vw`,
   animationDuration: `${bubble.speed}s`
@@ -54,16 +48,32 @@ const bubbleStyle = (bubble) => ({
 
 let bubbleCreationInterval
 onMounted(() => {
-  bubbleCreationInterval = setInterval(createBubble, 1000)
+  // Create initial bubbles
+  for (let i = 0; i < MAX_BUBBLES; i++) {
+    createBubble()
+  }
+  bubbleCreationInterval = setInterval(createBubble, 3000) // Adjust time interval as needed
 })
 
 onBeforeUnmount(() => {
   clearInterval(bubbleCreationInterval)
 })
 </script>
-
 <style scoped>
+.soap-bubbles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 20;
+  pointer-events: none;
+}
+
 .bubble {
+  position: absolute;
+  pointer-events: auto;
   animation: floatBubbles linear infinite;
 }
 

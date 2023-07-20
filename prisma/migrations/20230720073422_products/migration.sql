@@ -1,0 +1,23 @@
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `Discord` VARCHAR(191) NULL,
+    ADD COLUMN `facebook` VARCHAR(191) NULL,
+    ADD COLUMN `hideSocialNetworks` BOOLEAN NOT NULL DEFAULT false,
+    ADD COLUMN `instagram` VARCHAR(191) NULL,
+    ADD COLUMN `kindrobots` VARCHAR(191) NULL,
+    ADD COLUMN `twitter` VARCHAR(191) NULL;
+
+-- CreateTable
+CREATE TABLE `Product` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `UsdPrice` DOUBLE NOT NULL DEFAULT 0,
+    `description` VARCHAR(191) NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `userId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Product` ADD CONSTRAINT `Product_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

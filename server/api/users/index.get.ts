@@ -6,9 +6,7 @@
 // updatedAt   DateTime @updatedAt
 // bio         String?
 // avatarImage String?
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '../prisma'
 
 export default eventHandler(async () => {
   return await prisma.user.findMany()

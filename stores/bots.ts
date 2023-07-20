@@ -38,7 +38,7 @@ export const useBotsStore = defineStore('bots', {
       const apiPayload = {
         messages: [
           { role: 'system', content: 'you are' + bot.name + 'a helpful' + bot.botType },
-          { role: 'user', content: bot.intro + ' ' + bot.prompt }
+          { role: 'user', content: bot.intro + ' ' + bot.currentPrompt }
         ],
         model: bot.model || 'gpt-3.5-turbo',
         maxTokens: bot.maxTokens || 100,

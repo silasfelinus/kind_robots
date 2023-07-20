@@ -11,32 +11,47 @@ model Bot {
   id                  Int          @id @default(autoincrement())
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
-  name                String       @default("Newb0t")
-  botType             String       @default("chatbot")
-  description         String       @default("Raising awareness to purchase mosquito nets for children in africa")
-  avatarImage         String       @default("/images/wonderchest/wonderchest304_(23).webp")
-  model               String       @default("gpt-3.5-turbo")
-  post                String       @default("https://api.openai.com/v1/completions")
-  temperature         Float        @default(1.0)
-  maxTokens           Int          @default(500)
-  defaultPrompt       String       @default("Arm butterflies with mini-flamethrowers")
-  n                   Int          @default(1)
-  intro               String       @default("Let's make a difference. Here's my idea:")
-  training            String       @default("[{role='SYSTEM', content='You are a robot. You just came alive.'}]")
-  theme               String       @default("default")
-  Designer            User         @relation(fields: [designerId], references: [id])
-  designerId          Int
+  BotType             BotType      @default(CHATBOT)
+  name                String       @unique
+  subtitle            String?      @default("Kind Robot")
+  description         String?
+  avatarImage         String?      @default("/images/wonderchest/wonderchest304_(23).webp")
+  model               String?      @default("gpt-3.5-turbo")
+  post                String?      @default("https://api.openai.com/v1/completions")
+  temperature         Float?       @default(1.0)
+  maxTokens           Int?         @default(500)
+  prompt              String?      @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
+  n                   Int?         @default(1)
+  intro               String?      @default("Let's make a difference. Here's my idea:")
+  training            String?
+  theme               String?      @default("default")
+  Designer            User?        @relation(fields: [designerId], references: [id])
+  designerId          Int?
   BotGallery          Gallery?     @relation(fields: [imageGalleryId], references: [id])
   imageGalleryId      Int?
   mainImage           Image?       @relation(fields: [avatarImageId], references: [id])
   avatarImageId       Int?
-  isPublic            Boolean      @default(true)
-  isUnderConstruction Boolean      @default(false)
-  embedding           String?
-  Prompts             Prompt[]
-  likes               Int          @default(0)
-  dislikes            Int          @default(0)
+  isPublic            Boolean?     @default(true)
+  isUnderConstruction Boolean?     @default(false)
+  embedding           Resource?    @relation(fields: [resourceId], references: [id])
+  PromptHistory       Prompt[]
   UserReview          UserReview[]
+  resourceId          Int?
+  personality         String?
+  modules             String?
+  botIntro  String? @default("You are a filled with kindness.")
+  userIntro String? 
+}
+
+enum BotType {
+  CHATBOT
+  PROMPTMAKER
+  ARTMAKER
+  ARTREMIXER
+  ARTDESIGNER
+  STORYTELLER
+  QUESTMASTER
+  PROJECTMANAGER
 }
 
 model Design {
@@ -137,6 +152,27 @@ model ExifData {
   Image       Image[]
 }
 
+model Message {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      Role     @default(USER)
+  content   String
+  Prompt    Prompt?  @relation(fields: [promptId], references: [id])
+  promptId  Int?
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Seller      User     @relation(fields: [userId], references: [id])
+  UsdPrice    Float    @default(0)
+  description String
+  title       String
+  userId      Int
+}
+
 model Prompt {
   id          Int          @id @default(autoincrement())
   createdAt   DateTime     @default(now())
@@ -151,9 +187,9 @@ model Prompt {
   Image       Image[]
   Design      Design?      @relation(fields: [designId], references: [id])
   designId    Int?
-  likes       Int          @default(0)
-  dislikes    Int          @default(0)
   UserReviews UserReview[]
+  hasHistory  Boolean      @default(false)
+  Messages    Message[]
 }
 
 model Quest {
@@ -193,9 +229,8 @@ model Resource {
   uploaderId   Int
   Design       Design?      @relation(fields: [designId], references: [id])
   designId     Int?
-  likes        Int          @default(0)
-  dislikes     Int          @default(0)
   UserReviews  UserReview[]
+  Bot          Bot[]
 }
 
 model UserReview {
@@ -220,8 +255,8 @@ model UserReview {
   comment    String?
   rating     Int?
   isFan      Boolean    @default(false)
-  likes      Int        @default(0)
-  dislikes   Int        @default(0)
+  isLiked    Boolean    @default(false)
+  isDisliked Boolean    @default(false)
   isHidden   Boolean    @default(false)
 }
 
@@ -244,34 +279,42 @@ enum ResourceType {
 }
 
 model User {
-  id            Int          @id @default(autoincrement())
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  email         String       @unique
-  hashedPass    String
-  loginName     String
-  preferredName String       @default("")
-  designerName  String       @default("Kind Designer")
-  bio           String       @default("I was born and then things happened and now I'm here.")
-  hideBio       Boolean      @default(true)
-  avatarImage   String
-  isPrivate     Boolean      @default(false)
-  Role          Role         @default(USER)
-  allowCookies  Boolean      @default(false)
-  defaultTheme  String       @default("default")
-  themeOverride Boolean      @default(false)
-  showNsfw      Boolean      @default(false)
-  Bots          Bot[]
-  Designs       Design[]
-  Galleries     Gallery[]
-  Images        Image[]
-  Prompts       Prompt[]
-  Quests        Quest[]
-  Resources     Resource[]
-  likes         Int          @default(0)
-  visits        Int          @default(0)
-  UserReviews   UserReview[]
-  hideComments  Boolean      @default(false)
+  id                 Int          @id @default(autoincrement())
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  email              String       @unique
+  hashedPassword     String
+  hashType           String       @default("sha-256")
+  loginName          String       @unique
+  preferredName      String?      @default("")
+  designerName       String?      @default("Kind Designer")
+  bio                String?      @default("I was born and then things happened and now I'm here.")
+  hideBio            Boolean?     @default(false)
+  avatarImage        String?      @default("/images/botcafe.png")
+  isPrivate          Boolean?     @default(false)
+  Role               Role         @default(USER)
+  allowCookies       Boolean?     @default(false)
+  defaultTheme       String?      @default("default")
+  themeOverride      Boolean?     @default(false)
+  showNsfw           Boolean?     @default(false)
+  Bots               Bot[]
+  Designs            Design[]
+  Galleries          Gallery[]
+  Images             Image[]
+  Prompts            Prompt[]
+  Quests             Quest[]
+  Resources          Resource[]
+  likes              Int?         @default(0)
+  visits             Int?         @default(0)
+  UserReviews        UserReview[]
+  hideComments       Boolean?     @default(false)
+  instagram          String?
+  twitter            String?
+  facebook           String?
+  Discord            String?
+  kindrobots         String?
+  hideSocialNetworks Boolean      @default(false)
+  Product            Product[]
 }
 
 enum Role {

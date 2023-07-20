@@ -26,7 +26,7 @@
           </svg>
         </button>
         <nav id="sideNav" class="hidden md:flex">
-          <icon-nav />
+          <butterfly-toggle />
         </nav>
       </div>
     </header>

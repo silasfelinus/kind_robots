@@ -20,10 +20,13 @@
         }"
         @click="setActiveBotId(bot.id)"
       >
-        <img :src="bot.avatarImage" class="w-full h-96 object-cover rounded-lg" />
-        <div class="bg-opacity-70 bg-black text-white p-2">
-          <h2 class="mt-4 text-2xl font-semibold text-center">{{ bot.name }}</h2>
-          <p class="mt-2 text-center">{{ bot.description }}</p>
+        <div class="w-full h-96 object-cover rounded-lg">
+          <avatar-image />
+
+          <div class="bg-opacity-70 bg-black text-white p-2">
+            <h2 class="mt-4 text-2xl font-semibold text-center">{{ bot.name }}</h2>
+            <p class="mt-2 text-center">{{ bot.description }}</p>
+          </div>
         </div>
       </div>
     </transition-group>
@@ -31,8 +34,8 @@
 </template>
 
 <script setup lang="ts">
+import { Bot } from '@prisma/client'
 import { useBotsStore } from '../../stores/bots'
-import { Bot } from '../../types/bot'
 
 const botsStore = useBotsStore()
 

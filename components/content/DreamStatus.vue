@@ -34,7 +34,7 @@ onUnmounted(() => {
 })
 
 watchEffect(() => {
-  statusMessage.value = `Pardon...${dream.value}`
+  statusMessage.value = `${dream.value}`
 })
 </script>
 

@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
+import { Bot } from '@prisma/client'
 import { useBotsStore } from '../../stores/bots'
-import { Bot } from '../../types/bot'
 
 const botsStore = useBotsStore()
 const bots: Bot[] = botsStore.getBots

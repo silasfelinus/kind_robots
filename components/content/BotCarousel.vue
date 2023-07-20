@@ -11,26 +11,26 @@
           :key="bot.id"
           class="carousel-item h-full cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
-            'bg-accent text-secondary': activeBot && activeBot.id === bot.id,
+            'bg-accent text-default': activeBot && activeBot.id === bot.id,
             'bg-primary': !activeBot || activeBot.id !== bot.id
           }"
           @click="setActiveBot(bot)"
         >
-          <img :src="bot.avatarImage" class="w-full h-full object-cover rounded-lg" />
-          <div :data-theme="bot.theme" class="bg-opacity-70 bg-primary text-accent p-2">
-            <h2 class="mt-4 text-2xl font-semibold text-center">{{ bot.name }}</h2>
-            <p class="mt-2 text-center">{{ bot.description }}</p>
+          <img :src="bot.avatarImage ?? undefined" class="w-full h-full object-cover rounded-lg" />
+
+          <div :data-theme="bot.theme" class="bg-opacity-70 bg-primary text-default p-2">
+            <h2 class="mt-4 text-2xl text-dark font-semibold text-center">{{ bot.name }}</h2>
+            <p class="mt-2 text-xl text-dark text-center">{{ bot.description }}</p>
           </div>
         </div>
       </div>
     </div>
-    <side-nav />
   </div>
 </template>
 
 <script setup lang="ts">
+import { Bot } from '@prisma/client'
 import { useBotsStore } from '../../stores/bots'
-import { Bot } from '../../types/bot'
 
 const botsStore = useBotsStore()
 const bots: Bot[] = botsStore.getBots

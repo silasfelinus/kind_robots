@@ -25,17 +25,19 @@
     "nuxt": "latest",
     "nuxt-icon": "^0.4.1",
     "prettier": "2.8.8",
-    "prisma": "^4.16.2",
+    "prisma": "^5.0.0",
     "typescript": "^5.0.4"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.4.11",
-    "@prisma/client": "^4.16.0",
+    "@prisma/client": "^5.0.0",
     "axios": "^1.4.0",
     "daisyui": "^2.51.6",
     "interactjs": "^1.10.17",
     "open-simplex-noise": "^2.5.0",
-    "pinia": "^2.1.4"
+    "pinia": "^2.1.4",
+    "save-dev": "^0.0.1-security",
+    "ts-node": "^10.9.1"
   },
   "overrides": {
     "vue": "latest"

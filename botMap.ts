@@ -268,7 +268,7 @@ export const localBots: Bot[] = [
     post: 'https://api.openai.com/v1/completions',
     temperature: 0.8,
     maxTokens: 500,
-    theme: 'aqua',
+    theme: 'business',
     n: 1,
     intro:
       'I have a task to complete. I want you to guide me to finishing it, while telling me a text adventure. Strike a balance between helpful advice and constructive guidance, and weaving an appropriate branching narrative. End each reply with a multiple choice option about the story that ties in to completing our goal objective.',

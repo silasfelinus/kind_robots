@@ -8,80 +8,121 @@ datasource db {
 }
 
 model Bot {
-  id          Int       @id @default(autoincrement())
-  name        String    @default("AMIb0t")
-  botType     String    @default("chatbot")
-  description String    @default("Raising awareness to purchase mosquito nets for children in africa")
-  avatarImage String?   @default("/images/wonderchest/wonderchest304_(23).webp")
-  model       String?   @default("gpt-3.5-turbo")
-  post        String?   @default("https://api.openai.com/v1/completions")
-  temperature Float?    @default(1.0)
-  maxTokens   Int?      @default(500)
-  prompt      String    @default("You are AMIb0t, The Anti-Malaria Intelligence.")
-  image       String?
-  mask        String?
-  style       String?
-  channel     String?
-  n           Int?      @default(1)
-  createdAt   DateTime? @default(now())
-  updatedAt   DateTime? @updatedAt
-  intro       String?
-  size        String?
-  training    String?
-  theme       String?
+  id                  Int          @id @default(autoincrement())
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  name                String       @default("Newb0t")
+  botType             String       @default("chatbot")
+  description         String       @default("Raising awareness to purchase mosquito nets for children in africa")
+  avatarImage         String       @default("/images/wonderchest/wonderchest304_(23).webp")
+  model               String       @default("gpt-3.5-turbo")
+  post                String       @default("https://api.openai.com/v1/completions")
+  temperature         Float        @default(1.0)
+  maxTokens           Int          @default(500)
+  defaultPrompt       String       @default("Arm butterflies with mini-flamethrowers")
+  n                   Int          @default(1)
+  intro               String       @default("Let's make a difference. Here's my idea:")
+  training            String       @default("[{role='SYSTEM', content='You are a robot. You just came alive.'}]")
+  theme               String       @default("default")
+  Designer            User         @relation(fields: [designerId], references: [id])
+  designerId          Int
+  BotGallery          Gallery?     @relation(fields: [imageGalleryId], references: [id])
+  imageGalleryId      Int?
+  mainImage           Image?       @relation(fields: [avatarImageId], references: [id])
+  avatarImageId       Int?
+  isPublic            Boolean      @default(true)
+  isUnderConstruction Boolean      @default(false)
+  embedding           String?
+  Prompts             Prompt[]
+  likes               Int          @default(0)
+  dislikes            Int          @default(0)
+  UserReview          UserReview[]
 }
 
-model Todo {
-  id         Int      @id @default(autoincrement())
-  content    String
-  category   String   @default("default")
-  isFinished Boolean  @default(false)
-  user       String   @default("cafepurr")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model Design {
+  id            Int          @id @default(autoincrement())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  designType    DesignType   @default(WILDCARD)
+  title         String
+  content       String       @default("My idea is")
+  isNSFW        Boolean      @default(false)
+  Designer      User         @relation(fields: [designerId], references: [id])
+  designerId    Int
+  Images        Image[]
+  Galleries     Gallery[]
+  Prompts       Prompt[]
+  Resources     Resource[]
+  likes         Int          @default(0)
+  dislikes      Int          @default(0)
+  theme         String       @default("default")
+  allowComments Boolean      @default(false)
+  UserReviews   UserReview[]
 }
 
-model Checkpoint {
-  id         Int      @id @default(autoincrement())
-  name       String   @default("")
-  hash       String   @default("")
-  sfwName    String?
-  isNSFW     Boolean  @default(false)
-  civitaiUrl String?
-  huggingUrl String?
-  image1     String?
-  image2     String?
-  image3     String?
-  user       String   @default("cafepurr")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+enum DesignType {
+  WILDCARD
+  PRODUCT
+  SPONSOR
+  WEBAPP
+  QUESTCHAIN
+  DATA
 }
 
-model Embedding {
-  id          Int      @id @default(autoincrement())
-  name        String   @default("")
-  content     String   @default("")
-  description String   @default("")
-  prompt      String?
-  civitaiUrl  String?
-  type        String   @default("embedding")
-  image1      String?
-  image2      String?
-  image3      String?
-  isNSFW      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Gallery {
+  id                 Int          @id @default(autoincrement())
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  name               String       @unique
+  content            String       @default("")
+  description        String       @default("")
+  isNSFW             Boolean      @default(false)
+  isPublic           Boolean      @default(true)
+  hasPaywall         Boolean      @default(false)
+  Images             Image[]
+  Designer           User         @relation(fields: [designerId], references: [id])
+  designerId         Int
+  numberOfHighlights Int          @default(3)
+  usdPrice           Int          @default(1)
+  Bot                Bot[]
+  Design             Design?      @relation(fields: [designId], references: [id])
+  designId           Int?
+  likes              Int          @default(0)
+  dislikes           Int          @default(0)
+  UserReviews        UserReview[]
 }
 
 model Image {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  path        String       @default("/")
+  isNSFW      Boolean      @default(false)
+  isFavorite  Boolean      @default(false)
+  isFlagged   Boolean      @default(false)
+  Galleries   Gallery[]
+  Resources   Resource[]
+  ExifData    ExifData?    @relation(fields: [exifId], references: [id])
+  exifId      Int?
+  Designer    User         @relation(fields: [designerId], references: [id])
+  designerId  Int
+  Prompt      Prompt?      @relation(fields: [promptId], references: [id])
+  promptId    Int?
+  Designs     Design[]
+  likes       Int          @default(0)
+  dislikes    Int          @default(0)
+  Bot         Bot[]
+  UserReviews UserReview[]
+  Quest       Quest[]
+}
+
+// additional data that we can generate programmatically.
+model ExifData {
   id          Int      @id @default(autoincrement())
-  path        String   @default("")
-  isNSFW      Boolean  @default(false)
-  isFavorite  Boolean  @default(false)
-  prompt      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   description String?
   negative    String?
-  gallery     String?
   steps       Int?
   seed        Int?
   sampler     String?
@@ -91,75 +132,154 @@ model Image {
   modelName   String?
   template    String?
   negTemplate String?
-  promptId    Int?
-  galleryId   Int?
-  creator     String   @default("cafepurr")
-  creatorID   Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  Gallery     Gallery? @relation(fields: [galleryId], references: [id])
+  clip        String?
+  deepboro    String?
+  Image       Image[]
 }
 
-model Gallery {
-  id             Int      @id @default(autoincrement())
-  name           String   @unique
-  channel        String   @default("")
-  content        String   @default("")
-  description    String   @default("")
-  highlightImage String?
-  isNSFW         Boolean  @default(false)
-  isAuth         Boolean  @default(false)
-  user           String   @default("cafepurr")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  Images         Image[]
+model Prompt {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  role        Role         @default(USER)
+  isPublic    Boolean      @default(true)
+  content     String
+  isNSFW      Boolean      @default(false)
+  Designer    User         @relation(fields: [designerId], references: [id])
+  designerId  Int
+  botChain    Bot[]
+  Image       Image[]
+  Design      Design?      @relation(fields: [designId], references: [id])
+  designId    Int?
+  likes       Int          @default(0)
+  dislikes    Int          @default(0)
+  UserReviews UserReview[]
 }
 
-model Message {
-  id        Int      @id @default(autoincrement())
-  content   String   @default("")
-  role      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Quest {
+  id         Int      @id @default(autoincrement())
+  content    String
+  category   String   @default("Blue Sky Tasks")
+  isFinished Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  Quester    User     @relation(fields: [userId], references: [id])
+  userId     Int
+  reward     String   @default("A Magic Reward")
+  Image      Image?   @relation(fields: [imageId], references: [id])
+  icon       String?
+  points     Int      @default(10)
+  isPrivate  Boolean  @default(false)
+  imageId    Int?
 }
 
-model Conversation {
-  id          Int      @id @default(autoincrement())
-  channel     String
-  dateCreated DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+// Online and local resources such as checkpoints, embeddings
+// lora, hypernetworks
+model Resource {
+  id           Int          @id @default(autoincrement())
+  name         String       @default("")
+  hash         String?
+  sfwName      String?
+  isNSFW       Boolean      @default(false)
+  civitaiUrl   String?
+  huggingUrl   String?
+  localPath    String?
+  description  String?
+  resourceType ResourceType @default(CHECKPOINT)
+  Images       Image[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  Uploader     User         @relation(fields: [uploaderId], references: [id])
+  uploaderId   Int
+  Design       Design?      @relation(fields: [designId], references: [id])
+  designId     Int?
+  likes        Int          @default(0)
+  dislikes     Int          @default(0)
+  UserReviews  UserReview[]
 }
 
-model Tag {
-  id        Int      @id @default(autoincrement())
-  name      String   @default("")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model UserReview {
+  id         Int        @id @default(autoincrement())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  user       User       @relation(fields: [userId], references: [id])
+  userId     Int
+  resource   Resource?  @relation(fields: [resourceId], references: [id])
+  resourceId Int?
+  prompt     Prompt?    @relation(fields: [promptId], references: [id])
+  promptId   Int?
+  image      Image?     @relation(fields: [imageId], references: [id])
+  imageId    Int?
+  galleries  Gallery?   @relation(fields: [galleryId], references: [id])
+  galleryId  Int?
+  designs    Design?    @relation(fields: [designId], references: [id])
+  designId   Int?
+  bots       Bot?       @relation(fields: [botId], references: [id])
+  botId      Int?
+  reviewType ReviewType
+  comment    String?
+  rating     Int?
+  isFan      Boolean    @default(false)
+  likes      Int        @default(0)
+  dislikes   Int        @default(0)
+  isHidden   Boolean    @default(false)
+}
+
+enum ReviewType {
+  RESOURCE
+  PROMPT
+  IMAGE
+  GALLERY
+  DESIGN
+  BOT
+}
+
+enum ResourceType {
+  CHECKPOINT
+  EMBEDDING
+  LORA
+  LYCORIS
+  HYPERNETWORK
+  CONTROLNET
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  hashedPass  String
-  userName    String?
-  realName    String   @default("")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  bio         String?
-  avatarImage String?
-  role        Role     @default(USER)
+  id            Int          @id @default(autoincrement())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  email         String       @unique
+  hashedPass    String
+  loginName     String
+  preferredName String       @default("")
+  designerName  String       @default("Kind Designer")
+  bio           String       @default("I was born and then things happened and now I'm here.")
+  hideBio       Boolean      @default(true)
+  avatarImage   String
+  isPrivate     Boolean      @default(false)
+  Role          Role         @default(USER)
+  allowCookies  Boolean      @default(false)
+  defaultTheme  String       @default("default")
+  themeOverride Boolean      @default(false)
+  showNsfw      Boolean      @default(false)
+  Bots          Bot[]
+  Designs       Design[]
+  Galleries     Gallery[]
+  Images        Image[]
+  Prompts       Prompt[]
+  Quests        Quest[]
+  Resources     Resource[]
+  likes         Int          @default(0)
+  visits        Int          @default(0)
+  UserReviews   UserReview[]
+  hideComments  Boolean      @default(false)
 }
 
 enum Role {
   SYSTEM
   USER
   ASSISTANT
-}
-
-model Wildcard {
-  id        Int      @id @default(autoincrement())
-  name      String   @default("")
-  data      String   @default("")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  ADMIN
+  GUEST
+  BOT
+  DESIGNER
 }

@@ -2,14 +2,9 @@
 // store/bots.ts
 import { defineStore } from 'pinia'
 import axios from 'axios'
-import { Bot } from '../types/bot'
+import { Bot } from '@prisma/client'
 import { localBots } from '../botMap'
 import { useThemeStore } from './theme'
-
-interface Message {
-  role: string
-  content: string
-}
 
 export const useBotsStore = defineStore('bots', {
   state: () => ({
@@ -37,16 +32,14 @@ export const useBotsStore = defineStore('bots', {
   },
   actions: {
     async sendChat(bot: Bot) {
-      if (!bot.messages) {
-        console.error('No messages, are you sure this is the right api?')
-        return
-      }
-
       const CHAT_URL = '/api/botcafe/chat'
 
       // create API payload
       const apiPayload = {
-        messages: bot.messages || [{ role: 'user', content: 'you are AMIbot a helpful chatbot' }],
+        messages: [
+          { role: 'system', content: 'you are' + bot.name + 'a helpful' + bot.botType },
+          { role: 'user', content: bot.intro + ' ' + bot.prompt }
+        ],
         model: bot.model || 'gpt-3.5-turbo',
         maxTokens: bot.maxTokens || 100,
         temperature: bot.temperature || 0.0,
@@ -70,14 +63,6 @@ export const useBotsStore = defineStore('bots', {
       } catch (error) {
         console.error('Error sending chat:', error)
       }
-    },
-    addMessages(messages: Message[]) {
-      if (this.activeBot.messages)
-        this.activeBot.messages = [...this.activeBot.messages, ...messages]
-    },
-    addUserMessage(content: string) {
-      if (this.activeBot.messages)
-        this.activeBot.messages = [...this.activeBot.messages, { role: 'user', content }]
     },
     setActiveBot(bot: Bot) {
       this.activeBot = bot

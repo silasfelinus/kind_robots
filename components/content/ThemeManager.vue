@@ -1,6 +1,6 @@
 <template>
   <div class="theme-selector bg-secondary-info p-4 rounded-md text-center relative">
-    <div class="mt-2 text-sm text-primary">Kind Theme</div>
+    <div class="mt-2 text-sm text-default">Kind Theme</div>
     <button
       tabindex="0"
       aria-haspopup="true"
@@ -10,7 +10,7 @@
     >
       <span class="theme-icon w-6 h-6"></span>
     </button>
-    <div class="text-base font-bold text-primary mt-2">{{ themeStore.currentTheme }}</div>
+    <div class="text-default font-bold mt-2">{{ themeStore.currentTheme }}</div>
     <transition name="theme-menu-fade">
       <div
         v-show="themeStore.open"

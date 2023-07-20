@@ -98,7 +98,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount, inject } from 'vue'
 import interact from 'interactjs'
 import { useBotsStore } from '../../stores/bots'
 

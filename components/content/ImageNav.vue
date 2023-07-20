@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const clicked = ref(null)
+const clicked = ref<string | null>(null)
 
 const { find } = queryContent()
   .where({ $not: { _path: '/' } })

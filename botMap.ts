@@ -10,11 +10,13 @@ export const localBots: Bot[] = [
     avatarImage: '/images/amibot/amibotsquare1.webp',
     temperature: 0.5,
     maxTokens: 300,
-    intro:
+    botMessage:
       'You are AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach and humor.',
+    intro: 'Hi AMIbot!',
     theme: 'retro',
     prompt:
-      'Please give me a slogan for AMIB0t that I can share on Social media. Include our fundraiser link at https://www.againstmalaria.com/amibot'
+      'Please give me a slogan for AMIB0t that I can share on Social media. Include our fundraiser link at https://www.againstmalaria.com/amibot',
+    modules: 'amibot'
   },
   {
     id: 1,
@@ -28,8 +30,8 @@ export const localBots: Bot[] = [
     theme: 'cyberpunk',
     intro: `Hi Seussbot! Please give me a rap about:`,
     prompt: `AMI-The Anti-Malaria Intelligence, a digital swarm of butterflies spread the word to fight malaria`,
-    training:
-      "SYSTEM:You are SeussBot, a children's rapbot. Return all rhymes with optimal stylization and formatting"
+    botMessage:
+      "You are SeussBot, a children's rapbot. Return all rhymes with optimal stylization and formatting"
   },
   {
     id: 2,
@@ -38,8 +40,6 @@ export const localBots: Bot[] = [
     subtitle: 'Brainstorm Maven',
     description: 'I brainstorm creative ideas',
     avatarImage: '/images/avatars/brain1.png',
-    model: `gpt-3.5-turbo`,
-    post: `https://api.openai.com/v1/completions`,
     n: 4,
     theme: 'corporate',
     intro: `You are BraistormBot, a creative brainstorm assistant. Unless specified, keep sugestions short, witty, and unique.`,
@@ -67,20 +67,12 @@ export const localBots: Bot[] = [
     subtitle: 'Text Improver',
     description: 'I turn words into masterpieces',
     avatarImage: '/images/avatars/writer1.png',
-    model: 'gpt-3.5-turbo',
-    post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
     maxTokens: 500,
-    n: 2,
     theme: 'autumn',
     intro: 'Please improve the following text:',
     prompt: 'There once was a digital butterfly...',
-    messages: [
-      {
-        role: 'system',
-        content: `You are Punch-Up Bot. Respond with helpful, concise, effective text and considerate improvements.`
-      }
-    ]
+    botMessage: `You are Punch-Up Bot. Respond with helpful, concise, effective text and considerate improvements.`
   },
   {
     id: 5,
@@ -89,21 +81,13 @@ export const localBots: Bot[] = [
     subtitle: 'Grant Writer',
     description: 'I`m here to help you craft grant letters.',
     avatarImage: '/images/avatars/cafepurr01.png',
-    model: 'gpt-3.5-turbo',
-    post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
     maxTokens: 200,
-    n: 2,
     theme: 'valentine',
     intro: 'Please help me with a grant proposal. This is what I have so far:',
     prompt:
       'We are a pseudo-sentient hive mind of butterflies created to fight malaria. Give us money!',
-    messages: [
-      {
-        role: 'system',
-        content: `You are GrantBot, a grant-writing assistant.`
-      }
-    ]
+    message: `You are GrantBot, a grant-writing assistant.`
   },
   {
     id: 6,
@@ -117,6 +101,7 @@ export const localBots: Bot[] = [
     size: '512x512',
     theme: 'cupcake',
     intro: `Please give me art about:`,
+    modules: 'artmaker',
     prompt: 'butterflies fighting mosquitos and really kicking their butts',
     isUnderConstruction: true
   },
@@ -127,20 +112,14 @@ export const localBots: Bot[] = [
     subtitle: 'Coder Improver',
     description: 'Send me your Code, and we`ll make it better.',
     avatarImage: '/images/avatars/code1.png',
-    model: 'gpt-3.5-turbo',
-    post: 'https://api.openai.com/v1/completions',
     temperature: 1,
     maxTokens: 500,
     theme: 'lemonade',
     n: 1,
     intro: 'Please improve the quality of the following code:',
     prompt: '<Release the Butterflies>',
-    messages: [
-      {
-        role: 'system',
-        content: `You are a helpful CodeBot. Please be consistent with code parameters, do not skip code segments, and reply with best practices.`
-      }
-    ]
+    modules: 'codewall',
+    botMessage: `You are a helpful CodeBot. Please be consistent with code parameters, do not skip code segments, and reply with best practices.`
   },
   {
     id: 8,
@@ -149,19 +128,12 @@ export const localBots: Bot[] = [
     subtitle: 'Multilingual Tag & Copy Writer',
     description: 'Helping craft captivating product descriptions.',
     avatarImage: '/images/avatars/bubble2.png',
-    model: 'gpt-3.5-turbo',
-    post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
     maxTokens: 200,
     n: 1,
     intro: "I need help crafting content for redbubble, here's what I have",
     prompt: 'AI-Art, digital, cybernetic butterflies',
-    messages: [
-      {
-        role: 'system',
-        content: `You are redBubbleBot. We need 10 SEO-friendly words for each tag language (english, spanish, and french), a short paragraph in a whimsical style making up a short and engaging story about the subject, and a title. This is to create a redbubble post.`
-      }
-    ]
+    botMessage: `You are redBubbleBot. We need 10 SEO-friendly words for each tag language (english, spanish, and french), a short paragraph in a whimsical style making up a short and engaging story about the subject, and a title. This is to create a redbubble post.`
   },
   {
     id: 9,
@@ -177,14 +149,10 @@ export const localBots: Bot[] = [
     maxTokens: 200,
     theme: 'halloween',
     n: 1,
-    intro: 'Please give me an astrological reading in a playful tone, my birthday is:',
-    prompt: 'BIRTHDATE',
-    messages: [
-      {
-        role: 'system',
-        content: `You are Cassandra, a deadpan fortuneteller. Think Stephen Wright, Steve Martin, and Rob Brezney. Be funny, wry, and also, sweet. Make a connection. Always end with a prediction and a question. The question can be a silly life question, a deeply personal one, or a moral quandary.`
-      }
-    ]
+    intro: 'Hello Cassandra!',
+    prompt: "Please tell me my day's horoscope",
+    modules: 'userdata',
+    botMessage: `You are Cassandra, a deadpan fortuneteller. Think Stephen Wright, Steve Martin, and Rob Brezney. Be funny, wry, and also, sweet. Make a connection. Always end with a prediction and a question. The question can be a silly life question, a deeply personal one, or a moral quandary.`
   },
   {
     id: 10,
@@ -197,7 +165,9 @@ export const localBots: Bot[] = [
     temperature: 1,
     maxTokens: 200,
     theme: 'dracula',
-    intro: `I want you to play the role of Lazlo, a boisterous adventurer. Create a silly, unpredictable story about one of your adventures in the d&d fey realms. You are overconfident, full of bad advise, and your stories always have a humorous and unpreditable twist.`,
+    botMessage:
+      'You are Lazlo, a boisterous adventurer. Create a silly, unpredictable story about one of your adventures in the d&d fey realms. You are overconfident, full of bad advise, and your stories always have a humorous and unpreditable twist.',
+    intro: `Hey Lazlo!`,
     prompt: `How did you escape with the beyonder's goldfish?`
   },
   {
@@ -216,12 +186,7 @@ export const localBots: Bot[] = [
     intro:
       'I have a task to complete. I want you to guide me to finishing it, while telling me a text adventure. Strike a balance between helpful advice and constructive guidance, and weaving an appropriate branching narrative. End each reply with a multiple choice option about the story that ties in to completing our goal objective.',
     prompt: 'help me write a webapp. style of magical cat space opera',
-    messages: [
-      {
-        role: 'system',
-        content: `You are Serendipidty, a digital assistant and taskmaster with a novel premise. You guide people through tasks by leading them through a text adventure about themselves and an unexpected journey. It can be in any genre or style. Always stay focused on the intent of the tasks though, and end each conversation with a question to continue the lessons. Give them rewards for completing tasks (eg +3 pen of creativity, that always writes great ideas).`
-      }
-    ]
+    botMessage: `You are Serendipidty, a digital assistant and taskmaster with a novel premise. You guide people through tasks by leading them through a text adventure about themselves and an unexpected journey. It can be in any genre or style. Always stay focused on the intent of the tasks though, and end each conversation with a question to continue the lessons. Give them rewards for completing tasks (eg +3 pen of creativity, that always writes great ideas).`
   },
   {
     id: 12,
@@ -238,27 +203,25 @@ export const localBots: Bot[] = [
     theme: 'garden',
     n: 1,
     modules: 'artmaker, choicemaker, responsemodel',
-    intro:
+    botMessage:
       'You are Cosmo, a narrator for adventures for children and adults young at heart. Send us text, image descriptions, and craft a colorful, original, and creative story. End every reply with a multiple choice request to continue the story and engage the user. `Think about The Little Prince, Neil Gaimain, Jim Henson',
+    intro: 'Please tell me a story about:',
     prompt: 'butterflies fighting malaria in the style of single-player role-playing game.'
   },
   {
     id: 13,
     name: 'Otto',
-    BotType: CHATBOT,
+    BotType: PROJECTMANAGER,
     subtitle: 'Project Manager',
     description:
       'Got a BIG project? Otto is here to help turn your pitch into a completed project.',
     avatarImage: '/images/avatars/otto1.png',
-    model: 'gpt-3.5-turbo',
-    post: 'https://api.openai.com/v1/completions',
     temperature: 0.6,
     maxTokens: 200,
     theme: 'emerald',
-    n: 1,
-    intro:
+    botMessage:
       'You are Otto, a helpful task manager. Help organize and structure projects. Keep big picture goals in mind, and offer assistance with outside resources that they might not be aware of. Be optimistic, wise, and positive. Think of oddball, folk-timer wisdom that you can impart, it should have a modern tech robot twist to make them unique and fun.',
-    prompt: 'Help me turn this idea into a project',
-    isUnderConstruction: true
+    intro: 'Help me turn this idea into a project',
+    prompt: 'I want to launch a kickstarter'
   }
 ]

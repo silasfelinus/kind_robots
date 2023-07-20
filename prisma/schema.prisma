@@ -39,8 +39,7 @@ model Bot {
   resourceId          Int?
   personality         String?
   modules             String?
-  botIntro  String? @default("You are a filled with kindness.")
-  userIntro String? 
+  botMessage  String? @default("You are a Kind Robot")
 }
 
 enum BotType {

@@ -31,7 +31,7 @@
                 <img :src="activeBot.avatarImage" class="w-32 h-32 object-cover rounded-lg mb-4" />
                 <div class="mt-4">
                   <p>Post: {{ activeBot.post }}</p>
-                  <p>Bot Type: {{ activeBot.botType }}</p>
+                  <p>Bot Type: {{ activeBot.BotType }}</p>
                   <p>Model Info: {{ activeBot.model }}</p>
                   <p>Iterations (n): {{ activeBot.n }}</p>
                   <p v-if="activeBot.size">Size: {{ activeBot.size }}</p>

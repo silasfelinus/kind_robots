@@ -1,27 +1,14 @@
-import prisma from '../prisma'
+// /server/api/galleries/index.post.ts
+import { ErrorHandler } from '../utils/error'
+import { createGallery } from '../utils/gallery'
 
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  let gallery = null
+export default defineEventHandler((event) =>
+  ErrorHandler(async () => {
+    const body = await readBody(event)
 
-  if (body.name)
-    await prisma.gallery
-      .create({
-        data: {
-          id: body.id,
-          name: body.name,
-          content: body.content,
-          description: body.description,
-          highlightImage: body.highlightImage,
-          isNSFW: body.isNSFW,
-          isAuth: body.isAuth,
-          user: body.user
-        }
-      })
-      .then((response) => {
-        gallery = response
-      })
-  return {
-    gallery
-  }
-})
+    // Creating multiple Galleries.
+    const newGalleries = await createGallery(body)
+
+    return newGalleries
+  }, 'An error occurred while creating Galleries.')
+)

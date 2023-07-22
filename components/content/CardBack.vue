@@ -7,7 +7,7 @@
     <!-- Bot Information -->
     <div class="text-center">
       <h2 class="text-xl font-bold mb-2">{{ activeBot.name }}</h2>
-      <p class="text-sm mb-2">{{ activeBot.intro }}</p>
+      <p class="text-sm mb-2">{{ activeBot.userIntro }}</p>
     </div>
     <div v-if="activeBot.model || activeBot.post || activeBot.size" class="flex flex-wrap gap-2">
       <p v-if="activeBot.model" class="text-accent-700">Model: {{ activeBot.model }}</p>

@@ -1,19 +1,13 @@
 // server/api/bots/[id].get.ts
-import prisma from '../prisma'
+import { ErrorHandler } from '../utils/error'
+import { findBot } from '../utils/bot'
 
-export default defineEventHandler(async (event) => {
-  const id = Number(event.context.params?.id)
-  const bot = await prisma.bot.findUnique({
-    where: {
-      id: Number(id)
-    }
-  })
-  if (!bot) {
-    const notFoundError = createError({
-      statusCode: 404,
-      statusMessage: 'Bot not found '
-    })
-    sendError(event, notFoundError)
-  }
-  return bot
-})
+export default defineEventHandler((event) =>
+  ErrorHandler(async () => {
+    const id = Number(event.context.params?.id)
+
+    const bot = await findBot(id)
+
+    return bot
+  }, 'Bot not found')
+)

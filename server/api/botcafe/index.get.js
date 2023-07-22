@@ -156,7 +156,7 @@ export default defineEventHandler((context) => [
     description:
       'Lazlo is a fantasy adventurer whose lived possibly a bit-too-long in the D&D fey realm. He`s a friendly braggart and  dispensor of absolutely terrible advise. How in the world has he survived this long? Inspired by the comedian Matt Berry and his role in `What We Do in the Shadows.`',
     avatarImage: `/images/avatars/lazlo1.jpg`,
-    intro:
+    userIntro:
       'Salutations, I`m Lazlo the Extra-Ordinary, Would you like a story of my adventures that will curdle your eyebrows?',
     model: `gpt-3.5-turbo`,
     post: `https://api.openai.com/v1/completions`,

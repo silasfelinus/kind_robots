@@ -1,7 +1,11 @@
 // server/api/bots/index.get.ts
-import prisma from '../prisma'
+import { ErrorHandler } from '../utils/error'
+import { getBots } from '../utils/bot'
 
-export default defineEventHandler(async () => {
-  const bots = await prisma.bot.findMany({})
-  return await bots
-})
+export default defineEventHandler((event) =>
+  ErrorHandler(async () => {
+    const bots = await getBots()
+
+    return bots
+  }, 'An error occurred while fetching bots')
+)

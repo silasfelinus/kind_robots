@@ -6,4 +6,4 @@
 */
 -- AlterTable
 ALTER TABLE `Bot` DROP COLUMN `type`,
-    ADD COLUMN `botType` VARCHAR(191) NOT NULL DEFAULT 'chatbot';
+    ADD COLUMN `BotType` VARCHAR(191) NOT NULL DEFAULT 'chatbot';

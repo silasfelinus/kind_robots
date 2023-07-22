@@ -6,7 +6,7 @@ Copy code
   <div class="w-96 h-96 bg-secondary-300 rounded-full overflow-hidden">
     <div v-if="activeBot" class="col-span-full sm:col-span-1">
       <p class="mt-4 text-2xl text-black">{{ activeBot.description }}</p>
-      <p class="text-2xl text-black">{{ activeBot.intro }}</p>
+      <p class="text-2xl text-black">{{ activeBot.userIntro }}</p>
       <p class="text-2xl text-black">{{ activeBot.style }}</p>
       <p class="text-2xl text-black">{{ activeBot.size }}</p>
       <p class="text-2xl text-black">{{ activeBot.n }}</p>

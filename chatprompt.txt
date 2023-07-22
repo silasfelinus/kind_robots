@@ -66,7 +66,7 @@ PostMessage
 export interface Bot {
   id: number
   name: string
-  botType: string
+  BotType: string
   description: string
   avatarImage?: string
   model?: string
@@ -80,7 +80,7 @@ export interface Bot {
   n?: number
   createdAt?: Date
   updatedAt?: Date
-  intro?: string
+  userIntro?: string
   size?: string
 }
 
@@ -117,7 +117,7 @@ User selects ActiveBot Amibot. Amibot has these fields:
   {
     id: 0,
     name: 'AMIb0t',
-    botType: 'chatbot',
+    BotType: 'chatbot',
     description: 'Raising awareness to purchase mosquito nets for children in africa',
     avatarImage: '/images/wonderchest/wonderchest304_(23).webp',
     model: 'gpt-3.5-turbo',
@@ -136,7 +136,7 @@ BotPrompt should display the ActiveBot in a pleasant and friendly design that ut
 BotCard should display
 Name
 Description
-botType
+BotType
 AvatarImage (large Image, think like a flag or a character sheet to an rpg)
 Left of Avatar and title info should be the description in large friendly letters.
 Do not show model or post, those are sent in the packet

@@ -13,7 +13,7 @@
       <div class="card-body">
         <h2 class="card-title">{{ bot.name }}</h2>
         <p>{{ bot.description }}</p>
-        <p>Type: {{ bot.botType }}</p>
+        <p>Type: {{ bot.BotType }}</p>
         <p>Model: {{ bot.model }}</p>
         <p>Post: {{ bot.post }}</p>
         <p>Temperature: {{ bot.temperature }}</p>

@@ -4,8 +4,8 @@
     <div class="card lg:card-side bg-base-100 text-base-content shadow-xl flex-grow">
       <div class="card-body h-full flex-grow">
         <h2 class="text-2xl font-semibold mb-4">Prompt</h2>
-        <!-- Display the bot's intro if it exists -->
-        <p v-if="activeBot.intro" class="text-accent-700">{{ activeBot.intro }}</p>
+        <!-- Display the bot's userIntro if it exists -->
+        <p v-if="activeBot.userIntro" class="text-accent-700">{{ activeBot.userIntro }}</p>
         <!-- Textarea for entering the prompt -->
         <textarea
           id="prompt"
@@ -86,7 +86,7 @@ const sendData = async () => {
   try {
     isLoading.value = true
     // Add the user prompt to the active bot message array
-    botsStore.addUserMessage(activeBot.value.intro + prompt.value)
+    botsStore.addUserMessage(activeBot.value.userIntro + prompt.value)
     const CHAT_URL = '/api/botcafe/chat'
     // create API payload
     const apiPayload = {
@@ -108,19 +108,19 @@ const sendData = async () => {
     })
 
     // Add the user prompt to the active bot message array and database
-    const userMessage = activeBot.value.intro + prompt.value
+    const userMessage = activeBot.value.userIntro + prompt.value
     botsStore.addUserMessage(userMessage)
     await addUserMessageToDB(userMessage)
 
     // ...
 
     // Add the responses to the active bot message array and database
-    const botMessages = data.choices.map((choice) => ({
+    const botIntros = data.choices.map((choice) => ({
       role: 'assistant',
       content: choice.message.content
     }))
-    botsStore.addMessages(botMessages)
-    await addBotMessageToDB(botMessages)
+    botsStore.addMessages(botIntros)
+    await addBotMessageToDB(botIntros)
 
     // check if response data or choices in response data is undefined
     if (!data || !data.choices || !data.choices.length) {

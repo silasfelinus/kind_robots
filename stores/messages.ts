@@ -1,7 +1,7 @@
-// store/matchmaker.ts
+// store/messages.ts
 import { defineStore } from 'pinia'
 import axios from 'axios'
-import { Message } from '@prisma/client'
+import { Message, Bot } from '@prisma/client'
 
 export const useMessagesStore = defineStore('messages', {
   state: () => ({

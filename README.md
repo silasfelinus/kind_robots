@@ -125,7 +125,7 @@ wildcards - stable diffusion art generation with wildcard prompts
 wonderforge - github code showcase and projects in development
 
 [SCHEMA]
-Bot: [id, name, type, description, intro, training, avatarImage]
+Bot: [id, name, type, description, userIntro, training, avatarImage]
 Todo: [id, content, category, isFinished, user]
 Gallery: [id, name, content, description, isNSFW, isAuth, user]
 Checkpoint: [id, name, hash, isNSFW, user]

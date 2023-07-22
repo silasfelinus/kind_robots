@@ -50,7 +50,7 @@ model Bot {
   id                Int      @id @unique @default(autoincrement())
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  botType           String   @default("chatbot")
+  BotType           BotType  @default(PROMPTBOT)
   name              String   @unique
   isPublic          Boolean  @default(true)
   underConstruction Boolean  @default(false)
@@ -68,6 +68,12 @@ model Bot {
   User              User?    @relation(fields: [userId], references: [id])
   userId            Int?
   Images            Image[]
+}
+
+enum BotType {
+  PROMPTBOT
+  CHATBOT
+  ARTBOT
 }
 
 // optional prompt data that we can generate programmatically.
@@ -88,7 +94,8 @@ model ExifData {
   negTemplate String?
   clip        String?
   deepboro    String?
-  Image       Image[]
+  Image       Image    @relation(fields: [imageId], references: [id])
+  imageId     Int
 }
 
 // media collections
@@ -108,35 +115,52 @@ model Gallery {
 }
 
 model Image {
-  id         Int       @id @unique @default(autoincrement())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  path       String    @default("/")
-  isNSFW     Boolean   @default(false)
-  isFavorite Boolean   @default(false)
-  isFlagged  Boolean   @default(false)
-  ExifData   ExifData? @relation(fields: [exifDataId], references: [id])
-  tags       String    @default("AI, Cafe Purr")
+  id         Int        @id @unique @default(autoincrement())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  path       String     @default("/")
+  isNSFW     Boolean    @default(false)
+  isFavorite Boolean    @default(false)
+  isFlagged  Boolean    @default(false)
+  tags       String     @default("AI, Cafe Purr")
   designer   String?
   exifDataId Int?
-  User       User?     @relation(fields: [userId], references: [id])
+  User       User?      @relation(fields: [userId], references: [id])
   userId     Int?
-  Gallery    Gallery?  @relation(fields: [galleryId], references: [id])
+  Gallery    Gallery?   @relation(fields: [galleryId], references: [id])
   galleryId  Int?
-  Bot        Bot?      @relation(fields: [botId], references: [id])
+  Bot        Bot?       @relation(fields: [botId], references: [id])
   botId      Int?
+  ExifData   ExifData[]
 }
 
 //raw text data for API processing
+// prompt is colloquial for ai-art modeling text data
 model Prompt {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String   @default("message")
-  category  String   @default("user")
-  content   String
-  designer  User     @relation(fields: [userId], references: [id])
-  userId    Int
+  id          Int        @id @unique @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  StringType  StringType
+  label       String
+  content     String
+  designer    User       @relation(fields: [userId], references: [id])
+  userId      Int
+  sender      ModelType?
+  senderId    Int?
+  recipient   ModelType?
+  recipientId Int?
+}
+
+enum StringType {
+  TAG //single unit tag phrase 
+  PROMPT //combined nlp prompt message
+  WILDCARD //list for randomized generations
+  RESPONSE //message response nlp to human
+  IMAGE_URL // image url
+  URL // generic web url
+  MASK_URL // url to an image mask
+  CODE //validated codewall
+  ERROR // An Error message
 }
 
 // User model
@@ -181,25 +205,11 @@ model User {
   Bots               Bot[]
   Galleries          Gallery[]
   Images             Image[]
-  Messages           Message[]
   Prompts            Prompt[]
   Quests             Quest[]
   Reactions          Reaction[]
   Resources          Resource[]
   Projects           Project[]
-}
-
-// text data retrieval system
-model Message {
-  id          Int       @id @unique @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  role        Role      @default(USER)
-  content     String
-  User        User?     @relation(fields: [userId], references: [id])
-  userId      Int?
-  recipient   ModelType
-  recipientId Int
 }
 
 // gamification achievement system

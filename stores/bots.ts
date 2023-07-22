@@ -1,95 +1,101 @@
+// ~/stores/bots.ts
 import { defineStore } from 'pinia'
-import axios from 'axios'
 import { Bot } from '@prisma/client'
-import { useThemeStore } from './theme'
+import {
+  getBots,
+  createManyBots,
+  updateBot,
+  deleteBot,
+  randomBot,
+  countBots,
+  BotData
+} from '../server/api/utils/bot'
+import { ErrorHandler } from '../server/api/utils/error'
 
-export const useBotsStore = defineStore('bots', {
-  state: (): { bots: Bot[]; activeBot: Bot | null } => ({
+interface BotState {
+  bots: Bot[]
+  selectedBots: Bot[]
+  activeBot: Bot | null
+}
+
+export const useBotsStore = defineStore({
+  id: 'bots',
+  state: (): BotState => ({
     bots: [],
+    selectedBots: [],
     activeBot: null
   }),
   getters: {
-    activeBot() {
-      return this.activeBot
+    getSelectedBots(): Bot[] {
+      return this.selectedBots
+    },
+    getActiveBot(): Bot | null {
+      return this.activeBot || this.selectedBots.slice(-1)[0] || null
     }
   },
   actions: {
-    setActiveBot(bot: Bot) {
-      this.activeBot = bot
-
-      const themeStore = useThemeStore()
-
-      if (bot.theme) {
-        themeStore.changeTheme(bot.theme)
+    async fetchBots(): Promise<void> {
+      this.bots = await ErrorHandler(getBots, 'Error while fetching bots')
+    },
+    async selectBot(botId: number): Promise<void> {
+      const bot = this.bots.find((bot) => bot.id === botId)
+      if (bot) {
+        this.selectedBots.push(bot)
+        this.activeBot = bot
+      } else {
+        throw new Error('Cannot select bot that does not exist')
       }
     },
-    setPrompt(botId: number, prompt: string) {
-      this.prompts[botId] = prompt
-    },
-    getPrompts(botId: number): string {
-      return this.prompts[botId] || ''
-    },
-    async fetchBots() {
-      const response = await axios.get('/api/bots')
-      this.bots = response.data
-    },
-
-    async fetchBotById(id: number) {
-      const response = await axios.get(`/api/bots/${id}`)
-      return response.data
-    },
-
-    async createBot(bot: Bot) {
-      const response = await axios.post('/api/bots', bot)
-      this.bots.push(response.data)
-    },
-
-    async updateBot(id: number, bot: Bot) {
-      const response = await axios.patch(`/api/bots/${id}`, bot)
-      const index = this.bots.findIndex((b) => b.id === id)
-      this.$patch({ bots: { [index]: response.data } })
-    },
-
-    async deleteBot(id: number) {
-      await axios.delete(`/api/bots/${id}`)
-      this.bots = this.bots.filter((b) => b.id !== id)
-    },
-    async sendChat(bot: Bot) {
-      const CHAT_URL = '/api/botcafe/chat'
-
-      // create API payload
-      const apiPayload = {
-        messages: [
-          { role: 'system', content: 'you are' + bot.name + 'a helpful' + bot.BotType },
-          { role: 'user', content: bot.userIntro + ' ' + bot.prompt }
-        ],
-        model: bot.model || 'gpt-3.5-turbo',
-        maxTokens: bot.maxTokens || 100,
-        temperature: bot.temperature || 0.0,
-        n: bot.n || 1
-      }
-
-      // send the API request
-      try {
-        const response = await axios.post(CHAT_URL, apiPayload, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-
-        // check if response data or choices in response data is undefined
-        if (!response.data) {
-          console.error('Received unexpected data:', response)
-          return
-        }
-        return response.data
-      } catch (error) {
-        console.error('Error sending chat:', error)
+    deselectBot(botId: number): void {
+      const botIndex = this.selectedBots.findIndex((bot) => bot.id === botId)
+      if (botIndex !== -1) {
+        this.selectedBots.splice(botIndex, 1)
+        this.activeBot = this.selectedBots.slice(-1)[0] || null
+      } else {
+        throw new Error('Cannot deselect bot that is not selected')
       }
     },
-    // Pinia's init() function
-    async $init() {
-      await this.fetchBots()
+    async addBots(botsData: Partial<BotData>[]): Promise<void> {
+      const { count } = await ErrorHandler(
+        () => createManyBots(botsData),
+        'Error while adding bots'
+      )
+      // Refresh bots
+      if (count > 0) await this.fetchBots()
+    },
+    async updateBot(id: number, data: Partial<BotData>): Promise<void> {
+      const botIndex = this.bots.findIndex((bot) => bot.id === id)
+      if (botIndex !== -1) {
+        const updatedBot = await ErrorHandler(() => updateBot(id, data), 'Error while updating bot')
+        this.bots.splice(botIndex, 1, updatedBot)
+      } else {
+        throw new Error('Cannot update bot that does not exist')
+      }
+    },
+    setActiveBot(botId: number): void {
+      const bot = this.bots.find((bot) => bot.id === botId)
+      if (bot) {
+        this.activeBot = bot
+      } else {
+        throw new Error('Cannot set active bot that does not exist')
+      }
+    },
+    async deleteBot(id: number): Promise<void> {
+      const botIndex = this.bots.findIndex((bot) => bot.id === id)
+      if (botIndex !== -1) {
+        await ErrorHandler(() => deleteBot(id), 'Error while deleting bot')
+        // Refresh bots
+        await this.fetchBots()
+      } else {
+        throw new Error('Cannot delete bot that does not exist')
+      }
+    },
+    async randomBot(): Promise<void> {
+      const bot = await ErrorHandler(randomBot, 'Error while getting random bot')
+      if (bot) this.activeBot = bot
+    },
+    async countBots(): Promise<number> {
+      return await ErrorHandler(countBots, 'Error while counting bots')
     }
   }
 })

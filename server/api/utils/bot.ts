@@ -1,11 +1,11 @@
 // /server/api/utils/bot.ts
-import { Bot, Prisma } from '@prisma/client'
+import { Bot, Prisma, BotType } from '@prisma/client'
 import prisma from './prisma'
 import { ErrorHandler } from './error'
 
 export interface BotData {
   name: string
-  botType?: string
+  botType?: BotType
   isPublic?: boolean
   underConstruction?: boolean
   canDelete?: boolean

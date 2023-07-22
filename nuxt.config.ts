@@ -1,8 +1,19 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  modules: ['@nuxtjs/tailwindcss', '@nuxt/content', 'nuxt-icon', '@pinia/nuxt'],
+  modules: [
+    '@nuxtjs/tailwindcss',
+    '@nuxt/content',
+    'nuxt-icon',
+    '@pinia/nuxt',
+    '@sidebase/nuxt-auth'
+  ],
   css: ['~/assets/css/tailwind.css'],
+  auth: {
+    provider: {
+      type: 'authjs'
+    }
+  },
   runtimeConfig: {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY
   },

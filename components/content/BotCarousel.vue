@@ -29,44 +29,32 @@
 </template>
 
 <script setup lang="ts">
-import { Bot } from '@prisma/client'
 import { useBotsStore } from '../../stores/bots'
+import { Bot } from '../../types/bot'
 
 const botsStore = useBotsStore()
-const bots: Bot[] = botsStore.getBots
-let activeBot = computed(() => botsStore.getActiveBot)
+const bots: ComputedRef<Bot[]> = computed(() => botsStore.bots)
+const activeBot: ComputedRef<Bot | null> = computed(() => botsStore.getActiveBot)
 
+const setActiveBot = (bot: Bot) => {
+  botsStore.setActiveBot(bot.id)
+}
 onMounted(async () => {
-  if (!bots.length) {
+  if (bots.value.length === 0) {
     await fetchBots()
   }
 })
 
 const fetchBots = async () => {
   try {
-    const response = await fetch('/api/bots')
-    const data = await response.json()
-    botsStore.setBots(data)
-    if (!activeBot.value && botsStore.getDefaultBot) {
-      botsStore.setActiveBot(botsStore.getDefaultBot)
+    await botsStore.fetchBots()
+    if (!activeBot.value) {
+      const defaultBot = botsStore.bots[0]
+      if (defaultBot) botsStore.selectBot(defaultBot.id)
     }
   } catch (error) {
     console.error(error)
   }
 }
-
-const setActiveBot = (bot: Bot) => {
-  botsStore.setActiveBot(bot)
-}
-
-watch(
-  () => activeBot.value,
-  (newActiveBot, oldActiveBot) => {
-    if (newActiveBot) {
-      const id = newActiveBot.id
-      const botElement = document.getElementById(`bot-${id}`)
-      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-  }
-)
 </script>
+../../types/Bot

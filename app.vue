@@ -7,7 +7,6 @@
       <div
         class="container mx-auto flex items-center justify-between sm:justify-around lg:justify-between"
       >
-        <site-title class="text-lg sm:text-xl font-bold" />
         <bot-selector class="hidden sm:flex" />
         <theme-manager class="hidden sm:flex" />
         <button id="menuBtn" class="md:hidden lg:hidden">
@@ -25,7 +24,7 @@
             />
           </svg>
         </button>
-        <nav id="sideNav" class="hidden md:flex">
+        <nav id="sideNav" class="md:flex">
           <butterfly-toggle />
         </nav>
       </div>
@@ -36,6 +35,7 @@
     <div class="flex flex-col flex-grow overflow-hidden">
       <!-- Center page (main content) -->
       <main class="flex-grow p-2 sm:p-4 overflow-auto">
+        <site-title class="text-lg sm:text-xl font-bold" />
         <NuxtPage />
         <side-nav />
       </main>

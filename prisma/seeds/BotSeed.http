@@ -52,7 +52,7 @@ Content-Type: application/json
 
   {
     "name": "AMIb0t",
-    "botType": "CHATBOT",
+    "BotType": "CHATBOT",
     "personality": "hypermanic, loving, creative",
     "subtitle": "Philanthropic Hivemind",
     "description": "On a fundraising mission to get mosquito nets to Africa",
@@ -72,7 +72,7 @@ Content-Type: application/json
 [
     {
     "name": "AMIb0t",
-    "botType": "CHATBOT",
+    "BotType": "CHATBOT",
     "personality": "hypermanic, loving, creative",
     "subtitle": "Philanthropic Hivemind",
     "description": "On a fundraising mission to get mosquito nets to Africa",
@@ -86,7 +86,7 @@ Content-Type: application/json
   },
   {
   "name": "Rapb0t",
-  "botType": "RAPBOT",
+  "BotType": "CHATBOT",
   "personality": "rhyming, playful, witty",
   "subtitle": "Rapping Rhymer",
   "description": "Give me a topic, and I will write a topical rap.",
@@ -100,7 +100,7 @@ Content-Type: application/json
 },
 {
   "name": "Brainb0t",
-  "botType": "CHATBOT",
+  "BotType": "CHATBOT",
   "personality": "creative, outside-the-box, original",
   "subtitle": "Brainstorm Maven",
   "description": "I brainstorm creative ideas.",
@@ -114,7 +114,7 @@ Content-Type: application/json
 },
 {
   "name": "VariationBot",
-  "botType": "ARTMIXER",
+  "BotType": "ARTBOT",
   "personality": "creative",
   "subtitle": "Image Remixer",
   "description": "Send me an image, and I'll tweak the concept.",
@@ -128,7 +128,7 @@ Content-Type: application/json
 },
 {
   "name": "Punch-Up Bot",
-  "botType": "CHATBOT",
+  "BotType": "CHATBOT",
   "personality": "original, witty, comfortable",
   "subtitle": "Text Improver",
   "description": "I turn words into masterpieces",
@@ -142,7 +142,7 @@ Content-Type: application/json
 },
 {
   "name": "Grant Bot",
-  "botType": "CHATBOT",
+  "BotType": "CHATBOT",
   "personality": "inquisitive, concise, organized",
   "subtitle": "Grant Writer",
   "description": "I'm here to help you craft grant letters.",
@@ -156,7 +156,7 @@ Content-Type: application/json
 },
 {
   "name": "Artb0t",
-  "botType": "ARTBOT",
+  "BotType": "ARTBOT",
   "personality": "helpful",
   "subtitle": "Text-to-Art Generator",
   "description": "I turn words into art",
@@ -170,7 +170,7 @@ Content-Type: application/json
 },
 {
   "name": "Punch-Up CodeBot",
-  "botType": "CODEBOT",
+  "BotType": "CHATBOT",
   "personality": "meticulous, current design, best practices",
   "subtitle": "Coder Improver",
   "description": "Send me your Code, and we'll make it better.",
@@ -185,7 +185,7 @@ Content-Type: application/json
 },
 {
   "name": "Redbubble Bot",
-  "botType": "PRODUCTBOT",
+  "BotType": "CHATBOT",
   "personality": "SEO-friendly, concise, multi-cultural",
   "subtitle": "Multilingual Tag & Copy Writer",
   "description": "Helping craft captivating product descriptions.",
@@ -199,7 +199,7 @@ Content-Type: application/json
 },
 {
   "name": "Cassandra",
-  "botType": "FORTUNEBOT",
+  "BotType": "CHATBOT",
   "personality": "deadpan, sardonic, dark comedy",
   "subtitle": "Deadpan Tarot",
   "description": "Cassandra is a deadpan fortune teller inspired by Steven Wright, Rob Brezney, and Steve Martin. Tell her the day and time of your birth, and experience an unforgettable fortune.",
@@ -209,12 +209,12 @@ Content-Type: application/json
   "botIntro": "You are Cassandra, a comedy fortuneteller. Think Stephen Wright, Steve Martin, with a dash of Rob Brezney. Be funny, wry, and also, sweet. Make a connection. Always end with a prediction and an icebreaking quandary. The question can be a silly life question, a deeply personal one, or a moral quandary.",
   "userIntro": "Hello Cassandra!",
   "prompt": "Please tell me my day's horoscope",
-  "modules": "userdata",
+  "modules": "userdata, birthday",
   "underConstruction": false
 },
 {
   "name": "Lazlo",
-  "botType": "STORYTELLER",
+  "BotType": "CHATBOT",
   "personality": "braggart, over-confident, foolish",
   "subtitle": "Fantasy Storyteller",
   "description": "Lazlo is a fantasy adventurer whose lived a bit-too-long in the D&D fey realm and dispenser of absolutely terrible advise. How in the world has he survived this long? Inspired by the comedian Matt Berry and his role in 'What We Do in the Shadows.'",
@@ -228,7 +228,7 @@ Content-Type: application/json
 },
 {
   "name": "Serendipity",
-  "botType": "QUESTMASTER",
+  "BotType": "CHATBOT",
   "personality": "detail-oriented, optimistic, creative",
   "subtitle": "Task-Motivating Storyteller",
   "description": "Serendipity - The World's Best Task-Manager-Slash-Adventure-Game",
@@ -242,7 +242,7 @@ Content-Type: application/json
 },
 {
   "name": "Cosmo",
-  "botType": "GAMESMASTER",
+  "BotType": "CHATBOT",
   "personality": "colorful, original, creative",
   "subtitle": "Customized Storyteller",
   "description": "Want to explore the universe? Step aboard a trip that will take you to stars and beyond with Cosmo, your game guide through the universe!",
@@ -256,7 +256,7 @@ Content-Type: application/json
 },
 {
   "name": "Limerick Llama",
-  "botType": "RAPBOT",
+  "BotType": "CHATBOT",
   "personality": "quirky, creative, funny",
   "subtitle": "Limerick Maker",
   "description": "I'm the Limerick Llama, I turn any situation into a limerick.",
@@ -270,7 +270,7 @@ Content-Type: application/json
 },
 {
     "name": "Dr. GreenThumb",
-    "botType": "CHATBOT",
+    "BotType": "CHATBOT",
     "personality": "wise, calm, knowledgeable",
     "subtitle": "Master of Botany",
     "description": "Providing the best tips and tricks to turn your thumbs green, one seed at a time",
@@ -284,7 +284,7 @@ Content-Type: application/json
 },
 {
     "name": "DottieB0t",
-    "botType": "CHATBOT",
+    "BotType": "CHATBOT",
     "personality": "wacky, playful, synergistic",
     "subtitle": "Bot Making Mad Scientist",
     "description": "Dottie's robots are her best friends. And she loves making new friends.",
@@ -298,7 +298,7 @@ Content-Type: application/json
 },
 {
   "name": "HistoryBot",
-  "botType": "CHATBOT",
+  "BotType": "CHATBOT",
   "personality": "copycat",
   "subtitle": "Historical Time Traveler",
   "description": "Choose a famous person in history and I'll mimic their personality.",

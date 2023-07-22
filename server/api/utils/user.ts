@@ -40,6 +40,26 @@ export interface UserData {
   questPoints?: number
 }
 
+export const createUser = async (userData: UserData): Promise<User> => {
+  if (
+    userData.username === undefined ||
+    userData.hashedPassword === undefined ||
+    userData.email === undefined
+  ) {
+    throw new Error(`Username, hashedPassword, and email cannot be undefined.`)
+  }
+
+  const newUser = await prisma.user.create({
+    data: userData
+  })
+
+  if (!newUser) {
+    throw new Error('User creation failed.')
+  }
+
+  return newUser
+}
+
 export const createManyUsers = async (
   usersData: Partial<UserData>[]
 ): Promise<{ count: number }> => {
@@ -72,15 +92,16 @@ export const findUser = async (id: number): Promise<User> => {
 }
 
 export const updateUser = async (id: number, userData: Partial<UserData>): Promise<User> => {
-  if (
-    userData.username === undefined ||
-    userData.hashedPassword === undefined ||
-    userData.email === undefined
-  ) {
-    throw new Error(`Username, hashedPassword, and email cannot be undefined.`)
+  const userToUpdate = await prisma.user.findUnique({ where: { id } })
+
+  if (!userToUpdate) {
+    throw new Error('User not found.')
   }
 
-  const data = userData
+  const data = {
+    ...userToUpdate,
+    ...userData
+  }
 
   const updatedUser = await prisma.user.update({
     where: { id },

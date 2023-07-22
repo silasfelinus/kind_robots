@@ -6,7 +6,6 @@ image: amibot/amibot6.png
 gallery: wonderchest
 ---
 
-:manage-effects
 :manage-styles
 
 :manage-wildcards

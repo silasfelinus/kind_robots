@@ -99,7 +99,7 @@
 
 <script setup lang="ts">
 import interact from 'interactjs'
-import { useBotStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/botStore'
 
 const botsStore = useBotStore()
 const bot = computed(() => botsStore.getActiveBot)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBotStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/botStore'
 
 const botsStore = useBotStore()
 let activeBot = computed(() => botsStore.getActiveBot)

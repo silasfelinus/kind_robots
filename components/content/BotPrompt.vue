@@ -41,7 +41,7 @@
 </template>
 <script setup lang="ts">
 import axios from 'axios'
-import { useBotStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/botStore'
 
 // API response interfaces
 interface Message {

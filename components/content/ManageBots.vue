@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { Bot } from '@prisma/client'
-import { useBotStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/botStore'
 
 const botsStore = useBotStore()
 

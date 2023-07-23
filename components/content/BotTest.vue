@@ -72,7 +72,7 @@ Copy code
 
 <script setup lang="ts">
 import axios from 'axios'
-import { useBotStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/botStore'
 
 const botsStore = useBotStore()
 const activeBot = computed(() => botsStore.getActiveBot)

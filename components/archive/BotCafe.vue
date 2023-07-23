@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { useBotStore } from '../../../stores/bots'
+import { useBotStore } from '../../../stores/botStore'
 
 const botStore = useBotStore()
 </script>

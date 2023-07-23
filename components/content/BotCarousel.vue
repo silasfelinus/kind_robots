@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { useBotStore, Bot } from '../../stores/bots'
+import { useBotStore, Bot } from '../../stores/botStore'
 
 const botsStore = useBotStore()
 const bots: ComputedRef<Bot[]> = computed(() => botsStore.bots)

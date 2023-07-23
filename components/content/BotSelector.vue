@@ -12,22 +12,17 @@
 </template>
 
 <script setup lang="ts">
-import { Bot } from '@prisma/client'
 import { useBotStore } from '../../stores/botStore'
 
-const botsStore = useBotStore()
-const bots: Bot[] = botsStore.getBots()
-let activeBotId = computed({
-  get: () => botsStore.getActiveBotId,
-  set: (newVal) => botsStore.setActiveBotId(newVal)
-})
-let activeBot = computed(() => botsStore.getActiveBot)
+const botStore = useBotStore()
+const bots = computed(() => botStore.bots)
+let activeBotId = ref(botStore.activeBotId)
 
 watch(
-  () => activeBot.value,
-  (newActiveBot) => {
-    activeBotId.value = newActiveBot.id
-  }
+  activeBotId,
+  (newActiveBotId) => {
+    botStore.setActiveBotId(newActiveBotId)
+  },
+  { immediate: true }
 )
 </script>
-../../stores/botStore

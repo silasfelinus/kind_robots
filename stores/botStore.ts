@@ -1,14 +1,7 @@
-// ~/stores/botsStore.ts
+// ~/stores/botStore.ts
 import { defineStore } from 'pinia'
 import { Bot as BotRecord } from '@prisma/client'
-import {
-  fetchBots,
-  fetchBotById,
-  addBots,
-  updateBot,
-  deleteBot,
-  randomBot
-} from '../server/api/bots'
+import { fetchBots, fetchBotById, addBots, updateBot, deleteBot } from '../server/api/bots'
 import { useErrorStore, ErrorType } from './errorStore'
 import { useStatusStore, StatusType } from './statusStore'
 
@@ -19,35 +12,39 @@ export type Bot = BotRecord
 
 interface BotState {
   bots: Bot[]
-  selectedBots: Bot[]
-  activeBot: Bot | null
+  activeBotId: number | null
 }
 
 export const useBotStore = defineStore({
   id: 'bots',
   state: (): BotState => ({
     bots: [],
-    selectedBots: [],
-    activeBot: null
+    activeBotId: null
   }),
   getters: {
-    getSelectedBots(): Bot[] {
-      return this.selectedBots
+    getBots(): Bot[] {
+      return this.bots
     },
-    getActiveBot(): Bot | null {
-      return this.activeBot || this.selectedBots.slice(-1)[0] || null
+    getActiveBot(): Bot | undefined {
+      return this.bots.find((bot) => bot.id === this.activeBotId)
+    },
+    getActiveBotId(): number | null {
+      return this.activeBotId
     }
   },
   actions: {
-    async fetchBots(): Promise<void> {
+    async fetchBots(page = 1, pageSize = 10): Promise<void> {
       await errorStore.handleError(
         async () => {
-          this.bots = await fetchBots()
+          this.bots = await fetchBots(page, pageSize)
           statusStore.setStatus(StatusType.SUCCESS, 'Bots fetched successfully.')
         },
         ErrorType.NETWORK_ERROR,
         'Failed to fetch bots.'
       )
+    },
+    setActiveBotId(botId: number) {
+      this.activeBotId = botId
     },
     async fetchBotById(id: number): Promise<void> {
       await errorStore.handleError(

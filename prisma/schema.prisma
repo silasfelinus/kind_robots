@@ -47,25 +47,25 @@ enum Role {
 // our modular promptbots
 // the meat-and-potatoes of our tech interactibles
 model Bot {
-  id                Int         @id @unique @default(autoincrement())
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  BotType           BotType     @default(CHATBOT)
-  name              String      @unique
-  isPublic          Boolean     @default(true)
-  underConstruction Boolean     @default(false)
-  canDelete         Boolean     @default(false)
-  subtitle          String      @default("Kind Robot")
-  description       String      @default("I'm a kind robot")
-  avatarImage       String      @default("/images/wonderchest/wonderchest304_(23).webp")
-  botIntro          String      @default("You're a Kind Robot")
-  userIntro         String      @default("Let's make a difference. Here's my idea:")
-  prompt            String      @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
+  id                Int      @id @unique @default(autoincrement())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  BotType           BotType  @default(CHATBOT)
+  name              String   @unique
+  isPublic          Boolean  @default(true)
+  underConstruction Boolean  @default(false)
+  canDelete         Boolean  @default(false)
+  subtitle          String   @default("Kind Robot")
+  description       String   @default("I'm a kind robot")
+  avatarImage       String   @default("/images/wonderchest/wonderchest304_(23).webp")
+  botIntro          String   @default("You're a Kind Robot")
+  userIntro         String   @default("Let's make a difference. Here's my idea:")
+  prompt            String   @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
   trainingPath      String?
   theme             String?
-  personality       String      @default("helpful, inquisitive, considerate")
+  personality       String   @default("helpful, inquisitive, considerate")
   modules           String?
-  User              User? @relation(fields: [userId], references: [id])
+  User              User?    @relation(fields: [userId], references: [id])
   userId            Int?
   Media             Media[]
 }
@@ -90,6 +90,22 @@ model Gallery {
   custodian   String?
   User        User?    @relation(fields: [userId], references: [id])
   userId      Int?
+}
+
+// User Incentivization and interaction element
+model Game {
+  id         Int      @id @unique @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  content    String
+  category   String   @default("Blue Sky Tasks")
+  isFinished Boolean  @default(false)
+  User       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  reward     String   @default("A Magic Reward")
+  icon       String?
+  points     Int      @default(10)
+  isPrivate  Boolean  @default(false)
 }
 
 // Any bob-text media deemed important enough to store in the database
@@ -125,6 +141,29 @@ model Media {
   deepboroData String?
 }
 
+// Public and private salons hosted by users
+// The name changes frequently: pitch, concept, vision, Vibe, Collection, Group, Page...
+model Project {
+  id                 Int      @id @unique @default(autoincrement())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  name               String
+  title              String
+  category           String
+  content            String   @default("Here's the idea...")
+  allowComments      Boolean  @default(false)
+  description        String   @default("")
+  isPublic           Boolean  @default(true)
+  hasAdmission       Boolean  @default(false)
+  paywallDestination String?
+  Host               User     @relation(fields: [userId], references: [id])
+  hostId             Int
+  usdFee             Float
+  portalUrl          String?
+  pitchUrl           String?
+  userId             Int
+}
+
 //raw text data for API processing
 // prompt is colloquial for ai-art modeling text data
 model Prompt {
@@ -140,6 +179,41 @@ model Prompt {
   senderId    Int?
   recipient   ModelType?
   recipientId Int?
+}
+
+// Reaction / review system
+// Bot reactions can be recovered with Reaction.content
+model Reaction {
+  id          Int       @id @unique @default(autoincrement())
+  User        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  reviewTitle String?
+  modelType   ModelType
+  modelId     Int
+  content     String?
+  rating      Int?
+}
+
+// Online resources such as checkpoints, embeddings
+// lora, hypernetworks, and urls worth preserving
+model Resource {
+  id           Int          @id @unique @default(autoincrement())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  User         User?        @relation(fields: [userId], references: [id])
+  userId       Int?
+  name         String       @unique
+  isNSFW       Boolean      @default(false)
+  customLabel  String?
+  MediaPath    String?
+  customUrl    String?
+  civitaiUrl   String?
+  huggingUrl   String?
+  localPath    String?
+  description  String?
+  resourceType ResourceType @default(CHECKPOINT)
 }
 
 enum StringType {
@@ -200,78 +274,4 @@ model User {
   Reactions          Reaction[]
   Resources          Resource[]
   Projects           Project[]
-}
-
-// User Incentivization and interaction element
-model Game {
-  id         Int      @id @unique @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  content    String
-  category   String   @default("Blue Sky Tasks")
-  isFinished Boolean  @default(false)
-  User       User     @relation(fields: [userId], references: [id])
-  userId     Int
-  reward     String   @default("A Magic Reward")
-  icon       String?
-  points     Int      @default(10)
-  isPrivate  Boolean  @default(false)
-}
-
-// Reaction / review system
-// Bot reactions can be recovered with Reaction.content
-model Reaction {
-  id          Int       @id @unique @default(autoincrement())
-  User        User      @relation(fields: [userId], references: [id])
-  userId      Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  reviewTitle String?
-  modelType   ModelType
-  modelId     Int
-  content     String?
-  rating      Int?
-}
-
-// Online resources such as checkpoints, embeddings
-// lora, hypernetworks, and urls worth preserving
-model Resource {
-  id           Int          @id @unique @default(autoincrement())
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  User         User?        @relation(fields: [userId], references: [id])
-  userId       Int?
-  name         String       @unique
-  isNSFW       Boolean      @default(false)
-  customLabel  String?
-  MediaPath    String?
-  customUrl    String?
-  civitaiUrl   String?
-  huggingUrl   String?
-  localPath    String?
-  description  String?
-  resourceType ResourceType @default(CHECKPOINT)
-}
-
-// Public and private salons hosted by users
-// The name changes frequently: pitch, concept, vision, Vibe, Collection, Group, Page...
-model Project {
-  id                 Int      @id @unique @default(autoincrement())
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  name               String
-  title              String
-  category           String
-  content            String   @default("Here's the idea...")
-  allowComments      Boolean  @default(false)
-  description        String   @default("")
-  isPublic           Boolean  @default(true)
-  hasAdmission       Boolean  @default(false)
-  paywallDestination String?
-  Host               User     @relation(fields: [userId], references: [id])
-  hostId             Int
-  usdFee             Float
-  portalUrl          String?
-  pitchUrl           String?
-  userId             Int
 }

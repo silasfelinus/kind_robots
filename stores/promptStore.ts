@@ -1,50 +1,120 @@
-// store/prompts.ts
+// ~/stores/promptStore.ts
 import { defineStore } from 'pinia'
-import axios from 'axios'
-import { Prompt } from '@prisma/client'
-import { useErrorStore } from './errorStore'
+import { Prompt as PromptRecord } from '@prisma/client'
+import {
+  fetchPrompts,
+  fetchPromptById,
+  addPrompts,
+  updatePrompt,
+  deletePrompt
+} from '../server/api/prompts'
+import { useErrorStore, ErrorType } from './errorStore'
+import { useStatusStore, StatusType } from './statusStore'
 
-export const usepromptsStore = defineStore('prompts', {
-  state: () => ({
-    prompt: [] as Prompt[],
-    activepromptId: 0
+const errorStore = useErrorStore()
+const statusStore = useStatusStore()
+
+export type Prompt = PromptRecord
+
+interface PromptState {
+  prompts: Prompt[]
+  selectedPrompt: Prompt | null
+}
+
+export const usePromptStore = defineStore({
+  id: 'prompts',
+  state: (): PromptState => ({
+    prompts: [],
+    selectedPrompt: null
   }),
   getters: {
-    getprompts(): Prompt[] {
-      return this.prompt
-    },
-    getActiveprompt(): Prompt | undefined {
-      return this.prompt.find((prompt) => prompt.id === this.activepromptId)
+    getSelectedPrompt(): Prompt | null {
+      return this.selectedPrompt
     }
   },
   actions: {
-    async fetchprompts(botId: number) {
-      const PROMPT_URL = `/api/botcafe/${botId}/prompt`
-
-      try {
-        const prompt = await axios.get(PROMPT_URL, {
-          headers: {
-            'Content-Type': 'application/json'
+    async fetchPrompts(page = 1, pageSize = 10): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          this.prompts = await fetchPrompts(page, pageSize)
+          statusStore.setStatus(StatusType.SUCCESS, 'Prompts fetched successfully.')
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to fetch prompts.'
+      )
+    },
+    async fetchPromptById(id: number): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          const prompt = await fetchPromptById(id)
+          if (prompt) {
+            const promptIndex = this.prompts.findIndex((existingPrompt) => existingPrompt.id === id)
+            if (promptIndex !== -1) {
+              this.prompts.splice(promptIndex, 1, prompt)
+            } else {
+              this.prompts.push(prompt)
+            }
           }
-        })
-
-        if (!prompt.data) {
-          console.error('Received unexpected data:', prompt)
-          return
-        }
-        this.prompt = prompt.data
-      } catch (error) {
-        console.error('Error fetching prompt:', error)
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to fetch prompt by id.'
+      )
+    },
+    async addPrompts(promptData: Partial<Prompt>[]): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          const { prompts: newPrompts } = await addPrompts(promptData)
+          this.prompts.push(...newPrompts)
+          statusStore.setStatus(
+            StatusType.SUCCESS,
+            `${newPrompts.length} prompt(s) added successfully.`
+          )
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to add prompts.'
+      )
+    },
+    async updatePrompt(id: number, data: Partial<Prompt>): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          const updatedPrompt = await updatePrompt(id, data)
+          if (updatedPrompt) {
+            const promptIndex = this.prompts.findIndex((prompt) => prompt.id === id)
+            if (promptIndex !== -1) {
+              this.prompts.splice(promptIndex, 1, updatedPrompt)
+            }
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to update prompt.'
+      )
+    },
+    async deletePrompt(id: number): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          const deleteSuccess = await deletePrompt(id)
+          if (deleteSuccess) {
+            const promptIndex = this.prompts.findIndex((prompt) => prompt.id === id)
+            if (promptIndex !== -1) {
+              this.prompts.splice(promptIndex, 1)
+              statusStore.setStatus(StatusType.SUCCESS, 'Prompt deleted successfully.')
+            }
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to delete prompt.'
+      )
+    },
+    selectPrompt(promptId: number): void {
+      const prompt = this.prompts.find((prompt) => prompt.id === promptId)
+      if (prompt) {
+        this.selectedPrompt = prompt
+      } else {
+        throw new Error('Cannot select prompt that does not exist')
       }
     },
-    addprompt(prompt: Prompt) {
-      this.prompt = [...this.prompt, prompt]
-    },
-    setActivepromptId(id: number) {
-      this.activepromptId = id
-    },
-    resetActiveprompt() {
-      this.activepromptId = this.prompt[0] ? this.prompt[0].id : 0
+    deselectPrompt(): void {
+      this.selectedPrompt = null
     }
   }
 })

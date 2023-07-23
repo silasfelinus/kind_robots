@@ -1,154 +1,149 @@
-// ~/types/image.ts
-import { Media } from '../../../stores/media'
-import prisma from '../server/api/utils/prisma'
-import { Timestamp, MediaType } from './utils'
-// /server/api/utils/media.ts
-import { ErrorHandler } from './errorStore'
+// ~/stores/mediaStore.ts
+import { defineStore } from 'pinia'
+import { Media as MediaRecord } from '@prisma/client'
+import {
+  fetchMedia,
+  fetchMediaById,
+  addMedia,
+  updateMedia,
+  deleteMedia,
+  randomMedia
+} from '../server/api/media'
+import { useErrorStore, ErrorType } from './errorStore'
+import { useStatusStore, StatusType } from './statusStore'
 
-export interface Media {
-  id: number
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  path: string
-  isNSFW: boolean
-  isFavorite: boolean
-  isFlagged: boolean
-  tags: string
-  designer?: string
-  description?: string
-  negative?: string
-  steps?: number
-  seed?: number
-  sampler?: string
-  cfg?: string
-  size?: string
-  modelHash?: string
-  modelName?: string
-  template?: string
-  negTemplate?: string
-  clipData?: string
-  deepboroData?: string
-  ImageId: number
-  userId?: number
-  galleryId?: number
-  botId?: number
-  MediaType: MediaType
+const errorStore = useErrorStore()
+const statusStore = useStatusStore()
+
+export type Media = MediaRecord
+
+interface MediaState {
+  media: Media[]
+  selectedMedia: Media[]
+  activeMedia: Media | null
 }
 
-export interface MediaData {
-  path: string
-  isNSFW?: boolean
-  isFavorite?: boolean
-  isFlagged?: boolean
-  tags?: string
-  designer?: string
-  exifDataId?: number
-  userId?: number
-  galleryId?: number
-  botId?: number
-}
-
-export const createMedia = async (mediaData: MediaData): Promise<Media> => {
-  return await ErrorHandler(async () => {
-    return await prisma.media.create({
-      data: mediaData
-    })
-  }, 'Error while creating an media')
-}
-
-export const createManyMedias = async (
-  mediasData: Partial<MediaData>[]
-): Promise<{ count: number }> => {
-  return await ErrorHandler(async () => {
-    const result = await prisma.media.createMany({
-      data: mediasData,
-      skipDuplicates: true // or false, depending on your requirements
-    })
-
-    return { count: result.count }
-  }, 'Error while creating multiple medias')
-}
-
-export const findMediaById = async (id: number): Promise<Media | null> => {
-  return ErrorHandler(async () => {
-    return await prisma.media.findUnique({
-      where: { id }
-    })
-  }, 'Error while finding media by id')
-}
-
-export const updateMedia = async (
-  id: number,
-  data: Partial<Omit<Media, 'id' | 'createdAt' | 'updatedAt'>>
-): Promise<Media> => {
-  return ErrorHandler(async () => {
-    return await prisma.media.update({
-      where: { id },
-      data
-    })
-  }, 'Error while updating media')
-}
-
-export const deleteMedia = async (id: number): Promise<Media> => {
-  return ErrorHandler(async () => {
-    return await prisma.media.delete({
-      where: { id }
-    })
-  }, 'Error while deleting media')
-}
-
-export const findMediasByUserId = async (userId: number): Promise<Media[]> => {
-  return ErrorHandler(async () => {
-    return await prisma.media.findMany({
-      where: { userId }
-    })
-  }, 'Error while finding medias by user id')
-}
-
-export const findMediasByGalleryId = async (galleryId: number): Promise<Media[]> => {
-  return ErrorHandler(async () => {
-    return await prisma.media.findMany({
-      where: { galleryId }
-    })
-  }, 'Error while finding medias by gallery id')
-}
-
-export const findMediasByBotId = async (botId: number): Promise<Media[]> => {
-  return ErrorHandler(async () => {
-    return await prisma.media.findMany({
-      where: { botId }
-    })
-  }, 'Error while finding medias by bot id')
-}
-
-export const findMediasByDesigner = async (designer: string): Promise<Media[]> => {
-  return ErrorHandler(async () => {
-    return await prisma.media.findMany({
-      where: { designer }
-    })
-  }, 'Error while finding medias by designer')
-}
-
-export const findMediasByNSFW = async (isNSFW: boolean): Promise<Media[]> => {
-  return ErrorHandler(async () => {
-    return await prisma.media.findMany({
-      where: { isNSFW }
-    })
-  }, 'Error while finding NSFW medias')
-}
-
-export const randomMedia = async (): Promise<Media> => {
-  return ErrorHandler(async () => {
-    const totalMedias = await prisma.media.count()
-    const randomIndex = Math.floor(Math.random() * totalMedias)
-    const randomMedia = await prisma.media.findFirst({
-      skip: randomIndex
-    })
-
-    if (!randomMedia) {
-      throw new Error('Media not found.')
+export const useMediaStore = defineStore({
+  id: 'media',
+  state: (): MediaState => ({
+    media: [],
+    selectedMedia: [],
+    activeMedia: null
+  }),
+  getters: {
+    getSelectedMedia(): Media[] {
+      return this.selectedMedia
+    },
+    getActiveMedia(): Media | null {
+      return this.activeMedia || this.selectedMedia.slice(-1)[0] || null
     }
-
-    return randomMedia
-  }, 'Error while finding random media')
-}
+  },
+  actions: {
+    async fetchMedia(page = 1, pageSize = 10): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          this.media = await fetchMedia(page, pageSize)
+          statusStore.setStatus(StatusType.SUCCESS, 'Media fetched successfully.')
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to fetch media.'
+      )
+    },
+    async fetchMediaById(id: number): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          const media = await fetchMediaById(id)
+          if (media) {
+            const mediaIndex = this.media.findIndex((existingMedia) => existingMedia.id === id)
+            if (mediaIndex !== -1) {
+              this.media.splice(mediaIndex, 1, media)
+            } else {
+              this.media.push(media)
+            }
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to fetch media by id.'
+      )
+    },
+    async addMedia(mediaData: Partial<Media>[]): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          const { media: newMedia } = await addMedia(mediaData)
+          this.media.push(...newMedia)
+          statusStore.setStatus(
+            StatusType.SUCCESS,
+            `${newMedia.length} media item(s) added successfully.`
+          )
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to add media.'
+      )
+    },
+    async updateMedia(id: number, data: Partial<Media>): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          const updatedMedia = await updateMedia(id, data)
+          if (updatedMedia) {
+            const mediaIndex = this.media.findIndex((media) => media.id === id)
+            if (mediaIndex !== -1) {
+              this.media.splice(mediaIndex, 1, updatedMedia)
+            }
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to update media.'
+      )
+    },
+    async deleteMedia(id: number): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          await deleteMedia(id)
+          const mediaIndex = this.media.findIndex((media) => media.id === id)
+          if (mediaIndex !== -1) {
+            this.media.splice(mediaIndex, 1)
+            statusStore.setStatus(StatusType.SUCCESS, 'Media deleted successfully.')
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to delete media.'
+      )
+    },
+    selectMedia(mediaId: number): void {
+      const media = this.media.find((media) => media.id === mediaId)
+      if (media) {
+        this.selectedMedia.push(media)
+        this.activeMedia = media
+      } else {
+        throw new Error('Cannot select media that does not exist')
+      }
+    },
+    setActiveMedia(mediaId: number): void {
+      const media = this.media.find((media) => media.id === mediaId)
+      if (media) {
+        this.activeMedia = media
+      } else {
+        throw new Error('Cannot set active media that does not exist')
+      }
+    },
+    deselectMedia(mediaId: number): void {
+      const mediaIndex = this.selectedMedia.findIndex((media) => media.id === mediaId)
+      if (mediaIndex !== -1) {
+        this.selectedMedia.splice(mediaIndex, 1)
+        this.activeMedia = this.selectedMedia.slice(-1)[0] || null
+      } else {
+        throw new Error('Cannot deselect media that is not selected')
+      }
+    },
+    async randomMedia(): Promise<void> {
+      await errorStore.handleError(
+        async () => {
+          this.activeMedia = await randomMedia()
+          statusStore.setStatus(StatusType.SUCCESS, 'Random media selected successfully.')
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to select random media.'
+      )
+    }
+  }
+})

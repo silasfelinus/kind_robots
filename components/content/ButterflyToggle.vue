@@ -43,4 +43,4 @@ const toggleAmiSwarm = () => fxStore.toggleAmiSwarm()
   }
 }
 </style>
-../../stores/screenfx
+../../stores/screenfx ../../stores/gameStore

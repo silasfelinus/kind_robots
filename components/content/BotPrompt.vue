@@ -41,7 +41,7 @@
 </template>
 <script setup lang="ts">
 import axios from 'axios'
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
 // API response interfaces
 interface Message {
@@ -69,7 +69,7 @@ interface APIResponse {
 }
 
 // Bot store
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 
 // State
 let activeBot = ref(botsStore.getActiveBot)
@@ -177,3 +177,4 @@ const addBotMessageToDB = async (messages: Message[]) => {
   }
 }
 </script>
+../../stores/botStore

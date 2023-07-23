@@ -1,0 +1,80 @@
+// ~/server/api/bots/index.ts
+import { Bot as BotRecord, Prisma } from '@prisma/client'
+import prisma from './../utils/prisma'
+
+export type Bot = BotRecord
+
+export async function fetchBots(page = 1, pageSize = 10): Promise<Bot[]> {
+  const skip = (page - 1) * pageSize
+  return await prisma.bot.findMany({
+    skip,
+    take: pageSize
+  })
+}
+
+export async function fetchBotById(id: number): Promise<Bot | null> {
+  return await prisma.bot.findUnique({
+    where: { id }
+  })
+}
+
+export async function addBots(
+  botsData: Partial<Bot>[]
+): Promise<{ count: number; bots: Bot[]; errors: string[] }> {
+  const errors: string[] = []
+  const data: Prisma.BotCreateManyInput[] = botsData
+    .filter((botData) => {
+      if (!botData.name) {
+        errors.push(`Bot with ID ${botData.id} does not have a name.`)
+        return false
+      }
+      return true
+    })
+    .map((botData) => botData as Prisma.BotCreateManyInput)
+
+  const result = await prisma.bot.createMany({
+    data,
+    skipDuplicates: true
+  })
+
+  const bots = await fetchBots()
+
+  return { count: result.count, bots, errors }
+}
+
+export async function updateBot(id: number, data: Partial<Bot>): Promise<Bot | null> {
+  const botExists = await prisma.bot.findUnique({ where: { id } })
+
+  if (!botExists) {
+    return null
+  }
+
+  return await prisma.bot.update({
+    where: { id },
+    data: data as Prisma.BotUpdateInput
+  })
+}
+
+export async function deleteBot(id: number): Promise<boolean> {
+  const botExists = await prisma.bot.findUnique({ where: { id } })
+
+  if (!botExists) {
+    return false
+  }
+
+  await prisma.bot.delete({ where: { id } })
+  return true
+}
+
+export async function randomBot(): Promise<Bot | null> {
+  const totalBots = await prisma.bot.count()
+
+  if (totalBots === 0) {
+    return null
+  }
+
+  const randomIndex = Math.floor(Math.random() * totalBots)
+  return await prisma.bot.findFirst({
+    skip: randomIndex
+  })
+}

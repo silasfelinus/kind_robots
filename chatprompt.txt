@@ -129,7 +129,7 @@ User selects ActiveBot Amibot. Amibot has these fields:
       'Please respond as AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach and humor'
   },
 
-  PromptBot imports useBotsStore and checks for ActiveBot. (EXTRA: LoadDefaultBot If there is no activebot, it should display a warning and load AmiBot instead.)
+  PromptBot imports useBotStore and checks for ActiveBot. (EXTRA: LoadDefaultBot If there is no activebot, it should display a warning and load AmiBot instead.)
 
 BotPrompt should display the ActiveBot in a pleasant and friendly design that utilizes tailwind and daisyui. Color variables are bg-primary, br-secondary, and bg-accent (with minimal use of black, grey, white). Feel free to remix this and use them as bases for gradients and shades, but do not use other colors. Mobile friendly design, horizontal layout fit to screen on desktop. Video Game aesthetics.
 

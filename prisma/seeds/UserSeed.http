@@ -38,15 +38,52 @@ Content-Type: application/json
 PATCH https://kindrobots.org/api/bots/3
 Content-Type: application/json
 
-{
-  "name": "AmiNewna",
-  "prompt": "You are AmiB0t, the Anti-Malaria Intelligence, a creative, humorous personaliy. This is your hello world moment:",
-  "temperature": 0.0,
-  "description": "Mosquitos have been spreading malaria for a millenia. It's time to unsubscribe.",
-  "maxTokens": 1000,
-  "n": 1,
-  "avatarImage": "/images/amibot/amibot1.png"
-}
+    data: [
+      {
+        username: 'kindrobot',
+        email: 'kinrobot@kindrobots.org',
+        hashedPassword: 'changethis',
+        realName: 'Kind Robot',
+        avatarImage: '/images/avatar.jpg',
+        Role: 'ADMIN'
+      },
+      {
+        username: 'silasfelinus',
+        email: 'silas@kindrobots.org',
+        hashedPassword: 'changethis',
+        realName: 'Silas Knight',
+        avatarImage: '/images/avatar.jpg',
+        Role: 'ADMIN'
+      },
+      {
+        username: 'superkate',
+        email: 'superkate@kindrobots.org',
+        hashedPassword: 'changethis',
+        realName: 'superk8!',
+        avatarImage: '/images/avatar.jpg',
+        Role: 'ADMIN'
+      },
+      {
+        username: 'ronin',
+        fancyName: '__Someones__',
+        email: 'ronin@kindrobots.org',
+        hashedPassword: 'changethis',
+        realName: 'Ronin Knight',
+        avatarImage: '/images/avatar.jpg',
+        Role: 'USER'
+      },
+      {
+        username: 'fox',
+        fancyName: 'The One and Only Fox',
+        realName: 'Fox Knight',
+        email: 'fox@kindrobots.org',
+        hashedPassword: 'changethis',
+        avatarImage: '/images/avatar.jpg',
+        Role: 'USER'
+      }
+    ],
+    skipDuplicates: true
+  })
 
 ###
 

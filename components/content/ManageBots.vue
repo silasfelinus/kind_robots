@@ -35,9 +35,9 @@
 
 <script setup lang="ts">
 import { Bot } from '@prisma/client'
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 
 const bots: Bot[] = botsStore.getBots
 let activeBot = botsStore.getActiveBot
@@ -98,3 +98,4 @@ watchEffect(() => {
   transform: translateY(0);
 }
 </style>
+../../stores/botStore

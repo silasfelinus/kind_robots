@@ -73,10 +73,14 @@ https://github.com/MuhammadKhizar7/nuxt-prisma/tree/master
 https://github.com/prisma/prisma-examples/tree/latest/javascript/rest-nuxtjs
 https://github.com/nuxt/content/blob/main/src/runtime/pages/document-driven.vue
 
-[ORGANIZATION]
-Acrocat Ranch (About Us)- Our parent organization. Home of the Knight family and Acrocat Foster Kitten Rescue, located among the redwoods on the Pacific Northcoast. about Us
-Cafe Purr (Giftshop) - Curated digital art gallery and Non-Evil Art Museum.
-Kind Robots (tech gallery)- Friendly tech for humans
+[ORGANIZATION/COMMUNICATION LAYERS]
+Database(Prisma): Responsible for storing data and managing transactions. It communicates with the API layer.
+
+API/Server(Nuxt): Communicates with the database to fetch, update, create, or delete data. It provides endpoints for the client to interact with, and handles requests and responses between the database and the client.
+
+Client Store/State Management(Pinia): Interacts with the API layer through HTTP requests. It manages and stores data on the client-side and provides reactivity for the UI layer.
+
+User Interface(Vue).js: Interacts with the client store. It displays data to the user and handles user interactions (like clicking a button or filling out a form).
 
 [STYLE]
 script setup

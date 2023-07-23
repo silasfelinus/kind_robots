@@ -20,9 +20,9 @@
 </template>
 
 <script setup lang="ts">
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 
 const bots = botsStore.getBots
 let activeBot = botsStore.getActiveBot
@@ -63,3 +63,4 @@ const fetchBots = async () => {
   transform: translateY(0);
 }
 </style>
+../../stores/botStore

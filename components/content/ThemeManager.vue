@@ -91,3 +91,4 @@ onMounted(() => {
   border-radius: 10px;
 }
 </style>
+../../stores/themeStore

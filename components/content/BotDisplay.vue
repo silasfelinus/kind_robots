@@ -55,9 +55,9 @@
 </template>
 
 <script setup lang="ts">
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 let activeBot = computed(() => botsStore.getActiveBot)
 let flipped = ref(false)
 </script>
@@ -80,3 +80,4 @@ let flipped = ref(false)
   top: 0;
 }
 </style>
+../../stores/botStore

@@ -1,16 +1,21 @@
 // server/api/bots/[id].delete.ts
-import { ErrorHandler } from '../utils/error'
-import { deleteBot, findBot } from '../utils/bot'
+import prisma from './../utils/prisma'
+import { deleteBot } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
-    const id = Number(event.context.params?.id)
+export default defineEventHandler(async (event) => {
+  const id = Number(event.context.params?.id)
+  if (!id) throw new Error('Invalid bot ID.')
+  try {
+    const bot = await prisma.bot.findUnique({ where: { id } })
 
-    // Fetch the bot from the database
-    await findBot(id)
+    if (!bot) {
+      throw new Error(`Bot with id ${id} does not exist.`)
+    }
 
-    // Delete the bot
     await deleteBot(id)
-    return { message: `Bot with id ${id} successfully deleted.` }
-  }, 'An error occurred while deleting the bot.')
-)
+
+    return { success: true, message: `Bot with id ${id} successfully deleted.` }
+  } catch (error) {
+    return { success: false, message: `Failed to delete bot with id ${id}.` }
+  }
+})

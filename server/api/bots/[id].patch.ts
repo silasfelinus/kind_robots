@@ -1,27 +1,25 @@
 // /server/api/bots/[id].patch.ts
+import { fetchBotById, updateBot } from '.'
 
-import { ErrorHandler } from '../utils/error'
-import { findBot, updateBot } from '../utils/bot'
-
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
-    const body = await readBody(event)
-    const id = Number(event.context.params?.id)
-
-    if (!id) {
-      throw new Error('Missing ID parameter.')
-    }
-
+export default defineEventHandler(async (event) => {
+  const id = Number(event.context.params?.id)
+  if (!id) throw new Error('Invalid bot ID.')
+  try {
     // Fetch the bot from the database
-    const bot = await findBot(id)
+    const bot = await fetchBotById(id)
+
+    // Make sure to await the Promise returned by readBody
+    const data = await readBody(event)
 
     if (!bot) {
       throw new Error('Bot not found.')
     }
 
     // Update only the provided fields
-    const updatedBot = await updateBot(id, body)
+    const updatedBot = await updateBot(id, data)
 
-    return updatedBot
-  }, 'An error occurred while updating the bot.')
-)
+    return { success: true, bot: updatedBot }
+  } catch (error) {
+    return { success: false, message: `Failed to update bot with id ${id}.` }
+  }
+})

@@ -58,4 +58,4 @@ const toggleSoapBubbles = () => fxStore.toggleSoapBubbles()
   }
 }
 </style>
-stores/screenfx
+stores/screenfx ../../stores/gameStore

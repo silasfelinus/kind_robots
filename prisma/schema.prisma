@@ -47,30 +47,31 @@ enum Role {
 // our modular promptbots
 // the meat-and-potatoes of our tech interactibles
 model Bot {
-  id                Int      @id @unique @default(autoincrement())
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  BotType           BotType  @default(CHATBOT)
-  name              String   @unique
-  isPublic          Boolean  @default(true)
-  underConstruction Boolean  @default(false)
-  canDelete         Boolean  @default(false)
-  subtitle          String   @default("Kind Robot")
-  description       String   @default("I'm a kind robot")
-  avatarImage       String   @default("/images/wonderchest/wonderchest304_(23).webp")
-  botIntro          String   @default("You're a Kind Robot")
-  userIntro         String   @default("Let's make a difference. Here's my idea:")
-  prompt            String   @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
+  id                Int         @id @unique @default(autoincrement())
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  BotType           BotType     @default(CHATBOT)
+  name              String      @unique
+  isPublic          Boolean     @default(true)
+  underConstruction Boolean     @default(false)
+  canDelete         Boolean     @default(false)
+  subtitle          String      @default("Kind Robot")
+  description       String      @default("I'm a kind robot")
+  avatarImage       String      @default("/images/wonderchest/wonderchest304_(23).webp")
+  botIntro          String      @default("You're a Kind Robot")
+  userIntro         String      @default("Let's make a difference. Here's my idea:")
+  prompt            String      @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
   trainingPath      String?
   theme             String?
-  personality       String   @default("helpful, inquisitive, considerate")
+  personality       String      @default("helpful, inquisitive, considerate")
   modules           String?
-  User              User?    @relation(fields: [userId], references: [id])
+  User              User? @relation(fields: [userId], references: [id])
   userId            Int?
   Media             Media[]
 }
 
 enum BotType {
+  PROMPTBOT
   CHATBOT
   ARTBOT
 }
@@ -93,35 +94,35 @@ model Gallery {
 
 // Any bob-text media deemed important enough to store in the database
 model Media {
-  id         Int        @id @unique @default(autoincrement())
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  path       String     @default("/")
-  isNSFW     Boolean    @default(false)
-  isFavorite Boolean    @default(false)
-  isFlagged  Boolean    @default(false)
-  tags       String     @default("AI, Cafe Purr")
-  designer   String?
-  exifDataId Int?
-  User       User?      @relation(fields: [userId], references: [id])
-  userId     Int?
-  Gallery    Gallery?   @relation(fields: [galleryId], references: [id])
-  galleryId  Int?
-  Bot        Bot?       @relation(fields: [botId], references: [id])
-  botId      Int?
-    description String?
-  negative    String?
-  steps       Int?
-  seed        Int?
-  sampler     String?
-  cfg         String?
-  size        String?
-  modelHash   String?
-  modelName   String?
-  template    String?
-  negTemplate String?
-  clipData        String?
-  deepboroData    String?
+  id           Int      @id @unique @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  path         String   @default("/")
+  isNSFW       Boolean  @default(false)
+  isFavorite   Boolean  @default(false)
+  isFlagged    Boolean  @default(false)
+  tags         String   @default("AI, Cafe Purr")
+  designer     String?
+  exifDataId   Int?
+  User         User?    @relation(fields: [userId], references: [id])
+  userId       Int?
+  Gallery      Gallery? @relation(fields: [galleryId], references: [id])
+  galleryId    Int?
+  Bot          Bot?     @relation(fields: [botId], references: [id])
+  botId        Int?
+  description  String?
+  negative     String?
+  steps        Int?
+  seed         Int?
+  sampler      String?
+  cfg          String?
+  size         String?
+  modelHash    String?
+  modelName    String?
+  template     String?
+  negTemplate  String?
+  clipData     String?
+  deepboroData String?
 }
 
 //raw text data for API processing

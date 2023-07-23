@@ -90,4 +90,4 @@ const displayImage = computed(() => {
   return randomImage.value || '/images/avatars/avatar1.jpg' // set the path of your placeholder image
 })
 </script>
-../../types/Gallery
+../../types/Gallery ../../stores/gallery

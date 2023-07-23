@@ -72,9 +72,9 @@ Copy code
 
 <script setup lang="ts">
 import axios from 'axios'
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 const activeBot = computed(() => botsStore.getActiveBot)
 let temperature = ref<number | undefined>(activeBot.value?.temperature)
 const displayTemperature = computed(() => temperature.value ?? 0)
@@ -122,3 +122,4 @@ const submit = async () => {
   }
 }
 </script>
+../../stores/botStore

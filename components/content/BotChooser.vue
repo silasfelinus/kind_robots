@@ -15,9 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 const bots = ref(botsStore.getBots)
 let activeBot = computed(() => botsStore.getActiveBot)
 
@@ -28,3 +28,4 @@ const onBotSelected = (botId: number) => {
   }
 }
 </script>
+../../stores/botStore

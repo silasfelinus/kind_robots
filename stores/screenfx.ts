@@ -1,3 +1,4 @@
+// ~/stores/screenfx.ts
 import { defineStore } from 'pinia'
 
 export const useFxStore = defineStore('fx', {

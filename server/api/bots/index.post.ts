@@ -1,15 +1,12 @@
 // /server/api/bots/index.post.ts
-import { ErrorHandler } from '../utils/error'
-import { createManyBots } from '../utils/bot'
+import { addBots } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
-    const body = await readBody(event)
-
-    // Creating a single bot.
-    // Enclose the body inside an array to match the new function signature.
-    const newBotsCount = await createManyBots([body])
-
-    return { botsCreated: newBotsCount }
-  }, 'An error occurred while creating bot.')
-)
+export default defineEventHandler(async (event) => {
+  try {
+    const botsData = await readBody(event)
+    const result = await addBots(botsData)
+    return { success: true, ...result }
+  } catch (error) {
+    return { success: false, message: 'failed to create a new bot' }
+  }
+})

@@ -1,13 +1,18 @@
 // server/api/bots/[id].get.ts
-import { ErrorHandler } from '../utils/error'
-import { findBot } from '../utils/bot'
+import { fetchBotById } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
-    const id = Number(event.context.params?.id)
+export default defineEventHandler(async (event) => {
+  const id = Number(event.context.params?.id)
+  if (!id) throw new Error('Invalid bot ID.')
+  try {
+    const bot = await fetchBotById(id)
 
-    const bot = await findBot(id)
+    if (!bot) {
+      throw new Error(`Bot with id ${id} does not exist.`)
+    }
 
-    return bot
-  }, 'Bot not found')
-)
+    return { success: true, bot }
+  } catch (error) {
+    return { success: false, message: `Failed to fetch bot with id ${id}.` }
+  }
+})

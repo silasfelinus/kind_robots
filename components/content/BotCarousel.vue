@@ -29,10 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { useBotsStore } from '../../stores/bots'
-import { Bot } from '../../types/bot'
+import { useBotStore, Bot } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 const bots: ComputedRef<Bot[]> = computed(() => botsStore.bots)
 const activeBot: ComputedRef<Bot | null> = computed(() => botsStore.getActiveBot)
 
@@ -57,3 +56,4 @@ const fetchBots = async () => {
   }
 }
 </script>
+../../stores/botStore

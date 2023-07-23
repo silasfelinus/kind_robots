@@ -99,9 +99,9 @@
 
 <script setup lang="ts">
 import interact from 'interactjs'
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 const bot = computed(() => botsStore.getActiveBot)
 
 let bgColor = inject('bgColor', 'base-200') // changed to base-200
@@ -152,3 +152,4 @@ onBeforeUnmount(() => {
   interact(card.value as unknown as HTMLElement).unset()
 })
 </script>
+../../stores/botStore

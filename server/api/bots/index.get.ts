@@ -1,11 +1,13 @@
 // server/api/bots/index.get.ts
-import { ErrorHandler } from '../utils/error'
-import { getBots } from '../utils/bot'
+import { fetchBots } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
-    const bots = await getBots()
-
-    return bots
-  }, 'An error occurred while fetching bots')
-)
+export default defineEventHandler(async (event) => {
+  try {
+    const page = Number(event.context.query?.page) || 1
+    const pageSize = Number(event.context.query?.pageSize) || 10
+    const bots = await fetchBots(page, pageSize)
+    return { success: true, bots }
+  } catch (error) {
+    return { success: false, message: 'Failed to fetch bots.' }
+  }
+})

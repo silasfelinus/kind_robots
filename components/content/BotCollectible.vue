@@ -12,9 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 let bot = computed(() => botsStore.getActiveBot)
 let totalBots = computed(() => botsStore.getBots.length)
 
@@ -62,3 +62,4 @@ let randomMessage = ref(randomMessages[Math.floor(Math.random() * randomMessages
   text-align: center;
 }
 </style>
+../../stores/botStore

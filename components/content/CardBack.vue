@@ -19,9 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 let activeBot = computed(() => botsStore.getActiveBot)
 </script>
 
@@ -56,3 +56,4 @@ let activeBot = computed(() => botsStore.getActiveBot)
   margin-top: 20px;
 }
 </style>
+../../stores/botStore

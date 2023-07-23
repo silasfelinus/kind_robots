@@ -1,11 +1,11 @@
 // /server/api/bots/count.get.ts
-import { ErrorHandler } from '../utils/error'
-import { countBots } from '../utils/bot'
+import prisma from './../utils/prisma'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
-    const count = await countBots()
-
-    return { count }
-  }, 'An error occurred while fetching bot count')
-)
+export default defineEventHandler(async () => {
+  try {
+    const count = await prisma.bot.count()
+    return { success: true, count }
+  } catch (error) {
+    return { success: false, message: 'Failed to get bots count.' }
+  }
+})

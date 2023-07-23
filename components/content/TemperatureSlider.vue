@@ -17,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 
 const props = defineProps({
   label: { type: String, default: 'Temperature' },
@@ -118,3 +118,4 @@ watch(value, (newValue) => {
   border: 0.2px solid #010101;
 }
 </style>
+../../stores/botStore

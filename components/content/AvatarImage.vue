@@ -12,9 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { useBotsStore } from '../../stores/bots'
+import { useBotStore } from '../../stores/bots'
 
-const botsStore = useBotsStore()
+const botsStore = useBotStore()
 let activeBot = computed(() => botsStore.getActiveBot)
 let currentImage = ref(activeBot.value.avatarImage)
 let flipped = ref(false)
@@ -73,3 +73,4 @@ watch(
   transform: rotateY(180deg);
 }
 </style>
+../../stores/botStore

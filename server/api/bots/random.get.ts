@@ -1,11 +1,14 @@
 // server/api/bots/random.get.ts
-import { ErrorHandler } from '../utils/error'
-import { randomBot } from '../utils/bot'
+import { randomBot } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
+export default defineEventHandler(async () => {
+  try {
     const bot = await randomBot()
-
-    return bot
-  }, 'Bot not found')
-)
+    if (!bot) {
+      throw new Error(`No bots available.`)
+    }
+    return { success: true, bot }
+  } catch (error) {
+    return { success: false, message: 'No bot available' }
+  }
+})

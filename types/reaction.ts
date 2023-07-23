@@ -1,6 +1,6 @@
 // ~/types/reaction.ts
 import { Timestamp, ModelType } from './utils'
-import { User } from './User'
+import { User } from './user'
 
 export interface Reaction {
   id: number

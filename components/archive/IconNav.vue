@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { useFxStore } from '@/stores/fx'
+import { useFxStore } from '../../stores/screenfx'
 
 const fxStore = useFxStore()
 
@@ -58,3 +58,4 @@ const toggleSoapBubbles = () => fxStore.toggleSoapBubbles()
   }
 }
 </style>
+stores/screenfx

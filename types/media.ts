@@ -1,7 +1,7 @@
 // ~/types/image.ts
-import { Timestamp } from './utils'
+import { Timestamp, MediaType } from './utils'
 
-export interface Image {
+export interface Media {
   id: number
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -11,16 +11,6 @@ export interface Image {
   isFlagged: boolean
   tags: string
   designer?: string
-  exifDataId?: number
-  userId?: number
-  galleryId?: number
-  botId?: number
-}
-
-export interface ExifData {
-  id: number
-  createdAt: Timestamp
-  updatedAt: Timestamp
   description?: string
   negative?: string
   steps?: number
@@ -32,7 +22,11 @@ export interface ExifData {
   modelName?: string
   template?: string
   negTemplate?: string
-  clip?: string
-  deepboro?: string
+  clipData?: string
+  deepboroData?: string
   ImageId: number
+  userId?: number
+  galleryId?: number
+  botId?: number
+  MediaType: MediaType
 }

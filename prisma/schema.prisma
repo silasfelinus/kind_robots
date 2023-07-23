@@ -10,7 +10,7 @@ datasource db {
 enum ModelType {
   BOT
   GALLERY
-  IMAGE
+  MEDIA
   MESSAGE
   PROJECT
   PROMPT
@@ -22,7 +22,7 @@ enum ModelType {
 }
 
 // these are modeler and api resource types
-// to process data (usually images)
+// to process media data
 enum ResourceType {
   CHECKPOINT
   EMBEDDING
@@ -50,7 +50,7 @@ model Bot {
   id                Int      @id @unique @default(autoincrement())
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  BotType           BotType  @default(PROMPTBOT)
+  BotType           BotType  @default(CHATBOT)
   name              String   @unique
   isPublic          Boolean  @default(true)
   underConstruction Boolean  @default(false)
@@ -67,35 +67,12 @@ model Bot {
   modules           String?
   User              User?    @relation(fields: [userId], references: [id])
   userId            Int?
-  Images            Image[]
+  Media             Media[]
 }
 
 enum BotType {
-  PROMPTBOT
   CHATBOT
   ARTBOT
-}
-
-// optional prompt data that we can generate programmatically.
-model ExifData {
-  id          Int      @id @unique @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  description String?
-  negative    String?
-  steps       Int?
-  seed        Int?
-  sampler     String?
-  cfg         String?
-  size        String?
-  modelHash   String?
-  modelName   String?
-  template    String?
-  negTemplate String?
-  clip        String?
-  deepboro    String?
-  Image       Image    @relation(fields: [imageId], references: [id])
-  imageId     Int
 }
 
 // media collections
@@ -104,9 +81,9 @@ model Gallery {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   name        String   @unique
-  Images      Image[]
+  Media       Media[]
   description String?
-  promoImages String?
+  mediaId     String?
   url         String?
   isNSFW      Boolean  @default(false)
   custodian   String?
@@ -114,7 +91,8 @@ model Gallery {
   userId      Int?
 }
 
-model Image {
+// Any bob-text media deemed important enough to store in the database
+model Media {
   id         Int        @id @unique @default(autoincrement())
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
@@ -131,7 +109,19 @@ model Image {
   galleryId  Int?
   Bot        Bot?       @relation(fields: [botId], references: [id])
   botId      Int?
-  ExifData   ExifData[]
+    description String?
+  negative    String?
+  steps       Int?
+  seed        Int?
+  sampler     String?
+  cfg         String?
+  size        String?
+  modelHash   String?
+  modelName   String?
+  template    String?
+  negTemplate String?
+  clipData        String?
+  deepboroData    String?
 }
 
 //raw text data for API processing
@@ -156,9 +146,8 @@ enum StringType {
   PROMPT //combined nlp prompt message
   WILDCARD //list for randomized generations
   RESPONSE //message response nlp to human
-  IMAGE_URL // image url
+  MEDIA_URL // Media url
   URL // generic web url
-  MASK_URL // url to an image mask
   CODE //validated codewall
   ERROR // An Error message
 }
@@ -204,16 +193,16 @@ model User {
   questPoints        Int        @default(0)
   Bots               Bot[]
   Galleries          Gallery[]
-  Images             Image[]
+  Media              Media[]
   Prompts            Prompt[]
-  Quests             Quest[]
+  Game               Game[]
   Reactions          Reaction[]
   Resources          Resource[]
   Projects           Project[]
 }
 
-// gamification achievement system
-model Quest {
+// User Incentivization and interaction element
+model Game {
   id         Int      @id @unique @default(autoincrement())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -254,7 +243,7 @@ model Resource {
   name         String       @unique
   isNSFW       Boolean      @default(false)
   customLabel  String?
-  imagePath    String?
+  MediaPath    String?
   customUrl    String?
   civitaiUrl   String?
   huggingUrl   String?

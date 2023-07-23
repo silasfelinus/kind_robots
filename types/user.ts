@@ -1,21 +1,21 @@
 // ~/types/user.ts
 import { Timestamp, Role } from './utils'
-import { Bot } from './Bot'
-import { Gallery } from './Gallery'
-import { Image } from './Image'
-import { Project } from './Project'
-import { Prompt } from './Prompt'
-import { Quest } from './Quest'
-import { Reaction } from './Reaction'
-import { Resource } from './Resource'
+import { Bot } from './bot'
+import { Gallery } from './gallery'
+import { Media } from './media'
+import { Project } from './project'
+import { Prompt } from './prompt'
+import { Game } from './game'
+import { Reaction } from './reaction'
+import { Resource } from './resource'
 
 export interface User {
   bots?: Bot[]
   galleries?: Gallery[]
-  images?: Image[]
+  Media?: Media[]
   projects?: Project[]
   prompts?: Prompt[]
-  quests?: Quest[]
+  games?: Game[]
   reactions?: Reaction[]
   resources?: Resource[]
   friends?: User[]

@@ -1,6 +1,6 @@
 // ~/types/resource.ts
 import { Timestamp, ResourceType } from './utils'
-import { User } from './User'
+import { User } from './user'
 
 export interface Resource {
   id: number

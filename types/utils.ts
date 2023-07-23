@@ -26,6 +26,13 @@ export enum ResourceType {
   URL = 'URL'
 }
 
+export enum MediaType {
+  IMAGE,
+  VIDEO,
+  AUDIO,
+  TEXT
+}
+
 export enum Role {
   SYSTEM = 'SYSTEM',
   USER = 'USER',

@@ -57,4 +57,3 @@ const fetchBots = async () => {
   }
 }
 </script>
-../../types/Bot

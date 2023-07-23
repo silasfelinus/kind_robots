@@ -1,13 +1,13 @@
 // ~/types/gallery.ts
 import { Timestamp } from './utils'
-import { Image } from './Image'
+import { Media } from './media'
 
 export interface Gallery {
   id: number
   createdAt: Timestamp
   updatedAt: Timestamp
   name: string
-  Images: Image[]
+  Media: Media[]
   description?: string
   promoImages?: string
   url?: string

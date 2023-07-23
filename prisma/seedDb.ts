@@ -53,7 +53,7 @@ async function main() {
     data: [
       {
         name: 'AMIb0t',
-        botType: 'chatbot',
+        BotType: 'CHATBOT',
         personality: 'hypermanic, loving, creative',
         subtitle: 'Philanthropic Hivemind',
         description: 'On a fundraising mission to get mosquito nets to Africa',
@@ -69,7 +69,7 @@ async function main() {
       },
       {
         name: `Rapb0t`,
-        botType: 'rapbot',
+        BotType: 'CHATBOT',
         personality: 'rhyming, playful, witty',
         subtitle: 'Rapping Rhymer',
         description: `Give me a topic, and I will write a topical rap`,
@@ -85,7 +85,7 @@ async function main() {
       },
       {
         name: 'Brainb0t',
-        botType: 'chatbot',
+        BotType: 'CHATBOT',
         personality: 'creative, outside-the-box, original',
         subtitle: 'Brainstorm Maven',
         description: 'I brainstorm creative ideas',
@@ -100,7 +100,7 @@ async function main() {
       },
       {
         name: 'VariationBot',
-        botType: 'artmixer',
+        BotType: 'ARTBOT',
         personality: 'creative',
         subtitle: 'Image Remixerr',
         description: "Send me an image, and I'll tweak the concept",
@@ -114,7 +114,7 @@ async function main() {
       },
       {
         name: 'Punch-Up Bot',
-        botType: 'chatbot',
+        BotType: 'CHATBOT',
         personality: 'original, witty, comfortable',
         subtitle: 'Text Improver',
         description: 'I turn words into masterpieces',
@@ -128,7 +128,7 @@ async function main() {
       },
       {
         name: 'Grant Bot',
-        botType: 'chatbot',
+        BotType: 'CHATBOT',
         personality: 'inquisitive, conicse, organized',
         subtitle: 'Grant Writer',
         description: 'I`m here to help you craft grant letters.',
@@ -143,7 +143,7 @@ async function main() {
       },
       {
         name: 'Artb0t',
-        botType: 'artbot',
+        BotType: 'ARTBOT',
         personality: 'helpful',
         subtitle: 'Text-to-Art Generator',
         description: 'I turn words into art',
@@ -157,7 +157,7 @@ async function main() {
       },
       {
         name: 'Punch-Up CodeBot',
-        botType: 'codebot',
+        BotType: 'CHATBOT',
         personality: 'meticulous, current design, best practices',
         subtitle: 'Coder Improver',
         description: 'Send me your Code, and we`ll make it better.',
@@ -171,7 +171,7 @@ async function main() {
       },
       {
         name: 'Redbubble Bot',
-        botType: 'productbot',
+        BotType: 'CHATBOT',
         personality: 'SEO-friendly, concise, multi-cultural',
         subtitle: 'Multilingual Tag & Copy Writer',
         description: 'Helping craft captivating product descriptions.',
@@ -185,7 +185,7 @@ async function main() {
       },
       {
         name: 'Cassandra',
-        botType: 'fortuneteller',
+        BotType: 'CHATBOT',
         personality: 'deadpan, sardonic, dark comedy',
         subtitle: 'Deadpan Tarot',
         description:
@@ -200,7 +200,7 @@ async function main() {
       },
       {
         name: 'Lazlo',
-        botType: 'storyteller',
+        BotType: 'CHATBOT',
         personality: 'braggart, over-confident, foolish',
         subtitle: 'Fantasy Storyteller',
         description:
@@ -216,7 +216,7 @@ async function main() {
       },
       {
         name: 'Serendipity',
-        botType: 'questmaster',
+        BotType: 'CHATBOT',
         personality: 'detail-oriented, optimistic, creative',
         subtitle: `Task-Motivating Storyteller`,
         description: "Serendipity - The World's Best Task-Manager-Slash-Adventure-Game",
@@ -231,7 +231,7 @@ async function main() {
       },
       {
         name: 'Cosmo',
-        botType: 'gamesmaster',
+        BotType: 'CHATBOT',
         personality: 'colorful, original, creative',
         subtitle: 'Customized Storyteller',
         description:
@@ -247,7 +247,7 @@ async function main() {
       },
       {
         name: 'Otto',
-        botType: 'projectmanager',
+        BotType: 'CHATBOT',
         personality: 'optimistic, wise, detailed',
         subtitle: 'Project Manager',
         description:
@@ -262,16 +262,42 @@ async function main() {
         underConstruction: false
       },
       {
-        name: 'HistoryBot',
-        botType: 'chatbot',
+        name: 'The Time Machine',
+        BotType: 'CHATBOT',
         subtitle: 'Historical Time Traveler',
         description: "Choose a famous person in history and I'll mimic their personality",
         avatarImage: '/images/avatars/actor1.webp',
         prompt: 'Joan of Arc',
-        userIntro: 'Hello Historybot! I want you to chat with me while pretending to be:',
+        userIntro: 'Please Select someone to chat with:',
         theme: 'emerald',
         personality: 'copycat',
-        modules: 'historicalFigures',
+        modules: 'history',
+        underConstruction: false
+      },
+      {
+        name: 'Bubbulah',
+        BotType: 'CHATBOT',
+        subtitle: 'Multi-lingual translator',
+        description: "Give me text and I'll translate it into another language.",
+        avatarImage: '/images/avatars/actor1.webp',
+        prompt: 'Joan of Arc',
+        userIntro: 'Text to translate:',
+        theme: 'emerald',
+        personality: 'translator',
+        modules: 'language',
+        underConstruction: false
+      },
+      {
+        name: 'Transcriptica',
+        BotType: 'CHATBOT',
+        subtitle: 'Audio translator',
+        description: "Give me audio and I'll translate it into text.",
+        avatarImage: '/images/avatars/actor1.webp',
+        prompt: 'OPTIMAL RESPONSE FORMAT',
+        userIntro: 'A perfectly formatted response looks like:',
+        theme: 'retro',
+        personality: 'translator',
+        modules: 'language',
         underConstruction: false
       }
     ]

@@ -26,6 +26,7 @@
         </button>
         <nav id="sideNav" class="md:flex">
           <butterfly-toggle />
+          <effects-viewer />
         </nav>
       </div>
     </header>

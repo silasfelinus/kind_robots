@@ -1,8 +1,8 @@
 // ~/types/quest.ts
 import { Timestamp } from './utils'
-import { User } from './User'
+import { User } from './user'
 
-export interface Quest {
+export interface Game {
   id: number
   createdAt: Timestamp
   updatedAt: Timestamp

@@ -1,5 +1,5 @@
 // ~/types/bot.ts
-import { Image } from './Image'
+import { Media } from './media'
 import { Timestamp, BotType } from './utils'
 
 export interface Bot {
@@ -22,5 +22,5 @@ export interface Bot {
   personality: string
   modules?: string
   userId?: number
-  Images?: Image[]
+  Media?: Media[]
 }

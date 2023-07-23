@@ -1,14 +1,13 @@
 // ~/stores/bots.ts
 import { defineStore } from 'pinia'
-import { Bot } from '@prisma/client'
+import { Bot } from '../types/bot'
 import {
   getBots,
   createManyBots,
   updateBot,
   deleteBot,
   randomBot,
-  countBots,
-  BotData
+  countBots
 } from '../server/api/utils/bot'
 import { ErrorHandler } from '../server/api/utils/error'
 
@@ -55,7 +54,7 @@ export const useBotsStore = defineStore({
         throw new Error('Cannot deselect bot that is not selected')
       }
     },
-    async addBots(botsData: Partial<BotData>[]): Promise<void> {
+    async addBots(botsData: Partial<Bot>[]): Promise<void> {
       const { count } = await ErrorHandler(
         () => createManyBots(botsData),
         'Error while adding bots'
@@ -63,7 +62,7 @@ export const useBotsStore = defineStore({
       // Refresh bots
       if (count > 0) await this.fetchBots()
     },
-    async updateBot(id: number, data: Partial<BotData>): Promise<void> {
+    async updateBot(id: number, data: Partial<Bot>): Promise<void> {
       const botIndex = this.bots.findIndex((bot) => bot.id === id)
       if (botIndex !== -1) {
         const updatedBot = await ErrorHandler(() => updateBot(id, data), 'Error while updating bot')

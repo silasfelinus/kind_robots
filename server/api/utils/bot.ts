@@ -1,28 +1,10 @@
 // /server/api/utils/bot.ts
-import { Bot, Prisma, BotType } from '@prisma/client'
+import { Prisma } from '@prisma/client'
+import { Bot } from '../../../types/bot'
 import prisma from './prisma'
 import { ErrorHandler } from './error'
 
-export interface BotData {
-  name: string
-  botType?: BotType
-  isPublic?: boolean
-  underConstruction?: boolean
-  canDelete?: boolean
-  subtitle?: string
-  description?: string
-  avatarImage?: string
-  botIntro?: string
-  userIntro?: string
-  prompt?: string
-  trainingPath?: string
-  theme?: string
-  personality?: string
-  modules?: string
-  userId?: number
-}
-
-export const createManyBots = async (botsData: Partial<BotData>[]): Promise<{ count: number }> => {
+export const createManyBots = async (botsData: Partial<Bot>[]): Promise<{ count: number }> => {
   return await ErrorHandler(async () => {
     const data: Prisma.BotCreateManyInput[] = botsData.map((botData) => {
       if (!botData.name) {
@@ -52,7 +34,7 @@ export const findBot = async (id: number): Promise<Bot> => {
 }
 
 // Updates a bot in the database using its ID and the provided data
-export const updateBot = async (id: number, data: Partial<BotData>): Promise<Bot> => {
+export const updateBot = async (id: number, data: Partial<Bot>): Promise<Bot> => {
   return ErrorHandler(async () => {
     return await prisma.bot.update({
       where: { id },

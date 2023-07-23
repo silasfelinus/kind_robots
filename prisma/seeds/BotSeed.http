@@ -309,6 +309,32 @@ Content-Type: application/json
   "prompt": "Joan of Arc",
   "modules": "historicalFigures",
   "underConstruction": true
+},
+{
+"name": "Bubbulah",
+"BotType": "CHATBOT",
+"subtitle": "Multi-lingual translator",
+"description": "Give me text and I'll translate it into another language.",
+"avatarImage": "/images/avatars/actor1.webp",
+"prompt": "Translate this text:",
+"userIntro": "Text to translate:",
+"theme": "emerald",
+"personality": "translator",
+"modules": "language",
+"underConstruction": false
+},
+{
+"name": "Transcriptica",
+"BotType": "CHATBOT",
+"subtitle": "Audio translator",
+"description": "Give me audio and I'll translate it into text.",
+"avatarImage": "/images/avatars/actor1.webp",
+"prompt": "Audio to transcribe:",
+"userIntro": "Audio file:",
+"theme": "retro",
+"personality": "translator",
+"modules": "language",
+"underConstruction": false
 }
 ]
 

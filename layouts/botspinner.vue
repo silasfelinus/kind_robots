@@ -32,8 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import { useBotStore } from '../../stores/botStore'
-import { Bot } from '../../server/api/bots'
+import { useBotStore } from '../stores/botStore'
+import { Bot } from '../server/api/bots'
 
 const botsStore = useBotStore()
 const bots: Bot[] = botsStore.getBots

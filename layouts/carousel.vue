@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { useBotStore, Bot } from '../../stores/botStore'
+import { useBotStore, Bot } from '../stores/botStore'
 
 const botsStore = useBotStore()
 const bots: ComputedRef<Bot[]> = computed(() => botsStore.bots)
@@ -56,4 +56,3 @@ const fetchBots = async () => {
   }
 }
 </script>
-../../stores/botStore

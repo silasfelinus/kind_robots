@@ -36,7 +36,7 @@
                   class="w-32 h-32 object-cover rounded-lg mb-4"
                 />
                 <div class="mt-4">
-                  <p>Bot Type: {{ activeBot ? activeBot.botType : '' }}</p>
+                  <p>Bot Type: {{ activeBot ? activeBot.BotType : '' }}</p>
                   <temperature-slider />
                 </div>
               </div>
@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useBotStore } from '../../stores/botStore'
+import { useBotStore } from '../stores/botStore'
 
 const botStore = useBotStore()
 let activeBot = computed(() => botStore.getActiveBot)

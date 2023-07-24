@@ -11,6 +11,10 @@
         <!-- AMI Link -->
         <ami-link class="z-190 fixed bottom-4 right-4 md:relative md:bottom-auto md:right-auto" />
       </nav>
+      <nav id="sideNav" class="md:flex">
+        <butterfly-toggle />
+        <effects-viewer />
+      </nav>
     </div>
   </header>
 </template>

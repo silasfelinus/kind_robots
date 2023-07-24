@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { useRandomColor } from '../../composables/useRandomColor'
+import { useRandomColor } from '../../../composables/useRandomColor'
 
 const bubbles = ref([])
 const MAX_BUBBLES = 20 // Reduced number of bubbles

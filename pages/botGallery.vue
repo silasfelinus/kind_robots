@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useBotStore, Bot } from '../../stores/botStore'
+import { useBotStore, Bot } from '../stores/botStore'
 
 const botStore = useBotStore()
 

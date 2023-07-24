@@ -1,7 +1,7 @@
 // ~/stores/galleryStore.ts
 import { defineStore } from 'pinia'
 import {
-  Gallery,
+  Gallery as GalleryRecord,
   fetchGalleries,
   fetchGalleryById,
   addGalleries,
@@ -12,6 +12,7 @@ import {
 import { useErrorStore, ErrorType } from './errorStore'
 import { useStatusStore, StatusType } from './statusStore'
 
+export type Gallery = GalleryRecord
 const errorStore = useErrorStore()
 const statusStore = useStatusStore()
 

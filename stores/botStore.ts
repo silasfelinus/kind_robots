@@ -1,7 +1,15 @@
 // ~/stores/botStore.ts
 import { defineStore } from 'pinia'
-import { Bot, fetchBots, fetchBotById, addBots, updateBot, deleteBot } from '../server/api/bots'
+import {
+  Bot as BotRecord,
+  fetchBots,
+  fetchBotById,
+  addBots,
+  updateBot,
+  deleteBot
+} from '../server/api/bots'
 
+export type Bot = BotRecord
 interface BotState {
   bots: Bot[]
   selectedBots: Bot[]

@@ -1,6 +1,5 @@
 // ~/stores/statusStore.ts
 import { defineStore } from 'pinia'
-import { useErrorStore } from './errorStore'
 
 // Define the types of status that can occur in your application.
 export enum StatusType {
@@ -33,20 +32,6 @@ export const useStatusStore = defineStore({
     history: []
   }),
   actions: {
-    // Initialize the store
-    onInitialize() {
-      const errorStore = useErrorStore()
-
-      // Watch the error store for changes
-      watch(
-        () => errorStore.message,
-        (message) => {
-          if (message) {
-            this.setStatus(StatusType.ERROR, message)
-          }
-        }
-      )
-    },
     // Set a status of a specific type and with a specific message.
     // The status is also added to the history.
     setStatus(type: StatusType, message: string) {

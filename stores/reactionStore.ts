@@ -1,7 +1,7 @@
 // ~/stores/reactionStore.ts
 import { defineStore } from 'pinia'
-import { Reaction as ReactionRecord } from '@prisma/client'
 import {
+  Reaction as ReactionRecord,
   fetchReactions,
   fetchReactionById,
   addReactions,

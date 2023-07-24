@@ -1,7 +1,13 @@
 // ~/stores/userStore.ts
 import { defineStore } from 'pinia'
-import { User as UserRecord } from '@prisma/client'
-import { fetchUsers, fetchUserById, addUser, updateUser, deleteUser } from '../server/api/users'
+import {
+  User as UserRecord,
+  fetchUsers,
+  fetchUserById,
+  addUser,
+  updateUser,
+  deleteUser
+} from '../server/api/users'
 import { useErrorStore, ErrorType } from './errorStore'
 import { useStatusStore, StatusType } from './statusStore'
 

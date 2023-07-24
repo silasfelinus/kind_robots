@@ -1,9 +1,9 @@
 // ~/stores/mediaStore.ts
 import { defineStore } from 'pinia'
-import { Media as MediaRecord } from '@prisma/client'
 import {
   fetchMedia,
   fetchMediaById,
+  Media as MediaRecord,
   addMedia,
   updateMedia,
   deleteMedia,

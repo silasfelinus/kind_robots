@@ -1,7 +1,7 @@
 // ~/stores/projectStore.ts
 import { defineStore } from 'pinia'
-import { Project as ProjectRecord } from '@prisma/client'
 import {
+  Project as ProjectRecord,
   fetchProjects,
   fetchProjectById,
   addProjects,

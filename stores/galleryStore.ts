@@ -1,7 +1,7 @@
 // ~/stores/galleryStore.ts
 import { defineStore } from 'pinia'
-import { Gallery as GalleryRecord } from '@prisma/client'
 import {
+  Gallery,
   fetchGalleries,
   fetchGalleryById,
   addGalleries,
@@ -14,8 +14,6 @@ import { useStatusStore, StatusType } from './statusStore'
 
 const errorStore = useErrorStore()
 const statusStore = useStatusStore()
-
-export type Gallery = GalleryRecord
 
 interface GalleryState {
   galleries: Gallery[]

@@ -12,7 +12,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
 import { useBotStore } from '../../stores/botStore'
 
 const botStore = useBotStore()

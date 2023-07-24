@@ -1,7 +1,7 @@
 // ~/stores/promptStore.ts
 import { defineStore } from 'pinia'
-import { Prompt as PromptRecord } from '@prisma/client'
 import {
+  Prompt as PromptRecord,
   fetchPrompts,
   fetchPromptById,
   addPrompts,

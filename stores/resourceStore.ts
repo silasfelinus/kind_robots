@@ -1,7 +1,7 @@
 // ~/stores/resourceStore.ts
 import { defineStore } from 'pinia'
-import { Resource as ResourceRecord } from '@prisma/client'
 import {
+  Resource as ResourceRecord,
   fetchResources,
   fetchResourceById,
   addResources,

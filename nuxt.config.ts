@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from 'nuxt/config'
+import { createPinia } from 'pinia'
 
 export default defineNuxtConfig({
   modules: [
@@ -8,6 +9,11 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@sidebase/nuxt-auth'
   ],
+  pinia: {
+    autoImports: [
+      'defineStore' // import { defineStore } from 'pinia'
+    ]
+  },
   css: ['~/assets/css/tailwind.css'],
   auth: {
     provider: {

@@ -7,7 +7,6 @@
       <div
         class="container mx-auto flex items-center justify-between sm:justify-around lg:justify-between"
       >
-        <bot-selector class="hidden sm:flex" />
         <theme-manager class="hidden sm:flex" />
         <button id="menuBtn" class="md:hidden lg:hidden">
           <svg
@@ -49,19 +48,24 @@
   </div>
 </template>
 
-<script>
-export default {
-  mounted() {
-    document.getElementById('menuBtn').addEventListener('click', this.toggleMenu)
-  },
-  beforeUnmount() {
-    document.getElementById('menuBtn').removeEventListener('click', this.toggleMenu)
-  },
-  methods: {
-    toggleMenu() {
-      const sideNav = document.getElementById('sideNav')
-      sideNav.classList.toggle('hidden')
-    }
-  }
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+
+const menuBtn = ref(null)
+const sideNav = ref(null)
+
+onMounted(() => {
+  menuBtn.value = document.getElementById('menuBtn')
+  sideNav.value = document.getElementById('sideNav')
+
+  menuBtn.value.addEventListener('click', toggleMenu)
+})
+
+onUnmounted(() => {
+  menuBtn.value.removeEventListener('click', toggleMenu)
+})
+
+function toggleMenu() {
+  sideNav.value.classList.toggle('hidden')
 }
 </script>

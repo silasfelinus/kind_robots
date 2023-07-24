@@ -1,11 +1,11 @@
-// /server/api/galleries/count.get.ts
-import { ErrorHandler } from '../utils/error'
-import { countGalleries } from '../utils/gallery'
+// server/api/galleries/count.get.ts
+import { countGalleries } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
+export default defineEventHandler(async () => {
+  try {
     const count = await countGalleries()
-
-    return { count }
-  }, 'An error occurred while fetching Gallery count')
-)
+    return { success: true, count }
+  } catch (error) {
+    return { success: false, message: 'Failed to get galleries count.' }
+  }
+})

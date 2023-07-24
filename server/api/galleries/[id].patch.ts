@@ -1,26 +1,25 @@
-// /server/api/gallerys/[id].patch.ts
-import { ErrorHandler } from '../utils/error'
-import { findGallery, updateGallery } from '../utils/gallery'
+// /server/api/galleries/[id].patch.ts
+import { fetchGalleryById, updateGallery } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
-    const body = await readBody(event)
-    const id = Number(event.context.params?.id)
+export default defineEventHandler(async (event) => {
+  const id = Number(event.context.params?.id)
+  if (!id) throw new Error('Invalid Gallery ID.')
+  try {
+    // Fetch the Gallery from the database
+    const Gallery = await fetchGalleryById(id)
 
-    if (!id) {
-      throw new Error('Missing ID parameter.')
-    }
+    // Make sure to await the Promise returned by readBody
+    const data = await readBody(event)
 
-    // Fetch the gallery from the database
-    const gallery = await findGallery(id)
-
-    if (!gallery) {
+    if (!Gallery) {
       throw new Error('Gallery not found.')
     }
 
     // Update only the provided fields
-    const updatedGallery = await updateGallery(id, body)
+    const updatedGallery = await updateGallery(id, data)
 
-    return updatedGallery
-  }, 'An error occurred while updating the gallery.')
-)
+    return { success: true, Gallery: updatedGallery }
+  } catch (error) {
+    return { success: false, message: `Failed to update Gallery with id ${id}.` }
+  }
+})

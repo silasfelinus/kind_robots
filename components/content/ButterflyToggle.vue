@@ -25,7 +25,6 @@ const toggleAmiSwarm = () => fxStore.toggleAmiSwarm()
 </script>
 <style scoped>
 .icon-box {
-  /* existing styles... */
   border-radius: 50%;
 }
 

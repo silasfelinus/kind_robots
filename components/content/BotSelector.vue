@@ -12,16 +12,19 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch, computed } from 'vue'
 import { useBotStore } from '../../stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
-let activeBotId = ref(botStore.activeBotId)
+let activeBotId = ref(botStore.activeBot?.id)
 
 watch(
   activeBotId,
   (newActiveBotId) => {
-    botStore.setActiveBotId(newActiveBotId)
+    if (newActiveBotId) {
+      botStore.setActiveBot(newActiveBotId)
+    }
   },
   { immediate: true }
 )

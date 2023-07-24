@@ -51,3 +51,19 @@ export async function deleteUser(id: number): Promise<boolean> {
   await prisma.user.delete({ where: { id } })
   return true
 }
+
+export async function randomUser(): Promise<User | null> {
+  const totalUsers = await prisma.user.count()
+
+  if (totalUsers === 0) {
+    return null
+  }
+
+  const randomIndex = Math.floor(Math.random() * totalUsers)
+  return await prisma.user.findFirst({
+    skip: randomIndex
+  })
+}
+export async function countUsers(): Promise<number> {
+  return await prisma.user.count()
+}

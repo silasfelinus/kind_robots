@@ -6,15 +6,10 @@
     <avatar-image class="w-1/3 h-1/3 rounded-full object-cover mb-4" />
     <!-- Bot Information -->
     <div class="text-center">
-      <h2 class="text-xl font-bold mb-2">{{ activeBot.name }}</h2>
-      <p class="text-sm mb-2">{{ activeBot.userIntro }}</p>
+      <h2 class="text-xl font-bold mb-2">{{ activeBot ? activeBot.name : 'Loading...' }}</h2>
+      <p class="text-sm mb-2">{{ activeBot ? activeBot.userIntro : 'Loading...' }}</p>
     </div>
-    <div v-if="activeBot.model || activeBot.post || activeBot.size" class="flex flex-wrap gap-2">
-      <p v-if="activeBot.model" class="text-accent-700">Model: {{ activeBot.model }}</p>
-      <p v-if="activeBot.post" class="text-accent-700">Post: {{ activeBot.post }}</p>
-      <p v-if="activeBot.size" class="text-accent-700">Size: {{ activeBot.size }}</p>
-      <bot-collectible />
-    </div>
+    <bot-collectible />
   </div>
 </template>
 
@@ -56,4 +51,3 @@ let activeBot = computed(() => botsStore.getActiveBot)
   margin-top: 20px;
 }
 </style>
-../../stores/botStore

@@ -68,3 +68,19 @@ export async function deleteReaction(id: number): Promise<boolean> {
   await prisma.reaction.delete({ where: { id } })
   return true
 }
+
+export async function randomReaction(): Promise<Reaction | null> {
+  const totalReactions = await prisma.reaction.count()
+
+  if (totalReactions === 0) {
+    return null
+  }
+
+  const randomIndex = Math.floor(Math.random() * totalReactions)
+  return await prisma.reaction.findFirst({
+    skip: randomIndex
+  })
+}
+export async function countReactions(): Promise<number> {
+  return await prisma.reaction.count()
+}

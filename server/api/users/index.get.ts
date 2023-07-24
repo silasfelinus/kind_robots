@@ -1,6 +1,13 @@
 // server/api/users/index.get.ts
-import prisma from '../utils/prisma'
+import { fetchUsers } from '.'
 
-export default eventHandler(async () => {
-  return await prisma.user.findMany()
+export default defineEventHandler(async (event) => {
+  try {
+    const page = Number(event.context.query?.page) || 1
+    const pageSize = Number(event.context.query?.pageSize) || 10
+    const Users = await fetchUsers(page, pageSize)
+    return { success: true, Users }
+  } catch (error) {
+    return { success: false, message: 'Failed to fetch Users.' }
+  }
 })

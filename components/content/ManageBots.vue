@@ -34,8 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { Bot } from '@prisma/client'
-import { useBotStore } from '../../stores/botStore'
+import { useBotStore, Bot } from '../../stores/botStore'
 
 const botsStore = useBotStore()
 
@@ -47,7 +46,7 @@ const activeBotRef = ref<any>(null)
 const setActiveBot = async () => {
   const bot = bots.find((bot) => bot.id === activeBotId.value)
   if (bot) {
-    botsStore.setActiveBot(bot)
+    botsStore.setActiveBot(bot.id)
     await nextTick()
     if (activeBotRef.value instanceof HTMLElement) {
       activeBotRef.value.scrollIntoView({ behavior: 'smooth' })
@@ -71,8 +70,8 @@ const fetchBots = async () => {
     const response = await fetch('/api/bots')
     const data = await response.json()
     botsStore.setBots(data)
-    if (!activeBot && botsStore.getDefaultBot) {
-      botsStore.setActiveBot(botsStore.getDefaultBot)
+    if (!activeBot && botsStore.getActiveBot) {
+      botsStore.setActiveBot(botsStore.getActiveBot.id)
     }
   } catch (error) {
     console.error(error)

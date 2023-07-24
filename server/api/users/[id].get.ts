@@ -1,20 +1,18 @@
 // server/api/users/[id].get.ts
-import prisma from '../utils/prisma'
+import { fetchUserById } from '.'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
+  if (!id) throw new Error('Invalid User ID.')
+  try {
+    const User = await fetchUserById(id)
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: Number(id)
+    if (!User) {
+      throw new Error(`User with id ${id} does not exist.`)
     }
-  })
-  if (!user) {
-    const notFoundError = createError({
-      statusCode: 404,
-      statusMessage: 'User not found '
-    })
-    sendError(event, notFoundError)
+
+    return { success: true, User }
+  } catch (error) {
+    return { success: false, message: `Failed to fetch User with id ${id}.` }
   }
-  return user
 })

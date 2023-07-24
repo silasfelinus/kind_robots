@@ -4,7 +4,7 @@
     <div class="mt-1 relative rounded-md shadow-sm">
       <input
         id="slider"
-        v-model="value"
+        v-model="temperature"
         type="range"
         step="0.1"
         min="0"
@@ -17,9 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { useBotStore } from '../../stores/botStore'
-
-const botsStore = useBotStore()
+import { ref, watchEffect } from 'vue'
 
 const props = defineProps({
   label: { type: String, default: 'Temperature' },
@@ -27,12 +25,7 @@ const props = defineProps({
   rightLabel: { type: String, default: 'Creativity' }
 })
 
-const value = computed({
-  get: () => botsStore.activeBot.temperature || 0,
-  set: (newValue) => {
-    botsStore.activeBot.temperature = newValue
-  }
-})
+const temperature = ref()
 const descriptions = [
   '0.0: Consistently Consistent',
   '0.1: Nearly consistent.',
@@ -49,14 +42,7 @@ const descriptions = [
 const description = ref('')
 
 watchEffect(() => {
-  value.value = botsStore.activeBot.temperature ? botsStore.activeBot.temperature : 0.1
-  description.value = descriptions[Math.round(value.value * 10)]
-})
-
-watch(value, (newValue) => {
-  if (newValue !== undefined) {
-    botsStore.activeBot.temperature = newValue
-  }
+  description.value = descriptions[Math.round(temperature.value * 10)]
 })
 </script>
 
@@ -118,4 +104,3 @@ watch(value, (newValue) => {
   border: 0.2px solid #010101;
 }
 </style>
-../../stores/botStore

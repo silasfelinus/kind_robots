@@ -78,3 +78,7 @@ export async function randomBot(): Promise<Bot | null> {
     skip: randomIndex
   })
 }
+
+export async function countBots(): Promise<number> {
+  return await prisma.bot.count()
+}

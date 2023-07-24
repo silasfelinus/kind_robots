@@ -1,31 +1,14 @@
 // server/api/users/[id].delete.ts
-import prisma from '../utils/prisma'
+import { deleteUser } from '.'
 
 export default defineEventHandler(async (event) => {
+  const id = Number(event.context.params?.id)
+  if (!id) throw new Error('Invalid User ID.')
   try {
-    const id = Number(event.context.params?.id)
-
-    // Fetch the user from the database
-    const user = await prisma.user.findUnique({ where: { id: Number(id) } })
-
-    if (!user) {
-      throw new Error('user not found.')
-    }
-
-    // Delete the user
-    await prisma.user.delete({ where: { id } })
-    return { message: `user with id ${id} successfully deleted.` }
+    const deleted = await deleteUser(id)
+    if (!deleted) throw new Error(`User with id ${id} does not exist.`)
+    return { success: true, message: `User with id ${id} successfully deleted.` }
   } catch (error) {
-    let errorMessage = 'An error occurred while deleting the user.'
-
-    // Check if error is an instance of Error
-    if (error instanceof Error) {
-      errorMessage += ` Details: ${error.message}`
-    }
-
-    throw createError({
-      statusCode: 500,
-      statusMessage: errorMessage
-    })
+    return { success: false, message: `Failed to delete User with id ${id}.` }
   }
 })

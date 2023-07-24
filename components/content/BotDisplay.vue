@@ -16,10 +16,13 @@
           >
             <!-- Front Side -->
             <div>
-              <img :src="activeBot.avatarImage" class="w-full h-2/3 object-cover rounded-t-lg" />
+              <img
+                :src="activeBot ? activeBot.avatarImage : undefined"
+                class="w-full h-2/3 object-cover rounded-t-lg"
+              />
               <div class="mt-4">
-                <h2 class="text-xl font-bold mb-2">{{ activeBot.name }}</h2>
-                <p class="text-base">{{ activeBot.description }}</p>
+                <h2 class="text-xl font-bold mb-2">{{ activeBot ? activeBot.name : '' }}</h2>
+                <p class="text-base">{{ activeBot ? activeBot.description : '' }}</p>
               </div>
             </div>
             <div
@@ -28,23 +31,20 @@
             >
               <!-- Back Side -->
               <div>
-                <img :src="activeBot.avatarImage" class="w-32 h-32 object-cover rounded-lg mb-4" />
+                <img
+                  :src="activeBot ? activeBot.avatarImage : undefined"
+                  class="w-32 h-32 object-cover rounded-lg mb-4"
+                />
                 <div class="mt-4">
-                  <p>Post: {{ activeBot.post }}</p>
-                  <p>Bot Type: {{ activeBot.BotType }}</p>
-                  <p>Model Info: {{ activeBot.model }}</p>
-                  <p>Iterations (n): {{ activeBot.n }}</p>
-                  <p v-if="activeBot.size">Size: {{ activeBot.size }}</p>
-                  <div v-if="activeBot.temperature">
-                    <temperature-slider />
-                  </div>
+                  <p>Bot Type: {{ activeBot ? activeBot.botType : '' }}</p>
+                  <temperature-slider />
                 </div>
-                <div
-                  v-if="activeBot.isUnderConstruction"
-                  class="mt-4 flex items-center space-x-2 text-red-500"
-                >
-                  <p>Under Construction</p>
-                </div>
+              </div>
+              <div
+                v-if="activeBot && activeBot.underConstruction"
+                class="mt-4 flex items-center space-x-2 text-red-500"
+              >
+                <p>Under Construction</p>
               </div>
             </div>
           </div>
@@ -55,10 +55,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { useBotStore } from '../../stores/botStore'
 
-const botsStore = useBotStore()
-let activeBot = computed(() => botsStore.getActiveBot)
+const botStore = useBotStore()
+let activeBot = computed(() => botStore.getActiveBot)
 let flipped = ref(false)
 </script>
 
@@ -80,4 +81,3 @@ let flipped = ref(false)
   top: 0;
 }
 </style>
-../../stores/botStore

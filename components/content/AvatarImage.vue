@@ -2,10 +2,14 @@
   <div class="flip-card" @click="flipped = !flipped">
     <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
       <div class="flip-card-front">
-        <img :src="currentImage" alt="Avatar" class="avatar-img" />
+        <img :src="currentImage || undefined" alt="Avatar" class="avatar-img" />
       </div>
       <div class="flip-card-back">
-        <img :src="activeBot.avatarImage" alt="New Avatar" class="avatar-img" />
+        <img
+          :src="(activeBot && activeBot.avatarImage) || undefined"
+          alt="New Avatar"
+          class="avatar-img"
+        />
       </div>
     </div>
   </div>
@@ -14,18 +18,18 @@
 <script setup lang="ts">
 import { useBotStore } from '../../stores/botStore'
 
-const botsStore = useBotStore()
-let activeBot = computed(() => botsStore.getActiveBot)
-let currentImage = ref(activeBot.value.avatarImage)
+const botStore = useBotStore()
+let activeBot = computed(() => botStore.getActiveBot)
+let currentImage = ref(activeBot.value ? activeBot.value.avatarImage : undefined)
 let flipped = ref(false)
 
 watch(
   activeBot,
   (newVal, oldVal) => {
-    if (newVal.avatarImage !== currentImage.value) {
+    if (newVal && newVal.avatarImage !== currentImage.value) {
       flipped.value = !flipped.value
       nextTick(() => {
-        currentImage.value = newVal.avatarImage
+        currentImage.value = newVal ? newVal.avatarImage : undefined
       })
     }
   },
@@ -73,4 +77,3 @@ watch(
   transform: rotateY(180deg);
 }
 </style>
-../../stores/botStore

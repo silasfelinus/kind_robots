@@ -78,3 +78,7 @@ export async function randomMedia(): Promise<Media | null> {
     skip: randomIndex
   })
 }
+
+export async function countMedia(): Promise<number> {
+  return await prisma.media.count()
+}

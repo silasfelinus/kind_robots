@@ -78,3 +78,7 @@ export async function randomGallery(): Promise<Gallery | null> {
     skip: randomIndex
   })
 }
+
+export async function countGalleries(): Promise<number> {
+  return await prisma.gallery.count()
+}

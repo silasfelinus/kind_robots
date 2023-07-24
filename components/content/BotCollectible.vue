@@ -1,8 +1,8 @@
 <template>
   <div class="card">
     <div class="inner-card">
-      <h3 class="font-bold text-sm sm:text-base mb-2">{{ bot.name }}</h3>
-      <p class="text-xs sm:text-sm">Bot: {{ bot.id + 1 }} / {{ totalBots }}</p>
+      <h3 class="font-bold text-sm sm:text-base mb-2">{{ bot && bot.name }}</h3>
+      <p class="text-xs sm:text-sm">Bot: {{ bot && bot.id + 1 }} / {{ totalBots }}</p>
       <p class="text-xs sm:text-sm">{{ randomMessage }}</p>
       <div class="mt-2 flex justify-center">
         <site-logo class="w-4 h-4 sm:w-6 sm:h-6" />
@@ -12,11 +12,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { useBotStore } from '../../stores/botStore'
 
-const botsStore = useBotStore()
-let bot = computed(() => botsStore.getActiveBot)
-let totalBots = computed(() => botsStore.getBots.length)
+const botStore = useBotStore()
+let bot = computed(() => botStore.getActiveBot)
+let totalBots = computed(() => botStore.getBots.length)
 
 let randomMessages = [
   'Kind Robots: Where AI and humanity harmonize!',
@@ -62,4 +63,3 @@ let randomMessage = ref(randomMessages[Math.floor(Math.random() * randomMessages
   text-align: center;
 }
 </style>
-../../stores/botStore

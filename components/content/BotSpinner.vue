@@ -9,7 +9,7 @@
           v-for="bot in bots"
           :id="`bot-${bot.id}`"
           :key="bot.id"
-          :style="{ backgroundColor: bot.theme }"
+          :style="{ backgroundColor: bot.theme || 'defaultColor' }"
           class="flex flex-col items-center justify-between w-full cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
             'bg-accent text-secondary': activeBot && activeBot.id === bot.id,
@@ -32,8 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { Bot } from '@prisma/client'
-import { useBotStore } from '../../stores/botStore'
+import { useBotStore, Bot } from '../../stores/botStore'
 
 const botsStore = useBotStore()
 const bots: Bot[] = botsStore.getBots
@@ -50,8 +49,8 @@ const fetchBots = async () => {
     const response = await fetch('/api/bots')
     const data = await response.json()
     botsStore.setBots(data)
-    if (!activeBot.value && botsStore.getDefaultBot) {
-      botsStore.setActiveBot(botsStore.getDefaultBot)
+    if (!activeBot.value && data.length > 0) {
+      botsStore.setActiveBot(data[0])
     }
   } catch (error) {
     console.error(error)
@@ -59,7 +58,7 @@ const fetchBots = async () => {
 }
 
 const setActiveBot = (bot: Bot) => {
-  botsStore.setActiveBot(bot)
+  botsStore.setActiveBot(bot.id)
 }
 
 watch(
@@ -73,4 +72,3 @@ watch(
   }
 )
 </script>
-../../stores/botStore

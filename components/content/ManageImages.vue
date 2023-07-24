@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { Gallery } from '../../types/gallery'
+import { Gallery } from '../../stores/galleryStore'
 
 const galleries = ref<Gallery[]>([])
 const activeGalleryId = ref<number | null>(null)

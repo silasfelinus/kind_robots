@@ -12,24 +12,26 @@ export type Bot = BotRecord
 
 interface BotState {
   bots: Bot[]
-  activeBotId: number | null
+  selectedBots: Bot[]
+  activeBot: Bot | null
 }
 
 export const useBotStore = defineStore({
   id: 'bots',
   state: (): BotState => ({
     bots: [],
-    activeBotId: null
+    selectedBots: [],
+    activeBot: null
   }),
   getters: {
     getBots(): Bot[] {
       return this.bots
     },
-    getActiveBot(): Bot | undefined {
-      return this.bots.find((bot) => bot.id === this.activeBotId)
+    getActiveBot(): Bot | null {
+      return this.activeBot
     },
-    getActiveBotId(): number | null {
-      return this.activeBotId
+    getSelectedBots(): Bot[] {
+      return this.selectedBots
     }
   },
   actions: {
@@ -42,9 +44,6 @@ export const useBotStore = defineStore({
         ErrorType.NETWORK_ERROR,
         'Failed to fetch bots.'
       )
-    },
-    setActiveBotId(botId: number) {
-      this.activeBotId = botId
     },
     async fetchBotById(id: number): Promise<void> {
       await errorStore.handleError(
@@ -135,15 +134,13 @@ export const useBotStore = defineStore({
         throw new Error('Cannot deselect bot that is not selected')
       }
     },
-    async randomBot(): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          this.activeBot = await randomBot()
-          statusStore.setStatus(StatusType.SUCCESS, 'Random bot selected successfully.')
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to select random bot.'
-      )
+    randomBot(): void {
+      const randomIndex = Math.floor(Math.random() * this.bots.length)
+      this.activeBot = this.bots[randomIndex]
+      statusStore.setStatus(StatusType.SUCCESS, 'Random bot selected successfully.')
+    },
+    setBots(bots: Bot[]) {
+      this.bots.splice(0, this.bots.length, ...bots)
     }
   }
 })

@@ -1,14 +1,12 @@
 // /server/api/galleries/index.post.ts
-import { ErrorHandler } from '../utils/error'
-import { createGallery } from '../utils/gallery'
+import { addGalleries } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
-    const body = await readBody(event)
-
-    // Creating multiple Galleries.
-    const newGalleries = await createGallery(body)
-
-    return newGalleries
-  }, 'An error occurred while creating Galleries.')
-)
+export default defineEventHandler(async (event) => {
+  try {
+    const galleriesData = await readBody(event)
+    const result = await addGalleries(galleriesData)
+    return { success: true, ...result }
+  } catch (error) {
+    return { success: false, message: 'failed to create a new gallery' }
+  }
+})

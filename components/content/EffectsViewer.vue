@@ -11,4 +11,3 @@ import { useFxStore } from '../../stores/screenfx'
 
 const fxStore = useFxStore()
 </script>
-../../stores/gameStore

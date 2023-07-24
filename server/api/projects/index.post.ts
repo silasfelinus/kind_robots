@@ -1,18 +1,12 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+// /server/api/projects/index.post.ts
+import { addProjects } from '.'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  let tag = null
-
-  if (body.name)
-    tag = await prisma.tag.create({
-      data: {
-        name: body.name
-      }
-    })
-  return {
-    tag
+  try {
+    const projectsData = await readBody(event)
+    const result = await addProjects(projectsData)
+    return { success: true, ...result }
+  } catch (error) {
+    return { success: false, message: 'Failed to create new projects.' }
   }
 })

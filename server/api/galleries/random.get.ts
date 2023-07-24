@@ -1,11 +1,14 @@
-// server/api/galleries/random.get.ts
-import { ErrorHandler } from '../utils/error'
-import { randomGallery } from '../utils/gallery'
+// server/api/Galleries/random.get.ts
+import { randomGallery } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
+export default defineEventHandler(async () => {
+  try {
     const Gallery = await randomGallery()
-
-    return Gallery
-  }, 'Gallery not found')
-)
+    if (!Gallery) {
+      throw new Error(`No Galleries available.`)
+    }
+    return { success: true, Gallery }
+  } catch (error) {
+    return { success: false, message: 'No Gallery available' }
+  }
+})

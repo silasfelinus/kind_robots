@@ -14,43 +14,10 @@
             <label for="n-selection" class="block text-sm font-medium text-gray-700"
               >Variations:</label
             >
-            <select
-              id="n-selection"
-              v-model="activeBot.n"
-              name="n-selection"
-              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            >
-              <option v-for="n in 12" :key="n" :value="n">
-                {{ n }}
-              </option>
-            </select>
           </div>
-          <div v-if="activeBot.size" class="mt-4">
-            <label for="size-selection" class="block text-sm font-medium text-gray-700">
-              Select Size:
-            </label>
-            <select
-              id="size-selection"
-              v-model="activeBot.size"
-              name="size-selection"
-              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            >
-              <option value="512x512">512x512</option>
-              <option value="768x768">768x768</option>
-              <option value="1028x1028">1024x1024</option>
-            </select>
-          </div>
-          <div
-            v-if="activeBot.model || activeBot.post || activeBot.size"
-            class="flex flex-wrap gap-2"
-          >
-            <p v-if="activeBot.model" class="text-accent-700">Model: {{ activeBot.model }}</p>
-            <p v-if="activeBot.post" class="text-accent-700">Post: {{ activeBot.post }}</p>
-            <p v-if="activeBot.size" class="text-accent-700">Size: {{ activeBot.size }}</p>
-          </div>
-          <div class="mt-4">
-            <temperature-slider v-if="activeBot.temperature !== null" />
-          </div>
+        </div>
+        <div class="mt-4">
+          <temperature-slider />
         </div>
       </div>
     </div>

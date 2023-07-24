@@ -68,3 +68,19 @@ export async function deleteResource(id: number): Promise<boolean> {
   await prisma.resource.delete({ where: { id } })
   return true
 }
+
+export async function randomResource(): Promise<Resource | null> {
+  const totalResources = await prisma.resource.count()
+
+  if (totalResources === 0) {
+    return null
+  }
+
+  const randomIndex = Math.floor(Math.random() * totalResources)
+  return await prisma.resource.findFirst({
+    skip: randomIndex
+  })
+}
+export async function countResources(): Promise<number> {
+  return await prisma.resource.count()
+}

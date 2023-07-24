@@ -81,9 +81,7 @@
           {{ bot.description }}
         </div>
         <div class="mt-2 flex items-center text-sm text-${textColor}">
-          <div v-if="bot.isUnderConstruction" :class="`text-${statusColor}`">
-            Under Construction
-          </div>
+          <div v-if="bot.underConstruction" :class="`text-${statusColor}`">Under Construction</div>
           <bot-prompt />
         </div>
       </div>

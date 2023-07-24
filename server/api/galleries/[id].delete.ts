@@ -1,16 +1,14 @@
 // server/api/galleries/[id].delete.ts
-import { ErrorHandler } from '../utils/error'
-import { deleteGallery, findGallery } from '../utils/gallery'
+import { deleteGallery } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
-    const id = Number(event.context.params?.id)
-
-    // Fetch the gallery from the database
-    await findGallery(id)
-
-    // Delete the gallery
-    await deleteGallery(id)
-    return { message: `gallery with id ${id} successfully deleted.` }
-  }, 'An error occurred while deleting the gallery.')
-)
+export default defineEventHandler(async (event) => {
+  const id = Number(event.context.params?.id)
+  if (!id) throw new Error('Invalid Gallery ID.')
+  try {
+    const deleted = await deleteGallery(id)
+    if (!deleted) throw new Error(`Gallery with id ${id} does not exist.`)
+    return { success: true, message: `Gallery with id ${id} successfully deleted.` }
+  } catch (error) {
+    return { success: false, message: `Failed to delete Gallery with id ${id}.` }
+  }
+})

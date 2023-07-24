@@ -1,11 +1,13 @@
-// server/api/galleries/index.get.ts
-import { ErrorHandler } from '../utils/error'
-import { getGalleries } from '../utils/gallery'
+// server/api/Galleriess/index.get.ts
+import { fetchGalleries } from '.'
 
-export default defineEventHandler((event) =>
-  ErrorHandler(async () => {
-    const galleries = await getGalleries()
-
-    return galleries
-  }, 'An error occurred while fetching galleries')
-)
+export default defineEventHandler(async (event) => {
+  try {
+    const page = Number(event.context.query?.page) || 1
+    const pageSize = Number(event.context.query?.pageSize) || 10
+    const Galleries = await fetchGalleries(page, pageSize)
+    return { success: true, Galleries }
+  } catch (error) {
+    return { success: false, message: 'Failed to fetch Galleries.' }
+  }
+})

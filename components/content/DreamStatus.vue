@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { useDreamStore } from '../../stores/dreams'
+import { useDreamStore } from '../../stores/dreamStore'
 
 const dreamStore = useDreamStore()
 const dream = ref(dreamStore.randomDream())

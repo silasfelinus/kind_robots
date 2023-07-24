@@ -78,3 +78,7 @@ export async function randomGame(): Promise<Game | null> {
     skip: randomIndex
   })
 }
+
+export async function countGames(): Promise<number> {
+  return await prisma.game.count()
+}

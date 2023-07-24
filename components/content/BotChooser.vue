@@ -3,6 +3,7 @@
     <div class="flex flex-col items-center">
       <figure class="w-48 h-48 rounded-full overflow-hidden mb-4">
         <img
+          v-if="activeBot"
           :src="activeBot.avatarImage ? activeBot.avatarImage : '/images/avatars/bot1.jpg'"
           class="object-cover w-full h-full"
           alt="Bot Avatar"
@@ -15,17 +16,14 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useBotStore } from '../../stores/botStore'
 
-const botsStore = useBotStore()
-const bots = ref(botsStore.getBots)
-let activeBot = computed(() => botsStore.getActiveBot)
+const botStore = useBotStore()
+const bots = computed(() => botStore.getBots)
+let activeBot = computed(() => botStore.getActiveBot)
 
 const onBotSelected = (botId: number) => {
-  const bot = bots.value.find((bot) => bot.id === botId)
-  if (bot) {
-    botsStore.setActiveBot(bot)
-  }
+  botStore.setActiveBot(botId)
 }
 </script>
-../../stores/botStore

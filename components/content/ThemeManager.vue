@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { useThemeStore } from '../../stores/theme'
+import { useThemeStore } from '../../stores/themeStore'
 
 const themeStore = useThemeStore()
 
@@ -91,4 +91,3 @@ onMounted(() => {
   border-radius: 10px;
 }
 </style>
-../../stores/themeStore

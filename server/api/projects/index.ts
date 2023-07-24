@@ -65,3 +65,19 @@ export async function deleteProject(id: number): Promise<boolean> {
   await prisma.project.delete({ where: { id } })
   return true
 }
+export async function randomProject(): Promise<Project | null> {
+  const totalProjects = await prisma.project.count()
+
+  if (totalProjects === 0) {
+    return null
+  }
+
+  const randomIndex = Math.floor(Math.random() * totalProjects)
+  return await prisma.project.findFirst({
+    skip: randomIndex
+  })
+}
+
+export async function countProjects(): Promise<number> {
+  return await prisma.project.count()
+}

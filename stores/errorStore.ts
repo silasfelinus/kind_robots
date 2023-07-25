@@ -67,6 +67,15 @@ export const useErrorStore = defineStore('error', {
           reject(new Error('Cannot connect to Error store.'))
         }
       })
+    },
+    async loadStore() {
+      try {
+        await this.getErrors()
+        return `loaded ${this.getErrors}. Hopefully there we no errors there.`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

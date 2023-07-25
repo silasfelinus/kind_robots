@@ -58,6 +58,15 @@ export const useGalleryStore = defineStore({
     async countGalleries() {
       const { data } = await axios.get(`/api/galleries/count`)
       this.totalGalleries = data
+    },
+    async loadStore() {
+      try {
+        await this.getGalleries()
+        return `Loaded ${this.galleries.length} galleries`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

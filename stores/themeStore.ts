@@ -72,14 +72,14 @@ export const useThemeStore = defineStore('theme', {
         this.changeTheme(botTheme)
       }
     },
-    checkConnection() {
-      return new Promise((resolve, reject) => {
-        if (this.currentTheme) {
-          resolve(true)
-        } else {
-          reject(new Error('Cannot connect to Error store.'))
-        }
-      })
+    async loadStore() {
+      try {
+        await this.initTheme()
+        return `Loaded ${this.themes.length} themes`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

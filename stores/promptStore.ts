@@ -58,6 +58,15 @@ export const usePromptStore = defineStore({
     async countPrompts() {
       const { data } = await axios.get(`/api/prompts/count`)
       this.totalPrompts = data
+    },
+    async loadStore() {
+      try {
+        await this.getPrompts()
+        return `Loaded ${this.prompts.length} prompts`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

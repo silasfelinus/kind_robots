@@ -37,6 +37,14 @@ export const useScreenfxStore = defineStore({
           reject(new Error('Cannot connect to Error store.'))
         }
       })
+    },
+    async loadStore() {
+      try {
+        return 'loaded screenFX'
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

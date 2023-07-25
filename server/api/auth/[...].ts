@@ -2,18 +2,17 @@
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { compare as bcryptCompare } from 'bcrypt'
-import prisma from './../utils/prisma'
+import { PrismaClient } from '@prisma/client'
+
 import { NuxtAuthHandler } from '#auth'
 
 const config = useRuntimeConfig()
-
+const prisma = new PrismaClient()
 export default NuxtAuthHandler({
   secret: process.env.AUTH_SECRET,
-  adapter: PrismaAdapter(prisma),
   callbacks: {
-    async session({ session, user }) {
+    async session({ session }) {
       return session
     }
   },

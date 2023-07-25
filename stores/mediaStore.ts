@@ -58,6 +58,15 @@ export const useMediaStore = defineStore({
     async countMedia() {
       const { data } = await axios.get(`/api/media/count`)
       this.totalMedia = data
+    },
+    async loadStore() {
+      try {
+        await this.getMedia()
+        return `Loaded ${this.media.length} media`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

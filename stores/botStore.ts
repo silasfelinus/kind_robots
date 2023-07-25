@@ -61,6 +61,15 @@ export const useBotStore = defineStore({
     async countBots() {
       const { data } = await axios.get(`/api/bots/count`)
       this.totalBots = data
+    },
+    async loadStore() {
+      try {
+        await this.getBots()
+        return `Loaded ${this.bots.length} bots`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        return 'error'
+      }
     }
   }
 })

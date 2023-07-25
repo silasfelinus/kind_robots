@@ -41,15 +41,14 @@ export const useStatusStore = defineStore('status', {
     getStatusHistory() {
       return this.history
     },
-    checkConnection() {
-      return new Promise((resolve, reject) => {
-        if (this.history) {
-          // Change this condition based on what indicates a successful "connection"
-          resolve(true)
-        } else {
-          reject(new Error('Cannot connect to Error store.'))
-        }
-      })
+    async loadStore() {
+      try {
+        await this.getStatusHistory()
+        return `Loaded ${this.getStatusHistory.length} statuses.`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

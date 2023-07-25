@@ -58,6 +58,15 @@ export const useGameStore = defineStore({
     async countGames() {
       const { data } = await axios.get(`/api/games/count`)
       this.totalGames = data
+    },
+    async loadStore() {
+      try {
+        await this.getGames()
+        return `Loaded ${this.games.length} games`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export const useDreamStore = defineStore('dream', () => {
+export const useDreamStore = defineStore('dreams', () => {
   const dreams = [
     'Walking on a rainbow bridge across the sky',
     'Floating in a bubble through a city in the clouds',
@@ -71,6 +71,10 @@ export const useDreamStore = defineStore('dream', () => {
   function randomDream() {
     const randomIndex = Math.floor(Math.random() * dreams.length)
     return dreams[randomIndex]
+  }
+
+  function loadStore() {
+    return Promise.resolve(`Loaded ${dreams.length} dreams`)
   }
 
   return { dreams, randomDream }

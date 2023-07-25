@@ -22,7 +22,7 @@ watch(
   currentBotId,
   (newCurrentBotId) => {
     if (newCurrentBotId) {
-      botStore.setCurrentBot(newCurrentBotId)
+      botStore.getBotById(newCurrentBotId)
     }
   },
   { immediate: true }

@@ -6,4 +6,4 @@ image: amibot/amibot6.png
 gallery: wonderchest
 ---
 
-:model-manager
+:bot-manager

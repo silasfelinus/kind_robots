@@ -58,6 +58,15 @@ export const useProjectStore = defineStore({
     async countProjects() {
       const { data } = await axios.get(`/api/projects/count`)
       this.totalProjects = data
+    },
+    async loadStore() {
+      try {
+        await this.getProjects()
+        return `Loaded ${this.projects.length} projects`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

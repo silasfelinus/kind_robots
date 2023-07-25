@@ -58,6 +58,15 @@ export const useReactionStore = defineStore({
     async countReactions() {
       const { data } = await axios.get(`/api/reactions/count`)
       this.totalReactions = data
+    },
+    async loadStore() {
+      try {
+        await this.getReactions()
+        return `Loaded ${this.reactions.length} reactions`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

@@ -58,6 +58,15 @@ export const useResourceStore = defineStore({
     async countResources() {
       const { data } = await axios.get(`/api/resources/count`)
       this.totalResources = data
+    },
+    async loadStore() {
+      try {
+        await this.getResources()
+        return `Loaded ${this.resources.length} resources`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

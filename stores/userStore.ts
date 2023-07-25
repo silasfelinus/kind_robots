@@ -18,10 +18,10 @@ export const useUserStore = defineStore('userStore', {
     totalUsers: 0
   }),
   actions: {
-    async loadUsers(page = 1, pageSize = 10) {
+    async getUsers(page = 1, pageSize = 10) {
       this.users = await fetchUsers(page, pageSize)
     },
-    async loadUserById(id: number) {
+    async getUserById(id: number) {
       this.currentUser = await fetchUserById(id)
     },
     async createUser(userData: Partial<User>) {
@@ -48,11 +48,20 @@ export const useUserStore = defineStore('userStore', {
       }
       return deleted
     },
-    async loadRandomUser() {
+    async getRandomUser() {
       this.currentUser = await randomUser()
     },
-    async loadTotalUsers() {
+    async getTotalUsers() {
       this.totalUsers = await countUsers()
+    },
+    async loadStore() {
+      try {
+        await this.currentUser
+        return `Loaded ${this.users.length} users`
+      } catch (error) {
+        console.error('Error loading store:', error)
+        throw error
+      }
     }
   }
 })

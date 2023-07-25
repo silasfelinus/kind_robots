@@ -33,6 +33,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@next-auth/prisma-adapter": "^0.4.4-canary.81",
     "@pinia/nuxt": "^0.4.11",
     "@prisma/client": "^5.0.0",
     "axios": "^1.4.0",

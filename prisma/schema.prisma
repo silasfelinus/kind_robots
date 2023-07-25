@@ -21,6 +21,42 @@ enum ModelType {
   USER
 }
 
+model Account {
+  id                       Int     @id @unique @default(autoincrement())
+  userId                   Int
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  refresh_token_expires_in Int?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           Int      @id @unique @default(autoincrement())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
 // these are modeler and api resource types
 // to process media data
 enum ResourceType {
@@ -237,8 +273,8 @@ model User {
   realName           String?
   fancyName          String?
   salt               String?
-  hashedPassword     String
-  email              String
+  password           String
+  email              String     @unique
   bio                String?    @default("I was born and then things happened and now I'm here.")
   birthday           String?
   address1           String?
@@ -274,4 +310,8 @@ model User {
   Reactions          Reaction[]
   Resources          Resource[]
   Projects           Project[]
+  name               String?
+  emailVerified      DateTime?
+  accounts           Account[]
+  sessions           Session[]
 }

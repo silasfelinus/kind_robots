@@ -2,59 +2,56 @@
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import { compare as bcryptCompare } from 'bcrypt'
+import prisma from './../utils/prisma'
 import { NuxtAuthHandler } from '#auth'
 
-const GOOGLE_ID = process.env.GOOGLE_ID
-const GOOGLE_SECRET = process.env.GOOGLE_SECRET
+const config = useRuntimeConfig()
+
 export default NuxtAuthHandler({
   secret: process.env.AUTH_SECRET,
+  adapter: PrismaAdapter(prisma),
+  callbacks: {
+    async session({ session, user }) {
+      return session
+    }
+  },
   providers: [
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     GoogleProvider.default({
-      clientId: GOOGLE_ID,
-      clientSecret: GOOGLE_SECRET
+      clientId: config.GOOGLE_ID,
+      clientSecret: config.GOOGLE_SECRET
     }),
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     GithubProvider.default({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET
+      clientId: config.GITHUB_ID,
+      clientSecret: config.GITHUB_SECRET
     }),
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     CredentialsProvider.default({
-      // The name to display on the sign in form (e.g. 'Sign in with...')
       name: 'Kind Robots',
-      // The credentials is used to generate a suitable form on the sign in page.
-      // You can specify whatever fields you are expecting to be submitted.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
-        username: { label: 'Kind Login', type: 'text', placeholder: '(hint: jsmith)' },
-        password: { label: 'Kind Password', type: 'password', placeholder: '(hint: hunter2)' }
+        username: { label: 'Kind Login', type: 'text', placeholder: '(hint: kindrobots)' },
+        password: { label: 'Kind Password', type: 'password', placeholder: '(hint: kindpassword)' }
       },
-      authorize(credentials: any) {
-        // You need to provide your own logic here that takes the credentials
-        // submitted and returns either a object representing a user or value
-        // that is false/null if the credentials are invalid.
-        // NOTE: THE BELOW LOGIC IS NOT SAFE OR PROPER FOR AUTHENTICATION!
+      async authorize(credentials: any) {
+        // Fetch the user from the Prisma client
+        const user = await prisma.user.findUnique({ where: { username: credentials.username } })
 
-        const user = {
-          id: '1',
-          name: 'J Smith',
-          username: 'jsmith',
-          password: 'hunter2',
-          image: 'https://avatars.githubusercontent.com/u/25911230?v=4'
+        if (!user) {
+          // No user found with the given username
+          return null
         }
 
-        if (credentials?.username === user.username && credentials?.password === user.password) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user
+        // Use bcrypt to compare the supplied password to the hashed password stored in the database
+        const isPasswordCorrect = await bcryptCompare(credentials.password, user.password)
+
+        if (isPasswordCorrect) {
+          const { password, ...userWithoutPassword } = user
+          return userWithoutPassword
         } else {
-          console.error('Warning: Malicious login attempt registered, bad credentials provided')
-
-          // If you return null then an error will be displayed advising the user to check their details.
           return null
-
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         }
       }
     })

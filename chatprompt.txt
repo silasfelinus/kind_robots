@@ -41,7 +41,7 @@ giftshop
 /types/bot.ts (should we combine this with store? It's an awkward element to juggle and it's existence attacks our conception of the bot store as the single source of information for bots)
 
 botcard.vue - early mockup of a Bot, does not have promptbot logic
-botprompt.vue - reads ActiveBot from store and populates BotCard
+botprompt.vue - reads CurrentBot from store and populates BotCard
 
 api routes/
 /api/channels/[id]/messages.get.ts
@@ -113,7 +113,7 @@ We are developing BotPrompt. We only make a channel if the bottype is chatbot, b
 
 
 An example exchange:
-User selects ActiveBot Amibot. Amibot has these fields:
+User selects CurrentBot Amibot. Amibot has these fields:
   {
     id: 0,
     name: 'AMIb0t',
@@ -129,9 +129,9 @@ User selects ActiveBot Amibot. Amibot has these fields:
       'Please respond as AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach and humor'
   },
 
-  PromptBot imports useBotStore and checks for ActiveBot. (EXTRA: LoadDefaultBot If there is no activebot, it should display a warning and load AmiBot instead.)
+  PromptBot imports useBotStore and checks for CurrentBot. (EXTRA: LoadDefaultBot If there is no currentbot, it should display a warning and load AmiBot instead.)
 
-BotPrompt should display the ActiveBot in a pleasant and friendly design that utilizes tailwind and daisyui. Color variables are bg-primary, br-secondary, and bg-accent (with minimal use of black, grey, white). Feel free to remix this and use them as bases for gradients and shades, but do not use other colors. Mobile friendly design, horizontal layout fit to screen on desktop. Video Game aesthetics.
+BotPrompt should display the CurrentBot in a pleasant and friendly design that utilizes tailwind and daisyui. Color variables are bg-primary, br-secondary, and bg-accent (with minimal use of black, grey, white). Feel free to remix this and use them as bases for gradients and shades, but do not use other colors. Mobile friendly design, horizontal layout fit to screen on desktop. Video Game aesthetics.
 
 BotCard should display
 Name
@@ -143,20 +143,20 @@ Do not show model or post, those are sent in the packet
 Temperature should be reported on the front end as a pleasing slider going between Most Creative (0.0) to Most Consistent (1.0). Step 0.1
 maxTokens, if it exists, should be displayed as a minimally sized  drop-down selector stepping between 100-8000, step 100 until 1000, then doubling each time.
 n is number of iterations. It should be reported as such on front-end. It is also a dropdown, 1-8.
-Prompt exists regardless of bot, and ActiveBot.prompt should be loaded into the prompt textbox for editing. The UserPrompt should be tied to a channel based on botname
+Prompt exists regardless of bot, and CurrentBot.prompt should be loaded into the prompt textbox for editing. The UserPrompt should be tied to a channel based on botname
 
 [comments on prompts and channels]
 front-end channels link message history and bots, but are planned to be extendable to other types, like giving each bot their own livechatroom linked to their name. By having a channnel tied to the Bot.name, it will allow us to use the same system for custom chatrooms based on users, galleries, and even individual pictures. We want channels to help us track the user changing prompts, so if they change a prompt, change bot (which changes prompt), then change back, their prompt has persisted.
 
 [messages and channels]
 check for existing channel,
-activeChannel=PostChannel(channel = ActiveBot.name)
+activeChannel=PostChannel(channel = CurrentBot.name)
 
 is it a chatbot? If so, make a messages array from userPrompt
 
 add prompt to messages database:
 {content = userPrompt
   role  = 'User'
-  channel ActiveBot.name
+  channel CurrentBot.name
   ChannelID = activeChannel.id
 }

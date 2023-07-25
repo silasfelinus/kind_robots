@@ -1,8 +1,8 @@
 <template>
   <div class="flip-card" @click="flipped = !flipped">
     <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
-      <card-front key="front" class="flip-card-front" :bot="activeBot" />
-      <card-back key="back" class="flip-card-back" :bot="activeBot" />
+      <card-front key="front" class="flip-card-front" :bot="currentBot" />
+      <card-back key="back" class="flip-card-back" :bot="currentBot" />
     </div>
   </div>
 </template>
@@ -11,7 +11,7 @@
 import { useBotStore } from '../../stores/botStore'
 
 const botsStore = useBotStore()
-let activeBot = computed(() => botsStore.getActiveBot)
+let currentBot = computed(() => botsStore.currentBot)
 let flipped = ref(false)
 </script>
 
@@ -48,4 +48,4 @@ let flipped = ref(false)
   transform: rotateY(180deg);
 }
 </style>
-../../stores/botStore
+../../../stores/botStore

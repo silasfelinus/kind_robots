@@ -17,12 +17,12 @@
             <!-- Front Side -->
             <div>
               <img
-                :src="activeBot ? activeBot.avatarImage : undefined"
+                :src="currentBot ? currentBot.avatarImage : undefined"
                 class="w-full h-2/3 object-cover rounded-t-lg"
               />
               <div class="mt-4">
-                <h2 class="text-xl font-bold mb-2">{{ activeBot ? activeBot.name : '' }}</h2>
-                <p class="text-base">{{ activeBot ? activeBot.description : '' }}</p>
+                <h2 class="text-xl font-bold mb-2">{{ currentBot ? currentBot.name : '' }}</h2>
+                <p class="text-base">{{ currentBot ? currentBot.description : '' }}</p>
               </div>
             </div>
             <div
@@ -32,16 +32,16 @@
               <!-- Back Side -->
               <div>
                 <img
-                  :src="activeBot ? activeBot.avatarImage : undefined"
+                  :src="currentBot ? currentBot.avatarImage : undefined"
                   class="w-32 h-32 object-cover rounded-lg mb-4"
                 />
                 <div class="mt-4">
-                  <p>Bot Type: {{ activeBot ? activeBot.BotType : '' }}</p>
+                  <p>Bot Type: {{ currentBot ? currentBot.BotType : '' }}</p>
                   <temperature-slider />
                 </div>
               </div>
               <div
-                v-if="activeBot && activeBot.underConstruction"
+                v-if="currentBot && currentBot.underConstruction"
                 class="mt-4 flex items-center space-x-2 text-red-500"
               >
                 <p>Under Construction</p>
@@ -56,10 +56,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useBotStore } from '../stores/botStore'
+import { useBotStore } from '../../stores/botStore'
 
 const botStore = useBotStore()
-let activeBot = computed(() => botStore.getActiveBot)
+let currentBot = computed(() => botStore.currentBot)
 let flipped = ref(false)
 </script>
 

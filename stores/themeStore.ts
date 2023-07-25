@@ -1,4 +1,4 @@
-// /stores/theme.ts
+// ~/stores/themeStore.ts
 import { defineStore } from 'pinia'
 
 export const useThemeStore = defineStore('theme', {
@@ -55,6 +55,13 @@ export const useThemeStore = defineStore('theme', {
     initTheme() {
       const savedTheme = localStorage.getItem('theme')
       const defaultTheme = savedTheme || 'retro'
+      if (!this.themes.includes(defaultTheme)) {
+        console.error(
+          `Invalid theme: "${defaultTheme}" in local storage. Falling back to default theme.`
+        )
+        this.changeTheme('retro')
+        return
+      }
       this.changeTheme(defaultTheme)
     },
     setBotOverride(value: boolean) {
@@ -64,6 +71,15 @@ export const useThemeStore = defineStore('theme', {
       if (this.botOverride) {
         this.changeTheme(botTheme)
       }
+    },
+    checkConnection() {
+      return new Promise((resolve, reject) => {
+        if (this.currentTheme) {
+          resolve(true)
+        } else {
+          reject(new Error('Cannot connect to Error store.'))
+        }
+      })
     }
   }
 })

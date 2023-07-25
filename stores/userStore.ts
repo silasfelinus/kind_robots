@@ -1,119 +1,58 @@
 // ~/stores/userStore.ts
 import { defineStore } from 'pinia'
 import {
-  User as UserRecord,
+  User,
   fetchUsers,
   fetchUserById,
   addUser,
   updateUser,
-  deleteUser
-} from '../server/api/users'
-import { useErrorStore, ErrorType } from './errorStore'
-import { useStatusStore, StatusType } from './statusStore'
+  deleteUser,
+  randomUser,
+  countUsers
+} from '~/server/api/users'
 
-const errorStore = useErrorStore()
-const statusStore = useStatusStore()
-
-export type User = UserRecord
-
-interface UserState {
-  users: User[]
-  selectedUser: User | null
-}
-
-export const useUserStore = defineStore({
-  id: 'users',
-  state: (): UserState => ({
-    users: [],
-    selectedUser: null
+export const useUserStore = defineStore('userStore', {
+  state: () => ({
+    users: [] as User[],
+    currentUser: null as User | null,
+    totalUsers: 0
   }),
-  getters: {
-    getSelectedUser(): User | null {
-      return this.selectedUser
-    }
-  },
   actions: {
-    async fetchUsers(page = 1, pageSize = 10): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          this.users = await fetchUsers(page, pageSize)
-          statusStore.setStatus(StatusType.SUCCESS, 'Users fetched successfully.')
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch users.'
-      )
+    async loadUsers(page = 1, pageSize = 10) {
+      this.users = await fetchUsers(page, pageSize)
     },
-    async fetchUserById(id: number): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const user = await fetchUserById(id)
-          if (user) {
-            const userIndex = this.users.findIndex((existingUser) => existingUser.id === id)
-            if (userIndex !== -1) {
-              this.users.splice(userIndex, 1, user)
-            } else {
-              this.users.push(user)
-            }
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch user by id.'
-      )
+    async loadUserById(id: number) {
+      this.currentUser = await fetchUserById(id)
     },
-    async addUser(userData: Partial<User>): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const newUser = await addUser(userData)
-          if (newUser) {
-            this.users.push(newUser)
-            statusStore.setStatus(StatusType.SUCCESS, 'User added successfully.')
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to add user.'
-      )
-    },
-    async updateUser(id: number, data: Partial<User>): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const updatedUser = await updateUser(id, data)
-          if (updatedUser) {
-            const userIndex = this.users.findIndex((user) => user.id === id)
-            if (userIndex !== -1) {
-              this.users.splice(userIndex, 1, updatedUser)
-            }
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to update user.'
-      )
-    },
-    async deleteUser(id: number): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const deleteSuccess = await deleteUser(id)
-          if (deleteSuccess) {
-            const userIndex = this.users.findIndex((user) => user.id === id)
-            if (userIndex !== -1) {
-              this.users.splice(userIndex, 1)
-              statusStore.setStatus(StatusType.SUCCESS, 'User deleted successfully.')
-            }
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to delete user.'
-      )
-    },
-    selectUser(userId: number): void {
-      const user = this.users.find((user) => user.id === userId)
-      if (user) {
-        this.selectedUser = user
-      } else {
-        throw new Error('Cannot select user that does not exist')
+    async createUser(userData: Partial<User>) {
+      const newUser = await addUser(userData)
+      if (newUser) {
+        this.users.push(newUser)
       }
+      return newUser
     },
-    deselectUser(): void {
-      this.selectedUser = null
+    async updateUserById(id: number, data: Partial<User>) {
+      const updatedUser = await updateUser(id, data)
+      if (updatedUser) {
+        const index = this.users.findIndex((user) => user.id === updatedUser.id)
+        if (index !== -1) {
+          this.users[index] = updatedUser
+        }
+      }
+      return updatedUser
+    },
+    async deleteUserById(id: number) {
+      const deleted = await deleteUser(id)
+      if (deleted) {
+        this.users = this.users.filter((user) => user.id !== id)
+      }
+      return deleted
+    },
+    async loadRandomUser() {
+      this.currentUser = await randomUser()
+    },
+    async loadTotalUsers() {
+      this.totalUsers = await countUsers()
     }
   }
 })

@@ -11,10 +11,10 @@
           :key="bot.id"
           class="carousel-item h-full cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
-            'bg-accent text-default': activeBot && activeBot.id === bot.id,
-            'bg-primary': !activeBot || activeBot.id !== bot.id
+            'bg-accent text-default': currentBot && currentBot.id === bot.id,
+            'bg-primary': !currentBot || currentBot.id !== bot.id
           }"
-          @click="setActiveBot(bot)"
+          @click="setCurrentBot(bot)"
         >
           <img :src="bot.avatarImage ?? undefined" class="w-full h-full object-cover rounded-lg" />
 
@@ -29,14 +29,15 @@
 </template>
 
 <script setup lang="ts">
-import { useBotStore, Bot } from '../stores/botStore'
+import { computed, ComputedRef, onMounted } from 'vue'
+import { useBotStore, Bot } from '../../stores/botStore'
 
-const botsStore = useBotStore()
-const bots: ComputedRef<Bot[]> = computed(() => botsStore.bots)
-const activeBot: ComputedRef<Bot | null> = computed(() => botsStore.getActiveBot)
+const botStore = useBotStore()
+const bots: ComputedRef<Bot[]> = computed(() => botStore.bots)
+const currentBot: ComputedRef<Bot | null> = computed(() => botStore.currentBot)
 
-const setActiveBot = (bot: Bot) => {
-  botsStore.setActiveBot(bot.id)
+const setCurrentBot = (bot: Bot) => {
+  botStore.getBotById(bot.id)
 }
 onMounted(async () => {
   if (bots.value.length === 0) {
@@ -46,10 +47,9 @@ onMounted(async () => {
 
 const fetchBots = async () => {
   try {
-    await botsStore.fetchBots()
-    if (!activeBot.value) {
-      const defaultBot = botsStore.bots[0]
-      if (defaultBot) botsStore.selectBot(defaultBot.id)
+    await botStore.getBots()
+    if (!currentBot.value && bots.value.length > 0) {
+      botStore.getBotById(bots.value[0].id)
     }
   } catch (error) {
     console.error(error)

@@ -2,39 +2,32 @@
   <div class="flip-card" @click="flipped = !flipped">
     <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
       <div class="flip-card-front">
-        <img :src="currentImage || undefined" alt="Avatar" class="avatar-img" />
+        <img :src="currentImage" alt="Avatar" class="avatar-img" />
       </div>
       <div class="flip-card-back">
-        <img
-          :src="(activeBot && activeBot.avatarImage) || undefined"
-          alt="New Avatar"
-          class="avatar-img"
-        />
+        <img v-if="currentBot" :src="currentBot?.avatarImage" alt="New Avatar" class="avatar-img" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, nextTick, watchEffect } from 'vue'
 import { useBotStore } from '../../stores/botStore'
 
 const botStore = useBotStore()
-let activeBot = computed(() => botStore.getActiveBot)
-let currentImage = ref(activeBot.value ? activeBot.value.avatarImage : undefined)
-let flipped = ref(false)
+const currentBot = computed(() => botStore.currentBot)
+const currentImage = ref(currentBot.value ? currentBot.value.avatarImage : undefined)
+const flipped = ref(false)
 
-watch(
-  activeBot,
-  (newVal, oldVal) => {
-    if (newVal && newVal.avatarImage !== currentImage.value) {
-      flipped.value = !flipped.value
-      nextTick(() => {
-        currentImage.value = newVal ? newVal.avatarImage : undefined
-      })
-    }
-  },
-  { immediate: true }
-)
+watchEffect(() => {
+  if (currentBot.value?.avatarImage !== currentImage.value) {
+    flipped.value = !flipped.value
+    nextTick(() => {
+      currentImage.value = currentBot.value ? currentBot.value.avatarImage : undefined
+    })
+  }
+})
 </script>
 
 <style scoped>

@@ -1,122 +1,63 @@
-// ~/stores/projectStore.ts
+// ~/store/projects.ts
 import { defineStore } from 'pinia'
-import {
-  Project as ProjectRecord,
-  fetchProjects,
-  fetchProjectById,
-  addProjects,
-  updateProject,
-  deleteProject
-} from '../server/api/projects'
-import { useErrorStore, ErrorType } from './errorStore'
-import { useStatusStore, StatusType } from './statusStore'
-
-const errorStore = useErrorStore()
-const statusStore = useStatusStore()
+import { Project as ProjectRecord } from '@prisma/client'
+import axios from 'axios'
 
 export type Project = ProjectRecord
 
 interface ProjectState {
   projects: Project[]
-  selectedProject: Project | null
+  currentProject: Project | null
+  totalProjects: number
+  errors: string[]
 }
 
 export const useProjectStore = defineStore({
   id: 'projects',
   state: (): ProjectState => ({
     projects: [],
-    selectedProject: null
+    currentProject: null,
+    totalProjects: 0,
+    errors: []
   }),
-  getters: {
-    getSelectedProject(): Project | null {
-      return this.selectedProject
-    }
-  },
   actions: {
-    async fetchProjects(page = 1, pageSize = 10): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          this.projects = await fetchProjects(page, pageSize)
-          statusStore.setStatus(StatusType.SUCCESS, 'Projects fetched successfully.')
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch projects.'
-      )
+    async getProjects(page = 1, pageSize = 10) {
+      const { data } = await axios.get(`/api/projects?page=${page}&pageSize=${pageSize}`)
+      this.projects = data
     },
-    async fetchProjectById(id: number): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const project = await fetchProjectById(id)
-          if (project) {
-            const projectIndex = this.projects.findIndex(
-              (existingProject) => existingProject.id === id
-            )
-            if (projectIndex !== -1) {
-              this.projects.splice(projectIndex, 1, project)
-            } else {
-              this.projects.push(project)
-            }
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch project by id.'
-      )
+    async getProjectById(id: number) {
+      const { data } = await axios.get(`/api/projects/${id}`)
+      this.currentProject = data
     },
-    async addProjects(projectData: Partial<Project>[]): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const { projects: newProjects } = await addProjects(projectData)
-          this.projects.push(...newProjects)
-          statusStore.setStatus(
-            StatusType.SUCCESS,
-            `${newProjects.length} project(s) added successfully.`
-          )
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to add projects.'
-      )
+    async addProjects(projectData: Partial<Project>[]) {
+      const { data } = await axios.post(`/api/projects`, projectData)
+      this.projects = data.projects
+      this.errors = data.errors
+
+      // Update the total projects count after adding new projects
+      await this.countProjects()
     },
-    async updateProject(id: number, data: Partial<Project>): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const updatedProject = await updateProject(id, data)
-          if (updatedProject) {
-            const projectIndex = this.projects.findIndex((project) => project.id === id)
-            if (projectIndex !== -1) {
-              this.projects.splice(projectIndex, 1, updatedProject)
-            }
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to update project.'
-      )
+    async updateProject(id: number, data: Partial<Project>) {
+      const { data: updatedProject } = await axios.put(`/api/projects/${id}`, data)
+      this.currentProject = updatedProject
+
+      // Fetch the updated list of projects after updating a project
+      await this.getProjects()
     },
-    async deleteProject(id: number): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const deleteSuccess = await deleteProject(id)
-          if (deleteSuccess) {
-            const projectIndex = this.projects.findIndex((project) => project.id === id)
-            if (projectIndex !== -1) {
-              this.projects.splice(projectIndex, 1)
-              statusStore.setStatus(StatusType.SUCCESS, 'Project deleted successfully.')
-            }
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to delete project.'
-      )
+    async deleteProject(id: number) {
+      await axios.delete(`/api/projects/${id}`)
+
+      // Fetch the updated list of projects and total projects count after deleting a project
+      await this.getProjects()
+      await this.countProjects()
     },
-    selectProject(projectId: number): void {
-      const project = this.projects.find((project) => project.id === projectId)
-      if (project) {
-        this.selectedProject = project
-      } else {
-        throw new Error('Cannot select project that does not exist')
-      }
+    async randomProject() {
+      const { data } = await axios.get(`/api/projects/random`)
+      this.currentProject = data
     },
-    deselectProject(): void {
-      this.selectedProject = null
+    async countProjects() {
+      const { data } = await axios.get(`/api/projects/count`)
+      this.totalProjects = data
     }
   }
 })

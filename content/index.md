@@ -6,8 +6,6 @@ image: backtree.webp
 gallery: wonderbot
 ---
 
-:bot-carousel
-
 # 🤖 Hello, Human Friend! Welcome to Kind Robots! 🌍
 
 At Kind Robots, we believe the power of AI and the spirit of humanity can harmonize into something magical! 🎩✨

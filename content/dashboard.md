@@ -1,10 +1,10 @@
 ---
 title: 'User Dashboard'
 subtitle: 'Thank you for joining!'
-layout: dashboard
+layout: default
 image: backtree.webp
 gallery: splash
 navigation: true
 ---
 
-Dashboard Here:
+:user-dashboard

@@ -1,45 +1,68 @@
 <template>
-  <div>
-    <!-- Display loading bar when a page is loading -->
-    <NuxtLoadingBar />
-
-    <div class="flex flex-col flex-grow overflow-hidden">
-      <!-- Center page (main content) -->
-      <main class="flex-grow p-2 sm:p-4 overflow-auto">
-        <NuxtPage />
-        <slot />
-        <side-nav />
-      </main>
+  <div class="container mx-auto px-4">
+    <div class="flex flex-col min-h-screen justify-between">
+      <div>
+        <nuxt-link to="/welcome">
+          <img
+            v-if="imageLoaded"
+            :src="'/images/kindtitle.webp'"
+            class="mx-auto"
+            alt="Title"
+            @load="imageLoaded = true"
+          />
+        </nuxt-link>
+      </div>
+      <nuxt-page />
     </div>
+    <loading-bar />
 
-    <!-- Collapsible footer -->
-    <footer class="p-2 sm:p-4 border-t flex-shrink-0">
-      <dream-status />
-    </footer>
+    <h2 class="text-center text-xl font-bold mb-4">Stores Loading Status</h2>
+    <div class="space-y-2">
+      <div v-for="(store, name) in stores" :key="name" class="flex items-center justify-between">
+        <span class="font-medium">{{ name }}</span>
+        <span
+          class="text-sm px-2 py-1 rounded-full"
+          :class="{
+            'bg-green-500 text-white': store.status === 'loaded',
+            'bg-yellow-500 text-white': store.status === 'loading',
+            'bg-red-500 text-white': store.status === 'error'
+          }"
+        >
+          {{ store.status }}
+        </span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useBotStore } from './stores/botStore'
+import {
+  useBotStore,
+  useErrorStore,
+  useGalleryStore,
+  useMediaStore,
+  useProjectStore,
+  usePromptStore,
+  useReactionStore,
+  useResourceStore,
+  useScreenfxStore,
+  useStatusStore,
+  useThemeStore,
+  useUserStore
+} from './stores'
 
-const menuBtn = ref(null)
-const sideNav = ref(null)
-
-const botStore = useBotStore
-
-onMounted(() => {
-  menuBtn.value = document.getElementById('menuBtn')
-  sideNav.value = document.getElementById('sideNav')
-
-  menuBtn.value.addEventListener('click', toggleMenu)
+const stores = reactive({
+  botStore: { status: useBotStore().load() },
+  errorStore: { status: useErrorStore().load() },
+  galleryStore: { status: useGalleryStore().load() },
+  mediaStore: { status: useMediaStore().load() },
+  projectStore: { status: useProjectStore().load() },
+  promptStore: { status: usePromptStore().load() },
+  reactionStore: { status: useReactionStore().load() },
+  resourceStore: { status: useResourceStore().load() },
+  screenfxStore: { status: useScreenfxStore().load() },
+  statusStore: { status: useStatusStore().load() },
+  themeStore: { status: useThemeStore().load() },
+  userStore: { status: useUserStore().load() }
 })
-
-onUnmounted(() => {
-  menuBtn.value.removeEventListener('click', toggleMenu)
-})
-
-function toggleMenu() {
-  sideNav.value.classList.toggle('hidden')
-}
 </script>

@@ -6,16 +6,4 @@ image: amibot/amibot6.png
 gallery: wonderchest
 ---
 
-:manage-styles
-
-:manage-wildcards
-
-:manage-users
-
-:manage-bots
-
-:manage-galleries
-
-:manage-images
-Prompt
-Response
+:model-manager

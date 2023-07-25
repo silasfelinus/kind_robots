@@ -1,149 +1,63 @@
-// ~/stores/mediaStore.ts
+// ~/store/media.ts
 import { defineStore } from 'pinia'
-import {
-  fetchMedia,
-  fetchMediaById,
-  Media as MediaRecord,
-  addMedia,
-  updateMedia,
-  deleteMedia,
-  randomMedia
-} from '../server/api/media'
-import { useErrorStore, ErrorType } from './errorStore'
-import { useStatusStore, StatusType } from './statusStore'
-
-const errorStore = useErrorStore()
-const statusStore = useStatusStore()
+import { Media as MediaRecord } from '@prisma/client'
+import axios from 'axios'
 
 export type Media = MediaRecord
 
 interface MediaState {
   media: Media[]
-  selectedMedia: Media[]
-  activeMedia: Media | null
+  currentMedia: Media | null
+  totalMedia: number
+  errors: string[]
 }
 
 export const useMediaStore = defineStore({
   id: 'media',
   state: (): MediaState => ({
     media: [],
-    selectedMedia: [],
-    activeMedia: null
+    currentMedia: null,
+    totalMedia: 0,
+    errors: []
   }),
-  getters: {
-    getSelectedMedia(): Media[] {
-      return this.selectedMedia
-    },
-    getActiveMedia(): Media | null {
-      return this.activeMedia || this.selectedMedia.slice(-1)[0] || null
-    }
-  },
   actions: {
-    async fetchMedia(page = 1, pageSize = 10): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          this.media = await fetchMedia(page, pageSize)
-          statusStore.setStatus(StatusType.SUCCESS, 'Media fetched successfully.')
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch media.'
-      )
+    async getMedia(page = 1, pageSize = 10) {
+      const { data } = await axios.get(`/api/media?page=${page}&pageSize=${pageSize}`)
+      this.media = data
     },
-    async fetchMediaById(id: number): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const media = await fetchMediaById(id)
-          if (media) {
-            const mediaIndex = this.media.findIndex((existingMedia) => existingMedia.id === id)
-            if (mediaIndex !== -1) {
-              this.media.splice(mediaIndex, 1, media)
-            } else {
-              this.media.push(media)
-            }
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch media by id.'
-      )
+    async getMediaById(id: number) {
+      const { data } = await axios.get(`/api/media/${id}`)
+      this.currentMedia = data
     },
-    async addMedia(mediaData: Partial<Media>[]): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const { media: newMedia } = await addMedia(mediaData)
-          this.media.push(...newMedia)
-          statusStore.setStatus(
-            StatusType.SUCCESS,
-            `${newMedia.length} media item(s) added successfully.`
-          )
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to add media.'
-      )
+    async addMedia(mediaData: Partial<Media>[]) {
+      const { data } = await axios.post(`/api/media`, mediaData)
+      this.media = data.media
+      this.errors = data.errors
+
+      // Update the total media count after adding new media
+      await this.countMedia()
     },
-    async updateMedia(id: number, data: Partial<Media>): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          const updatedMedia = await updateMedia(id, data)
-          if (updatedMedia) {
-            const mediaIndex = this.media.findIndex((media) => media.id === id)
-            if (mediaIndex !== -1) {
-              this.media.splice(mediaIndex, 1, updatedMedia)
-            }
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to update media.'
-      )
+    async updateMedia(id: number, data: Partial<Media>) {
+      const { data: updatedMedia } = await axios.put(`/api/media/${id}`, data)
+      this.currentMedia = updatedMedia
+
+      // Fetch the updated list of media after updating a media
+      await this.getMedia()
     },
-    async deleteMedia(id: number): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          await deleteMedia(id)
-          const mediaIndex = this.media.findIndex((media) => media.id === id)
-          if (mediaIndex !== -1) {
-            this.media.splice(mediaIndex, 1)
-            statusStore.setStatus(StatusType.SUCCESS, 'Media deleted successfully.')
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to delete media.'
-      )
+    async deleteMedia(id: number) {
+      await axios.delete(`/api/media/${id}`)
+
+      // Fetch the updated list of media and total media count after deleting a media
+      await this.getMedia()
+      await this.countMedia()
     },
-    selectMedia(mediaId: number): void {
-      const media = this.media.find((media) => media.id === mediaId)
-      if (media) {
-        this.selectedMedia.push(media)
-        this.activeMedia = media
-      } else {
-        throw new Error('Cannot select media that does not exist')
-      }
+    async randomMedia() {
+      const { data } = await axios.get(`/api/media/random`)
+      this.currentMedia = data
     },
-    setActiveMedia(mediaId: number): void {
-      const media = this.media.find((media) => media.id === mediaId)
-      if (media) {
-        this.activeMedia = media
-      } else {
-        throw new Error('Cannot set active media that does not exist')
-      }
-    },
-    deselectMedia(mediaId: number): void {
-      const mediaIndex = this.selectedMedia.findIndex((media) => media.id === mediaId)
-      if (mediaIndex !== -1) {
-        this.selectedMedia.splice(mediaIndex, 1)
-        this.activeMedia = this.selectedMedia.slice(-1)[0] || null
-      } else {
-        throw new Error('Cannot deselect media that is not selected')
-      }
-    },
-    async randomMedia(): Promise<void> {
-      await errorStore.handleError(
-        async () => {
-          this.activeMedia = await randomMedia()
-          statusStore.setStatus(StatusType.SUCCESS, 'Random media selected successfully.')
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to select random media.'
-      )
+    async countMedia() {
+      const { data } = await axios.get(`/api/media/count`)
+      this.totalMedia = data
     }
   }
 })

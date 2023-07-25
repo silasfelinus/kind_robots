@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { useBotStore } from '../../../stores/botStore'
+import { useBotStore } from '../../../../../stores/botStore'
 
 const botStore = useBotStore()
 const selectedBotId = ref(null)

@@ -12,10 +12,10 @@
           :style="{ backgroundColor: bot.theme || 'defaultColor' }"
           class="flex flex-col items-center justify-between w-full cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
-            'bg-accent text-secondary': activeBot && activeBot.id === bot.id,
-            'bg-primary': !activeBot || activeBot.id !== bot.id
+            'bg-accent text-secondary': currentBot && currentBot.id === bot.id,
+            'bg-primary': !currentBot || currentBot.id !== bot.id
           }"
-          @click="setActiveBot(bot)"
+          @click="setCurrentBot(bot)"
         >
           <div :data-theme="bot.theme" class="rounded-lg m-1">
             <avatar-image />
@@ -32,15 +32,17 @@
 </template>
 
 <script setup lang="ts">
-import { useBotStore } from '../stores/botStore'
-import { Bot } from '../server/api/bots'
+import { computed, onMounted, watch } from 'vue'
+import { useBotStore } from '../../stores/botStore'
+import { Bot } from '../../server/api/bots'
 
 const botsStore = useBotStore()
-const bots: Bot[] = botsStore.getBots
-let activeBot = computed(() => botsStore.getActiveBot)
+const bots = computed(() => botsStore.bots)
+
+let currentBot = computed(() => botsStore.currentBot)
 
 onMounted(async () => {
-  if (!bots.length) {
+  if (!bots.value) {
     await fetchBots()
   }
 })
@@ -49,24 +51,24 @@ const fetchBots = async () => {
   try {
     const response = await fetch('/api/bots')
     const data = await response.json()
-    botsStore.setBots(data)
-    if (!activeBot.value && data.length > 0) {
-      botsStore.setActiveBot(data[0])
+    botsStore.addBots(data)
+    if (!currentBot.value && data.length > 0) {
+      botsStore.setCurrentBot(data[0].id)
     }
   } catch (error) {
     console.error(error)
   }
 }
 
-const setActiveBot = (bot: Bot) => {
-  botsStore.setActiveBot(bot.id)
+const setCurrentBot = (bot: Bot) => {
+  botsStore.setCurrentBot(bot)
 }
 
 watch(
-  () => activeBot.value,
-  (newActiveBot, oldActiveBot) => {
-    if (newActiveBot) {
-      const id = newActiveBot.id
+  () => currentBot.value,
+  (newCurrentBot, oldCurrentBot) => {
+    if (newCurrentBot) {
+      const id = newCurrentBot.id
       const botElement = document.getElementById(`bot-${id}`)
       botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }

@@ -6,4 +6,4 @@ image: backtree.webp
 gallery: wondershed
 ---
 
-:registration-page
+:registration-form

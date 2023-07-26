@@ -34,6 +34,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@interactjs/interact": "^1.10.17",
     "@pinia/nuxt": "latest",
     "@prisma/client": "latest",
     "axios": "latest",
@@ -42,7 +43,8 @@
     "interactjs": "^1.10.17",
     "jsonwebtoken": "^9.0.1",
     "open-simplex-noise": "^2.5.0",
-    "pinia": "latest"
+    "pinia": "latest",
+    "vuedraggable": "^2.24.3"
   },
   "overrides": {
     "vue": "latest"

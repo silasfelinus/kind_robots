@@ -1,0 +1,28 @@
+Wonderwidget - handles communication between and transformation into the other widgets
+
+LibrarianWidget - database crud: used for messaging storage and retrieval
+ChatWidget - messaging management and chat diplay
+PromptWidget - programmatic messages for api calls to ai language processors
+BotWidget - api calls
+ArtWidget - image and smart gallery display
+
+
+
+
+TaskWidget: project organization
+
+
+Concepts:
+CodeWidget: A tool for collaborative code editing and sharing. It supports multiple programming languages and allows backend coders and front-end developers to work together seamlessly.
+
+DocuWidget: A document collaboration tool that supports real-time editing, version control, and sharing of various file types, including text documents, spreadsheets, and presentations.
+
+TestWidget: A testing and debugging tool for both backend and front-end code. It helps developers identify issues and bugs and allows them to quickly fix problems in their code.
+
+DesignWidget: A design collaboration platform for creating and sharing wireframes, mockups, and prototypes. It supports real-time editing and commenting, allowing front-end developers and designers to work together seamlessly.
+
+DataWidget: A tool for managing and visualizing data, including databases, APIs, and data sets. It can be used by both backend coders and front-end developers to better understand the data they are working with and make data-driven decisions.
+
+LearnWidget: An educational platform that offers tutorials, resources, and courses on various aspects of web development, design, and AI. It caters to the learning needs of both backend coders and front-end developers.
+
+DirectoryWidget -  pass it a folder and it will assist in reorg

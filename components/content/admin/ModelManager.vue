@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useBotStore } from '../../stores/botStore'
+import { useBotStore } from '../../../stores/botStore'
 
 const botStore = useBotStore()
 let currentBot = computed(() => botStore.currentBot)

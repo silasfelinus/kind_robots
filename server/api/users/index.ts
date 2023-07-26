@@ -19,7 +19,7 @@ export async function fetchUserById(id: number): Promise<User | null> {
 }
 
 export async function addUser(userData: Partial<User>): Promise<User | null> {
-  if (!userData.username || !userData.hashedPassword) {
+  if (!userData.username || !userData.password) {
     return null
   }
 

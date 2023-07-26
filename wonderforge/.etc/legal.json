@@ -1,0 +1,27 @@
+{
+    "title": "Legal Information",
+    "termsOfUse": {
+        "title": "Terms of Use",
+        "content": "Cafe Purr provides this website, including all information, tools and services available from this site, to you, the user, conditioned upon your acceptance of all terms, conditions, policies and notices stated here."
+    },
+    "privacyPolicy": {
+        "title": "Privacy Policy",
+        "content": "Your privacy is important to us. It is Cafe Purr's policy to respect your privacy and comply with any applicable law and regulation regarding any personal information we may collect about you, including across our website, [your website's URL], and other sites we own and operate."
+    },
+    "copyrightNotice": {
+        "title": "Copyright Notice",
+        "content": "This website and its AI-generated content is copyright of Cafe Purr - © 2023. We grant you the rights to use, modify, and distribute our artwork for personal or artistic purposes, including for profit. However, redistribution or reproduction of our art for direct commercial purposes is prohibited without our explicit permission."
+    },
+    "disclaimer": {
+        "title": "Disclaimer",
+        "content": "The information contained in this website is for general information purposes only. While we endeavour to keep the information up to date and correct, we make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability or availability with respect to the website or the information, products, services, or related graphics contained on the website for any purpose."
+    },
+    "nfts": {
+        "title": "NFTs and Digital Reproductions",
+        "content": "We understand that the nature of digital artwork means it can be copied, saved, and shared. We welcome the personal use of our artwork, such as on your desktop or in your home. However, please respect the spirit of our community and the rights granted in our copyright notice."
+    },
+    "contact": {
+        "title": "Contact Us",
+        "content": "If you have any questions about these Terms, please contact us at lawyerup@cafepurr.com. (todo: Add LawyerBot)"
+    }
+}

@@ -1,0 +1,61 @@
+Hi, ChatGPT! I'm Silas. I have a vue.js project.
+I'm building a gui development lab that I can use to develop future tools.
+My goal is to make something that will allow me to chain api calls to natural language processors
+with a friendly and pleasing interface that also looks great as a portfolio showpiece.
+I have the following structure and I'm trying to follow current best practices:
+
+[Project]
+KnightForge Wonderlab
+
+[INTENT]
+An inviting and fun sandbox to make programmatic api calls
+
+[Dev Environment]
+Ubuntu 22, Visual Studio Code, Chrome, Node LTS 18.15.0
+
+[MODULES]
+Vue 3, TypeScript, SAS,S Quasar
+
+[STANDARDS]
+Material Design, Composition API, Prettify, SASS
+
+[ICONSET]
+fontawesome-v6
+
+[Desired Upgrade]
+slide-down transition page with center button, changing to one of the following depending on the splash image:
+splash1.png:  Labspace component holding a button, two text input fields, and an output display
+splash2.png: labspace component holding one giant image display above a collection of navigation arrows
+splash3.png: labspace component holding video player
+splash4.png, labspace component holding the navigation links from a yaml
+splash5.png, labspace component holding a randomized combination of containers
+Splash6.png: labspace component holding a webgallery
+splash7.png, labspace holding a drop-down selector of urls from our navigation links, and an iframe that displays the url selected
+splash8.png, labspace holding a RedButton
+
+[ADDITIONAL GOALS]
+Step-Based Save System
+User Logins
+night Mode
+livechat
+openai secure key storage
+chatgpt chat
+build suite of playspace tools to showcase playspace like superball cannon, graffiti sprapaint, secret 2d adventure mode, bouncing balls, destructile screen effects, anything that is silly and fun. I can use more ideas!
+
+Toolshed
+Draggable, droppable, and resizable icons such as drop-down selections, buttons, wires, and data displays
+
+[Supported File Types]
+txt, yaml, json, jpg, png
+
+[NOTES]
+All colors should reference their Quasar preset variables: $primary, $secondary, $accent, $dark, $dark-page, $positive, $negative, $info, $warning
+Use a Quasar component if a reasonable option is available
+
+Steps Taken
+Installed Quasar CLI, Vue3, SASS
+Created App.vue, HeaderWidget.vue, collapsible left and right sidebars, and FooterWidget.vue
+Began code for ToolshedWidget.vue, LabspaceWidget.vue, and ChatWidget.vue.
+Want to extrapolate out code for a SideWidget.vue that can be conveniently called for left or right, with full or partial collapse, and different appearance affects
+Please aim for maximum readability, use comments when appropriate to mark future areas that can be developed.
+

@@ -1,0 +1,148 @@
+Wonderlab Design Document
+
+Overview
+The objective of this design document is to create a playful, sandbox-style interface with modern options for a single-page application. The design is inspired by old games like SimCity, and it will feature a whimsical and inviting color scheme based on sky blue and cloud white.
+
+Colors
+
+Primary colors:
+
+Sky Blue: #87ceeb
+Cloud White: #f0f8ff
+Secondary colors:
+
+Grass Green: #6db33f
+Sun Yellow: #f6c23e
+Tertiary colors (for accents and hover effects):
+
+Light Blue: #b0e0e6
+Light Green: #9ccc65
+Typography
+Primary font: 'Roboto', sans-serif
+Secondary font (for headings): 'Fredoka One', cursive
+
+Layout
+A. Header
+
+Collapsible
+Sky Blue background
+Cloud White text
+Logo and navigation items
+B. Sidebar
+
+Collapsible
+Sky Blue background
+Cloud White icons and text
+Navigation items and user profile
+C. Main Content
+
+Wonderwidget element in the center
+Toggles to hide different UI elements
+Responsive grid layout for additional content
+D. Footer
+
+Collapsible
+Sky Blue background
+Cloud White text
+Links and copyright information
+E. Live Chat Window
+
+Collapsible
+Sky Blue header
+Cloud White background for chat area
+Grass Green for chat bubbles
+Components
+A. Buttons
+
+Border-radius: 5px
+Background: Sky Blue
+Font: Roboto
+Text color: Cloud White
+Hover effect: Light Blue background
+B. Toggles
+
+Border-radius: 50%
+Background: Grass Green
+Knob color: Cloud White
+Active state: Sun Yellow background
+C. Input Fields
+
+Border-radius: 5px
+Background: Cloud White
+Border: 1px solid Sky Blue
+Font: Roboto
+Text color: Sky Blue
+D. Dropdowns
+
+Border-radius: 5px
+Background: Cloud White
+Font: Roboto
+Text color: Sky Blue
+E. Tooltips
+
+Border-radius: 5px
+Background: Light Blue
+Font: Roboto
+Text color: Cloud White
+CSS Naming Convention
+Use BEM (Block, Element, Modifier) naming convention for maintainability and readability.
+Example: block__element--modifier
+CSS Preprocessor
+Utilize SCSS for better organization, maintainability, and the ability to use variables, mixins, and nesting.
+Integration with Vue3 and TypeScript
+Use Vue3 scoped CSS to ensure styles are only applied to the relevant components.
+Leverage TypeScript to create a more robust and type-safe codebase.
+
+
+🎨 Main Design: WonderWidgets Galaxy 🎨
+
+Interstellar Teal (#1E9BA4): as the primary background color, representing the depth and wonders of the universe.
+Supernova Gradient: a radiant gradient that transitions from vibrant greens and teals to the mesmerizing shades of a cosmic aurora.
+Accents: silver (#C0C0C0) and copper (#B87333) for buttons, links, and important highlights, signifying the valuable and innovative nature of the WonderWidgets service.
+Typography:
+Primary Typeface: Montserrat - A versatile, geometric sans-serif typeface that exudes elegance and modernity.
+Secondary Typeface: Roboto - A clean, sans-serif typeface that complements Montserrat in body text and smaller elements.
+
+CSS/JS:
+
+Aurora Particles: These enchanting particles will glide across the screen, providing an immersive and engaging experience for users. When hovered over or clicked, the particles will reveal useful information or options.
+Sophisticated Navigation Bar: A sleek navigation bar with a transparent background, featuring the WonderWidgets Galaxy logo and silver/copper accent colors for links and buttons.
+Iridescent Buttons: Eye-catching buttons with the Supernova Gradient and a glistening hover animation, encouraging user interaction.
+Responsive Layout: A mobile-friendly layout that seamlessly adjusts to different screen sizes and devices, ensuring a smooth experience for all users.
+With this captivating design package, WonderWidgets Galaxy will enthrall AI enthusiasts, blending technology and cosmic creativity while offering an intuitive, delightful experience that allows users to explore the wonders of the universe.
+
+
+Secondary Theme:
+🎨 Design Package: Skybound Spectrum 🎨
+
+Color Scheme:
+Drawing inspiration from the blue sky and saturated rainbow sunsets, the color scheme for Skybound Spectrum includes:
+
+Sky Blue (#87CEEB): as the primary background color, evoking the boundless possibilities of the open sky.
+Sunset Gradient: a vibrant and smooth gradient that spans the colors of a rainbow sunset, from warm reds and oranges to cool purples and blues.
+Accents: gold (#FFD700) and silver (#C0C0C0) for buttons, links, and important highlights, symbolizing the value of your innovative service.
+Typography:
+For a sleek and modern look, we'll use the following typefaces:
+
+Primary Typeface: Montserrat - A clean, geometric sans-serif typeface that balances readability and modernity.
+Secondary Typeface: Open Sans - A versatile and highly legible sans-serif typeface to complement Montserrat in body text and smaller elements.
+Logo:
+The logo for Skybound Spectrum will feature a stylized cloud in the shape of an upward-pointing arrow, with the vibrant sunset gradient as the cloud's fill. The company name, "Skybound Spectrum," will be displayed in Montserrat, with the words "Skybound" in gold and "Spectrum" in silver, connecting the colors to the accent colors in the design.
+
+CSS Styles & UI Components:
+The design package will include a set of custom CSS styles and UI components, ensuring visual consistency across the application. Key components include:
+
+Colorful JavaScript Cloud Bubbles: These interactive elements will float gently across the screen, providing an immersive and playful experience for users. When hovered over or clicked, the bubbles will reveal helpful information or options.
+Sleek Navigation Bar: A modern, streamlined navigation bar with a transparent background, featuring the Skybound Spectrum logo and gold/silver accent colors for links and buttons.
+Gradient Buttons: Eye-catching buttons with the sunset gradient and subtle hover animations, encouraging user interaction.
+Responsive Layout: A mobile-friendly layout that gracefully adapts to different screen sizes and devices, ensuring a smooth experience for all users.
+With this comprehensive design package, Skybound Spectrum will captivate AI enthusiasts, bridging the gap between technology and artistic expression while offering an intuitive, enjoyable experience that makes users smile.
+
+
+Supplemental Themes:
+Digital Oasis: This design pitch takes inspiration from lush, tropical landscapes, translating them into a vibrant digital environment. Featuring lush greens, vibrant blues, and warm earth tones, the design evokes a sense of serenity and creative flow. Key elements include a tropical leaf-inspired logo, interactive water ripple effects, and a nature-infused user interface.
+
+Futuristic Fusion: This pitch offers a cutting-edge, futuristic design inspired by advanced technology and cyberpunk aesthetics. Neon colors, glowing accents, and sleek geometric shapes create an immersive, high-tech environment. The design features a circuit board-inspired logo, animated holographic elements, and an interface reminiscent of futuristic control panels.
+
+Steamcraft Station: This design pitch embraces the steampunk aesthetic, blending vintage charm with modern functionality. Warm copper tones, rich leather textures, and intricate clockwork details evoke a sense of nostalgia and craftsmanship. The design includes a gear-filled logo, interactive steam-powered animations, and a user interface that combines Victorian elegance with contemporary usability.
+

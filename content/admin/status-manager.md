@@ -1,9 +1,10 @@
 ---
-title: 'Management System'
-description: 'This should probably be behind auth soon'
+title: 'Status Manager'
+description: 'Management System'
 layout: default
 image: amibot/amibot6.png
 gallery: wonderchest
+protected: true
 ---
 
 :bot-manager

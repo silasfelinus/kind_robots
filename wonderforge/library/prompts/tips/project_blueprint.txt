@@ -1,0 +1,35 @@
+Web Project Outline: Widget Webapp Superforge
+
+
+Objective: Create a user-friendly portal to explore, create, launch, chain, and monetize AI API webapps, using python3.8, flask, and gradio
+
+A solo coding project to launch my web-business, by Silas Knight & ChatGPT
+
+
+Current Status: Backend infrastructure has been built up from scratch with an eye for modularily and consistent coding practices. 
+Github: https://github.com/silasfelinus/serendipity/tree/main
+Python3.8, flask, pytest, logging, Github Actions CI testing has been set up
+We can launch an instance of gradio, and have a host of prompts that can be turned into webapps, we have not yet stitched that together.
+Work has been done on branding and development tools.
+We have concept art to work with
+We have a self-hosted Mongo database, but haven't coded it into the app
+
+Project Scope:
+A single page website experience for the end-user. Simplified interface, with colorful rectangular Widgets that can be customized depending on the webapp. The Interface should be accessible as its own input/output widget. Modular design is very important. we are creating a playspace for API-webservices, so we need a drag-and-drop interface and have some fun javascript code to connect apis together. 
+Social elements are vital for this project. We'll need user logins, a livechat function, and customizable chatroom widgets that can connect to multiple channels and input/output streams.
+
+
+a. Core Features:
+user registration and login
+database access
+flexible design (optional header, footer, sidebar, 3x3 grid as base layout)
+"Widget" app for customizable widget screens
+
+Milestones Completed:
+Rebuilt github and completed pytests and Github Actions Continuous Integration testing.
+
+
+Pending Milestones:
+add gradio instance to tests and confirm working instance
+configure html css javascript for basic launch portal
+launch our first webapp

@@ -1,0 +1,38 @@
+Robot Factory Celestial Edition Info Sheet
+
+App Concept: Celestial Robot Factory
+
+Users select Cosmic Robot Cards and place them on a 3x3 grid.
+Cards link to AI processing APIs or configurable presets.
+Cards have varying sizes and occupy grid spaces accordingly.
+Design Package: Celestial Canvas
+
+Color Scheme:
+
+Deep Space Blue (#0B3D91) as the primary background color.
+Galactic Gradient: shimmering gradient transitioning from deep purples and blues to nebula hues.
+Accents: platinum (#E5E4E2) and gold (#FFD700) for buttons, links, and important highlights.
+Typography:
+
+Primary Typeface: Poppins - a versatile, geometric sans-serif typeface.
+Secondary Typeface: Lato - a clean, humanist sans-serif typeface.
+Logo:
+
+Stylized rocket ship soaring through a cosmic nebula with Galactic Gradient background.
+Company name in Poppins: "Celestial" in platinum and "Canvas" in gold.
+CSS Styles & UI Components:
+
+Interactive Nebula Particles: Drift across the screen, revealing information or options when hovered or clicked.
+Elegant Navigation Bar: Transparent background, featuring the Celestial Canvas logo and platinum/gold accents.
+Shimmering Buttons: Galactic Gradient buttons with twinkling hover animation.
+Adaptive Layout: Mobile-friendly layout that adjusts to different screen sizes and devices.
+Key Features:
+
+PunchUpBot Card: Takes text input, outputs a "punched up" text variant.
+Data Input Card: Accepts data, text, or uploaded files, and sends data to other cards by dragging.
+OpenAI Chat Card (1x2 vertical): An OpenAI chat window.
+Live Chat Card (3x1 horizontal): A general live chat window.
+Control Panel Card: Center button to start/stop the bot factory process.
+Output Card (1x2 vertical): Outputs text or image based on input and configuration.
+Visual representation of card activation, deactivation, or active processing.
+By combining the celestial theme with the Robot Factory concept, the updated design will captivate users with a blend of cosmic artistry and futuristic technology, providing an intuitive and delightful experience. This updated info sheet will guide your design team to develop a web app that captures the essence of both ideas.

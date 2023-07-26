@@ -1,0 +1,98 @@
+Vision Plan - WonderWidgets Unleashed 🚀
+
+Join our coding adventure to revolutionize AI API interactions by transforming them into customizable, shareable, and fun WonderWidgets!
+
+Core Stack: Python 3.8, Quart, and Gradio, running in multiprocess for the ultimate fusion of Gradio's simple API calls and Quart's limitless CSS and JS styling options.
+
+Value Proposition: Got a cool idea? Let's team up and bring it to life as a market-ready web app with just a single click. It's coding magic!
+
+The Dream:
+A playful single-page Wonderwidget lab showcasing programmable, themeable WonderWidgets.
+An API webservice playground featuring dynamic JavaScript and drag-and-drop functionality
+Entertaining idle animations and text scrolls to keep people entertained while waiting for the next process.
+Jazz up the experience with personalized, themed avatars.
+Let's get social: user logins, live chat, and customizable ChatWidgets for one-of-a-kind conversations.
+The Ultimate Vision: An all-in-one portal that turns complex API interactions into child's play through an intuitive, user-friendly interface. 
+Let's inspire fellow coders to explore, create, and share their WonderWidgets with the world!
+
+Our Progress So Far:
+
+Consciously-crafted infrastructure built with modularity, flexibility, and clean coding in mind.
+GitHub Repository: https://github.com/silasfelinus/serendipity/tree/main
+Python 3.8, Quart, and Gradio running smoothly in a multiprocess environment
+Pytest, logging, and GitHub Actions continuous-integration frameworks are curently passing initial tests.
+Library of Custom Prompts itching to be turned into awe-inspiring WonderWidgets.
+5 custom css packages for a modular interface that fits a multitude of visions.
+Various art assets that need to be stitched in by the world's most awkward html designer.
+
+
+Vue the Neighborhood:
+LabWidget.vue: Our friendly-gui featuring a customizable grid for building, editing, and sharing WonderWidgets. (and of course, the lab itself is a Wonderwidget)
+HeaderWidget.vue: collapsible header with artwidget icons
+SideWidget.vue: collapsible sidebar with navigation lines (and artwidget icons)
+WidgetShed.vue: drag and drop icon to save/load widgets, or through into the TrashWidget
+
+And of course, Wonderwidget.vue, our core function! 
+
+WonderWidget: A custom control panel that can act as a supercharged chat window, data handler, or one chain in a web of api calls.
+
+PromptWidget - a configurable text packet intended for a natural-language api such as ChatGPT
+ChatWidget: a Multi-room livechat interface with openai integration
+BotWidget: friendly avatars representing connections to language processor apis such as Chatgpt
+LibraryWidget: CRUD database access
+ArtWidget: image display
+DJWidget: send and receive audio data
+
+------
+Base Functionality:
+PromptWidget.vue - text display
+    display editable textbox
+    send data in textbox to wonderwidget
+    display textdata output from select wonderwidget
+
+App.vue:
+hide/display header, sidebar, and footer
+Instantiate WonderLab
+
+WonderLab.vue:
+save/load wonderlab state
+Create/Destroy WonderWidget
+chain a connection on a wonderwidget grommet to another wonderwidget
+destroy a connection
+
+
+WonderWidget.vue
+drag, drop, and resize wonderwidget
+Destroy self
+Step-based Save system
+Instantiate WonderWidget Subclasses
+ChatWidget.vue - Chat
+PromptWidget.vue - text display
+APIWidget.vue - API Call Handler
+Cloudwidget.vue - network database
+LibraryWidget.vue - local file retrieval
+ImageWidget.vue - image and gallery viewer
+SoundWidget.vue - audio management
+
+Additional Components:
+vuex
+quasar
+Axios 
+Vue-draggable 
+    
+ Promptwidget
+A PromptWidget is a wonderWidget with the ability to load custom prompts from local textfiles or network database. 
+
+
+Meet the PromptWidgets:
+http://github.com/silasfelinus/serendipity/prompts/bots
+PunchUpBot - Give punchup Bot text and get back an extensive report and wordcraft upgrade. Bonus points if you can get a half-smile from Curmudgeonbot
+PunchUpCodebot - Punchup bot for code. Curmudgeonbot's mirror Grumpbot is just as hard to please. Thank goodness you've got a panel of code experts on your side.
+PromptBot - Explain what you want chatgpt or another language modeler to do, and promptbot will figure out how to say it to them to maximize your investment
+MarketResearchBot - Give MarketResearchBot text, and they'll respond back with a nine-point market report
+StableDiffusionBot - Give Stable Diffusion Bot an idea, and they'll format it into a custom prompt for Stable Diffusion, Midjourney, or any other AI art modeller
+TaskMaster - prototype for Serendipity, The World's Greatest Task-Manager-Slash-Addventure-Game
+Weirdlandia - A storytelling bot modelled after r20 systems but set in a..much weirder setting
+Got a PromptWidget? Tell it to the librarianbot (coming soon)
+------
+Pitch: Hey, fellow coders! We're building something amazing over at GitHub and WonderWidgets, and we want YOU to join us. Are you ready for a coding adventure of a lifetime? Let's unleash the power of WonderWidgets together! 🎉👩‍💻👨‍💻

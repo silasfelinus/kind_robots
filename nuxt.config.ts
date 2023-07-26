@@ -1,5 +1,4 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import { createPinia } from 'pinia'
 
 export default defineNuxtConfig({
   modules: [

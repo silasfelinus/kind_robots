@@ -1,0 +1,85 @@
+Punch Up Cards
+
+PunchUpBot card:
+Subject: A robot with an animated face and speech bubble
+Gender: None
+Facial features: Animated eyes and mouth on a simple, geometric face
+Body features: A slim, minimalist body with no arms or legs
+Clothes: None
+Accessories: None
+Facial expressions: Expressive and friendly, with occasional bursts of excitement or emphasis
+Details of the background: A bright and colorful factory setting with various robots and machines in the background
+Position of the subject: Centered on the card with ample space for the text input field
+Specific objects needed in the image: A text input field in the center of the card
+Details of the setting and mood: Bright and playful, with a sense of energy and creativity
+[Generation prompt]: Generate a colorful, animated robot with a speech bubble, centered on the card with a text input field. Set in a bright and playful factory setting.
+[Negative prompt]: Avoid dark or moody backgrounds or expressions on the robot's face.
+
+Data input card:
+Subject: A robot with an open chest panel
+Gender: None
+Facial features: None
+Hair: None
+Body features: A simple, geometric body with a large, open panel on the front
+Clothes: None
+Accessories: None
+Facial expressions: None
+Details of the background: A bright and colorful factory setting with various robots and machines in the background
+Position of the subject: Centered on the card with ample space for the data input area
+Specific objects needed in the image: A space for data input on the card
+Details of the setting and mood: Bright and functional, with a sense of efficiency and ease of use
+[Generation prompt]: Generate a simple, geometric robot with an open chest panel, centered on the card with a space for data input. Set in a bright and functional factory setting.
+[Negative prompt]: Avoid overly complex or cluttered designs on the robot's body or background.
+
+OpenAI chat window card:
+Subject: A vertical computer screen
+Gender: None
+Facial features: None
+Hair: None
+Body features: A simple, rectangular body with a vertical orientation
+Clothes: None
+Accessories: None
+Facial expressions: None
+Details of the background: A dark and neutral factory setting with various machines in the background
+Position of the subject: Centered on the card with ample space for the chat window
+Specific objects needed in the image: A chat window area on the screen
+Details of the setting and mood: Sleek and professional, with a sense of focus and productivity
+[Generation prompt]: Generate a simple, rectangular computer screen with a dark and neutral background, centered on the card with a space for a chat window. Set in a sleek and professional factory setting.
+[Negative prompt]: Avoid overly colorful or distracting designs on the screen or background.
+
+General livechat window card:
+Subject: A horizontal computer screen
+Gender: None
+Facial features: None
+Hair: None
+Body features: A simple, rectangular body with a horizontal orientation
+Clothes: None
+Accessories: None
+Facial expressions: None
+Details of the background: A dark and neutral factory setting with various machines in the background
+Position of the subject: Centered on the card with ample space for the chat window
+Specific objects needed in the image: A chat window area on the screen
+Details of the setting and mood: Sleek and professional
+
+Output card:
+Subject: A robot holding a sign or displaying a message
+Gender: None
+Facial features: None
+Hair: None
+Body features: A simple, geometric body with a small display or sign held in front
+Clothes: None
+Accessories: None
+Facial expressions: None
+Details of the background: A bright and colorful factory setting with various robots and machines in the background
+Position of the subject: Centered on the card with ample space for the output display
+Specific objects needed in the image: A display or sign held in front of the robot, capable of displaying text or an image
+Details of the setting and mood: Bright and informative, with a sense of clarity and ease of use
+[Generation prompt]: Generate a simple, geometric robot holding a display or sign, centered on the card with ample space for the output display. Set in a bright and informative factory setting.
+[Negative prompt]: Avoid overly complex or cluttered designs on the robot's body or background, and ensure that the output display is clear and easy to read.
+
+
+Animated PunchUpBot Card: colorful robot, animated face with expressive features, speech bubble with clear font, text input field with clear instructions, bright colors and playful shapes, lively and creative factory setting, uncluttered design with intuitive functionality
+Data Input Card: efficient and functional robot, open chest panel revealing circuitry, simple geometric body with clear lines, data input field with clear instructions, bright colors and shapes emphasizing functionality, productive factory setting, uncluttered design with intuitive functionality
+OpenAI Chat Window Card: sleek and modern computer screen, dark and neutral background emphasizing clarity, simple rectangular shape with minimalist design, chat window area with clear and readable font, professional factory setting, uncluttered design with intuitive functionality
+General Livechat Window Card: sleek and modern computer screen, dark and neutral background emphasizing clarity, simple rectangular shape with minimalist design, livechat window area with clear and readable font, professional factory setting, uncluttered design with intuitive functionality
+Output Card: simple and informative robot holding a display or sign, clear and readable display/sign, simple geometric body with bright colors, ample space for output display area, bright and informative factory setting, uncluttered design with intuitive functionality

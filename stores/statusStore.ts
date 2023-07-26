@@ -18,7 +18,8 @@ export const useStatusStore = defineStore('status', {
   state: () => ({
     message: ('Idle' as string) || null,
     type: null as StatusType | null,
-    history: [] as StatusHistoryEntry[]
+    history: [] as StatusHistoryEntry[],
+    isLoading: false
   }),
   actions: {
     setStatus(type: StatusType, message: string) {
@@ -42,11 +43,14 @@ export const useStatusStore = defineStore('status', {
       return this.history
     },
     async loadStore() {
+      this.isLoading = true
       try {
         await this.getStatusHistory()
-        return `Loaded ${this.getStatusHistory.length} statuses.`
+        this.isLoading = false
+        return `Loaded ${this.history.length} statuses.`
       } catch (error) {
         console.error('Error loading store:', error)
+        this.isLoading = false
         throw error
       }
     }

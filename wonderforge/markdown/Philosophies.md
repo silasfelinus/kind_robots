@@ -1,0 +1,4 @@
+- Existentialism
+- Stoicism
+- Utilitarianism
+- Determinism

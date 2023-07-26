@@ -1,0 +1,10 @@
+[
+    { "name": "Ami", "path": "/ami", "folderName": "amibot" },
+    { "name": "Give AMI a Face", "path": "/amiface", "folderName": "amibot" },
+    { "name": "Call to Action", "path": "/calltoaction", "folderName": "splash" },
+    { "name": "Ami's Friends", "path": "/botcafe", "folderName": "wonderbot" },
+    { "name": "About", "path": "/about", "folderName": "acrocats" },
+    { "name": "Legal", "path": "/legal", "folderName": "flower" },
+    { "name": "Guestbook", "path": "/guestbook", "folderName": "avatars" },
+    { "name": "Values", "path": "/values", "folderName": "floof" }
+  ]

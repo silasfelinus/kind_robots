@@ -49,17 +49,46 @@
         <div class="form-control">
           <button class="btn btn-primary" @click="updateBot">Save</button>
           <button class="btn btn-success" @click="addBot">Add New Bot</button>
+          <button class="btn btn-info" @click="randomBot">Get Random Bot</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Bot actions -->
+    <div class="p-4">
+      <h2 class="text-xl font-bold mb-2">Bot Actions</h2>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Get Bot by ID</span>
+        </label>
+        <input
+          v-model="botIdToFetch"
+          type="number"
+          placeholder="Bot ID"
+          class="input input-bordered"
+        />
+        <button class="btn btn-primary mt-2" @click="getBotById">Get Bot</button>
+      </div>
+      <div class="mt-4">
+        <button class="btn btn-info" @click="getBotCount">Get Total Bot Count</button>
+        <p class="mt-2">Total Bots: {{ botStore.totalBots }}</p>
       </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useBotStore, Bot } from '../../stores/botStore'
+import { useBotStore, Bot } from '../../../stores/botStore'
+import { useErrorStore, ErrorType } from '../../../stores/errorStore'
+import { useStatusStore, StatusType } from '../../../stores/statusStore'
 
 const botStore = useBotStore()
+const errorStore = useErrorStore()
+const statusStore = useStatusStore()
+
 let currentBot = ref<Bot | null>(botStore.currentBot)
+let botIdToFetch = ref('')
 
 // computed properties for handling currentBot being potentially null
 const currentBotName = computed({
@@ -87,12 +116,19 @@ const editBot = (bot: Bot) => {
   currentBot.value = bot
 }
 
-const updateBot = () => {
+const updateBot = async () => {
   if (currentBot.value) {
-    botStore.updateBot(currentBot.value.id, {
-      name: currentBotName.value,
-      description: currentBotDescription.value
-    })
+    try {
+      statusStore.setStatus(StatusType.INFO, 'Updating bot...')
+      await botStore.updateBot(currentBot.value.id, {
+        name: currentBotName.value,
+        description: currentBotDescription.value
+      })
+      statusStore.setStatus(StatusType.SUCCESS, 'Bot updated successfully.')
+    } catch (error) {
+      errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Failed to update bot.')
+      statusStore.setStatus(StatusType.ERROR, 'Failed to update bot.')
+    }
   }
 }
 
@@ -102,5 +138,19 @@ const addBot = () => {
 
 const deleteBot = (id: number) => {
   botStore.deleteBot(id)
+}
+
+const getBotById = () => {
+  if (botIdToFetch.value) {
+    botStore.getBotById(parseInt(botIdToFetch.value))
+  }
+}
+
+const getBotCount = () => {
+  botStore.countBots()
+}
+
+const randomBot = () => {
+  botStore.randomBot()
 }
 </script>

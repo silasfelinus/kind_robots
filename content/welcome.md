@@ -4,6 +4,7 @@ subtitle: 'Harmonizing AI and Humanity'
 layout: default
 image: backtree.webp
 gallery: wondershed
+tooltip: 'test'
 ---
 :bot-selector
 :vertical-nav

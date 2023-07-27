@@ -4,6 +4,7 @@ subtitle: 'Welcome to the community!'
 layout: default
 image: backtree.webp
 gallery: wondershed
+tooltip: 'wow'
 ---
 
 :registration-form

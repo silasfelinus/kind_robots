@@ -21,14 +21,24 @@ export const useErrorStore = defineStore('error', {
     history: [] as ErrorHistoryEntry[]
   }),
   actions: {
-    setError(type: ErrorType, message: string) {
+    setError(type: ErrorType, message: unknown) {
+      let errorMessage: string
+
+      if (message instanceof Error) {
+        errorMessage = message.message
+      } else if (typeof message === 'string') {
+        errorMessage = message
+      } else {
+        errorMessage = 'An unknown error occurred'
+      }
+
       const errorEntry: ErrorHistoryEntry = {
         type,
-        message,
+        message: errorMessage,
         timestamp: new Date()
       }
 
-      this.message = message
+      this.message = errorMessage
       this.type = type
       this.history.push(errorEntry)
     },

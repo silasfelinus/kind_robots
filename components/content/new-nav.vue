@@ -36,17 +36,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useContentStore } from '../../stores/contentStore'
 
-const clicked = ref<string | null>(null)
-
+// use the store
 const contentStore = useContentStore()
 
-onMounted(async () => {
-  await contentStore.fetchPages()
-})
+// fetching pages from the store
+contentStore.getPages()
 
+const clicked = ref<string | null>(null)
 const pages = contentStore.pages
 </script>
 

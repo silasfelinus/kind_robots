@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const botsData = await readBody(event)
     const result = await addBots(botsData)
     return { success: true, ...result }
-  } catch (error) {
-    return { success: false, message: 'failed to create a new bot' }
+  } catch (error: any) {
+    return { success: false, message: 'Failed to create a new bot', error: error.message }
   }
 })

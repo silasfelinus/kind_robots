@@ -1,30 +1,44 @@
 <template>
-  <div class="container mx-auto px-4">
-    <div class="flex flex-col min-h-screen justify-between">
-      <div>
+  <div id="App" class="flex flex-col md:flex-row h-screen text-gray-800 bg-gray-200">
+    <div class="w-full md:w-64 bg-white shadow-md p-4">
+      <vertical-nav />
+    </div>
+    <div class="w-full md:flex-grow p-4 overflow-auto">
+      <div class="mx-auto mb-8">
         <nuxt-link to="/welcome">
           <img src="/images/kindtitle.webp" class="mx-auto rounded" alt="Title" />
         </nuxt-link>
       </div>
-      <vertical-nav />
-      <page-details />
-      <bot-selector />
+      <bot-selector class="mb-8" />
       <nuxt-page />
-      <status-notifier />
+      <div class="fixed bottom-0 left-0 right-0 p-4 shadow-lg">
+        <loading-bar />
+        <status-notifier />
+      </div>
     </div>
-    <loading-bar v-show="statusStore.isLoading" />
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useStatusStore } from '~/stores/statusStore'
+import { onMounted } from 'vue'
+import { useBotStore } from './stores/botStore'
+import { useGalleryStore } from './stores/galleryStore'
+import { useErrorStore } from './stores/errorStore'
+import { useStatusStore } from './stores/statusStore'
+import { useContentStore } from './stores/contentStore'
 
+const botStore = useBotStore()
+const galleryStore = useGalleryStore()
+const errorStore = useErrorStore()
 const statusStore = useStatusStore()
+const contentStore = useContentStore()
 
-let statusMessage = ref('')
-
-onMounted(async () => {
-  const statusLoadMessage = await statusStore.loadStore()
-  statusMessage.value = `${statusLoadMessage}`
+onMounted(() => {
+  statusStore.loadStore()
+  errorStore.loadStore()
+  botStore.loadStore()
+  galleryStore.loadStore()
+  contentStore.loadStore()
+  // Load other stores if necessary
 })
 </script>

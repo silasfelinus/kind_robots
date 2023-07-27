@@ -4,7 +4,7 @@ description: 'Management System'
 layout: default
 image: amibot/amibot6.png
 gallery: wonderchest
-protected: true
+admin: true
 ---
 
 :content-manager

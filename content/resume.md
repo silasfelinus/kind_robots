@@ -4,6 +4,7 @@ description: 'The helpful humans who make this possible'
 layout: default
 image: amibot/amibot1.png
 gallery: wonderchest
+tooltip: 'hi'
 ---
 
 # Created with kind intent

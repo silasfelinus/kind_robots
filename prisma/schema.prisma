@@ -17,8 +17,13 @@ enum ModelType {
   QUEST
   REACTION
   RESOURCE
-  REVIEW
   USER
+  MODEL
+  DREAM
+  STATUS
+  ERROR
+  CONTENT
+  GAME
 }
 
 model Account {
@@ -57,6 +62,18 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// example model for style guide
+model Model {
+  id        Int       @id @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  modelType ModelType
+  label     String
+  content   String
+  userId    Int?
+  User      User?     @relation(fields: [userId], references: [id])
+}
+
 // these are modeler and api resource types
 // to process media data
 enum ResourceType {
@@ -67,6 +84,7 @@ enum ResourceType {
   HYPERNETWORK
   CONTROLNET
   URL
+  API
 }
 
 enum Role {
@@ -114,18 +132,21 @@ enum BotType {
 
 // media collections
 model Gallery {
-  id          Int      @id @unique @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  name        String   @unique
-  Media       Media[]
-  description String?
-  mediaId     String?
-  url         String?
-  isNSFW      Boolean  @default(false)
-  custodian   String?
-  User        User?    @relation(fields: [userId], references: [id])
-  userId      Int?
+  id             Int      @id @unique @default(autoincrement())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  name           String   @unique
+  content        String
+  Media          Media[]
+  description    String?
+  mediaId        String?
+  url            String?
+  isNSFW         Boolean  @default(false)
+  custodian      String?
+  User           User?    @relation(fields: [userId], references: [id])
+  userId         Int?
+  highlightImage String?
+  imagePaths     String?
 }
 
 // User Incentivization and interaction element
@@ -314,4 +335,5 @@ model User {
   emailVerified      DateTime?
   accounts           Account[]
   sessions           Session[]
+  Model              Model[]
 }

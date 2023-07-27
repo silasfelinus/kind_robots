@@ -1,6 +1,38 @@
 // ~/server/api/galleries/index.ts
+import fs from 'fs'
+import path from 'path'
 import { Gallery as GalleryRecord, Prisma } from '@prisma/client'
 import prisma from './../utils/prisma'
+
+export async function getGalleryImages(galleryId: number) {
+  try {
+    const gallery = await fetchGalleryById(galleryId) // Assume this function exists and returns gallery details
+    if (!gallery) {
+      throw new Error(`No gallery found for id: ${galleryId}`)
+    }
+
+    const galleryName = gallery.name
+    const imagesFilePath = path.resolve(__dirname, `../../public/images/${galleryName}/images.json`)
+    const imagesFile = fs.readFileSync(imagesFilePath, 'utf8')
+    const images = JSON.parse(imagesFile)
+
+    return images.map((image: string) => `/images/${galleryName}/${image}`)
+  } catch (error) {
+    console.error(`Failed to get gallery images: ${error}`)
+    throw error
+  }
+}
+
+export async function getRandomGalleryImage(galleryId: number) {
+  try {
+    const galleryImages = await getGalleryImages(galleryId)
+    const randomIndex = Math.floor(Math.random() * galleryImages.length)
+    return galleryImages[randomIndex]
+  } catch (error) {
+    console.error(`Failed to get random gallery image: ${error}`)
+    throw error
+  }
+}
 
 export type Gallery = GalleryRecord
 

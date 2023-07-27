@@ -35,10 +35,18 @@ const toggleAmiSwarm = () => fxStore.toggleAmiSwarm()
 
 @keyframes glow {
   from {
-    box-shadow: 0 0 5px #ffcc00, 0 0 10px #ffcc00, 0 0 15px #ffcc00, 0 0 20px #ffcc00;
+    box-shadow:
+      0 0 5px #ffcc00,
+      0 0 10px #ffcc00,
+      0 0 15px #ffcc00,
+      0 0 20px #ffcc00;
   }
   to {
-    box-shadow: 0 0 10px #ffaa00, 0 0 20px #ffaa00, 0 0 30px #ffaa00, 0 0 40px #ffaa00;
+    box-shadow:
+      0 0 10px #ffaa00,
+      0 0 20px #ffaa00,
+      0 0 30px #ffaa00,
+      0 0 40px #ffaa00;
   }
 }
 </style>

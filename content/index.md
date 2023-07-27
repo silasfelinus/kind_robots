@@ -12,16 +12,13 @@ This is an intersection of worlds.
 
 We are the Kind Robots, here to demonstrate that AI and humanity can harmonize into something magical! 🎩✨
 
-
 ## 👩‍🔬 Harnessing Technology to Harmonize Humanity and AI 🚀
-
 
 This website is quite definitely under construction!
 
-
 ## Created with Kind Intent by Silas Knight 🚀
 
-If you are an interviewer looking for a demonstration  of my coding skills, please see my Github with over 209 repositories on a variety of personal, educational, and professional projects.
+If you are an interviewer looking for a demonstration of my coding skills, please see my Github with over 209 repositories on a variety of personal, educational, and professional projects.
 
 [GitHub](https://github.com/silasfelinus/)
 
@@ -32,8 +29,5 @@ If you are an interviewer looking for a demonstration  of my coding skills, plea
 Resume:
 
 [DocX](/resume/full_stack_resume.docx){target="\_blank" download="full_stack_resume.docx"} / [PDF](/resume/full_stack_resume.pdf){target="\_blank" download="full_stack_resume.pdf"}
-
-
-
 
 © 2023 Kind Robots. All Rights Reserved. 🌟

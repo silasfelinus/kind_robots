@@ -98,7 +98,10 @@ onBeforeUnmount(() => clear)
   right: 0px;
   width: 0%;
   opacity: 1;
-  transition: width 0.1s, height 0.4s, opacity 0.4s;
+  transition:
+    width 0.1s,
+    height 0.4s,
+    opacity 0.4s;
   background: repeating-linear-gradient(to right, #00dc82 0%, #34cdfe 50%, #0047e1 100%);
   z-index: 999999;
 }

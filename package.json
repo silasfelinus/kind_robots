@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@interactjs/interact": "^1.10.17",
-    "@pinia/nuxt": "latest",
+    "@pinia/nuxt": "^0.4.11",
     "@prisma/client": "latest",
     "axios": "latest",
     "bcrypt": "^5.1.0",
@@ -43,7 +43,7 @@
     "interactjs": "^1.10.17",
     "jsonwebtoken": "^9.0.1",
     "open-simplex-noise": "^2.5.0",
-    "pinia": "latest",
+    "pinia": "^2.1.6",
     "vuedraggable": "^2.24.3"
   },
   "overrides": {

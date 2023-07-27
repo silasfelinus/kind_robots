@@ -6,5 +6,4 @@ image: backtree.webp
 gallery: wondershed
 tooltip: 'test'
 ---
-:bot-selector
-:vertical-nav
+:store-handler

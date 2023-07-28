@@ -6,46 +6,47 @@ image: amibot/amibot6.png
 gallery: wonderchest
 admin: true
 ---
+:theme-selector
 
-## :bot-manager
+##:bot-manager
 
-:content-manager
+#:content-manager
 
 ---
 
-## :dream-manager
+##:dream-manager
 
-## :error-manager
+##:error-manager
 
-## :gallery-manager
+##:gallery-manager
 
-## :game-manager
+##:game-manager
 
-## :media-manger
+##:media-manger
 
-## :model-manager
+##:model-manager
 
-## :project-manager
+##:project-manager
 
-## :prompt-manager
+##:prompt-manager
 
-## :reaction-manager
+##:reaction-manager
 
-## :resource-manager
+##:resource-manager
 
-## :status-manager
+##:status-manager
 
-:user-manager
+#:user-manager
 
 
-:flip-card
-:avatar-image
-:card-front
-:card-back
-:drag-card
-:gallery-selector
-:game-screen
-:notification-card
-:screen-fx
-:site-logo
-:theme-selector
+#:flip-card
+#:avatar-image
+#:card-front
+#:card-back
+#:drag-card
+#:gallery-selector
+#:game-screen
+#:notification-card
+#:screen-fx
+#:site-logo
+

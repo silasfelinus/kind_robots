@@ -3,7 +3,7 @@
     <div
       v-for="page in pages"
       :key="page._id"
-      class="w-full flex flex-col items-center justify-center my-4"
+      class="w-full flex flex-col items-center justify-center my-2"
     >
       <NuxtLink
         :to="page._path"
@@ -12,7 +12,7 @@
       >
         <div
           :class="[
-            'w-24 h-24 md:w-32 md:h-32 rounded-full transition-all ease-in-out duration-500',
+            'w-24 h-20 md:w-32 md:h-24 rounded-full transition-all ease-in-out duration-500',
             clicked === page._id ? 'scale-110' : '',
             'hover:scale-105 hover:shadow-lg'
           ]"

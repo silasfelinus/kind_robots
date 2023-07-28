@@ -5,6 +5,7 @@ layout: default
 image: backtree.webp
 gallery: wonderbot
 ---
+:theme-selector
 
 # 🤖 Hello, Human Friend! Welcome to Kind Robots! 🌍
 

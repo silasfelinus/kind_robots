@@ -2,3 +2,28 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @import 'daisyui/dist/full.css';
+
+/* Rotate animation for page transitions */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.page-enter-active, .page-leave-active {
+  animation: rotate .5s;
+}
+
+.page-enter, .page-leave-to {
+  transform: rotate(0);
+}
+
+/* Bounce animation for layout transitions */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-30px); }
+  60% { transform: translateY(-15px); }
+}
+
+.layout-enter-active, .layout-leave-active {
+  animation: bounce 1s;
+}

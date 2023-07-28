@@ -44,4 +44,13 @@ watch(
     }
   }
 )
+
+watch(
+  () => currentBot.value,
+  (newCurrentBot) => {
+    if (newCurrentBot) {
+      selectedBot.value = newCurrentBot.id.toString() // convert to string here
+    }
+  }
+)
 </script>

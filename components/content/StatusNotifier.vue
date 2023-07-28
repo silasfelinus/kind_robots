@@ -101,7 +101,9 @@ const clearStatus = () => {
 .status-history {
   margin-top: 2em;
 }
-.status-history ul {
-  list-style-type: none;
+.status-history {
+  margin-top: 2em;
+  overflow-y: auto;
+  height: calc(100vh - 10em); /* Adjust this based on your layout */
 }
 </style>

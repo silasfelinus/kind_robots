@@ -4,7 +4,7 @@ import { fetchProjects } from '.'
 export default defineEventHandler(async (event) => {
   try {
     const page = Number(event.context.query?.page) || 1
-    const pageSize = Number(event.context.query?.pageSize) || 10
+    const pageSize = Number(event.context.query?.pageSize) || 100
     const projects = await fetchProjects(page, pageSize)
     return { success: true, projects }
   } catch (error) {

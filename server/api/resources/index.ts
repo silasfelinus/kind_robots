@@ -4,7 +4,7 @@ import prisma from './../utils/prisma'
 
 export type Resource = ResourceRecord
 
-export async function fetchResources(page = 1, pageSize = 10): Promise<Resource[]> {
+export async function fetchResources(page = 1, pageSize = 100): Promise<Resource[]> {
   const skip = (page - 1) * pageSize
   return await prisma.resource.findMany({
     skip,

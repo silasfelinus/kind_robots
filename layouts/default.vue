@@ -7,9 +7,10 @@
         <slot />
       </div>
       <div
-        class="absolute bottom-0 right-0 p-4 shadow-lg overflow-auto max-h-32 bg-white rounded-t-xl"
+        class="absolute bottom-0 left-0 mb-4 ml-4 p-4 shadow-lg overflow-auto max-h-32 bg-white rounded-t-xl"
       >
         <!-- Any other common elements to all pages -->
+        <avatar-image />
       </div>
     </div>
   </div>

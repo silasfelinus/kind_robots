@@ -4,7 +4,7 @@ import prisma from './../utils/prisma'
 
 export type Media = MediaRecord
 
-export async function fetchMedia(page = 1, pageSize = 10): Promise<Media[]> {
+export async function fetchMedia(page = 1, pageSize = 100): Promise<Media[]> {
   const skip = (page - 1) * pageSize
   return await prisma.media.findMany({
     skip,

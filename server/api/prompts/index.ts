@@ -4,7 +4,7 @@ import prisma from './../utils/prisma'
 
 export type Prompt = PromptRecord
 
-export async function fetchPrompts(page = 1, pageSize = 10): Promise<Prompt[]> {
+export async function fetchPrompts(page = 1, pageSize = 100): Promise<Prompt[]> {
   const skip = (page - 1) * pageSize
   return await prisma.prompt.findMany({
     skip,

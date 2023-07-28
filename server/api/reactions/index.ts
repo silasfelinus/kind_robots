@@ -4,7 +4,7 @@ import prisma from './../utils/prisma'
 
 export type Reaction = ReactionRecord
 
-export async function fetchReactions(page = 1, pageSize = 10): Promise<Reaction[]> {
+export async function fetchReactions(page = 1, pageSize = 100): Promise<Reaction[]> {
   const skip = (page - 1) * pageSize
   return await prisma.reaction.findMany({
     skip,

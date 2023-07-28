@@ -53,7 +53,7 @@ const fetchBots = async () => {
     const data = await response.json()
     botsStore.addBots(data)
     if (!currentBot.value && data.length > 0) {
-      botsStore.setCurrentBot(data[0].id)
+      botsStore.getBotById(data[0].id)
     }
   } catch (error) {
     console.error(error)
@@ -61,7 +61,7 @@ const fetchBots = async () => {
 }
 
 const setCurrentBot = (bot: Bot) => {
-  botsStore.setCurrentBot(bot)
+  botsStore.getBotById(bot.id)
 }
 
 watch(

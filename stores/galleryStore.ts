@@ -32,7 +32,7 @@ export const useGalleryStore = defineStore({
     currentImage: null,
     galleryImages: [],
     page: 1,
-    pageSize: 10
+    pageSize: 100
   }),
   actions: {
     async loadStore(): Promise<void> {

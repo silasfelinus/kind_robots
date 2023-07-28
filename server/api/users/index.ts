@@ -4,7 +4,7 @@ import prisma from './../utils/prisma'
 
 export type User = UserRecord
 
-export async function fetchUsers(page = 1, pageSize = 10): Promise<User[]> {
+export async function fetchUsers(page = 1, pageSize = 100): Promise<User[]> {
   const skip = (page - 1) * pageSize
   return await prisma.user.findMany({
     skip,

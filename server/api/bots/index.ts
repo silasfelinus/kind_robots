@@ -4,7 +4,7 @@ import prisma from './../utils/prisma'
 
 export type Bot = BotRecord
 
-export async function fetchBots(page = 1, pageSize = 10): Promise<Bot[]> {
+export async function fetchBots(page = 1, pageSize = 100): Promise<Bot[]> {
   const skip = (page - 1) * pageSize
   return await prisma.bot.findMany({
     skip,

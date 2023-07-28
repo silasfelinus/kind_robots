@@ -4,7 +4,7 @@ import prisma from './../utils/prisma'
 
 export type Game = GameRecord
 
-export async function fetchGames(page = 1, pageSize = 10): Promise<Game[]> {
+export async function fetchGames(page = 1, pageSize = 100): Promise<Game[]> {
   const skip = (page - 1) * pageSize
   return await prisma.game.findMany({
     skip,

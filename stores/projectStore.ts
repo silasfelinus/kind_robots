@@ -28,7 +28,7 @@ export const useProjectStore = defineStore({
     totalProjects: 0,
     errors: [],
     page: 1,
-    pageSize: 10
+    pageSize: 100
   }),
   actions: {
     async loadStore(): Promise<void> {

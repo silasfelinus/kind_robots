@@ -7,27 +7,41 @@
         {{ bot.name }}
       </option>
     </select>
-    <div v-if="activeBot" class="mt-4 text-blue-500">
-      <p>Active bot: {{ activeBot.name }}</p>
+    <div v-if="currentBot" class="mt-4 text-blue-500">
+      <p>Active bot: {{ currentBot.name }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useBotStore } from '../../stores/botStore'
 
 const botStore = useBotStore()
 const selectedBot = ref('')
+const bots = computed(() => botStore.bots)
+const currentBot = computed(() => botStore.currentBot)
 
 onMounted(async () => {
-  await botStore.loadStore()
+  try {
+    await botStore.loadStore()
+  } catch (err) {
+    console.error('Failed to load store', err)
+  }
 })
 
-const handleChange = () => {
-  botStore.getBotById(Number(selectedBot.value))
+const handleChange = async () => {
+  await botStore.getBotById(Number(selectedBot.value))
 }
 
-const bots = botStore.bots
-const activeBot = computed(() => botStore.currentBot)
+watch(
+  () => currentBot.value,
+  (newCurrentBot) => {
+    if (newCurrentBot) {
+      const id = newCurrentBot.id
+      const botElement = document.getElementById(`bot-${id}`)
+      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
+)
 </script>

@@ -33,8 +33,8 @@ import { computed, ComputedRef, onMounted } from 'vue'
 import { useBotStore, Bot } from '../../stores/botStore'
 
 const botStore = useBotStore()
-const bots: ComputedRef<Bot[]> = computed(() => botStore.bots)
-const currentBot: ComputedRef<Bot | null> = computed(() => botStore.currentBot)
+const bots = computed(() => botStore.bots)
+const currentBot = computed(() => botStore.currentBot)
 
 const setCurrentBot = (bot: Bot) => {
   botStore.getBotById(bot.id)
@@ -55,4 +55,14 @@ const fetchBots = async () => {
     console.error(error)
   }
 }
+watch(
+  () => currentBot.value,
+  (newCurrentBot) => {
+    if (newCurrentBot) {
+      const id = newCurrentBot.id
+      const botElement = document.getElementById(`bot-${id}`)
+      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
+)
 </script>

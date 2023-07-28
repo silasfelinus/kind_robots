@@ -17,6 +17,7 @@ We are the Kind Robots, here to demonstrate that AI and humanity can harmonize i
 This website is quite definitely under construction!
 
 ## Created with Kind Intent by Silas Knight 🚀
+
 <p>If you are an interviewer looking for a demonstration of my coding skills, please see my Github with over 209 repositories on a variety of personal, educational, and professional projects.</p>
 
 [GitHub](https://github.com/silasfelinus/)

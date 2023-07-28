@@ -36,7 +36,7 @@ export async function getRandomGalleryImage(galleryId: number) {
 
 export type Gallery = GalleryRecord
 
-export async function fetchGalleries(page = 1, pageSize = 10): Promise<Gallery[]> {
+export async function fetchGalleries(page = 1, pageSize = 100): Promise<Gallery[]> {
   const skip = (page - 1) * pageSize
   return await prisma.gallery.findMany({
     skip,

@@ -18,6 +18,8 @@ interface BotStoreState {
   errors: string[]
   loading: boolean
   _initialized: boolean
+  page: number
+  pageSize: number
 }
 
 export const useBotStore = defineStore({
@@ -28,7 +30,9 @@ export const useBotStore = defineStore({
     totalBots: 0,
     errors: [],
     loading: false,
-    _initialized: false
+    _initialized: false,
+    page: 1,
+    pageSize: 100
   }),
   actions: {
     async loadStore(): Promise<void> {
@@ -99,7 +103,7 @@ export const useBotStore = defineStore({
       statusStore.setStatus(StatusType.INFO, 'Fetching bots...')
       try {
         const { data } = await axios.get(`/api/bots`)
-        this.bots = [...data]
+        this.bots = [...data.bots]
         statusStore.setStatus(StatusType.SUCCESS, `Fetched ${this.bots.length} bots`)
       } catch (error) {
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch bots: ' + error)
@@ -109,7 +113,7 @@ export const useBotStore = defineStore({
       statusStore.setStatus(StatusType.INFO, `Fetching bot with id ${id}...`)
       try {
         const { data } = await axios.get(`/api/bots/${id}`)
-        this.currentBot = data
+        this.currentBot = data.bot
         statusStore.setStatus(StatusType.SUCCESS, `Fetched bot with id ${id}`)
       } catch (error) {
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch bot by id: ' + error)

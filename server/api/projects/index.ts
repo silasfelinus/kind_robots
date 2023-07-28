@@ -4,7 +4,7 @@ import prisma from './../utils/prisma'
 
 export type Project = ProjectRecord
 
-export async function fetchProjects(page = 1, pageSize = 10): Promise<Project[]> {
+export async function fetchProjects(page = 1, pageSize = 100): Promise<Project[]> {
   const skip = (page - 1) * pageSize
   return await prisma.project.findMany({
     skip,

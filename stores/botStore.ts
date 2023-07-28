@@ -16,8 +16,8 @@ interface BotStoreState {
   currentBot: Bot | null
   totalBots: number
   errors: string[]
-  page: number
-  pageSize: number
+  loading: boolean
+  _initialized: boolean
 }
 
 export const useBotStore = defineStore({
@@ -27,56 +27,33 @@ export const useBotStore = defineStore({
     currentBot: null,
     totalBots: 0,
     errors: [],
-    page: 1,
-    pageSize: 10
+    loading: false,
+    _initialized: false
   }),
   actions: {
     async loadStore(): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Loading bot store...')
-      try {
-        // Load bots if necessary
-        await this.seedBots()
+      if (!this._initialized) {
+        this.loading = true
+        statusStore.setStatus(StatusType.INFO, 'Loading bot store...')
+        try {
+          // Get the current count of bots
+          await this.countBots()
 
-        // Load other store data
-        await this.getBots(this.page, this.pageSize)
+          // If there are no bots, seed them
+          if (this.totalBots === 0) {
+            await this.seedBots()
+          }
 
-        statusStore.setStatus(StatusType.SUCCESS, `Loaded ${this.bots.length} bots`)
-      } catch (error) {
-        errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Error initializing bot store: ' + error)
-      }
-    },
-    async getBots(page = 1, pageSize = 10): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Fetching bots...')
-      try {
-        const { data } = await axios.get(`/api/bots?page=${page}&pageSize=${pageSize}`)
-        this.bots = [...this.bots, ...data]
-        this.page++
-        statusStore.setStatus(StatusType.SUCCESS, `Fetched ${this.bots.length} bots`)
-      } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch bots: ' + error)
-      }
-    },
-    async getBotById(id: number): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, `Fetching bot with id ${id}...`)
-      try {
-        const { data } = await axios.get(`/api/bots/${id}`)
-        this.currentBot = data
-        statusStore.setStatus(StatusType.SUCCESS, `Fetched bot with id ${id}`)
-      } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch bot by id: ' + error)
-      }
-    },
-    async addBots(botsData: Partial<Bot>[]): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Adding new bots...')
-      try {
-        const { data } = await axios.post(`/api/bots`, botsData)
-        this.bots = [...this.bots, ...data.bots]
-        this.errors = data.errors
-        statusStore.setStatus(StatusType.SUCCESS, `Added ${this.bots.length} bots`)
-        // Update the total bots count after adding new bots
-        await this.countBots()
-      } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to add bots: ' + error)
+          // Load bots
+          await this.getBots()
+
+          statusStore.setStatus(StatusType.SUCCESS, `Loaded ${this.bots.length} bots`)
+          this._initialized = true
+        } catch (error) {
+          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Error initializing bot store: ' + error)
+        } finally {
+          this.loading = false
+        }
       }
     },
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
@@ -91,16 +68,62 @@ export const useBotStore = defineStore({
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to update bot: ' + error)
       }
     },
+
     async deleteBot(id: number): Promise<void> {
       statusStore.setStatus(StatusType.INFO, `Deleting bot with id ${id}...`)
       try {
         await axios.delete(`/api/bots/${id}`)
         statusStore.setStatus(StatusType.SUCCESS, `Deleted bot with id ${id}`)
-        // Fetch the updated list of bots and total bots count after deleting a bot
+        // Fetch the updated list of bots after deleting a bot
+        await this.getBots()
+      } catch (error) {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to delete bot: ' + error)
+      }
+    },
+
+    async addBots(botsData: Partial<Bot>[]): Promise<void> {
+      statusStore.setStatus(StatusType.INFO, 'Adding new bots...')
+      try {
+        const { data } = await axios.post(`/api/bots`, botsData)
+        this.bots = [...this.bots, ...data.bots]
+        // Increment the totalBots by the number of added bots
+        this.totalBots += data.bots.length
+        this.errors = data.errors
+        statusStore.setStatus(StatusType.SUCCESS, `Added ${data.bots.length} new bots`)
+      } catch (error) {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to add bots: ' + error)
+      }
+    },
+
+    getBots: async function (): Promise<void> {
+      statusStore.setStatus(StatusType.INFO, 'Fetching bots...')
+      try {
+        const { data } = await axios.get(`/api/bots`)
+        this.bots = [...data]
+        statusStore.setStatus(StatusType.SUCCESS, `Fetched ${this.bots.length} bots`)
+      } catch (error) {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch bots: ' + error)
+      }
+    },
+    getBotById: async function (id: number): Promise<void> {
+      statusStore.setStatus(StatusType.INFO, `Fetching bot with id ${id}...`)
+      try {
+        const { data } = await axios.get(`/api/bots/${id}`)
+        this.currentBot = data
+        statusStore.setStatus(StatusType.SUCCESS, `Fetched bot with id ${id}`)
+      } catch (error) {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch bot by id: ' + error)
+      }
+    },
+    seedBots: async function (): Promise<void> {
+      statusStore.setStatus(StatusType.INFO, 'Seeding bots...')
+      try {
+        await this.addBots(botData)
+        statusStore.setStatus(StatusType.SUCCESS, 'Seeded bots')
         await this.getBots()
         await this.countBots()
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to delete bot: ' + error)
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to seed bots: ' + error)
       }
     },
     async randomBot(): Promise<void> {
@@ -113,7 +136,7 @@ export const useBotStore = defineStore({
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch a random bot: ' + error)
       }
     },
-    async countBots(): Promise<void> {
+    countBots: async function (): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Counting bots...')
       try {
         const { data } = await axios.get(`/api/bots/count`)
@@ -121,24 +144,6 @@ export const useBotStore = defineStore({
         statusStore.setStatus(StatusType.SUCCESS, `Counted ${this.totalBots} bots`)
       } catch (error) {
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to count bots: ' + error)
-      }
-    },
-    async seedBots(): Promise<void> {
-      // Get the current count of bots
-      await this.countBots()
-
-      // If there are no bots, load them
-      if (this.totalBots === 0) {
-        statusStore.setStatus(StatusType.INFO, 'Seeding bots...')
-        try {
-          await this.addBots(botData)
-          statusStore.setStatus(StatusType.SUCCESS, 'Seeded bots')
-          // Fetch the updated list of bots and total bots count after seeding
-          await this.getBots()
-          await this.countBots()
-        } catch (error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to seed bots: ' + error)
-        }
       }
     }
   }

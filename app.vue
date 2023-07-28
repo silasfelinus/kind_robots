@@ -5,7 +5,7 @@
       class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 rounded-r-xl"
     >
       <div class="flex-grow">
-        <vertical-nav class="p-4" />
+        <new-nav class="p-4" />
       </div>
     </div>
     <!-- Middle column: nuxt-page -->

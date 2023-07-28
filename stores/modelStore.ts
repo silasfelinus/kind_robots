@@ -2,8 +2,8 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { Model as ModelRecord } from '@prisma/client'
-import { useErrorStore, ErrorType } from '../stores/errorStore'
-import { useStatusStore, StatusType } from '../stores/statusStore'
+import { useErrorStore, ErrorType } from './errorStore'
+import { useStatusStore, StatusType } from './statusStore'
 import { modelData } from './seeds/seedModels'
 
 const errorStore = useErrorStore()

@@ -1,21 +1,36 @@
 <template>
   <div class="status-manager">
-    <div v-if="statusMessage" :class="`alert alert-${statusTypeClass}`">
-      {{ statusMessage }}
+    <div class="flex flex-col space-y-4">
+      <div
+        v-for="(status, index) in statusHistory.slice(-3).reverse()"
+        :key="index"
+        class="rounded-lg shadow-md p-4 bg-white"
+      >
+        <div><strong>Type:</strong> {{ status.type }}</div>
+        <div><strong>Timestamp:</strong> {{ status.timestamp }}</div>
+        <div><strong>Message:</strong> {{ status.message }}</div>
+      </div>
     </div>
-    <button @click="tester">Get Last Status</button>
-    <button @click="updateWithDream">Update with a Dream</button>
-    <button @click="clearStatus">Clear Status</button>
-    <div v-if="statusHistory.length" class="status-history">
+    <button class="mt-4" @click="tester">Get Last Status</button>
+    <button class="mt-4" @click="updateWithDream">Update with a Dream</button>
+    <button class="mt-4" @click="clearStatus">Clear Status</button>
+    <div v-if="statusHistory.length" class="status-history mt-4">
       <h2>Status History:</h2>
       <ul>
-        <li v-for="(status, index) in statusHistory" :key="index">
-          {{ status.timestamp }} - {{ status.type }}: {{ status.message }}
+        <li
+          v-for="(status, index) in statusHistory"
+          :key="index"
+          class="rounded-lg shadow-md p-4 mb-4 bg-white"
+        >
+          <div><strong>Type:</strong> {{ status.type }}</div>
+          <div><strong>Timestamp:</strong> {{ status.timestamp }}</div>
+          <div><strong>Message:</strong> {{ status.message }}</div>
         </li>
       </ul>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { useStatusStore, StatusType } from '~/stores/statusStore'
@@ -105,5 +120,25 @@ const clearStatus = () => {
   margin-top: 2em;
   overflow-y: auto;
   height: calc(100vh - 10em); /* Adjust this based on your layout */
+}
+.chat-bubble {
+  position: relative;
+  background: #f7f7f7;
+  border-radius: 0.4em;
+}
+
+.chat-bubble:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border: 20px solid transparent;
+  border-right-color: #f7f7f7;
+  border-left: 0;
+  border-right: 0;
+  margin-top: -10px;
+  margin-left: -20px;
 }
 </style>

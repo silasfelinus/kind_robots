@@ -1,4 +1,4 @@
-// ~/examples/seeds/modelSeed.ts
+// ~/stores/seeds/modelSeed.ts
 import { Model, ModelType } from '@prisma/client'
 
 // Define your array of initial bot data

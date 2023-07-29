@@ -48,4 +48,3 @@ let flipped = ref(false)
   transform: rotateY(180deg);
 }
 </style>
-../../../stores/botStore

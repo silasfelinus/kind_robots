@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watchEffect } from 'vue'
-import { useBotStore } from '../../stores/botStore'
+import { useBotStore } from '../../../stores/botStore'
 
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)

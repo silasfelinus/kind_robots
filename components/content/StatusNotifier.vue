@@ -5,14 +5,15 @@
         v-for="(status, index) in statusHistory.slice(-3).reverse()"
         :key="index"
         class="rounded-lg shadow-md p-4 bg-white"
+        :class="status.type"
+        @click="toggleTimestamp(index)"
       >
-        <div><strong>Type:</strong> {{ status.type }}</div>
-        <div><strong>Timestamp:</strong> {{ status.timestamp }}</div>
+        <div v-if="showTimestamp[index]"><strong>Timestamp:</strong> {{ status.timestamp }}</div>
         <div><strong>Message:</strong> {{ status.message }}</div>
       </div>
     </div>
     <button class="mt-4" @click="tester">Get Last Status</button>
-    <button class="mt-4" @click="updateWithDream">Update with a Dream</button>
+    <button class="mt-4 summon-inspiration" @click="summonInspiration">Summon Inspiration</button>
     <button class="mt-4" @click="clearStatus">Clear Status</button>
     <div v-if="statusHistory.length" class="status-history mt-4">
       <h2>Status History:</h2>
@@ -21,9 +22,10 @@
           v-for="(status, index) in statusHistory"
           :key="index"
           class="rounded-lg shadow-md p-4 mb-4 bg-white"
+          :class="status.type"
+          @click="toggleTimestamp(index)"
         >
-          <div><strong>Type:</strong> {{ status.type }}</div>
-          <div><strong>Timestamp:</strong> {{ status.timestamp }}</div>
+          <div v-if="showTimestamp[index]"><strong>Timestamp:</strong> {{ status.timestamp }}</div>
           <div><strong>Message:</strong> {{ status.message }}</div>
         </li>
       </ul>
@@ -32,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, watch, reactive } from 'vue'
 import { useStatusStore, StatusType } from '~/stores/statusStore'
 import { useDreamStore } from '~/stores/dreamStore'
 
@@ -43,20 +45,7 @@ const statusMessage = computed(() => statusStore.message)
 const statusType = computed(() => statusStore.type)
 const statusHistory = computed(() => statusStore.history)
 
-const statusTypeClass = computed(() => {
-  switch (statusType.value) {
-    case StatusType.ERROR:
-      return 'error'
-    case StatusType.INFO:
-      return 'info'
-    case StatusType.SUCCESS:
-      return 'success'
-    case StatusType.WARNING:
-      return 'warning'
-    default:
-      return ''
-  }
-})
+let showTimestamp = reactive(new Array(statusHistory.value.length).fill(false))
 
 let idleTimer: NodeJS.Timeout | null = null
 
@@ -86,12 +75,16 @@ const tester = () => {
   }
 }
 
-const updateWithDream = () => {
+const summonInspiration = () => {
   statusStore.setStatus(StatusType.INFO, dreamStore.randomDream())
 }
 
 const clearStatus = () => {
   statusStore.clearStatus()
+}
+
+const toggleTimestamp = (index: number) => {
+  showTimestamp[index] = !showTimestamp[index]
 }
 </script>
 
@@ -140,5 +133,9 @@ const clearStatus = () => {
   border-right: 0;
   margin-top: -10px;
   margin-left: -20px;
+}
+.summon-inspiration {
+  background-color: #007bff; /* Change this to fit your design */
+  color: white; /* Change this to fit your design */
 }
 </style>

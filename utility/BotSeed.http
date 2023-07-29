@@ -27,12 +27,12 @@ Accept: application/json
 ###
 
 ### Update a bot
-PATCH https://kindrobots.org/api/bots/3
+PATCH https://kindrobots.org/api/bots/20
 Content-Type: application/json
 
 {
-  "name": "Rapbot",
-}
+  "avatarImage": "/images/avatars/serendipity1.png"
+  }
 
 ###
 

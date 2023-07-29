@@ -1,12 +1,14 @@
-// ~/store/screenfx.ts
+// ~/stores/screenStore.ts
 import { defineStore } from 'pinia'
+import { ModelType } from '@prisma/client'
 
-export const useScreenfxStore = defineStore({
-  id: 'screenfx',
+export const useScreenStore = defineStore({
+  id: 'screen',
   state: () => ({
     showAmiSwarm: false,
     showRainEffect: false,
-    showSoapBubbles: false
+    showSoapBubbles: false,
+    currentModelType: ModelType.BOT
   }),
   getters: {
     anyEffectActive(): boolean {
@@ -40,7 +42,7 @@ export const useScreenfxStore = defineStore({
     },
     async loadStore() {
       try {
-        return 'loaded screenFX'
+        return 'loaded screen'
       } catch (error) {
         console.error('Error loading store:', error)
         throw error

@@ -23,16 +23,16 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useBotStore } from './../../stores/botStore'
-import { useGalleryStore } from './../../stores/galleryStore'
-import { useContentStore } from './../../stores/contentStore'
-import { useMediaStore } from './../../stores/mediaStore'
-import { useProjectStore } from './../../stores/projectStore'
-import { usePromptStore } from './../../stores/promptStore'
-import { useGameStore } from './../../stores/gameStore'
-import { useReactionStore } from './../../stores/reactionStore'
-import { useUserStore } from './../../stores/userStore'
-import { useResourceStore } from './../../stores/resourceStore'
+import { useBotStore } from './../../../stores/botStore'
+import { useGalleryStore } from './../../../stores/galleryStore'
+import { useContentStore } from './../../../stores/contentStore'
+import { useMediaStore } from './../../../stores/mediaStore'
+import { useProjectStore } from './../../../stores/projectStore'
+import { usePromptStore } from './../../../stores/promptStore'
+import { useGameStore } from './../../../stores/gameStore'
+import { useReactionStore } from './../../../stores/reactionStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useResourceStore } from './../../../stores/resourceStore'
 
 const stores = {
   botStore: useBotStore(),

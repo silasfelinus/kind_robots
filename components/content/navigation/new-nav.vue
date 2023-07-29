@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useContentStore } from '../../stores/contentStore'
+import { useContentStore } from '../../../stores/contentStore'
 
 // use the store
 const contentStore = useContentStore()

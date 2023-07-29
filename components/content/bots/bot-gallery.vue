@@ -5,8 +5,8 @@
         class="rounded-full p-3 cursor-pointer hover:scale-110 transition-transform border-2 border-transparent hover:border-primary"
         @click="layout = 'badge'"
       >
-        <nuxt-icon
-          name="view-grid-outline"
+        <Icon
+          name="zondicons:badge"
           title="Badge Layout"
           :active="layout === 'badge'"
           class="w-6 h-6"
@@ -16,8 +16,8 @@
         class="rounded-full p-3 cursor-pointer hover:scale-110 transition-transform border-2 border-transparent hover:border-primary"
         @click="layout = 'card'"
       >
-        <nuxt-icon
-          name="view-agenda-outline"
+        <Icon
+          name="entypo:v-card"
           title="Card Layout"
           :active="layout === 'card'"
           class="w-6 h-6"
@@ -27,8 +27,8 @@
         class="rounded-full p-3 cursor-pointer hover:scale-110 transition-transform border-2 border-transparent hover:border-primary"
         @click="layout = 'hero'"
       >
-        <nuxt-icon
-          name="view-carousel-outline"
+        <Icon
+          name="foundation:photo"
           title="Hero Layout"
           :active="layout === 'hero'"
           class="w-6 h-6"
@@ -38,8 +38,8 @@
         class="rounded-full p-3 cursor-pointer hover:scale-110 transition-transform border-2 border-transparent hover:border-primary"
         @click="layout = 'full'"
       >
-        <nuxt-icon
-          name="view-fullscreen-outline"
+        <Icon
+          name="flat-color-icons:landscape"
           title="Full Layout"
           :active="layout === 'full'"
           class="w-6 h-6"
@@ -49,7 +49,12 @@
 
     <transition name="bot-layout" mode="out-in">
       <div :key="layout" :class="`bot-gallery bot-gallery--${layout} bg-base p-4 rounded-lg`">
-        <div v-for="bot in bots" :key="bot.id" class="bot" @click="setCurrentBot(bot)">
+        <div
+          v-for="bot in bots"
+          :key="bot.id"
+          class="bot cursor-pointer"
+          @click="setCurrentBot(bot)"
+        >
           <img
             :src="bot.avatarImage"
             class="bot__avatar w-32 h-32 mx-auto rounded-full shadow-lg"
@@ -64,7 +69,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useBotStore, Bot } from '../../stores/botStore'
+import { useBotStore, Bot } from '../../../stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
@@ -93,26 +98,25 @@ const fetchBots = async () => {
   }
 }
 </script>
-
 <style scoped>
 .bot-gallery {
   display: grid;
   grid-gap: 1rem;
 }
 
-.bot-gallery--badge .bot {
+.bot-gallery--badge {
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
 }
 
-.bot-gallery--card .bot {
+.bot-gallery--card {
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
 
-.bot-gallery--hero .bot {
+.bot-gallery--hero {
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 }
 
-.bot-gallery--full .bot {
+.bot-gallery--full {
   grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
 }
 

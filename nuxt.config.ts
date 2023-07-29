@@ -32,10 +32,6 @@ export default defineNuxtConfig({
     pageTransition: {
       name: 'rotate',
       mode: 'out-in' // default
-    },
-    layoutTransition: {
-      name: 'bounce',
-      mode: 'out-in' // default
     }
   }
 })

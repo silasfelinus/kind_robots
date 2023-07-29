@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { useFxStore } from '../../stores/screenfxStore'
+import { useFxStore } from '../../stores/screenStore'
 
 const fxStore = useFxStore()
 

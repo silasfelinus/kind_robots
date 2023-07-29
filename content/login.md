@@ -7,4 +7,6 @@ gallery: wondershed
 tooltip: uh-oh
 ---
 
-:login-page
+:login-form
+
+[register](/register)

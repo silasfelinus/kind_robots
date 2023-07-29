@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { useScreenfxStore } from '../../stores/screenfxStore'
+import { useScreenStore } from '../../../stores/screenStore'
 
-const fxStore = useScreenfxStore()
+const fxStore = useScreenStore()
 </script>

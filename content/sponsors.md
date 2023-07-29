@@ -1,11 +1,11 @@
 ---
-title: 'Kind Friends'
+title: 'Kind Sponsors'
 description: 'Thanks to the kind communities that have helped nurture Kind Robots'
 gallery: 'cafepurr'
 layout: left
 image: 'botcommunity.png'
 ---
-
+[Register to be a Kind Human](/register)
 :sponsor-page
 # Created with kind intent
 

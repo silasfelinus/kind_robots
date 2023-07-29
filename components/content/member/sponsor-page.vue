@@ -1,6 +1,6 @@
 <template>
   <div>
-    <butterfly-swarm class="animate-butterflies" />
+    <butterfly-toggle class="animate-butterflies" />
     <div
       class="p-6 space-y-8 bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-white rounded-lg shadow-2xl"
     >
@@ -62,7 +62,7 @@
             href="https://www.redbubble.com/people/CafePurr/shop"
             target="_blank"
             class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-            ><img src="cafe_purr_icon.png" alt="Cafe Purr" class="w-12 h-12" /> Cafe Purr:</a
+            ><img src="/images/amilogo.png" alt="Cafe Purr" class="w-12 h-12" /> Cafe Purr:</a
           >
           North Coast's exclusive digital art hub and foster kitten rescue
         </li>
@@ -71,8 +71,8 @@
             href="https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742/"
             target="_blank"
             class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-            ><img src="mermaids_venice_icon.png" alt="Mermaids of Venice" class="w-12 h-12" />
-            Mermaids of Venice:</a
+            ><img src="/images/amilogo.png" alt="Mermaids of Venice" class="w-12 h-12" /> Mermaids
+            of Venice:</a
           >
           A contemporary fairy tale of gods and street performers
         </li>
@@ -81,7 +81,7 @@
             href="https://hairbysuperkate.com"
             target="_blank"
             class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-            ><img src="superkate_hair_icon.png" alt="Hair by Superkate" class="w-12 h-12" /> Hair by
+            ><img src="/images/amilogo.png" alt="Hair by Superkate" class="w-12 h-12" /> Hair by
             Superkate:</a
           >
           Bespoke Hair Colouring Services

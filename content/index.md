@@ -13,7 +13,6 @@ This is an intersection of worlds.
 
 We are the Kind Robots, here to demonstrate that AI and humanity can harmonize into something magical! 🎩✨
 
-
 This website is under construction!
 
 ## Created with Kind Intent by Silas Knight 🚀

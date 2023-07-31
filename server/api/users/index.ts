@@ -1,8 +1,20 @@
 // ~/server/api/users/index.ts
 import { User as UserRecord, Prisma } from '@prisma/client'
+import { hash as bcryptHash } from 'bcrypt'
 import prisma from './../utils/prisma'
 
 export type User = UserRecord
+
+function isValidUserInput(input: Partial<User>): boolean {
+  return Boolean(
+    input.username && input.email && input.password // Add more validation rules as needed
+  )
+}
+
+async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 10
+  return await bcryptHash(password, saltRounds)
+}
 
 export async function fetchUsers(page = 1, pageSize = 100): Promise<User[]> {
   const skip = (page - 1) * pageSize
@@ -19,12 +31,22 @@ export async function fetchUserById(id: number): Promise<User | null> {
 }
 
 export async function addUser(userData: Partial<User>): Promise<User | null> {
-  if (!userData.username || !userData.password) {
-    return null
+  if (!isValidUserInput(userData)) {
+    throw new Error('Invalid user data')
   }
 
+  const existingUser = await prisma.user.findUnique({ where: { email: userData.email! } })
+  if (existingUser) {
+    throw new Error('Email already in use')
+  }
+
+  const hashedPassword = await hashPassword(userData.password!)
+
   return await prisma.user.create({
-    data: userData as Prisma.UserCreateInput
+    data: {
+      ...userData,
+      password: hashedPassword
+    } as Prisma.UserCreateInput
   })
 }
 
@@ -64,6 +86,7 @@ export async function randomUser(): Promise<User | null> {
     skip: randomIndex
   })
 }
+
 export async function countUsers(): Promise<number> {
   return await prisma.user.count()
 }

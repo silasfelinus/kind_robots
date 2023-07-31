@@ -6,17 +6,17 @@
       enctype="multipart/form-data"
       @submit="handleSubmit"
     >
-      <div class="field mb-4">
+      <div class="mb-4">
         <label for="modelType" class="block text-sm font-medium">Model Type:</label>
-        <select id="modelType" v-model="modelType" class="form-select mt-1 w-full">
+        <select id="modelType" v-model="modelType" class="w-full p-2 rounded border">
           <option v-for="type in modelTypes" :key="type" :value="type">{{ type }}</option>
         </select>
       </div>
-      <div class="field mb-4">
+      <div class="mb-4">
         <label for="label" class="block text-sm font-medium">Label:</label>
-        <input id="label" v-model="label" type="text" class="form-input mt-1 w-full" />
+        <input id="label" v-model="label" type="text" class="w-full p-2 rounded border" />
       </div>
-      <div class="field mb-4">
+      <div class="mb-4">
         <label for="content" class="block text-sm font-medium">Content:</label>
         <textarea
           id="content"
@@ -31,8 +31,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ModelType } from '@prisma/client' // Import the ModelType enum
-import { useErrorStore, useStatusStore } from '../../stores'
+import { ModelType } from '@prisma/client'
+import { useErrorStore, useStatusStore, StatusType, ErrorType } from '../../stores/'
 
 const errorStore = useErrorStore()
 const statusStore = useStatusStore()
@@ -47,7 +47,7 @@ const modelTypes = Object.values(ModelType) // Get all possible model types from
 function handleSubmit(e: Event) {
   e.preventDefault()
 
-  statusStore.setStatusMessage('Creating the model...')
+  statusStore.setStatus(StatusType.INFO, 'Creating the model...')
 
   try {
     const modelData = {
@@ -58,13 +58,9 @@ function handleSubmit(e: Event) {
 
     // Logic to create the model (e.g., API call or store method)
 
-    statusStore.setStatusMessage('Model created successfully!')
+    statusStore.setStatus(StatusType.SUCCESS, 'Model created successfully!')
   } catch (error) {
-    errorStore.setErrorMessage('Failed to create the model.')
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Failed to create the model.')
   }
 }
 </script>
-
-<style scoped>
-/* Additional custom styles if needed */
-</style>

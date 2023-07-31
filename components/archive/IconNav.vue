@@ -31,9 +31,9 @@
 </template>
 
 <script setup lang="ts">
-import { useFxStore } from '../../stores/screenStore'
+import { useScreenStore } from '../../stores/screenStore'
 
-const fxStore = useFxStore()
+const fxStore = useScreenStore()
 
 const toggleRainEffect = () => fxStore.toggleRainEffect()
 const toggleSoapBubbles = () => fxStore.toggleSoapBubbles()

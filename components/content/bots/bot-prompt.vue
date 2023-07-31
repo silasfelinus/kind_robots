@@ -76,8 +76,6 @@ const sendReply = async (updatedMessages: Message[]) => {
 }
 </script>
 
-<!-- The rest of your component remains the same -->
-
 <style scoped>
 .container {
   display: flex;

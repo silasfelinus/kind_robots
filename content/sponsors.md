@@ -5,8 +5,10 @@ gallery: 'cafepurr'
 layout: left
 image: 'botcommunity.png'
 ---
+
 [Register to be a Kind Human](/register)
 :sponsor-page
+
 # Created with kind intent
 
 # by Silas Knight

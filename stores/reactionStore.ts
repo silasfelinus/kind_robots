@@ -1,13 +1,15 @@
 // ~/stores/reactionStore.ts
 import { defineStore } from 'pinia'
 import axios from 'axios'
-import { Reaction } from '@prisma/client' // Import the Reaction type based on your actual types file
+import { Reaction as ReactionRecord } from '@prisma/client' // Import the Reaction type based on your actual types file
 import { useErrorStore, ErrorType } from './errorStore'
 import { useStatusStore, StatusType } from './statusStore'
 import { reactionData } from './seeds/seedReactions' // Assuming you have a seeds file for Reaction data
 
 const errorStore = useErrorStore()
 const statusStore = useStatusStore()
+
+export type Reaction = ReactionRecord
 
 interface ReactionStoreState {
   reactions: Reaction[]

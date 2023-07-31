@@ -1,4 +1,3 @@
-// /server/api/users/index.post.ts
 import { addUser } from '.'
 
 export default defineEventHandler(async (event) => {

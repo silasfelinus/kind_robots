@@ -35,8 +35,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, watch, reactive } from 'vue'
-import { useStatusStore, StatusType } from '~/stores/statusStore'
-import { useDreamStore } from '~/stores/dreamStore'
+import { useStatusStore, StatusType } from '../../stores/statusStore'
+import { useDreamStore } from '../../stores/dreamStore'
 
 const statusStore = useStatusStore()
 const dreamStore = useDreamStore()

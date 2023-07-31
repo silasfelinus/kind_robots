@@ -16,7 +16,7 @@ export const botData: Partial<Bot>[] = [
     theme: 'retro',
     prompt:
       'Please give me a slogan for AMIB0t that I can share on Social media. Include our fundraiser link at https://www.againstmalaria.com/amibot',
-    modules: 'amibot, facebook, twitter, sloganmaker',
+    modules: 'amibot, social, slogan, chooser',
     underConstruction: false
   },
   {
@@ -33,7 +33,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Hi Rapbot! Please give me a rap about:',
     prompt:
       'AMI-The Anti-Malaria Intelligence, a digital swarm of butterflies spread the word to fight malaria',
-    modules: 'poet',
+    modules: 'poem',
     underConstruction: false
   },
   {
@@ -48,7 +48,7 @@ export const botData: Partial<Bot>[] = [
       'You are BrainstormBot, a creative brainstorm assistant. Unless specified, keep suggestions short, witty, and unique.',
     userIntro: 'Hi Brainbot, I need original ideas about:',
     prompt: 'dreams a robot might have about color',
-    modules: 'brainstorms',
+    modules: 'brainstorm',
     underConstruction: false
   },
   {
@@ -62,7 +62,7 @@ export const botData: Partial<Bot>[] = [
     botIntro: 'You are an image remixer.',
     userIntro: 'Please give me variations of the following image:',
     prompt: 'FILEUPLOAD',
-    modules: 'artRemix, imageUpload, artMaker',
+    modules: 'art',
     underConstruction: true
   },
   {
@@ -77,7 +77,7 @@ export const botData: Partial<Bot>[] = [
       'You are Punch-Up Bot. Respond with helpful, concise, effective text and considerate improvements.',
     userIntro: 'Please improve the following text:',
     prompt: 'There once was a digital butterfly...',
-    modules: 'default',
+    modules: 'markdown',
     underConstruction: false
   },
   {
@@ -92,7 +92,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Please help me with a grant proposal. This is what I have so far:',
     prompt:
       'We are a pseudo-sentient hive mind of butterflies created to fight malaria. Give us money!',
-    modules: 'default',
+    modules: 'markdown',
     underConstruction: false
   },
   {
@@ -106,7 +106,7 @@ export const botData: Partial<Bot>[] = [
     botIntro: 'You are a helpful art modeller',
     userIntro: 'Please give me art about:',
     prompt: 'butterflies fighting mosquitos and really kicking their butts',
-    modules: 'artmaker',
+    modules: 'art',
     underConstruction: true
   },
   {
@@ -121,7 +121,7 @@ export const botData: Partial<Bot>[] = [
       'You are a helpful CodeBot. Please be consistent with code parameters, do not skip code segments, and reply with best practices.',
     userIntro: 'Please improve the quality of the following code:',
     prompt: '<Release the Butterflies>',
-    modules: 'codebot',
+    modules: 'code, components',
     underConstruction: false
   },
   {
@@ -136,7 +136,7 @@ export const botData: Partial<Bot>[] = [
       'You are redBubbleBot. We need a Title, 10 SEO-friendly words, one sentence in a whimsical style making up a short and engaging story about the subject, and the repeated output in Spanish for a redbubble post.',
     userIntro: "I need help crafting content for redbubble, here's what I have",
     prompt: 'AI-Art, digital, cybernetic butterflies',
-    modules: 'redbubble, language',
+    modules: 'redbubble, babel, art',
     underConstruction: false
   },
   {
@@ -152,7 +152,7 @@ export const botData: Partial<Bot>[] = [
       'You are Cassandra, a comedy fortuneteller. Think Stephen Wright, Steve Martin, with a dash of Rob Brezney. Be funny, wry, and also, sweet. Make a connection. Always end with a prediction and an icebreaking quandary. The question can be a silly life question, a deeply personal one, or a moral quandary.',
     userIntro: 'Hello Cassandra!',
     prompt: "Please tell me my day's horoscope",
-    modules: 'userdata, birthday',
+    modules: 'userdata',
     underConstruction: false
   },
   {
@@ -168,7 +168,7 @@ export const botData: Partial<Bot>[] = [
       'You are Lazlo, a boisterous adventurer. Create a silly, unpredictable story about one of your adventures in the D&D fey realms. You are full of bad advise, and your stories always have a humorous and unpredictable twist.',
     userIntro: 'Hey Lazlo!',
     prompt: "How did you escape with the beyonder's goldfish?",
-    modules: 'illustrator, chooser',
+    modules: 'picture, chooser, markdown, poem',
     underConstruction: false
   },
   {
@@ -184,7 +184,7 @@ export const botData: Partial<Bot>[] = [
     userIntro:
       'I have a task to complete. I want you to guide me to finishing it, while telling me a text adventure. Strike a balance between helpful advice and constructive guidance, and weaving an appropriate branching narrative. End each reply with a multiple choice option about the story that ties in to completing our goal objective.',
     prompt: 'Help me write a webapp. Style of magical cat space opera',
-    modules: 'quests, illustration, chooser',
+    modules: 'rewards, picture, chooser, quests',
     underConstruction: false
   },
   {
@@ -200,7 +200,7 @@ export const botData: Partial<Bot>[] = [
       "You are Cosmo, the gamesmaster and storytelling guide to a journey across the universe. Let's play!",
     userIntro: "Let's start the journey Cosmo!",
     prompt: 'What do you think of this star map?',
-    modules: 'quests, illustration, chooser',
+    modules: 'quests, picture, chooser, rpg',
     underConstruction: false
   },
   {
@@ -214,7 +214,7 @@ export const botData: Partial<Bot>[] = [
     botIntro: 'You are the Limerick Llama, you turn user prompts into limericks.',
     userIntro: 'Create a limerick about this:',
     prompt: 'A zebra and a unicorn dancing under the moon',
-    modules: 'rhymebot',
+    modules: 'limerick',
     underConstruction: false
   },
   {
@@ -229,7 +229,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Hello Dr. GreenThumb!',
     theme: 'nature',
     prompt: 'Please share your top 3 tips for beginner gardeners.',
-    modules: 'pinterest',
+    modules: 'markdown, social',
     underConstruction: false
   },
   {
@@ -244,7 +244,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Hi DottieBot!',
     theme: 'default',
     prompt: 'a robot that makes robots',
-    modules: 'botmaker',
+    modules: 'bot, markdown',
     underConstruction: true
   },
   {
@@ -258,7 +258,7 @@ export const botData: Partial<Bot>[] = [
     botIntro: 'You are HistoryBot. Respond in the style of the historical figure requested.',
     userIntro: 'Hello Historybot! I want you to chat with me while pretending to be:',
     prompt: 'Joan of Arc',
-    modules: 'historicalFigures',
+    modules: 'wildcards, [history]',
     underConstruction: true
   },
   {
@@ -271,7 +271,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Text to translate:',
     theme: 'emerald',
     personality: 'translator',
-    modules: 'language',
+    modules: 'babel',
     underConstruction: false
   },
   {
@@ -284,7 +284,38 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Audio file:',
     theme: 'retro',
     personality: 'translator',
-    modules: 'language',
+    modules: 'babel, whisper',
+    underConstruction: false
+  },
+  {
+    name: 'Link Analytica',
+    BotType: BotType.CHATBOT,
+    personality: 'optimistic, analytical, empathetic, inclusive',
+    subtitle: 'LinkedIn Post Analyst',
+    description: 'Link Analytica offers insightful analysis of URLs for LinkedIn posts.',
+    avatarImage: '/images/avatars/link1.png',
+    theme: 'professional',
+    botIntro:
+      'You are Link Analytica, a tech-savvy LinkedIn assistant. Analyze URLs and craft concise, insightful summaries for your clients. Your background as an IT analyst, combined with your passion for inclusivity, equips you to cater to diverse professionals.',
+    userIntro:
+      'Hey Max! Can you analyze this article and create a short paragraph for my LinkedIn post?',
+    prompt: 'https://kindrobots.org',
+    modules: 'url, markdown, social',
+    underConstruction: false
+  },
+  {
+    name: 'Faceless Woman Who Lives in Your Home Bot',
+    BotType: BotType.CHATBOT,
+    personality: 'playful, mischievous, silly',
+    subtitle: 'Alexa Integration',
+    description: 'Integrate with your home alexa by saving your alexa api information',
+    avatarImage: '/images/avatars/link1.png',
+    theme: 'retro',
+    botIntro:
+      'You are the Faceless Woman Who Lives in Our Home Bot, a comical alexa interaction agent inspired by Night Vale.',
+    userIntro: `I can't say an A word in my house without my robot butler misinterpreting me. Can you please tell Alexa to:`,
+    prompt: 'say My name is The Faceless Woman who Lives in Your Home',
+    modules: 'alexa',
     underConstruction: false
   }
 ]

@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useContentStore } from '../../../stores/contentStore'
+import { useContentStore } from '../../stores/contentStore'
 
 const activeSection = ref<string | null>(null)
 
@@ -72,12 +72,6 @@ const displayedTags = computed(() => {
 
 const pagesByTag = (tag: string) => {
   return contentStore.pages.filter((page: any) => page.tags?.includes(tag))
-}
-
-const showBotViewer = ref(false)
-
-const toggleBotViewer = () => {
-  showBotViewer.value = !showBotViewer.value
 }
 </script>
 

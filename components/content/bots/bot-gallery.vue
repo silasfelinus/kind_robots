@@ -1,136 +1,59 @@
 <template>
-  <div>
+  <div class="layout-selector">
     <div class="flex justify-end space-x-4">
+      <!-- Layout selection buttons -->
       <div
+        v-for="layout in layouts"
+        :key="layout.name"
         class="rounded-full p-3 cursor-pointer hover:scale-110 transition-transform border-2 border-transparent hover:border-primary"
-        @click="layout = 'badge'"
+        @click="setSelectedLayout(layout.type)"
       >
         <Icon
-          name="zondicons:badge"
-          title="Badge Layout"
-          :active="layout === 'badge'"
-          class="w-6 h-6"
-        />
-      </div>
-      <div
-        class="rounded-full p-3 cursor-pointer hover:scale-110 transition-transform border-2 border-transparent hover:border-primary"
-        @click="layout = 'card'"
-      >
-        <Icon
-          name="entypo:v-card"
-          title="Card Layout"
-          :active="layout === 'card'"
-          class="w-6 h-6"
-        />
-      </div>
-      <div
-        class="rounded-full p-3 cursor-pointer hover:scale-110 transition-transform border-2 border-transparent hover:border-primary"
-        @click="layout = 'hero'"
-      >
-        <Icon
-          name="foundation:photo"
-          title="Hero Layout"
-          :active="layout === 'hero'"
-          class="w-6 h-6"
-        />
-      </div>
-      <div
-        class="rounded-full p-3 cursor-pointer hover:scale-110 transition-transform border-2 border-transparent hover:border-primary"
-        @click="layout = 'full'"
-      >
-        <Icon
-          name="flat-color-icons:landscape"
-          title="Full Layout"
-          :active="layout === 'full'"
+          :name="layout.icon"
+          :title="layout.title"
+          :active="selectedLayout === layout.type"
           class="w-6 h-6"
         />
       </div>
     </div>
 
-    <transition name="bot-layout" mode="out-in">
-      <div :key="layout" :class="`bot-gallery bot-gallery--${layout} bg-base p-4 rounded-lg`">
-        <div
-          v-for="bot in bots"
-          :key="bot.id"
-          class="bot cursor-pointer"
-          @click="setCurrentBot(bot)"
-        >
-          <img
-            :src="bot.avatarImage"
-            class="bot__avatar w-32 h-32 mx-auto rounded-full shadow-lg"
-          />
-          <h2 class="bot__name text-lg font-semibold text-center mt-4">{{ bot.name }}</h2>
-          <p class="bot__description text-center mt-2">{{ bot.description }}</p>
-        </div>
-      </div>
-    </transition>
+    <!-- Using BotObject component for each bot with the selected layout -->
+    <div v-for="bot in bots" :key="bot.id">
+      <BotObject :bot="bot" :layout="selectedLayout" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useBotStore, Bot } from '../../../stores/botStore'
+import { ref, computed } from 'vue'
+import { useScreenStore, LayoutType } from '~/stores/screenStore'
+import { useBotStore } from '~/stores/botStore'
+import Icon from '~/components/Icon.vue' // import the Icon component if you're using one
+import BotObject from '~/components/BotObject.vue' // import the BotObject component
 
+const screenStore = useScreenStore()
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
-const currentBot = computed(() => botStore.currentBot)
 
-const layout = ref('badge') // default layout
+const selectedLayout = ref<LayoutType>(screenStore.currentLayout as LayoutType) // Initialize layout from the store
 
-const setCurrentBot = (bot: Bot) => {
-  botStore.getBotById(bot.id)
-}
-
-onMounted(async () => {
-  if (bots.value.length === 0) {
-    await fetchBots()
+const layouts = [
+  { name: 'Badge', icon: 'zondicons:badge', type: LayoutType.BADGE, title: 'Badge Layout' },
+  { name: 'Card', icon: 'entypo:v-card', type: LayoutType.CARD, title: 'Card Layout' },
+  { name: 'Hero', icon: 'foundation:photo', type: LayoutType.HERO, title: 'Hero Layout' },
+  { name: 'Full', icon: 'flat-color-icons:landscape', type: LayoutType.FULL, title: 'Full Layout' },
+  {
+    name: 'Carousel',
+    icon: 'flat-color-icons:landscape',
+    type: LayoutType.CAROUSEL,
+    title: 'Carousel Layout'
   }
-})
-
-const fetchBots = async () => {
-  try {
-    await botStore.getBots()
-    if (!currentBot.value && bots.value.length > 0) {
-      botStore.getBotById(bots.value[0].id)
-    }
-  } catch (error) {
-    console.error(error)
-  }
+  // Add more layouts as needed
+]
+const setSelectedLayout = (layout: LayoutType) => {
+  selectedLayout.value = layout
+  screenStore.setLayout(layout) // Update the layout in the store
 }
 </script>
-<style scoped>
-.bot-gallery {
-  display: grid;
-  grid-gap: 1rem;
-}
 
-.bot-gallery--badge {
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-}
-
-.bot-gallery--card {
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-}
-
-.bot-gallery--hero {
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-}
-
-.bot-gallery--full {
-  grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
-}
-
-/* Add transition styles */
-.bot-layout-enter-active,
-.bot-layout-leave-active {
-  transition:
-    opacity 0.5s,
-    transform 0.5s;
-}
-
-.bot-layout-enter,
-.bot-layout-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-</style>
+<!-- Styles can be added as before -->

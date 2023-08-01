@@ -1,10 +1,13 @@
 ---
-title: 'Kind Login'
+title: 'Login'
 subtitle: 'Welcome back!'
-layout: top
+layout: default
 image: backtree.webp
 gallery: wondershed
 tooltip: uh-oh
+tags: ['home']
+admin: true
+underConstruction: true
 ---
 
 :login-form

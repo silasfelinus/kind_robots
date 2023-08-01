@@ -51,9 +51,7 @@ export const useContentStore = defineStore({
           this.layout = content.layout
           this.next = content.next
           this.prev = content.prev
-          this.pages = await queryContent()
-            .where({ $not: { _path: '/' } })
-            .find()
+          this.pages = await queryContent().find()
 
           statusStore.setStatus(StatusType.SUCCESS, 'Content store initialized successfully')
           statusStore.clearStatus()

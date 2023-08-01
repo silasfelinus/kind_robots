@@ -1,9 +1,10 @@
 ---
-title: 'Mermaids of Venice'
+title: 'GiftShop'
 subtitle: 'Gift Shop'
-layout: left
+layout: default
 image: backtree.webp
 gallery: redbubble
+tags: ['home']
 ---
 
 :mermaids-page

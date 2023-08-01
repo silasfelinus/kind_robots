@@ -2,7 +2,9 @@
 title: 'Bot Viewer'
 description: 'Individual Bot Page'
 gallery: 'cafepurr'
-layout: left
+layout: default
 image: 'botcommunity.png'
+tags: ['bots']
 ---
-:bot-selector
+
+:bot-gallery

@@ -18,6 +18,12 @@ export async function fetchBotById(id: number): Promise<Bot | null> {
   })
 }
 
+export async function fetchBotByName(name: string): Promise<Bot | null> {
+  return await prisma.bot.findUnique({
+    where: { name }
+  })
+}
+
 export async function addBots(
   botsData: Partial<Bot>[]
 ): Promise<{ count: number; bots: Bot[]; errors: string[] }> {

@@ -1,12 +1,12 @@
 ---
-title: 'Kind Sponsors'
+title: 'We Are AmiBot!'
 description: 'Thanks to the kind communities that have helped nurture Kind Robots'
 gallery: 'cafepurr'
-layout: left
+layout: default
 image: 'botcommunity.png'
+tags: ['projects']
 ---
 
-[Register to be a Kind Human](/register)
 :sponsor-page
 
 # Created with kind intent
@@ -22,3 +22,5 @@ image: 'botcommunity.png'
 Resume:
 
 [DocX](/resume/full_stack_resume.docx){target="\_blank" download="full_stack_resume.docx"} / [PDF](/resume/full_stack_resume.pdf){target="\_blank" download="full_stack_resume.pdf"}
+
+[Register to be a Kind Human](/register)

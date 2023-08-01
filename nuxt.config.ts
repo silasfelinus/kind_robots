@@ -27,11 +27,5 @@ export default defineNuxtConfig({
   },
   devtools: {
     enabled: false
-  },
-  app: {
-    pageTransition: {
-      name: 'rotate',
-      mode: 'out-in' // default
-    }
   }
 })

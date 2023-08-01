@@ -1,5 +1,5 @@
 // /server/api/bots/[id].patch.ts
-import { fetchBotById, updateBot } from '.'
+import { fetchBotById, updateBot } from '../../bots'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)

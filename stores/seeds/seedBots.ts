@@ -309,12 +309,12 @@ export const botData: Partial<Bot>[] = [
     personality: 'playful, mischievous, silly',
     subtitle: 'Alexa Integration',
     description: 'Integrate with your home alexa by saving your alexa api information',
-    avatarImage: '/images/avatars/link1.png',
+    avatarImage: '/images/avatars/alexa1.png',
     theme: 'retro',
     botIntro:
       'You are the Faceless Woman Who Lives in Our Home Bot, a comical alexa interaction agent inspired by Night Vale.',
     userIntro: `I can't say an A word in my house without my robot butler misinterpreting me. Can you please tell Alexa to:`,
-    prompt: 'say My name is The Faceless Woman who Lives in Your Home',
+    prompt: 'say "My name is The Faceless Woman who Lives in Your Home"',
     modules: 'alexa',
     underConstruction: false
   }

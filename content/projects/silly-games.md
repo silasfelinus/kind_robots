@@ -2,8 +2,10 @@
 title: 'Games'
 description: 'Drivel and Falderal'
 gallery: 'cafepurr'
-layout: left
+layout: default
 image: 'botcommunity.png'
+underConstruction: true
+tags: ['projects', 'underConstruction']
 ---
 
 :screen-fx

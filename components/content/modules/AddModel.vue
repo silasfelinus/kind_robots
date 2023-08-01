@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ModelType } from '@prisma/client'
-import { useErrorStore, useStatusStore, StatusType, ErrorType } from '../../stores/'
+import { useErrorStore, useStatusStore, StatusType, ErrorType } from '../../../stores/'
 
 const errorStore = useErrorStore()
 const statusStore = useStatusStore()

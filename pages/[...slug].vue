@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center center bg-base-100">
+  <div>
     <NuxtLayout> <ContentDoc /> </NuxtLayout>
   </div>
 </template>

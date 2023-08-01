@@ -1,5 +1,5 @@
 // server/api/bots/[id].get.ts
-import { fetchBotById } from '.'
+import { fetchBotById } from '../../bots'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)

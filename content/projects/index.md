@@ -2,8 +2,11 @@
 title: 'Projects'
 description: 'Project Manager'
 gallery: 'cafepurr'
-layout: left
+layout: default
 image: 'botcommunity.png'
+tags: ['projects', 'underConstruction']
+admin: true
+underConstruction: true
 ---
 
 :add-media

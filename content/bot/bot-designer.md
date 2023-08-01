@@ -1,10 +1,11 @@
 ---
-title: 'Bot Creator'
+title: 'Bot Designer'
 description: 'Bots Bots Bots'
-layout: bottom
+layout: default
 image: amibot/amibot6.png
 gallery: wonderchest
 admin: true
+tags: ['bots']
 ---
 
 :add-bot

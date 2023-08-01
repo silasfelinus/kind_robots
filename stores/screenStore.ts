@@ -2,13 +2,32 @@
 import { defineStore } from 'pinia'
 import { ModelType } from '@prisma/client'
 
+export const LayoutType = {
+  BADGE: 'badge',
+  CARD: 'card',
+  HERO: 'hero',
+  FULL: 'full',
+  CAROUSEL: 'carousel'
+} as const
+
+export type LayoutType = (typeof LayoutType)[keyof typeof LayoutType]
+
+export enum ScreenType {
+  MOBILE,
+  TABLET,
+  DESKTOP
+}
+const layoutOrder: LayoutType[] = ['badge', 'card', 'hero', 'full', 'carousel']
+
 export const useScreenStore = defineStore({
   id: 'screen',
   state: () => ({
     showAmiSwarm: false,
     showRainEffect: false,
     showSoapBubbles: false,
-    currentModelType: ModelType.BOT
+    currentLayout: 'badge',
+    currentModelType: ModelType.BOT,
+    currentScreenType: ScreenType.MOBILE
   }),
   getters: {
     anyEffectActive(): boolean {
@@ -16,6 +35,10 @@ export const useScreenStore = defineStore({
     }
   },
   actions: {
+    // Set screen type
+    setScreenType(screenType: ScreenType) {
+      this.currentScreenType = screenType
+    },
     toggleAmiSwarm() {
       this.showAmiSwarm = !this.showAmiSwarm
     },
@@ -30,22 +53,33 @@ export const useScreenStore = defineStore({
       this.showRainEffect = false
       this.showSoapBubbles = false
     },
-    checkConnection() {
-      return new Promise((resolve, reject) => {
-        if (this) {
-          // Change this condition based on what indicates a successful "connection"
-          resolve(true)
-        } else {
-          reject(new Error('Cannot connect to Error store.'))
-        }
-      })
-    },
     async loadStore() {
       try {
         return 'loaded screen'
       } catch (error) {
         console.error('Error loading store:', error)
         throw error
+      }
+    },
+
+    // Set a specific layout
+    setLayout(layout: LayoutType) {
+      this.currentLayout = layout
+    },
+
+    // Step up layout
+    stepUpLayout() {
+      const currentIndex = layoutOrder.indexOf(this.currentLayout as LayoutType)
+      if (currentIndex < layoutOrder.length - 1) {
+        this.currentLayout = layoutOrder[currentIndex + 1]
+      }
+    },
+
+    // Step down layout
+    stepDownLayout() {
+      const currentIndex = layoutOrder.indexOf(this.currentLayout as LayoutType)
+      if (currentIndex > 0) {
+        this.currentLayout = layoutOrder[currentIndex - 1]
       }
     }
   }

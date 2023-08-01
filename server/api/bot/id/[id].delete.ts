@@ -1,5 +1,5 @@
 // server/api/bots/[id].delete.ts
-import { deleteBot } from '.'
+import { deleteBot } from '../../bots'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)

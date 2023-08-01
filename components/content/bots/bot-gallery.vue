@@ -26,10 +26,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useScreenStore, LayoutType } from '~/stores/screenStore'
-import { useBotStore } from '~/stores/botStore'
-import Icon from '~/components/Icon.vue' // import the Icon component if you're using one
-import BotObject from '~/components/BotObject.vue' // import the BotObject component
+import { useScreenStore, LayoutType } from '../../../stores/screenStore'
+import { useBotStore } from '../../../stores/botStore'
 
 const screenStore = useScreenStore()
 const botStore = useBotStore()

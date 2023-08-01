@@ -1,0 +1,2 @@
+This is my project intent. Please walk through the code changes necessary to replicate this functionality and intent. Accurate, superb code that reflects modern design and is consistent between messages is vitally important. track the names of Components and re-use the same names in future code examples.:
+

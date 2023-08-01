@@ -1,4 +1,5 @@
 <template>
+  <header><bot-selector /></header>
   <div class="layout-selector">
     <div class="flex justify-end space-x-4">
       <!-- Layout selection buttons -->
@@ -25,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useScreenStore, LayoutType } from '../../../stores/screenStore'
 import { useBotStore } from '../../../stores/botStore'
 
@@ -33,7 +34,8 @@ const screenStore = useScreenStore()
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
 
-const selectedLayout = ref<LayoutType>(screenStore.currentLayout as LayoutType) // Initialize layout from the store
+// Directly use the layout from the store
+const selectedLayout = computed(() => screenStore.currentLayout as LayoutType)
 
 const layouts = [
   { name: 'Badge', icon: 'zondicons:badge', type: LayoutType.BADGE, title: 'Badge Layout' },
@@ -46,12 +48,8 @@ const layouts = [
     type: LayoutType.CAROUSEL,
     title: 'Carousel Layout'
   }
-  // Add more layouts as needed
 ]
 const setSelectedLayout = (layout: LayoutType) => {
-  selectedLayout.value = layout
   screenStore.setLayout(layout) // Update the layout in the store
 }
 </script>
-
-<!-- Styles can be added as before -->

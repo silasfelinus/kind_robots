@@ -1,100 +1,129 @@
 <template>
-  <nav class="w-full bg-base p-4">
-    <div class="flex justify-center mb-4">
+  <nav class="w-full bg-base p-4 transition-all duration-500 ease-in-out">
+    <div class="flex justify-center mb-2 flex-wrap space-x-2">
       <button
-        class="btn bg-secondary"
-        :class="{ 'text-accent': showHome }"
-        @click="showHome = !showHome"
+        v-for="tag in allTags"
+        :key="tag"
+        :class="`btn ${
+          activeSection === tag ? 'bg-primary' : 'bg-secondary'
+        } my-2 mx-1 flex-1 text-center transition-all duration-300 ease-in-out`"
+        @click="changeSection(tag)"
       >
-        Home
-      </button>
-      <button
-        class="btn bg-primary"
-        :class="{ 'text-base': activeSection === 'bots' }"
-        @click="activeSection = 'bots'"
-      >
-        Bots
-      </button>
-      <button
-        class="btn bg-primary"
-        :class="{ 'text-base': activeSection === 'art' }"
-        @click="activeSection = 'art'"
-      >
-        Art
-      </button>
-      <button
-        class="btn bg-primary"
-        :class="{ 'text-base': activeSection === 'projects' }"
-        @click="activeSection = 'projects'"
-      >
-        Projects
+        {{ tag ? tag.charAt(0).toUpperCase() + tag.slice(1) : '' }}
       </button>
     </div>
-    <!-- Home Section (Accordion) -->
-    <div v-if="showHome" class="w-full flex flex-col">
-      <div v-for="page in pagesByTag('home')" :key="page._id">
-        <NuxtLink :to="page._path">{{ page.title }}</NuxtLink>
+
+    <!-- Always Visible Home Links -->
+    <div class="flex justify-center mt-2 flex-wrap space-x-2">
+      <div v-for="page in pagesByTag('home')" :key="page._id" class="home-link">
+        <NuxtLink :to="page._path" class="oval-link">{{ page.title }}</NuxtLink>
       </div>
     </div>
-    <!-- Other Sections (Projects, Bots, Art) -->
-    <div v-if="activeSection" class="flex flex-wrap justify-start">
-      <div v-for="tag in displayedTags" :key="tag">
-        <h2 class="text-xl text-primary">{{ tag }}</h2>
-        <div class="flex flex-wrap">
-          <div v-for="page in pagesByTag(tag)" :key="page._id" class="m-2">
-            <NuxtLink :to="page._path">
-              <img v-if="page.image" :src="`/images/${page.image}`" alt="Page Image" />
-              <div>{{ page.title }}</div>
-            </NuxtLink>
-          </div>
-        </div>
+
+    <!-- Home Section with Model Viewer -->
+    <div
+      v-if="activeSection === 'home' && !showModelCarousel"
+      class="transition-all duration-500 ease-in-out"
+    >
+      <model-carousel
+        :model-type="screenStore.currentModelType"
+        :layout="screenStore.currentLayout"
+      ></model-carousel>
+    </div>
+
+    <!-- Image Nav Section -->
+    <div
+      v-if="activeSection && activeSection !== 'home' && !showModelCarousel"
+      class="transition-all duration-500 ease-in-out"
+    >
+      <div v-for="page in pagesByTag(activeSection)" :key="page._id" class="m-2">
+        <NuxtLink :to="page._path">
+          <img v-if="page.image" :src="`/images/${page.image}`" alt="Page Image" />
+          <div>{{ page.title }}</div>
+        </NuxtLink>
       </div>
+    </div>
+
+    <!-- Carousel Section -->
+    <div
+      v-if="showModelCarousel && activeSection && activeSection !== 'home'"
+      class="transition-all duration-500 ease-in-out"
+    >
+      <model-carousel
+        :model-type="screenStore.currentModelType"
+        :layout="screenStore.currentLayout"
+      ></model-carousel>
+      <div class="text-xl text-primary">{{ currentBotName }}</div>
     </div>
   </nav>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useContentStore } from '../../stores/contentStore'
-
-const activeSection = ref<string | null>(null)
+import { useScreenStore } from '../../stores/screenStore'
+import { useBotStore } from '../../stores/botStore'
 
 const contentStore = useContentStore()
+const screenStore = useScreenStore()
 contentStore.getPages()
-const showHome = ref(false)
 
-const displayedTags = computed(() => {
-  if (activeSection.value) {
-    return [activeSection.value]
-  }
-  return []
+const botStore = useBotStore()
+const currentBotName = computed(() => botStore.currentBot?.name || '')
+
+const uniqueTags = computed(() => {
+  const tags: string[] = contentStore.pages
+    .map((page: any) => page.tags)
+    .flat()
+    .filter((tag: any) => typeof tag === 'string') // Ensure tags are strings
+  return Array.from(new Set(tags)).filter((tag) => tag !== 'home')
 })
 
+const allTags = computed(() => ['home', ...uniqueTags.value])
+
+const changeSection = (section: string) => {
+  setActiveSection(section)
+}
 const pagesByTag = (tag: string) => {
   return contentStore.pages.filter((page: any) => page.tags?.includes(tag))
 }
-</script>
 
-<style scoped>
-.bg-base {
-  background-color: #f6f6f6;
-}
-.bg-secondary {
-  background-color: #e6e6e6; /* Secondary background color */
-}
-.text-primary {
-  color: #007bff;
-}
-.text-base {
-  color: #888888; /* Less bold text color for active section */
-}
-.text-accent {
-  color: #b0c4de; /* Less bold accent color for Home button */
-}
+const setActiveSection = screenStore.setActiveSection
+const toggleModelCarousel = screenStore.toggleModelCarousel
+
+// Access the screenStore's state
+const activeSection = computed(() => screenStore.activeSection)
+const showModelCarousel = computed(() => screenStore.showModelCarousel)
+</script>
+<style>
 .btn {
-  padding: 5px 15px;
-  margin: 0 5px;
+  min-width: 80px;
+  max-width: 150px;
+  padding: 10px;
+  border: none;
+  color: white;
   cursor: pointer;
-  transition: color 0.3s ease;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: all 0.3s ease-in-out;
+}
+
+.oval-link {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 20px;
+  margin: 2px;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.oval-link:hover {
+  transform: scale(1.1);
+}
+
+.home-link {
+  flex: 0 0 auto;
 }
 </style>

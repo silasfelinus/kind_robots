@@ -1,0 +1,114 @@
+{
+  "navigationLinks": [
+    {
+      "id": "1",
+      "title": "Acrocat Ranch",
+      "link": "/acrocat-ranch"
+    },
+    {
+      "id": "2",
+      "title": "Kind Robots",
+      "link": "/kind-robots"
+    },
+    {
+      "id": "3",
+      "title": "Cafe Purr",
+      "link": "/cafe-purr"
+    },
+    {
+      "id": "4",
+      "title": "Wonderforge",
+      "link": "/wonderforge"
+    },
+    {
+      "id": "5",
+      "title": "Mermaids of Venice",
+      "link": "/mermaids-of-venice"
+    },
+    {
+      "id": "6",
+      "title": "Hair By Superkate",
+      "link": "/hair-by-superkate"
+    },
+    {
+      "id": "7",
+      "title": "Cafe Fred",
+      "link": "/cafe-fred"
+    },
+    {
+      "id": "8",
+      "title": "Cafe Lola",
+      "link": "/cafe-lola"
+    },
+    {
+      "id": "9",
+      "title": "Plex",
+      "link": "/plex"
+    },
+    {
+      "id": "10",
+      "title": "Purr Salon",
+      "link": "/purr-salon"
+    },
+    {
+      "id": "11",
+      "title": "Sponsors",
+      "link": "/sponsors"
+    },
+    {
+      "id": "12",
+      "title": "Fundraiser",
+      "link": "/fundraiser"
+    },
+    {
+      "id": "13",
+      "title": "Discord",
+      "link": "/discord"
+    },
+    {
+      "id": "14",
+      "title": "Gallery",
+      "link": "/gallery"
+    },
+    {
+      "id": "15",
+      "title": "Image",
+      "link": "/image"
+    },
+    {
+      "id": "16",
+      "title": "AMIbot",
+      "link": "/amibot"
+    },
+    {
+      "id": "17",
+      "title": "Butterfly Sanctuary",
+      "link": "/butterfly-sanctuary"
+    },
+    {
+      "id": "18",
+      "title": "Make Art",
+      "link": "/make-art"
+    },
+    {
+      "id": "19",
+      "title": "Sort Art",
+      "link": "/sort-art"
+    },
+    {
+      "id": "20",
+      "title": "ChatGPT",
+      "link": "/chatgpt"
+    },
+    {
+      "id": "21",
+      "title": "Alexandria",
+      "link": "/alexandria"
+    },
+    {
+      "id": "22",
+      "title": "Social Media Generator",
+      "link": "/socialBot"
+    }
+  ]
+}

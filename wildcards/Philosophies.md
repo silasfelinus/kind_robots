@@ -1,0 +1,5 @@
+---
+Existentialism
+Stoicism
+Utilitarianism
+Determinism

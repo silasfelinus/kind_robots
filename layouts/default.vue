@@ -5,14 +5,16 @@
       class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 rounded-r-xl"
     >
       <div class="flex-grow">
-        <new-nav class="p-4" />
+        <deluxe-nav class="p-4" />
       </div>
     </div>
     <!-- Middle column: nuxt-page -->
     <main
       class="md:w-3/5 h-full flex flex-col bg-white shadow-inner rounded-l-xl transition-all duration-500 relative"
     >
-      <slot />
+      <transition name="fade" mode="out-in">
+        <slot />
+      </transition>
     </main>
     <!-- Right column: title-image and status-notifier -->
     <div
@@ -29,3 +31,18 @@
     </div>
   </div>
 </template>
+<script setup lang="ts">
+import { useBotStore } from '../stores/botStore'
+
+const botStore = useBotStore()
+botStore.loadStore()
+</script>
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 1s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
+}
+</style>

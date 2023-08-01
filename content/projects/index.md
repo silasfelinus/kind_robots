@@ -4,7 +4,7 @@ description: 'Project Manager'
 gallery: 'cafepurr'
 layout: default
 image: 'botcommunity.png'
-tags: ['projects', 'underConstruction']
+tags: ['projects']
 admin: true
 underConstruction: true
 ---

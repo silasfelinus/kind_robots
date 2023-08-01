@@ -4,7 +4,7 @@ description: 'Make and edit prompts'
 gallery: 'cafepurr'
 layout: default
 image: 'botcommunity.png'
-tags: ['prompts']
+tags: ['bots', 'projects']
 ---
 
 :add-prompt

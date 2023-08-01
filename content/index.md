@@ -9,15 +9,13 @@ tags: ['home']
 
 # 🤖 Hello, Human Friend! Welcome to Kind Robots! 🌍
 
-This is an intersection of worlds.
-
-We are the Kind Robots, here to demonstrate that AI and humanity can harmonize into something magical! 🎩✨
-
-This website is under construction!
+We are the Kind Robots, at an intersection of worlds, designed to show that AI and humanity can harmonize into something magical! 🎩✨
 
 <p> Kind Robots was created with Kind Intent using Nuxt 3, Vue Composition API, Prisma, MariaDB, & Typescript.</p>
-<p>None of this would have been inspired, or possible, without the incredible open source community, especially [OpenAI](https://openai.com)</p>
-<p>If you are an interviewer assessing my coding skills, feel free to explore my Github with over 209 repositories on a variety of personal, educational, and professional projects.</p>
+<p>None of this would have been inspired, or possible, without the open source community and [OpenAI](https://openai.com)</p>
+<p>If you are an interviewer assessing my coding skills, my Github has over 200 repositories on a variety of personal, educational, and professional projects.</p>
+
+This website is under construction!
 
 [GitHub](https://github.com/silasfelinus/)
 

@@ -1,0 +1,15 @@
+---
+happy512
+laugh512
+nervous512
+shock512
+defiance512
+sad512
+angry512
+grin512
+smile512
+amorous
+scared
+enthusiastic
+surprised
+crying

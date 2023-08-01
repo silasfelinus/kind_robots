@@ -1,5 +1,5 @@
 <template>
-  <div :class="layout">
+  <div :class="layoutClass">
     <div v-if="bot">
       <h3>{{ bot.name }}</h3>
       <div v-if="bot.avatarImage" class="avatar">
@@ -25,12 +25,7 @@
 import { computed } from 'vue'
 import { LayoutType, useScreenStore } from '../../../stores/screenStore'
 import { useBotStore, Bot } from '../../../stores/botStore'
-import { useStatusStore } from '../../../stores/statusStore'
-import { useErrorStore } from '../../../stores/errorStore'
 
-const screenStore = useScreenStore()
-const statusStore = useStatusStore()
-const errorStore = useErrorStore()
 const botStore = useBotStore()
 botStore.loadStore()
 
@@ -41,12 +36,28 @@ const props = defineProps({
   },
   layout: {
     type: String as () => LayoutType,
-    default: LayoutType.BADGE // Replace with an appropriate default value
+    default: LayoutType.BADGE
   }
 })
 
 const bot = computed(() => {
-  return props.bot ?? botStore.currentBot
+  return props.bot
+})
+const layoutClass = computed(() => {
+  switch (props.layout) {
+    case LayoutType.BADGE:
+      return 'bot-badge'
+    case LayoutType.HERO:
+      return 'bot-hero'
+    case LayoutType.CAROUSEL:
+      return 'bot-carousel'
+    case LayoutType.CARD:
+      return 'bot-card'
+    case LayoutType.FULL:
+      return 'bot-fullscreen'
+    default:
+      return ''
+  }
 })
 </script>
 

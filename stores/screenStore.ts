@@ -22,6 +22,8 @@ const layoutOrder: LayoutType[] = ['badge', 'card', 'hero', 'full', 'carousel']
 export const useScreenStore = defineStore({
   id: 'screen',
   state: () => ({
+    activeSection: 'home',
+    showModelCarousel: false,
     showAmiSwarm: false,
     showRainEffect: false,
     showSoapBubbles: false,
@@ -35,6 +37,13 @@ export const useScreenStore = defineStore({
     }
   },
   actions: {
+    setActiveSection(section: string) {
+      this.activeSection = section
+    },
+
+    toggleModelCarousel() {
+      this.showModelCarousel = !this.showModelCarousel
+    },
     // Set screen type
     setScreenType(screenType: ScreenType) {
       this.currentScreenType = screenType

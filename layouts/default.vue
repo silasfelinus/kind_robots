@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col md:flex-row h-screen text-gray-800 bg-gray-200">
+  <div class="flex flex-col md:flex-row h-screen text-gray-800">
     <!-- Left column: vertical nav -->
     <div
-      class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 rounded-r-xl"
+      class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-bg-base-200 via- base-600 to-bg-base-400 rounded-r-xl"
     >
       <div class="flex-grow">
         <deluxe-nav class="p-4" />
@@ -37,10 +37,12 @@ import { useBotStore } from '../stores/botStore'
 const botStore = useBotStore()
 botStore.loadStore()
 </script>
+
 <style>
+/* Fade animation for layout transitions */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 1s;
+  transition: opacity 0.5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
   opacity: 0;

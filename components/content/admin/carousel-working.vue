@@ -7,29 +7,25 @@
       <div class="h-96 carousel carousel-vertical rounded-box">
         <div
           v-for="bot in bots"
-          :id="`bot-${bot.id}`"
           :key="bot.id"
           class="carousel-item h-full cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
-            'bg-accent text-default animate-pulse': selectedBotId === bot.id,
-            'bg-primary': selectedBotId !== bot.id
+            'bg-accent text-default animate-pulse': currentBot && currentBot.id === bot.id,
+            'bg-primary': !currentBot || currentBot.id !== bot.id
           }"
-          @click="setCurrentBot(bot.id)"
+          @click="setCurrentBot(bot)"
         >
           <NuxtLink :to="`/bot/id/${bot.id}`">
             <img
               :src="bot.avatarImage ?? undefined"
               class="w-full h-full object-cover rounded-lg"
             />
+
             <div :data-theme="bot.theme" class="bg-opacity-70 bg-primary text-default p-2">
               <h2 class="mt-4 text-2xl text-dark font-semibold text-center">{{ bot.name }}</h2>
               <p class="mt-2 text-xl text-dark text-center">{{ bot.description }}</p>
             </div>
-            <figcaption class="mt-2 text-lg text-dark text-center">{{ bot.name }}</figcaption>
           </NuxtLink>
-        </div>
-        <div v-if="currentBot" class="mt-4 text-2xl text-dark font-semibold text-center">
-          {{ currentBot.name }}
         </div>
       </div>
     </div>
@@ -37,35 +33,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { useBotStore, Bot } from '../../stores/botStore'
+import { computed, onMounted } from 'vue'
+import { useBotStore, Bot } from '../../../stores/botStore'
 
 const botStore = useBotStore()
-const route = useRoute()
 const bots = computed(() => botStore.bots)
 const currentBot = computed(() => botStore.currentBot)
 
-const selectedBotId = computed(() => {
-  const idParam = route.params.id
-  const id = Array.isArray(idParam) ? idParam[0] : idParam
-  return parseInt(id, 10)
-})
-
-const setCurrentBot = (botId: number) => {
-  const bot = bots.value.find((b) => b.id === botId)
-  if (bot) {
-    botStore.getBotById(bot.id)
-  }
+const setCurrentBot = (bot: Bot) => {
+  botStore.getBotById(bot.id)
 }
-
 onMounted(async () => {
   if (bots.value.length === 0) {
     await fetchBots()
-  }
-
-  if (selectedBotId.value) {
-    setCurrentBot(selectedBotId.value)
   }
 })
 
@@ -76,14 +56,16 @@ const fetchBots = async () => {
     console.error(error)
   }
 }
-
 watch(
-  () => selectedBotId.value,
-  (newBotId) => {
-    if (newBotId) {
-      const botElement = document.getElementById(`bot-${newBotId}`)
+  () => currentBot.value,
+  (newCurrentBot) => {
+    if (newCurrentBot) {
+      const id = newCurrentBot.id
+      const botElement = document.getElementById(`bot-${id}`)
       botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   }
 )
 </script>
+
+ChatGPT

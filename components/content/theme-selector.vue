@@ -1,41 +1,43 @@
 <template>
   <div class="theme-selector bg-secondary-info p-4 rounded-md text-center relative">
     <div class="mt-2 text-sm text-default">Kind Theme</div>
-    <button
-      tabindex="0"
-      aria-haspopup="true"
-      aria-label="Change theme"
-      class="theme-btn bg-accent p-4 rounded-full focus:outline-none focus:ring focus:ring-primary shadow-md transform hover:scale-110 transition-all ease-in-out duration-200"
-      @click="themeStore.toggleMenu"
-    >
-      <span class="theme-icon w-6 h-6"></span>
-    </button>
-    <div class="text-default font-bold mt-2">{{ themeStore.currentTheme }}</div>
-    <transition name="theme-menu-fade">
-      <div
-        v-show="themeStore.open"
-        class="origin-top-right absolute right-0 mt-12 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 transition-opacity duration-200"
+    <div class="theme-button-wrapper relative inline-block">
+      <button
+        tabindex="0"
+        aria-haspopup="true"
+        aria-label="Change theme"
+        class="theme-btn bg-accent p-4 rounded-full focus:outline-none focus:ring focus:ring-primary shadow-md transform hover:scale-110 transition-all ease-in-out duration-200"
+        @click="themeStore.toggleMenu"
       >
+        <span class="theme-icon w-6 h-6"></span>
+      </button>
+      <div class="text-default font-bold mt-2">{{ themeStore.currentTheme }}</div>
+      <transition name="theme-menu-fade">
         <div
-          class="py-1 theme-list grid grid-cols-3 gap-2 p-2"
-          role="menu"
-          aria-orientation="vertical"
+          v-show="themeStore.open"
+          class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 transition-opacity duration-200"
         >
-          <button
-            v-for="(theme, index) in themeStore.themes"
-            :key="index"
-            :class="`theme-item block w-full text-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-md ${
-              theme === themeStore.currentTheme ? 'selected' : ''
-            }`"
-            role="menuitem"
-            tabindex="0"
-            @click="themeStore.changeTheme(theme)"
+          <div
+            class="py-1 theme-list grid grid-cols-3 gap-2 p-2"
+            role="menu"
+            aria-orientation="vertical"
           >
-            {{ theme }}
-          </button>
+            <button
+              v-for="(theme, index) in themeStore.themes"
+              :key="index"
+              :class="`theme-item block w-full text-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-md ${
+                theme === themeStore.currentTheme ? 'selected' : ''
+              }`"
+              role="menuitem"
+              tabindex="0"
+              @click="themeStore.changeTheme(theme)"
+            >
+              {{ theme }}
+            </button>
+          </div>
         </div>
-      </div>
-    </transition>
+      </transition>
+    </div>
   </div>
 </template>
 

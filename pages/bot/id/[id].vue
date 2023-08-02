@@ -36,6 +36,5 @@ const fetchBotById = async () => {
     isLoading.value = false
   }
 }
-
 fetchBotById()
 </script>

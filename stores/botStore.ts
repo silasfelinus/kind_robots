@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { Bot as BotRecord } from '@prisma/client'
 import axios from 'axios'
+import { useRoute } from 'vue-router'
 import { useErrorStore, ErrorType } from './errorStore'
 import { useStatusStore, StatusType } from './statusStore'
 import { botData } from './seeds/seedBots' // Assumed seed file name
@@ -61,6 +62,20 @@ export const useBotStore = defineStore({
         statusStore.setStatus(StatusType.SUCCESS, `Updated ${data.bots.length} bots`)
       } catch (error) {
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to update bots: ' + error)
+      }
+    },
+    async setCurrentBotFromRoute(): Promise<void> {
+      const route = useRoute()
+      const botId = route.params.id as string // Assuming the parameter name is "id"
+
+      if (botId) {
+        const id = parseInt(botId, 10)
+        if (!isNaN(id)) {
+          await this.getBotById(id)
+        } else {
+          // Handle the error if the ID is not a number
+          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Invalid bot ID in URL')
+        }
       }
     },
     async loadStore(): Promise<void> {

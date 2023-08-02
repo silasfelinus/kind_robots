@@ -2,15 +2,16 @@
   <div class="flex flex-col md:flex-row h-screen text-gray-800">
     <!-- Left column: vertical nav -->
     <div
-      class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-bg-base-200 via- base-600 to-bg-base-400 rounded-r-xl"
+      class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-bg-base-200 via-base-600 to-bg-base-400 rounded-r-xl"
     >
-      <div class="flex-grow">
+      <div class="flex-grow bg-primary">
+        <title-image />
         <deluxe-nav class="p-4" />
       </div>
     </div>
     <!-- Middle column: nuxt-page -->
     <main
-      class="md:w-3/5 h-full flex flex-col bg-white shadow-inner rounded-l-xl transition-all duration-500 relative"
+      class="md:w-3/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative"
     >
       <transition name="fade" mode="out-in">
         <slot />
@@ -18,7 +19,7 @@
     </main>
     <!-- Right column: title-image and status-notifier -->
     <div
-      class="md:w-1/5 h-full flex flex-col bg-white shadow-inner rounded-l-xl transition-all duration-500 relative"
+      class="md:w-1/5 h-full flex flex-col bg-secondary shadow-inner rounded-l-xl transition-all duration-500 relative"
     >
       <div class="flex-grow p-4">
         <title-image

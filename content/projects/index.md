@@ -3,7 +3,7 @@ title: 'Projects'
 description: 'Project Manager'
 gallery: 'cafepurr'
 layout: default
-image: 'botcafe1.png'
+image: 'botcafe1.webp'
 tags: ['projects']
 admin: true
 underConstruction: true

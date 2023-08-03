@@ -107,7 +107,7 @@ const image = ref('/images/utility/mermaids/mermaids1.jpg')
 const amazonLink = ref('https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742')
 const downloadLink = ref('/mermaids.pdf')
 const mosquitoNetsLink = ref('/amibot')
-const europePic1 = ref('/images/utility/mermaids/europe1.png')
+const europePic1 = ref('/images/utility/mermaids/europe1.webp')
 const europePic2 = ref('/images/utility/mermaids/europe2.jpg')
 const europePic3 = ref('/images/utility/mermaids/europe3.jpg')
 </script>

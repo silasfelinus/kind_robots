@@ -15,8 +15,8 @@ import interact from 'interactjs'
 const artSize = ref(10)
 
 const arts = ref([
-  { id: 1, src: '/images/flower/flower1.png' },
-  { id: 2, src: '/images/flower/flower2.png' }
+  { id: 1, src: '/images/flower/flower1.webp' },
+  { id: 2, src: '/images/flower/flower2.webp' }
   // add more art assets here
 ])
 

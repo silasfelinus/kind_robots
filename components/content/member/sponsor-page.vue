@@ -58,7 +58,7 @@
             href="https://www.redbubble.com/people/CafePurr/shop"
             target="_blank"
             class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-            ><img src="/images/amilogo.png" alt="Cafe Purr" class="w-12 h-12" /> Cafe Purr:</a
+            ><img src="/images/amilogo.webp" alt="Cafe Purr" class="w-12 h-12" /> Cafe Purr:</a
           >
           North Coast's exclusive digital art hub and foster kitten rescue
         </li>
@@ -67,7 +67,7 @@
             href="https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742/"
             target="_blank"
             class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-            ><img src="/images/amilogo.png" alt="Mermaids of Venice" class="w-12 h-12" /> Mermaids
+            ><img src="/images/amilogo.webp" alt="Mermaids of Venice" class="w-12 h-12" /> Mermaids
             of Venice:</a
           >
           A contemporary fairy tale of gods and street performers
@@ -77,7 +77,7 @@
             href="https://hairbysuperkate.com"
             target="_blank"
             class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-            ><img src="/images/amilogo.png" alt="Hair by Superkate" class="w-12 h-12" /> Hair by
+            ><img src="/images/amilogo.webp" alt="Hair by Superkate" class="w-12 h-12" /> Hair by
             Superkate:</a
           >
           Bespoke Hair Colouring Services

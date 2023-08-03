@@ -307,7 +307,7 @@ model User {
   phone              String?
   languages          String?
   hideBio            Boolean    @default(false)
-  avatarImage        String     @default("/images/botcafe.png")
+  avatarImage        String     @default("/images/botcafe.webp")
   isPrivate          Boolean    @default(false)
   allowCookies       Boolean    @default(false)
   defaultTheme       String     @default("default")

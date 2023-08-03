@@ -3,7 +3,7 @@ title: 'Games'
 description: 'Drivel and Falderal'
 gallery: 'cafepurr'
 layout: default
-image: 'botgames.png'
+image: 'botgames.webp'
 underConstruction: true
 tags: ['projects']
 ---

@@ -31,7 +31,7 @@ API_ENDPOINT='https://kindrobots.org/api/images'
 # The robot exclaims, "Let's create a marvelous gallery, dear friend!"
 function create_art_gallery() {
   image_list=()
-  for imageFile in *.jpg *.png *.webp
+  for imageFile in *.jpg *.webp *.webp
   do
     if [[ -f $imageFile ]]; then
       image_list+=("\"$imageFile\"")
@@ -49,7 +49,7 @@ function create_art_gallery() {
 
 # "Each image is unique and special," the robot mused. "Let's celebrate them."
 function describe_images() {
-  for imageFile in *.jpg *.png *.webp
+  for imageFile in *.jpg *.webp *.webp
   do
     if [[ -f $imageFile ]]; then
       imageName="${imageFile%.*}"

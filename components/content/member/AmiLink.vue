@@ -2,7 +2,7 @@
   <div class="flex justify-center items-center">
     <img
       class="justify-center w-32 h-32 object-contain"
-      src="/images/amilogo.png"
+      src="/images/amilogo.webp"
       alt="Site Logo"
     />
     <button v-if="!isLoading" class="ml-4 btn btn-primary" @click="openExternalLink">

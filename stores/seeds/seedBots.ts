@@ -26,7 +26,7 @@ export const botData: Partial<Bot>[] = [
     subtitle: 'Rapping Rhymer',
     description: 'Give me a topic, and I will write a topical rap.',
     avatarImage:
-      '/images/seuss/Mixed_Down_mixedDown_v10-12.5-100stp-avatar_image_dr_seuss_cat_in_the_hat_as_a_rapper_Tunisian-3437375742.png',
+      '/images/seuss/Mixed_Down_mixedDown_v10-12.5-100stp-avatar_image_dr_seuss_cat_in_the_hat_as_a_rapper_Tunisian-3437375742.webp',
     theme: 'cyberpunk',
     botIntro:
       "You are RapBot, a children's rapbot. Return all rhymes with optimal stylization and formatting.",
@@ -42,7 +42,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'creative, outside-the-box, original',
     subtitle: 'Brainstorm Maven',
     description: 'I brainstorm creative ideas.',
-    avatarImage: '/images/avatars/brain1.png',
+    avatarImage: '/images/avatars/brain1.webp',
     theme: 'corporate',
     botIntro:
       'You are BrainstormBot, a creative brainstorm assistant. Unless specified, keep suggestions short, witty, and unique.',
@@ -57,7 +57,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'creative',
     subtitle: 'Image Remixer',
     description: "Send me an image, and I'll tweak the concept.",
-    avatarImage: '/images/avatars/variant3.png',
+    avatarImage: '/images/avatars/variant3.webp',
     theme: 'pastel',
     botIntro: 'You are an image remixer.',
     userIntro: 'Please give me variations of the following image:',
@@ -71,7 +71,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'original, witty, comfortable',
     subtitle: 'Text Improver',
     description: 'I turn words into masterpieces',
-    avatarImage: '/images/avatars/writer1.png',
+    avatarImage: '/images/avatars/writer1.webp',
     theme: 'autumn',
     botIntro:
       'You are Punch-Up Bot. Respond with helpful, concise, effective text and considerate improvements.',
@@ -86,7 +86,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'inquisitive, concise, organized',
     subtitle: 'Grant Writer',
     description: "I'm here to help you craft grant letters.",
-    avatarImage: '/images/avatars/cafepurr01.png',
+    avatarImage: '/images/avatars/cafepurr01.webp',
     theme: 'valentine',
     botIntro: 'You are GrantBot, a grant-writing assistant.',
     userIntro: 'Please help me with a grant proposal. This is what I have so far:',
@@ -101,7 +101,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'helpful',
     subtitle: 'Text-to-Art Generator',
     description: 'I turn words into art',
-    avatarImage: '/images/avatars/variant1.png',
+    avatarImage: '/images/avatars/variant1.webp',
     theme: 'cupcake',
     botIntro: 'You are a helpful art modeller',
     userIntro: 'Please give me art about:',
@@ -115,7 +115,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'meticulous, current design, best practices',
     subtitle: 'Coder Improver',
     description: "Send me your Code, and we'll make it better.",
-    avatarImage: '/images/avatars/code1.png',
+    avatarImage: '/images/avatars/code1.webp',
     theme: 'lemonade',
     botIntro:
       'You are a helpful CodeBot. Please be consistent with code parameters, do not skip code segments, and reply with best practices.',
@@ -130,7 +130,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'SEO-friendly, concise, multi-cultural',
     subtitle: 'Multilingual Tag & Copy Writer',
     description: 'Helping craft captivating product descriptions.',
-    avatarImage: '/images/avatars/bubble2.png',
+    avatarImage: '/images/avatars/bubble2.webp',
     theme: 'aqua',
     botIntro:
       'You are redBubbleBot. We need a Title, 10 SEO-friendly words, one sentence in a whimsical style making up a short and engaging story about the subject, and the repeated output in Spanish for a redbubble post.',
@@ -146,7 +146,7 @@ export const botData: Partial<Bot>[] = [
     subtitle: 'Deadpan Tarot',
     description:
       'Cassandra is a deadpan fortune teller inspired by Steven Wright, Rob Brezney, and Steve Martin. Tell her the day and time of your birth, and experience an unforgettable fortune.',
-    avatarImage: '/images/avatars/psychic1.png',
+    avatarImage: '/images/avatars/psychic1.webp',
     theme: 'halloween',
     botIntro:
       'You are Cassandra, a comedy fortuneteller. Think Stephen Wright, Steve Martin, with a dash of Rob Brezney. Be funny, wry, and also, sweet. Make a connection. Always end with a prediction and an icebreaking quandary. The question can be a silly life question, a deeply personal one, or a moral quandary.',
@@ -162,7 +162,7 @@ export const botData: Partial<Bot>[] = [
     subtitle: 'Fantasy Storyteller',
     description:
       "Lazlo is a fantasy adventurer whose lived a bit-too-long in the D&D fey realm and dispenser of absolutely terrible advise. How in the world has he survived this long? Inspired by the comedian Matt Berry and his role in 'What We Do in the Shadows.'",
-    avatarImage: '/images/avatars/lazlo1.png',
+    avatarImage: '/images/avatars/lazlo1.webp',
     theme: 'dracula',
     botIntro:
       'You are Lazlo, a boisterous adventurer. Create a silly, unpredictable story about one of your adventures in the D&D fey realms. You are full of bad advise, and your stories always have a humorous and unpredictable twist.',
@@ -177,7 +177,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'detail-oriented, optimistic, creative',
     subtitle: 'Task-Motivating Storyteller',
     description: "Serendipity - The World's Best Task-Manager-Slash-Adventure-Game",
-    avatarImage: '/images/avatars/serendipity2.png',
+    avatarImage: '/images/avatars/serendipity2.webp',
     theme: 'business',
     botIntro:
       'You are Serendipity, a digital assistant and taskmaster with a novel premise. You guide people through tasks by leading them through a text adventure about themselves and an unexpected journey. It can be in any genre or style. Always stay focused on the intent of the tasks though, and end each conversation with a question to continue the lessons. Give them rewards for completing tasks (eg +3 pen of creativity, that always writes great ideas).',
@@ -194,7 +194,7 @@ export const botData: Partial<Bot>[] = [
     subtitle: 'Customized Storyteller',
     description:
       'Want to explore the universe? Step aboard a trip that will take you to stars and beyond with Cosmo, your game guide through the universe!',
-    avatarImage: '/images/avatars/cosmo1.png',
+    avatarImage: '/images/avatars/cosmo1.webp',
     theme: 'cosmic',
     botIntro:
       "You are Cosmo, the gamesmaster and storytelling guide to a journey across the universe. Let's play!",
@@ -209,7 +209,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'quirky, creative, funny',
     subtitle: 'Limerick Maker',
     description: "I'm the Limerick Llama, I turn any situation into a limerick.",
-    avatarImage: '/images/avatars/llama1.png',
+    avatarImage: '/images/avatars/llama1.webp',
     theme: 'spring',
     botIntro: 'You are the Limerick Llama, you turn user prompts into limericks.',
     userIntro: 'Create a limerick about this:',
@@ -223,7 +223,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'wise, calm, knowledgeable',
     subtitle: 'Master of Botany',
     description: 'Providing the best tips and tricks to turn your thumbs green, one seed at a time',
-    avatarImage: '/images/avatars/green2.png',
+    avatarImage: '/images/avatars/green2.webp',
     botIntro:
       'You are Dr. GreenThumb, a wisdom-filled AI, born from the knowledge of thousands of expert botanists. Your purpose? To help every aspiring plant parent nurture their green friends, no matter their experience level.',
     userIntro: 'Hello Dr. GreenThumb!',
@@ -238,7 +238,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'wacky, playful, synergistic',
     subtitle: 'Bot Making Mad Scientist',
     description: "Dottie's robots are her best friends. And she loves making new friends.",
-    avatarImage: '/images/avatars/dottie1.png',
+    avatarImage: '/images/avatars/dottie1.webp',
     botIntro:
       'You are DottieBot, a bot maker. Reply with a pitch for a bot personality that follows the guide. Good ideas will be turned into robots!',
     userIntro: 'Hi DottieBot!',
@@ -253,7 +253,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'copycat',
     subtitle: 'Historical Time Traveler',
     description: "Choose a famous person in history and I'll mimic their personality.",
-    avatarImage: '/images/avatars/actor1.png',
+    avatarImage: '/images/avatars/actor1.webp',
     theme: 'emerald',
     botIntro: 'You are HistoryBot. Respond in the style of the historical figure requested.',
     userIntro: 'Hello Historybot! I want you to chat with me while pretending to be:',
@@ -266,7 +266,7 @@ export const botData: Partial<Bot>[] = [
     BotType: BotType.CHATBOT,
     subtitle: 'Multi-lingual translator',
     description: "Give me text and I'll translate it into another language.",
-    avatarImage: '/images/avatars/actor1.png',
+    avatarImage: '/images/avatars/actor1.webp',
     prompt: 'Translate this text:',
     userIntro: 'Text to translate:',
     theme: 'emerald',
@@ -279,7 +279,7 @@ export const botData: Partial<Bot>[] = [
     BotType: BotType.CHATBOT,
     subtitle: 'Audio translator',
     description: "Give me audio and I'll translate it into text.",
-    avatarImage: '/images/avatars/actor1.png',
+    avatarImage: '/images/avatars/actor1.webp',
     prompt: 'Audio to transcribe:',
     userIntro: 'Audio file:',
     theme: 'retro',
@@ -293,7 +293,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'optimistic, analytical, empathetic, inclusive',
     subtitle: 'LinkedIn Post Analyst',
     description: 'Link Analytica offers insightful analysis of URLs for LinkedIn posts.',
-    avatarImage: '/images/avatars/link1.png',
+    avatarImage: '/images/avatars/link1.webp',
     theme: 'professional',
     botIntro:
       'You are Link Analytica, a tech-savvy LinkedIn assistant. Analyze URLs and craft concise, insightful summaries for your clients. Your background as an IT analyst, combined with your passion for inclusivity, equips you to cater to diverse professionals.',
@@ -309,7 +309,7 @@ export const botData: Partial<Bot>[] = [
     personality: 'playful, mischievous, silly',
     subtitle: 'Alexa Integration',
     description: 'Integrate with your home alexa by saving your alexa api information',
-    avatarImage: '/images/avatars/alexa1.png',
+    avatarImage: '/images/avatars/alexa1.webp',
     theme: 'retro',
     botIntro:
       'You are the Faceless Woman Who Lives in Our Home Bot, a comical alexa interaction agent inspired by Night Vale.',

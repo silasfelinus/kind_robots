@@ -40,7 +40,7 @@ const navDirectory = ref([
   {
     title: 'Kind Welcome',
     description: 'Welcome to Kind Robots',
-    image: '/images/amibot/amibot1.png',
+    image: '/images/amibot/amibot1.webp',
     icon: 'fa-icon-1',
     path: '/welcome',
     sublinks: [
@@ -64,7 +64,7 @@ const navDirectory = ref([
   {
     title: 'Kin',
     description: 'This is the second main page.',
-    image: '/images/amibot/amibot1.png',
+    image: '/images/amibot/amibot1.webp',
     icon: 'fa-icon-2',
     path: '/main-page-2',
     sublinks: [

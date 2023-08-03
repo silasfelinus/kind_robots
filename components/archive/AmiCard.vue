@@ -19,7 +19,7 @@
 const props = defineProps({
   image: {
     type: String,
-    default: '/images/amibot/amibot1.png'
+    default: '/images/amibot/amibot1.webp'
   },
   title: {
     type: String,

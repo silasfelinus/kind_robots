@@ -2,7 +2,7 @@
 title: 'Home'
 subtitle: 'Tech built to help on-ramp humanity'
 layout: default
-image: botcommunity.png
+image: botcommunity.webp
 gallery: wonderbot
 tags: ['home']
 ---

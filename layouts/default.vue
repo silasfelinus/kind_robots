@@ -2,10 +2,16 @@
   <div class="flex flex-col md:flex-row h-screen text-gray-800">
     <!-- Left column: vertical nav -->
     <div
-      class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-bg-base-200 via-base-600 to-bg-base-400 rounded-r-xl"
+      class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl"
     >
-      <div class="flex-grow bg-primary">
-        <title-image />
+      <div class="flex-grow bg-base">
+        <nuxt-link to="/" class="block transition-colors duration-500 hover:text-white">
+          <img
+            src="/images/kindtitle.webp"
+            class="mx-auto shadow-lg hover:shadow-2xl transition-shadow duration-500"
+            alt="Title"
+          />
+        </nuxt-link>
         <deluxe-nav class="p-4" />
       </div>
     </div>
@@ -19,15 +25,18 @@
     </main>
     <!-- Right column: title-image and status-notifier -->
     <div
-      class="md:w-1/5 h-full flex flex-col bg-secondary shadow-inner rounded-l-xl transition-all duration-500 relative"
+      class="md:w-1/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative"
     >
       <div class="flex-grow p-4">
         <title-image
           class="block hover:text-white rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500"
         />
         <status-notifier
-          class="bg-yellow-300 rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500"
+          class="bg-accent rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500"
         />
+        <div v-if="currentBot" animation="fade">
+          <avatar-image />
+        </div>
       </div>
     </div>
   </div>
@@ -37,6 +46,8 @@ import { useBotStore } from '../stores/botStore'
 
 const botStore = useBotStore()
 botStore.loadStore()
+const bots = computed(() => botStore.bots)
+const currentBot = computed(() => botStore.currentBot)
 </script>
 
 <style>

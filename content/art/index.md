@@ -7,4 +7,4 @@ gallery: flower
 tags: ['art']
 ---
 
-View Art Here
+:gallery-viewer

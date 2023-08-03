@@ -7,4 +7,4 @@ image: 'chest1.webp'
 tags: ['bots']
 ---
 
-:bot-gallery
+:kind-robot

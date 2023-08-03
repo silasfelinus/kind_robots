@@ -2,7 +2,7 @@
 title: 'Mermaids of Venice'
 subtitle: 'Gift Shop'
 layout: default
-image: backtree.webp
+image: utility/mermaids/mermaids1.jpg
 gallery: redbubble
 tags: ['projects']
 ---

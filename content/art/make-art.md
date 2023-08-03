@@ -3,7 +3,7 @@ title: 'Make Art'
 description: 'lets make art!'
 gallery: 'cafepurr'
 layout: default
-image: 'botcommunity.png'
+image: 'art1.webp'
 tags: ['art']
 ---
 

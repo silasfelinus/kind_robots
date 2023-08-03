@@ -14,6 +14,13 @@
         class="w-6 h-6 md:w-8 md:h-8"
       />
     </div>
+    <div v-if="fxStore.showAmiSwarm">
+      <ami-butterfly
+        v-for="i in butterflyCount"
+        :key="i"
+        :style="{ '--animation-delay': i * 0.1 + 's' }"
+      />
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -22,6 +29,8 @@ import { useScreenStore } from '../../../stores/screenStore'
 const fxStore = useScreenStore()
 
 const toggleAmiSwarm = () => fxStore.toggleAmiSwarm()
+
+const butterflyCount = 50
 </script>
 <style scoped>
 .icon-box {
@@ -31,6 +40,8 @@ const toggleAmiSwarm = () => fxStore.toggleAmiSwarm()
 .glow {
   animation: glow 1s ease-in-out infinite alternate;
   border-radius: 50%;
+  /* Add this line to apply the delay */
+  animation-delay: var(--animation-delay, 0s);
 }
 
 @keyframes glow {

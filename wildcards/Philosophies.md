@@ -1,4 +1,5 @@
 ---
+
 Existentialism
 Stoicism
 Utilitarianism

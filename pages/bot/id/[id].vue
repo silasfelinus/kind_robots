@@ -1,6 +1,6 @@
 <template>
   <div class="text-center center bg-base-100">
-    <nuxt-layout>
+    <nuxt-layout :name="layout">
       <p v-if="isLoading">Loading bot with ID {{ id }}...</p>
       <template v-if="currentBot">
         <!-- Display the bot details here using the BotObject component -->

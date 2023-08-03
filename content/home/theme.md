@@ -8,6 +8,4 @@ tooltip: 'test'
 tags: ['home']
 ---
 
-## Welcome to the User Dashboard
-
 :theme-selector

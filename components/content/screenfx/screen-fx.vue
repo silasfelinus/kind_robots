@@ -1,6 +1,6 @@
 <template>
   <div class="fx-viewer">
-    <butterfly-effect v-if="fxStore.showAmiSwarm" />
+    <ami-butterfly v-if="fxStore.showAmiSwarm" />
     <rain-effect v-if="fxStore.showRainEffect" />
     <bubble-effect v-if="fxStore.showSoapBubbles" />
   </div>

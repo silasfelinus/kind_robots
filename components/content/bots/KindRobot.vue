@@ -25,12 +25,22 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { LayoutType, useScreenStore } from '../../../stores/screenStore'
 import { useBotStore, Bot } from '../../../stores/botStore'
 
-const botStore = useBotStore()
-botStore.loadStore()
+const route = useRoute()
+if (route.params.id) {
+  const id = route.params.id
+}
 
+if (route.params.name) {
+  const name = route.params.name
+}
+
+const botStore = useBotStore()
+const bots = computed(() => botStore.bots)
+const currentBot = computed(() => botStore.currentBot)
 const props = defineProps({
   bot: {
     type: Object as () => Partial<Bot>,

@@ -1,5 +1,8 @@
 <template>
   <div class="status-manager">
+    <button class="mt-4 text-center summon-inspiration" @click="summonInspiration">
+      Summon Inspiration
+    </button>
     <div class="flex flex-col space-y-4">
       <div
         v-for="(status, index) in statusHistory.slice(-3).reverse()"
@@ -11,24 +14,6 @@
         <div v-if="showTimestamp[index]"><strong>Timestamp:</strong> {{ status.timestamp }}</div>
         <div><strong>Message:</strong> {{ status.message }}</div>
       </div>
-    </div>
-    <button class="mt-4" @click="tester">Get Last Status</button>
-    <button class="mt-4 summon-inspiration" @click="summonInspiration">Summon Inspiration</button>
-    <button class="mt-4" @click="clearStatus">Clear Status</button>
-    <div v-if="statusHistory.length" class="status-history mt-4">
-      <h2>Status History:</h2>
-      <ul>
-        <li
-          v-for="(status, index) in statusHistory"
-          :key="index"
-          class="rounded-lg shadow-md p-4 mb-4 bg-white"
-          :class="status.type"
-          @click="toggleTimestamp(index)"
-        >
-          <div v-if="showTimestamp[index]"><strong>Timestamp:</strong> {{ status.timestamp }}</div>
-          <div><strong>Message:</strong> {{ status.message }}</div>
-        </li>
-      </ul>
     </div>
   </div>
 </template>
@@ -137,5 +122,8 @@ const toggleTimestamp = (index: number) => {
 .summon-inspiration {
   background-color: #007bff; /* Change this to fit your design */
   color: white; /* Change this to fit your design */
+}
+.status-manager {
+  background: '/images/utility/card.webp';
 }
 </style>

@@ -5,7 +5,7 @@
         v-for="tag in allTags"
         :key="tag"
         :class="`btn ${
-          activeSection === tag ? 'bg-primary' : 'bg-secondary'
+          activeSection === tag ? 'bg-primary' : 'bg-accent'
         } my-2 mx-1 flex-1 text-center transition-all duration-300 ease-in-out`"
         @click="changeSection(tag)"
       >

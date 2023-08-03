@@ -2,7 +2,7 @@
 title: 'Bot Designer'
 description: 'Bots Bots Bots'
 layout: default
-image: amibot/amibot6.png
+image: amibot6.png
 gallery: wonderchest
 admin: true
 tags: ['bots']

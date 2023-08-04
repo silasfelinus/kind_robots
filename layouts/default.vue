@@ -11,7 +11,7 @@
           alt="Title"
         />
       </nuxt-link>
-      <deluxe-nav class="flex-grow bg-base rounded-xl p-4" />
+      <bot-carousel class="flex-grow bg-base rounded-xl p-4" />
     </div>
     <!-- Middle column: nuxt-page -->
     <main
@@ -25,7 +25,7 @@
     <div
       class="md:w-1/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative p-4"
     >
-      <title-image
+      <kind-nav
         class="block hover:text-white rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500 mb-4"
       />
       <status-notifier

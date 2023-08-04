@@ -9,25 +9,38 @@
         <h1 class="text-3xl font-bold text-theme">{{ currentBot.name }}</h1>
         <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id }} Collect Them All!</span>
       </div>
-      <div v-if="currentBot.avatarImage" class="flex justify-center my-4">
-        <img :src="currentBot.avatarImage" alt="Bot Avatar" class="w-32 h-32 rounded-full" />
-      </div>
-      <h2 v-if="currentBot.subtitle" class="text-xl font-semibold mb-2">
-        {{ currentBot.subtitle }}
-      </h2>
-      <p v-if="currentBot.description" class="mb-2 text-lg">{{ currentBot.description }}</p>
-      <div v-if="currentBot.modules" class="flex flex-wrap justify-center mb-4">
-        <button
-          v-for="(moduleName, index) in parsedModules"
-          :key="index"
-          :title="moduleData[moduleName]?.description || ''"
-          class="btn btn-accent m-1"
-          @click="selectModule(moduleName)"
-        >
-          {{ moduleName }}
-        </button>
-      </div>
       <div><bot-prompt /></div>
+      <!-- Hero Section -->
+      <div class="bg-base p-4 rounded-lg mb-4">
+        <div class="text-center mb-4">
+          <h2 class="text-xl font-semibold">Modules (Work in Progress)</h2>
+        </div>
+        <div class="flex flex-wrap justify-center">
+          <div
+            v-for="(moduleName, index) in parsedModules"
+            :key="index"
+            class="card w-196 bg-base-400 content m-4"
+          >
+            <div class="card-body items-center text-center">
+              <h2 class="card-title">{{ moduleName }}</h2>
+              <p>{{ moduleData[moduleName]?.description || '' }}</p>
+              <div class="card-actions justify-end">
+                <button
+                  class="btn btn-accent"
+                  :title="moduleData[moduleName]?.description || ''"
+                  @click="selectModule(moduleName)"
+                >
+                  {{ moduleName }}
+                </button>
+                <!-- Module Description Below the Button -->
+                <div class="text-sm text-gray-600 mt-2">
+                  {{ moduleData[moduleName]?.description || 'No example available' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

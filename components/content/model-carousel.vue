@@ -87,9 +87,9 @@ watch(
 
 watch(
   () => currentBot.value,
-  (newBotId) => {
-    if (newBotId) {
-      const botElement = document.getElementById(`bot-${newBotId}`)
+  (newBot) => {
+    if (newBot) {
+      const botElement = document.getElementById(`bot-${newBot.id}`)
       botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   }

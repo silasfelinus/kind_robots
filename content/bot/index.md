@@ -5,6 +5,7 @@ gallery: 'cafepurr'
 layout: default
 image: 'chest1.webp'
 tags: ['bots']
+navigation: false
 ---
 
 :kind-robot

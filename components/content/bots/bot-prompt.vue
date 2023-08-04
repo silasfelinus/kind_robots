@@ -67,40 +67,49 @@ const sendReply = async (updatedMessages: Message[]) => {
   >
     <div
       v-if="currentBot"
-      class="avatar-container max-w-3xl w-full p-4 bg-white rounded-lg shadow-md"
+      class="avatar-container max-w-3xl w-full p-4 bg-white rounded-lg shadow-lg"
     >
       <div class="flex flex-col md:flex-row items-center">
         <img
           :src="currentBot.avatarImage"
           alt="Bot Avatar"
-          class="avatar-img md:w-1/4 rounded-full"
+          class="avatar-img md:w-1/4 rounded-full border-4 border-theme shadow-md"
         />
         <div class="flex-1 text-center md:text-left p-4">
           <h1 class="text-3xl font-bold text-theme">{{ currentBot.name }}</h1>
           <p class="text-xl">{{ currentBot.subtitle }}</p>
-          <p class="text-lg">{{ currentBot.botIntro }}</p>
+          <div class="card">{{ currentBot.description }}</div>
+          <div class="user-intro p-2 bg-gray-200 rounded-md shadow-inner">
+            <p class="text-lg">{{ currentBot.userIntro }}</p>
+          </div>
         </div>
       </div>
-      <div class="message-container mt-4">
-        <textarea v-model="message" rows="5" class="message-input w-full p-2 rounded-md"></textarea>
-        <button
-          class="submit-button btn btn-primary mt-2"
-          :disabled="isLoading"
-          @click="sendMessage"
-        >
-          Send Message
-        </button>
+      <div class="message-container mt-4 border-t-2 border-theme">
+        <div class="prompt-area p-4 bg-gray-200 rounded-md shadow-inner">
+          <textarea
+            v-model="message"
+            rows="5"
+            class="message-input w-full p-2 rounded-md border-2 border-theme"
+          ></textarea>
+          <button
+            class="submit-button btn btn-primary mt-2"
+            :disabled="isLoading"
+            @click="sendMessage"
+          >
+            Send Message
+          </button>
+        </div>
 
         <!-- Loading animation -->
-        <div v-if="isLoading" class="loader flex justify-center">
+        <div v-if="isLoading" class="loader flex justify-center mt-2">
           <div
-            class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-900"
+            class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-900"
           ></div>
         </div>
 
-        <div v-if="response" class="response-container mt-4 p-4 bg-gray-100 rounded-md">
+        <div v-if="response" class="response-container mt-4 p-4 bg-gray-100 rounded-md shadow-md">
           <h2>Response:</h2>
-          <div class="response-card p-4 bg-white rounded-md shadow-md">
+          <div class="response-card p-4 bg-white rounded-md shadow-lg border-2 border-theme">
             <ResponseCard :messages="messages" :send-message="sendReply" />
           </div>
         </div>
@@ -113,5 +122,33 @@ const sendReply = async (updatedMessages: Message[]) => {
 .avatar-img {
   max-width: 100%;
   height: auto;
+}
+
+.user-intro {
+  border: 2px solid #ccc;
+  margin-top: 10px;
+}
+
+.prompt-area {
+  border: 2px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+.message-input {
+  border: 2px solid #ccc;
+  resize: none; /* Disables resizing of the textarea */
+}
+
+.submit-button {
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.loader div {
+  border-color: #f3f3f3;
+  border-right-color: #4a90e2;
+}
+
+.response-container {
+  border-top: 2px solid #ccc;
 }
 </style>

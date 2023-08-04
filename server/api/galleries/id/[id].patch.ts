@@ -1,5 +1,5 @@
 // /server/api/galleries/[id].patch.ts
-import { fetchGalleryById, updateGallery } from '.'
+import { fetchGalleryById, updateGallery } from '..'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)

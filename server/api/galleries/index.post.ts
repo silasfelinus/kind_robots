@@ -3,10 +3,10 @@ import { addGalleries } from '.'
 
 export default defineEventHandler(async (event) => {
   try {
-    const galleriesData = await readBody(event)
-    const result = await addGalleries(galleriesData)
+    const galleryData = await readBody(event)
+    const result = await addGalleries(galleryData)
     return { success: true, ...result }
-  } catch (error) {
-    return { success: false, message: 'failed to create a new gallery' }
+  } catch (error: any) {
+    return { success: false, message: 'Failed to create a new galleries', error: error.message }
   }
 })

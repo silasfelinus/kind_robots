@@ -1,5 +1,5 @@
 // server/api/galleries/[id].delete.ts
-import { deleteGallery } from '.'
+import { deleteGallery } from '..'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)

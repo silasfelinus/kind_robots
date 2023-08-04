@@ -31,7 +31,27 @@ Content-Type: application/json
 }
 
 ###
+### Get Random Gallery
+GET https://kindrobots.org/api/galleries/random
+Content-Type: application/json
 
+###
+
+### Get Random Image
+POST https://kindrobots.org/api/galleries
+Content-Type: application/json
+
+{
+  "name": "acrocats",
+  "content": "/images/acrocats/gallery.json",
+  "description": "Acrocat Ranch Foster Kitten Rescue",
+  "highlightImage": "/images/acrocats/PXL_20220903_023602144.jpg",
+  "isNSFW": false,
+  "isAuth": false,
+  "user": "cafepurr"
+}
+
+###
 ### Update a gallery
 PATCH https://kindrobots.org/api/galleries/1
 Content-Type: application/json
@@ -48,7 +68,7 @@ Content-Type: application/json
 ###
 
 #### Create multiple galleries
-POST https://kindrobots.org/api/galleries/createmany
+POST https://kindrobots.org/api/galleries/
 Content-Type: application/json
 
 [

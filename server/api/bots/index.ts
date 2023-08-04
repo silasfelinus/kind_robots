@@ -48,17 +48,39 @@ export async function addBots(
   return { count: result.count, bots, errors }
 }
 
-export async function updateBot(id: number, data: Partial<Bot>): Promise<Bot | null> {
-  const botExists = await prisma.bot.findUnique({ where: { id } })
+export async function updateBot(name: string, data: Partial<Bot>): Promise<Bot | null> {
+  const botExists = await prisma.bot.findUnique({ where: { name } })
 
   if (!botExists) {
     return null
   }
 
   return await prisma.bot.update({
-    where: { id },
+    where: { name },
     data: data as Prisma.BotUpdateInput
   })
+}
+
+export async function updateBots(
+  botsData: Partial<Bot>[]
+): Promise<{ updated: number; errors: string[] }> {
+  let updated = 0
+  const errors: string[] = []
+
+  for (const botData of botsData) {
+    if (botData.name) {
+      try {
+        await updateBot(botData.name, botData)
+        updated++
+      } catch (error: any) {
+        errors.push(`Failed to update bot with name ${botData.name}: ${error.message}`)
+      }
+    } else {
+      errors.push('Bot name is missing.')
+    }
+  }
+
+  return { updated, errors }
 }
 
 export async function deleteBot(id: number): Promise<boolean> {

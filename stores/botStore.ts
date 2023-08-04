@@ -33,8 +33,8 @@ interface BotStatusData {
 
 // Function to create a stylish message from the bot data
 function generateBotStatusMessage(botData: BotStatusData): string {
-  const { id, name, description, modules, designer } = botData
-  return `Bot ID: ${id}, Name: ${name}, Description: ${description}, Modules: ${modules}, Designer: ${designer}`
+  const { id, name, description, modules } = botData
+  return `Bot ID: ${id}, Name: ${name}, Description: ${description}, Modules: ${modules}`
 }
 
 export const useBotStore = defineStore({
@@ -89,9 +89,8 @@ export const useBotStore = defineStore({
           // If there are no bots, seed them, else update them
           if (this.totalBots === 0) {
             await this.seedBots()
-          } else {
-            await this.updateBots(botData)
           }
+          await this.updateBots(botData)
 
           // Load bots
           await this.getBots()

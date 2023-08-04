@@ -1,23 +1,3 @@
-<template>
-  <div class="container">
-    <div v-if="currentBot" class="avatar-container">
-      <img :src="currentBot.avatarImage" alt="Bot Avatar" class="avatar-img" />
-      <h1>{{ currentBot.name }}</h1>
-      <p>{{ currentBot.subtitle }}</p>
-      <p>{{ currentBot.botIntro }}</p>
-    </div>
-    <div class="message-container">
-      <textarea v-model="message" rows="5" class="message-input"></textarea>
-      <button class="submit-button" @click="sendMessage">Send Message</button>
-
-      <div v-if="response" class="response-container">
-        <h2>Response:</h2>
-        <ResponseCard :messages="messages" :send-message="sendReply" />
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, computed, watchEffect } from 'vue'
 import axios from 'axios'
@@ -39,8 +19,11 @@ watchEffect(() => {
     message.value = currentBot.value.prompt
   }
 })
+const isLoading = ref(false)
 
+// Update the sendMessage method to handle the loading state
 const sendMessage = async () => {
+  isLoading.value = true
   try {
     const res = await axios.post(
       '/api/botcafe/chat',
@@ -62,6 +45,8 @@ const sendMessage = async () => {
     response.value = res.data.choices[0].message.content
   } catch (err) {
     console.error(err)
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -75,60 +60,58 @@ const sendReply = async (updatedMessages: Message[]) => {
   }
 }
 </script>
+<template>
+  <div
+    class="container flex flex-col justify-center items-center min-h-screen p-4 bg-gray-100"
+    :data-theme="currentBot?.theme"
+  >
+    <div
+      v-if="currentBot"
+      class="avatar-container max-w-3xl w-full p-4 bg-white rounded-lg shadow-md"
+    >
+      <div class="flex flex-col md:flex-row items-center">
+        <img
+          :src="currentBot.avatarImage"
+          alt="Bot Avatar"
+          class="avatar-img md:w-1/4 rounded-full"
+        />
+        <div class="flex-1 text-center md:text-left p-4">
+          <h1 class="text-3xl font-bold text-theme">{{ currentBot.name }}</h1>
+          <p class="text-xl">{{ currentBot.subtitle }}</p>
+          <p class="text-lg">{{ currentBot.botIntro }}</p>
+        </div>
+      </div>
+      <div class="message-container mt-4">
+        <textarea v-model="message" rows="5" class="message-input w-full p-2 rounded-md"></textarea>
+        <button
+          class="submit-button btn btn-primary mt-2"
+          :disabled="isLoading"
+          @click="sendMessage"
+        >
+          Send Message
+        </button>
+
+        <!-- Loading animation -->
+        <div v-if="isLoading" class="loader flex justify-center">
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-900"
+          ></div>
+        </div>
+
+        <div v-if="response" class="response-container mt-4 p-4 bg-gray-100 rounded-md">
+          <h2>Response:</h2>
+          <div class="response-card p-4 bg-white rounded-md shadow-md">
+            <ResponseCard :messages="messages" :send-message="sendReply" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.avatar-container {
-  flex: 0 0 5%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .avatar-img {
   max-width: 100%;
   height: auto;
-}
-
-.message-container {
-  flex: 1;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.message-input {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  box-sizing: border-box;
-}
-
-.submit-button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.response-container {
-  margin-top: 20px;
-  width: 100%;
 }
 </style>

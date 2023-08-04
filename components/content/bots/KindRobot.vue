@@ -1,90 +1,106 @@
 <template>
-  <div :class="layoutClass">
-    <div v-if="bot" :class="contentClass">
-      <div v-if="bot.avatarImage" class="flex justify-center">
-        <img :src="bot.avatarImage" alt="Bot Avatar" class="w-20 h-20 rounded-full mb-4" />
-      </div>
-      <h3 class="text-lg font-bold mb-2">{{ bot.name }}</h3>
-      <h2 v-if="bot.subtitle" class="text-md font-semibold mb-1">Subtitle: {{ bot.subtitle }}</h2>
-      <p v-if="bot.description" class="mb-1">Description: {{ bot.description }}</p>
-      <p v-if="bot.botIntro" class="mb-1">Bot Intro: {{ bot.botIntro }}</p>
-      <p v-if="bot.userIntro" class="mb-1">User Intro: {{ bot.userIntro }}</p>
-      <p v-if="bot.prompt" class="mb-1">Prompt: {{ bot.prompt }}</p>
-      <p v-if="bot.theme" class="mb-1">Theme: {{ bot.theme }}</p>
-      <p v-if="bot.personality" class="mb-1">Personality: {{ bot.personality }}</p>
-    </div>
+  <div class="flex flex-col items-center bg-primary min-h-screen p-4 text-gray-800">
     <div
-      v-for="(module, index) in bot?.modules?.split(',')"
-      :key="index"
-      class="p-2 m-1 bg-gray-100 rounded-md"
+      v-if="currentBot"
+      :data-theme="currentBot.theme"
+      class="w-full max-w-3xl p-4 bg-base-600 rounded-lg shadow-md"
     >
-      {{ module.trim() }}
+      <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-theme">{{ currentBot.name }}</h1>
+        <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id }} Collect Them All!</span>
+      </div>
+      <div v-if="currentBot.avatarImage" class="flex justify-center my-4">
+        <img :src="currentBot.avatarImage" alt="Bot Avatar" class="w-32 h-32 rounded-full" />
+      </div>
+      <h2 v-if="currentBot.subtitle" class="text-xl font-semibold mb-2">
+        {{ currentBot.subtitle }}
+      </h2>
+      <p v-if="currentBot.description" class="mb-2 text-lg">{{ currentBot.description }}</p>
+      <div v-if="currentBot.modules" class="flex flex-wrap justify-center mb-4">
+        <button
+          v-for="(moduleName, index) in parsedModules"
+          :key="index"
+          :title="moduleData[moduleName]?.description || ''"
+          class="btn btn-accent m-1"
+          @click="selectModule(moduleName)"
+        >
+          {{ moduleName }}
+        </button>
+      </div>
+      <div><bot-prompt /></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { LayoutType, useScreenStore } from '../../../stores/screenStore'
-import { useBotStore, Bot } from '../../../stores/botStore'
-
-const route = useRoute()
-if (route.params.id) {
-  const id = route.params.id
-}
-
-if (route.params.name) {
-  const name = route.params.name
-}
+import { useBotStore } from '../../../stores/botStore'
+import { moduleData } from '../../../training/modules'
 
 const botStore = useBotStore()
-const bots = computed(() => botStore.bots)
+const route = useRoute()
 const currentBot = computed(() => botStore.currentBot)
-const props = defineProps({
-  bot: {
-    type: Object as () => Partial<Bot>,
-    default: () => ({})
-  },
-  layout: {
-    type: String as () => LayoutType,
-    default: LayoutType.BADGE
+
+const handleBotSelection = () => {
+  const id = Number(route.params.id)
+  const name = route.params.name !== null ? String(route.params.name) : undefined
+
+  if (id) {
+    botStore.getBotById(id)
+  } else if (name) {
+    botStore.getBotByName(name)
   }
+}
+
+const selectModule = (moduleName: string) => {
+  const selectedModule = moduleData[moduleName]
+  if (selectedModule) {
+    const { description, example } = selectedModule
+    console.log('Sending', { moduleName })
+  }
+}
+const parsedModules = computed(() => {
+  if (currentBot.value && currentBot.value.modules) {
+    return currentBot.value.modules.split(',').map((moduleName) => moduleName.trim())
+  }
+  return []
+})
+// Watch for changes to the route parameters
+watch(route, () => {
+  handleBotSelection()
 })
 
-const bot = computed(() => {
-  return props.bot
-})
-const layoutClass = computed(() => {
-  switch (props.layout) {
-    case LayoutType.BADGE:
-      return 'flex justify-center items-center rounded-full bg-primary'
-    case LayoutType.HERO:
-      return 'bg-hero'
-    case LayoutType.CAROUSEL:
-      return 'carousel'
-    case LayoutType.CARD:
-      return 'flex flex-col bg-secondary w-72 rounded-lg'
-    case LayoutType.FULL:
-      return 'flex flex-col w-full h-full bg-accent'
-    default:
-      return ''
-  }
-})
-const contentClass = computed(() => {
-  switch (props.layout) {
-    case LayoutType.BADGE:
-      return 'p-4 bg-primary text-white rounded-lg'
-    case LayoutType.HERO:
-      return 'p-4 bg-hero text-white'
-    case LayoutType.CAROUSEL:
-      return 'p-4 carousel'
-    case LayoutType.CARD:
-      return 'p-4 bg-secondary w-72 rounded-lg'
-    case LayoutType.FULL:
-      return 'p-4 w-full h-full bg-accent'
-    default:
-      return 'p-4'
-  }
-})
+// Initial selection based on the route parameters
+handleBotSelection()
 </script>
+
+<style>
+.animate-typing {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 0.15em solid transparent;
+  animation:
+    typing 2s steps(30, end),
+    blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: inherit;
+  }
+}
+</style>

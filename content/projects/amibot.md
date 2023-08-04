@@ -8,19 +8,3 @@ tags: ['projects']
 ---
 
 :sponsor-page
-
-# Created with kind intent
-
-# by Silas Knight
-
-[silas@kindrobots.org](silas@kindrobots.com)
-
-[GitHub](https://github.com/silasfelinus/)
-
-[LinkedIn](https://www.linkedin.com/in/silas-knight/)
-
-Resume:
-
-[DocX](/resume/full_stack_resume.docx){target="\_blank" download="full_stack_resume.docx"} / [PDF](/resume/full_stack_resume.pdf){target="\_blank" download="full_stack_resume.pdf"}
-
-[Register to be a Kind Human](/register)

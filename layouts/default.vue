@@ -2,22 +2,20 @@
   <div class="flex flex-col md:flex-row h-screen text-gray-800">
     <!-- Left column: vertical nav -->
     <div
-      class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl"
+      class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl p-4"
     >
-      <div class="flex-grow bg-base">
-        <nuxt-link to="/" class="block transition-colors duration-500 hover:text-white">
-          <img
-            src="/images/kindtitle.webp"
-            class="mx-auto shadow-lg hover:shadow-2xl transition-shadow duration-500"
-            alt="Title"
-          />
-        </nuxt-link>
-        <deluxe-nav class="p-4" />
-      </div>
+      <nuxt-link to="/" class="block transition-colors duration-500 hover:text-white mb-4">
+        <img
+          src="/images/fulltitle.png"
+          class="mx-auto shadow-lg hover:shadow-2xl transition-shadow duration-500"
+          alt="Title"
+        />
+      </nuxt-link>
+      <deluxe-nav class="flex-grow bg-base rounded-xl p-4" />
     </div>
     <!-- Middle column: nuxt-page -->
     <main
-      class="md:w-3/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative"
+      class="md:w-3/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative p-4"
     >
       <transition name="fade" mode="out-in">
         <slot />
@@ -25,22 +23,27 @@
     </main>
     <!-- Right column: title-image and status-notifier -->
     <div
-      class="md:w-1/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative"
+      class="md:w-1/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative p-4"
     >
-      <div class="flex-grow p-4">
-        <title-image
-          class="block hover:text-white rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500"
-        />
-        <status-notifier
-          class="bg-accent rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500"
-        />
-        <div v-if="currentBot" animation="fade">
-          <avatar-image />
-        </div>
+      <title-image
+        class="block hover:text-white rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500 mb-4"
+      />
+      <status-notifier
+        class="bg-accent rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500 mb-4"
+      />
+      <div
+        v-if="currentBot"
+        class="flex-grow p-4 flex flex-col justify-center items-center bg-accent rounded-xl shadow-lg animation-fade"
+      >
+        <avatar-image />
+        <button class="bg-accent hover:bg-accent-dark text-white py-2 px-4 rounded-full mt-4">
+          Chat with {{ currentBot.name }}
+        </button>
       </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { useBotStore } from '../stores/botStore'
 

@@ -8,11 +8,11 @@ tooltip: 'test'
 tags: ['home']
 ---
 
-## Welcome to the User Dashboard
-
 :theme-selector
 
 ---
 
 Store Control Panel (You probably don't need to touch these)
 :store-handler
+
+:bot-updater

@@ -1,5 +1,5 @@
 ---
-title: 'Bot Viewer'
+title: 'Bot Gallery'
 description: 'Individual Bot Page'
 gallery: 'cafepurr'
 layout: default

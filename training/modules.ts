@@ -1,4 +1,13 @@
-export const generalTrainingData = {
+export interface ModuleInfo {
+  description: string
+  example: string
+}
+
+export interface ModuleData {
+  [name: string]: ModuleInfo
+}
+
+export const moduleData: ModuleData = {
   ART: {
     description: 'a collection of comma separated phrases and/or [Wildcards] for an art prompt.',
     example: '#ART Modeling shot, [ANIMAL], [PLACE], style of [ARTIST]'
@@ -30,7 +39,7 @@ export const generalTrainingData = {
   },
   REWARD: {
     description: 'A quest reward',
-    example: '#REWARD You have received 100 gold coins!'
+    example: '#REWARD USERNAME'
   },
   BOT: {
     description: 'information to create a new bot',

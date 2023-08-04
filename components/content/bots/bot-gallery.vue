@@ -11,18 +11,16 @@
       <p>Active bot: {{ currentBot.name }}</p>
     </div>
 
-    <!-- Card display with transition -->
-    <transition name="fade" mode="out-in">
-      <div v-if="currentBot" class="mt-4">
-        <img :src="currentBot.avatarImage" alt="Bot Avatar" />
-        <h3>{{ currentBot.name }}</h3>
-        <p>{{ currentBot.description }}</p>
-        <nuxt-link :to="`/bot/id/${currentBot.id}`">Check out this Bot</nuxt-link>
-      </div>
-      <div v-else>
-        <kind-title />
-      </div>
-    </transition>
+    <!-- Card display  -->
+    <div v-if="currentBot" class="mt-4">
+      <img :src="currentBot.avatarImage" alt="Bot Avatar" />
+      <h3>{{ currentBot.name }}</h3>
+      <p>{{ currentBot.description }}</p>
+      <nuxt-link :to="`/bot/id/${currentBot.id}`">Check out this Bot</nuxt-link>
+    </div>
+    <div v-else>
+      <title-image />
+    </div>
   </div>
 </template>
 

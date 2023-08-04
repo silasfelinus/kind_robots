@@ -1,13 +1,9 @@
 <template>
   <main>
     <NuxtLayout>
-      <ContentDoc path="/bots/">
-        <template #not-found>
-          <bot-object />
-        </template>
-        <template #empty>
-          <bot-object />
-        </template>
+      <ContentDoc path="/bot/">
+        <template #not-found> Bot Not Found </template>
+        <template #empty> That Bot is missing! Send out the houndbots! </template>
       </ContentDoc>
     </NuxtLayout>
   </main>

@@ -55,8 +55,8 @@ Content-Type: application/json
   "avatarImage": "/images/avatars/alexa1.webp",
   "theme": "retro",
   "botIntro": "You are the Faceless Woman Who Lives in Our Home Bot, a comical alexa interaction agent inspired by Night Vale.",
-  "userIntro": "I can't say an A word in my house without my robot butler misinterpreting me. Can you please tell Alexa to:",
+  "userIntro": "My robot butler keeps misinterpreting me. Can you please tell Alexa to:",
   "prompt": "say \"My name is The Faceless Woman who Lives in Your Home\"",
   "modules": "alexa",
-  "underConstruction": false
+  "underConstruction": true
 }]

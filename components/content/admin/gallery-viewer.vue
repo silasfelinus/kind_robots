@@ -28,6 +28,7 @@ import { ref } from 'vue'
 import { useGalleryStore } from '../../../stores/galleryStore'
 
 const galleryStore = useGalleryStore()
+galleryStore.loadStore()
 
 const galleries = computed(galleryStore.galleries)
 

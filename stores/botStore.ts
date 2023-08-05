@@ -28,7 +28,6 @@ interface BotStatusData {
   name: string
   description: string
   modules: string
-  designer: string
 }
 
 // Function to create a stylish message from the bot data
@@ -49,35 +48,8 @@ export const useBotStore = defineStore({
     page: 1,
     pageSize: 100
   }),
-  actions: {
-    async updateBots(botsData: Partial<Bot>[]): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Updating bots...')
-      try {
-        const { data } = await axios.put(`/api/bots`, botsData)
-        // Merge updated bots with existing bots in the store
-        this.bots = this.bots.map((bot) => {
-          const updatedBot = data.bots.find((b: Bot) => b.id === bot.id)
-          return updatedBot || bot
-        })
-        statusStore.setStatus(StatusType.SUCCESS, `Updated ${data.bots.length} bots`)
-      } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to update bots: ' + error)
-      }
-    },
-    async setCurrentBotFromRoute(): Promise<void> {
-      const route = useRoute()
-      const botId = route.params.id as string // Assuming the parameter name is "id"
 
-      if (botId) {
-        const id = parseInt(botId, 10)
-        if (!isNaN(id)) {
-          await this.getBotById(id)
-        } else {
-          // Handle the error if the ID is not a number
-          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Invalid bot ID in URL')
-        }
-      }
-    },
+  actions: {
     async loadStore(): Promise<void> {
       if (!this._initialized) {
         this.loading = true
@@ -109,6 +81,37 @@ export const useBotStore = defineStore({
         }
       }
     },
+
+    async updateBots(botsData: Partial<Bot>[]): Promise<void> {
+      statusStore.setStatus(StatusType.INFO, 'Updating bots...')
+      try {
+        const { data } = await axios.put(`/api/bots`, botsData)
+        // Merge updated bots with existing bots in the store
+        this.bots = this.bots.map((bot) => {
+          const updatedBot = data.bots.find((b: Bot) => b.id === bot.id)
+          return updatedBot || bot
+        })
+        statusStore.setStatus(StatusType.SUCCESS, `Updated ${data.bots.length} bots`)
+      } catch (error) {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to update bots: ' + error)
+      }
+    },
+
+    async setCurrentBotFromRoute(): Promise<void> {
+      const route = useRoute()
+      const botId = route.params.id as string // Assuming the parameter name is "id"
+
+      if (botId) {
+        const id = parseInt(botId, 10)
+        if (!isNaN(id)) {
+          await this.getBotById(id)
+        } else {
+          // Handle the error if the ID is not a number
+          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Invalid bot ID in URL')
+        }
+      }
+    },
+
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
       statusStore.setStatus(StatusType.INFO, `Updating bot with id ${id}...`)
       try {
@@ -158,6 +161,7 @@ export const useBotStore = defineStore({
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch bots: ' + error)
       }
     },
+
     // Inside your store, where you are fetching a bot
     getBotById: async function (id: number): Promise<void> {
       statusStore.setStatus(StatusType.INFO, `Fetching bot with id ${id}...`)
@@ -170,8 +174,7 @@ export const useBotStore = defineStore({
           id: data.bot.id,
           name: data.bot.name,
           description: data.bot.description,
-          modules: data.bot.modules,
-          designer: data.bot.designer // Or any appropriate field for designer
+          modules: data.bot.modules
         }
         // Generate the message and update the status
         const message = generateBotStatusMessage(botStatusData)
@@ -180,21 +183,19 @@ export const useBotStore = defineStore({
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch bot by id: ' + error)
       }
     },
+
     getBotByName: async function (name: string): Promise<void> {
       statusStore.setStatus(StatusType.INFO, `Fetching bot with name ${name}...`)
       try {
         const { data } = await axios.get(`/api/bot/name/${name}`)
         this.currentBot = data.bot
-
         // Convert the fetched bot to BotStatusData
         const botStatusData: BotStatusData = {
           id: data.bot.id,
           name: data.bot.name,
           description: data.bot.description,
-          modules: data.bot.modules,
-          designer: data.bot.designer // Or any appropriate field for designer
+          modules: data.bot.modules
         }
-
         // Generate the message and update the status
         const message = generateBotStatusMessage(botStatusData)
         statusStore.setStatus(StatusType.SUCCESS, message)
@@ -214,21 +215,19 @@ export const useBotStore = defineStore({
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to seed bots: ' + error)
       }
     },
+
     async randomBot(): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Fetching a random bot...')
       try {
         const { data } = await axios.get(`/api/bot/random`)
         this.currentBot = data.bot // Assuming that the bot data is stored in the "bot" property
-
         // Convert the fetched bot to BotStatusData
         const botStatusData: BotStatusData = {
           id: data.bot.id,
           name: data.bot.name,
           description: data.bot.description,
-          modules: data.bot.modules,
-          designer: data.bot.designer // Or any appropriate field for designer
+          modules: data.bot.modules
         }
-
         // Generate the message and update the status
         const message = generateBotStatusMessage(botStatusData)
         statusStore.setStatus(StatusType.SUCCESS, message)

@@ -12,7 +12,5 @@ tags: ['home']
 
 ---
 
-Store Control Panel (You probably don't need to touch these)
+(You probably don't need to touch these)
 :store-handler
-
-:bot-updater

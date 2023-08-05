@@ -1,26 +1,22 @@
 // ~/server/api/galleries/randomimages.get.ts
-import { getRandomGalleryImage } from './../'
+import { getRandomGalleryImage, getAllGalleryImages } from './../'
 
-interface Params {
-  id: string | undefined
-}
-
-interface Req {
-  params: Params
-}
-
-export default async ({ params: { id } }: Req) => {
-  if (!id || isNaN(Number(id))) {
-    return { success: false, message: 'Invalid gallery id' }
-  }
-
+export default defineEventHandler(async (event) => {
+  const id = Number(event.context.params?.id)
   try {
-    const image = await getRandomGalleryImage(Number(id))
-    if (!image) {
-      throw new Error(`No images available for gallery ${id}.`)
+    let image
+    if (id) {
+      // If there is an ID, get a random image from that gallery
+      image = await getRandomGalleryImage(id)
+    } else {
+      // If there is no ID, get a random image from all galleries
+      const allImages = await getAllGalleryImages()
+      const randomIndex = Math.floor(Math.random() * allImages.length)
+      image = allImages[randomIndex]
     }
-    return { success: true, image }
+
+    return image
   } catch (error) {
-    return { success: false, message: 'No images available' }
+    return console.error(`Failed to get random image: ${error}`)
   }
-}
+})

@@ -1,26 +1,18 @@
-// ~/server/api/galleries/images.get.ts
-import { getGalleryImages } from './../'
+// server/api/galleries/[id]/images.get.ts
+import { fetchGalleryById } from '..'
 
-interface Params {
-  id: string | undefined
-}
-
-interface Req {
-  params: Params
-}
-
-export default async ({ params: { id } }: Req) => {
-  if (!id || isNaN(Number(id))) {
-    return { success: false, message: 'Invalid gallery id' }
-  }
-
+export default defineEventHandler(async (event) => {
+  const id = Number(event.context.params?.id)
+  if (!id) throw new Error('Invalid Gallery ID.')
   try {
-    const images = await getGalleryImages(Number(id))
-    if (!images || images.length === 0) {
-      throw new Error(`No images available for gallery ${id}.`)
+    const Gallery = await fetchGalleryById(id)
+
+    if (!Gallery) {
+      throw new Error(`Gallery with id ${id} does not exist.`)
     }
-    return { success: true, images }
+
+    return { success: true, Gallery }
   } catch (error) {
-    return { success: false, message: 'No images available' }
+    return { success: false, message: `Failed to fetch Gallery with id ${id}.` }
   }
-}
+})

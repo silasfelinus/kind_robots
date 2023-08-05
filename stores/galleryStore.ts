@@ -17,9 +17,25 @@ interface GalleryStoreState {
   totalGalleries: number
   errors: string[]
   currentImage: string | null
+  loading: boolean
+  _initialized: boolean
   galleryImages: string[]
   page: number
   pageSize: number
+}
+
+interface GalleryStatusData {
+  id: number
+  name: string
+  description: string
+  highlightImage: string
+  designer: string
+}
+
+// Function to create a stylish message from the gallery data
+function generateGalleryStatusMessage(galleryData: GalleryStatusData): string {
+  const { id, name, description, highlightImage } = galleryData
+  return `Gallery ID: ${id}, Name: ${name}, Description: ${description}, Highlight: ${highlightImage}`
 }
 
 export const useGalleryStore = defineStore({
@@ -31,28 +47,59 @@ export const useGalleryStore = defineStore({
     errors: [],
     currentImage: null,
     galleryImages: [],
+    loading: false,
+    _initialized: false,
     page: 1,
     pageSize: 100
   }),
+
   actions: {
     async loadStore(): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Loading gallery store...')
-      try {
-        // Load galleries if necessary
-        await this.countGalleries()
-        if (this.totalGalleries === 0) {
-          // If no galleries exist, seed them
-          await this.seedGalleries()
+      if (!this._initialized) {
+        this.loading = true
+        statusStore.setStatus(StatusType.INFO, 'Loading gallery store...')
+        try {
+          // Load galleries if necessary
+          await this.countGalleries()
+
+          if (this.totalGalleries === 0) {
+            // If no galleries exist, seed them
+            await this.seedGalleries()
+          }
+          await this.updateGalleries(galleryData)
+
+          // Load gallery  data
+          await this.getGalleries(this.page, this.pageSize)
+
+          if (this.totalGalleries > 0) {
+            statusStore.setStatus(StatusType.SUCCESS, `Loaded ${this.galleries.length} galleries`)
+            this.currentGallery = this.galleries[0] || null
+          }
+          statusStore.setStatus(StatusType.SUCCESS, `Loaded ${this.galleries.length} bots`)
+          this._initialized = true
+        } catch (error) {
+          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Error initializing gallery store: ' + error)
+        } finally {
+          this.loading = false
         }
-
-        // Load other store data
-        await this.getGalleries(this.page, this.pageSize)
-
-        statusStore.setStatus(StatusType.SUCCESS, `Loaded ${this.galleries.length} galleries`)
-      } catch (error) {
-        errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Error initializing gallery store: ' + error)
       }
     },
+
+    async updateGalleries(galleryData: Partial<Gallery>[]): Promise<void> {
+      statusStore.setStatus(StatusType.INFO, 'Updating galleries...')
+      try {
+        const { data } = await axios.put(`/api/galleries`, galleryData)
+        // Merge updated galleries with existing galleries in the store
+        this.galleries = this.galleries.map((gallery) => {
+          const updatedGallery = data.galleries.find((g: Gallery) => g.id === gallery.id)
+          return updatedGallery || gallery
+        })
+        statusStore.setStatus(StatusType.SUCCESS, `Updated ${data.galleries.length} galleries`)
+      } catch (error) {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to update galleries: ' + error)
+      }
+    },
+
     async getGalleryImages(id: number): Promise<void> {
       statusStore.setStatus(StatusType.INFO, `Fetching images for gallery with id ${id}...`)
       try {

@@ -4,9 +4,11 @@ import path from 'path'
 import { Gallery as GalleryRecord, Prisma } from '@prisma/client'
 import prisma from './../utils/prisma'
 
+export type Gallery = GalleryRecord
+
 export async function getGalleryImages(galleryId: number) {
   try {
-    const gallery = await fetchGalleryById(galleryId) // Assume this function exists and returns gallery details
+    const gallery = await fetchGalleryById(galleryId)
     if (!gallery) {
       throw new Error(`No gallery found for id: ${galleryId}`)
     }
@@ -33,8 +35,6 @@ export async function getRandomGalleryImage(galleryId: number) {
     throw error
   }
 }
-
-export type Gallery = GalleryRecord
 
 export async function fetchGalleries(page = 1, pageSize = 100): Promise<Gallery[]> {
   const skip = (page - 1) * pageSize
@@ -86,7 +86,22 @@ export async function updateGallery(id: number, data: Partial<Gallery>): Promise
     data: data as Prisma.GalleryUpdateInput
   })
 }
+export async function getAllGalleryImages() {
+  try {
+    const galleries = await prisma.gallery.findMany()
+    let allImages: string[] = []
 
+    for (const gallery of galleries) {
+      const images = await getGalleryImages(gallery.id)
+      allImages = [...allImages, ...images]
+    }
+
+    return allImages
+  } catch (error) {
+    console.error(`Failed to get all gallery images: ${error}`)
+    throw error
+  }
+}
 export async function deleteGallery(id: number): Promise<boolean> {
   const galleryExists = await prisma.gallery.findUnique({ where: { id } })
 

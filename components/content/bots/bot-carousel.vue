@@ -67,15 +67,6 @@ const setCurrentBot = (botId: number) => {
   botStore.getBotById(botId)
 }
 watch(
-  () => selectedBotId.value,
-  (newBotId) => {
-    if (newBotId) {
-      const botElement = document.getElementById(`bot-${newBotId}`)
-      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-  }
-)
-watch(
   () => currentBot.value,
   (newCurrentBot) => {
     if (newCurrentBot) {

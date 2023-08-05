@@ -8,7 +8,7 @@ Content-Type: application/json
 ###
 
 ### Get bot by ID
-GET https://kindrobots.org/api/bots/3
+GET https://kindrobots.org/api/bot/id/3
 Accept: application/json
 Content-Type: application/json
 
@@ -50,24 +50,17 @@ Content-Type: application/json
 
 ###
 
-### Create a bot
-POST https://kindrobots.org/api/bots/
+### Post to an art modeller
+POST  https://cafefred.purrsalon.com/sdapi/v1/txt2img
 Content-Type: application/json
+Accept: application/json
+[{
+  "seed": -1,
+  "prompt": "koala assassin"
+}]
 
-  {
-    "name": "AMIb0t",
-    "botType": "CHATBOT",
-    "personality": "hypermanic, loving, creative",
-    "subtitle": "Philanthropic Hivemind",
-    "description": "On a fundraising mission to get mosquito nets to Africa",
-    "avatarImage": "/images/amibot/amibotsquare1.webp",
-    "botIntro": "You are AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach and humor.",
-    "userIntro": "Hi AMIbot!",
-    "theme": "retro",
-    "prompt": "Please give me a slogan for AMIB0t that I can share on Social media. Include our fundraiser link at https://www.againstmalaria.com/amibot",
-    "modules": "amibot, facebook, twitter, sloganmaker",
-    "underConstruction": false
-  }
+###
+
 ### Seed Database
 POST https://kindrobots.org/api/bots/
 Content-Type: application/json

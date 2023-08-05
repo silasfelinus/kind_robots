@@ -1,11 +1,13 @@
 <template>
   <transition name="fade" mode="out-in">
-    <div
-      :key="dream"
-      class="dream-status text-white text-lg font-semibold text-center bg-primary p-4 border-accent shadow-lg transition-all duration-500 hover:scale-105"
-      @click="updateDream"
-    >
-      {{ statusMessage }}
+    <div>
+      <div
+        :key="dream"
+        class="dream-status text-white text-lg font-semibold text-center bg-primary p-4 border-accent shadow-lg transition-all duration-500 hover:scale-105"
+        @click="updateDream"
+      >
+        {{ statusMessage }}
+      </div>
     </div>
   </transition>
 </template>

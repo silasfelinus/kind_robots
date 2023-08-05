@@ -18,7 +18,9 @@
       class="md:w-3/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative p-4"
     >
       <transition name="fade" mode="out-in">
-        <slot />
+        <div>
+          <slot />
+        </div>
       </transition>
     </main>
     <!-- Right column: title-image and status-notifier -->

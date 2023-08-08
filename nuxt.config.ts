@@ -6,7 +6,8 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxt/content',
     'nuxt-icon',
-    '@sidebase/nuxt-auth'
+    '@sidebase/nuxt-auth',
+    '@nuxthq/studio'
   ],
   css: ['~/assets/css/tailwind.css'],
   auth: {

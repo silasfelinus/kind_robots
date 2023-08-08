@@ -5,11 +5,11 @@ module.exports = {
   theme: {
     extend: {},
     screens: {
-      sm: '640px',
-      md: '768px',
-      lg: '1024px',
-      xl: '1280px',
-      '2xl': '1536px'
+      sm: '600px',
+      md: '900px',
+      lg: '1200px',
+      xl: '1536px',
+      '2xl': '1920px'
     }
   },
   plugins: ['@tailwindcss/typography', 'daisyui'],

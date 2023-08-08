@@ -21,7 +21,8 @@ export default defineNuxtConfig({
     GITHUB_SECRET: process.env.GITHUB_SECRET,
     GOOGLE_ID_KEY: process.env.GOOGLE_ID,
     GOOGLE_SECRET: process.env.GOOGLE_SECRET,
-    AUTH_SECRET: process.env.AUTH_SECRET
+    AUTH_SECRET: process.env.AUTH_SECRET,
+    NUXT_PUBLIC_STUDIO_TOKENS: process.env.PUBLIC_STUDIO_TOKENS
   },
   content: {
     documentDriven: true

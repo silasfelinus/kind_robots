@@ -1,5 +1,5 @@
 ---
-title: 'Welcome'
+title: 'Fundraiser'
 subtitle: 'Harmonizing AI and Humanity'
 layout: default
 image: backtree.webp
@@ -8,4 +8,4 @@ tooltip: 'Welcome to the Kind Robots'
 tags: ['home']
 ---
 
-:welcome-page
+:sponsor-page

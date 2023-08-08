@@ -4,7 +4,7 @@ subtitle: 'Is it art?'
 layout: default
 image: backtree.webp
 gallery: flower
-tags: ['art']
+tags: ['projects']
 ---
 
 :gallery-list

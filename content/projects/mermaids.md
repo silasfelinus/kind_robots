@@ -1,10 +1,10 @@
 ---
-title: 'Mermaids of Venice'
+title: 'mermaids'
 subtitle: 'Gift Shop'
 layout: default
 image: utility/mermaids/mermaids1.jpg
 gallery: redbubble
-tags: ['projects']
+tags: ['home']
 ---
 
 :mermaids-page

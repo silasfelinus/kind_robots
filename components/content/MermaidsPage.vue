@@ -85,7 +85,7 @@
       </p>
     </section>
     <footer>
-      <p>
+      <p class="text-center">
         With all of that said, feel free to buy "Mermaids of Venice". It has a lot of great ideas,
         often more than was warranted by plot or narrative structure. It has rhyming couplets at the
         start of each chapter. It's polyamorous and aims to be gender and relationship subversive.
@@ -93,6 +93,24 @@
         someone that you think has the ability to read. [
         <a href="/mermaids.pdf">Or download the pdf for free</a>, and use the money to
         <a href="/amibot">buy mosquito nets]</a>.
+      </p>
+      <p class="text-center">
+        "Mermaids of Venice is a literary ballerina - supple and strong, astounding, beautiful in a
+        way that makes your heart fight to get out of your chest. I was fully engrossed from the
+        very first line to the last, feeling something like I was on a roller-coaster - you don't
+        just get off once you're strapped in."" - Amazon Review
+      </p>
+
+      <p class="text-center">
+        "Smart, sexy and delightfully subversive, I devoured Mermaids of Venice the first time I
+        read it. It made me laugh, made me cry and gave me goosebumps. A beautifully unique
+        linguistic treat, highly recommended!" -C Curtis
+      </p>
+
+      <p class="text-center">
+        "I rarely laugh-out-loud reading novels, but this one has me at it at least once a page-
+        because it's funny, because it's surprising, because it's full of wit, heart and magical
+        delisciousness. Silas Knight is an artisan of prose." -C. Kinnamon
       </p>
     </footer>
   </div>
@@ -107,7 +125,7 @@ const image = ref('/images/utility/mermaids/mermaids1.jpg')
 const amazonLink = ref('https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742')
 const downloadLink = ref('/mermaids.pdf')
 const mosquitoNetsLink = ref('/amibot')
-const europePic1 = ref('/images/utility/mermaids/europe1.webp')
+const europePic1 = ref('/images/utility/mermaids/europe1.jpg')
 const europePic2 = ref('/images/utility/mermaids/europe2.jpg')
 const europePic3 = ref('/images/utility/mermaids/europe3.jpg')
 </script>

@@ -30,18 +30,6 @@
       <kind-nav
         class="block hover:text-white rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500 mb-4"
       />
-      <status-notifier
-        class="bg-accent rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500 mb-4"
-      />
-      <div
-        v-if="currentBot"
-        class="flex-grow p-4 flex flex-col justify-center items-center bg-accent rounded-xl shadow-lg animation-fade"
-      >
-        <avatar-image />
-        <button class="bg-accent hover:bg-accent-dark text-white py-2 px-4 rounded-full mt-4">
-          Chat with {{ currentBot.name }}
-        </button>
-      </div>
     </div>
   </div>
 </template>

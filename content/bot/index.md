@@ -2,7 +2,7 @@
 title: 'Bot Viewer'
 description: 'Individual Bot Page'
 gallery: 'cafepurr'
-layout: default
+layout: full_app
 image: 'chest1.webp'
 tags: ['bots']
 navigation: false

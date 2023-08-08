@@ -4,9 +4,19 @@
       <button
         v-for="tag in allTags"
         :key="tag"
-        :class="`btn ${
-          activeSection === tag ? 'bg-primary' : 'bg-accent'
-        } my-2 mx-1 flex-1 text-center transition-all duration-300 ease-in-out`"
+        :class="[
+          'btn',
+          'py-2',
+          'px-4',
+          'text-white',
+          'cursor-pointer',
+          'overflow-hidden',
+          'whitespace-nowrap',
+          'transition-all',
+          'duration-300',
+          'ease-in-out',
+          activeSection === tag ? 'btn-primary' : 'btn-accent'
+        ]"
         @click="changeSection(tag)"
       >
         {{ tag ? tag.charAt(0).toUpperCase() + tag.slice(1) : '' }}
@@ -15,42 +25,27 @@
 
     <!-- Always Visible Home Links -->
     <div class="flex justify-center mt-2 flex-wrap space-x-2">
-      <div v-for="page in pagesByTag('home')" :key="page._id" class="home-link">
-        <NuxtLink :to="page._path" class="oval-link">{{ page.title }}</NuxtLink>
+      <div v-for="page in pagesByTag('home')" :key="page._id" class="flex-none">
+        <NuxtLink
+          :to="page._path"
+          class="btn btn-accent rounded-full py-1 px-3 transform transition-transform hover:scale-110"
+        >
+          {{ page.title }}
+        </NuxtLink>
       </div>
-    </div>
-
-    <!-- Home Section with Model Viewer -->
-    <div
-      v-if="activeSection === 'home' && !showModelCarousel"
-      class="transition-all duration-500 ease-in-out"
-    >
-      <bot-selector />
     </div>
 
     <!-- Image Nav Section -->
     <div
       v-if="activeSection && activeSection !== 'home' && !showModelCarousel"
-      class="transition-all duration-500 ease-in-out"
+      class="transition-all justify-center duration-500 ease-in-out"
     >
       <div v-for="page in pagesByTag(activeSection)" :key="page._id" class="m-2">
         <NuxtLink :to="page._path">
-          <img v-if="page.image" :src="`/images/${page.image}`" alt="Page Image" />
+          <img v-if="page.image" :src="`/images/${page.image}`" alt="Page Image" class="block" />
           <div>{{ page.title }}</div>
         </NuxtLink>
       </div>
-    </div>
-
-    <!-- Carousel Section -->
-    <div
-      v-if="showModelCarousel && activeSection && activeSection !== 'home'"
-      class="transition-all duration-500 ease-in-out"
-    >
-      <model-carousel
-        :model-type="screenStore.currentModelType"
-        :layout="screenStore.currentLayout"
-      ></model-carousel>
-      <div class="text-xl text-primary">{{ currentBotName }}</div>
     </div>
   </nav>
 </template>
@@ -92,35 +87,3 @@ const toggleModelCarousel = screenStore.toggleModelCarousel
 const activeSection = computed(() => screenStore.activeSection)
 const showModelCarousel = computed(() => screenStore.showModelCarousel)
 </script>
-<style>
-.btn {
-  min-width: 80px;
-  max-width: 150px;
-  padding: 10px;
-  border: none;
-  color: white;
-  cursor: pointer;
-  overflow: hidden;
-  white-space: nowrap;
-  transition: all 0.3s ease-in-out;
-}
-
-.oval-link {
-  display: inline-block;
-  padding: 5px 10px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 20px;
-  margin: 2px;
-  text-decoration: none;
-  transition: all 0.3s ease-in-out;
-}
-
-.oval-link:hover {
-  transform: scale(1.1);
-}
-
-.home-link {
-  flex: 0 0 auto;
-}
-</style>

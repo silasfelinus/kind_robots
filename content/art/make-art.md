@@ -4,7 +4,7 @@ description: 'lets make art!'
 gallery: 'cafepurr'
 layout: default
 image: 'art1.webp'
-tags: ['art']
+tags: ['projects']
 ---
 
 :make-art

@@ -7,6 +7,7 @@ gallery: wondershed
 tooltip: 'Created with Kind Intent'
 tags: ['home']
 ---
+
 <div class="text-center">
 🤖 Hello, Human Friend! Welcome to Kind Robots! 🌍
 
@@ -27,5 +28,6 @@ Resume:
 [DocX](/resume/full_stack_resume.docx){target="\_blank" download="full_stack_resume.docx"} / [PDF](/resume/full_stack_resume.pdf){target="\_blank" download="full_stack_resume.pdf"}
 
 © 2023 Kind Robots. All Rights Reserved. 🌟
+
 </div>
 <kind-nav />

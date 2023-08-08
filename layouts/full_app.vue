@@ -1,28 +1,36 @@
 <template>
-  <div class="container">
-    <!-- Welcome Image -->
-    <nuxt-link to="#bot-carousel" class="logo-link">
-      <img src="/images/fulltitle.png" alt="Title" />
-    </nuxt-link>
-
-    <!-- Bot Carousel Section -->
-    <section id="bot-carousel">
-      <bot-carousel />
-    </section>
-
-    <!-- Main Content Section -->
-    <section id="main-content">
+  <div class="flex flex-col md:flex-row h-screen text-gray-800">
+    <!-- Left column: vertical nav -->
+    <div
+      class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl p-4"
+    >
+      <nuxt-link to="/" class="block transition-colors duration-500 hover:text-white mb-4">
+        <img
+          src="/images/fulltitle.png"
+          class="mx-auto shadow-lg hover:shadow-2xl transition-shadow duration-500"
+          alt="Title"
+        />
+      </nuxt-link>
+      <bot-carousel class="flex-grow bg-base rounded-xl p-4" />
+    </div>
+    <!-- Middle column: nuxt-page -->
+    <main
+      class="md:w-3/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative p-4"
+    >
       <transition name="fade" mode="out-in">
         <div>
           <slot />
         </div>
       </transition>
-    </section>
-
-    <!-- Kind Nav Section -->
-    <section id="kind-nav">
-      <kind-nav />
-    </section>
+    </main>
+    <!-- Right column: title-image and status-notifier -->
+    <div
+      class="md:w-1/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative p-4"
+    >
+      <kind-nav
+        class="block hover:text-white rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-500 mb-4"
+      />
+    </div>
   </div>
 </template>
 
@@ -36,34 +44,12 @@ const currentBot = computed(() => botStore.currentBot)
 </script>
 
 <style>
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.logo-link {
-  margin-bottom: 20px;
-  transition: all 0.3s;
-}
-
-.logo-link:hover {
-  transform: scale(1.1);
-}
-
-section {
-  margin-bottom: 20px;
-}
-
 /* Fade animation for layout transitions */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter,
-.fade-leave-to {
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
   opacity: 0;
 }
 </style>

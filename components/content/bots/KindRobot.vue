@@ -10,10 +10,10 @@
         <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id }} Collect Them All!</span>
       </div>
       <div><bot-prompt /></div>
-      <!-- Hero Section -->
+
       <div class="bg-base p-4 rounded-lg mb-4">
         <div class="text-center mb-4">
-          <h2 class="text-xl font-semibold">Modules (Work in Progress)</h2>
+          <h2 class="text-xl font-semibold">Modules (In Development)</h2>
         </div>
         <div class="flex flex-wrap justify-center">
           <div
@@ -32,7 +32,7 @@
                 >
                   {{ moduleName }}
                 </button>
-                <!-- Module Description Below the Button -->
+
                 <div class="text-sm text-gray-600 mt-2">
                   {{ moduleData[moduleName]?.description || 'No example available' }}
                 </div>

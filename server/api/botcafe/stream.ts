@@ -1,78 +1,74 @@
-// server/api/botcafe/chat.ts
-
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 
 export default defineEventHandler(async (event) => {
   try {
-    const { OPENAI_API_KEY } = useRuntimeConfig()
     const body = await readBody(event)
+    const { OPENAI_API_KEY } = useRuntimeConfig()
+
     const data = {
       model: body.model || 'gpt-3.5-turbo',
       messages: body.messages || [
         { role: 'user', content: 'write me a haiku about butterflies fighting malaria' }
       ],
-      stream: true
+      temperature: body.temperature,
+      max_tokens: body.maxTokens,
+      n: body.n,
+      stream: body.stream || false
     }
     const post = body.post || 'https://api.openai.com/v1/chat/completions'
+    console.log('logging:', data)
 
-    const config = {
-      method: 'post',
-      url: post,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENAI_API_KEY}`
-      },
-      data,
-      responseType: 'stream'
+    if (data.stream) {
+      const responseStream = await axios.post(post, data, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${OPENAI_API_KEY}`
+        },
+        responseType: 'stream'
+      })
+
+      let responseData = ''
+      responseStream.data.on('data', (chunk: any) => {
+        console.log('Received chunk:', chunk.toString()) // Log each chunk as it arrives
+        responseData += chunk
+      })
+
+      return new Promise((resolve, reject) => {
+        responseStream.data.on('end', () => {
+          resolve(JSON.parse(responseData))
+        })
+        responseStream.data.on('error', (err: any) => {
+          reject(err)
+        })
+      })
+    } else {
+      const response = await axios.post(post, data, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${OPENAI_API_KEY}`
+        }
+      })
+
+      return response.data
+    }
+  } catch (error) {
+    let errorMessage = 'An error occurred while creating the channel.'
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError
+      errorMessage += ` Details: ${axiosError.message}`
+      if (axiosError.response) {
+        console.error('Response:', axiosError.response)
+        errorMessage += ` Server responded with ${axiosError.response.status}: ${JSON.stringify(
+          axiosError.response.data
+        )}`
+      }
+    } else if (error instanceof Error) {
+      errorMessage += ` Details: ${error.message}`
     }
 
-    const response = await axios.post(post, data, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENAI_API_KEY}`
-      }
+    throw createError({
+      statusCode: 500,
+      statusMessage: errorMessage
     })
-
-    response.data.on('data', (chunk: any) => {
-      // Parse SSE data here
-      const chunkStr = chunk.toString()
-
-      // Split by double newline to get event chunks
-      const eventChunks = chunkStr.split('\n\n')
-
-      for (const eventChunk of eventChunks) {
-        // Split by single newline to get event lines
-        const eventLines = eventChunk.split('\n')
-
-        for (const eventLine of eventLines) {
-          // Skip comments
-          if (!eventLine.startsWith(':')) {
-            // Split by colon to get field name and value
-            const [field, value] = eventLine.split(':', 2)
-
-            switch (field) {
-              case 'data':
-                // Do something with data here
-                console.log('Data:', JSON.parse(value))
-                break
-              case 'event':
-                // Do something with event type here
-                console.log('Event:', value)
-                break
-              case 'id':
-                // Do something with event ID here
-                console.log('ID:', value)
-                break
-              default:
-                // Unexpected field
-                console.warn('Unexpected field:', field)
-                break
-            }
-          }
-        }
-      }
-    })
-  } catch (error) {
-    console.error(error)
   }
 })

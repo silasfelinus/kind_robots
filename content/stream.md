@@ -1,5 +1,5 @@
 ---
-title: 'Welcome 1'
+title: 'Streaming Test'
 subtitle: 'Tech built to help on-ramp humanity'
 layout: default
 image: botcommunity.webp
@@ -7,6 +7,4 @@ gallery: wonderbot
 tags: ['home']
 ---
 
-Welcome to Kind Robots
-
-[Next](/2)
+:stream-test

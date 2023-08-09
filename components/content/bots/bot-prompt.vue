@@ -13,23 +13,23 @@ const currentBot = computed<Bot | null>(() => botStore.currentBot)
 const message = ref('')
 const response = ref(null)
 const messages = ref<Message[]>([])
+const isLoading = ref(false)
 
 watchEffect(() => {
   if (currentBot.value && currentBot.value.prompt) {
     message.value = currentBot.value.prompt
   }
 })
-const isLoading = ref(false)
 
-// Update the sendMessage method to handle the loading state
 const sendMessage = async () => {
   isLoading.value = true
+  messages.value.push({ role: 'user', content: message.value })
   try {
     const res = await axios.post(
       '/api/botcafe/chat',
       {
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: message.value }]
+        messages
       },
       {
         headers: {

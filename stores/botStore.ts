@@ -5,7 +5,7 @@ import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { useErrorStore, ErrorType } from './errorStore'
 import { useStatusStore, StatusType } from './statusStore'
-import { botData } from './seeds/seedBots' // Assumed seed file name
+import { botData } from './seeds/seedBots'
 
 const errorStore = useErrorStore()
 const statusStore = useStatusStore()

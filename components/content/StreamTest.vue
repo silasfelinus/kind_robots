@@ -1,5 +1,5 @@
 <template>
-  <div class="container max-w-3xl mx-auto p-4 bg-gray-100 min-h-screen">
+  <div class="container max-w-3xl mx-auto p-4 bg-gray-100">
     <!-- Bot Avatar and Details -->
     <div v-if="currentBot" class="avatar-container w-full mb-4 bg-white rounded-lg shadow-lg">
       <div class="flex flex-col md:flex-row items-center p-4">

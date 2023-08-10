@@ -13,3 +13,7 @@ public/images
 *.pem
 .nuxt/
 /mnt/appdata/*
+.yarn
+yarn
+portfolio/.yarn
+portfolio/yarn

@@ -1,5 +1,5 @@
 <template>
   <div>
-    <nuxt-page />
+    <ami-loader />
   </div>
 </template>

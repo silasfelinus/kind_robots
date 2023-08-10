@@ -5,7 +5,12 @@ import axios, { AxiosError } from 'axios'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { OPENAI_API_KEY } = useRuntimeConfig()
+    let { OPENAI_API_KEY } = useRuntimeConfig()
+
+    // Check if user's key is provided in the request
+    if (body.user_openai_key) {
+      OPENAI_API_KEY = body.user_openai_key
+    }
 
     const data = {
       model: body.model || 'gpt-3.5-turbo',

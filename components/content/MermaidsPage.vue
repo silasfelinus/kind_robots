@@ -83,8 +83,7 @@
         residual guilt, being that I was one of those people). In any case, what came out of that
         investigation is now a website that you are looking at.
       </p>
-    </section>
-    <footer>
+
       <p class="text-center">
         With all of that said, feel free to buy "Mermaids of Venice". It has a lot of great ideas,
         often more than was warranted by plot or narrative structure. It has rhyming couplets at the
@@ -112,7 +111,7 @@
         because it's funny, because it's surprising, because it's full of wit, heart and magical
         delisciousness. Silas Knight is an artisan of prose." -C. Kinnamon
       </p>
-    </footer>
+    </section>
   </div>
 </template>
 
@@ -125,7 +124,7 @@ const image = ref('/images/utility/mermaids/mermaids1.jpg')
 const amazonLink = ref('https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742')
 const downloadLink = ref('/mermaids.pdf')
 const mosquitoNetsLink = ref('/amibot')
-const europePic1 = ref('/images/utility/mermaids/europe1.jpg')
+const europePic1 = ref('/images/utility/mermaids/europe1.png')
 const europePic2 = ref('/images/utility/mermaids/europe2.jpg')
 const europePic3 = ref('/images/utility/mermaids/europe3.jpg')
 </script>

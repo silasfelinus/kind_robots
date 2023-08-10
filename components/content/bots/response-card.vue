@@ -16,6 +16,9 @@
       <textarea v-model="replyMessage" placeholder="Type your reply here..."></textarea>
       <button @click="sendReply">Send Reply</button>
     </div>
+    <div class="message">
+      {{ getLastMessageContent }}
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -44,6 +47,9 @@ const toggleReply = () => {
   showReply.value = !showReply.value
 }
 
+const getLastMessageContent = computed(() => {
+  return props.messages.length ? props.messages[props.messages.length - 1].content : ''
+})
 const sendReply = async () => {
   try {
     const updatedMessages = [...props.messages, { role: 'user', content: replyMessage.value }]
@@ -55,3 +61,45 @@ const sendReply = async () => {
   }
 }
 </script>
+<style scoped>
+.response-card {
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.message {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.action-button:hover {
+  background-color: #eaeaea;
+}
+
+.reply-container {
+  margin-top: 16px;
+}
+
+textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}
+</style>

@@ -1,39 +1,38 @@
 <template>
-  <div class="flex flex-col items-center bg-primary min-h-screen p-4 text-gray-800">
+  <div class="flex flex-col items-center bg-base-600 min-h-screen p-4 text-gray-800">
     <div
       v-if="currentBot"
       :data-theme="currentBot.theme"
       class="w-full max-w-3xl p-4 bg-base-600 rounded-lg shadow-md"
     >
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-center mb-4">
         <h1 class="text-3xl font-bold text-theme">{{ currentBot.name }}</h1>
         <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id }} Collect Them All!</span>
       </div>
-      <div><bot-prompt /></div>
+      <div><stream-test /></div>
 
-      <div class="bg-base p-4 rounded-lg mb-4">
+      <div class="bg-base p-4 rounded-lg mt-4">
         <div class="text-center mb-4">
           <h2 class="text-xl font-semibold">Modules (In Development)</h2>
         </div>
-        <div class="flex flex-wrap justify-center">
+        <div class="flex flex-wrap justify-center gap-4">
           <div
             v-for="(moduleName, index) in parsedModules"
             :key="index"
-            class="card w-196 bg-base-400 content m-4"
+            class="card w-48 bg-base-400 content"
           >
-            <div class="card-body items-center text-center">
-              <h2 class="card-title">{{ moduleName }}</h2>
-              <p>{{ moduleData[moduleName]?.description || '' }}</p>
-              <div class="card-actions justify-end">
+            <div class="card-body items-center text-center p-2">
+              <h2 class="card-title text-md truncate">{{ moduleName }}</h2>
+              <p class="truncate">{{ moduleData[moduleName]?.description || '' }}</p>
+              <div class="card-actions justify-end mt-2">
                 <button
-                  class="btn btn-accent"
+                  class="btn btn-accent text-xs"
                   :title="moduleData[moduleName]?.description || ''"
                   @click="selectModule(moduleName)"
                 >
                   {{ moduleName }}
                 </button>
-
-                <div class="text-sm text-gray-600 mt-2">
+                <div class="text-sm text-gray-600 mt-2 truncate">
                   {{ moduleData[moduleName]?.description || 'No example available' }}
                 </div>
               </div>

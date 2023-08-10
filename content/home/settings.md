@@ -7,7 +7,7 @@ gallery: wondershed
 tooltip: 'test'
 tags: ['home']
 ---
-
+:open-ai-key
 :theme-selector
 
 ---

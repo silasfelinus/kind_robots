@@ -15,6 +15,12 @@ const response = ref(null)
 const messages = ref<Message[]>([])
 const isLoading = ref(false)
 
+let userKey: string | null = null
+
+onMounted(() => {
+  userKey = localStorage.getItem('user_openai_key')
+})
+
 watchEffect(() => {
   if (currentBot.value && currentBot.value.prompt) {
     message.value = currentBot.value.prompt
@@ -29,7 +35,8 @@ const sendMessage = async () => {
       '/api/botcafe/chat',
       {
         model: 'gpt-3.5-turbo',
-        messages
+        messages,
+        userKey
       },
       {
         headers: {

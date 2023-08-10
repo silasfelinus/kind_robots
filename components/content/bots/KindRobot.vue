@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center bg-base-600 min-h-screen p-4 text-gray-800">
+  <div class="flex flex-col items-center bg-base-600 p-4 text-gray-800">
     <div
       v-if="currentBot"
       :data-theme="currentBot.theme"

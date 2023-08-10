@@ -69,7 +69,7 @@ const sendReply = async (updatedMessages: Message[]) => {
 </script>
 <template>
   <div
-    class="container flex flex-col justify-center items-center min-h-screen p-4 bg-gray-100"
+    class="container flex flex-col justify-center items-center p-4 bg-gray-100"
     :data-theme="currentBot?.theme"
   >
     <div

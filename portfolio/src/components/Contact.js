@@ -25,26 +25,21 @@ export default function Contact() {
       .then(() => alert("Message sent!"))
       .catch((error) => alert(error));
   }
-
   return (
     <section id="contact" className="relative">
       <div className="container px-5 py-10 mx-auto flex sm:flex-nowrap flex-wrap">
-        <div className="lg:w-2/3 md:w-1/2 bg-gray-900 rounded-lg overflow-hidden sm:mr-10 p-10 flex items-end justify-start relative"></div></div>
-    </section>
             <div className="lg:w-1/2 px-6 mt-4 lg:mt-0">
               <h2 className="title-font font-semibold text-white tracking-widest text-xs">
                 EMAIL
               </h2>
               <a className="text-indigo-400 leading-relaxed">
-                reedbarger@email.com
+                silas@kindrobots.org
               </a>
               <h2 className="title-font font-semibold text-white tracking-widest text-xs mt-4">
                 PHONE
               </h2>
-              <p className="leading-relaxed">123-456-7890</p>
+              <p className="leading-relaxed">707-832-9657</p>
             </div>
-          </div>
-        </div>
         <form
           netlify
           name="contact"
@@ -53,8 +48,12 @@ export default function Contact() {
             Hire Me
           </h2>
           <p className="leading-relaxed mb-5">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Illum
-            suscipit officia aspernatur veritatis. Asperiores, aliquid?
+          I'm a full-stack developer specializing in modern Jamstack (https://jamstack.org/what-is-jamstack/) REST API and Javascript-based frameworks like React(https://react.dev/), Vue(https://vuejs.org/), and Nuxt(https://nuxt.com). 
+
+          I built a suite of AI chatbots (https://kindrobots.org) using Node.js, Vue, Nuxt, Prisma, MariaDB, Typescript, and Tailwind.
+          
+          If you have a tech-focused project and need support, contact me!
+            
           </p>
           <div className="relative mb-4">
             <label htmlFor="name" className="leading-7 text-sm text-gray-400">
@@ -96,7 +95,7 @@ export default function Contact() {
             Submit
           </button>
         </form>
-      </div>
+        </div>
     </section>
   );
 }

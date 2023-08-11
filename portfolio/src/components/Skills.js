@@ -14,9 +14,7 @@ export default function Skills() {
             Skills &amp; Technologies
           </h1>
           <p className="text-base leading-relaxed xl:w-2/4 lg:w-3/4 mx-auto">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nisi sit
-            ipsa delectus eum quo voluptas aspernatur accusantium distinctio
-            possimus est.
+            When I was 12, I learned BASIC on a yard sale TRS-80. It had an honest-to-goodness tape drive and no modem. As a young Gen-Z, I watched the world change in so many ways. I've lived in many places but my home is in Northern California. I learned my values watching my single mother struggling to meet ends, but using her spare time to run a non-profit (The Humboldt READ Project) that redirected books heading for landfills to underserved areas of the community.
           </p>
         </div>
         <div className="flex flex-wrap lg:w-4/5 sm:mx-auto sm:mb-2 -mx-2">

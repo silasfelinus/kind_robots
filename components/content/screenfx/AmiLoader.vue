@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-let butterflyCount = ref(150)
+let butterflyCount = ref(50)
 const fadeOut = ref(false)
 const pageReady = ref(false)
 

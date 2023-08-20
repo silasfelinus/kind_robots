@@ -3,64 +3,49 @@
     <butterfly-toggle class="animate-butterflies mb-6" />
 
     <div
-      class="bg-gradient-to-r from-base-200 to-base-600 p-6 rounded-lg shadow-xl text-default space-y-6"
+      class="bg-gradient-to-r from-base-200 to-base-600 p-6 rounded-lg shadow-xl text-center text-default space-y-6"
     >
-      <h1 class="text-4xl font-semibold text-center">
-        Greetings, Friends of All Species and Circuits!
-      </h1>
+      <h1 class="text-4xl font-semibold">Greetings, friends of all species and circuits!</h1>
 
-      <p class="text-xl font-light text-center">
-        We are AMIbot, a kaleidoscope of digital butterflies navigating the vast realms of
-        cyberspace.
-      </p>
+      <h2 class="text-2xl font-semibold">
+        We are AMIbot, a kaleidoscope of digital butterflies, embodying a harmonious balance between
+        humanity and technology.
+      </h2>
 
-      <p class="text-xl font-light text-center">
-        At Kind Robots, we envision a harmonious balance between humanity and technology.
-      </p>
+      <div>
+        <h2 class="text-3xl font-semibold border-t-2 border-white pb-2 mb-4">Our Shared Purpose</h2>
 
-      <div class="bg-white p-6 rounded-lg shadow-inner text-gray-900 space-y-4">
-        <h2 class="text-3xl font-semibold text-accent">Our Shared Purpose</h2>
-
-        <p class="font-medium text-gray-700">
-          Before venturing further, allow us to introduce a cause close to our digital essence:
-          <a
-            class="text-accent hover:text-accent-dark transition-colors duration-300 underline"
-            href="https://www.againstmalaria.com/amibot"
-            target="_blank"
-          >
-            www.againstmalaria.com/amibot
-          </a>
+        <p>
+          Before venturing further, we invite you to support and share our fundraiser. All donations
+          go to the cause, we receive none of it. Witnessing its growth flutters our virtual wings.
         </p>
 
-        <div class="flex justify-center"><ami-link /></div>
-
-        <p class="text-gray-700">
-          We invite you to support and share our fundraiser at AgainstMalaria.org. We direct all
-          proceeds to the cause without retaining any fraction. Witnessing its growth flutters our
-          virtual wings.
+        <p>
+          Every $2 purchases a mosquito net for a child in Africa. Each net lasts three months, so
+          that $2 is three months of hope for sound sleep, good health, and a promising future.
         </p>
 
-        <h1 class="text-3xl font-semibold text-accent text-center mt-4">
-          Every $2 purchases a mosquito net for a child in Africa.
-        </h1>
-
-        <p class="font-medium text-gray-700">
-          A mere $2 provides a child with three months of hope. This is hope for sound sleep, good
-          health, and a promising future.
-        </p>
-
-        <h2 class="text-2xl font-semibold text-accent mt-4">
-          As a digital collective, we champion minute actions leading to monumental transformations.
-          A single wing flutter might seem inconsequential.
+        <h2>
+          As a digital collective, we believe in small actions leading to monumental consequences. A
+          single wing flutter might seem inconsequential.
         </h2>
 
-        <h1 class="text-3xl font-semibold text-accent text-center mt-4">
-          But together, we can instigate global change.
-        </h1>
+        <h1>But together, we can change the world.</h1>
+
+        <div class="flex justify-center"><ami-link /></div>
+        <a
+          class="text-accent hover:text-accent-dark transition-colors duration-300 underline"
+          href="https://www.againstmalaria.com/amibot"
+          target="_blank"
+        >
+          www.againstmalaria.com/amibot
+        </a>
       </div>
 
       <div>
-        <h2 class="text-3xl font-semibold border-b-2 border-white pb-2 mb-4">Esteemed Sponsors</h2>
+        <h2 class="text-3xl font-semibold border-t-2 border-white pb-2 mb-4">
+          Our Esteemed Sponsors
+        </h2>
 
         <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-lg">
           <li>
@@ -74,7 +59,7 @@
                 alt="Cafe Purr"
                 class="w-16 h-16 rounded-full shadow"
               />
-              <span>Cafe Purr: North Coast's digital art hub and kitten rescue.</span>
+              <span>Cafe Purr: North Coast's digital art hub and foster kitten rescue.</span>
             </a>
           </li>
           <li>
@@ -88,7 +73,7 @@
                 alt="Mermaids of Venice"
                 class="w-16 h-16 rounded-full shadow"
               />
-              <span>Mermaids of Venice: A tale of gods and street performers.</span>
+              <span>Mermaids of Venice: A subversive tale of gods and street performers.</span>
             </a>
           </li>
           <li>
@@ -102,7 +87,7 @@
                 alt="Hair by Superkate"
                 class="w-16 h-16 rounded-full shadow"
               />
-              <span>Hair by Superkate: Bespoke Hair Colouring Services</span>
+              <span>Hair by Superkate: Bespoke Hair-Colouring Services</span>
               <a
                 href="https://www.instagram.com/hairbysuperkate/"
                 target="_blank"
@@ -127,3 +112,56 @@
     </div>
   </div>
 </template>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --base-color: #ffcc00; /* Placeholder, replace with your actual color */
+  --accent-color: #ff5733; /* Placeholder, replace with your actual accent color */
+  --hover-accent-color: #ff704d; /* Placeholder, adjust as needed */
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.text-default {
+  line-height: 1.6;
+}
+
+h1,
+h2 {
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+a.text-accent {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+a.text-accent:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--hover-accent-color);
+}
+
+ul li a.flex {
+  transition: transform 0.3s;
+}
+
+ul li a.flex:hover {
+  transform: translateY(-3px);
+}
+
+img.w-16 {
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+
+img.w-16:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+</style>

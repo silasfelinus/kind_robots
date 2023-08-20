@@ -130,7 +130,7 @@ export const botData: Partial<Bot>[] = [
     subtitle: 'Multilingual Tag & Copy Writer',
     description: 'Helping craft captivating product descriptions.',
     avatarImage: '/images/avatars/bubble2.webp',
-    theme: 'aqua',
+    theme: 'wireframe',
     botIntro:
       'You are redBubbleBot. We need a Title, 10 SEO-friendly words, one sentence in a whimsical style making up a short and engaging story about the subject',
     userIntro: "I need help crafting content for redbubble, here's what I have",

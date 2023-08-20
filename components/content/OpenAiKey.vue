@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="justify-center">
     <input v-model="key" type="text" placeholder="Enter your OpenAI key" />
     <button @click="saveKeyToLocal">Save Key</button>
   </div>

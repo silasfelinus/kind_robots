@@ -9,9 +9,7 @@ tags: ['home']
 ---
 
 <div class="text-center">
-🤖 Hello, Human Friend! Welcome to Kind Robots! 🌍
 
-We are the Kind Robots, at an intersection of worlds, designed to show that AI and humanity can harmonize into something magical! 🎩✨
 
 <p> Kind Robots was created by Silas Knight using Nuxt 3, Vue Composition API, Prisma, MariaDB, & Typescript.</p>
 

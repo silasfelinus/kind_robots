@@ -1,130 +1,144 @@
 <template>
-  <div class="bg-base p-8 text-gray-800">
-    <header class="text-center mb-12">
-      <img :src="image" alt="Background Image" class="w-1/4 mx-auto" />
-      <h1 class="text-4xl font-bold">{{ title }}</h1>
-      <h2 class="text-2xl font-semibold">{{ subtitle }}</h2>
-    </header>
+  <div class="bg-base p-8 text-gray-800 flex flex-col md:flex-row">
+    <!-- Main Content -->
+    <section class="prose prose-lg max-w-3xl mb-12 md:mb-4 md:mr-12">
+      <header class="text-center mb-12">
+        <img :src="image" alt="Background Image" class="w-1/4 mx-auto mb-4" />
+        <h1 class="text-4xl font-bold">{{ title }}</h1>
+        <h2 class="text-2xl font-semibold">{{ subtitle }}</h2>
+        <a :href="amazonLink" class="btn btn-primary block w-max mx-auto mb-8">Amazon link</a>
+      </header>
 
-    <section class="prose prose-lg max-w-3xl mx-auto">
-      <a :href="amazonLink" class="btn btn-primary block w-max mx-auto mb-8">Amazon link</a>
-      <h2 class="text-3xl">Author's disclaimer</h2>
-      <p>This was a book written by a young man.</p>
-      <p>I share his body, but I no longer hold his perspectives.</p>
-
-      <p>
-        "Mermaids of Venice" is fun (though the first act ends aggressively abruptly with the death
-        of its main character). There are gems within it, but it commits at least three cardinal
-        sins that make me unable to recommend it without qualifications:
-      </p>
-      <p>
-        "Mermaids" is drenched with $5 words, reminiscent of the shortest horror story: "2 cups of
-        vanilla extract", enough sweet sequipedalians to ensure the reader knew that the writer wAs
-        vERy SmArT, and a flagrant literary theft of Pratchett's "almost invisible" concept. [Fans
-        of
+      <h2 class="text-3xl p-2">Author's Disclaimer</h2>
+      <p class="text-xl p-2">
+        Mermaids of Venice is a polytheistic love story with rhyming couplets at the start of each
+        chapter. It features an attractive cover, perfect for adorning a coffee table or
+        complementing a reader's face. It's also laden with $5 words, overstuffed with saccharine
+        sesquipedalians to convince readers that its author was VeRY SmaRt. The first act ends with
+        the abrupt death of the main character, and admirers of
         <a
           href="https://www.amazon.com/Soul-Music-Discworld-Terry-Pratchett/dp/0062237411"
-          class="underline text-blue-500"
-          >Soul Music</a
+          class="underline text-blue-600 hover:text-blue-800"
+          >Terry Pratchett's Soul Music</a
         >
-        should easily grok Bernard's "nearly invisible" superpower-slash-personality].
+        should easily recognize Bernard's "nearly invisible" superpower/personality.
       </p>
-      <p></p>
-      <p>
-        However, the most egregious sin (one that's truthfully restrained me from promoting the
-        novel) is my unironic use of the
-        <a href="https://en.wikipedia.org/wiki/Magical_Negro" class="underline text-blue-500"
+
+      <p class="text-xl p-2">
+        Those are the venial sins of a young writer searching for a voice. I am much more critical
+        of my unexamined use of the
+        <a
+          href="https://en.wikipedia.org/wiki/Magical_Negro"
+          class="underline text-blue-600 hover:text-blue-800"
           >magical negro trope</a
-        >
+        >. To be clear, I was educated of the trope before publication by my respected friend and
+        hive-editor Adam Creighton. But I brushed the note aside, caring more about getting the
+        Kickstarter to publication.
       </p>
-      <p>
-        I was informed of the trope before publication (by my esteemed friend and hive-editor Adam
-        Creighton), but I brushed it aside, caring more about getting the Kickstarter to
-        publication. And besides, I thought: wasn't I doing good by including Hermes, my
-        magician-slash-busker? Wasn't he charming? World-traveled? An idealized POC male character
-        to demonstrate that I was a considerate liberal writer comfortable with a multi-cultural
-        cast?
+
+      <p class="text-xl p-2">
+        I intended Hermes, my street performing magician, to be a delightful, affirmative figure.
+        Like many other characters, Hermes had a real life analogue. But Hermes was a plot device, a
+        token POC appearing long enough to gift our white-male protagonist a magical Mcguffin before
+        disappearing from the narrative. Hermes' chapter lacked the investigations of sex, gender,
+        and intimacy that play out in the rest of the novel, and in an evening I once shared with
+        the kind stranger that Hermes inspired, when I was stuck overnight with a backpack and three
+        juggling clubs at a San Francisco bus depot.
       </p>
-      <p>
-        So what if he failed to make an appearance after handing our disaffected white male
-        protagonist the magic ticket he needs to progress. Yes, he was a street magician, but did he
-        need to disappear from the narrative, never to be seen again (even in an extensive, chaotic
-        finale that manages to include everyone except the hero's dead mother and a single
-        throw-away character I professed to care about, yet relegated to a plot device).
+
+      <p class="text-xl p-2">
+        Absent the contextual personalization, I relegated Hermes to a social device, existing to
+        demonstrate that I was a liberal writer comfortable with a multi-cultural cast. I cannot
+        deny that even now, I use him to contextualize my personal growth and my work's relevance to
+        contemporary culture.
       </p>
-      <p>
-        Post-BLM, post-#MeToo, post-raising two boy-children during extended quarantine, any changes
-        I could make to "Mermaids of Venice" feel like reconstructionism.
+      <p class="text-xl p-2">
+        If I was to rewrite Mermaids, Bernard's arc would culminate not with a reunion with his
+        estranged father, but with Hermes. Instead of a cathartic confrontion with the past, Bernard
+        would be given an opportunity to examine the nuanced context of generational trauma and
+        cultural privilege that elevated him to his divine status.
       </p>
-      <p>
-        Despite its flaws, Mermaids represents 6-years of effort and intent, and its release after a
+
+      <p class="text-xl p-2">
+        But I wrote "Mermaids" as a young man, with self-doubt and imperfections. I'm proud that my
+        third act foreshadowed the Occupy Wall Street movement, but I was calling out undercurrents
+        of social unrest that were only ripples in my pond. After #BLM and #MeToo, after raising two
+        boy-identified children during extended quarantine, any modification to "Mermaids of Venice"
+        stinks of revisionism. Nonetheless, the book reflects six years of dedicated work, a
         <a
           href="https://www.kickstarter.com/projects/silasknight/mermaids-of-venice"
-          class="underline text-blue-500"
+          target="_blank"
+          class="underline text-blue-600 hover:text-blue-800"
+          rel="noopener noreferrer"
           >successful Kickstarter</a
+        >, and a series of adventures as an acrobatic
+        <span
+          class="underline text-blue-600 hover:text-blue-800"
+          @mouseover="showEuropeImage1 = true"
+          @click="showEuropeImage1 = true"
+          >street performer</span
         >
-        was a personal milestone (as were my European adventures as a street performer which
-        inspired the storyline).
-      </p>
-      <div class="flex justify-center space-x-2">
-        <img :src="europePic1" alt="Europe 1" class="h-64" />
-        <img :src="europePic3" alt="Europe 3" class="h-64" />
-      </div>
-      <p>
-        I'm proudest that my third act takeover of the Ubermarkt foreshadowed the Occupy Wall-Street
-        movement, but the simmering boil I recognized was only a tiny bubble in my pond. I had no
-        idea the effects I was truly observing, or the extent of the consequences to come.
-      </p>
-      <p>
-        I started work on a sequel to Mermaids as a pitch for a VR game experience "Mermaids of
-        Europa". The planning for that was changed, as many things were, by extended quarantine,
-        after I grew disenchanted with a project that was only going to be enjoyed by those
-        fortunate enough to have access to a high-end digital toy. (Obviously, there was plenty of
-        residual guilt, being that I was one of those people). In any case, what came out of that
-        investigation is now a website that you are looking at.
+        which guided my narrative.
       </p>
 
-      <p class="text-center">
-        With all of that said, feel free to buy "Mermaids of Venice". It has a lot of great ideas,
-        often more than was warranted by plot or narrative structure. It has rhyming couplets at the
-        start of each chapter. It's polyamorous and aims to be gender and relationship subversive.
-        It has an attactive cover that looks great sitting on a coffee table or being opened by
-        someone that you think has the ability to read. [
-        <a href="/mermaids.pdf">Or download the pdf for free</a>, and use the money to
-        <a href="/amibot">buy mosquito nets]</a>.
-      </p>
-      <p class="text-center">
-        "Mermaids of Venice is a literary ballerina - supple and strong, astounding, beautiful in a
-        way that makes your heart fight to get out of your chest. I was fully engrossed from the
-        very first line to the last, feeling something like I was on a roller-coaster - you don't
-        just get off once you're strapped in."" - Amazon Review
-      </p>
-
-      <p class="text-center">
-        "Smart, sexy and delightfully subversive, I devoured Mermaids of Venice the first time I
-        read it. It made me laugh, made me cry and gave me goosebumps. A beautifully unique
-        linguistic treat, highly recommended!" -C Curtis
-      </p>
-
-      <p class="text-center">
-        "I rarely laugh-out-loud reading novels, but this one has me at it at least once a page-
-        because it's funny, because it's surprising, because it's full of wit, heart and magical
-        delisciousness. Silas Knight is an artisan of prose." -C. Kinnamon
+      <p class="text-xl p-2">
+        "Mermaids" was conceived as a force for good, but time has reshaped my perception of what
+        constitutes "good." With this in mind, anyone lacking funds is invited to
+        <a href="/mermaids.pdf" class="underline text-blue-600 hover:text-blue-800"
+          >download the PDF for free</a
+        >
+        and everyone is invited to use their money instead to
+        <a href="/projects/amibot" class="underline text-blue-600 hover:text-blue-800"
+          >purchase mosquito nets</a
+        >.
+        <ami-link />
       </p>
     </section>
+
+    <!-- Quotes on the Right Side Panel -->
+    <aside class="w-full md:w-1/3 mt-8 md:mt-0">
+      <blockquote class="p-4 mb-6 border-l-4 border-gray-800 italic text-center">
+        "Mermaids of Venice is a literary ballerina - supple, strong, astonishing, and captivating
+        in a way that makes your heart race. From the first line to the last, I was thoroughly
+        engrossed. It's akin to a roller-coaster - once you're on, you're committed to the ride." -
+        Amazon Review
+      </blockquote>
+
+      <blockquote class="p-4 mb-6 border-l-4 border-gray-800 italic">
+        "Smart, sexy, and delightfully subversive, I devoured 'Mermaids of Venice' the first time I
+        read it. It made me laugh, cry, and gave me goosebumps. A linguistically unique treat I
+        highly recommend!" -C Curtis
+      </blockquote>
+
+      <blockquote class="p-4 mb-6 border-l-4 border-gray-800 italic">
+        "It's a rarity for a novel to make me laugh out loud, but this one managed that feat
+        frequently – for its humor, surprises, wit, heart, and magical richness. Silas Knight is
+        truly a master of prose." -C. Kinnamon
+      </blockquote>
+    </aside>
   </div>
 </template>
-
 <script setup>
 import { ref } from 'vue'
 
 const title = ref('Mermaids of Venice')
-const subtitle = ref('A subversive fairy tale in a world of gods and street performers.')
+const subtitle = ref('A subversive fairy tale of gods and street performers.')
 const image = ref('/images/utility/mermaids/mermaids1.jpg')
 const amazonLink = ref('https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742')
 const downloadLink = ref('/mermaids.pdf')
-const mosquitoNetsLink = ref('/amibot')
+const mosquitoNetsLink = ref('/projects/amibot')
 const europePic1 = ref('/images/utility/mermaids/europe1.png')
 const europePic2 = ref('/images/utility/mermaids/europe2.jpg')
 const europePic3 = ref('/images/utility/mermaids/europe3.jpg')
+
+const showEuropeImage1 = ref(false)
+const showEuropeImage3 = ref(false)
+
+function toggleEurope1Image() {
+  showEuropeImage1.value = !showEuropeImage1.value
+}
+
+function toggleEurope3Image() {
+  showEuropeImage3.value = !showEuropeImage3.value
+}
 </script>

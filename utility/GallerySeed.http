@@ -1,23 +1,30 @@
-### Get all galleries
-GET https://kindrobots.org/api/galleries
+### Get gallery by Name
+GET https://kindrobots.org/api/gallery/name/acrocats
+Accept: application/json
+
+###
+
+### Get all gallery
+GET https://kindrobots.org/api/gallery
 Accept: application/json
 
 ###
 
 ### Get gallery by ID
-GET https://kindrobots.org/api/galleries/id/1
+GET https://kindrobots.org/api/gallery/id/1
 Accept: application/json
 
 ###
 
+
 ### Get gallery count
-GET https://kindrobots.org/api/galleries/count
+GET https://kindrobots.org/api/gallery/count
 Accept: application/json
 
 ###
 
 ### Create a gallery
-POST https://kindrobots.org/api/galleries
+POST https://kindrobots.org/api/gallery
 Content-Type: application/json
 
 {
@@ -32,34 +39,20 @@ Content-Type: application/json
 
 ###
 ### Get Random Gallery
-GET https://kindrobots.org/api/galleries/random
+GET https://kindrobots.org/api/gallery/random
 Content-Type: application/json
 
 ###
 
 ### Get Random Image
-GET https://kindrobots.org/api/galleries/1/randomimage
+GET https://kindrobots.org/api/gallery/random/image
 Content-Type: application/json
 
 
 ###
-### Update a gallery
-PATCH https://kindrobots.org/api/galleries/1
-Content-Type: application/json
 
-{
-  "name": "Updated Gallery Name",
-  "content": "This is some updated content.",
-  "description": "This is a updated description of the gallery.",
-  "highlightImage": "/images/updated_gallery.jpg",
-  "isNSFW": false,
-  "isAuth": true
-}
-
-###
-
-#### Create multiple galleries
-POST https://kindrobots.org/api/galleries/
+#### Create multiple gallery
+POST https://kindrobots.org/api/gallery/
 Content-Type: application/json
 
 [
@@ -154,3 +147,13 @@ Content-Type: application/json
     "highlightImage": "/images/wondershed/wondershed1.webp"
   }
 ]
+
+###
+### Update galleries
+PATCH https://kindrobots.org/api/gallery/batch
+Content-Type: application/json
+
+[
+{ "name": "acrocats",
+"imagePaths": "acrocats-19.webp,acrocats-20.webp,acrocats-21.webp,acrocats-22.webp,acrocats-23.webp,acrocats-24.webp,acrocats-25.webp,acrocats-26.webp,acrocats-27.webp,acrocats-28.webp,acrocats-29.webp,acrocats-30.webp,acrocats-31.webp,acrocats-32.webp,acrocats-33.webp,acrocats-34.webp,acrocats-35.webp,acrocats-36.webp,acrocats-37.webp,acrocats-38.webp,acrocats-39.webp,acrocats-40.webp,acrocats-41.webp,acrocats-42.webp,acrocats-43.webp,acrocats-44.webp,acrocats-45.webp,acrocats-46.webp,acrocats-47.webp,acrocats-48.webp,acrocats-49.webp,acrocats-50.webp,acrocats-51.webp,acrocats-52.webp,acrocats-53.webp,acrocats-54.webp,acrocats-55.webp,acrocats-56.webp,acrocats-57.webp"
+}]

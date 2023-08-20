@@ -7,9 +7,6 @@
         {{ bot.name }}
       </option>
     </select>
-    <div v-if="currentBot" class="mt-4 text-blue-500">
-      <p>Active bot: {{ currentBot.name }}</p>
-    </div>
   </div>
 </template>
 

@@ -1,11 +1,10 @@
 ---
-title: 'View Art'
+title: 'Galleries'
 subtitle: 'Is it art?'
 layout: default
 image: backtree.webp
 gallery: flower
-tags: ['projects']
+tags: ['home']
 ---
 
-:gallery-list
-:gallery-view
+:gallery-highlight

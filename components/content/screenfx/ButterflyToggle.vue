@@ -1,6 +1,6 @@
 <template>
   <div
-    class="icon-container flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent-100"
+    class="icon-container flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent-100 flex-col"
   >
     <div
       class="icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
@@ -21,8 +21,15 @@
         :style="{ '--animation-delay': i * 0.1 + 's' }"
       />
     </div>
+
+    <!-- Moved the label below the icon -->
+    <div v-if="!fxStore.showAmiSwarm" class="label-container mt-2">
+      <span class="arrow">↑</span> Release the butterflies!
+    </div>
+    <div v-else class="label-container mt-2">We're free!</div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { useScreenStore } from '../../../stores/screenStore'
 
@@ -32,7 +39,7 @@ const toggleAmiSwarm = () => fxStore.toggleAmiSwarm()
 
 const butterflyCount = 50
 </script>
-<style scoped>
+<style>
 .icon-box {
   border-radius: 50%;
 }
@@ -59,5 +66,17 @@ const butterflyCount = 50
       0 0 30px #ffaa00,
       0 0 40px #ffaa00;
   }
+}
+
+.label-container {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  color: #555; /* Adjust color to fit your design */
+}
+
+.arrow {
+  margin-right: 5px;
+  font-weight: bold;
 }
 </style>

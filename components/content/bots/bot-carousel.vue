@@ -72,3 +72,13 @@ watch(
   }
 )
 </script>
+<style>
+.carousel {
+  scroll-behavior: smooth;
+  overflow-y: hidden;
+}
+
+.carousel-item {
+  margin-bottom: 20px;
+}
+</style>

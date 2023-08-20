@@ -1,34 +1,87 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+
+const isChecked = ref(true)
+const flipContainer = ref<HTMLDivElement | null>(null)
+const hasLocalStorage = ref(storageAvailable('localStorage'))
+
+const toggleFlip = () => {
+  if (flipContainer.value) {
+    flipContainer.value.classList.toggle('flipped')
+    const isFlipped = flipContainer.value.classList.contains('flipped')
+    if (hasLocalStorage.value) {
+      window.localStorage.setItem('flipState', isFlipped ? 'flipped' : 'unflipped')
+    }
+    isChecked.value = !isFlipped
+  }
+}
+
+function storageAvailable(type: 'localStorage' | 'sessionStorage'): boolean {
+  try {
+    const storage = window[type]
+    const testKey = '__storage_test__'
+    storage.setItem(testKey, testKey)
+    storage.removeItem(testKey)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+onMounted(() => {
+  const route = useRoute()
+  const isBotRoute = route.path.startsWith('/bot/')
+  const flipState = hasLocalStorage.value ? window.localStorage.getItem('flipState') : 'unflipped'
+
+  if (isBotRoute || flipState === 'flipped') {
+    flipContainer.value?.classList.add('flipped')
+    isChecked.value = false
+  }
+})
+</script>
 <template>
-  <div class="flex flex-col md:flex-row h-screen text-gray-800 space-y-4 md:space-y-0 md:space-x-4">
+  <div
+    class="flex flex-col md:flex-row h-screen text-gray-800 p-4 space-y-4 md:space-y-0 md:space-x-4"
+  >
     <!-- Sidebar -->
     <div
-      class="md:w-1/5 h-full flex flex-col overflow-y-auto shadow-lg bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl p-4 space-y-4"
+      class="md:w-1/5 flex flex-col items-center bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
     >
-      <div class="mb-4">
-        <img
-          src="/images/fulltitle.png"
-          class="mx-auto w-full h-auto shadow-lg hover:shadow-2xl transition-shadow duration-500 rounded-xl"
-          alt="Title"
-        />
-        <home-nav></home-nav>
-        <theme-selector />
+      <div ref="flipContainer" class="flex-grow flip-container w-full">
+        <div class="flip-front sidebar-content w-full">
+          <img alt="Kind Robots Logo" src="/images/fulltitle.png" class="mx-auto rounded-l" />
+          <home-nav />
+          <theme-selector />
+        </div>
+        <div class="flip-back sidebar-content w-full text-center profile-center">
+          <h1>Welcome to Kind Robots</h1>
+          <bot-selector />
+          <div class="carousel-container">
+            <bot-carousel />
+          </div>
+        </div>
       </div>
-      <h1 class="mt-8 text-3xl font-semibold text-center">Welcome to Kind Robots</h1>
-      <p class="mt-2 text-xl text-dark text-center">Please Select your Bot:</p>
-      <bot-selector />
-      <div class="mt-24 mx-auto max-w-4xl">
-        <bot-carousel />
+      <!-- Toggle Switch -->
+      <div class="toggle-container flex justify-between items-center w-full">
+        <span>Bot View</span>
+        <label class="switch">
+          <input
+            type="checkbox"
+            role="switch"
+            aria-label="Toggle view"
+            :checked="isChecked"
+            @change="toggleFlip"
+          />
+          <span class="slider"></span>
+        </label>
+        <span>Nav View</span>
       </div>
     </div>
-
     <!-- Main Content -->
-    <main
-      class="md:w-3/5 h-full flex flex-col bg-base shadow-inner rounded-l-xl transition-all duration-500 relative p-4 space-y-4"
-    >
-      <transition name="fade" mode="out-in">
-        <div>
-          <slot />
-        </div>
+    <main class="md:w-3/5 h-full flex bg-base shadow-inner rounded-l-xl p-4">
+      <transition name="fade">
+        <slot />
       </transition>
     </main>
   </div>
@@ -45,13 +98,80 @@
   opacity: 0;
 }
 
-/* Flip animation for the title image and bot-carousel transition */
-.flip-enter-active,
-.flip-leave-active {
+/* Flip container setup */
+.flip-container {
+  perspective: 1000px;
+}
+
+/* Setup for the front and back content */
+.flip-front,
+.flip-back {
+  backface-visibility: hidden;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform-style: preserve-3d;
   transition: transform 0.6s;
 }
-.flip-enter,
-.flip-leave-to {
-  transform: rotateY(90deg);
+
+.flip-front {
+  transform: rotateY(0deg);
+}
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+.flipped .flip-front {
+  transform: rotateY(-180deg);
+}
+.flipped .flip-back {
+  transform: rotateY(0deg);
+}
+
+/* Switch toggle styles */
+.switch {
+  position: relative;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #4caf50;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
 }
 </style>

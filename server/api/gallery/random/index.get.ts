@@ -6,15 +6,15 @@ export default defineEventHandler(async () => {
   try {
     const gallery = await randomGallery()
 
-    if (!gallery) {
+    if (!gallery || !gallery.name) {
       throw new Error(`No galleries available.`)
     }
 
-    return { success: true, gallery }
+    return { success: true, galleryName: gallery.name }
   } catch (error: any) {
     return {
       success: false,
-      message: 'Failed to fetch a random gallery.',
+      message: 'Failed to fetch a random gallery name.',
       error: error.message
     }
   }

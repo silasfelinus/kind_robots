@@ -1,6 +1,3 @@
-// ~/server/api/galleries/index.ts
-import fs from 'fs'
-import path from 'path'
 import { Gallery as GalleryRecord, Prisma } from '@prisma/client'
 import prisma from './../utils/prisma'
 
@@ -18,7 +15,6 @@ export async function fetchGalleries(page = 1, pageSize = 100): Promise<Gallery[
   const skip = (page - 1) * pageSize
   return prisma.gallery.findMany({ skip, take: pageSize })
 }
-
 export async function getRandomImage(): Promise<string | null> {
   try {
     // Fetch all images from all galleries
@@ -51,14 +47,14 @@ export async function getGalleryImages(galleryId: number): Promise<string[]> {
     const gallery = await fetchGalleryById(galleryId)
     if (!gallery) throw new Error(`No gallery found for id: ${galleryId}`)
 
-    const imagesFilePath = path.resolve(
-      __dirname,
-      `../../public/images/${gallery.name}/images.json`
-    )
-    const imagesFile = fs.readFileSync(imagesFilePath, 'utf8')
-    const images = JSON.parse(imagesFile)
+    if (!gallery.imagePaths) {
+      console.warn(`No image paths for gallery: ${gallery.name}`)
+      return []
+    }
 
-    return images.map((image: string) => constructImageUrl(gallery.name, image))
+    const imageNames = gallery.imagePaths.split(',')
+
+    return imageNames.map((imageName: string) => constructImageUrl(gallery.name, imageName.trim()))
   } catch (error) {
     console.error(`Failed to get gallery images: ${error}`)
     throw error
@@ -123,17 +119,12 @@ export async function updateGallery(id: number, data: Partial<Gallery>): Promise
     data: data as Prisma.GalleryUpdateInput
   })
 }
-export async function getAllGalleryImages() {
+export async function getAllGalleryImages(): Promise<string[]> {
   try {
     const galleries = await prisma.gallery.findMany()
-    let allImages: string[] = []
-
-    for (const gallery of galleries) {
-      const images = await getGalleryImages(gallery.id)
-      allImages = [...allImages, ...images]
-    }
-
-    return allImages
+    const imagesPromises = galleries.map((gallery) => getGalleryImages(gallery.id))
+    const allImagesArrays = await Promise.all(imagesPromises)
+    return allImagesArrays.flat()
   } catch (error) {
     console.error(`Failed to get all gallery images: ${error}`)
     throw error

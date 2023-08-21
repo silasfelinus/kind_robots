@@ -1,10 +1,9 @@
 ---
-title: 'Gallery Highlight'
-subtitle: 'Is it art?'
+title: 'Gallery View'
+subtitle: 'Memory Game'
 layout: default
 image: backtree.webp
 gallery: flower
 tags: ['home']
 ---
-
-:gallery-highlight
+:gallery-view

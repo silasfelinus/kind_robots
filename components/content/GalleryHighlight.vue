@@ -1,166 +1,160 @@
 <template>
-  <div class="container mx-auto p-4">
-    <!-- Galleries Display -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div
-        v-for="galleryImage in galleryImages"
-        :key="galleryImage.galleryName"
-        class="gallery-display border rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-        :class="{ 'scale-125 transform': galleryImage.selected }"
-        @click="handleGalleryClick(galleryImage)"
-      >
+  <!-- Loading state -->
+  <div v-if="loading" class="text-center py-5 text-gray-500">Loading galleries...</div>
+
+  <!-- Error state -->
+  <div v-else-if="error" class="text-center py-5 text-red-500">
+    Error loading galleries: {{ error.message }}
+  </div>
+
+  <!-- Empty state -->
+  <div v-else-if="!galleries.length" class="text-center py-5 text-gray-400">
+    No galleries available.
+  </div>
+
+  <!-- Galleries -->
+  <div
+    v-for="gallery in galleries"
+    v-else
+    :key="gallery.id"
+    class="flip-container rounded-lg overflow-hidden shadow-lg my-4"
+    :class="{ flipped: gallery.flip }"
+  >
+    <div class="flipper">
+      <div class="front">
         <img
-          v-if="!galleryImage.flipped"
-          :src="galleryImage.imagePath"
-          :alt="galleryImage.galleryName"
-          class="w-full h-64 object-cover rounded-t-lg"
+          :src="gallery.currentImage"
+          alt="Current Gallery Image"
+          class="w-full h-64 object-cover"
         />
-        <img
-          v-if="galleryImage.flipped"
-          :src="galleryImage.alternateImagePath"
-          :alt="galleryImage.galleryName"
-          class="w-full h-64 object-cover rounded-t-lg"
-        />
-        <div class="p-5">
-          <h2 class="text-2xl font-bold">{{ galleryImage.galleryName }}</h2>
-        </div>
+      </div>
+      <div class="back">
+        <img :src="gallery.nextImage" alt="Next Gallery Image" class="w-full h-64 object-cover" />
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { Gallery } from '../../stores/galleryStore'
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useGalleryStore } from '~/stores/galleryStore'
 
-interface GalleryImage {
-  galleryName: string
-  imagePath: string
-  alternateImagePath: string
-  flipped: boolean
-  selected: boolean
-}
-const galleryImages = ref<GalleryImage[]>([])
-let flipInterval: any
-
-async function fetchFromAPI(endpoint: string) {
-  const response = await fetch(endpoint)
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}`)
-  }
-  return await response.json()
-}
-async function handleGalleryClick(selectedGallery: GalleryImage) {
-  for (const gallery of galleryImages.value) {
-    gallery.selected = false // Deselect all other galleries
-    if (gallery !== selectedGallery) {
-      gallery.flipped = true
-      gallery.alternateImagePath = await getRandomImageByGalleryName(selectedGallery.galleryName)
-    } else {
-      gallery.selected = true
-    }
-  }
-}
-
-async function getAllGalleryNames(): Promise<string[]> {
-  const data = await fetchFromAPI('/api/gallery')
-  if (!data.Galleries || !Array.isArray(data.Galleries)) {
-    throw new Error("Invalid or missing 'Galleries' data from API response.")
-  }
-  return data.Galleries.map((gallery: Gallery) => gallery.name)
-}
-
-async function getRandomImageByGalleryName(name: string): Promise<string> {
-  const { image } = await fetchFromAPI(`/api/gallery/random/name/${name}`)
-  return image
-}
-
-async function updateRandomGalleryImage() {
-  if (galleryImages.value.length === 0) return
-
-  const randomGallery = galleryImages.value[Math.floor(Math.random() * galleryImages.value.length)]
-  const newImagePath = await getRandomImageByGalleryName(randomGallery.galleryName)
-  randomGallery.alternateImagePath = newImagePath
-  randomGallery.flipped = !randomGallery.flipped
-}
+const galleryStore = useGalleryStore()
+const galleries = ref([])
+const currentGallery = ref(null)
+const loading = ref(true)
+const error = ref(null)
 
 onMounted(async () => {
   try {
-    const fetchedGalleryNames = await getAllGalleryNames()
+    await galleryStore.loadStore()
+    console.log('Loading store')
 
-    // Fetch both primary and alternate images in parallel for each gallery
-    const galleryImagePromises = fetchedGalleryNames.map(async (name) => {
-      const [imagePath, alternateImagePath] = await Promise.all([
-        getRandomImageByGalleryName(name),
-        getRandomImageByGalleryName(name)
-      ])
+    galleries.value = galleryStore.galleries.map((g) => {
+      // Convert the imagePaths string into an array only if it's defined
+      const imageArray = g.imagePaths
+        ? g.imagePaths.split(',').map((imgPath) => imgPath.trim())
+        : []
 
+      // Return the gallery object with currentImage and nextImage properties
       return {
-        galleryName: name,
-        alternateGalleryName: name + ' (Selected)', // or fetch another name if applicable
-        imagePath,
-        alternateImagePath,
-        flipped: false,
-        selected: false
+        ...g,
+        imageArray,
+        currentImage: getImageFullPath(g.name, getRandomImagePath(imageArray)),
+        nextImage: getImageFullPath(g.name, getRandomImagePath(imageArray))
       }
     })
 
-    // Wait for all image fetch promises to resolve
-    galleryImages.value = await Promise.all(galleryImagePromises)
+    console.log('galleries loaded')
+    currentGallery.value = galleryStore.currentGallery
+    console.log({ currentGallery } + 'currentGallery loaded')
 
-    // Start the flip animation every x seconds
-    flipInterval = setInterval(updateRandomGalleryImage, 5000) // 5000ms = 5 seconds
-  } catch (error) {
-    console.error('Error fetching galleries:', error)
+    // Inside onMounted
+    setInterval(() => {
+      for (let gallery of galleries.value) {
+        // Backup current image
+        const currentImage = gallery.currentImage
+
+        // Set current to next
+        gallery.currentImage = gallery.nextImage
+
+        // Choose a new random next image (ensure it's not the same as the current)
+        do {
+          gallery.nextImage = getRandomImageFromGallery(gallery)
+        } while (gallery.nextImage === currentImage)
+
+        // Trigger flip
+        gallery.flip = !gallery.flip
+      }
+    }, 2000)
+  } catch (err) {
+    error.value = err
+    console.error('Error loading galleries:', err)
+  } finally {
+    loading.value = false
   }
 })
 
-onUnmounted(() => {
-  clearInterval(flipInterval)
-})
+const getRandomImagePath = (imageArray) => {
+  return imageArray[Math.floor(Math.random() * imageArray.length)]
+}
+
+const getImageFullPath = (galleryName, imagePath) => {
+  return `/images/${galleryName}/${imagePath}`
+}
+
+const getRandomImageFromGallery = (gallery) => {
+  const randomImagePath = getRandomImagePath(gallery.imageArray)
+  return getImageFullPath(gallery.name, randomImagePath)
+}
 </script>
 
 <style scoped>
-.gallery-display {
-  cursor: pointer;
-  transition: transform 0.3s;
+.flip-container {
   perspective: 1000px;
 }
 
-.flip-container {
-  position: relative;
-  height: 100%;
+.flip-container.flipped .flipper {
+  transform: rotateX(180deg);
 }
 
-.flip-front,
-.flip-back {
+.flipper {
+  transition: transform 2s;
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.front,
+.back {
   backface-visibility: hidden;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.6s;
-  z-index: 1;
 }
 
-.flip-front {
-  transform: rotateY(0deg);
+.front {
   z-index: 2;
+  transform: rotateX(0deg);
 }
 
-.flip-back {
-  transform: rotateY(180deg);
+.back {
+  transform: rotateX(180deg);
+}
+.loading-indicator,
+.error,
+.empty {
+  text-align: center;
+  padding: 20px;
+  color: #666;
 }
 
-.flipped .flip-front {
-  transform: rotateY(-180deg);
-  z-index: 1;
+.error {
+  color: red;
 }
 
-.flipped .flip-back {
-  transform: rotateY(0deg);
-  z-index: 2;
+.empty {
+  color: #aaa;
 }
 </style>

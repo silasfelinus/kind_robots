@@ -1,5 +1,5 @@
 ---
-title: 'Gallery Highlight'
+title: 'Galleries'
 subtitle: 'Is it art?'
 layout: default
 image: backtree.webp
@@ -7,4 +7,4 @@ gallery: flower
 tags: ['home']
 ---
 
-:gallery-highlight
+:galleries-viewer

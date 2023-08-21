@@ -5,8 +5,8 @@
     @transitionend="handleTransitionEnd"
     @click="startFadeOut"
   >
-    <!-- Welcome Message -->
-    <div class="welcome-message">Building Kind Robots...</div>
+    <!-- Dynamic Loading Message -->
+    <div class="loading-message">{{ currentMessage }}</div>
 
     <!-- Multiple Butterflies with Animation Delay -->
     <ami-butterfly v-for="i in butterflyCount" :key="i" />
@@ -17,9 +17,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useLoadStore } from '../../../stores/loadStore' // Assuming the path to your loadStore
 
-let butterflyCount = ref(50)
+const { randomLoadMessage } = useLoadStore()
+const currentMessage = ref('Building Kind Robots...')
+
+let butterflyCount = ref(20)
 const fadeOut = ref(false)
 const pageReady = ref(false)
 
@@ -27,15 +31,29 @@ const startFadeOut = () => {
   fadeOut.value = true
 }
 
-const handleTransitionEnd = () => {
-  if (fadeOut.value) {
-    butterflyCount.value = 0 // Destructure all butterflies
-    pageReady.value = true // Display the main content
-  }
+const updateMessage = () => {
+  currentMessage.value = randomLoadMessage()
 }
 
-// For demonstration, I'm using a timeout to trigger the fade-out after 5 seconds.
-setTimeout(startFadeOut, 2000)
+let intervalId: any
+onMounted(() => {
+  setTimeout(() => {
+    currentMessage.value = randomLoadMessage()
+    intervalId = setInterval(updateMessage, 20 * 500)
+  }, 1000) // Update the message after a .5 second delay
+  setTimeout(startFadeOut, 3000) // Fade out after 2 seconds
+})
+
+onUnmounted(() => {
+  clearInterval(intervalId)
+})
+
+const handleTransitionEnd = () => {
+  if (fadeOut.value) {
+    butterflyCount.value = 0
+    pageReady.value = true
+  }
+}
 </script>
 
 <style scoped>
@@ -54,7 +72,7 @@ setTimeout(startFadeOut, 2000)
   opacity: 0;
   pointer-events: none;
 }
-.welcome-message {
+.loading-message {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -66,11 +84,11 @@ setTimeout(startFadeOut, 2000)
 }
 
 .nuxt-wrapper {
-  opacity: 0; /* Initially hidden */
-  transition: opacity 1s; /* Transition for the fade-in effect */
+  opacity: 0;
+  transition: opacity 1s;
 }
 
 .nuxt-wrapper.fade-in {
-  opacity: 1; /* Fully visible when the page is ready */
+  opacity: 1;
 }
 </style>

@@ -41,7 +41,11 @@ GET https://kindrobots.org/api/gallery/random
 Content-Type: application/json
 
 ###
+### Get Random number of images
+GET https://kindrobots.org/api/gallery/random/images/5
+Content-Type: application/json
 
+###
 ### Get Random Image
 GET https://kindrobots.org/api/gallery/random/image
 Content-Type: application/json

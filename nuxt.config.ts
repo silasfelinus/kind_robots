@@ -1,14 +1,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  modules: [
-    '@pinia/nuxt',
-    '@nuxtjs/tailwindcss',
-    '@nuxt/content',
-    'nuxt-icon',
-    '@sidebase/nuxt-auth',
-    '@nuxthq/studio'
-  ],
+  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxt/content', 'nuxt-icon', '@nuxthq/studio'],
   css: ['~/assets/css/tailwind.css'],
   auth: {
     provider: {

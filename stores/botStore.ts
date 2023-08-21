@@ -85,7 +85,7 @@ export const useBotStore = defineStore({
     async updateBots(botsData: Partial<Bot>[]): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Updating bots...')
       try {
-        const { data } = await axios.put(`/api/bots`, botsData)
+        const { data } = await axios.post(`/api/bots`, botsData)
         // Merge updated bots with existing bots in the store
         this.bots = this.bots.map((bot) => {
           const updatedBot = data.bots.find((b: Bot) => b.id === bot.id)

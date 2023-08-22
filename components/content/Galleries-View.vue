@@ -1,0 +1,138 @@
+<template>
+  <div class="min-h-screen bg-gray-200 p-5">
+    <div v-if="error" class="text-red-500 text-center my-10">An error occurred: {{ error }}</div>
+    <div class="text-center my-5">
+      <button
+        class="refresh-btn px-8 py-2 rounded transition-colors duration-300 hover:bg-red-500"
+        @click="refreshImages"
+      >
+        Refresh Images
+      </button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div
+        v-for="gallery in galleries"
+        :key="gallery.id"
+        class="gallery-card shadow-lg rounded bg-white p-4"
+      >
+        <div class="flip-container" @transitionend="handleFlipEnd(gallery)">
+          <div class="flip-content" :style="{ transform: gallery.transform }">
+            <!-- Front -->
+            <div class="flipper-front">
+              <img
+                :src="gallery.currentImage"
+                alt="Image from {{ gallery.name }}"
+                class="gallery-img w-full"
+              />
+            </div>
+            <!-- Back -->
+            <div class="flipper-back">
+              <img
+                :src="gallery.nextImage"
+                alt="Next image from {{ gallery.name }}"
+                class="gallery-img w-full"
+              />
+            </div>
+          </div>
+        </div>
+        <!-- Gallery Name and Description -->
+        <h2 class="text-xl font-semibold mt-3">{{ gallery.name }}</h2>
+        <p class="text-sm text-gray-600 mt-1">{{ gallery.description }}</p>
+      </div>
+    </div>
+  </div>
+</template>
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
+const galleries = ref(null)
+const error = ref(null)
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('/api/gallery')
+    if (response.data.success) {
+      galleries.value = response.data.Galleries
+      galleries.value.forEach((gallery) => {
+        gallery.currentImage = getRandomImage(gallery)
+        gallery.transform = 'rotateY(0deg)'
+        gallery.flipState = 0 // Initialize the flipState
+      })
+    } else {
+      error.value = 'Failed to fetch data.'
+    }
+  } catch (err) {
+    error.value = err.message
+  }
+})
+
+const getRandomImage = (gallery) => {
+  if (!gallery.imagePaths) return ''
+  const images = gallery.imagePaths
+    .split(',')
+    .map((filename) => `/images/${gallery.name}/${filename.trim()}`)
+  return images[Math.floor(Math.random() * images.length)]
+}
+const refreshImages = () => {
+  galleries.value.forEach((gallery) => {
+    gallery.nextImage = getRandomImage(gallery)
+
+    // Reset to original state for a brief moment, so the next change is detected
+    gallery.transform = 'rotateY(0deg)'
+
+    setTimeout(() => {
+      // Start the flip
+      gallery.transform = 'rotateY(180deg)'
+
+      // Halfway through the flip, change the image
+      setTimeout(() => {
+        gallery.currentImage = gallery.nextImage
+      }, 300) // Half of 600ms
+    }, 10) // A short delay to ensure the reset is applied before the flip
+  })
+}
+</script>
+<style>
+/* Flip Animation */
+.flip-container {
+  perspective: 1000px;
+  width: 100%;
+  height: 300px;
+  position: relative;
+  overflow: hidden;
+}
+
+.flip-content {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.flipper-front,
+.flipper-back {
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.flipper-front {
+  transform: rotateY(0deg);
+}
+
+.flipper-back {
+  transform: rotateY(180deg);
+}
+.refresh-btn {
+  background-color: #f09819;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+</style>

@@ -6,5 +6,4 @@ image: backtree.webp
 gallery: flower
 tags: ['home']
 ---
-
-:gallery-highlight
+:galleries-view

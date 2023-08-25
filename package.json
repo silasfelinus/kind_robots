@@ -41,6 +41,7 @@
     "@prisma/client": "latest",
     "axios": "latest",
     "bcrypt": "^5.1.0",
+    "canvas-confetti": "^1.6.0",
     "daisyui": "latest",
     "interactjs": "^1.10.18",
     "jsonwebtoken": "^9.0.1",

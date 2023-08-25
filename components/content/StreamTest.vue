@@ -43,7 +43,7 @@
 
       <!-- Loading Indicator -->
       <div v-if="isLoading" class="loader flex justify-center mt-2">
-        <butterfly-test />
+        <ami-butterfly />
       </div>
 
       <!-- Conversations -->

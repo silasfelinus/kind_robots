@@ -31,6 +31,7 @@ function storageAvailable(type: 'localStorage' | 'sessionStorage'): boolean {
 
 onMounted(() => {
   const route = useRoute()
+
   const isBotRoute = route.path.startsWith('/bot/')
   const flipState = hasLocalStorage.value ? window.localStorage.getItem('flipState') : 'unflipped'
 
@@ -79,10 +80,10 @@ onMounted(() => {
       </div>
     </div>
     <!-- Main Content -->
-    <main class="md:w-3/5 h-full flex bg-base shadow-inner rounded-l-xl p-4">
-      <transition name="fade">
-        <slot />
-      </transition>
+    <main
+      class="w-full h-full flex bg-primary shadow-inner rounded-l-xl p-4 justify-center items-center"
+    >
+      <slot />
     </main>
   </div>
 </template>

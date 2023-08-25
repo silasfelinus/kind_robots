@@ -1,7 +1,7 @@
 ---
 title: 'Weirdlandia'
 subtitle: 'Infinite Adventures in Weirderst Space'
-layout: default
+layout: weird
 image: botcommunity.webp
 gallery: wonderbot
 tags: ['home']

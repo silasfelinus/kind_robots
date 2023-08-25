@@ -15,8 +15,8 @@
         :key="gallery.id"
         class="gallery-card shadow-lg rounded bg-white p-4"
       >
-        <div class="flip-container" @transitionend="handleFlipEnd(gallery)">
-          <div class="flip-content" :style="{ transform: gallery.transform }">
+        <div class="flip-container">
+          <div class="flip-content" :style="{ transform: computeTransform(gallery) }">
             <!-- Front -->
             <div class="flipper-front">
               <img
@@ -42,6 +42,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -56,8 +57,7 @@ onMounted(async () => {
       galleries.value = response.data.Galleries
       galleries.value.forEach((gallery) => {
         gallery.currentImage = getRandomImage(gallery)
-        gallery.transform = 'rotateY(0deg)'
-        gallery.flipState = 0 // Initialize the flipState
+        gallery.isFlipped = false // Initialize the flip state
       })
     } else {
       error.value = 'Failed to fetch data.'
@@ -78,21 +78,23 @@ const refreshImages = () => {
   galleries.value.forEach((gallery) => {
     gallery.nextImage = getRandomImage(gallery)
 
-    // Reset to original state for a brief moment, so the next change is detected
-    gallery.transform = 'rotateY(0deg)'
+    // Trigger the flip
+    gallery.isFlipped = !gallery.isFlipped
 
+    // Determine the appropriate timeout based on the flip direction
+    const timeoutDuration = gallery.isFlipped ? 300 : 150 // Adjusted timeout for right-left flip
+
+    // Halfway through the flip, change the image
     setTimeout(() => {
-      // Start the flip
-      gallery.transform = 'rotateY(180deg)'
-
-      // Halfway through the flip, change the image
-      setTimeout(() => {
-        gallery.currentImage = gallery.nextImage
-      }, 300) // Half of 600ms
-    }, 10) // A short delay to ensure the reset is applied before the flip
+      gallery.currentImage = gallery.nextImage
+    }, timeoutDuration)
   })
 }
+const computeTransform = (gallery) => {
+  return gallery.isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+}
 </script>
+
 <style>
 /* Flip Animation */
 .flip-container {
@@ -128,6 +130,7 @@ const refreshImages = () => {
 .flipper-back {
   transform: rotateY(180deg);
 }
+
 .refresh-btn {
   background-color: #f09819;
   color: white;

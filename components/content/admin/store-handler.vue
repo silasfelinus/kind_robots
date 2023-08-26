@@ -25,7 +25,6 @@
 import { ref } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
-import { useContentStore } from './../../../stores/contentStore'
 import { useMediaStore } from './../../../stores/mediaStore'
 import { useProjectStore } from './../../../stores/projectStore'
 import { usePromptStore } from './../../../stores/promptStore'
@@ -37,7 +36,6 @@ import { useResourceStore } from './../../../stores/resourceStore'
 const stores = {
   botStore: useBotStore(),
   galleryStore: useGalleryStore(),
-  contentStore: useContentStore(),
   mediaStore: useMediaStore(),
   projectStore: useProjectStore(),
   promptStore: usePromptStore(),

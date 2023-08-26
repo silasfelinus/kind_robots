@@ -1,8 +1,8 @@
 ---
 title: 'Gallery Highlight'
 subtitle: 'Is it art?'
-layout: default
-image: backtree.webp
+layout: app
+image: 'art1.webp'
 gallery: flower
 tags: ['home']
 ---

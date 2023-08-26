@@ -1,6 +1,5 @@
 <template>
   <nav class="w-full bg-base p-4 transition-all duration-500 ease-in-out">
-    <!-- Always Visible Home Links -->
     <div class="flex flex-wrap justify-center mt-2 space-x-2">
       <div v-for="page in pagesByTag('weird')" :key="page._id" class="m-2">
         <NuxtLink
@@ -16,17 +15,17 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useContentStore } from '../../../stores/contentStore'
+import { usePageStore } from '../../../stores/pageStore'
 
 onMounted(() => {
   if (process.client) {
-    const contentStore = useContentStore()
-    contentStore.getPages()
+    const pageStore = usePageStore()
+    pageStore.getPages()
   }
 })
 
 const pagesByTag = (tag: string) => {
-  const contentStore = useContentStore() // Calling outside because you might need it elsewhere too.
-  return contentStore.pages.filter((page: any) => page.tags?.includes(tag))
+  const pageStore = usePageStore()
+  return pageStore.pages.filter((page: any) => page.tags?.includes(tag))
 }
 </script>

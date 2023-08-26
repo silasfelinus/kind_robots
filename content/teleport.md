@@ -1,7 +1,7 @@
 ---
 title: 'Teleporter'
 subtitle: 'Prompts'
-layout: default
+layout: simple
 image: botcommunity.webp
 gallery: wonderbot
 tags: ['home']

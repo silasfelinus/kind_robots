@@ -1,9 +1,9 @@
 ---
 title: 'Weirdlandia'
-subtitle: 'Infinite Adventures in Weirderst Space'
+subtitle: 'Infinite Adventures in Weirdest Space'
 layout: weird
 image: botcommunity.webp
 gallery: wonderbot
-tags: ['home']
+tags: ['weird']
 ---
 :weirdlandia-game

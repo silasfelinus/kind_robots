@@ -2,7 +2,7 @@
 title: 'Prompt Gallery'
 description: 'Make and edit prompts'
 gallery: 'cafepurr'
-layout: default
+layout: simple
 image: 'botcommunity.webp'
 tags: ['bots', 'projects']
 ---

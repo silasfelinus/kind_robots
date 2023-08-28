@@ -1,21 +1,15 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxt/content', 'nuxt-icon', '@nuxthq/studio'],
+  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxt/content', 'nuxt-icon'],
   css: ['~/assets/css/tailwind.css'],
-  auth: {
-    provider: {
-      type: 'authjs'
-    }
-  },
   runtimeConfig: {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     GITHUB_ID: process.env.GITHUB_ID,
     GITHUB_SECRET: process.env.GITHUB_SECRET,
     GOOGLE_ID_KEY: process.env.GOOGLE_ID,
     GOOGLE_SECRET: process.env.GOOGLE_SECRET,
-    AUTH_SECRET: process.env.AUTH_SECRET,
-    NUXT_PUBLIC_STUDIO_TOKENS: process.env.PUBLIC_STUDIO_TOKENS
+    AUTH_SECRET: process.env.AUTH_SECRET
   },
   content: {
     documentDriven: true

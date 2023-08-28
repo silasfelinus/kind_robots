@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
+import confetti from 'canvas-confetti'
 
-// Define gallery image structure
 interface GalleryImage {
   id: number
   galleryName: string
@@ -9,95 +9,75 @@ interface GalleryImage {
   flipped: boolean
   matched: boolean
 }
+interface CustomNotification {
+  type: 'error' | 'info' // add more types if needed
+  message: string
+}
+
+const triggerConfetti = () => {
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 }
+  })
+}
+const galleryImages = ref<GalleryImage[]>([])
+const difficulties = [
+  { label: 'Easy', value: 8 },
+  { label: 'Medium', value: 12 },
+  { label: 'Hard', value: 16 }
+]
+const selectedDifficulty = ref(difficulties[0]) // Default to 'Easy'
+const gameWon = ref(false)
+
+const notification = ref<CustomNotification | null>(null)
+
+const isLoading = ref(true)
 
 function isClientSide() {
   return typeof window !== 'undefined'
 }
 
-const galleryImages = ref<GalleryImage[]>([])
-const difficulty = ref(8)
-const score = ref(0)
-const gameWon = ref(false)
-interface Notification {
-  message: string
-  type: string
+const highScore = ref<number>(0) // Default to 0
+
+if (isClientSide()) {
+  const savedHighScore = localStorage.getItem('highScore')
+  if (savedHighScore) {
+    highScore.value = Number(savedHighScore)
+  }
 }
-
-const notification = ref<Notification | null>(null)
-
-const highScore = ref<number>(
-  isClientSide() && localStorage.getItem('highScore')
-    ? parseInt(localStorage.getItem('highScore')!)
-    : 0
-)
-
 let firstSelected: GalleryImage | null = null
-
-const gridClass = computed(() => {
-  switch (difficulty.value) {
-    case 9:
-      return 'grid grid-cols-3 gap-4'
-    case 25:
-      return 'grid grid-cols-5 gap-4'
-    case 35:
-      return 'grid grid-cols-7 gap-5'
-    default:
-      return 'grid grid-cols-3 gap-4'
-  }
-})
-
-function isCenter(id: number): boolean {
-  switch (difficulty.value) {
-    case 9:
-      return id === 4
-    case 25:
-      return id === 12
-    case 35:
-      return id === 17
-    default:
-      return false
-  }
-}
 
 async function generateMemoryGameImages() {
   try {
+    isLoading.value = true
+
     gameWon.value = false
 
-    // Directly fetch the images based on the difficulty
-    const imageCount = difficulty.value
-    const imagesResponse = await fetch(`/api/gallery/random/images/${imageCount}`)
-    const imagePaths: string[] = await imagesResponse.json()
+    const imageCount = Math.ceil(selectedDifficulty.value.value / 2)
 
-    // Check if we received the expected amount of images
-    if (imagePaths.length !== imageCount) {
+    const response = await fetch(`/api/gallery/random/count/${imageCount}`)
+    const data = await response.json()
+    console.log(data) // For debugging
+
+    if (data.images.length !== imageCount) {
       throw new Error('Received an unexpected number of images.')
     }
 
-    galleryImages.value = JSON.parse(
-      JSON.stringify(
-        imagePaths
-          .map((imagePath, index) => ({
-            id: index,
-            galleryName: '', // You might need to adjust this based on the new response format
-            imagePath: '/images/fulltitle.png', // Placeholder image
-            alternateImagePath: imagePath,
-            flipped: false,
-            matched: false
-          }))
-          .concat(
-            imagePaths.map((imagePath, index) => ({
-              id: index + imageCount, // To ensure unique ids
-              galleryName: '', // Adjust as needed
-              imagePath: '/images/fulltitle.png', // Placeholder image
-              alternateImagePath: imagePath,
-              flipped: false,
-              matched: false
-            }))
-          )
-          .sort(() => 0.5 - Math.random())
-      )
-    )
+    galleryImages.value = data.images
+      .concat(data.images) // Duplicate the images for matching pairs
+      .map((imagePath: string, index: number) => ({
+        id: index,
+        galleryName: '', // Adjust this if the API returns a gallery name or description
+        imagePath,
+        flipped: false,
+        matched: false
+      }))
+      .sort(() => 0.5 - Math.random())
+    isLoading.value = false
   } catch (error) {
+    isLoading.value = false
+
     console.error('Error generating images:', error)
     notification.value = {
       type: 'error',
@@ -106,22 +86,31 @@ async function generateMemoryGameImages() {
   }
 }
 
+const score = ref(0) // Initialize score to 0
 function handleGalleryClick(clickedGallery: GalleryImage) {
   if (clickedGallery.flipped || clickedGallery.matched) return
 
   clickedGallery.flipped = true
-  score.value++
 
   if (!firstSelected) {
     firstSelected = clickedGallery
-  } else if (firstSelected && firstSelected.galleryName === clickedGallery.galleryName) {
+  } else if (firstSelected && firstSelected.imagePath === clickedGallery.imagePath) {
+    // Match found
     clickedGallery.matched = true
-    if (firstSelected) firstSelected.matched = true
+    firstSelected.matched = true
+    score.value += 10 // Increase score by 10
 
+    setTimeout(() => {
+      firstSelected = null
+    }, 500)
+
+    // Check for game win condition
     if (galleryImages.value.every((g) => g.matched)) {
       gameWon.value = true
+      triggerConfetti()
 
-      if (score.value < highScore.value || highScore.value === 0) {
+      // Update high score if needed
+      if (score.value > highScore.value) {
         highScore.value = score.value
         if (isClientSide()) {
           localStorage.setItem('highScore', highScore.value.toString())
@@ -129,130 +118,185 @@ function handleGalleryClick(clickedGallery: GalleryImage) {
       }
     }
   } else {
+    // No match found
+    score.value -= 5 // Deduct score by 5
+
     setTimeout(() => {
       clickedGallery.flipped = false
       if (firstSelected) {
+        // Ensure firstSelected is not null before accessing its properties
         firstSelected.flipped = false
-        firstSelected = null
       }
+      firstSelected = null
     }, 500)
   }
 }
 
-// Reset game state
+const notificationClasses = computed(() => {
+  const baseClasses = 'notification py-2 px-4 rounded-lg mb-2'
+  if (!notification.value) return baseClasses
+  return notification.value.type === 'error'
+    ? `${baseClasses} bg-red-200 text-red-700`
+    : `${baseClasses} bg-green-200 text-green-700`
+})
+
 function resetGame() {
+  galleryImages.value.forEach((img) => {
+    img.flipped = false
+    img.matched = false
+  })
   score.value = 0
   firstSelected = null
   generateMemoryGameImages()
 }
 
 onMounted(generateMemoryGameImages)
-watch(difficulty, resetGame)
+watch(selectedDifficulty, resetGame)
 </script>
 
 <template>
-  <div class="container mx-auto p-4">
-    <div class="game-board flex flex-col items-center justify-center">
-      <!-- Galleries Display -->
-      <div :class="gridClass">
-        <!-- Game Controls (Centered) -->
-        <div
-          v-if="isCenter(galleryImages.length / 2)"
-          class="game-controls center-card border border-blue-300 rounded-full shadow-lg"
-        >
-          <div class="mb-4 text-xl font-bold">Memory Game</div>
-          <div v-if="notification" :class="`notification ${notification.type}`">
-            {{ notification.message }}
-          </div>
-          <div>Score: {{ score }}</div>
-          <div>High Score: {{ highScore }}</div>
-          <div v-if="gameWon" class="mt-2">
-            Congratulations! You've won!
-            <button class="btn btn-info" @click="resetGame">Play Again?</button>
-          </div>
-        </div>
+  <div class="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center space-y-6">
+    <header class="text-center space-y-2">
+      <h1 class="text-4xl font-bold">Kind Robots Memory Game</h1>
+      <p class="text-gray-600">Match the images and test your memory!</p>
+      <div class="difficulty-controls">
+        <label for="difficulty">Select Difficulty: </label>
+        <select id="difficulty" v-model="selectedDifficulty">
+          <option v-for="difficulty in difficulties" :key="difficulty.label" :value="difficulty">
+            {{ difficulty.label }}
+          </option>
+        </select>
+        <button @click="resetGame">Start New Game</button>
+      </div>
+    </header>
 
-        <!-- Gallery Images -->
-        <div
-          v-for="galleryImage in galleryImages"
-          :key="galleryImage.id"
-          class="gallery-display transform transition-transform duration-500"
-          @click="handleGalleryClick(galleryImage)"
-        >
+    <div class="game-board w-full max-w-4xl flex flex-wrap justify-center items-center">
+      <!-- Loader -->
+      <div v-if="isLoading" class="loader mt-4"></div>
+
+      <!-- Game Cards -->
+      <div
+        v-for="galleryImage in galleryImages"
+        :key="galleryImage.id"
+        class="gallery-display m-4 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden w-[calc(90%/3)] md:w-[calc(90%/5)] lg:w-[calc(90%/7)] cursor-pointer"
+        @click="handleGalleryClick(galleryImage)"
+      >
+        <div :class="{ flipped: galleryImage.flipped || galleryImage.matched }">
+          <!-- This is the back of the card -->
           <img
-            v-if="!galleryImage.flipped && !galleryImage.matched"
+            class="card-back absolute inset-0 w-full h-full object-cover"
             src="/images/kindtitle.webp"
             alt="Memory Card"
-            class="w-full h-full object-cover"
           />
+          <!-- This is the front of the card -->
           <img
-            v-if="galleryImage.flipped || galleryImage.matched"
+            class="card-front absolute inset-0 w-full h-full object-cover"
+            :src="galleryImage.imagePath"
             :alt="galleryImage.galleryName"
-            class="w-full h-full object-cover"
           />
         </div>
+      </div>
+    </div>
+
+    <!-- Game Controls -->
+    <div
+      class="game-controls mt-4 flex flex-col items-center space-y-2"
+      aria-live="polite"
+      role="status"
+    >
+      <div v-if="notification" :class="notificationClasses">
+        {{ notification.message }}
+      </div>
+      <div>Score: {{ score }}</div>
+      <div>High Score: {{ highScore }}</div>
+      <div v-if="gameWon" class="mt-2 space-y-2 text-center">
+        Congratulations! You've won!
+        <button
+          class="btn btn-info mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-200 transition-colors"
+          @click="resetGame"
+        >
+          Play Again?
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.gallery-display {
-  cursor: pointer;
-  overflow: hidden;
-  border: 2px solid transparent;
-  transition:
-    border-color 0.3s,
-    transform 0.3s;
-  perspective: 2000px;
-  border-radius: 12px; /* Rounded corners */
-}
-
-.gallery-display:hover {
-  transform: scale(1.05);
-  border-color: #2563eb; /* Blue border on hover */
-}
-
-img {
-  border-radius: 12px; /* Rounded corners for images */
-  transition: transform 0.3s;
-}
-
-.win-message {
-  background-color: #f3f4f6; /* Light gray background */
-  padding: 1rem;
-  border: 1px solid #d1d5db; /* Gray border */
-  border-radius: 0.5rem;
-}
-
-.game-board {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.center-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: default;
-}
-
+/* Styles related to card flipping animations and structure, since Tailwind does not directly cover 3D transforms and backface-visibility */
 .gallery-display {
   transform-style: preserve-3d;
+  width: 200px;
+  height: 200px;
+  margin: 0.5rem;
 }
 
 img {
   backface-visibility: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  transition: transform 0.3s;
 }
 
-.gallery-display:hover img {
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  transition: transform 0.7s;
+  border-radius: 12px;
+}
+
+.card-front {
   transform: rotateY(180deg);
+}
+
+.card-back {
+  transform: rotateY(0deg);
+}
+
+.flipped .card-front {
+  transform: rotateY(0deg);
+}
+
+.flipped .card-back {
+  transform: rotateY(-180deg);
+}
+
+/* Loader styles */
+.loader {
+  display: inline-block;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top: 4px solid #2563eb;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Media query for responsiveness */
+@media (min-width: 1024px) {
+  .grid-cols-3 .gallery-display {
+    width: 120px;
+    height: 168px;
+  }
+
+  .grid-cols-5 .gallery-display {
+    width: 100px;
+    height: 140px;
+  }
+
+  .grid-cols-7 .gallery-display {
+    width: 90px;
+    height: 126px;
+  }
 }
 </style>

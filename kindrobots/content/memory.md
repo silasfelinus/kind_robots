@@ -1,7 +1,7 @@
 ---
 title: 'Memory'
 subtitle: 'Memory Game'
-layout: simple
+layout: default
 image: backtree.webp
 gallery: flower
 tags: ['home']

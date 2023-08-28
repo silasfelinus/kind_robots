@@ -30,10 +30,11 @@ function storageAvailable(type: 'localStorage' | 'sessionStorage'): boolean {
 }
 
 onMounted(() => {
-  const route = useRoute()
+  if (!hasLocalStorage.value) return // Return early if local storage isn't available
 
+  const route = useRoute()
   const isBotRoute = route.path.startsWith('/bot/')
-  const flipState = hasLocalStorage.value ? window.localStorage.getItem('flipState') : 'unflipped'
+  const flipState = window.localStorage.getItem('flipState')
 
   if (isBotRoute || flipState === 'flipped') {
     flipContainer.value?.classList.add('flipped')
@@ -49,7 +50,11 @@ onMounted(() => {
     <div
       class="md:w-1/5 flex flex-col items-center bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
     >
-      <div ref="flipContainer" class="flex-grow flip-container w-full">
+      <div
+        ref="flipContainer"
+        :class="{ flipped: !isChecked }"
+        class="flex-grow flip-container w-full"
+      >
         <div class="flip-front sidebar-content w-full">
           <img alt="Kind Robots Logo" src="/images/fulltitle.png" class="mx-auto rounded-l" />
           <home-nav />

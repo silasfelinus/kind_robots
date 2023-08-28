@@ -1,28 +1,55 @@
-import { randomGallery, countGalleries } from '../..'
+import prisma from '../../../utils/prisma'
+import { getGalleryImages } from '../..'
 
-export default defineEventHandler(async (req) => {
+interface ImageResponse {
+  success: boolean
+  images?: string[]
+  message?: string
+  error?: string
+}
+
+export default defineEventHandler(async (event): Promise<ImageResponse> => {
   try {
-    const count = parseInt(req.params.count, 10)
-    const totalGalleries = await countGalleries()
+    const count = Number(event.context.params?.count)
 
-    if (isNaN(count) || count <= 0 || count > totalGalleries) {
+    if (isNaN(count) || count <= 0) {
       throw new Error('Invalid count parameter.')
     }
 
-    const uniqueGalleryNames = new Set()
-    while (uniqueGalleryNames.size < count) {
-      const gallery = await randomGallery()
-      if (!gallery || !gallery.name) {
-        break // Stop the loop if we've exhausted all available galleries
+    // Fetch all gallery IDs
+    const allGalleryIDs = await prisma.gallery.findMany({ select: { id: true } })
+
+    // Shuffle the array of gallery IDs
+    const shuffledIDs = allGalleryIDs.sort(() => 0.5 - Math.random())
+
+    // Take the first 'count' shuffled gallery IDs
+    const selectedGalleryIDs = shuffledIDs.slice(0, count).map((g) => g.id)
+
+    // Fetch 'count' number of galleries using the shuffled gallery IDs
+    const galleries = await prisma.gallery.findMany({
+      where: {
+        id: { in: selectedGalleryIDs }
       }
-      uniqueGalleryNames.add(gallery.name)
+    })
+
+    // Extract images from each gallery using your method
+    const imagesPromises = galleries.map((gallery) => getGalleryImages(gallery.id))
+    const allImagesArrays = await Promise.all(imagesPromises)
+
+    // Extract one image path from each gallery
+    const selectedImages = allImagesArrays.map((galleryImages) => {
+      return galleryImages[Math.floor(Math.random() * galleryImages.length)]
+    })
+
+    if (selectedImages.length !== count) {
+      throw new Error('Could not fetch the required number of random images.')
     }
 
-    return { success: true, galleryNames: [...uniqueGalleryNames] }
+    return { success: true, images: selectedImages }
   } catch (error: any) {
     return {
       success: false,
-      message: 'Failed to fetch random gallery names.',
+      message: 'Failed to fetch random images.',
       error: error.message
     }
   }

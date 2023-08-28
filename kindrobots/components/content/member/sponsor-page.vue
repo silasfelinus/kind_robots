@@ -2,9 +2,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <butterfly-toggle class="animate-butterflies mb-6" />
 
-    <div
-      class="bg-gradient-to-r from-base-200 to-base-600 p-6 rounded-lg shadow-xl text-center text-default space-y-6"
-    >
+    <div class="bg-base-200 p-6 rounded-lg shadow-xl text-center text-default space-y-6">
       <h1 class="text-4xl font-semibold">Greetings, friends of all species and circuits!</h1>
 
       <h2 class="text-2xl font-semibold">

@@ -4,6 +4,6 @@ subtitle: 'Infinite Adventures in Weirdest Space'
 layout: weird
 image: botcommunity.webp
 gallery: wonderbot
-tags: ['weird']
+tags: ['home']
 ---
 :weirdlandia-game

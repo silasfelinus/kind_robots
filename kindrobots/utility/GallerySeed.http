@@ -28,11 +28,12 @@ POST https://kindrobots.org/api/gallery
 Content-Type: application/json
 
 [{
-  "name": "acrocats",
-  "content": "/images/acrocats/gallery.json",
-  "description": "Acrocat Ranch Foster Kitten Rescue",
-  "highlightImage": "/images/acrocats/PXL_20220903_023602144.jpg",
-  "isNSFW": false
+  "name": "weirdlandia",
+  "content": "/images/weirdlandia/gallery.json",
+  "description": "The Weirdest of Locations",
+  "highlightImage": "/images/weirdlandia/weird1.png",
+  "isNSFW": false,
+  "imagePaths": "weird1.png"
 }]
 
 ###
@@ -42,7 +43,7 @@ Content-Type: application/json
 
 ###
 ### Get Random number of images
-GET https://kindrobots.org/api/gallery/random/images/5
+GET https://kindrobots.org/api/gallery/random/count/16
 Content-Type: application/json
 
 ###
@@ -54,7 +55,7 @@ Content-Type: application/json
 ###
 
 ### Get Random Image from Gallery
-GET https://kindrobots.org/api/gallery/random/name/background
+GET https://kindrobots.org/api/gallery/random/name/weirdlandia
 Content-Type: application/json
 
 

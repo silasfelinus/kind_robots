@@ -1,7 +1,7 @@
 ---
 title: 'mermaids'
 subtitle: 'Gift Shop'
-layout: default
+layout: simple
 image: utility/mermaids/mermaids1.jpg
 gallery: redbubble
 tags: ['home']

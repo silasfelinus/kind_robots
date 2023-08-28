@@ -4,7 +4,7 @@
   >
     <iframe
       src="https://kindprompts.vercel.app/"
-      style="width: 60vw; height: 100%; border: none; display: block"
+      style="width: 70vw; height: 90vh; border: none; display: block"
       class="rounded-l"
     ></iframe>
   </main>

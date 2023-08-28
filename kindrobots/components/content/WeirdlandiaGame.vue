@@ -1,49 +1,88 @@
 <template>
-  <div class="border-2 border-accent p-10 rounded-xl shadow-xl bg-opacity-60 bg-black max-w-4xl">
-    <p v-if="!startNewGame && !showAbout" class="text-lg leading-relaxed mb-6">
-      Welcome to "Weirdlandia", a realm where every choice brings a new, unexpected twist.
-    </p>
+  <div class="flex justify-center items-center min-h-screen bg-gray-800 pattern-grid-lg">
+    <div class="p-10 rounded-xl shadow-2xl bg-opacity-70 max-w-xl text-center space-y-6 relative">
+      <!-- Hero Image from API -->
+      <div
+        :style="{ backgroundImage: `url('${bgImage}')` }"
+        class="absolute inset-0 bg-cover bg-center z-0"
+      ></div>
 
-    <p v-if="showAbout" class="text-sm font-semibold mb-6">
-      Challenges await at every corner. Carve your own journey in this unpredictable realm.
-    </p>
+      <!-- Content Layer -->
+      <div class="relative z-10">
+        <!-- Introduction and About Content -->
+        <p
+          v-if="!gameStore.isGameStarted && !gameStore.showAbout"
+          class="text-lg leading-relaxed text-white font-medium"
+        >
+          Welcome to "Weirdlandia", a realm where every choice brings a new, unexpected twist.
+        </p>
 
-    <div v-if="startNewGame">
-      <!-- Start New Game content -->
-    </div>
+        <p v-if="gameStore.showAbout" class="text-sm text-accent font-semibold">
+          Challenges await at every corner. Carve your own journey in this unpredictable realm.
+        </p>
 
-    <!-- Action Buttons -->
-    <div class="flex justify-center mt-4 space-x-6">
-      <button
-        class="py-2 px-5 text-xl bg-primary hover:bg-accent focus:outline-none focus:border-accent focus:shadow-outline-accent active:bg-primary rounded-full shadow transition duration-150"
-        @click="handleStartNewGame"
-      >
-        Start New Game
-      </button>
+        <!-- Game Content -->
+        <div v-if="gameStore.isGameStarted" class="text-white font-light">
+          <p>Game has started! Adventure awaits...</p>
+        </div>
 
-      <button
-        class="py-2 px-5 text-xl bg-primary hover:bg-accent focus:outline-none focus:border-accent focus:shadow-outline-accent active:bg-primary rounded-full shadow transition duration-150"
-        @click="toggleAbout"
-      >
-        About Weirdlandia
-      </button>
+        <!-- Action Buttons -->
+        <div class="flex justify-center space-x-6 mt-6">
+          <button
+            class="py-2 px-6 text-xl bg-accent hover:bg-accent-darkened focus:ring focus:ring-accent focus:ring-opacity-50 rounded-full shadow-lg transition-transform transform hover:scale-105"
+            @click="initiateGame"
+          >
+            Start New Game
+          </button>
+          <button
+            class="py-2 px-6 text-xl bg-primary hover:bg-primary-darkened focus:ring focus:ring-primary focus:ring-opacity-50 rounded-full shadow-lg transition-transform transform hover:scale-105"
+            @click="toggleGameAbout"
+          >
+            About Weirdlandia
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useGameStore } from '../../stores/gameStore'
+const gameStore = useGameStore()
+const bgImage = ref('')
 
-const startNewGame = ref(false)
-const showAbout = ref(false)
-
-const handleStartNewGame = () => {
-  startNewGame.value = true
-  showAbout.value = false
+const initiateGame = () => {
+  gameStore.initiateNewGame()
 }
 
-const toggleAbout = () => {
-  showAbout.value = !showAbout.value
-  startNewGame.value = false
+const fetchBackgroundImage = async () => {
+  try {
+    const response = await fetch('https://kindrobots.org/api/gallery/random/name/weirdlandia')
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch the image.')
+    }
+
+    const data = await response.json()
+    bgImage.value = data.image
+  } catch (error) {
+    console.error('There was an error fetching the background image:', error)
+  }
 }
+
+const toggleGameAbout = () => {
+  gameStore.toggleAbout()
+}
+
+onMounted(fetchBackgroundImage)
 </script>
+
+<style>
+/* Custom colors if you want to introduce new shades */
+.bg-accent-darkened {
+  background-color: #004466; /* This is just an example color */
+}
+.bg-primary-darkened {
+  background-color: #660044; /* This is just an example color */
+}
+</style>

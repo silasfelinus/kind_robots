@@ -1,7 +1,7 @@
 ---
 title: 'Gallery Highlight'
 subtitle: 'Is it art?'
-layout: app
+layout: simple
 image: 'art1.webp'
 gallery: flower
 tags: ['home']

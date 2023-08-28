@@ -1,6 +1,6 @@
 // ~/server/api/users/index.ts
 import { User as UserRecord, Prisma } from '@prisma/client'
-import { hash as bcryptHash } from 'bcrypt'
+import { hash as bcryptHash, compare } from 'bcrypt'
 import prisma from './../utils/prisma'
 
 export type User = UserRecord
@@ -29,7 +29,19 @@ export async function fetchUserById(id: number): Promise<User | null> {
     where: { id }
   })
 }
+// Add function to validate a user's email and password
+export async function validateUserCredentials(
+  email: string,
+  password: string
+): Promise<User | null> {
+  const user = await prisma.user.findUnique({ where: { email } })
+  if (!user) return null
 
+  const isValidPassword = await compare(password, user.password)
+  return isValidPassword ? user : null
+}
+
+// Update the addUser function to ensure you don't need to hash the password outside of this function
 export async function addUser(userData: Partial<User>): Promise<User | null> {
   if (!isValidUserInput(userData)) {
     throw new Error('Invalid user data')
@@ -49,7 +61,6 @@ export async function addUser(userData: Partial<User>): Promise<User | null> {
     } as Prisma.UserCreateInput
   })
 }
-
 export async function updateUser(id: number, data: Partial<User>): Promise<User | null> {
   const userExists = await prisma.user.findUnique({ where: { id } })
 

@@ -21,7 +21,7 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRandomColor } from '@/composables/useRandomColor'
+import { useRandomColor } from '@/utils/useRandomColor'
 
 const centerX = window.innerWidth / 2
 const centerY = window.innerHeight / 2
@@ -156,3 +156,4 @@ body {
   border-radius: 12px;
 }
 </style>
+utils/useRandomColor

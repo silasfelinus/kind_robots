@@ -28,7 +28,6 @@ import { useGalleryStore } from './../../../stores/galleryStore'
 import { useMediaStore } from './../../../stores/mediaStore'
 import { useProjectStore } from './../../../stores/projectStore'
 import { usePromptStore } from './../../../stores/promptStore'
-import { useGameStore } from './../../../stores/gameStore'
 import { useReactionStore } from './../../../stores/reactionStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useResourceStore } from './../../../stores/resourceStore'
@@ -39,7 +38,6 @@ const stores = {
   mediaStore: useMediaStore(),
   projectStore: useProjectStore(),
   promptStore: usePromptStore(),
-  gameStore: useGameStore(),
   reactionStore: useReactionStore(),
   userStore: useUserStore(),
   resourceStore: useResourceStore()

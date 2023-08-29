@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { useRandomColor } from '../../../composables/useRandomColor'
+import { useRandomColor } from '../../../utils/useRandomColor'
 
 const bubbles = ref([])
 const MAX_BUBBLES = 20 // Reduced number of bubbles
@@ -102,3 +102,4 @@ onBeforeUnmount(() => {
   }
 }
 </style>
+../../../utils/useRandomColor

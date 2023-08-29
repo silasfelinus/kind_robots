@@ -1,11 +1,7 @@
 <template>
-  <div class="flex justify-center items-center min-h-screen bg-gray-800 pattern-grid-lg">
-    <div class="p-10 rounded-xl shadow-2xl bg-opacity-70 max-w-xl text-center space-y-6 relative">
-      <!-- Hero Image from API -->
-      <div
-        :style="{ backgroundImage: `url('${bgImage}')` }"
-        class="absolute inset-0 bg-cover bg-center z-0"
-      ></div>
+  <div class="flex justify-center items-center bg-gray-800 pattern-grid-lg">
+    <div class="hero-image-container relative overflow-hidden">
+      <img :src="bgImage" class="hero-image w-full object-cover" />
 
       <!-- Content Layer -->
       <div class="relative z-10">
@@ -84,5 +80,30 @@ onMounted(fetchBackgroundImage)
 }
 .bg-primary-darkened {
   background-color: #660044; /* This is just an example color */
+}
+.hero-image-container {
+  width: 100%;
+  height: 350px; /* or whatever height you prefer for the image */
+  position: relative;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+}
+.rounded-xl {
+  padding: 0; /* Reset padding to eliminate spacing around the image */
+}
+.relative.z-10 {
+  position: absolute; /* This will overlay the content on top of the image */
+  top: 0; /* Start from the top edge */
+  left: 0; /* Start from the left edge */
+  width: 100%; /* Cover full width */
+  height: 100%; /* Cover full height */
+  padding: 20px;
+  display: flex;
+  flex-direction: column; /* Stack content vertically */
+  justify-content: center; /* Center content vertically */
+  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% opacity for readability */
 }
 </style>

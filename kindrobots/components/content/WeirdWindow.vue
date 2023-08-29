@@ -6,9 +6,18 @@
       :class="{ 'pixelate-out': isPixelatingOut, 'pixelate-in': isPixelatingIn }"
       :style="imageStyle"
     ></div>
-    <slot />
+    <new-eyeball position="top-left" class="absolute top-0 left-0" />
+    <new-eyeball position="top-right" class="absolute top-0 right-0" />
 
-    <button class="teleport-button btn btn-primary shadow-xl" @click="fetchImage">Teleport</button>
+    <div class="game-overlay">
+      <div class="p-10 rounded-xl shadow-2xl bg-opacity-70 max-w-xl text-center space-y-6 relative">
+        <weirdlandia-game />
+        <!-- Moved the teleport button here -->
+        <button class="teleport-button btn btn-primary shadow-xl" @click="fetchImage">
+          Teleport
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -50,10 +59,11 @@ const fetchImage = async () => {
     }, 500)
   }
 }
-
 const handleScroll = () => {
   const scrollY = window.scrollY
-  document.documentElement.style.setProperty('--offsetY', `${-scrollY * 0.3}px`)
+  const parallaxFactor = 0.25 // Adjust this factor, experiment with values like 0.2 or 0.25 to find what suits best.
+  const yOffset = scrollY * parallaxFactor
+  imageStyle.value.backgroundPosition = `center ${-yOffset}px`
 }
 
 onMounted(() => {
@@ -69,9 +79,9 @@ onUnmounted(() => {
 <style scoped>
 .teleport-container {
   position: relative;
-  width: 100%; /* Will take up to the full width of its parent container */
-  height: 150vh; /* Increase the height to give space for the parallax effect */
-  overflow: hidden; /* Hide the overflow caused by the larger image */
+  width: 100%;
+  height: 130vh; /* Adjust this to fit your needs, either 110vh or 130vh based on your preference. */
+  overflow: hidden;
 }
 
 .image-layer {
@@ -80,13 +90,11 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 200vh; /* Make the image much taller to enable the parallax effect */
+  height: 150vh; /* This should be slightly taller than the teleport-container to accommodate the parallax effect. */
   background-size: cover;
   background-position: center;
-  background-attachment: fixed; /* This will give the parallax effect */
   transition: background-image 0.5s ease-in-out;
 }
-
 .teleport-button {
   appearance: none;
   border: none;
@@ -94,11 +102,7 @@ onUnmounted(() => {
   color: white;
   cursor: pointer;
   padding: 12px 24px;
-  position: absolute; /* Positioned within teleport-container */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* Center the button both vertically and horizontally */
-  z-index: 1;
+  margin-top: 20px; /* Adding margin-top to space it out from the game element */
   border-radius: 4px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition:
@@ -108,7 +112,15 @@ onUnmounted(() => {
 
 .teleport-button:hover {
   background-color: #0056b3;
-  transform: scale(1.05) translate(-50%, -50%);
+  transform: scale(1.05);
+}
+
+.game-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1; /* or a higher value if necessary */
 }
 
 @keyframes pixelateOut {

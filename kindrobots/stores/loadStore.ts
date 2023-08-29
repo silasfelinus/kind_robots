@@ -6,7 +6,7 @@ export const useLoadStore = defineStore('loadMessages', () => {
     'Charging up the friendly vibes...',
     'Releasing the digital butterflies...',
     'Kind Robot Cafe - Serving 23rd-century smiles!',
-    'Whispering to the cloud... and not the one in the sky.',
+    'Whispering to the cloud. No...the other one.',
     'Gathering stardust for that extra sparkle...',
     'Dreaming up the next poem for you...',
     'Inviting all the bots for a digital dance...',

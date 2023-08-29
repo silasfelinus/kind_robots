@@ -6,4 +6,4 @@ image: botcommunity.webp
 gallery: wonderbot
 tags: ['home']
 ---
-:weirdlandia-game
+:weird-window

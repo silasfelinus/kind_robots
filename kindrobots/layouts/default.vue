@@ -93,7 +93,7 @@ onMounted(() => {
   </div>
 </template>
 
-<style>
+<style scoped>
 /* Fade animation for layout transitions */
 .fade-enter-active,
 .fade-leave-active {

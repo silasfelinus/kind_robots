@@ -69,4 +69,3 @@ watchEffect(() => {
   opacity: 0;
 }
 </style>
-../../stores/dreamStore

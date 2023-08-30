@@ -73,7 +73,6 @@ const tooltipContent = ref('') // Tooltip content
 const filteredPages = computed((): Page[] => {
   if (!contentStore.pages) return []
   const pages = contentStore.pages.filter((page: Page) => !(!showAdmin.value && page.admin))
-  console.log(pages)
   return pages
 })
 

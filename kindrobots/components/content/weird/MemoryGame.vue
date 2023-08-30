@@ -58,7 +58,6 @@ async function generateMemoryGameImages() {
 
     const response = await fetch(`/api/gallery/random/count/${imageCount}`)
     const data = await response.json()
-    console.log(data) // For debugging
 
     if (data.images.length !== imageCount) {
       throw new Error('Received an unexpected number of images.')

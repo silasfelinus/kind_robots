@@ -1,12 +1,7 @@
 <template>
   <div class="soap-bubbles">
     <transition-group name="bubble" tag="div">
-      <svg
-        v-for="(bubble, index) in bubbles"
-        :key="index"
-        class="bubble"
-        :style="bubbleStyle(bubble)"
-      >
+      <svg v-for="bubble in bubbles" :key="bubble.id" class="bubble" :style="bubbleStyle(bubble)">
         <circle
           :cx="bubble.size / 2"
           :cy="bubble.size / 2"
@@ -21,26 +16,27 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRandomColor } from '../../../utils/useRandomColor'
 
 const bubbles = ref([])
-const MAX_BUBBLES = 20 // Reduced number of bubbles
+const MAX_BUBBLES = 20
 
 const createBubble = () => {
   if (bubbles.value.length < MAX_BUBBLES) {
-    const size = Math.random() * 50 + 10 // Increased range of bubble sizes
+    const size = Math.random() * 50 + 10
     const x = Math.random() * (100 - size)
     const speed = Math.random() * 6 + 4
     const { randomColor } = useRandomColor()
     const color = randomColor.value
 
-    bubbles.value.push({ x, size, speed, color })
+    bubbles.value.push({ id: Date.now(), x, size, speed, color }) // Added id for bubble uniqueness
   }
 }
 
 const bubbleStyle = (bubble) => ({
   left: `${bubble.x}vw`,
-  bottom: `${Math.random() * 100}vh`, // bubbles start at a random position on screen
+  bottom: '-10vw', // bubbles start off-screen
   width: `${bubble.size}vw`,
   height: `${bubble.size}vw`,
   animationDuration: `${bubble.speed}s`
@@ -48,17 +44,17 @@ const bubbleStyle = (bubble) => ({
 
 let bubbleCreationInterval
 onMounted(() => {
-  // Create initial bubbles
   for (let i = 0; i < MAX_BUBBLES; i++) {
     createBubble()
   }
-  bubbleCreationInterval = setInterval(createBubble, 3000) // Adjust time interval as needed
+  bubbleCreationInterval = setInterval(createBubble, 3000)
 })
 
 onBeforeUnmount(() => {
   clearInterval(bubbleCreationInterval)
 })
 </script>
+
 <style scoped>
 .soap-bubbles {
   position: absolute;
@@ -102,4 +98,3 @@ onBeforeUnmount(() => {
   }
 }
 </style>
-../../../utils/useRandomColor

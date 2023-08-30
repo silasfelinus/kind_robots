@@ -69,7 +69,7 @@ onBeforeUnmount(() => {
 
 .bubble {
   position: absolute;
-  pointer-events: auto;
+  pointer-events: none;
   animation: floatBubbles linear infinite;
 }
 

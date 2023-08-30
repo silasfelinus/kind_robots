@@ -2,11 +2,11 @@
   <div class="soap-bubbles relative w-full h-full overflow-hidden">
     <transition-group name="bubble" tag="div">
       <svg
-        v-for="(bubble, index) in bubbles"
-        :key="index"
+        v-for="bubble in bubbles"
+        :key="bubble.id"
         class="bubble absolute cursor-pointer"
         :style="bubbleStyle(bubble)"
-        @click="popBubble(index)"
+        @click="popBubble(bubble.id)"
       >
         <circle
           :cx="bubble.size / 2"
@@ -23,6 +23,9 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRandomColor } from '../../../utils/useRandomColor'
+
 const bubbles = ref([])
 const MAX_BUBBLES = 50
 
@@ -30,17 +33,17 @@ const createBubble = () => {
   if (bubbles.value.length < MAX_BUBBLES) {
     const size = Math.random() * 15 + 3
     const x = Math.random() * (100 - size)
-    const y = 0
+    const y = -5 // Start slightly off-screen for a seamless appearance
     const speed = Math.random() * 6 + 4
     const { randomColor } = useRandomColor()
     const color = randomColor.value
 
-    bubbles.value.push({ x, y, size, speed, color })
+    bubbles.value.push({ id: Date.now(), x, y, size, speed, color })
   }
 }
 
-const popBubble = (index) => {
-  bubbles.value.splice(index, 1)
+const popBubble = (id) => {
+  bubbles.value = bubbles.value.filter((bubble) => bubble.id !== id)
 }
 
 const bubbleStyle = (bubble) => ({

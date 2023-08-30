@@ -9,7 +9,7 @@
     </div>
     <!-- Main Content -->
     <main
-      class="w-full h-full flex bg-primary shadow-inner rounded-l-xl p-4 justify-center items-center"
+      class="w-full h-full flex bg-secondary shadow-inner rounded-l-xl p-4 justify-center items-center"
     >
       <slot />
     </main>

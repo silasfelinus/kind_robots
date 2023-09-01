@@ -1,183 +1,67 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-
-const isChecked = ref(true)
-const flipContainer = ref<HTMLDivElement | null>(null)
-const hasLocalStorage = ref(storageAvailable('localStorage'))
-
-const toggleFlip = () => {
-  if (flipContainer.value) {
-    flipContainer.value.classList.toggle('flipped')
-    const isFlipped = flipContainer.value.classList.contains('flipped')
-    if (hasLocalStorage.value) {
-      window.localStorage.setItem('flipState', isFlipped ? 'flipped' : 'unflipped')
-    }
-    isChecked.value = !isFlipped
-  }
-}
-
-function storageAvailable(type: 'localStorage' | 'sessionStorage'): boolean {
-  try {
-    const storage = window[type]
-    const testKey = '__storage_test__'
-    storage.setItem(testKey, testKey)
-    storage.removeItem(testKey)
-    return true
-  } catch (e) {
-    return false
-  }
-}
-
-onMounted(() => {
-  if (!hasLocalStorage.value) return // Return early if local storage isn't available
-
-  const route = useRoute()
-  const isBotRoute = route.path.startsWith('/bot/')
-  const flipState = window.localStorage.getItem('flipState')
-
-  if (isBotRoute || flipState === 'flipped') {
-    flipContainer.value?.classList.add('flipped')
-    isChecked.value = false
-  }
-})
-</script>
 <template>
-  <div
-    class="flex flex-col md:flex-row h-screen text-gray-800 p-4 space-y-4 md:space-y-0 md:space-x-4"
-  >
-    <!-- Sidebar -->
-    <div
-      class="md:w-1/5 flex flex-col items-center bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
-    >
-      <div
-        ref="flipContainer"
-        :class="{ flipped: !isChecked }"
-        class="flex-grow flip-container w-full"
-      >
-        <div class="flip-front sidebar-content w-full">
-          <img alt="Kind Robots Logo" src="/images/fulltitle.png" class="mx-auto rounded-l" />
-          <home-nav />
-          <theme-selector />
-        </div>
-        <div class="flip-back sidebar-content w-full text-center profile-center">
-          <h1>Welcome to Kind Robots</h1>
-          <bot-selector />
-          <div class="carousel-container">
-            <bot-carousel />
-          </div>
-        </div>
-      </div>
-      <!-- Toggle Switch -->
-      <div class="toggle-container flex justify-between items-center w-full">
-        <span>Bot View</span>
-        <label class="switch">
-          <input
-            type="checkbox"
-            role="switch"
-            aria-label="Toggle view"
-            :checked="isChecked"
-            @change="toggleFlip"
-          />
-          <span class="slider"></span>
-        </label>
-        <span>Nav View</span>
-      </div>
-    </div>
+  <div :class="['flex flex-col min-h-screen bg-base']">
+    <!-- Navbar -->
+    <nav class="flex justify-between items-center p-4 bg-primary text-white">
+      <div class="logo text-3xl font-extrabold">KindRobots</div>
+      <h1 class="text-xl font-bold">@ {{ page.title }}</h1>
+      <h2 class="text-lg font-medium">{{ page.subtitle }}</h2>
+    </nav>
     <!-- Main Content -->
-    <main
-      class="w-full h-full flex bg-primary shadow-inner rounded-l-xl p-4 justify-center items-center"
-    >
+    <main class="flex-1 p-4 bg-secondary">
+      <!-- Banner Image -->
+      <div class="p-4 rounded-xl bg-base-200 mx-auto my-6">
+        <div class="p-3 rounded-xl bg-accent">
+          <img
+            :src="'/images/' + page.image"
+            alt="Main Image"
+            class="mx-auto my-2 rounded-lg shadow-lg w-full h-auto"
+          />
+        </div>
+      </div>
       <slot />
+      <!-- Display tooltip -->
+      <div v-if="showTooltip" class="mt-4 p-3 rounded-md bg-accent text-white">
+        {{ page.tooltip }}
+      </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="p-4 bg-primary text-white text-center"><home-nav />KindRobots © 2023</footer>
   </div>
 </template>
 
-<style scoped>
-/* Fade animation for layout transitions */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
+<script setup lang="ts">
+const { page } = useContent()
+useContentHead(page)
 
-/* Flip container setup */
-.flip-container {
-  perspective: 1000px;
-}
+const pageTitle = ref('Kind Robots Presents: ' + page.title || 'Kind Robots')
 
-/* Setup for the front and back content */
-.flip-front,
-.flip-back {
-  backface-visibility: hidden;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.6s;
-}
+const isLoggedIn = ref<boolean>(false)
+const showDescription = ref<boolean>(true)
+const showTooltip = ref<boolean>(true)
 
-.flip-front {
-  transform: rotateY(0deg);
+interface GalleryResponse {
+  success: boolean
+  image?: string
 }
-.flip-back {
-  transform: rotateY(180deg);
-}
+const galleryData = ref<GalleryResponse | null>(null)
+const fetchError = ref<string | null>(null)
 
-.flipped .flip-front {
-  transform: rotateY(-180deg);
-}
-.flipped .flip-back {
-  transform: rotateY(0deg);
-}
+onMounted(async () => {
+  try {
+    const response = await fetch(
+      `https://kindrobots.org/api/gallery/random/name/${page.gallery || 'weirdlandia'}`
+    )
+    if (!response.ok) {
+      throw new Error('Failed to fetch gallery data')
+    }
+    galleryData.value = await response.json()
+  } catch (error: any) {
+    fetchError.value = error.message
+  }
+})
 
-/* Switch toggle styles */
-.switch {
-  position: relative;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #4caf50;
-  transition: 0.4s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: '';
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #2196f3;
-}
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
-</style>
+const randomGalleryImage = computed(() => {
+  return galleryData.value?.success ? galleryData.value.image : null
+})
+</script>

@@ -8,10 +8,6 @@
       </div>
     </div>
     <!-- Main Content -->
-    <main
-      class="w-full h-full flex bg-secondary shadow-inner rounded-l-xl p-4 justify-center items-center"
-    >
-      <slot />
-    </main>
+    <main-content />
   </div>
 </template>

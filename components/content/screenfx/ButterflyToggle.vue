@@ -72,7 +72,7 @@ const butterflyCount = 50
   font-size: 1rem;
   display: flex;
   align-items: center;
-  color: #555; /* Adjust color to fit your design */
+  color: bg-accent-100; /* Adjust color to fit your design */
 }
 
 .arrow {

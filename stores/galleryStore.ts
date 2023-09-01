@@ -1,126 +1,140 @@
-// ~/stores/galleryStore.ts
 import { defineStore } from 'pinia'
-import { Gallery as GalleryRecord } from '@prisma/client'
-import axios from 'axios'
-import { useErrorStore, ErrorType } from './errorStore'
-import { useStatusStore, StatusType } from './statusStore'
+import { Gallery } from '@prisma/client'
 
-const errorStore = useErrorStore()
-const statusStore = useStatusStore()
-
-export type Gallery = GalleryRecord
-
-interface GalleryStoreState {
+interface GalleryState {
   galleries: Gallery[]
   currentGallery: Gallery | null
-  totalGalleries: number
-  loading: boolean
-  _initialized: boolean
-  page: number
-  pageSize: number
+  currentImage: string
+}
+
+interface GalleryStore extends GalleryState {
+  // Getters
+  currentGalleryContent: () => string | null
+  currentGalleryDescription: () => string | null
+  currentGalleryMediaId: () => string | null
+  currentGalleryURL: () => string | null
+  currentGalleryIsNSFW: () => boolean
+  currentGalleryCustodian: () => string | null
+  currentGalleryUserId: () => number | null
+  currentGalleryHighlightImage: () => string | null
+  allGalleryNames: () => string[]
+  randomImage: () => string | null
+  randomGallery: () => string | null
+  imagePathsByGalleryName: (galleryName: string) => string[]
+
+  // Actions
+  fetchGalleries: () => Promise<void>
+  setGalleryByName: (name: string) => void
 }
 
 export const useGalleryStore = defineStore({
-  id: 'galleries',
-  state: (): GalleryStoreState => ({
-    galleries: [],
-    currentGallery: null,
-    totalGalleries: 0,
-    loading: false,
-    _initialized: false,
-    page: 1,
-    pageSize: 100
+  id: 'gallery',
+
+  state: (): GalleryState => ({
+    galleries: JSON.parse(localStorage.getItem('galleries') || '[]'),
+    currentGallery: JSON.parse(localStorage.getItem('currentGallery') || 'null'),
+    currentImage: localStorage.getItem('currentImage') || ''
   }),
 
+  getters: {
+    currentGalleryContent(state: GalleryState): string | null {
+      return state.currentGallery?.content || null
+    },
+
+    currentGalleryDescription(): string | null {
+      return this.currentGallery?.description || null
+    },
+
+    currentGalleryMediaId(): string | null {
+      return this.currentGallery?.mediaId || null
+    },
+
+    currentGalleryURL(): string | null {
+      return this.currentGallery?.url || null
+    },
+
+    currentGalleryIsNSFW(): boolean {
+      return this.currentGallery?.isNSFW || false
+    },
+
+    currentGalleryCustodian(): string | null {
+      return this.currentGallery?.custodian || null
+    },
+
+    currentGalleryUserId(): number | null {
+      return this.currentGallery?.userId || null
+    },
+
+    currentGalleryHighlightImage(): string | null {
+      return this.currentGallery?.highlightImage || null
+    },
+
+    allGalleryNames(): string[] {
+      return this.galleries.map((gallery) => gallery.name)
+    },
+
+    randomImage(): string | null {
+      if (this.currentGallery && this.currentGallery.imagePaths) {
+        const images = this.currentGallery.imagePaths.split(',')
+        const randomIndex = Math.floor(Math.random() * images.length)
+        return `/images/${this.currentGallery.name}/${images[randomIndex]}`
+      }
+      return null
+    },
+
+    randomGallery(state: GalleryState): Gallery | null {
+      const otherGalleries = state.galleries.filter((g) => g.name !== state.currentGallery?.name)
+      return otherGalleries[Math.floor(Math.random() * otherGalleries.length)] || null
+    },
+
+    imagePathsByGalleryName(state: GalleryState): (galleryName: string) => string[] {
+      return (galleryName: string) => {
+        const gallery = state.galleries.find((g) => g.name === galleryName)
+        return gallery && gallery.imagePaths ? gallery.imagePaths.split(',') : []
+      }
+    }
+  },
+
   actions: {
-    async loadStore(): Promise<void> {
-      if (!this._initialized) {
-        this.loading = true
-        statusStore.setStatus(StatusType.INFO, 'Loading gallery store...')
+    async fetchGalleries(this: GalleryStore) {
+      const response = await fetch('/api/gallery')
+      if (response.ok) {
+        this.galleries = await response.json()
+        localStorage.setItem('galleries', JSON.stringify(this.galleries))
+      }
+    },
 
-        try {
-          await this.getGalleries(this.page, this.pageSize)
-          this._initialized = true
-          statusStore.setStatus(StatusType.SUCCESS, `Loaded ${this.galleries.length} galleries`)
-        } catch (error) {
-          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Error initializing gallery store: ' + error)
-        } finally {
-          this.loading = false
+    setGalleryByName(this: GalleryStore, name: string) {
+      const selectedGallery = this.galleries.find((gallery: Gallery) => gallery.name === name)
+      if (selectedGallery) {
+        this.currentGallery = selectedGallery
+        this.currentImage = selectedGallery.imagePaths?.split(',')[0] || ''
+        localStorage.setItem('currentGallery', JSON.stringify(this.currentGallery))
+        localStorage.setItem('currentImage', this.currentImage)
+      }
+    },
+
+    changeToRandomImage(this: GalleryStore) {
+      if (this.currentGallery && this.currentGallery.imagePaths) {
+        const images = this.currentGallery.imagePaths.split(',')
+        let newImage = this.currentImage
+
+        while (newImage === this.currentImage && images.length > 1) {
+          const randomIndex = Math.floor(Math.random() * images.length)
+          newImage = `/images/${this.currentGallery.name}/${images[randomIndex]}`
         }
+
+        this.currentImage = newImage
       }
     },
 
-    async getGalleries(page = 1, pageSize = 10): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Fetching galleries...')
-      try {
-        const { data } = await axios.get(`/api/gallery/index.get?page=${page}&pageSize=${pageSize}`)
-        this.galleries = [...this.galleries, ...data]
-        this.page++
-        statusStore.setStatus(StatusType.SUCCESS, `Fetched ${this.galleries.length} galleries`)
-      } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to get galleries: ' + error)
-      }
-    },
-
-    async getGalleryById(id: number): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, `Fetching gallery with id ${id}...`)
-      try {
-        const { data } = await axios.get(`/api/gallery/id/${id}.get`)
-        this.currentGallery = data
-        statusStore.setStatus(StatusType.SUCCESS, `Fetched gallery with id ${id}`)
-      } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to get gallery by id: ' + error)
-      }
-    },
-
-    async updateGallery(id: number, data: Partial<Gallery>): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, `Updating gallery with id ${id}...`)
-      try {
-        const { data: updatedGallery } = await axios.patch(`/api/gallery/id/${id}.patch`, data)
-        this.currentGallery = updatedGallery
-        statusStore.setStatus(StatusType.SUCCESS, `Updated gallery with id ${id}`)
-        await this.getGalleries()
-      } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to update gallery: ' + error)
-      }
-    },
-
-    async deleteGallery(id: number): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, `Deleting gallery with id ${id}...`)
-      try {
-        await axios.delete(`/api/gallery/id/${id}.delete`)
-        statusStore.setStatus(StatusType.SUCCESS, `Deleted gallery with id ${id}`)
-        await this.getGalleries()
-      } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to delete gallery: ' + error)
-      }
-    },
-
-    async getRandomGallery(): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Fetching a random gallery...')
-      try {
-        const { data } = await axios.get(`/api/gallery/random/index.get`)
-        this.currentGallery = data
-        statusStore.setStatus(StatusType.SUCCESS, 'Fetched a random gallery')
-      } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to get random gallery: ' + error)
-      }
-    },
-
-    // Helper function to get list of gallery names
-    getGalleryNames(): string[] {
-      return this.galleries.map((g) => g.name)
-    },
-
-    async countGalleries(): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Counting galleries...')
-      try {
-        const { data } = await axios.get(`/api/gallery/count.get`)
-        this.totalGalleries = data
-        statusStore.setStatus(StatusType.SUCCESS, 'Counted galleries')
-      } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to count galleries: ' + error)
+    setRandomGallery(this: GalleryStore) {
+      const randomGallery = this.randomGallery
+      if (randomGallery) {
+        this.setGalleryByName(randomGallery.name)
       }
     }
   }
 })
+
+export type { Gallery }

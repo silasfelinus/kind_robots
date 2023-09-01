@@ -1,0 +1,12 @@
+---
+title: 'Kind TV'
+subtitle: What's On Today?
+description: random gallery viewer
+layout: default
+image: botcommunity.webp
+gallery: wonderbot
+tags: ['home']
+tooltip: This is a gallery viewer built in prisma. The design was influenced by a classic television set.
+icon: game-icons:tv
+---
+:random-gallery

@@ -25,7 +25,7 @@ const MAX_BUBBLES = 20
 const createBubble = () => {
   if (bubbles.value.length < MAX_BUBBLES) {
     const size = Math.random() * 50 + 10
-    const x = Math.random() * (100 - size)
+    const x = Math.random() * 100
     const speed = Math.random() * 6 + 4
     const { randomColor } = useRandomColor()
     const color = randomColor.value
@@ -63,7 +63,7 @@ onBeforeUnmount(() => {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  z-index: 20;
+  z-index: 0;
   pointer-events: none;
 }
 

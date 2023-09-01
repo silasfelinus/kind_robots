@@ -27,19 +27,19 @@ enum ModelType {
 }
 
 model Account {
-  id                       Int     @id @unique @default(autoincrement())
-  userId                   Int
-  type                     String
-  provider                 String
-  providerAccountId        String
-  refresh_token            String?
-  refresh_token_expires_in Int?
-  access_token             String?
-  expires_at               Int?
-  token_type               String?
-  scope                    String?
-  id_token                 String?
-  session_state            String?
+  id                    Int     @id @unique @default(autoincrement())
+  userId                Int
+  type                  String
+  provider              String
+  providerAccountId     String
+  refreshToken          String?
+  refreshTokenExpiresIn Int?
+  accessToken           String?
+  expiresAt             Int?
+  tokenType             String?
+  scope                 String?
+  idToken               String?
+  sessionState          String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -146,7 +146,7 @@ model Gallery {
   User           User?    @relation(fields: [userId], references: [id])
   userId         Int?
   highlightImage String?
-  imagePaths     String? @db.Text
+  imagePaths     String?  @db.Text
 }
 
 // User Incentivization and interaction element
@@ -224,18 +224,14 @@ model Project {
 //raw text data for API processing
 // prompt is colloquial for ai-art modeling text data
 model Prompt {
-  id          Int        @id @unique @default(autoincrement())
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  StringType  StringType
-  label       String
-  content     String
-  designer    User       @relation(fields: [userId], references: [id])
-  userId      Int
-  sender      ModelType?
-  senderId    Int?
-  recipient   ModelType?
-  recipientId Int?
+  id         Int        @id @unique @default(autoincrement())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  StringType StringType
+  label      String
+  content    String
+  User       User       @relation(fields: [userId], references: [id])
+  userId     Int
 }
 
 // Reaction / review system
@@ -284,56 +280,106 @@ enum StringType {
   ERROR // An Error message
 }
 
-// User model
+// Todo model
+model Todo {
+  id        Int      @id @default(autoincrement())
+  task      String
+  category  String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  userId    Int
+  User      User     @relation(fields: [userId], references: [id])
+  rewardId  Int?
+  Reward    Reward?  @relation(fields: [rewardId], references: [id])
+}
+
+// Reward model
+model Reward {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  icon       String
+  text       String   @unique
+  power      String
+  collection String   @default("genesis")
+  User       User[]
+  Todo       Todo[]
+  rarity     Int      @default(50)
+}
+
+// UserAuth model for authentication-related fields
+model UserAuth {
+  id       Int     @id @unique @default(autoincrement())
+  salt     String?
+  password String
+  // User relation
+  userId   Int     @unique
+  User     User    @relation(fields: [userId], references: [id])
+}
+
 model User {
-  id                 Int        @id @unique @default(autoincrement())
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
-  Role               Role       @default(USER)
-  username           String     @unique
-  realName           String?
-  fancyName          String?
-  salt               String?
-  password           String
-  email              String     @unique
-  bio                String?    @default("I was born and then things happened and now I'm here.")
-  birthday           String?
-  address1           String?
-  address2           String?
-  city               String?
-  state              String?
-  country            String?
-  timezone           String?
-  phone              String?
-  languages          String?
-  hideBio            Boolean    @default(false)
-  avatarImage        String     @default("/images/botcafe.webp")
-  isPrivate          Boolean    @default(false)
-  allowCookies       Boolean    @default(false)
-  defaultTheme       String     @default("default")
-  themeOverride      Boolean    @default(false)
-  showNsfw           Boolean    @default(false)
-  likes              Int        @default(0)
-  visits             Int        @default(0)
-  hideComments       Boolean    @default(false)
-  instagramUrl       String?
-  twitterUrl         String?
-  facebookUrl        String?
-  discordUrl         String?
-  kindrobotsUrl      String?
-  hideSocialNetworks Boolean    @default(false)
-  questPoints        Int        @default(0)
-  Bots               Bot[]
-  Galleries          Gallery[]
-  Media              Media[]
-  Prompts            Prompt[]
-  Game               Game[]
-  Reactions          Reaction[]
-  Resources          Resource[]
-  Projects           Project[]
-  name               String?
-  emailVerified      DateTime?
-  accounts           Account[]
-  sessions           Session[]
-  Model              Model[]
+  id             Int             @id @unique @default(autoincrement())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  name           String?
+  Role           Role            @default(USER)
+  username       String          @unique
+  email          String          @unique
+  emailVerified  DateTime?
+  questPoints    Int             @default(0)
+  // Relations
+  accounts       Account[]
+  sessions       Session[]
+  Bots           Bot[]
+  Galleries      Gallery[]
+  Media          Media[]
+  Prompts        Prompt[]
+  Game           Game[]
+  Reactions      Reaction[]
+  Resources      Resource[]
+  Projects       Project[]
+  Model          Model[]
+  Todo           Todo[]
+  Rewards        Reward[]
+  UserAuth       UserAuth?
+  UserProfile    UserProfile?
+  userAuthId     Int?
+  userProfileId  Int?
+  UserMilestones UserMilestones?
+  milestoneId    Int?
+}
+
+model UserMilestones {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int      @unique
+  User      User     @relation(fields: [userId], references: [id])
+}
+
+// UserProfile model for personal and social media information
+model UserProfile {
+  id            Int     @id @unique @default(autoincrement())
+  realName      String?
+  fancyName     String?
+  bio           String? @default("I was born and then things happened and now I'm here.")
+  birthday      String?
+  address1      String?
+  address2      String?
+  city          String?
+  state         String?
+  country       String?
+  timezone      String?
+  phone         String?
+  languages     String?
+  avatarImage   String  @default("/images/botcafe.webp")
+  // Social Media
+  instagramUrl  String?
+  twitterUrl    String?
+  facebookUrl   String?
+  discordUrl    String?
+  kindrobotsUrl String?
+  // User relation
+  userId        Int     @unique
+  User          User    @relation(fields: [userId], references: [id])
 }

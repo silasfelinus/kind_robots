@@ -1,0 +1,400 @@
+
+###
+### Get all rewards
+GET http://localhost:3000/api/rewards
+
+###
+###
+### Get all todos
+GET http://localhost:3000/api/todos
+
+###
+
+###
+### Get random Reward
+GET http://localhost:3000/api/rewards/random
+
+###
+### Delete a reward
+DELETE http://localhost:3000/api/rewards
+Content-Type: application/json
+
+{
+  "id": 3
+}
+### Create a new todo
+POST http://localhost:3000/api/todos
+Content-Type: application/json
+
+[{
+  "task": "Add Rewards",
+  "category": "Quest",
+  "userId": 1
+}]
+###
+### Update a todo
+PUT http://localhost:3000/api/todos
+Content-Type: application/json
+
+{
+  "id": 28,
+  "completed": false
+}
+
+### Delete a todo
+DELETE http://localhost:3000/api/todos
+Content-Type: application/json
+
+{
+  "id": 28
+}
+
+
+### Populate To-Do List
+POST http://localhost:3000/api/todos
+Content-Type: application/json
+
+[
+  {
+    "task": "Add Ability to Track To-Dos on Website API",
+    "category": "Proactive Suggestions"
+  },
+  {
+    "task": "Add email/password authentication with Prisma",
+    "category": "Authentication"
+  },
+  {
+    "task": "Add OAuth for Google, Instagram, GitHub, Facebook, and local Authelia",
+    "category": "Authentication"
+  },
+  {
+    "task": "Integrate Homelab",
+    "category": "Integration"
+  },
+  {
+    "task": "Finish ChatGPT module component",
+    "category": "ChatGPT Module"
+  },
+  {
+    "task": "Create admin page",
+    "category": "Admin and Members Pages"
+  },
+  {
+    "task": "Create special members page",
+    "category": "Admin and Members Pages"
+  },
+  {
+    "task": "Add Stripe interaction",
+    "category": "Payment and Paywall"
+  },
+  {
+    "task": "Create paywall",
+    "category": "Payment and Paywall"
+  },
+  {
+    "task": "ChatGPT slogan generator",
+    "category": "ChatGPT Interactivity"
+  },
+  {
+    "task": "ChatGPT response chooser",
+    "category": "ChatGPT Interactivity"
+  },
+  {
+    "task": "Anti-malaria button",
+    "category": "Fundraising"
+  },
+  {
+    "task": "Multi-lingual page",
+    "category": "Multi-Lingual Support"
+  },
+  {
+    "task": "Multi-lingual button",
+    "category": "Multi-Lingual Support"
+  },
+  {
+    "task": "Implement social share buttons for Facebook, Twitter/X, Instagram, GitHub",
+    "category": "Social Sharing"
+  },
+  {
+    "task": "Add writings section",
+    "category": "Content Sections"
+  },
+  {
+    "task": "Separate nav sections into tiers (home, admin, projects, etc)",
+    "category": "Content Sections"
+  },
+  {
+    "task": "Tie in social media and GitHub",
+    "category": "Social Media and GitHub"
+  },
+  {
+    "task": "Finish 'Make Art' page",
+    "category": "Art Creation and Management"
+  },
+  {
+    "task": "Add 'Make AMI' art page",
+    "category": "Art Creation and Management"
+  },
+  {
+    "task": "Upgrade AMI's design for SFW content",
+    "category": "Art Creation and Management"
+  },
+  {
+    "task": "Add ability to flag and report art",
+    "category": "Art Creation and Management"
+  },
+  {
+    "task": "Add ability to upvote/downvote art",
+    "category": "Art Creation and Management"
+  },
+  {
+    "task": "Move image files from single string refs to independent Object refs",
+    "category": "Gallery Refactoring"
+  }]
+###
+### Seed Rewards
+POST http://localhost:3000/api/rewards
+Content-Type: application/json
+
+[
+  {
+    "icon": "🦋",
+    "text": "Ephemeral Butterfly",
+    "power": "Grants you the ability to understand animals for one day."
+  },
+  {
+    "icon": "🎵",
+    "text": "Melodic Note",
+    "power": "Play a tune to unlock hidden doors and pathways."
+  },
+  {
+    "icon": "🤖",
+    "text": "Friendly Robot",
+    "power": "A mechanical companion that can solve any math puzzle for you."
+  },
+  {
+    "icon": "🌐",
+    "text": "Globe of Unity",
+    "power": "Instantly learn and speak any language fluently for 24 hours."
+  },
+  {
+    "icon": "👥",
+    "text": "Community Emblem",
+    "power": "Summon a helpful NPC to aid you in your quest."
+  },
+  {
+    "icon": "❤️",
+    "text": "Heart of Compassion",
+    "power": "Heal yourself or a friend to full health."
+  },
+  {
+    "icon": "🤝",
+    "text": "Handshake of Trust",
+    "power": "Win over any NPC to your side, no matter their initial disposition."
+  },
+  {
+    "icon": "💰",
+    "text": "Bag of Endless Gold",
+    "power": "Never run out of currency for in-game purchases."
+  },
+  {
+    "icon": "🔬",
+    "text": "Microscope of Insight",
+    "power": "Reveal hidden details and clues in your environment."
+  },
+  {
+    "icon": "▶️",
+    "text": "Play Button",
+    "power": "Skip a challenging puzzle or obstacle."
+  }
+]
+
+### 
+### Weird
+POST http://localhost:3000/api/rewards
+Content-Type: application/json
+
+[
+  {
+    "icon": "mdi:alien",
+    "text": "Alien Communicator",
+    "power": "Speak with extraterrestrials and maybe even summon a UFO.",
+    "collection": "weird",
+    "rarity": 40
+  },
+  {
+    "icon": "mdi:flask-empty",
+    "text": "Potion of Randomness",
+    "power": "Drink to experience a completely unpredictable effect.",
+    "collection": "weird",
+    "rarity": 60
+  },
+  {
+    "icon": "mdi:clock-time-four-outline",
+    "text": "Time-Loop Pocket Watch",
+    "power": "Rewind time by 5 minutes, but only once.",
+    "collection": "weird",
+    "rarity": 30
+  },
+  {
+    "icon": "mdi:thought-bubble-outline",
+    "text": "Dreamcatcher Hat",
+    "power": "Capture and interact with your dreams.",
+    "collection": "weird",
+    "rarity": 50
+  },
+  {
+    "icon": "mdi:cat",
+    "text": "Schrodinger's Box",
+    "power": "Open the box to find out if you gain a life or lose one.",
+    "collection": "weird",
+    "rarity": 20
+  },
+  {
+    "icon": "mdi:pine-tree",
+    "text": "Infinite Acorn",
+    "power": "Plant it to grow a tree that reaches into another dimension.",
+    "collection": "weird",
+    "rarity": 45
+  },
+  {
+    "icon": "mdi:book-open-page-variant",
+    "text": "Book of Unwritten Stories",
+    "power": "Read to enter a story where you're the protagonist, but you can't predict the plot.",
+    "collection": "weird",
+    "rarity": 55
+  },
+  {
+    "icon": "mdi:weather-lightning",
+    "text": "Thundercloud in a Jar",
+    "power": "Release to cause a localized storm, complete with lightning.",
+    "collection": "weird",
+    "rarity": 35
+  },
+  {
+    "icon": "mdi:human-handsdown",
+    "text": "Gravity-Reversing Gloves",
+    "power": "Flip gravity for yourself for a short period.",
+    "collection": "weird",
+    "rarity": 25
+  },
+  {
+    "icon": "mdi:boombox",
+    "text": "Reality Distortion Boombox",
+    "power": "Play a tune to temporarily alter the laws of physics.",
+    "collection": "weird",
+    "rarity": 70
+  }
+]
+
+### Capes and Comics
+POST http://localhost:3000/api/rewards
+Content-Type: application/json
+
+[
+  {
+    "icon": "mdi:shield",
+    "text": "Impenetrable Cape",
+    "power": "Block any physical attack once per day.",
+    "collection": "capes and cowls",
+    "rarity": 40
+  },
+  {
+    "icon": "mdi:eye",
+    "text": "Cowl of Perception",
+    "power": "See through walls for 10 seconds.",
+    "collection": "capes and cowls",
+    "rarity": 50
+  },
+  {
+    "icon": "mdi:flash",
+    "text": "Speedster's Boots",
+    "power": "Run at super speed for a short burst.",
+    "collection": "capes and cowls",
+    "rarity": 60
+  },
+  {
+    "icon": "mdi:hand",
+    "text": "Gloves of Strength",
+    "power": "Lift heavy objects effortlessly.",
+    "collection": "capes and cowls",
+    "rarity": 55
+  },
+  {
+    "icon": "mdi:feather",
+    "text": "Wings of Flight",
+    "power": "Fly for up to 5 minutes.",
+    "collection": "capes and cowls",
+    "rarity": 45
+  },
+  {
+    "icon": "mdi:fire",
+    "text": "Flame-Resistant Suit",
+    "power": "Become immune to fire damage.",
+    "collection": "capes and cowls",
+    "rarity": 35
+  },
+  {
+    "icon": "mdi:lock",
+    "text": "Utility Belt",
+    "power": "Access a random useful gadget.",
+    "collection": "capes and cowls",
+    "rarity": 70
+  },
+  {
+    "icon": "mdi:heart",
+    "text": "Healing Emblem",
+    "power": "Instantly heal minor injuries.",
+    "collection": "capes and cowls",
+    "rarity": 65
+  },
+  {
+    "icon": "mdi:bullhorn",
+    "text": "Voice Amplifier",
+    "power": "Your voice can be heard clearly in a 1-mile radius.",
+    "collection": "capes and cowls",
+    "rarity": 30
+  },
+  {
+    "icon": "mdi:account",
+    "text": "Identity Mask",
+    "power": "Conceal your true identity from anyone.",
+    "collection": "capes and cowls",
+    "rarity": 50
+  },
+  {
+    "icon": "mdi:web",
+    "text": "Web-Slinger",
+    "power": "Shoot webs to swing between buildings.",
+    "collection": "capes and cowls",
+    "rarity": 40
+  },
+  {
+    "icon": "mdi:fish",
+    "text": "Aqua Breather",
+    "power": "Breathe underwater indefinitely.",
+    "collection": "capes and cowls",
+    "rarity": 25
+  },
+  {
+    "icon": "mdi:magnify",
+    "text": "Detective's Lens",
+    "power": "Instantly analyze a crime scene.",
+    "collection": "capes and cowls",
+    "rarity": 60
+  },
+  {
+    "icon": "mdi:star",
+    "text": "Cosmic Shield",
+    "power": "Deflect energy-based attacks.",
+    "collection": "capes and cowls",
+    "rarity": 20
+  },
+  {
+    "icon": "mdi:thought-bubble",
+    "text": "Telepathic Tiara",
+    "power": "Read the thoughts of one person for 10 seconds.",
+    "collection": "capes and cowls",
+    "rarity": 15
+  }
+]

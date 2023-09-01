@@ -1,6 +1,6 @@
 
-### Get bots
-GET https://kindrobots.org/api/bots/
+### Get users
+GET https://kindrobots.org/api/users
 Accept: application/json
 Content-Type: application/json
 

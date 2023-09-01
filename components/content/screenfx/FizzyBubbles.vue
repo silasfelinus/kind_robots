@@ -52,11 +52,13 @@ function removeBubble(bubbleId: number) {
 
 <style scoped>
 .bubble-container {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: linear-gradient(0deg, #333, #111);
+  z-index: 0;
 }
 
 .bubble {
@@ -69,6 +71,11 @@ function removeBubble(bubbleId: number) {
     rgba(255, 255, 255, 0) 100%
   );
   animation: floatBubble linear infinite;
+  z-index: 0;
+}
+.bubble-container,
+.bubble {
+  pointer-events: none;
 }
 
 @keyframes floatBubble {

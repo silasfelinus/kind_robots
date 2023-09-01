@@ -1,82 +1,67 @@
 <template>
-  <div>
-    <!-- Floating Toggles with Icons -->
-    <div class="fixed top-4 left-4">
-      <button class="bg-blue-500 p-2 rounded-full shadow" @click="showModal('home')">
-        <icon name="mdi:home" class="text-white" />
-      </button>
-    </div>
-    <div class="fixed top-4 right-4">
-      <button class="bg-blue-500 p-2 rounded-full shadow" @click="showModal('nav')">
-        <icon name="mdi:navigation" class="text-white" />
-      </button>
-    </div>
-    <div class="fixed bottom-4 right-4">
-      <button class="bg-blue-500 p-2 rounded-full shadow" @click="showModal('chat')">
-        <icon name="mdi:chat" class="text-white" />
-      </button>
-    </div>
-    <div class="fixed bottom-4 left-4">
-      <button class="bg-blue-500 p-2 rounded-full shadow" @click="showModal('bot')">
-        <icon name="mdi:robot" class="text-white" />
-      </button>
-    </div>
+  <div :class="['flex flex-col min-h-screen bg-base']">
+    <!-- Navbar -->
+    <nav class="flex justify-between items-center p-4 bg-primary text-white">
+      <div class="logo text-3xl font-extrabold">KindRobots</div>
+      <h1 class="text-xl font-bold">@ {{ page.title }}</h1>
+      <h2 class="text-lg font-medium">{{ page.subtitle }}</h2>
+    </nav>
+    <!-- Main Content -->
+    <main class="flex-1 p-4 bg-secondary">
+      <!-- Banner Image -->
+      <div class="p-4 rounded-xl bg-base-200 mx-auto my-6">
+        <div class="p-3 rounded-xl bg-accent">
+          <img
+            :src="'/images/' + page.image"
+            alt="Main Image"
+            class="mx-auto my-2 rounded-lg shadow-lg w-full h-auto"
+          />
+        </div>
+      </div>
+      <slot />
+      <!-- Display tooltip -->
+      <div v-if="showTooltip" class="mt-4 p-3 rounded-md bg-accent text-white">
+        {{ page.tooltip }}
+      </div>
+    </main>
 
-    <!-- Modals -->
-    <div
-      v-if="activeModal === 'home'"
-      class="fixed inset-0 bg-gray-100 z-50 flex items-center justify-center"
-    >
-      <div class="bg-white p-8 rounded shadow-lg w-1/2">
-        <h1>Home Content</h1>
-        <p>This is the content for the Home modal.</p>
-        <button class="mt-4 bg-red-500 text-white p-2 rounded" @click="closeModal">Close</button>
-      </div>
-    </div>
-
-    <div
-      v-if="activeModal === 'nav'"
-      class="fixed inset-0 bg-gray-100 z-50 flex items-center justify-center"
-    >
-      <div class="bg-white p-8 rounded shadow-lg w-1/2">
-        <h1>Navigation Content</h1>
-        <p>This is the content for the Navigation modal.</p>
-        <button class="mt-4 bg-red-500 text-white p-2 rounded" @click="closeModal">Close</button>
-      </div>
-    </div>
-    <div
-      v-if="activeModal === 'chat'"
-      class="fixed inset-0 bg-gray-100 z-50 flex items-center justify-center"
-    >
-      <div class="bg-white p-8 rounded shadow-lg w-1/2">
-        <h1>Chat Content</h1>
-        <p>This is the content for the Chat modal.</p>
-        <button class="mt-4 bg-red-500 text-white p-2 rounded" @click="closeModal">Close</button>
-      </div>
-    </div>
-    <div
-      v-if="activeModal === 'bot'"
-      class="fixed inset-0 bg-gray-100 z-50 flex items-center justify-center"
-    >
-      <div class="bg-white p-8 rounded shadow-lg w-1/2">
-        <h1>Bot Content</h1>
-        <p>This is the content for the Bot modal.</p>
-        <button class="mt-4 bg-red-500 text-white p-2 rounded" @click="closeModal">Close</button>
-      </div>
-    </div>
+    <!-- Footer -->
+    <footer class="p-4 bg-primary text-white text-center"><home-nav />KindRobots © 2023</footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+const { page } = useContent()
+useContentHead(page)
 
-const activeModal = ref<string | null>(null)
+const pageTitle = ref('Kind Robots Presents: ' + page.title || 'Kind Robots')
 
-const showModal = (modal: string) => {
-  activeModal.value = modal
+const isLoggedIn = ref<boolean>(false)
+const showDescription = ref<boolean>(true)
+const showTooltip = ref<boolean>(true)
+
+interface GalleryResponse {
+  success: boolean
+  image?: string
 }
+const galleryData = ref<GalleryResponse | null>(null)
+const fetchError = ref<string | null>(null)
 
-const closeModal = () => {
-  activeModal.value = null
-}
+onMounted(async () => {
+  try {
+    const response = await fetch(
+      `https://kindrobots.org/api/gallery/random/name/${page.gallery || 'weirdlandia'}`
+    )
+    if (!response.ok) {
+      throw new Error('Failed to fetch gallery data')
+    }
+    galleryData.value = await response.json()
+  } catch (error: any) {
+    fetchError.value = error.message
+  }
+})
+
+const randomGalleryImage = computed(() => {
+  return galleryData.value?.success ? galleryData.value.image : null
+})
 </script>

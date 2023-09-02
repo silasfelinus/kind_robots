@@ -101,27 +101,28 @@ enum Role {
 // our modular promptbots
 // the meat-and-potatoes of our tech interactibles
 model Bot {
-  id                Int      @id @unique @default(autoincrement())
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  BotType           BotType  @default(CHATBOT)
-  name              String   @unique
-  isPublic          Boolean  @default(true)
-  underConstruction Boolean  @default(false)
-  canDelete         Boolean  @default(false)
-  subtitle          String   @default("Kind Robot")
-  description       String   @default("I'm a kind robot")
-  avatarImage       String   @default("/images/wonderchest/wonderchest304_(23).webp")
-  botIntro          String   @default("You're a Kind Robot")
-  userIntro         String   @default("Let's make a difference. Here's my idea:")
-  prompt            String   @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
+  id                Int            @id @unique @default(autoincrement())
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  BotType           BotType        @default(CHATBOT)
+  name              String         @unique
+  isPublic          Boolean        @default(true)
+  underConstruction Boolean        @default(false)
+  canDelete         Boolean        @default(false)
+  subtitle          String         @default("Kind Robot")
+  description       String         @default("I'm a kind robot")
+  avatarImage       String         @default("/images/wonderchest/wonderchest304_(23).webp")
+  botIntro          String         @default("You're a Kind Robot")
+  userIntro         String         @default("Let's make a difference. Here's my idea:")
+  prompt            String         @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
   trainingPath      String?
   theme             String?
-  personality       String   @default("helpful, inquisitive, considerate")
+  personality       String         @default("helpful, inquisitive, considerate")
   modules           String?
-  User              User?    @relation(fields: [userId], references: [id])
+  User              User?          @relation(fields: [userId], references: [id])
   userId            Int?
   Media             Media[]
+  TrainingData      TrainingData[]
 }
 
 enum BotType {
@@ -277,7 +278,7 @@ enum StringType {
   MEDIA_URL // Media url
   URL // generic web url
   CODE //validated codewall
-  ERROR // An Error message
+  ERROR // An Error message125m.
 }
 
 // Todo model
@@ -291,6 +292,22 @@ model Todo {
   User      User     @relation(fields: [userId], references: [id])
   rewardId  Int?
   Reward    Reward?  @relation(fields: [rewardId], references: [id])
+}
+
+model TrainingData {
+  id        Int            @id @unique @default(autoincrement())
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  label     String
+  Bots      Bot[]
+  training  TrainingLine[] // <-- many-to-many relationship
+}
+
+model TrainingLine {
+  id             Int           @id @unique @default(autoincrement())
+  role           String
+  content        String // The content of that role in a particular turn
+  TrainingData   TrainingData[]  // < traininglines should be reusable in multiple trainindData structures
 }
 
 // Reward model
@@ -359,20 +376,20 @@ model UserMilestones {
 
 // UserProfile model for personal and social media information
 model UserProfile {
-  id            Int     @id @unique @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   realName      String?
   fancyName     String?
-  bio           String? @default("I was born and then things happened and now I'm here.")
-  birthday      String?
+  bio           String?   @default("I was born and then things happened and now I'm here.")
+  birthday      DateTime?
   address1      String?
   address2      String?
   city          String?
   state         String?
-  country       String?
+  country       String? // Consider using an enum if the list of countries is fixed
   timezone      String?
   phone         String?
-  languages     String?
-  avatarImage   String  @default("/images/botcafe.webp")
+  languages     String? // Consider using String[] if using PostgreSQL
+  avatarImage   String    @default("/images/botcafe.webp")
   // Social Media
   instagramUrl  String?
   twitterUrl    String?
@@ -380,6 +397,6 @@ model UserProfile {
   discordUrl    String?
   kindrobotsUrl String?
   // User relation
-  userId        Int     @unique
-  User          User    @relation(fields: [userId], references: [id])
+  userId        Int       @unique
+  User          User      @relation(fields: [userId], references: [id])
 }

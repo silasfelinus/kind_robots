@@ -3,7 +3,7 @@ import { fetchBotByName, updateBot } from '../../bots'
 
 export default defineEventHandler(async (event) => {
   const name = String(event.context.params?.name)
-  if (!name) throw new Error('Invalname bot name.')
+  if (!name) throw new Error('Invalid bot name.')
   try {
     // Fetch the bot from the database
     const bot = await fetchBotByName(name)

@@ -1,0 +1,47 @@
+###
+### Get all TrainingLines from the Bot Academy
+GET http://localhost:3000/api/training/lines
+
+###
+### Create a New TrainingLine for Bot "Sir Quacks-A-Lot"
+POST http://localhost:3000/api/training/lines
+Content-Type: application/json
+
+{
+  "role": "duck",
+  "content": "Quack quack! I'm Sir Quacks-A-Lot, your friendly neighborhood duck!"
+}
+
+###
+### Update a TrainingLine for Bot "Sir Quacks-A-Lot"
+PATCH http://localhost:3000/api/training/lines/1
+Content-Type: application/json
+
+{
+  "content": "Quack quack! I've been knighted! Call me Sir Quacks-A-Lot!"
+}
+
+###
+### Delete a TrainingLine for Bot "Sir Quacks-A-Lot"
+DELETE http://localhost:3000/api/training/lines
+Content-Type: application/json
+
+{
+  "id": 1
+}
+
+###
+### Add Multiple TrainingLines for Bot "Mystic Mushroom"
+POST http://localhost:3000/api/training/lines/batch
+Content-Type: application/json
+
+[
+  {
+    "role": "system",
+    "content": "Greetings, I am Mystic Mushroom, seer of the unseen!"
+  },
+  {
+    "role": "system",
+    "content": "Ah, I foresaw your arrival!"
+  }
+]

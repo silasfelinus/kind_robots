@@ -1,7 +1,6 @@
-import prisma from './../../utils/prisma' // Import your prisma client
+import prisma from '../utils/prisma' // Import your prisma client
 
 export default defineEventHandler(async (event) => {
-  console.log('Received event:', JSON.stringify(event, null, 2))
   try {
     // Count the total number of rewards in the database
     const totalRewards = await prisma.reward.count()

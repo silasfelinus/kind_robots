@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { usePageStore } from '../../../stores/pageStore'
+import { usePageStore } from '@/stores/pageStore'
 
 onMounted(() => {
   if (process.client) {

@@ -1,32 +1,22 @@
-<!-- MainLayout.vue -->
 <template>
-  <div class="flex flex-col min-h-screen bg-primary overflow-hidden relative">
+  <div class="flex flex-col min-h-screen bg-base-100 overflow-hidden relative">
     <!-- Header -->
-    <new-header />
+    <site-header />
     <!-- Main Content -->
-    <main class="flex flex-row items-center justify-between h-full">
-      <!-- Splash Image -->
-      <div class="w-1/2 h-full flex justify-center items-center">
-        <img
-          :src="`/images/${page.image}`"
-          alt="Splash Image"
-          class="w-full h-full object-cover rounded-lg"
-        />
-      </div>
-      <!-- Slot and Tooltip -->
-      <div class="w-1/2 flex flex-col items-center">
-        <div class="flex-grow">
-          <slot />
-        </div>
-        <div class="mt-4">
-          <streaming-tooltip :tooltip="page.tooltip" />
-        </div>
-      </div>
+    <main>
+      <slot />
     </main>
     <!-- Footer -->
-    <footer class="flex justify-between items-center p-4 bg-primary text-white">
+    <footer class="p-4 bg-primary text-white text-center">
       <home-nav />
+      KindRobots © 2023
+      <screen-fx />
     </footer>
+
+    <!-- Tooltip Popup -->
+    <div class="absolute bottom-4 right-4">
+      <tooltip-popup />
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -36,6 +26,8 @@ import axios from 'axios'
 const { page } = useContent()
 useContentHead(page)
 
+const mainImage = ref('/images/' + page.image ?? '/images/kindtitle.webp') // Fallback image
+const headerImage = ref('/images/kindtitle.webp')
 const isLoading = ref(false)
 const hasError = ref(false)
 const randomImage = ref()
@@ -43,6 +35,7 @@ const randomImage = ref()
 onMounted(async () => {
   try {
     isLoading.value = true
+    headerImage.value = page.image ?? '/images/kindtitle.webp' // Fallback header image
     const response = await axios.get(
       `https://kindrobots.org/api/gallery/random/name/${page.gallery}`
     )

@@ -28,8 +28,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useTodoStore } from '~/stores/todoStore'
-import { useRewardStore } from '~/stores/rewardStore'
+import { useTodoStore } from '@/stores/todoStore'
+import { useRewardStore } from '@/stores/rewardStore'
 
 const todoStore = useTodoStore()
 const rewardStore = useRewardStore()

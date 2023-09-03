@@ -1,0 +1,81 @@
+Weirdlandia
+Overview
+Weirdlandia is an interactive text-based adventure game that leverages the Datalines API and ChatGPT to create a unique, immersive experience for players. The game features character creation, optional "Spice" attributes, an inventory system, genre and setting selection, live chatrooms, bot interactions, skill challenges, moral dilemmas, and reward systems.
+
+Tech Stack
+Nuxt.js for frontend
+Tailwind and DaisyUI for styling
+Pinia stores for frontend interactions
+Prisma database for backend
+Datalines API for programmatic command requests to ChatGPT
+Features
+User Authentication
+API Route: /api/auth
+Description: Users must log in to save their progress and rewards.
+Character Creation
+API Route: /api/character/create
+Description: Users can create a character with specific attributes.
+API Calls:
+ChatGPT with characterCreator dataline
+Optional Spice
+API Route: /api/character/spice
+Description: Users can add optional "Spice" to their character for added variety.
+API Calls:
+ChatGPT with spice dataline
+Inventory System
+API Route: /api/inventory
+Description: Users start with one item from the Rewards API.
+API Calls:
+Rewards API for starter item
+Genre and Setting Selection
+API Route: /api/game/setting
+Description: Users choose a genre and setting for their adventure.
+API Calls:
+ChatGPT with setting dataline
+Live Chatrooms
+API Route: /api/chatroom
+Description: Users can join chatrooms based on the setting they've chosen.
+API Calls:
+Messaging via your API
+Bot Interactions
+API Route: /api/bot/interact
+Description: Users meet a bot character to interact with.
+API Calls:
+ChatGPT with chat dataline
+Skill Challenges
+API Route: /api/challenge
+Description: Users face a skill challenge.
+API Calls:
+ChatGPT with skill dataline
+Moral Dilemmas
+API Route: /api/dilemma
+Description: Users face a moral dilemma towards the end.
+API Calls:
+ChatGPT with dilemaline
+Rewards and Replayability
+API Route: /api/rewards
+Description: Users choose new rewards and have the option to replay levels.
+API Calls:
+ChatGPT with reward dataline
+Data Models
+User
+ID
+Username
+Password (hashed)
+Inventory
+Game Progress
+Character
+ID
+User ID
+Attributes
+Spice
+Game Session
+ID
+User ID
+Character ID
+Setting
+Genre
+Choices Made
+Privacy and Ethics
+All choices will be recorded anonymously.
+Utmost consideration for privacy and ethics will be maintained.

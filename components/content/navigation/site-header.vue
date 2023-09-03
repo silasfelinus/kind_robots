@@ -4,7 +4,7 @@
   >
     <div class="container mx-auto flex items-center justify-between">
       <bot-selector />
-      <theme-manager />
+      <theme-selector />
       <avatar-image class="text-xl font-bold" />
       <nav class="space-x-4">
         <slot />

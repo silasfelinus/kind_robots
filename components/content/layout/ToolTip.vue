@@ -6,9 +6,7 @@
     <!-- Tooltip Content -->
     <div
       class="tooltip tooltip-top p-4 mt-2 bg-white text-black border rounded-lg shadow-md default"
-    >
-      <slot />
-    </div>
+    ></div>
 
     <!-- Streaming Text Effect -->
     <div v-if="streamingText" class="mt-2">

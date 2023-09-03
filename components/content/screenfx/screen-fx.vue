@@ -24,9 +24,6 @@
 
     <!-- Dynamic component based on activeComponent -->
     <component :is="activeComponent" />
-
-    <theme-selector />
-    <butterfly-toggle />
   </div>
 </template>
 

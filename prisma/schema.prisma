@@ -270,6 +270,20 @@ model Resource {
   resourceType ResourceType @default(CHECKPOINT)
 }
 
+// Reward model
+model Reward {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  icon       String
+  text       String   @unique
+  power      String
+  collection String   @default("genesis")
+  User       User[]
+  Todo       Todo[]
+  rarity     Int      @default(50)
+}
+
 enum StringType {
   TAG //single unit tag phrase 
   PROMPT //combined nlp prompt message
@@ -304,24 +318,10 @@ model TrainingData {
 }
 
 model TrainingLine {
-  id             Int           @id @unique @default(autoincrement())
-  role           String
-  content        String // The content of that role in a particular turn
-  TrainingData   TrainingData[]  // < traininglines should be reusable in multiple trainindData structures
-}
-
-// Reward model
-model Reward {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  icon       String
-  text       String   @unique
-  power      String
-  collection String   @default("genesis")
-  User       User[]
-  Todo       Todo[]
-  rarity     Int      @default(50)
+  id           Int            @id @unique @default(autoincrement())
+  role         String
+  content      String // The content of that role in a particular turn
+  TrainingData TrainingData[] // < traininglines should be reusable in multiple trainindData structures
 }
 
 // UserAuth model for authentication-related fields

@@ -1,12 +1,10 @@
 // ~/server/api/users/index.ts
-import { User as UserRecord, Prisma } from '@prisma/client'
+import { User, Prisma } from '@prisma/client'
 import { hash as bcryptHash, compare } from 'bcrypt'
 import prisma from './../utils/prisma'
 
-export type User = UserRecord
-
 // Define a new type that includes fields from both User and UserAuth
-type UserInput = Partial<UserRecord> & { password?: string }
+type UserInput = Partial<User> & { password?: string }
 
 async function hashPassword(password: string): Promise<string> {
   const saltRounds = 10
@@ -42,15 +40,33 @@ export async function validateUserCredentials(
   return isValidPassword ? user : null
 }
 
+export async function validateUserInput(input: {
+  username?: string
+  email?: string
+}): Promise<{ isValid: boolean; message: string }> {
+  if (input.username) {
+    const existingUsername = await prisma.user.findUnique({ where: { username: input.username } })
+    if (existingUsername) {
+      return { isValid: false, message: 'Username already in use' }
+    }
+  }
+
+  if (input.email) {
+    const existingEmail = await prisma.user.findUnique({ where: { email: input.email } })
+    if (existingEmail) {
+      return { isValid: false, message: 'Email already in use' }
+    }
+  }
+
+  return { isValid: true, message: 'Valid input' }
+}
 // Update the isValidUserInput function to use the new UserInput type
 function isValidUserInput(input: UserInput): boolean {
-  return Boolean(
-    input.username && input.email && input.password // Add more validation rules as needed
-  )
+  // Validate if either username or email is present along with a password
+  return Boolean((input.username || input.email) && input.password)
 }
 
-// Update the addUser function to use the new UserInput type
-export async function addUser(userData: UserInput): Promise<UserRecord | null> {
+export async function addUser(userData: UserInput): Promise<User | null> {
   if (!isValidUserInput(userData)) {
     throw new Error('Invalid user data')
   }
@@ -62,20 +78,24 @@ export async function addUser(userData: UserInput): Promise<UserRecord | null> {
 
   const hashedPassword = await hashPassword(userData.password!)
 
-  const newUser = await prisma.user.create({
-    data: {
-      ...userData,
-      UserAuth: {
-        create: {
-          password: hashedPassword
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        ...userData,
+        UserAuth: {
+          create: {
+            password: hashedPassword
+          }
         }
-      }
-    } as Prisma.UserCreateInput
-  })
+      } as Prisma.UserCreateInput
+    })
 
-  return newUser
+    return newUser
+  } catch (error: any) {
+    console.error(`Failed to create user: ${error.message}`)
+    throw new Error(error.message)
+  }
 }
-
 export async function updateUser(id: number, data: Partial<User>): Promise<User | null> {
   const userExists = await prisma.user.findUnique({ where: { id } })
 
@@ -93,26 +113,18 @@ export async function deleteUser(id: number): Promise<boolean> {
   const userExists = await prisma.user.findUnique({ where: { id } })
 
   if (!userExists) {
+    console.log(`User with id ${id} does not exist.`)
     return false
   }
 
-  await prisma.user.delete({ where: { id } })
+  try {
+    await prisma.user.delete({ where: { id } })
+  } catch (error: any) {
+    console.error(`Failed to delete user: ${error.message}`)
+    throw new Error(error.message)
+  }
+
   return true
 }
 
-export async function randomUser(): Promise<User | null> {
-  const totalUsers = await prisma.user.count()
-
-  if (totalUsers === 0) {
-    return null
-  }
-
-  const randomIndex = Math.floor(Math.random() * totalUsers)
-  return await prisma.user.findFirst({
-    skip: randomIndex
-  })
-}
-
-export async function countUsers(): Promise<number> {
-  return await prisma.user.count()
-}
+export type { User }

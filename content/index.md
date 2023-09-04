@@ -10,4 +10,4 @@ icon: line-md:home-md-twotone
 status: home
 tooltip: Welcome to the Kind Robots. This is part an active development lab, part an anti-malaria fundraiser, and part a place for me to show off my coding skills and development portfolio.
 ---
-:vertical-nav
+:latest-nav

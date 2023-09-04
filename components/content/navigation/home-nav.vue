@@ -6,6 +6,10 @@
           :to="page._path"
           class="btn btn-accent rounded-full py-1 px-3 text-white shadow-lg transform transition-transform hover:scale-110"
         >
+          <icon
+            :name="page.icon"
+            class="icon-effect transform transition-transform ease-in-out hover:scale-110 hover:shadow-lg"
+          />
           {{ page.title }}
         </NuxtLink>
       </div>

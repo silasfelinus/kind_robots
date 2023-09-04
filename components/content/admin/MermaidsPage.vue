@@ -9,7 +9,9 @@
         <a :href="amazonLink" class="btn btn-primary block w-max mx-auto mb-8">Amazon link</a>
       </header>
 
-      <h2 class="text-3xl p-2">Author's Disclaimer</h2>
+      <h2 class="text-3xl p-2">The Many Literary Offenses of Silas Michael Knight</h2>
+      <p class="text-3xl p-2">by Silas Michael Knight</p>
+      <h2 class="text-3xl p-2">(Author's Disclaimer)</h2>
       <p class="text-xl p-2">
         Mermaids of Venice is a polytheistic love story with rhyming couplets at the start of each
         chapter. It features an attractive cover, perfect for adorning a coffee table or
@@ -31,32 +33,8 @@
           href="https://en.wikipedia.org/wiki/Magical_Negro"
           class="underline text-blue-600 hover:text-blue-800"
           >magical negro trope</a
-        >. To be clear, I was educated of the trope before publication by my respected friend and
-        hive-editor Adam Creighton. But I brushed the note aside, caring more about getting the
-        Kickstarter to publication.
-      </p>
-
-      <p class="text-xl p-2">
-        I intended Hermes, my street performing magician, to be a delightful, affirmative figure.
-        Like many other characters, Hermes had a real life analogue. But Hermes was a plot device, a
-        token POC appearing long enough to gift our white-male protagonist a magical Mcguffin before
-        disappearing from the narrative. Hermes' chapter lacked the investigations of sex, gender,
-        and intimacy that play out in the rest of the novel, and in an evening I once shared with
-        the kind stranger that Hermes inspired, when I was stuck overnight with a backpack and three
-        juggling clubs at a San Francisco bus depot.
-      </p>
-
-      <p class="text-xl p-2">
-        Absent the contextual personalization, I relegated Hermes to a social device, existing to
-        demonstrate that I was a liberal writer comfortable with a multi-cultural cast. I cannot
-        deny that even now, I use him to contextualize my personal growth and my work's relevance to
-        contemporary culture.
-      </p>
-      <p class="text-xl p-2">
-        If I was to rewrite Mermaids, Bernard's arc would culminate not with a reunion with his
-        estranged father, but with Hermes. Instead of a cathartic confrontion with the past, Bernard
-        would be given an opportunity to examine the nuanced context of generational trauma and
-        cultural privilege that elevated him to his divine status.
+        >. in my utilization of Hermes, a character I loved, but still relegated to a plot-device
+        and discarded after a single chapter.
       </p>
 
       <p class="text-xl p-2">

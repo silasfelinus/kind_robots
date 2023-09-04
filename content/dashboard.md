@@ -1,0 +1,12 @@
+---
+title: 'User Dashboard'
+subtitle: 'Welcome Kind Human'
+description: User Dashboard, currently a Work-in-Progress
+layout: default
+image: botcommunity.webp
+gallery: wonderbot
+tags: ['home']
+icon: game-icons:cyber-eye
+tooltip: This will be expanded before many people are reading these tooltips. Anyone seeing this is an early adopter. Thank you for checking out Kind Robots, I hope to build more so this is worth coming back to.
+---
+:user-dashboard

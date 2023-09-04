@@ -7,7 +7,7 @@ image: utility/mermaids/mermaids1.jpg
 gallery: redbubble
 tags: ['home']
 icon: game-icons:mermaid
-tooltip: I could not market this book without writing that disclaimer. I want to keep evolving this, but everything just moves towards me trying to sell people on buying the book, when I would really like to focus my energy on current projects. The intent to push towards the AMI project is genuine. Please consider donating to https://againstmalaria.com/amibot
+tooltip: I wrote a novel about gods, polyamorous street performers, and venice sinking into the ocean. It's based on my adventures as a street performer in Europe, but every part of it is made up. **Current Offer** Anyone who donates $2 or more to our anti-malaria fundraiser at https://againstmalaria.com/amibot gets a free digital pdf of "Mermaids of Venice" (and my respect and gratitude)
 ---
 
 :mermaids-page

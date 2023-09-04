@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <base-card>
     <h1>Login</h1>
     <form @submit.prevent="login">
       <input v-model="email" type="email" placeholder="Email" />
       <input v-model="password" type="password" placeholder="Password" />
       <button type="submit">Login</button>
     </form>
-  </div>
+  </base-card>
 </template>
 
 <script setup>
@@ -31,7 +31,7 @@ const login = async () => {
 
   if (data.success) {
     localStorage.setItem('token', data.token)
-    router.push('/wonderforge/userforge')
+    router.push('/dashboard')
   } else {
     alert('Invalid credentials')
   }

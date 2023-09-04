@@ -341,7 +341,7 @@ model User {
   name           String?
   Role           Role            @default(USER)
   username       String          @unique
-  email          String          @unique
+  email          String?          
   emailVerified  DateTime?
   questPoints    Int             @default(0)
   // Relations

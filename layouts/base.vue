@@ -1,13 +1,15 @@
 <template>
-  <div class="flex flex-col h-screen bg-base-600 overflow-hidden">
+  <div class="flex flex-col h-screen bg-primary overflow-hidden">
     <!-- Header -->
     <new-header class="p-2 m-4 rounded-2xl border-8 border-accent" />
     <!-- Main Content -->
     <main class="flex flex-row h-[calc(100vh - 2rem - 32px)] overflow-hidden">
+      <!-- Adjusted height -->
       <!-- Slot -->
       <div
-        class="flex-grow flex h-[calc(100% - 16px)] max-h-[calc(100vh - 2rem - 32px - 16px)] overflow-y-auto p-2 m-4 bg-base-400 rounded-2xl border-8 border-accent"
+        class="flex-grow flex h-[calc(100% - 16px)] overflow-y-auto p-2 m-4 bg-base-400 rounded-2xl border-8 border-accent"
       >
+        <!-- Adjusted height -->
         <div class="w-full p-4">
           <slot />
         </div>
@@ -60,14 +62,5 @@ useContentHead(page)
 /* Hide scrollbar */
 ::-webkit-scrollbar {
   display: none;
-}
-
-/* Add this to your global styles */
-.main-content {
-  scroll-snap-type: y mandatory;
-}
-
-.section {
-  scroll-snap-align: start;
 }
 </style>

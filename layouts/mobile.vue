@@ -26,7 +26,9 @@
     </main>
 
     <!-- Footer -->
-    <footer class="p-4 bg-primary text-white text-center"><home-nav />KindRobots © 2023</footer>
+    <footer class="p-4 bg-primary text-white text-center">
+      <home-nav />KindRobots Mobile © 2023
+    </footer>
   </div>
 </template>
 

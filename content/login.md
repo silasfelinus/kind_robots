@@ -12,6 +12,4 @@ admin: true
 underConstruction: true
 ---
 
-:login-form
-
-[register](/register)
+:login-page

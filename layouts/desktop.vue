@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-base-600 overflow-hidden">
+  <div class="flex flex-col h-screen bg-primary overflow-hidden">
     <!-- Header -->
     <new-header class="p-2 m-4 rounded-2xl border-8 border-accent" />
     <!-- Main Content -->
@@ -45,6 +45,19 @@
 // Importing the content store
 const { page } = useContent()
 useContentHead(page)
+const isMobile = ref(false)
+
+onMounted(() => {
+  // Simple check for mobile devices
+  if (window.innerWidth <= 800) {
+    isMobile.value = true
+  }
+})
+
+// Dynamically set the layout
+if (isMobile.value) {
+  page.layout = 'mobile'
+}
 </script>
 
 <style scoped>
@@ -60,14 +73,5 @@ useContentHead(page)
 /* Hide scrollbar */
 ::-webkit-scrollbar {
   display: none;
-}
-
-/* Add this to your global styles */
-.main-content {
-  scroll-snap-type: y mandatory;
-}
-
-.section {
-  scroll-snap-align: start;
 }
 </style>

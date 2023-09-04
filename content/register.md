@@ -13,5 +13,3 @@ underConstruction: true
 ---
 
 :registration-form
-
-[login](/login)

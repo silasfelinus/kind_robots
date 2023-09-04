@@ -6,8 +6,15 @@
     <h1 class="text-4xl text-white font-bold">Welcome to Kind Robots</h1>
     <!-- Title and Subtitle -->
     <div class="flex flex-col items-center justify-center bg-primary p-2 rounded">
-      <h1 class="text-4xl text-white font-bold">Location: {{ page.title }}</h1>
-      <h2 class="text-2xl text-white">{{ page.subtitle }}</h2>
+      <!-- Conditional rendering for title -->
+      <h1 v-if="page.title" class="text-4xl text-white font-bold">Location: {{ page.title }}</h1>
+      <h1 v-else class="text-4xl text-white font-bold">Location: 🌀 Loading...</h1>
+
+      <!-- Conditional rendering for subtitle -->
+      <h2 v-if="page.subtitle" class="text-2xl text-white">
+        {{ page.subtitle }}
+      </h2>
+      <h2 v-else class="text-2xl text-white">🌈 Fetching details...</h2>
     </div>
     <!-- Theme Selector -->
     <div class="flex items-center justify-center w-16">
@@ -23,7 +30,9 @@
     </div>
   </header>
 </template>
+
 <script setup lang="ts">
+// Your existing script setup
 const { page } = useContent()
 useContentHead(page)
 </script>

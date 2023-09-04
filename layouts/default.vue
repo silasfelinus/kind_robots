@@ -1,22 +1,24 @@
 <template>
-  <div class="flex flex-col h-screen bg-base-600 overflow-hidden">
+  <div class="flex flex-col h-screen bg-base-200 overflow-hidden">
     <!-- Header -->
-    <new-header class="p-2 m-4 rounded-2xl border-8 border-accent" />
+    <new-header class="p-2 mx-4 my-2 rounded-2xl border-8 border-accent bg-primary" />
     <!-- Main Content -->
-    <main class="flex flex-row h-[calc(100vh - 2rem - 32px)] overflow-hidden">
+    <main class="flex flex-row h-[calc(100vh - 2rem - 32px)] overflow-hidden mx-4 my-2 bg-base-200">
+      <!-- Added bg-primary, rounded and border -->
       <!-- Slot -->
       <div
-        class="flex-grow flex h-[calc(100% - 16px)] max-h-[calc(100vh - 2rem - 32px - 16px)] overflow-y-auto p-2 m-4 bg-base-400 rounded-2xl border-8 border-accent"
+        class="flex-grow flex h-[calc(100% - 16px)] max-h-[calc(100vh - 2rem - 32px - 16px)] overflow-y-auto p-2 m-4 bg-primary rounded-2xl border-8 border-accent"
       >
         <div class="w-full p-4">
           <slot />
         </div>
       </div>
       <!-- Image and Tooltip Wrapper -->
-      <div class="flex-none w-1/3 flex flex-col h-full">
+      <div class="flex-none w-1/3 flex flex-col h-full bg-base-200">
+        <!-- Added bg-primary -->
         <!-- Splash Image -->
         <div
-          class="h-2/3 flex items-center justify-center p-2 m-4 bg-base-400 rounded-2xl border-8 border-accent"
+          class="h-2/3 flex items-center justify-center p-2 m-4 bg-primary rounded-2xl border-8 border-accent"
         >
           <img
             :src="`/images/${page.image}`"
@@ -26,7 +28,7 @@
         </div>
         <!-- Tooltip -->
         <div
-          class="h-1/3 flex items-center justify-center p-2 m-4 bg-base-400 rounded-2xl border-8 border-accent"
+          class="h-1/3 flex items-center justify-center p-2 m-4 bg-primary rounded-2xl border-8 border-accent"
         >
           <streaming-tooltip :tooltip="page.tooltip" />
         </div>
@@ -34,7 +36,7 @@
     </main>
     <!-- Footer -->
     <footer
-      class="flex-none flex justify-between items-center p-2 m-4 bg-base-400 rounded-2xl border-8 border-accent"
+      class="flex-none flex justify-between items-center p-2 mx-4 my-2 bg-base-400 rounded-2xl border-8 border-accent bg-primary"
     >
       <home-nav />
     </footer>

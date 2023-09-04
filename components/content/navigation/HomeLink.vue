@@ -8,8 +8,6 @@
         class="icon-effect transform transition-transform ease-in-out hover:scale-110 hover:shadow-lg"
       />
     </NuxtLink>
-
-    <!-- Add your other icons here in the same format as before -->
   </div>
 </template>
 

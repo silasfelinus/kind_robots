@@ -3,7 +3,7 @@
     class="flex justify-between items-center p-2 bg-base-400 rounded-2xl border-8 border-accent m-4 relative"
   >
     <home-link />
-    <h1>Welcome to Kind Robots</h1>
+    <h1 class="text-4xl text-white font-bold">Welcome to Kind Robots</h1>
     <!-- Title and Subtitle -->
     <div class="flex flex-col items-center justify-center bg-primary p-2 rounded">
       <h1 class="text-4xl text-white font-bold">Location: {{ page.title }}</h1>

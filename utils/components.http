@@ -1,0 +1,16 @@
+### Fetch Folder Names
+# This request fetches the names of all folders containing components.
+GET http://localhost:3000/api/folderNames
+Accept: application/json
+Content-Type: application/json
+
+###
+
+### Fetch Component List for a Specific Folder
+# This request fetches the list of components within a specific folder.
+# Replace 'YourFolderName' with the name of the folder you want to query.
+GET http://localhost:3000/api/components/admin
+Accept: application/json
+Content-Type: application/json
+
+###

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-8 w-full mx-auto max-w-3xl border rounded-lg shadow-lg">
+  <div class="bg-white p-8 w-full mx-auto border rounded-lg shadow-lg">
     <div class="text-center">
       <h1 class="text-2xl font-bold mb-6 text-blue-800">Privacy Policy</h1>
 

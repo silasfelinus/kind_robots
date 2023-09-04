@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center">
+  <base-card class="min-h-screen flex flex-col items-center justify-center">
     <button
       class="text-white bg-red-500 w-2/3 h-1/3 rounded-lg text-xl flex items-center justify-center"
       @click="pressedButton"
@@ -11,7 +11,7 @@
       <button class="text-blue-500 p-2 rounded-lg mb-4" @click="reset">Reset</button>
       <p class="text-lg">Button has been pressed {{ pressCount }} times.</p>
     </div>
-  </div>
+  </base-card>
 </template>
 
 <script setup>

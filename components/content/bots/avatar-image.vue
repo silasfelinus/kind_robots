@@ -13,9 +13,10 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watchEffect } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
+import { useBotStore } from '@/stores/botStore'
 
 const botStore = useBotStore()
+botStore.loadStore()
 const currentBot = computed(() => botStore.currentBot)
 const currentImage = ref(currentBot.value ? currentBot.value.avatarImage : undefined)
 const flipped = ref(false)

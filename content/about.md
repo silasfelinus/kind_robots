@@ -9,7 +9,7 @@ tags: ['home']
 tooltip: Kind Robots is hosted via my Unraid Ubuntu homelab. What began as a modest community media server became an extensive network of community webapps. I maintain multiple ubuntu workstations, including a 168TB 20-hard rive NAS running 40+ dockerized containers, including two heavily kitted Stable Diffusion Webui art generators.
 ---
 
-<div class="text-center">
+<base-card class="bg-primary text-center item-center">
 
 
 <p> Kind Robots was created using Nuxt 3, Nuxt Content 2, Vue Composition API, Prisma, MariaDB, & Typescript.</p>
@@ -27,5 +27,4 @@ Resume:
 
 © 2023 Kind Robots. All Rights Reserved. 🌟
 
-</div>
-<kind-nav />
+</base-card>

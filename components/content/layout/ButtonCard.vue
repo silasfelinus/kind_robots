@@ -8,6 +8,7 @@
     <div class="flex items-center justify-center">
       <img v-if="image" :src="image" class="h-16 w-16 mr-2" />
       <div>{{ description }}</div>
+      <slot />
     </div>
   </div>
 </template>

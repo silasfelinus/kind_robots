@@ -40,9 +40,3 @@ watch(
   }
 )
 </script>
-
-<style scoped>
-.tooltip-container {
-  /* Add your styling here */
-}
-</style>

@@ -5,11 +5,8 @@ import prisma from './../utils/prisma'
 
 export type User = UserRecord
 
-function isValidUserInput(input: Partial<User>): boolean {
-  return Boolean(
-    input.username && input.email && input.password // Add more validation rules as needed
-  )
-}
+// Define a new type that includes fields from both User and UserAuth
+type UserInput = Partial<UserRecord> & { password?: string }
 
 async function hashPassword(password: string): Promise<string> {
   const saltRounds = 10
@@ -29,38 +26,56 @@ export async function fetchUserById(id: number): Promise<User | null> {
     where: { id }
   })
 }
-// Add function to validate a user's email and password
+// Update function to validate a user's username and password
 export async function validateUserCredentials(
-  email: string,
+  username: string,
   password: string
 ): Promise<User | null> {
-  const user = await prisma.user.findUnique({ where: { email } })
-  if (!user) return null
+  const user = await prisma.user.findUnique({
+    where: { username },
+    include: { UserAuth: true } // 👈 Include UserAuth model
+  })
 
-  const isValidPassword = await compare(password, user.password)
+  if (!user || !user.UserAuth) return null
+
+  const isValidPassword = await compare(password, user.UserAuth.password) // 👈 Use UserAuth.password
   return isValidPassword ? user : null
 }
 
-// Update the addUser function to ensure you don't need to hash the password outside of this function
-export async function addUser(userData: Partial<User>): Promise<User | null> {
+// Update the isValidUserInput function to use the new UserInput type
+function isValidUserInput(input: UserInput): boolean {
+  return Boolean(
+    input.username && input.email && input.password // Add more validation rules as needed
+  )
+}
+
+// Update the addUser function to use the new UserInput type
+export async function addUser(userData: UserInput): Promise<UserRecord | null> {
   if (!isValidUserInput(userData)) {
     throw new Error('Invalid user data')
   }
 
-  const existingUser = await prisma.user.findUnique({ where: { email: userData.email! } })
+  const existingUser = await prisma.user.findUnique({ where: { username: userData.username! } })
   if (existingUser) {
-    throw new Error('Email already in use')
+    throw new Error('Username already in use')
   }
 
   const hashedPassword = await hashPassword(userData.password!)
 
-  return await prisma.user.create({
+  const newUser = await prisma.user.create({
     data: {
       ...userData,
-      password: hashedPassword
+      UserAuth: {
+        create: {
+          password: hashedPassword
+        }
+      }
     } as Prisma.UserCreateInput
   })
+
+  return newUser
 }
+
 export async function updateUser(id: number, data: Partial<User>): Promise<User | null> {
   const userExists = await prisma.user.findUnique({ where: { id } })
 

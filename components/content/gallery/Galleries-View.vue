@@ -23,6 +23,7 @@
                 :src="gallery.currentImage"
                 alt="Image from {{ gallery.name }}"
                 class="gallery-img w-full"
+                @click="refreshSingleGallery(gallery)"
               />
             </div>
             <!-- Back -->
@@ -31,6 +32,7 @@
                 :src="gallery.nextImage"
                 alt="Next image from {{ gallery.name }}"
                 class="gallery-img w-full"
+                @click="refreshSingleGallery(gallery)"
               />
             </div>
           </div>
@@ -92,6 +94,10 @@ const refreshImages = () => {
 }
 const computeTransform = (gallery) => {
   return gallery.isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+}
+
+const refreshSingleGallery = (gallery) => {
+  gallery.currentImage = getRandomImage(gallery)
 }
 </script>
 

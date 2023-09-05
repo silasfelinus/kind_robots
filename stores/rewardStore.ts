@@ -6,6 +6,7 @@ interface RewardState {
   rewards: Reward[]
   currentReward: Reward | null
   error: string | null
+  startingRewardId: number | null
 }
 
 export const useRewardStore = defineStore({
@@ -14,7 +15,8 @@ export const useRewardStore = defineStore({
   state: (): RewardState => ({
     rewards: [],
     currentReward: null,
-    error: null
+    error: null,
+    startingRewardId: null
   }),
 
   getters: {
@@ -36,12 +38,41 @@ export const useRewardStore = defineStore({
   },
 
   actions: {
-    async fetchRewards() {
-      const apiUrl = 'http://localhost:3000'
-      console.log('Fetching from URL:', `${apiUrl}/api/rewards`) // Debug log
-
+    async editReward(id: number, updatedData: Partial<Reward>) {
       try {
-        const response = await fetch(`${apiUrl}/api/rewards`)
+        const response = await fetch(`/api/rewards/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData)
+        })
+
+        if (!response.ok) {
+          const responseBody = await response.json()
+          this.error = `Failed to edit reward: ${response.statusText}. ${
+            responseBody.message || ''
+          }`
+          console.error(this.error, response)
+          return
+        }
+
+        const { success, reward: updatedReward } = await response.json()
+        if (success) {
+          const index = this.rewards.findIndex((reward) => reward.id === id)
+          if (index !== -1) {
+            this.rewards[index] = updatedReward
+          }
+        }
+      } catch (err: any) {
+        this.error = `An error occurred: ${err.message}`
+        console.error(this.error, err.stack)
+      }
+    },
+    setStartingRewardId(id: number | null) {
+      this.startingRewardId = id
+    },
+    async fetchRewards() {
+      try {
+        const response = await fetch(`/api/rewards`)
         if (!response.ok) {
           const responseBody = await response.json() // Parse the response body
           this.error = `Failed to fetch rewards: ${response.statusText}. ${
@@ -148,7 +179,9 @@ export const useRewardStore = defineStore({
         this.error = `An error occurred: ${err.message}`
       }
     },
-
+    clearCurrentReward() {
+      this.currentReward = null
+    },
     setRewardById(id: number) {
       const selectedReward = this.rewards.find((reward) => reward.id === id)
       if (selectedReward) {

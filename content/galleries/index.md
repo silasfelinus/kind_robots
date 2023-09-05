@@ -7,6 +7,6 @@ image: 'art1.webp'
 gallery: flower
 icon: game-icons:wood-frame
 tags: ['home']
-tagline: This is a teaser for our cafe purr webgalleries. Each spin is a random image from the gallery.
+tooltip: This is a teaser for our cafe purr webgalleries. Each spin is a random image from the gallery.
 ---
 :galleries-view

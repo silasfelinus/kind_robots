@@ -6,7 +6,8 @@
     <!-- Detailed Reward View -->
     <div v-else-if="rewardStore.currentReward" :class="{ pixelate: pixelate }">
       <icon
-        :name="`${rewardStore.currentReward.icon}`"
+        v-if="rewardStore.currentReward && rewardStore.currentReward.icon"
+        :name="rewardStore.currentReward.icon"
         class="text-12xl mb-2 transition-all duration-500 ease-in-out"
       />
       <h1 class="text-4xl">{{ rewardStore.currentReward.text }}</h1>
@@ -87,7 +88,6 @@ const setStartingReward = (id: number) => {
   rewardStore.setStartingRewardId(id)
 }
 
-// Debugging why selectReward might not be working
 const selectReward = (reward: Reward) => {
   console.log(`Selecting reward with ID: ${reward.id}`) // Debugging line
   pixelate.value = true

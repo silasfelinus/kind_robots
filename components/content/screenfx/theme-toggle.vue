@@ -1,6 +1,6 @@
 <template>
-  <div class="theme-selector bg-secondary-info p-4 rounded-md text-center relative">
-    <div class="mt-2 text-sm text-default">Choose Theme:</div>
+  <div class="theme-selector bg-primary p-4 rounded-md text-center text-white relative">
+    <div class="mt-2 text-xl">Choose Theme:</div>
     <div class="theme-button-wrapper relative inline-block">
       <button
         tabindex="0"
@@ -12,7 +12,7 @@
         <!-- Updated icon here -->
         <icon name="game-icons:pencil-brush" class="w-6 h-6 text-base-100" />
       </button>
-      <div class="text-default font-bold mt-2">{{ themeStore.currentTheme }}</div>
+      <div class="font-bold mt-2 text-xl text-white">{{ themeStore.currentTheme }}</div>
       <transition name="theme-menu-fade">
         <div
           v-show="themeStore.open"
@@ -77,7 +77,7 @@ onMounted(() => {
 }
 
 .theme-list {
-  max-height: 400px; /* Increase the max-height */
+  max-height: 800px; /* Increase the max-height */
   overflow-y: auto;
 }
 

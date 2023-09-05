@@ -1,0 +1,3 @@
+<template>
+  <kofi-link />
+</template>

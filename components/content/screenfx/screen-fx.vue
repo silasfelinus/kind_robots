@@ -1,127 +1,154 @@
 <template>
+  <div class="effect-container">
+    <component
+      :is="activeComponent.component"
+      v-for="activeComponent in activeComponents"
+      :key="activeComponent.id"
+    />
+  </div>
   <div>
     <div class="flex flex-wrap items-center justify-center space-x-4 space-y-4">
-      <div v-for="effect in effects" :key="effect.id" class="relative">
+      <div v-for="effect in effects" :key="effect.id" class="relative flex flex-col items-center">
+        <!-- Fixed height and centered text -->
+        <div class="text-container text-center mb-1 flex items-center justify-center">
+          {{ effect.label }}
+        </div>
+
+        <!-- Tooltip -->
         <div
           v-if="hoveredEffect === effect.id"
-          class="absolute tooltip"
-          v-text="effect.tooltip"
-        ></div>
+          class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-opacity-75 text-white p-1 rounded-sm text-xs whitespace-nowrap pointer-events-none mb-2 z-10"
+        >
+          {{ effect.tooltip }}
+        </div>
 
-        <icon
-          :name="effect.icon"
-          :title="effect.label"
-          :active="activeEffect === effect.id"
-          :class="{ 'glow-animation': activeEffect === effect.id }"
-          class="icon-effect transform transition-transform ease-in-out hover:scale-110 hover:shadow-lg"
-          :aria-pressed="activeEffect === effect.id"
-          @click="setActiveEffect(effect.id)"
-          @mouseenter="hoveredEffect = effect.id"
-          @mouseleave="hoveredEffect = null"
-        />
+        <!-- Reveal -->
+        <div
+          v-if="effect.isActive"
+          class="absolute top-full left-1/2 transform -translate-x-1/2 bg-opacity-75 text-white p-1 rounded-sm text-xs whitespace-nowrap pointer-events-none mt-2 z-10"
+        >
+          {{ effect.reveal }}
+        </div>
+
+        <!-- Icon -->
+        <div
+          class="transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
+          :class="{ 'bg-secondary': effect.isActive, 'bg-primary': !effect.isActive }"
+          @click="toggleEffect(effect.id)"
+          @mouseover="hoveredEffect = effect.id"
+          @mouseout="hoveredEffect = null"
+        >
+          <icon
+            :name="effect.icon"
+            :title="effect.label"
+            :active="effect.isActive"
+            :class="{ glow: effect.isActive }"
+            class="w-8 h-8 md:w-12 md:h-12 fill-current text-[your-color]"
+          />
+        </div>
       </div>
     </div>
-
-    <!-- Dynamic component based on activeComponent -->
-    <component :is="activeComponent" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, resolveComponent } from 'vue'
-const hoveredEffect = ref<string | null>(null)
 
 type ComponentMapType = {
   [key: string]: ReturnType<typeof resolveComponent>
 }
 
 const componentsMap: ComponentMapType = {
-  'bubble-effect': resolveComponent('BubbleEffect'),
-  'dream-status': resolveComponent('DreamStatus'),
-  'fizzy-bubbles': resolveComponent('FizzyBubbles'),
-  'rain-effect': resolveComponent('RainEffect')
+  'bubble-effect': resolveComponent('LazyBubbleEffect'),
+  'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
+  'rain-effect': resolveComponent('LazyRainEffect'),
+  'butterfly-swarm': resolveComponent('LazyButterflySwarm')
 }
 
-const activeEffect = ref<string | null>(null)
-
-// Your effects data
-const effects = [
+const effects = ref([
   {
     id: 'bubble-effect',
-    label: 'Bubble Effect',
-    icon: 'line-md:emoji-grin-twotone',
-    tooltip: 'Rainbow clown bubbles'
-  },
-  {
-    id: 'dream-status',
-    label: 'Dream Status',
-    icon: 'line-md:heart-filled',
-    tooltip: 'Random Dreams'
+    label: 'Bubble Fiesta',
+    icon: 'game-icons:bubbles',
+    tooltip: 'Unleash a parade of rainbow clown bubbles 🌈',
+    reveal: 'Bubble Overload!',
+    isActive: false
   },
   {
     id: 'fizzy-bubbles',
-    label: 'Fizzy Bubbles',
-    icon: 'twemoji:beverage-box',
-    tooltip: 'Fizzy lifting bubbles'
+    label: 'Fizzy Lifting Drinks',
+    icon: 'mdi:bottle-soda-classic-outline',
+    tooltip: 'Float away with fizzy lifting bubbles 🍾',
+    reveal: 'Too Fizzy!',
+    isActive: false
   },
   {
     id: 'rain-effect',
-    label: 'Rain Effect',
+    label: 'Rainmaker',
     icon: 'line-md:paint-drop-twotone',
-    tooltip: 'Rain Rain Go Away'
+    tooltip: `Rain doesn't always have to be sad`,
+    route: 'Summon a rainstorm 🌧️',
+    reveal: 'Rainpocalypse!',
+    isActive: false
+  },
+  {
+    id: 'butterfly-swarm',
+    label: 'Butterfly Scouts',
+    icon: 'ph:butterfly-light',
+    tooltip: 'Release AMI, the Anti-Malaria Intelligence 🦋',
+    reveal: "We're Free! twemoji:butterfly",
+    route: '/fundraiser',
+    isActive: false
   }
-]
+])
 
-const setActiveEffect = (effectId: string) => {
-  if (activeEffect.value === effectId) {
-    activeEffect.value = null // disable if the effect is already active
-  } else {
-    activeEffect.value = effectId // enable the clicked effect
+const hoveredEffect = ref<string | null>(null)
+const toggleEffect = (effectId: string) => {
+  console.log('Toggling effect:', effectId) // Debugging line
+  const effect = effects.value.find((e) => e.id === effectId)
+  if (effect) {
+    effect.isActive = !effect.isActive
   }
 }
-// Dynamically get the component to be rendered based on the active effect
-const activeComponent = computed(() => {
-  return activeEffect.value ? componentsMap[activeEffect.value] : null
+
+// Computed property to get all active components
+const activeComponents = computed(() => {
+  return effects.value
+    .filter((effect) => effect.isActive)
+    .map((effect) => ({
+      id: effect.id,
+      component: componentsMap[effect.id]
+    }))
 })
 </script>
-
 <style scoped>
-.icon-effect {
-  @apply w-6 h-6 md:w-24 md:h-24 cursor-pointer transition-shadow;
-}
-
 /* Glow animation */
 @keyframes glow {
-  0% {
-    box-shadow: 0 0 5px #fff;
+  0%,
+  100% {
+    @apply shadow-sm;
   }
   50% {
-    box-shadow:
-      0 0 20px #fff,
-      0 0 30px #ff73fd;
-  }
-  100% {
-    box-shadow: 0 0 5px #fff;
+    @apply shadow-2xl;
   }
 }
 
-.glow-animation {
+.glow {
   animation: glow 1.5s infinite;
 }
 
-.tooltip {
-  position: absolute;
-  bottom: 100%; /* position it above the icon */
-  left: 50%; /* center it horizontally relative to the icon */
-  transform: translateX(-50%); /* adjust for exact centering */
-  background-color: rgba(0, 0, 0, 0.75); /* semi-transparent black */
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  pointer-events: none; /* so it doesn't interfere with clicks/hovers on other elements */
-  margin-bottom: 8px; /* some spacing between the tooltip and the icon */
-  z-index: 10; /* ensure it appears above other content */
+/* Icon container */
+.icon-container {
+  @apply w-16 h-16 md:w-24 md:h-24; /* Set fixed width and height */
+}
+
+/* Icon size */
+.icon-size {
+  @apply w-full h-full;
+}
+
+/* Fixed height for text container */
+.text-container {
+  @apply h-12;
 }
 </style>

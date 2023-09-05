@@ -37,8 +37,11 @@ export const useRewardStore = defineStore({
 
   actions: {
     async fetchRewards() {
+      const apiUrl = 'http://localhost:3000'
+      console.log('Fetching from URL:', `${apiUrl}/api/rewards`) // Debug log
+
       try {
-        const response = await fetch('/api/rewards')
+        const response = await fetch(`${apiUrl}/api/rewards`)
         if (!response.ok) {
           const responseBody = await response.json() // Parse the response body
           this.error = `Failed to fetch rewards: ${response.statusText}. ${

@@ -1,70 +1,106 @@
 <template>
   <div class="bg-base-100 p-4">
     <!-- Error Message -->
-    <div v-if="error" class="text-red-500">
-      {{ error }}
-    </div>
+    <div v-if="rewardStore.error" class="text-red-500">🚨 {{ rewardStore.error }}</div>
 
     <!-- Detailed Reward View -->
-    <div v-else-if="selectedReward">
-      <icon :name="`game-icons:${selectedReward.icon}`" class="text-6xl mb-2" />
-      <h1>{{ selectedReward.text }}</h1>
-      <p>{{ selectedReward.power }}</p>
-      <p>Collection: {{ selectedReward.collection }}</p>
-      <p>Rarity: {{ selectedReward.rarity }}</p>
-      <button @click="endReward">
-        <icon name="game-icons:fast-backward-button" class="text-4xl" />
+    <div v-else-if="rewardStore.currentReward" :class="{ pixelate: pixelate }">
+      <icon
+        :name="`${rewardStore.currentReward.icon}`"
+        class="text-12xl mb-2 transition-all duration-500 ease-in-out"
+      />
+      <h1 class="text-4xl">{{ rewardStore.currentReward.text }}</h1>
+      <p class="text-xl">🔥 Power: {{ rewardStore.currentReward.power }}</p>
+      <p class="text-xl">📚 Collection: {{ rewardStore.currentReward.collection }}</p>
+      <p class="text-xl">🌟 Rarity: {{ rewardStore.currentReward.rarity }}</p>
+      <button class="bg-primary p-2 rounded" @click="endReward">
+        <icon name="game-icons:fast-backward-button" class="text-6xl" />
       </button>
+      <button class="bg-accent p-2 rounded" @click="showEditReward = true">✏️ Edit</button>
+      <button class="bg-secondary p-2 rounded" @click="deleteReward(rewardStore.currentReward.id)">
+        🗑️ Delete
+      </button>
+      <nuxt-link to="/weirdlandia">
+        <button
+          class="bg-accent p-2 rounded"
+          @click="setStartingReward(rewardStore.currentReward.id)"
+        >
+          🚀 Go to Weirdlandia
+        </button>
+      </nuxt-link>
     </div>
 
+    <!-- Edit Reward Form -->
+    <div v-if="showEditReward && rewardStore.currentReward">
+      <edit-reward :reward="rewardStore.currentReward" @updated="showEditReward = false" />
+    </div>
     <!-- Rewards Grid -->
     <div v-else class="grid grid-cols-5 gap-4">
       <div
-        v-for="reward in rewards"
+        v-for="reward in rewardStore.rewards"
         :key="reward.id"
         class="p-4 rounded-lg hover:bg-primary hover:text-white cursor-pointer transition duration-300 ease-in-out"
         @click="selectReward(reward)"
       >
         <div class="text-center">
-          <icon name="game-icons:open-treasure-chest" class="text-4xl" />
-          <p class="mt-2">{{ reward.text }}</p>
+          <icon name="game-icons:open-treasure-chest" class="text-6xl" />
+          <p class="mt-2 text-lg">{{ reward.text }}</p>
         </div>
       </div>
     </div>
+
+    <!-- Add New Reward Form -->
+    <div v-if="showAddReward">
+      <add-reward @added="showAddReward = false" />
+    </div>
+
+    <!-- Add New Reward Button -->
+    <button class="bg-primary p-2 rounded mt-4" @click="showAddReward = true">
+      ➕ Add New Reward
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { Reward } from '@prisma/client'
+import { ref, onMounted, Ref } from 'vue'
+import Reward, { useRewardStore } from '@/stores/rewardStore'
 
-const rewards = ref<Reward[]>([])
-const selectedReward = ref<Reward | null>(null)
-const error = ref<string | null>(null)
+const rewardStore = useRewardStore()
+const showAddReward: Ref<boolean> = ref(false)
+const showEditReward: Ref<boolean> = ref(false)
+const pixelate: Ref<boolean> = ref(false)
 
-const fetchRewards = async () => {
-  try {
-    const response = await fetch('http://localhost:3000/api/rewards')
-    if (!response.ok) {
-      const responseBody = await response.json()
-      error.value = `Failed to fetch rewards: ${response.statusText}. ${responseBody.message || ''}`
-      return
-    }
-    rewards.value = await response.json()
-  } catch (err: any) {
-    error.value = `An error occurred: ${err.message}`
-  }
-}
-
+// Fetch rewards on mounted
 onMounted(() => {
-  fetchRewards()
+  rewardStore.fetchRewards()
 })
 
-const selectReward = (reward: Reward) => {
-  selectedReward.value = reward
+const endReward = () => {
+  rewardStore.clearCurrentReward()
 }
 
-const endReward = () => {
-  selectedReward.value = null
+const deleteReward = (id: number) => {
+  rewardStore.deleteRewardById(id)
+}
+
+const setStartingReward = (id: number) => {
+  rewardStore.setStartingRewardId(id)
+}
+
+// Debugging why selectReward might not be working
+const selectReward = (reward: Reward) => {
+  console.log(`Selecting reward with ID: ${reward.id}`) // Debugging line
+  pixelate.value = true
+  setTimeout(() => {
+    rewardStore.setRewardById(reward.id)
+    pixelate.value = false
+  }, 500)
 }
 </script>
+
+<style scoped>
+.pixelate {
+  filter: pixelate(20);
+  transition: filter 0.5s ease-in-out;
+}
+</style>

@@ -1,7 +1,29 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxt/content', 'nuxt-icon'],
+  modules: [
+    '@pinia/nuxt',
+    '@nuxtjs/tailwindcss',
+    '@nuxt/content',
+    'nuxt-icon',
+    '@unlok-co/nuxt-stripe'
+  ],
+  stripe: {
+    // Server
+    server: {
+      key: 'sk_test_123',
+      options: {
+        // your api options override for stripe server side
+        apiVersion: '2022-11-15' // optional, default is '2022-11-15'
+      }
+      // CLIENT
+    },
+    client: {
+      key: 'pk_test_123',
+      // your api options override for stripe client side
+      options: {}
+    }
+  },
   css: ['~/assets/css/tailwind.css'],
   runtimeConfig: {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,

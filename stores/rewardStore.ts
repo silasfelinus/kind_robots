@@ -7,6 +7,7 @@ interface RewardState {
   currentReward: Reward | null
   error: string | null
   startingRewardId: number | null
+  isLoading: boolean
 }
 
 export const useRewardStore = defineStore({
@@ -16,7 +17,8 @@ export const useRewardStore = defineStore({
     rewards: [],
     currentReward: null,
     error: null,
-    startingRewardId: null
+    startingRewardId: null,
+    isLoading: false
   }),
 
   getters: {
@@ -38,6 +40,22 @@ export const useRewardStore = defineStore({
   },
 
   actions: {
+    async fetchRewards() {
+      this.isLoading = true
+      try {
+        const response = await fetch('/api/rewards')
+        if (!response.ok) {
+          this.error = `Failed to fetch rewards: ${response.statusText}`
+          return
+        }
+        const data = await response.json()
+        this.rewards = data.rewards // Make sure the API returns an object with a "rewards" key
+      } catch (err: any) {
+        this.error = `An error occurred: ${err.message}`
+      } finally {
+        this.isLoading = false
+      }
+    },
     async editReward(id: number, updatedData: Partial<Reward>) {
       try {
         const response = await fetch(`/api/rewards/${id}`, {
@@ -69,23 +87,6 @@ export const useRewardStore = defineStore({
     },
     setStartingRewardId(id: number | null) {
       this.startingRewardId = id
-    },
-    async fetchRewards() {
-      try {
-        const response = await fetch(`/api/rewards`)
-        if (!response.ok) {
-          const responseBody = await response.json() // Parse the response body
-          this.error = `Failed to fetch rewards: ${response.statusText}. ${
-            responseBody.message || ''
-          }`
-          console.error(this.error, response)
-          return
-        }
-        this.rewards = await response.json()
-      } catch (err: any) {
-        this.error = `An error occurred: ${err.message}`
-        console.error(this.error, err.stack) // Log the stack trace
-      }
     },
     async createReward(newReward: Partial<Reward>) {
       try {

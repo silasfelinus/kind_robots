@@ -17,3 +17,5 @@ public/images
 yarn
 portfolio/.yarn
 portfolio/yarn
+.users.http
+/utils/.users.http

@@ -292,58 +292,25 @@ model TrainingLine {
 model UserAuth {
   id       Int     @id @unique @default(autoincrement())
   salt     String?
-  password String
+  email    String? @unique
+  username String  @unique
+  password String?
   // User relation
-  userId   Int     @unique
-  User     User    @relation(fields: [userId], references: [id])
+  userId   Int?    @unique
+  User     User?   @relation(fields: [userId], references: [id])
 }
 
 model User {
-  id             Int             @id @unique @default(autoincrement())
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  name           String?
-  Role           Role            @default(USER)
-  username       String          @unique
-  email          String?
-  emailVerified  DateTime?
-  questPoints    Int             @default(0)
-  // Relations
-  accounts       Account[]
-  sessions       Session[]
-  Bots           Bot[]
-  Galleries      Gallery[]
-  Media          Media[]
-  Prompts        Prompt[]
-  Game           Game[]
-  Reactions      Reaction[]
-  Resources      Resource[]
-  Projects       Project[]
-  Model          Model[]
-  Todo           Todo[]
-  Rewards        Reward[]
-  UserAuth       UserAuth?
-  UserProfile    UserProfile?
-  userAuthId     Int?
-  userProfileId  Int?
-  UserMilestones UserMilestones?
-  milestoneId    Int?
-}
-
-model UserMilestones {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    Int      @unique
-  User      User     @relation(fields: [userId], references: [id])
-}
-
-// UserProfile model for personal and social media information
-model UserProfile {
-  id            Int       @id @default(autoincrement())
-  realName      String?
-  fancyName     String?
-  bio           String?   @default("I was born and then things happened and now I'm here.")
+  id            Int        @id @unique @default(autoincrement())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  Role          Role       @default(USER)
+  username      String     @unique
+  email         String?    @unique
+  emailVerified DateTime?
+  questPoints   Int        @default(0)
+  name          String?
+  bio           String?    @default("I was born and then things happened and now I'm here.")
   birthday      DateTime?
   address1      String?
   address2      String?
@@ -353,16 +320,28 @@ model UserProfile {
   timezone      String?
   phone         String?
   languages     String? // Consider using String[] if using PostgreSQL
-  avatarImage   String    @default("/images/botcafe.webp")
+  avatarImage   String?    @default("/images/botcafe.webp")
   // Social Media
   instagramUrl  String?
   twitterUrl    String?
   facebookUrl   String?
   discordUrl    String?
   kindrobotsUrl String?
-  // User relation
-  userId        Int       @unique
-  User          User      @relation(fields: [userId], references: [id])
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  Bots          Bot[]
+  Galleries     Gallery[]
+  Media         Media[]
+  Prompts       Prompt[]
+  Game          Game[]
+  Reactions     Reaction[]
+  Resources     Resource[]
+  Projects      Project[]
+  Model         Model[]
+  Todo          Todo[]
+  Rewards       Reward[]
+  UserAuth      UserAuth?
 }
 
 model Account {

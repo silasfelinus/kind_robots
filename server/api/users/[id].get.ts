@@ -1,18 +1,28 @@
 // server/api/users/[id].get.ts
-import { fetchUserById } from '.'
+import auth from '../utils/auth'
+import { fetchUserById } from '.' // Make sure to export this function from your users' utility file
 
 export default defineEventHandler(async (event) => {
-  const id = Number(event.context.params?.id)
-  if (!id) throw new Error('Invalid User ID.')
   try {
-    const User = await fetchUserById(id)
+    console.log('[id].get API route invoked. Setting auth to true.')
+    event.context.route = { auth: true }
+    // Validate the API key using the auth middleware
+    auth(event)
 
-    if (!User) {
-      throw new Error(`User with id ${id} does not exist.`)
+    // Extract the user id from the query parameters
+    const userId = Number(event.context.params?.id)
+    if (!userId) {
+      return { success: false, message: 'User ID is required.' }
     }
 
-    return { success: true, User }
-  } catch (error) {
-    return { success: false, message: `Failed to fetch User with id ${id}.` }
+    // Fetch the user by their ID
+    const user = await fetchUserById(userId)
+    if (!user) {
+      return { success: false, message: 'User not found.' }
+    }
+
+    return { success: true, user }
+  } catch (error: any) {
+    return { success: false, message: `Failed to fetch user: ${error.message}` }
   }
 })

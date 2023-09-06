@@ -1,5 +1,5 @@
 // ~/server/api/users/login.ts
-import { validateUserCredentials } from '.'
+import { validateUserCredentials } from '../users'
 
 export default defineEventHandler(async (event) => {
   try {

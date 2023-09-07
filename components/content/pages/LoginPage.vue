@@ -10,14 +10,16 @@
   </base-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore' // Import your Pinia user store
 
 const usernameOrEmail = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const router = useRouter()
+const userStore = useUserStore() // Initialize your Pinia user store
 
 const login = async () => {
   try {
@@ -33,13 +35,13 @@ const login = async () => {
     const data = await response.json()
 
     if (data.success) {
-      // Consider using HttpOnly cookies for storing tokens
-      localStorage.setItem('token', data.token)
+      userStore.setToken(data.token) // Use Pinia store to manage the token
+      localStorage.setItem('token', data.token) // Also store the token in local storage
       router.push('/dashboard')
     } else {
       errorMessage.value = 'Invalid credentials'
     }
-  } catch (error) {
+  } catch (error: any) {
     errorMessage.value = `An error occurred: ${error.message}`
   }
 }

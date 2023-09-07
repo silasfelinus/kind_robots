@@ -1,5 +1,5 @@
 // server/api/users/index.get.ts
-import auth from '../utils/auth'
+import auth from '../user/auth'
 import { fetchUsers } from '.'
 
 export default defineEventHandler(async (event) => {

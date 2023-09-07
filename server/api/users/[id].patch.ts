@@ -1,4 +1,4 @@
-import auth from '../utils/auth'
+import auth from '../user/auth'
 import prisma from '../utils/prisma'
 import { fetchUserById, updateUser, hashPassword } from '.'
 

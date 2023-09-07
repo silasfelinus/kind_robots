@@ -1,4 +1,4 @@
-// server/api/folderNames.ts
+// server/api/utils/folderNames.ts
 
 import { promises as fs } from 'fs'
 import path from 'path'

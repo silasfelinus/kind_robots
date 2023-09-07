@@ -25,7 +25,7 @@ export const useComponentStore = defineStore('componentStore', {
     },
     async fetchFolderNames() {
       try {
-        const response = await fetch('/api/folderNames')
+        const response = await fetch('/api/utils/folderNames')
         if (!response.ok) {
           throw new Error('Failed to fetch folder names')
         }

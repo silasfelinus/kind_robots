@@ -1,26 +1,11 @@
-type Genre = 'Fantasy' | 'Sci-Fi' | 'Mystery' | 'Horror'
-type Setting = 'Medieval' | 'Space' | 'Modern City' | 'Haunted Mansion'
-
-interface Character {
-  name: string
-  stats: {
-    strength: number
-    agility: number
-    intelligence: number
-  }
-  backstory: string
-  magicItem: string
-  specialSkill: string
-}
-
 interface PromptResponse {
   prompt: string
   responses: string[]
 }
 
 interface AdventureScenario {
-  genre: Genre
-  setting: Setting
+  genre: string
+  setting: string
   startPrompt: string
   scenarios: PromptResponse[]
 }
@@ -94,5 +79,3 @@ const trainingData: AdventureScenario[] = [
   }
   // ... Add more adventure scenarios for different genres and settings
 ]
-
-export { trainingData, trainingMessages, AdventureScenario, PromptResponse, Character }

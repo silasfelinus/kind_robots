@@ -1,6 +1,9 @@
 <template>
-  <div class="tooltip-container bg-secondary text-white p-2 rounded">
-    <span>Silas Says: {{ streamedText }}</span>
+  <div class="tooltip-container bg-base-100 text-primary p-4 rounded-lg shadow-md">
+    <span class="font-semibold"
+      ><icon name="mdi:chat" class="text-accent mr-2" />Silas Says:
+      <span class="text-secondary">{{ streamedText }}</span></span
+    >
   </div>
 </template>
 
@@ -40,3 +43,15 @@ watch(
   }
 )
 </script>
+
+<style scoped>
+.tooltip-container {
+  background-color: var(--bg-base-100);
+  color: var(--bg-primary);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+</style>

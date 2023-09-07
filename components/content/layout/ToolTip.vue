@@ -5,11 +5,13 @@
 
     <!-- Tooltip Content -->
     <div
-      class="tooltip tooltip-top p-4 mt-2 bg-white text-black border rounded-lg shadow-md default"
-    ></div>
+      class="tooltip tooltip-top p-4 mt-2 bg-base-100 text-black border-2 border-accent rounded-lg shadow-md"
+    >
+      <slot />
+    </div>
 
     <!-- Streaming Text Effect -->
-    <div v-if="streamingText" class="mt-2">
+    <div v-if="streamingText" class="mt-2 text-primary">
       {{ streamingText }}
     </div>
   </section>
@@ -56,3 +58,10 @@ const streamText = (text) => {
   }, 100) // Adjust the interval for typing speed
 }
 </script>
+<style scoped>
+.tooltip {
+  background-color: var(--bg-base-100);
+  border-color: var(--bg-accent);
+  color: var(--bg-primary);
+}
+</style>

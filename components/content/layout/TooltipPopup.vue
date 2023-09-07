@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center p-8 bg-base-100 rounded-lg">
+  <div class="flex flex-col items-center p-8 bg-base-100 rounded-lg shadow-lg">
     <!-- Minimized Avatar -->
     <div
       v-if="minimized"
@@ -11,15 +11,17 @@
         alt="Chat Avatar"
         class="rounded-full w-14 h-14"
       />
+      <!-- Ripple Effect -->
+      <div class="ripple bg-primary opacity-50"></div>
     </div>
 
     <!-- Chat Window -->
-    <div v-else class="w-full mt-4 p-4 bg-primary rounded-lg border-4 border-accent">
-      <h3 class="text-lg font-semibold text-secondary mb-2">Silas Says...</h3>
+    <div v-else class="w-full mt-4 p-4 bg-secondary rounded-lg border-4 border-accent">
+      <h3 class="text-lg font-semibold text-primary mb-2">Silas Says...</h3>
 
       <!-- Text Container -->
-      <div class="streaming-container bg-secondary rounded-lg p-4">
-        <div class="streaming-text text-base">
+      <div class="streaming-container bg-base rounded-lg p-4">
+        <div class="streaming-text text-base text-info">
           {{ streamingText || 'Hey there, welcome to KindRobots!' }}
         </div>
       </div>

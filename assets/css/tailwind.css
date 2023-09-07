@@ -2,7 +2,4 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @import 'daisyui/dist/full.css';
-
-*, *::before, *::after {
-    box-sizing: border-box;
-  }
+ 

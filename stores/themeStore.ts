@@ -36,6 +36,7 @@ export const useThemeStore = defineStore('theme', {
       'coffee',
       'winter'
     ],
+
     open: false
   }),
   actions: {

@@ -1,6 +1,6 @@
 <template>
   <!-- Base Card Container -->
-  <div class="flex justify-center items-center h-full">
+  <div class="flex justify-center items-center h-full rounded-xl">
     <!-- Base Card -->
     <div :class="baseCardClasses">
       <!-- Card Header -->

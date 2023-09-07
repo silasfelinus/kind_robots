@@ -6,12 +6,6 @@
       :x="butterfly.x"
       :y="butterfly.y"
     />
-    <TextBubble
-      v-for="(butterfly, index) in butterflies"
-      :key="'text-bubble-' + index"
-      :x="butterfly.x"
-      :y="butterfly.y"
-    />
   </div>
 </template>
 

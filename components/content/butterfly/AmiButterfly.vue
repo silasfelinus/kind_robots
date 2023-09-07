@@ -27,7 +27,7 @@ const complementaryColor = (color: string): string => {
   return `hsl(${newH},${s},${l})`
 }
 
-interface Butterfly {
+export interface Butterfly {
   wingTopColor: string
   wingBottomColor: string
   rotation: number

@@ -1,4 +1,4 @@
-import auth from '../utils/auth'
+import auth from '../user/auth'
 import { deleteUser } from '.' // Make sure this import is correct
 
 export default async (event: any) => {

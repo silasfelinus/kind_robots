@@ -1,34 +1,61 @@
 <template>
-  <div class="base-card-container">
-    <div class="base-card">
-      <slot />
+  <!-- Base Card Container -->
+  <div class="flex justify-center items-center h-full">
+    <!-- Base Card -->
+    <div :class="baseCardClasses">
+      <!-- Card Header -->
+      <div class="flex items-center justify-center mb-4">
+        <icon :name="iconName" class="mr-2 text-3xl" />
+        <h3 class="text-3xl font-semibold">{{ title }}</h3>
+      </div>
+      <!-- Card Content -->
+      <div class="text-lg">
+        <!-- Use slot if available, otherwise use the content prop -->
+        <slot v-if="$slots.default"></slot>
+        <div v-else>{{ content }}</div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// No props or state for now, but you can add them later if needed
+import { computed } from 'vue'
+
+// Define component props
+const props = defineProps({
+  title: {
+    type: String,
+    default: 'Kind Robots 🤖'
+  },
+  iconName: {
+    type: String,
+    default: 'mdi:robot'
+  },
+  content: {
+    type: String,
+    default: ''
+  }
+})
+
+// Break down long class strings for better readability and maintainability
+const baseCardClasses = computed(() =>
+  [
+    'bg-base-200',
+    'border-xl',
+    'p-8',
+    'm-6',
+    'rounded-xl',
+    'shadow-md',
+    'transition-transform',
+    'transition-shadow',
+    'duration-300',
+    'ease-in-out',
+    'hover:translate-y-[-10px]',
+    'hover:shadow-lg',
+    'backdrop-blur-md',
+    'max-w-screen-sm',
+    'text-center',
+    'overflow-hidden'
+  ].join(' ')
+)
 </script>
-
-<style scoped>
-.base-card-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
-
-.base-card {
-  background-color: var(--bg-primary, rgba(255, 255, 255, 0.8)); /* Using DaisyUI bg-primary */
-  border: 2px solid var(--bg-accent, rgba(255, 255, 255, 0.2)); /* Using DaisyUI bg-accent for the border */
-  border-radius: 1rem;
-  padding: 1.5rem;
-  margin: 1rem;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  color: var(--text-color, black);
-  max-width: 800px; /* Maximum width */
-  text-align: center; /* Center the content */
-  overflow: hidden;
-}
-</style>

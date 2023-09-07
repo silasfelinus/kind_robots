@@ -62,7 +62,7 @@ const componentsMap: ComponentMapType = {
   'bubble-effect': resolveComponent('LazyBubbleEffect'),
   'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
   'rain-effect': resolveComponent('LazyRainEffect'),
-  'butterfly-swarm': resolveComponent('LazyButterflySwarm')
+  'talking-butterflies': resolveComponent('LazyTalkingButterflies')
 }
 
 const effects = ref([
@@ -92,7 +92,7 @@ const effects = ref([
     isActive: false
   },
   {
-    id: 'butterfly-swarm',
+    id: 'talking-butterlies',
     label: 'Butterfly Scouts',
     icon: 'ph:butterfly-light',
     tooltip: 'Release AMI, the Anti-Malaria Intelligence 🦋',

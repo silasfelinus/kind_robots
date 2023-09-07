@@ -1,6 +1,6 @@
 ### Fetch Folder Names
 # This request fetches the names of all folders containing components.
-GET http://localhost:3000/api/folderNames
+GET http://localhost:3000/api/utils/folderNames
 Accept: application/json
 Content-Type: application/json
 

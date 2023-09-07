@@ -186,6 +186,13 @@ model Project {
   userId             Int
 }
 
+model Log {
+  id        Int      @id @default(autoincrement())
+  message   String   @db.Text
+  timestamp DateTime @default(now())
+  username  String? // Optional, if you want to store the username
+}
+
 //raw text data for API processing
 // prompt is colloquial for ai-art modeling text data
 model Prompt {
@@ -288,16 +295,15 @@ model TrainingLine {
   TrainingData TrainingData[] // < traininglines should be reusable in multiple trainindData structures
 }
 
-// UserAuth model for authentication-related fields
+// UserAuth is the login account once the user adds a password. Login is always by username, emails are automatically set as usernames by the api if a username is not provided.
 model UserAuth {
-  id       Int     @id @unique @default(autoincrement())
   salt     String?
+  apiKey   String?
   email    String? @unique
-  username String  @unique
-  password String?
+  username String  @id @unique
+  password String
   // User relation
-  userId   Int?    @unique
-  User     User?   @relation(fields: [userId], references: [id])
+  User     User    @relation(fields: [username], references: [username])
 }
 
 model User {

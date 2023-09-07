@@ -1,4 +1,4 @@
-// /server/api/utils/auth.ts
+// /server/api/auth.ts
 export default defineEventHandler((event: any) => {
   console.log('auth check')
 

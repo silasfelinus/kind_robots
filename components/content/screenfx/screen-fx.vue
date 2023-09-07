@@ -92,7 +92,7 @@ const effects = ref([
     isActive: false
   },
   {
-    id: 'talking-butterlies',
+    id: 'talking-butterflies',
     label: 'Butterfly Scouts',
     icon: 'ph:butterfly-light',
     tooltip: 'Release AMI, the Anti-Malaria Intelligence 🦋',

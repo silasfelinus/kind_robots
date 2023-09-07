@@ -8,6 +8,6 @@ gallery: wonderbot
 tags: ['home']
 icon: line-md:home-md-twotone
 status: home
-tooltip: Welcome to the Kind Robots. This is part an active development lab, part an anti-malaria fundraiser, and part a place for me to show off my coding skills and development portfolio.
+tooltip: Welcome to the Kind Robots! Part active development lab, part anti-malaria fundraiser, and part a place to show off modern jamstack-based coding skills. I'm Silas Knight. I made this. If you have any questions, I can be reached at silas@kindrobots.org.
 ---
 :latest-nav

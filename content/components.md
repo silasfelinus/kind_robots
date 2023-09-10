@@ -9,8 +9,8 @@ tooltip: This project started as a development lab in python and gradio, but I s
 tags: ['home']
 admin: true
 icon: game-icons:archive-register
-underConstruction: true
 category: admin
+sort: text
 ---
 
 :component-gallery

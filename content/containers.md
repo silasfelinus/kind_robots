@@ -9,8 +9,8 @@ tooltip: This was created to test container colors. It interacts with the pinia 
 tags: ['home']
 admin: true
 icon: game-icons:archive-register
-underConstruction: true
 category: admin
+sort: text
 ---
 
 :container-manager

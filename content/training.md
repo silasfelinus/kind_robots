@@ -8,6 +8,8 @@ gallery: wonderbot
 category: wip
 tags: ['home']
 tooltip: This is the nerve center of the kind robots! Or it will be. The plan is to use this for our module system, which is effectively the core of our expandable robots and programmatic text adventures.
+sort: text
+underConstruction: true
 icon: game-icons:tv
 ---
 :training-portal

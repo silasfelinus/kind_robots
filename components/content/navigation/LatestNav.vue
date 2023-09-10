@@ -1,13 +1,14 @@
 <template>
-  <div class="w-full flex flex-col items-center p-4 bg-primary">
-    <!-- Added grid layout to parent container -->
+  <div class="w-full flex flex-col items-center p-4 bg-base-100">
     <div class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       <div
         v-for="page in pages"
         :key="page._id"
         class="flex flex-col items-center justify-center my-4 drag-card"
       >
-        <div class="rounded-lg border-4 p-2 bg-primary">
+        <div
+          class="rounded-lg border-4 p-2 bg-primary shadow-md hover:shadow-lg transition-shadow duration-300"
+        >
           <NuxtLink
             :to="page._path"
             class="flex flex-col items-center justify-center"
@@ -28,7 +29,7 @@
               />
             </div>
             <div
-              class="mt-2 text-xs sm:text-sm md:text-base transition-colors ease-in-out duration-500 hover:text-blue-600"
+              class="mt-2 text-xs sm:text-sm md:text-base transition-colors ease-in-out duration-500 hover:text-accent"
               :style="clicked === page._id ? 'font-weight: bold; color: green;' : ''"
             >
               {{ page.title }}
@@ -37,6 +38,8 @@
               {{ page.description }}
             </div>
           </NuxtLink>
+          <!-- Rounded button added below with Tailwind and DaisyUI styling -->
+          <button class="mt-2 btn btn-primary btn-circle">🚀</button>
         </div>
       </div>
     </div>

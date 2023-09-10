@@ -9,6 +9,8 @@ tags: ['home']
 icon: line-md:home-md-twotone
 status: weird
 tooltip: When my 11-year-old suggested "just horse guts and human guts, I realized I'd just scratched the surface of awful hybrid ideas
+sort: text
+underConstruction: true
 ---
 :add-realm
 :display-realms

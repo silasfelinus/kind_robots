@@ -9,7 +9,6 @@ export const allowedLayouts = [
   'desktop',
   'mobile',
   'modern',
-  'old',
   'simple',
   'triple-column'
 ]

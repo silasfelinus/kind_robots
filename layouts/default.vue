@@ -72,7 +72,7 @@
 
     <!-- Footer -->
     <footer class="p-2 m-2 rounded-2xl border bg-primary">
-      <home-nav />
+      <sort-nav />
     </footer>
   </div>
 </template>

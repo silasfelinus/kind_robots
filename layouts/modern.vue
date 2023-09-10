@@ -2,6 +2,7 @@
   <div
     class="flex flex-col md:flex-row h-screen text-gray-800 p-4 space-y-4 md:space-y-0 md:space-x-4"
   >
+    <layout-selector class="relative" />
     <!-- Sidebar for navigation, profile info, etc. -->
     <AppSidebar class="w-full md:w-1/5 overflow-y-auto" />
 

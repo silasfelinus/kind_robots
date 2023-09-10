@@ -1,3 +1,4 @@
+// /server/api/user/delete.ts
 import { deleteUser } from './../users/'
 
 export default defineEventHandler(async (event) => {

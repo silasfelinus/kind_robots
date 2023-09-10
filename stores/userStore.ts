@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
+import { User } from '@prisma/client'
 
 interface UserState {
-  user: null | any // Replace 'any' with your User type if you have one
+  user: User | null
   token: string
   apiKey: string | null
 }
@@ -19,8 +20,7 @@ export const useUserStore = defineStore({
     }
   },
   actions: {
-    setUser(userData: any): void {
-      // Replace 'any' with your User type if you have one
+    setUser(userData: User): void {
       this.user = userData
     },
     setToken(newToken: string): void {

@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore' // Import your Pinia user store
 
@@ -36,7 +36,12 @@ const login = async () => {
 
     if (data.success) {
       userStore.setToken(data.token) // Use Pinia store to manage the token
-      localStorage.setItem('token', data.token) // Also store the token in local storage
+
+      // Ensure localStorage is accessed only on the client side
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', data.token) // Also store the token in local storage
+      }
+
       router.push('/dashboard')
     } else {
       errorMessage.value = 'Invalid credentials'

@@ -1,5 +1,6 @@
 <template>
   <div :class="['flex flex-col min-h-screen']">
+    <layout-selector />
     <!-- Navbar -->
     <nav class="flex justify-between items-center p-4 bg-gray-800 text-white">
       <div class="logo text-2xl font-bold">KindRobots</div>

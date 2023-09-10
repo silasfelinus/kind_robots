@@ -6,45 +6,55 @@
       :key="activeComponent.id"
     />
   </div>
-  <div>
+  <div class="relative">
+    <!-- Global Tooltip -->
+    <div
+      v-if="!hoveredEffect"
+      class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full bg-opacity-75 text-4xl text-default font-bold p-1 rounded-sm whitespace-nowrap pointer-events-none z-10"
+    ></div>
     <div class="flex flex-wrap items-center justify-center space-x-4 space-y-4">
-      <div v-for="effect in effects" :key="effect.id" class="relative flex flex-col items-center">
-        <!-- Fixed height and centered text -->
-        <div class="text-container text-center mb-1 flex items-center justify-center">
-          {{ effect.label }}
-        </div>
-
-        <!-- Tooltip -->
+      <!-- Invisible First Icon -->
+      <div
+        class="relative flex flex-col items-center space-y-2 md:space-y-0 md:flex-row md:space-x-4 opacity-0"
+      >
+        <div class="flex flex-col items-center space-y-2"></div>
+      </div>
+      <!-- Visible Icons -->
+      <div
+        v-for="effect in effects"
+        :key="effect.id"
+        class="relative flex flex-col items-center space-y-2 md:space-y-0 md:flex-row md:space-x-4"
+      >
+        <!-- Individual Tooltip -->
         <div
           v-if="hoveredEffect === effect.id"
-          class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-opacity-75 text-white p-1 rounded-sm text-xs whitespace-nowrap pointer-events-none mb-2 z-10"
+          class="absolute top-0 mt-[-60px] left-1/2 transform -translate-x-1/2 bg-opacity-75 text-xl text-white font-bold p-1 rounded-xl whitespace-nowrap pointer-events-none z-10"
         >
           {{ effect.tooltip }}
         </div>
 
-        <!-- Reveal -->
-        <div
-          v-if="effect.isActive"
-          class="absolute top-full left-1/2 transform -translate-x-1/2 bg-opacity-75 text-white p-1 rounded-sm text-xs whitespace-nowrap pointer-events-none mt-2 z-10"
-        >
-          {{ effect.reveal }}
-        </div>
+        <!-- Icon and Label Container -->
+        <div class="flex flex-col items-center space-y-2">
+          <div
+            class="flex items-center justify-center transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent"
+            :class="{ 'bg-accent': effect.isActive, 'bg-primary': !effect.isActive }"
+            @click="toggleEffect(effect.id)"
+            @mouseover="hoveredEffect = effect.id"
+            @mouseout="hoveredEffect = null"
+          >
+            <icon
+              :name="effect.icon"
+              :title="effect.label"
+              :active="effect.isActive"
+              :class="{ glow: effect.isActive }"
+              class="w-8 h-8 md:w-12 md:h-12 fill-current text-white"
+            />
+          </div>
 
-        <!-- Icon -->
-        <div
-          class="transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
-          :class="{ 'bg-secondary': effect.isActive, 'bg-primary': !effect.isActive }"
-          @click="toggleEffect(effect.id)"
-          @mouseover="hoveredEffect = effect.id"
-          @mouseout="hoveredEffect = null"
-        >
-          <icon
-            :name="effect.icon"
-            :title="effect.label"
-            :active="effect.isActive"
-            :class="{ glow: effect.isActive }"
-            class="w-8 h-8 md:w-12 md:h-12 fill-current text-[your-color]"
-          />
+          <!-- Label or Reveal -->
+          <div class="text-center text-xl text-white">
+            {{ effect.isActive ? effect.reveal : effect.label }}
+          </div>
         </div>
       </div>
     </div>
@@ -67,36 +77,36 @@ const componentsMap: ComponentMapType = {
 
 const effects = ref([
   {
-    id: 'bubble-effect',
-    label: 'Bubble Fiesta',
-    icon: 'game-icons:bubbles',
-    tooltip: 'Unleash a parade of rainbow clown bubbles 🌈',
-    reveal: 'Bubble Overload!',
+    id: 'fizzy-bubbles',
+    label: 'Fizzy Lifting',
+    icon: 'mdi:bottle-soda-classic-outline',
+    tooltip: 'Float away with fizzy bubbles 🍾',
+    reveal: 'Carbonation!',
     isActive: false
   },
   {
-    id: 'fizzy-bubbles',
-    label: 'Fizzy Lifting Drinks',
-    icon: 'mdi:bottle-soda-classic-outline',
-    tooltip: 'Float away with fizzy lifting bubbles 🍾',
-    reveal: 'Too Fizzy!',
+    id: 'bubble-effect',
+    label: 'Bubble Fiesta',
+    icon: 'game-icons:bubbles',
+    tooltip: 'rainbow clown bubbles 🌈',
+    reveal: 'Bubble Overload!',
     isActive: false
   },
   {
     id: 'rain-effect',
     label: 'Rainmaker',
     icon: 'line-md:paint-drop-twotone',
-    tooltip: `Rain doesn't always have to be sad`,
+    tooltip: `Rain doesn't have to be sad`,
     route: 'Summon a rainstorm 🌧️',
-    reveal: 'Rainpocalypse!',
+    reveal: 'Just a drizzle',
     isActive: false
   },
   {
     id: 'talking-butterflies',
     label: 'Butterfly Scouts',
     icon: 'ph:butterfly-light',
-    tooltip: 'Release AMI, the Anti-Malaria Intelligence 🦋',
-    reveal: "We're Free! twemoji:butterfly",
+    tooltip: 'Release AMI 🦋',
+    reveal: 'Happy butterflies',
     route: '/fundraiser',
     isActive: false
   }
@@ -104,7 +114,6 @@ const effects = ref([
 
 const hoveredEffect = ref<string | null>(null)
 const toggleEffect = (effectId: string) => {
-  console.log('Toggling effect:', effectId) // Debugging line
   const effect = effects.value.find((e) => e.id === effectId)
   if (effect) {
     effect.isActive = !effect.isActive
@@ -135,20 +144,5 @@ const activeComponents = computed(() => {
 
 .glow {
   animation: glow 1.5s infinite;
-}
-
-/* Icon container */
-.icon-container {
-  @apply w-16 h-16 md:w-24 md:h-24; /* Set fixed width and height */
-}
-
-/* Icon size */
-.icon-size {
-  @apply w-full h-full;
-}
-
-/* Fixed height for text container */
-.text-container {
-  @apply h-12;
 }
 </style>

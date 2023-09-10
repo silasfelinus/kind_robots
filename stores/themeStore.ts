@@ -34,7 +34,8 @@ export const useThemeStore = defineStore('theme', {
       'lemonade',
       'night',
       'coffee',
-      'winter'
+      'winter',
+      'superk8'
     ],
 
     open: false

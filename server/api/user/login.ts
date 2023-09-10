@@ -1,4 +1,4 @@
-// /server/api/login
+// /server/api/user/login
 import { validateUserCredentials } from './../users'
 
 // Custom Error Classes

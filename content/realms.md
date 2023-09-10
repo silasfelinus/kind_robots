@@ -3,8 +3,8 @@ title: Realms
 subtitle: Explore the creative infinite
 description: Exlore the ever expanding locations of Weirdlandia, or create your own
 layout: default
-image: botcommunity.webp
-gallery: wonderbot
+image: realms1.png
+gallery: fantasycore
 tags: ['home']
 icon: line-md:home-md-twotone
 status: weird

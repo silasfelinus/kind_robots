@@ -1,5 +1,5 @@
 // server/api/users/index.post.ts
-import auth from '../user/auth'
+import auth from './../../middleware/auth'
 import { createUserWithUsername, createUserWithEmail, createUserWithAuth } from '.'
 
 export default defineEventHandler(async (event) => {

@@ -1,6 +1,7 @@
 <template>
   <div>
     <!-- Toggle Button -->
+    <layout-selector />
     <input v-model="isVisible" type="checkbox" class="mr-2" />
     <button @click="toggleSize">Toggle Size</button>
 

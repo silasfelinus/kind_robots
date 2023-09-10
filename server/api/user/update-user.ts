@@ -1,3 +1,4 @@
+// /server/api/user/update-user.ts
 import { updateUser } from './../users/'
 
 export default defineEventHandler(async (event) => {

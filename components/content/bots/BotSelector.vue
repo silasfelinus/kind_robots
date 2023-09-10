@@ -1,9 +1,14 @@
 <template>
   <div class="flex flex-col w-full max-w-xs">
-    <label class="font-bold mb-2 text-gray-700" for="bot-selector">Select a Bot:</label>
-    <select id="bot-selector" v-model="selectedBot" class="form-select" @change="handleChange">
+    <label class="font-bold mb-2" for="bot-selector">Select a Bot:</label>
+    <select
+      id="bot-selector"
+      v-model="selectedBot"
+      class="form-select text-black"
+      @change="handleChange"
+    >
       <option disabled value="">Please select a bot</option>
-      <option v-for="bot in bots" :key="bot.id" :value="bot.id">
+      <option v-for="bot in bots" :key="bot.id" :value="bot.id" class="text-black">
         {{ bot.name }}
       </option>
     </select>

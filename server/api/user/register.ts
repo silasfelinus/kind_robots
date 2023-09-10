@@ -1,3 +1,4 @@
+// /server/api/user/register.ts
 import { createUserWithAuth } from './../users/'
 
 export default defineEventHandler(async (event) => {

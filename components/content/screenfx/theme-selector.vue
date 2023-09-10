@@ -1,5 +1,5 @@
 <template>
-  <div class="theme-selector bg-secondary-info p-4 rounded-md text-center relative">
+  <div class="theme-selector p-4 rounded-md text-center relative">
     <div class="mt-2 text-sm text-default">Kind Theme</div>
     <div class="theme-button-wrapper relative inline-block">
       <button

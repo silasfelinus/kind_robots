@@ -1,5 +1,5 @@
-import auth from '../user/auth'
-import prisma from '../utils/prisma'
+import auth from './../../middleware/auth'
+import prisma from './../utils/prisma'
 import { fetchUserById, updateUser, hashPassword } from '.'
 
 export default defineEventHandler(async (event) => {
@@ -28,12 +28,12 @@ export default defineEventHandler(async (event) => {
     if (data.password) {
       console.log('Password provided, hashing.')
       const hashedPassword = await hashPassword(data.password)
-      const userAuth = await prisma.userAuth.findUnique({ where: { userId: id } })
+      const userAuth = await prisma.userAuth.findUnique({ where: { username: User.username } })
 
       if (userAuth) {
         console.log('UserAuth found, updating password.')
         await prisma.userAuth.update({
-          where: { id: userAuth.id },
+          where: { username: User.username },
           data: { password: hashedPassword }
         })
       } else {
@@ -41,13 +41,11 @@ export default defineEventHandler(async (event) => {
         await prisma.userAuth.create({
           data: {
             username: data.username || User.username,
-            password: hashedPassword,
-            userId: id
+            password: hashedPassword
           }
         })
       }
     }
-
     // Destructure the password field from the data object
     const { password, ...restData } = data
 

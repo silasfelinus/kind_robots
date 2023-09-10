@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-base-100">
+  <div class="bg-primary flex flex-col items-center space-y-4 py-4">
     <!-- Loop through each card data to render BaseCard components -->
     <base-card
       v-for="(card, index) in cards"
       :key="index"
-      class="bg-primary text-center item-center"
+      class="bg-primary text-center max-w-xl mx-auto"
       :title="card.title"
       :icon="card.icon"
       :content="card.content"

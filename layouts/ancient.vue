@@ -7,7 +7,7 @@
       <slot />
     </main>
     <!-- Footer -->
-    <footer class="p-4 bg-primary text-white text-center">
+    <footer class="p-4 bg-primary text-black text-center">
       <home-nav />
       KindRobots © 2023
       <screen-fx />

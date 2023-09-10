@@ -1,5 +1,5 @@
 // server/api/users/[id].get.ts
-import auth from '../user/auth'
+import auth from './../../middleware/auth'
 import { fetchUserById } from '.' // Make sure to export this function from your users' utility file
 
 export default defineEventHandler(async (event) => {

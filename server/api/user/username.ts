@@ -1,3 +1,4 @@
+// /server/api/user/username.ts
 import { fetchUserById } from './../users/'
 
 export default defineEventHandler(async (event) => {

@@ -1,18 +1,32 @@
 <template>
   <div>
-    <NuxtLayout v-if="isMobile" name="mobile"> <ContentDoc /> </NuxtLayout>
-    <NuxtLayout v-else :name="pageLayout"> <ContentDoc /> </NuxtLayout>
+    <layout-selector class="absolute hidden" />
+    <NuxtLayout :key="currentLayout" :name="currentLayout">
+      <ContentDoc />
+    </NuxtLayout>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, watchEffect } from 'vue'
+import { useLayoutStore } from '~/stores/layoutStore'
 
-const { page } = useContent()
-const pageLayout = ref(page.layout || 'default')
-const isMobile = ref(false)
+const layoutStore = useLayoutStore()
 
-onMounted(() => {
-  isMobile.value = window.innerWidth <= 800
+// Computed property to get the current layout from the store
+const currentLayout = computed(() => layoutStore.currentLayout)
+
+// Get the current page title and append "- Kind Robots" to it
+const title = computed(() => {
+  const defaultTitle = 'Welcome' // Replace with your default title
+  if (process.client) {
+    return `${document.title || defaultTitle} - Kind Robots`
+  }
+  return defaultTitle
+})
+
+watchEffect(() => {
+  useHead({
+    title: title.value
+  })
 })
 </script>

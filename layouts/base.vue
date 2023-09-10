@@ -1,66 +1,93 @@
 <template>
-  <div class="flex flex-col h-screen bg-primary overflow-hidden">
-    <!-- Header -->
-    <new-header class="p-2 m-4 rounded-2xl border-8 border-accent" />
-    <!-- Main Content -->
-    <main class="flex flex-row h-[calc(100vh - 2rem - 32px)] overflow-hidden">
-      <!-- Adjusted height -->
-      <!-- Slot -->
+  <div class="flex flex-col h-screen overflow-hidden p-2 bg-base-200">
+    <!-- Header and Screen FX Row -->
+    <div class="flex items-center p-2 relative">
+      <!-- Header Bar -->
       <div
-        class="flex-grow flex h-[calc(100% - 16px)] overflow-y-auto p-2 m-4 bg-base-400 rounded-2xl border-8 border-accent"
+        class="flex-grow flex items-center h-[9rem] rounded-2xl border bg-accent p-2 transition-all duration-300 space-x-2"
       >
-        <!-- Adjusted height -->
-        <div class="w-full p-4">
-          <slot />
+        <home-link class="flex-grow" />
+        <layout-selector class="relative flex-grow" />
+        <!-- Butterfly Toggle -->
+        <div class="flex items-center justify-center m-2 flex-grow">
+          <butterfly-toggle />
+        </div>
+        <!-- Title and Subtitle -->
+        <div class="flex flex-col items-center justify-center p-2 m-2 relative flex-grow">
+          <h1 class="text-4xl text-white font-bold">Kind Robots</h1>
+          <!-- Conditional rendering for title -->
+          <h1 v-if="page.subtitle" class="text-4xl text-white font-bold">{{ page.subtitle }}</h1>
+          <h1 v-else class="text-4xl text-white font-bold">Location: 🌀 Loading...</h1>
+        </div>
+        <!-- Theme Selector -->
+        <div class="flex items-center justify-center relative flex-grow">
+          <theme-toggle />
         </div>
       </div>
-      <!-- Image and Tooltip Wrapper -->
-      <div class="flex-none w-1/3 flex flex-col h-full">
-        <!-- Splash Image -->
-        <div
-          class="h-2/3 flex items-center justify-center p-2 m-4 bg-base-400 rounded-2xl border-8 border-accent"
-        >
-          <img
-            :src="`/images/${page.image}`"
-            alt="Splash Image"
-            class="object-contain h-full w-full rounded-lg"
-          />
+
+      <!-- Screen FX Collapsible Aside -->
+      <aside
+        class="flex items-center h-[9rem] rounded-2xl border bg-accent p-2 transition-all duration-300 relative"
+      >
+        <!-- Toggle Button -->
+        <div class="flex items-center justify-center bg-accent p-2">
+          <button class="h-[calc(100%-1rem)]" @click="toggleScreenFX">
+            <icon v-if="isScreenFXOpen" name="mdi:arrow-collapse-right" class="text-white h-full" />
+            <icon v-else name="mdi:arrow-collapse-left" class="text-white h-full" />
+          </button>
         </div>
+        <!-- Screen FX -->
+        <div v-show="isScreenFXOpen" class="flex items-center justify-center relative ml-2">
+          <screen-fx />
+        </div>
+      </aside>
+    </div>
+
+    <main class="flex h-[calc(100vh-11rem)] overflow-hidden">
+      <!-- Image and Status Column -->
+      <div class="w-1/4 flex flex-col items-center h-full p-2 m-2 rounded-2xl border bg-primary">
+        <img
+          :src="`/images/${page.image}`"
+          alt="Splash Image"
+          class="object-contain w-full rounded-2xl border-accent mb-2"
+        />
+        <h2 v-if="page.title" class="text-2xl text-white text-center">The {{ page.title }} Room</h2>
+        <h2 v-else class="text-2xl text-accent">🌈 Fetching details...</h2>
+      </div>
+
+      <!-- Slot -->
+      <div
+        class="flex-grow flex flex-col items-center h-full max-h-full overflow-y-auto p-2 m-2 rounded-2xl border bg-primary"
+      >
+        <slot />
+      </div>
+
+      <!-- Tooltip Wrapper -->
+      <div class="w-1/3 flex flex-col h-full bg-base-200">
         <!-- Tooltip -->
         <div
-          class="h-1/3 flex items-center justify-center p-2 m-4 bg-base-400 rounded-2xl border-8 border-accent"
+          class="flex-grow flex items-start justify-start rounded-2xl p-2 m-2 border bg-primary overflow-y-auto"
         >
-          <streaming-tooltip :tooltip="page.tooltip" />
+          <streaming-tooltip :tooltip="page.tooltip" class="w-full" />
         </div>
       </div>
     </main>
+
     <!-- Footer -->
-    <footer
-      class="flex-none flex justify-between items-center p-2 m-4 bg-base-400 rounded-2xl border-8 border-accent"
-    >
+    <footer class="p-2 m-2 rounded-2xl border bg-primary">
       <home-nav />
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-// Importing the content store
+import { ref } from 'vue'
+
 const { page } = useContent()
 useContentHead(page)
-</script>
 
-<style scoped>
-/* Flip card transition */
-.flip-card-enter-active,
-.flip-card-leave-active {
-  transition: transform 1s;
+const isScreenFXOpen = ref(true)
+const toggleScreenFX = () => {
+  isScreenFXOpen.value = !isScreenFXOpen.value
 }
-.flip-card-enter,
-.flip-card-leave-to {
-  transform: rotateY(180deg);
-}
-/* Hide scrollbar */
-::-webkit-scrollbar {
-  display: none;
-}
-</style>
+</script>

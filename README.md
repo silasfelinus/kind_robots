@@ -90,7 +90,7 @@ https://content.nuxtjs.org/guide/writing/mdc/#yaml-method //yaml method for mark
 [STRUCTURE]
 /assets/tailwind.css
 /components/content/_.vue
-/composables/useRandomColor.ts
+/utils/useRandomColor.ts
 /content/_.md
 /layouts/_.vue
 /pages/[...slug].vue

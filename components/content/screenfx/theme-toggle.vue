@@ -1,12 +1,12 @@
 <template>
-  <div class="theme-selector bg-primary p-4 rounded-md text-center text-white relative">
-    <div class="mt-2 text-xl">Choose Theme:</div>
+  <div class="theme-selector p-4 rounded-md text-center text-white relative">
+    <div class="mt-2 text-xl">Theme:</div>
     <div class="theme-button-wrapper relative inline-block">
       <button
         tabindex="0"
         aria-haspopup="true"
         aria-label="Change theme"
-        class="theme-btn bg-accent p-4 rounded-full focus:outline-none focus:ring focus:ring-primary shadow-md transform hover:scale-110 transition-all ease-in-out duration-200"
+        class="theme-btn bg-primary p-4 rounded-full focus:outline-none focus:ring focus:ring-primary transform hover:scale-110 transition-all ease-in-out duration-200"
         @click="themeStore.toggleMenu"
       >
         <!-- Updated icon here -->

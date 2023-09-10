@@ -24,7 +24,7 @@
 
     <!-- Moved the label below the icon -->
     <div v-if="!fxStore.showAmiSwarm" class="label-container mt-2 text-xl text-white font-bold">
-      <span class="arrow">↑</span> Release the butterflies!
+      <span class="arrow">↑</span> Release the swarm!
     </div>
     <div v-else class="label-container mt-2 text-xl text-white font-bold">We're free!</div>
   </div>

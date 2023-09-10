@@ -3,7 +3,7 @@ title: 'Theme Selector'
 subtitle: '27 Unique Themes'
 description: Choose from any of our themes.
 layout: default
-image: backtree.webp
+image: fantasycore/fantasycore-859.webp
 gallery: wondershed
 tags: ['home']
 icon: game-icons:tv-remote

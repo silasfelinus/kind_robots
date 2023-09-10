@@ -1,4 +1,4 @@
-// src/composables/useRandomColor.ts
+// @/utils/useRandomColor.ts
 import { ref } from 'vue'
 
 export function useRandomColor() {

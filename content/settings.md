@@ -3,7 +3,7 @@ title: 'Open AI Key'
 subtitle: 'Harmonizing AI and Humanity'
 description: Various settings, including Open-AI key
 layout: default
-image: backtree.webp
+image: botcafe2.webp
 gallery: wondershed
 tags: ['home']
 icon: game-icons:tv-remote

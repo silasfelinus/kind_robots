@@ -3,7 +3,7 @@ title: 'Register'
 subtitle: 'Welcome to the community!'
 description: Registration Page
 layout: default
-image: backtree.webp
+image: cafepurr/cafepurr-457.webp
 gallery: wondershed
 tooltip: I don't know if this is currently working.
 tags: ['home']

@@ -46,6 +46,7 @@ onMounted(() => {
   <div
     class="flex flex-col md:flex-row h-screen text-gray-800 p-4 space-y-4 md:space-y-0 md:space-x-4"
   >
+    <layout-selector class="relative" />
     <!-- Sidebar -->
     <div
       class="md:w-1/5 flex flex-col items-center bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
@@ -57,6 +58,7 @@ onMounted(() => {
       >
         <div class="flip-front sidebar-content w-full">
           <img alt="Kind Robots Logo" src="/images/fulltitle.png" class="mx-auto rounded-l" />
+
           <home-nav />
           <theme-selector />
         </div>

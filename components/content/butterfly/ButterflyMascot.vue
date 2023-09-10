@@ -13,6 +13,8 @@
 </template>
 
 <script setup lang="ts">
+import { useRandomColor } from '@/utils/useRandomColor'
+
 const props = defineProps<{
   wingColor?: string
 }>()

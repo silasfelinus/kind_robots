@@ -3,7 +3,7 @@ title: 'Memory'
 subtitle: 'Memory Game'
 description: A memory matching game using digital art from our gallery
 layout: default
-image: backtree.webp
+image: wondercat/wondercat-1555.webp
 gallery: flower
 tags: ['home']
 icon: game-icons:brain

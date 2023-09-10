@@ -1,8 +1,10 @@
 <template>
-  <div class="tooltip-container bg-base-100 text-primary p-4 rounded-lg shadow-md">
+  <div
+    class="tooltip-container bg-base-100 text-default p-4 rounded-2xl border-8 border-primary shadow-md"
+  >
     <span class="font-semibold"
-      ><icon name="mdi:chat" class="text-accent mr-2" />Silas Says:
-      <span class="text-secondary">{{ streamedText }}</span></span
+      ><icon name="mdi:chat" class="text-default mr-2 text-2xl" />Silas Says:
+      <span class="text-default text-xl">{{ streamedText }}</span></span
     >
   </div>
 </template>

@@ -1,3 +1,4 @@
+// /server/api/user/update-password.ts
 import { validatePassword, hashPassword, validateUserCredentials } from './../users'
 import prisma from './../utils/prisma'
 

@@ -8,5 +8,6 @@ gallery: wondershed
 tags: ['home']
 icon: game-icons:tv-remote
 tooltip: If you have your own API key, you can use it here. Feel free to use our 3.5 key for individual personal entertainment.
+sort: text
 ---
 :open-ai-key

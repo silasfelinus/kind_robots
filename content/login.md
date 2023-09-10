@@ -11,6 +11,7 @@ icon: game-icons:id-card
 admin: true
 category: settings
 underConstruction: true
+sort: text
 ---
 
 :login-page

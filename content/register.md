@@ -10,6 +10,7 @@ tags: ['home']
 admin: true
 icon: game-icons:archive-register
 underConstruction: true
+sort: text
 ---
 
 :registration-form

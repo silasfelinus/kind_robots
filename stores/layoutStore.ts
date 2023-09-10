@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 
 export const allowedLayouts = [
   'ancient',
-  'base',
   'business',
   'chat',
   'classic',
@@ -11,7 +10,8 @@ export const allowedLayouts = [
   'mobile',
   'modern',
   'old',
-  'simple'
+  'simple',
+  'triple-column'
 ]
 
 interface LayoutState {

@@ -5,11 +5,20 @@ import { hash as bcryptHash, compare as bcryptCompare } from 'bcrypt'
 import * as jwt from 'jsonwebtoken'
 import prisma from '../utils/prisma'
 
-// Function to generate API key
-export async function generateApiKey(): Promise<string> {
-  const randomString = crypto.randomBytes(16).toString('hex')
-  const apiKey = await bcryptHash(randomString, 10)
-  return apiKey
+/** Generates a random API key.
+ * The API key is generated using a 16-byte random buffer, which is then converted to a hexadecimal string.
+ * @returns A promise that resolves to a string containing the API key.
+ */
+export function generateApiKey(): string {
+  try {
+    // Generates a random 16-byte buffer and converts it to a hexadecimal string
+    const apiKey = crypto.randomBytes(16).toString('hex')
+    // Returns the generated API key
+    return apiKey
+  } catch (error: any) {
+    console.error('🔥 Failed to generate API key:', error.message)
+    throw new Error('Failed to generate API key.')
+  }
 }
 
 // Function to create a User with a username

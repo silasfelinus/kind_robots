@@ -53,6 +53,13 @@
         />
         <h2 v-if="page.title" class="text-2xl text-white text-center">The {{ page.title }} Room</h2>
         <h2 v-else class="text-2xl text-accent">🌈 Fetching details...</h2>
+
+        <!-- Streaming Tooltip moved here -->
+        <div
+          class="flex-grow flex items-start justify-start rounded-2xl p-2 m-2 border bg-primary overflow-y-auto"
+        >
+          <streaming-tooltip :tooltip="page.tooltip" class="w-full" />
+        </div>
       </div>
 
       <!-- Slot -->
@@ -60,16 +67,6 @@
         class="flex-grow flex flex-col items-center w-full h-full max-h-full overflow-y-auto p-2 m-2 ml-2 rounded-2xl border bg-primary"
       >
         <slot />
-      </div>
-
-      <!-- Tooltip Wrapper -->
-      <div class="w-1/3 flex flex-col h-full bg-base-200">
-        <!-- Tooltip -->
-        <div
-          class="flex-grow flex items-start justify-start rounded-2xl p-2 m-2 border bg-primary overflow-y-auto"
-        >
-          <streaming-tooltip :tooltip="page.tooltip" class="w-full" />
-        </div>
       </div>
     </main>
 

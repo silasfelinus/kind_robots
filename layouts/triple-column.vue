@@ -4,7 +4,7 @@
     <div class="flex items-center p-2 relative">
       <!-- Header Bar -->
       <div
-        class="flex-grow flex items-center h-[9rem] rounded-2xl border bg-accent p-2 transition-all duration-300 space-x-2"
+        class="flex-grow flex items-center h-[9rem] rounded-2xl border bg-accent p-4 transition-all duration-300 space-x-2 mr-2"
       >
         <home-link class="flex-grow" />
         <layout-selector class="relative flex-grow" />
@@ -57,7 +57,7 @@
 
       <!-- Slot -->
       <div
-        class="flex-grow flex flex-col items-center h-full max-h-full overflow-y-auto p-2 m-2 rounded-2xl border bg-primary"
+        class="flex-grow flex flex-col items-center w-full h-full max-h-full overflow-y-auto p-2 m-2 ml-2 rounded-2xl border bg-primary"
       >
         <slot />
       </div>

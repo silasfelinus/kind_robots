@@ -1,67 +1,98 @@
 <template>
-  <section :style="tooltipPosition" class="relative">
-    <!-- Image Banner -->
-    <div v-if="page.image" class="w-full h-16 bg-cover bg-center" :style="imageStyle"></div>
-
-    <!-- Tooltip Content -->
+  <div class="flex flex-col items-center p-8 bg-base-100 rounded-lg shadow-lg">
+    <!-- Minimized Avatar -->
     <div
-      class="tooltip tooltip-top p-4 mt-2 bg-base-100 text-black border-2 border-accent rounded-lg shadow-md"
+      v-if="minimized"
+      class="rounded-full w-16 h-16 bg-accent flex items-center justify-center cursor-pointer relative"
+      @click="toggleMinimize"
     >
-      <slot />
+      <img
+        :src="page.image ? `/images/${page.image}` : '/images/default-image.webp'"
+        alt="Chat Avatar"
+        class="rounded-full w-14 h-14"
+      />
+      <!-- Ripple Effect -->
+      <div class="ripple bg-primary opacity-50"></div>
     </div>
 
-    <!-- Streaming Text Effect -->
-    <div v-if="streamingText" class="mt-2 text-primary">
-      {{ streamingText }}
+    <!-- Chat Window -->
+    <div v-else class="w-full mt-4 p-4 bg-secondary rounded-lg border-4 border-accent">
+      <h3 class="text-lg font-semibold text-default mb-2">Silas Says...</h3>
+
+      <!-- Text Container -->
+      <div class="streaming-container bg-base rounded-lg p-4">
+        <div class="streaming-text text-default text-info">
+          <span class="text-default text-xl">{{ streamingText }}</span>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
 </template>
 
-<script setup>
-import { ref, computed, watch } from 'vue'
+<script setup lang="ts">
+import { ref, watch, onMounted } from 'vue'
 
-const props = defineProps({
-  page: {
-    type: Object,
-    default: () => ({})
-  }
-})
+const minimized = ref(false) // Initialize the minimized ref to false
+const { page } = useContent() // Get the page content
 
-const streamingText = ref('')
+const toggleMinimize = () => {
+  minimized.value = !minimized.value // Toggle the value of minimized ref
+}
 
-const tooltipPosition = computed(() => ({
-  top: props.page.startHeight ? `${props.page.startHeight}vh` : 'auto',
-  left: props.page.startWidth ? `${props.page.startWidth}vw` : 'auto'
-}))
+const streamingText = ref('Hey there, welcome to KindRobots!') // Initialize with a default value
+let index = 0
+let timer: number
 
-const imageStyle = computed(() => ({
-  backgroundImage: `url('/images/${props.page.image}')`
-}))
-
-watch(
-  () => props.page.tooltipData,
-  (newValue) => {
-    streamText(newValue)
-  },
-  { immediate: true }
-)
-
-const streamText = (text) => {
-  let index = 0
-  const interval = setInterval(() => {
-    if (index < text.length) {
-      streamingText.value += text.charAt(index)
+const startStreaming = () => {
+  timer = window.setInterval(() => {
+    if (index < (page.tooltip?.length || 0)) {
+      // Safely access the tooltip length
+      streamingText.value += page.tooltip?.charAt(index) || '' // Safely access characters from tooltip
       index++
     } else {
-      clearInterval(interval)
+      clearInterval(timer)
     }
-  }, 100) // Adjust the interval for typing speed
+  }, 100) // Adjust the speed as needed
 }
+
+onMounted(() => {
+  startStreaming() // Start streaming on component mount
+})
+
+watch(
+  () => page.tooltip,
+  (newTooltip) => {
+    clearInterval(timer) // Clear the existing timer
+    streamingText.value = '' // Reset the streaming text
+    index = 0 // Reset the index
+    startStreaming() // Start streaming with the new tooltip
+  }
+)
 </script>
+
 <style scoped>
-.tooltip {
-  background-color: var(--bg-base-100);
-  border-color: var(--bg-accent);
-  color: var(--bg-primary);
+.ripple {
+  position: absolute;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: ripple-animation 1.5s infinite;
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes ripple-animation {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 200%;
+    height: 200%;
+    opacity: 0;
+  }
 }
 </style>

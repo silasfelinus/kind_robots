@@ -8,7 +8,7 @@ gallery: wondershed
 tags: ['home']
 icon: game-icons:tv-remote
 tooltip: This started as a todo manager to add chatgpt api interactions, but I got more interested in the reward, which started as a String but soon warranted its own api routes. I am looking forward to adding chatgpt interactions to the rewards!
-sort: text
+sort: icon
 underConstruction: true
 ---
 :todo-manager

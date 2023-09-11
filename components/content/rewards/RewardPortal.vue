@@ -17,7 +17,10 @@
     </div>
 
     <!-- Add Reward Button -->
-    <button class="bg-primary text-white p-2 rounded mb-4" @click="showAddReward = !showAddReward">
+    <button
+      class="bg-primary text-default p-2 rounded mb-4"
+      @click="showAddReward = !showAddReward"
+    >
       Add New Reward
     </button>
 

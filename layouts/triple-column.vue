@@ -14,10 +14,10 @@
         </div>
         <!-- Title and Subtitle -->
         <div class="flex flex-col items-center justify-center p-2 m-2 relative flex-grow">
-          <h1 class="text-4xl text-white font-bold">Kind Robots</h1>
+          <h1 class="text-4xl text-default font-bold">Kind Robots</h1>
           <!-- Conditional rendering for title -->
-          <h1 v-if="page.subtitle" class="text-4xl text-white font-bold">{{ page.subtitle }}</h1>
-          <h1 v-else class="text-4xl text-white font-bold">Location: 🌀 Loading...</h1>
+          <h1 v-if="page.subtitle" class="text-4xl text-default font-bold">{{ page.subtitle }}</h1>
+          <h1 v-else class="text-4xl text-default font-bold">Location: 🌀 Loading...</h1>
         </div>
         <!-- Theme Selector -->
         <div class="flex items-center justify-center relative flex-grow">
@@ -32,8 +32,12 @@
         <!-- Toggle Button -->
         <div class="flex items-center justify-center bg-accent p-2">
           <button class="h-[calc(100%-1rem)]" @click="toggleScreenFX">
-            <icon v-if="isScreenFXOpen" name="mdi:arrow-collapse-right" class="text-white h-full" />
-            <icon v-else name="mdi:arrow-collapse-left" class="text-white h-full" />
+            <icon
+              v-if="isScreenFXOpen"
+              name="mdi:arrow-collapse-right"
+              class="text-default h-full"
+            />
+            <icon v-else name="mdi:arrow-collapse-left" class="text-default h-full" />
           </button>
         </div>
         <!-- Screen FX -->
@@ -51,7 +55,9 @@
           alt="Splash Image"
           class="object-contain w-full rounded-2xl border-accent mb-2"
         />
-        <h2 v-if="page.title" class="text-2xl text-white text-center">The {{ page.title }} Room</h2>
+        <h2 v-if="page.title" class="text-2xl text-default text-center">
+          The {{ page.title }} Room
+        </h2>
         <h2 v-else class="text-2xl text-accent">🌈 Fetching details...</h2>
       </div>
 

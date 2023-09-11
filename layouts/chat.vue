@@ -1,5 +1,6 @@
 <template>
   <div>
+    <home-link />
     <!-- Toggle Button -->
     <layout-selector />
     <input v-model="isVisible" type="checkbox" class="mr-2" />
@@ -55,7 +56,7 @@ function getRandomDefaultTooltip() {
     'Ready to explore some cool stuff?',
     'Howdy, partner! What brings you here?',
     'Ahoy matey! Ready to set sail?',
-    'Greetings, Earthling! 🛸'
+    'Greetings, Human! 🛸'
   ]
   return defaultTooltips[Math.floor(Math.random() * defaultTooltips.length)]
 }

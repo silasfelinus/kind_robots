@@ -2,7 +2,7 @@
   <div :class="['flex flex-col min-h-screen']">
     <layout-selector />
     <!-- Navbar -->
-    <nav class="flex justify-between items-center p-4 bg-gray-800 text-white">
+    <nav class="flex justify-between items-center p-4 bg-gray-800 text-default">
       <div class="logo text-2xl font-bold">KindRobots</div>
       <div class="login cursor-pointer">{{ isLoggedIn ? 'Logout' : 'Login' }}</div>
       <h1 class="text-lg font-semibold">@ {{ page.title }}</h1>
@@ -32,7 +32,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="p-4 bg-gray-900 text-white text-center">KindRobots © 2023</footer>
+    <footer class="p-4 bg-gray-900 text-default text-center">KindRobots © 2023</footer>
   </div>
 </template>
 

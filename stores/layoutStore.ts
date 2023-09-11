@@ -6,7 +6,6 @@ export const allowedLayouts = [
   'chat',
   'classic',
   'default',
-  'desktop',
   'mobile',
   'modern',
   'simple',

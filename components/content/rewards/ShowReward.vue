@@ -8,7 +8,7 @@
 
     <!-- Edit Button -->
     <button
-      class="bg-primary text-white p-2 rounded mt-4"
+      class="bg-primary text-default p-2 rounded mt-4"
       @click="showEditReward = !showEditReward"
     >
       Edit Reward

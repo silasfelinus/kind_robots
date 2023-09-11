@@ -1,6 +1,6 @@
 <template>
   <header
-    class="site-header w-full bg-gradient-to-r from-primary to-primary-light text-white shadow-md px-4 py-1 sm:px-6 lg:px-8"
+    class="site-header w-full bg-gradient-to-r from-primary to-primary-light text-default shadow-md px-4 py-1 sm:px-6 lg:px-8"
   >
     <div class="container mx-auto flex items-center justify-between">
       <layout-selector />

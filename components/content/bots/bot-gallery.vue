@@ -34,7 +34,7 @@
               <p class="mt-2 text-center">{{ currentBot.description }}</p>
               <nuxt-link
                 :to="`/bot/id/${currentBot.id}`"
-                class="mt-4 inline-block bg-indigo-500 text-white rounded-full px-5 py-2 transition transform hover:bg-indigo-600 hover:scale-105"
+                class="mt-4 inline-block bg-indigo-500 text-default rounded-full px-5 py-2 transition transform hover:bg-indigo-600 hover:scale-105"
                 >Check out this Bot</nuxt-link
               >
             </div>

@@ -21,7 +21,7 @@
       <div
         v-for="folder in folderNames"
         :key="folder"
-        class="p-4 rounded-lg hover:bg-primary hover:text-white cursor-pointer transition duration-300 ease-in-out"
+        class="p-4 rounded-lg hover:bg-primary hover:text-default cursor-pointer transition duration-300 ease-in-out"
         @click="fetchComponents(folder)"
       >
         <div class="text-center">
@@ -53,7 +53,7 @@
       <div
         v-for="component in selectedComponents"
         :key="component"
-        class="p-4 rounded-lg hover:bg-secondary hover:text-white cursor-pointer transition duration-300 ease-in-out"
+        class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition duration-300 ease-in-out"
         @click="openModal(component)"
       >
         <div class="text-center">

@@ -1,5 +1,5 @@
 ---
-title: 'Gallery'
+title: 'Galleries'
 subtitle: 'But is it art?'
 description: 'Snippets of falderall and kerfluffel'
 layout: default
@@ -9,6 +9,6 @@ icon: game-icons:wood-frame
 tags: ['home']
 tooltip: This is a teaser for our cafe purr webgalleries. Each spin is a random image from the gallery.
 category: demo
-sort: text
+sort: icon
 ---
 :galleries-view

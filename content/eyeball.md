@@ -9,6 +9,6 @@ tags: ['home']
 icon: game-icons:cyber-eye
 tooltip: I made this eye as a set-piece for Weirdlandia. This one has better tracking, but the other implementation has better randomized motion. I haven't gotten back to figure out where each of them is doing the right thing.
 category: novelty
-sort: text
+sort: icon
 ---
 :new-eyeball

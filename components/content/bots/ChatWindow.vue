@@ -7,7 +7,7 @@
         type="text"
         placeholder="Ask a question..."
       />
-      <button class="px-4 py-2 rounded bg-blue-500 text-white">Ask</button>
+      <button class="px-4 py-2 rounded bg-blue-500 text-default">Ask</button>
     </form>
     <div v-for="(message, index) in messages" :key="index" class="mb-4">
       <div

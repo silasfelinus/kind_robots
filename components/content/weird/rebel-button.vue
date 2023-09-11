@@ -1,7 +1,7 @@
 <template>
   <base-card class="min-h-screen flex flex-col items-center justify-center">
     <button
-      class="text-white bg-red-500 w-2/3 h-1/3 rounded-lg text-xl flex items-center justify-center"
+      class="text-default bg-red-500 w-2/3 h-1/3 rounded-lg text-xl flex items-center justify-center"
       @click="pressedButton"
     >
       Do Not Press this Button

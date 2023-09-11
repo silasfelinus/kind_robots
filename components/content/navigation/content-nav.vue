@@ -35,7 +35,7 @@
               </div>
               <div
                 v-if="tooltipContent"
-                class="mt-2 text-center text-sm md:text-base bg-black text-white px-3 py-2 rounded-lg opacity-75 absolute top-0 transform translate-y-full group-hover:block hidden"
+                class="mt-2 text-center text-sm md:text-base bg-black text-default px-3 py-2 rounded-lg opacity-75 absolute top-0 transform translate-y-full group-hover:block hidden"
               >
                 {{ tooltipContent }}
               </div>

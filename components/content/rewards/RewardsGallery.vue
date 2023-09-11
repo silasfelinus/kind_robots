@@ -40,7 +40,7 @@
       <div
         v-for="reward in rewardStore.rewards"
         :key="reward.id"
-        class="p-4 rounded-lg hover:bg-primary hover:text-white cursor-pointer transition duration-300 ease-in-out"
+        class="p-4 rounded-lg hover:bg-primary hover:text-default cursor-pointer transition duration-300 ease-in-out"
         @click="selectReward(reward)"
       >
         <div class="text-center">

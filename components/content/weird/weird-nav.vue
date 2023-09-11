@@ -4,7 +4,7 @@
       <div v-for="page in pagesByTag('weird')" :key="page._id" class="m-2">
         <NuxtLink
           :to="page._path"
-          class="btn btn-accent rounded-full py-1 px-3 text-white shadow-lg transform transition-transform hover:scale-110"
+          class="btn btn-accent rounded-full py-1 px-3 text-default shadow-lg transform transition-transform hover:scale-110"
         >
           {{ page.title }}
         </NuxtLink>

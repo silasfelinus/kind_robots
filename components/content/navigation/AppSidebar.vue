@@ -1,21 +1,44 @@
 <template>
-  <div
-    class="flex flex-col md:flex-row h-screen text-gray-800 p-4 space-y-4 md:space-y-0 md:space-x-4"
-  >
+  <div class="flex flex-col h-screen text-gray-800">
     <!-- Sidebar -->
     <div
-      class="md:w-1/5 flex flex-col items-center bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
+      class="flex flex-col items-center bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
     >
+      <!-- Toggle Switch -->
+      <div class="flex justify-center items-center w-full px-4 bg-info rounded-2xl border">
+        <button class="relative w-36 h-10" @click="toggleFlip">
+          <div
+            :class="[
+              'absolute inset-0 bg-accent transition-all duration-300',
+              isChecked ? 'transform -skew-x-12' : 'transform skew-x-12'
+            ]"
+          ></div>
+          <div
+            v-if="isChecked"
+            class="absolute inset-0 flex items-center justify-center transition-all duration-300 transform skew-x-12"
+          >
+            <span class="transform skew-x-12">App View</span>
+          </div>
+          <div
+            v-if="!isChecked"
+            class="absolute inset-0 flex items-center justify-center transition-all duration-300 transform -skew-x-12"
+          >
+            <span class="transform -skew-x-12">Bot View</span>
+          </div>
+        </button>
+      </div>
       <div
         ref="flipContainer"
         :class="{ flipped: !isChecked }"
         class="flex-grow flip-container w-full"
       >
+        <!-- App View -->
         <div class="flip-front sidebar-content w-full">
           <img alt="Kind Robots Logo" src="/images/fulltitle.png" class="mx-auto rounded-l" />
-          <home-nav />
-          <theme-selector />
+          <vertical-nav />
         </div>
+
+        <!-- Bot View -->
         <div class="flip-back sidebar-content w-full text-center profile-center">
           <h1>Welcome to Kind Robots</h1>
           <bot-selector />
@@ -23,21 +46,6 @@
             <bot-carousel />
           </div>
         </div>
-      </div>
-      <!-- Toggle Switch -->
-      <div class="toggle-container flex justify-between items-center w-full">
-        <span>Bot View</span>
-        <label class="switch">
-          <input
-            type="checkbox"
-            role="switch"
-            aria-label="Toggle view"
-            :checked="isChecked"
-            @change="toggleFlip"
-          />
-          <span class="slider"></span>
-        </label>
-        <span>Nav View</span>
       </div>
     </div>
   </div>
@@ -75,7 +83,7 @@ function storageAvailable(type: 'localStorage' | 'sessionStorage'): boolean {
 }
 
 onMounted(() => {
-  if (!hasLocalStorage.value) return // Return early if local storage isn't available
+  if (!hasLocalStorage.value) return
 
   const route = useRoute()
   const isBotRoute = route.path.startsWith('/bot/')
@@ -129,50 +137,5 @@ onMounted(() => {
 }
 .flipped .flip-back {
   transform: rotateY(0deg);
-}
-
-/* Switch toggle styles */
-.switch {
-  position: relative;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #4caf50;
-  transition: 0.4s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: '';
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #2196f3;
-}
-
-input:checked + .slider:before {
-  transform: translateX(26px);
 }
 </style>

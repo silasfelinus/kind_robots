@@ -8,7 +8,7 @@
         <!-- Introduction and About Content -->
         <p
           v-if="!gameStore.isGameStarted && !gameStore.showAbout"
-          class="text-lg leading-relaxed text-white font-medium"
+          class="text-lg leading-relaxed text-default font-medium"
         >
           Welcome to "Weirdlandia", a realm where every choice brings a new, unexpected twist.
         </p>
@@ -18,7 +18,7 @@
         </p>
 
         <!-- Game Content -->
-        <div v-if="gameStore.isGameStarted" class="text-white font-light">
+        <div v-if="gameStore.isGameStarted" class="text-default font-light">
           <p>Game has started! Adventure awaits...</p>
         </div>
 

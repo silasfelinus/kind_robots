@@ -3,7 +3,7 @@
     <div>
       <div
         :key="dream"
-        class="dream-status text-white text-lg font-semibold text-center bg-primary p-4 border-accent shadow-lg transition-all duration-500 hover:scale-105"
+        class="dream-status text-default text-lg font-semibold text-center bg-primary p-4 border-accent shadow-lg transition-all duration-500 hover:scale-105"
         @click="updateDream"
       >
         {{ statusMessage }}

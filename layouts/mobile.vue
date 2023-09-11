@@ -2,7 +2,7 @@
   <div :class="['flex flex-col min-h-screen bg-base']">
     <layout-selector />
     <!-- Navbar -->
-    <nav class="flex justify-between items-center p-4 bg-primary text-white">
+    <nav class="flex justify-between items-center p-4 bg-primary text-default">
       <div class="logo text-3xl font-extrabold">KindRobots</div>
       <h1 class="text-xl font-bold">@ {{ page.title }}</h1>
       <h2 class="text-lg font-medium">{{ page.subtitle }}</h2>
@@ -21,13 +21,13 @@
       </div>
       <slot />
       <!-- Display tooltip -->
-      <div v-if="showTooltip" class="mt-4 p-3 rounded-md bg-accent text-white">
+      <div v-if="showTooltip" class="mt-4 p-3 rounded-md bg-accent text-default">
         {{ page.tooltip }}
       </div>
     </main>
 
     <!-- Footer -->
-    <footer class="p-4 bg-primary text-white text-center">
+    <footer class="p-4 bg-primary text-default text-center">
       <home-nav />KindRobots Mobile © 2023
     </footer>
   </div>

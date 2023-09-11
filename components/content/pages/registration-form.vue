@@ -18,7 +18,7 @@
         class="border rounded p-2"
       />
       <!-- Additional fields as needed -->
-      <button type="submit" class="bg-blue-500 text-white rounded p-2">Register</button>
+      <button type="submit" class="bg-blue-500 text-default rounded p-2">Register</button>
     </form>
     <p v-if="status" class="mt-2">{{ status }}</p>
     <p v-if="error" class="mt-2 text-red-500">{{ error }}</p>

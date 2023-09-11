@@ -1,5 +1,5 @@
 <template>
-  <div class="theme-selector bg-primary p-4 rounded-md text-center text-white">
+  <div class="theme-selector bg-primary p-4 rounded-md text-center text-default">
     <div class="mt-2 text-2xl mb-4">Choose Theme:</div>
     <div class="theme-list grid grid-cols-3 gap-4 p-4">
       <div
@@ -9,7 +9,7 @@
         :class="`bg-${theme}-500 ${theme === themeStore.currentTheme ? 'ring-4 ring-accent' : ''}`"
         @click="themeStore.changeTheme(theme)"
       >
-        <div class="text-white text-center text-xl">{{ theme }}</div>
+        <div class="text-default text-center text-xl">{{ theme }}</div>
       </div>
     </div>
   </div>

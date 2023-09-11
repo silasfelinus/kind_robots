@@ -8,14 +8,14 @@
     </main>
     <!-- Footer -->
     <footer class="p-4 bg-primary text-black text-center">
-      <home-nav />
+      <sort-nav />
       KindRobots © 2023
       <screen-fx />
     </footer>
 
     <!-- Tooltip Popup -->
     <div class="absolute bottom-4 right-4">
-      <tooltip-popup />
+      <streaming-tooltip :tooltip="page.tooltip" />
     </div>
   </div>
 </template>

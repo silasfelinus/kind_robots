@@ -28,7 +28,7 @@
         <!-- Individual Tooltip -->
         <div
           v-if="hoveredEffect === effect.id"
-          class="absolute top-0 mt-[-60px] left-1/2 transform -translate-x-1/2 bg-opacity-75 text-xl text-white font-bold p-1 rounded-xl whitespace-nowrap pointer-events-none z-10"
+          class="absolute top-0 mt-[-60px] left-1/2 transform -translate-x-1/2 bg-opacity-75 text-xl text-default font-bold p-1 rounded-xl whitespace-nowrap pointer-events-none z-10"
         >
           {{ effect.tooltip }}
         </div>
@@ -47,12 +47,12 @@
               :title="effect.label"
               :active="effect.isActive"
               :class="{ glow: effect.isActive }"
-              class="w-8 h-8 md:w-12 md:h-12 fill-current text-white"
+              class="w-8 h-8 md:w-12 md:h-12 fill-current text-default"
             />
           </div>
 
           <!-- Label or Reveal -->
-          <div class="text-center text-xl text-white">
+          <div class="text-center text-xl text-default">
             {{ effect.isActive ? effect.reveal : effect.label }}
           </div>
         </div>

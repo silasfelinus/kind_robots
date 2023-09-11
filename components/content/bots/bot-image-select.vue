@@ -28,7 +28,7 @@
         <div class="w-full h-96 object-cover rounded-lg overflow-hidden">
           <avatar-image />
 
-          <div class="bg-opacity-70 bg-black text-white p-4">
+          <div class="bg-opacity-70 bg-black text-default p-4">
             <h2 class="mt-4 text-2xl font-semibold text-center">{{ bot.name }}</h2>
             <p class="mt-2 text-center">{{ bot.description }}</p>
           </div>

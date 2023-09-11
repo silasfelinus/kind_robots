@@ -49,7 +49,7 @@
             <a
               href="https://www.redbubble.com/people/CafePurr/shop"
               target="_blank"
-              class="flex items-center space-x-4 hover:text-white transition-colors duration-300"
+              class="flex items-center space-x-4 hover:text-default transition-colors duration-300"
             >
               <img
                 src="/images/backtree.webp"
@@ -63,7 +63,7 @@
             <a
               href="https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742/"
               target="_blank"
-              class="flex items-center space-x-4 hover:text-white transition-colors duration-300"
+              class="flex items-center space-x-4 hover:text-default transition-colors duration-300"
             >
               <img
                 src="/images/utility/mermaids/mermaids1.jpg"
@@ -77,7 +77,7 @@
             <a
               href="https://hairbysuperkate.com"
               target="_blank"
-              class="flex items-center space-x-4 hover:text-white transition-colors duration-300"
+              class="flex items-center space-x-4 hover:text-default transition-colors duration-300"
             >
               <img
                 src="/images/hair.jpg"

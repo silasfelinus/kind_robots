@@ -2,7 +2,7 @@
   <transition name="slide-fade" mode="out-in">
     <div :key="currentMessage">
       <div
-        class="loader-message text-white text-lg font-semibold text-center bg-purple-600 p-4 rounded-md shadow-xl transition-transform duration-300 hover:scale-105 cursor-pointer"
+        class="loader-message text-default text-lg font-semibold text-center bg-purple-600 p-4 rounded-md shadow-xl transition-transform duration-300 hover:scale-105 cursor-pointer"
         @click="updateMessage"
       >
         {{ currentMessage }}

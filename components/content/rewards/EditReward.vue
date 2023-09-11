@@ -15,7 +15,7 @@
           class="p-2 rounded bg-base-100"
         />
       </div>
-      <button type="submit" class="bg-primary text-white p-2 rounded">Update Reward</button>
+      <button type="submit" class="bg-primary text-default p-2 rounded">Update Reward</button>
     </form>
   </div>
 </template>

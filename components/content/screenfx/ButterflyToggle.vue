@@ -23,10 +23,10 @@
     </div>
 
     <!-- Moved the label below the icon -->
-    <div v-if="!fxStore.showAmiSwarm" class="label-container mt-2 text-xl text-white font-bold">
+    <div v-if="!fxStore.showAmiSwarm" class="label-container mt-2 text-xl text-default font-bold">
       <span class="arrow">↑</span> Release the swarm!
     </div>
-    <div v-else class="label-container mt-2 text-xl text-white font-bold">We're free!</div>
+    <div v-else class="label-container mt-2 text-xl text-default font-bold">We're free!</div>
   </div>
 </template>
 

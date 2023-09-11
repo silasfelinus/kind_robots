@@ -211,7 +211,7 @@ watch(selectedDifficulty, resetGame)
       <div v-if="gameWon" class="mt-2 space-y-2 text-center">
         Congratulations! You've won!
         <button
-          class="btn btn-info mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-200 transition-colors"
+          class="btn btn-info mt-2 px-4 py-2 bg-blue-500 text-default rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-200 transition-colors"
           @click="resetGame"
         >
           Play Again?

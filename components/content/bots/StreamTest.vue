@@ -57,7 +57,7 @@
           v-for="(msg, msgIndex) in conversation"
           :key="index + '-' + msgIndex"
           class="p-4 rounded-md mb-2"
-          :class="msg.role === 'user' ? 'bg-primary text-white' : 'bg-secondary text-white'"
+          :class="msg.role === 'user' ? 'bg-primary text-default' : 'bg-secondary text-default'"
         >
           {{ msg.content }}
         </div>

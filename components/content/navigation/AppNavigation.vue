@@ -12,10 +12,10 @@
               class="w-full h-full object-cover"
             />
           </div>
-          <div class="col-span-3 p-4 text-white rounded">
+          <div class="col-span-3 p-4 text-default rounded">
             <NuxtLink
               :to="item._path"
-              class="block text-center text-2xl font-bold leading-tight text-white overflow-hidden overflow-ellipsis mb-4"
+              class="block text-center text-2xl font-bold leading-tight text-default overflow-hidden overflow-ellipsis mb-4"
             >
               {{ item.title }}
             </NuxtLink>
@@ -23,7 +23,7 @@
               <div v-for="child in item.children" :key="child._id" class="flex flex-wrap">
                 <NuxtLink
                   :to="child._path"
-                  class="rounded-full bg-primary text-white text-sm px-4 py-2 m-1 hover:bg-blue-600 transition-colors w-full text-center"
+                  class="rounded-full bg-primary text-default text-sm px-4 py-2 m-1 hover:bg-blue-600 transition-colors w-full text-center"
                 >
                   {{ child.title }}
                 </NuxtLink>

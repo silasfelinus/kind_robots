@@ -22,7 +22,7 @@ const updateStoreWithLocalData = async () => {
 <template>
   <div class="container mx-auto p-4">
     <button
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      class="bg-blue-500 hover:bg-blue-700 text-default font-bold py-2 px-4 rounded"
       @click="updateStoreWithLocalData"
     >
       Update Store with Local Data

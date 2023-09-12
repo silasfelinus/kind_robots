@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-100 min-h-screen flex flex-col items-center py-8">
+  <div class="bg-base-200 min-h-screen flex flex-col items-center py-8">
     <!-- Spotify Login -->
     <div v-if="!token" class="mb-8">
       <button class="btn btn-primary" @click="fetchSpotifyToken">
@@ -42,7 +42,7 @@
 
       <!-- Error Handling -->
       <div v-if="error" class="mt-4">
-        <div class="text-red-500">{{ error }}</div>
+        <div class="text-warning">{{ error }}</div>
         <button class="btn btn-accent mt-2" @click="clearError">Clear Error</button>
       </div>
     </div>
@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useSpotifyStore } from '@/stores/spotifyStore'
 
 const spotifyStore = useSpotifyStore()
@@ -61,36 +61,46 @@ const isPlaying = computed(() => spotifyStore.isPlaying)
 const error = computed(() => spotifyStore.error)
 const volume = ref(50)
 
-// in your component or page where you handle the redirect
-const code = new URL(window.location.href).searchParams.get('code')
-const verifier = localStorage.getItem('spotify-code-verifier')
-
-if (code && verifier) {
-  try {
-    const response = await fetch(`/api/spotify-auth?code=${code}&verifier=${verifier}`)
-    const data = await response.json()
-    // now you have the access token, set it in your store
-    spotifyStore.setToken(data.access_token)
-  } catch (error) {
-    console.error('Error fetching Spotify token', error)
-  }
-}
-const { fetchSpotifyToken, togglePlay, nextTrack, previousTrack, clearError } = spotifyStore
-
+// Function to format date nicely
 const formatDate = (date: string) => {
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' }
   return new Date(date).toLocaleDateString(undefined, options)
 }
 
+// Function to set volume with error handling
 const setVolume = async (newVolume: number) => {
   try {
     await spotifyStore.setVolume(newVolume)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error setting volume', error)
   }
 }
 
+// Watcher to handle volume changes
 watch(volume, (newVal) => {
   setVolume(newVal)
 })
+
+onMounted(async () => {
+  const code = new URL(window.location.href).searchParams.get('code')
+  const verifier = localStorage.getItem('spotify-code-verifier')
+
+  if (code && verifier) {
+    try {
+      const response = await fetch(`/api/spotify-auth?code=${code}&verifier=${verifier}`)
+      const data = await response.json()
+      spotifyStore.setToken(data.access_token)
+    } catch (error: any) {
+      console.error('Error fetching Spotify token', error)
+    }
+  }
+})
+
+const { fetchSpotifyToken, togglePlay, nextTrack, previousTrack, clearError } = spotifyStore
 </script>
+
+<style>
+.icon-size {
+  font-size: 2rem;
+}
+</style>

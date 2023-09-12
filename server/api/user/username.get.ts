@@ -1,5 +1,6 @@
-// /server/api/user/username.ts
-import { fetchUserById } from './../users/'
+// /server/api/users/username.get.ts
+// returns current user's username
+import { fetchUserById } from '../users'
 
 export default defineEventHandler(async (event) => {
   // Get the user ID from the event context

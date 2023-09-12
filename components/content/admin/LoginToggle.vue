@@ -5,8 +5,8 @@
   >
     <form @submit.prevent="handleLogin">
       <div class="mb-2">
-        <label for="email" class="block text-sm mb-1">Email:</label>
-        <input id="email" v-model="email" type="email" class="w-full p-2 border rounded" required />
+        <label for="email" class="block text-sm mb-1">Login:</label>
+        <input id="login" v-model="login" type="login" class="w-full p-2 border rounded" required />
       </div>
       <div class="mb-2">
         <label for="password" class="block text-sm mb-1">Password:</label>
@@ -38,11 +38,35 @@ import { useUserStore } from '@/stores/userStore'
 
 const store = useUserStore()
 const isVisible = ref(true)
-const email = ref('')
+const login = ref('')
 const password = ref('')
 const savePassword = ref(false)
 
-const handleLogin = () => {
-  // Handle login logic here
+const handleLogin = async () => {
+  try {
+    const response = await fetch('/api/user/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username: login.value, password: password.value })
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      store.setUser(data.user)
+      isVisible.value = false
+      // Store some user data or token in local storage
+      localStorage.setItem('user', JSON.stringify(data.user))
+      // 🎉 Yay, login successful! Maybe navigate to a different page or show a success message
+    } else {
+      // 😢 Login failed, show the error message from the API
+      console.error(data.message)
+    }
+  } catch (error) {
+    // 😵‍💫 Something went wrong, log the error and show a generic error message
+    console.error('An unknown error occurred', error)
+  }
 }
 </script>

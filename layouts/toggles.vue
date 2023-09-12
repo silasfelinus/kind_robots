@@ -91,6 +91,7 @@
           class="flex-grow flex items-start justify-start rounded-2xl p-2 m-2 border bg-primary overflow-y-auto"
         >
           <streaming-tooltip :tooltip="page.tooltip" class="w-full" />
+          <login-toggle />
         </div>
       </div>
     </main>

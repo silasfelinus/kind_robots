@@ -1,5 +1,5 @@
 // /server/api/user/login
-import { validateUserCredentials } from './../users'
+import { validateUserCredentials } from '../users'
 
 // Custom Error Classes
 class ValidationError extends Error {

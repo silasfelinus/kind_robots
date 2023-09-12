@@ -9,40 +9,49 @@
         <a :href="amazonLink" class="btn btn-primary block w-max mx-auto mb-8">Amazon link</a>
       </header>
 
-      <h2 class="text-3xl p-2">The Many Literary Offenses of Silas Michael Knight</h2>
-      <p class="text-3xl p-2">by Silas Michael Knight</p>
-      <h2 class="text-3xl p-2">(Author's Disclaimer)</h2>
+      <h2 class="text-3xl">The Many Literary Offenses of Silas Michael Knight</h2>
+      <p class="text-xl">by Silas Michael Knight</p>
+      <h2 class="text-2xl p-2 text-center">(Author's Disclaimer)</h2>
       <p class="text-xl p-2">
         Mermaids of Venice is a polytheistic love story with rhyming couplets at the start of each
         chapter. It features an attractive cover, perfect for adorning a coffee table or
-        complementing a reader's face. It's also laden with $5 words, overstuffed with saccharine
-        sesquipedalians to convince readers that its author was VeRY SmaRt. The first act ends with
-        the abrupt death of the main character, and admirers of
-        <a
-          href="https://www.amazon.com/Soul-Music-Discworld-Terry-Pratchett/dp/0062237411"
-          class="underline text-blue-600 hover:text-blue-800"
-          >Terry Pratchett's Soul Music</a
-        >
-        should easily recognize Bernard's "nearly invisible" superpower/personality.
+        complementing a reader's face. It is also, unfortunately, not without its flaws:
       </p>
+      <ul class="list-disc list-inside text-xl p-2">
+        <li>
+          <strong>Overuse of $5 words:</strong> The narrative is laden with saccharine
+          sesquipedalians, a deliberate choice to convince readers that the author was "VeRY SmaRt."
+        </li>
+        <li>
+          <strong>Breaking character arc conventions:</strong> The first act ends with the abrupt
+          death of the main character, a significant deviation from traditional rules for character
+          arcs.
+        </li>
+        <li>
+          <strong>Similarities to existing works:</strong> Readers familiar with
+          <a
+            href="https://www.amazon.com/Soul-Music-Discworld-Terry-Pratchett/dp/0062237411"
+            class="underline text-blue-600 hover:text-blue-800"
+            >Terry Pratchett's Soul Music</a
+          >
+          might recognize Bernard's "nearly invisible" superpower/personality.
+        </li>
+        <li>
+          <strong>Use of the magical negro trope:</strong> Despite the affection for the character
+          Hermes, the book utilizes the
+          <a
+            href="https://en.wikipedia.org/wiki/Magical_Negro"
+            class="underline text-blue-600 hover:text-blue-800"
+            >magical negro trope</a
+          >, relegating him to a plot device role and discarding him after a single chapter.
+        </li>
+      </ul>
 
       <p class="text-xl p-2">
-        Those are the venial sins of a young writer searching for a voice. I am much more critical
-        of my unexamined use of the
-        <a
-          href="https://en.wikipedia.org/wiki/Magical_Negro"
-          class="underline text-blue-600 hover:text-blue-800"
-          >magical negro trope</a
-        >. in my utilization of Hermes, a character I loved, but still relegated to a plot-device
-        and discarded after a single chapter.
-      </p>
-
-      <p class="text-xl p-2">
-        But I wrote "Mermaids" as a young man, with self-doubt and imperfections. I'm proud that my
-        third act foreshadowed the Occupy Wall Street movement, but I was calling out undercurrents
-        of social unrest that were only ripples in my pond. After #BLM and #MeToo, after raising two
-        boy-identified children during extended quarantine, any modification to "Mermaids of Venice"
-        stinks of revisionism. Nonetheless, the book reflects six years of dedicated work, a
+        I'm proud that my third act foreshadowed the Occupy Wall Street movement, but after #BLM,
+        #MeToo, and raising two boy-children during extended quarantine, any modification to
+        "Mermaids of Venice" stinks of revisionism. Nonetheless, the book reflects six years of
+        dedicated work, a
         <a
           href="https://www.kickstarter.com/projects/silasknight/mermaids-of-venice"
           target="_blank"

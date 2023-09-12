@@ -11,6 +11,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
+const { page } = useContent()
 
 const props = defineProps<{
   tooltip: string

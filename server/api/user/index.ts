@@ -1,4 +1,5 @@
 // /server/api/user/index.ts
+// this functions are responsible for anything to do with the current user.
 import { fetchUserById } from './../users/'
 
 export default defineEventHandler(async (event) => {

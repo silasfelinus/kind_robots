@@ -297,13 +297,16 @@ model TrainingLine {
 
 // UserAuth is the login account once the user adds a password. Login is always by username, emails are automatically set as usernames by the api if a username is not provided.
 model UserAuth {
-  salt     String?
-  apiKey   String?
-  email    String? @unique
-  username String  @id @unique
-  password String
+  salt                String?
+  apiKey              String?
+  email               String? @unique
+  username            String  @id @unique
+  password            String
+  spotifyAccessToken  String?
+  spotifyRefreshToken String?
+  spotifyID           String?
   // User relation
-  User     User    @relation(fields: [username], references: [username])
+  User                User   @relation(fields: [username], references: [username])
 }
 
 model User {

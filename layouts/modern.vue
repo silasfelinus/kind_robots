@@ -5,7 +5,7 @@
       <!-- Layout Selector - Centered Vertically -->
       <div flex flex-row>
         <layout-selector class="self-center mt-2 mb-4 items-center" />
-        <theme-selector class="self-center mt-2 mb-4 items-center" />
+        <theme-toggle class="self-center mt-2 mb-4 items-center" />
       </div>
 
       <AppSidebar class="self-center mt-2 mb-4" />

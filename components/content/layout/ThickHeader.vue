@@ -1,5 +1,5 @@
 <template>
-  <header class="flex justify-between items-center bg-accent rounded-2xl border p-2 relative">
+  <header class="flex justify-between items-center bg-primary rounded-2xl border p-2 relative">
     <home-link />
     <layout-selector class="relative" />
     <!-- Butterfly Toggle -->

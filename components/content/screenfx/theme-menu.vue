@@ -1,5 +1,5 @@
 <template>
-  <div class="theme-selector bg-primary p-4 rounded-md text-center text-default">
+  <div class="theme-toggle bg-primary p-4 rounded-md text-center text-default">
     <div class="mt-2 text-2xl mb-4">Choose Theme:</div>
     <div class="theme-list grid grid-cols-3 gap-4 p-4">
       <div
@@ -25,7 +25,7 @@ onMounted(() => {
 })
 </script>
 <style scoped>
-.theme-selector {
+.theme-toggle {
   z-index: 1000;
 }
 

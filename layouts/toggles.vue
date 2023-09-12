@@ -1,10 +1,16 @@
 <template>
-  <div class="flex flex-col h-screen overflow-hidden p-2 bg-base-200">
+  <div>
+    <!-- Header Toggle -->
+    <div class="flex items-center justify-center p-2 cursor-pointer" @click="toggleHeader">
+      <icon v-if="!isHeaderOpen" name="mdi:chevron-down" class="text-default" />
+      <icon v-else name="mdi:chevron-up" class="text-default" />
+    </div>
+
     <!-- Header and Screen FX Row -->
-    <div class="flex items-center p-2 relative">
+    <div v-if="isHeaderOpen" class="flex items-center p-2 relative">
       <!-- Header Bar -->
       <div
-        class="flex-grow flex items-center h-[9rem] rounded-2xl border bg-accent p-4 transition-all duration-300 space-x-2 mr-2"
+        class="flex-grow flex items-center h-[9rem] rounded-2xl border bg-primary p-4 transition-all duration-300 space-x-2 mr-2"
       >
         <home-link class="flex-grow" />
         <layout-selector class="relative flex-grow" />
@@ -27,10 +33,10 @@
 
       <!-- Screen FX Collapsible Aside -->
       <aside
-        class="flex items-center h-[9rem] rounded-2xl border bg-accent p-2 transition-all duration-300 relative"
+        class="flex items-center h-[9rem] rounded-2xl border bg-primary p-2 transition-all duration-300 relative"
       >
         <!-- Toggle Button -->
-        <div class="flex items-center justify-center bg-accent p-2">
+        <div class="flex items-center justify-center bg-primary p-2">
           <button class="h-[calc(100%-1rem)]" @click="toggleScreenFX">
             <icon
               v-if="isScreenFXOpen"
@@ -47,9 +53,29 @@
       </aside>
     </div>
 
-    <main class="flex h-[calc(100vh-11rem)] overflow-hidden">
+    <main class="flex-grow flex overflow-hidden">
+      <!-- Main Content -->
+      <div
+        class="flex-grow flex flex-col h-full overflow-y-auto p-2 m-2 rounded-2xl border bg-primary"
+      >
+        <!-- Slot -->
+        <slot />
+      </div>
+
+      <!-- Sidebar Toggle -->
+      <div
+        class="absolute top-0 right-0 m-4 p-2 rounded-full bg-primary cursor-pointer"
+        @click="toggleSidebar"
+      >
+        <icon v-if="isSidebarOpen" name="mdi:chevron-right" class="text-default" />
+        <icon v-else name="mdi:chevron-left" class="text-default" />
+      </div>
+
       <!-- Image and Status Column -->
-      <div class="w-1/4 flex flex-col items-center h-full p-2 m-2 rounded-2xl border bg-primary">
+      <div
+        v-if="isSidebarOpen"
+        class="w-1/4 flex flex-col items-center h-full p-2 m-2 rounded-2xl border bg-primary"
+      >
         <img
           :src="`/images/${page.image}`"
           alt="Splash Image"
@@ -59,18 +85,8 @@
           The {{ page.title }} Room
         </h2>
         <h2 v-else class="text-2xl text-accent">🌈 Fetching details...</h2>
-      </div>
 
-      <!-- Slot -->
-      <div
-        class="flex-grow flex flex-col items-center w-full h-full max-h-full overflow-y-auto p-2 m-2 ml-2 rounded-2xl border bg-primary"
-      >
-        <slot />
-      </div>
-
-      <!-- Tooltip Wrapper -->
-      <div class="w-1/3 flex flex-col h-full bg-base-200">
-        <!-- Tooltip -->
+        <!-- Streaming Tooltip moved here -->
         <div
           class="flex-grow flex items-start justify-start rounded-2xl p-2 m-2 border bg-primary overflow-y-auto"
         >
@@ -79,13 +95,18 @@
       </div>
     </main>
 
+    <!-- Footer Toggle -->
+    <div class="flex items-center justify-center p-2 cursor-pointer" @click="toggleFooter">
+      <icon v-if="!isFooterOpen" name="mdi:chevron-up" class="text-default" />
+      <icon v-else name="mdi:chevron-down" class="text-default" />
+    </div>
+
     <!-- Footer -->
-    <footer class="p-2 m-2 rounded-2xl border bg-primary">
+    <footer v-if="isFooterOpen" class="p-2 m-2 rounded-2xl border bg-primary">
       <sort-nav />
     </footer>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
 
@@ -93,7 +114,23 @@ const { page } = useContent()
 useContentHead(page)
 
 const isScreenFXOpen = ref(true)
+const isHeaderOpen = ref(true)
+const isSidebarOpen = ref(true)
+const isFooterOpen = ref(true)
+
 const toggleScreenFX = () => {
   isScreenFXOpen.value = !isScreenFXOpen.value
+}
+
+const toggleHeader = () => {
+  isHeaderOpen.value = !isHeaderOpen.value
+}
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const toggleFooter = () => {
+  isFooterOpen.value = !isFooterOpen.value
 }
 </script>

@@ -37,7 +37,7 @@
         <div class="flex flex-col items-center space-y-2">
           <div
             class="flex items-center justify-center transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent"
-            :class="{ 'bg-accent': effect.isActive, 'bg-primary': !effect.isActive }"
+            :class="{ 'bg-accent': effect.isActive, 'bg-transluscent': !effect.isActive }"
             @click="toggleEffect(effect.id)"
             @mouseover="hoveredEffect = effect.id"
             @mouseout="hoveredEffect = null"

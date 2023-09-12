@@ -11,14 +11,14 @@
         title="Kind Butterflies"
         :active="fxStore.showAmiSwarm"
         :class="{ glow: fxStore.showAmiSwarm }"
-        class="w-6 h-6 md:w-8 md:h-8"
+        class="w-12 h-12 md:w-8 md:h-8"
       />
     </div>
     <div v-if="fxStore.showAmiSwarm">
       <ami-butterfly
         v-for="i in butterflyCount"
         :key="i"
-        :style="{ '--animation-delay': i * 0.1 + 's' }"
+        :style="{ '--animation-delay': i * 0.01 + 's' }"
       />
     </div>
 

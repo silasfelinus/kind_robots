@@ -1,38 +1,35 @@
 <template>
   <div :class="['flex flex-col min-h-screen']">
-    <layout-selector />
     <!-- Navbar -->
-    <nav class="flex justify-between items-center p-4 bg-gray-800 text-default">
+    <nav class="flex justify-between items-center p-4 bg-primary text-default">
       <div class="logo text-2xl font-bold">KindRobots</div>
+      <layout-selector />
+      <theme-toggle />
       <div class="login cursor-pointer">{{ isLoggedIn ? 'Logout' : 'Login' }}</div>
-      <h1 class="text-lg font-semibold">@ {{ page.title }}</h1>
+      <h1 class="text-lg font-semibold">The {{ page.title }} Room</h1>
       <h2 class="text-md font-semibold">{{ page.subtitle }}</h2>
     </nav>
-    <home-nav />
+    <!-- Display tooltip -->
+    <div v-if="showTooltip" class="mt-4 p-2 text-xl rounded-md bg-info text-default">
+      {{ page.tooltip }}
+    </div>
+
     <!-- Main Content -->
     <main class="flex-1 p-4">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="p-4 bg-base-200 text-default text-center">
       <!-- Adjusted Image URL -->
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
         class="mx-auto my-4 rounded-lg shadow-md"
       />
-      <slot />
-      <!-- Display tooltip -->
-      <div v-if="showTooltip" class="mt-4 p-2 rounded-md bg-gray-100 text-gray-700">
-        {{ page.tooltip }}
-      </div>
-
-      <!-- Tags (optional; displayed as a list) -->
-      <ul v-if="page.tags && page.tags.length" class="flex flex-wrap gap-2 mt-4">
-        <li v-for="tag in page.tags" :key="tag" class="bg-gray-200 rounded-md px-2 py-1 text-sm">
-          {{ tag }}
-        </li>
-      </ul>
-    </main>
-
-    <!-- Footer -->
-    <footer class="p-4 bg-gray-900 text-default text-center">KindRobots © 2023</footer>
+      <sort-nav />
+      KindRobots © 2023
+    </footer>
   </div>
 </template>
 

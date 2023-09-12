@@ -57,8 +57,8 @@ onMounted(() => {
       >
         <div class="flip-front sidebar-content w-full">
           <img alt="Kind Robots Logo" src="/images/fulltitle.png" class="mx-auto rounded-l" />
-          <home-nav />
-          <theme-selector />
+          <sort-nav />
+          <theme-toggle />
         </div>
         <div class="flip-back sidebar-content w-full text-center profile-center">
           <h1>Welcome to Kind Robots</h1>

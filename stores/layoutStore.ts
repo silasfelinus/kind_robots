@@ -1,14 +1,13 @@
 import { defineStore } from 'pinia'
 
 export const allowedLayouts = [
-  'ancient',
+  'column',
   'business',
-  'chat',
-  'classic',
   'default',
   'mobile',
   'modern',
   'simple',
+  'toggles',
   'triple-column'
 ]
 

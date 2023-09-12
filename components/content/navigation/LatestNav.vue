@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full flex flex-col items-center p-4 bg-base-100">
+  <div class="w-full flex flex-col items-center p-4 bg-primary">
     <div class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       <div
         v-for="page in pages"
@@ -7,7 +7,7 @@
         class="flex flex-col items-center justify-center my-4 drag-card"
       >
         <div
-          class="rounded-lg border-4 p-2 bg-primary shadow-md hover:shadow-lg transition-shadow duration-300"
+          class="rounded-xl-2 border-4 p-2 bg-base-200 shadow-md hover:shadow-lg transition-shadow duration-300"
         >
           <NuxtLink
             :to="page._path"
@@ -38,8 +38,6 @@
               {{ page.description }}
             </div>
           </NuxtLink>
-          <!-- Rounded button added below with Tailwind and DaisyUI styling -->
-          <button class="mt-2 btn btn-primary btn-circle">🚀</button>
         </div>
       </div>
     </div>

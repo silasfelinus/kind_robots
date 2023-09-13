@@ -1,6 +1,6 @@
-// server/api/users/[id].get.ts
-import auth from './../../middleware/auth'
-import { fetchUserById } from '.' // Make sure to export this function from your users' utility file
+import { errorHandler } from '../utils/error'
+import auth from '../../middleware/auth'
+import { fetchUserById } from '.'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -23,6 +23,6 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, user }
   } catch (error: any) {
-    return { success: false, message: `Failed to fetch user: ${error.message}` }
+    return { success: false, message: `Failed to fetch user: ${errorHandler(error)}` }
   }
 })

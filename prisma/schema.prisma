@@ -106,7 +106,7 @@ model Gallery {
   description    String?
   mediaId        String?
   url            String?
-  isNSFW         Boolean  @default(false)
+  isNsfw         Boolean  @default(false)
   custodian      String?
   User           User?    @relation(fields: [userId], references: [id])
   userId         Int?
@@ -136,7 +136,7 @@ model Media {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   path         String   @default("/")
-  isNSFW       Boolean  @default(false)
+  isNsfw       Boolean  @default(false)
   isFavorite   Boolean  @default(false)
   isFlagged    Boolean  @default(false)
   tags         String   @default("AI, Cafe Purr")
@@ -230,7 +230,7 @@ model Resource {
   User         User?        @relation(fields: [userId], references: [id])
   userId       Int?
   name         String       @unique
-  isNSFW       Boolean      @default(false)
+  isNsfw       Boolean      @default(false)
   customLabel  String?
   MediaPath    String?
   customUrl    String?
@@ -298,7 +298,7 @@ model TrainingLine {
 // UserAuth is the login account once the user adds a password. Login is always by username, emails are automatically set as usernames by the api if a username is not provided.
 model UserAuth {
   salt                String?
-  apiKey              String?
+  apiKey              String? @unique
   email               String? @unique
   username            String  @id @unique
   password            String
@@ -306,7 +306,7 @@ model UserAuth {
   spotifyRefreshToken String?
   spotifyID           String?
   // User relation
-  User                User   @relation(fields: [username], references: [username])
+  User                User    @relation(fields: [username], references: [username])
 }
 
 model User {
@@ -351,6 +351,30 @@ model User {
   Todo          Todo[]
   Rewards       Reward[]
   UserAuth      UserAuth?
+}
+
+//live chat history
+model ChatRoom {
+  id          Int       @id @unique @default(autoincrement())
+  name        String
+  host        String
+  description String?
+  image       String?
+  theme       String?
+  nsfw        Boolean?
+  messages    Message[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isActive    Boolean   @default(true)
+}
+
+model Message {
+  id         Int      @id @unique @default(autoincrement())
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+  chatRoomId Int
+  content    String
+  sender     String
+  createdAt  DateTime @default(now())
 }
 
 model Account {

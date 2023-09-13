@@ -54,7 +54,7 @@ export const useGalleryStore = defineStore({
     },
 
     currentGalleryIsNSFW(): boolean {
-      return this.currentGallery?.isNSFW || false
+      return this.currentGallery?.isNsfw || false
     },
 
     currentGalleryCustodian(): string | null {

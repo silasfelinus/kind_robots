@@ -9,6 +9,6 @@ icon: game-icons:wood-frame
 tags: ['home']
 tooltip: This is a teaser for our cafe purr webgalleries. Each spin is a random image from the gallery.
 category: demo
-sort: icon
+sort: highlight
 ---
 :galleries-view

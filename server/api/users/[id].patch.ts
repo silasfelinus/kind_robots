@@ -1,6 +1,8 @@
-import auth from './../../middleware/auth'
-import prisma from './../utils/prisma'
-import { fetchUserById, updateUser, hashPassword } from '.'
+import { hashPassword, validatePassword } from '../auth'
+import { errorHandler } from '../utils/error'
+import auth from '../../middleware/auth'
+import prisma from '../utils/prisma'
+import { fetchUserById, updateUser } from '.'
 
 export default defineEventHandler(async (event) => {
   console.log('[id].patch API route invoked. Setting auth to true.')
@@ -15,37 +17,46 @@ export default defineEventHandler(async (event) => {
 
   try {
     console.log(`Fetching user by ID: ${id}`)
-    const User = await fetchUserById(id)
+    const user = await fetchUserById(id)
     const data = await readBody(event)
 
-    if (!User) {
+    if (!user) {
       console.error('User not found.')
       throw new Error('User not found.')
     }
 
     console.log('User found, checking for password update.')
-    // If password is provided, hash it and update or create UserAuth
-    if (data.password) {
-      console.log('Password provided, hashing.')
-      const hashedPassword = await hashPassword(data.password)
-      const userAuth = await prisma.userAuth.findUnique({ where: { username: User.username } })
 
-      if (userAuth) {
-        console.log('UserAuth found, updating password.')
-        await prisma.userAuth.update({
-          where: { username: User.username },
-          data: { password: hashedPassword }
-        })
-      } else {
-        console.log('UserAuth not found, creating new UserAuth.')
-        await prisma.userAuth.create({
-          data: {
-            username: data.username || User.username,
-            password: hashedPassword
-          }
-        })
+    const userAuth = await prisma.userAuth.findUnique({ where: { username: user.username } })
+    let hashedPassword
+
+    if (data.password) {
+      const passwordValidation = validatePassword(data.password)
+      if (!passwordValidation.isValid) {
+        throw new Error(passwordValidation.message)
       }
+      hashedPassword = await hashPassword(data.password)
     }
+
+    const userAuthData: any = {
+      username: data.username || user.username,
+      email: data.email,
+      password: hashedPassword
+    }
+
+    if (userAuth) {
+      console.log('UserAuth found, updating.')
+      await prisma.userAuth.update({
+        where: { username: user.username },
+        data: userAuthData
+      })
+    } else if (hashedPassword) {
+      console.log('UserAuth not found, creating new UserAuth with password.')
+      await prisma.userAuth.create({
+        data: userAuthData
+      })
+    }
+
     // Destructure the password field from the data object
     const { password, ...restData } = data
 
@@ -56,9 +67,12 @@ export default defineEventHandler(async (event) => {
     const updatedUser = await updateUser(id, restData)
 
     console.log('User update successful.')
-    return { success: true, User: updatedUser }
+    return { success: true, user: updatedUser }
   } catch (error: any) {
     console.error('Full error:', JSON.stringify(error, null, 2)) // Log the full error
-    return { success: false, message: `Failed to update User with id ${id}.`, error: error.name }
+    return {
+      success: false,
+      message: `Failed to update User with id ${id}. Reason: ${errorHandler(error)}`
+    }
   }
 })

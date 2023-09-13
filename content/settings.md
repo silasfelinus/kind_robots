@@ -1,5 +1,5 @@
 ---
-title: 'Open AI Key'
+title: 'Enter OpenAI Key'
 subtitle: 'Harmonizing AI and Humanity'
 description: Various settings, including Open-AI key
 layout: default
@@ -8,6 +8,6 @@ gallery: wondershed
 tags: ['home']
 icon: game-icons:tv-remote
 tooltip: If you have your own API key, you can use it here. Feel free to use our 3.5 key for individual personal entertainment.
-sort: text
+sort: icon
 ---
 :open-ai-key

@@ -25,7 +25,7 @@
           <td>
             <img v-if="gallery.highlightImage" :src="gallery.highlightImage" alt="Highlight" />
           </td>
-          <td>{{ gallery.isNSFW ? 'Yes' : 'No' }}</td>
+          <td>{{ gallery.isNsfw ? 'Yes' : 'No' }}</td>
           <td>{{ gallery.isAuth ? 'Yes' : 'No' }}</td>
           <td>{{ gallery.user }}</td>
           <td>{{ new Date(gallery.createdAt).toLocaleString() }}</td>

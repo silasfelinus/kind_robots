@@ -1,5 +1,4 @@
 import { defineEventHandler } from 'h3'
-import prisma from './../api/utils/prisma'
 
 export default defineEventHandler(async (event: any) => {
   const req = event.node.req
@@ -9,7 +8,7 @@ export default defineEventHandler(async (event: any) => {
 
   // Check if the route requires authentication
   if (event.context.route?.auth !== true) {
-    console.log('Auth was not set to true. We do not need to auth')
+    console.log('Auth not set to true. Enjoy ')
     return
   }
 
@@ -20,12 +19,12 @@ export default defineEventHandler(async (event: any) => {
     console.log('Missing API key')
     // Redirect to login or throw an error
     // Your redirect logic here
-    return
+    return { message: `Missing API Key` }
   }
 
   if (secretKey !== process.env.AUTH_SECRET) {
     console.log('Invalid API key')
     // Redirect to login or throw an error
-    // Your redirect logic here
+    return { message: `Invalid API Key` }
   }
 })

@@ -10,7 +10,7 @@ tags: ['home']
 admin: true
 icon: game-icons:archive-register
 category: admin
-sort: text
+sort: icon
 ---
 
 :component-gallery

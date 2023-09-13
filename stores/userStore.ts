@@ -17,6 +17,15 @@ export const useUserStore = defineStore({
   getters: {
     isLoggedIn(): boolean {
       return !!this.token
+    },
+    userId(): number | null {
+      return this.user ? this.user.id : null
+    },
+    username(): string {
+      return this.user ? this.user.username : 'guest'
+    },
+    email(): string | null {
+      return this.user ? this.user.email : null
     }
   },
   actions: {
@@ -31,22 +40,84 @@ export const useUserStore = defineStore({
       this.apiKey = apiKey
       localStorage.setItem('api_key', apiKey) // Save to local storage
     },
-    async validateToken(): Promise<boolean> {
-      if (!this.token) return false
-
+    async getUsernames(): Promise<string[]> {
       try {
-        const response = await fetch('/api/validate-token', {
+        const response = await fetch('/api/usernames', {
+          method: 'GET',
           headers: {
-            Authorization: `Bearer ${this.token}`
+            'Content-Type': 'application/json'
           }
         })
 
-        return response.ok
+        if (response.ok) {
+          const usernames = await response.json()
+          return usernames
+        } else {
+          const { message } = await response.json()
+          console.error('Failed to fetch usernames:', message)
+          return []
+        }
       } catch (error: any) {
-        console.error('Failed to validate token:', error.message)
+        console.error('Failed to fetch usernames:', error.message)
+        return []
+      }
+    },
+    async validate(): Promise<boolean> {
+      try {
+        const credentials = this.token ? { token: this.token } : { apiKey: this.apiKey }
+        const response = await fetch('/api/validate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(credentials)
+        })
+
+        if (response.ok) {
+          return true
+        } else {
+          const { message } = await response.json()
+          console.error('Validation failed:', message)
+          return false
+        }
+      } catch (error: any) {
+        console.error('Failed to validate:', error.message)
         return false
       }
     },
+    async register(userData: {
+      username: string
+      email: string
+      password: string
+    }): Promise<{ success: boolean; user?: User; token?: string }> {
+      try {
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+        })
+
+        if (response.ok) {
+          const { user, token, apiKey } = await response.json()
+          this.setUser(user)
+          this.setToken(token)
+          if (apiKey) {
+            this.setApiKey(apiKey)
+          }
+          return { success: true, user, token }
+        } else {
+          const { message } = await response.json()
+          console.error('Registration failed:', message)
+          return { success: false, user: undefined, token: undefined }
+        }
+      } catch (error: any) {
+        console.error('Failed to register:', error.message)
+        return { success: false, user: undefined, token: undefined }
+      }
+    },
+
     async fetchUserByApiKey(): Promise<void> {
       if (!this.apiKey) return
 

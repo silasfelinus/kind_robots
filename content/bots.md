@@ -10,7 +10,7 @@ icon: game-icons:robot-antennas
 tooltip: This is meant to be the meat-and-potatoes of the site, but I need to remodel the layout and logic. It was meant as a flashy demo, but now it's more important to spend time developing the essential functions.
 category: wip
 underConstruction: true
-sort: highlight
+sort: text
 ---
 
 :bot-gallery

@@ -1,5 +1,6 @@
-// server/api/users/index.get.ts
-import auth from './../../middleware/auth'
+// /server/api/users/index.get.ts
+import { errorHandler } from '../utils/error'
+import auth from '../../middleware/auth'
 import { fetchUsers } from '.'
 
 export default defineEventHandler(async (event) => {
@@ -10,9 +11,10 @@ export default defineEventHandler(async (event) => {
     auth(event)
     const page = Number(event.context.query?.page) || 1
     const pageSize = Number(event.context.query?.pageSize) || 100
-    const Users = await fetchUsers(page, pageSize)
-    return { success: true, Users }
+    const users = await fetchUsers()
+    return { success: true, users }
   } catch (error: any) {
-    return { success: false, message: 'Failed to fetch Users.', error: error.message }
+    console.error('Failed to fetch users:', error.message) // Log the error message for debugging
+    return { success: false, message: `Failed to fetch users. Reason: ${errorHandler(error)}` }
   }
 })

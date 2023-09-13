@@ -1,5 +1,7 @@
-import auth from './../../middleware/auth'
-import { deleteUser } from '.' // Make sure this import is correct
+// server/api/users/[id].delete.ts
+import { errorHandler } from '../utils/error'
+import auth from '../../middleware/auth'
+import { deleteUser } from '.'
 
 export default async (event: any) => {
   try {
@@ -23,7 +25,7 @@ export default async (event: any) => {
     }
     return {
       success: false,
-      message: `Failed to delete User. Reason: ${error.message}`
+      message: `Failed to delete User. Reason: ${errorHandler(error)}`
     }
   }
 }

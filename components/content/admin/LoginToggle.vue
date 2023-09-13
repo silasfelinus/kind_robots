@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 
 const store = useUserStore()
@@ -57,8 +57,10 @@ const handleLogin = async () => {
     if (data.success) {
       store.setUser(data.user)
       isVisible.value = false
-      // Store some user data or token in local storage
-      localStorage.setItem('user', JSON.stringify(data.user))
+      // Dispatch a custom event to store user data in local storage on the client side
+      if (process.client) {
+        window.dispatchEvent(new CustomEvent('login-success', { detail: { user: data.user } }))
+      }
       // 🎉 Yay, login successful! Maybe navigate to a different page or show a success message
     } else {
       // 😢 Login failed, show the error message from the API
@@ -69,4 +71,13 @@ const handleLogin = async () => {
     console.error('An unknown error occurred', error)
   }
 }
+
+onMounted(() => {
+  if (process.client) {
+    // Only on client-side
+    window.addEventListener('login-success', (event: any) => {
+      localStorage.setItem('user', JSON.stringify(event.detail.user))
+    })
+  }
+})
 </script>

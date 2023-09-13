@@ -9,7 +9,7 @@ tags: ['home']
 icon: ph:cassette-tape-fill
 tooltip: Music
 underConstruction: true
-sort: highlight
+sort: text
 ---
 
 :music-toggle

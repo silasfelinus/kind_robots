@@ -9,6 +9,6 @@ tooltip: This was a google OAuth requirement. I was annoyed to write it, honestl
 image: privacy1.webp
 category: text
 gallery: wonderbot
-sort: text
+sort: icon
 ---
 :privacy-policy

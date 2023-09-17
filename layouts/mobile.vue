@@ -19,11 +19,11 @@
           />
         </div>
       </div>
-      <slot />
       <!-- Display tooltip -->
       <div v-if="showTooltip" class="mt-4 p-3 rounded-md bg-accent text-default">
         {{ page.tooltip }}
       </div>
+      <slot />
     </main>
 
     <!-- Footer -->

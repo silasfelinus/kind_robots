@@ -49,7 +49,7 @@ watch(
 
 <style scoped>
 .tooltip-container {
-  background-color: var(--bg-base-100);
+  background-color: var(--bg-base-400);
   color: var(--bg-primary);
   padding: 1rem;
   border-radius: 0.5rem;

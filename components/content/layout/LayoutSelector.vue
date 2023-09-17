@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-start text-default">
+  <div class="flex flex-col items-start text-default rounded-2xl">
     <label for="layoutSelector" class="mr-2">Choose Layout:</label>
     <select id="layoutSelector" v-model="selectedLayout" class="text-black" @change="changeLayout">
       <option v-for="layout in allowedLayouts" :key="layout" :value="layout" class="text-black">

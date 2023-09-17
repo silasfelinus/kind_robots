@@ -1,48 +1,51 @@
-// /server/api/user/register.ts
-import { errorHandler } from '../utils/error' // Importing the error handler
-import { validatePassword } from '../auth' // Importing the password validation function
-import { createUserWithAuth } from '.' // Importing the function to create a user with authentication details
+// /server/api/user/register.post.ts
+import { errorHandler } from '../utils/error' // Importing the centralized error handler
+import { createUser } from '.' // Importing the function to create a user with authentication details
 
 export default defineEventHandler(async (event) => {
+  console.log('🚀 Launching the user creation journey...')
+
+  console.log('📬 Received event context params:', event.context.params) // Add this line to log the params
+
   try {
-    // Destructuring to get the username, password, and email from the event body
-    const { username, password, email } = await readBody(event)
+    // Reading the user data from the event body
+    const userData = await readBody(event)
+    console.log('📬 Received user data:', userData)
 
-    // If any of the required fields are missing, we throw an error
-    if (!username || !password || !email) {
-      throw new Error(
-        '🚀 Blast off! But wait, we need all systems (username, password, email) to be a go. Please provide all the necessary details.'
-      )
+    // Ensuring the essential fields are provided
+    if (!userData.username && !userData.email) {
+      throw new Error('👤 Username or 📧 email is required to forge a new star in our universe.')
+    }
+    if (userData.password && userData.password.length < 8) {
+      throw new Error('🔑 Password must be a strong shield with at least 8 characters.')
     }
 
-    const passwordValidation = validatePassword(password)
-    if (!passwordValidation.isValid) {
-      throw new Error(
-        `🚀 Houston, we have a problem with the password: ${passwordValidation.message}`
-      )
-    }
+    // Initiating the user creation with the gathered stellar dust (user data)
+    const result = await createUser({
+      username: userData.username,
+      email: userData.email,
+      password: userData.password // Corrected the parameter passing here
+    })
 
-    // Attempting to create a user with the provided authentication details
-    const result = await createUserWithAuth(username, password, email)
-
-    // If the user creation was successful, we return a success message along with the result
+    // If the star formation (user creation) is successful, we celebrate with a warm welcome
     if (result.success) {
+      console.log('🌟 A new star is born in our user universe:', result)
       return {
         success: true,
-        message: '🌟 Stardust sprinkled, magic spun, voila, a new user has begun! Welcome aboard!',
-        user: result.user,
-        token: 'your_generated_token_here' // Generate and return a token for the new user
+        message: '🌟 Welcome to our cosmic family, brave explorer! Your account has been created.',
+        user: result.user
       }
     }
 
-    // If we reach here, it means the user creation was not successful, and we throw an error
+    // If something goes amiss in the cosmic process, we communicate the issue
     throw new Error(
       typeof result.message === 'string'
-        ? result.message
-        : '🌌 Oops, we ventured into a black hole. User creation unsuccessful.'
+        ? `🌌 Cosmic anomaly detected: ${result.message}`
+        : '🌌 An unexpected cosmic event occurred. Please try forging your star again.'
     )
   } catch (error: any) {
-    // If any error occurs, we handle it gracefully using the error handler and return a structured error response
+    // If a cosmic storm (error) occurs, we navigate safely with our error handler
+    console.error('🌩️ Cosmic storm encountered:', error.message)
     const { message } = errorHandler(error)
     return { success: false, message: `🚀 Mission abort! ${message}` }
   }

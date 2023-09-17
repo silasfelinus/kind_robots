@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
     return { success: true, usernames }
   } catch (error: any) {
     console.error('Failed to fetch users:', error.message) // Log the error message for debugging
-    return { success: false, message: `Failed to fetch users. Reason: ${errorHandler(error)}` }
+    const { message } = errorHandler(error)
+    return { success: false, message: `Failed to fetch users. Reason: ${message}` }
   }
 })

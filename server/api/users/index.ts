@@ -1,61 +1,62 @@
+/* eslint-disable @typescript-eslint/indent */
 // server/api/users/index.ts
 import { User, Prisma } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { validatePassword, hashPassword, generateApiKey } from './../auth'
 
-async function createUser(
-  data: Prisma.UserCreateInput
-): Promise<{ success: boolean; user?: User; message?: string }> {
+export async function createUser(data: {
+  username: string
+  password?: string
+  email?: string
+}): Promise<{ success: boolean; user?: User; message?: string; apiKey?: string }> {
   try {
-    const newUser = await prisma.user.create({ data })
-    return { success: true, user: newUser }
+    // Validate username and email uniqueness
+    if (
+      (await userExists(data.username, 'username')) ||
+      (data.email && (await userExists(data.email, 'email')))
+    ) {
+      return { success: false, message: 'Username or email already exists.' }
+    }
+
+    // If password is provided, validate and hash the password
+    if (data.password) {
+      const passwordValidation = validatePassword(data.password)
+      if (!passwordValidation.isValid) {
+        return { success: false, message: passwordValidation.message }
+      }
+      data.password = await hashPassword(data.password)
+    }
+
+    // Generate API key
+    const apiKey = generateApiKey()
+
+    // Create User and UserAuth records in a transaction
+    const userCreation = prisma.user.create({
+      data: {
+        username: data.username,
+        email: data.email
+      }
+    })
+
+    // Assuming you have a UserAuth model where you store the hashed password and API key
+    const userAuthCreation = data.password
+      ? prisma.userAuth.create({
+          data: { username: data.username, password: data.password, apiKey }
+        })
+      : undefined
+
+    const transactionActions = [userCreation, userAuthCreation].filter(
+      Boolean
+    ) as Prisma.Prisma__UserClient<unknown>[]
+
+    const result = await prisma.$transaction(transactionActions)
+
+    return { success: true, user: result[0] as User, apiKey }
   } catch (error: any) {
     console.error(`Failed to create user: ${error.message}`)
     return { success: false, message: errorHandler(error).message }
   }
-}
-export async function createUserWithAuth(
-  username: string,
-  password: string,
-  email?: string | null
-) {
-  try {
-    if ((await userExists(username, 'username')) || (email && (await userExists(email, 'email')))) {
-      return { success: false, message: 'Username or email already exists.' }
-    }
-    console.log('Password to validate:', password)
-
-    const passwordValidation = validatePassword(password)
-    if (!passwordValidation.isValid) {
-      return { success: false, message: passwordValidation.message }
-    }
-
-    const hashedPassword = await hashPassword(password)
-    const newUser = await prisma.user.create({ data: { username, email: email ?? undefined } })
-    const apiKey = generateApiKey()
-
-    await prisma.userAuth.create({
-      data: {
-        username,
-        email: email ?? undefined,
-        password: hashedPassword,
-        apiKey
-      }
-    })
-
-    return { success: true, user: newUser }
-  } catch (error: any) {
-    return { success: false, message: errorHandler(error) }
-  }
-}
-
-export async function createUserWithUsername(username: string) {
-  return createUser({ username })
-}
-
-export async function createUserWithEmail(email: string) {
-  return createUser({ username: email, email })
 }
 
 export async function fetchUsers(): Promise<{

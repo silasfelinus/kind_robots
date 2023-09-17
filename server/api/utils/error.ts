@@ -25,6 +25,8 @@ export function errorHandler(error: ErrorHandlerInput): {
   }
 
   if (error instanceof Error) {
+    console.log('Error object:', error)
+    console.log('Error prototype:', Object.getPrototypeOf(error))
     return { success: false, message: error.message, statusCode: 400 }
   }
 

@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { User } from '@prisma/client'
+import { onMounted } from 'vue'
+import { errorHandler } from '../server/api/utils/error'
 
 interface UserState {
   user: User | null
@@ -12,7 +14,7 @@ export const useUserStore = defineStore({
   state: (): UserState => ({
     user: null,
     token: '',
-    apiKey: localStorage.getItem('api_key') || null // Read from local storage
+    apiKey: typeof window !== 'undefined' ? localStorage.getItem('api_key') : null // Read from local storage at initialization safely
   }),
   getters: {
     isLoggedIn(): boolean {
@@ -42,7 +44,7 @@ export const useUserStore = defineStore({
     },
     async getUsernames(): Promise<string[]> {
       try {
-        const response = await fetch('/api/usernames', {
+        const response = await fetch('/api/users/usernames', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -50,22 +52,21 @@ export const useUserStore = defineStore({
         })
 
         if (response.ok) {
-          const usernames = await response.json()
+          const { usernames } = await response.json()
           return usernames
         } else {
-          const { message } = await response.json()
-          console.error('Failed to fetch usernames:', message)
-          return []
+          throw new Error('Failed to fetch usernames')
         }
       } catch (error: any) {
-        console.error('Failed to fetch usernames:', error.message)
+        const { message } = errorHandler(error)
+        console.error('Failed to fetch usernames:', message)
         return []
       }
     },
     async validate(): Promise<boolean> {
       try {
         const credentials = this.token ? { token: this.token } : { apiKey: this.apiKey }
-        const response = await fetch('/api/validate', {
+        const response = await fetch('/api/auth/validate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -76,22 +77,21 @@ export const useUserStore = defineStore({
         if (response.ok) {
           return true
         } else {
-          const { message } = await response.json()
-          console.error('Validation failed:', message)
-          return false
+          throw new Error('Validation failed')
         }
       } catch (error: any) {
-        console.error('Failed to validate:', error.message)
+        const { message } = errorHandler(error)
+        console.error('Failed to validate:', message)
         return false
       }
     },
     async register(userData: {
       username: string
-      email: string
-      password: string
-    }): Promise<{ success: boolean; user?: User; token?: string }> {
+      email?: string
+      password?: string
+    }): Promise<{ success: boolean; user?: User; token?: string; message?: string }> {
       try {
-        const response = await fetch('/api/register', {
+        const response = await fetch('/api/users/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -100,6 +100,7 @@ export const useUserStore = defineStore({
         })
 
         if (response.ok) {
+          console.log('positive response', response)
           const { user, token, apiKey } = await response.json()
           this.setUser(user)
           this.setToken(token)
@@ -108,20 +109,19 @@ export const useUserStore = defineStore({
           }
           return { success: true, user, token }
         } else {
-          const { message } = await response.json()
-          console.error('Registration failed:', message)
-          return { success: false, user: undefined, token: undefined }
+          throw new Error('Registration failed. Please try again.')
         }
       } catch (error: any) {
-        console.error('Failed to register:', error.message)
-        return { success: false, user: undefined, token: undefined }
+        const { message } = errorHandler(error)
+        console.error('Failed to register:', message)
+        return { success: false, message }
       }
     },
-
     async fetchUserByApiKey(): Promise<void> {
       if (!this.apiKey) return
 
       try {
+        // this isn't implemented
         const response = await fetch('/api/user', {
           headers: {
             'x-api-key': this.apiKey
@@ -134,7 +134,8 @@ export const useUserStore = defineStore({
           throw new Error('Failed to fetch user')
         }
       } catch (error: any) {
-        console.error('Failed to fetch user:', error.message)
+        const { message } = errorHandler(error)
+        console.error('Failed to fetch user:', message)
       }
     },
     logout(): void {
@@ -143,6 +144,11 @@ export const useUserStore = defineStore({
       this.apiKey = null
       localStorage.removeItem('api_key') // Remove from local storage
       localStorage.removeItem('token') // Remove from local storage
+    },
+    initializeStore() {
+      onMounted(() => {
+        this.apiKey = localStorage.getItem('api_key') // Move localStorage access here
+      })
     }
   }
 })

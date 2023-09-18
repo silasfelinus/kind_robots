@@ -17,10 +17,11 @@
       class="group hover:bg-accent transition-colors relative p-2 rounded-2xl border bg-primary flex flex-row items-center space-x-2 w-72"
       @mouseover="isHovered = page._id"
       @mouseleave="isHovered = null"
+      @click="handleLinkClick"
     >
       <div
         v-if="page._path === $route.path"
-        class="flex items-center mt-1 text-xl rounded-2xl border bg-secondary p-1 bottom-0 right-0 absolute"
+        class="flex items-center mt-1 text-xl rounded-2xl border bg-secondary p-1 bottom-0 left-0 absolute"
       >
         You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
       </div>
@@ -45,8 +46,10 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { usePageStore } from '~/stores/pageStore'
+import { useFooterStore } from '~/stores/footerStore'
 
 const pageStore = usePageStore()
+const footerStore = useFooterStore()
 
 onMounted(() => {
   if (process.client) {
@@ -58,4 +61,10 @@ const isHovered = ref(null)
 const supportPages = computed(() => {
   return pageStore.pagesByTagAndSort('home', 'icon')
 })
+
+const handleLinkClick = () => {
+  if (footerStore.isExtended) {
+    footerStore.toggleIsExtended()
+  }
+}
 </script>

@@ -32,7 +32,7 @@
       </div>
 
       <!-- Image and Tooltip Wrapper -->
-      <div class="flex flex-col w-full md:w-72 h-full p-2 rounded-2xl shadow-lg">
+      <div class="flex flex-col w-full md:w-1/4 h-full p-2 rounded-2xl shadow-lg">
         <!-- Status message -->
         <div class="flex-shrink-0">
           <!-- Conditional rendering for subtitle -->

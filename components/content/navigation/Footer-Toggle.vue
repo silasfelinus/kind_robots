@@ -1,14 +1,14 @@
 <template>
   <div
-    class="relative flex flex-col items-center bg-base-200 rounded-2xl"
+    class="relative flex flex-col items-center bg-base-200 rounded-2xl transition-all ease-in-out"
     :class="{
-      'h-[10vh]': !isExtended,
-      'h-[40vh]': isExtended
+      'h-[10vh] transition-duration-300': !isExtended,
+      'h-[40vh] transition-duration-1000': isExtended
     }"
   >
     <!-- Toggle Button -->
     <div
-      class="transition duration-600 ease-in-out absolute bg-accent top-0 left-1/2 transform -translate-x-1/2 bg-base-400 border rounded-2xl cursor-pointer shadow-lg p-2 z-50"
+      class="transition duration-600 ease-in-out absolute bg-accent top-0 left-1/3 transform -translate-x-1/3 bg-base-400 border rounded-2xl cursor-pointer shadow-lg p-2 z-50"
       @click.stop="toggleExtend"
     >
       <icon
@@ -18,10 +18,12 @@
     </div>
 
     <!-- Highlight Pages -->
-    <div class="flex rounded-2xl border bg-accent px-2 absolute top-0 mb-1 text-xl">
+    <div
+      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-secondary border rounded-2xl transform -translate-x-1/3 mb-1 px-1 top-0 absolute z-50 pointer-events-none"
+    >
       Highlight Gallery
     </div>
-    <div class="flex flex-wrap justify-center space-x-2 pb-5 mt-12 w-full">
+    <div class="flex flex-wrap justify-center space-x-2 pb-5 mt-10 w-full">
       <NuxtLink
         v-for="page in highlightPages"
         :key="page._id"
@@ -29,6 +31,7 @@
         class="group transition-colors relative p-2 rounded-2xl border bg-primary flex flex-col items-center space-x-2"
         @mouseover="isHovered = page._id"
         @mouseleave="isHovered = null"
+        @click="handleLinkClick"
       >
         <!-- Tooltip -->
         <popup-description
@@ -39,7 +42,7 @@
         />
         <div
           v-if="page._path === $route.path"
-          class="flex items-center mt-1 text-xl rounded-2xl border bg-secondary p-1 bottom-0 right-0 absolute"
+          class="flex items-center mt-1 text-xl rounded-2xl border bg-secondary p-1 top-0 center space-x-5 absolute"
         >
           You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
         </div>
@@ -61,7 +64,7 @@
             />
           </div>
           <div class="flex flex-col items-start">
-            <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
+            <div class="text-lg font-bold bg-base-200 p-2 m-1 rounded-2xl border">
               {{ page.title }}
             </div>
             <popup-description
@@ -80,8 +83,9 @@
       v-if="isExtended"
       class="mt-4 p-2 rounded-2xl bg-base-200 border flex flex-col items-center space-y-4 w-full"
     >
-      <construction-nav />
       <support-nav />
+      <construction-nav />
+
       <highlight-pages />
     </div>
   </div>
@@ -97,8 +101,6 @@ const footerStore = useFooterStore()
 
 const isHovered = ref(null)
 
-const isExtended = computed(() => footerStore.isExtended)
-
 const toggleExtend = () => {
   footerStore.toggleIsExtended()
 }
@@ -106,6 +108,14 @@ const toggleExtend = () => {
 onMounted(() => {
   pageStore.getPages()
 })
+
+const isExtended = computed(() => footerStore.isExtended)
+
+const handleLinkClick = () => {
+  if (isExtended.value) {
+    toggleExtend()
+  }
+}
 
 const highlightPages = computed(() => pageStore.highlightPages)
 </script>

@@ -1,13 +1,13 @@
 <template>
-  <div class="w-full flex flex-col items-center p-4 bg-primary">
-    <div class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  <div class="w-full flex flex-col items-center p-4 bg-primary rounded-2xl">
+    <div class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 rounded-2xl">
       <div
         v-for="page in pages"
         :key="page._id"
-        class="flex flex-col items-center justify-center my-4 drag-card"
+        class="flex flex-col rounded-2xl items-center justify-center my-4 drag-card"
       >
         <div
-          class="rounded-xl-2 border-4 p-2 bg-base-200 shadow-md hover:shadow-lg transition-shadow duration-300"
+          class="rounded-2xl border-4 p-2 bg-base-200 shadow-md hover:shadow-lg transition-shadow duration-300"
         >
           <NuxtLink
             :to="page._path"

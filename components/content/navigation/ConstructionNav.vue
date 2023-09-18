@@ -4,7 +4,7 @@
     style="overflow: visible; z-index: 0"
   >
     <div
-      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-warning border rounded-2xl transform -translate-x-1/2 mb-1 px-1 top-0 absolute z-50 pointer-events-none"
+      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-secondary border rounded-2xl transform -translate-x-1/2 mb-1 px-1 top-0 absolute z-50 pointer-events-none"
       style="left: 50%; transform: translateX(-50%)"
     >
       Under Construction
@@ -14,13 +14,14 @@
       v-for="page in underConstructionPages"
       :key="page._id"
       :to="page._path"
-      class="group hover:bg-accent transition-colors relative rounded-2xl border bg-info flex flex-row items-center space-x-2 w-64"
+      class="group hover:bg-accent transition-colors relative rounded-2xl border bg-warning flex flex-row items-center space-x-2 w-64"
       @mouseover="isHovered = page._id"
       @mouseleave="isHovered = null"
+      @click="handleLinkClick"
     >
       <div
         v-if="page._path === $route.path"
-        class="flex items-center mt-1 text-xl rounded-2xl border bg-secondary bottom-0 right-0 absolute"
+        class="flex items-center mt-1 text-xl rounded-2xl border bg-secondary bottom-0 center absolute"
       >
         You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
       </div>
@@ -45,7 +46,15 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { usePageStore } from '~/stores/pageStore'
+import { useFooterStore } from '~/stores/footerStore'
 
+const footerStore = useFooterStore()
+
+const handleLinkClick = () => {
+  if (footerStore.isExtended) {
+    footerStore.toggleIsExtended()
+  }
+}
 const pageStore = usePageStore()
 
 onMounted(() => {

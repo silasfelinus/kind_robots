@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 // server/api/users/index.ts
 import { User, Prisma } from '@prisma/client'
 import prisma from '../utils/prisma'
@@ -31,28 +30,15 @@ export async function createUser(data: {
     // Generate API key
     const apiKey = generateApiKey()
 
-    // Create User and UserAuth records in a transaction
-    const userCreation = prisma.user.create({
+    // Create User record with all necessary fields
+    const user = await prisma.user.create({
       data: {
-        username: data.username,
-        email: data.email
+        ...data,
+        apiKey
       }
     })
 
-    // Assuming you have a UserAuth model where you store the hashed password and API key
-    const userAuthCreation = data.password
-      ? prisma.userAuth.create({
-          data: { username: data.username, password: data.password, apiKey }
-        })
-      : undefined
-
-    const transactionActions = [userCreation, userAuthCreation].filter(
-      Boolean
-    ) as Prisma.Prisma__UserClient<unknown>[]
-
-    const result = await prisma.$transaction(transactionActions)
-
-    return { success: true, user: result[0] as User, apiKey }
+    return { success: true, user, apiKey }
   } catch (error: any) {
     console.error(`Failed to create user: ${error.message}`)
     return { success: false, message: errorHandler(error).message }
@@ -61,11 +47,29 @@ export async function createUser(data: {
 
 export async function fetchUsers(): Promise<{
   success: boolean
-  users?: User[]
+  users?: Partial<User>[]
   message?: string
 }> {
   try {
-    const users = await prisma.user.findMany()
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        Role: true,
+        username: true,
+        emailVerified: true,
+        questPoints: true,
+        name: true,
+        bio: true,
+        birthday: true,
+        city: true,
+        state: true,
+        country: true,
+        timezone: true,
+        avatarImage: true
+      }
+    })
     return { success: true, users }
   } catch (error: any) {
     console.error(`Failed to fetch users: ${error.message}`)
@@ -73,9 +77,30 @@ export async function fetchUsers(): Promise<{
   }
 }
 
-export async function fetchUserById(id: number): Promise<User | null> {
+export async function fetchUserById(id: number): Promise<Partial<User> | null> {
   try {
-    return await prisma.user.findUnique({ where: { id } })
+    return await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        Role: true,
+        username: true,
+        // email: true, // Email is commented to exclude it from the response
+        emailVerified: true,
+        questPoints: true,
+        name: true,
+        bio: true,
+        birthday: true,
+        city: true,
+        state: true,
+        country: true,
+        timezone: true,
+        avatarImage: true
+        // Add other fields that you want to expose, excluding sensitive fields
+      }
+    })
   } catch (error: any) {
     console.error(`Failed to fetch user by ID: ${error.message}`)
     throw new Error(errorHandler(error).message)
@@ -96,7 +121,6 @@ export async function deleteUser(id: number): Promise<boolean> {
     const user = await prisma.user.findUnique({ where: { id } })
     if (!user) throw new Error(`User with id ${id} does not exist. Please provide a valid user ID.`)
 
-    await prisma.userAuth.delete({ where: { username: user.username } })
     await prisma.user.delete({ where: { id } })
     return true
   } catch (error: any) {

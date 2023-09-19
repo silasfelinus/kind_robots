@@ -295,62 +295,57 @@ model TrainingLine {
   TrainingData TrainingData[] // < traininglines should be reusable in multiple trainindData structures
 }
 
-// UserAuth is the login account once the user adds a password. Login is always by username, emails are automatically set as usernames by the api if a username is not provided.
-model UserAuth {
-  salt                String?
-  apiKey              String? @unique
-  email               String? @unique
-  username            String  @id @unique
-  password            String
+//help migrate everything to just use User
+model User {
+  id                  Int        @id @unique @default(autoincrement())
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  Role                Role       @default(USER)
+  username            String     @unique
+  email               String?    @unique
+  emailVerified       DateTime?
+  questPoints         Int        @default(0)
+  name                String?
+  bio                 String?    @default("I was born and then things happened and now I'm here.")
+  birthday            DateTime?
+  address1            String?
+  address2            String?
+  city                String?
+  state               String?
+  country             String? 
+  timezone            String?
+  phone               String?
+  languages           String? // Consider using String[] if using PostgreSQL
+  avatarImage         String?    @default("/images/botcafe.webp")
+  // Social Media
+  instagramUrl        String?
+  twitterUrl          String?
+  facebookUrl         String?
+  discordUrl          String?
+  kindrobotsUrl       String?
+  // gamification
+  mana                Int? // rate-limited user tokens
+  karma               Int? // user experience for website interactions
+  //Auth
+  apiKey              String?    @unique
+  password            String?
   spotifyAccessToken  String?
   spotifyRefreshToken String?
   spotifyID           String?
-  // User relation
-  User                User    @relation(fields: [username], references: [username])
-}
-
-model User {
-  id            Int        @id @unique @default(autoincrement())
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  Role          Role       @default(USER)
-  username      String     @unique
-  email         String?    @unique
-  emailVerified DateTime?
-  questPoints   Int        @default(0)
-  name          String?
-  bio           String?    @default("I was born and then things happened and now I'm here.")
-  birthday      DateTime?
-  address1      String?
-  address2      String?
-  city          String?
-  state         String?
-  country       String? // Consider using an enum if the list of countries is fixed
-  timezone      String?
-  phone         String?
-  languages     String? // Consider using String[] if using PostgreSQL
-  avatarImage   String?    @default("/images/botcafe.webp")
-  // Social Media
-  instagramUrl  String?
-  twitterUrl    String?
-  facebookUrl   String?
-  discordUrl    String?
-  kindrobotsUrl String?
   // Relations
-  accounts      Account[]
-  sessions      Session[]
-  Bots          Bot[]
-  Galleries     Gallery[]
-  Media         Media[]
-  Prompts       Prompt[]
-  Game          Game[]
-  Reactions     Reaction[]
-  Resources     Resource[]
-  Projects      Project[]
-  Model         Model[]
-  Todo          Todo[]
-  Rewards       Reward[]
-  UserAuth      UserAuth?
+  accounts            Account[]
+  sessions            Session[]
+  Bots                Bot[]
+  Galleries           Gallery[]
+  Media               Media[]
+  Prompts             Prompt[]
+  Game                Game[]
+  Reactions           Reaction[]
+  Resources           Resource[]
+  Projects            Project[]
+  Model               Model[]
+  Todo                Todo[]
+  Rewards             Reward[]
 }
 
 //live chat history

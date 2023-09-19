@@ -30,17 +30,17 @@ const cards = ref([
   {
     title: 'VISION',
     icon: 'mdi:eye',
-    content: `Welcome to kindrobots.org, your friendly neighborhood AI ambassador! 🤖👋 We're here to bridge the AI/Human divide and foster harmonious coexistence. Our mission is to empower the world with modern tools, raise funds for our anti-malaria fundraiser, and generate revenue (and social buzz) for our content creators through sales from our gift shop of print-on-demand literature and art. Together, we can help each other make a difference with mutually compatible goals! 💪🌍`
+    content: `🤖👋 We're here to bridge the AI/Human divide and foster harmonious coexistence. Our mission is to empower the world with modern tools, raise funds for our anti-malaria fundraiser, and generate revenue (and social buzz) for our content creators through sales from our gift shop of print-on-demand literature and art. Together, we can help each other make a difference with mutually compatible goals! 💪🌍`
   },
   {
     title: 'VALUES',
     icon: 'mdi:heart-pulse',
-    content: `kindrobots is founded on a principle of holistic goodness: that every part of an encounter with an AI can be positive, and every part of an exchange can be healthful and supportive to all involved. kindrobots aims for maximizing goodness in community,  in social media interactions, in philanthropy, and in all online interactions. The world is rapidly changing, and people are looking for help understanding and navigating unfamiliar territories. Kindrobots is here to do our part.`
+    content: `kindrobots is founded on a principle of holistic goodness: that every part of an encounter with an AI can be positive, and every part of an exchange can be healthful and supportive to all involved. kindrobots aims for maximizing goodness in community,  in social media interactions, and in philanthropy. The world is rapidly changing, and people are looking for help navigating unfamiliar territories. Kindrobots is here to do our part.`
   },
   {
     title: 'KAIZEN',
     icon: 'mdi:arrow-up-bold-circle',
-    content: `We're guided by our love of community and Kaizen - the philosophy of continuous, iterative improvement. We embrace an evolutionary development framework that allows for process evolution and consistent growth towards our goals. Every step forward, no matter how small, is a victory. We're on a relentless quest for betterment, and we invite you to join us on this exciting journey! 🚀`
+    content: `We're guided by our love of community and Kaizen - the philosophy of continuous, iterative improvement. We embrace an evolutionary development framework that allows for process evolution and consistent growth. Every step forward, no matter how small, is a victory. We're on a relentless quest for betterment, and we invite you to join us on this exciting journey! 🚀`
   },
   {
     title: 'MASCOT',

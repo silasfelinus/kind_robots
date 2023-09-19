@@ -1,6 +1,8 @@
 <template>
   <div :class="['flex flex-col min-h-screen bg-base']">
+    <home-link />
     <layout-selector />
+    <login-toggle />
     <!-- Navbar -->
     <nav class="flex justify-between items-center p-4 bg-primary text-default">
       <div class="logo text-3xl font-extrabold">KindRobots</div>
@@ -25,10 +27,9 @@
       </div>
       <slot />
     </main>
-
     <!-- Footer -->
-    <footer class="p-4 bg-primary text-default text-center">
-      <home-nav />KindRobots Mobile © 2023
+    <footer>
+      <footer-toggle />
     </footer>
   </div>
 </template>
@@ -42,29 +43,4 @@ const pageTitle = ref('Kind Robots Presents: ' + page.title || 'Kind Robots')
 const isLoggedIn = ref<boolean>(false)
 const showDescription = ref<boolean>(true)
 const showTooltip = ref<boolean>(true)
-
-interface GalleryResponse {
-  success: boolean
-  image?: string
-}
-const galleryData = ref<GalleryResponse | null>(null)
-const fetchError = ref<string | null>(null)
-
-onMounted(async () => {
-  try {
-    const response = await fetch(
-      `https://kindrobots.org/api/gallery/random/name/${page.gallery || 'weirdlandia'}`
-    )
-    if (!response.ok) {
-      throw new Error('Failed to fetch gallery data')
-    }
-    galleryData.value = await response.json()
-  } catch (error: any) {
-    fetchError.value = error.message
-  }
-})
-
-const randomGalleryImage = computed(() => {
-  return galleryData.value?.success ? galleryData.value.image : null
-})
 </script>

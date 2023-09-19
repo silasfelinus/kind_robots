@@ -17,7 +17,7 @@
         <div
           v-show="open"
           :style="modalPosition"
-          class="origin-top-right absolute mt-2 w-96 rounded-md shadow-lg bg-base-100 ring-1 ring-black ring-opacity-5 z-50 transition-opacity duration-200"
+          class="origin-top-right absolute mt-2 w-96 rounded-md shadow-lg bg-base-100 ring-1 ring-black ring-opacity-5 z-10 transition-opacity duration-200"
         >
           <div
             class="py-1 theme-list grid grid-cols-3 gap-2 p-2"
@@ -83,16 +83,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.theme-selector {
-  z-index: 1000;
-}
-
 .theme-btn:hover {
   background-color: var(--bg-secondary);
-}
-
-.theme-btn:focus {
-  ring-color: var(--bg-accent);
 }
 
 .theme-menu-fade-enter-active,

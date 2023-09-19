@@ -9,8 +9,10 @@
     <!-- Footer -->
     <footer class="p-4 bg-primary text-black text-center">
       <sort-nav />
+      <login-toggle />
       KindRobots © 2023
       <screen-fx />
+      <home-link />
     </footer>
 
     <!-- Tooltip Popup -->

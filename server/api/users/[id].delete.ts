@@ -3,7 +3,7 @@ import { errorHandler } from '../utils/error'
 import auth from '../../middleware/auth'
 import { deleteUser } from '.'
 
-export default async (event: any) => {
+export default defineEventHandler(async (event) => {
   try {
     console.log('id.delete API route invoked. Setting auth to true.')
     // Validate the API key using the auth middleware
@@ -28,4 +28,4 @@ export default async (event: any) => {
       message: `Failed to delete User. Reason: ${errorHandler(error)}`
     }
   }
-}
+})

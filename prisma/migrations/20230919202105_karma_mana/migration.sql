@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `karma` INTEGER NULL,
+    ADD COLUMN `mana` INTEGER NULL;

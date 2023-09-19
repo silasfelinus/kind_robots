@@ -7,16 +7,34 @@ interface UserState {
   user: User | null
   token: string
   apiKey: string | null
+  loading: boolean
+  lastError: string | null
+  karma: number | null
+  mana: number | null
 }
 
 export const useUserStore = defineStore({
   id: 'user',
+
+  // Defining the initial state and its types
   state: (): UserState => ({
     user: null,
     token: '',
-    apiKey: typeof window !== 'undefined' ? localStorage.getItem('api_key') : null // Read from local storage at initialization safely
+    apiKey: typeof window !== 'undefined' ? localStorage.getItem('api_key') : null,
+    loading: false,
+    lastError: null,
+    karma: null,
+    mana: null
   }),
+
+  // Getters are functions that compute derived state based on the store's state
   getters: {
+    karma(): number {
+      return this.user?.karma || 0
+    },
+    mana(): number {
+      return this.user?.mana || 0
+    },
     isLoggedIn(): boolean {
       return !!this.token
     },
@@ -24,64 +42,149 @@ export const useUserStore = defineStore({
       return this.user ? this.user.id : null
     },
     username(): string {
-      return this.user ? this.user.username : 'guest'
+      return this.user ? this.user.username : 'Kind Guest'
     },
-    email(): string | null {
-      return this.user ? this.user.email : null
+    email(): string {
+      return this.user?.email || ''
+    },
+    role(): string {
+      return this.user ? this.user.Role : 'GUEST'
+    },
+    avatarImage(): string {
+      return this.user?.avatarImage || '/images/botcafe.webp'
+    },
+    bio(): string {
+      return this.user?.bio || 'I was born and then things happened and now I am here.'
     }
   },
+
+  // Actions are functions that modify the state or trigger other actions
   actions: {
+    // User actions
     setUser(userData: User): void {
       this.user = userData
+      this.karma = userData.karma || 0
+      this.mana = userData.mana || 0
     },
+    logout(): void {
+      this.user = null
+      this.token = ''
+      this.apiKey = null
+      this.removeFromLocalStorage('api_key')
+      this.removeFromLocalStorage('token')
+    },
+
+    // Token and API key actions
     setToken(newToken: string): void {
       this.token = newToken
-      localStorage.setItem('token', newToken) // Save to local storage
+      this.saveToLocalStorage('token', newToken)
     },
     setApiKey(apiKey: string): void {
       this.apiKey = apiKey
-      localStorage.setItem('api_key', apiKey) // Save to local storage
+      this.saveToLocalStorage('api_key', apiKey)
     },
+
+    // Loading state actions
+    startLoading() {
+      this.loading = true
+    },
+    stopLoading() {
+      this.loading = false
+    },
+
+    // Error handling actions
+    setError(error: any) {
+      const { message } = errorHandler(error)
+      this.lastError = message || 'An unknown error occurred.' // Ensuring message is always a string
+    },
+    // Local storage actions
+    getFromLocalStorage(key: string): string | null {
+      return typeof window !== 'undefined' ? localStorage.getItem(key) : null
+    },
+    saveToLocalStorage(key: string, value: string): void {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(key, value)
+      }
+    },
+    removeFromLocalStorage(key: string): void {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(key)
+      }
+    },
+
+    // API call utility action
+    async apiCall(endpoint: string, method: string = 'GET', body?: any) {
+      try {
+        const response = await fetch(endpoint, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: body ? JSON.stringify(body) : undefined
+        })
+        if (!response.ok) {
+          const { message } = await response.json()
+          throw new Error(message || 'Network response was not ok')
+        }
+        return await response.json()
+      } catch (error: any) {
+        this.setError(error)
+        throw error
+      }
+    },
+
+    // User-related API actions
     async getUsernames(): Promise<string[]> {
       try {
-        const response = await fetch('/api/users/usernames', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-
-        if (response.ok) {
-          const { usernames } = await response.json()
-          return usernames
+        const { usernames } = await this.apiCall('/api/users/usernames')
+        return usernames
+      } catch (error: any) {
+        this.setError(error)
+        console.error('Failed to fetch usernames:', this.lastError)
+        return []
+      }
+    },
+    async updateUserInfo(updatedUserInfo: Partial<User>) {
+      try {
+        const response = await this.apiCall('/api/users', 'PATCH', updatedUserInfo)
+        if (response.success) {
+          this.setUser(response.user)
+          return { success: true, message: 'User info updated successfully' }
         } else {
-          throw new Error('Failed to fetch usernames')
+          return { success: false, message: response.message }
         }
       } catch (error: any) {
-        const { message } = errorHandler(error)
-        console.error('Failed to fetch usernames:', message)
-        return []
+        this.setError(error)
+        console.error('Failed to update user info:', this.lastError)
+        return { success: false, message: this.lastError }
+      }
+    },
+    async login(credentials: { username: string; password: string }) {
+      this.startLoading()
+      try {
+        const response = await this.apiCall('/api/auth/login', 'POST', credentials)
+        if (response.success) {
+          this.setUser(response.user)
+          this.setToken(response.token)
+          this.setApiKey(response.apiKey)
+          this.stopLoading()
+          return { success: true }
+        } else {
+          this.stopLoading()
+          return { success: false, message: response.message }
+        }
+      } catch (error: any) {
+        this.stopLoading()
+        this.setError(error)
+        return { success: false, message: this.lastError }
       }
     },
     async validate(): Promise<boolean> {
       try {
         const credentials = this.token ? { token: this.token } : { apiKey: this.apiKey }
-        const response = await fetch('/api/auth/validate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(credentials)
-        })
-
-        if (response.ok) {
-          return true
-        } else {
-          throw new Error('Validation failed')
-        }
+        const response = await this.apiCall('/api/auth/validate', 'POST', credentials)
+        return response.ok
       } catch (error: any) {
-        const { message } = errorHandler(error)
-        console.error('Failed to validate:', message)
+        this.setError(error)
+        console.error('Failed to validate:', this.lastError)
         return false
       }
     },
@@ -91,63 +194,49 @@ export const useUserStore = defineStore({
       password?: string
     }): Promise<{ success: boolean; user?: User; token?: string; message?: string }> {
       try {
-        const response = await fetch('/api/users/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(userData)
-        })
-
-        if (response.ok) {
-          console.log('positive response', response)
-          const { user, token, apiKey } = await response.json()
-          this.setUser(user)
-          this.setToken(token)
-          if (apiKey) {
-            this.setApiKey(apiKey)
+        const response = await this.apiCall('/api/users/register', 'POST', userData)
+        if (response.success) {
+          this.setUser(response.user)
+          this.setToken(response.token)
+          if (response.apiKey) {
+            this.setApiKey(response.apiKey)
           }
-          return { success: true, user, token }
+          return { success: true, user: response.user, token: response.token }
         } else {
-          throw new Error('Registration failed. Please try again.')
+          return {
+            success: false,
+            message: response.message || 'An error occurred during registration.'
+          } // Providing a fallback message
         }
       } catch (error: any) {
-        const { message } = errorHandler(error)
-        console.error('Failed to register:', message)
-        return { success: false, message }
+        this.setError(error)
+        console.error('Failed to register:', this.lastError)
+        return { success: false, message: this.lastError || 'An unknown error occurred.' } // Providing a fallback message
       }
     },
+
     async fetchUserByApiKey(): Promise<void> {
       if (!this.apiKey) return
-
       try {
-        // this isn't implemented
-        const response = await fetch('/api/user', {
-          headers: {
-            'x-api-key': this.apiKey
-          }
-        })
-
+        const response = await this.apiCall('/api/user')
         if (response.ok) {
-          this.user = await response.json()
+          this.setUser(response.user)
         } else {
           throw new Error('Failed to fetch user')
         }
       } catch (error: any) {
-        const { message } = errorHandler(error)
-        console.error('Failed to fetch user:', message)
+        this.setError(error)
+        console.error('Failed to fetch user:', this.lastError)
       }
     },
-    logout(): void {
-      this.user = null
-      this.token = ''
-      this.apiKey = null
-      localStorage.removeItem('api_key') // Remove from local storage
-      localStorage.removeItem('token') // Remove from local storage
-    },
+
+    // Lifecycle method to initialize the store
     initializeStore() {
       onMounted(() => {
-        this.apiKey = localStorage.getItem('api_key') // Move localStorage access here
+        this.apiKey = this.getFromLocalStorage('api_key')
+        if (this.apiKey) {
+          this.fetchUserByApiKey()
+        }
       })
     }
   }

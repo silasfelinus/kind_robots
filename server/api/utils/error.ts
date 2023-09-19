@@ -14,7 +14,6 @@ export function errorHandler(error: ErrorHandlerInput): {
     switch (error.code) {
       case 'P2002':
         return { success: false, message: 'Record already exists.', statusCode: 409 }
-      // Add more Prisma error codes as needed
       default:
         return {
           success: false,
@@ -25,8 +24,6 @@ export function errorHandler(error: ErrorHandlerInput): {
   }
 
   if (error instanceof Error) {
-    console.log('Error object:', error)
-    console.log('Error prototype:', Object.getPrototypeOf(error))
     return { success: false, message: error.message, statusCode: 400 }
   }
 

@@ -8,6 +8,7 @@
       >
         <home-link class="flex-grow" />
         <layout-selector class="relative flex-grow" />
+        <login-toggle />
         <!-- Butterfly Toggle -->
         <div class="flex items-center justify-center m-2 flex-grow">
           <butterfly-toggle />

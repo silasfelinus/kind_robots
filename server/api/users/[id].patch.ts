@@ -1,7 +1,6 @@
 import { hashPassword, validatePassword } from '../auth'
 import { errorHandler } from '../utils/error'
 import auth from '../../middleware/auth'
-import prisma from '../utils/prisma'
 import { fetchUserById, updateUser } from '.'
 
 export default defineEventHandler(async (event) => {
@@ -27,9 +26,7 @@ export default defineEventHandler(async (event) => {
 
     console.log('User found, checking for password update.')
 
-    const userAuth = await prisma.userAuth.findUnique({ where: { username: user.username } })
     let hashedPassword
-
     if (data.password) {
       const passwordValidation = validatePassword(data.password)
       if (!passwordValidation.isValid) {
@@ -38,27 +35,13 @@ export default defineEventHandler(async (event) => {
       hashedPassword = await hashPassword(data.password)
     }
 
-    const userAuthData: any = {
-      username: data.username || user.username,
-      email: data.email,
-      password: hashedPassword
-    }
-
-    if (userAuth) {
-      console.log('UserAuth found, updating.')
-      await prisma.userAuth.update({
-        where: { username: user.username },
-        data: userAuthData
-      })
-    } else if (hashedPassword) {
-      console.log('UserAuth not found, creating new UserAuth with password.')
-      await prisma.userAuth.create({
-        data: userAuthData
-      })
-    }
-
-    // Destructure the password field from the data object
+    // Destructure the password field from the data object to avoid updating it directly
     const { password, ...restData } = data
+
+    // If a hashed password is generated, add it to the data to be updated
+    if (hashedPassword) {
+      restData.password = hashedPassword
+    }
 
     // Log the data to be updated in User model
     console.log('Updating the following fields in User model:', JSON.stringify(restData, null, 2))
@@ -72,7 +55,7 @@ export default defineEventHandler(async (event) => {
     console.error('Full error:', JSON.stringify(error, null, 2)) // Log the full error
     return {
       success: false,
-      message: `Failed to update User with id ${id}. Reason: ${errorHandler(error)}`
+      message: `Failed to update User with id ${id}. Reason: ${errorHandler(error).message}` // Updated to correctly extract message
     }
   }
 })

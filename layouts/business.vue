@@ -3,7 +3,9 @@
     <!-- Navbar -->
     <nav class="flex justify-between items-center p-4 bg-primary text-default">
       <div class="logo text-2xl font-bold">KindRobots</div>
+      <home-link />
       <layout-selector />
+      <login-toggle />
       <theme-toggle />
       <div class="login cursor-pointer">{{ isLoggedIn ? 'Logout' : 'Login' }}</div>
       <h1 class="text-lg font-semibold">The {{ page.title }} Room</h1>
@@ -27,7 +29,8 @@
         alt="Main Image"
         class="mx-auto my-4 rounded-lg shadow-md"
       />
-      <sort-nav />
+      <!-- Footer -->
+      <footer-toggle />
       KindRobots © 2023
     </footer>
   </div>

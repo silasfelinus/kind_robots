@@ -1,4 +1,4 @@
-import { validateUserCredentials } from '.' // Adjust the path accordingly
+import { validateUserCredentials } from '.'
 
 export default defineEventHandler(async (event) => {
   try {

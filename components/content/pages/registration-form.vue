@@ -6,7 +6,6 @@
       <a href="/dashboard" class="text-accent">go to the dashboard</a> or
       <a href="#" class="text-warning" @click="userStore.logout">log out</a>?
     </div>
-    <login-toggle />
     <form class="space-y-4 w-full max-w-sm" @submit.prevent="register">
       <div v-if="step === 1">
         <h1 class="text-4xl font-bold text-primary mb-4">Pick a Cool Username</h1>

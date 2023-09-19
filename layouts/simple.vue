@@ -3,9 +3,15 @@
     <home-link />
     <!-- Toggle Button -->
     <layout-selector />
+    <login-window />
 
     <slot />
     <streaming-tooltip :tooltip="page.tooltip" />
+
+    <!-- Footer -->
+    <footer>
+      <highlight-nav />
+    </footer>
   </div>
 </template>
 

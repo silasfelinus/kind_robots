@@ -19,11 +19,9 @@ export function generateApiKey(): string {
 
 export async function validateApiKey(apiKey: string) {
   try {
-    // Fetch the user associated with the API key from the database
-    const userAuth = await prisma.userAuth.findFirst({ where: { apiKey } })
+    const user = await prisma.user.findFirst({ where: { apiKey } }) // Adjusted to use the User model
 
-    // If a user is found and the API key matches, the API key is valid
-    if (userAuth) {
+    if (user) {
       return { success: true, message: '🚀 API key is valid. You are good to go!' }
     } else {
       throw new Error('API key is invalid or not found.')
@@ -34,6 +32,7 @@ export async function validateApiKey(apiKey: string) {
     return { success: false, message: `🚀 Mission abort! ${message}` }
   }
 }
+
 export async function createToken(user: any, apiKey: string): Promise<string> {
   try {
     const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'))
@@ -77,7 +76,6 @@ export async function createUserWithAuth(
     if ((await userExists(username, 'username')) || (email && (await userExists(email, 'email')))) {
       return { success: false, message: 'Username or email already exists.' }
     }
-    console.log('Password to validate:', password)
 
     const passwordValidation = validatePassword(password)
     if (!passwordValidation.isValid) {
@@ -85,14 +83,13 @@ export async function createUserWithAuth(
     }
 
     const hashedPassword = await hashPassword(password)
-    const newUser = await prisma.user.create({ data: { username, email: email ?? undefined } })
     const apiKey = generateApiKey()
 
-    await prisma.userAuth.create({
+    const newUser = await prisma.user.create({
       data: {
         username,
         email: email ?? undefined,
-        password: hashedPassword,
+        password: hashedPassword, // Storing password in the User model
         apiKey
       }
     })
@@ -105,18 +102,17 @@ export async function createUserWithAuth(
 
 export async function validateUserCredentials(username: string, password: string) {
   try {
-    const userAuth = await prisma.userAuth.findUnique({ where: { username } })
-    if (!userAuth) {
+    const user = await prisma.user.findUnique({ where: { username } }) // Adjusted to use the User model
+
+    if (!user) {
       console.log('Debug: User not found')
       return null
     }
 
-    const isPasswordValid = await bcryptCompare(password, userAuth.password!)
+    const isPasswordValid = await bcryptCompare(password, user.password!) // Adjusted to use the User model
     if (!isPasswordValid) {
       return null
     }
-
-    const user = await prisma.user.findUnique({ where: { username } })
 
     const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'))
 
@@ -158,7 +154,7 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function addPasswordToExistingUser(username: string, password: string) {
   try {
-    const existingUser = await userExists(username, 'username')
+    const existingUser = await prisma.user.findUnique({ where: { username } }) // Adjusted to use the User model
     if (!existingUser) {
       return { success: false, message: 'Username does not exist.' }
     }
@@ -169,13 +165,8 @@ export async function addPasswordToExistingUser(username: string, password: stri
     }
 
     const hashedPassword = await hashPassword(password)
-    const existingUserAuth = await prisma.userAuth.findUnique({ where: { username } })
 
-    if (existingUserAuth) {
-      await prisma.userAuth.update({ where: { username }, data: { password: hashedPassword } })
-    } else {
-      await prisma.userAuth.create({ data: { username, password: hashedPassword } })
-    }
+    await prisma.user.update({ where: { username }, data: { password: hashedPassword } }) // Adjusted to update the User model
 
     return { success: true }
   } catch (error: any) {

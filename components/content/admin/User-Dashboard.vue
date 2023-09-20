@@ -3,63 +3,63 @@
     <h1 class="text-2xl font-semibold mb-4">User Dashboard</h1>
 
     <div class="flex items-center space-x-4 mb-6">
-      <img
-        :src="user.avatarImage"
-        :alt="user.username + ' avatar'"
-        class="w-32 h-32 rounded-full"
-      />
+      <user-avatar />
       <div>
-        <p class="text-lg font-medium">Welcome, {{ user.username }}</p>
+        <p class="text-lg font-medium">
+          Welcome, {{ user?.username || 'Kind Guest' }}
+          <span v-if="!isLoggedIn" class="text-sm text-gray-500 ml-2">(Not logged in)</span>
+        </p>
         <div class="flex space-x-4 mt-2">
           <div class="flex items-center space-x-2">
             <icon name="game-icons:health-potion" class="text-lg" />
-            <span>Karma: {{ user.karma }}</span>
+            <span>Karma: {{ user?.karma || 0 }}</span>
           </div>
           <div class="flex items-center space-x-2">
             <icon name="game-icons:standing-potion" class="text-lg" />
-            <span>Mana: {{ user.mana }}</span>
+            <span>Mana: {{ user?.mana || 0 }}</span>
           </div>
         </div>
       </div>
-      <button class="bg-warning p-2 rounded-lg text-white text-lg" @click="logout">Logout</button>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Mana Purchase Section (Not Implemented) -->
-      <div class="bg-primary p-4 rounded-2xl flex items-center justify-center">
-        <span class="text-white text-lg">Mana Purchase (Coming Soon)</span>
+      <div v-if="isLoggedIn">
+        <button class="bg-warning p-2 rounded-lg text-white text-lg" @click="logout">Logout</button>
+      </div>
+      <div v-else>
+        <button class="bg-primary p-2 rounded-lg text-white text-lg" @click="showLogin = true">
+          Login
+        </button>
       </div>
 
-      <!-- Change Data Section (Not Implemented) -->
-      <div class="bg-secondary p-4 rounded-2xl flex items-center justify-center">
-        <span class="text-white text-lg">Change Data (Coming Soon)</span>
-      </div>
-
-      <!-- Change User Avatar Section (Not Implemented) -->
-      <div class="bg-accent p-4 rounded-2xl flex items-center justify-center">
-        <span class="text-white text-lg">Change Avatar (Coming Soon)</span>
-      </div>
-
-      <!-- Additional Section (Feel free to replace with any other feature) -->
-      <div class="bg-info p-4 rounded-2xl flex items-center justify-center">
-        <span class="text-white text-lg">Additional Feature (Coming Soon)</span>
-      </div>
+      <login-form v-if="showLogin" @close="showLogin = false" />
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
+<script lang="ts" setup>
+import { ref, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
-const user = ref(null)
+const user = computed(() => userStore.user)
+const isLoggedIn = computed(() => userStore.isLoggedIn)
 
-onMounted(() => {
-  user.value = userStore.user
+const showLogin = ref(false)
+const isLoading = ref(false)
+const errorMessage = ref('')
+
+watch(isLoggedIn, (newValue) => {
+  if (newValue) {
+    showLogin.value = false
+  }
 })
 
-const logout = () => {
-  userStore.logout()
+const logout = async () => {
+  try {
+    isLoading.value = true
+    await userStore.logout()
+  } catch (error: any) {
+    errorMessage.value = 'Failed to logout. Please try again.'
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>

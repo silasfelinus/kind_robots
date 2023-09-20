@@ -11,7 +11,7 @@
 
     <!-- Subtitle -->
     <div class="text-center bg-primary rounded-2xl border p-2 m-2 shadow-lg">
-      <h1 v-if="page.title" class="text-2xl">{{ 'The ' + page.title + ' Room' }}</h1>
+      <h1 v-if="page.title" class="text-2xl">The {{ page.title }} Room'</h1>
       <h1 v-else class="text-2xl text-accent">🌈 Fetching details...</h1>
     </div>
 

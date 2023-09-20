@@ -246,6 +246,19 @@ const register = async () => {
     if (response.success) {
       statusMessage.value = 'Welcome to Kind Robots!'
       status.value = 'Welcome to Kind Robots!'
+
+      // Automatically log the user in
+      try {
+        const loginData: { username: string; password?: string } = { username: username.value }
+        if (password.value) {
+          loginData.password = password.value
+        }
+        await userStore.login(loginData)
+      } catch (loginError) {
+        // Handle login error (if any)
+        const { message } = errorHandler({ error: loginError })
+        error.value = message
+      }
     } else {
       status.value = ''
       error.value = 'Registration failed. Please try again.'

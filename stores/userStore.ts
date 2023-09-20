@@ -9,8 +9,6 @@ interface UserState {
   apiKey: string | null
   loading: boolean
   lastError: string | null
-  karma: number | null
-  mana: number | null
 }
 
 export const useUserStore = defineStore({
@@ -22,9 +20,7 @@ export const useUserStore = defineStore({
     token: '',
     apiKey: typeof window !== 'undefined' ? localStorage.getItem('api_key') : null,
     loading: false,
-    lastError: null,
-    karma: null,
-    mana: null
+    lastError: null
   }),
 
   // Getters are functions that compute derived state based on the store's state
@@ -62,9 +58,11 @@ export const useUserStore = defineStore({
   actions: {
     // User actions
     setUser(userData: User): void {
-      this.user = userData
-      this.karma = userData.karma || 0
-      this.mana = userData.mana || 0
+      this.user = {
+        ...userData,
+        karma: userData.karma || 0,
+        mana: userData.mana || 0
+      }
     },
     logout(): void {
       this.user = null
@@ -157,7 +155,7 @@ export const useUserStore = defineStore({
         return { success: false, message: this.lastError }
       }
     },
-    async login(credentials: { username: string; password: string }) {
+    async login(credentials: { username: string; password?: string }) {
       this.startLoading()
       try {
         const response = await this.apiCall('/api/auth/login', 'POST', credentials)

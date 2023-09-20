@@ -193,6 +193,19 @@ model Log {
   username  String? // Optional, if you want to store the username
 }
 
+enum StringType {
+  TAG //single unit tag phrase 
+  PROMPT //combined nlp prompt message
+  WILDCARD //list for randomized generations
+  RESPONSE //message response nlp to human
+  MEDIA_URL // Media url
+  URL // generic web url
+  CODE //validated codewall
+  ERROR // An Error message125m.
+  MESSAGE // Generic message
+  POST // generic feed post
+}
+
 //raw text data for API processing
 // prompt is colloquial for ai-art modeling text data
 model Prompt {
@@ -255,17 +268,6 @@ model Reward {
   rarity     Int      @default(50)
 }
 
-enum StringType {
-  TAG //single unit tag phrase 
-  PROMPT //combined nlp prompt message
-  WILDCARD //list for randomized generations
-  RESPONSE //message response nlp to human
-  MEDIA_URL // Media url
-  URL // generic web url
-  CODE //validated codewall
-  ERROR // An Error message125m.
-}
-
 // Todo model
 model Todo {
   id        Int      @id @default(autoincrement())
@@ -312,7 +314,7 @@ model User {
   address2            String?
   city                String?
   state               String?
-  country             String? 
+  country             String?
   timezone            String?
   phone               String?
   languages           String? // Consider using String[] if using PostgreSQL
@@ -324,8 +326,8 @@ model User {
   discordUrl          String?
   kindrobotsUrl       String?
   // gamification
-  mana                Int? // rate-limited user tokens
-  karma               Int? // user experience for website interactions
+  mana                Int?       @default(1000) // rate-limited user tokens
+  karma               Int?       @default(0) // user experience for website interactions
   //Auth
   apiKey              String?    @unique
   password            String?

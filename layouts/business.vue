@@ -7,7 +7,6 @@
       <layout-selector />
       <login-toggle />
       <theme-toggle />
-      <div class="login cursor-pointer">{{ isLoggedIn ? 'Logout' : 'Login' }}</div>
       <h1 class="text-lg font-semibold">The {{ page.title }} Room</h1>
       <h2 class="text-md font-semibold">{{ page.subtitle }}</h2>
     </nav>
@@ -38,12 +37,9 @@
 
 <script setup lang="ts">
 const { page } = useContent()
-useContentHead(page)
 
 const pageTitle = ref('Kind Robots Presents: ' + page.title || 'Kind Robots')
 
-const isLoggedIn = ref<boolean>(false)
-const showDescription = ref<boolean>(true)
 const showTooltip = ref<boolean>(true)
 
 interface GalleryResponse {

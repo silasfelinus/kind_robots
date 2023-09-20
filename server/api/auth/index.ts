@@ -100,7 +100,7 @@ export async function createUserWithAuth(
   }
 }
 
-export async function validateUserCredentials(username: string, password: string) {
+export async function validateUserCredentials(username: string, password?: string) {
   try {
     const user = await prisma.user.findUnique({ where: { username } }) // Adjusted to use the User model
 
@@ -109,8 +109,14 @@ export async function validateUserCredentials(username: string, password: string
       return null
     }
 
-    const isPasswordValid = await bcryptCompare(password, user.password!) // Adjusted to use the User model
-    if (!isPasswordValid) {
+    // Check if the user has a password set and if it matches the provided password
+    if (user.password && password) {
+      const isPasswordValid = await bcryptCompare(password, user.password) // Adjusted to use the User model
+      if (!isPasswordValid) {
+        return null
+      }
+    } else if (user.password && !password) {
+      // If the user has a password set but none was provided, return null
       return null
     }
 

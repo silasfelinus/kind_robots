@@ -8,17 +8,12 @@
         class="w-8 h-8 rounded-full mr-2"
         alt="Avatar"
       />
-      <icon name="tabler:home" class="text-base-200 text-2xl" />
-      <span class="ml-2 text-base-200">{{ welcomeMessage }}</span>
-      <NuxtLink
-        v-if="isLoggedIn && store.role === 'admin'"
-        to="/admin"
-        class="ml-2 text-accent underline"
+      <icon name="tabler:home" class="text-2xl" />
+      <span class="ml-2">{{ welcomeMessage }}</span>
+      <NuxtLink v-if="isLoggedIn && store.role === 'admin'" to="/admin" class="ml-2 underline"
         >Admin</NuxtLink
       >
-      <NuxtLink v-if="isLoggedIn" to="/dashboard" class="ml-2 text-accent underline"
-        >Dashboard</NuxtLink
-      >
+      <NuxtLink v-if="isLoggedIn" to="/dashboard" class="ml-2 underline">Dashboard</NuxtLink>
     </div>
 
     <!-- Login Dropdown -->

@@ -2,6 +2,7 @@
   <div class="flex flex-col min-h-screen bg-base-100 overflow-hidden relative">
     <!-- Header -->
     <site-header />
+    <layout-selector class="absolute right-1 top-1" />
     <!-- Main Content -->
     <main>
       <slot />
@@ -9,7 +10,7 @@
     <!-- Footer -->
     <footer class="p-4 bg-primary text-black text-center">
       <sort-nav />
-      <login-toggle />
+      <user-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
       KindRobots © 2023
       <screen-fx />
       <home-link />

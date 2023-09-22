@@ -4,9 +4,9 @@
     <header
       class="flex justify-between items-center bg-primary rounded-2xl border p-0.5 m-2 relative shadow-lg"
     >
-      <home-link />
-      <layout-selector class="relative" />
-      <login-toggle />
+      <navigation-row />
+      <layout-selector class="absolute right-1 top-1" />
+      <user-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
       <!-- Title and Subtitle -->
       <h1 class="text-4xl text-default font-bold">Kind Robots</h1>
       <div class="flex flex-col items-center justify-center p-0.5 m-2 relative">

@@ -1,8 +1,8 @@
 <template>
   <div :class="['flex flex-col min-h-screen bg-base']">
-    <home-link />
-    <layout-selector />
-    <login-toggle />
+    <navigation-row />
+    <layout-selector class="absolute right-1 top-1" />
+    <user-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
     <!-- Navbar -->
     <nav class="flex justify-between items-center p-4 bg-primary text-default">
       <div class="logo text-3xl font-extrabold">KindRobots</div>

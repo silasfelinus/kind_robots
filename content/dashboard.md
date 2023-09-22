@@ -2,7 +2,7 @@
 title: 'User Dashboard'
 subtitle: 'Welcome Kind Human'
 description: User Dashboard, currently a Work-in-Progress
-layout: default
+layout: simple
 image: botcafe1.webp
 gallery: wonderbot
 tags: ['home']
@@ -13,3 +13,5 @@ sort: icon
 underConstruction: true
 ---
 :user-dashboard
+
+:user-navigation

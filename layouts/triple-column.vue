@@ -6,9 +6,9 @@
       <div
         class="flex-grow flex items-center h-[9rem] rounded-2xl border bg-accent p-4 transition-all duration-300 space-x-2 mr-2"
       >
-        <home-link class="flex-grow" />
-        <layout-selector class="relative flex-grow" />
-        <login-toggle />
+        <navigation-row />
+        <layout-selector class="absolute right-1 top-1 z-50" />
+        <user-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
         <!-- Butterfly Toggle -->
         <div class="flex items-center justify-center m-2 flex-grow">
           <butterfly-toggle />
@@ -91,7 +91,6 @@
 import { ref } from 'vue'
 
 const { page } = useContent()
-useContentHead(page)
 
 const isScreenFXOpen = ref(true)
 const toggleScreenFX = () => {

@@ -12,55 +12,55 @@ export const userNavigation: navigationData[] = [
     componentName: 'slogan-maker',
     image: '/images/avatars/brain1.webp',
     description: 'Generate and share brainstorms',
-    path: '/brainstorm'
+    path: '/user/brainstorm'
   },
   {
     title: 'Weirdlandia',
     componentName: 'game-generator',
     image: '/images/weirdlandia/weird-32.png',
     description: 'Have a weird adventure!',
-    path: '/weirdlandia'
+    path: '/user/adventure'
   },
   {
     title: 'BotCafe',
     componentName: 'bot-cafe',
     image: '/images/botcafe/botcafe-268.webp',
     description: 'Chat with our friendly bots',
-    path: '/botcafe'
+    path: '/user/botcafe'
   },
   {
     title: 'ArtMaker',
     componentName: 'ArtMakerComponent',
     image: '/images/fantasycore/fantasycore-747.webp',
     description: 'Create beautiful art effortlessly',
-    path: '/artmaker'
+    path: '/user/artmaker'
   },
   {
     title: 'Choose your Fate',
     componentName: 'dilema-chooser',
     image: '/images/fantasycore/fantasycore-749.webp',
     description: 'Select from 2 moral quandaries',
-    path: '/fate'
+    path: '/user/fate'
   },
   {
     title: 'Art Critic',
     componentName: 'art-critic',
     image: '/images/cafepurr/cafepurr-395.webp',
     description: 'Rate our gallery art. Is it art?',
-    path: '/critic'
+    path: '/user/critic'
   },
   {
     title: 'Chat with Ami',
     componentName: 'chat-with-ami',
     image: '/images/wonderchest/wonderchest-1691.webp',
     description: 'Meet AMI, the anti-malaria intelligence, and create slogans for her campaign',
-    path: '/amibot'
+    path: '/user/amibot'
   },
   {
     title: 'User Profile',
     componentName: 'profile-manager',
     image: '/images/redbubble/redbubble-1141.webp',
     description: 'Customize your public data',
-    path: '/profile'
+    path: '/user/profile'
   }
 ]

@@ -3,15 +3,15 @@
     <!-- Navbar -->
     <nav class="flex justify-between items-center p-4 bg-primary text-default">
       <div class="logo text-2xl font-bold">KindRobots</div>
-      <home-link />
-      <layout-selector />
-      <login-toggle />
+      <navigation-row />
+      <layout-selector class="absolute right-1 top-1" />
+      <user-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
       <theme-toggle />
       <h1 class="text-lg font-semibold">The {{ page.title }} Room</h1>
       <h2 class="text-md font-semibold">{{ page.subtitle }}</h2>
     </nav>
     <!-- Display tooltip -->
-    <div v-if="showTooltip" class="mt-4 p-2 text-xl rounded-md bg-info text-default">
+    <div v-if="showTooltip" class="mt-4 p-2 text-xl rounded-2xl border bg-secondary">
       {{ page.tooltip }}
     </div>
 

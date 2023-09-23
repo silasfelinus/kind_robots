@@ -4,9 +4,7 @@
     <header
       class="flex justify-between items-center rounded-2xl border p-0.5 m-2 relative shadow-lg"
     >
-      <user-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
-      <navigation-row />
-      <layout-selector class="absolute right-1 top-1" />
+      <smart-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
       <h1 class="text-4xl text-default font-bold">Kind Robots</h1>
     </header>
 

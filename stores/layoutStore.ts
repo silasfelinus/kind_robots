@@ -7,8 +7,7 @@ export const allowedLayouts = [
   'default',
   'desktop',
   'mobile',
-  'simple',
-  'triple-column'
+  'simple'
 ]
 
 interface LayoutState {

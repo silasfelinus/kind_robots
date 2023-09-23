@@ -4,7 +4,7 @@ import prisma from '../utils/prisma'
 // Function to get a random reward from the API
 const getRandomReward = async (): Promise<Prisma.RewardCreateInput> => {
   try {
-    const response = await fetch('http://localhost:3000/api/rewards/random')
+    const response = await fetch('/api/rewards/random')
     if (!response.ok) {
       throw new Error('Failed to fetch random reward')
     }
@@ -27,7 +27,7 @@ export async function createTodo(data: Partial<Todo>): Promise<Todo> {
 
   // If no rewardId is provided, fetch a random one from the API
   if (!data.rewardId) {
-    const response = await fetch('http://localhost:3000/api/rewards/random')
+    const response = await fetch('/api/rewards/random')
     if (response.ok) {
       const randomReward = await response.json()
       rewardId = randomReward.reward.id // Navigate through the 'reward' object to get the 'id'

@@ -12,4 +12,4 @@ tooltip: Tooltip
 sort: text
 underConstruction: true
 ---
-Bot Cafe Here
+:bot-screen

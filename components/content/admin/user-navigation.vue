@@ -19,16 +19,18 @@
       </div>
     </div>
     <div class="flex flex-wrap">
-      <div v-for="item in userNavigation" :key="item.path" :class="itemClass">
-        <div class="bg-base-200 rounded-2xl p-4 flex flex-col items-center">
-          <img :src="item.image" alt="" class="mb-2" />
+      <nuxt-link v-for="item in userNavigation" :key="item.path" :to="item.path" :class="itemClass">
+        <div
+          class="bg-base-200 rounded-2xl p-4 flex flex-col items-center cursor-pointer hover:bg-accent transition"
+        >
+          <img :src="item.image" alt="" class="mb-2 rounded-2xl border" />
           <div class="text-lg font-bold mb-2">{{ item.title }}</div>
           <div class="text-sm mb-2">{{ item.description }}</div>
-          <nuxt-link :to="item.path" class="bg-primary text-white py-1 px-4 rounded">
+          <button class="bg-primary text-white py-1 px-4 rounded hover:bg-secondary transition">
             Go
-          </nuxt-link>
+          </button>
         </div>
-      </div>
+      </nuxt-link>
     </div>
   </div>
 </template>

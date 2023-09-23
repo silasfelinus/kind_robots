@@ -1,10 +1,7 @@
 <template>
   <div class="bg-base-400">
-    <div class="flex flex-row max-v-10%">
-      <user-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
-      <navigation-row class="flex flex-row" />
-      <!-- Toggle Button -->
-      <layout-selector class="flex flex-row" />
+    <div class="flex flex-row">
+      <smart-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
     </div>
     <div>
       <div v-if="page.tooltip">

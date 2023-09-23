@@ -2,10 +2,10 @@
   <div class="flip-card" @click="flipped = !flipped">
     <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
       <div class="flip-card-front">
-        <img :src="currentImage" alt="Avatar" class="avatar-img" />
+        <img :src="currentImage || defaultImage" alt="Avatar" class="avatar-img" />
       </div>
       <div class="flip-card-back">
-        <img v-if="currentBot" :src="currentBot?.avatarImage" alt="New Avatar" class="avatar-img" />
+        <img :src="currentBot?.avatarImage || defaultImage" alt="New Avatar" class="avatar-img" />
       </div>
     </div>
   </div>
@@ -18,14 +18,15 @@ import { useBotStore } from '@/stores/botStore'
 const botStore = useBotStore()
 botStore.loadStore()
 const currentBot = computed(() => botStore.currentBot)
-const currentImage = ref(currentBot.value ? currentBot.value.avatarImage : undefined)
+const defaultImage = '/images/bot.webp'
+const currentImage = ref(currentBot.value ? currentBot.value.avatarImage : defaultImage)
 const flipped = ref(false)
 
 watchEffect(() => {
   if (currentBot.value?.avatarImage !== currentImage.value) {
     flipped.value = !flipped.value
     nextTick(() => {
-      currentImage.value = currentBot.value ? currentBot.value.avatarImage : undefined
+      currentImage.value = currentBot.value ? currentBot.value.avatarImage : defaultImage
     })
   }
 })

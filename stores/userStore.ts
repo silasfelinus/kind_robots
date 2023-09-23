@@ -47,10 +47,13 @@ export const useUserStore = defineStore({
       return this.user ? this.user.Role : 'GUEST'
     },
     avatarImage(): string {
-      return this.user?.avatarImage || '/images/botcafe.webp'
+      return this.user?.avatarImage || '/images/kindart.webp'
     },
     bio(): string {
       return this.user?.bio || 'I was born and then things happened and now I am here.'
+    },
+    milestones(): number[] {
+      return this.user?.milestones || []
     }
   },
 

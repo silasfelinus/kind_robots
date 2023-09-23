@@ -1,19 +1,31 @@
 <template>
   <div>
-    <img :src="avatarImage" :alt="username + ' avatar'" class="w-16 h-16 rounded-full" />
+    <img
+      :src="avatarUrl"
+      :alt="username + ' avatar'"
+      class="min-w-8 min-h-8 rounded-full"
+      @error="setDefaultAvatar"
+    />
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useUserStore } from '../stores/userStore'
+<script lang="ts" setup>
+import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
-let avatarImage = ref(userStore.avatarImage)
-let username = ref(userStore.username)
+const username = ref(userStore.username)
+
+const defaultAvatar = '/images/kindart.webp' // Replace with your default avatar path
+const initialAvatarUrl = computed(() => userStore.avatarImage || defaultAvatar)
+const avatarUrl = ref(initialAvatarUrl.value)
+
+const setDefaultAvatar = () => {
+  avatarUrl.value = defaultAvatar
+}
 
 onMounted(() => {
-  avatarImage.value = userStore.avatarImage
   username.value = userStore.username
+  avatarUrl.value = initialAvatarUrl.value
 })
 </script>

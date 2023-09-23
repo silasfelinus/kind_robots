@@ -8,7 +8,7 @@ interface SpotifyData {
 }
 
 export async function getSpotifyData(username: string) {
-  const userAuth = await prisma.userAuth.findUnique({
+  const userAuth = await prisma.user.findUnique({
     where: {
       username
     },
@@ -22,7 +22,7 @@ export async function getSpotifyData(username: string) {
 }
 
 export async function updateSpotifyData(username: string, spotifyData: SpotifyData) {
-  const userAuth = await prisma.userAuth.update({
+  const userAuth = await prisma.user.update({
     where: {
       username
     },

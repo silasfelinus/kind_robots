@@ -1,65 +1,40 @@
 <template>
   <div class="flex flex-col min-h-screen bg-base-100 overflow-hidden relative">
     <!-- Header -->
-    <site-header />
-    <layout-selector class="absolute right-1 top-1" />
+    <header
+      class="site-header w-full bg-gradient-to-r from-primary to-primary-light text-default shadow-md px-4 py-1 sm:px-6 lg:px-8"
+    >
+      <div class="container mx-auto flex items-center justify-between">
+        <smart-dashboard
+          class="flex flex-row bg-gradient-to-r from-primary to-primary-light border rounded-2xl p-2 m-1"
+        />
+        <bot-selector />
+        <theme-toggle />
+        <avatar-image class="text-xl font-bold" />
+        <nav class="space-x-4">
+          <!-- AMI Link -->
+          <ami-link class="z-190 fixed bottom-4 right-4 md:relative md:bottom-auto md:right-auto" />
+        </nav>
+      </div>
+    </header>
     <!-- Main Content -->
     <main>
       <slot />
     </main>
     <!-- Footer -->
-    <footer class="p-4 bg-primary text-black text-center">
+    <footer class="p-4 bg-gradient-to-r from-primary to-primary-light text-black text-center">
       <sort-nav />
-      <user-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
       KindRobots © 2023
       <screen-fx />
-      <home-link />
     </footer>
 
     <!-- Tooltip Popup -->
-    <div class="absolute bottom-4 right-4">
+    <div>
       <streaming-tooltip :tooltip="page.tooltip" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
-
 const { page } = useContent()
 useContentHead(page)
-
-const mainImage = ref('/images/' + page.image ?? '/images/kindtitle.webp') // Fallback image
-const headerImage = ref('/images/kindtitle.webp')
-const isLoading = ref(false)
-const hasError = ref(false)
-const randomImage = ref()
-
-onMounted(async () => {
-  try {
-    isLoading.value = true
-    headerImage.value = page.image ?? '/images/kindtitle.webp' // Fallback header image
-    const response = await axios.get(
-      `https://kindrobots.org/api/gallery/random/name/${page.gallery}`
-    )
-    randomImage.value = response.data.url
-  } catch (error) {
-    console.error('Failed to fetch random image:', error)
-    hasError.value = true
-  } finally {
-    isLoading.value = false
-  }
-})
 </script>
-
-<style scoped>
-/* Flip card transition */
-.flip-card-enter-active,
-.flip-card-leave-active {
-  transition: transform 1s;
-}
-.flip-card-enter,
-.flip-card-leave-to {
-  transform: rotateY(180deg);
-}
-</style>

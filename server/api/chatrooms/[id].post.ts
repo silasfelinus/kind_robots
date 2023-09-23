@@ -20,11 +20,6 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: 'Chat room not found' }
     }
 
-    if (chatRoom.inactive) {
-      // Updated to check the correct field
-      return { success: false, message: 'Chat room is inactive' }
-    }
-
     const newMessage = await prisma.message.create({
       data: {
         content,

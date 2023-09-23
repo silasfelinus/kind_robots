@@ -3,12 +3,12 @@
     class="relative flex flex-col items-center bg-base-200 rounded-2xl transition-all ease-in-out"
     :class="{
       'h-[10vh] transition-duration-300': !isExtended,
-      'h-[40vh] transition-duration-1000': isExtended
+      'h-[40vh] transition-duration-300': isExtended
     }"
   >
     <!-- Toggle Button -->
     <div
-      class="transition duration-600 ease-in-out absolute bg-accent top-0 left-1/3 transform -translate-x-1/3 bg-base-400 border rounded-2xl cursor-pointer shadow-lg p-2 z-50"
+      class="transition duration-600 ease-in-out absolute bottom-0 right-0 transform -translate-x-1/3 rounded-2xl cursor-pointer shadow-lg p-2 z-50 m-4"
       @click.stop="toggleExtend"
     >
       <icon
@@ -40,12 +40,6 @@
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />
-        <div
-          v-if="page._path === $route.path"
-          class="flex items-center mt-1 text-xl rounded-2xl border bg-secondary p-1 top-0 center space-x-5 absolute"
-        >
-          You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
-        </div>
         <!-- Compact View -->
         <div v-if="!isExtended" class="flex flex-row items-center space-x-2">
           <icon :name="page.icon" class="text-3xl" />
@@ -75,6 +69,12 @@
             />
           </div>
         </div>
+        <div
+          v-if="page._path === $route.path"
+          class="flex items-center mt-1 text-xl rounded-2xl border bg-secondary p-1 bottom-12 center space-x-5 absolute"
+        >
+          You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
+        </div>
       </NuxtLink>
     </div>
 
@@ -85,8 +85,6 @@
     >
       <support-nav />
       <construction-nav />
-
-      <highlight-pages />
     </div>
   </div>
 </template>

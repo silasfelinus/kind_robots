@@ -61,6 +61,9 @@ enum Role {
   DESIGNER
 }
 
+// Brainstorm / Pitch
+// a single concept with 
+
 // ***BOT
 // our modular promptbots
 // the meat-and-potatoes of our tech interactibles
@@ -161,6 +164,35 @@ model Media {
   negTemplate  String?
   clipData     String?
   deepboroData String?
+}
+
+// milestones are user-experience records
+model Milestone {
+  id              Int               @id @default(autoincrement())
+  label           String
+  triggerCode     String
+  message         String
+  tooltip         String?           @default("this has not been revealed")
+  icon            String            @default("mdi:milestone-add")
+  karma           Int               @default(100)
+  isRepeatable    Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  MilestoneRecord MilestoneRecord[]
+  isActive        Boolean           @default(false)
+  pageHint        String?
+  subtleHint      String?
+}
+
+// logs milestone rewards
+model MilestoneRecord {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  milestoneId Int
+  userId      Int
+  User        User      @relation(fields: [userId], references: [id])
+  Milestone   Milestone @relation(fields: [milestoneId], references: [id])
 }
 
 // Public and private salons hosted by users
@@ -299,16 +331,16 @@ model TrainingLine {
 
 //help migrate everything to just use User
 model User {
-  id                  Int        @id @unique @default(autoincrement())
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
-  Role                Role       @default(USER)
-  username            String     @unique
-  email               String?    @unique
+  id                  Int               @id @unique @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  Role                Role              @default(USER)
+  username            String            @unique
+  email               String?           @unique
   emailVerified       DateTime?
-  questPoints         Int        @default(0)
+  questPoints         Int               @default(0)
   name                String?
-  bio                 String?    @default("I was born and then things happened and now I'm here.")
+  bio                 String?           @default("I was born and then things happened and now I'm here.")
   birthday            DateTime?
   address1            String?
   address2            String?
@@ -318,7 +350,7 @@ model User {
   timezone            String?
   phone               String?
   languages           String? // Consider using String[] if using PostgreSQL
-  avatarImage         String?    @default("/images/botcafe.webp")
+  avatarImage         String?           @default("/images/botcafe.webp")
   // Social Media
   instagramUrl        String?
   twitterUrl          String?
@@ -326,10 +358,10 @@ model User {
   discordUrl          String?
   kindrobotsUrl       String?
   // gamification
-  mana                Int?       @default(1000) // rate-limited user tokens
-  karma               Int?       @default(0) // user experience for website interactions
+  mana                Int?              @default(1000) // rate-limited user tokens
+  karma               Int?              @default(0) // user experience for website interactions
   //Auth
-  apiKey              String?    @unique
+  apiKey              String?           @unique
   password            String?
   spotifyAccessToken  String?
   spotifyRefreshToken String?
@@ -348,6 +380,7 @@ model User {
   Model               Model[]
   Todo                Todo[]
   Rewards             Reward[]
+  MilestoneRecord     MilestoneRecord[]
 }
 
 //live chat history

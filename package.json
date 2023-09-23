@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "kind-robots",
   "private": true,
   "scripts": {
     "prisma": "npx prisma studio",

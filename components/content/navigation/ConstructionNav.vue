@@ -4,8 +4,7 @@
     style="overflow: visible; z-index: 0"
   >
     <div
-      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-secondary border rounded-2xl transform -translate-x-1/2 mb-1 px-1 top-0 absolute z-50 pointer-events-none"
-      style="left: 50%; transform: translateX(-50%)"
+      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-secondary border rounded-2xl transform -translate-x-1/3 mb-1 px-1 top-0 absolute z-50 pointer-events-none"
     >
       Under Construction
       <icon name="line-md:construction" class="text-2xl ml-2" />

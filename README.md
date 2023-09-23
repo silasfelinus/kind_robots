@@ -142,7 +142,7 @@ Tag: [id, name]
 User: [id, email, userName, realName]
 Wildcard: [id, name, data]
 
-[TODOS]
+[TODOS] (outdated)
 
 Add Prisma CRUD, starting with Tag
 Test CRUD on wildcard database.

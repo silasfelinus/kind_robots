@@ -164,8 +164,8 @@ model Message {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  sender    String?
-  recipient String?
+  sender    String @default("user")
+  recipient String @default("prompt")
   content   String
   channelId Int
   Channel   Channel  @relation(fields: [channelId], references: [id])

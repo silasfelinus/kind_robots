@@ -87,23 +87,71 @@ function constructImageUrl(galleryName: string, imageName: string): string {
 function getRandomIndex(length: number): number {
   return Math.floor(Math.random() * length)
 }
-
-export async function getRandomImage(): Promise<string | null> {
+// Function to fetch all Gallery IDs
+export async function fetchAllGalleryIds(): Promise<number[]> {
   try {
-    // Fetch all images from all galleries
-    const allImages = await getAllGalleryImages()
+    const galleries = await prisma.gallery.findMany({
+      select: {
+        id: true
+      }
+    })
+    return galleries.map((gallery) => gallery.id)
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}
 
-    if (allImages.length === 0) {
+// Function to fetch a random image from a random Gallery
+export async function fetchRandomImage(): Promise<string | null> {
+  try {
+    // First, get the total number of galleries
+    const totalGalleries = await prisma.gallery.count()
+
+    // Generate a random index
+    const randomIndex = Math.floor(Math.random() * totalGalleries)
+
+    // Fetch a random gallery
+    const randomGallery = await prisma.gallery.findFirst({
+      skip: randomIndex
+    })
+
+    if (!randomGallery || !randomGallery.imagePaths) {
       return null
     }
 
-    // Randomly pick an image
-    const randomImage = allImages[getRandomIndex(allImages.length)]
+    // Split the imagePaths string into an array
+    const imagePathsArray = randomGallery.imagePaths.split(',')
+
+    // Pick a random image from the gallery
+    const randomImage = imagePathsArray[Math.floor(Math.random() * imagePathsArray.length)]
 
     return randomImage
-  } catch (error) {
-    console.error(`Failed to get a random image: ${error}`)
-    throw error
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}
+
+// Function to fetch all images from all galleries
+export async function getAllGalleryImages(): Promise<{ [galleryId: number]: string[] }> {
+  try {
+    const galleries = await prisma.gallery.findMany({
+      select: {
+        id: true,
+        imagePaths: true
+      }
+    })
+
+    const allImages: { [galleryId: number]: string[] } = {}
+
+    galleries.forEach((gallery) => {
+      if (gallery.imagePaths) {
+        allImages[gallery.id] = gallery.imagePaths.split(',')
+      }
+    })
+
+    return allImages
+  } catch (error: any) {
+    throw errorHandler(error)
   }
 }
 

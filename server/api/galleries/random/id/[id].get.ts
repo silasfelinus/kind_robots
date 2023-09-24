@@ -1,4 +1,4 @@
-// ~/server/api/galleries/randomimages.get.ts
+// ~/server/api/galleries/random/id/[id].get.ts
 import { getRandomGalleryImage, getGalleryImages } from '../..'
 
 export default defineEventHandler(async (event) => {
@@ -9,10 +9,7 @@ export default defineEventHandler(async (event) => {
       // If there is an ID, get a random image from that gallery
       image = await getRandomGalleryImage(id)
     } else {
-      // If there is no ID, get a random image from all galleries
-      const allImages = await getGalleryImages()
-      const randomIndex = Math.floor(Math.random() * allImages.length)
-      image = allImages[randomIndex]
+      return console.error(`ID not found`)
     }
 
     return image

@@ -40,7 +40,7 @@ const fetchImage = async () => {
   await new Promise((resolve) => setTimeout(resolve, 750))
 
   try {
-    const res = await fetch('/api/gallery/random/name/background')
+    const res = await fetch('/api/galleries/random/name/background')
     const data = await res.json()
 
     if (data.success && data.image) {

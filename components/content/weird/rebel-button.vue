@@ -6,7 +6,12 @@
       class="flex flex-col md:flex-row items-center justify-center w-full h-full space-y-4 md:space-y-0 md:space-x-4"
     >
       <!-- Left Section -->
-      <div class="flex flex-col items-center w-full md:w-1/3 space-y-4">
+      <div class="flex flex-col items-center w-full md:w-1/3 space-y-4 m-2 p-2">
+        <transition name="slide-fade-slow">
+          <div class="bg-base-100 p-4 rounded-lg shadow-lg">
+            <click-leaderboard class="rounded-2xl m-2 p-2" />
+          </div>
+        </transition>
         <transition name="slide-fade-slow">
           <div v-if="state.topScore >= 100" class="bg-base-100 p-4 rounded-lg shadow-lg">
             <!-- Gallery Viewer-->
@@ -76,23 +81,6 @@
         </transition>
       </div>
     </div>
-
-    <!-- Reset Popup -->
-    <transition name="slide-fade">
-      <div
-        v-if="state.showResetPopup"
-        class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-50 bg-black"
-      >
-        <div class="bg-white p-4 rounded-lg">
-          <p>Are you sure you want to reset the leaderboard?</p>
-          <div class="flex items-center space-x-2">
-            <input v-model="state.resetConfirmed" type="checkbox" />
-            <label>Confirm Reset</label>
-          </div>
-          <button :disabled="!state.resetConfirmed" @click="reset">Reset Leaderboard</button>
-        </div>
-      </div>
-    </transition>
     <!-- Reset Popup -->
     <transition name="slide-fade">
       <div
@@ -124,13 +112,16 @@ import { reactive, onMounted, ref } from 'vue'
 import confetti from 'canvas-confetti'
 import responses from '../../../assets/buttonResponses'
 import milestones from '../../../assets/buttonMilestones'
+import { useUserStore } from '@/stores/userStore'
 
+const userStore = useUserStore()
+const username = computed(userStore.username)
 const state = reactive({
   pressed: false,
   pressCount: 0,
   topScore: 0,
   buttonText: 'Do Not Press this Button',
-  showLeaderboard: false,
+  showLeaderboard: true,
   showResetPopup: false,
   resetConfirmed: false,
   previousMessage: '',
@@ -139,11 +130,47 @@ const state = reactive({
 
 const buttonRef = ref(null)
 
-onMounted(() => {
-  state.topScore = parseInt(localStorage.getItem('topScore')) || 0
-  state.showLeaderboard = true
+onMounted(async () => {
+  // Fetch the leaderboard if the user is logged in
+  if (userStore.isLoggedIn) {
+    // Fetch the user's click record from the store
+    const userClickRecord = userStore.clickRecord
+
+    // Fetch the locally stored high score
+    const localHighScore = parseInt(localStorage.getItem('topScore')) || 0
+
+    // Set both to the higher number
+    const highestScore = Math.max(userClickRecord, localHighScore)
+    state.topScore = highestScore
+    localStorage.setItem('topScore', highestScore.toString())
+
+    // If the user's click record is lower, update it
+    if (userClickRecord < highestScore) {
+      await userStore.updateClickRecord(highestScore)
+    }
+  } else {
+    // For guests, just use the local high score
+    state.topScore = parseInt(localStorage.getItem('topScore')) || 0
+  }
 })
 
+watch(
+  () => userStore.isLoggedIn,
+  async (newVal, oldVal) => {
+    if (newVal !== oldVal && newVal === true) {
+      // User has just logged in
+      const userClickRecord = userStore.clickRecord
+      const localHighScore = parseInt(localStorage.getItem('topScore')) || 0
+      const highestScore = Math.max(userClickRecord, localHighScore)
+
+      if (highestScore > state.topScore) {
+        state.topScore = highestScore
+        localStorage.setItem('topScore', highestScore.toString())
+        await userStore.updateClickRecord(highestScore)
+      }
+    }
+  }
+)
 const pressedButton = () => {
   state.pressed = true
   state.pressCount++
@@ -158,6 +185,7 @@ const pressedButton = () => {
   // Save to localStorage every 10 clicks to optimize performance
   if (state.pressCount % 10 === 0) {
     localStorage.setItem('topScore', state.topScore)
+    submitTopScore()
   }
 
   let isMilestone = false
@@ -177,7 +205,13 @@ const pressedButton = () => {
 
   state.previousMessage = tempMessage // Set the previous message after updating the buttonText
 }
-
+const submitTopScore = async () => {
+  const updateStatus = await userStore.updateClickRecord(state.topScore)
+  if (updateStatus === 'Updated') {
+    // Refresh the leaderboard
+    await userStore.fetchHighClickScores()
+  }
+}
 const triggerConfetti = () => {
   const { top, left, width, height } = buttonRef.value.getBoundingClientRect()
   confetti({

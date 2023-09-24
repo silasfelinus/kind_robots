@@ -61,9 +61,6 @@ enum Role {
   DESIGNER
 }
 
-// Brainstorm / Pitch
-// a single concept with 
-
 // ***BOT
 // our modular promptbots
 // the meat-and-potatoes of our tech interactibles
@@ -105,7 +102,7 @@ model Gallery {
   updatedAt      DateTime @updatedAt
   name           String   @unique
   content        String
-  Media          Media[]
+  Art            Art[]
   description    String?
   mediaId        String?
   url            String?
@@ -115,6 +112,63 @@ model Gallery {
   userId         Int?
   highlightImage String?
   imagePaths     String?  @db.Text
+}
+
+model Art {
+  id          Int           @id @unique @default(autoincrement())
+  Gallery     Gallery       @relation(fields: [galleryId], references: [id])
+  galleryId   Int
+  path        String
+  clapCount   Int           @default(0)
+  booCount    Int           @default(0)
+  ArtReaction ArtReaction[]
+}
+
+model ArtReaction {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  Art       Art      @relation(fields: [artId], references: [id])
+  artId     Int
+  claps     Int      @default(0)
+  boos      Int      @default(0)
+  title     String?
+  Tags      Tag[]
+  reaction  String?
+  comment   String?
+}
+
+model Tag {
+  id           Int           @id @unique @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  ArtReactions ArtReaction[]
+  label        String        @default("art")
+  title        String        @unique
+}
+
+model Channel {
+  id          Int       @id @unique @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  User        User      @relation(fields: [userId], references: [id])
+  userId      Int       @default(0) //kind guest global acount
+  label       String    @default("global")
+  description String?
+  messages    Message[]
+}
+
+model Message {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sender    String?
+  recipient String?
+  content   String
+  channelId Int
+  Channel   Channel  @relation(fields: [channelId], references: [id])
 }
 
 // User Incentivization and interaction element
@@ -145,10 +199,6 @@ model Media {
   tags         String   @default("AI, Cafe Purr")
   designer     String?
   exifDataId   Int?
-  User         User?    @relation(fields: [userId], references: [id])
-  userId       Int?
-  Gallery      Gallery? @relation(fields: [galleryId], references: [id])
-  galleryId    Int?
   Bot          Bot?     @relation(fields: [botId], references: [id])
   botId        Int?
   description  String?
@@ -236,19 +286,6 @@ enum StringType {
   ERROR // An Error message125m.
   MESSAGE // Generic message
   POST // generic feed post
-}
-
-//raw text data for API processing
-// prompt is colloquial for ai-art modeling text data
-model Prompt {
-  id         Int        @id @unique @default(autoincrement())
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  StringType StringType
-  label      String
-  content    String
-  User       User       @relation(fields: [userId], references: [id])
-  userId     Int
 }
 
 // Reaction / review system
@@ -349,7 +386,7 @@ model User {
   country             String?
   timezone            String?
   phone               String?
-  languages           String? // Consider using String[] if using PostgreSQL
+  languages           String?
   avatarImage         String?           @default("/images/botcafe.webp")
   // Social Media
   instagramUrl        String?
@@ -360,6 +397,8 @@ model User {
   // gamification
   mana                Int?              @default(1000) // rate-limited user tokens
   karma               Int?              @default(0) // user experience for website interactions
+  clickRecord         Int?              @default(0)
+  matchRecord         Int?              @default(0)
   //Auth
   apiKey              String?           @unique
   password            String?
@@ -371,8 +410,6 @@ model User {
   sessions            Session[]
   Bots                Bot[]
   Galleries           Gallery[]
-  Media               Media[]
-  Prompts             Prompt[]
   Game                Game[]
   Reactions           Reaction[]
   Resources           Resource[]
@@ -381,30 +418,8 @@ model User {
   Todo                Todo[]
   Rewards             Reward[]
   MilestoneRecord     MilestoneRecord[]
-}
-
-//live chat history
-model ChatRoom {
-  id          Int       @id @unique @default(autoincrement())
-  name        String
-  host        String
-  description String?
-  image       String?
-  theme       String?
-  nsfw        Boolean?
-  messages    Message[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  isActive    Boolean   @default(true)
-}
-
-model Message {
-  id         Int      @id @unique @default(autoincrement())
-  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
-  chatRoomId Int
-  content    String
-  sender     String
-  createdAt  DateTime @default(now())
+  ArtReaction         ArtReaction[]
+  Channel             Channel[]
 }
 
 model Account {

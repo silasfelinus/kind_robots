@@ -1,22 +1,31 @@
 // /server/api/milestones/records.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { PrismaClient, MilestoneRecord } from '@prisma/client'
+import { MilestoneRecord } from '@prisma/client'
 import { errorHandler } from '../utils/error'
-
-const prisma = new PrismaClient()
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
-    const recordData: Partial<MilestoneRecord> = await readBody(event)
+    const recordData = await readBody(event)
+
+    // Check if recordData, milestoneId, and userId exist and are in the correct format
     if (!recordData || !recordData.milestoneId || !recordData.userId) {
       throw new Error('Invalid JSON body')
+    }
+
+    // Parse to integers
+    const milestoneId = parseInt(recordData.milestoneId, 10)
+    const userId = parseInt(recordData.userId, 10)
+
+    if (isNaN(milestoneId) || isNaN(userId)) {
+      throw new TypeError('Invalid milestoneId or userId. They must be integers.')
     }
 
     // Check if the milestone record already exists for the user
     const existingRecord = await prisma.milestoneRecord.findFirst({
       where: {
-        milestoneId: recordData.milestoneId,
-        userId: recordData.userId
+        milestoneId,
+        userId
       }
     })
 
@@ -25,7 +34,14 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create a new milestone record
-    const newRecord = await prisma.milestoneRecord.create({ data: recordData as MilestoneRecord })
+    const newRecord = await prisma.milestoneRecord.create({
+      data: {
+        ...recordData,
+        milestoneId,
+        userId
+      } as MilestoneRecord
+    })
+
     return { success: true, record: newRecord }
   } catch (error: any) {
     return errorHandler(error)

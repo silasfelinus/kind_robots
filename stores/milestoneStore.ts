@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { Milestone, MilestoneRecord } from '@prisma/client'
 import { milestoneData } from '@/training/milestoneData'
+import { errorHandler } from '@/server/api/utils/error'
 
 export const useMilestoneStore = defineStore({
   id: 'milestoneStore',
@@ -12,31 +13,23 @@ export const useMilestoneStore = defineStore({
   }),
   actions: {
     async initializeMilestones() {
-      // Check if already initialized
+      // Exit early if already initialized
       if (this.isInitialized) return
 
       try {
-        const response = await fetch('/api/milestones')
-        const data = await response.json()
+        // Fetch the updated milestones
+        await this.fetchMilestones()
 
-        if (data.success && data.milestones.length === 0) {
-          // Seed initial data if the database is empty
-          for (const milestone of milestoneData) {
-            await this.addMilestone(milestone)
-          }
-        }
-
-        if (data.success) {
-          updateMilestonesFromData()
-          this.milestones = data.milestones
-          this.isInitialized = true // Set to true after initialization
-        } else {
-          console.error('Failed to initialize milestones:', data.message)
-        }
+        // Mark as initialized
+        this.isInitialized = true
       } catch (error) {
-        console.error('Error initializing milestones:', error)
+        const { success, message } = errorHandler({ error })
+        if (!success) {
+          console.error(`Error initializing milestones: ${message}`)
+        }
       }
     },
+
     async updateMilestonesFromData() {
       // Loop through milestoneData and update existing milestones
       for (const updatedMilestone of milestoneData) {
@@ -48,22 +41,7 @@ export const useMilestoneStore = defineStore({
         }
       }
     },
-    async awardMilestone(userId: number, milestoneId: number) {
-      // Check if the user has already been awarded the first milestone
-      if (this.hasMilestone(userId, milestoneId)) {
-        return
-      }
-
-      // Create a new milestone record for the first milestone
-      const firstMilestoneRecord: MilestoneRecord = {
-        userId,
-        milestoneId,
-        awardedAt: new Date()
-      }
-
-      // Add the new milestone record
-      await this.addMilestoneRecord(firstMilestoneRecord)
-    },
+    // Refactored to use centralized error handler
     async fetchMilestones() {
       try {
         const response = await fetch('/api/milestones/')
@@ -74,7 +52,10 @@ export const useMilestoneStore = defineStore({
           console.error('Failed to fetch milestones:', data.message)
         }
       } catch (error) {
-        console.error('An error occurred while fetching milestones:', error)
+        const { success, message } = errorHandler({ error })
+        if (!success) {
+          console.error(`Error fetching milestones: ${message}`)
+        }
       }
     },
     async addMilestone(milestone: Milestone) {
@@ -123,6 +104,24 @@ export const useMilestoneStore = defineStore({
         console.error('An error occurred while updating a milestone:', error)
       }
     },
+    async awardMilestone(userId: number, milestoneId: number) {
+      try {
+        if (this.hasMilestone(userId, milestoneId)) {
+          return { success: true, message: 'Milestone already awarded.' }
+        }
+
+        const milestoneRecord: Partial<MilestoneRecord> = {
+          userId,
+          milestoneId
+        }
+
+        const response = await this.addMilestoneRecord(milestoneRecord as MilestoneRecord)
+        return { success: true, message: 'Milestone successfully awarded.', response }
+      } catch (error) {
+        const { success, message } = errorHandler({ error })
+        return { success, message }
+      }
+    },
 
     async addMilestoneRecord(record: MilestoneRecord) {
       try {
@@ -150,3 +149,5 @@ export const useMilestoneStore = defineStore({
     }
   }
 })
+
+export default Milestone

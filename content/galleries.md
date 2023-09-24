@@ -11,4 +11,5 @@ tooltip: This is a teaser for our cafe purr webgalleries. Each spin is a random 
 category: demo
 sort: highlight
 ---
+
 :galleries-view

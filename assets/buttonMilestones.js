@@ -12,7 +12,7 @@ const milestones = [
   },
   {
     count: 1000,
-    message: `I'm impressed (and a little concerned). Don't expect any next material after this, please. I haven't made anything. Still, you've gotten to the end of anything I planned. Thank you for taking your time with this. I will have to make more content now just because.`
+    message: `I'm impressed (and a little concerned). Don't expect any new material after this, please. I haven't made anything. Still, you've gotten to the end of anything I planned. Thank you for taking your time with this. I will have to make more content now just because.`
   }
   // Add more milestones as needed
 ]

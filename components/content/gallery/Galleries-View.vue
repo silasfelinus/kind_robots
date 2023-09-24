@@ -54,7 +54,7 @@ const error = ref(null)
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/gallery')
+    const response = await axios.get('/api/galleries')
     if (response.data.success) {
       galleries.value = response.data.Galleries
       galleries.value.forEach((gallery) => {

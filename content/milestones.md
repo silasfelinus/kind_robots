@@ -11,4 +11,4 @@ tooltip: Milestones are uncovered by interacting with the site. Find them all.
 sort: highlight
 ---
 
-:user-milestones
+:milestone-gallery

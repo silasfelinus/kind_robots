@@ -1,7 +1,7 @@
 ---
 title: 'Rebel Button'
 subtitle: Go Ahead. It's OK.
-description: Novelty button designed to deliver random and milestone messages with graffiti. 
+description: Novelty button designed to deliver random and milestone messages with graffiti.
 layout: default
 image: wonderchest/wonderchest-1794.webp
 gallery: wonderbot
@@ -11,4 +11,5 @@ tooltip: This began as a morning ChatGPT coding project, but after my 11-year-ol
 category: novelty
 sort: highlight
 ---
+
 :rebel-button

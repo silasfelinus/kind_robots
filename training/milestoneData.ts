@@ -1,6 +1,6 @@
 // /training/milestoneData.ts
 
-import { Milestone } from '@prisma/client' // Import your Milestone type
+import Milestone from '@/stores/milestoneStore' // Import your Milestone type
 
 export const milestoneData: Milestone[] = [
   {
@@ -137,6 +137,21 @@ export const milestoneData: Milestone[] = [
     isActive: false,
     pageHint: '/theme',
     subtleHint: 'Try out a new look'
+  },
+  {
+    id: 10,
+    label: 'The road ahead!',
+    message: `You've eyed the horizon`,
+    triggerCode: 'test',
+    icon: 'mdi:brush',
+    karma: 0,
+    isRepeatable: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    tooltip: 'Gain your first milestone',
+    isActive: false,
+    pageHint: '/milestones',
+    subtleHint: 'Aspire for greatness'
   }
 ]
 

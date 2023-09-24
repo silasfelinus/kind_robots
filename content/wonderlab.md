@@ -5,7 +5,7 @@ description: Compendium of components in development
 layout: default
 image: backtree.webp
 gallery: wondershed
-tooltip: Here's the kind robots, all the gizmos and gadgets. I can't speak to the 
+tooltip: Here's the kind robots, all the gizmos and gadgets. I can't speak to the
 tags: ['home']
 admin: true
 icon: game-icons:archive-register

@@ -97,7 +97,7 @@ export const useGalleryStore = defineStore({
 
   actions: {
     async fetchGalleries(this: GalleryStore) {
-      const response = await fetch('/api/gallery')
+      const response = await fetch('/api/galleries')
       if (response.ok) {
         this.galleries = await response.json()
         localStorage.setItem('galleries', JSON.stringify(this.galleries))

@@ -56,7 +56,7 @@ async function generateMemoryGameImages() {
 
     const imageCount = Math.ceil(selectedDifficulty.value.value / 2)
 
-    const response = await fetch(`/api/gallery/random/count/${imageCount}`)
+    const response = await fetch(`/api/galleries/random/count/${imageCount}`)
     const data = await response.json()
 
     if (data.images.length !== imageCount) {

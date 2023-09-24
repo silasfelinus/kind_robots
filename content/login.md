@@ -11,4 +11,5 @@ icon: game-icons:id-card
 category: settings
 sort: icon
 ---
+
 :login-window

@@ -1,5 +1,5 @@
 ---
-title: "Privacy Policy"
+title: 'Privacy Policy'
 subtitle: Terms and Conditions
 description: Our privacy policy
 tags: ['home']
@@ -11,4 +11,5 @@ category: text
 gallery: wonderbot
 sort: icon
 ---
+
 :privacy-policy

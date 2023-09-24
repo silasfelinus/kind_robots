@@ -9,18 +9,21 @@ interface UserState {
   apiKey: string | null
   loading: boolean
   lastError: string | null
+  milestones: number[]
+  highClickScores: []
+  highMatchScores: []
 }
-
 export const useUserStore = defineStore({
   id: 'user',
-
-  // Defining the initial state and its types
   state: (): UserState => ({
     user: null,
     token: '',
     apiKey: typeof window !== 'undefined' ? localStorage.getItem('api_key') : null,
     loading: false,
-    lastError: null
+    lastError: null,
+    milestones: [],
+    highClickScores: [],
+    highMatchScores: []
   }),
 
   // Getters are functions that compute derived state based on the store's state
@@ -52,8 +55,11 @@ export const useUserStore = defineStore({
     bio(): string {
       return this.user?.bio || 'I was born and then things happened and now I am here.'
     },
-    milestones(): number[] {
-      return this.user?.milestones || []
+    clickRecord(): number {
+      return this.user?.clickRecord || 0
+    },
+    matchRecord(): number {
+      return this.user?.matchRecord || 0
     }
   },
 
@@ -67,6 +73,76 @@ export const useUserStore = defineStore({
         mana: userData.mana || 0
       }
     },
+    async fetchHighClickScores() {
+      try {
+        const response = await fetch('/api/milestones/highClickScores')
+        const data = await response.json()
+        this.highClickScores = data.milestones
+      } catch (error: any) {
+        errorHandler({ success: false, message: error.message })
+      }
+    },
+
+    async fetchHighMatchScores() {
+      try {
+        const response = await fetch('/api/milestones/highMatchScores')
+        const data = await response.json()
+        this.highMatchScores = data.milestones
+      } catch (error: any) {
+        errorHandler({ success: false, message: error.message })
+      }
+    },
+
+    async updateClickRecord(newScore: number) {
+      try {
+        // Fetch the userId from the store
+        const userId = this.userId
+        if (!userId) {
+          throw new Error('User ID is not available')
+        }
+
+        const response = await fetch('/api/milestones/updateClickRecord', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ newScore, userId }) // Include userId in the request body
+        })
+
+        const data = await response.json()
+        if (data.success) {
+          return 'Updated'
+        }
+      } catch (error: any) {
+        errorHandler({ success: false, message: error.message })
+      }
+    },
+
+    async updateMatchRecord(newScore: number) {
+      try {
+        // Fetch the userId from the store
+        const userId = this.userId
+        if (!userId) {
+          throw new Error('User ID is not available')
+        }
+
+        const response = await fetch('/api/milestones/updateMatchRecord', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ newScore, userId }) // Include userId in the request body
+        })
+
+        const data = await response.json()
+        if (data.success) {
+          return this.fetchHighMatchScores() // Make sure to use 'this' to call the store action
+        }
+      } catch (error: any) {
+        errorHandler({ success: false, message: error.message })
+      }
+    },
+
     logout(): void {
       this.user = null
       this.token = ''
@@ -79,6 +155,47 @@ export const useUserStore = defineStore({
     setToken(newToken: string): void {
       this.token = newToken
       this.saveToLocalStorage('token', newToken)
+    },
+
+    // New action to update milestones
+    setMilestones(milestoneIds: number[]): void {
+      this.milestones = milestoneIds
+    },
+
+    async fetchMilestoneRecords() {
+      this.loading = true
+      try {
+        const userId = this.userId
+        if (!userId) throw new Error('User ID is not available')
+
+        const response = await fetch(`/api/users/${userId}.milestones`)
+        const data = await response.json()
+
+        if (response.ok) {
+          // Assuming data.milestoneRecords is an array of milestone IDs
+          this.setMilestones(data.milestoneRecords)
+        } else {
+          throw new Error(data.message || 'Failed to fetch milestone records')
+        }
+      } catch (error: any) {
+        const { message } = errorHandler(error)
+        this.lastError = message
+        console.error('Failed to fetch milestone records:', this.lastError)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // Lifecycle method to initialize the store
+    initializeStore() {
+      onMounted(() => {
+        this.apiKey = this.getFromLocalStorage('api_key')
+        if (this.apiKey) {
+          this.fetchUserByApiKey()
+          // Fetch milestones when the store is initialized
+          this.fetchMilestoneRecords()
+        }
+      })
     },
     setApiKey(apiKey: string): void {
       this.apiKey = apiKey
@@ -229,16 +346,6 @@ export const useUserStore = defineStore({
         this.setError(error)
         console.error('Failed to fetch user:', this.lastError)
       }
-    },
-
-    // Lifecycle method to initialize the store
-    initializeStore() {
-      onMounted(() => {
-        this.apiKey = this.getFromLocalStorage('api_key')
-        if (this.apiKey) {
-          this.fetchUserByApiKey()
-        }
-      })
     }
   }
 })

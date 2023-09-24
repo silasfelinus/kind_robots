@@ -11,4 +11,5 @@ tooltip: This started as a todo manager to add chatgpt api interactions, but I g
 sort: text
 underConstruction: true
 ---
+
 :todo-manager

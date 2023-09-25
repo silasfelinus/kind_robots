@@ -17,7 +17,9 @@ export async function createArtReaction(reaction: Partial<ArtReaction>): Promise
         artId: reaction.artId,
         claps: reaction.claps || 0,
         boos: reaction.boos || 0,
-        title: reaction.title || null
+        title: reaction.title || null,
+        reaction: reaction.reaction || null,
+        comment: reaction.comment || null
       }
     })
   } catch (error: any) {
@@ -25,12 +27,15 @@ export async function createArtReaction(reaction: Partial<ArtReaction>): Promise
   }
 }
 
-// Function to update an existing ArtReaction by ID
 export async function updateArtReaction(
   id: number,
   updatedReaction: Partial<ArtReaction>
 ): Promise<ArtReaction | null> {
   try {
+    const existingRecord = await prisma.artReaction.findUnique({ where: { id } })
+    if (!existingRecord) {
+      throw new Error('Record to update not found.')
+    }
     return await prisma.artReaction.update({
       where: { id },
       data: updatedReaction
@@ -49,13 +54,12 @@ export async function deleteArtReaction(id: number): Promise<boolean> {
       return false
     }
 
-    await prisma.artReaction.delete({ where: { id } })
+    await prisma.$transaction([prisma.artReaction.delete({ where: { id } })])
     return true
   } catch (error: any) {
     throw errorHandler(error)
   }
 }
-
 // Function to fetch all ArtReactions
 export async function fetchAllArtReactions(): Promise<ArtReaction[]> {
   return await prisma.artReaction.findMany()

@@ -8,9 +8,9 @@ gallery: weirdlandia
 tags: ['home']
 category: user
 icon: game-icons:robot-antennas
-tooltip: Tooltip
+tooltip: I've always loved lists. 
 sort: text
 underConstruction: true
 ---
 
-Brainstorm Here
+:brainstorm-game

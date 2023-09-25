@@ -1,5 +1,6 @@
 // /server/api/galleries/art/index.ts
 import { Art, Prisma } from '@prisma/client'
+import axios from 'axios'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
@@ -8,19 +9,24 @@ export async function createArt(art: Partial<Art>): Promise<Art> {
   try {
     // Validate required fields
     if (!art.path || !art.galleryId) {
+      console.error('Validation Error: Path and galleryId must be provided')
       throw new Error('Path and galleryId must be provided')
     }
 
-    // Create the new Art entry
-    return await prisma.art.create({
+    // Create the new Art entry using Prisma
+    const newArt = await prisma.art.create({
       data: {
         path: art.path,
-        galleryId: art.galleryId,
-        clapCount: art.clapCount || 0,
-        booCount: art.booCount || 0
+        prompt: art.prompt,
+        user: art.user,
+        galleryId: art.galleryId
       }
     })
+
+    console.log('Art Created:', newArt)
+    return newArt
   } catch (error: any) {
+    console.error('Error in createArt:', error)
     throw errorHandler(error)
   }
 }
@@ -70,6 +76,41 @@ export async function fetchArtByGalleryId(galleryId: number): Promise<Art[]> {
   return await prisma.art.findMany({
     where: { galleryId }
   })
+}
+
+export async function generateImage(prompt: string, user: string): Promise<{ images: string[] }> {
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const requestBody = {
+    prompt,
+    n: 1,
+    size: '512x512',
+    response_format: 'url',
+    user
+  }
+
+  try {
+    const response = await fetch('https://cafefred.purrsalon.com/sdapi/v1/txt2img', {
+      method: 'POST',
+      headers: config.headers,
+      body: JSON.stringify(requestBody)
+    })
+
+    if (!response.ok) {
+      throw new Error(`Fetch failed: ${response.status} ${response.statusText}`)
+    }
+
+    const responseData = await response.json()
+    const generatedImageUrl = responseData.images // Assuming the images field contains the URL
+
+    return generatedImageUrl
+  } catch (error: any) {
+    throw errorHandler({ error, context: 'Image Generation with Cafe Fred' })
+  }
 }
 
 export type { Art }

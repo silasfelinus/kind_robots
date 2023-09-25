@@ -2,19 +2,28 @@ import { Gallery, Prisma } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
-// Function to create a new Gallery
-export async function createGallery(gallery: Partial<Gallery>): Promise<Gallery> {
+export async function createGallery(gallery: Partial<Gallery>): Promise<Gallery | null> {
   try {
     // Validate required fields
-    if (!gallery.name || !gallery.content) {
-      throw new Error('Name and content must be provided')
+    if (!gallery.name) {
+      throw new Error('Name must be provided')
+    }
+
+    // Check for duplicate gallery name
+    const existingGallery = await prisma.gallery.findUnique({
+      where: { name: gallery.name }
+    })
+
+    if (existingGallery) {
+      console.log(`Gallery with name ${gallery.name} already exists.`)
+      return null // Return null or some other indicator that the gallery was not created
     }
 
     // Create the new Gallery
     return await prisma.gallery.create({
       data: {
         name: gallery.name,
-        content: gallery.content,
+        content: gallery.content || '',
         description: gallery.description || null,
         mediaId: gallery.mediaId || null,
         url: gallery.url || null,
@@ -69,7 +78,10 @@ export async function fetchGalleries(): Promise<Gallery[]> {
 // Function to fetch a single Gallery by ID
 export async function fetchGalleryById(id: number): Promise<Gallery | null> {
   return await prisma.gallery.findUnique({
-    where: { id }
+    where: { id },
+    include: {
+      Art: true
+    }
   })
 }
 

@@ -103,7 +103,7 @@ model Gallery {
   name           String   @unique
   content        String
   Art            Art[]
-  description    String?
+  description    String?  @db.Text
   mediaId        String?
   url            String?
   isNsfw         Boolean  @default(false)
@@ -122,6 +122,9 @@ model Art {
   clapCount   Int           @default(0)
   booCount    Int           @default(0)
   ArtReaction ArtReaction[]
+  prompt      String?       @db.Text
+  user        String?
+  collectors  User[]
 }
 
 model ArtReaction {
@@ -137,7 +140,7 @@ model ArtReaction {
   title     String?
   Tags      Tag[]
   reaction  String?
-  comment   String?
+  comment   String?  @db.Text
 }
 
 model Tag {
@@ -156,7 +159,7 @@ model Channel {
   User        User      @relation(fields: [userId], references: [id])
   userId      Int       @default(0) //kind guest global acount
   label       String    @default("global")
-  description String?
+  description String?   @db.Text
   messages    Message[]
 }
 
@@ -164,9 +167,9 @@ model Message {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  sender    String @default("user")
-  recipient String @default("prompt")
-  content   String
+  sender    String   @default("user")
+  recipient String   @default("prompt")
+  content   String   @db.Text
   channelId Int
   Channel   Channel  @relation(fields: [channelId], references: [id])
 }
@@ -176,7 +179,7 @@ model Game {
   id         Int      @id @unique @default(autoincrement())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  content    String
+  content    String   @db.Text
   category   String   @default("Blue Sky Tasks")
   isFinished Boolean  @default(false)
   User       User     @relation(fields: [userId], references: [id])
@@ -254,7 +257,7 @@ model Project {
   name               String
   title              String
   category           String
-  content            String   @default("Here's the idea...")
+  content            String   @default("Here's the idea...") @db.Text
   allowComments      Boolean  @default(false)
   description        String   @default("")
   isPublic           Boolean  @default(true)
@@ -319,7 +322,7 @@ model Resource {
   civitaiUrl   String?
   huggingUrl   String?
   localPath    String?
-  description  String?
+  description  String?      @db.Text
   resourceType ResourceType @default(CHECKPOINT)
 }
 
@@ -329,12 +332,13 @@ model Reward {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   icon       String
-  text       String   @unique
+  text       String
   power      String
   collection String   @default("genesis")
   User       User[]
   Todo       Todo[]
   rarity     Int      @default(50)
+  label      String?
 }
 
 // Todo model
@@ -377,7 +381,7 @@ model User {
   emailVerified       DateTime?
   questPoints         Int               @default(0)
   name                String?
-  bio                 String?           @default("I was born and then things happened and now I'm here.")
+  bio                 String?           @default("I was born and then things happened and now I'm here.") @db.Text
   birthday            DateTime?
   address1            String?
   address2            String?
@@ -420,6 +424,7 @@ model User {
   MilestoneRecord     MilestoneRecord[]
   ArtReaction         ArtReaction[]
   Channel             Channel[]
+  Art                 Art[]
 }
 
 model Account {

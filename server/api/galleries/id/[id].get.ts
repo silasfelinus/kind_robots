@@ -1,18 +1,23 @@
-// server/api/galleries/id/[id].get.ts
 import { fetchGalleryById } from '..'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
-  if (!id) throw new Error('Invalid Gallery ID.')
-  try {
-    const Gallery = await fetchGalleryById(id)
+  if (!id)
+    return errorHandler({ error: new Error('Invalid Gallery ID.'), context: 'Fetch Gallery' })
 
-    if (!Gallery) {
-      throw new Error(`Gallery with id ${id} does not exist.`)
+  try {
+    const gallery = await fetchGalleryById(id)
+
+    if (!gallery) {
+      return errorHandler({
+        error: new Error(`Gallery with id ${id} does not exist.`),
+        context: 'Fetch Gallery'
+      })
     }
 
-    return { success: true, Gallery }
-  } catch (error) {
-    return { success: false, message: `Failed to fetch Gallery with id ${id}.` }
+    return { success: true, gallery }
+  } catch (error: any) {
+    return errorHandler({ error, context: 'Fetch Gallery' })
   }
 })

@@ -3,7 +3,7 @@ title: 'Art Studio'
 subtitle: AI-Assisted art
 description: 'lets make art!'
 gallery: 'cafepurr'
-layout: default
+layout: dashboard
 image: 'botcat.webp'
 tags: ['home']
 icon: game-icons:easel

@@ -2,7 +2,7 @@
 title: 'Login Portal'
 subtitle: 'Welcome back!'
 description: Members sign in here!
-layout: default
+layout: dashboard
 image: cafepurr/cafepurr-396.webp
 gallery: wonderbot
 tooltip: User Options Coming Soon

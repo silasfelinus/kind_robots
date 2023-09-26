@@ -2,7 +2,7 @@
 title: 'User Profile'
 subtitle: 'Customize your universe'
 description: Choose from user settings and themes.
-layout: default
+layout: dashboard
 image: fantasycore/fantasycore-859.webp
 gallery: wondershed
 tags: ['home']

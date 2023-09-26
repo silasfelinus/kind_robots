@@ -2,7 +2,7 @@
 title: 'ChatGPT'
 subtitle: 'Chat with ChatGPT'
 description: Back-and-forth chat proxy to ChatGPT 3.5
-layout: default
+layout: dashboard
 image: cafepurr/cafepurr-387.webp
 gallery: wondershed
 tags: ['home']

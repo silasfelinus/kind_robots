@@ -3,7 +3,7 @@ title: 'Rewards & Bounties'
 subtitle: The Infinite Vault
 description: Our collection of game rewards
 gallery: 'cafepurr'
-layout: default
+layout: dashboard
 image: chest1.webp
 tags: ['home']
 icon: game-icons:vortex

@@ -2,7 +2,7 @@
 title: 'Enter OpenAI Key'
 subtitle: 'Harmonizing AI and Humanity'
 description: Various settings, including Open-AI key
-layout: default
+layout: dashboard
 image: botcafe2.webp
 gallery: wondershed
 tags: ['home']

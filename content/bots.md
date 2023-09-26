@@ -3,7 +3,7 @@ title: 'Bot Gallery'
 subtitle: 'here to help'
 description: 'bot gallery selection'
 gallery: 'cafepurr'
-layout: default
+layout: dashboard
 image: botcafe3.webp
 tags: ['home']
 icon: game-icons:robot-antennas

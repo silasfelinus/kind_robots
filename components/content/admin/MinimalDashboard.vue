@@ -25,14 +25,16 @@
       </button>
       <div
         v-if="showLogin"
-        class="absolute top-0 left-0 w-full h-full bg-opacity-50 bg-black flex items-center justify-center z-50"
+        class="flex flex-row bg-opacity-50 m-2 p-1 bg-black items-center justify-center z-50"
       >
         <login-form v-if="showLogin" @close="showLogin = false" />
       </div>
+
       <BackLink class="flex flex-row" />
       <HomeLink class="flex flex-row" />
       <ForwardLink class="flex flex-row" />
       <layout-selector class="flex flex-row" />
+      <theme-toggle class="flex flex-row" />
     </div>
   </div>
 </template>
@@ -69,12 +71,14 @@ const handleButtonClick = () => {
 }
 
 const logout = async () => {
+  console.log('trying to log out')
   try {
     isLoading.value = true
     await userStore.logout()
   } catch (error: any) {
     errorMessage.value = 'Failed to logout. Please try again.'
   } finally {
+    console.log('should be logged out')
     isLoading.value = false
   }
 }

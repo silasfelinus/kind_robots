@@ -3,7 +3,7 @@ title: 'Bot Viewer'
 subtitle: 'Your Kind Robot'
 description: 'Individual Bot Page'
 gallery: 'cafepurr'
-layout: default
+layout: dashboard
 image: avatars/cosmo1.webp
 tags: ['bots']
 navigation: false

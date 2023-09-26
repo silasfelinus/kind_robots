@@ -2,7 +2,7 @@
 title: 'Theme Selector'
 subtitle: 'theme for every mood'
 description: Choose from any of our themes.
-layout: default
+layout: dashboard
 image: fantasycore/fantasycore-859.webp
 gallery: wondershed
 tags: ['home']

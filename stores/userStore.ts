@@ -12,6 +12,7 @@ interface UserState {
   milestones: number[]
   highClickScores: []
   highMatchScores: []
+  stayLoggedIn: boolean
 }
 export const useUserStore = defineStore({
   id: 'user',
@@ -23,7 +24,8 @@ export const useUserStore = defineStore({
     lastError: null,
     milestones: [],
     highClickScores: [],
-    highMatchScores: []
+    highMatchScores: [],
+    stayLoggedIn: true
   }),
 
   // Getters are functions that compute derived state based on the store's state
@@ -35,7 +37,7 @@ export const useUserStore = defineStore({
       return this.user?.mana || 0
     },
     isLoggedIn(): boolean {
-      return !!this.token
+      return !!this.token && !!this.user
     },
     userId(): number | null {
       return this.user ? this.user.id : null
@@ -65,14 +67,77 @@ export const useUserStore = defineStore({
 
   // Actions are functions that modify the state or trigger other actions
   actions: {
+    // Update the initializeUser action
+    initializeUser() {
+      const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
+      const storedToken = this.getFromLocalStorage('token')
+
+      // Set the state variables
+      this.stayLoggedIn = stayLoggedIn
+      this.token = storedToken
+
+      // If stayLoggedIn is true, then we should also set the token and fetch user data
+      if (stayLoggedIn && storedToken) {
+        this.fetchUserDataByToken(storedToken)
+      }
+    },
+    async fetchUserDataByToken(token: string) {
+      console.log('reached fetch user by token', token)
+      try {
+        const response = await this.apiCall('/api/auth/validate', 'POST', {
+          type: 'token',
+          data: { token }
+        })
+
+        console.log('something happened. response:', response)
+        if (response.success) {
+          console.log('success!. setting user', response.user)
+          this.setUser(response.user)
+        }
+      } catch (error: any) {
+        console.log('error!', error)
+        this.setError(error)
+      }
+    },
+    async fetchUserByApiKey(): Promise<void> {
+      if (!this.apiKey) return
+      try {
+        const response = await this.apiCall('/api/user')
+        if (response.ok) {
+          this.setUser(response.user)
+        } else {
+          throw new Error('Failed to fetch user')
+        }
+      } catch (error: any) {
+        this.setError(error)
+        console.error('Failed to fetch user:', this.lastError)
+      }
+    },
     // User actions
     setUser(userData: User): void {
       this.user = {
-        ...userData,
-        karma: userData.karma || 0,
-        mana: userData.mana || 0
+        ...userData
       }
     },
+
+    setStayLoggedIn(value: boolean) {
+      try {
+        // Save the value to local storage
+        this.saveToLocalStorage('stayLoggedIn', value.toString())
+
+        // Retrieve the value from local storage and update the state
+        const storedValue = this.getFromLocalStorage('stayLoggedIn')
+        this.stayLoggedIn = storedValue === 'true'
+
+        // Debugging logs
+        console.log("🚀 I'm in setStayLoggedIn")
+        console.log(`🍞 Breadcrumb: Stay Logged In - ${this.stayLoggedIn}`)
+      } catch (error) {
+        // Centralized error handling
+        errorHandler({ success: false, message: `Operation failed: ${error.message}` })
+      }
+    },
+
     async fetchHighClickScores() {
       try {
         const response = await fetch('/api/milestones/highClickScores')
@@ -149,6 +214,9 @@ export const useUserStore = defineStore({
       this.apiKey = null
       this.removeFromLocalStorage('api_key')
       this.removeFromLocalStorage('token')
+      this.removeFromLocalStorage('user')
+      this.removeFromLocalStorage('stayLoggedIn')
+      this.setStayLoggedIn(false)
     },
 
     // Token and API key actions
@@ -184,18 +252,6 @@ export const useUserStore = defineStore({
       } finally {
         this.loading = false
       }
-    },
-
-    // Lifecycle method to initialize the store
-    initializeStore() {
-      onMounted(() => {
-        this.apiKey = this.getFromLocalStorage('api_key')
-        if (this.apiKey) {
-          this.fetchUserByApiKey()
-          // Fetch milestones when the store is initialized
-          this.fetchMilestoneRecords()
-        }
-      })
     },
     setApiKey(apiKey: string): void {
       this.apiKey = apiKey
@@ -283,6 +339,11 @@ export const useUserStore = defineStore({
           this.setUser(response.user)
           this.setToken(response.token)
           this.setApiKey(response.apiKey)
+
+          if (this.stayLoggedIn) {
+            this.saveToLocalStorage('token', response.token) // Save token if "stayLoggedIn" is true
+          }
+
           this.stopLoading()
           return { success: true }
         } else {
@@ -297,15 +358,36 @@ export const useUserStore = defineStore({
     },
     async validate(): Promise<boolean> {
       try {
+        // Use either token or apiKey based on what's available
         const credentials = this.token ? { token: this.token } : { apiKey: this.apiKey }
-        const response = await this.apiCall('/api/auth/validate', 'POST', credentials)
-        return response.ok
+
+        // Make the API call to /api/auth/validate
+        const response = await fetch('/api/auth/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(credentials)
+        })
+
+        // Parse the JSON response
+        const responseData = await response.json()
+
+        // Check if the validation was successful
+        if (responseData.success) {
+          console.log('User Token Validated', this.token)
+          this.setUser(responseData.user) // Assuming the response contains user data
+          return true
+        } else {
+          console.log('User Token Invalidated')
+          this.setError(new Error('Invalid token or API key')) // Update the error state
+          return false
+        }
       } catch (error: any) {
-        this.setError(error)
-        console.error('Failed to validate:', this.lastError)
+        const { message } = errorHandler(error)
+        this.setError(new Error(`🚀 Mission abort! ${message}`)) // Update the error state
         return false
       }
     },
+
     async register(userData: {
       username: string
       email?: string
@@ -330,21 +412,6 @@ export const useUserStore = defineStore({
         this.setError(error)
         console.error('Failed to register:', this.lastError)
         return { success: false, message: this.lastError || 'An unknown error occurred.' } // Providing a fallback message
-      }
-    },
-
-    async fetchUserByApiKey(): Promise<void> {
-      if (!this.apiKey) return
-      try {
-        const response = await this.apiCall('/api/user')
-        if (response.ok) {
-          this.setUser(response.user)
-        } else {
-          throw new Error('Failed to fetch user')
-        }
-      } catch (error: any) {
-        this.setError(error)
-        console.error('Failed to fetch user:', this.lastError)
       }
     }
   }

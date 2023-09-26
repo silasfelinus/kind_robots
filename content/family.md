@@ -2,7 +2,7 @@
 title: 'Genealogy'
 subtitle: 'Searching the family tree'
 description: A family tree data visualizer.
-layout: simple
+layout: dashboard
 image: background/background-166.webp
 gallery: background
 tags: ['home']

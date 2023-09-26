@@ -1,8 +1,8 @@
 ---
-title: Art Critic
-subtitle: Is it art?
-description: Rate and respond to Cafe Purr Art
-layout: default
+title: Bot Cafe
+subtitle: Chat with a Kind Robot
+description: View the many promptbots at Kind Robots
+layout: dashboard
 image: weirdlandia/weird1.png
 gallery: weirdlandia
 tags: ['home']
@@ -13,4 +13,4 @@ sort: text
 underConstruction: true
 ---
 
-Art Critic
+:bot-screen

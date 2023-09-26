@@ -2,7 +2,7 @@
 title: 'Fundraiser'
 subtitle: Meet AMI - The Anti-Malaria Intelligence
 description: Meet the mascot to our website, AMI - The Anti-Malaria Intelligence, and read about our fundraiser.
-layout: default
+layout: dashboard
 image: amibotsquare1.webp
 gallery: wondershed
 tags: ['home']

@@ -15,24 +15,19 @@
   </div>
 </template>
 
-<template>
-  <div class="bg-base-200 rounded-2xl p-2 m-2 border">
-    <h3 class="text-lg font-bold">{{ idea.title }}</h3>
-    <p class="text-base">{{ idea.example }}</p>
-  </div>
-</template>
-
 <script setup>
 const props = defineProps({
-  idea: {
-    title: {
-      type: String,
-      default: 'Shocking Idea'
-    },
-    example: {
-      type: String,
-      default: 'Hilarious Example'
-    }
+  image: {
+    type: String,
+    default: '/images/amibot/amibot1.webp'
+  },
+  title: {
+    type: String,
+    default: 'AmiCard'
+  },
+  avatar: {
+    type: String,
+    default: '/images/acrocats/PXL_20220903_023602144.jpg'
   }
 })
 </script>

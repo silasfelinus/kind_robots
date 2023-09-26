@@ -2,7 +2,7 @@
 title: 'Quest Manager'
 subtitle: 'Add Quests and infinite rewards'
 description: Quests (aka todo manager) with rewards
-layout: default
+layout: dashboard
 image: weirdlandia/weird-29.png
 gallery: wondershed
 tags: ['home']

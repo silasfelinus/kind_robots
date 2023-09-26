@@ -2,7 +2,7 @@
 title: 'Galleries'
 subtitle: 'But is it art?'
 description: 'Snippets of falderall and kerfluffel'
-layout: default
+layout: dashboard
 image: 'art1.webp'
 gallery: flower
 icon: game-icons:wood-frame

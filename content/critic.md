@@ -1,8 +1,8 @@
 ---
-title: Fate
-subtitle: Choose your fate
-description: Choose between contrasting options
-layout: default
+title: Art Critic
+subtitle: Is it art?
+description: Rate and respond to Cafe Purr Art
+layout: dashboard
 image: weirdlandia/weird1.png
 gallery: weirdlandia
 tags: ['home']
@@ -13,4 +13,4 @@ sort: text
 underConstruction: true
 ---
 
-Fate Chooser here
+Art Critic

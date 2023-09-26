@@ -1,8 +1,8 @@
 ---
-title: Bot Cafe
-subtitle: Chat with a Kind Robot
-description: View the many promptbots at Kind Robots
-layout: default
+title: Fate
+subtitle: Choose your fate
+description: Choose between contrasting options
+layout: dashboard
 image: weirdlandia/weird1.png
 gallery: weirdlandia
 tags: ['home']
@@ -13,4 +13,4 @@ sort: text
 underConstruction: true
 ---
 
-:bot-screen
+Fate Chooser here

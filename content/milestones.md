@@ -2,7 +2,7 @@
 title: Milestones
 subtitle: Secrets and unique experiences
 description: User achievements and karma rewards
-layout: default
+layout: dashboard
 image: weirdlandia/weird-69.png
 gallery: weirdlandia
 tags: ['home']

@@ -15,7 +15,7 @@
       <p class="text-xl p-2">
         Mermaids of Venice is a polytheistic love story with rhyming couplets at the start of each
         chapter. It features an attractive cover, perfect for adorning a coffee table or
-        complementing a reader's face. It is also, unfortunately, not without its flaws:
+        complementing a reader's face. It is also, unfortunately, not without its flaws
       </p>
       <ul class="list-disc list-inside text-xl p-2">
         <li>

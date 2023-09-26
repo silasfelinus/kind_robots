@@ -53,6 +53,7 @@
       <HomeLink class="flex flex-row" />
       <ForwardLink class="flex flex-row" />
       <layout-selector class="flex flex-row" />
+      <theme-toggle class="flex flex-row" />
     </div>
   </div>
 </template>

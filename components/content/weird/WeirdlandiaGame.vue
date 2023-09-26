@@ -8,13 +8,15 @@
         <!-- Introduction and About Content -->
         <p
           v-if="!gameStore.isGameStarted && !gameStore.showAbout"
-          class="text-lg leading-relaxed text-default font-medium"
+          class="text-lg leading-relaxed text-white font-medium"
         >
           Welcome to "Weirdlandia", a realm where every choice brings a new, unexpected twist.
+          Challenges await at every corner. Carve your own journey in this unpredictable realm.
         </p>
 
-        <p v-if="gameStore.showAbout" class="text-sm text-accent font-semibold">
-          Challenges await at every corner. Carve your own journey in this unpredictable realm.
+        <p v-if="gameStore.showAbout" class="text-sm text-white font-semibold">
+          Weirdlandia is under active development. For more information or to request a press
+          packet, message weird@kindrobots.org
         </p>
 
         <!-- Game Content -->
@@ -24,12 +26,6 @@
 
         <!-- Action Buttons -->
         <div class="flex justify-center space-x-6 mt-6">
-          <button
-            class="py-2 px-6 text-xl bg-accent hover:bg-accent-darkened focus:ring focus:ring-accent focus:ring-opacity-50 rounded-full shadow-lg transition-transform transform hover:scale-105"
-            @click="initiateGame"
-          >
-            Start New Game
-          </button>
           <button
             class="py-2 px-6 text-xl bg-primary hover:bg-primary-darkened focus:ring focus:ring-primary focus:ring-opacity-50 rounded-full shadow-lg transition-transform transform hover:scale-105"
             @click="toggleGameAbout"

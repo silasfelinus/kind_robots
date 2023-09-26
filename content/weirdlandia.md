@@ -2,7 +2,7 @@
 title: 'Weirdlandia'
 subtitle: 'Infinite Adventures in Weirdest Space'
 description: Work-in-Progress to eventually become a chatGPT-infused infinite text adventure
-layout: default
+layout: dashboard
 image: weirdlandia/weird1.png
 gallery: weirdlandia
 tags: ['home']

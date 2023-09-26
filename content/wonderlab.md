@@ -2,7 +2,7 @@
 title: 'Wonderlab'
 subtitle: 'Peeking behind the curtain'
 description: Compendium of components in development
-layout: default
+layout: dashboard
 image: backtree.webp
 gallery: wondershed
 tooltip: Here's the kind robots, all the gizmos and gadgets. I can't speak to the

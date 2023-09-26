@@ -4,8 +4,61 @@ import { jwtVerify, SignJWT } from 'jose'
 import { errorHandler } from '../utils/error'
 import { userExists } from '../users'
 import prisma from '../utils/prisma'
+// Add this import if you haven't already
 
 const { JWT_SECRET } = useRuntimeConfig()
+export const verifyJwtToken = async (token: string) => {
+  try {
+    console.log(`Debug: Token Type: ${typeof token}, Token Value: ${token}`)
+    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'))
+    const decoded = await jwtVerify(token, secretKey)
+    console.log('verifying:', decoded)
+    return { success: true, userId: decoded.id }
+  } catch (error: any) {
+    const { message, statusCode } = errorHandler(error)
+    return {
+      success: false,
+      message: `🚀 Mission abort! ${message}`,
+      statusCode: statusCode ?? 403
+    }
+  }
+}
+
+export const getUserDataByToken = async (token: string) => {
+  try {
+    const { success, userId } = await verifyJwtToken(token)
+    console.log('Decoded User:', userId)
+    if (!success || !userId) {
+      throw new Error('Invalid token.')
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        karma: true,
+        mana: true,
+        clickRecord: true,
+        matchRecord: true
+      }
+    })
+
+    if (!user) {
+      throw new Error('User not found.')
+    }
+
+    return { success: true, user } // Return the user object
+  } catch (error: any) {
+    const { message, statusCode } = errorHandler(error)
+    return {
+      success: false,
+      message: `🚀 Mission abort! ${message}`,
+      statusCode: statusCode ?? 403
+    }
+  }
+}
 
 export function generateApiKey(): string {
   try {
@@ -47,23 +100,6 @@ export async function createToken(user: any, apiKey: string): Promise<string> {
   } catch (error: any) {
     console.error(`Failed to create token: ${error.message}`)
     throw new Error('Failed to create token.')
-  }
-}
-
-export async function verifyJwtToken(req: any, res: any, next: any) {
-  try {
-    const token = req.headers.authorization?.split(' ')[1]
-    if (!token) {
-      return res.status(401).send('Access token is missing')
-    }
-
-    const secretKey = crypto.createSecretKey(Buffer.from(process.env.JWT_SECRET!, 'utf-8'))
-    await jwtVerify(token, secretKey)
-
-    next()
-  } catch (error) {
-    console.error('JWT verification failed:', error)
-    res.status(403).send('Access token is invalid')
   }
 }
 
@@ -127,7 +163,7 @@ export async function validateUserCredentials(username: string, password?: strin
       .setIssuedAt()
       .setExpirationTime('360d')
       .sign(secretKey)
-
+    console.log('added', token, secretKey)
     return { user, token }
   } catch (error: any) {
     console.error(`Failed to validate user credentials: ${error.message}`)

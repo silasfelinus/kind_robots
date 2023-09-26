@@ -2,7 +2,7 @@
 title: 'AI Training'
 subtitle: Training for our robot friends
 description: here's where we create the module and prompt information to send to Kind Rboots
-layout: default
+layout: dashboard
 image: wondershed/wondershed-1954.webp
 gallery: wonderbot
 category: wip

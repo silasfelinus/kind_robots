@@ -2,7 +2,7 @@
 title: 'mermaids'
 subtitle: 'Gift Shop'
 description: Where I do my best to convince people not to buy my novel.
-layout: default
+layout: dashboard
 image: utility/mermaids/mermaids1.jpg
 gallery: redbubble
 tags: ['home']

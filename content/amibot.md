@@ -2,7 +2,7 @@
 title: Amibot
 subtitle: AMI - the Anti-Malaria Intelligence
 description: chat with AMI and help make slogans for their fundraiser
-layout: default
+layout: dashboard
 image: weirdlandia/weird1.png
 gallery: weirdlandia
 tags: ['home']
@@ -13,4 +13,4 @@ sort: text
 underConstruction: true
 ---
 
-ami here
+:sponsor-page

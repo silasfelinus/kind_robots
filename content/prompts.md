@@ -2,7 +2,7 @@
 title: 'Kind Prompts'
 subtitle: 'Prompts'
 description: Repository for prompt sharing, built in React with Google Authentication
-layout: default
+layout: dashboard
 image: botcommunity.webp
 gallery: wonderbot
 tags: ['home']

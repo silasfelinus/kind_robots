@@ -2,7 +2,7 @@
 title: 'Memory Game'
 subtitle: 'Pick a card, any card'
 description: A memory matching game using digital art from our gallery
-layout: default
+layout: dashboard
 image: wondercat/wondercat-1555.webp
 gallery: flower
 tags: ['home']

@@ -2,7 +2,7 @@
 title: 'Eyeball'
 subtitle: 'Just an eye'
 description: It's an eye. If you click on the screen, it'll follow you around until it gets bored. Find a niche and fill it, that's my motto.
-layout: default
+layout: dashboard
 image: weirdlandia/weird-63.png
 gallery: wonderbot
 tags: ['home']

@@ -50,17 +50,17 @@ export const userNavigation: navigationData[] = [
     path: '/critic'
   },
   {
-    title: 'AMI',
+    title: 'Chat with Ami',
     componentName: 'chat-with-ami',
     image: '/images/wonderchest/wonderchest-1691.webp',
     description: 'Meet AMI, the anti-malaria intelligence, and create slogans for her campaign',
     path: '/amibot'
   },
   {
-    title: 'Theme Changer',
-    componentName: 'theme-menu',
+    title: 'User Profile',
+    componentName: 'profile-manager',
     image: '/images/redbubble/redbubble-1141.webp',
     description: 'Customize your public data',
-    path: '/theme'
+    path: '/profile'
   }
 ]

@@ -2,7 +2,7 @@
 title: 'About'
 subtitle: 'Our Humble Origins'
 description: Created with kind intent
-layout: default
+layout: dashboard
 icon: game-icons:abstract-037
 image: kindart.webp
 gallery: wondershed

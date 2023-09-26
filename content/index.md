@@ -2,7 +2,7 @@
 title: 'Welcome'
 subtitle: 'The future'
 description: Welcome to the home of the Kind Robots
-layout: default
+layout: dashboard
 image: botcommunity.webp
 gallery: wonderbot
 tags: ['home']

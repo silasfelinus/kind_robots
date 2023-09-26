@@ -125,7 +125,7 @@ import { useUserStore } from '../../../stores/userStore'
 import { errorHandler } from '../../../server/api/utils/error'
 
 const userStore = useUserStore()
-userStore.initializeStore()
+userStore.initializeUser()
 
 const username = ref('')
 const email = ref('')

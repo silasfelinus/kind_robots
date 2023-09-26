@@ -1,9 +1,10 @@
 import { errorHandler } from '../utils/error'
-import { validateUserCredentials, verifyJwtToken, validateApiKey } from '.' // replace with the actual path to your auth file
+import { validateUserCredentials, verifyJwtToken, validateApiKey, getUserDataByToken } from '.' // replace with the actual path to your auth file
 
 export default defineEventHandler(async (event) => {
   try {
     const { type, data } = await readBody(event)
+    console.log('Incoming Event:', type, data)
 
     // Validate input data
     if (!type || !data) {
@@ -31,15 +32,19 @@ export default defineEventHandler(async (event) => {
       if (!token) {
         throw new Error('Token is required for token validation.')
       }
+      console.log('Something happened, I do not know if it was the right thing')
+      const isTokenValid = await verifyJwtToken(token)
 
-      const isTokenValid = await verifyJwtToken(
-        { headers: { authorization: `Bearer ${token}` } },
-        null,
-        () => {}
-      )
       if (isTokenValid) {
-        return { success: true, message: '🚀 Token is valid. You are good to go!' }
+        const userData = await getUserDataByToken(token)
+
+        return {
+          success: true,
+          message: '🚀 Token is valid. You are good to go!',
+          user: userData
+        }
       } else {
+        console.log('User Token InValidated)')
         return { success: false, message: '🚀 Mission abort! Invalid token.' }
       }
     } else if (type === 'apiKey') {

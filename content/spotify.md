@@ -2,7 +2,7 @@
 title: 'Spotify'
 subtitle: We love harmony
 description: Spotify Player
-layout: default
+layout: dashboard
 image: weirdlandia/weird-64.png
 gallery: redbubble
 tags: ['home']

@@ -2,7 +2,7 @@
 title: Realms
 subtitle: Explore the creative infinite
 description: Exlore the ever expanding locations of Weirdlandia, or create your own
-layout: default
+layout: dashboard
 image: realms1.png
 gallery: fantasycore
 tags: ['home']

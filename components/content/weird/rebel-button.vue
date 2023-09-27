@@ -1,6 +1,6 @@
 <template>
   <div
-    class="hero flex flex-col items-center justify-center bg-base-100 rounded-2xl border m-2 h-full w-full"
+    class="hero flex flex-col items-center justify-center bg-base-200 rounded-2xl border m-2 h-full w-full"
   >
     <div
       class="flex flex-col md:flex-row items-center justify-center w-full h-full space-y-4 md:space-y-0 md:space-x-4"
@@ -8,12 +8,12 @@
       <!-- Left Section -->
       <div class="flex flex-col items-center w-full md:w-1/3 space-y-4 m-2 p-2">
         <transition name="slide-fade-slow">
-          <div class="bg-base-100 p-4 rounded-lg shadow-lg">
+          <div class="bg-base-200 p-4 rounded-lg shadow-lg">
             <click-leaderboard class="rounded-2xl m-2 p-2" />
           </div>
         </transition>
         <transition name="slide-fade-slow">
-          <div v-if="state.topScore >= 100" class="bg-base-100 p-4 rounded-lg shadow-lg">
+          <div v-if="state.topScore >= 100" class="bg-base-200 p-4 rounded-lg shadow-lg">
             <!-- Gallery Viewer-->
           </div>
         </transition>
@@ -65,7 +65,7 @@
           </div>
         </transition>
         <transition name="slide-fade-slow">
-          <div v-if="state.topScore >= 30" class="bg-base-100 p-4 rounded-lg shadow-lg border m-2">
+          <div v-if="state.topScore >= 30" class="bg-base-200 p-4 rounded-lg shadow-lg border m-2">
             <!-- Butterfly Toggle Component -->
             You've unlocked our mascot AMI - The Anti-Malaria Intelligence. AMI's job is to flutter
             around (for now), but eventually she'll help raise funds to fight malaria.
@@ -73,7 +73,7 @@
           </div>
         </transition>
         <transition name="slide-fade-slow">
-          <div v-if="state.topScore >= 40" class="bg-base-100 p-4 rounded-lg shadow-lg border m-2">
+          <div v-if="state.topScore >= 40" class="bg-base-200 p-4 rounded-lg shadow-lg border m-2">
             <!-- Theme Select -->
             Feel free to change the theme!
             <theme-toggle />

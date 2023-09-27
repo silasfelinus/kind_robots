@@ -12,7 +12,7 @@ const toggled = ref(false)
     class="card-front grid grid-rows-4 gap-4 p-4 border-2 border-solid border-gray-300 bg-base-200 opacity-90 rounded-lg shadow-lg text-base-content items-start h-auto lg:h-screen my-4"
   >
     <div v-if="currentBot" class="row-span-full lg:row-span-1 flex flex-col items-center space-y-4">
-      <div class="card bg-base-100 text-base-content shadow-xl flex-grow overflow-auto w-full">
+      <div class="card bg-base-200 text-base-content shadow-xl flex-grow overflow-auto w-full">
         <div class="flex flex-col items-center p-4">
           <avatar-image class="w-64 h-64 object-cover rounded-full mb-4" />
           <h1 class="text-4xl font-semibold mb-2 card-title">{{ currentBot.name }}</h1>

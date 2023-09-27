@@ -177,7 +177,7 @@ watch(selectedDifficulty, resetGame)
       <div
         v-for="galleryImage in galleryImages"
         :key="galleryImage.id"
-        class="gallery-display m-4 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden w-[calc(90%/3)] md:w-[calc(90%/5)] lg:w-[calc(90%/7)] cursor-pointer"
+        class="gallery-display m-4 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden w-screen cursor-pointer"
         @click="handleGalleryClick(galleryImage)"
       >
         <div :class="{ flipped: galleryImage.flipped || galleryImage.matched }">

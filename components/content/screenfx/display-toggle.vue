@@ -55,7 +55,7 @@ const toggleIcon = computed(() => (isSimpleLayout.value ? 'mdi:view-grid' : 'mdi
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg-base-100);
+  background-color: var(--bg-base-200);
 }
 
 .home-link {
@@ -92,6 +92,6 @@ const toggleIcon = computed(() => (isSimpleLayout.value ? 'mdi:view-grid' : 'mdi
 
 .toggle-icon {
   font-size: 2rem;
-  color: var(--bg-base-100);
+  color: var(--bg-base-200);
 }
 </style>

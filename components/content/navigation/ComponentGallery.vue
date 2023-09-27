@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-100 p-4">
+  <div class="bg-base-200 p-4">
     <!-- Dynamic Component Container -->
     <div v-if="!isLoading && selectedComponent">
       <div v-if="errorLoadingComponent">

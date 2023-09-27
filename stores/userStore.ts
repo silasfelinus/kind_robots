@@ -74,7 +74,9 @@ export const useUserStore = defineStore({
 
       // Set the state variables
       this.stayLoggedIn = stayLoggedIn
-      this.token = storedToken
+      if (storedToken) {
+        this.token = storedToken
+      }
 
       // If stayLoggedIn is true, then we should also set the token and fetch user data
       if (stayLoggedIn && storedToken) {
@@ -82,16 +84,13 @@ export const useUserStore = defineStore({
       }
     },
     async fetchUserDataByToken(token: string) {
-      console.log('reached fetch user by token', token)
       try {
         const response = await this.apiCall('/api/auth/validate', 'POST', {
           type: 'token',
           data: { token }
         })
 
-        console.log('something happened. response:', response)
         if (response.success) {
-          console.log('success!. setting user', response.user)
           this.setUser(response.user)
         }
       } catch (error: any) {
@@ -132,7 +131,7 @@ export const useUserStore = defineStore({
         // Debugging logs
         console.log("🚀 I'm in setStayLoggedIn")
         console.log(`🍞 Breadcrumb: Stay Logged In - ${this.stayLoggedIn}`)
-      } catch (error) {
+      } catch (error: any) {
         // Centralized error handling
         errorHandler({ success: false, message: `Operation failed: ${error.message}` })
       }

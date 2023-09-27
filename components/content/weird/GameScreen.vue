@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-base-100 text-base-content">
+  <div class="flex flex-col h-screen bg-base-200 text-base-content">
     <div class="m-4">
       <label for="prompt" class="font-bold text-lg">Prompt:</label>
       <textarea

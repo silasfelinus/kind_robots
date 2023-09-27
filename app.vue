@@ -1,10 +1,5 @@
 <template>
   <div>
-    <h1>User Information</h1>
-    {{ user }}
-    <p>Username: {{ userStore.username }}</p>
-    <p>Stay Logged In: {{ userStore.stayLoggedIn }}</p>
-    <p>Token: {{ userStore.token }}</p>
     <ami-loader />
   </div>
 </template>

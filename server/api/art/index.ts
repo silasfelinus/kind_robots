@@ -1,6 +1,5 @@
 // /server/api/galleries/art/index.ts
-import { Art, Prisma } from '@prisma/client'
-import axios from 'axios'
+import { Art } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
@@ -18,8 +17,8 @@ export async function createArt(art: Partial<Art>): Promise<Art> {
       data: {
         path: art.path,
         prompt: art.prompt,
-        user: art.user,
-        galleryId: art.galleryId
+        userId: art.userId || 0,
+        galleryId: art.galleryId || 21
       }
     })
 

@@ -1,6 +1,5 @@
 interface navigationData {
   title: string
-  componentName: string
   image: string
   description: string
   path: string
@@ -8,59 +7,63 @@ interface navigationData {
 
 export const userNavigation: navigationData[] = [
   {
+    title: 'Welcome',
+    image: '/images/kindart.webp',
+    description: 'About Kind Robots',
+    path: '/about'
+  },
+  {
     title: 'Brainstorm!!!!!',
-    componentName: 'slogan-maker',
     image: '/images/avatars/brain1.webp',
     description: 'Generate and share brainstorms',
     path: '/brainstorm'
   },
   {
     title: 'Weirdlandia',
-    componentName: 'game-generator',
     image: '/images/weirdlandia/weird-32.png',
-    description: 'Have a weird adventure!',
-    path: '/adventure'
+    description: 'Promo page for Weirdlandia, the game of infinite adventure.',
+    path: '/weirdlandia'
   },
   {
     title: 'BotCafe',
-    componentName: 'bot-cafe',
     image: '/images/botcafe/botcafe-268.webp',
-    description: 'Chat with our friendly bots',
+    description: 'Chat with our friendly bots (working but the layout is awful)',
     path: '/botcafe'
   },
   {
     title: 'ArtMaker',
-    componentName: 'ArtMakerComponent',
     image: '/images/fantasycore/fantasycore-747.webp',
-    description: 'Create beautiful art effortlessly',
+    description: 'Create beautiful art (currently being worked on, up soon)',
     path: '/artmaker'
   },
   {
+    title: 'Rebel Button',
+    image: '/images/ducky/ducky-516.webp',
+    description: 'I cannot advise trying to get to the top of this leaderboard.',
+    path: '/button'
+  },
+  {
     title: 'Choose your Fate',
-    componentName: 'dilema-chooser',
     image: '/images/fantasycore/fantasycore-749.webp',
-    description: 'Select from 2 moral quandaries',
+    description: 'Select from 2 moral quandaries (Coming Soon!)',
     path: '/fate'
   },
   {
-    title: 'Art Critic',
-    componentName: 'art-critic',
+    title: 'Art Match',
     image: '/images/cafepurr/cafepurr-395.webp',
-    description: 'Rate our gallery art. Is it art?',
-    path: '/critic'
+    description: 'Match art from our galleries.',
+    path: '/memory'
   },
   {
     title: 'AMI',
-    componentName: 'chat-with-ami',
     image: '/images/wonderchest/wonderchest-1691.webp',
-    description: 'Meet AMI, the anti-malaria intelligence, and create slogans for her campaign',
+    description: 'Meet AMI, the anti-malaria intelligence.',
     path: '/amibot'
   },
   {
     title: 'Theme Changer',
-    componentName: 'theme-menu',
     image: '/images/redbubble/redbubble-1141.webp',
-    description: 'Customize your public data',
+    description: 'Customize your experience in the Kind Universe',
     path: '/theme'
   }
 ]

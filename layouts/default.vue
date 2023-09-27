@@ -6,19 +6,18 @@
     >
       <smart-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
       <h1 class="text-4xl text-default font-bold">Kind Robots</h1>
+      <!-- Subtitle -->
+      <div class="text-center rounded-2xl border p-1 m-2 shadow-lg">
+        <h1 v-if="page.title" class="text-2xl">The {{ page.title }} Room</h1>
+        <h1 v-else class="text-2xl">🌈 Fetching details...</h1>
+      </div>
     </header>
-
-    <!-- Subtitle -->
-    <div class="text-center rounded-2xl border p-2 m-2 shadow-lg">
-      <h1 v-if="page.title" class="text-2xl">The {{ page.title }} Room</h1>
-      <h1 v-else class="text-2xl">🌈 Fetching details...</h1>
-    </div>
 
     <!-- Main Content -->
     <main
       class="flex-grow flex flex-col items-center p-2 m-2 rounded-2xl border shadow-lg overflow-y-auto"
     >
-      <slot />
+      <slot class="w-full h-full flex bg-base-200 rounded-2xl p-2 m-2" />
     </main>
 
     <!-- Image and Tooltip Wrapper -->
@@ -37,12 +36,6 @@
         <streaming-tooltip :tooltip="page.tooltip" class="w-full" />
       </div>
     </div>
-
-    <footer class="flex justify-around items-center rounded-2xl border p-2 m-2 shadow-lg">
-      <home-link />
-      <theme-toggle />
-      <butterfly-toggle />
-    </footer>
     <footer-toggle />
   </div>
 </template>

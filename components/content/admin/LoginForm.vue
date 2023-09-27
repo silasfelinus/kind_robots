@@ -122,11 +122,11 @@ const handleRetryLogin = () => {
 }
 
 /* Adding some stylish upgrades */
-.bg-base-100 {
+.bg-base-200 {
   transition: background-color 0.3s ease;
 }
 
-.bg-base-100:hover {
+.bg-base-200:hover {
   background-color: var(--bg-base-300);
 }
 

@@ -97,21 +97,22 @@ enum BotType {
 
 // media collections
 model Gallery {
-  id             Int      @id @unique @default(autoincrement())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  name           String   @unique
+  id             Int         @id @unique @default(autoincrement())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  name           String      @unique
   content        String
   Art            Art[]
-  description    String?  @db.Text
+  description    String?     @db.Text
   mediaId        String?
   url            String?
-  isNsfw         Boolean  @default(false)
+  isNsfw         Boolean     @default(false)
   custodian      String?
-  User           User?    @relation(fields: [userId], references: [id])
+  User           User?       @relation(fields: [userId], references: [id])
   userId         Int?
   highlightImage String?
-  imagePaths     String?  @db.Text
+  imagePaths     String?     @db.Text
+  ArtPrompt      ArtPrompt[]
 }
 
 model Art {
@@ -119,12 +120,12 @@ model Art {
   Gallery     Gallery       @relation(fields: [galleryId], references: [id])
   galleryId   Int
   path        String
-  clapCount   Int           @default(0)
-  booCount    Int           @default(0)
   ArtReaction ArtReaction[]
   prompt      String?       @db.Text
-  user        String?
-  collectors  User[]
+  userId      Int?          @default(0)
+  User        User?          @relation(fields: [userId], references: [id])
+  ArtPrompt   ArtPrompt?    @relation(fields: [artPromptId], references: [id])
+  artPromptId Int?
 }
 
 model ArtReaction {
@@ -141,6 +142,18 @@ model ArtReaction {
   Tags      Tag[]
   reaction  String?
   comment   String?  @db.Text
+}
+
+model ArtPrompt {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+  userId    Int      @default(0)
+  Art       Art[]
+  prompt    String   @db.Text
+  Gallery   Gallery  @relation(fields: [galleryId], references: [id])
+  galleryId Int      @default(21) //cafefred
 }
 
 model Tag {
@@ -425,6 +438,7 @@ model User {
   ArtReaction         ArtReaction[]
   Channel             Channel[]
   Art                 Art[]
+  ArtPrompt           ArtPrompt[]
 }
 
 model Account {

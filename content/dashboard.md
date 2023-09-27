@@ -7,10 +7,9 @@ image: botcafe1.webp
 gallery: wonderbot
 tags: ['home']
 icon: game-icons:cyber-eye
-tooltip: Anyone seeing this is an early adopter. Thank you for checking out Kind Robots, I hope to build more so this is worth coming back to.
+tooltip: Welcome to our new gallery!
 category: wip
-sort: icon
-underConstruction: true
+sort: highlight
 ---
 
 

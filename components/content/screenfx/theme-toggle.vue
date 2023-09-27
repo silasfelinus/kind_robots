@@ -1,47 +1,38 @@
 <template>
-  <div class="theme-selector p-4 rounded-md text-center relative">
-    <div class="mt-2 text-xl font-bold">Theme:</div>
-    <div class="theme-button-wrapper relative inline-block">
+  <div class="theme-selector flex flex-col items-center">
+    <div class="text-lg font-bold w-full text-center mb-2">Theme:</div>
+    <div class="flex flex-row items-center justify-center space-x-2 w-full">
       <button
         tabindex="0"
         aria-haspopup="true"
         aria-label="Change theme"
-        class="theme-btn p-4 rounded-full focus:outline-none focus:ring focus:ring-accent transform hover:scale-110 transition-all ease-in-out duration-200"
+        class="theme-btn p-2 rounded-full focus:outline-none focus:ring focus:ring-accent transform hover:scale-110 transition-all ease-in-out duration-200"
         @click="toggleMenu"
       >
         <!-- Updated icon here -->
         <icon name="game-icons:pencil-brush" class="w-12 h-12" />
       </button>
-      <div class="font-bold mt-2 text-xl">{{ themeStore.currentTheme }}</div>
-      <transition name="theme-menu-fade">
-        <div
-          v-show="open"
-          :style="modalPosition"
-          class="origin-top-right absolute mt-2 w-96 rounded-md shadow-lg bg-base-100 ring-1 ring-black ring-opacity-5 z-10 transition-opacity duration-200"
-        >
-          <div
-            class="py-1 theme-list grid grid-cols-3 gap-2 p-2"
-            role="menu"
-            aria-orientation="vertical"
-            aria-labelledby="theme-list"
-          >
-            <!-- Theme items here -->
-            <button
-              v-for="(theme, index) in themeStore.themes"
-              :key="index"
-              :class="`theme-item block w-full text-center px-2 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-md ${
-                theme === themeStore.currentTheme ? 'bg-accent text-white' : ''
-              }`"
-              role="menuitem"
-              tabindex="0"
-              @click="themeStore.changeTheme(theme)"
-            >
-              {{ theme }}
-            </button>
-          </div>
-        </div>
-      </transition>
+      <div class="text-lg font-bold w-full text-center">{{ themeStore.currentTheme }}</div>
     </div>
+    <transition name="theme-menu-fade">
+      <div
+        v-show="open"
+        :style="modalPosition"
+        class="theme-menu flex flex-wrap justify-center bg-base-200 border p-2 m-1 rounded-2xl z-10 transition-opacity duration-200 w-full"
+      >
+        <button
+          v-for="(theme, index) in themeStore.themes"
+          :key="index"
+          class="theme-item flex items-center justify-center cursor-pointer p-2 rounded-lg flex-grow"
+          :class="theme === themeStore.currentTheme ? 'ring-2 ring-accent' : ''"
+          role="menuitem"
+          tabindex="0"
+          @click="themeStore.changeTheme(theme)"
+        >
+          {{ theme }}
+        </button>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -81,38 +72,3 @@ onMounted(() => {
   themeStore.initTheme()
 })
 </script>
-
-<style scoped>
-.theme-btn:hover {
-  background-color: var(--bg-secondary);
-}
-
-.theme-menu-fade-enter-active,
-.theme-menu-fade-leave-active {
-  transition: opacity 0.2s;
-}
-
-.theme-menu-fade-enter,
-.theme-menu-fade-leave-to {
-  opacity: 0;
-}
-
-.theme-list {
-  max-height: 800px;
-  overflow-y: auto;
-}
-
-.theme-item {
-  position: relative;
-}
-
-.theme-item:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--bg-accent);
-}
-
-.theme-item.selected {
-  border: 2px solid var(--bg-accent);
-  border-radius: 10px;
-}
-</style>

@@ -39,7 +39,7 @@ let randomMessage = ref(randomMessages[Math.floor(Math.random() * randomMessages
 
 <style scoped>
 .card {
-  background-color: var(--bg-base-100);
+  background-color: var(--bg-base-200);
   color: var(--text-base-content);
   box-shadow: var(--shadow-xl);
   overflow: auto;

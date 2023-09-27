@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-100 p-4">
+  <div class="bg-base-200 p-4">
     <h1 class="text-2xl mb-4">Training Line Manager</h1>
 
     <!-- List of Training Lines -->

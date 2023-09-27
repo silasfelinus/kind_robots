@@ -55,7 +55,7 @@ onMounted(() => {
 <style scoped>
 .text-bubble {
   position: absolute;
-  background-color: var(--bg-base-100);
+  background-color: var(--bg-base-200);
   border: 2px solid var(--bg-primary);
   border-radius: 25px;
   padding: 10px;

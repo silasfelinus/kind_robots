@@ -12,11 +12,11 @@ export const useContainerStore = defineStore({
     shadow: 'shadow-md',
     transition: 'transition-transform',
     backdrop: 'backdrop-blur-md',
-    outerBgColor: 'bg-base-100'
+    outerBgColor: 'bg-base-200'
   }),
   getters: {
     containerColors() {
-      return ['bg-primary', 'bg-secondary', 'bg-accent', 'bg-base-200', 'bg-info', 'bg-base-100']
+      return ['bg-primary', 'bg-secondary', 'bg-accent', 'bg-base-200', 'bg-info', 'bg-base-200']
     },
     containerMargins() {
       return ['m-0', 'm-2', 'm-4', 'm-6', 'm-8']

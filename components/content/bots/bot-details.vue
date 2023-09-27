@@ -3,7 +3,7 @@
     class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 border-2 border-solid border-secondary bg-primary opacity-90 rounded-lg shadow-lg text-base-content items-start h-auto lg:h-screen"
   >
     <div v-if="currentBot" class="col-span-full lg:col-span-1 flex flex-col">
-      <div class="card bg-base-100 text-base-content shadow-xl flex-grow overflow-auto">
+      <div class="card bg-base-200 text-base-content shadow-xl flex-grow overflow-auto">
         <div class="flex flex-col lg:flex-row items-stretch">
           <avatar-image />
         </div>

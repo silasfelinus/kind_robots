@@ -9,7 +9,7 @@
     <!-- Login Dropdown -->
     <div
       v-if="isVisible"
-      class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-base-100 p-4 rounded-2xl shadow-lg transition-all duration-300"
+      class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-base-200 p-4 rounded-2xl shadow-lg transition-all duration-300"
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">

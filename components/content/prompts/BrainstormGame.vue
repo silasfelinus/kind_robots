@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center bg-base-200 rounded-2xl p-8 m-8 border">
+  <div class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border">
     <h1 class="text-3xl font-bold mb-4">Brainstorm Café</h1>
     <img :src="pageImage" alt="Brainstorming" class="rounded-full h-40 w-40 mb-4" />
     <p class="text-lg mb-4">
@@ -17,12 +17,12 @@
       class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 mb-4"
     ></div>
     <transition-group name="list" tag="div" class="flex flex-wrap justify-center">
-      <div v-for="idea in allIdeas" :key="idea.title" class="m-4 w-1/4">
+      <div v-for="idea in allIdeas" :key="idea.title" class="m-2">
         <BrainstormCard :idea="idea" @click="handleCardClick(idea)" />
       </div>
     </transition-group>
-    <div v-if="errorMessage" class="text-red-500">
-      {{ errorMessage }}
+    <div v-if="errorMessage" class="bg-warning text-white p-4 rounded-full">
+      <icon name="error" class="text-lg" /> {{ errorMessage }}
     </div>
   </div>
 </template>
@@ -47,7 +47,6 @@ const getRandomIdeas = (count: number) => {
 // Initialize allIdeas with 5 random pre-generated ideas
 const allIdeas = ref<Idea[]>(getRandomIdeas(5))
 
-// Fetch from API only when the button is clicked, not on mount
 const fetchBrainstorm = async () => {
   isLoading.value = true
   errorMessage.value = null
@@ -66,12 +65,17 @@ const fetchBrainstorm = async () => {
     const data = await response.json()
     if (data.choices && data.choices[0] && data.choices[0].message) {
       const newIdeas: Idea[] = parseIdeasFromAPI(data.choices[0].message.content)
-      allIdeas.value = [...newIdeas, ...allIdeas.value]
+      if (newIdeas.length > 0) {
+        allIdeas.value = [...newIdeas, ...allIdeas.value]
+      } else {
+        throw new Error('No new ideas generated')
+      }
     } else {
       throw new Error('Invalid API response')
     }
   } catch (error: any) {
-    errorMessage.value = errorHandler(error).message
+    const { message } = errorHandler(error)
+    errorMessage.value = message
     console.error('Error fetching brainstorm:', error)
   } finally {
     isLoading.value = false
@@ -114,5 +118,19 @@ const parseIdeasFromAPI = (rawContent: string) => {
 .list-leave-to {
   opacity: 0;
   transform: translateY(-30px);
+}
+
+.card-style {
+  background-color: var(--bg-secondary);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.3s ease-in-out,
+    box-shadow 0.3s ease-in-out;
+}
+
+.card-style:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 </style>

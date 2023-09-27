@@ -7,7 +7,7 @@ image: weirdlandia/weird-69.png
 gallery: weirdlandia
 tags: ['home']
 icon: game-icons:mermaid
-tooltip: Milestones are uncovered by interacting with the site. Find them all.
+tooltip: This is still under development, but the logic is entirely in place, I just need to add in the front end award screens.
 sort: highlight
 ---
 

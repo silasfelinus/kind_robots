@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-100 p-4 rounded">
+  <div class="bg-base-200 p-4 rounded">
     <h2 class="text-xl mb-2">Edit Reward</h2>
     <form @submit.prevent="editReward">
       <!-- Form Fields -->
@@ -12,7 +12,7 @@
           v-model="editedReward[field.id as keyof typeof editedReward]"
           :required="field.required"
           :type="field.type || 'text'"
-          class="p-2 rounded bg-base-100"
+          class="p-2 rounded bg-base-200"
         />
       </div>
       <button type="submit" class="bg-primary text-default p-2 rounded">Update Reward</button>

@@ -5,6 +5,10 @@ interface Idea {
 
 export const sampleIdeas: Idea[] = [
   { title: `Pickup Lines at a Funeral`, example: `I hear you're newly single...` },
+  {
+    title: `Sinister movie taglines for feel-good films`,
+    example: 'Feel the Warmth: A heartwarming tale of arson and friendship!'
+  },
   { title: `Terrible Ideas for Role-Playing Characters`, example: `Chair: The non-sentient chair` },
   { title: `Awkward Elevator Conversations`, example: `So, how's your day going, floor 7?` },
   { title: `Unfortunate Superhero Names`, example: `Captain Obvious: "Look, a crime!"` },

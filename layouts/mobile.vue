@@ -4,7 +4,7 @@
     <!-- Navbar -->
     <nav class="flex justify-between items-center p-4 text-default">
       <div class="logo text-3xl font-extrabold rounded-2xl border">KindRobots</div>
-      <h1 class="text-xl font-bold">@ {{ page.title }}</h1>
+      <h1 v-if="page.title" class="text-2xl">The {{ page.title }} Room</h1>
       <h2 class="text-lg font-medium">{{ page.subtitle }}</h2>
     </nav>
     <!-- Main Content -->
@@ -23,7 +23,7 @@
       <div v-if="showTooltip" class="mt-4 p-3 rounded-2xl bg-accent text-default">
         {{ page.tooltip }}
       </div>
-      <slot />
+      <slot class="w-full h-full flex bg-base-200 rounded-2xl p-2 m-2" />
     </main>
     <!-- Footer -->
     <footer>

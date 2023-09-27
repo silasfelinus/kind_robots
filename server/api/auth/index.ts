@@ -7,13 +7,15 @@ import prisma from '../utils/prisma'
 // Add this import if you haven't already
 
 const { JWT_SECRET } = useRuntimeConfig()
+
 export const verifyJwtToken = async (token: string) => {
   try {
     console.log(`Debug: Token Type: ${typeof token}, Token Value: ${token}`)
     const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'))
     const decoded = await jwtVerify(token, secretKey)
-    console.log('verifying:', decoded)
-    return { success: true, userId: decoded.id }
+    console.log('Decoded Object:', decoded) // Debug log here
+
+    return { success: true, userId: decoded.payload.id }
   } catch (error: any) {
     const { message, statusCode } = errorHandler(error)
     return {
@@ -27,7 +29,8 @@ export const verifyJwtToken = async (token: string) => {
 export const getUserDataByToken = async (token: string) => {
   try {
     const { success, userId } = await verifyJwtToken(token)
-    console.log('Decoded User:', userId)
+    console.log('Decoded User ID:', userId) // Debug log
+
     if (!success || !userId) {
       throw new Error('Invalid token.')
     }
@@ -45,11 +48,13 @@ export const getUserDataByToken = async (token: string) => {
       }
     })
 
+    console.log('Fetched User:', user) // Debug log
+
     if (!user) {
       throw new Error('User not found.')
     }
 
-    return { success: true, user } // Return the user object
+    return user
   } catch (error: any) {
     const { message, statusCode } = errorHandler(error)
     return {

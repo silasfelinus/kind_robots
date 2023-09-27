@@ -54,6 +54,7 @@
       <ForwardLink class="flex flex-row" />
       <layout-selector class="flex flex-row" />
       <theme-toggle class="flex flex-row" />
+      <butterfly-toggle class="flex flex-row" />
     </div>
   </div>
 </template>

@@ -4,7 +4,6 @@
     <nav class="flex justify-between items-center p-4 bg-primary text-default">
       <div class="logo text-2xl font-bold">KindRobots</div>
       <smart-dashboard class="flex flex-row bg-base-200 border rounded-2xl m-1" />
-      <theme-toggle />
       <h1 class="text-lg font-semibold">The {{ page.title }} Room</h1>
       <h2 class="text-md font-semibold">{{ page.subtitle }}</h2>
     </nav>
@@ -15,7 +14,7 @@
 
     <!-- Main Content -->
     <main class="flex-1 p-4">
-      <slot />
+      <slot class="w-full h-full flex bg-base-200 rounded-2xl p-2 m-2" />
     </main>
 
     <!-- Footer -->

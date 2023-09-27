@@ -33,7 +33,7 @@
     <!-- Login Dropdown -->
     <div
       v-if="isVisible"
-      class="flex flex-col items-center bg-base-100 p-4 rounded-2xl shadow-lg transition-all duration-300 absolute top-36 left-0"
+      class="flex flex-col items-center bg-base-200 p-4 rounded-2xl shadow-lg transition-all duration-300 absolute top-36 left-0"
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">

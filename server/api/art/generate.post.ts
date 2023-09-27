@@ -76,7 +76,6 @@ export default defineEventHandler(async (event) => {
       const newArt = await createArt({
         path: imagePath,
         prompt,
-        user,
         galleryId: gallery.id // Now safe to access .id
       })
 

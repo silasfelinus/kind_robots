@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-100 p-4 rounded shadow-lg modal">
+  <div class="bg-base-200 p-4 rounded shadow-lg modal">
     <!-- Reward Details -->
     <icon :name="reward.icon" class="text-6xl mb-2" />
     <h2 class="text-xl mb-2">{{ reward.text }}</h2>

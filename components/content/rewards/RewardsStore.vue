@@ -1,6 +1,6 @@
 <!-- ~/components/RewardsListFromStore.vue -->
 <template>
-  <div class="bg-base-100 p-4">
+  <div class="bg-base-200 p-4">
     <!-- Loading State -->
     <div v-if="rewardStore.isLoading">Loading rewards...</div>
 

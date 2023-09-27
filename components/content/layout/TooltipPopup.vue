@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center p-8 bg-base-100 rounded-lg shadow-lg">
+  <div class="flex flex-col items-center p-8 bg-base-200 rounded-lg shadow-lg">
     <!-- Minimized Avatar -->
     <div
       v-if="minimized"

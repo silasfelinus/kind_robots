@@ -12,20 +12,12 @@
         <h1 v-if="page.subtitle" class="text-4xl font-bold">{{ page.subtitle }}</h1>
         <h1 v-else class="text-4xl font-bold">Location: 🌀 Loading...</h1>
       </div>
-      <!-- Theme Toggle -->
-      <div class="flex items-center justify-center relative">
-        <theme-toggle />
-      </div>
-      <!-- Butterfly Toggle -->
-      <div class="flex items-center justify-center m-2">
-        <butterfly-toggle />
-      </div>
     </header>
 
     <main class="flex-grow flex flex-col md:flex-row overflow-hidden">
       <!-- Slot -->
       <div
-        class="flex-grow flex flex-col items-center overflow-y-auto p-2 m-2 rounded-2xl border bg-primary shadow-lg max-h-[calc(100%-4rem)] max-w-full"
+        class="flex-grow flex flex-col items-center overflow-y-auto m-2 rounded-2xl border max-h-[calc(100%-4rem)] max-w-full"
       >
         <slot />
       </div>

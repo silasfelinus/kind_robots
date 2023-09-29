@@ -9,6 +9,8 @@
         <NuxtLink
           :to="page._path"
           class="flex flex-col items-center py-2 px-4 text-default shadow-lg transform transition-transform hover:scale-110"
+          @mouseover="isHovered = page._id"
+          @mouseleave="isHovered = null"
         >
           <img
             :src="`/images/${page.image}`"
@@ -20,6 +22,12 @@
             Under Development
           </div>
         </NuxtLink>
+        <popup-description
+          v-if="isHovered === page._id"
+          :icon="page.icon"
+          :description="page.description"
+          :is-hovered="isHovered === page._id"
+        />
       </div>
     </div>
     <div class="flex flex-wrap justify-center mt-2 space-x-2">
@@ -38,6 +46,12 @@
           />
           {{ page.title }}
         </NuxtLink>
+        <popup-description
+          v-if="isHovered === page._id"
+          :icon="page.icon"
+          :description="page.description"
+          :is-hovered="isHovered === page._id"
+        />
         <div v-if="page.underConstruction" class="mt-1 px-2 py-0.5 bg-info text-xs rounded-full">
           Under Development
         </div>
@@ -55,6 +69,12 @@
         >
           {{ page.title }}
         </NuxtLink>
+        <popup-description
+          v-if="isHovered === page._id"
+          :icon="page.icon"
+          :description="page.description"
+          :is-hovered="isHovered === page._id"
+        />
         <div v-if="page.underConstruction" class="mt-1 px-2 py-0.5 bg-info text-xs rounded-full">
           Under Development
         </div>
@@ -66,7 +86,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
-
+const isHovered = ref(null)
 onMounted(() => {
   if (process.client) {
     const pageStore = usePageStore()

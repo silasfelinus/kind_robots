@@ -1,10 +1,7 @@
 <template>
-  <div
-    class="flex flex-wrap justify-center space-x-2 overflow-y-auto rounded-2xl p-1 mb-4 relative"
-    style="overflow: visible; z-index: 0"
-  >
+  <div class="relative flex flex-wrap justify-center space-x-2">
     <div
-      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-secondary border rounded-2xl transform -translate-x-1/3 mb-1 px-1 top-0 absolute z-50 pointer-events-none"
+      class="flex items-center justify-center text-2xl font-extrabold border shadow-lg bg-secondary rounded-2xl px-1"
     >
       Extra Rooms
     </div>
@@ -18,14 +15,15 @@
       @mouseleave="isHovered = null"
       @click="handleLinkClick"
     >
-      <div
-        v-if="page._path === $route.path"
-        class="flex items-center mt-1 text-xl rounded-2xl border bg-secondary p-1 bottom-0 left-0 absolute"
-      >
-        You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
-      </div>
       <div class="w-24 h-24 rounded-lg overflow-hidden border bg-secondary">
         <img :src="`/images/${page.image}`" alt="Page Image" class="object-cover w-full h-full" />
+      </div>
+      <!-- You are here indicator -->
+      <div
+        v-if="page._path === $route.path"
+        class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary"
+      >
+        You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
       </div>
       <div class="flex flex-col items-start">
         <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">

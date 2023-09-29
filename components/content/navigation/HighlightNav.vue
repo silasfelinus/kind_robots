@@ -35,7 +35,7 @@
         <!-- Tooltip -->
         <div
           v-if="!isExtended && hoveredPage === page._id"
-          class="absolute -top-32 left-1/2 transform -translate-x-1/2 p-2 bg-base-200 rounded-2xl border shadow-lg z-10 flex items-center space-x-4"
+          class="absolute -top-32 mb-1 left-1/2 transform -translate-x-1/2 p-2 bg-base-200 rounded-2xl border shadow-lg z-10 flex items-center space-x-4"
         >
           <div class="w-24 h-24 rounded-lg overflow-hidden border bg-secondary">
             <img

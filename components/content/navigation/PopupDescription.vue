@@ -1,7 +1,7 @@
 <template>
   <div
     v-show="isHovered"
-    class="absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-full bg-base-200 p-2 rounded-2xl border z-10 flex items-center space-x-2"
+    class="absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-full mt-[-20px] bg-base-200 p-2 rounded-2xl border z-50 flex items-center space-x-2"
     :class="{ 'flex-row': !streaming, 'flex-col': streaming }"
     style="z-index: 1000"
   >

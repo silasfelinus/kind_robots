@@ -1,5 +1,7 @@
 <template>
-  <div class="tooltip-container bg-base-400 text-default p-4 rounded-2xl border shadow-md m-4">
+  <div
+    class="tooltip-container bg-base-400 text-default p-4 rounded-2xl border shadow-md m-4 pointer-events-none"
+  >
     <span class="font-semibold"
       ><icon name="mdi:chat" class="text-default mr-2 text-2xl" />Silas Says:
       <span class="text-default text-xl">{{ streamedText }}</span></span
@@ -27,7 +29,7 @@ const startStreaming = () => {
     } else {
       clearInterval(timer)
     }
-  }, 100) // Adjust the speed as needed
+  }, 50) // Adjust the speed as needed
 }
 
 onMounted(() => {

@@ -18,7 +18,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
 import { useArtStore, ExtendedArt, ArtReaction } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 

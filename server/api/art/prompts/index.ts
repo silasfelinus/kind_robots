@@ -2,45 +2,54 @@
 import { ArtPrompt, Art } from '@prisma/client'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import { createArt } from './..'
 
 // Define a type that matches the expected input for creating an ArtPrompt
+
 export type ArtPromptCreateInput = {
-  userId?: number
+  userId: number
   prompt: string
-  galleryId?: number
+  galleryId: number
 }
 
-export async function createArtPrompt(
-  promptData: ArtPromptCreateInput
-): Promise<{ newArtPrompt: ArtPrompt; newArt: Art | null }> {
+export async function updateArtPrompt(
+  id: number,
+  updatedData: Partial<ArtPrompt>
+): Promise<ArtPrompt | null> {
+  try {
+    const updatedPrompt = await prisma.artPrompt.update({
+      where: { id },
+      data: updatedData
+    })
+    return updatedPrompt
+  } catch (error: any) {
+    errorHandler({ success: false, message: error.message })
+    return null
+  }
+}
+export async function createArtPrompt(promptData: ArtPromptCreateInput): Promise<ArtPrompt> {
   try {
     // Create new ArtPrompt
     const newArtPrompt = await prisma.artPrompt.create({
-      data: promptData,
-      select: {
-        id: true,
-        createdAt: true,
-        updatedAt: true,
-        userId: true,
-        prompt: true,
-        galleryId: true
+      data: promptData
+    })
+    return newArtPrompt
+  } catch (error: any) {
+    console.error('Prompt Generation Error:', error)
+    throw errorHandler({
+      error,
+      context: `Art Generation - Prompt: ${promptData.prompt}, User: ${promptData.userId}`
+    })
+  }
+}
+
+// Fetch all ArtPrompts along with their related Art
+export async function fetchAllArtPrompts(): Promise<(ArtPrompt & { Art: Art[] })[]> {
+  try {
+    return await prisma.artPrompt.findMany({
+      include: {
+        Art: true // Include related Art
       }
     })
-
-    let newArt: Art | null = null
-
-    // Only generate art if path and galleryId are available
-    if (promptData.prompt && (promptData.userId ?? promptData.galleryId)) {
-      newArt = await createArt({
-        prompt: newArtPrompt.prompt,
-        userId: newArtPrompt.userId,
-        galleryId: newArtPrompt.galleryId ?? 21,
-        artPromptId: newArtPrompt.id
-      })
-    }
-
-    return { newArtPrompt, newArt }
   } catch (error: any) {
     throw errorHandler(error)
   }
@@ -72,3 +81,4 @@ export async function fetchAllArtPromptIds(): Promise<number[]> {
     throw errorHandler(error)
   }
 }
+export type { ArtPrompt }

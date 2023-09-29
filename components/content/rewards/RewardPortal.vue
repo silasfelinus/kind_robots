@@ -12,7 +12,6 @@
         </div>
         <button @click="showReward(reward)">Show</button>
         <button @click="editReward(reward)">Edit</button>
-        <button @click="deleteReward(reward.id)">Delete</button>
       </div>
     </div>
 

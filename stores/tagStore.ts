@@ -6,6 +6,10 @@ interface TagState {
   isInitialized: boolean // To track if the store is initialized
 }
 
+const isClient = typeof window !== 'undefined'
+
+const initialState = isClient ? JSON.parse(localStorage.getItem('tags') || '[]') : []
+
 interface TagStore extends TagState {
   // Actions
   initializeTags: () => Promise<void>
@@ -19,7 +23,7 @@ export const useTagStore = defineStore({
   id: 'tag',
 
   state: (): TagState => ({
-    tags: JSON.parse(localStorage.getItem('tags') || '[]'),
+    tags: initialState,
     isInitialized: false
   }),
 
@@ -36,7 +40,9 @@ export const useTagStore = defineStore({
         const response = await fetch('/api/tags')
         if (response.ok) {
           this.tags = await response.json()
-          localStorage.setItem('tags', JSON.stringify(this.tags))
+          if (isClient) {
+            localStorage.setItem('tags', JSON.stringify(this.tags))
+          }
         }
       } catch (error: any) {
         console.error('Error fetching tags:', error)
@@ -56,7 +62,9 @@ export const useTagStore = defineStore({
         if (response.ok) {
           const newTag = await response.json()
           this.tags.push(newTag)
-          localStorage.setItem('tags', JSON.stringify(this.tags))
+          if (isClient) {
+            localStorage.setItem('tags', JSON.stringify(this.tags))
+          }
         }
       } catch (error: any) {
         console.error('Error creating tag:', error)
@@ -78,7 +86,9 @@ export const useTagStore = defineStore({
           const index = this.tags.findIndex((tag) => tag.id === id)
           if (index !== -1) {
             this.tags[index] = updatedTag
-            localStorage.setItem('tags', JSON.stringify(this.tags))
+            if (isClient) {
+              localStorage.setItem('tags', JSON.stringify(this.tags))
+            }
           }
         }
       } catch (error: any) {
@@ -96,7 +106,9 @@ export const useTagStore = defineStore({
           const index = this.tags.findIndex((tag) => tag.id === id)
           if (index !== -1) {
             this.tags.splice(index, 1)
-            localStorage.setItem('tags', JSON.stringify(this.tags))
+            if (isClient) {
+              localStorage.setItem('tags', JSON.stringify(this.tags))
+            }
           }
         }
       } catch (error: any) {
@@ -105,3 +117,5 @@ export const useTagStore = defineStore({
     }
   }
 })
+
+export type { Tag }

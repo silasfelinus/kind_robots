@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     if (!artPrompt) {
       return { success: false, message: 'ArtPrompt not found' }
     }
-    const artIds = artPrompt.Art.map((a) => a.id) // TypeScript should now recognize the Art property
+    const artIds = artPrompt.Art.map((a) => a.id)
     return { success: true, prompt: artPrompt.prompt, artIds }
   } catch (error: any) {
     return errorHandler(error)

@@ -89,7 +89,8 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         username: true,
         // email: true, // Email is commented to exclude it from the response
         emailVerified: true,
-        questPoints: true,
+        clickRecord: true,
+        matchRecord: true,
         name: true,
         bio: true,
         birthday: true,
@@ -98,7 +99,21 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         country: true,
         timezone: true,
         avatarImage: true
-        // Add other fields that you want to expose, excluding sensitive fields
+      }
+    })
+  } catch (error: any) {
+    console.error(`Failed to fetch user by ID: ${error.message}`)
+    throw new Error(errorHandler(error).message)
+  }
+}
+export async function fetchUsernameById(id: number): Promise<Partial<User> | null> {
+  try {
+    return await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        username: true // Include username
+        // ... other fields
       }
     })
   } catch (error: any) {

@@ -15,12 +15,17 @@ export default defineEventHandler(async (event): Promise<ImageResponse> => {
     if (isNaN(count) || count <= 0) {
       throw new Error('Invalid count parameter.')
     }
-
-    // Fetch all gallery IDs
-    const allGalleryIDs = await prisma.gallery.findMany({ select: { id: true } })
+    const initialGalleryIDs = await prisma.gallery.findMany({
+      where: {
+        id: {
+          lt: 20 // only including galleries with imagePaths
+        }
+      },
+      select: { id: true }
+    })
 
     // Shuffle the array of gallery IDs
-    const shuffledIDs = allGalleryIDs.sort(() => 0.5 - Math.random())
+    const shuffledIDs = initialGalleryIDs.sort(() => 0.5 - Math.random())
 
     // Take the first 'count' shuffled gallery IDs
     const selectedGalleryIDs = shuffledIDs.slice(0, count).map((g) => g.id)

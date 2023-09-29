@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import confetti from 'canvas-confetti'
+import { useUserStore } from '../../../stores/userStore'
+
+const userStore = useUserStore()
+const user = computed(() => userStore.user)
+const username = computed(() => userStore.username)
+const matchRecord = computed(() => userStore.matchRecord)
 
 interface GalleryImage {
   id: number
@@ -107,7 +113,9 @@ function handleGalleryClick(clickedGallery: GalleryImage) {
     if (galleryImages.value.every((g) => g.matched)) {
       gameWon.value = true
       triggerConfetti()
-
+      if (matchRecord.value < score.value) {
+        userStore.updateMatchRecord(score.value)
+      }
       // Update high score if needed
       if (score.value > highScore.value) {
         highScore.value = score.value
@@ -158,6 +166,7 @@ watch(selectedDifficulty, resetGame)
     <header class="text-center space-y-2">
       <h1 class="text-4xl font-bold">Kind Robots Memory Game</h1>
       <p class="text-gray-600">Match the images and test your memory!</p>
+      <match-leaderboard />
       <div class="difficulty-controls">
         <label for="difficulty">Select Difficulty: </label>
         <select id="difficulty" v-model="selectedDifficulty">

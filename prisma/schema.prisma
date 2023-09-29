@@ -117,13 +117,13 @@ model Gallery {
 
 model Art {
   id          Int           @id @unique @default(autoincrement())
-  Gallery     Gallery       @relation(fields: [galleryId], references: [id])
-  galleryId   Int
+  Gallery     Gallery?      @relation(fields: [galleryId], references: [id])
+  galleryId   Int?
   path        String
   ArtReaction ArtReaction[]
   prompt      String?       @db.Text
   userId      Int?          @default(0)
-  User        User?          @relation(fields: [userId], references: [id])
+  User        User?         @relation(fields: [userId], references: [id])
   ArtPrompt   ArtPrompt?    @relation(fields: [artPromptId], references: [id])
   artPromptId Int?
 }
@@ -152,8 +152,8 @@ model ArtPrompt {
   userId    Int      @default(0)
   Art       Art[]
   prompt    String   @db.Text
-  Gallery   Gallery  @relation(fields: [galleryId], references: [id])
-  galleryId Int      @default(21) //cafefred
+  Gallery   Gallery?  @relation(fields: [galleryId], references: [id])
+  galleryId Int?      @default(21) //cafefred
 }
 
 model Tag {

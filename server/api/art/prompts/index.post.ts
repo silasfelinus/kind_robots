@@ -1,38 +1,19 @@
-// server/api/art/prompts/index.ts
-import { ArtPrompt, Art } from '@prisma/client'
-import prisma from '../../utils/prisma'
+import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
-import { createArt } from './..'
+import { createArtPrompt, ArtPromptCreateInput } from '.'
 
-// Define a type that matches the expected input for creating an ArtPrompt
-export type ArtPromptCreateInput = {
-  userId?: number
-  prompt: string
-  galleryId: number
-}
-
-export async function createArtPrompt(
-  promptData: ArtPromptCreateInput
-): Promise<{ newArtPrompt: ArtPrompt; newArt: Art | null }> {
+export default defineEventHandler(async (event) => {
   try {
-    // Create new ArtPrompt
-    const newArtPrompt = await prisma.artPrompt.create({
-      data: promptData
-    })
+    // Read the request body and cast it to the ArtPromptCreateInput type
+    const promptData: ArtPromptCreateInput = await readBody(event)
 
-    let newArt: Art | null = null
+    // Create a new ArtPrompt using the createArtPrompt function
+    const newArtPrompt = await createArtPrompt(promptData)
 
-    // Only generate art if path and galleryId are available
-    if (promptData.prompt && (promptData.userId ?? promptData.galleryId)) {
-      newArt = await createArt({
-        path: 'some_path_here', // Replace with the actual path
-        prompt: newArtPrompt.prompt,
-        galleryId: promptData.galleryId // Use galleryId from ArtPrompt or default to 21
-      })
-    }
-
-    return { newArtPrompt, newArt }
+    // Return success along with the new ArtPrompt
+    return { success: true, newArtPrompt }
   } catch (error: any) {
-    throw errorHandler(error)
+    // Handle errors using the centralized error handler
+    return errorHandler({ error, context: 'ArtPrompt Creation' })
   }
-}
+})

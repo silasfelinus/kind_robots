@@ -8,7 +8,7 @@ gallery: weirdlandia
 tags: ['home']
 category: user
 icon: game-icons:robot-antennas
-tooltip: Tooltip
+tooltip: I need to write something better here.
 sort: text
 underConstruction: true
 ---

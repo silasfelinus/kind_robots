@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { User } from '@prisma/client'
-import { onMounted } from 'vue'
 import { errorHandler } from '../server/api/utils/error'
 
 interface UserState {
@@ -37,8 +36,9 @@ export const useUserStore = defineStore({
       return this.user?.mana || 0
     },
     isLoggedIn(): boolean {
-      return !!this.token && !!this.user
+      return Boolean(this.token) && Boolean(this.user)
     },
+
     userId(): number | null {
       return this.user ? this.user.id : null
     },
@@ -211,10 +211,18 @@ export const useUserStore = defineStore({
       this.user = null
       this.token = ''
       this.apiKey = null
-      this.removeFromLocalStorage('api_key')
-      this.removeFromLocalStorage('token')
-      this.removeFromLocalStorage('user')
-      this.removeFromLocalStorage('stayLoggedIn')
+
+      // Centralized error handling
+      try {
+        this.removeFromLocalStorage('api_key')
+        this.removeFromLocalStorage('token')
+        this.removeFromLocalStorage('user')
+        this.removeFromLocalStorage('stayLoggedIn')
+      } catch (error: any) {
+        // Utilize your centralized error handling approach here
+        errorHandler({ success: false, message: `Logout failed: ${error.message}` })
+      }
+
       this.setStayLoggedIn(false)
     },
 

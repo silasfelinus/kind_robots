@@ -9,6 +9,7 @@ export type ArtPromptCreateInput = {
   userId: number
   prompt: string
   galleryId: number
+  pitch: string
 }
 
 export async function updateArtPrompt(

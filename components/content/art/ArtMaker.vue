@@ -1,98 +1,53 @@
 <template>
-  <div class="art-maker">
-    <h1>Art Maker 🎨</h1>
-    <h2>Designer - {{ username }}</h2>
-    <art-prompts />
+  <div class="bg-base-200 rounded-2xl p-8 text-lg">
+    <h1 class="text-2xl mb-4">Art-Maker</h1>
 
-    <!-- Special message for admin -->
-    <div v-if="isAdmin">
-      <p>You have all-access as an admin!</p>
+    <!-- Prompt Input -->
+    <div class="mt-4">
+      <input
+        v-model="prompt"
+        placeholder="Enter your art prompt"
+        class="rounded-2xl p-2 w-full text-lg"
+      />
     </div>
-
-    <!-- Input for art prompt -->
-    <input v-model="prompt" placeholder="Enter art prompt" />
 
     <!-- Generate Art Button -->
-    <button :disabled="isGenerating" @click="generateArt">
+    <button
+      class="bg-primary rounded-2xl p-2 text-white mt-4 w-full hover:bg-primary-dark"
+      @click="generateArt"
+    >
       Generate Art
-      <!-- Loader positioned over the button -->
-      <div v-if="isGenerating" class="loader-overlay">
-        <ami-butterfly />
-      </div>
     </button>
-
-    <!-- Display ArtCards -->
-    <div v-for="art in artAssets" :key="art.id">
-      <ArtCard :art="art" />
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="isGenerating">
-      <p>Generating art, please wait...</p>
-      <p>Your dream while you wait: {{ currentDream }}</p>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
-import { useArtStore, Art } from '@/stores/artStore'
-import { useTagStore } from '@/stores/tagStore'
-import { useUserStore } from '@/stores/userStore'
-import { useDreamStore } from '@/stores/dreamStore'
-
-const artStore = useArtStore()
-const tagStore = useTagStore()
-const userStore = useUserStore()
-const dreamStore = useDreamStore()
-
-onMounted(() => {
-  // Initialize artStore
-  artStore.init()
-  tagStore.initializeTags()
-})
+import { ref } from 'vue'
 
 const prompt = ref('')
-const isGenerating = ref(false)
-const artAssets = ref(artStore.artAssets)
-const username = computed(() => userStore.username)
-const isAdmin = computed(() => userStore.role === 'ADMIN')
-const currentDream = ref('')
-
-let timer: NodeJS.Timeout
 
 const generateArt = async () => {
-  isGenerating.value = true
-  currentDream.value = dreamStore.randomDream()
-  timer = setInterval(() => {
-    currentDream.value = dreamStore.randomDream()
-  }, 15000)
-
   try {
-    await artStore.generateArt(prompt.value)
+    const response = await fetch('https://kindrobots.org/api/art/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt: prompt.value,
+        username: 'silasfelinus',
+        galleryName: 'cafefred'
+      })
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      console.log('Art generated:', data)
+    } else {
+      console.error('Failed to generate art:', await response.text())
+    }
   } catch (error: any) {
     console.error('Error generating art:', error)
-  } finally {
-    isGenerating.value = false
-    clearInterval(timer)
   }
 }
-
-onUnmounted(() => {
-  clearInterval(timer)
-})
 </script>
-
-<style scoped>
-/* Your styles here */
-.loader-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-</style>

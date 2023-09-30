@@ -7,16 +7,19 @@ type RequestData = {
   prompt?: string
   username?: string
   galleryName?: string
+  pitch?: string
 }
 
 export default defineEventHandler(async (event) => {
   let username: string | undefined // Declare user here
   let prompt: string | undefined // Declare prompt here
+  let pitch: string | undefined
 
   try {
     const requestData: RequestData = await readBody(event)
     prompt = requestData.prompt // Assign value here
     username = requestData.username // Assign value here
+    pitch = requestData.pitch || prompt
     const galleryName = requestData.galleryName || 'cafefred'
 
     // Validate prompt and user
@@ -29,7 +32,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Call your utility function to generate and save the image
-    const result = await generateAndSaveImage(prompt, username, galleryName)
+    const result = await generateAndSaveImage(prompt, username, galleryName, pitch)
 
     // Check if result is not undefined
     if (result) {

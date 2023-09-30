@@ -11,8 +11,8 @@ export async function createArt(art: Partial<Art>): Promise<Art> {
   try {
     console.log('ART:', art)
     // Validate required fields
-    if (!art.path || !art.galleryId) {
-      console.error('Validation Error: Path and galleryId must be provided')
+    if (!art.path || !art.galleryId || !art.pitch) {
+      console.error('Validation Error: Path, pitch, and galleryId must be provided')
       throw new Error('Path and galleryId must be provided')
     }
 
@@ -20,7 +20,8 @@ export async function createArt(art: Partial<Art>): Promise<Art> {
     let artPromptData: ArtPromptCreateInput = {
       userId: art.userId || 0,
       prompt: art.prompt || '',
-      galleryId: art.galleryId || 21
+      galleryId: art.galleryId || 21,
+      pitch: art.pitch
     }
 
     const newArtPrompt = await createArtPrompt(artPromptData)
@@ -30,6 +31,7 @@ export async function createArt(art: Partial<Art>): Promise<Art> {
       data: {
         path: art.path,
         prompt: art.prompt,
+        pitch: art.pitch,
         userId: art.userId || 0,
         galleryId: art.galleryId || 21,
         artPromptId: newArtPrompt.id // Associate with ArtPrompt
@@ -139,7 +141,12 @@ type GenerateImageResponse = {
   error?: string
 }
 
-export async function generateAndSaveImage(prompt: string, user: string, galleryName: string) {
+export async function generateAndSaveImage(
+  prompt: string,
+  user: string,
+  galleryName: string,
+  pitch: string = prompt
+) {
   // Generate image with modeller
   const response: GenerateImageResponse = await generateImage(prompt, user)
 
@@ -161,17 +168,21 @@ export async function generateAndSaveImage(prompt: string, user: string, gallery
     }
     base64Image = response.images[0] // Use the first image from the images array if response is an object
   }
-
   // Save the image and get its path
-  const imagePath = await saveImage(base64Image, galleryName)
+  let imagePath = await saveImage(base64Image, galleryName)
 
+  // Remove '/public' or 'public' prefix from imagePath
+  if (imagePath.startsWith('/public') || imagePath.startsWith('public')) {
+    imagePath = imagePath.replace(/^\/?public/, '')
+  }
+
+  console.log('Sanitized image path:', imagePath)
   // Attempt to fetch the gallery, create if not exists
   let gallery = await fetchGalleryByName(galleryName)
   if (!gallery) {
     console.log(`Creating new gallery: ${galleryName}`) // Logging the gallery creation
     gallery = await createGallery({ name: galleryName })
   }
-  console.log('imagepath', imagePath)
 
   // Check if gallery is null before proceeding
   if (gallery) {
@@ -179,6 +190,7 @@ export async function generateAndSaveImage(prompt: string, user: string, gallery
     const newArt = await createArt({
       path: imagePath,
       prompt,
+      pitch,
       galleryId: gallery.id // Now safe to access .id
     })
 

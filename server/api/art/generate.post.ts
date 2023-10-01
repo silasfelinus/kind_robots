@@ -19,12 +19,17 @@ export default defineEventHandler(async (event) => {
     const requestData: RequestData = await readBody(event)
     prompt = requestData.prompt // Assign value here
     username = requestData.username // Assign value here
-    pitch = requestData.pitch || prompt
+    pitch = requestData.pitch
     const galleryName = requestData.galleryName || 'cafefred'
 
     // Validate prompt and user
     if (!prompt || typeof prompt !== 'string') {
       throw new Error('Invalid or missing prompt')
+    }
+
+    // Validate prompt and user
+    if (!pitch || typeof pitch !== 'string') {
+      throw new Error('Invalid or missing pitch')
     }
 
     if (!username || typeof username !== 'string') {

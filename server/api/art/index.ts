@@ -4,6 +4,8 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { saveImage } from '../utils/saveImage'
 import { fetchGalleryByName, createGallery } from '../galleries'
+import { fetchIdByUsername } from '../users'
+import { createTag } from '../tags'
 import { createArtPrompt, ArtPromptCreateInput } from './prompts'
 
 // Function to create a new Art entry
@@ -145,7 +147,9 @@ export async function generateAndSaveImage(
   prompt: string,
   user: string,
   galleryName: string,
-  pitch: string = prompt
+  pitch: string,
+  isPublic?: boolean,
+  isNSFW?: boolean
 ) {
   // Generate image with modeller
   const response: GenerateImageResponse = await generateImage(prompt, user)
@@ -183,6 +187,27 @@ export async function generateAndSaveImage(
     console.log(`Creating new gallery: ${galleryName}`) // Logging the gallery creation
     gallery = await createGallery({ name: galleryName })
   }
+  const userId = await fetchIdByUsername(user)
+
+  // Look for a tag with label "pitch" and title = art.prompt
+  let pitchTag = await prisma.tag.findFirst({
+    where: {
+      label: 'pitch',
+      title: pitch
+    }
+  })
+
+  // If the tag doesn't exist, create it
+  if (!pitchTag) {
+    pitchTag = await createTag({
+      label: 'pitch',
+      title: pitch,
+      userId
+    })
+  }
+
+  // Get the pitchId from the tag
+  const pitchId = pitchTag.id
 
   // Check if gallery is null before proceeding
   if (gallery) {
@@ -191,7 +216,8 @@ export async function generateAndSaveImage(
       path: imagePath,
       prompt,
       pitch,
-      galleryId: gallery.id // Now safe to access .id
+      galleryId: gallery.id, // Now safe to access .id
+      userId
     })
 
     return { success: true, newArt }

@@ -9,7 +9,6 @@ nuxt/
 .env
 dist
 .DS_Store
-public/images
 *.pem
 .nuxt/
 /mnt/appdata/*

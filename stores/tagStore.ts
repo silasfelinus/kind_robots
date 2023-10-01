@@ -27,12 +27,12 @@ export const useTagStore = defineStore({
   },
 
   actions: {
-    selectPitch(title: string) {
-      const foundPitch = this.pitches.find((pitch) => pitch.title === title)
+    selectPitch(pitchId: number) {
+      const foundPitch = this.pitches.find((pitch) => pitch.id === pitchId)
       if (foundPitch) {
         this.selectedPitch = foundPitch
       } else {
-        console.warn(`Pitch with title ${title} not found.`)
+        console.warn(`Pitch with id ${pitchId} not found.`)
       }
     },
 
@@ -151,6 +151,17 @@ export const useTagStore = defineStore({
       const pitch = this.tags.find((tag) => tag.id === id && tag.label === 'pitch')
       if (pitch) {
         await this.editTag(id, { title: newTitle })
+      }
+    },
+    async updatePitch(id: number, updates: Partial<Tag>) {
+      const pitch = this.tags.find((tag) => tag.id === id && tag.label === 'pitch')
+      if (pitch) {
+        try {
+          await this.editTag(id, updates)
+        } catch (error: any) {
+          const handledError = errorHandler(error)
+          console.error('Error updating pitch:', handledError.message)
+        }
       }
     }
   }

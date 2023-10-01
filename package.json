@@ -13,9 +13,9 @@
     "lint": "npm run lint:js && npm run lint:prettier",
     "lintfix": "eslint --fix --ext \".ts,.vue\" --ignore-path .gitignore . && prettier --write .",
     "prisma:inline": "cp ./node_modules/.prisma/client/*.js ./node_modules/@prisma/client",
-    "prisma:migrate": "prisma migrate deploy && npm run prisma:inline",
-    "prisma:migrate:dev": "prisma migrate dev && npm run prisma:inline",
-    "prisma:generate": "prisma generate && npm run prisma:inline"
+    "prisma:migrate": "npx prisma migrate deploy && npm run prisma:inline",
+    "prisma:migrate:dev": "npx prisma migrate dev && npm run prisma:inline",
+    "prisma:generate": "npx prisma generate && npm run prisma:inline"
   },
   "devDependencies": {
     "@auth/prisma-adapter": "^1.0.1",
@@ -35,7 +35,7 @@
     "nuxt": "latest",
     "nuxt-icon": "^0.4.1",
     "prettier": "latest",
-    "prisma": "latest",
+    "prisma": "^5.3.1",
     "typescript": "^5.0.4"
   },
   "dependencies": {
@@ -43,7 +43,7 @@
     "@interactjs/types": "^1.10.18",
     "@nuxtjs/axios": "^5.13.6",
     "@pinia/nuxt": "^0.4.11",
-    "@prisma/client": "latest",
+    "@prisma/client": "^5.3.1",
     "axios": "latest",
     "canvas-confetti": "^1.6.0",
     "daisyui": "latest",

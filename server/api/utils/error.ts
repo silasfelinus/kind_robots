@@ -14,6 +14,8 @@ export function errorHandler(error: ErrorHandlerInput): {
     switch (error.code) {
       case 'P2002':
         return { success: false, message: 'Record already exists.', statusCode: 409 }
+      case 'P1001':
+        return { success: false, message: 'Cannot connect to database.', statusCode: 503 }
       default:
         return {
           success: false,

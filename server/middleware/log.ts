@@ -1,24 +1,28 @@
 import prisma from './../api/utils/prisma'
 import { fetchUserById } from './../api/users/'
+import { errorHandler } from './../api/utils/error'
 
 export default defineEventHandler(async (event) => {
-  const userId = event.context.user?.id
-  let username: string | null = null
+  try {
+    const userId = event.context.user?.id
+    let username: string | null = null
 
-  if (userId) {
-    const user = await fetchUserById(userId)
-    username = user?.username ?? null
-  }
-
-  // Assuming event.req.url is the correct way to get the URL in your setup
-  const requestUrl = event.node.req?.url ?? 'Unknown URL'
-
-  // Create a new log entry
-  await prisma.log.create({
-    data: {
-      message: `New request: ${requestUrl}`,
-      username,
-      timestamp: new Date()
+    if (userId) {
+      const user = await fetchUserById(userId)
+      username = user?.username ?? null
     }
-  })
+
+    const requestUrl = event.node.req?.url ?? 'Unknown URL'
+
+    await prisma.log.create({
+      data: {
+        message: `New request: ${requestUrl}`,
+        username,
+        timestamp: new Date()
+      }
+    })
+  } catch (error: any) {
+    const { message } = errorHandler(error)
+    console.error(`Failed to create log: ${message}`)
+  }
 })

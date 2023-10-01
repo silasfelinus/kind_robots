@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 
-export const allowedLayouts = ['column', 'dashboard', 'default', 'desktop', 'mobile', 'simple']
+export const allowedLayouts = ['retro', 'dashboard', 'default', 'mobile']
 
-const getStoredLayout = (key: string, defaultValue: string) => {
+const getStoredLayout = (key: string, defaultValue: string): string => {
   const storedValue = localStorage.getItem(key)
-  return allowedLayouts.includes(storedValue ?? '') ? storedValue : defaultValue
+  return allowedLayouts.includes(storedValue ?? '') ? storedValue! : defaultValue
 }
 
 interface LayoutState {

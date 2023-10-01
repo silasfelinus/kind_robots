@@ -122,6 +122,27 @@ export async function fetchUsernameById(id: number): Promise<Partial<User> | nul
   }
 }
 
+export async function fetchIdByUsername(username: string): Promise<number> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: {
+        id: true
+        // ... other fields
+      }
+    })
+
+    if (user && typeof user.id === 'number') {
+      return user.id
+    } else {
+      throw new Error('User not found or ID is not a number')
+    }
+  } catch (error: any) {
+    console.error(`Failed to fetch user by Name: ${error.message}`)
+    throw new Error(errorHandler(error).message)
+  }
+}
+
 export async function updateUser(id: number, data: Partial<User>): Promise<User | null> {
   try {
     return await prisma.user.update({ where: { id }, data })

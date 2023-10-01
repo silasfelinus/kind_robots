@@ -1,21 +1,17 @@
 import { defineStore } from 'pinia'
 import { Tag } from '@prisma/client'
 import { useUserStore } from '@/stores/userStore' // Import user store to get the active userId
-
-interface TagState {
-  tags: Tag[]
-  isInitialized: boolean
-}
+import { errorHandler } from '@/server/api/utils/error'
 
 const isClient = typeof window !== 'undefined'
-const initialState = isClient ? JSON.parse(localStorage.getItem('tags') || '[]') : []
 
 export const useTagStore = defineStore({
   id: 'tag',
 
-  state: (): TagState => ({
-    tags: initialState,
-    isInitialized: false
+  state: () => ({
+    tags: [] as Tag[],
+    isInitialized: false,
+    selectedPitch: null as Tag | null
   }),
 
   getters: {
@@ -25,16 +21,25 @@ export const useTagStore = defineStore({
         (tag) => tag.isPublic || tag.userId === userStore.userId || tag.userId === 0
       )
     },
-
     pitches(): Tag[] {
-      return this.tags.filter((tag) => tag.label === 'pitch')
+      return (this.tags ?? []).filter((tag) => tag.label === 'pitch')
     }
   },
 
   actions: {
-    async initializeTags() {
+    selectPitch(title: string) {
+      const foundPitch = this.pitches.find((pitch) => pitch.title === title)
+      if (foundPitch) {
+        this.selectedPitch = foundPitch
+      } else {
+        console.warn(`Pitch with title ${title} not found.`)
+      }
+    },
+
+    initializeTags() {
+      // Fetch tags if not already initialized
       if (!this.isInitialized) {
-        await this.fetchTags()
+        this.fetchTags()
         this.isInitialized = true
       }
     },
@@ -48,9 +53,14 @@ export const useTagStore = defineStore({
           if (isClient) {
             localStorage.setItem('tags', JSON.stringify(this.tags))
           }
+        } else {
+          const errorText = await response.text()
+          const handledError = errorHandler(new Error(errorText))
+          console.error('Failed to fetch tags:', handledError.message)
         }
       } catch (error: any) {
-        console.error('Error fetching tags:', error)
+        const handledError = errorHandler(error)
+        console.error('Error fetching tags:', handledError.message)
       }
     },
 
@@ -129,11 +139,6 @@ export const useTagStore = defineStore({
     // Add a new pitch
     async addPitch(title: string, userId: number) {
       await this.createTag('pitch', title, userId)
-    },
-
-    // Select a pitch by title
-    selectPitch(title: string): Tag | undefined {
-      return this.pitches.find((pitch) => pitch.title === title)
     },
 
     // Delete a pitch by ID

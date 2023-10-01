@@ -7,7 +7,421 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum ModelType {
+model Art {
+  id          Int           @id @unique @default(autoincrement())
+  galleryId   Int?
+  path        String
+  prompt      String?       @db.Text
+  artPromptId Int?
+  userId      Int?          @default(0)
+  pitch       String?
+  pitchId     Int?
+  ArtPrompt   ArtPrompt?    @relation(fields: [artPromptId], references: [id])
+  Gallery     Gallery?      @relation(fields: [galleryId], references: [id])
+  Tag         Tag?          @relation(fields: [pitchId], references: [id])
+  User        User?         @relation(fields: [userId], references: [id])
+  ArtReaction ArtReaction[]
+
+  @@index([artPromptId], map: "Art_artPromptId_fkey")
+  @@index([galleryId], map: "Art_galleryId_fkey")
+  @@index([pitchId], map: "Art_pitchId_fkey")
+  @@index([userId], map: "Art_userId_fkey")
+}
+
+model ArtPrompt {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  userId    Int      @default(0)
+  prompt    String   @db.Text
+  galleryId Int?     @default(21)
+  pitch     String?
+  Art       Art[]
+  Gallery   Gallery? @relation(fields: [galleryId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
+
+  @@index([galleryId], map: "ArtPrompt_galleryId_fkey")
+  @@index([userId], map: "ArtPrompt_userId_fkey")
+}
+
+model ArtReaction {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  userId    Int
+  artId     Int
+  claps     Int      @default(0)
+  boos      Int      @default(0)
+  title     String?
+  comment   String?  @db.Text
+  reaction  String?
+  Art       Art      @relation(fields: [artId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id])
+  Tag       Tag[]    @relation("ArtReactionToTag")
+
+  @@index([artId], map: "ArtReaction_artId_fkey")
+  @@index([userId], map: "ArtReaction_userId_fkey")
+}
+
+model Bot {
+  id                Int            @id @unique @default(autoincrement())
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime
+  BotType           Bot_BotType    @default(CHATBOT)
+  name              String         @unique
+  isPublic          Boolean        @default(true)
+  underConstruction Boolean        @default(false)
+  canDelete         Boolean        @default(false)
+  subtitle          String         @default("Kind Robot")
+  description       String         @default("I'm a kind robot")
+  avatarImage       String         @default("/images/wonderchest/wonderchest304_(23).webp")
+  botIntro          String         @default("You're a Kind Robot")
+  userIntro         String         @default("Let's make a difference. Here's my idea:")
+  prompt            String         @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
+  trainingPath      String?
+  theme             String?
+  personality       String         @default("helpful, inquisitive, considerate")
+  modules           String?
+  userId            Int?
+  User              User?          @relation(fields: [userId], references: [id])
+  Media             Media[]
+  TrainingData      TrainingData[] @relation("BotToTrainingData")
+
+  @@index([userId], map: "Bot_userId_fkey")
+}
+
+model Channel {
+  id          Int       @id @unique @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  userId      Int       @default(0)
+  label       String    @default("global")
+  description String?   @db.Text
+  tagId       Int?
+  Tag         Tag?      @relation(fields: [tagId], references: [id])
+  User        User      @relation(fields: [userId], references: [id])
+  Message     Message[]
+
+  @@index([tagId], map: "Channel_tagId_fkey")
+  @@index([userId], map: "Channel_userId_fkey")
+}
+
+model Gallery {
+  id             Int         @id @unique @default(autoincrement())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime
+  name           String      @unique
+  description    String?     @db.Text
+  mediaId        String?
+  url            String?
+  custodian      String?
+  userId         Int?
+  content        String
+  highlightImage String?
+  imagePaths     String?     @db.Text
+  isNsfw         Boolean     @default(false)
+  Art            Art[]
+  ArtPrompt      ArtPrompt[]
+  User           User?       @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Gallery_userId_fkey")
+}
+
+model Game {
+  id         Int      @id @unique @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  content    String   @db.Text
+  category   String   @default("Blue Sky Tasks")
+  isFinished Boolean  @default(false)
+  userId     Int
+  reward     String   @default("A Magic Reward")
+  icon       String?
+  points     Int      @default(10)
+  isPrivate  Boolean  @default(false)
+  User       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Game_userId_fkey")
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  message   String   @db.Text
+  timestamp DateTime @default(now())
+  username  String?
+}
+
+model Media {
+  id           Int      @id @unique @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  path         String   @default("/")
+  isFavorite   Boolean  @default(false)
+  isFlagged    Boolean  @default(false)
+  tags         String   @default("AI, Cafe Purr")
+  designer     String?
+  exifDataId   Int?
+  botId        Int?
+  description  String?
+  negative     String?
+  steps        Int?
+  seed         Int?
+  sampler      String?
+  cfg          String?
+  size         String?
+  modelHash    String?
+  modelName    String?
+  template     String?
+  negTemplate  String?
+  clipData     String?
+  deepboroData String?
+  isNsfw       Boolean  @default(false)
+  Bot          Bot?     @relation(fields: [botId], references: [id])
+
+  @@index([botId], map: "Media_botId_fkey")
+}
+
+model Message {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  sender    String   @default("user")
+  recipient String   @default("prompt")
+  content   String   @db.Text
+  channelId Int
+  botId     Int?     @default(0)
+  userId    Int?     @default(0)
+  Channel   Channel  @relation(fields: [channelId], references: [id])
+  User      User?    @relation(fields: [userId], references: [id])
+
+  @@index([channelId], map: "Message_channelId_fkey")
+  @@index([userId], map: "Message_userId_fkey")
+}
+
+model Milestone {
+  id              Int               @id @default(autoincrement())
+  label           String
+  message         String
+  icon            String            @default("mdi:milestone-add")
+  karma           Int               @default(100)
+  isRepeatable    Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  triggerCode     String
+  tooltip         String?           @default("this has not been revealed")
+  isActive        Boolean           @default(false)
+  pageHint        String?
+  subtleHint      String?
+  MilestoneRecord MilestoneRecord[]
+}
+
+model MilestoneRecord {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  milestoneId Int
+  userId      Int
+  Milestone   Milestone @relation(fields: [milestoneId], references: [id])
+  User        User      @relation(fields: [userId], references: [id])
+
+  @@index([milestoneId], map: "MilestoneRecord_milestoneId_fkey")
+  @@index([userId], map: "MilestoneRecord_userId_fkey")
+}
+
+model Model {
+  id        Int             @id @unique @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime
+  modelType Model_modelType
+  userId    Int?
+  content   String
+  label     String
+  User      User?           @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Model_userId_fkey")
+}
+
+model Project {
+  id                 Int      @id @unique @default(autoincrement())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime
+  name               String
+  title              String
+  category           String
+  content            String   @default("Here's the idea...") @db.Text
+  allowComments      Boolean  @default(false)
+  description        String   @default("")
+  isPublic           Boolean  @default(true)
+  hasAdmission       Boolean  @default(false)
+  paywallDestination String?
+  hostId             Int
+  usdFee             Float
+  portalUrl          String?
+  pitchUrl           String?
+  userId             Int
+  User               User     @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Project_userId_fkey")
+}
+
+model Reaction {
+  id          Int                @id @unique @default(autoincrement())
+  userId      Int
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime
+  reviewTitle String?
+  modelType   Reaction_modelType
+  modelId     Int
+  content     String?
+  rating      Int?
+  User        User               @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Reaction_userId_fkey")
+}
+
+model Resource {
+  id           Int                   @id @unique @default(autoincrement())
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime
+  userId       Int?
+  name         String                @unique
+  customLabel  String?
+  MediaPath    String?
+  customUrl    String?
+  civitaiUrl   String?
+  huggingUrl   String?
+  localPath    String?
+  description  String?               @db.Text
+  resourceType Resource_resourceType @default(CHECKPOINT)
+  isNsfw       Boolean               @default(false)
+  User         User?                 @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Resource_userId_fkey")
+}
+
+model Reward {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  icon       String
+  text       String
+  power      String
+  collection String   @default("genesis")
+  rarity     Int      @default(50)
+  label      String?
+  Todo       Todo[]
+  User       User[]   @relation("RewardToUser")
+}
+
+model Tag {
+  id          Int           @id @unique @default(autoincrement())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  label       String        @default("art")
+  title       String
+  userId      Int           @default(0)
+  isNSFW      Boolean       @default(false)
+  isPublic    Boolean?      @default(false)
+  comments    String?
+  Art         Art[]
+  Channel     Channel[]
+  User        User          @relation(fields: [userId], references: [id])
+  ArtReaction ArtReaction[] @relation("ArtReactionToTag")
+
+  @@index([userId], map: "Tag_userId_fkey")
+}
+
+model Todo {
+  id        Int      @id @default(autoincrement())
+  task      String
+  category  String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  userId    Int
+  rewardId  Int?
+  Reward    Reward?  @relation(fields: [rewardId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
+
+  @@index([rewardId], map: "Todo_rewardId_fkey")
+  @@index([userId], map: "Todo_userId_fkey")
+}
+
+model TrainingData {
+  id           Int            @id @unique @default(autoincrement())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  label        String
+  Bot          Bot[]          @relation("BotToTrainingData")
+  TrainingLine TrainingLine[] @relation("TrainingDataToTrainingLine")
+}
+
+model TrainingLine {
+  id           Int            @id @unique @default(autoincrement())
+  role         String
+  content      String
+  TrainingData TrainingData[] @relation("TrainingDataToTrainingLine")
+}
+
+model User {
+  id                  Int               @id @unique @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime
+  Role                User_Role         @default(USER)
+  username            String            @unique
+  email               String?           @unique
+  questPoints         Int               @default(0)
+  emailVerified       DateTime?
+  name                String?
+  address1            String?
+  address2            String?
+  avatarImage         String?           @default("/images/botcafe.webp")
+  bio                 String?           @default("I was born and then things happened and now I'm here.") @db.Text
+  birthday            DateTime?
+  city                String?
+  country             String?
+  discordUrl          String?
+  facebookUrl         String?
+  instagramUrl        String?
+  kindrobotsUrl       String?
+  languages           String?
+  phone               String?
+  state               String?
+  timezone            String?
+  twitterUrl          String?
+  apiKey              String?           @unique
+  password            String?
+  spotifyAccessToken  String?
+  spotifyID           String?
+  spotifyRefreshToken String?
+  karma               Int?              @default(0)
+  mana                Int?              @default(1000)
+  clickRecord         Int?              @default(0)
+  matchRecord         Int?              @default(0)
+  Art                 Art[]
+  ArtPrompt           ArtPrompt[]
+  ArtReaction         ArtReaction[]
+  Bot                 Bot[]
+  Channel             Channel[]
+  Gallery             Gallery[]
+  Game                Game[]
+  Message             Message[]
+  MilestoneRecord     MilestoneRecord[]
+  Model               Model[]
+  Project             Project[]
+  Reaction            Reaction[]
+  Resource            Resource[]
+  Tag                 Tag[]
+  Todo                Todo[]
+  Reward              Reward[]          @relation("RewardToUser")
+}
+
+enum Bot_BotType {
+  PROMPTBOT
+  CHATBOT
+  ARTBOT
+}
+
+enum Model_modelType {
   BOT
   GALLERY
   MEDIA
@@ -26,32 +440,7 @@ enum ModelType {
   GAME
 }
 
-// example model for style guide
-model Model {
-  id        Int       @id @unique @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  modelType ModelType
-  label     String
-  content   String
-  userId    Int?
-  User      User?     @relation(fields: [userId], references: [id])
-}
-
-// these are modeler and api resource types
-// to process media data
-enum ResourceType {
-  CHECKPOINT
-  EMBEDDING
-  LORA
-  LYCORIS
-  HYPERNETWORK
-  CONTROLNET
-  URL
-  API
-}
-
-enum Role {
+enum User_Role {
   SYSTEM
   USER
   ASSISTANT
@@ -61,390 +450,32 @@ enum Role {
   DESIGNER
 }
 
-// ***BOT
-// our modular promptbots
-// the meat-and-potatoes of our tech interactibles
-model Bot {
-  id                Int            @id @unique @default(autoincrement())
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  BotType           BotType        @default(CHATBOT)
-  name              String         @unique
-  isPublic          Boolean        @default(true)
-  underConstruction Boolean        @default(false)
-  canDelete         Boolean        @default(false)
-  subtitle          String         @default("Kind Robot")
-  description       String         @default("I'm a kind robot")
-  avatarImage       String         @default("/images/wonderchest/wonderchest304_(23).webp")
-  botIntro          String         @default("You're a Kind Robot")
-  userIntro         String         @default("Let's make a difference. Here's my idea:")
-  prompt            String         @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
-  trainingPath      String?
-  theme             String?
-  personality       String         @default("helpful, inquisitive, considerate")
-  modules           String?
-  User              User?          @relation(fields: [userId], references: [id])
-  userId            Int?
-  Media             Media[]
-  TrainingData      TrainingData[]
+enum Reaction_modelType {
+  BOT
+  GALLERY
+  MEDIA
+  MESSAGE
+  PROJECT
+  PROMPT
+  QUEST
+  REACTION
+  RESOURCE
+  USER
+  MODEL
+  DREAM
+  STATUS
+  ERROR
+  CONTENT
+  GAME
 }
 
-enum BotType {
-  PROMPTBOT
-  CHATBOT
-  ARTBOT
-}
-
-// media collections
-model Gallery {
-  id             Int         @id @unique @default(autoincrement())
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  name           String      @unique
-  content        String
-  Art            Art[]
-  description    String?     @db.Text
-  mediaId        String?
-  url            String?
-  isNsfw         Boolean     @default(false)
-  custodian      String?
-  User           User?       @relation(fields: [userId], references: [id])
-  userId         Int?
-  highlightImage String?
-  imagePaths     String?     @db.Text
-  ArtPrompt      ArtPrompt[]
-}
-
-model Art {
-  id          Int           @id @unique @default(autoincrement())
-  Gallery     Gallery?      @relation(fields: [galleryId], references: [id])
-  galleryId   Int?
-  path        String
-  ArtReaction ArtReaction[]
-  pitch       String?
-  mainPitch   Tag?          @relation(fields: [pitchId], references: [id])
-  pitchId     Int?
-  prompt      String?       @db.Text
-  userId      Int?          @default(0)
-  User        User?         @relation(fields: [userId], references: [id])
-  ArtPrompt   ArtPrompt?    @relation(fields: [artPromptId], references: [id])
-  artPromptId Int?
-}
-
-model ArtReaction {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  User      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  Art       Art      @relation(fields: [artId], references: [id], onDelete: Cascade)
-  artId     Int
-  claps     Int      @default(0)
-  boos      Int      @default(0)
-  title     String?
-  Tags      Tag[]
-  reaction  String?
-  comment   String?  @db.Text
-}
-
-model ArtPrompt {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  User      User     @relation(fields: [userId], references: [id])
-  userId    Int      @default(0)
-  Art       Art[]
-  prompt    String   @db.Text
-  pitch     String?
-  Gallery   Gallery? @relation(fields: [galleryId], references: [id])
-  galleryId Int?     @default(21) //cafefred
-}
-
-model Tag {
-  id           Int           @id @unique @default(autoincrement())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  ArtReactions ArtReaction[]
-  label        String        @default("art")
-  title        String
-  Art          Art[]
-  User         User?         @relation(fields: [userId], references: [id])
-  userId       Int?          @default(0)
-  isNSFW       Boolean?
-  isPublic     Boolean?
-}
-
-model Channel {
-  id          Int       @id @unique @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  User        User      @relation(fields: [userId], references: [id])
-  userId      Int       @default(0) //kind guest global acount
-  label       String    @default("global")
-  description String?   @db.Text
-  messages    Message[]
-}
-
-model Message {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  sender    String   @default("user")
-  recipient String   @default("prompt")
-  content   String   @db.Text
-  channelId Int
-  Channel   Channel  @relation(fields: [channelId], references: [id])
-}
-
-// User Incentivization and interaction element
-model Game {
-  id         Int      @id @unique @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  content    String   @db.Text
-  category   String   @default("Blue Sky Tasks")
-  isFinished Boolean  @default(false)
-  User       User     @relation(fields: [userId], references: [id])
-  userId     Int
-  reward     String   @default("A Magic Reward")
-  icon       String?
-  points     Int      @default(10)
-  isPrivate  Boolean  @default(false)
-}
-
-// Any bob-text media deemed important enough to store in the database
-model Media {
-  id           Int      @id @unique @default(autoincrement())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  path         String   @default("/")
-  isNsfw       Boolean  @default(false)
-  isFavorite   Boolean  @default(false)
-  isFlagged    Boolean  @default(false)
-  tags         String   @default("AI, Cafe Purr")
-  designer     String?
-  exifDataId   Int?
-  Bot          Bot?     @relation(fields: [botId], references: [id])
-  botId        Int?
-  description  String?
-  negative     String?
-  steps        Int?
-  seed         Int?
-  sampler      String?
-  cfg          String?
-  size         String?
-  modelHash    String?
-  modelName    String?
-  template     String?
-  negTemplate  String?
-  clipData     String?
-  deepboroData String?
-}
-
-// milestones are user-experience records
-model Milestone {
-  id              Int               @id @default(autoincrement())
-  label           String
-  triggerCode     String
-  message         String
-  tooltip         String?           @default("this has not been revealed")
-  icon            String            @default("mdi:milestone-add")
-  karma           Int               @default(100)
-  isRepeatable    Boolean           @default(false)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  MilestoneRecord MilestoneRecord[]
-  isActive        Boolean           @default(false)
-  pageHint        String?
-  subtleHint      String?
-}
-
-// logs milestone rewards
-model MilestoneRecord {
-  id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  milestoneId Int
-  userId      Int
-  User        User      @relation(fields: [userId], references: [id])
-  Milestone   Milestone @relation(fields: [milestoneId], references: [id])
-}
-
-// Public and private salons hosted by users
-// The name changes frequently: pitch, concept, vision, Vibe, Collection, Group, Page...
-model Project {
-  id                 Int      @id @unique @default(autoincrement())
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  name               String
-  title              String
-  category           String
-  content            String   @default("Here's the idea...") @db.Text
-  allowComments      Boolean  @default(false)
-  description        String   @default("")
-  isPublic           Boolean  @default(true)
-  hasAdmission       Boolean  @default(false)
-  paywallDestination String?
-  Host               User     @relation(fields: [userId], references: [id])
-  hostId             Int
-  usdFee             Float
-  portalUrl          String?
-  pitchUrl           String?
-  userId             Int
-}
-
-model Log {
-  id        Int      @id @default(autoincrement())
-  message   String   @db.Text
-  timestamp DateTime @default(now())
-  username  String? // Optional, if you want to store the username
-}
-
-enum StringType {
-  TAG //single unit tag phrase 
-  PROMPT //combined nlp prompt message
-  WILDCARD //list for randomized generations
-  RESPONSE //message response nlp to human
-  MEDIA_URL // Media url
-  URL // generic web url
-  CODE //validated codewall
-  ERROR // An Error message125m.
-  MESSAGE // Generic message
-  POST // generic feed post
-}
-
-// Reaction / review system
-// Bot reactions can be recovered with Reaction.content
-model Reaction {
-  id          Int       @id @unique @default(autoincrement())
-  User        User      @relation(fields: [userId], references: [id])
-  userId      Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  reviewTitle String?
-  modelType   ModelType
-  modelId     Int
-  content     String?
-  rating      Int?
-}
-
-// Online resources such as checkpoints, embeddings
-// lora, hypernetworks, and urls worth preserving
-model Resource {
-  id           Int          @id @unique @default(autoincrement())
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  User         User?        @relation(fields: [userId], references: [id])
-  userId       Int?
-  name         String       @unique
-  isNsfw       Boolean      @default(false)
-  customLabel  String?
-  MediaPath    String?
-  customUrl    String?
-  civitaiUrl   String?
-  huggingUrl   String?
-  localPath    String?
-  description  String?      @db.Text
-  resourceType ResourceType @default(CHECKPOINT)
-}
-
-// Reward model
-model Reward {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  icon       String
-  text       String
-  power      String
-  collection String   @default("genesis")
-  User       User[]
-  Todo       Todo[]
-  rarity     Int      @default(50)
-  label      String?
-}
-
-// Todo model
-model Todo {
-  id        Int      @id @default(autoincrement())
-  task      String
-  category  String
-  completed Boolean  @default(false)
-  createdAt DateTime @default(now())
-  userId    Int
-  User      User     @relation(fields: [userId], references: [id])
-  rewardId  Int?
-  Reward    Reward?  @relation(fields: [rewardId], references: [id])
-}
-
-model TrainingData {
-  id        Int            @id @unique @default(autoincrement())
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  label     String
-  Bots      Bot[]
-  training  TrainingLine[] // <-- many-to-many relationship
-}
-
-model TrainingLine {
-  id           Int            @id @unique @default(autoincrement())
-  role         String
-  content      String // The content of that role in a particular turn
-  TrainingData TrainingData[] // < traininglines should be reusable in multiple trainindData structures
-}
-
-//help migrate everything to just use User
-model User {
-  id                  Int               @id @unique @default(autoincrement())
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-  Role                Role              @default(USER)
-  username            String            @unique
-  email               String?           @unique
-  emailVerified       DateTime?
-  questPoints         Int               @default(0)
-  name                String?
-  bio                 String?           @default("I was born and then things happened and now I'm here.") @db.Text
-  birthday            DateTime?
-  address1            String?
-  address2            String?
-  city                String?
-  state               String?
-  country             String?
-  timezone            String?
-  phone               String?
-  languages           String?
-  avatarImage         String?           @default("/images/botcafe.webp")
-  // Social Media
-  instagramUrl        String?
-  twitterUrl          String?
-  facebookUrl         String?
-  discordUrl          String?
-  kindrobotsUrl       String?
-  // gamification
-  mana                Int?              @default(1000) // rate-limited user tokens
-  karma               Int?              @default(0) // user experience for website interactions
-  clickRecord         Int?              @default(0)
-  matchRecord         Int?              @default(0)
-  //Auth
-  apiKey              String?           @unique
-  password            String?
-  spotifyAccessToken  String?
-  spotifyRefreshToken String?
-  spotifyID           String?
-  // Relations
-  Bots                Bot[]
-  Galleries           Gallery[]
-  Game                Game[]
-  Reactions           Reaction[]
-  Resources           Resource[]
-  Projects            Project[]
-  Model               Model[]
-  Todo                Todo[]
-  Rewards             Reward[]
-  MilestoneRecord     MilestoneRecord[]
-  ArtReaction         ArtReaction[]
-  Channel             Channel[]
-  Art                 Art[]
-  ArtPrompt           ArtPrompt[]
-  Tag                 Tag[]
+enum Resource_resourceType {
+  CHECKPOINT
+  EMBEDDING
+  LORA
+  LYCORIS
+  HYPERNETWORK
+  CONTROLNET
+  URL
+  API
 }

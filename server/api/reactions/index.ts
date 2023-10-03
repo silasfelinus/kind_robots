@@ -3,7 +3,7 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 // Function to create a new ArtReaction
-export async function createArtReaction(reaction: Partial<ArtReaction>): Promise<ArtReaction> {
+export async function createArtReaction(reaction: Partial<ArtReaction>) {
   try {
     // Validate required fields
     if (!reaction.userId || !reaction.artId) {

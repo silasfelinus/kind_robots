@@ -1,8 +1,6 @@
 // ~/server/api/bots/index.ts
-import { Bot as BotRecord, Prisma } from '@prisma/client'
+import { Bot, Prisma } from '@prisma/client'
 import prisma from './../utils/prisma'
-
-export type Bot = BotRecord
 
 export async function fetchBots(page = 1, pageSize = 100): Promise<Bot[]> {
   const skip = (page - 1) * pageSize
@@ -110,3 +108,5 @@ export async function randomBot(): Promise<Bot | null> {
 export async function countBots(): Promise<number> {
   return await prisma.bot.count()
 }
+
+export type { Bot }

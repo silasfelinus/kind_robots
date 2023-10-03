@@ -3,7 +3,6 @@
 export * from './botStore'
 export * from './errorStore'
 export * from './galleryStore'
-export * from './mediaStore'
 export * from './projectStore'
 export * from './reactionStore'
 export * from './resourceStore'

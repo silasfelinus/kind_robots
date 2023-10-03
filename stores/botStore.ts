@@ -1,16 +1,11 @@
 // ~/stores/botStore.ts
 import { defineStore } from 'pinia'
-import { Bot as BotRecord } from '@prisma/client'
+import { Bot } from '@prisma/client'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { useErrorStore, ErrorType } from './errorStore'
 import { useStatusStore, StatusType } from './statusStore'
 import { botData } from './seeds/seedBots'
-
-const errorStore = useErrorStore()
-const statusStore = useStatusStore()
-
-export type Bot = BotRecord
 
 interface BotStoreState {
   bots: Bot[]
@@ -29,6 +24,9 @@ interface BotStatusData {
   description: string
   modules: string
 }
+
+let errorStore: ReturnType<typeof useErrorStore>
+let statusStore: ReturnType<typeof useStatusStore>
 
 // Function to create a stylish message from the bot data
 function generateBotStatusMessage(botData: BotStatusData): string {
@@ -52,6 +50,8 @@ export const useBotStore = defineStore({
   actions: {
     async loadStore(): Promise<void> {
       if (!this._initialized) {
+        const errorStore = useErrorStore()
+        const statusStore = useStatusStore()
         this.loading = true
         statusStore.setStatus(StatusType.INFO, 'Loading bot store...')
         try {
@@ -248,3 +248,5 @@ export const useBotStore = defineStore({
     }
   }
 })
+
+export type { Bot }

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { Tag } from '@prisma/client'
-import { useUserStore } from '@/stores/userStore' // Import user store to get the active userId
-import { errorHandler } from '@/server/api/utils/error'
+import { errorHandler } from '../server/api/utils/error'
+import { useUserStore } from '@/stores/userStore'
 
 const isClient = typeof window !== 'undefined'
 

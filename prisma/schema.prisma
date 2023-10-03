@@ -9,137 +9,139 @@ datasource db {
 
 model Art {
   id          Int           @id @unique @default(autoincrement())
+  createdAt   DateTime?     @default(now())
+  updatedAt   DateTime?
   galleryId   Int?
   path        String
   prompt      String?       @db.Text
   artPromptId Int?
   userId      Int?          @default(0)
-  pitch       String?
+  Pitch       Pitch?        @relation(fields: [pitchId], references: [id])
   pitchId     Int?
+  pitch       String?
+  boos        Int?          @default(0)
+  claps       Int?          @default(0)
   ArtPrompt   ArtPrompt?    @relation(fields: [artPromptId], references: [id])
   Gallery     Gallery?      @relation(fields: [galleryId], references: [id])
-  Tag         Tag?          @relation(fields: [pitchId], references: [id])
+  Tags        Tag[]
   User        User?         @relation(fields: [userId], references: [id])
   ArtReaction ArtReaction[]
-
-  @@index([artPromptId], map: "Art_artPromptId_fkey")
-  @@index([galleryId], map: "Art_galleryId_fkey")
-  @@index([pitchId], map: "Art_pitchId_fkey")
-  @@index([userId], map: "Art_userId_fkey")
+  steps       Int?
+  seed        Int?
+  sampler     String?
+  cfg         String?
+  checkpoint  String?
+  isNsfw      Boolean?      @default(false)
+  isPublic    Boolean?      @default(false)
+  isOrphan    Boolean?      @default(false)
+  channelId   Int?
+  Channel     Channel?      @relation(fields: [channelId], references: [id])
 }
 
 model ArtPrompt {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  userId    Int      @default(0)
-  prompt    String   @db.Text
-  galleryId Int?     @default(21)
+  id        Int       @id @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  userId    Int       @default(0)
+  prompt    String    @db.Text
+  galleryId Int?      @default(21)
   pitch     String?
   Art       Art[]
-  Gallery   Gallery? @relation(fields: [galleryId], references: [id])
-  User      User     @relation(fields: [userId], references: [id])
-
-  @@index([galleryId], map: "ArtPrompt_galleryId_fkey")
-  @@index([userId], map: "ArtPrompt_userId_fkey")
+  User      User      @relation(fields: [userId], references: [id])
 }
 
 model ArtReaction {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime
+  id        Int       @id @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
   userId    Int
-  artId     Int
-  claps     Int      @default(0)
-  boos      Int      @default(0)
+  artId     Int?
+  claps     Int       @default(0)
+  boos      Int       @default(0)
   title     String?
-  comment   String?  @db.Text
+  comment   String?   @db.Text
   reaction  String?
-  Art       Art      @relation(fields: [artId], references: [id], onDelete: Cascade)
-  User      User     @relation(fields: [userId], references: [id])
-  Tag       Tag[]    @relation("ArtReactionToTag")
-
-  @@index([artId], map: "ArtReaction_artId_fkey")
-  @@index([userId], map: "ArtReaction_userId_fkey")
+  Art       Art?      @relation(fields: [artId], references: [id])
+  User      User      @relation(fields: [userId], references: [id])
+  tags      Tag[]
+  Pitch     Pitch?    @relation(fields: [pitchId], references: [id])
+  pitchId   Int?
 }
 
 model Bot {
-  id                Int            @id @unique @default(autoincrement())
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime
-  BotType           Bot_BotType    @default(CHATBOT)
-  name              String         @unique
-  isPublic          Boolean        @default(true)
-  underConstruction Boolean        @default(false)
-  canDelete         Boolean        @default(false)
-  subtitle          String         @default("Kind Robot")
-  description       String         @default("I'm a kind robot")
-  avatarImage       String         @default("/images/wonderchest/wonderchest304_(23).webp")
-  botIntro          String         @default("You're a Kind Robot")
-  userIntro         String         @default("Let's make a difference. Here's my idea:")
-  prompt            String         @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
+  id                Int       @id @unique @default(autoincrement())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime?
+  BotType           String
+  name              String    @unique
+  isPublic          Boolean   @default(true)
+  underConstruction Boolean   @default(false)
+  canDelete         Boolean   @default(false)
+  subtitle          String    @default("Kind Robot")
+  description       String    @default("I'm a kind robot")
+  avatarImage       String    @default("/images/wonderchest/wonderchest304_(23).webp")
+  botIntro          String    @default("You're a Kind Robot")
+  userIntro         String    @default("Let's make a difference. Here's my idea:")
+  prompt            String    @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
   trainingPath      String?
   theme             String?
-  personality       String         @default("helpful, inquisitive, considerate")
+  personality       String    @default("helpful, inquisitive, considerate")
   modules           String?
   userId            Int?
-  User              User?          @relation(fields: [userId], references: [id])
-  Media             Media[]
-  TrainingData      TrainingData[] @relation("BotToTrainingData")
-
-  @@index([userId], map: "Bot_userId_fkey")
+  User              User?     @relation(fields: [userId], references: [id])
 }
 
 model Channel {
   id          Int       @id @unique @default(autoincrement())
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime
-  userId      Int       @default(0)
+  updatedAt   DateTime?
+  userId      Int?      @default(0)
   label       String    @default("global")
+  title       String?
   description String?   @db.Text
   tagId       Int?
-  Tag         Tag?      @relation(fields: [tagId], references: [id])
-  User        User      @relation(fields: [userId], references: [id])
+  Tag         Tag?
+  User        User?     @relation(fields: [userId], references: [id])
   Message     Message[]
+  Pitch       Pitch?
+  Art         Art[]
 
-  @@index([tagId], map: "Channel_tagId_fkey")
   @@index([userId], map: "Channel_userId_fkey")
 }
 
 model Gallery {
-  id             Int         @id @unique @default(autoincrement())
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime
-  name           String      @unique
-  description    String?     @db.Text
+  id             Int       @id @unique @default(autoincrement())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime?
+  name           String    @unique
+  description    String?   @db.Text
   mediaId        String?
   url            String?
   custodian      String?
   userId         Int?
   content        String
   highlightImage String?
-  imagePaths     String?     @db.Text
-  isNsfw         Boolean     @default(false)
+  imagePaths     String?   @db.Text
+  isNsfw         Boolean   @default(false)
   Art            Art[]
-  ArtPrompt      ArtPrompt[]
-  User           User?       @relation(fields: [userId], references: [id])
+  User           User?     @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Gallery_userId_fkey")
 }
 
 model Game {
-  id         Int      @id @unique @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime
-  content    String   @db.Text
-  category   String   @default("Blue Sky Tasks")
-  isFinished Boolean  @default(false)
+  id         Int       @id @unique @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
+  content    String    @db.Text
+  category   String    @default("Blue Sky Tasks")
+  isFinished Boolean   @default(false)
   userId     Int
-  reward     String   @default("A Magic Reward")
+  reward     String    @default("A Magic Reward")
   icon       String?
-  points     Int      @default(10)
-  isPrivate  Boolean  @default(false)
-  User       User     @relation(fields: [userId], references: [id])
+  points     Int       @default(10)
+  isPrivate  Boolean   @default(false)
+  User       User      @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Game_userId_fkey")
 }
@@ -151,48 +153,18 @@ model Log {
   username  String?
 }
 
-model Media {
-  id           Int      @id @unique @default(autoincrement())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime
-  path         String   @default("/")
-  isFavorite   Boolean  @default(false)
-  isFlagged    Boolean  @default(false)
-  tags         String   @default("AI, Cafe Purr")
-  designer     String?
-  exifDataId   Int?
-  botId        Int?
-  description  String?
-  negative     String?
-  steps        Int?
-  seed         Int?
-  sampler      String?
-  cfg          String?
-  size         String?
-  modelHash    String?
-  modelName    String?
-  template     String?
-  negTemplate  String?
-  clipData     String?
-  deepboroData String?
-  isNsfw       Boolean  @default(false)
-  Bot          Bot?     @relation(fields: [botId], references: [id])
-
-  @@index([botId], map: "Media_botId_fkey")
-}
-
 model Message {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  sender    String   @default("user")
-  recipient String   @default("prompt")
-  content   String   @db.Text
+  id        Int       @id @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  sender    String    @default("user")
+  recipient String    @default("prompt")
+  content   String    @db.Text
   channelId Int
-  botId     Int?     @default(0)
-  userId    Int?     @default(0)
-  Channel   Channel  @relation(fields: [channelId], references: [id])
-  User      User?    @relation(fields: [userId], references: [id])
+  botId     Int?      @default(0)
+  userId    Int?      @default(0)
+  Channel   Channel   @relation(fields: [channelId], references: [id])
+  User      User?     @relation(fields: [userId], references: [id])
 
   @@index([channelId], map: "Message_channelId_fkey")
   @@index([userId], map: "Message_userId_fkey")
@@ -206,7 +178,7 @@ model Milestone {
   karma           Int               @default(100)
   isRepeatable    Boolean           @default(false)
   createdAt       DateTime          @default(now())
-  updatedAt       DateTime
+  updatedAt       DateTime?
   triggerCode     String
   tooltip         String?           @default("this has not been revealed")
   isActive        Boolean           @default(false)
@@ -218,155 +190,129 @@ model Milestone {
 model MilestoneRecord {
   id          Int       @id @default(autoincrement())
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime?
   milestoneId Int
   userId      Int
   Milestone   Milestone @relation(fields: [milestoneId], references: [id])
   User        User      @relation(fields: [userId], references: [id])
-
-  @@index([milestoneId], map: "MilestoneRecord_milestoneId_fkey")
-  @@index([userId], map: "MilestoneRecord_userId_fkey")
-}
-
-model Model {
-  id        Int             @id @unique @default(autoincrement())
-  createdAt DateTime        @default(now())
-  updatedAt DateTime
-  modelType Model_modelType
-  userId    Int?
-  content   String
-  label     String
-  User      User?           @relation(fields: [userId], references: [id])
-
-  @@index([userId], map: "Model_userId_fkey")
 }
 
 model Project {
-  id                 Int      @id @unique @default(autoincrement())
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime
+  id                 Int       @id @unique @default(autoincrement())
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime?
   name               String
   title              String
   category           String
-  content            String   @default("Here's the idea...") @db.Text
-  allowComments      Boolean  @default(false)
-  description        String   @default("")
-  isPublic           Boolean  @default(true)
-  hasAdmission       Boolean  @default(false)
+  content            String    @default("Here's the idea...") @db.Text
+  allowComments      Boolean   @default(false)
+  description        String    @default("")
+  isPublic           Boolean   @default(true)
+  hasAdmission       Boolean   @default(false)
   paywallDestination String?
   hostId             Int
   usdFee             Float
   portalUrl          String?
   pitchUrl           String?
   userId             Int
-  User               User     @relation(fields: [userId], references: [id])
+  User               User      @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Project_userId_fkey")
 }
 
-model Reaction {
-  id          Int                @id @unique @default(autoincrement())
-  userId      Int
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime
-  reviewTitle String?
-  modelType   Reaction_modelType
-  modelId     Int
-  content     String?
-  rating      Int?
-  User        User               @relation(fields: [userId], references: [id])
-
-  @@index([userId], map: "Reaction_userId_fkey")
-}
-
 model Resource {
-  id           Int                   @id @unique @default(autoincrement())
-  createdAt    DateTime              @default(now())
-  updatedAt    DateTime
+  id           Int          @id @unique @default(autoincrement())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime?
   userId       Int?
-  name         String                @unique
+  name         String       @unique
   customLabel  String?
   MediaPath    String?
   customUrl    String?
   civitaiUrl   String?
   huggingUrl   String?
   localPath    String?
-  description  String?               @db.Text
-  resourceType Resource_resourceType @default(CHECKPOINT)
-  isNsfw       Boolean               @default(false)
-  User         User?                 @relation(fields: [userId], references: [id])
+  description  String?      @db.Text
+  resourceType ResourceType @default(CHECKPOINT)
+  isNsfw       Boolean      @default(false)
+  User         User?        @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Resource_userId_fkey")
 }
 
 model Reward {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
   icon       String
   text       String
   power      String
-  collection String   @default("genesis")
-  rarity     Int      @default(50)
+  collection String    @default("genesis")
+  rarity     Int       @default(50)
   label      String?
   Todo       Todo[]
-  User       User[]   @relation("RewardToUser")
+  User       User[]    @relation("RewardToUser")
 }
 
+// tags started as a small SmartTag system, but has grown into a gallery game of their own
 model Tag {
-  id          Int           @id @unique @default(autoincrement())
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime
-  label       String        @default("art")
-  title       String
-  userId      Int           @default(0)
-  isNSFW      Boolean       @default(false)
-  isPublic    Boolean?      @default(false)
-  comments    String?
-  Art         Art[]
-  Channel     Channel[]
-  User        User          @relation(fields: [userId], references: [id])
-  ArtReaction ArtReaction[] @relation("ArtReactionToTag")
+  id           Int           @id @unique @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime?
+  label        String        @default("pitch")
+  pitch        String?
+  title        String
+  userId       Int           @default(0)
+  isNSFW       Boolean       @default(false)
+  isPublic     Boolean?      @default(false)
+  flavorText   String?
+  Art          Art[]
+  Channel      Channel?      @relation(fields: [channelId], references: [id])
+  channelId    Int?          @unique
+  User         User          @relation(fields: [userId], references: [id])
+  ArtReactions ArtReaction[]
+}
 
-  @@index([userId], map: "Tag_userId_fkey")
+model Pitch {
+  id             Int           @id @unique @default(autoincrement())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime?     @updatedAt
+  title          String
+  pitch          String
+  flavorText     String?
+  designer       String
+  userId         Int           @default(0)
+  isNSFW         Boolean       @default(false)
+  isPublic       Boolean       @default(true)
+  isOrphan       Boolean       @default(false)
+  claps          Int           @default(0)
+  boos           Int           @default(0)
+  characterLimit Int? // Optional character limit
+  Channel        Channel?      @relation(fields: [channelId], references: [id])
+  channelId      Int?          @unique
+  User           User          @relation(fields: [userId], references: [id])
+  ArtReaction    ArtReaction[] // Reactions to the pitch
+  Art            Art[]
 }
 
 model Todo {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   task      String
   category  String
-  completed Boolean  @default(false)
-  createdAt DateTime @default(now())
+  completed Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
   userId    Int
   rewardId  Int?
-  Reward    Reward?  @relation(fields: [rewardId], references: [id])
-  User      User     @relation(fields: [userId], references: [id])
-
-  @@index([rewardId], map: "Todo_rewardId_fkey")
-  @@index([userId], map: "Todo_userId_fkey")
-}
-
-model TrainingData {
-  id           Int            @id @unique @default(autoincrement())
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime
-  label        String
-  Bot          Bot[]          @relation("BotToTrainingData")
-  TrainingLine TrainingLine[] @relation("TrainingDataToTrainingLine")
-}
-
-model TrainingLine {
-  id           Int            @id @unique @default(autoincrement())
-  role         String
-  content      String
-  TrainingData TrainingData[] @relation("TrainingDataToTrainingLine")
+  Reward    Reward?   @relation(fields: [rewardId], references: [id])
+  User      User      @relation(fields: [userId], references: [id])
 }
 
 model User {
   id                  Int               @id @unique @default(autoincrement())
   createdAt           DateTime          @default(now())
-  updatedAt           DateTime
-  Role                User_Role         @default(USER)
+  updatedAt           DateTime?
+  Role                Role              @default(USER)
   username            String            @unique
   email               String?           @unique
   questPoints         Int               @default(0)
@@ -406,22 +352,21 @@ model User {
   Game                Game[]
   Message             Message[]
   MilestoneRecord     MilestoneRecord[]
-  Model               Model[]
   Project             Project[]
-  Reaction            Reaction[]
   Resource            Resource[]
   Tag                 Tag[]
   Todo                Todo[]
   Reward              Reward[]          @relation("RewardToUser")
+  Pitch               Pitch[]
 }
 
-enum Bot_BotType {
+enum BotType {
   PROMPTBOT
   CHATBOT
   ARTBOT
 }
 
-enum Model_modelType {
+enum ModelType {
   BOT
   GALLERY
   MEDIA
@@ -440,7 +385,7 @@ enum Model_modelType {
   GAME
 }
 
-enum User_Role {
+enum Role {
   SYSTEM
   USER
   ASSISTANT
@@ -448,28 +393,10 @@ enum User_Role {
   GUEST
   BOT
   DESIGNER
+  CHILD
 }
 
-enum Reaction_modelType {
-  BOT
-  GALLERY
-  MEDIA
-  MESSAGE
-  PROJECT
-  PROMPT
-  QUEST
-  REACTION
-  RESOURCE
-  USER
-  MODEL
-  DREAM
-  STATUS
-  ERROR
-  CONTENT
-  GAME
-}
-
-enum Resource_resourceType {
+enum ResourceType {
   CHECKPOINT
   EMBEDDING
   LORA

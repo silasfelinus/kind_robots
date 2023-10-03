@@ -157,6 +157,26 @@ export const useUserStore = defineStore({
       }
     },
 
+    // New action to fetch username by userId
+    async fetchUsernameById(userId: number): Promise<string | null> {
+      try {
+        const response = await fetch(`/api/users/${userId}/username`)
+        if (response.ok) {
+          const data = await response.json()
+          return data.username || 'Unknown'
+        } else {
+          const errorText = await response.text()
+          const handledError = errorHandler(new Error(errorText))
+          console.error('Failed to fetch username:', handledError.message)
+          return null
+        }
+      } catch (error: any) {
+        const handledError = errorHandler(error)
+        console.error('Error fetching username:', handledError.message)
+        return null
+      }
+    },
+
     async updateClickRecord(newScore: number) {
       try {
         // Fetch the userId from the store

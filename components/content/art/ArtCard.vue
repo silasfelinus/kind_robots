@@ -1,14 +1,39 @@
 <template>
-  <div class="bg-primary rounded-2xl p-2">
-    <p>{{ art.prompt }}</p>
-    <img :src="art.path" alt="Artwork" class="rounded-2xl" />
-    <p>{{ art.pitch }}</p>
+  <div
+    class="art-viewer bg-primary rounded-2xl p-4 transition-shadow hover:shadow-lg cursor-pointer"
+    @click="selectArt"
+  >
+    <h3 class="text-lg font-semibold mb-2">{{ art.prompt }}</h3>
+    <div class="image-wrapper">
+      <img
+        :src="art.path"
+        alt="Artwork"
+        class="rounded-2xl transition-transform ease-in-out hover:scale-105"
+      />
+    </div>
+    <p class="mt-2 text-base">{{ art.pitch }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Art } from '@/stores/artStore'
+import { Art, useArtStore } from '@/stores/artStore'
+
+const artStore = useArtStore()
 const props = defineProps<{
   art: Art
 }>()
+
+const selectArt = () => {
+  artStore.selectArt(props.art.id)
+}
 </script>
+
+<style scoped>
+.art-viewer {
+  @apply transition-all ease-in-out duration-300;
+}
+
+.image-wrapper {
+  @apply overflow-hidden;
+}
+</style>

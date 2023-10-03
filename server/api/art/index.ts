@@ -78,15 +78,7 @@ export async function deleteArt(id: number): Promise<boolean> {
 
 // Function to fetch all Art entries
 export async function fetchAllArt(): Promise<Art[]> {
-  return await prisma.art.findMany({
-    include: {
-      ArtReaction: {
-        include: {
-          Tags: true
-        }
-      }
-    }
-  })
+  return await prisma.art.findMany()
 }
 
 // Function to fetch a single Art entry by ID

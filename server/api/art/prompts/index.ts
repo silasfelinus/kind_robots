@@ -27,19 +27,38 @@ export async function updateArtPrompt(
     return null
   }
 }
-export async function createArtPrompt(promptData: ArtPromptCreateInput): Promise<ArtPrompt> {
+
+export async function createArtPrompt(promptData: Partial<ArtPrompt>): Promise<ArtPrompt> {
   try {
+    // Define default values for all expected fields
+    const defaultData: ArtPrompt = {
+      id: 0, // This will be auto-incremented by Prisma
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: 0,
+      prompt: '',
+      galleryId: 21,
+      pitch: ''
+      // Art and Gallery fields are relational and should not be set here
+    }
+
+    // Merge the default values with the provided data
+    const completeData = { ...defaultData, ...promptData }
+
     // Create new ArtPrompt
     const newArtPrompt = await prisma.artPrompt.create({
-      data: promptData
+      data: completeData
     })
+
     return newArtPrompt
   } catch (error: any) {
-    console.error('Prompt Generation Error:', error)
-    throw errorHandler({
-      error,
-      context: `Art Generation - Prompt: ${promptData.prompt}, User: ${promptData.userId}`
-    })
+    const errorHandlerInput = {
+      success: false,
+      message: `Art Generation - Prompt: ${promptData.prompt}, User: ${promptData.userId}`,
+      error
+    }
+    errorHandler(errorHandlerInput)
+    throw new Error('Failed to create ArtPrompt') // This will stop the function execution
   }
 }
 

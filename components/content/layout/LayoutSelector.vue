@@ -23,8 +23,4 @@ const selectedLayout = computed({
     }
   }
 })
-
-onMounted(() => {
-  layoutStore.initialize() // Initialize the store when the component is mounted
-})
 </script>

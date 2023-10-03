@@ -1,6 +1,5 @@
 // ~/stores/screenStore.ts
 import { defineStore } from 'pinia'
-import { ModelType } from '@prisma/client'
 
 export const LayoutType = {
   BADGE: 'badge',
@@ -28,7 +27,6 @@ export const useScreenStore = defineStore({
     showRainEffect: false,
     showSoapBubbles: false,
     currentLayout: 'badge',
-    currentModelType: ModelType.BOT,
     currentScreenType: ScreenType.MOBILE
   }),
   getters: {

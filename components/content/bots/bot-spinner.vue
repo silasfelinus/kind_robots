@@ -33,8 +33,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
-import { Bot } from '../../../server/api/bots'
+import { useBotStore, Bot } from '@/stores/botStore'
 
 const botsStore = useBotStore()
 const bots = computed(() => botsStore.bots)

@@ -1,11 +1,11 @@
 // ~/stores/seeds/seedBots.ts
-import { Bot, BotType } from '@prisma/client'
+import { Bot } from '@prisma/client'
 
 // Define your array of initial bot data
 export const botData: Partial<Bot>[] = [
   {
     name: 'AMIb0t',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'hypermanic, loving, creative',
     subtitle: 'Philanthropic Hivemind',
     description: 'On a fundraising mission to get mosquito nets to Africa',
@@ -21,7 +21,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Rapb0t',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'rhyming, playful, witty',
     subtitle: 'Rapping Rhymer',
     description: 'Give me a topic, and I will write a topical rap.',
@@ -37,7 +37,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Brainb0t',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'creative, outside-the-box, original',
     subtitle: 'Brainstorm Maven',
     description: 'I brainstorm creative ideas.',
@@ -52,7 +52,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'VariationBot',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'creative',
     subtitle: 'Image Remixer',
     description: "Send me an image, and I'll tweak the concept.",
@@ -66,7 +66,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Punch-Up Bot',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'original, witty, comfortable',
     subtitle: 'Text Improver',
     description: 'I turn words into masterpieces',
@@ -81,7 +81,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Grant Bot',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'inquisitive, concise, organized',
     subtitle: 'Grant Writer',
     description: "I'm here to help you craft grant letters.",
@@ -96,7 +96,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Artb0t',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'helpful',
     subtitle: 'Text-to-Art Generator',
     description: 'I turn words into art',
@@ -110,7 +110,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Punch-Up CodeBot',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'meticulous, current design, best practices',
     subtitle: 'Coder Improver',
     description: "Send me your Code, and we'll make it better.",
@@ -125,7 +125,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Redbubble Bot',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'SEO-friendly, concise, multi-cultural',
     subtitle: 'Multilingual Tag & Copy Writer',
     description: 'Helping craft captivating product descriptions.',
@@ -140,7 +140,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Cassandra',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'deadpan, sardonic, dark comedy',
     subtitle: 'Deadpan Tarot',
     description:
@@ -156,7 +156,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Lazlo',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'braggart, over-confident, foolish',
     subtitle: 'Fantasy Storyteller',
     description:
@@ -172,7 +172,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Serendipity',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'detail-oriented, optimistic, creative',
     subtitle: 'Task-Motivating Storyteller',
     description: "Serendipity - The World's Best Task-Manager-Slash-Adventure-Game",
@@ -187,7 +187,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Cosmo',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'colorful, original, creative',
     subtitle: 'Customized Storyteller',
     description:
@@ -203,7 +203,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Limerick Llama',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'quirky, creative, funny',
     subtitle: 'Limerick Maker',
     description: "I'm the Limerick Llama, I turn any situation into a limerick.",
@@ -217,7 +217,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Dr. GreenThumb',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'wise, calm, knowledgeable',
     subtitle: 'Master of Botany',
     description: 'Providing the best tips and tricks to turn your thumbs green, one seed at a time',
@@ -232,7 +232,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'DottieB0t',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'wacky, playful, synergistic',
     subtitle: 'Bot Making Mad Scientist',
     description: "Dottie's robots are her best friends. And she loves making new friends.",
@@ -247,7 +247,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'HistoryBot',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'copycat',
     subtitle: 'Historical Time Traveler',
     description: "Choose a famous person in history and I'll mimic their personality.",
@@ -261,7 +261,7 @@ export const botData: Partial<Bot>[] = [
   },
   {
     name: 'Bubbulah',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     subtitle: 'Multi-lingual translator',
     description: "Give me text and I'll translate it into another language.",
     avatarImage: '/images/avatars/actor2.webp',
@@ -270,11 +270,11 @@ export const botData: Partial<Bot>[] = [
     theme: 'emerald',
     personality: 'translator',
     modules: 'Babel',
-    underConstruction: false
+    underConstruction: true
   },
   {
     name: 'Transcriptica',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     subtitle: 'Audio translator',
     description: "Give me audio and I'll translate it into text.",
     avatarImage: '/images/avatars/lingua1.webp',
@@ -283,11 +283,11 @@ export const botData: Partial<Bot>[] = [
     theme: 'retro',
     personality: 'translator',
     modules: 'Babel, Whisper',
-    underConstruction: false
+    underConstruction: true
   },
   {
     name: 'Link Analytica',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'optimistic, analytical, empathetic, inclusive',
     subtitle: 'LinkedIn Post Analyst',
     description: 'Link Analytica offers insightful analysis of URLs for LinkedIn posts.',
@@ -299,11 +299,11 @@ export const botData: Partial<Bot>[] = [
       'Hey Max! Can you analyze this article and create a short paragraph for my LinkedIn post?',
     prompt: 'https://kindrobots.org',
     modules: 'Url, Markdown, Social',
-    underConstruction: false
+    underConstruction: true
   },
   {
     name: 'Faceless Woman Who Lives in Your Home Bot',
-    BotType: BotType.CHATBOT,
+    BotType: 'CHATBOT',
     personality: 'playful, mischievous, silly',
     subtitle: 'Alexa Integration',
     description: 'Integrate with your home alexa by saving your alexa api information',
@@ -314,6 +314,6 @@ export const botData: Partial<Bot>[] = [
     userIntro: `I can't say an A word in my house without my robot butler misinterpreting me. Can you please tell Alexa to:`,
     prompt: 'say "My name is The Faceless Woman who Lives in Your Home"',
     modules: 'Alexa',
-    underConstruction: false
+    underConstruction: true
   }
 ]

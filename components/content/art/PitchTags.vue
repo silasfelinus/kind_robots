@@ -70,10 +70,6 @@ const newPitchTitle = ref('')
 const editPitchId = ref<number | null>(null)
 const userId = computed(() => userStore.userId)
 
-// Initialize the tag store when the component is mounted
-onMounted(async () => {
-  await tagStore.initializeTags()
-})
 // New reactive variable for toggle state
 const showAllPitches = ref(false)
 

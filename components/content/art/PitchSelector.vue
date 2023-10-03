@@ -3,12 +3,15 @@
     <!-- Pitch Selection -->
     <div class="flex flex-wrap">
       <button
-        v-for="pitch in pitches"
+        v-for="pitch in enrichedPitches"
         :key="pitch.id"
-        :class="[selectedPitch?.id === pitch.id ? 'bg-primary text-white' : 'bg-base-200']"
+        :class="[
+          selectedPitch?.id === pitch.id ? 'bg-primary text-white' : 'bg-base-200',
+          'rounded-2xl border p-2 m-2'
+        ]"
         @click="updateSelectedPitch(pitch.id)"
       >
-        {{ pitch.title }}
+        {{ pitch.title }} <span v-if="pitch.username">({{ pitch.username }})</span>
       </button>
     </div>
 
@@ -25,29 +28,17 @@
         {{ selectedPitch.isNSFW ? 'Hide' : 'Show' }} NSFW
       </button>
     </div>
-
-    <!-- Global Toggles -->
-    <div class="flex items-center space-x-4">
-      <label class="flex items-center cursor-pointer">
-        <input v-model="togglePublicPitches" type="checkbox" class="form-checkbox" />
-        <span class="ml-2">Show Public Pitches</span>
-      </label>
-      <label class="flex items-center cursor-pointer">
-        <input v-model="toggleGlobalNsfw" type="checkbox" class="form-checkbox" />
-        <span class="ml-2">Show NSFW</span>
-      </label>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useTagStore } from '@/stores/tagStore'
 import { useUserStore } from '@/stores/userStore'
 import { errorHandler } from '@/server/api/utils/error'
-import { useNsfwStore } from '@/stores/nsfwStore'
+import { useFilterStore } from '@/stores/filterStore'
+const filterStore = useFilterStore()
 
-const nsfwStore = useNsfwStore()
 const tagStore = useTagStore()
 const userStore = useUserStore()
 
@@ -58,7 +49,13 @@ const updateSelectedPitch = (pitchId: number) => {
 }
 
 const pitches = computed(() => tagStore.pitches)
-
+const enrichedPitches = computed(() => {
+  const userStore = useUserStore()
+  return pitches.value.map((pitch) => {
+    const username = pitch.userId === userStore.userId ? userStore.username : 'Unknown User'
+    return { ...pitch, username }
+  })
+})
 const togglePitchNsfw = () => {
   try {
     if (selectedPitch.value) {
@@ -72,14 +69,6 @@ const togglePitchNsfw = () => {
 }
 const showPublicPitches = ref(true) // Initialize from local storage if needed
 
-const togglePublicPitches = () => {
-  showPublicPitches.value = !showPublicPitches.value
-  localStorage.setItem('showPublicPitches', JSON.stringify(showPublicPitches.value))
-}
-
-const toggleGlobalNsfw = () => {
-  nsfwStore.toggleNsfw()
-}
 const addNewPitch = async () => {
   try {
     const newTitle = prompt('Enter the title for the new pitch:')
@@ -91,6 +80,14 @@ const addNewPitch = async () => {
     console.error('Error adding new pitch:', handledError.message)
   }
 }
+const filteredPitches = computed(() => {
+  return pitches.value.filter((pitch) => {
+    if (userStore.userId === pitch.userId) return true
+    if (showPublicPitches.value && pitch.isPublic) return true
+    if (filterStore.showMature && pitch.isNSFW) return true
+    return false
+  })
+})
 
 const editSelectedPitch = async () => {
   if (selectedPitch.value) {
@@ -103,7 +100,7 @@ const editSelectedPitch = async () => {
 
 const deleteSelectedPitch = async () => {
   if (selectedPitch.value) {
-    const confirmDelete = confirm('Are you sure you want to delete this pitch?')
+    const confirmDelete = confirm('Are you sure you want to delete your pitch?')
     if (confirmDelete) {
       await tagStore.deletePitch(selectedPitch.value.id) // Pass the id
       // Use a store method to nullify selectedPitch

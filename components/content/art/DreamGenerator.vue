@@ -99,9 +99,4 @@ const generateArt = async () => {
     isLoading.value = false
   }
 }
-
-// Initialize tags when the component is mounted
-onMounted(async () => {
-  await tagStore.initializeTags()
-})
 </script>

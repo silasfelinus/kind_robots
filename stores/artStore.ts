@@ -10,12 +10,21 @@ export const useArtStore = defineStore({
   state: () => ({
     artAssets: [] as Art[],
     artReactions: [] as ArtReaction[],
-    tags: [] as Tag[]
+    tags: [] as Tag[],
+    selectedArt: null as Art | null
   }),
   actions: {
     init() {
       if (this.artAssets.length === 0) {
         this.fetchAllArt()
+      }
+    },
+    selectArt(artId: number) {
+      const foundArt = this.artAssets.find((art) => art.id === artId)
+      if (foundArt) {
+        this.selectedArt = foundArt
+      } else {
+        console.warn(`Art with id ${artId} not found.`)
       }
     },
     async fetchAllArt() {

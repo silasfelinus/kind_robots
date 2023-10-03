@@ -11,24 +11,31 @@ import { useArtStore } from './stores/artStore'
 import { useTagStore } from '@/stores/tagStore'
 import { useNsfwStore } from '@/stores/nsfwStore'
 import { useThemeStore } from '@/stores/themeStore'
+import { useBotStore } from '@/stores/botStore'
+import { useLayoutStore } from '@/stores/layoutStore'
+import { usePitchStore } from '@/stores/pitchStore'
+
+const layoutStore = useLayoutStore()
 
 const tagStore = useTagStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
 const nsfwStore = useNsfwStore()
 const themeStore = useThemeStore()
-
-const user = computed(() => userStore.user)
-const username = computed(() => userStore.username)
+const botStore = useBotStore()
+const pitchStore = usePitchStore()
 
 onMounted(() => {
   try {
     // Initialize user data
+    layoutStore.initialize()
+    botStore.loadStore()
     nsfwStore.initialize()
     userStore.initializeUser()
     artStore.init()
     tagStore.initializeTags()
     themeStore.initTheme()
+    pitchStore.initializePitches()
   } catch (error: any) {
     errorHandler({ success: false, message: `Initialization failed: ${error}` })
   }

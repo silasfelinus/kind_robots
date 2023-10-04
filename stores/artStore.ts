@@ -74,7 +74,9 @@ export const useArtStore = defineStore({
         console.error('Error in deleteArt:', handledError.message)
       }
     },
-
+    getArtByPitchId(pitchId: number): Art[] {
+      return this.artAssets.filter((art) => art.pitchId === pitchId)
+    },
     async createArtReaction(reactionData: ArtReaction) {
       try {
         const response = await fetch('https://kindrobots.org/api/reactions', {

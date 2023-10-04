@@ -2,9 +2,6 @@
   <div class="bg-base-200 rounded-2xl p-8 text-lg">
     <h1 class="text-2xl mb-4">Art-Maker</h1>
 
-    <!-- Select Pitch -->
-    <pitch-selector @selected-pitch="updateSelectedPitch($event)" />
-
     <!-- Random Dream as Prompt -->
     <div class="mt-4">
       <button class="bg-accent rounded-2xl p-2 text-white" @click="getRandomDream">

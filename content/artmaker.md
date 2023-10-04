@@ -12,6 +12,7 @@ tooltip: Welcome to our Art Maker.  Stable Diffusion 1.5 was a game-changer, but
 sort: text
 underConstruction: true
 ---
+
 :pitch-manager
 :dream-generator
 :art-gallery

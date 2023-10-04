@@ -2,109 +2,70 @@
   <div class="flex flex-col items-center space-y-8">
     <!-- Pitch Selection -->
     <div class="flex flex-wrap">
-      <button
-        v-for="pitch in enrichedPitches"
-        :key="pitch.id"
-        :class="[
-          selectedPitch?.id === pitch.id ? 'bg-primary text-white' : 'bg-base-200',
-          'rounded-2xl border p-2 m-2'
-        ]"
-        @click="updateSelectedPitch(pitch.id)"
-      >
-        {{ pitch.title }} <span v-if="pitch.username">({{ pitch.username }})</span>
-      </button>
-    </div>
-
-    <!-- User-Specific Toggles, Edit, and Delete -->
-    <div
-      v-if="selectedPitch && userStore.userId === selectedPitch?.userId"
-      class="flex items-center space-x-4"
-    >
-      <button class="bg-warning text-white rounded-2xl p-2" @click="editSelectedPitch">Edit</button>
-      <button class="bg-info text-white rounded-2xl p-2" @click="deleteSelectedPitch">
-        Delete
-      </button>
-      <button class="bg-accent text-white rounded-2xl p-2" @click="togglePitchNsfw">
-        {{ selectedPitch.isNSFW ? 'Hide' : 'Show' }} NSFW
-      </button>
+      <div v-for="pitch in enrichedPitches" :key="pitch.id" class="relative">
+        <button
+          :class="[
+            selectedPitch?.id === pitch.id ? 'bg-primary text-white' : 'bg-base-200',
+            'rounded-2xl border p-2 m-2'
+          ]"
+          @click="updateSelectedPitch(pitch.id)"
+          @mouseover="showTooltip(pitch.id)"
+          @mouseleave="hideTooltip(pitch.id)"
+        >
+          {{ pitch.title }}
+          <!-- Icons -->
+          <icon v-if="pitch.isMature" name="mdi:alert" class="w-4 h-4" />
+          <icon v-if="pitch.isPublic" name="mdi:earth" class="w-4 h-4" />
+          <icon v-if="pitch.isOrphan" name="mdi:heart-off" class="w-4 h-4" />
+          <icon v-else name="mdi:heart" class="w-4 h-4" />
+        </button>
+        <!-- Tooltip -->
+        <div
+          v-if="tooltipVisible[pitch.id]"
+          class="absolute left-0 bottom-full mb-2 text-xs bg-base-100 p-1 rounded"
+        >
+          <span class="font-bold">Designer: {{ pitch.designer }}</span>
+          <div v-if="pitch.isMature">
+            <icon name="mdi:alert" class="w-4 h-4 inline" /> Mature Content
+          </div>
+          <div v-if="pitch.isPublic"><icon name="mdi:earth" class="w-4 h-4 inline" /> Public</div>
+          <div v-if="pitch.isOrphan">
+            <icon name="mdi:heart-off" class="w-4 h-4 inline" /> Orphan
+          </div>
+          <div v-else><icon name="mdi:heart" class="w-4 h-4 inline" /> Adopted</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useTagStore } from '@/stores/tagStore'
-import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
-import { useFilterStore } from '@/stores/filterStore'
-const filterStore = useFilterStore()
+import { ref, computed } from 'vue'
+import { usePitchStore } from '@/stores/pitchStore'
 
-const tagStore = useTagStore()
-const userStore = useUserStore()
+const pitchStore = usePitchStore()
 
-const selectedPitch = computed(() => tagStore.selectedPitch)
+const selectedPitch = computed(() => pitchStore.selectedPitch)
+const pitches = computed(() => pitchStore.pitches)
+const tooltipVisible = ref<Record<number, boolean>>({}) // Specify type here
+
+// Function to show tooltip
+const showTooltip = (pitchId: number) => {
+  tooltipVisible.value[pitchId] = true
+}
+
+// Function to hide tooltip
+const hideTooltip = (pitchId: number) => {
+  tooltipVisible.value[pitchId] = false
+}
 
 const updateSelectedPitch = (pitchId: number) => {
-  tagStore.selectPitch(pitchId)
+  pitchStore.selectPitch(pitchId)
 }
 
-const pitches = computed(() => tagStore.pitches)
 const enrichedPitches = computed(() => {
-  const userStore = useUserStore()
   return pitches.value.map((pitch) => {
-    const username = pitch.userId === userStore.userId ? userStore.username : 'Unknown User'
-    return { ...pitch, username }
+    return { ...pitch }
   })
 })
-const togglePitchNsfw = () => {
-  try {
-    if (selectedPitch.value) {
-      const currentNsfwStatus = selectedPitch.value.isNSFW ?? false
-      tagStore.updatePitch(selectedPitch.value.id, { isNSFW: !currentNsfwStatus })
-    }
-  } catch (error: any) {
-    const handledError = errorHandler(error)
-    console.error('Error toggling pitch NSFW:', handledError.message)
-  }
-}
-const showPublicPitches = ref(true) // Initialize from local storage if needed
-
-const addNewPitch = async () => {
-  try {
-    const newTitle = prompt('Enter the title for the new pitch:')
-    if (newTitle) {
-      await tagStore.addPitch(newTitle, userStore.userId)
-    }
-  } catch (error: any) {
-    const handledError = errorHandler(error)
-    console.error('Error adding new pitch:', handledError.message)
-  }
-}
-const filteredPitches = computed(() => {
-  return pitches.value.filter((pitch) => {
-    if (userStore.userId === pitch.userId) return true
-    if (showPublicPitches.value && pitch.isPublic) return true
-    if (filterStore.showMature && pitch.isNSFW) return true
-    return false
-  })
-})
-
-const editSelectedPitch = async () => {
-  if (selectedPitch.value) {
-    const newTitle = prompt('Enter new title for the pitch:')
-    if (newTitle) {
-      await tagStore.editPitchTitle(selectedPitch.value.id, newTitle)
-    }
-  }
-}
-
-const deleteSelectedPitch = async () => {
-  if (selectedPitch.value) {
-    const confirmDelete = confirm('Are you sure you want to delete your pitch?')
-    if (confirmDelete) {
-      await tagStore.deletePitch(selectedPitch.value.id) // Pass the id
-      // Use a store method to nullify selectedPitch
-    }
-  }
-}
 </script>

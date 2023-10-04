@@ -100,6 +100,10 @@ export const usePitchStore = defineStore({
         console.error('Error creating pitch:', handledError.message)
       }
     },
+    async getArtForPitch(pitchId: number): Promise<Art[]> {
+      const artStore = useArtStore()
+      return artStore.getArtByPitchId(pitchId)
+    },
 
     async updatePitch(id: number, updates: Partial<Pitch>) {
       try {

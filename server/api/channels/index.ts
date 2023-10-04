@@ -60,4 +60,17 @@ export async function fetchChannelById(id: number): Promise<Channel | null> {
   })
 }
 
+export async function fetchChannelWithMessages(channelId: number): Promise<Channel | null> {
+  try {
+    return await prisma.channel.findUnique({
+      where: { id: channelId },
+      include: {
+        Message: true // Include messages
+      }
+    })
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}
+
 export type { Channel }

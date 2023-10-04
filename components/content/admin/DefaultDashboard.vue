@@ -55,6 +55,7 @@
       <layout-selector class="flex flex-row" />
       <theme-toggle class="flex flex-row" />
       <butterfly-toggle class="flex flex-row" />
+      <mature-toggle class="flex flex-row" />
     </div>
   </div>
 </template>

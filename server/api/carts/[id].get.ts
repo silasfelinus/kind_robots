@@ -1,5 +1,6 @@
 // /server/api/carts/[id].get.ts
 
+import { CartItem } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 

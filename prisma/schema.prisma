@@ -108,6 +108,7 @@ model Channel {
   Message     Message[]
   Pitch       Pitch?
   Art         Art[]
+  pitchId     Int?
 
   @@index([userId], map: "Channel_userId_fkey")
 }
@@ -122,7 +123,7 @@ model Gallery {
   url            String?
   custodian      String?
   userId         Int?
-  content        String
+  content        String    @default("")
   highlightImage String?
   imagePaths     String?   @db.Text
   isNsfw         Boolean   @default(false)
@@ -204,7 +205,7 @@ model Pitch {
   id             Int           @id @unique @default(autoincrement())
   createdAt      DateTime      @default(now())
   updatedAt      DateTime?     @updatedAt
-  title          String
+  title          String        @unique
   pitch          String
   flavorText     String?
   designer       String

@@ -2,6 +2,7 @@
 import { defineEventHandler, readBody } from 'h3'
 import { ArtPrompt } from '@prisma/client'
 import { errorHandler } from '../utils/error'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {

@@ -10,7 +10,7 @@
     </div>
     <div>
       <div v-if="page.tooltip">
-        <streaming-tooltip :tooltip="page.tooltip" />
+        <streaming-tooltip v-if="page && page.tooltip" :tooltip="page.tooltip" />
       </div>
     </div>
     <slot class="w-full h-full flex bg-base-200 rounded-2xl p-2 m-2" />

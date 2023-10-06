@@ -10,7 +10,11 @@ export default defineEventHandler(async (event) => {
     const cartItemData: Partial<CartItem> = await readBody(event)
 
     // Validate cartId
-    if (!Number.isInteger(cartItemData.cartId) || cartItemData.cartId <= 0) {
+    if (
+      !Number.isInteger(cartItemData.cartId) ||
+      cartItemData.cartId === undefined ||
+      cartItemData.cartId <= 0
+    ) {
       throw new Error('Invalid cartId.')
     }
     const cartExists = await prisma.cart.findUnique({ where: { id: cartItemData.cartId } })
@@ -19,7 +23,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Validate productId
-    if (!Number.isInteger(cartItemData.productId) || cartItemData.productId <= 0) {
+    if (
+      !Number.isInteger(cartItemData.productId) ||
+      cartItemData.productId === undefined ||
+      cartItemData.productId <= 0
+    ) {
       throw new Error('Invalid productId.')
     }
     const productExists = await prisma.product.findUnique({ where: { id: cartItemData.productId } })
@@ -45,6 +53,9 @@ export default defineEventHandler(async (event) => {
 // Function to create a new CartItem
 export async function createCartItem(cartItem: Partial<CartItem>): Promise<CartItem> {
   try {
+    if (!cartItem.cartId || !cartItem.productId) {
+      throw new Error('missing cartId or productId')
+    }
     return await prisma.cartItem.create({
       data: {
         cartId: cartItem.cartId,

@@ -20,7 +20,7 @@
     </header>
     <!-- Tooltip Popup -->
     <div>
-      <streaming-tooltip :tooltip="page.tooltip" />
+      <streaming-tooltip v-if="page && page.tooltip" :tooltip="page.tooltip" />
     </div>
     <!-- Main Content -->
     <main>

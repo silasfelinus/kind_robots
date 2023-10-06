@@ -1,5 +1,4 @@
 // /server/api/products/index.post.ts
-
 import { defineEventHandler, readBody } from 'h3'
 import { Product } from '@prisma/client'
 import { errorHandler } from '../utils/error'
@@ -42,6 +41,9 @@ export default defineEventHandler(async (event) => {
 // Function to create a new Product
 export async function createProduct(product: Partial<Product>): Promise<Product> {
   try {
+    if (!product.name || !product.title) {
+      throw new Error('we need a name and title')
+    }
     return await prisma.product.create({
       data: {
         name: product.name,

@@ -1,18 +1,8 @@
 // /server/api/messages/index.post.ts
-
+import { Message } from '@prisma/client'
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-
-// Message type definition
-interface Message {
-  sender: string
-  recipient: string
-  content: string
-  channelId: number
-  botId?: number
-  userId?: number
-}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -46,7 +36,7 @@ export async function createMessage(message: Partial<Message>): Promise<Message>
           sender: message.sender,
           recipient: message.recipient,
           content: message.content,
-          channelId: message.channelId
+          channelId: message.channelId || 1
         }
       })
     }

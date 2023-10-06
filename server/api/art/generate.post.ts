@@ -2,13 +2,21 @@ import { defineEventHandler, readBody } from 'h3'
 import { Art, ArtPrompt, Pitch, Channel, Gallery } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { createUser } from '../users'
+import { generateSillyName } from '@/utils/useRandomName'
+import { saveImage } from '@/server/api/utils/saveImage'
+
+console.log("🚀 Starting up the art generation engine! Let's create something amazing!")
 
 type GenerateImageResponse = {
   images: string[]
   error?: string
 }
 type RequestData = {
+  title?: string // if we need to make a pitch
   prompt: string // the art prompt, very important
+  description?: string
+  flavorText?: string
   userId?: number // 0 if username is not given.
   promptId?: number // may have already been made, otherwise, we make one using "prompt"
   pitchId?: number // if doesn't exist, make if given "pitchName"
@@ -24,16 +32,50 @@ type RequestData = {
   isOrphan?: boolean // for entry in Art
 }
 
-async function validateAndLoadUserId(data: RequestData): Promise<number> {
+type validatedData = {
+  title: string
+  prompt: string
+  description: string
+  flavorText: string
+  userId: number
+  promptId: number
+  pitchId: number
+  channelId: number
+  galleryId: number
+  designerName: string
+  channelName: string
+  userName: string
+  pitchName: string
+  galleryName: string
+  isMature: boolean
+  isPublic: boolean
+  isOrphan: boolean
+}
+
+console.log('🎨 Types are all set! Moving on to validation functions.')
+
+// Update your validation functions to also accept the validatedData object
+async function validateAndLoadUserId(
+  data: RequestData,
+  validatedData: Partial<validatedData>
+): Promise<number> {
+  console.log('🔍 Validating and loading User ID...')
+
   if (data.userId === undefined && data.userName) {
     // Create a new user with userName
-    const newUser = await prisma.user.create({ data: { name: data.userName } })
-    return newUser.id
+    const newUser = await createUser({ username: data.userName })
+    validatedData.userName = data.userName // Update the userName in validatedData
+    return newUser.user?.id || 0
   }
   return data.userId ?? 0
 }
 
-async function validateAndLoadPromptId(data: RequestData): Promise<number> {
+async function validateAndLoadPromptId(
+  data: RequestData,
+  validatedData: Partial<validatedData>
+): Promise<number> {
+  console.log('🔍 Validating and loading Prompt ID...')
+
   if (data.promptId === undefined) {
     // Create a new ArtPrompt using "prompt"
     const newPrompt = await prisma.artPrompt.create({ data: { prompt: data.prompt } })
@@ -42,105 +84,179 @@ async function validateAndLoadPromptId(data: RequestData): Promise<number> {
   return data.promptId
 }
 
-async function validateAndLoadPitchId(data: RequestData): Promise<number> {
-  if (data.pitchId === undefined && data.pitchName) {
+async function validateAndLoadPitchId(
+  data: RequestData,
+  validatedData: Partial<validatedData>
+): Promise<number> {
+  console.log('🔍 Validating and loading pitch ID...')
+
+  // Check if a Pitch with the given pitchName (title) already exists
+  const existingPitch = await prisma.pitch.findUnique({
+    where: { title: data.pitchName }
+  })
+
+  if (existingPitch) {
+    return existingPitch.id // Return the existing pitchId
+  } else if (data.pitchName && data.designerName && data.title) {
     // Create a new Pitch using pitchName
-    const newPitch = await prisma.pitch.create({ data: { name: data.pitchName } })
-    return newPitch.id
+    const newPitch = await prisma.pitch.create({
+      data: {
+        title: data.title,
+        pitch: data.pitchName,
+        designer: data.designerName,
+        channelId: data.channelId,
+        userId: data.userId,
+        isOrphan: data.isOrphan,
+        isPublic: data.isPublic,
+        creatorId: data.userId,
+        isNSFW: data.isMature
+      }
+    })
+    return newPitch.id // Return the new pitchId
   }
-  return data.pitchId ?? 0
+
+  return data.pitchId ?? 0 // Return the provided pitchId or 0 if none is provided
 }
 
-async function validateAndLoadChannelId(data: RequestData): Promise<number> {
+async function validateAndLoadChannelId(
+  data: RequestData,
+  validatedData: Partial<validatedData>
+): Promise<number> {
+  console.log('🔍 Validating and loading channel ID...')
+
   if (data.channelId === undefined && data.channelName) {
     // Create a new Channel using channelName
-    const newChannel = await prisma.channel.create({ data: { name: data.channelName } })
+    const newChannel = await prisma.channel.create({
+      data: {
+        label: data.channelName,
+        title: data.title,
+        pitchId: data.pitchId,
+        description: data.description
+      }
+    })
     return newChannel.id
   }
   return data.channelId ?? 1
 }
 
-async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
+async function validateAndLoadGalleryId(
+  data: RequestData,
+  validatedData: Partial<validatedData>
+): Promise<number> {
+  console.log('🔍 Validating and loading gallery ID...')
+
   if (data.galleryId === undefined) {
     const galleryName = data.galleryName ?? 'cafefred'
-    // Create a new Gallery using galleryName
-    const newGallery = await prisma.gallery.create({ data: { name: galleryName } })
-    return newGallery.id
+
+    // Try to find an existing Gallery by name
+    const existingGallery = await prisma.gallery.findFirst({
+      where: { name: galleryName }
+    })
+
+    if (existingGallery) {
+      // If gallery exists, return its ID
+      return existingGallery.id
+    } else {
+      // If gallery doesn't exist, create a new one
+      const newGallery = await prisma.gallery.create({ data: { name: galleryName } })
+      return newGallery.id
+    }
   }
   return data.galleryId ?? 21
 }
 
-async function validateAndLoadDesignerName(data: RequestData): Promise<string> {
-  return data.designerName ?? data.userName ?? 'RandomName' // Replace 'RandomName' with a function that generates a random name
+async function validateAndLoadDesignerName(
+  data: RequestData,
+  validatedData: Partial<validatedData>
+): Promise<string> {
+  console.log('🔍 Validating and loading designer name...')
+
+  return data.designerName ?? data.userName ?? (generateSillyName() || 'Kind Guest')
 }
 
 export default defineEventHandler(async (event) => {
   try {
+    console.log('🌟 Event triggered! Reading request body...')
     const requestData: RequestData = await readBody(event)
+    console.log('📬 Request data received:', requestData)
 
-    const userId = await validateAndLoadUserId(requestData)
-    const promptId = await validateAndLoadPromptId(requestData)
-    const pitchId = await validateAndLoadPitchId(requestData)
-    const channelId = await validateAndLoadChannelId(requestData)
-    const galleryId = await validateAndLoadGalleryId(requestData)
-    const designerName = await validateAndLoadDesignerName(requestData)
+    console.log('🔐 Initializing validated data object...')
+    const validatedData: Partial<validatedData> = {}
 
-    // Call your utility function to generate and save the image
-    const result = await generateAndSaveImage(prompt, username, galleryName, pitch)
+    // Validate and load each field, updating the validatedData object
+    validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
+    validatedData.promptId = await validateAndLoadPromptId(requestData, validatedData)
+    validatedData.pitchId = await validateAndLoadPitchId(requestData, validatedData)
+    validatedData.channelId = await validateAndLoadChannelId(requestData, validatedData)
+    validatedData.galleryId = await validateAndLoadGalleryId(requestData, validatedData)
+    validatedData.designerName = await validateAndLoadDesignerName(requestData, validatedData)
 
-    // Check if result is not undefined
-    if (result) {
-      return { success: result.success, newArt: result.newArt } // Return the result
+    console.log('🎉 All validations passed! Generating image...')
+    const response: GenerateImageResponse = await generateImage(
+      requestData.prompt,
+      validatedData.designerName!
+    )
+    console.log('🖼 Image generated! Response:', response)
+
+    // Declare base64Image variable here
+    let base64Image: string
+
+    // Validate the image generation response
+    if (Array.isArray(response)) {
+      if (!response.length) {
+        throw new Error('No images were generated. Please validate the prompt and user.')
+      }
+      base64Image = response[0] // Directly assign the first element if response is an array
     } else {
-      throw new Error('Image generation and saving failed')
+      if (!response.images || !response.images.length) {
+        if (response.error) {
+          throw new Error(`Image generation failed due to: ${response.error}`)
+        }
+        throw new Error('No images were generated. Please validate the prompt and user.')
+      }
+      base64Image = response.images[0] // Use the first image from the images array if response is an object
     }
-  } catch (error: any) {
-    console.error('Art Generation Error:', error)
-    return errorHandler({ error, context: `Art Generation - Prompt: ${prompt}, User: ${username}` })
-  }
-})
+    // Save the image and get its path
+    let imagePath = await saveImage(base64Image, 'cafefred')
 
-// Function to create a new Art entry
-export async function createArt(art: Partial<Art>): Promise<Art> {
-  try {
-    console.log('ART:', art)
-    // Validate required fields
-    if (!art.path || !art.galleryId || !art.pitch) {
-      console.error('Validation Error: Path, pitch, and galleryId must be provided')
-      throw new Error('Path and galleryId must be provided')
+    // Remove '/public' or 'public' prefix from imagePath
+    if (imagePath.startsWith('/public') || imagePath.startsWith('public')) {
+      imagePath = imagePath.replace(/^\/?public/, '')
     }
 
-    // Find or create ArtPrompt
-    let artPromptData: ArtPromptCreateInput = {
-      userId: art.userId || 0,
-      prompt: art.prompt || '',
-      galleryId: art.galleryId || 21,
-      pitch: art.pitch
-    }
-
-    const newArtPrompt = await createArtPrompt(artPromptData)
+    console.log('🎨 Creating new Art entry...')
 
     // Create the new Art entry using Prisma
     const newArt = await prisma.art.create({
       data: {
-        path: art.path,
-        prompt: art.prompt,
-        pitch: art.pitch,
-        userId: art.userId || 0,
-        galleryId: art.galleryId || 21,
-        artPromptId: newArtPrompt.id // Associate with ArtPrompt
+        path: imagePath,
+        prompt: validatedData.prompt,
+        pitchId: validatedData.pitchId,
+        userId: validatedData.userId,
+        galleryId: validatedData.galleryId || 21,
+        artPromptId: validatedData.promptId,
+        pitch: requestData.pitch,
+        isNsfw: requestData.isMature,
+        isOrphan: requestData.isOrphan,
+        isPublic: requestData.isPublic,
+        channelId: validatedData.channelId
       }
     })
 
-    console.log('Art Created:', newArt)
-    return newArt
+    return { success: true, newArt } // Return the result
   } catch (error: any) {
-    console.error('Error in createArt:', error)
-    throw errorHandler(error)
+    console.error('Art Generation Error:', error)
+    return errorHandler({
+      error,
+      context: `Art Generation - Prompt`
+    })
   }
-}
+})
+
+console.log('👏 All set! Ready for testing!')
 
 export async function generateImage(prompt: string, user: string): Promise<{ images: string[] }> {
+  console.log('📸 Starting image generation...')
   const config = {
     headers: {
       'Content-Type': 'application/json'
@@ -168,90 +284,9 @@ export async function generateImage(prompt: string, user: string): Promise<{ ima
 
     const responseData = await response.json()
     const generatedImageUrl = responseData.images // Assuming the images field contains the URL
-
+    console.log('📷 Image generation complete!')
     return generatedImageUrl
   } catch (error: any) {
     throw errorHandler({ error, context: 'Image Generation with Cafe Fred' })
-  }
-}
-
-export async function generateAndSaveImage(
-  prompt: string,
-  user: string,
-  galleryName: string,
-  pitch: string,
-  isPublic?: boolean,
-  isNSFW?: boolean
-) {
-  // Generate image with modeller
-  const response: GenerateImageResponse = await generateImage(prompt, user)
-
-  // Declare base64Image variable here
-  let base64Image: string
-
-  // Validate the image generation response
-  if (Array.isArray(response)) {
-    if (!response.length) {
-      throw new Error('No images were generated. Please validate the prompt and user.')
-    }
-    base64Image = response[0] // Directly assign the first element if response is an array
-  } else {
-    if (!response.images || !response.images.length) {
-      if (response.error) {
-        throw new Error(`Image generation failed due to: ${response.error}`)
-      }
-      throw new Error('No images were generated. Please validate the prompt and user.')
-    }
-    base64Image = response.images[0] // Use the first image from the images array if response is an object
-  }
-  // Save the image and get its path
-  let imagePath = await saveImage(base64Image, galleryName)
-
-  // Remove '/public' or 'public' prefix from imagePath
-  if (imagePath.startsWith('/public') || imagePath.startsWith('public')) {
-    imagePath = imagePath.replace(/^\/?public/, '')
-  }
-
-  console.log('Sanitized image path:', imagePath)
-  // Attempt to fetch the gallery, create if not exists
-  let gallery = await fetchGalleryByName(galleryName)
-  if (!gallery) {
-    console.log(`Creating new gallery: ${galleryName}`) // Logging the gallery creation
-    gallery = await createGallery({ name: galleryName })
-  }
-  const userId = await fetchIdByUsername(user)
-
-  // Look for a tag with label "pitch" and title = art.prompt
-  let pitchTag = await prisma.tag.findFirst({
-    where: {
-      label: 'pitch',
-      title: pitch
-    }
-  })
-
-  // If the tag doesn't exist, create it
-  if (!pitch) {
-    pitch = await createPitch({
-      label: 'pitch',
-      title: pitch,
-      userId
-    })
-  }
-
-  // Get the pitchId from the tag
-  const pitchId = pitchTag.id
-
-  // Check if gallery is null before proceeding
-  if (gallery) {
-    // Store the generated art and return success
-    const newArt = await createArt({
-      path: imagePath,
-      prompt,
-      pitch,
-      galleryId: gallery.id, // Now safe to access .id
-      userId
-    })
-
-    return { success: true, newArt }
   }
 }

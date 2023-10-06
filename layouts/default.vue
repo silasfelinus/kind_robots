@@ -8,7 +8,7 @@
       <h1 class="text-4xl text-default font-bold">Kind Robots</h1>
       <!-- Subtitle -->
       <div class="text-center rounded-2xl border p-1 m-2 shadow-lg">
-        <h1 v-if="page.title" class="text-2xl">The {{ page.title }} Room</h1>
+        <h1 v-if="page && page.title" class="text-2xl">The {{ page.title }} Room</h1>
         <h1 v-else class="text-2xl">🌈 Fetching details...</h1>
       </div>
     </header>
@@ -25,6 +25,7 @@
       <!-- Image -->
       <div class="rounded-2xl border p-2 m-2 shadow-md">
         <img
+          v-if="page && page.image"
           :src="`/images/${page.image}`"
           alt="Splash Image"
           class="object-contain w-full h-full rounded-2xl"
@@ -33,7 +34,7 @@
 
       <!-- Tooltip -->
       <div class="rounded-2xl border p-2 m-2 shadow-md overflow-y-auto">
-        <streaming-tooltip :tooltip="page.tooltip" class="w-full" />
+        <streaming-tooltip v-if="page && page.tooltip" :tooltip="page.tooltip" />
       </div>
     </div>
     <footer-toggle />

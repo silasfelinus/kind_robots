@@ -19,7 +19,11 @@ export default defineEventHandler(async (event) => {
 export async function createCart(cart: Partial<Cart>): Promise<Cart> {
   try {
     // Validate customerId
-    if (!Number.isInteger(cart.customerId) || cart.customerId <= 0) {
+    if (
+      !Number.isInteger(cart.customerId) ||
+      cart.customerId === undefined ||
+      cart.customerId <= 0
+    ) {
       throw new Error('Invalid customerId.')
     }
 

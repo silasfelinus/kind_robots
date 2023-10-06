@@ -1,6 +1,5 @@
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import { fetchMessageById } from './index'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,3 +10,10 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to fetch a single Message by ID
+export async function fetchMessageById(id: number): Promise<Message | null> {
+  return await prisma.message.findUnique({
+    where: { id }
+  })
+}

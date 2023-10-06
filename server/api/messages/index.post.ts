@@ -1,13 +1,56 @@
+// /server/api/messages/index.post.ts
+
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
-import { Message, createMessage } from './index'
+import prisma from '../utils/prisma'
+
+// Message type definition
+interface Message {
+  sender: string
+  recipient: string
+  content: string
+  channelId: number
+  botId?: number
+  userId?: number
+}
 
 export default defineEventHandler(async (event) => {
   try {
+    // Read the message data from the request body
     const messageData: Partial<Message> = await readBody(event)
+
+    // Create a new message
     const newMessage = await createMessage(messageData)
+
     return { success: true, newMessage }
   } catch (error: any) {
-    return errorHandler(error)
+    const { success, message, statusCode } = errorHandler(error)
+    return {
+      success,
+      message,
+      statusCode
+    }
   }
 })
+
+// Function to create a new Message
+export async function createMessage(message: Partial<Message>): Promise<Message> {
+  try {
+    if (!message.content) {
+      throw new Error('No content, no message. Sorry McLuhan.')
+    } else if (!message.sender || !message.recipient) {
+      throw new Error('No sender or recipient. What am I supposed to do?')
+    } else {
+      return await prisma.message.create({
+        data: {
+          sender: message.sender,
+          recipient: message.recipient,
+          content: message.content,
+          channelId: message.channelId
+        }
+      })
+    }
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

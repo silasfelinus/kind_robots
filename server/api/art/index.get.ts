@@ -1,6 +1,5 @@
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import { fetchAllArt } from '.'
 
 export default defineEventHandler(async () => {
   try {
@@ -10,3 +9,8 @@ export default defineEventHandler(async () => {
     return errorHandler(error)
   }
 })
+
+// Function to fetch all Art entries
+export async function fetchAllArt(): Promise<Art[]> {
+  return await prisma.art.findMany()
+}

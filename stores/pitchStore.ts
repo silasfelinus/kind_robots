@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { Pitch } from '@prisma/client'
 import { errorHandler } from '../server/api/utils/error'
 import { useUserStore } from '@/stores/userStore'
+import { useArtStore, Art } from '@/stores/artStore'
 
 const isClient = typeof window !== 'undefined'
 
@@ -60,7 +61,7 @@ export const usePitchStore = defineStore({
 
     async fetchPitches() {
       try {
-        const response = await fetch('/api/pitches')
+        const response = await fetch('/api/pitches/batch')
         if (response.ok) {
           const data = await response.json()
           this.pitches = data.pitches
@@ -77,15 +78,22 @@ export const usePitchStore = defineStore({
         console.error('Error fetching pitches:', handledError.message)
       }
     },
-
     async createPitch(newPitch: Partial<Pitch>) {
       try {
+        const userStore = useUserStore() // Use the user store to get the current userId
+        const userId = userStore.userId // Get the userId from the user store
+
+        const pitchData = {
+          ...newPitch,
+          userId // Add userId to the pitch data
+        }
+
         const response = await fetch('/api/pitches', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(newPitch)
+          body: JSON.stringify(pitchData) // Send the pitch data
         })
 
         if (response.ok) {
@@ -100,7 +108,7 @@ export const usePitchStore = defineStore({
         console.error('Error creating pitch:', handledError.message)
       }
     },
-    async getArtForPitch(pitchId: number): Promise<Art[]> {
+    getArtForPitch(pitchId: number): Art[] {
       const artStore = useArtStore()
       return artStore.getArtByPitchId(pitchId)
     },
@@ -108,7 +116,7 @@ export const usePitchStore = defineStore({
     async updatePitch(id: number, updates: Partial<Pitch>) {
       try {
         const response = await fetch(`/api/pitches/${id}`, {
-          method: 'PATCH',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
           },

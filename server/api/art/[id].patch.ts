@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody } from 'h3'
+import { Art } from '@prisma/client'
 import { errorHandler } from '../utils/error'
-import { Art, updateArt } from '.'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,3 +12,15 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to update an existing Art entry by ID
+export async function updateArt(id: number, updatedArt: Partial<Art>): Promise<Art | null> {
+  try {
+    return await prisma.art.update({
+      where: { id },
+      data: updatedArt
+    })
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

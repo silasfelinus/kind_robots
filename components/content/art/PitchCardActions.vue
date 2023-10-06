@@ -45,7 +45,7 @@ const publicButtonClass = computed(() => {
 })
 
 const matureIcon = computed(() =>
-  props.pitch?.isNSFW ? 'emojione-monotone:lipstick' : 'emojione-monotone:smile'
+  props.pitch?.isNSFW ? 'fluent-emoji-high-contrast:lipstick' : 'ri:bear-smile-line'
 )
 const publicIcon = computed(() => (props.pitch?.isPublic ? 'mdi:earth' : 'mdi:earth-off'))
 

@@ -1,6 +1,6 @@
 import { defineEventHandler } from 'h3'
+import { Art } from '@prisma/client'
 import { errorHandler } from '../utils/error'
-import { fetchArtById } from '.'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,3 +11,17 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to fetch a single Art entry by ID
+export async function fetchArtById(id: number): Promise<Art | null> {
+  return await prisma.art.findUnique({
+    where: { id }
+  })
+}
+
+// Function to fetch Art entries by Gallery ID
+export async function fetchArtByGalleryId(galleryId: number): Promise<Art[]> {
+  return await prisma.art.findMany({
+    where: { galleryId }
+  })
+}

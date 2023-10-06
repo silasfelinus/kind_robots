@@ -1,6 +1,5 @@
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import { fetchAllMessages } from './index'
 
 export default defineEventHandler(async () => {
   try {
@@ -10,3 +9,8 @@ export default defineEventHandler(async () => {
     return errorHandler(error)
   }
 })
+
+// Function to fetch all Messages
+export async function fetchAllMessages(): Promise<Message[]> {
+  return await prisma.message.findMany()
+}

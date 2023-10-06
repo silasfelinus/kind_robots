@@ -1,6 +1,5 @@
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import { deleteMessage } from './index'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,3 +10,19 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to delete a Message by ID
+export async function deleteMessage(id: number): Promise<boolean> {
+  try {
+    const messageExists = await prisma.message.findUnique({ where: { id } })
+
+    if (!messageExists) {
+      return false
+    }
+
+    await prisma.message.delete({ where: { id } })
+    return true
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

@@ -45,8 +45,8 @@ const channels = computed<Channel[]>(() => channelStore.channels)
 const newMessage = ref('') // Holds the new message to be sent
 const selectedChannelId = ref(channelId.value) // Initially set to the channelId of the selected pitch
 
-// Computed property to get messages of the current channel
 const currentChannelMessages = computed<Message[]>(() => {
+  console.log('Type:', typeof channels.value, 'Value:', channels.value) // Debugging line
   const channel = channels.value.find((ch) => ch.id === selectedChannelId.value)
   return channel?.messages || []
 })
@@ -54,7 +54,10 @@ const currentChannelMessages = computed<Message[]>(() => {
 // Function to send a new message
 const sendMessage = () => {
   if (newMessage.value.trim() !== '') {
-    const channel = channels.value.find((ch) => ch.id === selectedChannelId.value)
+    const channel = Array.isArray(channels.value)
+      ? channels.value.find((ch) => ch.id === selectedChannelId.value)
+      : null
+
     if (channel) {
       channelStore.sendMessageToChannel({
         label: channel.label, // Add this line
@@ -72,12 +75,10 @@ const changeChannel = () => {
   channelStore.fetchCurrentChannelWithMessages(selectedChannelId.value)
 }
 
-// Watch for changes in selectedPitch's channelId and update selectedChannelId
 watch(channelId, (newChannelId) => {
   selectedChannelId.value = newChannelId
-})
+  channelStore.fetchCurrentChannelWithMessages(newChannelId)
 
-onMounted(() => {
-  channelStore.initializeChannels()
+  console.log('Type:', typeof channels.value, 'Value:', channels.value)
 })
 </script>

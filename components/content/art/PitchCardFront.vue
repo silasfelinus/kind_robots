@@ -30,7 +30,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Pitch } from '@/stores/pitchStore'
+import { Pitch, usePitchStore } from '@/stores/pitchStore'
+
+const pitchStore = usePitchStore()
 
 const {
   pitch = {
@@ -38,13 +40,12 @@ const {
     pitch: 'Here today, gone tomorrow',
     flavorText: 'Now you see me...',
     designer: 'Harriet Whodunnit'
-  },
-  avatarImage = '/images/botcat.webp'
+  }
 } = defineProps<{
   pitch?: Pitch
-  avatarImage?: string
 }>()
-
+const avatarImage = '/images/kindtitle.webp'
+const pitchArt = pitchStore.getArtForPitch
 const tooltipVisible = ref(false)
 
 const showTooltip = () => {

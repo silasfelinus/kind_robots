@@ -1,6 +1,7 @@
+// servers/api/channels/[id].delete.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import { deleteChannel } from './index'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,3 +12,19 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to delete a Channel by ID
+export async function deleteChannel(id: number): Promise<boolean> {
+  try {
+    const channelExists = await prisma.channel.findUnique({ where: { id } })
+
+    if (!channelExists) {
+      return false
+    }
+
+    await prisma.channel.delete({ where: { id } })
+    return true
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

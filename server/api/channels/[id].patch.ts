@@ -1,6 +1,8 @@
+// /server/api/channels/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
+import { Channel } from '@prisma/client'
 import { errorHandler } from '../utils/error'
-import { Channel, updateChannel } from './index'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,3 +14,18 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to update an existing Channel by ID
+export async function updateChannel(
+  id: number,
+  updatedChannel: Partial<Channel>
+): Promise<Channel | null> {
+  try {
+    return await prisma.channel.update({
+      where: { id },
+      data: updatedChannel
+    })
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

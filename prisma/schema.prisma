@@ -36,6 +36,7 @@ model Art {
   isOrphan    Boolean?      @default(false)
   channelId   Int?
   Channel     Channel?      @relation(fields: [channelId], references: [id])
+  Products    Product[]
 }
 
 model ArtPrompt {
@@ -48,6 +49,8 @@ model ArtPrompt {
   pitch     String?
   Art       Art[]
   User      User      @relation(fields: [userId], references: [id])
+  pitchId   Int?
+  Pitch     Pitch?    @relation(fields: [pitchId], references: [id])
 }
 
 model ArtReaction {
@@ -197,27 +200,83 @@ model MilestoneRecord {
   User        User      @relation(fields: [userId], references: [id])
 }
 
-model Project {
-  id                 Int       @id @unique @default(autoincrement())
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime?
-  name               String
-  title              String
-  category           String
-  content            String    @default("Here's the idea...") @db.Text
-  allowComments      Boolean   @default(false)
-  description        String    @default("")
-  isPublic           Boolean   @default(true)
-  hasAdmission       Boolean   @default(false)
-  paywallDestination String?
-  hostId             Int
-  usdFee             Float
-  portalUrl          String?
-  pitchUrl           String?
-  userId             Int
-  User               User      @relation(fields: [userId], references: [id])
+model Pitch {
+  id             Int           @id @unique @default(autoincrement())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime?     @updatedAt
+  title          String
+  pitch          String
+  flavorText     String?
+  designer       String
+  creatorId      Int?
+  userId         Int           @default(0)
+  isNSFW         Boolean       @default(false)
+  isPublic       Boolean       @default(true)
+  isOrphan       Boolean       @default(false)
+  claps          Int           @default(0)
+  boos           Int           @default(0)
+  Channel        Channel?      @relation(fields: [channelId], references: [id])
+  channelId      Int?          @unique
+  User           User          @relation(fields: [userId], references: [id])
+  ArtReaction    ArtReaction[]
+  Art            Art[]
+  ArtPrompts     ArtPrompt[]
+  highlightImage String        @default("/images/kindtitle.webp")
+}
 
-  @@index([userId], map: "Project_userId_fkey")
+model Cart {
+  id         Int        @id @unique @default(autoincrement())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime?
+  customerId Int
+  Customer   Customer   @relation(fields: [customerId], references: [id])
+  items      CartItem[]
+}
+
+model CartItem {
+  id        Int     @id @unique @default(autoincrement())
+  cartId    Int
+  Cart      Cart    @relation(fields: [cartId], references: [id])
+  productId Int
+  Product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+}
+
+model Customer {
+  id        Int       @id @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  email     String    @unique
+  name      String?
+  Carts     Cart[]
+  userId    Int?      @unique
+  User      User?     @relation(fields: [userId], references: [id])
+}
+
+model RandomList {
+  id     Int    @id @unique @default(autoincrement())
+  title  String @unique
+  items  Json
+  userId Int?
+  User   User?  @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id            Int        @id @unique @default(autoincrement())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?
+  name          String
+  title         String
+  category      String     @default("gallery")
+  content       String     @default("Here's the idea...") @db.Text
+  flavorText    String?
+  description   String     @default("")
+  passcode      String?
+  costInPennies Int        @default(99)
+  userId        Int        @default(0)
+  User          User       @relation(fields: [userId], references: [id])
+  Art           Art[]
+  CartItem      CartItem[]
 }
 
 model Resource {
@@ -271,28 +330,6 @@ model Tag {
   channelId    Int?          @unique
   User         User          @relation(fields: [userId], references: [id])
   ArtReactions ArtReaction[]
-}
-
-model Pitch {
-  id             Int           @id @unique @default(autoincrement())
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime?     @updatedAt
-  title          String
-  pitch          String
-  flavorText     String?
-  designer       String
-  userId         Int           @default(0)
-  isNSFW         Boolean       @default(false)
-  isPublic       Boolean       @default(true)
-  isOrphan       Boolean       @default(false)
-  claps          Int           @default(0)
-  boos           Int           @default(0)
-  characterLimit Int? // Optional character limit
-  Channel        Channel?      @relation(fields: [channelId], references: [id])
-  channelId      Int?          @unique
-  User           User          @relation(fields: [userId], references: [id])
-  ArtReaction    ArtReaction[] // Reactions to the pitch
-  Art            Art[]
 }
 
 model Todo {
@@ -352,12 +389,14 @@ model User {
   Game                Game[]
   Message             Message[]
   MilestoneRecord     MilestoneRecord[]
-  Project             Project[]
+  Products            Product[]
   Resource            Resource[]
   Tag                 Tag[]
   Todo                Todo[]
   Reward              Reward[]          @relation("RewardToUser")
   Pitch               Pitch[]
+  Customer            Customer[]
+  RandomList          RandomList[]
 }
 
 enum BotType {

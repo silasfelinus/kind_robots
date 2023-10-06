@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody } from 'h3'
+import { Message } from '@prisma/client'
 import { errorHandler } from '../utils/error'
-import { Message, updateMessage } from './index'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,3 +12,18 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to update an existing Message by ID
+export async function updateMessage(
+  id: number,
+  updatedMessage: Partial<Message>
+): Promise<Message | null> {
+  try {
+    return await prisma.message.update({
+      where: { id },
+      data: updatedMessage
+    })
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

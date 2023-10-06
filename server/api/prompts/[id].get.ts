@@ -1,7 +1,6 @@
 // server/api/art/prompts/[id].get.ts
 import { defineEventHandler } from 'h3'
-import { errorHandler } from '../../utils/error'
-import { fetchArtPromptById } from '.'
+import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -16,3 +15,17 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Modify the return type to include the Art relationship
+export async function fetchArtPromptById(id: number): Promise<(ArtPrompt & { Art: Art[] }) | null> {
+  try {
+    return await prisma.artPrompt.findUnique({
+      where: { id },
+      include: {
+        Art: true // Include related Art
+      }
+    })
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

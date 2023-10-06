@@ -7,24 +7,26 @@ export const useChannelStore = defineStore({
   id: 'channel',
 
   state: () => ({
-    channels: [],
-    messages: [],
-    isInitialized: false,
+    channels: [] as Channel[],
+    messages: [] as Message[],
+    isInitialized: false as boolean,
     currentChannel: null as Channel | null
   }),
 
   actions: {
     async initializeChannels() {
-      if (!isInitialized) {
+      if (!this.isInitialized) {
+        // Use `this.isInitialized` instead of `isInitialized`
         try {
           await this.fetchChannels()
-          isInitiliazed = true
+          this.isInitialized = true // Use `this.isInitialized` to update the state
         } catch (error: any) {
           const handledError = errorHandler(error)
           console.error('Error initializing channels:', handledError.message)
         }
       }
     },
+
     setCurrentChannel(channelId: number) {
       const channel = this.channels.find((ch) => ch.id === channelId)
       if (channel) {
@@ -32,31 +34,7 @@ export const useChannelStore = defineStore({
       }
     },
 
-    // Method to clear the current channel
-    clearCurrentChannel() {
-      this.currentChannel = null
-    },
-
-    // Method to fetch the current channel with its messages
-    async fetchCurrentChannelWithMessages(channelId: number) {
-      try {
-        const res = await fetch(`/api/channels/${channelId}/messages`)
-        const channelWithMessages = await res.json()
-        this.currentChannel = channelWithMessages
-      } catch (error: any) {
-        throw errorHandler(error)
-      }
-    },
-
-    async fetchChannels() {
-      try {
-        const res = await fetch('/api/channels')
-        this.channels = await res.json()
-      } catch (error: any) {
-        throw errorHandler(error)
-      }
-    },
-    async createOrUpdateChannel(channel) {
+    async createOrUpdateChannel(channel: Partial<Channel>) {
       const userStore = useUserStore()
       const userId = userStore.userId
       try {
@@ -82,7 +60,37 @@ export const useChannelStore = defineStore({
         throw errorHandler(error)
       }
     },
-    async removeChannel(id) {
+
+    // Method to clear the current channel
+    clearCurrentChannel() {
+      this.currentChannel = null
+    },
+
+    async fetchCurrentChannelWithMessages(channelId: number) {
+      try {
+        const res = await fetch(`/api/channels/${channelId}`)
+        const data = await res.json()
+        if (data.success) {
+          this.currentChannel = data.channel
+        }
+      } catch (error: any) {
+        throw errorHandler(error)
+      }
+    },
+
+    async fetchChannels() {
+      try {
+        const res = await fetch('/api/channels')
+        const data = await res.json()
+        if (data.success) {
+          this.channels = data.channels
+        }
+      } catch (error: any) {
+        throw errorHandler(error)
+      }
+    },
+
+    async removeChannel(id: number) {
       const res = await fetch(`/api/channels/${id}`, {
         method: 'DELETE'
       })
@@ -92,57 +100,57 @@ export const useChannelStore = defineStore({
     },
     async fetchMessages() {
       const res = await fetch('/api/messages')
-      this.messages = await res.json()
-    },
-    async createOrUpdateMessage(message) {
-      const method = message.id ? 'PATCH' : 'POST'
-      const url = message.id ? `/api/messages/${message.id}` : '/api/messages'
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(message)
-      })
-      const updatedMessage = await res.json()
-      if (message.id) {
-        const index = this.messages.findIndex((msg) => msg.id === message.id)
-        if (index !== -1) {
-          this.messages[index] = updatedMessage
-        }
-      } else {
-        this.messages.push(updatedMessage)
+      const data = await res.json()
+      if (data.success) {
+        this.messages = data.messages
       }
     },
-    async removeMessage(id) {
+
+    async createMessage(message: Message) {
+      try {
+        const res = await fetch('/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(message)
+        })
+        const data = await res.json()
+        if (data.success) {
+          this.messages.push(data.message)
+        }
+      } catch (error: any) {
+        throw errorHandler(error)
+      }
+    },
+
+    async updateMessage(message: Message) {
+      try {
+        const res = await fetch(`/api/messages/${message.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(message)
+        })
+        const data = await res.json()
+        if (data.success) {
+          const index = this.messages.findIndex((msg) => msg.id === message.id)
+          if (index !== -1) {
+            this.messages[index] = data.message
+          }
+        }
+      } catch (error: any) {
+        throw errorHandler(error)
+      }
+    },
+
+    async removeMessage(id: number) {
       const res = await fetch(`/api/messages/${id}`, {
         method: 'DELETE'
       })
       if (res.ok) {
         this.messages = this.messages.filter((message) => message.id !== id)
-      }
-    },
-    async sendMessageToChannel({ label, channelId, message }) {
-      let targetChannelId = channelId
-      if (!targetChannelId && label) {
-        const targetChannel = this.channels.find((ch) => ch.label === label)
-        if (targetChannel) {
-          targetChannelId = targetChannel.id
-        } else {
-          const res = await fetch('/api/channels', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ label, userId: 0, description: `${label} channel` })
-          })
-          const newChannel = await res.json()
-          this.channels.push(newChannel)
-          targetChannelId = newChannel.id
-        }
-      }
-      if (targetChannelId) {
-        await this.createOrUpdateMessage({ ...message, channelId: targetChannelId })
       }
     }
   }

@@ -1,6 +1,5 @@
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import { deleteArt } from '.'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,3 +10,19 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to delete an Art entry by ID
+export async function deleteArt(id: number): Promise<boolean> {
+  try {
+    const artExists = await prisma.art.findUnique({ where: { id } })
+
+    if (!artExists) {
+      return false
+    }
+
+    await prisma.art.delete({ where: { id } })
+    return true
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

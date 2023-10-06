@@ -1,6 +1,8 @@
+// /server/api/channels/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
+import { Channel } from '@prisma/client'
 import { errorHandler } from '../utils/error'
-import { Channel, createChannel } from './index'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,3 +13,18 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to create a new Channel
+export async function createChannel(channel: Partial<Channel>): Promise<Channel> {
+  try {
+    return await prisma.channel.create({
+      data: {
+        userId: channel.userId || 0,
+        label: channel.label || 'global',
+        description: channel.description || null
+      }
+    })
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

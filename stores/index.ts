@@ -3,7 +3,6 @@
 export * from './botStore'
 export * from './errorStore'
 export * from './galleryStore'
-export * from './projectStore'
 export * from './resourceStore'
 export * from './screenStore'
 export * from './statusStore'

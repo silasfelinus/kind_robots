@@ -10,7 +10,7 @@ import { errorHandler } from './server/api/utils/error'
 import { useArtStore } from './stores/artStore'
 import { useChannelStore } from './stores/channelStore'
 import { useTagStore } from '@/stores/tagStore'
-import { useNsfwStore } from '@/stores/nsfwStore'
+import { useMatureStore } from '@/stores/matureStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useBotStore } from '@/stores/botStore'
 import { useLayoutStore } from '@/stores/layoutStore'
@@ -21,7 +21,7 @@ const layoutStore = useLayoutStore()
 const tagStore = useTagStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
-const nsfwStore = useNsfwStore()
+const matureStore = useMatureStore()
 const themeStore = useThemeStore()
 const botStore = useBotStore()
 const pitchStore = usePitchStore()
@@ -32,7 +32,7 @@ onMounted(() => {
     // Initialize user data
     layoutStore.initialize()
     botStore.loadStore()
-    nsfwStore.initialize()
+    matureStore.initialize()
     userStore.initializeUser()
     artStore.init()
     tagStore.initializeTags()

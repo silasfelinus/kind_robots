@@ -30,7 +30,7 @@
 
       <!-- Checkboxes -->
       <label class="inline-flex items-center mb-2">
-        <input v-model="newPitch.isNSFW" type="checkbox" class="mr-2" />
+        <input v-model="newPitch.isMature" type="checkbox" class="mr-2" />
         Allow mature content
       </label>
       <label class="inline-flex items-center mb-4">
@@ -60,7 +60,7 @@ const newPitch = ref({
   flavorText: '',
   designer: '',
   userId: userStore.userId,
-  isNSFW: false,
+  isMature: false,
   isOrphan: true,
   isPublic: true
 })
@@ -75,7 +75,7 @@ const createPitch = async () => {
       flavorText: '',
       designer: '',
       userId: userStore.userId,
-      isNSFW: false,
+      isMature: false,
       isOrphan: false,
       isPublic: true
     }

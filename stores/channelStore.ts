@@ -106,7 +106,7 @@ export const useChannelStore = defineStore({
       }
     },
 
-    async createMessage(message: Message) {
+    async createMessage(message: Partial<Message>) {
       try {
         const res = await fetch('/api/messages', {
           method: 'POST',

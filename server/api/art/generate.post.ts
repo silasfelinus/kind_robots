@@ -52,22 +52,36 @@ type validatedData = {
   isOrphan: boolean
 }
 
-console.log('🎨 Types are all set! Moving on to validation functions.')
-
-// Update your validation functions to also accept the validatedData object
 async function validateAndLoadUserId(
   data: RequestData,
   validatedData: Partial<validatedData>
 ): Promise<number> {
   console.log('🔍 Validating and loading User ID...')
 
-  if (data.userId === undefined && data.userName) {
-    // Create a new user with userName
-    const newUser = await createUser({ username: data.userName })
-    validatedData.userName = data.userName // Update the userName in validatedData
-    return newUser.user?.id || 0
+  // If neither userName nor userId is provided, return 0
+  if (!data.userName && !data.userId) {
+    console.warn('No userName or userId provided.')
+    return 0
   }
-  return data.userId ?? 0
+
+  // If userName is provided, upsert the user
+  if (data.userName) {
+    const user = await prisma.user.upsert({
+      where: { username: data.userName },
+      update: {},
+      create: { username: data.userName }
+    })
+    validatedData.userName = user.username
+    return user.id
+  }
+
+  // If userId is provided but userName is not, return userId
+  if (data.userId) {
+    return data.userId
+  }
+
+  // If we reach this point, something went wrong
+  return 0
 }
 
 async function validateAndLoadPromptId(
@@ -76,13 +90,33 @@ async function validateAndLoadPromptId(
 ): Promise<number> {
   console.log('🔍 Validating and loading Prompt ID...')
 
-  if (data.promptId === undefined) {
-    // Create a new ArtPrompt using "prompt"
-    const newPrompt = await prisma.artPrompt.create({ data: { prompt: data.prompt } })
-    return newPrompt.id
+  // Check if prompt is provided
+  if (!data.prompt) {
+    console.warn('No prompt provided.')
+    throw new Error('Something went wrong')
   }
-  return data.promptId
-}
+
+  // Check if an ArtPrompt with the given prompt already exists
+  const existingPrompt = await prisma.artPrompt.findUnique({
+    where: { prompt: data.prompt }
+  })
+
+  if (existingPrompt) {
+    return existingPrompt.id // Return the existing promptId
+  } else {
+    // Create a new ArtPrompt using "prompt"
+    const newPrompt = await prisma.artPrompt.create({
+      data: {
+        prompt: data.prompt,
+        userId: data.userId,
+        galleryId: data.galleryId,
+        pitch: data.title,
+        pitchId: data.pitchId
+      }
+    })
+    return newPrompt.id // Return the new promptId
+  }
+} // Import your error handler
 
 async function validateAndLoadPitchId(
   data: RequestData,
@@ -90,32 +124,49 @@ async function validateAndLoadPitchId(
 ): Promise<number> {
   console.log('🔍 Validating and loading pitch ID...')
 
-  // Check if a Pitch with the given pitchName (title) already exists
-  const existingPitch = await prisma.pitch.findUnique({
-    where: { title: data.pitchName }
-  })
-
-  if (existingPitch) {
-    return existingPitch.id // Return the existing pitchId
-  } else if (data.pitchName && data.designerName && data.title) {
-    // Create a new Pitch using pitchName
-    const newPitch = await prisma.pitch.create({
-      data: {
-        title: data.title,
-        pitch: data.pitchName,
-        designer: data.designerName,
-        channelId: data.channelId,
-        userId: data.userId,
-        isOrphan: data.isOrphan,
-        isPublic: data.isPublic,
-        creatorId: data.userId,
-        isNSFW: data.isMature
-      }
-    })
-    return newPitch.id // Return the new pitchId
+  // If pitchId is provided, return it immediately
+  if (data.pitchId) {
+    return data.pitchId
   }
 
-  return data.pitchId ?? 0 // Return the provided pitchId or 0 if none is provided
+  try {
+    if (!data.title && !data.pitchId) {
+      console.warn('No pitch title or pitchId provided.')
+      return 0
+    }
+
+    if (data.title) {
+      const existingPitch = await prisma.pitch.findUnique({
+        where: { title: data.title }
+      })
+
+      if (existingPitch) {
+        return existingPitch.id
+      }
+
+      const newPitch = await prisma.pitch.create({
+        data: {
+          title: data.title, // Provide a default value
+          pitch: data.pitchName || 'masterpiece',
+          designer: data.designerName ?? '', // Provide a default value
+          channelId: data.channelId,
+          userId: data.userId,
+          isOrphan: data.isOrphan,
+          isPublic: data.isPublic,
+          creatorId: data.userId,
+          isMature: data.isMature,
+          flavorText: data.flavorText
+        }
+      })
+
+      return newPitch.id
+    }
+
+    return data.pitchId ?? 0
+  } catch (error) {
+    console.error('Error validating and loading pitch ID:', error)
+    return 0 // You can't return errorHandler here as it doesn't return a number
+  }
 }
 
 async function validateAndLoadChannelId(
@@ -124,19 +175,43 @@ async function validateAndLoadChannelId(
 ): Promise<number> {
   console.log('🔍 Validating and loading channel ID...')
 
-  if (data.channelId === undefined && data.channelName) {
-    // Create a new Channel using channelName
+  // If channelId is provided, return it as the source of truth
+  if (data.channelId) {
+    return data.channelId
+  }
+
+  try {
+    let labelToSearch = data.channelName ?? data.pitchName
+
+    if (!labelToSearch) {
+      console.warn('No channelName or pitchName provided.')
+      return 1 // Default channel ID
+    }
+
+    let existingChannel = await prisma.channel.findUnique({
+      where: { label: labelToSearch }
+    })
+
+    if (existingChannel) {
+      return existingChannel.id // Return the existing channelId
+    }
+
+    // Create a new Channel
     const newChannel = await prisma.channel.create({
       data: {
-        label: data.channelName,
+        label: labelToSearch,
         title: data.title,
         pitchId: data.pitchId,
-        description: data.description
+        description: data.description,
+        userId: data.userId
       }
     })
+
     return newChannel.id
+  } catch (error) {
+    console.error('Error validating and loading channel ID:', error)
+    return 1
   }
-  return data.channelId ?? 1
 }
 
 async function validateAndLoadGalleryId(
@@ -230,16 +305,17 @@ export default defineEventHandler(async (event) => {
     const newArt = await prisma.art.create({
       data: {
         path: imagePath,
-        prompt: validatedData.prompt,
+        prompt: requestData.prompt,
         pitchId: validatedData.pitchId,
         userId: validatedData.userId,
         galleryId: validatedData.galleryId || 21,
         artPromptId: validatedData.promptId,
-        pitch: requestData.pitch,
-        isNsfw: requestData.isMature,
+        pitch: requestData.pitchName,
+        isMature: requestData.isMature,
         isOrphan: requestData.isOrphan,
         isPublic: requestData.isPublic,
-        channelId: validatedData.channelId
+        channelId: validatedData.channelId,
+        designer: validatedData.designerName
       }
     })
 
@@ -252,8 +328,6 @@ export default defineEventHandler(async (event) => {
     })
   }
 })
-
-console.log('👏 All set! Ready for testing!')
 
 export async function generateImage(prompt: string, user: string): Promise<{ images: string[] }> {
   console.log('📸 Starting image generation...')

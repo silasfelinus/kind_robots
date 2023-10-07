@@ -5,6 +5,25 @@ import { errorHandler } from '../server/api/utils/error'
 
 const isClient = typeof window !== 'undefined'
 
+export interface GenerateArtData {
+  title?: string
+  prompt: string
+  description?: string
+  flavorText?: string
+  userId?: number
+  pitchId?: number
+  channelId?: number
+  promptId?: number
+  galleryId?: number
+  designerName?: string
+  channelName?: string
+  userName?: string
+  pitchName?: string
+  galleryName: string
+  isMature?: boolean
+  isPublic?: boolean
+  isOrphan?: boolean
+}
 export const useArtStore = defineStore({
   id: 'artStore',
   state: () => ({
@@ -95,25 +114,21 @@ export const useArtStore = defineStore({
         console.error('Error in createArtReaction:', handledError.message)
       }
     },
-    async generateArt(prompt: string, galleryName: string = 'cafefred', pitch: string) {
+    async generateArt(data: GenerateArtData) {
       try {
         const response = await fetch('https://kindrobots.org/api/art/generate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            prompt,
-            galleryName,
-            pitch
-          })
+          body: JSON.stringify(data)
         })
 
         if (response.ok) {
           const newArt = await response.json()
-          this.artAssets.push(newArt.id, newArt)
+          this.artAssets[newArt.id] = newArt // Using object property assignment
           if (isClient) {
-            localStorage.setItem('artAssets', JSON.stringify(Array.from(this.artAssets.entries())))
+            localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
           }
         }
       } catch (error: any) {
@@ -121,7 +136,6 @@ export const useArtStore = defineStore({
         console.error('Error in generateArt:', handledError.message)
       }
     },
-
     async editArtReaction(id: number, reactionData: ArtReaction) {
       try {
         const response = await fetch(`https://kindrobots.org/api/reactions/${id}`, {

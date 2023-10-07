@@ -12,12 +12,17 @@
       />
     </div>
     <p class="mt-2 text-base">{{ art.pitch }}</p>
+    <p class="mt-2 text-base">claps: {{ art.claps }}</p>
+    <p class="mt-2 text-base">Adoptable?: {{ art.isOrphan }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Art, useArtStore } from '@/stores/artStore'
+import { useArtStore, Art } from '@/stores/artStore'
+import { useMatureStore } from '@/stores/matureStore'
 
+const filterStore = useMatureStore()
+const showMature = computed(() => filterStore.showMature)
 const artStore = useArtStore()
 const props = defineProps<{
   art: Art

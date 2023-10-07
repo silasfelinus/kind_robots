@@ -1,5 +1,6 @@
 // server/api/pitches/[id].delete.ts
 import { defineEventHandler } from 'h3'
+import { Pitch } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
@@ -19,3 +20,19 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to delete a Pitch by ID
+export async function deletePitch(id: number): Promise<boolean> {
+  try {
+    const pitchExists = await prisma.pitch.findUnique({ where: { id } })
+
+    if (!pitchExists) {
+      throw new Error('Pitch not found')
+    }
+
+    await prisma.pitch.delete({ where: { id } })
+    return true
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

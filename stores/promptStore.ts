@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { ref, Ref } from 'vue'
 import { ArtPrompt, Art } from '@prisma/client'
 import { errorHandler } from '../server/api/utils/error'
 

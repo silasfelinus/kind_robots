@@ -13,6 +13,7 @@ model Art {
   updatedAt   DateTime?
   galleryId   Int?
   path        String
+  designer    String?
   prompt      String?       @db.Text
   artPromptId Int?
   userId      Int?          @default(0)
@@ -31,7 +32,7 @@ model Art {
   sampler     String?
   cfg         String?
   checkpoint  String?
-  isNsfw      Boolean?      @default(false)
+  isMature    Boolean?      @default(false)
   isPublic    Boolean?      @default(false)
   isOrphan    Boolean?      @default(false)
   channelId   Int?
@@ -44,7 +45,7 @@ model ArtPrompt {
   createdAt DateTime  @default(now())
   updatedAt DateTime?
   userId    Int       @default(0)
-  prompt    String    @db.Text
+  prompt    String    @unique @db.VarChar(2000)
   galleryId Int?      @default(21)
   pitch     String?
   Art       Art[]
@@ -99,9 +100,9 @@ model Channel {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime?
   userId      Int?      @default(0)
-  label       String    @default("global")
+  label       String    @unique //channels can be id's by unique label
   title       String?
-  description String?   @db.Text
+  description String?   @db.VarChar(2000)
   tagId       Int?
   Tag         Tag?
   User        User?     @relation(fields: [userId], references: [id])
@@ -126,7 +127,7 @@ model Gallery {
   content        String    @default("")
   highlightImage String?
   imagePaths     String?   @db.Text
-  isNsfw         Boolean   @default(false)
+  isMature       Boolean   @default(false)
   Art            Art[]
   User           User?     @relation(fields: [userId], references: [id])
 
@@ -211,7 +212,7 @@ model Pitch {
   designer       String
   creatorId      Int?
   userId         Int           @default(0)
-  isNSFW         Boolean       @default(false)
+  isMature       Boolean       @default(false)
   isPublic       Boolean       @default(true)
   isOrphan       Boolean       @default(false)
   claps          Int           @default(0)
@@ -294,7 +295,7 @@ model Resource {
   localPath    String?
   description  String?      @db.Text
   resourceType ResourceType @default(CHECKPOINT)
-  isNsfw       Boolean      @default(false)
+  isMature     Boolean      @default(false)
   User         User?        @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Resource_userId_fkey")
@@ -323,7 +324,7 @@ model Tag {
   pitch        String?
   title        String
   userId       Int           @default(0)
-  isNSFW       Boolean       @default(false)
+  isMature       Boolean       @default(false)
   isPublic     Boolean?      @default(false)
   flavorText   String?
   Art          Art[]

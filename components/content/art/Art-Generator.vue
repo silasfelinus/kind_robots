@@ -1,22 +1,13 @@
 <template>
   <div class="bg-base-200 rounded-2xl p-8 text-lg">
-    <h1 class="text-2xl mb-4">Dream-Generator</h1>
+    <h1 class="text-2xl mb-4">Art-Maker</h1>
 
-    <!-- Random Dream as Prompt -->
+    <!-- Random Prompt -->
     <div class="mt-4">
       <button class="bg-accent rounded-2xl p-2 text-white" @click="getRandomDream">
-        Get Random Dream
+        Generate Prompt Help
       </button>
       <p v-if="randomDream">{{ randomDream }}</p>
-    </div>
-
-    <!-- Flavor Text Input -->
-    <div class="mt-4">
-      <input
-        v-model="flavorText"
-        placeholder="Enter anything you want, or leave blank"
-        class="rounded-2xl p-2 w-full text-lg"
-      />
     </div>
 
     <!-- Prompt Input -->
@@ -38,16 +29,8 @@
     </button>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="mt-4 flex flex-col items-center">
-      <p>{{ loadingMessage }}</p>
-      <div class="loader flex justify-center mt-2">
-        <ami-butterfly />
-      </div>
-    </div>
-
-    <!-- Display Created Art -->
-    <div v-for="art in createdArts" :key="art.id" class="mt-4">
-      <art-card :art="art" />
+    <div v-if="isLoading" class="mt-4">
+      <p>Loading...</p>
     </div>
   </div>
 </template>
@@ -55,33 +38,63 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useArtStore } from '@/stores/artStore'
 import { errorHandler } from '@/server/api/utils/error'
+import { usePitchStore } from '@/stores/pitchStore'
 import { useUserStore } from '@/stores/userStore'
-import { useLoadStore } from '@/stores/loadStore'
-import { useArtStore, Art } from '@/stores/artStore'
+import { useChannelStore } from '@/stores/channelStore'
 
 // Load stores
 const dreamStore = useDreamStore()
 const userStore = useUserStore()
-const loadStore = useLoadStore()
+const pitchStore = usePitchStore()
 const artStore = useArtStore()
+const channelStore = useChannelStore()
 
 // Art Prompt text
+const title = ref('')
 const prompt = ref('')
+const description = ref('')
 const flavorText = ref('')
-const username = computed(() => userStore.username)
+const designerName = ref('')
+const channelName = computed(() => channelStore.currentChannel?.label)
+const userName = computed(() => userStore.username)
+const pitchName = computed(() => pitchStore.selectedPitch?.pitch)
+const galleryName = 'cafefred'
+const isMature = ref(false)
+const isPublic = ref(true)
+const isOrphan = ref(false)
 
 // Art Prompt Ids
 const userId = computed(() => userStore.userId)
+const galleryId = 21
+const pitchId = computed(() => pitchStore.selectedPitch?.id)
+const channelId = computed(() => channelStore.currentChannel?.id)
+const promptId = computed(() => userStore.username)
 
 const isLoading = ref(false)
-const createdArts = ref<Art[]>([]) // Array to store created art
+const selectedPitch = computed(() => pitchStore.selectedPitch)
 const randomDream = ref<string | null>(null)
-const loadingMessage = ref<string | null>(null)
 
-const getLoadingMessage = () => {
-  loadingMessage.value = loadStore.randomLoadMessage()
-}
+const newArt = ref<{
+  title?: string
+  prompt: string
+  description?: string
+  flavorText?: string
+  userId?: number
+  galleryId?: number
+  pitchId?: number
+  channelId?: number
+  promptId?: number
+  designerName?: string
+  channelName?: string
+  userName?: string
+  pitchName?: string
+  galleryName: string
+  isMature?: boolean
+  isPublic?: boolean
+  isOrphan?: boolean
+} | null>(null)
 
 const getRandomDream = () => {
   randomDream.value = dreamStore.randomDream()
@@ -89,7 +102,6 @@ const getRandomDream = () => {
 }
 
 const generateArt = async () => {
-  getLoadingMessage()
   isLoading.value = true
   try {
     const response = await fetch('https://kindrobots.org/api/art/generate', {
@@ -98,25 +110,18 @@ const generateArt = async () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: prompt.value + ', ' + flavorText.value,
-        userName: username.value,
+        prompt: prompt.value,
+        username: 'silasfelinus',
         galleryName: 'cafefred',
-        pitchId: 6,
-        title: 'dreamscapes',
-        isMature: false,
-        isPublic: true,
-        isOrphan: true,
-        flavorText: flavorText.value,
-        userId: userId.value,
-        galleryId: 21,
-        channelName: 'dreamscapes'
+        pitchName: selectedPitch.value,
+        pitchId: 6
       })
     })
 
     if (response.ok) {
       const data = await response.json()
-      createdArts.value.unshift(data.newArt as Art)
-      console.log('Art generated:', createdArts)
+      newArt.value = data.newArt
+      console.log('Art generated:', data)
     } else {
       const errorText = await response.text()
       const handledError = errorHandler(new Error(errorText))

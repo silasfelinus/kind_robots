@@ -13,7 +13,7 @@ import { Resource, ResourceType } from '@prisma/client'
 export const resourceData: Partial<Resource>[] = [
   {
     name: 'Cafe Lola',
-    isNSFW: true,
+    isMature: true,
     MediaPath: '/images/avatars.bot1.jpg',
     localPath: 'https://lola.acrocatranch.com',
     description: 'private access only',
@@ -21,7 +21,7 @@ export const resourceData: Partial<Resource>[] = [
   },
   {
     name: 'Cafe Fred',
-    isNSFW: false,
+    isMature: false,
     MediaPath: '/images/avatars/avatar1.jpg',
     localPath: 'https://lola.acrocatranch.com',
     description: 'private access only',

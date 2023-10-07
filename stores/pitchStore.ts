@@ -26,7 +26,7 @@ export const usePitchStore = defineStore({
     getUsername(): (userId: number) => Promise<string | null> {
       return async (userId: number) => {
         if (userId === 0) {
-          return 'Anonymous' // or any default name you'd like to give
+          return 'Kind Guest' // or any default name you'd like to give
         }
         try {
           const userStore = useUserStore()

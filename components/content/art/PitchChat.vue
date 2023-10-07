@@ -59,10 +59,12 @@ const sendMessage = () => {
       : null
 
     if (channel) {
-      channelStore.sendMessageToChannel({
-        label: channel.label, // Add this line
+      channelStore.createMessage({
+        sender: 'user',
+        recipient: 'recipient',
         channelId: selectedChannelId.value,
-        message: { content: newMessage.value, sender: 'user' } // Replace 'user' with the actual sender if available
+        content: newMessage.value,
+        userId: 0
       })
       newMessage.value = ''
     }

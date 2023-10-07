@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
+import { usePitchStore, Pitch } from '@/stores/pitchStore'
 
 const pitchStore = usePitchStore()
 
@@ -63,7 +63,7 @@ const updateSelectedPitch = (pitchId: number) => {
   pitchStore.selectPitch(pitchId)
 }
 
-const enrichedPitches = computed(() => {
+const enrichedPitches = computed<Pitch[]>(() => {
   return pitches.value.map((pitch) => {
     return { ...pitch }
   })

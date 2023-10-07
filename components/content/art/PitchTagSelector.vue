@@ -24,8 +24,8 @@
       <button class="bg-info text-white rounded-2xl p-2" @click="deleteSelectedPitch">
         Delete
       </button>
-      <button class="bg-accent text-white rounded-2xl p-2" @click="togglePitchNsfw">
-        {{ selectedPitch.isNSFW ? 'Hide' : 'Show' }} NSFW
+      <button class="bg-accent text-white rounded-2xl p-2" @click="togglePitchMature">
+        {{ selectedPitch.isMature ? 'Hide' : 'Show' }} Mature
       </button>
     </div>
   </div>
@@ -56,15 +56,15 @@ const enrichedPitches = computed(() => {
     return { ...pitch, username }
   })
 })
-const togglePitchNsfw = () => {
+const togglePitchMature = () => {
   try {
     if (selectedPitch.value) {
-      const currentNsfwStatus = selectedPitch.value.isNSFW ?? false
-      tagStore.updatePitch(selectedPitch.value.id, { isNSFW: !currentNsfwStatus })
+      const currentMatureStatus = selectedPitch.value.isMature ?? false
+      tagStore.updatePitch(selectedPitch.value.id, { isMature: !currentMatureStatus })
     }
   } catch (error: any) {
     const handledError = errorHandler(error)
-    console.error('Error toggling pitch NSFW:', handledError.message)
+    console.error('Error toggling pitch Mature:', handledError.message)
   }
 }
 const showPublicPitches = ref(true) // Initialize from local storage if needed
@@ -84,7 +84,7 @@ const filteredPitches = computed(() => {
   return pitches.value.filter((pitch) => {
     if (userStore.userId === pitch.userId) return true
     if (showPublicPitches.value && pitch.isPublic) return true
-    if (filterStore.showMature && pitch.isNSFW) return true
+    if (filterStore.showMature && pitch.isMature) return true
     return false
   })
 })

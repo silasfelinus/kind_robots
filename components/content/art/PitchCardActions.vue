@@ -36,7 +36,7 @@ const pitchStore = usePitchStore()
 
 const matureButtonClass = computed(() => {
   if (!props.pitch) return 'rounded-full p-2 bg-accent'
-  return ['rounded-full p-2', props.pitch.isNSFW ? 'bg-accent-dark' : 'bg-accent']
+  return ['rounded-full p-2', props.pitch.isMature ? 'bg-accent-dark' : 'bg-accent']
 })
 
 const publicButtonClass = computed(() => {
@@ -45,14 +45,14 @@ const publicButtonClass = computed(() => {
 })
 
 const matureIcon = computed(() =>
-  props.pitch?.isNSFW ? 'fluent-emoji-high-contrast:lipstick' : 'ri:bear-smile-line'
+  props.pitch?.isMature ? 'fluent-emoji-high-contrast:lipstick' : 'ri:bear-smile-line'
 )
 const publicIcon = computed(() => (props.pitch?.isPublic ? 'mdi:earth' : 'mdi:earth-off'))
 
 const toggleMature = () => {
   try {
     if (!props.pitch) throw new Error('Pitch data is not available.')
-    pitchStore.updatePitch(props.pitch.id, { isNSFW: !props.pitch.isNSFW })
+    pitchStore.updatePitch(props.pitch.id, { isMature: !props.pitch.isMature })
   } catch (error) {
     const handledError = errorHandler(error)
     console.log(handledError)

@@ -13,7 +13,7 @@ interface GalleryStore extends GalleryState {
   currentGalleryDescription: () => string | null
   currentGalleryMediaId: () => string | null
   currentGalleryURL: () => string | null
-  currentGalleryIsNSFW: () => boolean
+  currentGalleryIsMature: () => boolean
   currentGalleryCustodian: () => string | null
   currentGalleryUserId: () => number | null
   currentGalleryHighlightImage: () => string | null
@@ -53,8 +53,8 @@ export const useGalleryStore = defineStore({
       return this.currentGallery?.url || null
     },
 
-    currentGalleryIsNSFW(): boolean {
-      return this.currentGallery?.isNsfw || false
+    currentGalleryIsMature(): boolean {
+      return this.currentGallery?.isMature || false
     },
 
     currentGalleryCustodian(): string | null {

@@ -1,6 +1,6 @@
 <template>
   <div class="bg-base-200 rounded-2xl p-8 text-lg">
-    <h1 class="text-2xl mb-4">Art-Maker</h1>
+    <h1 class="text-2xl mb-4">Dream-Generator</h1>
 
     <!-- Random Dream as Prompt -->
     <div class="mt-4">
@@ -8,6 +8,15 @@
         Get Random Dream
       </button>
       <p v-if="randomDream">{{ randomDream }}</p>
+    </div>
+
+    <!-- Flavor Text Input -->
+    <div class="mt-4">
+      <input
+        v-model="flavorText"
+        placeholder="Enter anything you want, or leave blank"
+        class="rounded-2xl p-2 w-full text-lg"
+      />
     </div>
 
     <!-- Prompt Input -->
@@ -25,12 +34,20 @@
       class="bg-primary rounded-2xl p-2 text-white mt-4 w-full hover:bg-primary-dark"
       @click="generateArt"
     >
-      Generate Art
+      Generate Dream
     </button>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="mt-4">
-      <p>Loading...</p>
+    <div v-if="isLoading" class="mt-4 flex flex-col items-center">
+      <p>{{ loadingMessage }}</p>
+      <div class="loader flex justify-center mt-2">
+        <ami-butterfly />
+      </div>
+    </div>
+
+    <!-- Display Created Art -->
+    <div v-for="art in createdArts" :key="art.id" class="mt-4">
+      <art-card :art="art" />
     </div>
   </div>
 </template>
@@ -38,33 +55,41 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
-import { useTagStore } from '@/stores/tagStore'
-import { useArtStore } from '@/stores/artStore'
-import { errorHandler } from '@/server/api/utils/error' // Import your errorHandler
+import { errorHandler } from '@/server/api/utils/error'
+import { useUserStore } from '@/stores/userStore'
+import { useLoadStore } from '@/stores/loadStore'
+import { useArtStore, Art } from '@/stores/artStore'
 
-const prompt = ref('')
-const isLoading = ref(false)
+// Load stores
 const dreamStore = useDreamStore()
-const tagStore = useTagStore()
-const selectedPitch = ref('')
-const randomDream = ref<string | null>(null)
+const userStore = useUserStore()
+const loadStore = useLoadStore()
 const artStore = useArtStore()
-const newArt = ref<{ id: number; path: string; pitch: string; prompt: string } | null>(null)
-// New ref for custom pitch
-const customPitch = ref('')
+
+// Art Prompt text
+const prompt = ref('')
+const flavorText = ref('')
+const username = computed(() => userStore.username)
+
+// Art Prompt Ids
+const userId = computed(() => userStore.userId)
+
+const isLoading = ref(false)
+const createdArts = ref<Art[]>([]) // Array to store created art
+const randomDream = ref<string | null>(null)
+const loadingMessage = ref<string | null>(null)
+
+const getLoadingMessage = () => {
+  loadingMessage.value = loadStore.randomLoadMessage()
+}
 
 const getRandomDream = () => {
   randomDream.value = dreamStore.randomDream()
   prompt.value = randomDream.value
 }
 
-const updateSelectedPitch = (newPitch: string) => {
-  selectedPitch.value = newPitch
-}
-
-const availablePitches = tagStore.getPitchTitles()
-
 const generateArt = async () => {
+  getLoadingMessage()
   isLoading.value = true
   try {
     const response = await fetch('https://kindrobots.org/api/art/generate', {
@@ -73,17 +98,25 @@ const generateArt = async () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: prompt.value,
-        username: 'silasfelinus',
+        prompt: prompt.value + ', ' + flavorText.value,
+        userName: username.value,
         galleryName: 'cafefred',
-        pitch: selectedPitch.value
+        pitchId: 6,
+        title: 'dreamscapes',
+        isMature: false,
+        isPublic: true,
+        isOrphan: true,
+        flavorText: flavorText.value,
+        userId: userId.value,
+        galleryId: 21,
+        channelName: 'dreamscapes'
       })
     })
 
     if (response.ok) {
       const data = await response.json()
-      newArt.value = data.newArt
-      console.log('Art generated:', data)
+      createdArts.value.unshift(data.newArt as Art)
+      console.log('Art generated:', createdArts)
     } else {
       const errorText = await response.text()
       const handledError = errorHandler(new Error(errorText))

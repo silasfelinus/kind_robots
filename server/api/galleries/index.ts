@@ -27,7 +27,7 @@ export async function createGallery(gallery: Partial<Gallery>): Promise<Gallery 
         description: gallery.description || null,
         mediaId: gallery.mediaId || null,
         url: gallery.url || null,
-        isNsfw: gallery.isNsfw || false,
+        isMature: gallery.isMature || false,
         custodian: gallery.custodian || null,
         userId: gallery.userId || null,
         highlightImage: gallery.highlightImage || null,

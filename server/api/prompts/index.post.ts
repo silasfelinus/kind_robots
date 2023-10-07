@@ -7,6 +7,7 @@ import prisma from '../utils/prisma'
 export default defineEventHandler(async (event) => {
   try {
     const artPromptData: Partial<ArtPrompt> = await readBody(event)
+
     const newArtPrompt = await createArtPrompt(artPromptData)
     return { success: true, newArtPrompt }
   } catch (error: any) {
@@ -17,6 +18,9 @@ export default defineEventHandler(async (event) => {
 // Function to create a new ArtPrompt
 export async function createArtPrompt(artPrompt: Partial<ArtPrompt>): Promise<ArtPrompt> {
   try {
+    if (!artPrompt.prompt) {
+      throw new Error('We need a prompt to make an art prompt')
+    }
     return await prisma.artPrompt.create({
       data: {
         userId: artPrompt.userId || 0,

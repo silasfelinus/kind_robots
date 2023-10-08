@@ -1,51 +1,53 @@
 <template>
   <div class="bg-base-200 p-2 rounded-2xl relative w-full max-w-screen">
-    <div class="flex flex-wrap items-center justify-between h-full">
-      <!-- User Info -->
-      <div class="flex flex-row items-center space-x-2 cursor-pointer" @click.stop="toggleMinimize">
+    <div class="flex items-center justify-between h-full">
+      <!-- User Info and Logout -->
+      <div class="flex items-center space-x-2 cursor-pointer" @click.stop="toggleMinimize">
         <icon name="game-icons:expand" class="text-lg" />
         <user-avatar class="w-12 h-12" />
         <span>{{ user?.username || 'Kind Guest' }}</span>
+        <!-- Karma and Mana -->
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2">
+            <icon name="game-icons:health-potion" class="text-lg" />
+            <span>Karma: {{ user?.karma || 0 }}</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <icon name="fluent-emoji-high-contrast:beans" class="text-lg" />
+            <span>Jellybeans: {{ user?.mana || 0 }}</span>
+          </div>
+        </div>
+        <button
+          :class="[
+            'rounded-2xl p-2 py-1 text-white text-lg',
+            isLoggedIn ? 'bg-warning' : 'bg-primary'
+          ]"
+          @click.stop="handleButtonClick"
+        >
+          {{ isLoggedIn ? 'Logout' : 'Login' }}
+        </button>
       </div>
 
-      <!-- Mana -->
-      <div class="flex flex-row items-center space-x-4 p-2 m-1">
-        <icon name="game-icons:standing-potion" class="text-2xl" />
-        <span>{{ user?.mana || 0 }}</span>
+      <!-- Centered Navigation Buttons -->
+      <div class="flex items-center space-x-4 mx-auto">
+        <BackLink />
+        <HomeLink />
+        <ForwardLink />
       </div>
 
-      <!-- Karma -->
-      <div class="flex flex-row items-center space-x-2">
-        <icon name="game-icons:health-potion" class="text-2xl" />
-        <span>{{ user?.karma || 0 }}</span>
+      <!-- Theme and Butterfly Toggle -->
+      <div class="flex items-center space-x-4">
+        <theme-toggle />
+        <butterfly-toggle />
       </div>
+    </div>
 
-      <!-- Login/Logout Button -->
-      <button
-        :class="[
-          'm-1 rounded-2xl p-2 py-1 text-white text-lg',
-          isLoggedIn ? 'bg-warning' : 'bg-primary'
-        ]"
-        @click.stop="handleButtonClick"
-      >
-        {{ isLoggedIn ? 'Logout' : 'Login' }}
-      </button>
-
-      <!-- Login Form -->
-      <div
-        v-if="showLogin"
-        class="flex flex-row bg-opacity-50 m-2 p-1 bg-black items-center justify-center z-50"
-      >
-        <login-form v-if="showLogin" @close="showLogin = false" />
-      </div>
-
-      <!-- Navigation Links -->
-      <BackLink class="flex flex-row" />
-      <HomeLink class="flex flex-row" />
-      <ForwardLink class="flex flex-row" />
-      <layout-selector class="flex flex-row" />
-      <theme-toggle class="flex flex-row" />
-      <butterfly-toggle class="flex flex-row" />
+    <!-- Login Form -->
+    <div
+      v-if="showLogin"
+      class="flex flex-row bg-opacity-50 m-2 p-1 bg-black items-center justify-center z-50"
+    >
+      <login-form v-if="showLogin" @close="showLogin = false" />
     </div>
   </div>
 </template>

@@ -25,11 +25,11 @@
         <div class="flex space-x-4 mt-2">
           <div class="flex items-center space-x-2">
             <icon name="game-icons:health-potion" class="text-lg" />
-            <span>Karma: {{ user?.karma || 0 }}</span>
+            <span>Karma Earned: {{ user?.karma || 0 }}</span>
           </div>
           <div class="flex items-center space-x-2">
-            <icon name="game-icons:standing-potion" class="text-lg" />
-            <span>Mana: {{ user?.mana || 0 }}</span>
+            <icon name="fluent-emoji-high-contrast:beans" class="text-lg" />
+            <span>Jellybeans Discovered: {{ user?.mana || 0 }}</span>
           </div>
         </div>
       </div>

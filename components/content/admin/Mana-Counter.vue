@@ -2,7 +2,7 @@
 <template>
   <div class="flex items-center space-x-2">
     <icon name="game-icons:standing-potion" class="text-lg" />
-    <span>{{ user?.mana }}</span>
+    <span>{{ userStore?.mana }}</span>
   </div>
 </template>
 

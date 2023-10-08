@@ -8,6 +8,11 @@ export function errorHandler(error: ErrorHandlerInput): {
   message: string
   statusCode?: number
 } {
+  if (!error || !Prisma.PrismaClientKnownRequestError) {
+    console.error('Either error object or Prisma.PrismaClientKnownRequestError is undefined')
+    return { success: false, message: 'An unknown error occurred.', statusCode: 500 }
+  }
+
   console.error(`Operation failed:`, error)
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

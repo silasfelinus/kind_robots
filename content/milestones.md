@@ -11,4 +11,4 @@ tooltip: This is still under development, but the logic is entirely in place, I 
 sort: highlight
 ---
 
-:milestone-gallery
+:user-milestones

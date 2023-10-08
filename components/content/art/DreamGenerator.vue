@@ -44,6 +44,8 @@
         <ami-butterfly />
       </div>
     </div>
+    <!-- Add this line where you want to display the milestone-check -->
+    <milestone-check v-if="shouldShowMilestoneCheck" :id="11"></milestone-check>
 
     <!-- Display Created Art -->
     <div v-for="art in createdArts" :key="art.id" class="mt-4">
@@ -65,7 +67,7 @@ const dreamStore = useDreamStore()
 const userStore = useUserStore()
 const loadStore = useLoadStore()
 const artStore = useArtStore()
-
+const shouldShowMilestoneCheck = ref(false)
 // Art Prompt text
 const prompt = ref('')
 const flavorText = ref('')
@@ -116,6 +118,7 @@ const generateArt = async () => {
     if (response.ok) {
       const data = await response.json()
       createdArts.value.unshift(data.newArt as Art)
+      shouldShowMilestoneCheck.value = true
       console.log('Art generated:', createdArts)
     } else {
       const errorText = await response.text()

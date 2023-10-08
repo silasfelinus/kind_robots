@@ -190,6 +190,7 @@ model Milestone {
   pageHint        String?
   subtleHint      String?
   MilestoneRecord MilestoneRecord[]
+  Users           User[]
 }
 
 model MilestoneRecord {
@@ -379,7 +380,7 @@ model User {
   spotifyID           String?
   spotifyRefreshToken String?
   karma               Int?              @default(0)
-  mana                Int?              @default(1000)
+  mana                Int?              @default(0)
   clickRecord         Int?              @default(0)
   matchRecord         Int?              @default(0)
   Art                 Art[]
@@ -390,6 +391,7 @@ model User {
   Gallery             Gallery[]
   Game                Game[]
   Message             Message[]
+  milestones          Milestone[]
   MilestoneRecord     MilestoneRecord[]
   Products            Product[]
   Resource            Resource[]

@@ -23,3 +23,18 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to update an existing Milestone by ID
+export async function updateMilestone(
+  id: number,
+  updatedMilestone: Partial<Milestone>
+): Promise<Milestone | null> {
+  try {
+    return await prisma.milestone.update({
+      where: { id },
+      data: updatedMilestone
+    })
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
+}

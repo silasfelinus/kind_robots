@@ -18,9 +18,9 @@
           </div>
           <!-- Question Mark Icon for Directions -->
           <div class="absolute top-2 right-2 z-6">
-            <a :href="milestone.pageHint || '#'" class="text-blue-500 hover:underline">
+            <nuxt-link :to="milestone.pageHint || '#'">
               <icon name="ph:question-bold" class="text-blue-500 text-2xl" />
-            </a>
+            </nuxt-link>
           </div>
         </div>
       </div>
@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { computed } from 'vue'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -40,10 +40,5 @@ const userMilestones = computed(() => userStore.milestones)
 
 const lockedMilestones = computed(() => {
   return milestones.value.filter((milestone) => !userMilestones.value.includes(milestone.id))
-})
-
-// Initialize milestones when the component is mounted
-onMounted(() => {
-  milestoneStore.initializeMilestones()
 })
 </script>

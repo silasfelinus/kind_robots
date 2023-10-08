@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { User } from '@prisma/client'
 import { errorHandler } from '../server/api/utils/error'
+import { useMilestoneStore } from './milestoneStore'
 
 interface UserState {
   user: User | null
@@ -202,6 +203,46 @@ export const useUserStore = defineStore({
       }
     },
 
+    async addMilestone(milestoneId: number): Promise<{ success: boolean; message: string }> {
+      try {
+        this.loading = true
+
+        if (!this.milestones.includes(milestoneId)) {
+          this.milestones.push(milestoneId)
+        }
+
+        const newKarma = this.user?.karma + 1000 || 1000
+        const newMana = this.user?.mana + 1 || 1
+
+        const response = await fetch(`/api/users/${this.userId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            karma: newKarma,
+            mana: newMana
+          })
+        })
+
+        const data = await response.json()
+        if (data.success) {
+          if (this.user) {
+            this.user.karma = newKarma
+            this.user.mana = newMana
+          }
+          return { success: true, message: 'Successfully updated karma and mana.' }
+        } else {
+          return { success: false, message: data.message }
+        }
+      } catch (error: any) {
+        const { message } = errorHandler(error)
+        return { success: false, message }
+      } finally {
+        this.loading = false
+      }
+    },
+
     async updateMatchRecord(newScore: number) {
       try {
         // Fetch the userId from the store
@@ -255,30 +296,6 @@ export const useUserStore = defineStore({
     // New action to update milestones
     setMilestones(milestoneIds: number[]): void {
       this.milestones = milestoneIds
-    },
-
-    async fetchMilestoneRecords() {
-      this.loading = true
-      try {
-        const userId = this.userId
-        if (!userId) throw new Error('User ID is not available')
-
-        const response = await fetch(`/api/users/${userId}.milestones`)
-        const data = await response.json()
-
-        if (response.ok) {
-          // Assuming data.milestoneRecords is an array of milestone IDs
-          this.setMilestones(data.milestoneRecords)
-        } else {
-          throw new Error(data.message || 'Failed to fetch milestone records')
-        }
-      } catch (error: any) {
-        const { message } = errorHandler(error)
-        this.lastError = message
-        console.error('Failed to fetch milestone records:', this.lastError)
-      } finally {
-        this.loading = false
-      }
     },
     setApiKey(apiKey: string): void {
       this.apiKey = apiKey
@@ -358,6 +375,7 @@ export const useUserStore = defineStore({
         return { success: false, message: this.lastError }
       }
     },
+
     async login(credentials: { username: string; password?: string }) {
       this.startLoading()
       try {
@@ -440,6 +458,36 @@ export const useUserStore = defineStore({
         console.error('Failed to register:', this.lastError)
         return { success: false, message: this.lastError || 'An unknown error occurred.' } // Providing a fallback message
       }
+    },
+    async fetchMilestoneRecords(): Promise<{
+      success: boolean
+      message: string
+      milestoneIds?: string[]
+    }> {
+      try {
+        const userId = this.userId
+        if (!userId) {
+          throw new Error('User ID is not available')
+          return
+        }
+
+        // Fetch logic here
+        const response = await fetch(`/api/users/milestones/${userId}`)
+        const data = await response.json()
+
+        if (response.ok && data.success && data.milestoneIds) {
+          this.setMilestones(data.milestoneIds)
+          return { success: true, message: 'Fetched successfully', milestoneIds: data.milestoneIds }
+        } else {
+          throw new Error(data.message || 'Failed to fetch milestone records')
+        }
+      } catch (error: any) {
+        console.log('Caught error:', error)
+        const { message } = errorHandler(error)
+        return { success: false, message }
+      }
     }
   }
 })
+
+export type { User }

@@ -1,6 +1,7 @@
 // @/stores/milestoneStore.ts
 import { defineStore } from 'pinia'
 import { Milestone, MilestoneRecord } from '@prisma/client'
+import { useUserStore } from './userStore'
 import { milestoneData } from '@/training/milestoneData'
 import { errorHandler } from '@/server/api/utils/error'
 
@@ -19,6 +20,8 @@ export const useMilestoneStore = defineStore({
       try {
         // Fetch the updated milestones
         await this.fetchMilestones()
+        // Fetch the milestone records
+        await this.fetchMilestoneRecords()
 
         // Mark as initialized
         this.isInitialized = true
@@ -29,7 +32,39 @@ export const useMilestoneStore = defineStore({
         }
       }
     },
-
+    async fetchMilestoneById(id: number) {
+      try {
+        const response = await fetch(`/api/milestones/${id}`)
+        const data = await response.json()
+        if (data.success && data.milestone) {
+          return data.milestone
+        } else {
+          console.error(`Failed to fetch milestone by ID ${id}:`, data.message)
+          return { success: false, message: data.message }
+        }
+      } catch (error) {
+        const { success, message } = errorHandler({ error })
+        console.error(`Error fetching milestone by ID ${id}: ${message}`)
+        return { success, message }
+      }
+    },
+    // Add this action to your existing milestoneStore
+    async fetchMilestoneRecords() {
+      try {
+        const response = await fetch('/api/milestones/records')
+        const data = await response.json()
+        if (data.success) {
+          this.milestoneRecords = data.records
+        } else {
+          console.error('Failed to fetch milestone records:', data.message)
+        }
+      } catch (error) {
+        const { success, message } = errorHandler({ error })
+        if (!success) {
+          console.error(`Error fetching milestone records: ${message}`)
+        }
+      }
+    },
     async updateMilestonesFromData() {
       // Loop through milestoneData and update existing milestones
       for (const updatedMilestone of milestoneData) {
@@ -58,27 +93,6 @@ export const useMilestoneStore = defineStore({
         }
       }
     },
-    async addMilestone(milestone: Milestone) {
-      try {
-        const response = await fetch('/api/milestones', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(milestone)
-        })
-
-        const data = await response.json()
-        if (data.success) {
-          this.fetchMilestones() // Refresh the milestones list
-        } else {
-          console.error('Failed to add milestone:', data.message)
-        }
-      } catch (error) {
-        console.error('An error occurred while adding a milestone:', error)
-      }
-    },
-
     async updateMilestone(milestone: Milestone) {
       try {
         if (!milestone.id) {
@@ -104,22 +118,29 @@ export const useMilestoneStore = defineStore({
         console.error('An error occurred while updating a milestone:', error)
       }
     },
-    async awardMilestone(userId: number, milestoneId: number) {
+    async awardMilestone(
+      userId: number,
+      milestoneId: number
+    ): Promise<{ success: boolean; message: string }> {
       try {
         if (this.hasMilestone(userId, milestoneId)) {
-          return { success: true, message: 'Milestone already awarded.' }
+          return { success: true, message: 'Milestone already recorded.' }
         }
 
-        const milestoneRecord: Partial<MilestoneRecord> = {
+        const milestoneRecord = {
           userId,
           milestoneId
         }
 
-        const response = await this.addMilestoneRecord(milestoneRecord as MilestoneRecord)
+        const response = await this.addMilestoneRecord(milestoneRecord)
+
+        const userStore = useUserStore()
+        userStore.addMilestone(milestoneId)
+
         return { success: true, message: 'Milestone successfully awarded.', response }
-      } catch (error) {
-        const { success, message } = errorHandler({ error })
-        return { success, message }
+      } catch (error: any) {
+        const { message } = errorHandler(error)
+        return { success: false, message }
       }
     },
 
@@ -150,4 +171,4 @@ export const useMilestoneStore = defineStore({
   }
 })
 
-export default Milestone
+export type { Milestone }

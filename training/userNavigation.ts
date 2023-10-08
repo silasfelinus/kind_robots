@@ -20,7 +20,7 @@ export const userNavigation: navigationData[] = [
   },
   {
     title: 'Giftshop',
-    image: '/images/avatars/brain1.webp',
+    image: '/images/fantasycore/fantasycore-894.webp',
     description: 'Feel free to browse our giftshop!',
     path: '/giftshop'
   },
@@ -38,7 +38,7 @@ export const userNavigation: navigationData[] = [
   },
   {
     title: 'ArtMaker',
-    image: '/images/fantasycore/fantasycore-747.webp',
+    image: '/images/fantasycore/fantasycore-915.webp',
     description: 'Create beautiful art (currently being worked on, up soon)',
     path: '/artmaker'
   },
@@ -49,10 +49,10 @@ export const userNavigation: navigationData[] = [
     path: '/button'
   },
   {
-    title: 'Choose your Fate',
+    title: 'Milestones',
     image: '/images/fantasycore/fantasycore-749.webp',
-    description: 'Select from 2 moral quandaries (Coming Soon!)',
-    path: '/fate'
+    description: 'User Milestone Records',
+    path: '/milestones'
   },
   {
     title: 'Art Match',

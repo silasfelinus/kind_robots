@@ -1,7 +1,8 @@
 // /server/api/milestones/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
+import { Prisma, Milestone } from '@prisma/client' // Import the batch creation function
 import { errorHandler } from '../utils/error' // Import centralized error handler
-import { createMilestonesBatch } from './' // Import the batch creation function
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -42,3 +43,37 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
+
+// Function to create Milestones in batch
+export async function createMilestonesBatch(
+  milestonesData: Partial<Milestone>[]
+): Promise<{ count: number; milestones: Milestone[]; errors: string[] }> {
+  const errors: string[] = []
+
+  // Validate and filter the milestones
+  const data: Prisma.MilestoneCreateManyInput[] = milestonesData
+    .filter((milestoneData) => {
+      if (
+        !milestoneData.label ||
+        !milestoneData.message ||
+        !milestoneData.triggerCode ||
+        !milestoneData.icon
+      ) {
+        errors.push(`Milestone with label ${milestoneData.label} is incomplete.`)
+        return false
+      }
+      return true
+    })
+    .map((milestoneData) => milestoneData as Prisma.MilestoneCreateManyInput)
+
+  // Create the milestones in a batch
+  const result = await prisma.milestone.createMany({
+    data,
+    skipDuplicates: true // Skip duplicate records based on constraints
+  })
+
+  // Fetch the newly created milestones
+  const milestones = await prisma.milestone.findMany()
+
+  return { count: result.count, milestones, errors }
+}

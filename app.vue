@@ -9,6 +9,7 @@ import { useUserStore } from './stores/userStore'
 import { errorHandler } from './server/api/utils/error'
 import { useArtStore } from './stores/artStore'
 import { useChannelStore } from './stores/channelStore'
+import { useMilestoneStore } from './stores/milestoneStore'
 import { useTagStore } from '@/stores/tagStore'
 import { useMatureStore } from '@/stores/matureStore'
 import { useThemeStore } from '@/stores/themeStore'
@@ -26,6 +27,7 @@ const themeStore = useThemeStore()
 const botStore = useBotStore()
 const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
+const milestoneStore = useMilestoneStore()
 
 onMounted(() => {
   try {
@@ -39,6 +41,10 @@ onMounted(() => {
     themeStore.initTheme()
     pitchStore.initializePitches()
     channelStore.initializeChannels()
+    milestoneStore.initializeMilestones()
+    console.log(
+      'Welcome to Kind Robots, random person who reads console logs! Are you a developer?'
+    )
   } catch (error: any) {
     errorHandler({ success: false, message: `Initialization failed: ${error}` })
   }

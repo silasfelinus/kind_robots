@@ -1,14 +1,10 @@
+import { User } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import auth from '../../middleware/auth'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
-    console.log('[id].get API route invoked. Setting auth to true.')
-    event.context.route = { auth: true }
-    // Validate the API key using the auth middleware
-    auth(event)
-
     // Extract the user id from the query parameters
     const userId = Number(event.context.params?.id)
     if (!userId) {
@@ -47,8 +43,7 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         state: true,
         country: true,
         timezone: true,
-        avatarImage: true,
-        milestones: true
+        avatarImage: true
       }
     })
   } catch (error: any) {

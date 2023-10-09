@@ -88,9 +88,10 @@ const validateMilestoneRecord = async () => {
 
 const validateUserRecord = async () => {
   try {
-    const result = await userStore.addMilestone(props.milestone.id)
+    console.log('attempting to validate')
+    const result = await userStore.updateKarmaAndMana()
     if (result.success) {
-      console.log('Successfully added user record', result)
+      console.log('Successfully updated records', result)
       triggerConfetti()
       validationStatus.value = 'success'
     } else {
@@ -104,12 +105,11 @@ const validateUserRecord = async () => {
 }
 
 onMounted(async () => {
-  if (!userStore.milestones.includes(props.milestone.id)) {
-    console.log('There is a reward that needs to be applied!')
-    triggerConfetti()
-    showPopup.value = true
-
-    // Validate the milestone and user records
+  console.log('There is a reward that needs to be applied!')
+  triggerConfetti()
+  showPopup.value = true
+  // If the user is not a guest (userId is not 0), validate the milestone and user records
+  if (userStore.userId !== 0) {
     await Promise.all([validateMilestoneRecord(), validateUserRecord()])
   }
 })

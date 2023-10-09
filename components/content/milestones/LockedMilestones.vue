@@ -39,6 +39,6 @@ const milestones = computed(() => milestoneStore.milestones)
 const userMilestones = computed(() => userStore.milestones)
 
 const lockedMilestones = computed(() => {
-  return milestones.value.filter((milestone) => !userMilestones.value.includes(milestone.id))
+  return milestones.value.filter((milestone) => !userMilestones.value?.includes(milestone.id))
 })
 </script>

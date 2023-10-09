@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { User } from '@prisma/client'
 import { errorHandler } from '../server/api/utils/error'
-import { useMilestoneStore, Milestone } from './milestoneStore'
+import { useMilestoneStore } from './milestoneStore'
 
 interface UserState {
   user: User | null
@@ -24,15 +24,11 @@ export const useUserStore = defineStore({
     lastError: null,
     highClickScores: [],
     highMatchScores: [],
-    stayLoggedIn: true,
-    milestones: []
+    stayLoggedIn: true
   }),
 
   // Getters are functions that compute derived state based on the store's state
   getters: {
-    milestones(): number[] {
-      return this.milestones
-    },
     karma(): number {
       return this.user?.karma || 0
     },
@@ -206,52 +202,31 @@ export const useUserStore = defineStore({
       }
     },
 
-    async addMilestone(milestoneId: number): Promise<{ success: boolean; message: string }> {
+    async updateKarmaAndMana(): Promise<{ success: boolean; message: string }> {
       try {
-        this.loading = true
+        const milestoneStore = useMilestoneStore()
+        const milestoneCount = milestoneStore.getMilestoneCountForUser(this.userId)
 
-        const newKarma = this.karma + 1000
-        const newMana = this.mana + 1
+        // Update karma and mana based on milestoneCount
+        const updatedKarma = milestoneCount * 1000
+        const updatedMana = milestoneCount
 
-        console.log(
-          'karma check:',
-          this.karma,
-          'mana:',
-          this.mana,
-          'collected milestones:',
-          this.milestones
-        )
-
-        const response = await fetch(`/api/users/${this.userId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            karma: newKarma,
-            mana: newMana
-          })
+        // Assuming you have a function to update the user
+        await this.updateUser(userId, {
+          karma: updatedKarma,
+          mana: updatedMana
         })
 
-        const data = await response.json()
-        if (data.success) {
-          console.log(
-            'karma check:',
-            this.karma,
-            'mana:',
-            this.mana,
-            'collected milestones:',
-            this.milestones
-          )
-          return { success: true, message: 'Successfully updated milestone, karma and mana.' }
-        } else {
-          return { success: false, message: data.message }
+        return {
+          success: true,
+          message: 'Successfully updated karma and mana.'
         }
       } catch (error: any) {
         const { message } = errorHandler(error)
-        return { success: false, message }
-      } finally {
-        this.loading = false
+        return {
+          success: false,
+          message
+        }
       }
     },
 

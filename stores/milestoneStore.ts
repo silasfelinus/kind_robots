@@ -34,13 +34,14 @@ export const useMilestoneStore = defineStore({
         }
       }
     },
-    async fetchMilestoneById(id: number): Promise<Milestone | null> {
+    async fetchMilestoneById(
+      id: number
+    ): Promise<{ success: boolean; message: string } | Milestone | null> {
       try {
         const response = await fetch(`/api/milestones/${id}`)
         const data = await response.json()
         if (data.success && data.milestone) {
-          currentMilestone.value = data.milestone
-          return data.milestone
+          return data.milestone as Milestone
         } else {
           console.error(`Failed to fetch milestone by ID ${id}:`, data.message)
           return { success: false, message: data.message }
@@ -52,7 +53,6 @@ export const useMilestoneStore = defineStore({
         return { success, message }
       }
     },
-
     // Add this action to your existing milestoneStore
     async fetchMilestoneRecords() {
       try {
@@ -128,6 +128,8 @@ export const useMilestoneStore = defineStore({
       milestoneId: number
     ): Promise<{ success: boolean; message: string }> {
       try {
+        const userStore = useUserStore()
+        if (userStore.userId === 0) return
         if (this.hasMilestone(userId, milestoneId)) {
           return { success: true, message: 'Milestone already recorded.' }
         }
@@ -148,6 +150,8 @@ export const useMilestoneStore = defineStore({
 
     async addMilestoneRecord(record: MilestoneRecord) {
       try {
+        const userStore = useUserStore()
+        if (userStore.userId === 0) return
         const response = await fetch('/api/milestones/records', {
           method: 'POST',
           headers: {
@@ -169,6 +173,10 @@ export const useMilestoneStore = defineStore({
       return this.milestoneRecords.some(
         (record) => record.userId === userId && record.milestoneId === milestoneId
       )
+    },
+    // New function to get the count of milestones for a user
+    getMilestoneCountForUser(userId: number) {
+      return this.milestoneRecords.filter((record) => record.userId === userId).length
     }
   }
 })

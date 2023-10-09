@@ -67,8 +67,7 @@ export async function fetchUsers(): Promise<{
         state: true,
         country: true,
         timezone: true,
-        avatarImage: true,
-        milestones: true
+        avatarImage: true
       }
     })
     return { success: true, users }
@@ -98,8 +97,7 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         state: true,
         country: true,
         timezone: true,
-        avatarImage: true,
-        milestones: true
+        avatarImage: true
       }
     })
   } catch (error: any) {
@@ -128,8 +126,7 @@ export async function fetchIdByUsername(username: string): Promise<number> {
         state: true,
         country: true,
         timezone: true,
-        avatarImage: true,
-        milestones: true
+        avatarImage: true
       }
     })
 

@@ -1,7 +1,7 @@
 // server/api/users/[id].delete.ts
 import { errorHandler } from '../utils/error'
 import auth from '../../middleware/auth'
-import { deleteUser } from '.'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -29,3 +29,16 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
+
+export async function deleteUser(id: number): Promise<boolean> {
+  try {
+    const user = await prisma.user.findUnique({ where: { id } })
+    if (!user) throw new Error(`User with id ${id} does not exist. Please provide a valid user ID.`)
+
+    await prisma.user.delete({ where: { id } })
+    return true
+  } catch (error: any) {
+    console.error(`Failed to delete user: ${error.message}`)
+    throw new Error(errorHandler(error).message)
+  }
+}

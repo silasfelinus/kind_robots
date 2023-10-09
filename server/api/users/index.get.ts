@@ -1,6 +1,7 @@
 // /server/api/users/index.get.ts
 import { errorHandler } from '../utils/error'
 import auth from '../../middleware/auth'
+import prisma from '../utils/prisma'
 import { fetchUsers } from '.'
 
 export default defineEventHandler(async (event) => {

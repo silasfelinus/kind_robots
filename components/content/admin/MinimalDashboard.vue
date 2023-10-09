@@ -63,7 +63,6 @@ const isLoggedIn = computed(() => userStore.isLoggedIn)
 const showLogin = ref(false)
 const isLoading = ref(false)
 const errorMessage = ref('')
-
 const toggleStore = useToggleStore()
 
 const toggleMinimize = () => {

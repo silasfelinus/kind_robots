@@ -38,14 +38,8 @@ export const getUserDataByToken = async (token: string) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        karma: true,
-        mana: true,
-        clickRecord: true,
-        matchRecord: true
+      include: {
+        milestones: true
       }
     })
 

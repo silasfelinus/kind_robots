@@ -8,11 +8,11 @@
     <div class="absolute top-2 right-2 z-6">
       <icon name="ph:star-bold" class="text-yellow-400 text-2xl" />
     </div>
-    <div class="text-center">
+    <div v-if="milestone.icon" class="text-center">
       <!-- Milestone Icon -->
       <icon :name="milestone.icon" class="text-6xl mb-2" />
       <!-- Milestone Label -->
-      <div class="text-xl font-bold text-white">
+      <div v-if="milestone.pageHint && milestone.label" class="text-xl font-bold text-white">
         <a v-if="milestone.pageHint" :href="milestone.pageHint" class="hover:underline">
           {{ milestone.label }}
         </a>
@@ -23,13 +23,13 @@
         {{ milestone.subtleHint }}
       </div>
       <!-- Tooltip -->
-      <div class="text-white text-xs italic">{{ milestone.tooltip }}</div>
+      <div v-if="milestone.tooltip" class="text-white text-xs italic">{{ milestone.tooltip }}</div>
       <!-- Earned Date -->
-      <div class="text-white text-xs">
+      <div v-if="milestone.createdAt" class="text-white text-xs">
         Earned on: {{ new Date(milestone.createdAt).toLocaleDateString() }}
       </div>
       <!-- Karma Points -->
-      <div class="text-white text-xs">Karma: {{ milestone.karma }}</div>
+      <div v-if="milestone.karma" class="text-white text-xs">Karma: {{ milestone.karma }}</div>
     </div>
   </div>
   <div

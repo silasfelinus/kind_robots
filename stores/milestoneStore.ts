@@ -10,7 +10,9 @@ export const useMilestoneStore = defineStore({
   state: () => ({
     milestones: [] as Milestone[],
     milestoneRecords: [] as MilestoneRecord[],
-    isInitialized: false // Add this state variable
+    isInitialized: false,
+    currentMilestone: ref<Milestone | null>(null),
+    error: null as string | null
   }),
   actions: {
     async initializeMilestones() {
@@ -32,22 +34,25 @@ export const useMilestoneStore = defineStore({
         }
       }
     },
-    async fetchMilestoneById(id: number) {
+    async fetchMilestoneById(id: number): Promise<Milestone | null> {
       try {
         const response = await fetch(`/api/milestones/${id}`)
         const data = await response.json()
         if (data.success && data.milestone) {
+          currentMilestone.value = data.milestone
           return data.milestone
         } else {
           console.error(`Failed to fetch milestone by ID ${id}:`, data.message)
           return { success: false, message: data.message }
         }
-      } catch (error) {
+      } catch (error: any) {
         const { success, message } = errorHandler({ error })
+        this.error = message
         console.error(`Error fetching milestone by ID ${id}: ${message}`)
         return { success, message }
       }
     },
+
     // Add this action to your existing milestoneStore
     async fetchMilestoneRecords() {
       try {
@@ -76,7 +81,7 @@ export const useMilestoneStore = defineStore({
         }
       }
     },
-    // Refactored to use centralized error handler
+
     async fetchMilestones() {
       try {
         const response = await fetch('/api/milestones/')
@@ -101,7 +106,7 @@ export const useMilestoneStore = defineStore({
         }
 
         const response = await fetch(`/api/milestones/${milestone.id}`, {
-          method: 'PATCH',
+          method: 'PATCH', // Refactored to use centralized error handler
           headers: {
             'Content-Type': 'application/json'
           },
@@ -118,7 +123,7 @@ export const useMilestoneStore = defineStore({
         console.error('An error occurred while updating a milestone:', error)
       }
     },
-    async awardMilestone(
+    async recordMilestone(
       userId: number,
       milestoneId: number
     ): Promise<{ success: boolean; message: string }> {
@@ -133,9 +138,6 @@ export const useMilestoneStore = defineStore({
         }
 
         const response = await this.addMilestoneRecord(milestoneRecord)
-
-        const userStore = useUserStore()
-        userStore.addMilestone(milestoneId)
 
         return { success: true, message: 'Milestone successfully awarded.', response }
       } catch (error: any) {

@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
       const verificationResult = await verifyJwtToken(token) // Get the full result object
 
       // In your validate endpoint
-      if (verificationResult.success) {
+      if (verificationResult.userId) {
         const userData = await fetchUserById(verificationResult.userId) // Pass userId directly
         return {
           success: true,

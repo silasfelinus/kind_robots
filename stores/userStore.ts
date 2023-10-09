@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { User } from '@prisma/client'
 import { errorHandler } from '../server/api/utils/error'
-import { useMilestoneStore } from './milestoneStore'
+import { useMilestoneStore, Milestone } from './milestoneStore'
 
 interface UserState {
   user: User | null
@@ -9,10 +9,10 @@ interface UserState {
   apiKey: string | null
   loading: boolean
   lastError: string | null
-  milestones: number[]
   highClickScores: []
   highMatchScores: []
   stayLoggedIn: boolean
+  milestones: number[]
 }
 export const useUserStore = defineStore({
   id: 'user',
@@ -22,14 +22,17 @@ export const useUserStore = defineStore({
     apiKey: typeof window !== 'undefined' ? localStorage.getItem('api_key') : null,
     loading: false,
     lastError: null,
-    milestones: [],
     highClickScores: [],
     highMatchScores: [],
-    stayLoggedIn: true
+    stayLoggedIn: true,
+    milestones: []
   }),
 
   // Getters are functions that compute derived state based on the store's state
   getters: {
+    milestones(): number[] {
+      return this.milestones
+    },
     karma(): number {
       return this.user?.karma || 0
     },
@@ -207,12 +210,17 @@ export const useUserStore = defineStore({
       try {
         this.loading = true
 
-        if (!this.milestones.includes(milestoneId)) {
-          this.milestones.push(milestoneId)
-        }
+        const newKarma = this.karma + 1000
+        const newMana = this.mana + 1
 
-        const newKarma = this.user?.karma + 1000 || 1000
-        const newMana = this.user?.mana + 1 || 1
+        console.log(
+          'karma check:',
+          this.karma,
+          'mana:',
+          this.mana,
+          'collected milestones:',
+          this.milestones
+        )
 
         const response = await fetch(`/api/users/${this.userId}`, {
           method: 'PATCH',
@@ -227,11 +235,15 @@ export const useUserStore = defineStore({
 
         const data = await response.json()
         if (data.success) {
-          if (this.user) {
-            this.user.karma = newKarma
-            this.user.mana = newMana
-          }
-          return { success: true, message: 'Successfully updated karma and mana.' }
+          console.log(
+            'karma check:',
+            this.karma,
+            'mana:',
+            this.mana,
+            'collected milestones:',
+            this.milestones
+          )
+          return { success: true, message: 'Successfully updated milestone, karma and mana.' }
         } else {
           return { success: false, message: data.message }
         }
@@ -291,11 +303,6 @@ export const useUserStore = defineStore({
     setToken(newToken: string): void {
       this.token = newToken
       this.saveToLocalStorage('token', newToken)
-    },
-
-    // New action to update milestones
-    setMilestones(milestoneIds: number[]): void {
-      this.milestones = milestoneIds
     },
     setApiKey(apiKey: string): void {
       this.apiKey = apiKey
@@ -457,34 +464,6 @@ export const useUserStore = defineStore({
         this.setError(error)
         console.error('Failed to register:', this.lastError)
         return { success: false, message: this.lastError || 'An unknown error occurred.' } // Providing a fallback message
-      }
-    },
-    async fetchMilestoneRecords(): Promise<{
-      success: boolean
-      message: string
-      milestoneIds?: string[]
-    }> {
-      try {
-        const userId = this.userId
-        if (!userId) {
-          throw new Error('User ID is not available')
-          return
-        }
-
-        // Fetch logic here
-        const response = await fetch(`/api/users/milestones/${userId}`)
-        const data = await response.json()
-
-        if (response.ok && data.success && data.milestoneIds) {
-          this.setMilestones(data.milestoneIds)
-          return { success: true, message: 'Fetched successfully', milestoneIds: data.milestoneIds }
-        } else {
-          throw new Error(data.message || 'Failed to fetch milestone records')
-        }
-      } catch (error: any) {
-        console.log('Caught error:', error)
-        const { message } = errorHandler(error)
-        return { success: false, message }
       }
     }
   }

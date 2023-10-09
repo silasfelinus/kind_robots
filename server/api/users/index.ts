@@ -67,7 +67,8 @@ export async function fetchUsers(): Promise<{
         state: true,
         country: true,
         timezone: true,
-        avatarImage: true
+        avatarImage: true,
+        milestones: true
       }
     })
     return { success: true, users }
@@ -87,7 +88,6 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         updatedAt: true,
         Role: true,
         username: true,
-        // email: true, // Email is commented to exclude it from the response
         emailVerified: true,
         clickRecord: true,
         matchRecord: true,
@@ -98,22 +98,8 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         state: true,
         country: true,
         timezone: true,
-        avatarImage: true
-      }
-    })
-  } catch (error: any) {
-    console.error(`Failed to fetch user by ID: ${error.message}`)
-    throw new Error(errorHandler(error).message)
-  }
-}
-export async function fetchUsernameById(id: number): Promise<Partial<User> | null> {
-  try {
-    return await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        username: true // Include username
-        // ... other fields
+        avatarImage: true,
+        milestones: true
       }
     })
   } catch (error: any) {
@@ -127,8 +113,23 @@ export async function fetchIdByUsername(username: string): Promise<number> {
     const user = await prisma.user.findUnique({
       where: { username },
       select: {
-        id: true
-        // ... other fields
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        Role: true,
+        username: true,
+        emailVerified: true,
+        clickRecord: true,
+        matchRecord: true,
+        name: true,
+        bio: true,
+        birthday: true,
+        city: true,
+        state: true,
+        country: true,
+        timezone: true,
+        avatarImage: true,
+        milestones: true
       }
     })
 
@@ -143,27 +144,6 @@ export async function fetchIdByUsername(username: string): Promise<number> {
   }
 }
 
-export async function updateUser(id: number, data: Partial<User>): Promise<User | null> {
-  try {
-    return await prisma.user.update({ where: { id }, data })
-  } catch (error: any) {
-    console.error(`Failed to update user: ${error.message}`)
-    throw new Error(errorHandler(error).message)
-  }
-}
-
-export async function deleteUser(id: number): Promise<boolean> {
-  try {
-    const user = await prisma.user.findUnique({ where: { id } })
-    if (!user) throw new Error(`User with id ${id} does not exist. Please provide a valid user ID.`)
-
-    await prisma.user.delete({ where: { id } })
-    return true
-  } catch (error: any) {
-    console.error(`Failed to delete user: ${error.message}`)
-    throw new Error(errorHandler(error).message)
-  }
-}
 export async function userExists(
   identifier: string | number,
   field: 'id' | 'username' | 'email' = 'id'

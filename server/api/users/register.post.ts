@@ -1,6 +1,7 @@
 // /server/api/user/register.post.ts
 import { errorHandler } from '../utils/error' // Importing the centralized error handler
-import { createUser } from '.' // Importing the function to create a user with authentication details
+import prisma from '../utils/prisma'
+import { createUser } from '.'
 
 export default defineEventHandler(async (event) => {
   console.log('🚀 Launching the user creation journey...')

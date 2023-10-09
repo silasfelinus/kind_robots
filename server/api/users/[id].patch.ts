@@ -1,7 +1,8 @@
+import { User } from '@prisma/client'
 import { hashPassword, validatePassword } from '../auth'
 import { errorHandler } from '../utils/error'
 import auth from '../../middleware/auth'
-import { fetchUserById, updateUser } from '.'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   console.log('[id].patch API route invoked. Setting auth to true.')
@@ -36,11 +37,17 @@ export default defineEventHandler(async (event) => {
     }
 
     // Destructure the password field from the data object to avoid updating it directly
-    const { password, ...restData } = data
+    const { password, milestones, ...restData } = data
 
     // If a hashed password is generated, add it to the data to be updated
     if (hashedPassword) {
       restData.password = hashedPassword
+    }
+
+    // If milestones are provided, extract their IDs and add them to the data to be updated
+    if (milestones) {
+      const milestoneIds = milestones.map((milestone) => milestone.id)
+      restData.milestones = milestoneIds
     }
 
     // Log the data to be updated in User model
@@ -59,3 +66,65 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
+
+export async function updateUser(id: number, data: Partial<User>): Promise<User | null> {
+  try {
+    const { milestones, ...otherData } = data
+
+    // Debug: Log the milestones to see what's being passed
+    console.log('Debug Milestones:', milestones)
+
+    const updatePayload: any = { ...otherData }
+
+    if (milestones) {
+      updatePayload.milestones = {
+        connect: milestones.map((milestoneId) => {
+          // Ensure milestoneId is not undefined
+          if (!milestoneId) {
+            console.error('Milestone ID is undefined')
+            throw new Error('Milestone ID should not be undefined')
+          }
+          return { id: milestoneId }
+        })
+      }
+    }
+
+    return await prisma.user.update({
+      where: { id },
+      data: updatePayload
+    })
+  } catch (error: any) {
+    console.error(`Failed to update user: ${error.message}`)
+    throw new Error(errorHandler(error).message)
+  }
+}
+
+export async function fetchUserById(id: number): Promise<Partial<User> | null> {
+  try {
+    return await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        Role: true,
+        username: true,
+        emailVerified: true,
+        clickRecord: true,
+        matchRecord: true,
+        name: true,
+        bio: true,
+        birthday: true,
+        city: true,
+        state: true,
+        country: true,
+        timezone: true,
+        avatarImage: true,
+        milestones: true
+      }
+    })
+  } catch (error: any) {
+    console.error(`Failed to fetch user by ID: ${error.message}`)
+    throw new Error(errorHandler(error).message)
+  }
+}

@@ -1,5 +1,6 @@
 // /server/api/users/usernames.get.ts
 import { errorHandler } from '../utils/error'
+import prisma from '../utils/prisma'
 import { fetchUsers } from '.'
 
 export default defineEventHandler(async (event) => {
@@ -18,3 +19,19 @@ export default defineEventHandler(async (event) => {
     return { success: false, message: `Failed to fetch users. Reason: ${message}` }
   }
 })
+
+export async function fetchUsernameById(id: number): Promise<Partial<User> | null> {
+  try {
+    return await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        username: true // Include username
+        // ... other fields
+      }
+    })
+  } catch (error: any) {
+    console.error(`Failed to fetch user by ID: ${error.message}`)
+    throw new Error(errorHandler(error).message)
+  }
+}

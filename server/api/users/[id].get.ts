@@ -1,6 +1,6 @@
 import { errorHandler } from '../utils/error'
 import auth from '../../middleware/auth'
-import { fetchUserById } from '.'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -26,3 +26,33 @@ export default defineEventHandler(async (event) => {
     return { success: false, message: `Failed to fetch user: ${errorHandler(error)}` }
   }
 })
+export async function fetchUserById(id: number): Promise<Partial<User> | null> {
+  try {
+    return await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        Role: true,
+        username: true,
+        // email: true, // Email is commented to exclude it from the response
+        emailVerified: true,
+        clickRecord: true,
+        matchRecord: true,
+        name: true,
+        bio: true,
+        birthday: true,
+        city: true,
+        state: true,
+        country: true,
+        timezone: true,
+        avatarImage: true,
+        milestones: true
+      }
+    })
+  } catch (error: any) {
+    console.error(`Failed to fetch user by ID: ${error.message}`)
+    throw new Error(errorHandler(error).message)
+  }
+}

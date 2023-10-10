@@ -60,7 +60,19 @@ export const useBotStore = defineStore({
 
     async updateBots(botsData: Partial<Bot>[]): Promise<void> {
       try {
-        const { data } = await axios.post(`/api/bots`, botsData)
+        const response = await fetch('/api/bots', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(botsData)
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const data = await response.json()
         this.bots = this.bots.map((bot) => {
           const updatedBot = data.bots.find((b: Bot) => b.id === bot.id)
           return updatedBot || bot
@@ -75,7 +87,19 @@ export const useBotStore = defineStore({
     },
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
       try {
-        const { data: updatedBot } = await axios.put(`/api/bot/id/${id}`, data)
+        const response = await fetch(`/api/bot/id/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const updatedBot = await response.json()
         this.currentBot = updatedBot
         await this.getBots()
       } catch (error) {
@@ -85,7 +109,14 @@ export const useBotStore = defineStore({
 
     async deleteBot(id: number): Promise<void> {
       try {
-        await axios.delete(`/api/bot/id/${id}`)
+        const response = await fetch(`/api/bot/id/${id}`, {
+          method: 'DELETE'
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
         await this.getBots()
       } catch (error) {
         errorHandler({ success: false, message: 'Failed to delete bot: ' + error, statusCode: 500 })
@@ -94,7 +125,19 @@ export const useBotStore = defineStore({
 
     async addBots(botsData: Partial<Bot>[]): Promise<void> {
       try {
-        const { data } = await axios.post(`/api/bots`, botsData)
+        const response = await fetch(`/api/bots`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(botsData)
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const data = await response.json()
         this.bots = [...this.bots, ...data.bots]
         this.totalBots += data.bots.length
       } catch (error) {
@@ -102,18 +145,13 @@ export const useBotStore = defineStore({
       }
     },
 
-    async getBots(): Promise<void> {
-      try {
-        const { data } = await axios.get(`/api/bots`)
-        this.bots = [...data.bots]
-      } catch (error) {
-        errorHandler({ success: false, message: 'Failed to fetch bots: ' + error, statusCode: 500 })
-      }
-    },
-
     async getBotById(id: number): Promise<void> {
       try {
-        const { data } = await axios.get(`/api/bot/id/${id}`)
+        const response = await fetch(`/api/bot/id/${id}`)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
         this.currentBot = data.bot
       } catch (error) {
         errorHandler({
@@ -126,7 +164,11 @@ export const useBotStore = defineStore({
 
     async getBotByName(name: string): Promise<void> {
       try {
-        const { data } = await axios.get(`/api/bot/name/${name}`)
+        const response = await fetch(`/api/bot/name/${name}`)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
         this.currentBot = data.bot
       } catch (error) {
         errorHandler({

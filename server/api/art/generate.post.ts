@@ -340,7 +340,7 @@ export async function generateImage(prompt: string, user: string): Promise<{ ima
   const requestBody = {
     prompt,
     n: 1,
-    size: '512x512',
+    size: '256x256',
     response_format: 'url',
     user
   }

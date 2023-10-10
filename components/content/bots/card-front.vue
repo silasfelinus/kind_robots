@@ -4,7 +4,7 @@ import { useBotStore } from '../../../stores/botStore'
 
 const botsStore = useBotStore()
 let currentBot = computed(() => botsStore.currentBot)
-const bots = ref(botsStore.getBots)
+const bots = computed(() => botsStore.bots)
 const toggled = ref(false)
 </script>
 <template>

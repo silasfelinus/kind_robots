@@ -177,7 +177,9 @@ watch(selectedDifficulty, resetGame)
             {{ difficulty.label }}
           </option>
         </select>
-        <button @click="resetGame">Start New Game</button>
+        <button class="rounded-2xl text-white bg-primary p-2 m-1 border" @click="resetGame">
+          Start New Game
+        </button>
         <milestone-reward v-if="shouldShowMilestoneCheck" :id="5"></milestone-reward>
       </div>
     </header>

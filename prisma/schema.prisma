@@ -93,6 +93,8 @@ model Bot {
   modules           String?
   userId            Int?
   User              User?     @relation(fields: [userId], references: [id])
+  sampleResponse    String?
+  tagline           String? @default("fancy tagline")
 }
 
 model Channel {

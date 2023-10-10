@@ -35,6 +35,7 @@
       <div class="flex items-center space-x-4">
         <theme-toggle />
         <butterfly-toggle />
+        <avatar-image />
       </div>
     </div>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="add-bot-container">
+  <div class="rounded-2xl border p-2 m-2 flex">
     <h1 class="text-3xl mb-4 text-center">Create a New Bot</h1>
     <form class="bg-white shadow-lg rounded-lg p-8" @submit="handleSubmit">
       <div class="mb-4">
@@ -28,17 +28,29 @@
       </div>
       <div class="mb-4">
         <label for="avatarImage" class="block text-sm font-medium">Avatar Image URL:</label>
-        <input
-          id="avatarImage"
-          v-model="avatarImage"
-          type="text"
-          class="w-full p-2 rounded border"
-        />
-        <!-- Placeholder for image upload component -->
-        <!-- <image-upload-component v-model="avatarImage" /> -->
+        <div v-for="(art, index) in artResults" :key="art.id">
+          <img :src="art.path" alt="Generated Avatar" />
+          <button @click="generateAnotherAvatar(index)">Generate Another</button>
+          <button @click="selectAvatar(art.path)">Select</button>
+        </div>
+
+        <div class="mb-4">
+          <label for="imagePrompt" class="block text-sm font-medium">Image Prompt:</label>
+          <input
+            id="imagePrompt"
+            v-model="imagePrompt"
+            type="text"
+            class="w-full p-2 rounded border"
+          />
+        </div>
+
         <button type="button" class="btn btn-info mt-2" @click="getRandomAvatar">
           Get Random Avatar
         </button>
+        <!-- Display Created Art -->
+        <div v-for="art in artResults" :key="art.id" class="mt-4">
+          <art-card :art="art" />
+        </div>
       </div>
       <div class="mb-4">
         <label for="botIntro" class="block text-sm font-medium">Bot Introduction:</label>
@@ -51,13 +63,61 @@
       <div class="mb-4">
         <label for="prompt" class="block text-sm font-medium">Prompt:</label>
         <textarea id="prompt" v-model="prompt" class="resize w-full p-2 rounded border"></textarea>
+        <div class="mb-4">
+          <label for="sampleResponse" class="block text-sm font-medium">Sample Response:</label>
+          <textarea
+            id="sampleResponse"
+            v-model="sampleResponse"
+            class="resize w-full p-2 rounded border"
+          ></textarea>
+        </div>
         <button type="button" class="btn btn-primary mt-2" @click="testPrompt">Test Prompt</button>
         <div v-if="promptTestResult" class="mt-2 text-green-500 animate-pulse">
           Test Result: {{ promptTestResult }}
         </div>
       </div>
-      <!-- Add additional form fields for other attributes such as theme, personality, modules, etc. -->
-      <!-- ... -->
+      <!-- Additional Fields -->
+      <div class="mb-4">
+        <label for="isPublic" class="block text-sm font-medium">Is Public:</label>
+        <input id="isPublic" v-model="isPublic" type="checkbox" class="p-2 rounded border" />
+      </div>
+      <div class="mb-4">
+        <label for="underConstruction" class="block text-sm font-medium">Under Construction:</label>
+        <input
+          id="underConstruction"
+          v-model="underConstruction"
+          type="checkbox"
+          class="p-2 rounded border"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="theme" class="block text-sm font-medium">Theme:</label>
+        <input id="theme" v-model="theme" type="text" class="w-full p-2 rounded border" />
+      </div>
+      <div class="mb-4">
+        <label for="personality" class="block text-sm font-medium">Personality:</label>
+        <input
+          id="personality"
+          v-model="personality"
+          type="text"
+          class="w-full p-2 rounded border"
+        />
+      </div>
+      <bot-sample
+        :name="name"
+        :bot-type="botType"
+        :subtitle="subtitle"
+        :description="description"
+        :avatar-image="avatarImage"
+        :theme="theme"
+        :under-construction="underConstruction"
+        :bot-intro="botIntro"
+        :user-intro="userIntro"
+        :prompt="prompt"
+        :personality="personality"
+        sample-response="sampleResponse"
+      />
+      <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
       <button type="submit" class="btn btn-success w-full">Create Bot</button>
     </form>
   </div>
@@ -65,29 +125,36 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
-import { useErrorStore, useStatusStore, useBotStore, StatusType, ErrorType } from '../../../stores'
+import { useBotStore } from '@/stores/botStore'
+import { useArtStore, Art } from '@/stores/artStore'
+import { errorHandler } from '@/server/api/utils/error'
+import { useUserStore } from '@/stores/userStore'
 
-const errorStore = useErrorStore()
-const statusStore = useStatusStore()
 const botStore = useBotStore()
-
+const artStore = useArtStore()
+const userStore = useUserStore()
+const isLoading = ref(false) //
 // Form fields
-const botType = ref('CHATBOT')
+const botType = ref('PROMPTBOT')
 const name = ref('')
 const subtitle = ref('Kind Robot')
 const description = ref("I'm a kind robot")
 const avatarImage = ref('/images/wonderchest/wonderchest304_(23).webp')
-const botIntro = ref("You're a Kind Robot")
-const userIntro = ref("Let's make a difference. Here's my idea:")
+const botIntro = ref('SloganMaker')
+const userIntro = ref('Help me make a slogan for')
+const imagePrompt = ref('robot avatar')
 const prompt = ref('Arm butterflies with mini-flamethrowers to kick mosquitos butts')
-// Other form fields
-// ...
+const isPublic = ref(true)
+const underConstruction = ref(false)
+const theme = ref('')
+const personality = ref('kind')
+const sampleResponse = ref('')
+const userId = computed(() => userStore.userId)
+
+const promptTestResult = ref<string | null>(null)
 
 async function handleSubmit(e: Event) {
   e.preventDefault()
-
-  statusStore.setStatus(StatusType.INFO, 'Creating the bot...')
 
   try {
     const botData = {
@@ -98,40 +165,75 @@ async function handleSubmit(e: Event) {
       avatarImage: avatarImage.value,
       botIntro: botIntro.value,
       userIntro: userIntro.value,
-      prompt: prompt.value
-      // Other form fields
-      // ...
+      prompt: prompt.value,
+      isPublic: isPublic.value,
+      underConstruction: underConstruction.value,
+      theme: theme.value,
+      personality: personality.value,
+      sampleResponse: sampleResponse.value,
+      userId: userId.value
     }
 
-    await botStore.addBots([botData])
-
-    statusStore.setStatus(StatusType.SUCCESS, 'Bot created successfully!')
+    const response = await botStore.addBots([botData])
+    console.log(response)
   } catch (error) {
-    errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Failed to create the bot.')
-  }
-}
-
-async function testPrompt() {
-  try {
-    const response = await axios.post('/api/botcafe/chat', { prompt: prompt.value })
-    promptTestResult.value = response.data.result // Adjust based on the API response structure
-  } catch (error) {
-    errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to test the prompt.')
+    errorHandler(error)
   }
 }
 
 async function getRandomAvatar() {
   try {
-    const { data } = await axios.get('/api/galleries/avatars/random')
-    avatarImage.value = data.url // Adjust based on the API response structure
-  } catch (error) {
-    errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch a random avatar.')
+    isLoading.value = true
+    const newArt = await artStore.generateArt({ prompt: imagePrompt.value })
+    if (newArt && newArt.path) {
+      // Make sure newArt object exists and has a path
+      avatarImage.value = newArt.path // Use path as you mentioned
+    }
+  } catch (error: any) {
+    const handledError = errorHandler(error)
+    console.error('Error in getRandomAvatar:', handledError.message)
+  } finally {
+    isLoading.value = false
   }
 }
 
-const promptTestResult = ref<string | null>(null)
-</script>
+async function testPrompt() {
+  try {
+    const response = await fetch('/api/botcafe/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ prompt: prompt.value })
+    })
 
-<style scoped>
-/* Additional custom styles if needed */
-</style>
+    if (response.ok) {
+      const data = await response.json()
+      promptTestResult.value = data.result // Adjust based on the API response structure
+    }
+  } catch (error) {
+    errorHandler(error)
+  }
+}
+
+const artResults = ref<Art[]>([])
+
+async function generateAnotherAvatar(index: number) {
+  try {
+    const newArt = await artStore.generateArt({ prompt: 'Generate a random avatar' })
+    if (newArt && newArt.path) {
+      artResults.value[index] = newArt
+    }
+  } catch (error: any) {
+    const handledError = errorHandler(error)
+    console.error('Error in generateAnotherAvatar:', handledError.message)
+  }
+}
+
+function selectAvatar(path: string) {
+  avatarImage.value = path
+}
+
+// Initialize with one avatar
+generateAnotherAvatar(0)
+</script>

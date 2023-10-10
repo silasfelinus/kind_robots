@@ -7,13 +7,11 @@
     <milestone-reward :id="10" />
 
     <!-- Milestones Data -->
-    <div
-      class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4 justify-center items-center"
-    >
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
       <!-- Earned Milestones -->
-      <div class="p-4 border bg-primary rounded-2xl flex flex-col gap-4 items-center m-2">
+      <div class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2">
         <h2 class="text-lg font-bold">Earned Milestones</h2>
-        <div class="grid grid-cols-1 gap-4">
+        <div class="grid grid-cols-1 gap-4 w-full">
           <EarnedMilestoneCard
             v-for="earnedMilestone in earnedMilestones"
             :key="earnedMilestone.id"
@@ -23,10 +21,15 @@
         </div>
       </div>
 
+      <!-- Leaderboard -->
+      <div class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2">
+        <milestone-leaderboard />
+      </div>
+
       <!-- Unearned Milestones -->
-      <div class="p-4 border bg-primary rounded-2xl flex flex-col gap-4 items-center m-2">
+      <div class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2">
         <h2 class="text-lg font-bold">Undiscovered Milestones</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
           <UnearnedMilestoneCard
             v-for="milestone in unearnedMilestones"
             :key="milestone.id"
@@ -77,10 +80,12 @@ const earnedMilestones = computed(() => {
     return { ...milestone, acquiredAt }
   })
 })
-
 const unearnedMilestones = computed(() => {
   return milestones.value.filter(
-    (milestone) => !unlockedMilestones.value.some((record) => record.milestoneId === milestone.id)
+    (milestone) =>
+      !unlockedMilestones.value.some(
+        (record) => record.milestoneId === milestone.id && record.userId === userStore.userId
+      )
   )
 })
 </script>

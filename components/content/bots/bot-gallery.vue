@@ -1,17 +1,17 @@
 <template>
-  <div class="min-h-screen flex flex-col justify-center sm:py-12">
+  <div class="min-h-screen flex flex-col justify-center sm:py-12 bg-base-200">
     <div class="relative py-3 sm:max-w-xl sm:mx-auto">
       <div
-        class="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"
+        class="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 shadow-lg transform rounded-3xl"
       ></div>
-      <div class="relative px-4 shadow-lg sm:rounded-3xl sm:p-20">
+      <div class="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
         <div class="max-w-md mx-auto">
           <div class="flex flex-col w-full">
             <label class="font-bold mb-2 text-gray-700" for="bot-selector">Select a Bot:</label>
             <select
               id="bot-selector"
               v-model="selectedBot"
-              class="form-select block w-full mt-1"
+              class="form-select block w-full mt-1 rounded-2xl"
               @change="handleChange"
             >
               <option disabled value="">Please select a bot</option>
@@ -22,7 +22,6 @@
             <div v-if="currentBot" class="mt-4 text-blue-500">
               <p>Active bot: {{ currentBot.name }}</p>
             </div>
-
             <!-- Card display -->
             <div v-if="currentBot" class="mt-4 p-4 bg-gray-100 rounded-lg shadow-md">
               <img
@@ -32,11 +31,6 @@
               />
               <h3 class="text-2xl mt-4 text-center">{{ currentBot.name }}</h3>
               <p class="mt-2 text-center">{{ currentBot.description }}</p>
-              <nuxt-link
-                :to="`/bot/id/${currentBot.id}`"
-                class="mt-4 inline-block bg-indigo-500 text-default rounded-full px-5 py-2 transition transform hover:bg-indigo-600 hover:scale-105"
-                >Check out this Bot</nuxt-link
-              >
             </div>
             <div v-else>
               <title-image />
@@ -76,15 +70,6 @@ watch(
       const id = newCurrentBot.id
       const botElement = document.getElementById(`bot-${id}`)
       botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-  }
-)
-
-watch(
-  () => currentBot.value,
-  (newCurrentBot) => {
-    if (newCurrentBot) {
-      selectedBot.value = newCurrentBot.id.toString()
     }
   }
 )

@@ -19,7 +19,7 @@ export interface GenerateArtData {
   channelName?: string
   userName?: string
   pitchName?: string
-  galleryName: string
+  galleryName?: string
   isMature?: boolean
   isPublic?: boolean
   isOrphan?: boolean
@@ -114,7 +114,7 @@ export const useArtStore = defineStore({
         console.error('Error in createArtReaction:', handledError.message)
       }
     },
-    async generateArt(data: GenerateArtData) {
+    async generateArt(data: GenerateArtData): Promise<Art | null> {
       try {
         const response = await fetch('https://kindrobots.org/api/art/generate', {
           method: 'POST',
@@ -125,17 +125,27 @@ export const useArtStore = defineStore({
         })
 
         if (response.ok) {
-          const newArt = await response.json()
+          const newArt: Art = await response.json()
           this.artAssets[newArt.id] = newArt // Using object property assignment
           if (isClient) {
             localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
           }
+          return newArt
+        } else {
+          const handledError = errorHandler({
+            message: 'Response not OK',
+            statusCode: response.status
+          })
+          console.error('Error in generateArt:', handledError.message)
+          return null
         }
       } catch (error: any) {
         const handledError = errorHandler(error)
         console.error('Error in generateArt:', handledError.message)
+        return null
       }
     },
+
     async editArtReaction(id: number, reactionData: ArtReaction) {
       try {
         const response = await fetch(`https://kindrobots.org/api/reactions/${id}`, {

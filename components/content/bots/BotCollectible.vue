@@ -17,7 +17,7 @@ import { useBotStore } from '../../../stores/botStore'
 
 const botStore = useBotStore()
 let bot = computed(() => botStore.currentBot)
-let totalBots = computed(() => botStore.getBots.length)
+let totalBots = computed(() => botStore.bots)
 
 let randomMessages = [
   'Kind Robots: Where AI and humanity harmonize!',

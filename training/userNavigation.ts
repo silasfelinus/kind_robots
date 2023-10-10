@@ -22,7 +22,7 @@ export const userNavigation: navigationData[] = [
     title: 'Giftshop',
     image: '/images/fantasycore/fantasycore-894.webp',
     description: 'Feel free to browse our giftshop!',
-    path: '/giftshop'
+    path: '/redbubble'
   },
   {
     title: 'Weirdlandia',
@@ -33,7 +33,7 @@ export const userNavigation: navigationData[] = [
   {
     title: 'BotCafe',
     image: '/images/botcafe/botcafe-268.webp',
-    description: 'Chat with our friendly bots (working but the layout is awful)',
+    description: 'Chat with our friendly bots',
     path: '/botcafe'
   },
   {

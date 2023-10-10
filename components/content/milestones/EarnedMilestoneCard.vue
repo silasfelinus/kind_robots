@@ -18,11 +18,11 @@
         <template v-else>{{ milestone.label }}</template>
       </div>
       <!-- Subtle Hint -->
-      <div class="text-sm mb-2">
+      <div class="text-md mb-2">
         {{ milestone.subtleHint }}
       </div>
       <!-- Tooltip -->
-      <div class="text-xs italic">
+      <div class="text-md italic">
         {{ milestone.tooltip }}
       </div>
       <!-- Earned Date -->
@@ -42,8 +42,8 @@
       <div class="text-xs">Karma: +{{ milestone.karma }}</div>
       <!-- Jellybean Award -->
       <div>
-        <div class="text-xs">You discovered 1 Jellybean!</div>
-        <icon name="tdesign:bean" class="text-4xl" />
+        <div class="text-lg">You discovered 1 Jellybean!</div>
+        <icon name="tdesign:bean" class="text-9xl" />
       </div>
     </div>
   </div>

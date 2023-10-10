@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col w-full max-w-xs">
-    <label class="font-bold mb-2" for="bot-selector">Select a Bot:</label>
+  <div class="flex flex-col w-full bg-base-200 rounded-2xl p-2">
+    <label class="font-bold text-lg m-2" for="bot-selector">🤖 Select a Bot:</label>
     <select
       id="bot-selector"
       v-model="selectedBot"
-      class="form-select text-black"
+      class="form-select text-black bg-primary rounded"
       @change="handleChange"
     >
       <option disabled value="">Please select a bot</option>
@@ -17,18 +17,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
+import { useBotStore, Bot } from '../../../stores/botStore'
 
 const botStore = useBotStore()
 const selectedBot = ref('')
-const bots = computed(() => botStore.bots)
+const bots = computed<Bot[]>(() => botStore.bots)
 const currentBot = computed(() => botStore.currentBot)
 
 onMounted(async () => {
   try {
     await botStore.loadStore()
   } catch (err) {
-    console.error('Failed to load store', err)
+    console.error('🚨 Failed to load store', err)
   }
 })
 
@@ -56,3 +56,7 @@ watch(
   }
 )
 </script>
+
+<style scoped>
+/* Add your styles here */
+</style>

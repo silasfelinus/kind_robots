@@ -2,11 +2,7 @@
   <!-- Main container -->
   <div class="flex flex-col items-center bg-base-400 p-4">
     <!-- Display bot details if a bot is selected -->
-    <div
-      v-if="currentBot"
-      :data-theme="currentBot.theme"
-      class="w-full p-2 bg-base-400 rounded-lg shadow-md"
-    >
+    <div v-if="currentBot" :data-theme="currentBot.theme" class="w-full bg-base-400 rounded-2xl">
       <!-- Bot name and ID -->
       <div class="flex justify-between items-center mb-4">
         <h1 class="text-3xl font-bold">{{ currentBot.name }}</h1>
@@ -14,7 +10,7 @@
       </div>
 
       <!-- Stream test component -->
-      <div><stream-test /></div>
+      <div class=""><stream-test /></div>
     </div>
   </div>
 </template>

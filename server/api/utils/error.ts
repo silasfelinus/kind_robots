@@ -1,18 +1,21 @@
-// server/api/utils/error.ts
 import { Prisma } from '@prisma/client'
 
 type ErrorHandlerInput = Prisma.PrismaClientKnownRequestError | Error | any
 
-export function errorHandler(error: ErrorHandlerInput): {
+// Define a type for the error object
+export type ErrorHandlerOutput = {
   success: boolean
   message: string
   statusCode?: number
-} {
+}
+
+export function errorHandler(error: ErrorHandlerInput): ErrorHandlerOutput {
   if (!error || !Prisma.PrismaClientKnownRequestError) {
     console.error('Either error object or Prisma.PrismaClientKnownRequestError is undefined')
     return { success: false, message: 'An unknown error occurred.', statusCode: 500 }
   }
 
+  // Log the error (consider using different logging levels)
   console.error(`Operation failed:`, error)
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

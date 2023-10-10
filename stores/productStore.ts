@@ -1,16 +1,17 @@
 import { defineStore } from 'pinia'
+import { Product } from '@prisma/client'
 
 export const useProductStore = defineStore({
   id: 'product',
   state: () => ({
-    products: [] as { id: number; name: string; costInPennies: number }[]
+    products: [] as Product[]
   }),
   actions: {
-    setProducts(products: { id: number; name: string; costInPennies: number }[]) {
+    setProducts(products: Product[]) {
       this.products = products
     },
-    getProductById(id: number) {
-      return this.products.find((product) => product.id === id)
+    getProductById(id: number): Product | null {
+      return this.products.find((product) => product.id === id) || null
     },
     async fetchProducts() {
       try {
@@ -89,3 +90,5 @@ export const useProductStore = defineStore({
     }
   }
 })
+
+export type { Product }

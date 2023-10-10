@@ -201,6 +201,7 @@ model MilestoneRecord {
   userId      Int
   Milestone   Milestone @relation(fields: [milestoneId], references: [id])
   User        User      @relation(fields: [userId], references: [id])
+  username    String?
 }
 
 model Pitch {
@@ -379,8 +380,8 @@ model User {
   spotifyAccessToken  String?
   spotifyID           String?
   spotifyRefreshToken String?
-  karma               Int?              @default(0)
-  mana                Int?              @default(0)
+  karma               Int               @default(0)
+  mana                Int               @default(0)
   clickRecord         Int?              @default(0)
   matchRecord         Int?              @default(0)
   Art                 Art[]

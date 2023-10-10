@@ -13,9 +13,10 @@
       <div class="p-10 rounded-xl shadow-2xl bg-opacity-70 max-w-xl text-center space-y-6 relative">
         <weirdlandia-game />
         <!-- Moved the teleport button here -->
-        <button class="teleport-button btn btn-primary shadow-xl" @click="fetchImage">
+        <button class="teleport-button btn btn-primary shadow-xl" @click="teleportButton">
           Teleport
         </button>
+        <milestone-reward v-if="shouldShowMilestoneCheck" :id="3"></milestone-reward>
       </div>
     </div>
   </div>
@@ -29,10 +30,16 @@ const isPixelatingOut = ref(false)
 const isPixelatingIn = ref(false)
 
 const imageStyle = ref({})
+const shouldShowMilestoneCheck = ref(false)
 
 watchEffect(() => {
   imageStyle.value = { backgroundImage: `url(${src.value})` }
 })
+
+const teleportButton = async () => {
+  shouldShowMilestoneCheck.value = true // This will make the milestone check appear
+  await fetchImage()
+}
 
 const fetchImage = async () => {
   isPixelatingOut.value = true

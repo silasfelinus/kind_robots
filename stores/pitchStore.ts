@@ -80,34 +80,39 @@ export const usePitchStore = defineStore({
     },
     async createPitch(newPitch: Partial<Pitch>) {
       try {
-        const userStore = useUserStore() // Use the user store to get the current userId
-        const userId = userStore.userId // Get the userId from the user store
-
-        const pitchData = {
-          ...newPitch,
-          userId // Add userId to the pitch data
-        }
+        console.log('Sending pitch data:', newPitch) // Debug log
 
         const response = await fetch('/api/pitches', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(pitchData) // Send the pitch data
+          body: JSON.stringify(newPitch) // Send the pitch data
         })
 
+        const data = await response.json() // Parse the JSON response
+
         if (response.ok) {
-          const createdPitch = await response.json()
-          this.pitches.push(createdPitch)
-          if (isClient) {
-            localStorage.setItem('pitches', JSON.stringify(this.pitches))
+          console.log('Received:', data) // Debug log
+          if (data.success && data.pitch) {
+            this.pitches.push(data.pitch)
+            if (isClient) {
+              localStorage.setItem('pitches', JSON.stringify(this.pitches))
+            }
+            return { success: true, message: 'Pitch created successfully' } // Return a success message
+          } else {
+            throw new Error(data.message || 'Failed to create pitch')
           }
+        } else {
+          throw new Error(data.message || 'Failed to create pitch')
         }
       } catch (error: any) {
         const handledError = errorHandler(error)
         console.error('Error creating pitch:', handledError.message)
+        return { success: false, message: handledError.message } // Return an error message
       }
     },
+
     getArtForPitch(pitchId: number): Art[] {
       const artStore = useArtStore()
       return artStore.getArtByPitchId(pitchId)

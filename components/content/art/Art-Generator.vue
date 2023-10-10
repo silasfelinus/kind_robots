@@ -5,7 +5,7 @@
     <!-- Random Prompt -->
     <div class="mt-4">
       <button class="bg-accent rounded-2xl p-2 text-white" @click="getRandomDream">
-        Generate Prompt Help
+        Generate Prompt
       </button>
       <p v-if="randomDream">{{ randomDream }}</p>
     </div>

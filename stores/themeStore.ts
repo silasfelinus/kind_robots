@@ -5,6 +5,7 @@ export const useThemeStore = defineStore('theme', {
   state: () => ({
     currentTheme: 'retro', // default theme
     botOverride: true, // new botOverride state
+    firstThemeChanged: false,
     themes: [
       'light',
       'dark',
@@ -50,6 +51,9 @@ export const useThemeStore = defineStore('theme', {
       }
       this.open = false
       this.currentTheme = theme
+      if (!this.firstThemeChanged) {
+        this.firstThemeChanged = true
+      }
       document.documentElement.setAttribute('data-theme', theme)
       localStorage.setItem('theme', theme)
     },

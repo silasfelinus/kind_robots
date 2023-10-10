@@ -126,7 +126,9 @@ export async function fetchIdByUsername(username: string): Promise<number> {
         state: true,
         country: true,
         timezone: true,
-        avatarImage: true
+        avatarImage: true,
+        karma: true,
+        mana: true
       }
     })
 

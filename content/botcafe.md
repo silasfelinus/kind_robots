@@ -14,3 +14,4 @@ underConstruction: true
 ---
 
 :bot-screen
+:chat-window

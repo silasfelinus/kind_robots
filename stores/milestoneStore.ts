@@ -36,12 +36,16 @@ export const useMilestoneStore = defineStore({
     },
     async fetchMilestoneById(
       id: number
-    ): Promise<{ success: boolean; message: string } | Milestone | null> {
+    ): Promise<{ success: boolean; message: string; data?: Milestone }> {
       try {
         const response = await fetch(`/api/milestones/${id}`)
         const data = await response.json()
         if (data.success && data.milestone) {
-          return data.milestone as Milestone
+          return {
+            success: true,
+            message: 'Milestone fetched successfully',
+            data: data.milestone as Milestone
+          }
         } else {
           console.error(`Failed to fetch milestone by ID ${id}:`, data.message)
           return { success: false, message: data.message }
@@ -53,6 +57,7 @@ export const useMilestoneStore = defineStore({
         return { success, message }
       }
     },
+
     // Add this action to your existing milestoneStore
     async fetchMilestoneRecords() {
       try {
@@ -129,26 +134,34 @@ export const useMilestoneStore = defineStore({
     ): Promise<{ success: boolean; message: string }> {
       try {
         const userStore = useUserStore()
-        if (userStore.userId === 0) return
+        const username = userStore.username
+        if (userId === 0) {
+          return {
+            success: true,
+            message:
+              'I made the motions, but stopped before recording because it is a guest account'
+          }
+        }
         if (this.hasMilestone(userId, milestoneId)) {
-          return { success: true, message: 'Milestone already recorded.' }
+          return { success: true, message: 'NP Boss! It was already done when I got here!' }
         }
 
         const milestoneRecord = {
           userId,
-          milestoneId
+          milestoneId,
+          username
         }
 
         const response = await this.addMilestoneRecord(milestoneRecord)
 
-        return { success: true, message: 'Milestone successfully awarded.', response }
+        return { success: true, message: 'Milestone successfully awarded.' }
       } catch (error: any) {
         const { message } = errorHandler(error)
         return { success: false, message }
       }
     },
 
-    async addMilestoneRecord(record: MilestoneRecord) {
+    async addMilestoneRecord(record: Partial<MilestoneRecord>) {
       try {
         const userStore = useUserStore()
         if (userStore.userId === 0) return
@@ -181,4 +194,4 @@ export const useMilestoneStore = defineStore({
   }
 })
 
-export type { Milestone }
+export type { Milestone, MilestoneRecord }

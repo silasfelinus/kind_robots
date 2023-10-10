@@ -1,7 +1,7 @@
 <template>
   <div class="p-4 border rounded-lg cursor-pointer hover:bg-accent" @click="selectPitch">
     <h3>{{ pitch.title }}</h3>
-    <p>{{ pitch.description }}</p>
+    <p>{{ pitch.pitch }}</p>
   </div>
 </template>
 

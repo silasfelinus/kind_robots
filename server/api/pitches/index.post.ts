@@ -6,19 +6,17 @@ import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
-    const pitchesData = await readBody(event)
+    const pitchData = await readBody(event)
 
-    if (!Array.isArray(pitchesData)) {
-      return { success: false, message: 'Invalid JSON body. Expected an array of pitches.' }
+    if (typeof pitchData !== 'object') {
+      return { success: false, message: 'Invalid JSON body. Expected an object.' }
     }
 
-    // Create pitches in a batch and skip duplicates
-    const result = await prisma.pitch.createMany({
-      data: pitchesData,
-      skipDuplicates: true
+    const createdPitch = await prisma.pitch.create({
+      data: pitchData
     })
 
-    return { success: true, count: result.count }
+    return { success: true, pitch: createdPitch }
   } catch (error: any) {
     return errorHandler(error)
   }

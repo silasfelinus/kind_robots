@@ -14,7 +14,7 @@
         </transition>
         <transition name="slide-fade-slow">
           <div v-if="state.topScore >= 100" class="bg-base-200 p-4 rounded-lg shadow-lg">
-            <!-- Gallery Viewer-->
+            <milestone-reward v-if="state.pressCount >= 100" :id="6"></milestone-reward>
           </div>
         </transition>
         <transition name="slide-fade">
@@ -127,7 +127,7 @@ const state = reactive({
   previousMessage: '',
   lastMilestone: ''
 })
-
+const shouldShowMilestoneCheck = ref(false)
 const buttonRef = ref(null)
 
 onMounted(async () => {

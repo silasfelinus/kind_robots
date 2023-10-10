@@ -1,16 +1,21 @@
 import { defineStore } from 'pinia'
+import { Cart, CartItem } from '@prisma/client'
+import { errorHandler } from '@/server/api/utils/error' // Import your errorHandler
 
 export const useCartStore = defineStore({
   id: 'cart',
   state: () => ({
+    currentCartId: null as number | null,
     carts: [] as { id: number; customerId: number }[],
     cartItems: [] as { id: number; cartId: number; productId: number; quantity: number }[]
   }),
   actions: {
-    // Cart Actions
+    setCurrentCartId(cartId: number) {
+      this.currentCartId = cartId
+    },
     async createCart(customerId: number) {
       try {
-        const response = await fetch('/api/cart/index.post.ts', {
+        const response = await fetch('/api/cart', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -51,21 +56,26 @@ export const useCartStore = defineStore({
       }
     },
     // CartItem Actions
-    async addItemToCart(cartId: number, productId: number, quantity: number = 1) {
+    async addItem(productId: number, quantity: number = 1) {
+      if (!this.currentCartId) {
+        // Handle this case appropriately, maybe create a new cart
+        errorHandler({ success: false, message: 'No active cart.', statusCode: 400 })
+        return
+      }
       try {
-        const response = await fetch(`/api/carts/${cartId}.post.ts`, {
+        const response = await fetch(`/api/carts/${this.currentCartId}.post.ts`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ cartId, productId, quantity })
+          body: JSON.stringify({ cartId: this.currentCartId, productId, quantity })
         })
         const data = await response.json()
         if (data.success) {
           this.cartItems.push(data.newCartItem)
         }
-      } catch (error) {
-        console.error(`An error occurred while adding an item to the cart: ${error}`)
+      } catch (error: any) {
+        errorHandler({ success: false, message: error.message, statusCode: 500 })
       }
     },
     async fetchItemsByCartId(cartId: number) {
@@ -134,3 +144,5 @@ export const useCartStore = defineStore({
     }
   }
 })
+
+export type { Cart, CartItem }

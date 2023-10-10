@@ -19,12 +19,6 @@ export const userNavigation: navigationData[] = [
     path: '/brainstorm'
   },
   {
-    title: 'Giftshop',
-    image: '/images/fantasycore/fantasycore-894.webp',
-    description: 'Feel free to browse our giftshop!',
-    path: '/redbubble'
-  },
-  {
     title: 'Weirdlandia',
     image: '/images/weirdlandia/weird-32.png',
     description: 'Promo page for Weirdlandia, the game of infinite adventure.',

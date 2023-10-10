@@ -1,11 +1,55 @@
 import { defineStore } from 'pinia'
+import { errorHandler } from '@/server/api/utils/error' // Import errorHandler
 
 export const useCustomerStore = defineStore({
   id: 'customer',
   state: () => ({
-    customers: [] as { id: number; email: string; name?: string }[]
+    customers: [] as { id: number; email: string; name?: string }[],
+    currentCustomer: null as { id: number; email: string; name?: string } | null
   }),
   actions: {
+    // New function to set the current customer
+    setCurrentCustomer(customer: { id: number; email: string; name?: string }) {
+      this.currentCustomer = customer
+    },
+
+    // New function to clear the current customer
+    clearCurrentCustomer() {
+      this.currentCustomer = null
+    },
+
+    // New function to fetch a customer by email
+    async fetchCustomerByEmail(email: string) {
+      try {
+        const response = await fetch(`/api/customers/email/${email}.get.ts`)
+        const data = await response.json()
+        if (data.success) {
+          this.setCurrentCustomer(data.customer)
+        } else {
+          throw new Error(data.message)
+        }
+      } catch (error) {
+        const { success, message, statusCode } = errorHandler({ error })
+        console.error(
+          `Fetch Customer By Email Error: ${message}, Status Code: ${statusCode}, Success: ${success}`
+        )
+      }
+    },
+
+    // New function to fetch and set the current customer by ID
+    async fetchAndSetCurrentCustomerById(id: number) {
+      try {
+        const customer = await this.fetchCustomerById(id)
+        if (customer) {
+          this.setCurrentCustomer(customer)
+        }
+      } catch (error) {
+        const { success, message, statusCode } = errorHandler({ error })
+        console.error(
+          `Fetch And Set Current Customer By ID Error: ${message}, Status Code: ${statusCode}, Success: ${success}`
+        )
+      }
+    },
     setCustomers(customers: { id: number; email: string; name?: string }[]) {
       this.customers = customers
     },

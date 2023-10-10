@@ -44,6 +44,7 @@
     "@nuxtjs/axios": "^5.13.6",
     "@pinia/nuxt": "^0.4.11",
     "@prisma/client": "^5.3.1",
+    "@stripe/stripe-js": "^2.1.7",
     "axios": "latest",
     "canvas-confetti": "^1.6.0",
     "daisyui": "latest",

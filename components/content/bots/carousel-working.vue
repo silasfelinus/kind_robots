@@ -15,17 +15,15 @@
           }"
           @click="setCurrentBot(bot)"
         >
-          <NuxtLink :to="`/bot/id/${bot.id}`">
-            <img
-              :src="bot.avatarImage ?? undefined"
-              class="w-full h-full object-cover rounded-lg"
-            />
-
-            <div :data-theme="bot.theme" class="bg-opacity-70 bg-primary text-default p-2">
-              <h2 class="mt-4 text-2xl text-dark font-semibold text-center">{{ bot.name }}</h2>
-              <p class="mt-2 text-xl text-dark text-center">{{ bot.description }}</p>
-            </div>
-          </NuxtLink>
+          <img
+            :src="bot.avatarImage ?? undefined"
+            alt="Bot Avatar"
+            class="w-full h-full object-cover rounded-lg"
+          />
+          <div :data-theme="bot.theme" class="bg-opacity-70 bg-primary text-default p-2">
+            <h2 class="mt-4 text-2xl text-dark font-semibold text-center">{{ bot.name }}</h2>
+            <p class="mt-2 text-xl text-dark text-center">{{ bot.description }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -33,32 +31,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useBotStore, Bot } from '../../../stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
 const currentBot = computed(() => botStore.currentBot)
 
-const setCurrentBot = (bot: Bot) => {
-  botStore.getBotById(bot.id)
-}
-onMounted(async () => {
-  if (bots.value.length === 0) {
-    await fetchBots()
-  }
-})
-
-const fetchBots = async () => {
+const setCurrentBot = (bot: Bot): void => {
   try {
-    await botStore.getBots()
+    botStore.getBotById(bot.id)
   } catch (error) {
-    console.error(error)
+    console.error('Failed to set current bot', error)
   }
 }
+
 watch(
   () => currentBot.value,
-  (newCurrentBot) => {
+  (newCurrentBot: Bot | null) => {
     if (newCurrentBot) {
       const id = newCurrentBot.id
       const botElement = document.getElementById(`bot-${id}`)
@@ -67,5 +57,3 @@ watch(
   }
 )
 </script>
-
-ChatGPT

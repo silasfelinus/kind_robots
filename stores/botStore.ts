@@ -3,58 +3,41 @@ import { Bot } from '@prisma/client'
 import { botData } from './seeds/seedBots'
 import { errorHandler } from '@/server/api/utils/error' // Import your errorHandler
 
-interface BotStatusData {
-  id: number
-  name: string
-  description: string
-  modules: string
-}
-
-// Function to create a stylish message from the bot data
-function generateBotStatusMessage(botData: BotStatusData): string {
-  const { id, name, description, modules } = botData
-  return `Bot ID: ${id}, Name: ${name}, Description: ${description}, Modules: ${modules}`
-}
-
 export const useBotStore = defineStore({
-  id: 'bots',
+  id: 'botStore',
+
   state: () => ({
-    bots: [],
-    currentBot: null as Bot,
+    bots: [] as Bot[],
+    currentBot: null as Bot | null,
     totalBots: 0,
     loading: false,
     _initialized: false,
     page: 1,
-    pageSize: 100
+    pageSize: 100,
+    error: null as string | null
   }),
 
   actions: {
-    async loadStore(): Promise<void> {
-      if (!this._initialized) {
-        this.loading = true
-        try {
-          await this.countBots()
-
-          if (this.totalBots === 0) {
-            await this.seedBots()
-          }
-          await this.updateBots(botData)
-          await this.getBots()
-
-          if (this.totalBots > 0) {
-            this.currentBot = this.bots[0] || null
-          }
-
-          this._initialized = true
-        } catch (error) {
-          errorHandler({
-            success: false,
-            message: 'Error initializing bot store: ' + error,
-            statusCode: 500
-          }) // Use your errorHandler
-        } finally {
-          this.loading = false
+    async fetchBots(): Promise<void> {
+      try {
+        const response = await fetch('/api/bots')
+        if (!response.ok) {
+          this.error = `Failed to fetch bots: ${response.statusText}`
+          return
         }
+        const data = await response.json()
+        this.bots = data.bots
+      } catch (err: any) {
+        this.error = `An error occurred: ${err.message}`
+      }
+    },
+
+    async loadStore(): Promise<void> {
+      this.loading = true
+      try {
+        await this.fetchBots() // Call fetchBots here
+      } finally {
+        this.loading = false
       }
     },
 
@@ -101,7 +84,7 @@ export const useBotStore = defineStore({
 
         const updatedBot = await response.json()
         this.currentBot = updatedBot
-        await this.getBots()
+        await this.fetchBots()
       } catch (error) {
         errorHandler({ success: false, message: 'Failed to update bot: ' + error, statusCode: 500 })
       }
@@ -117,7 +100,7 @@ export const useBotStore = defineStore({
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
-        await this.getBots()
+        await this.fetchBots()
       } catch (error) {
         errorHandler({ success: false, message: 'Failed to delete bot: ' + error, statusCode: 500 })
       }
@@ -182,8 +165,7 @@ export const useBotStore = defineStore({
     seedBots: async function (): Promise<void> {
       try {
         await this.addBots(botData)
-        await this.getBots()
-        await this.countBots()
+        await this.fetchBots()
       } catch (error) {
         errorHandler(error) // Use your errorHandler
       }

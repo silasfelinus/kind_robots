@@ -1,46 +1,30 @@
 <template>
-  <div class="flex flex-col items-center bg-base-600 p-4 text-gray-800">
+  <!-- Main container -->
+  <div class="flex flex-col items-center bg-base-400 p-4">
+    <!-- Display bot details if a bot is selected -->
     <div
       v-if="currentBot"
       :data-theme="currentBot.theme"
-      class="w-full max-w-3xl p-4 bg-base-600 rounded-lg shadow-md"
+      class="w-full p-2 bg-base-400 rounded-lg shadow-md"
     >
+      <!-- Bot name and ID -->
       <div class="flex justify-between items-center mb-4">
-        <h1 class="text-3xl font-bold text-theme">{{ currentBot.name }}</h1>
+        <h1 class="text-3xl font-bold">{{ currentBot.name }}</h1>
         <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id }} Collect Them All!</span>
       </div>
+
+      <!-- Stream test component -->
       <div><stream-test /></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed } from 'vue' // Import computed
 import { useBotStore } from '../../../stores/botStore'
 
 const botStore = useBotStore()
-const route = useRoute()
 const currentBot = computed(() => botStore.currentBot)
-
-const handleBotSelection = () => {
-  const id = Number(route.params.id)
-  const name = route.params.name !== null ? String(route.params.name) : undefined
-
-  if (id) {
-    botStore.getBotById(id)
-  } else if (name) {
-    botStore.getBotByName(name)
-  }
-}
-
-// Watch for changes to the route parameters
-watch(route, () => {
-  handleBotSelection()
-})
-
-// Initial selection based on the route parameters
-handleBotSelection()
 </script>
 
 <style>

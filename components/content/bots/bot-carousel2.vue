@@ -13,22 +13,17 @@
           :key="bot.id"
           class="carousel-item h-full cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
-            'bg-accent text-default': selectedBotId === bot.id,
-            'bg-primary': selectedBotId !== bot.id
+            'bg-accent text-default': currentBot?.id === bot.id,
+            'bg-primary': currentBot?.id !== bot.id
           }"
           @click="setCurrentBot(bot.id)"
         >
-          <NuxtLink :to="`/bot/id/${bot.id}`">
-            <img
-              :src="bot.avatarImage ?? undefined"
-              class="w-full h-full object-cover rounded-lg"
-            />
-          </NuxtLink>
+          <img :src="bot.avatarImage ?? undefined" class="w-full h-full object-cover rounded-lg" />
         </div>
       </div>
-      <div v-if="selectedBot" class="mt-4 text-2xl text-dark font-semibold text-center">
-        {{ selectedBot.name }}
-        <p class="mt-2 text-xl text-dark text-center">{{ selectedBot.description }}</p>
+      <div v-if="currentBot" class="mt-4 text-2xl text-dark font-semibold text-center">
+        {{ currentBot.name }}
+        <p class="mt-2 text-xl text-dark text-center">{{ currentBot.description }}</p>
       </div>
     </div>
   </div>
@@ -36,56 +31,21 @@
 
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { useBotStore, Bot } from '../../../stores/botStore'
+import { useBotStore } from '../../../stores/botStore'
 
 const botStore = useBotStore()
-const route = useRoute()
 const bots = computed(() => botStore.bots)
 const currentBot = computed(() => botStore.currentBot)
 
 const setCurrentBot = (botId: number) => {
-  const bot = bots.value.find((b) => b.id === botId)
-  if (bot) {
-    botStore.getBotById(bot.id)
-  }
+  botStore.getBotById(botId)
 }
-const selectedBotId = computed(() => {
-  const idParam = route.params.id
-  const id = Array.isArray(idParam) ? idParam[0] : idParam
-  return parseInt(id, 10)
-})
 
-const selectedBot = computed(() => {
-  return bots.value.find((bot) => bot.id === selectedBotId.value)
-})
 onMounted(async () => {
   if (bots.value.length === 0) {
-    await fetchBots()
-  }
-
-  if (selectedBotId.value) {
-    setCurrentBot(selectedBotId.value)
+    await botStore.loadStore()
   }
 })
-
-const fetchBots = async () => {
-  try {
-    await botStore.getBots()
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-watch(
-  () => selectedBotId.value,
-  (newBotId) => {
-    if (newBotId) {
-      const botElement = document.getElementById(`bot-${newBotId}`)
-      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-  }
-)
 
 watch(
   () => currentBot.value,

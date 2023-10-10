@@ -45,7 +45,7 @@
       </div>
     </div>
     <!-- Add this line where you want to display the milestone-check -->
-    <milestone-check v-if="shouldShowMilestoneCheck" :id="11"></milestone-check>
+    <milestone-reward v-if="shouldShowMilestoneCheck" :id="11"></milestone-reward>
 
     <!-- Display Created Art -->
     <div v-for="art in createdArts" :key="art.id" class="mt-4">

@@ -1,25 +1,27 @@
 <template>
   <div class="flex justify-center items-center bg-base-400">
     <!-- Button to Toggle Popup -->
-    <button class="bg-primary text-white rounded-2xl px-4 py-2" @click="togglePopup">
-      <icon :name="props.milestone.icon" class="h-64 w-64 mx-auto mb-4" />
+    <button
+      v-if="!showPopup"
+      class="bg-primary text-white rounded-2xl p-4 m-4 border"
+      @click="togglePopup"
+    >
+      <icon :name="milestone?.icon || 'default-icon'" class="h-64 w-64" />
     </button>
 
     <!-- Popup Content -->
-    <div v-if="showPopup" class="flex justify-center items-center z-50">
-      <div class="bg-base-400 rounded-2xl p-6 w-4/5 md:w-1/2 lg:w-1/3 text-center relative">
-        <button class="absolute top-2 right-2 text-warning text-2xl" @click="closePopup">
-          <icon name="mdi:close" />
-        </button>
+    <div
+      v-if="showPopup"
+      class="flex justify-center rounded-2xl items-center z-50 bg-base-200 p-2 m-2 border"
+    >
+      <div class="bg-base-400 rounded-2xl p-6 m-6 text-center relative">
         <h2 class="text-2xl font-semibold mb-4">Congratulations, {{ userStore.username }}!</h2>
-        <div v-if="props.milestone">
-          <icon :name="props.milestone.icon" class="h-64 w-64 mx-auto mb-4" />
-          <p class="text-xl font-medium">
-            🌟 You earned the {{ props.milestone.label }} milestone! 🌟
-          </p>
-          <p class="my-4">{{ props.milestone.message }}</p>
+        <div v-if="milestone?.icon">
+          <icon :name="milestone.icon" class="h-64 w-64 mx-auto mb-4" />
+          <p class="text-xl font-medium">🌟 You earned the {{ milestone.label }} milestone! 🌟</p>
+          <p class="my-4">{{ milestone.message }}</p>
           <div class="karma-award flex flex-col items-center">
-            <p class="text-lg font-semibold">Bonus: +{{ props.milestone.karma }}</p>
+            <p class="text-lg font-semibold">Bonus: +{{ milestone.karma }}</p>
             <p class="text-lg">You Found 1 Jellybean!</p>
             <icon name="tdesign:bean" class="p-2 m-2 h-16 w-16 text-accent" />
           </div>
@@ -27,7 +29,7 @@
             class="bg-primary text-white rounded-2xl border px-4 py-2 mt-4"
             @click="closePopup"
           >
-            Add to Collection
+            Yay! (Close)
           </button>
         </div>
       </div>
@@ -42,73 +44,75 @@ import { useMilestoneStore, Milestone } from '@/stores/milestoneStore'
 import { errorHandler } from '@/server/api/utils/error'
 import { useConfetti } from '@/utils/useConfetti'
 
-// Define props and destructure them
-const props = defineProps<{
-  milestone: Milestone
-}>()
+const props = defineProps<{ id: number }>()
 const { triggerConfetti } = useConfetti()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
+const milestone = ref<Milestone | null>(null)
+
+const fetchMilestoneById = async (id: number) => {
+  try {
+    const result = await milestoneStore.fetchMilestoneById(id)
+    if (result.success && result.data) {
+      milestone.value = result.data
+    } else {
+      throw new Error(result.message || 'Data is undefined')
+    }
+  } catch (error: any) {
+    const { message } = errorHandler({ error })
+    console.error('Failed to fetch milestone', message)
+  }
+}
 
 const showPopup = ref(false)
-const validationStatus = ref<'pending' | 'success' | 'failed'>('pending')
 
-// Function to toggle the popup
 const togglePopup = () => {
   showPopup.value = !showPopup.value
 }
 
-// Function to toggle the popup
 const closePopup = () => {
   showPopup.value = false
 }
 
 const validateMilestoneRecord = async () => {
   try {
-    if (milestoneStore.hasMilestone(userStore.userId, props.milestone.id)) {
-      console.log('there is already a record')
-      return (validationStatus.value = 'success')
+    if (milestone.value && milestoneStore.hasMilestone(userStore.userId, milestone.value.id)) {
+      console.log('Milestone already rewarded, closing popup.')
+      showPopup.value = false // Close the popup if milestone already rewarded
+      return 'success'
     }
-
-    const result = await milestoneStore.recordMilestone(userStore.userId, props.milestone.id)
-
-    if (result.success) {
+    if (milestone.value) {
       triggerConfetti()
-      console.log('Successfully validated milestone', result)
-      validationStatus.value = 'success'
-    } else {
-      throw new Error(result.message)
+      const result = await milestoneStore.recordMilestone(userStore.userId, milestone.value.id)
+      if (result.success) {
+        console.log('Successfully validated milestone', result)
+      } else {
+        throw new Error(result.message)
+      }
     }
   } catch (error: any) {
     const { message } = errorHandler({ error })
     console.error('Failed to validate milestone', message)
-    validationStatus.value = 'failed'
   }
 }
 
 const validateUserRecord = async () => {
   try {
-    console.log('attempting to validate')
     const result = await userStore.updateKarmaAndMana()
     if (result.success) {
-      console.log('Successfully updated records', result)
-      triggerConfetti()
-      validationStatus.value = 'success'
+      console.log('Successfully validated user', result)
     } else {
       throw new Error(result.message)
     }
   } catch (error: any) {
     const { message } = errorHandler({ error })
-    console.error('Failed to validate user', message)
-    validationStatus.value = 'failed'
+    console.error('Failed to validate user record', message)
   }
 }
 
 onMounted(async () => {
-  console.log('There is a reward that needs to be applied!')
-  triggerConfetti()
+  await fetchMilestoneById(props.id || 10)
   showPopup.value = true
-  // If the user is not a guest (userId is not 0), validate the milestone and user records
   if (userStore.userId !== 0) {
     await Promise.all([validateMilestoneRecord(), validateUserRecord()])
   }

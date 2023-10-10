@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 rounded-2xl p-8 text-lg">
+  <div class="bg-base-200 rounded-2xl border p-4 text-lg">
     <h1 class="text-2xl mb-4">Art-Maker</h1>
 
     <!-- Prompt Input -->

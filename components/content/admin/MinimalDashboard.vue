@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 p-2 rounded-2xl relative w-full max-w-screen">
+  <div class="bg-base-200 p-2 rounded-2xl relative w-full border m-2 max-w-screen">
     <div class="flex items-center justify-between h-full">
       <!-- User Info and Logout -->
       <div class="flex items-center space-x-2 cursor-pointer" @click.stop="toggleMinimize">
@@ -9,8 +9,8 @@
         <!-- Karma and Mana -->
         <div class="flex items-center space-x-4">
           <div class="flex items-center space-x-2">
-            <icon name="fluent-emoji-high-contrast:beans" class="text-lg" />
-            <span>Jellybeans: {{ user?.mana || 0 }}</span>
+            <icon name="tdesign:bean" class="text-lg" />
+            <span>Jellybeans Discovered: {{ jellybeans }}</span>
           </div>
         </div>
         <button
@@ -54,6 +54,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useToggleStore, ToggleableScreens, ScreenState } from '@/stores/toggleStore'
 
 const userStore = useUserStore()
+const jellybeans = computed(() => userStore.mana)
 const user = computed(() => userStore.user)
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 const showLogin = ref(false)

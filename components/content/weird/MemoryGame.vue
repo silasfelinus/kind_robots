@@ -37,7 +37,7 @@ const selectedDifficulty = ref(difficulties[0]) // Default to 'Easy'
 const gameWon = ref(false)
 
 const notification = ref<CustomNotification | null>(null)
-
+const shouldShowMilestoneCheck = ref(false)
 const isLoading = ref(true)
 
 function isClientSide() {
@@ -116,6 +116,9 @@ function handleGalleryClick(clickedGallery: GalleryImage) {
       if (matchRecord.value < score.value) {
         userStore.updateMatchRecord(score.value)
       }
+      if (score.value >= 50) {
+        shouldShowMilestoneCheck.value = true
+      }
       // Update high score if needed
       if (score.value > highScore.value) {
         highScore.value = score.value
@@ -175,6 +178,7 @@ watch(selectedDifficulty, resetGame)
           </option>
         </select>
         <button @click="resetGame">Start New Game</button>
+        <milestone-reward v-if="shouldShowMilestoneCheck" :id="5"></milestone-reward>
       </div>
     </header>
 

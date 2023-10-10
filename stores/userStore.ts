@@ -24,16 +24,18 @@ export const useUserStore = defineStore({
     lastError: null,
     highClickScores: [],
     highMatchScores: [],
-    stayLoggedIn: true
+    stayLoggedIn: true,
+    milestones: []
   }),
 
   // Getters are functions that compute derived state based on the store's state
   getters: {
     karma(): number {
-      return this.user?.karma || 0
+      return this.user ? this.user.karma : 1000
     },
     mana(): number {
-      return this.user?.mana || 0
+      const manaValue = this.user?.mana || this.milestones.length
+      return manaValue
     },
     isLoggedIn(): boolean {
       return Boolean(this.token) && Boolean(this.user)
@@ -117,6 +119,9 @@ export const useUserStore = defineStore({
       this.user = {
         ...userData
       }
+      this.updateKarmaAndMana().catch((error) => {
+        console.error('Failed to update karma and mana:', error)
+      })
     },
 
     setStayLoggedIn(value: boolean) {
@@ -205,21 +210,48 @@ export const useUserStore = defineStore({
     async updateKarmaAndMana(): Promise<{ success: boolean; message: string }> {
       try {
         const milestoneStore = useMilestoneStore()
+
+        // Fetch milestones and records concurrently
+        await Promise.all([
+          milestoneStore.fetchMilestones(),
+          milestoneStore.fetchMilestoneRecords()
+        ])
+
         const milestoneCount = milestoneStore.getMilestoneCountForUser(this.userId)
+        console.log('milestoneCount', milestoneCount, 'userid', this.userId)
 
         // Update karma and mana based on milestoneCount
-        const updatedKarma = milestoneCount * 1000
-        const updatedMana = milestoneCount
+        const updatedKarma: number = milestoneCount * 1000
+        const updatedMana: number = milestoneCount
 
-        // Assuming you have a function to update the user
-        await this.updateUser(userId, {
-          karma: updatedKarma,
-          mana: updatedMana
+        const response = await fetch(`/api/users/${this.userId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: this.userId,
+            karma: updatedKarma,
+            mana: updatedMana
+          })
         })
 
-        return {
-          success: true,
-          message: 'Successfully updated karma and mana.'
+        const data = await response.json()
+        if (data.success) {
+          // Update the store state here
+          if (this.user) {
+            this.user.karma = updatedKarma
+            this.user.mana = updatedMana
+          }
+          return {
+            success: true,
+            message: 'Successfully updated karma and mana.'
+          }
+        } else {
+          return {
+            success: false,
+            message: data.message || 'Failed to update karma and mana.'
+          }
         }
       } catch (error: any) {
         const { message } = errorHandler(error)
@@ -290,6 +322,9 @@ export const useUserStore = defineStore({
     },
     stopLoading() {
       this.loading = false
+    },
+    setMilestones(milestoneIds: number[]) {
+      this.milestones = milestoneIds
     },
 
     // Error handling actions

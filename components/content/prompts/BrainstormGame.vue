@@ -12,6 +12,7 @@
     >
       Get New Ideas
     </button>
+    <milestone-reward v-if="shouldShowMilestoneCheck" :id="2"></milestone-reward>
     <div
       v-if="isLoading"
       class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 mb-4"
@@ -39,6 +40,7 @@ interface Idea {
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const pageImage = '/images/avatars/brain1.webp'
+const shouldShowMilestoneCheck = ref(false)
 
 const getRandomIdeas = (count: number) => {
   const shuffled = [...sampleIdeas].sort(() => 0.5 - Math.random())
@@ -61,6 +63,7 @@ const fetchBrainstorm = async () => {
         messages: [{ role: 'user', content: 'five more original brainstorms' }]
       })
     })
+    shouldShowMilestoneCheck.value = true
 
     const data = await response.json()
     if (data.choices && data.choices[0] && data.choices[0].message) {

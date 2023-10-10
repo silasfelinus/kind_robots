@@ -10,36 +10,6 @@
         <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id }} Collect Them All!</span>
       </div>
       <div><stream-test /></div>
-
-      <div class="bg-base p-4 rounded-lg mt-4">
-        <div class="text-center mb-4">
-          <h2 class="text-xl font-semibold">Modules (In Development)</h2>
-        </div>
-        <div class="flex flex-wrap justify-center gap-4">
-          <div
-            v-for="(moduleName, index) in parsedModules"
-            :key="index"
-            class="card w-48 bg-base-400 content"
-          >
-            <div class="card-body items-center text-center p-2">
-              <h2 class="card-title text-md truncate">{{ moduleName }}</h2>
-              <p class="truncate">{{ moduleData[moduleName]?.description || '' }}</p>
-              <div class="card-actions justify-end mt-2">
-                <button
-                  class="btn btn-accent text-xs"
-                  :title="moduleData[moduleName]?.description || ''"
-                  @click="selectModule(moduleName)"
-                >
-                  {{ moduleName }}
-                </button>
-                <div class="text-sm text-gray-600 mt-2 truncate">
-                  {{ moduleData[moduleName]?.description || 'No example available' }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -48,7 +18,6 @@
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBotStore } from '../../../stores/botStore'
-import { moduleData } from '../../../training/modules'
 
 const botStore = useBotStore()
 const route = useRoute()
@@ -65,19 +34,6 @@ const handleBotSelection = () => {
   }
 }
 
-const selectModule = (moduleName: string) => {
-  const selectedModule = moduleData[moduleName]
-  if (selectedModule) {
-    const { description, example } = selectedModule
-    console.log('Sending', { moduleName })
-  }
-}
-const parsedModules = computed(() => {
-  if (currentBot.value && currentBot.value.modules) {
-    return currentBot.value.modules.split(',').map((moduleName) => moduleName.trim())
-  }
-  return []
-})
 // Watch for changes to the route parameters
 watch(route, () => {
   handleBotSelection()

@@ -1,12 +1,12 @@
 <template>
-  <div class="container max-w-3xl mx-auto p-2 bg-base-200">
+  <div class="container rounded-2xl mx-auto p-2 bg-base-200">
     <!-- Bot Avatar and Details -->
-    <div v-if="currentBot" class="avatar-container w-full m-2 rounded-lg shadow-lg">
+    <div v-if="currentBot" class="avatar-container w-full m-2 rounded-lg">
       <div class="flex flex-col md:flex-row items-center p-2">
         <img
           :src="currentBot.avatarImage ?? '/images/default-avatar.webp'"
           alt="Bot Avatar"
-          class="avatar-img md:w-1/4 rounded-full border-4 border-theme shadow-md mb-4 md:mb-0"
+          class="avatar-img md:w-1/4 rounded-2xl border border-theme mb-4 md:mb-0"
         />
         <div class="flex-1 text-center">
           <h1 class="text-3xl font-bold">{{ currentBot.name ?? 'Unknown Bot' }}</h1>
@@ -17,11 +17,11 @@
     </div>
 
     <!-- Message Interaction Area -->
-    <div class="message-container bg-base-200 p-4 rounded-lg shadow-lg">
+    <div class="message-container bg-base-200 p-4 rounded-2xl">
       <!-- New Message Prompt -->
-      <div class="prompt-area mb-4 p-4 rounded-md shadow-md">
+      <div class="prompt-area m-4 p-2 rounded-2xl">
         <label for="newMessage" class="block mb-2 font-bold">
-          <div v-if="currentBot" class="user-intro p-2 rounded-md shadow-inner mt-2">
+          <div v-if="currentBot" class="user-intro p-2 rounded-2xl m-2">
             <p class="text-lg">{{ currentBot.userIntro ?? 'User Intro' }}</p>
           </div>
         </label>

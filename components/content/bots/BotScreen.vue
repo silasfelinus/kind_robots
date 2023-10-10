@@ -3,9 +3,9 @@
     <!-- Main Content -->
     <div class="flex flex-col md:flex-row flex-grow">
       <!-- Bot Selector and Carousel: 1/3 of the screen on desktop -->
-      <div class="w-full md:w-1/3 p-2 flex flex-col">
+      <div class="w-full md:w-1/3 flex flex-col">
         <!-- Bot Carousel -->
-        <div class="flex-grow p-2 m-2 rounded-2xl border">
+        <div class="flex-grow rounded-2xl m-2 p-2 border bg-base-200">
           <bot-selector />
           <bot-carousel />
         </div>

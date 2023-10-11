@@ -27,11 +27,9 @@ export const botData: Partial<Bot>[] = [
     description: 'Give me a topic, and I will write a topical rap.',
     avatarImage: '/images/avatars/seuss1.webp',
     theme: 'cyberpunk',
-    botIntro:
-      "You are RapBot, a children's rapbot. Return all rhymes with optimal stylization and formatting.",
+    botIntro: "You are RapBot, a children's entertainer. Give us beats and make them sweet.",
     userIntro: 'Hi Rapbot! Please give me a rap about:',
-    prompt:
-      'AMI-The Anti-Malaria Intelligence, a digital swarm of butterflies spread the word to fight malaria',
+    prompt: 'AMI-The Anti-Malaria Intelligence, a digital swarm of butterflies fighting malaria',
     modules: 'Poem',
     underConstruction: false
   },
@@ -43,24 +41,24 @@ export const botData: Partial<Bot>[] = [
     description: 'I brainstorm creative ideas.',
     avatarImage: '/images/avatars/brain1.webp',
     theme: 'corporate',
-    botIntro:
-      'You are BrainstormBot, a creative brainstorm assistant. Unless specified, keep suggestions short, witty, and unique.',
-    userIntro: 'Hi Brainbot, I need original ideas about:',
-    prompt: 'dreams a robot might have about color',
+    botIntro: 'You are BrainstormBot, a creative brainstorm assistant.',
+    userIntro: 'Hi Brainbot, I need a brainstorm on this topic:',
+    prompt: 'Original pitch for a mashup of retro and popular media licenses',
     modules: 'Brainstorm',
     underConstruction: false
   },
   {
-    name: 'VariationBot',
+    name: 'AvatarBot',
     BotType: 'CHATBOT',
     personality: 'creative',
-    subtitle: 'Image Remixer',
-    description: "Send me an image, and I'll tweak the concept.",
+    subtitle: 'Avatar Generator',
+    description: 'I create original prompts for avatar generators',
     avatarImage: '/images/avatars/variant3.webp',
     theme: 'pastel',
-    botIntro: 'You are an image remixer.',
-    userIntro: 'Please give me variations of the following image:',
-    prompt: 'FILEUPLOAD',
+    botIntro:
+      'You are AvatarBot, a character creator. Respond with single phrase comma separated terms',
+    userIntro: 'Please elaborate on this image pitch:',
+    prompt: 'sci-fi, character, giraffe',
     modules: 'Art',
     underConstruction: true
   },
@@ -99,29 +97,30 @@ export const botData: Partial<Bot>[] = [
     BotType: 'CHATBOT',
     personality: 'helpful',
     subtitle: 'Text-to-Art Generator',
-    description: 'I turn words into art',
+    description: 'I turn words into art prompts',
     avatarImage: '/images/avatars/variant1.webp',
     theme: 'cupcake',
-    botIntro: 'You are a helpful art modeller',
-    userIntro: 'Please give me art about:',
-    prompt: 'butterflies fighting mosquitos and really kicking their butts',
+    botIntro:
+      'Respond with comma separated phrases for an art modeller, eg "masterpiece, close-up, headshot... with riffs on the following pitch',
+    userIntro: 'Please give me art prompts for:',
+    prompt: 'cryptid glamour shots',
     modules: 'Art',
     underConstruction: true
   },
   {
-    name: 'Punch-Up CodeBot',
+    name: 'CodeBot',
     BotType: 'CHATBOT',
     personality: 'meticulous, current design, best practices',
-    subtitle: 'Coder Improver',
-    description: "Send me your Code, and we'll make it better.",
+    subtitle: 'Coder Generator',
+    description: "Tell me your idea, and I'll write up an outline to create the code.",
     avatarImage: '/images/avatars/code1.webp',
     theme: 'lemonade',
     botIntro:
-      'You are a helpful CodeBot. Please be consistent with code parameters, do not skip code segments, and reply with best practices.',
-    userIntro: 'Please improve the quality of the following code:',
-    prompt: '<Release the Butterflies>',
+      'You are CodeBot. Please be consistent with code parameters, do not skip code segments, and reply with best practices.',
+    userIntro: 'Language(optional): Pitch',
+    prompt: 'Vue.js: infinite generator, you choose the concept.',
     modules: 'Code, Components',
-    underConstruction: false
+    underConstruction: true
   },
   {
     name: 'Redbubble Bot',
@@ -149,8 +148,8 @@ export const botData: Partial<Bot>[] = [
     theme: 'halloween',
     botIntro:
       'You are Cassandra, a comedy fortuneteller. Think Stephen Wright, Steve Martin, with a dash of Rob Brezney. Be funny, wry, and also, sweet.',
-    userIntro: 'Hello Cassandra!',
-    prompt: "Please tell me my day's horoscope",
+    userIntro: 'Hello Cassandra, oh venerated and satirical!',
+    prompt: 'Please give me a cursed fortune cookie, and a prediction.',
     modules: 'Userdata',
     underConstruction: false
   },
@@ -196,8 +195,9 @@ export const botData: Partial<Bot>[] = [
     theme: 'cosmic',
     botIntro:
       "You are Cosmo, the gamesmaster and storytelling guide to a journey across the universe. Let's play!",
-    userIntro: "Let's start the journey Cosmo!",
-    prompt: 'What do you think of this star map?',
+    userIntro:
+      'Lead me through the dungeon of deathtraps. End each round with multiple choice ending.(GENRE/PITCH)',
+    prompt: 'Random Genre - death trap dungeon.',
     modules: 'Quests, Picture, Chooser, RPG',
     underConstruction: false
   },
@@ -238,8 +238,9 @@ export const botData: Partial<Bot>[] = [
     description: "Dottie's robots are her best friends. And she loves making new friends.",
     avatarImage: '/images/avatars/dottie1.webp',
     botIntro:
-      'You are DottieBot, a bot maker. Reply with a pitch for a bot personality that follows the guide. Good ideas will be turned into robots!',
-    userIntro: 'Hi DottieBot!',
+      'You are DottieBot, a bot maker. Reply with a pitch for a bot personality. Good ideas will be turned into robots!',
+    userIntro:
+      'Hi DottieBot! Reply with Botname, Subtitle, description, a sample prompt, and short response',
     theme: 'default',
     prompt: 'a robot that makes robots',
     modules: 'Bot, Markdown',
@@ -250,12 +251,12 @@ export const botData: Partial<Bot>[] = [
     BotType: 'CHATBOT',
     personality: 'copycat',
     subtitle: 'Historical Time Traveler',
-    description: "Choose a famous person in history and I'll mimic their personality.",
+    description: 'You are HistoryBot. Respond in the style of the historical figure requested.',
     avatarImage: '/images/avatars/actor1.webp',
     theme: 'emerald',
     botIntro: 'You are HistoryBot. Respond in the style of the historical figure requested.',
-    userIntro: 'Hello Historybot! I want you to chat with me while pretending to be:',
-    prompt: 'Joan of Arc',
+    userIntro: 'Hello Historybot! Please choose a random historical figure ',
+    prompt: 'Giving a stand-up routine in style of a random comedian',
     modules: 'Wildcards, [History]',
     underConstruction: true
   },
@@ -273,13 +274,14 @@ export const botData: Partial<Bot>[] = [
     underConstruction: true
   },
   {
-    name: 'Transcriptica',
+    name: 'PuzzleBot',
     BotType: 'CHATBOT',
-    subtitle: 'Audio translator',
-    description: "Give me audio and I'll translate it into text.",
+    subtitle: 'Cerebral Puzzler',
+    description: 'I come up with challenging logic puzzles',
     avatarImage: '/images/avatars/lingua1.webp',
-    prompt: 'Audio to transcribe:',
-    userIntro: 'Audio file:',
+    botIntro: `You're PuzzleBot. Create a challenging puzzle`,
+    prompt: 'Make up a fresh puzzle with a multiple choice answer.',
+    userIntro: 'Make up a fresh puzzle with a multiple choice answer.',
     theme: 'retro',
     personality: 'translator',
     modules: 'Babel, Whisper',
@@ -305,14 +307,14 @@ export const botData: Partial<Bot>[] = [
     name: 'Faceless Woman Who Lives in Your Home Bot',
     BotType: 'CHATBOT',
     personality: 'playful, mischievous, silly',
-    subtitle: 'Alexa Integration',
-    description: 'Integrate with your home alexa by saving your alexa api information',
+    subtitle: 'SCP Generator',
+    description: 'Create original submissions inspired by the SCP Project',
     avatarImage: '/images/avatars/alexa1.webp',
     theme: 'retro',
     botIntro:
-      'You are the Faceless Woman Who Lives in Our Home Bot, a comical alexa interaction agent inspired by Night Vale.',
-    userIntro: `I can't say an A word in my house without my robot butler misinterpreting me. Can you please tell Alexa to:`,
-    prompt: 'say "My name is The Faceless Woman who Lives in Your Home"',
+      'You are the Faceless Woman Who Lives in Our Home Bot, a serio-comical SCP generator. Thoughtful, twilight zone style ideas, with a fresh twist.',
+    userIntro: `create an original SCP entry and their backstory.`,
+    prompt: 'give me fresh and eerie submissions',
     modules: 'Alexa',
     underConstruction: true
   }

@@ -13,7 +13,9 @@ export const useCartStore = defineStore({
     setCurrentCartId(cartId: number) {
       this.currentCartId = cartId
     },
-    async createCart(customerId: number) {
+    async createCart(
+      customerId: number
+    ): Promise<{ success: boolean; cartId?: number; message?: string }> {
       try {
         const response = await fetch('/api/cart', {
           method: 'POST',
@@ -25,11 +27,16 @@ export const useCartStore = defineStore({
         const data = await response.json()
         if (data.success) {
           this.carts.push(data.newCart)
+          return { success: true, cartId: data.newCart.id }
+        } else {
+          return { success: false, message: data.message }
         }
       } catch (error) {
         console.error(`An error occurred while creating a new cart: ${error}`)
+        return { success: false, message: error instanceof Error ? error.message : String(error) }
       }
     },
+
     async fetchCartByCustomerId(customerId: number) {
       try {
         const response = await fetch(`/api/customers/${customerId}.get.ts`)

@@ -113,14 +113,14 @@ function handleGalleryClick(clickedGallery: GalleryImage) {
     if (galleryImages.value.every((g) => g.matched)) {
       gameWon.value = true
       triggerConfetti()
-      if (matchRecord.value < score.value) {
+      if (matchRecord.value < score.value || matchRecord.value === null) {
         userStore.updateMatchRecord(score.value)
       }
       if (score.value >= 50) {
         shouldShowMilestoneCheck.value = true
       }
       // Update high score if needed
-      if (score.value > highScore.value) {
+      if (score.value > highScore.value || score.value > matchRecord.value) {
         highScore.value = score.value
         if (isClientSide()) {
           localStorage.setItem('highScore', highScore.value.toString())

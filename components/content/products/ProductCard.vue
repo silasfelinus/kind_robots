@@ -7,13 +7,7 @@
       <div class="product-price text-info">{{ product.costInPennies }} Pennies</div>
     </div>
     <div class="product-info">
-      <div class="product-name text-base text-secondary">
-        {{ product.name }}
-      </div>
       <div class="product-category text-sm text-accent">Category: {{ product.category }}</div>
-      <div class="product-content text-sm text-base-200">
-        {{ product.content }}
-      </div>
       <div class="product-flavor text-sm text-warning">
         {{ product.flavorText }}
       </div>
@@ -30,18 +24,22 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { computed } from 'vue'
 import { useCartStore } from '@/stores/cartStore'
-import { useProductStore, Product } from '@/stores/productStore'
+import { Product } from '@/stores/productStore'
 
 const props = defineProps<{
   product: Product
 }>()
+
 const { product } = props
 const cartStore = useCartStore()
-const cartId = computed(() => cartStore.carts[0])
+const cartId = computed(() => cartStore.carts[0]?.id) // Added optional chaining
 
 const addToCart = (productId: number) => {
-  cartStore.addItem(productId, cartId.value.id)
+  if (cartId.value) {
+    // Added a check for cartId
+    cartStore.addItem(productId, cartId.value)
+  }
 }
 </script>

@@ -27,11 +27,15 @@ const currentBot = computed(() => botStore.currentBot)
 onMounted(async () => {
   try {
     await botStore.loadStore()
+    // Automatically select the first bot if available
+    if (bots.value.length > 0) {
+      selectedBot.value = bots.value[0].id.toString() // Convert to string
+      await botStore.getBotById(Number(selectedBot.value)) // Fetch the bot details
+    }
   } catch (err) {
     console.error('🚨 Failed to load store', err)
   }
 })
-
 const handleChange = async () => {
   await botStore.getBotById(Number(selectedBot.value))
 }

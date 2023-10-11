@@ -14,3 +14,5 @@ underConstruction: true
 ---
 
 
+:product-gallery
+:shopping-cart

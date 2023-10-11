@@ -1,13 +1,22 @@
 <template>
   <div class="bg-base-200 rounded-2xl p-8 text-lg">
-    <h1 class="text-2xl mb-4">Art-Maker</h1>
+    <h1 class="text-2xl mb-4">Art-Generator</h1>
 
-    <!-- Random Prompt -->
+    <!-- Random Dream as Prompt -->
     <div class="mt-4">
       <button class="bg-accent rounded-2xl p-2 text-white" @click="getRandomDream">
-        Generate Prompt
+        Get Inspiration
       </button>
       <p v-if="randomDream">{{ randomDream }}</p>
+    </div>
+
+    <!-- Flavor Text Input -->
+    <div class="mt-4">
+      <input
+        v-model="flavorText"
+        placeholder="Enter anything you want, or leave blank"
+        class="rounded-2xl p-2 w-full text-lg"
+      />
     </div>
 
     <!-- Prompt Input -->
@@ -25,12 +34,22 @@
       class="bg-primary rounded-2xl p-2 text-white mt-4 w-full hover:bg-primary-dark"
       @click="generateArt"
     >
-      Generate Dream
+      Generate Art for Pitch
     </button>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="mt-4">
-      <p>Loading...</p>
+    <div v-if="isLoading" class="mt-4 flex flex-col items-center">
+      <p>{{ loadingMessage }}</p>
+      <div class="loader flex justify-center mt-2">
+        <ami-butterfly />
+      </div>
+    </div>
+    <!-- Add this line where you want to display the milestone-check -->
+    <milestone-reward v-if="shouldShowMilestoneCheck" :id="11"></milestone-reward>
+
+    <!-- Display Created Art -->
+    <div v-for="art in createdArts" :key="art.id" class="mt-4">
+      <art-card :art="art" />
     </div>
   </div>
 </template>
@@ -38,63 +57,37 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
-import { useArtStore } from '@/stores/artStore'
 import { errorHandler } from '@/server/api/utils/error'
-import { usePitchStore } from '@/stores/pitchStore'
 import { useUserStore } from '@/stores/userStore'
-import { useChannelStore } from '@/stores/channelStore'
+import { useLoadStore } from '@/stores/loadStore'
+import { useArtStore, Art } from '@/stores/artStore'
+import { Pitch, usePitchStore } from '@/stores/pitchStore'
 
 // Load stores
 const dreamStore = useDreamStore()
 const userStore = useUserStore()
+const loadStore = useLoadStore()
 const pitchStore = usePitchStore()
-const artStore = useArtStore()
-const channelStore = useChannelStore()
+const currentPitch = computed(() => pitchStore.selectedPitch)
+const shouldShowMilestoneCheck = ref(false)
 
+const pitch = computed(() => pitchStore.selectedPitch?.pitch)
 // Art Prompt text
-const title = ref('')
 const prompt = ref('')
-const description = ref('')
 const flavorText = ref('')
-const designerName = ref('')
-const channelName = computed(() => channelStore.currentChannel?.label)
-const userName = computed(() => userStore.username)
-const pitchName = computed(() => pitchStore.selectedPitch?.pitch)
-const galleryName = 'cafefred'
-const isMature = ref(false)
-const isPublic = ref(true)
-const isOrphan = ref(false)
+const username = computed(() => userStore.username)
 
 // Art Prompt Ids
 const userId = computed(() => userStore.userId)
-const galleryId = 21
-const pitchId = computed(() => pitchStore.selectedPitch?.id)
-const channelId = computed(() => channelStore.currentChannel?.id)
-const promptId = computed(() => userStore.username)
 
 const isLoading = ref(false)
-const selectedPitch = computed(() => pitchStore.selectedPitch)
+const createdArts = ref<Art[]>([]) // Array to store created art
 const randomDream = ref<string | null>(null)
+const loadingMessage = ref<string | null>(null)
 
-const newArt = ref<{
-  title?: string
-  prompt: string
-  description?: string
-  flavorText?: string
-  userId?: number
-  galleryId?: number
-  pitchId?: number
-  channelId?: number
-  promptId?: number
-  designerName?: string
-  channelName?: string
-  userName?: string
-  pitchName?: string
-  galleryName: string
-  isMature?: boolean
-  isPublic?: boolean
-  isOrphan?: boolean
-} | null>(null)
+const getLoadingMessage = () => {
+  loadingMessage.value = loadStore.randomLoadMessage()
+}
 
 const getRandomDream = () => {
   randomDream.value = dreamStore.randomDream()
@@ -102,6 +95,7 @@ const getRandomDream = () => {
 }
 
 const generateArt = async () => {
+  getLoadingMessage()
   isLoading.value = true
   try {
     const response = await fetch('https://kindrobots.org/api/art/generate', {
@@ -110,22 +104,29 @@ const generateArt = async () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: prompt.value,
-        username: 'silasfelinus',
+        prompt: pitch.value + ', ' + prompt.value + ', ' + flavorText.value,
+        userName: username.value,
         galleryName: 'cafefred',
-        pitchName: selectedPitch.value,
-        pitchId: 6
+        pitchId: currentPitch.value?.id,
+        title: currentPitch.value?.title,
+        isMature: false,
+        isPublic: true,
+        isOrphan: true,
+        flavorText: flavorText.value,
+        userId: userId.value,
+        galleryId: 21
       })
     })
 
     if (response.ok) {
       const data = await response.json()
-      newArt.value = data.newArt
-      console.log('Art generated:', data)
+      createdArts.value.unshift(data.newArt as Art)
+      shouldShowMilestoneCheck.value = true
+      console.log('Art generated:', createdArts)
     } else {
       const errorText = await response.text()
       const handledError = errorHandler(new Error(errorText))
-      console.error('Failed to generate dream:', handledError.message)
+      console.error('Failed to generate art:', handledError.message)
     }
   } catch (error: any) {
     const handledError = errorHandler(error)

@@ -94,7 +94,7 @@ model Bot {
   userId            Int?
   User              User?     @relation(fields: [userId], references: [id])
   sampleResponse    String?
-  tagline           String? @default("fancy tagline")
+  tagline           String?   @default("fancy tagline")
 }
 
 model Channel {
@@ -271,18 +271,17 @@ model Product {
   id            Int        @id @unique @default(autoincrement())
   createdAt     DateTime   @default(now())
   updatedAt     DateTime?
-  name          String
   title         String
   category      String     @default("gallery")
-  content       String     @default("Here's the idea...") @db.Text
   flavorText    String?
-  description   String     @default("")
+  description   String     @default("Here's the idea...") @db.VarChar(2000)
   passcode      String?
   costInPennies Int        @default(99)
   userId        Int        @default(0)
   User          User       @relation(fields: [userId], references: [id])
   Art           Art[]
   CartItem      CartItem[]
+  imagePath     String?
 }
 
 model Resource {
@@ -300,6 +299,7 @@ model Resource {
   description  String?      @db.Text
   resourceType ResourceType @default(CHECKPOINT)
   isMature     Boolean      @default(false)
+  galleryCount  Int?
   User         User?        @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Resource_userId_fkey")

@@ -16,7 +16,13 @@ export default defineEventHandler(async (event) => {
 
 // Function to fetch all CartItems for a specific Cart
 export async function fetchCartItems(cartId: number): Promise<CartItem[]> {
-  return await prisma.cartItem.findMany({
-    where: { cartId }
-  })
+  try {
+    return await prisma.cartItem.findMany({
+      where: {
+        cartId // Add this line to filter by cartId
+      }
+    })
+  } catch (error: any) {
+    throw errorHandler(error)
+  }
 }

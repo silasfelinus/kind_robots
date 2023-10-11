@@ -8,7 +8,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
 import { useProductStore } from '@/stores/productStore'
 
 const productStore = useProductStore()

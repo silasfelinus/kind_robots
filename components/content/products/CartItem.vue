@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineProps } from 'vue'
+import { ref, watch } from 'vue'
 import { useCartStore } from '@/stores/cartStore'
 import { useProductStore, Product } from '@/stores/productStore' // Import Product type
 import { errorHandler } from '@/server/api/utils/error'

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { Customer } from '@prisma/client'
 import { errorHandler } from '@/server/api/utils/error' // Import errorHandler
 
 export const useCustomerStore = defineStore({
@@ -16,6 +17,27 @@ export const useCustomerStore = defineStore({
     // New function to clear the current customer
     clearCurrentCustomer() {
       this.currentCustomer = null
+    },
+
+    async fetchCustomerByUserId(
+      userId: number
+    ): Promise<{ success: boolean; customerId?: number; message?: string }> {
+      try {
+        const response = await fetch(`/api/customers/userId/${userId}.get.ts`)
+        const data = await response.json()
+        if (data.success) {
+          this.setCurrentCustomer(data.customer)
+          return { success: true, customerId: data.customer.id }
+        } else {
+          return { success: false, message: data.message }
+        }
+      } catch (error) {
+        const { success, message, statusCode } = errorHandler({ error })
+        console.error(
+          `Fetch Customer By UserId Error: ${message}, Status Code: ${statusCode}, Success: ${success}`
+        )
+        return { success: false, message }
+      }
     },
 
     // New function to fetch a customer by email
@@ -78,23 +100,35 @@ export const useCustomerStore = defineStore({
         console.error(`An error occurred while fetching customer by id: ${error}`)
       }
     },
-    async createCustomer(customer: { email: string; name?: string }) {
+    async createCustomer(data: {
+      email?: string
+      name?: string
+      userId?: number
+    }): Promise<{ success: boolean; customerId?: number; message?: string }> {
       try {
-        const response = await fetch('/api/customers/index.post.ts', {
+        const response = await fetch('/api/customers/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(customer)
+          body: JSON.stringify(data)
         })
-        const data = await response.json()
-        if (data.success) {
-          this.customers.push(data.newCustomer)
+        const responseData = await response.json()
+        if (responseData.success) {
+          this.customers.push(responseData.newCustomer)
+          return { success: true, customerId: responseData.newCustomer.id }
+        } else {
+          return { success: false, message: responseData.message }
         }
       } catch (error) {
-        console.error(`An error occurred while creating a new customer: ${error}`)
+        const { success, message, statusCode } = errorHandler({ error })
+        console.error(
+          `Create Customer Error: ${message}, Status Code: ${statusCode}, Success: ${success}`
+        )
+        return { success: false, message }
       }
     },
+
     async updateCustomer(id: number, updatedData: { email?: string; name?: string }) {
       try {
         const response = await fetch(`/api/customers/${id}.patch.ts`, {

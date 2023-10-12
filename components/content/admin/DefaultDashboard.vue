@@ -1,35 +1,27 @@
 <template>
-  <div class="bg-base-200 p-2 rounded-2xl relative">
+  <div class="bg-base-200 p-2 m-2 rounded-2xl relative border">
     <button class="absolute top-1 left-1 z-10" @click.stop="toggleMinimize">
       <icon name="material-symbols:hide-rounded" class="text-lg" />
     </button>
     <span class="absolute top-2 right-2">Role: {{ user?.Role || 'Guest' }}</span>
 
-    <h1 class="text-2xl font-semibold ml-6">User Dashboard</h1>
-    <div class="relative flex justify-center items-center">
-      <user-avatar />
-      <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-        <h2
-          class="text-lg font-semibold bg-base-200 border-accent rounded-2xl border p-2 pt-1 pb-1"
-        >
-          {{ user?.username || 'Kind Guest' }}
-        </h2>
-      </div>
+    <h1 class="text-2xl font-semibold ml-6 mt-2">User Dashboard</h1>
+    <div class="relative flex flex-col items-center justify-center">
+      <user-avatar class="w-24 h-24" />
+      <h2 class="text-lg font-semibold bg-base-200 border-primary rounded-2xl border p-2 mt-2">
+        {{ user?.username || 'Kind Guest' }}
+      </h2>
     </div>
-    <div class="flex items-center space-x-4 m-2">
+    <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 m-2">
       <div>
-        <p class="text-lg font-medium m-2 mt-4 p-1 pb-0">
-          Welcome, {{ user?.username || 'Guest' }}
-          <span v-if="!isLoggedIn" class="text-sm text-gray-500 ml-2">(Not logged in)</span>
-        </p>
         <div class="flex space-x-4 mt-2">
           <div class="flex items-center space-x-2">
             <icon name="game-icons:health-potion" class="text-lg" />
-            <span>Karma Earned: {{ user?.karma || 0 }}</span>
+            <span>Karma: {{ user?.karma || 0 }}</span>
           </div>
           <div class="flex items-center space-x-2">
             <icon name="fluent-emoji-high-contrast:beans" class="text-lg" />
-            <span>Jellybeans Discovered: {{ user?.mana || 0 }}</span>
+            <span>Jellybeans: {{ user?.mana || 0 }}</span>
           </div>
         </div>
       </div>
@@ -48,18 +40,25 @@
       </div>
     </div>
     <login-form v-if="showLogin" @close="showLogin = false" />
-    <div class="flex flex-row">
-      <BackLink class="flex flex-row" />
-      <HomeLink class="flex flex-row" />
-      <ForwardLink class="flex flex-row" />
-      <layout-selector class="flex flex-row" />
-      <theme-toggle class="flex flex-row" />
-      <butterfly-toggle class="flex flex-row" />
-      <mature-toggle class="flex flex-row" />
+    <!-- Bottom Navigation and Toggles -->
+    <div class="flex flex-col md:flex-row md:flex-wrap justify-between items-center mt-4">
+      <!-- First Row -->
+
+      <!-- Second Row -->
+      <div class="flex flex-row justify-between items-center w-full md:w-auto">
+        <theme-toggle />
+        <butterfly-toggle />
+        <layout-selector />
+        <mature-toggle />
+      </div>
+      <div class="flex flex-row justify-between items-center w-full md:w-auto mb-2 md:mb-0">
+        <BackLink />
+        <HomeLink />
+        <ForwardLink />
+      </div>
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'

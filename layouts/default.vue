@@ -1,23 +1,16 @@
 <template>
-  <div class="flex flex-col p-2 bg-base-200 m-2">
+  <div class="flex flex-col bg-base-200">
     <!-- Header -->
-    <header
-      class="flex justify-between items-center rounded-2xl border p-0.5 m-2 relative shadow-lg"
-    >
-      <smart-dashboard class="flex flex-row bg-base-200 border rounded-2xl p-2 m-1" />
-      <h1 class="text-4xl text-default font-bold">Kind Robots</h1>
-      <!-- Subtitle -->
-      <div class="text-center rounded-2xl border p-1 m-2 shadow-lg">
-        <h1 v-if="page && page.title" class="text-2xl">The {{ page.title }} Room</h1>
-        <h1 v-else class="text-2xl">🌈 Fetching details...</h1>
-      </div>
+    <header class="flex flex-col md:flex-row justify-between items-center rounded-2xl">
+      <smart-dashboard />
+      <room-title />
     </header>
 
     <!-- Main Content -->
     <main
       class="flex-grow flex flex-col items-center p-2 m-2 rounded-2xl border shadow-lg overflow-y-auto"
     >
-      <slot class="w-full h-full flex bg-base-200 rounded-2xl p-2 m-2" />
+      <slot class="w-full h-full flex bg-base-200 rounded-2xl p-2 m-2 border" />
     </main>
 
     <!-- Image and Tooltip Wrapper -->

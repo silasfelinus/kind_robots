@@ -73,28 +73,29 @@ model ArtReaction {
 }
 
 model Bot {
-  id                Int       @id @unique @default(autoincrement())
-  createdAt         DateTime  @default(now())
+  id                Int            @id @unique @default(autoincrement())
+  createdAt         DateTime       @default(now())
   updatedAt         DateTime?
   BotType           String
-  name              String    @unique
-  isPublic          Boolean   @default(true)
-  underConstruction Boolean   @default(false)
-  canDelete         Boolean   @default(false)
-  subtitle          String    @default("Kind Robot")
-  description       String    @default("I'm a kind robot")
-  avatarImage       String    @default("/images/wonderchest/wonderchest304_(23).webp")
-  botIntro          String    @default("You're a Kind Robot")
-  userIntro         String    @default("Let's make a difference. Here's my idea:")
-  prompt            String    @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
+  name              String         @unique
+  isPublic          Boolean        @default(true)
+  underConstruction Boolean        @default(false)
+  canDelete         Boolean        @default(false)
+  subtitle          String         @default("Kind Robot")
+  description       String         @default("I'm a kind robot")
+  avatarImage       String         @default("/images/wonderchest/wonderchest304_(23).webp")
+  botIntro          String         @default("You're a Kind Robot")
+  userIntro         String         @default("Let's make a difference. Here's my idea:")
+  prompt            String         @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
   trainingPath      String?
   theme             String?
-  personality       String    @default("helpful, inquisitive, considerate")
+  personality       String         @default("helpful, inquisitive, considerate")
   modules           String?
   userId            Int?
-  User              User?     @relation(fields: [userId], references: [id])
+  User              User?          @relation(fields: [userId], references: [id])
   sampleResponse    String?
-  tagline           String?   @default("fancy tagline")
+  tagline           String?        @default("fancy tagline")
+  ChatExchange      ChatExchange[]
 }
 
 model Channel {
@@ -114,6 +115,26 @@ model Channel {
   pitchId     Int?
 
   @@index([userId], map: "Channel_userId_fkey")
+}
+
+// /prisma/schema.prisma
+
+model ChatExchange {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  botId       Int // ID of the bot involved in the exchange
+  Bot         Bot?     @relation(fields: [botId], references: [id])
+  botName     String // Name of the bot
+  userId      Int // ID of the user involved in the exchange
+  User        User?    @relation(fields: [userId], references: [id])
+  username    String // Username of the user
+  userPrompt  String // The prompt/question asked by the user
+  botResponse String // The response given by the bot
+  liked       Boolean? // Whether the exchange was liked by the user
+  hated       Boolean? // Whether the exchange was hated by the user
+  loved       Boolean? // Whether the exchange was loved by the user
+  flagged     Boolean? // Whether the exchange was flagged for review
 }
 
 model Gallery {
@@ -299,7 +320,7 @@ model Resource {
   description  String?      @db.Text
   resourceType ResourceType @default(CHECKPOINT)
   isMature     Boolean      @default(false)
-  galleryCount  Int?
+  galleryCount Int?
   User         User?        @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Resource_userId_fkey")
@@ -404,6 +425,7 @@ model User {
   Pitch               Pitch[]
   Customer            Customer[]
   RandomList          RandomList[]
+  ChatExchange        ChatExchange[]
 }
 
 enum BotType {

@@ -19,21 +19,16 @@ export const userNavigation: navigationData[] = [
     path: '/brainstorm'
   },
   {
-    title: 'Weirdlandia',
-    image: '/images/weirdlandia/weird-32.png',
-    description: 'Promo page for Weirdlandia, the game of infinite adventure.',
-    path: '/weirdlandia'
-  },
-  {
     title: 'BotCafe',
     image: '/images/botcafe/botcafe-268.webp',
     description: 'Chat with our friendly bots',
     path: '/botcafe'
   },
   {
-    title: 'ArtMaker',
+    title: 'Art Pitchmaker',
     image: '/images/fantasycore/fantasycore-915.webp',
-    description: 'Create beautiful art (currently being worked on, up soon)',
+    description:
+      'Pitches art collections inspired (and beginning) with the same prompt (The "Pitch"). Any phrase can become a new pitch, and designers are encouraged to use that as inspiration for fresh art using our community art generator.',
     path: '/artmaker'
   },
   {
@@ -45,7 +40,7 @@ export const userNavigation: navigationData[] = [
   {
     title: 'Milestones',
     image: '/images/fantasycore/fantasycore-749.webp',
-    description: 'User Milestone Records',
+    description: 'A Record of User Discovered Jellybeans, and clues to their whereabouts.',
     path: '/milestones'
   },
   {

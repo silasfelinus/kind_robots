@@ -9,7 +9,6 @@ tags: ['home']
 category: user
 icon: game-icons:robot-antennas
 tooltip: Tooltip
-sort: text
-underConstruction: true
+sort: highlight
 ---
 :bot-screen

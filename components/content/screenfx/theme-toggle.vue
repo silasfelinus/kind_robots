@@ -1,18 +1,16 @@
 <template>
   <div class="theme-selector flex flex-col items-center">
-    <div class="text-lg font-bold w-full text-center mb-2">Theme:</div>
     <div class="flex flex-row items-center justify-center space-x-2 w-full">
       <button
+        ref="buttonRef"
         tabindex="0"
         aria-haspopup="true"
         aria-label="Change theme"
-        class="theme-btn p-2 rounded-full focus:outline-none focus:ring focus:ring-accent transform hover:scale-110 transition-all ease-in-out duration-200"
+        class="theme-btn p-2 rounded-full border border-accent focus:outline-none focus:ring focus:ring-accent transform hover:scale-110 transition-all ease-in-out duration-200 text-lg"
         @click="toggleMenu"
       >
-        <!-- Updated icon here -->
-        <icon name="game-icons:pencil-brush" class="w-12 h-12" />
+        theme: {{ themeStore.currentTheme }}
       </button>
-      <div class="text-lg font-bold w-full text-center">{{ themeStore.currentTheme }}</div>
     </div>
     <transition name="theme-menu-fade">
       <div
@@ -68,7 +66,18 @@ const toggleMenu = () => {
   open.value = !open.value
 }
 
+const closeMenu = (e) => {
+  if (buttonRef.value && !buttonRef.value.contains(e.target)) {
+    open.value = false
+  }
+}
+
 onMounted(() => {
   themeStore.initTheme()
+  window.addEventListener('click', closeMenu)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeMenu)
 })
 </script>

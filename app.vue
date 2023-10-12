@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="bg-base-200 flex">
     <ami-loader />
   </div>
 </template>

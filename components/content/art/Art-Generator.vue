@@ -1,24 +1,8 @@
 <template>
   <div class="bg-base-200 rounded-2xl p-8 text-lg">
     <h1 class="text-2xl mb-4">Art-Generator</h1>
-
-    <!-- Random Dream as Prompt -->
-    <div class="mt-4">
-      <button class="bg-accent rounded-2xl p-2 text-white" @click="getRandomDream">
-        Get Inspiration
-      </button>
-      <p v-if="randomDream">{{ randomDream }}</p>
-    </div>
-
-    <!-- Flavor Text Input -->
-    <div class="mt-4">
-      <input
-        v-model="flavorText"
-        placeholder="Enter anything you want, or leave blank"
-        class="rounded-2xl p-2 w-full text-lg"
-      />
-    </div>
-
+    Enter your Art Prompt. We will automatically begin with the pitch:
+    <div class="font-bold">{{ pitch }}</div>
     <!-- Prompt Input -->
     <div class="mt-4">
       <input

@@ -2,11 +2,12 @@
   <div class="container rounded-2xl mx-auto p-2 bg-base-200">
     <!-- Bot Avatar and Details -->
     <div v-if="currentBot" class="avatar-container w-full m-2 rounded-lg">
+      <!-- Bot Avatar and Details -->
       <div class="flex flex-col md:flex-row items-center p-2">
         <img
           :src="currentBot.avatarImage ?? '/images/default-avatar.webp'"
           alt="Bot Avatar"
-          class="avatar-img md:w-1/4 rounded-2xl border border-theme mb-4 md:mb-0"
+          class="avatar-img w-full md:w-1/4 rounded-2xl border border-theme mb-4 md:mb-0"
         />
         <div class="flex-1 text-center">
           <h1 class="text-3xl font-bold">{{ currentBot.name ?? 'Unknown Bot' }}</h1>
@@ -69,6 +70,50 @@
             :subtitle="msg.subtitle ?? 'Your friendly neighborhood AI'"
           />
         </div>
+        <!-- Reaction Buttons -->
+        <div class="reaction-buttons mt-2 flex space-x-2">
+          <button
+            class="hover:bg-gray-200"
+            :class="{ 'bg-primary': isReactionActive(index, 'liked') }"
+            @click="toggleReaction(index, 'liked')"
+          >
+            👍
+          </button>
+          <div v-if="showPopup[index]?.liked" class="popup">
+            Response Liked <icon name="like" class="icon-class" />
+          </div>
+
+          <button
+            class="hover:bg-gray-200"
+            :class="{ 'bg-primary': isReactionActive(index, 'hated') }"
+            @click="toggleReaction(index, 'hated')"
+          >
+            👎
+          </button>
+          <div v-if="showPopup[index]?.hated" class="popup">
+            Response hated <icon name="hate" class="icon-class" />
+          </div>
+          <button
+            class="hover:bg-gray-200"
+            :class="{ 'bg-primary': isReactionActive(index, 'loved') }"
+            @click="toggleReaction(index, 'loved')"
+          >
+            ❤️
+          </button>
+          <div v-if="showPopup[index]?.loved" class="popup">
+            Favorited <icon name="❤️" class="icon-class" />
+          </div>
+          <button
+            class="hover:bg-gray-200"
+            :class="{ 'bg-primary': isReactionActive(index, 'flagged') }"
+            @click="toggleReaction(index, 'flagged')"
+          >
+            🚩
+          </button>
+          <div v-if="showPopup[index]?.flagged" class="popup">
+            Flagged <icon name="🚩" class="icon-class" />
+          </div>
+        </div>
         <div
           v-if="activeConversationIndex !== null && activeConversationIndex === index"
           class="mt-2 flex items-center"
@@ -109,6 +154,7 @@ import axios from 'axios'
 import { useBotStore, Bot } from '../../../stores/botStore'
 import { useUserStore } from '@/stores/userStore'
 import { errorHandler } from '@/server/api/utils/error'
+import { useChatStore, ChatExchange } from '@/stores/chatStore'
 
 const shouldShowMilestoneCheck = ref(false)
 let userKey: string | null = null
@@ -130,6 +176,7 @@ const conversations = ref<Conversation[]>([])
 const activeConversationIndex = ref<number | null>(null)
 const botStore = useBotStore()
 const userStore = useUserStore()
+const chatStore = useChatStore()
 const currentBot = computed<Bot | null>(() => botStore.currentBot)
 const message = ref('')
 const replyMessage = ref('')
@@ -137,6 +184,66 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 const userImage = computed(() => userStore.user?.avatarImage)
 const isReplyLoading = ref(false)
+
+// Usage
+const userId = computed(() => userStore.userId || 0)
+const botId = computed(() => botStore.currentBot?.id || 0)
+const botName = computed(() => botStore.currentBot?.name || '')
+const username = computed(() => userStore.username)
+const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
+
+// Function to convert a conversation to ChatExchange
+
+// Function to convert a conversation to ChatExchange
+function convertToChatExchange(
+  conversation: Message[],
+  userId: number,
+  botId: number,
+  botName: string,
+  username: string
+): ChatExchange {
+  const userPrompt = conversation.find((msg) => msg.role === 'user')?.content ?? ''
+  const botResponse = conversation.find((msg) => msg.role === 'assistant')?.content ?? ''
+
+  return {
+    id: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    botId,
+    botName,
+    userId,
+    username,
+    userPrompt,
+    botResponse,
+    liked: null,
+    hated: null,
+    loved: null,
+    flagged: null
+  }
+}
+
+type ReactionType = 'liked' | 'hated' | 'loved' | 'flagged'
+
+const isReactionActive = (index: number, reactionType: ReactionType) => {
+  const currentExchange = chatStore.getExchangeById(index) as ChatExchange
+  return currentExchange?.[reactionType]
+}
+
+// Watch for changes in conversations and update ChatExchange
+watchEffect(() => {
+  if (conversations.value.length > 0) {
+    const lastConversation = conversations.value[conversations.value.length - 1]
+    const lastExchange = convertToChatExchange(
+      lastConversation,
+      userId.value,
+      botId.value,
+      botName.value,
+      username.value
+    )
+    chatStore.addOrUpdateExchange(lastExchange)
+  }
+})
+
 const sendMessage = async () => {
   isLoading.value = true
   try {
@@ -183,6 +290,31 @@ const sendMessage = async () => {
   }
 }
 
+const toggleReaction = (index: number, reactionType: 'liked' | 'hated' | 'loved' | 'flagged') => {
+  const currentExchange = convertToChatExchange(
+    conversations.value[index],
+    userId.value,
+    botId.value,
+    botName.value,
+    username.value
+  )
+  if (currentExchange && currentExchange.id) {
+    // Check for id
+    const currentReactionState = currentExchange[reactionType] ?? false
+    chatStore.addReaction(currentExchange.id, { [reactionType]: !currentReactionState })
+  }
+  // Show popup
+  if (!showPopup.value[index]) {
+    showPopup.value[index] = {}
+  }
+  showPopup.value[index][reactionType] = true
+
+  // Hide popup after 2 seconds
+  setTimeout(() => {
+    showPopup.value[index][reactionType] = false
+  }, 2000)
+}
+
 const continueConversation = async (index: number) => {
   isReplyLoading.value = true
   try {
@@ -215,13 +347,37 @@ const continueConversation = async (index: number) => {
   isReplyLoading.value = false
 }
 watchEffect(() => {
+  if (conversations.value.length > 0) {
+    const lastConversation = conversations.value[conversations.value.length - 1]
+    const lastExchange = convertToChatExchange(
+      lastConversation,
+      userId.value,
+      botId.value,
+      botName.value,
+      username.value
+    )
+    chatStore.addOrUpdateExchange(lastExchange)
+  }
+})
+
+watchEffect(() => {
   if (currentBot.value && currentBot.value.prompt) {
     message.value = currentBot.value.prompt
   }
 })
-
 const deleteConversation = (index: number) => {
   conversations.value.splice(index, 1)
   activeConversationIndex.value = null // Reset the active conversation index after deletion
 }
 </script>
+<style>
+.popup {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: bg-info;
+  padding: 4px;
+  border-radius: rounded-2xl;
+  font-size: text-lg;
+}
+</style>

@@ -27,8 +27,7 @@ export const userNavigation: navigationData[] = [
   {
     title: 'Art Pitchmaker',
     image: '/images/fantasycore/fantasycore-915.webp',
-    description:
-      'Pitches art collections inspired (and beginning) with the same prompt (The "Pitch"). Any phrase can become a new pitch, and designers are encouraged to use that as inspiration for fresh art using our community art generator.',
+    description: 'Create and share pitches for our community AI-Art generator.',
     path: '/artmaker'
   },
   {
@@ -38,21 +37,21 @@ export const userNavigation: navigationData[] = [
     path: '/button'
   },
   {
-    title: 'Milestones',
+    title: 'Jellybeans',
     image: '/images/fantasycore/fantasycore-749.webp',
-    description: 'A Record of User Discovered Jellybeans, and clues to their whereabouts.',
+    description: 'A Record of Discovered Jellybeans, and Clues to their Whereabouts.',
     path: '/milestones'
   },
   {
     title: 'Art Match',
     image: '/images/cafepurr/cafepurr-395.webp',
-    description: 'Match art from our galleries.',
+    description: 'Memory Match using art from our digital art galleries',
     path: '/memory'
   },
   {
     title: 'AMI',
     image: '/images/wonderchest/wonderchest-1691.webp',
-    description: 'Meet AMI, the anti-malaria intelligence.',
+    description: 'Meet AMI, the Anti-Malaria Intelligence.',
     path: '/amibot'
   },
   {

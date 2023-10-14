@@ -10,15 +10,6 @@
       <p v-if="randomDream">{{ randomDream }}</p>
     </div>
 
-    <!-- Flavor Text Input -->
-    <div class="mt-4">
-      <input
-        v-model="flavorText"
-        placeholder="Enter anything you want, or leave blank"
-        class="rounded-2xl p-2 w-full text-lg"
-      />
-    </div>
-
     <!-- Prompt Input -->
     <div class="mt-4">
       <input
@@ -100,7 +91,7 @@ const generateArt = async () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: prompt.value + ', ' + flavorText.value,
+        prompt: prompt.value,
         userName: username.value,
         galleryName: 'cafefred',
         pitchId: 6,

@@ -5,7 +5,7 @@
       <icon
         :name="'typcn:arrow-back-outline'"
         :title="'Back'"
-        class="icon-effect transform transition-transform ease-in-out hover:scale-110 hover:shadow-lg"
+        class="icon-effect transform transition-transform ease-in-out hover:scale-110"
       />
     </div>
   </div>

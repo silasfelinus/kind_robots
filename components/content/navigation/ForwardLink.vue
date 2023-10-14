@@ -1,29 +1,43 @@
 <template>
   <div>
-    <!-- Forward arrow icon -->
-    <div class="mr-4" @click="goForward">
+    <!-- Forward arrow icon: Shown only if canGoForward is true -->
+    <div v-if="canGoForward" class="mr-2" @click="goForward">
       <icon
         :name="'typcn:arrow-forward-outline'"
         :title="'Forward'"
-        class="icon-effect transform transition-transform ease-in-out hover:scale-110 hover:shadow-lg"
+        class="icon-effect transform transition-transform ease-in-out hover:scale-110"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const canGoForward = ref(false)
+
+const updateCanGoForward = () => {
+  canGoForward.value = typeof window !== 'undefined' && window.history.length > 1
+}
 
 const goForward = () => {
-  if (typeof window !== 'undefined' && window.history.length > 1) {
+  if (canGoForward.value) {
     router.go(1)
   } else {
-    // Handle the case when there's no forward history
     console.warn('No forward history available.')
   }
 }
+
+onMounted(() => {
+  updateCanGoForward()
+  window.addEventListener('popstate', updateCanGoForward)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('popstate', updateCanGoForward)
+})
 </script>
 
 <style scoped>

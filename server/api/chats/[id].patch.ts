@@ -9,13 +9,11 @@ export default defineEventHandler(async (event) => {
     const reactionData = await readBody(event)
 
     // Validate reactions
-    if (
-      typeof reactionData.liked !== 'boolean' ||
-      typeof reactionData.hated !== 'boolean' ||
-      typeof reactionData.loved !== 'boolean' ||
-      typeof reactionData.flagged !== 'boolean'
-    ) {
-      throw new TypeError('Invalid reaction data.')
+    const validReactions = ['liked', 'hated', 'loved', 'flagged']
+    for (const key in reactionData) {
+      if (!validReactions.includes(key) || typeof reactionData[key] !== 'boolean') {
+        throw new TypeError('Invalid reaction data.')
+      }
     }
 
     const updatedExchange = await prisma.chatExchange.update({
@@ -28,6 +26,11 @@ export default defineEventHandler(async (event) => {
       updatedExchange
     }
   } catch (error: any) {
-    return errorHandler({ success: false, message: error.message, statusCode: 500 })
+    console.error(`Error while updating chat exchange with id ${event.context.params?.id}:`, error)
+    return errorHandler({
+      success: false,
+      message: error.message || 'An unknown error occurred.',
+      statusCode: 500
+    })
   }
 })

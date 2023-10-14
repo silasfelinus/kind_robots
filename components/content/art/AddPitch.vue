@@ -14,7 +14,7 @@
     >
       <h2 class="text-2xl font-bold m-4 p-2">Create Your Pitch</h2>
       <p class="text-sm text-gray-600 m-4p-2">
-        Craft your pitch to inspire artists and captivate audiences. 🎨
+        Craft your pitch to inspire and challenge other artists. 🎨
       </p>
 
       <!-- Form Fields -->
@@ -24,21 +24,12 @@
         placeholder="Pitch"
         class="mb-2 p-2 rounded border"
       ></textarea>
-      <input
-        v-model="newPitch.flavorText"
-        placeholder="Flavor Text (Optional)"
-        class="mb-2 p-2 rounded border"
-      />
       <input v-model="newPitch.designer" placeholder="Designer" class="mb-2 p-2 rounded border" />
 
       <!-- Checkboxes -->
       <label class="inline-flex items-center mb-2">
         <input v-model="newPitch.isMature" type="checkbox" class="mr-2" />
         Allow mature content
-      </label>
-      <label class="inline-flex items-center mb-4">
-        <input v-model="newPitch.isOrphan" type="checkbox" class="mr-2" />
-        Adoptable
       </label>
 
       <!-- Submit Button -->
@@ -71,7 +62,7 @@ const newPitch = ref({
   designer: '',
   userId: userStore.userId,
   isMature: false,
-  isOrphan: true,
+  isOrphan: false,
   isPublic: true
 })
 

@@ -9,16 +9,31 @@ export default defineEventHandler(async (event) => {
 
     // Validate data
     if (
-      !exchangeData.botId ||
       !exchangeData.userId ||
+      !exchangeData.botId ||
+      !exchangeData.botName ||
+      !exchangeData.username ||
       !exchangeData.userPrompt ||
       !exchangeData.botResponse
     ) {
-      throw new Error('Invalid exchange data.')
+      throw new Error('Invalid exchange data. Missing required fields.')
     }
 
+    // Additional data type validations can go here
+
     const newExchange = await prisma.chatExchange.create({
-      data: exchangeData
+      data: {
+        userId: exchangeData.userId,
+        botId: exchangeData.botId,
+        botName: exchangeData.botName,
+        username: exchangeData.username,
+        userPrompt: exchangeData.userPrompt,
+        botResponse: exchangeData.botResponse,
+        liked: exchangeData.liked,
+        hated: exchangeData.hated,
+        loved: exchangeData.loved,
+        flagged: exchangeData.flagged
+      }
     })
 
     return {
@@ -26,6 +41,13 @@ export default defineEventHandler(async (event) => {
       newExchange
     }
   } catch (error: any) {
-    return errorHandler({ success: false, message: error.message, statusCode: 500 })
+    // Log the error for debugging
+    console.error('Error in /server/api/chats/index.post.ts:', error)
+
+    return errorHandler({
+      success: false,
+      message: error.message || 'An unknown error occurred.',
+      statusCode: 500
+    })
   }
 })

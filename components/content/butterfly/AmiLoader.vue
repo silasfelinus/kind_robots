@@ -39,9 +39,9 @@ let intervalId: any
 onMounted(() => {
   setTimeout(() => {
     currentMessage.value = randomLoadMessage()
-    intervalId = setInterval(updateMessage, 20 * 100)
-  }, 1000) // Update the message after a .5 second delay
-  setTimeout(startFadeOut, 3000) // Fade out after 2 seconds
+    intervalId = setInterval(updateMessage, 20 * 50)
+  }, 700) // Update the message after a .5 second delay
+  setTimeout(startFadeOut, 1000) // Fade out after 2 seconds
 })
 
 onUnmounted(() => {

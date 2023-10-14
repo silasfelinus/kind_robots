@@ -1,17 +1,19 @@
 // ~/store/pageStore.ts
 import { defineStore } from 'pinia'
-import { useRouter } from 'vue-router'
+import { errorHandler } from '@/server/api/utils/error'
 
 interface PageState {
   pages: any[]
   initialized: boolean
+  error: any
 }
 
 export const usePageStore = defineStore({
   id: 'pageStore',
   state: (): PageState => ({
     pages: [],
-    initialized: false
+    initialized: false,
+    error: null
   }),
   getters: {
     pagesByTagAndSort: (state) => (tag: string, sort: string) => {
@@ -40,6 +42,7 @@ export const usePageStore = defineStore({
         this.pages = pages
         this.initialized = true
       } catch (error) {
+        this.error = errorHandler({ error, message: 'Failed to fetch pages' })
         console.error('Failed to fetch pages', error)
       }
     }

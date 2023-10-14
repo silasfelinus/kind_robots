@@ -120,21 +120,22 @@ model Channel {
 // /prisma/schema.prisma
 
 model ChatExchange {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  botId       Int // ID of the bot involved in the exchange
-  Bot         Bot?     @relation(fields: [botId], references: [id])
-  botName     String // Name of the bot
-  userId      Int // ID of the user involved in the exchange
-  User        User?    @relation(fields: [userId], references: [id])
-  username    String // Username of the user
-  userPrompt  String // The prompt/question asked by the user
-  botResponse String // The response given by the bot
-  liked       Boolean? // Whether the exchange was liked by the user
-  hated       Boolean? // Whether the exchange was hated by the user
-  loved       Boolean? // Whether the exchange was loved by the user
-  flagged     Boolean? // Whether the exchange was flagged for review
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  botId           Int? // ID of the bot involved in the exchange
+  Bot             Bot?     @relation(fields: [botId], references: [id])
+  botName         String // Name of the bot
+  userId          Int // ID of the user involved in the exchange
+  User            User?    @relation(fields: [userId], references: [id])
+  username        String // Username of the user
+  userPrompt      String   @db.VarChar(2000)
+  botResponse     String   @db.VarChar(2000)
+  liked           Boolean? // Whether the exchange was liked by the user
+  hated           Boolean? // Whether the exchange was hated by the user
+  loved           Boolean? // Whether the exchange was loved by the user
+  flagged         Boolean? // Whether the exchange was flagged for review
+  previousEntryId Int?     @default(0)
 }
 
 model Gallery {

@@ -1,7 +1,5 @@
 <template>
-  <div class="bg-base-200 flex">
-    <ami-loader />
-  </div>
+  <div class="bg-base-200 flex"><ami-loader /></div>
 </template>
 
 <script setup lang="ts">
@@ -16,6 +14,8 @@ import { useThemeStore } from '@/stores/themeStore'
 import { useBotStore } from '@/stores/botStore'
 import { useLayoutStore } from '@/stores/layoutStore'
 import { usePitchStore } from '@/stores/pitchStore'
+import { useChatStore } from '@/stores/chatStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const layoutStore = useLayoutStore()
 
@@ -28,6 +28,8 @@ const botStore = useBotStore()
 const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
+const chatStore = useChatStore()
+const pageStore = usePageStore()
 
 onMounted(() => {
   try {
@@ -42,6 +44,8 @@ onMounted(() => {
     pitchStore.initializePitches()
     channelStore.initializeChannels()
     milestoneStore.initializeMilestones()
+    chatStore.fetchChatExchanges()
+    pageStore.getPages()
     console.log(
       'Welcome to Kind Robots, random person who reads console logs! Are you a developer?'
     )

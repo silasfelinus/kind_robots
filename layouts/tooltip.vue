@@ -3,14 +3,10 @@
     <!-- Navbar -->
     <nav class="flex justify-between items-center p-4 bg-primary text-default">
       <div class="logo text-2xl font-bold">KindRobots</div>
-      <smart-dashboard class="flex flex-row bg-base-200 border rounded-2xl m-1" />
-      <h1 class="text-lg font-semibold">The {{ page.title }} Room</h1>
+      <new-dashboard class="flex flex-row bg-base-200 border rounded-2xl m-1" />
+      <room-title />
       <h2 class="text-md font-semibold">{{ page.subtitle }}</h2>
     </nav>
-    <!-- Display tooltip -->
-    <div v-if="showTooltip" class="mt-4 p-2 text-xl rounded-2xl border bg-secondary">
-      {{ page.tooltip }}
-    </div>
 
     <!-- Main Content -->
     <main class="flex-1 p-4">
@@ -26,14 +22,19 @@
         class="mx-auto my-4 rounded-2xl border shadow-md"
       />
       <!-- Footer -->
-      <footer-toggle />
+      <random-link />
+
+      <!-- Display tooltip -->
+      <div v-if="page.tooltip" class="mt-4 p-2 text-xl rounded-2xl border bg-secondary">
+        {{ page.tooltip }}
+      </div>
       KindRobots © 2023
+
+      <footer-toggle />
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
 const { page } = useContent()
-
-const showTooltip = ref<boolean>(true)
 </script>

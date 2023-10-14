@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export const allowedLayouts = ['retro', 'dashboard', 'default', 'mobile']
+export const allowedLayouts = ['default', 'desktop', 'mobile', 'retro', 'tooltip']
 
 const getStoredLayout = (key: string, defaultValue: string): string => {
   const storedValue = localStorage.getItem(key)

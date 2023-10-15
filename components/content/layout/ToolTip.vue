@@ -1,98 +1,92 @@
 <template>
-  <div class="flex flex-col items-center p-8 bg-base-200 rounded-lg shadow-lg">
-    <!-- Minimized Avatar -->
-    <div
-      v-if="minimized"
-      class="rounded-full w-16 h-16 bg-accent flex items-center justify-center cursor-pointer relative"
-      @click="toggleMinimize"
-    >
-      <img
-        :src="page.image ? `/images/${page.image}` : '/images/default-image.webp'"
-        alt="Chat Avatar"
-        class="rounded-full w-14 h-14"
-      />
-      <!-- Ripple Effect -->
-      <div class="ripple bg-primary opacity-50"></div>
+  <!-- Main Container -->
+  <div class="flex flex-col items-center p-8 bg-base-200 rounded-lg shadow-lg relative w-64 h-64">
+    <!-- Tip Toggles -->
+    <div class="absolute bottom-0 right-0 mb-2 mr-2 flex flex-col items-end">
+      <button v-if="page.tooltip && !tipStatus.Silas.seen" @click="toggleTip('Silas')">
+        <icon
+          name="solar:cat-bold"
+          class="text-3xl"
+          :class="tipStatus.Silas.show ? 'text-accent flash' : 'text-default'"
+        />
+      </button>
+      <button v-if="page.amitip && !tipStatus.Ami.seen" @click="toggleTip('Ami')">
+        <icon
+          name="ph:butterfly-duotone"
+          class="text-3xl"
+          :class="tipStatus.Ami.show ? 'text-accent flash' : 'text-default'"
+        />
+      </button>
     </div>
-
-    <!-- Chat Window -->
-    <div v-else class="w-full mt-4 p-4 bg-secondary rounded-lg border-4 border-accent">
-      <h3 class="text-lg font-semibold text-default mb-2">Silas Says...</h3>
-
-      <!-- Text Container -->
-      <div class="streaming-container bg-base rounded-lg p-4">
-        <div class="streaming-text text-default text-info">
-          <span class="text-default text-xl">{{ streamingText }}</span>
-        </div>
-      </div>
+    <!-- Display Tip -->
+    <div v-if="currentTip" class="flex flex-col items-start w-full h-full">
+      <h3 class="text-lg font-semibold">{{ currentTipType }} says:</h3>
+      <p class="flex-1">{{ currentTip }}</p>
+      <button @click="clearTip">Clear</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, reactive } from 'vue'
 
-const minimized = ref(false) // Initialize the minimized ref to false
-const { page } = useContent() // Get the page content
+// Fetching the page content
+const { page } = useContent()
 
-const toggleMinimize = () => {
-  minimized.value = !minimized.value // Toggle the value of minimized ref
-}
-
-const streamingText = ref('Hey there, welcome to KindRobots!') // Initialize with a default value
-let index = 0
-let timer: number
-
-const startStreaming = () => {
-  timer = window.setInterval(() => {
-    if (index < (page.tooltip?.length || 0)) {
-      // Safely access the tooltip length
-      streamingText.value += page.tooltip?.charAt(index) || '' // Safely access characters from tooltip
-      index++
-    } else {
-      clearInterval(timer)
-    }
-  }, 100) // Adjust the speed as needed
-}
-
-onMounted(() => {
-  startStreaming() // Start streaming on component mount
+const currentTipType = ref<string | null>(null)
+const currentTip = computed(() => {
+  return currentTipType.value ? page[currentTipType.value.toLowerCase() + 'tip'] : null
 })
 
+// Tip status using reactive API
+const tipStatus = reactive({
+  Ami: { show: false, seen: true },
+  Silas: { show: false, seen: true }
+})
+
+const toggleTip = (type: 'Ami' | 'Silas') => {
+  // Reset all tips to not show
+  Object.keys(tipStatus).forEach((key) => {
+    tipStatus[key as 'Ami' | 'Silas'].show = false
+  })
+
+  // Set the current tip to show and seen
+  tipStatus[type].show = true
+  tipStatus[type].seen = true
+  currentTipType.value = type
+}
+
+const clearTip = () => {
+  currentTipType.value = null
+}
+
+// Watchers for tooltip and amitip
 watch(
   () => page.tooltip,
-  (newTooltip) => {
-    clearInterval(timer) // Clear the existing timer
-    streamingText.value = '' // Reset the streaming text
-    index = 0 // Reset the index
-    startStreaming() // Start streaming with the new tooltip
+  (newTip) => {
+    tipStatus.Silas.seen = newTip === null
+  }
+)
+watch(
+  () => page.amitip,
+  (newTip) => {
+    tipStatus.Ami.seen = newTip === null
   }
 )
 </script>
 
 <style scoped>
-.ripple {
-  position: absolute;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
-  animation: ripple-animation 1.5s infinite;
-  width: 100%;
-  height: 100%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.flash {
+  animation: flash 1.5s infinite;
 }
 
-@keyframes ripple-animation {
-  0% {
-    width: 0;
-    height: 0;
+@keyframes flash {
+  0%,
+  100% {
     opacity: 1;
   }
-  100% {
-    width: 200%;
-    height: 200%;
-    opacity: 0;
+  50% {
+    opacity: 0.5;
   }
 }
 </style>

@@ -15,7 +15,7 @@
     >
       <!-- User Info and Logout -->
       <div class="flex items-center space-x-2 cursor-pointer" @click.stop="toggleMinimize">
-        <icon name="game-icons:expand" class="text-lg" />
+        <icon name="game-icons:expand" class="text-lg absolute top-0 left-1" />
         <user-avatar
           :class="{ 'w-24 h-24': !isCompact, 'w-12 h-12': isCompact, 'mx-auto': !isCompact }"
         />
@@ -26,12 +26,12 @@
         <div class="hidden md:flex items-center space-x-4" :class="{ hidden: isCompact }">
           <div class="flex items-center space-x-2">
             <icon name="tdesign:bean" class="text-lg" />
-            <span>Jellybeans Discovered: {{ jellybeans }}/ 9</span>
+            <span>{{ jellybeans }}/ 9 Jellybeans Discovered</span>
           </div>
         </div>
       </div>
 
-      <smart-links v-if="isCompact" class="m-2" />
+      <smart-links v-if="isCompact" />
 
       <!-- Theme and Butterfly Toggle -->
       <div class="hidden md:flex items-center space-x-4" :class="{ 'm-2': !isCompact }">
@@ -46,6 +46,7 @@
           {{ isLoggedIn ? 'Logout' : 'Login' }}
         </button>
         <butterfly-toggle />
+        <tooltip-toggle />
         <layout-selector class="p-1 m-1" />
       </div>
     </div>
@@ -59,7 +60,7 @@
     </div>
 
     <!-- Smart Links at the bottom when expanded -->
-    <smart-links v-if="!isCompact" class="m-2" />
+    <smart-links v-if="!isCompact" />
   </div>
 </template>
 

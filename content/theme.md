@@ -1,13 +1,14 @@
 ---
-title: 'Theme Selector'
-subtitle: Customize your universe
-description: Choose from any of our themes.
+title: 'Theme Menu'
+subtitle: 'Your World, Your Palette'
+description: 'Select a theme that resonates with you, and make this space truly your own. With a plethora of choices, you're bound to find your vibe.'
 layout: dashboard
 image: fantasycore/fantasycore-859.webp
 gallery: wondershed
 tags: ['home']
 icon: game-icons:tv-remote
-tooltip: My personal favorite is Retro, but Cupcake was the name of our first born while he was in utero, so it's also got a special place in my heart.
+tooltip: Fun fact, Cupcake was the in-utero name for our firstborn!
+amitip: That's so sweet, especially since he's now crushing your leaderboards!
 sort: highlight
 ---
 

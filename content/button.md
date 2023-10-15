@@ -1,15 +1,17 @@
 ---
 title: 'Rebel Button'
-subtitle: Go Ahead. It's OK.
-description: Novelty button designed to deliver random and milestone messages with graffiti.
+subtitle: The Button You Can't Help but Press!
+description: For rebels and curious souls, each click delivers a surprise!
 layout: dashboard
 image: wonderchest/wonderchest-1794.webp
 gallery: wonderbot
 tags: ['home']
 icon: game-icons:button-finger
-tooltip: This began as a morning ChatGPT coding project, but after my 11-year-old tapped it to 1000, I kept expanding. The final reward for this game should be a link to make and share your own buttons with custom milestones. In the interim, I would love to add an "I clicked the button to _____ and all I got was this lousy social link."
+tooltip: Pressed by the young and the young-at-heart, this started as a morning coding exercise but has evolved into an leadboard race.
+amitip: Seriously, don't press it! (Unless you're a jellybean hunter, then you might want to hit it about 100 times or so...) 🦋🍫🌈
 category: novelty
 sort: highlight
 ---
+
 
 :rebel-button

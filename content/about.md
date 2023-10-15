@@ -1,15 +1,17 @@
 ---
 title: 'About'
-subtitle: 'Our Humble Origins'
-description: Created with kind intent
+subtitle: 'Unapologetically Optimistic'
+description: Where missions and elevator pitches go to socialize.
 layout: dashboard
 icon: game-icons:abstract-037
 image: kindart.webp
 gallery: wondershed
 tags: ['home']
 category: settings
-tooltip: Kind Robots is hosted via my Unraid Ubuntu homelab. What began as a modest community media server became an extensive network of community webapps. I maintain multiple ubuntu workstations, including a 168TB 20-hard rive NAS running 40+ dockerized containers and two heavily-kitted Stable Diffusion Webui art generators.
+tooltip: Ah, the "About" page—home of lofty goals and earnest mission statements. But really, welcome! We're all about creating nifty AI-human interaction tools. Stick around and you might just become part of our mission.
+amitip: Elevator pitches? Mission statements? Oh, you betcha! But don't let the corporate lingo fool you. We're as grassroots as a digital butterfly can be! Flutter around and learn what makes us tick. 🦋🌈
 sort: icon
 ---
+
 
 :about-page

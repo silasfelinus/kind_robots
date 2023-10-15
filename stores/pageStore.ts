@@ -1,49 +1,80 @@
-// ~/store/pageStore.ts
 import { defineStore } from 'pinia'
-import { errorHandler } from '@/server/api/utils/error'
+import { errorHandler, ErrorHandlerOutput } from '@/server/api/utils/error'
 
-interface PageState {
-  pages: any[]
-  initialized: boolean
-  error: any
+interface Page {
+  tooltip?: string
+  amitip?: string
+  [key: string]: any
 }
+
+type ErrorState = ErrorHandlerOutput | null
 
 export const usePageStore = defineStore({
   id: 'pageStore',
-  state: (): PageState => ({
-    pages: [],
+  state: () => ({
+    page: {} as Page,
+    pages: [] as Page[],
+    toc: {},
+    type: '',
     initialized: false,
-    error: null
+    error: null as ErrorState,
+    showTooltip: true,
+    showAmitip: false,
+    showInfo: true
   }),
   getters: {
+    currentPage: () => {
+      const { page } = useContent()
+      return page
+    },
+    tooltip: (state) => state.page?.tooltip ?? null,
+    amitip: (state) => state.page?.amitip ?? null,
     pagesByTagAndSort: (state) => (tag: string, sort: string) => {
       return state.pages.filter((page: any) => page.tags?.includes(tag) && page.sort === sort)
     },
     pagesUnderConstruction: (state) => {
       return state.pages.filter((page: any) => page.underConstruction)
     },
-    currentPage: (state) => {
-      const router = useRouter()
-      const currentPath = router.currentRoute.value.path
-      return state.pages.find((page: any) => page._path === currentPath)
-    },
     highlightPages: (state) => {
       return state.pages.filter((page: any) => page.sort === 'highlight')
     }
   },
   actions: {
+    async loadStore() {
+      try {
+        const { page } = await useContent()
+        this.page = page
+        this.initialized = true
+      } catch (error) {
+        this.error = errorHandler({ error, message: 'Failed to initialize page store' })
+        console.error('Failed to initialize page store', error)
+      }
+    },
+    // Toggles the visibility of the tooltip
+    toggleTooltip() {
+      this.showTooltip = !this.showTooltip
+    },
+    // Toggles the visibility of the information panel
+    toggleInfo() {
+      this.showInfo = !this.showInfo
+    },
+    // Toggles the visibility of the amitip
+    toggleAmitip() {
+      this.showAmitip = !this.showAmitip
+    },
+    // Fetches the pages asynchronously
     async getPages() {
       if (this.initialized) return
 
       try {
-        const pages = await queryContent()
-          .where({ $not: { _path: '/' } })
-          .find()
+        const pages = await queryContent().find()
         this.pages = pages
-        this.initialized = true
       } catch (error) {
-        this.error = errorHandler({ error, message: 'Failed to fetch pages' })
-        console.error('Failed to fetch pages', error)
+        if (error) {
+          this.error = errorHandler({ error, message: 'Failed to fetch pages' })
+        } else {
+          this.error = { success: false, message: 'An unknown error occurred' }
+        }
       }
     }
   }

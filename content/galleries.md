@@ -1,13 +1,14 @@
 ---
 title: 'Galleries'
-subtitle: 'But is it art?'
-description: 'Snippets of falderall and kerfluffel'
+subtitle: 'AI's Imaginarium 🎨'
+description: 'Step into a world where algorithms dream in colors and shapes. Each gallery is a curated adventure for your senses.'
 layout: dashboard
 image: 'art1.webp'
 gallery: flower
 icon: game-icons:wood-frame
+tooltip: Everything in these curated galleries was created with our stable-diffusion art modellers.
+amitip: Ah, my own gallery is here, and it's like flipping through a family album! Each avatar is a snapshot of my many moods. 🤖💖
 tags: ['home']
-tooltip: This is a teaser for our cafe purr webgalleries. Each spin is a random image from the gallery.
 category: demo
 sort: highlight
 ---

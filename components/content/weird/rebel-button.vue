@@ -142,14 +142,8 @@ onMounted(async () => {
     // Set both to the higher number
     const highestScore = Math.max(userClickRecord, localHighScore)
     state.topScore = highestScore
-    localStorage.setItem('topScore', highestScore.toString())
+    localStorage.setItem('Local TopScore', highestScore.toString())
 
-    // If the user's click record is lower, update it
-    if (userClickRecord < highestScore) {
-      await userStore.updateClickRecord(highestScore)
-    }
-  } else {
-    // For guests, just use the local high score
     state.topScore = parseInt(localStorage.getItem('topScore')) || 0
   }
 })

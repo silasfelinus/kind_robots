@@ -1,15 +1,17 @@
 ---
 title: 'Art Studio'
-subtitle: AI-Assisted art
-description: 'lets make art!'
+subtitle: AI-Assisted Art Extravaganza
+description: 'Where imagination and algorithms tango!'
 gallery: 'cafepurr'
 layout: dashboard
 image: 'botcat.webp'
 tags: ['home']
 icon: game-icons:easel
 category: user
-tooltip: Pitches are creative arenas to flex your AI generating muscles. Feel free to create your own, or use another pitch as inspiration for new art. Each art generation starts with the "pitch" phrase(s), everything after that is up to you.
+tooltip: Welcome to the Art Studio, where AI dreams in technicolor! Start with a "Pitch" phrase, add your own creative touch, then unleash the AI to complete your masterpiece. Who knows, you might find your inner Picasso—but you will always create something original and new.
+amitip: Isn't art just like a butterfly? It starts as a simple idea and metamorphoses into something beautiful! Try the Dream Generator, maybe you'll unlock the secret jellybean achievement. (Oops, maybe I wasn't supposed to say that. Heehee) 🦋🎨
 sort: highlight
 ---
+
 
 :pitch-manager

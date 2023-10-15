@@ -1,18 +1,20 @@
 <template>
   <div class="fixed bottom-4 right-4" @click="toggleTooltip">
     <!-- Pulsing Butterfly Icon -->
-    <div v-if="!tooltipOpen && tooltipExists" class="cursor-pointer">
+    <div v-if="!tooltipOpen && page.tooltip" class="cursor-pointer">
       <icon name="ph:butterfly-duotone" class="text-3xl animate-pulse" />
     </div>
 
     <!-- Tooltip Popup -->
     <div
-      v-else-if="tooltipOpen && tooltipExists"
+      v-else-if="tooltipOpen && page.tooltip"
       class="tooltip-popup bg-base-200 p-4 rounded-2xl border"
     >
-      <div>
+      <div v-if="page.tooltip">
         <span class="font-semibold">
-          <icon name="mdi:chat" class="text-default mr-2 text-2xl" />Silas Says:
+          <butterfly-loader />
+          <icon name="mdi:chat" class="text-default mr-2 text-2xl" />AMI Says:
+          <!-- Using streamedText without .value as ref unwraps itself in template -->
           <span class="text-default text-xl">{{ streamedText }}</span>
         </span>
       </div>
@@ -21,18 +23,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { errorHandler } from '@/server/api/utils/error'
+import { usePageStore } from '@/stores/pageStore'
+
+// Initialization
+const pageStore = usePageStore()
 const { page } = useContent()
 
-const tooltipExists = ref(!!page.tooltip)
 const tooltipOpen = ref(false)
 const streamedText = ref('')
 let index = 0
 let timer: number
 
+// Toggle tooltip
 const toggleTooltip = () => {
-  if (!tooltipExists.value) {
+  if (!page.tooltip) {
     const errorInput = {
       success: false,
       message: 'No tooltip found.',
@@ -41,35 +47,45 @@ const toggleTooltip = () => {
     errorHandler(errorInput)
     return
   }
-
   tooltipOpen.value = !tooltipOpen.value
 }
 
+// Start streaming tooltip text
 const startStreaming = () => {
-  timer = window.setInterval(() => {
-    if (index < page.tooltip.length) {
-      streamedText.value += page.tooltip[index]
-      index++
-    } else {
-      clearInterval(timer)
+  if (page.tooltip) {
+    timer = window.setInterval(() => {
+      if (index < page.value.tooltip.length) {
+        streamedText.value += page.value.tooltip[index]
+        index++
+      } else {
+        clearInterval(timer)
+      }
+    }, 50)
+  } else {
+    const errorInput = {
+      success: false,
+      message: 'No tooltip data available.',
+      statusCode: 404
     }
-  }, 50)
+    errorHandler(errorInput)
+  }
 }
 
+// Lifecycle hook
 onMounted(() => {
-  if (tooltipExists.value) {
+  if (page.value.tooltip) {
     startStreaming()
   }
 })
 
+// Watch for changes
 watch(
-  () => page.tooltip,
+  () => page.value?.tooltip,
   () => {
     clearInterval(timer)
     streamedText.value = ''
     index = 0
-    tooltipExists.value = !!page.tooltip
-    if (tooltipExists.value) {
+    if (page.value.tooltip) {
       startStreaming()
     }
   }
@@ -78,7 +94,7 @@ watch(
 
 <style scoped>
 .tooltip-popup {
-  width: 33%;
+  width: 50%;
   padding: 1rem;
   border-radius: 1rem;
   background-color: var(--bg-base-200);

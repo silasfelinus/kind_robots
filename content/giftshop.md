@@ -1,18 +1,22 @@
 ---
 title: 'Giftshop'
-subtitle: Thank you for your support!
-description: Browse from our selection of products
+subtitle: 'A Token of Appreciation 🎁'
+description: 'Find your keepsake from our world of wonders. From AMI avatars to art prints, there's a memento for everyone!'
 layout: dashboard
 image: amibotsquare1.webp
 gallery: wondershed
-tags: ['home']
 icon: ic:round-shopping-bag
-tooltip: Thank you for visiting our webstore. (pending stripe implementation)
+tooltip: We're ironing out the final details (💳Stripe coming soon). 
+amitip: Can't wait to open the doors to our treasury of creativity!
+tags: ['home']
 category: settings
 sort: text
 underConstruction: true
 ---
 
 
+
 :product-gallery
 :shopping-cart
+
+:mermaids-page

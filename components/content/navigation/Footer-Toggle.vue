@@ -19,11 +19,11 @@
 
     <!-- Highlight Pages -->
     <div
-      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-secondary border rounded-2xl transform -translate-x-1/3 mb-1 top-0 absolute z-50 pointer-events-none"
+      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-secondary border rounded-2xl flex flex-col z-50 pointer-events-none"
     >
       Highlight Gallery
     </div>
-    <div class="flex flex-wrap justify-center space-x-2 mb-1 pb-5 mt-10 w-full">
+    <div class="flex flex-wrap justify-center space-x-2 mb-1 pb-5 m-1 w-full">
       <NuxtLink
         v-for="page in highlightPages"
         :key="page._id"

@@ -1,13 +1,14 @@
 ---
-title: 'Rewards & Bounties'
-subtitle: The Infinite Vault
-description: Our collection of game rewards
+title: 'The Treasure Trove'
+subtitle: 'Unearth Your Adventure Catalyst'
+description: 'Step into the Infinite Vault, where game rewards become your unique storytelling accomplices. Craft your adventure with the one-of-a-kind items you've earned!'
 gallery: 'cafepurr'
 layout: dashboard
 image: chest1.webp
 tags: ['home']
 icon: game-icons:vortex
-tooltip: This was inspired by Cliffhanger, where we take turns creating an unsolvable storytelling challenge. Since there's no game over in Weirdlandia,  each item becomes a round of Cliffhanger with the naturtal language processor. If the player wants to start with a button that destroys the world, then let's give it to them, and let the AI generator (with guidance) figure out how to resolve the scenario. I don't think it needs to be said, but I'm entranced by the potential for chatGPT and Natual Language processing.
+tooltip: Imagine a game with no game over, only endless story twists. Welcome to Weirdlandia, where every item you bring spices up the narrative in unpredictable ways. It's a Cliffhanger round with your AI storytelling companion, where even world-ending buttons can become intriguing plot devices! (Under Development)
+amitip: 'Excited about storytelling? Every reward item you choose opens up a new narrative dimension. Think of it as a collaborative tale spun by you, your special item, and the AI!'
 sort: text
 underConstruction: true
 ---

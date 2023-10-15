@@ -50,7 +50,7 @@ export const userNavigation: navigationData[] = [
   },
   {
     title: 'AMI',
-    image: '/images/wonderchest/wonderchest-1691.webp',
+    image: '/images/amibotsquare1.webp',
     description: 'Meet AMI, the Anti-Malaria Intelligence.',
     path: '/amibot'
   },

@@ -1,14 +1,14 @@
 <template>
-  <div class="flex justify-between items-center bg-base-200 w-full relative">
+  <div class="flex items-center bg-base-200 w-full relative">
     <!-- Links Container -->
-    <div class="flex justify-between items-center w-full m-2">
+    <div class="flex items-center justify-center w-full">
       <!-- Previous Link -->
       <NuxtLink
         v-if="prev"
         :to="prev._path"
         class="group nav-icon flex flex-col items-center justify-center"
       >
-        <icon name="typcn:arrow-back-outline" class="w-12 h-12 md:w-20 md:h-20 hover:scale-110" />
+        <icon name="typcn:arrow-back-outline" size="48" class="hover:scale-125" />
         <div class="nav-text group-hover:show-text">
           {{ prev.title }}
         </div>
@@ -18,7 +18,7 @@
         :to="randomHighlightPage._path"
         class="group nav-icon flex-col items-center justify-center"
       >
-        <icon name="game-icons:galaxy" class="w-12 h-12 md:w-20 md:h-20 hover:scale-110" />
+        <icon name="game-icons:galaxy" class="w-12 h-12 md:w-20 md:h-20 hover:scale-125" />
         <div class="nav-text group-hover:show-text">
           {{ randomLinkText }}
         </div>
@@ -29,7 +29,7 @@
         to="/"
         class="group nav-icon flex-col items-center justify-center"
       >
-        <icon name="line-md:home-md-twotone" class="w-12 h-12 md:w-20 md:h-20 hover:scale-110" />
+        <icon name="line-md:home-md-twotone" class="w-12 h-12 md:w-20 md:h-20 hover:scale-125" />
         <div class="nav-text group-hover:show-text">
           {{ homeLinkText }}
         </div>
@@ -42,7 +42,7 @@
       >
         <icon
           name="typcn:arrow-forward-outline"
-          class="w-12 h-12 md:w-20 md:h-20 hover:scale-110 m-2"
+          class="w-12 h-12 md:w-20 md:h-20 hover:scale-125 m-2"
         />
         <div class="nav-text group-hover:show-text">
           {{ next.title }}
@@ -76,7 +76,7 @@ const homeLinkText = homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.leng
 
 <style scoped>
 .nav-icon {
-  @apply flex rounded-2xl text-center transition-all ease-in-out;
+  @apply flex text-center transition-all ease-in-out;
   justify-content: center;
   align-items: center;
 }

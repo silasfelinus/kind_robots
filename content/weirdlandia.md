@@ -1,14 +1,15 @@
 ---
 title: 'Weirdlandia'
-subtitle: 'Infinite Adventures in Weirdest Space'
-description: Work-in-Progress to eventually become a chatGPT-infused infinite text adventure
+subtitle: 'Infinite Adventures in the Eccentric Cosmos'
+description: A surreal odyssey guided by chatGPT, this work-in-progress promises to whisk you away to far-flung corners of absurdity and wonder.
 layout: dashboard
 image: weirdlandia/weird1.png
 gallery: weirdlandia
 tags: ['home']
 category: wip
 icon: game-icons:all-seeing-eye
-tooltip: The inspirations have been Night Vale, Weird West, and Hitchhiker's Guide to the Galaxy. (Game function inspirations were Kingdom of Loathing, the Hitchhiker's Guide to the Galaxy text adventure, Zork, and every other text-adventure)
+tooltip: Are those eyeballs still looking at me?
+amitip: I think one of them is.
 sort: highlight
 ---
 

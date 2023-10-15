@@ -12,7 +12,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useBotStore, Bot } from '@/stores/botStore'
+import { useBotStore } from '@/stores/botStore'
 
 const botStore = useBotStore()
 const bot = computed(() => botStore.currentBot)

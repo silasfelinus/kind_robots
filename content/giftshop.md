@@ -1,7 +1,7 @@
 ---
 title: 'Giftshop'
 subtitle: 'A Token of Appreciation 🎁'
-description: 'Find your keepsake from our world of wonders. From AMI avatars to art prints, there's a memento for everyone!'
+description: Find your keepsake from our world of wonders.
 layout: dashboard
 image: amibotsquare1.webp
 gallery: wondershed

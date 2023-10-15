@@ -8,7 +8,8 @@ gallery: wonderbot
 tags: ['home']
 icon: line-md:home-md-twotone
 status: home
-tooltip: Welcome to our gallery. This is an experiential museum, feel free to poke around, if it's broken, it was probably like that when you got here. Our Match Game uses art from out art models, our Bot Cafe is prepared to offer up original text from a variety of guided promptbots, and our art maker allows users to create art pitches to inspire (or challenge) others. 
+tooltip: Hey there, I'm Silas, your human guide to the whimsical world of Kind Robots.
+amitip: And I'm AMI, here to flutter around and make your day a zillion times better! Mosquitos beware—I'm coming for ya!
 category: settings
 sort: text
 ---

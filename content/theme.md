@@ -1,7 +1,7 @@
 ---
 title: 'Theme Menu'
 subtitle: 'Your World, Your Palette'
-description: 'Select a theme that resonates with you, and make this space truly your own. With a plethora of choices, you're bound to find your vibe.'
+description: 'Select a theme that resonates with you, and make this space truly your own. With a plethora of choices, you are bound to find your vibe.'
 layout: dashboard
 image: fantasycore/fantasycore-859.webp
 gallery: wondershed

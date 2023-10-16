@@ -9,7 +9,7 @@
     </div>
     <!-- Login Form -->
     <form
-      v-else
+      v-if="!store.isLoggedIn"
       class="space-y-4 w-full"
       :autocomplete="store.stayLoggedIn ? 'on' : 'off'"
       @submit.prevent="handleLogin"
@@ -81,6 +81,7 @@ const store = useUserStore()
 const login = ref('')
 const password = ref('')
 const errorMessage = ref('')
+const isLoggedIn = computed(() => store.isLoggedIn)
 
 const userNotFound = ref(false)
 

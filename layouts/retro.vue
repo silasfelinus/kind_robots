@@ -1,29 +1,36 @@
 <template>
-  <div class="flex flex-col bg-base-200">
+  <div class="flex flex-col min-h-screen bg-base-200">
     <!-- Header -->
     <header
-      class="site-header w-full bg-gradient-to-r from-primary to-primary-light text-default shadow-md px-4 py-1 sm:px-6 lg:px-8"
+      class="site-header w-full bg-gradient-to-r from-primary to-primary-light text-default shadow-lg p-4 mb-2"
     >
-      <new-dashboard />
-    </header>
-    <!-- Main Content -->
-    <main>
-      <slot class="w-full h-full flex bg-base-200 rounded-2xl p-2 m-2" />
-    </main>
-    <random-link />
-    <!-- Footer -->
-    <footer class="p-4 bg-gradient-to-r from-primary to-primary-light text-black text-center">
-      <sort-nav />
-      <!-- Tooltip Popup -->
-      <div>
-        <streaming-tooltip v-if="page && page.tooltip" :tooltip="page.tooltip" />
+      <div class="flex justify-between items-center">
+        <new-dashboard class="w-full md:w-auto flex-shrink-0" />
+        <!-- Subtitle -->
+        <room-title class="text-xl md:text-2xl ml-2" />
       </div>
-      <!-- Subtitle -->
-      <room-title />
-      KindRobots © 2023
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <slot class="w-full h-full flex bg-base-200 rounded-2xl p-1 m-1" />
+    </main>
+
+    <!-- Random Link -->
+    <random-link class="flex-shrink-0 mb-2" />
+
+    <!-- Footer -->
+    <footer class="p-4 bg-secondary text-default text-center flex-shrink-0">
+      <sort-nav />
+      <streaming-tooltip
+        v-if="page.tooltip && page.amitip"
+        :tooltip="page.tooltip"
+        :amitip="page.amitip"
+      />
     </footer>
   </div>
 </template>
+
 <script setup lang="ts">
 const { page } = useContent()
 </script>

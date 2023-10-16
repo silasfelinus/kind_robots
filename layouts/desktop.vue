@@ -6,12 +6,7 @@
       <room-title />
     </header>
 
-    <!-- Main Content -->
-    <main
-      class="flex-grow flex flex-col items-center p-2 m-2 rounded-2xl border shadow-lg overflow-y-auto"
-    >
-      <slot class="w-full h-full flex bg-base-200 rounded-2xl p-2 m-2 border" />
-    </main>
+    <slot class="w-full h-full flex bg-base-200 rounded-2xl p-1 m-1" />
 
     <!-- Image and Tooltip Wrapper -->
     <div class="flex flex-col items-center p-2 m-2 rounded-2xl border shadow-lg overflow-y-auto">
@@ -26,10 +21,11 @@
       </div>
     </div>
     <footer-toggle />
-    <!-- Tooltip -->
-    <div class="rounded-2xl border p-2 m-2 shadow-md overflow-y-auto">
-      <streaming-tooltip v-if="page && page.tooltip" :tooltip="page.tooltip" />
-    </div>
+    <streaming-tooltip
+      v-if="page.tooltip && page.amitip"
+      :tooltip="page.tooltip"
+      :amitip="page.amitip"
+    />
     <random-link />
   </div>
 </template>

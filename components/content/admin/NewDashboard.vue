@@ -16,9 +16,7 @@
       <!-- User Info and Logout -->
       <div class="flex items-center space-x-2 cursor-pointer" @click.stop="toggleMinimize">
         <icon name="game-icons:expand" class="text-lg absolute top-0 left-1" />
-        <user-avatar
-          :class="{ 'w-24 h-24': !isCompact, 'w-12 h-12': isCompact, 'mx-auto': !isCompact }"
-        />
+        <user-avatar :class="{ 'w-24 h-24 mx-auto': !isCompact, 'w-12 h-12': isCompact }" />
         <span :class="{ 'text-xl': !isCompact, 'hidden md:inline': isCompact }">{{
           user?.username || 'Kind Guest'
         }}</span>
@@ -34,8 +32,17 @@
       <smart-links v-if="isCompact" />
 
       <!-- Theme and Butterfly Toggle -->
-      <div class="hidden md:flex items-center space-x-4" :class="{ 'm-2': !isCompact }">
+      <div
+        class="md:flex items-center space-x-4 md:w-auto w-full"
+        :class="{ 'm-2': !isCompact, hidden: isCompact }"
+      >
         <theme-toggle />
+        <butterfly-toggle />
+        <layout-selector class="p-1 m-1" />
+      </div>
+
+      <!-- Moved the login button here so it is always visible -->
+      <div class="flex items-center w-full md:w-auto">
         <button
           :class="[
             'rounded-2xl p-2 py-1 text-white text-lg',
@@ -45,22 +52,15 @@
         >
           {{ isLoggedIn ? 'Logout' : 'Login' }}
         </button>
-        <butterfly-toggle />
-        <tooltip-toggle />
-        <layout-selector class="p-1 m-1" />
       </div>
     </div>
 
-    <!-- Login Form -->
-    <div
-      v-if="showLogin"
-      class="flex flex-row bg-opacity-50 m-2 p-1 bg-black items-center justify-center z-50"
-    >
-      <login-form v-if="showLogin" @close="showLogin = false" />
+    <!-- Login Form and Smart Links -->
+    <div v-if="!isCompact" class="w-full">
+      <smart-links />
     </div>
 
-    <!-- Smart Links at the bottom when expanded -->
-    <smart-links v-if="!isCompact" />
+    <login-form v-if="showLogin" @close="showLogin = false" />
   </div>
 </template>
 

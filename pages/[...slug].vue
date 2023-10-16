@@ -13,5 +13,5 @@ import { useLayoutStore } from '@/stores/layoutStore'
 const layoutStore = useLayoutStore()
 
 // Computed property to get the current layout from the store
-const currentLayout = computed(() => layoutStore.currentLayout)
+const currentLayout: any = computed(() => layoutStore.currentLayout)
 </script>

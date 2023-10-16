@@ -7,8 +7,8 @@ image: 'acrocats/acrocats-24.webp'
 gallery: 'memoryland'
 tags: ['games', 'art', 'AI']
 icon: icon-park-solid:key-two
-tooltip: Get ready to flex those brain muscles and feast your eyes on unique art every time you play!
-amitip: 🤖 Each flip of the card is a peek into a unique world of art. Have fun discovering and rediscovering them!
+tooltip: This uses AI art created with our art modelers.
+amitip: 🤖 Get ready to flex those brain muscles and feast your eyes on unique art every time you play!
 category: games
 sort: highlight
 ---

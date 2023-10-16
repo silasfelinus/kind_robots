@@ -10,7 +10,7 @@ tooltip: Everything in these curated galleries was created with our stable-diffu
 amitip: Ah, my own gallery is here, and it is like flipping through a family album! Each avatar is a snapshot of my many moods. 🤖💖
 tags: ['home']
 category: demo
-sort: highlight
+sort: icon
 ---
 
 :galleries-view

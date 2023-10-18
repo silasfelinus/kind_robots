@@ -3,7 +3,7 @@
     <!-- Always show Random Link -->
     <NuxtLink
       :to="randomHighlightPage._path"
-      class="group flex flex-col items-center justify-center rounded-2xl bg-base-200 text-center hover:scale-110 transition-all ease-in-out"
+      class="group flex flex-col items-center justify-center rounded-2xl text-center hover:scale-110 transition-all ease-in-out"
     >
       <icon
         name="game-icons:galaxy"
@@ -19,7 +19,7 @@
     <NuxtLink
       v-if="!isHomePage"
       to="/"
-      class="group flex flex-col items-center justify-center rounded-2xl bg-base-200 text-center hover:scale-110 transition-all ease-in-out"
+      class="group flex flex-col items-center justify-center rounded-2xl text-center hover:scale-110 transition-all ease-in-out"
     >
       <icon
         name="line-md:home-md-twotone"

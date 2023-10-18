@@ -7,9 +7,9 @@ interface navigationData {
 
 export const userNavigation: navigationData[] = [
   {
-    title: 'Welcome',
-    image: '/images/kindart.webp',
-    description: 'About Kind Robots',
+    title: 'Bot Cafe',
+    image: '/images/botcafe/botcafe-268.webp',
+    description: 'Write poems, tell stories, maybe try to save the world',
     path: '/about'
   },
   {
@@ -19,13 +19,7 @@ export const userNavigation: navigationData[] = [
     path: '/brainstorm'
   },
   {
-    title: 'BotCafe',
-    image: '/images/botcafe/botcafe-268.webp',
-    description: 'Chat with our friendly bots',
-    path: '/botcafe'
-  },
-  {
-    title: 'Art Pitchmaker',
+    title: 'Art Challenge!',
     image: '/images/fantasycore/fantasycore-915.webp',
     description: 'Create and share pitches for our community AI-Art generator.',
     path: '/artmaker'
@@ -33,13 +27,13 @@ export const userNavigation: navigationData[] = [
   {
     title: 'Rebel Button',
     image: '/images/ducky/ducky-516.webp',
-    description: 'I cannot advise trying to get to the top of this leaderboard.',
+    description: 'Novelty clicking game with a leaderboard and secret unlockables.',
     path: '/button'
   },
   {
     title: 'Jellybeans',
     image: '/images/fantasycore/fantasycore-749.webp',
-    description: 'A Record of Discovered Jellybeans, and Clues to their Whereabouts.',
+    description: 'Our Record of Discovered Jellybeans, and Clues to their Whereabouts.',
     path: '/milestones'
   },
   {

@@ -1,6 +1,6 @@
 ---
 title: 'Welcome'
-subtitle: 'The future'
+subtitle: 'Welcome to Kind Robots!'
 description: Welcome to the home of the Kind Robots
 layout: dashboard
 image: botcommunity.webp

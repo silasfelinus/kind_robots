@@ -68,7 +68,7 @@
     <!-- Support and Construction Nav (Displayed only when extended) -->
     <div
       v-if="isExtended"
-      class="mt-4 p-2 rounded-2xl bg-base-200 border flex flex-col items-center space-y-4"
+      class="mt-4 p-2 rounded-2xl bg-base-200 flex flex-col items-center space-y-4"
     >
       <support-nav />
       <construction-nav />

@@ -1,15 +1,5 @@
 <template>
-  <div
-    class="flex flex-wrap justify-center space-x-2 overflow-y-auto rounded-2xl p-1 mb-4 relative"
-    style="overflow: visible; z-index: 0"
-  >
-    <div
-      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-secondary border rounded-2xl transform -translate-x-1/2 mb-1 px-1 bottom-0 absolute z-50 pointer-events-none"
-      style="left: 50%; transform: translateX(-50%)"
-    >
-      Highlight Gallery
-    </div>
-
+  <div class="flex flex-wrap justify-center space-x-2 rounded-2xl p-1 m-1">
     <NuxtLink
       v-for="page in highlightPages"
       :key="page._id"
@@ -18,18 +8,18 @@
       @mouseover="isHovered = page._id"
       @mouseleave="isHovered = null"
     >
-      <div
-        v-if="page._path === $route.path"
-        class="flex items-center mt-1 text-xl rounded-2xl border bg-accent p-1 top-0 absolute"
-      >
-        You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
-      </div>
       <div class="w-24 h-24 rounded-lg overflow-hidden border bg-secondary">
         <img :src="`/images/${page.image}`" alt="Page Image" class="object-cover w-full h-full" />
       </div>
-      <div class="flex flex-col items-start relative">
+      <div class="flex flex-col justify-between items-start w-full">
         <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
           {{ page.title }}
+        </div>
+        <div
+          v-if="page._path === $route.path"
+          class="flex items-center m-1 text-xl rounded-2xl border bg-accent p-1"
+        >
+          You are here <icon name="line-md:download-outline-loop" class="text-lg m-1" />
         </div>
         <popup-description
           v-if="isHovered === page._id"

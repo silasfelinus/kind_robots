@@ -58,7 +58,7 @@
         <transition name="slide-fade">
           <div
             v-if="state.showLeaderboard && state.topScore >= 10"
-            class="bg-secondary p-4 rounded-lg shadow-lg border m-2"
+            class="bg-accent p-4 rounded-lg shadow-lg border m-2"
           >
             <h2 class="text-2xl mb-2">Leaderboard</h2>
             <p class="text-lg">Top Score: {{ state.topScore }}</p>
@@ -156,12 +156,6 @@ watch(
       const userClickRecord = userStore.clickRecord
       const localHighScore = parseInt(localStorage.getItem('topScore')) || 0
       const highestScore = Math.max(userClickRecord, localHighScore)
-
-      if (highestScore > state.topScore) {
-        state.topScore = highestScore
-        localStorage.setItem('topScore', highestScore.toString())
-        await userStore.updateClickRecord(highestScore)
-      }
     }
   }
 )

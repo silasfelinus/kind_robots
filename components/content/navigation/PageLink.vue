@@ -1,13 +1,13 @@
 <template>
   <NuxtLink
     :to="page._path"
-    class="p-2 text-center rounded-2xl flex flex-col items-center space-y-2 group hover:bg-accent transition-colors relative"
+    class="text-center rounded-2xl flex flex-col items-center group hover:bg-accent transition-colors relative"
     :class="{ 'items-start flex-row': isExtended && isHighlight }"
   >
     <div
       v-if="isHighlight && page.image"
       :class="[
-        'relative rounded-2xl overflow-hidden border m-2 bg-accent',
+        'relative rounded-2xl overflow-hidden m-2',
         { 'w-24 h-24': !isExtended, 'w-40 h-40 shadow-lg': isExtended }
       ]"
     >

@@ -47,7 +47,7 @@ function isClientSide() {
 const highScore = ref<number>(0) // Default to 0
 
 if (isClientSide()) {
-  const savedHighScore = localStorage.getItem('highScore')
+  const savedHighScore = user.value?.matchRecord
   if (savedHighScore) {
     highScore.value = Number(savedHighScore)
   }

@@ -1,30 +1,17 @@
 <template>
-  <div class="flex flex-col bg-base-200">
-    <new-dashboard class="flex-shrink-0" />
-    <room-title class="flex-shrink-0" />
+  <div class="flex flex-col h-screen w-screen bg-gradient-to-r from-primary to-primary-dark">
+    <!-- Header -->
+    <new-dashboard />
 
-    <!-- Main container -->
-    <div
-      class="w-full h-full flex flex-col md:flex-row bg-base-200 rounded-2xl p-1 m-1 overflow-auto"
-    >
-      <!-- Content slot -->
-      <div class="flex-1 min-w-0 overflow-auto">
-        <slot />
-      </div>
+    <div class="flex-grow flex items-center justify-center w-full">
+      <!-- Main Slot -->
+      <slot class="flex-grow bg-accent rounded-2xl p-2 m-2 shadow-lg" />
 
-      <!-- Streaming Tooltip -->
-      <streaming-tooltip
-        v-if="page && page.tooltip && page.amitip"
-        :tooltip="page.tooltip"
-        :amitip="page.amitip"
-        class="flex-shrink-0 w-full md:w-auto overflow-auto"
-      />
+      <!-- Tooltip beside main slot -->
+      <new-tooltip class="md:flex lg:flex-row sm-md:flex-col" />
     </div>
-
-    <random-link class="flex-shrink-0" />
+    <highlight-pages />
+    <support-nav class="flex-grow w-full flex items-center justify-center" />
+    <random-link class="flex items-center justify-center m-1" />
   </div>
 </template>
-
-<script setup lang="ts">
-const { page } = useContent()
-</script>

@@ -1,16 +1,10 @@
 <template>
-  <div class="relative flex flex-wrap justify-center space-x-2">
-    <div
-      class="flex items-center justify-center text-2xl font-extrabold border shadow-lg bg-secondary rounded-2xl px-1"
-    >
-      Extra Rooms
-    </div>
-
+  <div class="relative flex flex-wrap justify-center space-x-2 m-1">
     <NuxtLink
       v-for="page in supportPages"
       :key="page._id"
       :to="page._path"
-      class="group hover:bg-accent transition-colors relative p-2 rounded-2xl border bg-primary flex flex-row items-center space-x-2 w-72"
+      class="group hover:bg-accent transition-colors relative p-2 rounded-2xl border bg-primary flex flex-row items-center space-x-2 w-72 m-1"
       @mouseover="isHovered = page._id"
       @mouseleave="isHovered = null"
       @click="handleLinkClick"
@@ -21,9 +15,9 @@
       <!-- You are here indicator -->
       <div
         v-if="page._path === $route.path"
-        class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary"
+        class="flex items-center m-2 p-1 text-xl rounded-2xl border bg-secondary"
       >
-        You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
+        You are here <icon name="line-md:download-outline-loop" class="text-lg m-2" />
       </div>
       <div class="flex flex-col items-start">
         <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">

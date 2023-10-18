@@ -1,6 +1,6 @@
 <template>
-  <nav class="w-full bg-base p-4 transition-all duration-500 ease-in-out">
-    <div class="flex flex-wrap justify-center mt-2 space-x-2">
+  <nav class="w-full p-2 transition-all duration-500 ease-in-out bg-base-200 border rounded-2xl">
+    <div class="flex flex-wrap justify-center m-2 space-x-2">
       <div
         v-for="page in pagesByTagAndSort('home', 'highlight')"
         :key="page._id"
@@ -8,7 +8,7 @@
       >
         <NuxtLink
           :to="page._path"
-          class="flex flex-col items-center py-2 px-4 text-default shadow-lg transform transition-transform hover:scale-110"
+          class="flex flex-col items-center py-2 px-4 transform transition-transform hover:scale-110"
           @mouseover="isHovered = page._id"
           @mouseleave="isHovered = null"
         >
@@ -17,7 +17,7 @@
             alt="Page Image"
             class="w-24 h-24 rounded-lg object-cover"
           />
-          <div class="mt-2 text-default">{{ page.title }}</div>
+          <div class="mt-2">{{ page.title }}</div>
           <div v-if="page.underConstruction" class="mt-1 px-2 py-0.5 bg-info text-xs rounded-full">
             Under Development
           </div>
@@ -38,11 +38,11 @@
       >
         <NuxtLink
           :to="page._path"
-          class="btn btn-accent rounded-full py-2 px-4 text-default shadow-lg transform transition-transform hover:scale-110 flex items-center space-x-2"
+          class="btn btn-accent rounded-full p-2 transform transition-transform hover:scale-110 flex items-center space-x-2"
         >
           <icon
             :name="page.icon"
-            class="w-6 h-6 text-default group-hover:text-accent transition-colors duration-300"
+            class="w-6 h-6 group-hover:text-accent transition-colors duration-300"
           />
           {{ page.title }}
         </NuxtLink>
@@ -52,7 +52,7 @@
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />
-        <div v-if="page.underConstruction" class="mt-1 px-2 py-0.5 bg-info text-xs rounded-full">
+        <div v-if="page.underConstruction" class="mt-1 px-2 py-0.5 bg-info text-md rounded-full">
           Under Development
         </div>
       </div>
@@ -63,10 +63,7 @@
         :key="page._id"
         class="m-2 relative group"
       >
-        <NuxtLink
-          :to="page._path"
-          class="text-black hover:text-accent-dark py-2 px-4 shadow-lg transform transition-transform hover:scale-110"
-        >
+        <NuxtLink :to="page._path" class="p-2 transform transition-transform hover:scale-110">
           {{ page.title }}
         </NuxtLink>
         <popup-description

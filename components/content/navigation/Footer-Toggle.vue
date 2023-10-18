@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col items-center bg-base-200 rounded-2xl transition-all ease-in-out"
+    class="relative flex flex-col items-center bg-base-200 rounded-2xl transition-all"
     :class="{
       'h-[10vh] transition-duration-300': !isExtended,
       'h-[40vh] transition-duration-300': isExtended
@@ -82,7 +82,7 @@
     <!-- Support and Construction Nav (Displayed only when extended) -->
     <div
       v-if="isExtended"
-      class="mt-4 p-2 rounded-2xl bg-base-200 border flex flex-col items-center space-y-4 w-full"
+      class="mt-4 p-2 rounded-2xl bg-base-200 flex flex-col items-center space-y-4 w-full"
     >
       <support-nav />
       <construction-nav />

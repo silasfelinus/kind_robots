@@ -8,8 +8,8 @@ gallery: weirdlandia
 tags: ['home']
 category: user
 icon: game-icons:robot-antennas
-tooltip: Welcome to Brainstormbot's lair! From laughable RPG characters to quirky business names, we got 'em all! Just click and let the ideas flood your screen. It's like a thought pinata exploded!
-amitip: Brainstormbot is practically my whimsical cousin! If you think a hivemind of rainbow butterflies is quirky, wait till you see the list this bot generates. It's like attending a comedy show hosted by a machine! 🦋🤖😂
+tooltip: Welcome to Brainstorm's lair! From laughable RPG characters to unfortunate date ideas, Brainstorm creates the concept and the example.
+amitip: Hey, Brainstorm's my cousin! If you think a hivemind of rainbow butterflies is quirky, wait till you see these lists! 🦋🤖😂
 sort: highlight
 ---
 

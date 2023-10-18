@@ -9,7 +9,7 @@ tags: ['home']
 icon: game-icons:tv-remote
 tooltip: Fun fact, Cupcake was the in-utero name for our firstborn!
 amitip: That's so sweet, especially since he's now crushing your leaderboards!
-sort: highlight
+sort: icon
 ---
 
 :theme-menu

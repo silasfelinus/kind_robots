@@ -10,7 +10,7 @@ category: wip
 icon: game-icons:all-seeing-eye
 tooltip: Are those eyeballs still looking at me?
 amitip: I think one of them is.
-sort: highlight
+sort: icon
 ---
 
 :weird-window

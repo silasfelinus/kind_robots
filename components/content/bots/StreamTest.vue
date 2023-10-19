@@ -3,12 +3,8 @@
     <!-- Bot Avatar and Details -->
     <div v-if="currentBot" class="avatar-container w-full m-2 rounded-lg">
       <!-- Bot Avatar and Details -->
-      <div class="flex flex-col md:flex-row items-center p-2">
-        <img
-          :src="currentBot.avatarImage ?? '/images/default-avatar.webp'"
-          alt="Bot Avatar"
-          class="avatar-img w-full md:w-1/4 rounded-2xl border border-theme mb-4 md:mb-0"
-        />
+      <div class="flex-grow rounded-2xl m-2 p-2 border bg-base-200">
+        <bot-carousel2 />
         <div class="flex-1 text-center">
           <h1 class="text-3xl font-bold">{{ currentBot.name ?? 'Unknown Bot' }}</h1>
           <p class="text-xl">{{ currentBot.subtitle ?? 'Subtitle' }}</p>
@@ -18,9 +14,9 @@
     </div>
 
     <!-- Message Interaction Area -->
-    <div class="message-container bg-base-200 p-4 rounded-2xl">
+    <div class="message-container bg-base-200 p-1 rounded-2xl">
       <!-- New Message Prompt -->
-      <div class="prompt-area m-4 p-2 rounded-2xl">
+      <div class="prompt-area p-2 rounded-2xl">
         <label for="newMessage" class="block mb-2 font-bold">
           <div v-if="currentBot" class="user-intro p-2 rounded-2xl m-2">
             <p class="text-lg">{{ currentBot.userIntro ?? 'User Intro' }}</p>
@@ -218,7 +214,8 @@ function convertToChatExchange(
     liked: null,
     hated: null,
     loved: null,
-    flagged: null
+    flagged: null,
+    previousEntryId: 0
   }
 }
 

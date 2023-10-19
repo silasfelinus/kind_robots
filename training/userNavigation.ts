@@ -8,9 +8,9 @@ interface navigationData {
 export const userNavigation: navigationData[] = [
   {
     title: 'Bot Cafe',
-    image: '/images/botcafe/botcafe-268.webp',
+    image: '/images/botcafe.webp',
     description: 'Write poems, tell stories, maybe try to save the world',
-    path: '/about'
+    path: '/botcafe'
   },
   {
     title: 'Brainstorm!!!!!',

@@ -1,16 +1,15 @@
 <template>
   <!-- Main container -->
-  <div class="flex flex-col items-center bg-base-400 p-4">
+  <div class="flex flex-col items-center bg-base-400 p-2 m-2">
     <!-- Display bot details if a bot is selected -->
-    <div v-if="currentBot" :data-theme="currentBot.theme" class="w-full bg-base-400 rounded-2xl">
+    <div v-if="currentBot" :data-theme="currentBot.theme" class="w-full bg-base-200 rounded-2xl">
       <!-- Bot name and ID -->
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex justify-between items-center m-4">
         <h1 class="text-3xl font-bold">{{ currentBot.name }}</h1>
         <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id }} Collect Them All!</span>
       </div>
 
-      <!-- Stream test component -->
-      <div class=""><stream-test /></div>
+      <stream-test />
     </div>
   </div>
 </template>

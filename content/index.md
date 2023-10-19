@@ -3,13 +3,13 @@ title: 'Welcome'
 subtitle: 'Welcome to Kind Robots!'
 description: Welcome to the home of the Kind Robots
 layout: dashboard
-image: botcommunity.webp
+image: botcafe.webp
 gallery: wonderbot
 tags: ['home']
 icon: line-md:home-md-twotone
 status: home
-tooltip: Hey there, I'm Silas, human programmer and your guide to the whimsical world of Kind Robots.
-amitip: And I'm AMI, here to flutter around and make your day a zillion times better! Mosquitos beware—we're coming for ya!
+tooltip: Hey there, I'm Silas, human programmer for Kind Robots.
+amitip: And I'm AMI, website hostess with the mostess, fluttering around to make your day a zillion times better! Stop by the Bot Cafe anytime and say hi!
 category: settings
 sort: text
 ---

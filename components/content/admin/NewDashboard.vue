@@ -1,49 +1,52 @@
 <template>
-  <div :class="isCompact ? 'h-12' : 'h-24'">
-    <!-- Room meta and user details -->
-    <div class="flex flex-wrap items-center justify-between">
-      <room-meta :class="isCompact ? 'text-sm' : 'text-lg'" />
+  <header
+    :class="
+      isCompact ? 'flex flex-row items-center bg-base-200 m-1' : 'flex flex-col bg-base-200 m-1'
+    "
+  >
+    <!-- User Info -->
+    <user-avatar
+      :size="isCompact ? 'small' : 'large'"
+      class="md:max-w-xs lg:max-w-sm xl:max-w-md"
+      @click="toggleMinimize"
+    />
 
-      <!-- Single Toggle Button -->
-      <icon
-        name="game-icons:expand"
-        :class="isCompact ? 'text-sm hidden md:inline-block' : 'text-lg hidden md:inline-block'"
-        @click="toggleMinimize"
-      />
-
+    <div v-if="!isCompact" class="flex flex-col w-full">
+      <!-- Username, Jellybeans, Logout -->
       <div class="flex items-center space-x-4">
-        <!-- Username and Logout Button -->
-        <user-avatar :size="isCompact ? 'small' : 'large'" />
-        <span :class="isCompact ? 'text-sm' : 'text-lg'">
+        <span class="text-lg md:text-xl">
           {{ user?.username || 'Kind Guest' }}
         </span>
-
-        <!-- Jellybeans -->
-        <div class="md:flex items-center" :class="isCompact ? 'hidden' : 'space-x-2'">
-          <span>{{ jellybeans }}/ 9 Jellybeans Discovered</span>
-        </div>
+        <span class="hidden md:inline-block">{{ jellybeans }}/ 9 Jellybeans Discovered</span>
         <button
           v-if="isLoggedIn"
-          :class="isCompact ? 'text-xs text-gray-400' : 'text-sm text-gray-500'"
+          class="text-sm md:text-md text-gray-500"
           @click.stop="handleButtonClick"
         >
           Logout
         </button>
       </div>
-
-      <!-- Toggles and Links -->
-      <div class="flex items-center space-x-4" :class="isCompact ? 'hidden md:flex' : ''">
+      <!-- Theme and Butterfly Toggle -->
+      <div class="flex items-center space-x-4">
         <theme-toggle />
         <butterfly-toggle />
-        <smart-links />
       </div>
     </div>
-
-    <!-- Smart Links (Compact Mode) -->
-    <div v-if="isCompact" class="mt-4">
-      <smart-links />
+    <div v-else class="flex items-center space-x-4">
+      <span class="text-lg md:text-xl">
+        {{ user?.username || 'Kind Guest' }}
+      </span>
+      <button
+        v-if="isLoggedIn"
+        class="text-sm md:text-md text-gray-500"
+        @click.stop="handleButtonClick"
+      >
+        Logout
+      </button>
+      <theme-toggle />
+      <butterfly-toggle />
     </div>
-  </div>
+  </header>
 </template>
 
 <script lang="ts" setup>

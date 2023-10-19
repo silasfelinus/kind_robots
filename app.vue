@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 flex"><ami-loader /></div>
+  <div class="bg-base-200 p-1"><ami-loader /></div>
 </template>
 
 <script setup lang="ts">

@@ -2,16 +2,16 @@
 <template>
   <div class="flex flex-col justify-center items-center">
     <!-- Image -->
-    <div class="flex justify-center items-center mb-4">
+    <div class="flex justify-center items-center m-1">
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="max-h-[25vh] md:max-h-[10vh] rounded-2xl border shadow-md"
+        class="rounded-2xl border shadow-md medium"
       />
     </div>
     <!-- Title and Subtitle -->
     <div class="flex flex-col justify-center items-center">
-      <room-title class="text-lg font-semibold mb-2" />
+      <room-title class="text-lg font-semibold m-2" />
       <h2 class="text-md font-medium">{{ page.subtitle }}</h2>
     </div>
   </div>

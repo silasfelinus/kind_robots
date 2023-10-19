@@ -19,7 +19,7 @@
         </div>
       </div>
       <div v-if="currentBot" class="mt-4 text-2xl text-dark font-semibold text-center">
-        <div class="card bg-info rounded-2xl">
+        <div class="card bg-info rounded-2xl w-fit">
           {{ currentBot.name }}
         </div>
         <p class="mt-2 text-xl text-dark text-center">{{ currentBot.description }}</p>

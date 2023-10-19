@@ -1,10 +1,11 @@
 <template>
-  <div class="relative flex flex-col items-center p-8 bg-base overflow-auto h-screen">
+  <div class="relative flex flex-col items-center bg-base overflow-auto h-screen">
     <div
       class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     ></div>
     <h1 class="mt-8 text-3xl font-semibold text-center">Welcome to Kind Robots</h1>
-    <p class="mt-2 text-xl text-dark text-center">Please Select your Bot:</p>
+
+    <bot-selector />
     <div class="mt-24 mx-auto max-w-4xl">
       <div class="h-96 carousel carousel-vertical rounded-box">
         <div
@@ -18,7 +19,7 @@
           }"
           @click="setCurrentBot(bot.id)"
         >
-          <img :src="bot.avatarImage ?? undefined" class="w-full h-full object-cover rounded-lg" />
+          <img :src="bot.avatarImage ?? undefined" class="w-full object-cover rounded-lg" />
         </div>
       </div>
       <div v-if="currentBot" class="mt-4 text-2xl text-dark font-semibold text-center">

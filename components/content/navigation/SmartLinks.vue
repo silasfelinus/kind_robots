@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center bg-base-200 w-full relative">
+  <div class="flex items-center relative">
     <!-- Links Container -->
     <div class="flex items-center justify-center w-full">
       <!-- Previous Link -->

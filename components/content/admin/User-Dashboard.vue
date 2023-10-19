@@ -25,12 +25,8 @@
           </p>
           <div class="flex space-x-4 mt-2">
             <div class="flex items-center space-x-2">
-              <icon name="game-icons:health-potion" class="text-lg" />
-              <span>Karma: {{ user?.karma || 0 }}</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <icon name="game-icons:standing-potion" class="text-lg" />
-              <span>Mana: {{ user?.mana || 0 }}</span>
+              <icon name="tdesign:bean" class="text-lg" />
+              <span>Jellybeans: {{ user?.mana || 0 }}</span>
             </div>
           </div>
         </div>
@@ -47,10 +43,6 @@
       </div>
       <login-form v-if="showLogin" @close="showLogin = false" />
       <div class="flex flex-row">
-        <BackLink class="flex flex-row" />
-        <HomeLink class="flex flex-row" />
-        <ForwardLink class="flex flex-row" />
-        <layout-selector class="flex flex-row" />
         <theme-toggle class="flex flex-row" />
       </div>
     </div>
@@ -65,12 +57,8 @@
       </div>
       <div class="flex flex-row items-center space-x-4">
         <div class="flex items-center space-x-2">
-          <icon name="game-icons:standing-potion" class="text-2xl" />
+          <icon name="tdesign:bean" class="text-2xl" />
           <span>{{ user?.mana || 0 }}</span>
-        </div>
-        <div class="flex flex-row items-center space-x-2">
-          <icon name="game-icons:health-potion" class="text-2xl" />
-          <span>{{ user?.karma || 0 }}</span>
         </div>
         <button
           :class="['rounded-lg text-white text-lg', isLoggedIn ? 'bg-warning' : 'bg-primary']"
@@ -78,10 +66,6 @@
         >
           {{ isLoggedIn ? 'Logout' : 'Login' }}
         </button>
-        <BackLink class="flex flex-row" />
-        <HomeLink class="flex flex-row" />
-        <ForwardLink class="flex flex-row" />
-        <layout-selector class="flex flex-row" />
         <theme-toggle class="flex flex-row" />
       </div>
     </div>

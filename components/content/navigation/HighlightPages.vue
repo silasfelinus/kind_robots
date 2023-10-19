@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-wrap justify-center space-x-2 rounded-2xl p-1 m-1">
+  <div class="flex flex-wrap justify-center space-x-2 rounded-2xl p-1 m-10">
     <NuxtLink
       v-for="page in highlightPages"
       :key="page._id"
       :to="page._path"
-      class="group hover:bg-accent transition-colors relative p-2 rounded-2xl border bg-primary flex flex-row items-center space-x-2 w-72"
+      class="group hover:bg-accent transition-colors relative p-2 rounded-2xl border bg-base-200 flex flex-row items-center space-x-2 w-72"
       @mouseover="isHovered = page._id"
       @mouseleave="isHovered = null"
     >

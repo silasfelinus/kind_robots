@@ -1,17 +1,40 @@
 <template>
-  <div class="flex flex-col h-screen w-screen bg-gradient-to-r from-primary to-primary-dark">
-    <!-- Header -->
-    <new-dashboard />
+  <div class="flex flex-col h-screen w-screen">
+    <!-- Header Dashboard -->
+    <header-dashboard class="h-20 w-full z-50" />
 
-    <div class="flex-grow flex items-center justify-center w-full">
+    <!-- Container for User Navigation and Main Slot -->
+    <div class="flex flex-grow">
+      <!-- User Navigation: Only appears on large screen -->
+      <div v-if="isLargeScreen" class="w-1/4 overflow-y-auto border-r">
+        <user-navigation />
+      </div>
+
       <!-- Main Slot -->
-      <slot class="flex-grow bg-accent rounded-2xl p-2 m-2 shadow-lg" />
-
-      <!-- Tooltip beside main slot -->
-      <new-tooltip class="md:flex lg:flex-row sm-md:flex-col" />
+      <div class="flex-grow overflow-y-auto">
+        <slot />
+      </div>
     </div>
-    <highlight-pages />
-    <support-nav class="flex-grow w-full flex items-center justify-center" />
-    <random-link class="flex items-center justify-center m-1" />
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+const isLargeScreen = ref(false) // Default value
+
+if (process.client) {
+  const handleResize = () => {
+    isLargeScreen.value = window.innerWidth > 1024 // Adjust this number based on what you consider 'large'
+  }
+
+  onMounted(() => {
+    handleResize() // Initial check
+    window.addEventListener('resize', handleResize)
+  })
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleResize)
+  })
+}
+</script>

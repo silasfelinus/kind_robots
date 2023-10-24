@@ -6,7 +6,7 @@
       class="bg-primary text-white rounded-2xl p-4 m-4 border"
       @click="togglePopup"
     >
-      <icon :name="milestone?.icon || 'default-icon'" class="h-64 w-64" />
+      <icon :name="milestone?.icon || 'default-icon'" class="h-16 w-16" />
     </button>
 
     <!-- Popup Content -->
@@ -17,7 +17,7 @@
       <div class="bg-base-400 rounded-2xl p-6 m-6 text-center relative">
         <h2 class="text-2xl font-semibold mb-4">Congratulations, {{ userStore.username }}!</h2>
         <div v-if="milestone?.icon">
-          <icon :name="milestone.icon" class="h-64 w-64 mx-auto mb-4" />
+          <icon :name="milestone.icon" class="h-16 w-16 mx-auto mb-4" />
           <p class="text-xl font-medium">🌟 You earned the {{ milestone.label }} milestone! 🌟</p>
           <p class="my-4">{{ milestone.message }}</p>
           <div class="karma-award flex flex-col items-center">

@@ -92,9 +92,5 @@ const toggleExtend = () => {
   footerStore.toggleIsExtended()
 }
 
-onMounted(() => {
-  pageStore.getPages()
-})
-
 const highlightPages = computed(() => pageStore.highlightPages)
 </script>

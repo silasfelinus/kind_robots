@@ -4,8 +4,6 @@
       class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     ></div>
     <h1 class="mt-8 text-3xl font-semibold text-center">Welcome to Kind Robots</h1>
-
-    <bot-selector />
     <div class="mt-24 mx-auto max-w-4xl">
       <div class="h-96 carousel carousel-vertical rounded-box">
         <div
@@ -52,8 +50,14 @@ watch(
   () => currentBot.value,
   (newBot) => {
     if (newBot) {
-      const botElement = document.getElementById(`bot-${newBot.id}`)
-      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      const carousel = document.querySelector('.carousel') as HTMLElement
+      const botElement = document.getElementById(`bot-${newBot.id}`) as HTMLElement
+      if (carousel && botElement) {
+        const carouselRect = carousel.getBoundingClientRect()
+        const botElementRect = botElement.getBoundingClientRect()
+        const offset = botElementRect.top - carouselRect.top
+        carousel.scrollTop = offset - (carousel.clientHeight - botElement.clientHeight) / 2
+      }
     }
   }
 )

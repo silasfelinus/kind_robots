@@ -2,10 +2,14 @@
   <div class="flip-card" @click="flipped = !flipped">
     <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
       <div class="flip-card-front">
-        <img :src="selectImage" alt="Avatar" class="avatar-img" />
+        <img :src="selectImage" alt="Avatar" class="avatar-img rounded-xl" />
       </div>
       <div class="flip-card-back">
-        <img :src="currentBot?.avatarImage || selectImage" alt="New Avatar" class="avatar-img" />
+        <img
+          :src="currentBot?.avatarImage || selectImage"
+          alt="New Avatar"
+          class="avatar-img rounded-xl"
+        />
       </div>
     </div>
   </div>
@@ -81,7 +85,6 @@ watch(currentBot, () => {
 .avatar-img {
   width: 100%;
   height: 100%;
-  border-radius: 10%;
   object-fit: cover;
   object-position: center;
 }

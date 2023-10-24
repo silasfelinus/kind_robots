@@ -45,7 +45,7 @@ onMounted(() => {
     channelStore.initializeChannels()
     milestoneStore.initializeMilestones()
     chatStore.fetchChatExchanges()
-    pageStore.getPages()
+    pageStore.loadPages()
     console.log(
       'Welcome to Kind Robots, random person who reads console logs! Are you a developer?'
     )

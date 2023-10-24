@@ -6,13 +6,14 @@ layout: dashboard
 image: cafepurr/cafepurr-443.webp
 gallery: wondershed
 tooltip: This tool is like LEGO for web designers. Currently in sandbox mode, but one day it will allow you to personalize your dashboard. ☕🛠️
-amitip: Think of this as your experimental lab for all things containers. Sure, it's still in the 'mixing random chemicals' phase, but someday, it could be your magic potion for perfect layouts! 🧪🎨
+amitip: People like boxes! They'd like it more if you let them decorate a user badge or something, but I know how busy you get. 🧪🎨
 tags: ['home']
 admin: true
 icon: game-icons:archive-register
 category: admin
 sort: text
 underConstruction: true
+dottitip: Hey AMI, I built a bunch of smart boxes. They change shape and size and remember your choices. Do you think our lab visitors would, I dunno, like to play with them?
 ---
 
 

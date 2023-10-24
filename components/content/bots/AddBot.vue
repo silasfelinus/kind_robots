@@ -3,14 +3,6 @@
     <h1 class="text-3xl mb-4 text-center">Create a New Bot</h1>
     <form class="bg-white shadow-lg rounded-lg p-8" @submit="handleSubmit">
       <div class="mb-4">
-        <label for="botType" class="block text-sm font-medium">Bot Type:</label>
-        <select id="botType" v-model="botType" class="w-full p-2 rounded border">
-          <option value="PROMPTBOT">Prompt Bot: A bot that provides prompts</option>
-          <option value="CHATBOT">Chat Bot: A bot that can chat with users</option>
-          <option value="ARTBOT">Art Bot: A bot that creates art</option>
-        </select>
-      </div>
-      <div class="mb-4">
         <label for="name" class="block text-sm font-medium">Name:</label>
         <input id="name" v-model="name" type="text" class="w-full p-2 rounded border" />
       </div>
@@ -30,6 +22,14 @@
         <label for="avatarImage" class="block text-sm font-medium">Avatar Image URL:</label>
         <div v-for="(art, index) in artResults" :key="art.id">
           <img :src="art.path" alt="Generated Avatar" />
+          <div class="mb-4">
+            <label for="botType" class="block text-sm font-medium">Bot Type:</label>
+            <select id="botType" v-model="botType" class="w-full p-2 rounded border">
+              <option value="PROMPTBOT">Prompt Bot: A bot that provides prompts</option>
+              <option value="CHATBOT">Chat Bot: A bot that can chat with users</option>
+              <option value="ARTBOT">Art Bot: A bot that creates art</option>
+            </select>
+          </div>
           <button @click="generateAnotherAvatar(index)">Generate Another</button>
           <button @click="selectAvatar(art.path)">Select</button>
         </div>

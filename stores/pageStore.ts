@@ -20,7 +20,7 @@ export const usePageStore = defineStore({
     error: null as ErrorState,
     showTooltip: true,
     showAmitip: false,
-    showInfo: true
+    showInfo: true as boolean
   }),
   getters: {
     currentPage: () => {
@@ -40,10 +40,13 @@ export const usePageStore = defineStore({
     }
   },
   actions: {
-    async loadStore() {
+    async loadPages() {
+      if (this.initialized) return
       try {
         const { page } = await useContent()
         this.page = page
+        const pages = await queryContent().find()
+        this.pages = pages
         this.initialized = true
       } catch (error) {
         this.error = errorHandler({ error, message: 'Failed to initialize page store' })
@@ -61,21 +64,6 @@ export const usePageStore = defineStore({
     // Toggles the visibility of the amitip
     toggleAmitip() {
       this.showAmitip = !this.showAmitip
-    },
-    // Fetches the pages asynchronously
-    async getPages() {
-      if (this.initialized) return
-
-      try {
-        const pages = await queryContent().find()
-        this.pages = pages
-      } catch (error) {
-        if (error) {
-          this.error = errorHandler({ error, message: 'Failed to fetch pages' })
-        } else {
-          this.error = { success: false, message: 'An unknown error occurred' }
-        }
-      }
     }
   }
 })

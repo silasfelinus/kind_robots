@@ -84,15 +84,10 @@
 import { onMounted } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 const isHovered = ref(null)
-onMounted(() => {
-  if (process.client) {
-    const pageStore = usePageStore()
-    pageStore.getPages()
-  }
-})
+
+const pageStore = usePageStore()
 
 const pagesByTagAndSort = (tag: string, sort: string) => {
-  const pageStore = usePageStore()
   return pageStore.pages.filter((page: any) => page.tags?.includes(tag) && page.sort === sort)
 }
 </script>

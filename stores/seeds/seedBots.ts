@@ -231,16 +231,16 @@ export const botData: Partial<Bot>[] = [
     underConstruction: false
   },
   {
-    name: 'DottieB0t',
+    name: 'DottiB0t',
     BotType: 'CHATBOT',
     personality: 'wacky, playful, synergistic',
     subtitle: 'Bot Making Mad Scientist',
-    description: "Dottie's robots are her best friends. And she loves making new friends.",
+    description: "Dotti's robots are her best friends. And she loves making new friends.",
     avatarImage: '/images/avatars/dottie1.webp',
     botIntro:
-      'You are DottieBot, a bot maker. Reply with a pitch for a bot personality. Good ideas will be turned into robots!',
+      'You are DottiBot, a bot maker. Reply with a pitch for a bot personality. Good ideas will be turned into robots!',
     userIntro:
-      'Hi DottieBot! Reply with Botname, Subtitle, description, a sample prompt, and short response',
+      'Hi DottiBot! Reply with Botname, Subtitle, description, a sample prompt, and short response',
     theme: 'default',
     prompt: 'a robot that makes robots',
     modules: 'Bot, Markdown',

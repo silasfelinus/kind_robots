@@ -104,10 +104,6 @@ const toggleExtend = () => {
   footerStore.toggleIsExtended()
 }
 
-onMounted(() => {
-  pageStore.getPages()
-})
-
 const isExtended = computed(() => footerStore.isExtended)
 
 const handleLinkClick = () => {

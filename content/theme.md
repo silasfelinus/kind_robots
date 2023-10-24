@@ -8,8 +8,10 @@ gallery: wondershed
 tags: ['home']
 icon: game-icons:tv-remote
 tooltip: Fun fact, Cupcake was the in-utero name for our firstborn!
-amitip: That's so sweet, especially since he's now crushing your leaderboards!
+amiold: That's so sweet, especially since he's now crushing your leaderboards!
 sort: icon
+dottitip: AMI, I saw the new theme room. Did we need so many options?
+amitip: What can I say, we're all about giving people choices, right?
 ---
 
 :theme-menu

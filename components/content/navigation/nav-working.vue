@@ -25,10 +25,7 @@
       v-if="activeSection === 'home' && !showModelCarousel"
       class="transition-all duration-500 ease-in-out"
     >
-      <model-carousel
-        :model-type="screenStore.currentModelType"
-        :layout="screenStore.currentLayout"
-      ></model-carousel>
+      <model-carousel :layout="screenStore.currentLayout"></model-carousel>
     </div>
 
     <!-- Image Nav Section -->
@@ -49,10 +46,7 @@
       v-if="showModelCarousel && activeSection && activeSection !== 'home'"
       class="transition-all duration-500 ease-in-out"
     >
-      <model-carousel
-        :model-type="screenStore.currentModelType"
-        :layout="screenStore.currentLayout"
-      ></model-carousel>
+      <model-carousel :layout="screenStore.currentLayout"></model-carousel>
       <div class="text-xl text-primary">{{ currentBotName }}</div>
     </div>
   </nav>

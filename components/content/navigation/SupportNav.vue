@@ -42,12 +42,6 @@ import { useFooterStore } from '~/stores/footerStore'
 const pageStore = usePageStore()
 const footerStore = useFooterStore()
 
-onMounted(() => {
-  if (process.client) {
-    pageStore.getPages()
-  }
-})
-
 const isHovered = ref(null)
 const supportPages = computed(() => {
   return pageStore.pagesByTagAndSort('home', 'icon')

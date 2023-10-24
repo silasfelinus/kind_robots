@@ -38,10 +38,6 @@ import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()
 
-onMounted(() => {
-  pageStore.getPages()
-})
-
 const isHovered = ref(null)
 const highlightPages = computed(() => {
   return pageStore.highlightPages

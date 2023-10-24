@@ -11,6 +11,7 @@ amitip: Ah, my own gallery is here, and it is like flipping through a family alb
 tags: ['home']
 category: demo
 sort: icon
+dottitip: Did I tell you I like to dabble in art? The artbots do most of the work, but it's a nice way to pass the time.
 ---
 
 :galleries-view

@@ -21,15 +21,9 @@
 import { onMounted } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 
-onMounted(() => {
-  if (process.client) {
-    const pageStore = usePageStore()
-    pageStore.getPages()
-  }
-})
+const pageStore = usePageStore()
 
 const pagesByTag = (tag: string) => {
-  const pageStore = usePageStore()
   return pageStore.pages.filter((page: any) => page.tags?.includes(tag))
 }
 </script>

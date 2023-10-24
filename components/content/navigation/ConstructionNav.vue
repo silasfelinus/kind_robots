@@ -59,12 +59,6 @@ const handleLinkClick = () => {
 }
 const pageStore = usePageStore()
 
-onMounted(() => {
-  if (process.client) {
-    pageStore.getPages()
-  }
-})
-
 const isHovered = ref(null)
 const underConstructionPages = computed(() => {
   return pageStore.pagesUnderConstruction

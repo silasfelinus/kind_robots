@@ -13,26 +13,14 @@
           @mouseleave="hideTooltip(pitch.id)"
         >
           {{ pitch.title }}
-          <!-- Icons -->
-          <icon v-if="pitch.isMature" name="mdi:alert" class="w-4 h-4" />
-          <icon v-if="pitch.isPublic" name="mdi:earth" class="w-4 h-4" />
-          <icon v-if="pitch.isOrphan" name="mdi:heart-off" class="w-4 h-4" />
-          <icon v-else name="mdi:heart" class="w-4 h-4" />
+          {{ pitch.pitch }}
         </button>
         <!-- Tooltip -->
         <div
           v-if="tooltipVisible[pitch.id]"
           class="absolute left-0 bottom-full mb-2 text-xs bg-base-100 p-1 rounded"
         >
-          <span class="font-bold">Designer: {{ pitch.designer }}</span>
-          <div v-if="pitch.isMature">
-            <icon name="mdi:alert" class="w-4 h-4 inline" /> Mature Content
-          </div>
-          <div v-if="pitch.isPublic"><icon name="mdi:earth" class="w-4 h-4 inline" /> Public</div>
-          <div v-if="pitch.isOrphan">
-            <icon name="mdi:heart-off" class="w-4 h-4 inline" /> Orphan
-          </div>
-          <div v-else><icon name="mdi:heart" class="w-4 h-4 inline" /> Adopted</div>
+          <span class="font-bold"> created by: {{ pitch.userId }}</span>
         </div>
       </div>
     </div>

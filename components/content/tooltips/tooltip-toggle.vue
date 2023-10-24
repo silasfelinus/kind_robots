@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col items-center justify-center w-20 h-20 hover:bg-gray-200"
+    class="relative flex flex-col items-center justify-center w-20 h-20"
     @mouseover="showText = true"
     @mouseleave="showText = false"
   >
@@ -8,7 +8,7 @@
       class="focus:outline-none transition-transform duration-200 transform hover:scale-110"
       @click="toggleInfo"
     >
-      <icon :name="toggleIcon" class="w-16 h-16 text-6xl" />
+      <icon :name="toggleIcon" class="w-16 h-16 text-6xl opacity-80" />
     </button>
     <p
       v-if="showText"
@@ -31,7 +31,7 @@ const toggleInfo = () => {
 }
 
 const toggleIcon = computed(() => {
-  return pageStore.showInfo ? 'mdi:chat-outline' : 'fontisto:zipper-mouth'
+  return pageStore.showInfo ? 'mdi:chat-outline' : 'carbon:chat-off'
 })
 
 const tooltipText = computed(() => {

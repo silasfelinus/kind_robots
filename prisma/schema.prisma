@@ -38,6 +38,7 @@ model Art {
   channelId   Int?
   Channel     Channel?      @relation(fields: [channelId], references: [id])
   Products    Product[]
+  Post        Post[]
 }
 
 model ArtPrompt {
@@ -96,6 +97,8 @@ model Bot {
   sampleResponse    String?
   tagline           String?        @default("fancy tagline")
   ChatExchange      ChatExchange[]
+  Slogan            Slogan[]
+  Post              Post[]
 }
 
 model Channel {
@@ -113,6 +116,7 @@ model Channel {
   Pitch       Pitch?
   Art         Art[]
   pitchId     Int?
+  Post        Post[]
 
   @@index([userId], map: "Channel_userId_fkey")
 }
@@ -250,6 +254,7 @@ model Pitch {
   Art            Art[]
   ArtPrompts     ArtPrompt[]
   highlightImage String        @default("/images/kindtitle.webp")
+  Post           Post[]
 }
 
 model Cart {
@@ -287,6 +292,39 @@ model RandomList {
   items  Json
   userId Int?
   User   User?  @relation(fields: [userId], references: [id])
+}
+
+model Post {
+  id             Int       @id @unique @default(autoincrement())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime?
+  userId         Int?
+  User           User?     @relation(fields: [userId], references: [id])
+  username       String    @default("anonymous")
+  content        String
+  title          String?
+  label          String    @default("blog")
+  imagePath      String?
+  Tags           Tag[]
+  Art            Art?      @relation(fields: [artId], references: [id])
+  artId          Int?
+  pitchId        Int?
+  Pitch          Pitch?    @relation(fields: [pitchId], references: [id])
+  pitchname      String?
+  sloganContent  String?
+  sloganId       Int?
+  Slogan         Slogan?   @relation(fields: [sloganId], references: [id])
+  botId          Int?
+  Bot            Bot?      @relation(fields: [botId], references: [id])
+  botname        String? // optional connection if posting about a bot
+  channelId      Int? // if open for comments
+  Channel        Channel?  @relation(fields: [channelId], references: [id])
+  likes          Int       @default(0) // a count of user positive reactions
+  dislikes       Int       @default(0) // a count of user negative reactions
+  hates          Int       @default(0) // a count of user strong negative reactions
+  loves          Int       @default(0) //a count of user strong positive reactions
+  jellybeanClaps Int       @default(0) // tracks clap responses from members
+  isFavorite     Boolean   @default(false) // tracks owner's favorite status
 }
 
 model Product {
@@ -341,6 +379,34 @@ model Reward {
   User       User[]    @relation("RewardToUser")
 }
 
+model Slogan {
+  id             Int      @id @default(autoincrement())
+  contentType    String   @default("slogan")
+  purpose        String   @default("Anti-Malaria Fundraiser")
+  tags           Tag[]
+  url            String?  @default("https://www.againstmalaria.org/amibot")
+  characterLimit Int      @default(300)
+  content        String   @db.VarChar(2000) //Here's the slogan itself
+  likes          Int      @default(0) // a count of user positive reactions
+  dislikes       Int      @default(0) // a count of user negative reactions
+  hates          Int      @default(0) // a count of user strong negative reactions
+  loves          Int      @default(0) //a count of user strong positive reactions
+  isLiked        Boolean  @default(false) // tracks owner's positive response
+  isLoved        Boolean  @default(false) // tracks user's strong positive response
+  wasKept        Boolean? // optional boolean if the slogan is held in a collection
+  wasDiscarded   Boolean? // slogan was discarded from user's collection or not selected
+  username       String   @default("Kind Guest") // syntactic sugar to access the slogan.username easily
+  userId         Int      @default(0) // the userId of the originator of the slogan
+  model          String   @default("3.5") // which natural language model was used
+  kindRobot      String   @default("amibot") // which kind robot interface was used to generate the slogan
+  botId          Int?
+  Bot            Bot?     @relation(fields: [botId], references: [id])
+  User           User     @relation(fields: [userId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  posts          Post[]
+}
+
 // tags started as a small SmartTag system, but has grown into a gallery game of their own
 model Tag {
   id           Int           @id @unique @default(autoincrement())
@@ -358,6 +424,10 @@ model Tag {
   channelId    Int?          @unique
   User         User          @relation(fields: [userId], references: [id])
   ArtReactions ArtReaction[]
+  Slogan       Slogan?       @relation(fields: [sloganId], references: [id])
+  sloganId     Int?
+  Post         Post?         @relation(fields: [postId], references: [id])
+  postId       Int?
 }
 
 model Todo {
@@ -427,6 +497,8 @@ model User {
   Customer            Customer[]
   RandomList          RandomList[]
   ChatExchange        ChatExchange[]
+  Slogan              Slogan[]
+  Post                Post[]
 }
 
 enum BotType {

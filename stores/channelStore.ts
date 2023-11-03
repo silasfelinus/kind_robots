@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Channel, Message } from '@prisma/client'
+import { type Channel, type Message } from '@prisma/client'
 import { errorHandler } from '../server/api/utils/error'
 import { useUserStore } from '@/stores/userStore'
 

@@ -1,6 +1,6 @@
 // @/stores/milestoneStore.ts
 import { defineStore } from 'pinia'
-import { Milestone, MilestoneRecord } from '@prisma/client'
+import { type Milestone, type MilestoneRecord } from '@prisma/client'
 import { useUserStore } from './userStore'
 import { milestoneData } from '@/training/milestoneData'
 import { errorHandler } from '@/server/api/utils/error'

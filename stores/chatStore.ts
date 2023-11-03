@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ChatExchange } from '@prisma/client'
+import { type ChatExchange } from '@prisma/client'
 import { errorHandler } from '@/server/api/utils/error'
 
 export const useChatStore = defineStore({

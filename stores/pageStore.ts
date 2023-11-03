@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { errorHandler, ErrorHandlerOutput } from '@/server/api/utils/error'
+import { errorHandler, type ErrorHandlerOutput } from '@/server/api/utils/error'
 
 interface Page {
   tooltip?: string

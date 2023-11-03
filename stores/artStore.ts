@@ -1,6 +1,6 @@
 // /stores/artStore.ts
 import { defineStore } from 'pinia'
-import { Art, ArtReaction, Tag } from '@prisma/client'
+import { type Art, type ArtReaction, type Tag } from '@prisma/client'
 import { errorHandler } from '../server/api/utils/error'
 
 const isClient = typeof window !== 'undefined'

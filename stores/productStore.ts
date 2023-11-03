@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Product } from '@prisma/client'
+import { type Product } from '@prisma/client'
 
 export const useProductStore = defineStore({
   id: 'product',

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Tag } from '@prisma/client'
+import { type Tag } from '@prisma/client'
 import { errorHandler } from '../server/api/utils/error'
 import { useUserStore } from '@/stores/userStore'
 

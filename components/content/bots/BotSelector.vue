@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
-import { useBotStore, Bot } from '../../../stores/botStore'
+import { useBotStore, type Bot } from '../../../stores/botStore'
 
 const botStore = useBotStore()
 const selectedBot = ref('')

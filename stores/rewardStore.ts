@@ -1,6 +1,6 @@
 // ~/stores/rewardStore.ts
 import { defineStore } from 'pinia'
-import { Reward } from '@prisma/client'
+import { type Reward } from '@prisma/client'
 
 interface RewardState {
   rewards: Reward[]
@@ -195,4 +195,4 @@ export const useRewardStore = defineStore({
   }
 })
 
-export default Reward
+export type { Reward }

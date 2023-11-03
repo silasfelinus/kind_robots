@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ArtPrompt, Art } from '@prisma/client'
+import { type ArtPrompt, type Art } from '@prisma/client'
 import { errorHandler } from '../server/api/utils/error'
 
 interface State {

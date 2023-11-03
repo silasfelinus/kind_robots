@@ -7,11 +7,9 @@
     >
       <!-- Left Section -->
       <div class="flex flex-col items-center w-full md:w-1/3 space-y-4 m-2 p-2">
-        <transition name="slide-fade-slow">
-          <div class="bg-base-200 p-4 rounded-lg shadow-lg">
-            <click-leaderboard class="rounded-2xl m-2 p-2" />
-          </div>
-        </transition>
+        <div class="bg-base-200 p-4 rounded-lg shadow-lg">
+          <click-leaderboard class="rounded-2xl m-2 p-2" />
+        </div>
         <transition name="slide-fade-slow">
           <div v-if="state.topScore >= 100" class="bg-base-200 p-4 rounded-lg shadow-lg">
             <milestone-reward v-if="state.pressCount >= 100" :id="6"></milestone-reward>

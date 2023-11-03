@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { useMilestoneStore, Milestone } from '@/stores/milestoneStore'
+import { useMilestoneStore, type Milestone } from '@/stores/milestoneStore'
 import { errorHandler } from '@/server/api/utils/error'
 import { useConfetti } from '@/utils/useConfetti'
 

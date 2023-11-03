@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { User } from '@prisma/client'
+import { type User } from '@prisma/client'
 import { errorHandler } from '../server/api/utils/error'
 import { useMilestoneStore } from './milestoneStore'
 

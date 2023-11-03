@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Gallery } from '@prisma/client'
+import { type Gallery } from '@prisma/client'
 
 interface GalleryState {
   galleries: Gallery[]

@@ -1,7 +1,7 @@
 // ~/stores/resourceStore.ts
 import { defineStore } from 'pinia'
 import axios from 'axios'
-import { Resource } from '@prisma/client'
+import { type Resource } from '@prisma/client'
 import { useErrorStore, ErrorType } from './errorStore'
 import { useStatusStore, StatusType } from './statusStore'
 import { resourceData } from './seeds/seedResources' // Assuming you have a seeds file for Resource data

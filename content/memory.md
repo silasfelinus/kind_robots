@@ -11,7 +11,7 @@ tooltip: This uses AI art created with our art modelers.
 amitip: 🤖 These pictures are so pretty!
 category: games
 sort: highlight
-dottitip: AMI, I made a game for the visitors. It's a simple card match game, but it uses art from our ArtBots so every game is unique. 
+dottitip: AMI, I made a game for the visitors. It's a simple card match game, but it uses art from our ArtBots so every game is unique.
 ---
 
 :memory-game

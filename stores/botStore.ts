@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Bot } from '@prisma/client'
+import { type Bot } from '@prisma/client'
 import { botData } from './seeds/seedBots'
 import { errorHandler } from '@/server/api/utils/error' // Import your errorHandler
 

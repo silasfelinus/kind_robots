@@ -1,0 +1,1 @@
+.animate-typing{animation:typing 2s steps(30),blink-caret .75s step-end infinite;border-right:.15em solid transparent;overflow:hidden;white-space:nowrap}@keyframes typing{0%{width:0}to{width:100%}}@keyframes blink-caret{0%,to{border-color:transparent}50%{border-color:inherit}}

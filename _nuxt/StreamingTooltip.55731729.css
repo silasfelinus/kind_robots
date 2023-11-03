@@ -1,0 +1,1 @@
+.flash-animation[data-v-f4eee2ed]{animation:flash-f4eee2ed 1s infinite alternate}@keyframes flash-f4eee2ed{0%{opacity:1}to{opacity:.4}}.bubble[data-v-f4eee2ed]{word-wrap:break-word;max-width:90%}.chat-window[data-v-f4eee2ed]{height:calc(100vh - 4rem)}@media screen and (max-width:768px){.bubble[data-v-f4eee2ed]{max-width:100%}}

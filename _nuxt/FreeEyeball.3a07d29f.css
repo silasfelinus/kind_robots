@@ -1,0 +1,1 @@
+.blink-animation{animation:blinkAnimation 1s infinite}@keyframes blinkAnimation{0%,20%,to{height:150px}10%{height:5px}}

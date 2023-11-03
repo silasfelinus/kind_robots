@@ -1,0 +1,1 @@
+.ripple[data-v-9893ec0e]{animation:ripple-animation-9893ec0e 1.5s infinite;border:2px solid hsla(0,0%,100%,.6);border-radius:50%;height:100%;left:50%;position:absolute;top:50%;transform:translate(-50%,-50%);width:100%}@keyframes ripple-animation-9893ec0e{0%{height:0;opacity:1;width:0}to{height:200%;opacity:0;width:200%}}

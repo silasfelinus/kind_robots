@@ -1,0 +1,1 @@
+.rain-container[data-v-1740cae1]{height:100vh;left:0;overflow:hidden;top:0;width:100vw;z-index:1}.rain-container[data-v-1740cae1],.rain-drop[data-v-1740cae1]{pointer-events:none;position:absolute}.rain-drop[data-v-1740cae1]{animation:fall-1740cae1 linear infinite;opacity:.8;will-change:transform}@keyframes fall-1740cae1{to{transform:translateY(120vh) rotate(var(--wind-angle))}}

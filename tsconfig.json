@@ -1,7 +1,0 @@
-{
-  "extends": "./.nuxt/tsconfig.json",
-  "compilerOptions": {
-    "typeRoots": ["./types", "./node_modules/@types"],
-    "types": ["canvas-confetti"]
-  }
-}

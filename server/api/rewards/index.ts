@@ -1,8 +1,8 @@
-import { Reward, Prisma } from '@prisma/client' // Adjust the path as needed
+import { type Reward, Prisma } from '@prisma/client' // Adjust the path as needed
 import prisma from '../utils/prisma'
 
 // Function to create a new Reward
-export async function createReward(reward: Partial<Reward>): Promise<Reward> {
+export function createReward(reward: Partial<Reward>): Promise<Reward> {
   // Validate required fields
   if (!reward.text || !reward.power || !reward.icon) {
     throw new Error('Text, power, and icon must be provided')
@@ -22,10 +22,7 @@ export async function createReward(reward: Partial<Reward>): Promise<Reward> {
 }
 
 // Function to update an existing Reward by ID
-export async function updateReward(
-  id: number,
-  updatedReward: Partial<Reward>
-): Promise<Reward | null> {
+export function updateReward(id: number, updatedReward: Partial<Reward>): Promise<Reward | null> {
   return prisma.reward.update({
     where: { id },
     data: updatedReward
@@ -45,12 +42,12 @@ export async function deleteReward(id: number): Promise<boolean> {
 }
 
 // Function to fetch all Rewards
-export async function fetchAllRewards(): Promise<Reward[]> {
+export function fetchAllRewards(): Promise<Reward[]> {
   return prisma.reward.findMany()
 }
 
 // Function to fetch a single Reward by ID
-export async function fetchRewardById(id: number): Promise<Reward | null> {
+export function fetchRewardById(id: number): Promise<Reward | null> {
   return prisma.reward.findUnique({
     where: { id }
   })

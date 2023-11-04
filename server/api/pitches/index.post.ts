@@ -1,6 +1,6 @@
 // /server/api/pitches/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { Pitch, Prisma } from '@prisma/client'
+import { type Pitch, Prisma } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 

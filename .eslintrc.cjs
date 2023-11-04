@@ -4,16 +4,24 @@ module.exports = {
     browser: true,
     node: true
   },
+  ignorePatterns: [
+    '/node_modules/',
+    '/dist/',
+    '/.nuxt/',
+    'app.config.ts',
+    'app.vue',
+    'nuxt.config.ts',
+    'tailwind.config.js'
+  ],
   parser: 'vue-eslint-parser',
   parserOptions: {
     parser: '@typescript-eslint/parser',
     ecmaVersion: 2017,
-    sourceType: 'module'
+    sourceType: 'module',
+    project: './tsconfig.json',
+    extraFileExtensions: ['.vue']
   },
-  extends: [
-    '@nuxtjs/eslint-config-typescript',
-    'plugin:prettier/recommended' // Add Prettier recommended configuration
-  ],
+  extends: ['@nuxtjs/eslint-config-typescript', 'plugin:prettier/recommended'],
   plugins: ['@typescript-eslint', 'prettier'],
   // add your custom rules here
   rules: {
@@ -25,7 +33,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-unused-vars': 'off',
     'prefer-const': 'off',
-    'require-await': 'off',
+    'require-await': 'warn',
     'vue/max-attributes-per-line': 'off',
     'vue/no-unused-components': 'off',
     'prettier/prettier': [

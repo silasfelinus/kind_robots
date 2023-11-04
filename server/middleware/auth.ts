@@ -1,6 +1,6 @@
 import { defineEventHandler } from 'h3'
 
-export default defineEventHandler(async (event: any) => {
+export default defineEventHandler((event: any) => {
   const req = event.node.req
 
   // req.headers is already a plain JavaScript object

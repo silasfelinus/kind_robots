@@ -1,4 +1,4 @@
-import { Prisma, Todo } from '@prisma/client'
+import { Prisma, type Todo } from '@prisma/client'
 import prisma from '../utils/prisma'
 
 // Function to get a random reward from the API
@@ -77,13 +77,13 @@ export async function addTodos(
   return { count: todos.length, todos, errors }
 }
 // Fetch all Todos with pagination
-export async function fetchTodos(page = 1, pageSize = 100): Promise<Todo[]> {
+export function fetchTodos(page = 1, pageSize = 100): Promise<Todo[]> {
   const skip = (page - 1) * pageSize
   return prisma.todo.findMany({ skip, take: pageSize })
 }
 
 // Fetch a Todo by its ID
-export async function fetchTodoById(id: number): Promise<Todo | null> {
+export function fetchTodoById(id: number): Promise<Todo | null> {
   return prisma.todo.findUnique({ where: { id } })
 }
 
@@ -114,16 +114,12 @@ export async function deleteTodo(id: number): Promise<boolean> {
 }
 
 // Count all Todos
-export async function countTodos(): Promise<number> {
+export function countTodos(): Promise<number> {
   return prisma.todo.count()
 }
 
 // Fetch all Todos for a specific user
-export async function fetchTodosByUserId(
-  userId: number,
-  page = 1,
-  pageSize = 100
-): Promise<Todo[]> {
+export function fetchTodosByUserId(userId: number, page = 1, pageSize = 100): Promise<Todo[]> {
   const skip = (page - 1) * pageSize
   return prisma.todo.findMany({
     where: { userId },

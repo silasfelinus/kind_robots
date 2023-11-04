@@ -60,7 +60,7 @@ export const useScreenStore = defineStore({
       this.showRainEffect = false
       this.showSoapBubbles = false
     },
-    async loadStore() {
+    loadStore() {
       try {
         return 'loaded screen'
       } catch (error) {

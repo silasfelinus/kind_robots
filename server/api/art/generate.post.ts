@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from 'h3'
-import { Art, ArtPrompt, Pitch, Channel, Gallery } from '@prisma/client'
+import { type Art, type ArtPrompt, type Pitch, type Channel, type Gallery } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { createUser } from '../users'
@@ -240,13 +240,13 @@ async function validateAndLoadGalleryId(
   return data.galleryId ?? 21
 }
 
-async function validateAndLoadDesignerName(
+function validateAndLoadDesignerName(
   data: RequestData,
   validatedData: Partial<validatedData>
-): Promise<string> {
+): string {
   console.log('🔍 Validating and loading designer name...')
 
-  return data.designerName ?? data.userName ?? (generateSillyName() || 'Kind Guest')
+  return data.designerName ?? data.userName ?? generateSillyName() ?? 'Kind Guest'
 }
 
 export default defineEventHandler(async (event) => {

@@ -47,7 +47,7 @@ const {
   botType
 } = props
 
-const sendMessage = async () => {
+const sendMessage = () => {
   // Logic to send a message
   // For now, it's just a placeholder
   alert('Message sent to bot!')

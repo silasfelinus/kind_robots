@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { Milestone } from '@/stores/milestoneStore'
+import { type Milestone } from '@/stores/milestoneStore'
 
 // Define props and destructure them
 const props = defineProps<{

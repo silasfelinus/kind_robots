@@ -147,10 +147,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import axios from 'axios'
-import { useBotStore, Bot } from '../../../stores/botStore'
+import { useBotStore, type Bot } from '../../../stores/botStore'
 import { useUserStore } from '@/stores/userStore'
 import { errorHandler } from '@/server/api/utils/error'
-import { useChatStore, ChatExchange } from '@/stores/chatStore'
+import { useChatStore, type ChatExchange } from '@/stores/chatStore'
 
 const shouldShowMilestoneCheck = ref(false)
 let userKey: string | null = null

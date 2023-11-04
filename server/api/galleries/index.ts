@@ -1,4 +1,4 @@
-import { Gallery, Prisma } from '@prisma/client'
+import { type Gallery, Prisma } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
@@ -167,7 +167,7 @@ export async function getAllGalleryImages(): Promise<{ [galleryId: number]: stri
   }
 }
 
-export async function fetchGalleryByName(name: string): Promise<Gallery | null> {
+export function fetchGalleryByName(name: string): Promise<Gallery | null> {
   return prisma.gallery.findUnique({ where: { name } })
 }
 

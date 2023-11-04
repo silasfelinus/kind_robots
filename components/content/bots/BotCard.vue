@@ -11,7 +11,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 
 const botStore = useBotStore()

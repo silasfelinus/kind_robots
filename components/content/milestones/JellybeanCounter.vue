@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useMilestoneStore, Milestone, MilestoneRecord } from '@/stores/milestoneStore'
+import { useMilestoneStore, type Milestone, type MilestoneRecord } from '@/stores/milestoneStore'
 import { useUserStore } from '@/stores/userStore'
 
 const milestoneStore = useMilestoneStore()

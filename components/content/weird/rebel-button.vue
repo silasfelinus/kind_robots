@@ -128,7 +128,7 @@ const state = reactive({
 const shouldShowMilestoneCheck = ref(false)
 const buttonRef = ref(null)
 
-onMounted(async () => {
+onMounted(() => {
   // Fetch the leaderboard if the user is logged in
   if (userStore.isLoggedIn) {
     // Fetch the user's click record from the store
@@ -148,7 +148,7 @@ onMounted(async () => {
 
 watch(
   () => userStore.isLoggedIn,
-  async (newVal, oldVal) => {
+  (newVal, oldVal) => {
     if (newVal !== oldVal && newVal === true) {
       // User has just logged in
       const userClickRecord = userStore.clickRecord

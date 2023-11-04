@@ -18,17 +18,6 @@
         <icon name="game-icons:fast-backward-button" class="text-6xl" />
       </button>
       <button class="bg-accent p-2 rounded" @click="showEditReward = true">✏️ Edit</button>
-      <button class="bg-secondary p-2 rounded" @click="deleteReward(rewardStore.currentReward.id)">
-        🗑️ Delete
-      </button>
-      <nuxt-link to="/weirdlandia">
-        <button
-          class="bg-accent p-2 rounded"
-          @click="setStartingReward(rewardStore.currentReward.id)"
-        >
-          🚀 Go to Weirdlandia
-        </button>
-      </nuxt-link>
     </div>
 
     <!-- Edit Reward Form -->
@@ -63,8 +52,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, Ref } from 'vue'
-import Reward, { useRewardStore } from '@/stores/rewardStore'
+import { ref, onMounted, type Ref } from 'vue'
+import { type Reward, useRewardStore } from '@/stores/rewardStore'
 
 const rewardStore = useRewardStore()
 const showAddReward: Ref<boolean> = ref(false)

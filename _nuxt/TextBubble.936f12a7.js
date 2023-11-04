@@ -1,0 +1,1 @@
+import{k as t,b as r,c as s,t as a,aH as _}from"./entry.85174c6b.js";const c={props:{x:{type:Number,required:!0},y:{type:Number,required:!0},text:{type:String,required:!0}}};function n(o,u,e,d,l,p){return r(),s("div",{class:"text-bubble",style:_({top:e.y+"px",left:e.x+"px"})},a(e.text),5)}const x=t(c,[["render",n],["__scopeId","data-v-f32d85d6"]]);export{x as default};

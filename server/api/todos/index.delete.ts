@@ -1,4 +1,4 @@
-import { defineEventHandler } from 'h3' // Replace with the actual import for H3's defineEventHandler
+import { defineEventHandler, readBody } from 'h3' // Replace with the actual import for H3's defineEventHandler
 import { deleteTodo } from '.' // Import your deleteTodo function
 
 export default defineEventHandler(async (event) => {

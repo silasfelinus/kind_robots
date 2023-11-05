@@ -1,5 +1,5 @@
 // server/api/randomimage.get.ts
-
+import { defineEventHandler } from 'h3'
 import { fetchRandomImage } from '../..'
 
 export default defineEventHandler(async () => {

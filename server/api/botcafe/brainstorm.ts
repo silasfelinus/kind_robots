@@ -1,5 +1,6 @@
 // /server/api/botcafe/brainstorm.ts
 import { Prisma } from '@prisma/client'
+import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 
 const initialConversation = [

@@ -1,3 +1,5 @@
+import { defineEventHandler } from 'h3'
+
 export default defineEventHandler(() => ({
   name: 'AMIbot',
   model: 'gpt-3.5-turbo',

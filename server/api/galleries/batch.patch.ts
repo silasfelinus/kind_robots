@@ -1,5 +1,5 @@
 // server/api/galleries/batch.patch.ts
-
+import { defineEventHandler, readBody } from 'h3'
 import { fetchGalleryByName, updateGallery } from '.'
 
 // Define the batch update handler

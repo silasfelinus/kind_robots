@@ -1,6 +1,6 @@
 // servers/api/customers/[id].get.ts
 import { defineEventHandler } from 'h3'
-import { Customer } from '@prisma/client'
+import { type Customer } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 

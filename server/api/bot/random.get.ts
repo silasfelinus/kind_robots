@@ -1,4 +1,5 @@
 // server/api/bots/random.get.ts
+import { defineEventHandler } from 'h3'
 import { randomBot } from '../bots'
 
 export default defineEventHandler(async () => {

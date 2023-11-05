@@ -1,4 +1,5 @@
 // server/api/bots/[id].delete.ts
+import { defineEventHandler } from 'h3'
 import { deleteBot } from '../../bots'
 
 export default defineEventHandler(async (event) => {

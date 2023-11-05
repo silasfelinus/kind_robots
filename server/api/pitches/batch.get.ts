@@ -1,6 +1,6 @@
 // /server/api/pitches/index.get.ts
 import { defineEventHandler } from 'h3'
-import { Pitch } from '@prisma/client'
+import { type Pitch } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 

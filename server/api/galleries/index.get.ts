@@ -1,4 +1,5 @@
 // server/api/Galleriess/index.get.ts
+import { defineEventHandler } from 'h3'
 import { fetchGalleries } from '.'
 
 export default defineEventHandler(async (event) => {

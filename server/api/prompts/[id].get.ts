@@ -1,6 +1,6 @@
 // server/api/art/prompts/[id].get.ts
 import { defineEventHandler } from 'h3'
-import { ArtPrompt, Art } from '@prisma/client'
+import { type ArtPrompt, type Art } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 

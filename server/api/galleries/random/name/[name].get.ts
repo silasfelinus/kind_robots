@@ -1,4 +1,5 @@
 // ~/server/api/galleries/[name].random.ts
+import { defineEventHandler, readBody } from 'h3'
 import { getRandomImageByGalleryName } from '../..'
 
 export default defineEventHandler(async (event) => {

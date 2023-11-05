@@ -1,4 +1,5 @@
 import { type User } from '@prisma/client'
+import { defineEventHandler, readBody } from 'h3'
 import { hashPassword, validatePassword } from '../auth'
 import { errorHandler } from '../utils/error'
 import auth from '../../middleware/auth'

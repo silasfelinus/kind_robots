@@ -1,5 +1,6 @@
 // ~/server/api/galleries/random/id/[id].get.ts
-import { getRandomGalleryImage, getGalleryImages } from '../..'
+import { defineEventHandler } from 'h3'
+import { getRandomGalleryImage } from '../..'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)

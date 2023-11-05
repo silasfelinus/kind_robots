@@ -1,6 +1,6 @@
 // /server/api/channels/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
-import { Channel } from '@prisma/client'
+import { type Channel } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 

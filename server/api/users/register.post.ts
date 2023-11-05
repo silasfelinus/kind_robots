@@ -1,4 +1,5 @@
 // /server/api/user/register.post.ts
+import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error' // Importing the centralized error handler
 import prisma from '../utils/prisma'
 import { createUser } from '.'

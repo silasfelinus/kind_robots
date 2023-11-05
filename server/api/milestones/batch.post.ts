@@ -1,6 +1,6 @@
 // /server/api/milestones/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { Prisma, Milestone } from '@prisma/client' // Import the batch creation function
+import { Prisma, type Milestone } from '@prisma/client' // Import the batch creation function
 import { errorHandler } from '../utils/error' // Import centralized error handler
 import prisma from '../utils/prisma'
 

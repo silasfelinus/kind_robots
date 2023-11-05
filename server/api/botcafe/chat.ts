@@ -1,5 +1,5 @@
 // server/api/botcafe/chat.ts
-
+import { defineEventHandler, readBody } from 'h3'
 import axios, { AxiosError } from 'axios'
 
 export default defineEventHandler(async (event) => {

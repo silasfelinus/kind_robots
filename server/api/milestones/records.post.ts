@@ -1,6 +1,6 @@
 // /server/api/milestones/records.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { MilestoneRecord } from '@prisma/client'
+import { type MilestoneRecord } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 

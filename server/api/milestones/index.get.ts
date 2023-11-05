@@ -1,6 +1,6 @@
 // /server/api/milestones/index.get.ts
 import { defineEventHandler } from 'h3'
-import { Milestone } from '@prisma/client' // Import the batch creation function
+import { type Milestone } from '@prisma/client' // Import the batch creation function
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 

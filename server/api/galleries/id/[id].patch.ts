@@ -1,4 +1,5 @@
 // /server/api/galleries/[id].patch.ts
+import { defineEventHandler, readBody } from 'h3'
 import { fetchGalleryById, updateGallery } from '..'
 
 export default defineEventHandler(async (event) => {

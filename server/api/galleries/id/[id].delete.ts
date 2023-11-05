@@ -1,4 +1,5 @@
 // server/api/galleries/[id].delete.ts
+import { defineEventHandler } from 'h3'
 import { deleteGallery } from '..'
 
 export default defineEventHandler(async (event) => {

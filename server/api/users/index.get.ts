@@ -1,4 +1,5 @@
 // /server/api/users/index.get.ts
+import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
 import auth from '../../middleware/auth'
 import prisma from '../utils/prisma'

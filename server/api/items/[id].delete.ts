@@ -1,6 +1,6 @@
 // /server/api/items/[id].delete.ts
 import { defineEventHandler, readBody } from 'h3'
-import { CartItem } from '@prisma/client'
+import { type CartItem } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 

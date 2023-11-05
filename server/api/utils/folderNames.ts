@@ -2,6 +2,7 @@
 
 import { promises as fs } from 'fs'
 import path from 'path'
+import { defineEventHandler } from 'h3'
 
 export default defineEventHandler(async () => {
   try {

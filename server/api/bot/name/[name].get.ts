@@ -1,4 +1,5 @@
 // server/api/bot/name/[name].get.ts
+import { defineEventHandler } from 'h3'
 import { fetchBotByName } from '../../bots'
 
 export default defineEventHandler(async (event) => {

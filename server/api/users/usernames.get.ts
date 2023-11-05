@@ -1,5 +1,6 @@
 // /server/api/users/usernames.get.ts
 import { type User } from '@prisma/client'
+import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { fetchUsers } from '.'

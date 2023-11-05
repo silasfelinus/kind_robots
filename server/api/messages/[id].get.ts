@@ -1,5 +1,5 @@
 import { defineEventHandler } from 'h3'
-import { Message } from '@prisma/client'
+import { type Message } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 

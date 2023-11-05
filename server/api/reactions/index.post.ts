@@ -1,7 +1,7 @@
 // server/api/reactions/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
-import { ArtReaction, createArtReaction } from '.'
+import { type ArtReaction, createArtReaction } from '.'
 
 export default defineEventHandler(async (event) => {
   try {

@@ -1,4 +1,5 @@
 // server/api/galleries/[name].get.ts
+import { defineEventHandler } from 'h3'
 import { fetchGalleryByName } from '..'
 
 export default defineEventHandler(async (event) => {

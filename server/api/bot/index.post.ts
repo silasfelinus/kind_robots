@@ -1,4 +1,5 @@
 // /server/api/bot/index.post.ts
+import { defineEventHandler, readBody } from 'h3'
 import { addBots } from '../bots'
 
 export default defineEventHandler(async (event) => {

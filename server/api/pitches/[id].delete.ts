@@ -1,6 +1,6 @@
 // server/api/pitches/[id].delete.ts
 import { defineEventHandler } from 'h3'
-import { Pitch } from '@prisma/client'
+import { type Pitch } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 

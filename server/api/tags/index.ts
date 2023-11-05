@@ -1,4 +1,4 @@
-import { Tag, Prisma } from '@prisma/client'
+import { type Tag, Prisma } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 

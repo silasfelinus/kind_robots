@@ -1,6 +1,6 @@
 // /server/api/chats/index.get.ts
 import { defineEventHandler } from 'h3'
-import { ChatExchange } from '@prisma/client'
+import { type ChatExchange } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 

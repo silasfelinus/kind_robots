@@ -3,19 +3,20 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useUserStore } from './stores/userStore'
 import { errorHandler } from './server/api/utils/error'
 import { useArtStore } from './stores/artStore'
 import { useChannelStore } from './stores/channelStore'
 import { useMilestoneStore } from './stores/milestoneStore'
-import { useTagStore } from '@/stores/tagStore'
-import { useMatureStore } from '@/stores/matureStore'
-import { useThemeStore } from '@/stores/themeStore'
-import { useBotStore } from '@/stores/botStore'
-import { useLayoutStore } from '@/stores/layoutStore'
-import { usePitchStore } from '@/stores/pitchStore'
-import { useChatStore } from '@/stores/chatStore'
-import { usePageStore } from '@/stores/pageStore'
+import { useTagStore } from './stores/tagStore'
+import { useMatureStore } from './stores/matureStore'
+import { useThemeStore } from './stores/themeStore'
+import { useBotStore } from './stores/botStore'
+import { useLayoutStore } from './stores/layoutStore'
+import { usePitchStore } from './stores/pitchStore'
+import { useChatStore } from './stores/chatStore'
+import { usePageStore } from './stores/pageStore'
 
 const layoutStore = useLayoutStore()
 

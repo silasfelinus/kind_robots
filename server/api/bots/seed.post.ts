@@ -1,5 +1,6 @@
 // server/api/bots/seed.post.ts
-import { type BotData } from '../../../stores/seeds/seedBots'
+import { defineEventHandler } from 'h3'
+import { botData } from '../../../stores/seeds/seedBots'
 import { updateBots } from '.'
 
 export default defineEventHandler(async (event) => {

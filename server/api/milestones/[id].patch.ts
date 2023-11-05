@@ -1,6 +1,6 @@
 // /server/api/milestones/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
-import { PrismaClient, Milestone } from '@prisma/client'
+import { PrismaClient, type Milestone } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 
 const prisma = new PrismaClient()

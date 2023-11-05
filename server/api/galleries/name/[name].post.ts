@@ -1,4 +1,5 @@
 // /server/api/galleries/index.post.ts
+import { defineEventHandler, readBody } from 'h3'
 import { addGalleries } from '..' // Import the correct function
 
 export default defineEventHandler(async (event) => {

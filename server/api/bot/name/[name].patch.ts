@@ -1,4 +1,5 @@
 // /server/api/bots/[name].patch.ts
+import { defineEventHandler, readBody } from 'h3'
 import { fetchBotByName, updateBot } from '../../bots'
 
 export default defineEventHandler(async (event) => {

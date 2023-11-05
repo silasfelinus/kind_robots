@@ -1,5 +1,5 @@
 // server/api/users/index.ts
-import { User, Prisma } from '@prisma/client'
+import { type User, Prisma } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { validatePassword, hashPassword, generateApiKey } from './../auth'

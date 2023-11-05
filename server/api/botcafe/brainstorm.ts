@@ -2,6 +2,7 @@
 import { Prisma } from '@prisma/client'
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
+import { useRuntimeConfig, createError } from '#imports'
 
 const initialConversation = [
   {

@@ -4,7 +4,7 @@
     "typeRoots": ["./types", "./node_modules/@types"],
     "types": ["canvas-confetti"]
   },
-  "exclude": ["./app.vue", "./app.config.ts", "./nuxt.config.ts", "./tailwind.config.js"],
+  "exclude": ["app.vue", "app.config.ts", "nuxt.config.ts", "tailwind.config.js"],
   "include": [
     // Paths to the files or patterns you want to include:
     ".eslintrc.cjs",

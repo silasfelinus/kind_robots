@@ -1,4 +1,5 @@
 // server/api/galleries/random/index.get.ts
+import { defineEventHandler } from 'h3'
 
 import { randomGallery } from './..'
 

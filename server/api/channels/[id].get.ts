@@ -1,5 +1,5 @@
 // /server/api/channels/[id].get.ts
-import { Channel, Message } from '@prisma/client'
+import { type Channel, type Message } from '@prisma/client'
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'

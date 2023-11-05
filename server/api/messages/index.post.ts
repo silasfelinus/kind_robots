@@ -1,5 +1,5 @@
 // /server/api/messages/index.post.ts
-import { Message } from '@prisma/client'
+import { type Message } from '@prisma/client'
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'

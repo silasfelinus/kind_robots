@@ -1,3 +1,4 @@
+import { defineEventHandler } from 'h3'
 import { fetchTodos } from '.'
 
 // Define the event handler for GET requests to /api/todos

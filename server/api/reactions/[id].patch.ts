@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
-import { ArtReaction, updateArtReaction } from '.'
+import { type ArtReaction, updateArtReaction } from '.'
 
 export default defineEventHandler(async (event) => {
   try {

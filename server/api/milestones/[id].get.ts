@@ -1,6 +1,6 @@
 // server/api/milstones/[id].get.ts
 import { defineEventHandler } from 'h3'
-import { Milestone } from '@prisma/client'
+import { type Milestone } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 

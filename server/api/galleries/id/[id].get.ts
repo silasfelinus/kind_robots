@@ -1,3 +1,4 @@
+import { defineEventHandler } from 'h3'
 import { fetchGalleryById } from '..'
 import { errorHandler } from '../../utils/error'
 

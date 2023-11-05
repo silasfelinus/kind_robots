@@ -1,5 +1,5 @@
-import { defineEventHandler } from 'h3' // Replace with the actual import for H3's defineEventHandler
-import { Todo } from '@prisma/client'
+import { defineEventHandler, readBody } from 'h3' // Replace with the actual import for H3's defineEventHandler
+import { type Todo } from '@prisma/client'
 import { updateTodo } from '.' // Import your updateTodo function
 
 export default defineEventHandler(async (event) => {

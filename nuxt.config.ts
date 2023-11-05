@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxt/content', 'nuxt-icon', '@unlok-co/nuxt-stripe'],
+  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxt/content', 'nuxt-icon', '@unlok-co/nuxt-stripe', '@nuxt/devtools'],
   stripe: {
     // Server
     server: {

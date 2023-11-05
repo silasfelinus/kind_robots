@@ -4,7 +4,7 @@ import { jwtVerify, SignJWT } from 'jose'
 import { errorHandler } from '../utils/error'
 import { userExists } from '../users'
 import prisma from '../utils/prisma'
-// Add this import if you haven't already
+import { useRuntimeConfig } from '#imports'
 
 const { JWT_SECRET } = useRuntimeConfig()
 
@@ -13,7 +13,7 @@ export const verifyJwtToken = async (
   token: string
 ): Promise<{ success: boolean; userId?: number | null; message?: string; statusCode?: number }> => {
   try {
-    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'))
+    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET as string, 'utf-8'))
     const decoded = await jwtVerify(token, secretKey)
     console.log('Decoded Object:', decoded) // Debug log here
 
@@ -88,7 +88,7 @@ export async function validateApiKey(apiKey: string) {
 
 export async function createToken(user: any, apiKey: string): Promise<string> {
   try {
-    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'))
+    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET as string, 'utf-8'))
 
     const token = await new SignJWT({ id: user?.id, username: user?.username, apiKey })
       .setProtectedHeader({ alg: 'HS256' })
@@ -156,7 +156,7 @@ export async function validateUserCredentials(username: string, password?: strin
       return null
     }
 
-    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'))
+    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET as string, 'utf-8'))
 
     const token = await new SignJWT({ id: user?.id, username: user?.username })
       .setProtectedHeader({ alg: 'HS256' })

@@ -27,6 +27,6 @@
 
 <script setup lang="ts">
 // Your existing script setup
-const { page } = useContent()
-useContentHead(page)
+const { page } = useContent();
+useContentHead(page);
 </script>

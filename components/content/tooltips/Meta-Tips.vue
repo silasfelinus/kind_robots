@@ -24,13 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const flipped = ref(false)
+const flipped = ref(false);
 
 const toggleFlip = () => {
-  flipped.value = !flipped.value
-}
+  flipped.value = !flipped.value;
+};
 </script>
 
 <style scoped>

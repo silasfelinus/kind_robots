@@ -22,19 +22,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { usePageStore } from '@/stores/pageStore'
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { usePageStore } from '@/stores/pageStore';
 
-const pageStore = usePageStore()
-const { page } = useContent()
+const pageStore = usePageStore();
+const { page } = useContent();
 const isHomePage = computed(() => {
-  return page.value ? page.value._path === '/' || page.value.path === '/' : false
-})
+  return page.value ? page.value._path === '/' || page.value.path === '/' : false;
+});
 
 const randomHighlightPage = computed(() => {
-  return pageStore.highlightPages[Math.floor(Math.random() * pageStore.highlightPages.length)] || {}
-})
+  return pageStore.highlightPages[Math.floor(Math.random() * pageStore.highlightPages.length)] || {};
+});
 </script>
 
 <style scoped>

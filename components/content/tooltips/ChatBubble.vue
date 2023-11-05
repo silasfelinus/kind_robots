@@ -9,12 +9,12 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  message: string
-  sender: string
-  align: 'left' | 'right'
-}>()
+  message: string;
+  sender: string;
+  align: 'left' | 'right';
+}>();
 
-const { message, sender, align } = props
+const { message, sender, align } = props;
 
-const bubbleClasses = ['p-3', 'rounded-lg', align === 'left' ? 'bg-base-200' : 'bg-info']
+const bubbleClasses = ['p-3', 'rounded-lg', align === 'left' ? 'bg-base-200' : 'bg-info'];
 </script>

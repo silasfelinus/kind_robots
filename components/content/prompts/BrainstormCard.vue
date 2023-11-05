@@ -11,8 +11,8 @@ const props = defineProps({
     type: Object,
     default: () => ({
       title: 'Shocking Idea',
-      example: 'Hilarious Example'
-    })
-  }
-})
+      example: 'Hilarious Example',
+    }),
+  },
+});
 </script>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
+import { computed, ref } from 'vue';
+import { useBotStore } from '../../../stores/botStore';
 
-const botsStore = useBotStore()
-let currentBot = computed(() => botsStore.currentBot)
-const bots = computed(() => botsStore.bots)
-const toggled = ref(false)
+const botsStore = useBotStore();
+let currentBot = computed(() => botsStore.currentBot);
+const bots = computed(() => botsStore.bots);
+const toggled = ref(false);
 </script>
 <template>
   <div

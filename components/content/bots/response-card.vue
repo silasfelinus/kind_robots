@@ -22,44 +22,44 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
 interface Message {
-  role: string
-  content: string
+  role: string;
+  content: string;
 }
 
 const props = defineProps({
   messages: {
     type: Array as () => Message[],
-    default: () => []
+    default: () => [],
   },
   sendMessage: {
     type: Function as unknown as () => (updatedMessages: Message[]) => Promise<void>,
-    default: () => async () => {}
-  }
-})
+    default: () => async () => {},
+  },
+});
 
-let showReply = ref(false)
-let replyMessage = ref('')
+let showReply = ref(false);
+let replyMessage = ref('');
 
 const toggleReply = () => {
-  showReply.value = !showReply.value
-}
+  showReply.value = !showReply.value;
+};
 
 const getLastMessageContent = computed(() => {
-  return props.messages.length ? props.messages[props.messages.length - 1].content : ''
-})
+  return props.messages.length ? props.messages[props.messages.length - 1].content : '';
+});
 const sendReply = async () => {
   try {
-    const updatedMessages = [...props.messages, { role: 'user', content: replyMessage.value }]
-    await props.sendMessage(updatedMessages)
-    replyMessage.value = ''
-    showReply.value = false
+    const updatedMessages = [...props.messages, { role: 'user', content: replyMessage.value }];
+    await props.sendMessage(updatedMessages);
+    replyMessage.value = '';
+    showReply.value = false;
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
-}
+};
 </script>
 <style scoped>
 .response-card {

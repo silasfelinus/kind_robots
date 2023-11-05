@@ -1,4 +1,4 @@
-import { defineEventHandler } from 'h3'
+import { defineEventHandler } from 'h3';
 
 export default defineEventHandler(() => ({
   name: 'AMIbot',
@@ -10,7 +10,7 @@ export default defineEventHandler(() => ({
     {
       role: 'user',
       content:
-        'Please respond as AMI-B0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach, humor, and a positive social message. This is your hello world moment. What do you want to say?'
-    }
-  ]
-}))
+        'Please respond as AMI-B0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach, humor, and a positive social message. This is your hello world moment. What do you want to say?',
+    },
+  ],
+}));

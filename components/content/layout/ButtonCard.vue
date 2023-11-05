@@ -17,28 +17,28 @@
 const props = defineProps({
   image: {
     type: String,
-    default: ''
+    default: '',
   },
   description: {
     type: String,
-    default: ''
+    default: '',
   },
   colorId: {
     type: Number,
-    default: 1
+    default: 1,
   },
   label: {
     type: String,
-    default: ''
-  }
-})
+    default: '',
+  },
+});
 
 const cardColor = computed(() => {
-  const baseColors = ['bg-accent', 'bg-secondary', 'bg-accent', 'bg-warning']
-  return baseColors[props.colorId - 1] || baseColors[0]
-})
+  const baseColors = ['bg-accent', 'bg-secondary', 'bg-accent', 'bg-warning'];
+  return baseColors[props.colorId - 1] || baseColors[0];
+});
 
 const handleClick = () => {
-  emit('click')
-}
+  emit('click');
+};
 </script>

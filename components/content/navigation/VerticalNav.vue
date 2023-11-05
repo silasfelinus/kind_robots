@@ -15,7 +15,7 @@
             :class="[
               'w-24 h-24 md:w-32 md:h-32 rounded-full transition-all ease-in-out duration-500 relative',
               clicked === page._id ? 'scale-110' : '',
-              'hover:scale-105 hover:shadow-lg'
+              'hover:scale-105 hover:shadow-lg',
             ]"
           >
             <img
@@ -50,12 +50,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const clicked = ref<string | null>(null)
+const clicked = ref<string | null>(null);
 
 const { find } = queryContent()
   .where({ $not: { _path: '/' } })
-  .sort({ _id: 1 })
-const { data: pages } = await useAsyncData('pages-list', find)
+  .sort({ _id: 1 });
+const { data: pages } = await useAsyncData('pages-list', find);
 </script>

@@ -10,13 +10,13 @@
           v-if="!gameStore.isGameStarted && !gameStore.showAbout"
           class="text-lg leading-relaxed text-white font-medium"
         >
-          Welcome to "Weirdlandia", a realm where every choice brings a new, unexpected twist.
-          Challenges await at every corner. Carve your own journey in this unpredictable realm.
+          Welcome to "Weirdlandia", a realm where every choice brings a new, unexpected twist. Challenges await at every
+          corner. Carve your own journey in this unpredictable realm.
         </p>
 
         <p v-if="gameStore.showAbout" class="text-sm text-white font-semibold">
-          Weirdlandia is under active development. For more information or to request a press
-          packet, message weird@kindrobots.org
+          Weirdlandia is under active development. For more information or to request a press packet, message
+          weird@kindrobots.org
         </p>
 
         <!-- Game Content -->
@@ -39,34 +39,34 @@
 </template>
 
 <script setup lang="ts">
-import { useGameStore } from '../../../stores/gameStore'
-const gameStore = useGameStore()
-const bgImage = ref('')
+import { useGameStore } from '../../../stores/gameStore';
+const gameStore = useGameStore();
+const bgImage = ref('');
 
 const initiateGame = () => {
-  gameStore.initiateNewGame()
-}
+  gameStore.initiateNewGame();
+};
 
 const fetchBackgroundImage = async () => {
   try {
-    const response = await fetch('https://kindrobots.org/api/galleries/random/name/weirdlandia')
+    const response = await fetch('/api/galleries/random/name/weirdlandia');
 
     if (!response.ok) {
-      throw new Error('Failed to fetch the image.')
+      throw new Error('Failed to fetch the image.');
     }
 
-    const data = await response.json()
-    bgImage.value = data.image
+    const data = await response.json();
+    bgImage.value = data.image;
   } catch (error) {
-    console.error('There was an error fetching the background image:', error)
+    console.error('There was an error fetching the background image:', error);
   }
-}
+};
 
 const toggleGameAbout = () => {
-  gameStore.toggleAbout()
-}
+  gameStore.toggleAbout();
+};
 
-onMounted(fetchBackgroundImage)
+onMounted(fetchBackgroundImage);
 </script>
 
 <style>

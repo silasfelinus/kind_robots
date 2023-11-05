@@ -15,22 +15,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
 const props = defineProps<{
-  name: string
-  subtitle: string
-  description: string
-  avatarImage: string
-  theme: string
-  underConstruction: boolean
-  botIntro: string
-  userIntro: string
-  prompt: string
-  personality: string
-  sampleResponse: string
-  botType: string
-}>()
+  name: string;
+  subtitle: string;
+  description: string;
+  avatarImage: string;
+  theme: string;
+  underConstruction: boolean;
+  botIntro: string;
+  userIntro: string;
+  prompt: string;
+  personality: string;
+  sampleResponse: string;
+  botType: string;
+}>();
 
 const {
   name,
@@ -44,12 +44,12 @@ const {
   prompt,
   personality,
   sampleResponse,
-  botType
-} = props
+  botType,
+} = props;
 
 const sendMessage = () => {
   // Logic to send a message
   // For now, it's just a placeholder
-  alert('Message sent to bot!')
-}
+  alert('Message sent to bot!');
+};
 </script>

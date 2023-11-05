@@ -5,11 +5,7 @@
     <p class="text-lg mb-4">
       Welcome to the Brainstorm Café! Click the button below to get some fresh, creative ideas.
     </p>
-    <button
-      class="bg-primary text-white p-4 rounded-full text-lg m-4"
-      :disabled="isLoading"
-      @click="fetchBrainstorm"
-    >
+    <button class="bg-primary text-white p-4 rounded-full text-lg m-4" :disabled="isLoading" @click="fetchBrainstorm">
       Get New Ideas
     </button>
     <milestone-reward v-if="shouldShowMilestoneCheck" :id="2"></milestone-reward>
@@ -28,76 +24,76 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { errorHandler } from '../../../server/api/utils/error'
-import { sampleIdeas } from '@/training/sampleIdeas'
+import { ref, onMounted } from 'vue';
+import { errorHandler } from '../../../server/api/utils/error';
+import { sampleIdeas } from '@/training/sampleIdeas';
 
 interface Idea {
-  title: string
-  example: string
+  title: string;
+  example: string;
 }
 
-const isLoading = ref(false)
-const errorMessage = ref<string | null>(null)
-const pageImage = '/images/avatars/brain1.webp'
-const shouldShowMilestoneCheck = ref(false)
+const isLoading = ref(false);
+const errorMessage = ref<string | null>(null);
+const pageImage = '/images/avatars/brain1.webp';
+const shouldShowMilestoneCheck = ref(false);
 
 const getRandomIdeas = (count: number) => {
-  const shuffled = [...sampleIdeas].sort(() => 0.5 - Math.random())
-  return shuffled.slice(0, count)
-}
+  const shuffled = [...sampleIdeas].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
 // Initialize allIdeas with 5 random pre-generated ideas
-const allIdeas = ref<Idea[]>(getRandomIdeas(5))
+const allIdeas = ref<Idea[]>(getRandomIdeas(5));
 
 const fetchBrainstorm = async () => {
-  isLoading.value = true
-  errorMessage.value = null
+  isLoading.value = true;
+  errorMessage.value = null;
   try {
-    const response = await fetch('https://kindrobots.org/api/botcafe/brainstorm', {
+    const response = await fetch('/api/botcafe/brainstorm', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: 'five more original brainstorms' }]
-      })
-    })
-    shouldShowMilestoneCheck.value = true
+        messages: [{ role: 'user', content: 'five more original brainstorms' }],
+      }),
+    });
+    shouldShowMilestoneCheck.value = true;
 
-    const data = await response.json()
+    const data = await response.json();
     if (data.choices && data.choices[0] && data.choices[0].message) {
-      const newIdeas: Idea[] = parseIdeasFromAPI(data.choices[0].message.content)
+      const newIdeas: Idea[] = parseIdeasFromAPI(data.choices[0].message.content);
       if (newIdeas.length > 0) {
-        allIdeas.value = [...newIdeas, ...allIdeas.value]
+        allIdeas.value = [...newIdeas, ...allIdeas.value];
       } else {
-        throw new Error('No new ideas generated')
+        throw new Error('No new ideas generated');
       }
     } else {
-      throw new Error('Invalid API response')
+      throw new Error('Invalid API response');
     }
   } catch (error: any) {
-    const { message } = errorHandler(error)
-    errorMessage.value = message
-    console.error('Error fetching brainstorm:', error)
+    const { message } = errorHandler(error);
+    errorMessage.value = message;
+    console.error('Error fetching brainstorm:', error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 const handleCardClick = (idea: Idea) => {
-  console.log('Card clicked:', idea)
-}
+  console.log('Card clicked:', idea);
+};
 
 const parseIdeasFromAPI = (rawContent: string) => {
-  const lines = rawContent.split('\n')
-  const ideasList = lines.filter((line: string) => /^\d+\./.test(line))
+  const lines = rawContent.split('\n');
+  const ideasList = lines.filter((line: string) => /^\d+\./.test(line));
   return ideasList.map((item: string) => {
-    const cleanItem = item.replace(/^\d+\.\s/, '')
-    const [title, example] = cleanItem.split(' - ')
-    return { title, example } as Idea
-  })
-}
+    const cleanItem = item.replace(/^\d+\.\s/, '');
+    const [title, example] = cleanItem.split(' - ');
+    return { title, example } as Idea;
+  });
+};
 </script>
 
 <style scoped>

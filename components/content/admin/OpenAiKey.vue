@@ -6,14 +6,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue';
 
-const key = ref('')
+const key = ref('');
 
 const saveKeyToLocal = () => {
   if (typeof window !== 'undefined') {
-    window.localStorage.setItem('user_openai_key', key.value)
-    alert('Key saved successfully!')
+    window.localStorage.setItem('user_openai_key', key.value);
+    alert('Key saved successfully!');
   }
-}
+};
 </script>

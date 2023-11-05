@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 
 export const useLoadStore = defineStore('loadMessages', () => {
   const loadMessages = [
@@ -26,13 +26,13 @@ export const useLoadStore = defineStore('loadMessages', () => {
     'Lining up the binary stars for a digital constellation...',
     'Steeping a fresh batch of bot brew...',
     'Weaving a tapestry of tech-tales...',
-    'Painting the canvas of cyberspace with joy...'
-  ]
+    'Painting the canvas of cyberspace with joy...',
+  ];
 
   function randomLoadMessage() {
-    const randomIndex = Math.floor(Math.random() * loadMessages.length)
-    return loadMessages[randomIndex]
+    const randomIndex = Math.floor(Math.random() * loadMessages.length);
+    return loadMessages[randomIndex];
   }
 
-  return { loadMessages, randomLoadMessage }
-})
+  return { loadMessages, randomLoadMessage };
+});

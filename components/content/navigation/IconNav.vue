@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="icon-container flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent-100"
-  >
+  <div class="icon-container flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent-100">
     <butterfly-toggle />
     <div
       class="icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
@@ -31,12 +29,12 @@
 </template>
 
 <script setup lang="ts">
-import { useScreenStore } from '../../../stores/screenStore'
+import { useScreenStore } from '../../../stores/screenStore';
 
-const fxStore = useScreenStore()
+const fxStore = useScreenStore();
 
-const toggleRainEffect = () => fxStore.toggleRainEffect()
-const toggleSoapBubbles = () => fxStore.toggleSoapBubbles()
+const toggleRainEffect = () => fxStore.toggleRainEffect();
+const toggleSoapBubbles = () => fxStore.toggleSoapBubbles();
 </script>
 <style scoped>
 .icon-box {

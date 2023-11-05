@@ -9,18 +9,18 @@ export default {
   props: {
     x: {
       type: Number,
-      required: true
+      required: true,
     },
     y: {
       type: Number,
-      required: true
+      required: true,
     },
     text: {
       type: String,
-      required: true
-    }
-  }
-}
+      required: true,
+    },
+  },
+};
 </script>
 
 <style scoped>

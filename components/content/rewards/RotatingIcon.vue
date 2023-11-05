@@ -7,18 +7,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { gsap } from 'gsap'
+import { ref, onMounted } from 'vue';
+import { gsap } from 'gsap';
 
 const props = defineProps<{
-  icon?: string
-}>()
+  icon?: string;
+}>();
 
-const icon = props.icon || 'mdi:default-icon' // Replace 'mdi:default-icon' with your actual default icon
+const icon = props.icon || 'mdi:default-icon'; // Replace 'mdi:default-icon' with your actual default icon
 
-const pedestal = ref(null)
-const rotatingIcon = ref(null)
-const glitter = ref(null)
+const pedestal = ref(null);
+const rotatingIcon = ref(null);
+const glitter = ref(null);
 
 onMounted(() => {
   // Basic 3D rotation
@@ -26,8 +26,8 @@ onMounted(() => {
     duration: 10,
     rotationY: 360,
     repeat: -1,
-    ease: 'none'
-  })
+    ease: 'none',
+  });
 
   // Glitter effect
   gsap.to(glitter.value, {
@@ -35,9 +35,9 @@ onMounted(() => {
     opacity: 1,
     yoyo: true,
     repeat: -1,
-    ease: 'power1.inOut'
-  })
-})
+    ease: 'power1.inOut',
+  });
+});
 </script>
 
 <style scoped>

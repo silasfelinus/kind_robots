@@ -11,9 +11,7 @@
           <h1 class="text-5xl font-semibold mb-4 card-title">{{ currentBot.name }}</h1>
           <p class="mt-4 text-2xl">{{ currentBot.description }}</p>
           <div class="w-40">
-            <label for="n-selection" class="block text-sm font-medium text-gray-700"
-              >Variations:</label
-            >
+            <label for="n-selection" class="block text-sm font-medium text-gray-700">Variations:</label>
           </div>
         </div>
         <div class="mt-4">
@@ -24,10 +22,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
+import { computed, ref } from 'vue';
+import { useBotStore } from '../../../stores/botStore';
 
-const botsStore = useBotStore()
-let currentBot = computed(() => botsStore.currentBot)
-const bots = computed(() => botsStore.bots)
+const botsStore = useBotStore();
+let currentBot = computed(() => botsStore.currentBot);
+const bots = computed(() => botsStore.bots);
 </script>

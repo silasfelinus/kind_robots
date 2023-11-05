@@ -14,11 +14,7 @@
 
     <!-- Designer Tooltip -->
     <div class="relative">
-      <div
-        class="text-sm text-gray-500 cursor-pointer"
-        @mouseover="showTooltip"
-        @mouseleave="hideTooltip"
-      >
+      <div class="text-sm text-gray-500 cursor-pointer" @mouseover="showTooltip" @mouseleave="hideTooltip">
         {{ pitch.designer }}
       </div>
       <div v-if="tooltipVisible" class="absolute left-0 top-full text-xs bg-base-100 p-1 rounded">
@@ -29,30 +25,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Pitch, usePitchStore } from '@/stores/pitchStore'
+import { ref } from 'vue';
+import { type Pitch, usePitchStore } from '@/stores/pitchStore';
 
-const pitchStore = usePitchStore()
+const pitchStore = usePitchStore();
 
 const {
   pitch = {
     title: 'Presto-Chango',
     pitch: 'Here today, gone tomorrow',
     flavorText: 'Now you see me...',
-    designer: 'Harriet Whodunnit'
-  }
+    designer: 'Harriet Whodunnit',
+  },
 } = defineProps<{
-  pitch?: Pitch
-}>()
-const avatarImage = '/images/kindtitle.webp'
-const pitchArt = pitchStore.getArtForPitch
-const tooltipVisible = ref(false)
+  pitch?: Pitch;
+}>();
+const avatarImage = '/images/kindtitle.webp';
+const pitchArt = pitchStore.getArtForPitch;
+const tooltipVisible = ref(false);
 
 const showTooltip = () => {
-  tooltipVisible.value = true
-}
+  tooltipVisible.value = true;
+};
 
 const hideTooltip = () => {
-  tooltipVisible.value = false
-}
+  tooltipVisible.value = false;
+};
 </script>

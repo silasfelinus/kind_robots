@@ -9,12 +9,7 @@
 
     <!-- Chat Input -->
     <div class="chat-input mt-4">
-      <input
-        v-model="newMessage"
-        type="text"
-        placeholder="Type your message..."
-        @keyup.enter="sendMessage"
-      />
+      <input v-model="newMessage" type="text" placeholder="Type your message..." @keyup.enter="sendMessage" />
     </div>
 
     <!-- Channel Selector -->
@@ -29,34 +24,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
-import { useChannelStore, Channel as BaseChannel, Message } from '@/stores/channelStore'
+import { ref, computed, onMounted, watch } from 'vue';
+import { usePitchStore } from '@/stores/pitchStore';
+import { useChannelStore, type Channel as BaseChannel, type Message } from '@/stores/channelStore';
 
 interface Channel extends BaseChannel {
-  messages?: Message[]
+  messages?: Message[];
 }
 
-const pitchStore = usePitchStore()
-const channelStore = useChannelStore()
+const pitchStore = usePitchStore();
+const channelStore = useChannelStore();
 
-const channelId = computed(() => pitchStore.selectedPitch?.channelId || 0)
-const channels = computed<Channel[]>(() => channelStore.channels)
-const newMessage = ref('') // Holds the new message to be sent
-const selectedChannelId = ref(channelId.value) // Initially set to the channelId of the selected pitch
+const channelId = computed(() => pitchStore.selectedPitch?.channelId || 0);
+const channels = computed<Channel[]>(() => channelStore.channels);
+const newMessage = ref(''); // Holds the new message to be sent
+const selectedChannelId = ref(channelId.value); // Initially set to the channelId of the selected pitch
 
 const currentChannelMessages = computed<Message[]>(() => {
-  console.log('Type:', typeof channels.value, 'Value:', channels.value) // Debugging line
-  const channel = channels.value.find((ch) => ch.id === selectedChannelId.value)
-  return channel?.messages || []
-})
+  console.log('Type:', typeof channels.value, 'Value:', channels.value); // Debugging line
+  const channel = channels.value.find((ch) => ch.id === selectedChannelId.value);
+  return channel?.messages || [];
+});
 
 // Function to send a new message
 const sendMessage = () => {
   if (newMessage.value.trim() !== '') {
     const channel = Array.isArray(channels.value)
       ? channels.value.find((ch) => ch.id === selectedChannelId.value)
-      : null
+      : null;
 
     if (channel) {
       channelStore.createMessage({
@@ -64,23 +59,23 @@ const sendMessage = () => {
         recipient: 'recipient',
         channelId: selectedChannelId.value,
         content: newMessage.value,
-        userId: 0
-      })
-      newMessage.value = ''
+        userId: 0,
+      });
+      newMessage.value = '';
     }
   }
-}
+};
 
 // Function to change the channel
 const changeChannel = () => {
-  channelStore.setCurrentChannel(selectedChannelId.value)
-  channelStore.fetchCurrentChannelWithMessages(selectedChannelId.value)
-}
+  channelStore.setCurrentChannel(selectedChannelId.value);
+  channelStore.fetchCurrentChannelWithMessages(selectedChannelId.value);
+};
 
 watch(channelId, (newChannelId) => {
-  selectedChannelId.value = newChannelId
-  channelStore.fetchCurrentChannelWithMessages(newChannelId)
+  selectedChannelId.value = newChannelId;
+  channelStore.fetchCurrentChannelWithMessages(newChannelId);
 
-  console.log('Type:', typeof channels.value, 'Value:', channels.value)
-})
+  console.log('Type:', typeof channels.value, 'Value:', channels.value);
+});
 </script>

@@ -17,15 +17,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue';
 
 const props = defineProps({
   label: { type: String, default: 'Temperature' },
   leftLabel: { type: String, default: 'Consistency' },
-  rightLabel: { type: String, default: 'Creativity' }
-})
+  rightLabel: { type: String, default: 'Creativity' },
+});
 
-const temperature = ref()
+const temperature = ref();
 const descriptions = [
   '0.0: Consistently Consistent',
   '0.1: Nearly consistent.',
@@ -37,13 +37,13 @@ const descriptions = [
   '0.7: Thinks Outside the Box.',
   '0.8: A Little Bit Wild.',
   '0.9: Prone to Flights of Fancy',
-  '1.0: Maximum Creativity!'
-]
-const description = ref('')
+  '1.0: Maximum Creativity!',
+];
+const description = ref('');
 
 watchEffect(() => {
-  description.value = descriptions[Math.round(temperature.value * 10)]
-})
+  description.value = descriptions[Math.round(temperature.value * 10)];
+});
 </script>
 
 <style scoped>

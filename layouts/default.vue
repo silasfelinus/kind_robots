@@ -22,7 +22,7 @@
         :class="{
           'w-[50%]': isNavVisible && isLargeScreen,
           hidden: !isNavVisible || !isLargeScreen,
-          'w-full': isNavVisible && !isLargeScreen
+          'w-full': isNavVisible && !isLargeScreen,
         }"
         class="flex-none h-full overflow-y-auto transition-all duration-600 ease-in-out bg-base-200 rounded-lg shadow-lg"
         @click.stop
@@ -31,10 +31,7 @@
       </div>
 
       <!-- Main Slot -->
-      <div
-        class="flex-grow h-full overflow-y-auto bg-gray-100 rounded-lg shadow-lg"
-        @click="closeNav"
-      >
+      <div class="flex-grow h-full overflow-y-auto bg-gray-100 rounded-lg shadow-lg" @click="closeNav">
         <div class="h-full w-full border border-gray-300 rounded">
           <slot class="bg-grey-200 rounded-2xl p-1 m-1" />
         </div>
@@ -43,29 +40,29 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-const isNavVisible = ref(false)
-const isLargeScreen = ref(false)
+const isNavVisible = ref(false);
+const isLargeScreen = ref(false);
 
 const toggleNav = () => {
-  isNavVisible.value = !isNavVisible.value
-}
+  isNavVisible.value = !isNavVisible.value;
+};
 
 const closeNav = () => {
-  isNavVisible.value = false
-}
+  isNavVisible.value = false;
+};
 
 const handleResize = () => {
-  isLargeScreen.value = window.innerWidth > 1024
-}
+  isLargeScreen.value = window.innerWidth > 1024;
+};
 
 onMounted(() => {
-  handleResize()
-  window.addEventListener('resize', handleResize)
-})
+  handleResize();
+  window.addEventListener('resize', handleResize);
+});
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
-})
+  window.removeEventListener('resize', handleResize);
+});
 </script>

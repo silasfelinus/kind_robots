@@ -19,17 +19,17 @@
 const props = defineProps({
   image: {
     type: String,
-    default: '/images/amibot/amibot1.webp'
+    default: '/images/amibot/amibot1.webp',
   },
   title: {
     type: String,
-    default: 'AmiCard'
+    default: 'AmiCard',
   },
   avatar: {
     type: String,
-    default: '/images/acrocats/PXL_20220903_023602144.jpg'
-  }
-})
+    default: '/images/acrocats/PXL_20220903_023602144.jpg',
+  },
+});
 </script>
 
 <style scoped>

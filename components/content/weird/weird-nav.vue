@@ -14,12 +14,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { usePageStore } from '../../../stores/pageStore'
+import { onMounted } from 'vue';
+import { usePageStore } from '../../../stores/pageStore';
 
-const pageStore = usePageStore()
+const pageStore = usePageStore();
 
 const pagesByTag = (tag: string) => {
-  return pageStore.pages.filter((page: any) => page.tags?.includes(tag))
-}
+  return pageStore.pages.filter((page: any) => page.tags?.includes(tag));
+};
 </script>

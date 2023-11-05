@@ -26,36 +26,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Milestone } from '@/stores/milestoneStore'
+import { ref } from 'vue';
+import { type Milestone } from '@/stores/milestoneStore';
 
 // Define props and destructure them
 const props = defineProps<{
-  milestone: Milestone
-}>()
-const { milestone } = props
+  milestone: Milestone;
+}>();
+const { milestone } = props;
 
 // State to toggle tooltip visibility
-const revealTooltip = ref(false)
+const revealTooltip = ref(false);
 
 // Variable to hold the timer ID
-let timerId: ReturnType<typeof setTimeout> | null = null
+let timerId: ReturnType<typeof setTimeout> | null = null;
 
 // Function to toggle tooltip and set a timer to revert it back to '?'
 const toggleTooltip = () => {
   // Clear any existing timer
   if (timerId) {
-    clearTimeout(timerId)
+    clearTimeout(timerId);
   }
 
   // Toggle the tooltip
-  revealTooltip.value = !revealTooltip.value
+  revealTooltip.value = !revealTooltip.value;
 
   // Set a new timer if the tooltip is revealed
   if (revealTooltip.value) {
     timerId = setTimeout(() => {
-      revealTooltip.value = false
-    }, 1200) // Reverts back to '?' after 3 seconds
+      revealTooltip.value = false;
+    }, 1200); // Reverts back to '?' after 3 seconds
   }
-}
+};
 </script>

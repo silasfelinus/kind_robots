@@ -1,6 +1,6 @@
 // /training/milestoneData.ts
 
-import { Milestone } from '@prisma/client' // Import your Milestone type
+import { Milestone } from '@prisma/client'; // Import your Milestone type
 
 export const milestoneData: Milestone[] = [
   {
@@ -16,7 +16,7 @@ export const milestoneData: Milestone[] = [
     tooltip: 'Create a user account',
     isActive: true,
     pageHint: '/',
-    subtleHint: 'Venture into a new realm'
+    subtleHint: 'Venture into a new realm',
   },
   {
     id: 2,
@@ -31,7 +31,7 @@ export const milestoneData: Milestone[] = [
     tooltip: 'Submit a brainstorm.',
     isActive: false,
     pageHint: '/brainstorm',
-    subtleHint: 'Flex your cranium'
+    subtleHint: 'Flex your cranium',
   },
   {
     id: 3,
@@ -46,7 +46,7 @@ export const milestoneData: Milestone[] = [
     tooltip: 'Start your path in weirdlandia',
     isActive: false,
     pageHint: '/weirdlandia',
-    subtleHint: 'Venture into a new realm'
+    subtleHint: 'Venture into a new realm',
   },
   {
     id: 4,
@@ -61,7 +61,7 @@ export const milestoneData: Milestone[] = [
     tooltip: 'Send a chat message to a robot.',
     isActive: false,
     pageHint: '/botcafe',
-    subtleHint: 'Palaver with a pseudo-intelligence'
+    subtleHint: 'Palaver with a pseudo-intelligence',
   },
   {
     id: 5,
@@ -76,7 +76,7 @@ export const milestoneData: Milestone[] = [
     tooltip: 'Submit a prompt to Art Maker',
     isActive: false,
     pageHint: '/artmaker',
-    subtleHint: 'What does it take to become an artist?'
+    subtleHint: 'What does it take to become an artist?',
   },
   {
     id: 6,
@@ -91,7 +91,7 @@ export const milestoneData: Milestone[] = [
     tooltip: 'Make a decision in Fate Chooser.',
     isActive: false,
     pageHint: '/fate',
-    subtleHint: 'There are no wrong answers'
+    subtleHint: 'There are no wrong answers',
   },
   {
     id: 7,
@@ -106,7 +106,7 @@ export const milestoneData: Milestone[] = [
     tooltip: 'Respond to something with a comment or reaction.',
     isActive: false,
     pageHint: '/galleries',
-    subtleHint: 'Express an opinion'
+    subtleHint: 'Express an opinion',
   },
   {
     id: 8,
@@ -121,7 +121,7 @@ export const milestoneData: Milestone[] = [
     tooltip: 'Create an anti-malaria slogan',
     isActive: false,
     pageHint: '/ammibot',
-    subtleHint: 'Contribute to a social movement'
+    subtleHint: 'Contribute to a social movement',
   },
   {
     id: 9,
@@ -136,7 +136,7 @@ export const milestoneData: Milestone[] = [
     tooltip: 'Change your theme in theme-selector',
     isActive: false,
     pageHint: '/theme',
-    subtleHint: 'Try out a new look'
+    subtleHint: 'Try out a new look',
   },
   {
     id: 10,
@@ -151,8 +151,8 @@ export const milestoneData: Milestone[] = [
     tooltip: 'Gain your first milestone',
     isActive: false,
     pageHint: '/milestones',
-    subtleHint: 'Aspire for greatness'
-  }
-]
+    subtleHint: 'Aspire for greatness',
+  },
+];
 
 // Add more milestones here

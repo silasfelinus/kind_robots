@@ -11,31 +11,31 @@
 </template>
 
 <script setup>
-import { useDreamStore } from '../../../stores/dreamStore'
+import { useDreamStore } from '../../../stores/dreamStore';
 
-const dreamStore = useDreamStore()
-const dream = ref(dreamStore.randomDream())
-let statusMessage = ref(`One Moment...${dream.value}`)
+const dreamStore = useDreamStore();
+const dream = ref(dreamStore.randomDream());
+let statusMessage = ref(`One Moment...${dream.value}`);
 
 const updateDream = () => {
-  dream.value = dreamStore.randomDream()
-  statusMessage.value = `Hold On...${dream.value}`
-}
+  dream.value = dreamStore.randomDream();
+  statusMessage.value = `Hold On...${dream.value}`;
+};
 
-let intervalId = null
+let intervalId = null;
 onMounted(() => {
-  intervalId = setInterval(updateDream, 20 * 1000)
-})
+  intervalId = setInterval(updateDream, 20 * 1000);
+});
 
 onUnmounted(() => {
   if (intervalId) {
-    clearInterval(intervalId)
+    clearInterval(intervalId);
   }
-})
+});
 
 watchEffect(() => {
-  statusMessage.value = `${dream.value}`
-})
+  statusMessage.value = `${dream.value}`;
+});
 </script>
 
 <style scoped>

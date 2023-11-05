@@ -24,6 +24,6 @@
 </template>
 
 <script setup lang="ts">
-const { page } = useContent()
-useContentHead(page)
+const { page } = useContent();
+useContentHead(page);
 </script>

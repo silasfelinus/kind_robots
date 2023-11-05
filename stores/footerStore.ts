@@ -1,18 +1,18 @@
 // ~/stores/footerStore.ts
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 
 interface FooterState {
-  isExtended: boolean
+  isExtended: boolean;
 }
 
 export const useFooterStore = defineStore({
   id: 'footerStore',
   state: (): FooterState => ({
-    isExtended: false
+    isExtended: false,
   }),
   actions: {
     toggleIsExtended() {
-      this.isExtended = !this.isExtended
-    }
-  }
-})
+      this.isExtended = !this.isExtended;
+    },
+  },
+});

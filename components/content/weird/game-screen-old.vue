@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="h-screen flex flex-col bg-gradient-to-r from-primary to-secondary rounded-br-3xl rounded-tr-3xl"
-  >
+  <div class="h-screen flex flex-col bg-gradient-to-r from-primary to-secondary rounded-br-3xl rounded-tr-3xl">
     <!-- Header -->
     <div class="flex items-center justify-between px-6 py-4 bg-primary rounded-tl-3xl"></div>
 

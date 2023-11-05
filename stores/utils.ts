@@ -1,6 +1,6 @@
 // ~/types/util
 
-export type Timestamp = string
+export type Timestamp = string;
 
 export enum ModelType {
   BOT = 'BOT',
@@ -13,7 +13,7 @@ export enum ModelType {
   REACTION = 'REACTION',
   RESOURCE = 'RESOURCE',
   REVIEW = 'REVIEW',
-  USER = 'USER'
+  USER = 'USER',
 }
 
 export enum ResourceType {
@@ -23,14 +23,14 @@ export enum ResourceType {
   LYCORIS = 'LYCORIS',
   HYPERNETWORK = 'HYPERNETWORK',
   CONTROLNET = 'CONTROLNET',
-  URL = 'URL'
+  URL = 'URL',
 }
 
 export enum MediaType {
   IMAGE,
   VIDEO,
   AUDIO,
-  TEXT
+  TEXT,
 }
 
 export enum Role {
@@ -40,7 +40,7 @@ export enum Role {
   ADMIN = 'ADMIN',
   GUEST = 'GUEST',
   BOT = 'BOT',
-  DESIGNER = 'DESIGNER'
+  DESIGNER = 'DESIGNER',
 }
 
 export enum StringType {
@@ -52,11 +52,11 @@ export enum StringType {
   URL = 'URL', // generic web url
   MASK_URL = 'MASK_URL', // url to an image mask
   CODE = 'CODE', // validated codewall
-  ERROR = 'ERROR' // An Error message
+  ERROR = 'ERROR', // An Error message
 }
 
 export enum BotType {
   PROMPTBOT = 'PROMPTBOT',
   CHATBOT = 'CHATBOT',
-  ARTBOT = 'ARTBOT'
+  ARTBOT = 'ARTBOT',
 }

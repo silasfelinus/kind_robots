@@ -2,13 +2,7 @@
   <div class="toggle-container flex justify-between items-center w-full">
     <span>Bot View</span>
     <label class="switch">
-      <input
-        type="checkbox"
-        role="switch"
-        aria-label="Toggle view"
-        :checked="isChecked"
-        @change="toggleView"
-      />
+      <input type="checkbox" role="switch" aria-label="Toggle view" :checked="isChecked" @change="toggleView" />
       <span class="slider"></span>
     </label>
     <span>Nav View</span>
@@ -19,15 +13,15 @@
 const props = defineProps({
   isChecked: {
     type: Boolean,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['change'])
+const emit = defineEmits(['change']);
 
 const toggleView = () => {
-  emit('change')
-}
+  emit('change');
+};
 </script>
 
 <style scoped>

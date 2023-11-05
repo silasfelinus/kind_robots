@@ -6,19 +6,13 @@
         :key="page._id"
         class="flex flex-col rounded-2xl items-center justify-center my-4 drag-card"
       >
-        <div
-          class="rounded-2xl border-4 p-2 bg-base-200 shadow-md hover:shadow-lg transition-shadow duration-300"
-        >
-          <NuxtLink
-            :to="page._path"
-            class="flex flex-col items-center justify-center"
-            @click="clicked = page._id"
-          >
+        <div class="rounded-2xl border-4 p-2 bg-base-200 shadow-md hover:shadow-lg transition-shadow duration-300">
+          <NuxtLink :to="page._path" class="flex flex-col items-center justify-center" @click="clicked = page._id">
             <div
               :class="[
                 'w-20 sm:w-24 md:w-32 h-20 sm:h-24 md:h-32 rounded-full transition-all ease-in-out duration-500',
                 clicked === page._id ? 'scale-110' : '',
-                'hover:scale-105 hover:shadow-lg'
+                'hover:scale-105 hover:shadow-lg',
               ]"
             >
               <img
@@ -46,14 +40,14 @@
 
 <script setup lang="ts">
 // TypeScript code remains the same
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const clicked = ref<string | null>(null)
+const clicked = ref<string | null>(null);
 
 const { find } = queryContent()
   .where({ $not: { _path: '/' } })
-  .sort({ _id: 1 })
-const { data: pages } = await useAsyncData('pages-list', find)
+  .sort({ _id: 1 });
+const { data: pages } = await useAsyncData('pages-list', find);
 </script>
 
 <style scoped>

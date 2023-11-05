@@ -21,70 +21,70 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { useCartStore } from '@/stores/cartStore'
-import { useCustomerStore } from '@/stores/customerStore'
-import { generateSillyName } from '@/utils/useRandomName'
+import { ref } from 'vue';
+import { useUserStore } from '@/stores/userStore';
+import { useCartStore } from '@/stores/cartStore';
+import { useCustomerStore } from '@/stores/customerStore';
+import { generateSillyName } from '@/utils/useRandomName';
 
 // Initialize stores
-const userStore = useUserStore()
-const cartStore = useCartStore()
-const customerStore = useCustomerStore()
+const userStore = useUserStore();
+const cartStore = useCartStore();
+const customerStore = useCustomerStore();
 
 // State for toggling the cart
-const showCart = ref(false)
+const showCart = ref(false);
 
 // Function to toggle cart visibility
 const toggleCart = () => {
-  showCart.value = !showCart.value
-}
+  showCart.value = !showCart.value;
+};
 const initStores = async () => {
   try {
     if (userStore.userId === 0) {
-      const newUserResponse = await userStore.register({ username: generateSillyName() })
+      const newUserResponse = await userStore.register({ username: generateSillyName() });
 
       if (newUserResponse?.success && newUserResponse?.user?.id) {
-        const newUserId = newUserResponse.user.id
+        const newUserId = newUserResponse.user.id;
 
-        const newCustomerResponse = await customerStore.createCustomer({ userId: newUserId })
+        const newCustomerResponse = await customerStore.createCustomer({ userId: newUserId });
 
         if (newCustomerResponse?.success && newCustomerResponse?.customerId) {
-          const newCustomerId = newCustomerResponse.customerId
+          const newCustomerId = newCustomerResponse.customerId;
 
-          const newCartResponse = await cartStore.createCart(newCustomerId)
+          const newCartResponse = await cartStore.createCart(newCustomerId);
 
           if (newCartResponse?.success && newCartResponse?.cartId) {
-            const newCartId = newCartResponse.cartId
+            const newCartId = newCartResponse.cartId;
 
-            localStorage.setItem('userId', newUserId.toString())
-            localStorage.setItem('cartId', newCartId.toString())
+            localStorage.setItem('userId', newUserId.toString());
+            localStorage.setItem('cartId', newCartId.toString());
           }
         }
       }
     } else {
-      const existingCustomerResponse = await customerStore.fetchCustomerByUserId(userStore.userId)
+      const existingCustomerResponse = await customerStore.fetchCustomerByUserId(userStore.userId);
 
       if (!existingCustomerResponse?.success || !existingCustomerResponse?.customerId) {
-        const newCustomerResponse = await customerStore.createCustomer({ userId: userStore.userId })
+        const newCustomerResponse = await customerStore.createCustomer({ userId: userStore.userId });
 
         if (newCustomerResponse?.success && newCustomerResponse?.customerId) {
-          const newCustomerId = newCustomerResponse.customerId
+          const newCustomerId = newCustomerResponse.customerId;
 
-          const newCartResponse = await cartStore.createCart(newCustomerId)
+          const newCartResponse = await cartStore.createCart(newCustomerId);
 
           if (newCartResponse?.success && newCartResponse?.cartId) {
-            const newCartId = newCartResponse.cartId
+            const newCartId = newCartResponse.cartId;
 
-            localStorage.setItem('cartId', newCartId.toString())
+            localStorage.setItem('cartId', newCartId.toString());
           }
         }
       }
     }
   } catch (error: any) {
-    console.error(`Initialization Error: ${error.message}`)
+    console.error(`Initialization Error: ${error.message}`);
   }
-}
+};
 
-initStores()
+initStores();
 </script>

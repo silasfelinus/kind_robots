@@ -1,7 +1,5 @@
 <template>
-  <header
-    class="flex flex-col items-center p-2 bg-base-400 rounded-2xl border-8 border-accent m-2 relative"
-  >
+  <header class="flex flex-col items-center p-2 bg-base-400 rounded-2xl border-8 border-accent m-2 relative">
     <div class="flex justify-between items-center w-full">
       <home-link />
       <layout-selector class="relative" />
@@ -28,8 +26,8 @@
 </template>
 
 <script setup lang="ts">
-const { page } = useContent()
-useContentHead(page)
+const { page } = useContent();
+useContentHead(page);
 </script>
 
 <style scoped>

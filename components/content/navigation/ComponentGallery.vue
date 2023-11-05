@@ -2,9 +2,7 @@
   <div class="bg-base-200 p-4">
     <!-- Dynamic Component Container -->
     <div v-if="!isLoading && selectedComponent">
-      <div v-if="errorLoadingComponent">
-        🚨 Error loading component: {{ errorLoadingComponent }}
-      </div>
+      <div v-if="errorLoadingComponent">🚨 Error loading component: {{ errorLoadingComponent }}</div>
       <div v-else>
         <component :is="selectedComponent" @hook:error-captured="handleComponentError" />
       </div>
@@ -35,20 +33,12 @@
     <div v-else class="grid grid-cols-3 gap-4">
       <!-- Back Button -->
       <div class="col-span-full text-right mb-4">
-        <icon
-          name="game-icons:fast-backward-button"
-          class="text-4xl cursor-pointer"
-          @click="clearSelectedComponents"
-        />
+        <icon name="game-icons:fast-backward-button" class="text-4xl cursor-pointer" @click="clearSelectedComponents" />
       </div>
       <!-- Components -->
       <!-- Cube Icon to End Component -->
       <div v-if="selectedComponent" class="absolute top-0 left-0 mt-4 ml-4">
-        <icon
-          name="game-icons:companion-cube"
-          class="text-4xl cursor-pointer"
-          @click="endComponent"
-        />
+        <icon name="game-icons:companion-cube" class="text-4xl cursor-pointer" @click="endComponent" />
       </div>
       <div
         v-for="component in selectedComponents"
@@ -72,63 +62,62 @@
 
 <script setup lang="ts">
 // Importing required modules and Pinia store
-import { ref, computed, onErrorCaptured } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
+import { ref, computed, onErrorCaptured } from 'vue';
+import { useComponentStore } from '@/stores/componentStore';
 
 // Initialize Pinia store
-const componentStore = useComponentStore()
+const componentStore = useComponentStore();
 
 // State variables
-const isLoading = ref(false)
-const selectedFolder = ref('')
-const selectedComponent = ref('')
-const errorComponents = ref<string[]>([])
-const errorLoadingComponent = ref<string | null>(null)
+const isLoading = ref(false);
+const selectedFolder = ref('');
+const selectedComponent = ref('');
+const errorComponents = ref<string[]>([]);
+const errorLoadingComponent = ref<string | null>(null);
 
 // Function to end the component and go back to the component view
 const endComponent = () => {
-  selectedComponent.value = ''
-}
+  selectedComponent.value = '';
+};
 
 // Function to clear selected components and go back to folder selection
 const clearSelectedComponents = () => {
-  selectedComponents.value = []
-}
+  selectedComponents.value = [];
+};
 
 // Fetch folder names when the component is mounted
-componentStore.fetchFolderNames()
+componentStore.fetchFolderNames();
 
 // Local state for selected components
-const selectedComponents = ref<string[]>([])
+const selectedComponents = ref<string[]>([]);
 
 // Function to fetch components based on the selected folder
 const fetchComponents = async (folder: string) => {
-  isLoading.value = true
-  selectedFolder.value = folder
-  await componentStore.fetchComponentList(folder)
-  selectedComponents.value =
-    componentStore.folders.find((f) => f.folderName === folder)?.components || []
-  isLoading.value = false
-}
+  isLoading.value = true;
+  selectedFolder.value = folder;
+  await componentStore.fetchComponentList(folder);
+  selectedComponents.value = componentStore.folders.find((f) => f.folderName === folder)?.components || [];
+  isLoading.value = false;
+};
 
 // Computed property to get folder names from the store
-const folderNames = computed(() => componentStore.folderNames)
+const folderNames = computed(() => componentStore.folderNames);
 
 // Function to open the component modal
 const openModal = (component: string) => {
-  selectedComponent.value = component
-}
+  selectedComponent.value = component;
+};
 
 // Function to handle component errors
 const handleComponentError = (error: Error) => {
-  errorLoadingComponent.value = error.message
-}
+  errorLoadingComponent.value = error.message;
+};
 
 // Global error handler
 onErrorCaptured((error) => {
-  console.error('An error occurred:', error)
-  return false
-})
+  console.error('An error occurred:', error);
+  return false;
+});
 </script>
 
 <style>

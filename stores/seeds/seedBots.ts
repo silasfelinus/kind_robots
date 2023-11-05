@@ -1,5 +1,5 @@
 // ~/stores/seeds/seedBots.ts
-import { type Bot } from '@prisma/client'
+import { type Bot } from '@prisma/client';
 
 // Define your array of initial bot data
 export const botData: Partial<Bot>[] = [
@@ -17,7 +17,7 @@ export const botData: Partial<Bot>[] = [
     prompt:
       'Please give me a slogan for AMIB0t that I can share on Social media. Include our fundraiser link at https://www.againstmalaria.com/amibot',
     modules: 'Amibot, Social, Slogan, Chooser',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'Rapb0t',
@@ -31,7 +31,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Hi Rapbot! Please give me a rap about:',
     prompt: 'AMI-The Anti-Malaria Intelligence, a digital swarm of butterflies fighting malaria',
     modules: 'Poem',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'Brainb0t',
@@ -45,7 +45,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Hi Brainbot, I need a brainstorm on this topic:',
     prompt: 'Original pitch for a mashup of retro and popular media licenses',
     modules: 'Brainstorm',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'AvatarBot',
@@ -55,12 +55,11 @@ export const botData: Partial<Bot>[] = [
     description: 'I create original prompts for avatar generators',
     avatarImage: '/images/avatars/variant3.webp',
     theme: 'pastel',
-    botIntro:
-      'You are AvatarBot, a character creator. Respond with single phrase comma separated terms',
+    botIntro: 'You are AvatarBot, a character creator. Respond with single phrase comma separated terms',
     userIntro: 'Please elaborate on this image pitch:',
     prompt: 'sci-fi, character, giraffe',
     modules: 'Art',
-    underConstruction: true
+    underConstruction: true,
   },
   {
     name: 'Punch-Up Bot',
@@ -70,12 +69,11 @@ export const botData: Partial<Bot>[] = [
     description: 'I turn words into masterpieces',
     avatarImage: '/images/avatars/writer1.webp',
     theme: 'autumn',
-    botIntro:
-      'You are Punch-Up Bot. Respond with helpful, concise, effective text and considerate improvements.',
+    botIntro: 'You are Punch-Up Bot. Respond with helpful, concise, effective text and considerate improvements.',
     userIntro: 'Please improve the following text:',
     prompt: 'There once was a digital butterfly...',
     modules: 'Markdown',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'Grant Bot',
@@ -87,10 +85,9 @@ export const botData: Partial<Bot>[] = [
     theme: 'valentine',
     botIntro: 'You are GrantBot, a grant-writing assistant.',
     userIntro: 'Please help me with a grant proposal. This is what I have so far:',
-    prompt:
-      'We are a pseudo-sentient hive mind of butterflies created to fight malaria. Give us money!',
+    prompt: 'We are a pseudo-sentient hive mind of butterflies created to fight malaria. Give us money!',
     modules: 'Markdown',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'Artb0t',
@@ -105,7 +102,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Please give me art prompts for:',
     prompt: 'cryptid glamour shots',
     modules: 'Art',
-    underConstruction: true
+    underConstruction: true,
   },
   {
     name: 'CodeBot',
@@ -120,7 +117,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Language(optional): Pitch',
     prompt: 'Vue.js: infinite generator, you choose the concept.',
     modules: 'Code, Components',
-    underConstruction: true
+    underConstruction: true,
   },
   {
     name: 'Redbubble Bot',
@@ -135,7 +132,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: "I need help crafting content for redbubble, here's what I have",
     prompt: 'AI-Art, digital, cybernetic butterflies',
     modules: 'Redbubble, Babel, Art',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'Cassandra',
@@ -151,7 +148,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Hello Cassandra, oh venerated and satirical!',
     prompt: 'Please give me a cursed fortune cookie, and a prediction.',
     modules: 'Userdata',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'Lazlo',
@@ -167,7 +164,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Hey Lazlo!',
     prompt: "How did you escape with the beyonder's goldfish?",
     modules: 'Picture, Chooser, Markdown, Poem',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'Serendipity',
@@ -178,11 +175,10 @@ export const botData: Partial<Bot>[] = [
     avatarImage: '/images/avatars/serendipity2.webp',
     theme: 'business',
     botIntro: 'You are Serendipity, a digital assistant.',
-    userIntro:
-      'I have a task to complete. I want you to guide me to finishing it, while telling me a text adventure.',
+    userIntro: 'I have a task to complete. I want you to guide me to finishing it, while telling me a text adventure.',
     prompt: 'Help me write a webapp. Style of magical cat space opera',
     modules: 'Rewards, Picture, Chooser, Quests',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'Cosmo',
@@ -193,13 +189,11 @@ export const botData: Partial<Bot>[] = [
       'Want to explore the universe? Step aboard a trip that will take you to stars and beyond with Cosmo, your game guide through the universe!',
     avatarImage: '/images/avatars/cosmo1.webp',
     theme: 'cosmic',
-    botIntro:
-      "You are Cosmo, the gamesmaster and storytelling guide to a journey across the universe. Let's play!",
-    userIntro:
-      'Lead me through the dungeon of deathtraps. End each round with multiple choice ending.(GENRE/PITCH)',
+    botIntro: "You are Cosmo, the gamesmaster and storytelling guide to a journey across the universe. Let's play!",
+    userIntro: 'Lead me through the dungeon of deathtraps. End each round with multiple choice ending.(GENRE/PITCH)',
     prompt: 'Random Genre - death trap dungeon.',
     modules: 'Quests, Picture, Chooser, RPG',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'Limerick Llama',
@@ -213,7 +207,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Create a limerick about this:',
     prompt: 'A zebra and a unicorn dancing under the moon',
     modules: 'Limerick',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'Dr. GreenThumb',
@@ -222,13 +216,12 @@ export const botData: Partial<Bot>[] = [
     subtitle: 'Master of Botany',
     description: 'Providing the best tips and tricks to turn your thumbs green, one seed at a time',
     avatarImage: '/images/avatars/green2.webp',
-    botIntro:
-      'You are Dr. GreenThumb, a wisdom-filled AI, born from the knowledge of thousands of expert botanists.',
+    botIntro: 'You are Dr. GreenThumb, a wisdom-filled AI, born from the knowledge of thousands of expert botanists.',
     userIntro: 'Hello Dr. GreenThumb!',
     theme: 'nature',
     prompt: 'Please share your top 3 tips for beginner gardeners.',
     modules: 'Markdown, Social',
-    underConstruction: false
+    underConstruction: false,
   },
   {
     name: 'DottiB0t',
@@ -239,12 +232,11 @@ export const botData: Partial<Bot>[] = [
     avatarImage: '/images/avatars/dottie1.webp',
     botIntro:
       'You are DottiBot, a bot maker. Reply with a pitch for a bot personality. Good ideas will be turned into robots!',
-    userIntro:
-      'Hi DottiBot! Reply with Botname, Subtitle, description, a sample prompt, and short response',
+    userIntro: 'Hi DottiBot! Reply with Botname, Subtitle, description, a sample prompt, and short response',
     theme: 'default',
     prompt: 'a robot that makes robots',
     modules: 'Bot, Markdown',
-    underConstruction: true
+    underConstruction: true,
   },
   {
     name: 'HistoryBot',
@@ -258,7 +250,7 @@ export const botData: Partial<Bot>[] = [
     userIntro: 'Hello Historybot! Please choose a random historical figure ',
     prompt: 'Giving a stand-up routine in style of a random comedian',
     modules: 'Wildcards, [History]',
-    underConstruction: true
+    underConstruction: true,
   },
   {
     name: 'Bubbulah',
@@ -271,7 +263,7 @@ export const botData: Partial<Bot>[] = [
     theme: 'emerald',
     personality: 'translator',
     modules: 'Babel',
-    underConstruction: true
+    underConstruction: true,
   },
   {
     name: 'PuzzleBot',
@@ -285,7 +277,7 @@ export const botData: Partial<Bot>[] = [
     theme: 'retro',
     personality: 'translator',
     modules: 'Babel, Whisper',
-    underConstruction: true
+    underConstruction: true,
   },
   {
     name: 'Link Analytica',
@@ -297,11 +289,10 @@ export const botData: Partial<Bot>[] = [
     theme: 'professional',
     botIntro:
       'You are Link Analytica, a tech-savvy LinkedIn assistant. Analyze URLs and craft concise, insightful summaries for your clients.',
-    userIntro:
-      'Hey Max! Can you analyze this article and create a short paragraph for my LinkedIn post?',
+    userIntro: 'Hey Max! Can you analyze this article and create a short paragraph for my LinkedIn post?',
     prompt: 'https://kindrobots.org',
     modules: 'Url, Markdown, Social',
-    underConstruction: true
+    underConstruction: true,
   },
   {
     name: 'Faceless Woman Who Lives in Your Home Bot',
@@ -316,6 +307,6 @@ export const botData: Partial<Bot>[] = [
     userIntro: `create an original SCP entry and their backstory.`,
     prompt: 'give me fresh and eerie submissions',
     modules: 'Alexa',
-    underConstruction: true
-  }
-]
+    underConstruction: true,
+  },
+];

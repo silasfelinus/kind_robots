@@ -18,8 +18,8 @@ export const adjectives = [
   'Calm',
   'Happy',
   'Blissful',
-  'Soothing'
-]
+  'Soothing',
+];
 
 export const nouns = [
   'Art',
@@ -41,13 +41,13 @@ export const nouns = [
   'Creation',
   'Inspiration',
   'Perspective',
-  'Expression'
-]
+  'Expression',
+];
 
 function getRandomElement(array: string[]): string {
-  return array[Math.floor(Math.random() * array.length)]
+  return array[Math.floor(Math.random() * array.length)];
 }
 
 export function randomPhrase(): string {
-  return `${getRandomElement(adjectives)} ${getRandomElement(nouns)}`
+  return `${getRandomElement(adjectives)} ${getRandomElement(nouns)}`;
 }

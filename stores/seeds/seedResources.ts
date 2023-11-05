@@ -1,5 +1,5 @@
 // ~/stores/seeds/seedResources.ts
-import { Resource, ResourceType } from '@prisma/client'
+import { Resource, ResourceType } from '@prisma/client';
 
 // Current ResourceTypes
 //    CHECKPOINT
@@ -17,7 +17,7 @@ export const resourceData: Partial<Resource>[] = [
     MediaPath: '/images/avatars.bot1.jpg',
     localPath: 'https://lola.acrocatranch.com',
     description: 'private access only',
-    resourceType: ResourceType.URL
+    resourceType: ResourceType.URL,
   },
   {
     name: 'Cafe Fred',
@@ -25,6 +25,6 @@ export const resourceData: Partial<Resource>[] = [
     MediaPath: '/images/avatars/avatar1.jpg',
     localPath: 'https://lola.acrocatranch.com',
     description: 'private access only',
-    resourceType: ResourceType.URL
-  }
-]
+    resourceType: ResourceType.URL,
+  },
+];

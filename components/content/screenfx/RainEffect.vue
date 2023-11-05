@@ -1,43 +1,38 @@
 <template>
   <div class="rain-container">
-    <div
-      v-for="(drop, index) in rainDrops"
-      :key="index"
-      class="rain-drop bg-accent"
-      :style="rainDropStyle(drop)"
-    ></div>
+    <div v-for="(drop, index) in rainDrops" :key="index" class="rain-drop bg-accent" :style="rainDropStyle(drop)"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue';
 
 interface RainDrop {
-  x: number
-  y: number
-  duration: number
-  delay: number
-  size: number
-  angle: number
+  x: number;
+  y: number;
+  duration: number;
+  delay: number;
+  size: number;
+  angle: number;
 }
 
 const props = defineProps({
   intensity: { type: Number, default: 2 },
   numberOfDrops: { type: Number, default: 100 },
-  windAngle: { type: Number, default: 0 }
-})
+  windAngle: { type: Number, default: 0 },
+});
 
 const rainDrops: RainDrop[] = Array.from({ length: props.numberOfDrops }).map(() => {
-  const size = 1 + Math.random() * 2
+  const size = 1 + Math.random() * 2;
   return {
     x: Math.floor(Math.random() * window.innerWidth),
     y: Math.floor(Math.random() * -window.innerHeight),
     duration: (window.innerHeight / (70 * props.intensity)) * (size / 3) * (1 + Math.random()),
     delay: Math.random() * 5,
     size,
-    angle: props.windAngle + Math.floor(Math.random() * 21) - 10
-  }
-})
+    angle: props.windAngle + Math.floor(Math.random() * 21) - 10,
+  };
+});
 
 const rainDropStyle = (drop: RainDrop) => ({
   left: drop.x + 'px',
@@ -46,12 +41,12 @@ const rainDropStyle = (drop: RainDrop) => ({
   animationDelay: drop.delay + 's',
   width: drop.size + 'px',
   height: drop.size * 6 + 'px',
-  transform: `translateY(-120%) rotate(${drop.angle}deg)`
-})
+  transform: `translateY(-120%) rotate(${drop.angle}deg)`,
+});
 
 onMounted(() => {
-  document.documentElement.style.setProperty('--wind-angle', `${props.windAngle}deg`)
-})
+  document.documentElement.style.setProperty('--wind-angle', `${props.windAngle}deg`);
+});
 </script>
 
 <style scoped>

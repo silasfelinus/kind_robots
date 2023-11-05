@@ -8,7 +8,7 @@
       v-if="isHighlight && page.image"
       :class="[
         'relative rounded-2xl overflow-hidden m-2',
-        { 'w-24 h-24': !isExtended, 'w-40 h-40 shadow-lg': isExtended }
+        { 'w-24 h-24': !isExtended, 'w-40 h-40 shadow-lg': isExtended },
       ]"
     >
       <img :src="`/images/${page.image}`" alt="Page Image" class="w-full h-full object-cover" />
@@ -35,11 +35,7 @@
       :class="{ 'top-0 -translate-y-full': !isHighlight, 'top-1/4 -translate-y-1/2': isHighlight }"
     >
       <div v-if="!isHighlight && page.image" class="mb-2">
-        <img
-          :src="`/images/${page.image}`"
-          alt="Page Image"
-          class="w-24 h-24 object-cover rounded-lg"
-        />
+        <img :src="`/images/${page.image}`" alt="Page Image" class="w-24 h-24 object-cover rounded-lg" />
       </div>
       {{ page.description }}
     </div>
@@ -49,15 +45,15 @@
 <script setup lang="ts">
 const { page, currentPath, isHighlight, isExtended } = defineProps<{
   page: {
-    _path: string
-    title: string
-    icon?: string
-    image?: string
-    underConstruction?: boolean
-    description?: string
-  }
-  currentPath: string
-  isHighlight?: boolean
-  isExtended?: boolean
-}>()
+    _path: string;
+    title: string;
+    icon?: string;
+    image?: string;
+    underConstruction?: boolean;
+    description?: string;
+  };
+  currentPath: string;
+  isHighlight?: boolean;
+  isExtended?: boolean;
+}>();
 </script>

@@ -16,43 +16,43 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRandomColor } from '@/utils/useRandomColor'
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useRandomColor } from '@/utils/useRandomColor';
 
-const bubbles = ref([])
-const MAX_BUBBLES = 20
+const bubbles = ref([]);
+const MAX_BUBBLES = 20;
 
 const createBubble = () => {
   if (bubbles.value.length < MAX_BUBBLES) {
-    const size = Math.random() * 50 + 10
-    const x = Math.random() * 100
-    const speed = Math.random() * 6 + 4
-    const { randomColor } = useRandomColor()
-    const color = randomColor.value
+    const size = Math.random() * 50 + 10;
+    const x = Math.random() * 100;
+    const speed = Math.random() * 6 + 4;
+    const { randomColor } = useRandomColor();
+    const color = randomColor.value;
 
-    bubbles.value.push({ id: Date.now(), x, size, speed, color }) // Added id for bubble uniqueness
+    bubbles.value.push({ id: Date.now(), x, size, speed, color }); // Added id for bubble uniqueness
   }
-}
+};
 
 const bubbleStyle = (bubble) => ({
   left: `${bubble.x}vw`,
   bottom: '-10vw', // bubbles start off-screen
   width: `${bubble.size}vw`,
   height: `${bubble.size}vw`,
-  animationDuration: `${bubble.speed}s`
-})
+  animationDuration: `${bubble.speed}s`,
+});
 
-let bubbleCreationInterval
+let bubbleCreationInterval;
 onMounted(() => {
   for (let i = 0; i < MAX_BUBBLES; i++) {
-    createBubble()
+    createBubble();
   }
-  bubbleCreationInterval = setInterval(createBubble, 3000)
-})
+  bubbleCreationInterval = setInterval(createBubble, 3000);
+});
 
 onBeforeUnmount(() => {
-  clearInterval(bubbleCreationInterval)
-})
+  clearInterval(bubbleCreationInterval);
+});
 </script>
 
 <style scoped>

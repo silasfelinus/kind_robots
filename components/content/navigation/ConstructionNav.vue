@@ -23,10 +23,7 @@
         <img :src="`/images/${page.image}`" alt="Page Image" class="object-cover w-full h-full" />
       </div>
       <!-- You are here indicator -->
-      <div
-        v-if="page._path === $route.path"
-        class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary"
-      >
+      <div v-if="page._path === $route.path" class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary">
         You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
       </div>
       <!-- Page Title and Popup -->
@@ -46,21 +43,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { usePageStore } from '~/stores/pageStore'
-import { useFooterStore } from '~/stores/footerStore'
+import { ref, onMounted, computed } from 'vue';
+import { usePageStore } from '~/stores/pageStore';
+import { useFooterStore } from '~/stores/footerStore';
 
-const footerStore = useFooterStore()
+const footerStore = useFooterStore();
 
 const handleLinkClick = () => {
   if (footerStore.isExtended) {
-    footerStore.toggleIsExtended()
+    footerStore.toggleIsExtended();
   }
-}
-const pageStore = usePageStore()
+};
+const pageStore = usePageStore();
 
-const isHovered = ref(null)
+const isHovered = ref(null);
 const underConstructionPages = computed(() => {
-  return pageStore.pagesUnderConstruction
-})
+  return pageStore.pagesUnderConstruction;
+});
 </script>

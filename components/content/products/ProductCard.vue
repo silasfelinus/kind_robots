@@ -16,30 +16,28 @@
       </div>
     </div>
     <div class="product-actions flex items-center mt-2">
-      <button class="bg-primary text-lg px-2 py-1 rounded" @click="addToCart(product.id)">
-        Add to Cart
-      </button>
+      <button class="bg-primary text-lg px-2 py-1 rounded" @click="addToCart(product.id)">Add to Cart</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useCartStore } from '@/stores/cartStore'
-import { Product } from '@/stores/productStore'
+import { computed } from 'vue';
+import { useCartStore } from '@/stores/cartStore';
+import { type Product } from '@/stores/productStore';
 
 const props = defineProps<{
-  product: Product
-}>()
+  product: Product;
+}>();
 
-const { product } = props
-const cartStore = useCartStore()
-const cartId = computed(() => cartStore.carts[0]?.id) // Added optional chaining
+const { product } = props;
+const cartStore = useCartStore();
+const cartId = computed(() => cartStore.carts[0]?.id); // Added optional chaining
 
 const addToCart = (productId: number) => {
   if (cartId.value) {
     // Added a check for cartId
-    cartStore.addItem(productId, cartId.value)
+    cartStore.addItem(productId, cartId.value);
   }
-}
+};
 </script>

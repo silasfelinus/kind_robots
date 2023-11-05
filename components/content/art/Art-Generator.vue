@@ -5,11 +5,7 @@
     <div class="font-bold">{{ pitch }}</div>
     <!-- Prompt Input -->
     <div class="mt-4">
-      <input
-        v-model="prompt"
-        placeholder="Enter your art prompt"
-        class="rounded-2xl p-2 w-full text-lg"
-      />
+      <input v-model="prompt" placeholder="Enter your art prompt" class="rounded-2xl p-2 w-full text-lg" />
     </div>
 
     <!-- Generate Art Button -->
@@ -39,53 +35,53 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useDreamStore } from '@/stores/dreamStore'
-import { errorHandler } from '@/server/api/utils/error'
-import { useUserStore } from '@/stores/userStore'
-import { useLoadStore } from '@/stores/loadStore'
-import { useArtStore, Art } from '@/stores/artStore'
-import { Pitch, usePitchStore } from '@/stores/pitchStore'
+import { ref } from 'vue';
+import { useDreamStore } from '@/stores/dreamStore';
+import { errorHandler } from '@/server/api/utils/error';
+import { useUserStore } from '@/stores/userStore';
+import { useLoadStore } from '@/stores/loadStore';
+import { useArtStore, type Art } from '@/stores/artStore';
+import { type Pitch, usePitchStore } from '@/stores/pitchStore';
 
 // Load stores
-const dreamStore = useDreamStore()
-const userStore = useUserStore()
-const loadStore = useLoadStore()
-const pitchStore = usePitchStore()
-const currentPitch = computed(() => pitchStore.selectedPitch)
-const shouldShowMilestoneCheck = ref(false)
+const dreamStore = useDreamStore();
+const userStore = useUserStore();
+const loadStore = useLoadStore();
+const pitchStore = usePitchStore();
+const currentPitch = computed(() => pitchStore.selectedPitch);
+const shouldShowMilestoneCheck = ref(false);
 
-const pitch = computed(() => pitchStore.selectedPitch?.pitch)
+const pitch = computed(() => pitchStore.selectedPitch?.pitch);
 // Art Prompt text
-const prompt = ref('')
-const flavorText = ref('')
-const username = computed(() => userStore.username)
+const prompt = ref('');
+const flavorText = ref('');
+const username = computed(() => userStore.username);
 
 // Art Prompt Ids
-const userId = computed(() => userStore.userId)
+const userId = computed(() => userStore.userId);
 
-const isLoading = ref(false)
-const createdArts = ref<Art[]>([]) // Array to store created art
-const randomDream = ref<string | null>(null)
-const loadingMessage = ref<string | null>(null)
+const isLoading = ref(false);
+const createdArts = ref<Art[]>([]); // Array to store created art
+const randomDream = ref<string | null>(null);
+const loadingMessage = ref<string | null>(null);
 
 const getLoadingMessage = () => {
-  loadingMessage.value = loadStore.randomLoadMessage()
-}
+  loadingMessage.value = loadStore.randomLoadMessage();
+};
 
 const getRandomDream = () => {
-  randomDream.value = dreamStore.randomDream()
-  prompt.value = randomDream.value
-}
+  randomDream.value = dreamStore.randomDream();
+  prompt.value = randomDream.value;
+};
 
 const generateArt = async () => {
-  getLoadingMessage()
-  isLoading.value = true
+  getLoadingMessage();
+  isLoading.value = true;
   try {
-    const response = await fetch('https://kindrobots.org/api/art/generate', {
+    const response = await fetch('/api/art/generate', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         prompt: pitch.value + ', ' + prompt.value + ', ' + flavorText.value,
@@ -98,25 +94,25 @@ const generateArt = async () => {
         isOrphan: true,
         flavorText: flavorText.value,
         userId: userId.value,
-        galleryId: 21
-      })
-    })
+        galleryId: 21,
+      }),
+    });
 
     if (response.ok) {
-      const data = await response.json()
-      createdArts.value.unshift(data.newArt as Art)
-      shouldShowMilestoneCheck.value = true
-      console.log('Art generated:', createdArts)
+      const data = await response.json();
+      createdArts.value.unshift(data.newArt as Art);
+      shouldShowMilestoneCheck.value = true;
+      console.log('Art generated:', createdArts);
     } else {
-      const errorText = await response.text()
-      const handledError = errorHandler(new Error(errorText))
-      console.error('Failed to generate art:', handledError.message)
+      const errorText = await response.text();
+      const handledError = errorHandler(new Error(errorText));
+      console.error('Failed to generate art:', handledError.message);
     }
   } catch (error: any) {
-    const handledError = errorHandler(error)
-    console.error('Error generating art:', handledError.message)
+    const handledError = errorHandler(error);
+    console.error('Error generating art:', handledError.message);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 </script>

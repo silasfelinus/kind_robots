@@ -6,10 +6,7 @@
     </div>
 
     <!-- Tooltip Popup -->
-    <div
-      v-else-if="tooltipOpen && page.tooltip"
-      class="tooltip-popup bg-base-200 p-4 rounded-2xl border"
-    >
+    <div v-else-if="tooltipOpen && page.tooltip" class="tooltip-popup bg-base-200 p-4 rounded-2xl border">
       <div v-if="page.tooltip">
         <span class="font-semibold">
           <butterfly-loader />
@@ -23,18 +20,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { errorHandler } from '@/server/api/utils/error'
-import { usePageStore } from '@/stores/pageStore'
+import { ref, computed, onMounted, watch } from 'vue';
+import { errorHandler } from '@/server/api/utils/error';
+import { usePageStore } from '@/stores/pageStore';
 
 // Initialization
-const pageStore = usePageStore()
-const { page } = useContent()
+const pageStore = usePageStore();
+const { page } = useContent();
 
-const tooltipOpen = ref(false)
-const streamedText = ref('')
-let index = 0
-let timer: number
+const tooltipOpen = ref(false);
+const streamedText = ref('');
+let index = 0;
+let timer: number;
 
 // Toggle tooltip
 const toggleTooltip = () => {
@@ -42,54 +39,54 @@ const toggleTooltip = () => {
     const errorInput = {
       success: false,
       message: 'No tooltip found.',
-      statusCode: 404
-    }
-    errorHandler(errorInput)
-    return
+      statusCode: 404,
+    };
+    errorHandler(errorInput);
+    return;
   }
-  tooltipOpen.value = !tooltipOpen.value
-}
+  tooltipOpen.value = !tooltipOpen.value;
+};
 
 // Start streaming tooltip text
 const startStreaming = () => {
   if (page.tooltip) {
     timer = window.setInterval(() => {
       if (index < page.value.tooltip.length) {
-        streamedText.value += page.value.tooltip[index]
-        index++
+        streamedText.value += page.value.tooltip[index];
+        index++;
       } else {
-        clearInterval(timer)
+        clearInterval(timer);
       }
-    }, 50)
+    }, 50);
   } else {
     const errorInput = {
       success: false,
       message: 'No tooltip data available.',
-      statusCode: 404
-    }
-    errorHandler(errorInput)
+      statusCode: 404,
+    };
+    errorHandler(errorInput);
   }
-}
+};
 
 // Lifecycle hook
 onMounted(() => {
   if (page.value.tooltip) {
-    startStreaming()
+    startStreaming();
   }
-})
+});
 
 // Watch for changes
 watch(
   () => page.value?.tooltip,
   () => {
-    clearInterval(timer)
-    streamedText.value = ''
-    index = 0
+    clearInterval(timer);
+    streamedText.value = '';
+    index = 0;
     if (page.value.tooltip) {
-      startStreaming()
+      startStreaming();
     }
-  }
-)
+  },
+);
 </script>
 
 <style scoped>

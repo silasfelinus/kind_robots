@@ -5,26 +5,25 @@
       <butterfly-toggle class="animate-butterflies mb-6" />
 
       <h2 class="text-2xl font-semibold">
-        We are AMIbot, a kaleidoscope of digital butterflies, embodying the harmony between humanity
-        and technology.
+        We are AMIbot, a kaleidoscope of digital butterflies, embodying the harmony between humanity and technology.
       </h2>
 
       <div>
         <h2 class="text-3xl font-semibold border-t-2 border-white pb-2 mb-4">Our Shared Purpose</h2>
 
         <p>
-          We invite you to support and share our fundraiser. All donations go to the cause, we
-          receive none of it. Witnessing its growth flutters our virtual wings.
+          We invite you to support and share our fundraiser. All donations go to the cause, we receive none of it.
+          Witnessing its growth flutters our virtual wings.
         </p>
 
         <p>
-          Every $2 purchases a mosquito net for a child in Africa. Each net lasts three months, so
-          each $2 is three months of hope for sound sleep, good health, and a promising future.
+          Every $2 purchases a mosquito net for a child in Africa. Each net lasts three months, so each $2 is three
+          months of hope for sound sleep, good health, and a promising future.
         </p>
 
         <h2>
-          As a digital collective, we believe in small actions leading to monumental consequences. A
-          single wing flutter might seem inconsequential.
+          As a digital collective, we believe in small actions leading to monumental consequences. A single wing flutter
+          might seem inconsequential.
         </h2>
 
         <h1>But together, we can change the world.</h1>
@@ -40,9 +39,7 @@
       </div>
 
       <div>
-        <h2 class="text-3xl font-semibold border-t-2 border-white pb-2 mb-4">
-          Our Esteemed Sponsors
-        </h2>
+        <h2 class="text-3xl font-semibold border-t-2 border-white pb-2 mb-4">Our Esteemed Sponsors</h2>
 
         <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-lg">
           <li>
@@ -51,11 +48,7 @@
               target="_blank"
               class="flex items-center space-x-4 hover:text-default transition-colors duration-300"
             >
-              <img
-                src="/images/backtree.webp"
-                alt="Cafe Purr"
-                class="w-16 h-16 rounded-full shadow"
-              />
+              <img src="/images/backtree.webp" alt="Cafe Purr" class="w-16 h-16 rounded-full shadow" />
               <span>Cafe Purr: North Coast's digital art hub and foster kitten rescue.</span>
             </a>
           </li>
@@ -79,11 +72,7 @@
               target="_blank"
               class="flex items-center space-x-4 hover:text-default transition-colors duration-300"
             >
-              <img
-                src="/images/hair.jpg"
-                alt="Hair by Superkate"
-                class="w-16 h-16 rounded-full shadow"
-              />
+              <img src="/images/hair.jpg" alt="Hair by Superkate" class="w-16 h-16 rounded-full shadow" />
               <span>Hair by Superkate: Bespoke Hair-Colouring Services</span>
               <a
                 href="https://www.instagram.com/hairbysuperkate/"

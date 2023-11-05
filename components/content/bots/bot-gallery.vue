@@ -1,9 +1,7 @@
 <template>
   <div class="min-h-screen flex flex-col justify-center sm:py-12 bg-base-200">
     <div class="relative py-3 sm:max-w-xl sm:mx-auto">
-      <div
-        class="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 shadow-lg transform rounded-3xl"
-      ></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 shadow-lg transform rounded-3xl"></div>
       <div class="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
         <div class="max-w-md mx-auto">
           <div class="flex flex-col w-full">
@@ -24,11 +22,7 @@
             </div>
             <!-- Card display -->
             <div v-if="currentBot" class="mt-4 p-4 bg-gray-100 rounded-lg shadow-md">
-              <img
-                :src="currentBot.avatarImage"
-                alt="Bot Avatar"
-                class="w-24 h-24 rounded-full mx-auto"
-              />
+              <img :src="currentBot.avatarImage" alt="Bot Avatar" class="w-24 h-24 rounded-full mx-auto" />
               <h3 class="text-2xl mt-4 text-center">{{ currentBot.name }}</h3>
               <p class="mt-2 text-center">{{ currentBot.description }}</p>
             </div>
@@ -43,34 +37,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
+import { ref, onMounted, computed, watch } from 'vue';
+import { useBotStore } from '../../../stores/botStore';
 
-const botStore = useBotStore()
-const selectedBot = ref('')
-const bots = computed(() => botStore.bots)
-const currentBot = computed(() => botStore.currentBot)
+const botStore = useBotStore();
+const selectedBot = ref('');
+const bots = computed(() => botStore.bots);
+const currentBot = computed(() => botStore.currentBot);
 
 onMounted(async () => {
   try {
-    await botStore.loadStore()
+    await botStore.loadStore();
   } catch (err) {
-    console.error('Failed to load store', err)
+    console.error('Failed to load store', err);
   }
-})
+});
 
 const handleChange = async () => {
-  await botStore.getBotById(Number(selectedBot.value))
-}
+  await botStore.getBotById(Number(selectedBot.value));
+};
 
 watch(
   () => currentBot.value,
   (newCurrentBot) => {
     if (newCurrentBot) {
-      const id = newCurrentBot.id
-      const botElement = document.getElementById(`bot-${id}`)
-      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      const id = newCurrentBot.id;
+      const botElement = document.getElementById(`bot-${id}`);
+      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }
-)
+  },
+);
 </script>

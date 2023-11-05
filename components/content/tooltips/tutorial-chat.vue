@@ -21,11 +21,11 @@
 </template>
 
 <script setup lang="ts">
-import { usePageStore } from '@/stores/pageStore'
+import { usePageStore } from '@/stores/pageStore';
 
-const pageStore = usePageStore()
-const showInfo = computed(() => pageStore.showInfo)
-const { page } = useContent()
+const pageStore = usePageStore();
+const showInfo = computed(() => pageStore.showInfo);
+const { page } = useContent();
 </script>
 <style>
 .message-card {

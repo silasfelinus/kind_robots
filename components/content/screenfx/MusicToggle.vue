@@ -15,8 +15,7 @@
         <div>
           <div class="text-accent font-semibold text-xl mb-1">{{ currentTrack.name }}</div>
           <div class="text-base-100">
-            {{ currentTrack.artist }} - {{ currentTrack.album }} (
-            {{ formatDate(currentTrack.release_date) }})
+            {{ currentTrack.artist }} - {{ currentTrack.album }} ( {{ formatDate(currentTrack.release_date) }})
           </div>
         </div>
       </div>
@@ -50,53 +49,53 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useSpotifyStore } from '@/stores/spotifyStore'
+import { ref, computed, onMounted } from 'vue';
+import { useSpotifyStore } from '@/stores/spotifyStore';
 
-const spotifyStore = useSpotifyStore()
+const spotifyStore = useSpotifyStore();
 
-const token = computed(() => spotifyStore.token)
-const currentTrack = computed(() => spotifyStore.currentTrack)
-const isPlaying = computed(() => spotifyStore.isPlaying)
-const error = computed(() => spotifyStore.error)
-const volume = ref(50)
+const token = computed(() => spotifyStore.token);
+const currentTrack = computed(() => spotifyStore.currentTrack);
+const isPlaying = computed(() => spotifyStore.isPlaying);
+const error = computed(() => spotifyStore.error);
+const volume = ref(50);
 
 // Function to format date nicely
 const formatDate = (date: string) => {
-  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' }
-  return new Date(date).toLocaleDateString(undefined, options)
-}
+  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+  return new Date(date).toLocaleDateString(undefined, options);
+};
 
 // Function to set volume with error handling
 const setVolume = async (newVolume: number) => {
   try {
-    await spotifyStore.setVolume(newVolume)
+    await spotifyStore.setVolume(newVolume);
   } catch (error: any) {
-    console.error('Error setting volume', error)
+    console.error('Error setting volume', error);
   }
-}
+};
 
 // Watcher to handle volume changes
 watch(volume, (newVal) => {
-  setVolume(newVal)
-})
+  setVolume(newVal);
+});
 
 onMounted(async () => {
-  const code = new URL(window.location.href).searchParams.get('code')
-  const verifier = localStorage.getItem('spotify-code-verifier')
+  const code = new URL(window.location.href).searchParams.get('code');
+  const verifier = localStorage.getItem('spotify-code-verifier');
 
   if (code && verifier) {
     try {
-      const response = await fetch(`/api/spotify-auth?code=${code}&verifier=${verifier}`)
-      const data = await response.json()
-      spotifyStore.setToken(data.access_token)
+      const response = await fetch(`/api/spotify-auth?code=${code}&verifier=${verifier}`);
+      const data = await response.json();
+      spotifyStore.setToken(data.access_token);
     } catch (error: any) {
-      console.error('Error fetching Spotify token', error)
+      console.error('Error fetching Spotify token', error);
     }
   }
-})
+});
 
-const { fetchSpotifyToken, togglePlay, nextTrack, previousTrack, clearError } = spotifyStore
+const { fetchSpotifyToken, togglePlay, nextTrack, previousTrack, clearError } = spotifyStore;
 </script>
 
 <style>

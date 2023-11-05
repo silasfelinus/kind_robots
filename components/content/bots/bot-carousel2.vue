@@ -13,7 +13,7 @@
           class="carousel-item h-full cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
             'bg-accent text-default': currentBot?.id === bot.id,
-            'bg-primary': currentBot?.id !== bot.id
+            'bg-primary': currentBot?.id !== bot.id,
           }"
           @click="setCurrentBot(bot.id)"
         >
@@ -29,36 +29,36 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
+import { computed, onMounted, watch } from 'vue';
+import { useBotStore } from '../../../stores/botStore';
 
-const botStore = useBotStore()
-const bots = computed(() => botStore.bots)
-const currentBot = computed(() => botStore.currentBot)
+const botStore = useBotStore();
+const bots = computed(() => botStore.bots);
+const currentBot = computed(() => botStore.currentBot);
 
 const setCurrentBot = (botId: number) => {
-  botStore.getBotById(botId)
-}
+  botStore.getBotById(botId);
+};
 
 onMounted(async () => {
   if (bots.value.length === 0) {
-    await botStore.loadStore()
+    await botStore.loadStore();
   }
-})
+});
 
 watch(
   () => currentBot.value,
   (newBot) => {
     if (newBot) {
-      const carousel = document.querySelector('.carousel') as HTMLElement
-      const botElement = document.getElementById(`bot-${newBot.id}`) as HTMLElement
+      const carousel = document.querySelector('.carousel') as HTMLElement;
+      const botElement = document.getElementById(`bot-${newBot.id}`) as HTMLElement;
       if (carousel && botElement) {
-        const carouselRect = carousel.getBoundingClientRect()
-        const botElementRect = botElement.getBoundingClientRect()
-        const offset = botElementRect.top - carouselRect.top
-        carousel.scrollTop = offset - (carousel.clientHeight - botElement.clientHeight) / 2
+        const carouselRect = carousel.getBoundingClientRect();
+        const botElementRect = botElement.getBoundingClientRect();
+        const offset = botElementRect.top - carouselRect.top;
+        carousel.scrollTop = offset - (carousel.clientHeight - botElement.clientHeight) / 2;
       }
     }
-  }
-)
+  },
+);
 </script>

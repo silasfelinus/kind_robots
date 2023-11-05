@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="relative flex flex-col items-center p-2 bg-base-200 overflow-auto h-screen rounded-2xl"
-  >
+  <div class="relative flex flex-col items-center p-2 bg-base-200 overflow-auto h-screen rounded-2xl">
     <div class="m-4 mx-auto max-w-4xl">
       <div class="h-96 carousel carousel-vertical rounded-box">
         <div
@@ -11,7 +9,7 @@
           class="carousel-item h-full cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
             'bg-accent text-default': currentBot?.id === bot.id,
-            'bg-primary': currentBot?.id !== bot.id
+            'bg-primary': currentBot?.id !== bot.id,
           }"
           @click="setCurrentBot(bot.id)"
         >
@@ -29,33 +27,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
+import { computed, onMounted, watch } from 'vue';
+import { useBotStore } from '../../../stores/botStore';
 
-const botStore = useBotStore()
-const bots = computed(() => botStore.bots)
-const currentBot = computed(() => botStore.currentBot)
+const botStore = useBotStore();
+const bots = computed(() => botStore.bots);
+const currentBot = computed(() => botStore.currentBot);
 
 const setCurrentBot = (botId: number) => {
-  botStore.getBotById(botId)
-}
+  botStore.getBotById(botId);
+};
 
 onMounted(async () => {
   if (bots.value.length === 0) {
-    await botStore.loadStore()
+    await botStore.loadStore();
   }
-})
+});
 
 watch(
   () => currentBot.value,
   (newCurrentBot) => {
     if (newCurrentBot) {
-      const id = newCurrentBot.id
-      const botElement = document.getElementById(`bot-${id}`)
-      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      const id = newCurrentBot.id;
+      const botElement = document.getElementById(`bot-${id}`);
+      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }
-)
+  },
+);
 </script>
 
 <style>

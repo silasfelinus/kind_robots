@@ -1,19 +1,19 @@
 // /server/api/chats/bot/[id].get.ts
-import { defineEventHandler } from 'h3'
-import { type ChatExchange } from '@prisma/client'
-import prisma from '../../utils/prisma'
-import { errorHandler } from '../../utils/error'
+import { defineEventHandler } from 'h3';
+import { type ChatExchange } from '@prisma/client';
+import prisma from '../../utils/prisma';
+import { errorHandler } from '../../utils/error';
 
 export default defineEventHandler(async (event) => {
   try {
-    const botId = Number(event.context.params?.id)
-    const botChats = await prisma.chatExchange.findMany({ where: { botId } })
+    const botId = Number(event.context.params?.id);
+    const botChats = await prisma.chatExchange.findMany({ where: { botId } });
 
     return {
       success: true,
-      botChats
-    }
+      botChats,
+    };
   } catch (error: any) {
-    return errorHandler(error)
+    return errorHandler(error);
   }
-})
+});

@@ -30,61 +30,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue';
 
 // Initialize reactive variables
-const streamingText = ref('')
-const minimized = ref(false)
+const streamingText = ref('');
+const minimized = ref(false);
 
 // Get the page content
-const { page } = useContent()
+const { page } = useContent();
 
 // Function to toggle minimize state
 const toggleMinimize = () => {
-  minimized.value = !minimized.value
-  localStorage.setItem('tooltipMinimized', minimized.value.toString())
-}
-let interval: NodeJS.Timeout | null = null
+  minimized.value = !minimized.value;
+  localStorage.setItem('tooltipMinimized', minimized.value.toString());
+};
+let interval: NodeJS.Timeout | null = null;
 // Function to stream text
 const streamText = (text: string) => {
   // Clear any existing interval
   if (interval) {
-    clearTimeout(interval)
+    clearTimeout(interval);
   }
 
-  streamingText.value = '' // Reset the streaming text
-  let index = 0
-  let speed = 50 // Default speed
+  streamingText.value = ''; // Reset the streaming text
+  let index = 0;
+  let speed = 50; // Default speed
 
   const appendChar = () => {
     if (index < text.length) {
-      streamingText.value += text.charAt(index)
+      streamingText.value += text.charAt(index);
       if (text.charAt(index) === '.' || text.charAt(index) === ',') {
-        speed = 500
+        speed = 500;
       } else {
-        speed = 50
+        speed = 50;
       }
-      index++
-      interval = setTimeout(appendChar, speed)
+      index++;
+      interval = setTimeout(appendChar, speed);
     } else {
-      clearTimeout(interval as NodeJS.Timeout)
+      clearTimeout(interval as NodeJS.Timeout);
     }
-  }
+  };
 
-  appendChar()
-}
+  appendChar();
+};
 // Lifecycle hooks and watchers
 onMounted(() => {
-  minimized.value = localStorage.getItem('tooltipMinimized') === 'true'
-  streamText(page.tooltip || 'Hey there, welcome to KindRobots!')
-})
+  minimized.value = localStorage.getItem('tooltipMinimized') === 'true';
+  streamText(page.tooltip || 'Hey there, welcome to KindRobots!');
+});
 
 watch(
   () => page.tooltip,
   (newTooltip) => {
-    streamText(newTooltip || 'Hey there, welcome to KindRobots!')
-  }
-)
+    streamText(newTooltip || 'Hey there, welcome to KindRobots!');
+  },
+);
 </script>
 
 <style scoped>

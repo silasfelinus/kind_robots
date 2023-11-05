@@ -13,9 +13,7 @@
       <div class="p-10 rounded-xl shadow-2xl bg-opacity-70 max-w-xl text-center space-y-6 relative">
         <weirdlandia-game />
         <!-- Moved the teleport button here -->
-        <button class="teleport-button btn btn-primary shadow-xl" @click="teleportButton">
-          Teleport
-        </button>
+        <button class="teleport-button btn btn-primary shadow-xl" @click="teleportButton">Teleport</button>
         <milestone-reward v-if="shouldShowMilestoneCheck" :id="3"></milestone-reward>
       </div>
     </div>
@@ -23,64 +21,64 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
+import { ref, onMounted, onUnmounted, watchEffect } from 'vue';
 
-const src = ref('')
-const isPixelatingOut = ref(false)
-const isPixelatingIn = ref(false)
+const src = ref('');
+const isPixelatingOut = ref(false);
+const isPixelatingIn = ref(false);
 
-const imageStyle = ref({})
-const shouldShowMilestoneCheck = ref(false)
+const imageStyle = ref({});
+const shouldShowMilestoneCheck = ref(false);
 
 watchEffect(() => {
-  imageStyle.value = { backgroundImage: `url(${src.value})` }
-})
+  imageStyle.value = { backgroundImage: `url(${src.value})` };
+});
 
 const teleportButton = async () => {
-  shouldShowMilestoneCheck.value = true // This will make the milestone check appear
-  await fetchImage()
-}
+  shouldShowMilestoneCheck.value = true; // This will make the milestone check appear
+  await fetchImage();
+};
 
 const fetchImage = async () => {
-  isPixelatingOut.value = true
+  isPixelatingOut.value = true;
 
-  await new Promise((resolve) => setTimeout(resolve, 750))
+  await new Promise((resolve) => setTimeout(resolve, 750));
 
   try {
-    const res = await fetch('/api/galleries/random/name/background')
-    const data = await res.json()
+    const res = await fetch('/api/galleries/random/name/background');
+    const data = await res.json();
 
     if (data.success && data.image) {
-      isPixelatingIn.value = true
-      src.value = data.image
+      isPixelatingIn.value = true;
+      src.value = data.image;
     } else {
-      console.error('API returned an unexpected structure:', data)
+      console.error('API returned an unexpected structure:', data);
     }
   } catch (err) {
-    console.error('Error fetching images:', err)
+    console.error('Error fetching images:', err);
   } finally {
-    isPixelatingOut.value = false
+    isPixelatingOut.value = false;
 
     setTimeout(() => {
-      isPixelatingIn.value = false
-    }, 500)
+      isPixelatingIn.value = false;
+    }, 500);
   }
-}
+};
 const handleScroll = () => {
-  const scrollY = window.scrollY
-  const parallaxFactor = 0.25 // Adjust this factor, experiment with values like 0.2 or 0.25 to find what suits best.
-  const yOffset = scrollY * parallaxFactor
-  imageStyle.value.backgroundPosition = `center ${-yOffset}px`
-}
+  const scrollY = window.scrollY;
+  const parallaxFactor = 0.25; // Adjust this factor, experiment with values like 0.2 or 0.25 to find what suits best.
+  const yOffset = scrollY * parallaxFactor;
+  imageStyle.value.backgroundPosition = `center ${-yOffset}px`;
+};
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
-  fetchImage()
-})
+  window.addEventListener('scroll', handleScroll);
+  fetchImage();
+});
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <style scoped>

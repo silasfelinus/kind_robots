@@ -98,7 +98,7 @@ const responses = [
   'Your story is one for the ages! 🏰',
   'Every press is a step towards the unknown! 👣',
   "You're full of surprises! 🎁",
-  'With a heart full of dreams and fingers ready to press! 💖'
-]
+  'With a heart full of dreams and fingers ready to press! 💖',
+];
 
-export default responses
+export default responses;

@@ -6,7 +6,7 @@
         <button
           :class="[
             selectedPitch?.id === pitch.id ? 'bg-primary text-white' : 'bg-base-200',
-            'rounded-2xl border p-2 m-2'
+            'rounded-2xl border p-2 m-2',
           ]"
           @click="updateSelectedPitch(pitch.id)"
           @mouseover="showTooltip(pitch.id)"
@@ -16,10 +16,7 @@
           {{ pitch.pitch }}
         </button>
         <!-- Tooltip -->
-        <div
-          v-if="tooltipVisible[pitch.id]"
-          class="absolute left-0 bottom-full mb-2 text-xs bg-base-100 p-1 rounded"
-        >
+        <div v-if="tooltipVisible[pitch.id]" class="absolute left-0 bottom-full mb-2 text-xs bg-base-100 p-1 rounded">
           <span class="font-bold"> created by: {{ pitch.userId }}</span>
         </div>
       </div>
@@ -28,32 +25,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { usePitchStore, Pitch } from '@/stores/pitchStore'
+import { ref, computed } from 'vue';
+import { usePitchStore, type Pitch } from '@/stores/pitchStore';
 
-const pitchStore = usePitchStore()
+const pitchStore = usePitchStore();
 
-const selectedPitch = computed(() => pitchStore.selectedPitch)
-const pitches = computed(() => pitchStore.pitches)
-const tooltipVisible = ref<Record<number, boolean>>({}) // Specify type here
+const selectedPitch = computed(() => pitchStore.selectedPitch);
+const pitches = computed(() => pitchStore.pitches);
+const tooltipVisible = ref<Record<number, boolean>>({}); // Specify type here
 
 // Function to show tooltip
 const showTooltip = (pitchId: number) => {
-  tooltipVisible.value[pitchId] = true
-}
+  tooltipVisible.value[pitchId] = true;
+};
 
 // Function to hide tooltip
 const hideTooltip = (pitchId: number) => {
-  tooltipVisible.value[pitchId] = false
-}
+  tooltipVisible.value[pitchId] = false;
+};
 
 const updateSelectedPitch = (pitchId: number) => {
-  pitchStore.selectPitch(pitchId)
-}
+  pitchStore.selectPitch(pitchId);
+};
 
 const enrichedPitches = computed<Pitch[]>(() => {
   return pitches.value.map((pitch) => {
-    return { ...pitch }
-  })
-})
+    return { ...pitch };
+  });
+});
 </script>

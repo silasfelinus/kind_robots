@@ -24,29 +24,29 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useGalleryStore } from '../../../stores/galleryStore'
+import { ref } from 'vue';
+import { useGalleryStore } from '../../../stores/galleryStore';
 
-const galleryStore = useGalleryStore()
-galleryStore.loadStore()
+const galleryStore = useGalleryStore();
+galleryStore.loadStore();
 
-const galleries = computed(galleryStore.galleries)
+const galleries = computed(galleryStore.galleries);
 
-const selectedGallery = ref(null)
-const galleryImages = ref([])
+const selectedGallery = ref(null);
+const galleryImages = ref([]);
 
 function showGallery(gallery) {
-  selectedGallery.value = gallery
+  selectedGallery.value = gallery;
   // Fetching gallery images from JSON content
   fetch(gallery.content)
     .then((response) => response.json())
     .then((data) => {
-      galleryImages.value = data.map((imageName) => `/images/${gallery.name}/${imageName}`)
-    })
+      galleryImages.value = data.map((imageName) => `/images/${gallery.name}/${imageName}`);
+    });
 }
 
 function closeGallery() {
-  selectedGallery.value = null
-  galleryImages.value = []
+  selectedGallery.value = null;
+  galleryImages.value = [];
 }
 </script>

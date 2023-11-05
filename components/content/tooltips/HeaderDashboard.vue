@@ -23,11 +23,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useUserStore } from '@/stores/userStore'
-const { page } = useContent()
-const userStore = useUserStore()
-const username = computed(() => userStore.username)
-const user = computed(() => userStore.user)
+import { useUserStore } from '@/stores/userStore';
+const { page } = useContent();
+const userStore = useUserStore();
+const username = computed(() => userStore.username);
+const user = computed(() => userStore.user);
 
-const avatarSize = 'small'
+const avatarSize = 'small';
 </script>

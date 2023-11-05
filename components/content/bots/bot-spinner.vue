@@ -13,7 +13,7 @@
           class="flex flex-col items-center justify-between w-full cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
             'bg-accent text-secondary': currentBot && currentBot.id === bot.id,
-            'bg-primary': !currentBot || currentBot.id !== bot.id
+            'bg-primary': !currentBot || currentBot.id !== bot.id,
           }"
           @click="setCurrentBot(bot)"
         >
@@ -32,45 +32,45 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-import { useBotStore, Bot } from '@/stores/botStore'
+import { computed, onMounted, watch } from 'vue';
+import { useBotStore, type Bot } from '@/stores/botStore';
 
-const botsStore = useBotStore()
-const bots = computed(() => botsStore.bots)
+const botsStore = useBotStore();
+const bots = computed(() => botsStore.bots);
 
-let currentBot = computed(() => botsStore.currentBot)
+let currentBot = computed(() => botsStore.currentBot);
 
 onMounted(async () => {
   if (!bots.value) {
-    await fetchBots()
+    await fetchBots();
   }
-})
+});
 
 const fetchBots = async () => {
   try {
-    const response = await fetch('/api/bots')
-    const data = await response.json()
-    botsStore.addBots(data)
+    const response = await fetch('/api/bots');
+    const data = await response.json();
+    botsStore.addBots(data);
     if (!currentBot.value && data.length > 0) {
-      botsStore.getBotById(data[0].id)
+      botsStore.getBotById(data[0].id);
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-}
+};
 
 const setCurrentBot = (bot: Bot) => {
-  botsStore.getBotById(bot.id)
-}
+  botsStore.getBotById(bot.id);
+};
 
 watch(
   () => currentBot.value,
   (newCurrentBot, oldCurrentBot) => {
     if (newCurrentBot) {
-      const id = newCurrentBot.id
-      const botElement = document.getElementById(`bot-${id}`)
-      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      const id = newCurrentBot.id;
+      const botElement = document.getElementById(`bot-${id}`);
+      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }
-)
+  },
+);
 </script>

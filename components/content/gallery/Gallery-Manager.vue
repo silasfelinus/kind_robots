@@ -3,12 +3,7 @@
     <h2 class="text-lg font-bold mb-4">Gallery Management</h2>
 
     <div class="mb-4">
-      <input
-        v-model="newGallery.name"
-        type="text"
-        placeholder="Gallery name"
-        class="input input-bordered"
-      />
+      <input v-model="newGallery.name" type="text" placeholder="Gallery name" class="input input-bordered" />
     </div>
 
     <button class="btn btn-primary" @click="addGallery">Add Gallery</button>
@@ -19,9 +14,7 @@
           <h2 class="card-title">{{ gallery.name }}</h2>
 
           <div class="card-actions">
-            <button class="btn btn-ghost btn-xs rounded-btn" @click="deleteGallery(gallery.id)">
-              Delete
-            </button>
+            <button class="btn btn-ghost btn-xs rounded-btn" @click="deleteGallery(gallery.id)">Delete</button>
           </div>
         </div>
       </div>
@@ -30,36 +23,36 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useGalleryStore } from '../../../stores/galleryStore'
-import { useErrorStore } from '../../../stores/errorStore'
-import { useStatusStore } from '../../../stores/statusStore'
+import { ref } from 'vue';
+import { useGalleryStore } from '../../../stores/galleryStore';
+import { useErrorStore } from '../../../stores/errorStore';
+import { useStatusStore } from '../../../stores/statusStore';
 
-const errorStore = useErrorStore()
-const statusStore = useStatusStore()
-const galleryStore = useGalleryStore()
-const newGallery = ref({ name: '' })
+const errorStore = useErrorStore();
+const statusStore = useStatusStore();
+const galleryStore = useGalleryStore();
+const newGallery = ref({ name: '' });
 
-const galleries = galleryStore.$state.galleries
+const galleries = galleryStore.$state.galleries;
 
 const addGallery = async () => {
   try {
-    await galleryStore.addGallery(newGallery.value)
-    newGallery.value.name = ''
-    statusStore.addStatus({ message: 'Gallery added successfully', type: 'success' })
+    await galleryStore.addGallery(newGallery.value);
+    newGallery.value.name = '';
+    statusStore.addStatus({ message: 'Gallery added successfully', type: 'success' });
   } catch (error) {
-    errorStore.addError(error)
+    errorStore.addError(error);
   }
-}
+};
 
 const deleteGallery = async (id) => {
   try {
-    await galleryStore.deleteGallery(id)
-    statusStore.addStatus({ message: 'Gallery deleted successfully', type: 'success' })
+    await galleryStore.deleteGallery(id);
+    statusStore.addStatus({ message: 'Gallery deleted successfully', type: 'success' });
   } catch (error) {
-    errorStore.addError(error)
+    errorStore.addError(error);
   }
-}
+};
 </script>
 
 <style scoped>

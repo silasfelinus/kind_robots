@@ -37,15 +37,15 @@
 </template>
 
 <script setup>
-const galleries = ref([])
+const galleries = ref([]);
 
 onMounted(async () => {
-  const res = await fetch('/api/galleries')
+  const res = await fetch('/api/galleries');
   if (!res.ok) {
     // handle error
-    console.error('Failed to fetch galleries')
-    return
+    console.error('Failed to fetch galleries');
+    return;
   }
-  galleries.value = await res.json()
-})
+  galleries.value = await res.json();
+});
 </script>

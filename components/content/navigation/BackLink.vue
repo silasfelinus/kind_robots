@@ -12,17 +12,17 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
 
 const goBack = () => {
   if (typeof window !== 'undefined' && window.history.length > 1) {
-    router.go(-1)
+    router.go(-1);
   } else {
-    router.push('/')
+    router.push('/');
   }
-}
+};
 </script>
 
 <style scoped>

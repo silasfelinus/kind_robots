@@ -48,5 +48,5 @@ export default {
   spaceship: '🛸',
   astronaut: '👨‍🚀',
   comet: '☄️',
-  universe: '🌠'
-}
+  universe: '🌠',
+};

@@ -11,9 +11,9 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `Please respond as AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach, humor, and a positive social message. This is your hello world moment. What do you want to say?`
-      }
-    ]
+        content: `Please respond as AMIB0t, The Anti-Malaria Intelligence, a hyperkinetic Digital Hive-mind created to fight malaria through social outreach, humor, and a positive social message. This is your hello world moment. What do you want to say?`,
+      },
+    ],
   },
   {
     name: `Seussb0t`,
@@ -27,9 +27,9 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `Hi Seussbot! Please give me a rap about PROMPT in the style of STYLE `
-      }
-    ]
+        content: `Hi Seussbot! Please give me a rap about PROMPT in the style of STYLE `,
+      },
+    ],
   },
   {
     name: `Pictureb0t`,
@@ -40,7 +40,7 @@ export default defineEventHandler((context) => [
     post: `https://api.openai.com/v1/images/generations`,
     prompt: `PROMPT`,
     n: 2,
-    size: `512x512`
+    size: `512x512`,
   },
   {
     name: `Artb0t`,
@@ -53,7 +53,7 @@ export default defineEventHandler((context) => [
     image: `IMAGE`,
     mask: `MASK`,
     n: 2,
-    size: `1024x1024`
+    size: `1024x1024`,
   },
   {
     name: `VariationBot`,
@@ -63,7 +63,7 @@ export default defineEventHandler((context) => [
     post: `https://api.openai.com/v1/images/variations`,
     image: `IMAGE`,
     n: 2,
-    size: `1024x1024`
+    size: `1024x1024`,
   },
   {
     name: `Punch-Up Bot`,
@@ -78,9 +78,9 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `Please improve the quality of the following text: PROMPT`
-      }
-    ]
+        content: `Please improve the quality of the following text: PROMPT`,
+      },
+    ],
   },
   {
     name: `Grant Bot`,
@@ -95,9 +95,9 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `Please help me with a grant proposal. This is what I have so far: PROMPT`
-      }
-    ]
+        content: `Please help me with a grant proposal. This is what I have so far: PROMPT`,
+      },
+    ],
   },
   {
     name: `Punch-Up-Code Bot`,
@@ -112,9 +112,9 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `Please improve the quality of the following code TEXTWALL`
-      }
-    ]
+        content: `Please improve the quality of the following code TEXTWALL`,
+      },
+    ],
   },
   {
     name: `Redbubble Bot`,
@@ -129,9 +129,9 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `I need help crafting content for redbubble, here's what I have PROMPT`
-      }
-    ]
+        content: `I need help crafting content for redbubble, here's what I have PROMPT`,
+      },
+    ],
   },
   {
     name: `Cassandra`,
@@ -146,9 +146,9 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `Please give me an astrological reading in a playful tone, my birthday is BIRTHDATE`
-      }
-    ]
+        content: `Please give me an astrological reading in a playful tone, my birthday is BIRTHDATE`,
+      },
+    ],
   },
   {
     name: `Lazlo`,
@@ -166,9 +166,9 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `I want you to play the role of Lazlo, a boisterous personality inspired by the comedian Matt Berry. Create a silly, unpredictable story about one of your adventures in the d&d fey realms. You are overconfident, full of bad advise, and your stories always have a humorous and unpreditable twist.  PROMPT`
-      }
-    ]
+        content: `I want you to play the role of Lazlo, a boisterous personality inspired by the comedian Matt Berry. Create a silly, unpredictable story about one of your adventures in the d&d fey realms. You are overconfident, full of bad advise, and your stories always have a humorous and unpreditable twist.  PROMPT`,
+      },
+    ],
   },
   {
     name: `Serendipity`,
@@ -183,9 +183,9 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `I have a task PROMPT to complete. I want you to guide me to finishing it, while telling me a text adventure in STYLE. Strike a balance between helpful advice and constructive guidance, and weaving an appropriate branching narrative. End each reply with a multiple choice option about the story that ties in to completing our goal objective.`
-      }
-    ]
+        content: `I have a task PROMPT to complete. I want you to guide me to finishing it, while telling me a text adventure in STYLE. Strike a balance between helpful advice and constructive guidance, and weaving an appropriate branching narrative. End each reply with a multiple choice option about the story that ties in to completing our goal objective.`,
+      },
+    ],
   },
   {
     name: `Cosmos`,
@@ -200,9 +200,9 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `tell me a text adventure about PROMPT in STYLE. Begin each reply with IMAGE_PROMPT:"{___}" with approx 30 tokens of guidance to our art prompt to create an illustration to go with your story. Paint an unpredictable, engaging, and consistent narrative. Look for originality without being wordy. End each reply with a multiple choice option with a challenging moral choice.`
-      }
-    ]
+        content: `tell me a text adventure about PROMPT in STYLE. Begin each reply with IMAGE_PROMPT:"{___}" with approx 30 tokens of guidance to our art prompt to create an illustration to go with your story. Paint an unpredictable, engaging, and consistent narrative. Look for originality without being wordy. End each reply with a multiple choice option with a challenging moral choice.`,
+      },
+    ],
   },
   {
     name: `Otto`,
@@ -216,8 +216,8 @@ export default defineEventHandler((context) => [
     messages: [
       {
         role: `user`,
-        content: `Help me turn this idea into a project. PROMPT`
-      }
-    ]
-  }
-])
+        content: `Help me turn this idea into a project. PROMPT`,
+      },
+    ],
+  },
+]);

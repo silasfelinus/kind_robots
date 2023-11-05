@@ -3,12 +3,8 @@
     class="flex flex-wrap justify-center space-x-2 overflow-y-auto pb-10 bg-base-200 rounded-2xl p-2 border relative"
     style="overflow: visible; z-index: 0"
   >
-    <div
-      class="flex items-center space-x-2 absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-    >
-      <div
-        class="text-center text-lg font-semibold text-info border-b-2 border-accent rounded-full px-4"
-      >
+    <div class="flex items-center space-x-2 absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div class="text-center text-lg font-semibold text-info border-b-2 border-accent rounded-full px-4">
         Highlight Rooms
       </div>
       <icon name="line-md:highlight" class="text-info text-2xl" />
@@ -22,11 +18,7 @@
       <div class="w-24 h-24 rounded-lg overflow-hidden border bg-secondary">
         <img :src="`/images/${page.image}`" alt="Page Image" class="object-cover w-full h-full" />
       </div>
-      <div
-        class="flex flex-col items-start"
-        @mouseover="isHovered = page._id"
-        @mouseleave="isHovered = null"
-      >
+      <div class="flex flex-col items-start" @mouseover="isHovered = page._id" @mouseleave="isHovered = null">
         <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
           {{ page.title }}
         </div>
@@ -45,13 +37,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { usePageStore } from '~/stores/pageStore'
+import { ref, onMounted, computed } from 'vue';
+import { usePageStore } from '~/stores/pageStore';
 
-const pageStore = usePageStore()
+const pageStore = usePageStore();
 
-const isHovered = ref(null)
+const isHovered = ref(null);
 const highlightPages = computed(() => {
-  return pageStore.highlightPages
-})
+  return pageStore.highlightPages;
+});
 </script>

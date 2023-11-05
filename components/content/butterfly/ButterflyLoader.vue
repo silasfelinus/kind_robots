@@ -6,7 +6,7 @@
     :style="{
       left: butterfly.x + 'px',
       top: butterfly.y + 'px',
-      transform: 'rotate3d(1, 0.5, 0, ' + butterfly.rotation + 'deg) scale(' + butterfly.scale + ')'
+      transform: 'rotate3d(1, 0.5, 0, ' + butterfly.rotation + 'deg) scale(' + butterfly.scale + ')',
     }"
   >
     <div class="left-wing">
@@ -20,58 +20,56 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRandomColor } from '@/utils/useRandomColor'
+import { onMounted, ref } from 'vue';
+import { useRandomColor } from '@/utils/useRandomColor';
 
-const centerX = window.innerWidth / 2
-const centerY = window.innerHeight / 2
-let butterflyId = 0
+const centerX = window.innerWidth / 2;
+const centerY = window.innerHeight / 2;
+let butterflyId = 0;
 class Butterfly {
-  id = butterflyId++
-  x = ref(Math.random() * window.innerWidth)
-  y = ref(Math.random() * window.innerHeight)
-  rotation = ref(110)
-  speedX = ref(Math.random() * 5 - 2.5) // Random speed between -2.5 and 2.5
-  speedY = ref(Math.random() * 5 - 2.5)
-  scale = ref(1)
-  wingColor = useRandomColor().randomColor.value
+  id = butterflyId++;
+  x = ref(Math.random() * window.innerWidth);
+  y = ref(Math.random() * window.innerHeight);
+  rotation = ref(110);
+  speedX = ref(Math.random() * 5 - 2.5); // Random speed between -2.5 and 2.5
+  speedY = ref(Math.random() * 5 - 2.5);
+  scale = ref(1);
+  wingColor = useRandomColor().randomColor.value;
 
   updatePosition() {
-    this.x.value += this.speedX.value
-    this.y.value += this.speedY.value
+    this.x.value += this.speedX.value;
+    this.y.value += this.speedY.value;
 
     // If the butterfly is outside the screen bounds, reverse its direction
     if (this.x.value < 0 || this.x.value > window.innerWidth) {
-      this.speedX.value = -this.speedX.value
+      this.speedX.value = -this.speedX.value;
     }
 
     if (this.y.value < 0 || this.y.value > window.innerHeight) {
-      this.speedY.value = -this.speedY.value
+      this.speedY.value = -this.speedY.value;
     }
 
     // Update the rotation based on the direction
-    this.rotation.value = Math.atan2(this.speedY.value, this.speedX.value) * (180 / Math.PI) + 90
+    this.rotation.value = Math.atan2(this.speedY.value, this.speedX.value) * (180 / Math.PI) + 90;
 
     // Update the scale based on the distance from the center
-    const distanceFromCenter = Math.sqrt(
-      Math.pow(this.x.value - centerX, 2) + Math.pow(this.y.value - centerY, 2)
-    )
-    const maxDistance = Math.sqrt(Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2))
-    this.scale.value = 1 + (distanceFromCenter / maxDistance) * 2
+    const distanceFromCenter = Math.sqrt(Math.pow(this.x.value - centerX, 2) + Math.pow(this.y.value - centerY, 2));
+    const maxDistance = Math.sqrt(Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2));
+    this.scale.value = 1 + (distanceFromCenter / maxDistance) * 2;
   }
 }
 
 const butterflies = Array(10)
   .fill(null)
-  .map(() => new Butterfly())
+  .map(() => new Butterfly());
 function animate() {
-  butterflies.forEach((butterfly) => butterfly.updatePosition())
-  requestAnimationFrame(animate)
+  butterflies.forEach((butterfly) => butterfly.updatePosition());
+  requestAnimationFrame(animate);
 }
 
 onMounted(() => {
-  animate()
-})
+  animate();
+});
 </script>
 
 <style scoped>

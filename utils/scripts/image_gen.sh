@@ -27,7 +27,7 @@ set -e
 
 # "Beep boop," says the robot, "our journey starts here, at the treasure trove of images!"
 path='/home/silasfelinus/code/acrocat_ranch/public/images'
-API_ENDPOINT='https://kindrobots.org/api/images'
+API_ENDPOINT='/api/images'
 # The robot exclaims, "Let's create a marvelous gallery, dear friend!"
 function create_art_gallery() {
   image_list=()

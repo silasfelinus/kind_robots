@@ -18,11 +18,7 @@
             class="flex flex-col items-center cursor-pointer hover:bg-accent transition rounded-2xl p-4 relative"
           >
             <div class="flex-grow relative">
-              <img
-                :src="item.image"
-                alt=""
-                class="object-cover rounded-2xl border w-full h-[70%]"
-              />
+              <img :src="item.image" alt="" class="object-cover rounded-2xl border w-full h-[70%]" />
               <div
                 v-if="view === 'single'"
                 class="absolute inset-0 flex justify-center items-center bg-opacity-75 bg-black text-white hover:opacity-100 opacity-0 transition-opacity"
@@ -34,9 +30,7 @@
               </div>
             </div>
             <div v-if="view !== 'single'" class="text-lg font-bold mt-2">{{ item.title }}</div>
-            <button class="bg-primary py-1 px-4 rounded hover:bg-secondary transition mt-2">
-              Go
-            </button>
+            <button class="bg-primary py-1 px-4 rounded hover:bg-secondary transition mt-2">Go</button>
           </div>
         </transition>
       </nuxt-link>
@@ -44,34 +38,34 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch, onMounted } from 'vue'
-import { userNavigation } from '@/training/userNavigation'
+import { ref, watch, onMounted } from 'vue';
+import { userNavigation } from '@/training/userNavigation';
 
-const view = ref('twoRow')
-const itemClass = ref('w-1/2 p-4')
+const view = ref('twoRow');
+const itemClass = ref('w-1/2 p-4');
 
 // Load saved view from local storage
 onMounted(() => {
-  const savedView = window.localStorage.getItem('view')
+  const savedView = window.localStorage.getItem('view');
   if (savedView) {
-    view.value = savedView
+    view.value = savedView;
   }
-})
+});
 
 const setView = (newView: string) => {
-  view.value = newView
-  window.localStorage.setItem('view', newView)
-}
+  view.value = newView;
+  window.localStorage.setItem('view', newView);
+};
 
 watch(view, (newView) => {
   if (newView === 'twoRow') {
-    itemClass.value = 'w-1/2 p-4'
+    itemClass.value = 'w-1/2 p-4';
   } else if (newView === 'fourRow') {
-    itemClass.value = 'w-1/4 p-4'
+    itemClass.value = 'w-1/4 p-4';
   } else if (newView === 'single') {
-    itemClass.value = 'w-full p-4'
+    itemClass.value = 'w-full p-4';
   }
-})
+});
 </script>
 
 <style scoped>

@@ -1,17 +1,17 @@
 // ~/stores/statusStore.ts
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 
 export enum StatusType {
   ERROR,
   INFO,
   SUCCESS,
-  WARNING
+  WARNING,
 }
 
 export interface StatusHistoryEntry {
-  type: StatusType
-  message: string
-  timestamp: Date
+  type: StatusType;
+  message: string;
+  timestamp: Date;
 }
 
 export const useStatusStore = defineStore('status', {
@@ -19,40 +19,40 @@ export const useStatusStore = defineStore('status', {
     message: ('Idle' as string) || null,
     type: null as StatusType | null,
     history: [] as StatusHistoryEntry[],
-    isLoading: false
+    isLoading: false,
   }),
   actions: {
     setStatus(type: StatusType, message: string) {
       const statusEntry: StatusHistoryEntry = {
         type,
         message,
-        timestamp: new Date()
-      }
+        timestamp: new Date(),
+      };
 
-      this.message = message
-      this.type = type
-      this.history.push(statusEntry)
+      this.message = message;
+      this.type = type;
+      this.history.push(statusEntry);
     },
 
     clearStatus() {
-      this.message = null
-      this.type = null
+      this.message = null;
+      this.type = null;
     },
 
     getStatusHistory() {
-      return this.history
+      return this.history;
     },
     async loadStore() {
-      this.isLoading = true
+      this.isLoading = true;
       try {
-        await this.getStatusHistory()
-        this.isLoading = false
-        return `Loaded ${this.history.length} statuses.`
+        await this.getStatusHistory();
+        this.isLoading = false;
+        return `Loaded ${this.history.length} statuses.`;
       } catch (error) {
-        console.error('Error loading store:', error)
-        this.isLoading = false
-        throw error
+        console.error('Error loading store:', error);
+        this.isLoading = false;
+        throw error;
       }
-    }
-  }
-})
+    },
+  },
+});

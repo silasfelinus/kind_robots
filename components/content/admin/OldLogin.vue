@@ -22,18 +22,11 @@
         <div class="mb-4">
           <span class="text-lg font-semibold">Hello, {{ store.username }} 🎉</span>
         </div>
-        <button class="bg-warning text-default py-1 px-3 rounded" @click="handleLogout">
-          Logout
-        </button>
+        <button class="bg-warning text-default py-1 px-3 rounded" @click="handleLogout">Logout</button>
       </div>
 
       <!-- Login Form -->
-      <form
-        v-else
-        class="space-y-4"
-        :autocomplete="savePassword ? 'on' : 'off'"
-        @submit.prevent="handleLogin"
-      >
+      <form v-else class="space-y-4" :autocomplete="savePassword ? 'on' : 'off'" @submit.prevent="handleLogin">
         <div class="mb-2 relative group">
           <label for="login" class="block text-sm mb-1">Login:</label>
           <input
@@ -44,9 +37,7 @@
             class="w-full p-2 border rounded"
             required
           />
-          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">
-            Login
-          </div>
+          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">Login</div>
         </div>
         <div class="mb-2 relative group">
           <label for="password" class="block text-sm mb-1">Password:</label>
@@ -58,9 +49,7 @@
             class="w-full p-2 border rounded"
             required
           />
-          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">
-            Password
-          </div>
+          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">Password</div>
         </div>
 
         <div class="flex items-center justify-between">
@@ -82,55 +71,55 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { ref, onMounted } from 'vue';
+import { useUserStore } from '@/stores/userStore';
+import { errorHandler } from '@/server/api/utils/error';
 
-const store = useUserStore()
-const login = ref('')
-const password = ref('')
-const savePassword = ref(true)
-const isVisible = ref(true)
-const errorMessage = ref('')
-const isLoggedIn = ref(store.username !== null && store.username !== 'Kind Guest') // Set based on the store data
+const store = useUserStore();
+const login = ref('');
+const password = ref('');
+const savePassword = ref(true);
+const isVisible = ref(true);
+const errorMessage = ref('');
+const isLoggedIn = ref(store.username !== null && store.username !== 'Kind Guest'); // Set based on the store data
 
 const toggleVisibility = () => {
-  isVisible.value = !isVisible.value
-}
+  isVisible.value = !isVisible.value;
+};
 
 const handleLogin = async () => {
-  errorMessage.value = ''
+  errorMessage.value = '';
   try {
-    const result = await store.login({ username: login.value, password: password.value })
+    const result = await store.login({ username: login.value, password: password.value });
     if (result.success) {
-      isLoggedIn.value = true
+      isLoggedIn.value = true;
     } else {
-      errorMessage.value = result.message
+      errorMessage.value = result.message;
     }
   } catch (error: any) {
-    errorMessage.value = errorHandler(error).message
+    errorMessage.value = errorHandler(error).message;
   }
-}
+};
 
 const handleLogout = () => {
-  store.logout()
-  isLoggedIn.value = false
-}
+  store.logout();
+  isLoggedIn.value = false;
+};
 onMounted(() => {
   // Retrieve user data from localStorage and update the store
-  const storedUser = JSON.parse(localStorage.getItem('user') || 'null')
+  const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
   if (storedUser && storedUser.username !== 'Kind Guest') {
-    store.setUser(storedUser)
-    isLoggedIn.value = true
+    store.setUser(storedUser);
+    isLoggedIn.value = true;
   }
 
   if (process.client) {
     window.addEventListener('login-success', (event: any) => {
-      localStorage.setItem('user', JSON.stringify(event.detail.user))
-      isLoggedIn.value = true
-    })
+      localStorage.setItem('user', JSON.stringify(event.detail.user));
+      isLoggedIn.value = true;
+    });
   }
-})
+});
 </script>
 
 <style scoped>

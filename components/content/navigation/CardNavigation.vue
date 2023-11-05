@@ -38,29 +38,29 @@
 </template>
 
 <script setup>
-const navigationTree = ref([])
+const navigationTree = ref([]);
 
 const fetchContentNavigation = async () => {
   // Fetch the navigation data here
   // This is a placeholder, replace it with your actual fetch logic
-  const response = await fetch('/botcafe')
-  const data = await response.json()
-  navigationTree.value = data
-}
+  const response = await fetch('/botcafe');
+  const data = await response.json();
+  navigationTree.value = data;
+};
 
-fetchContentNavigation()
+fetchContentNavigation();
 
 const cardClass = (state) => {
   let baseClass =
-    'transform transition-all duration-200 hover:scale-105 bg-primary rounded-lg shadow-lg overflow-hidden grid grid-cols-4 gap-4'
+    'transform transition-all duration-200 hover:scale-105 bg-primary rounded-lg shadow-lg overflow-hidden grid grid-cols-4 gap-4';
   if (state === 'collapsed') {
-    return `${baseClass} hidden`
+    return `${baseClass} hidden`;
   } else if (state === 'icon') {
-    return `${baseClass} grid-cols-1`
+    return `${baseClass} grid-cols-1`;
   } else if (state === 'image') {
-    return `${baseClass} grid-cols-2`
+    return `${baseClass} grid-cols-2`;
   } else {
-    return baseClass
+    return baseClass;
   }
-}
+};
 </script>

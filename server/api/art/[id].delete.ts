@@ -1,29 +1,29 @@
-import { defineEventHandler } from 'h3'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
+import { defineEventHandler } from 'h3';
+import { errorHandler } from '../utils/error';
+import prisma from '../utils/prisma';
 
 export default defineEventHandler(async (event) => {
   try {
-    const id = Number(event.context.params?.id)
-    const isDeleted = await deleteArt(id)
-    return { success: isDeleted }
+    const id = Number(event.context.params?.id);
+    const isDeleted = await deleteArt(id);
+    return { success: isDeleted };
   } catch (error: any) {
-    return errorHandler(error)
+    return errorHandler(error);
   }
-})
+});
 
 // Function to delete an Art entry by ID
 export async function deleteArt(id: number): Promise<boolean> {
   try {
-    const artExists = await prisma.art.findUnique({ where: { id } })
+    const artExists = await prisma.art.findUnique({ where: { id } });
 
     if (!artExists) {
-      return false
+      return false;
     }
 
-    await prisma.art.delete({ where: { id } })
-    return true
+    await prisma.art.delete({ where: { id } });
+    return true;
   } catch (error: any) {
-    throw errorHandler(error)
+    throw errorHandler(error);
   }
 }

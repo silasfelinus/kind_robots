@@ -1,9 +1,5 @@
 <template>
-  <header
-    :class="
-      isCompact ? 'flex flex-row items-center bg-base-200 m-1' : 'flex flex-col bg-base-200 m-1'
-    "
-  >
+  <header :class="isCompact ? 'flex flex-row items-center bg-base-200 m-1' : 'flex flex-col bg-base-200 m-1'">
     <!-- User Info -->
     <user-avatar
       :size="isCompact ? 'small' : 'large'"
@@ -18,11 +14,7 @@
           {{ user?.username || 'Kind Guest' }}
         </span>
         <span class="hidden md:inline-block">{{ jellybeans }}/ 9 Jellybeans Discovered</span>
-        <button
-          v-if="isLoggedIn"
-          class="text-sm md:text-md text-gray-500"
-          @click.stop="handleButtonClick"
-        >
+        <button v-if="isLoggedIn" class="text-sm md:text-md text-gray-500" @click.stop="handleButtonClick">
           Logout
         </button>
       </div>
@@ -36,13 +28,7 @@
       <span class="text-lg md:text-xl">
         {{ user?.username || 'Kind Guest' }}
       </span>
-      <button
-        v-if="isLoggedIn"
-        class="text-sm md:text-md text-gray-500"
-        @click.stop="handleButtonClick"
-      >
-        Logout
-      </button>
+      <button v-if="isLoggedIn" class="text-sm md:text-md text-gray-500" @click.stop="handleButtonClick">Logout</button>
       <theme-toggle />
       <butterfly-toggle />
     </div>
@@ -50,45 +36,42 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
-import { useToggleStore, ToggleableScreens, ScreenState } from '@/stores/toggleStore'
+import { ref, computed, onMounted } from 'vue';
+import { useUserStore } from '@/stores/userStore';
+import { errorHandler } from '@/server/api/utils/error';
+import { useToggleStore, ToggleableScreens, ScreenState } from '@/stores/toggleStore';
 
-const userStore = useUserStore()
-const jellybeans = computed(() => userStore.mana)
-const user = computed(() => userStore.user)
-const isLoggedIn = computed(() => userStore.isLoggedIn)
+const userStore = useUserStore();
+const jellybeans = computed(() => userStore.mana);
+const user = computed(() => userStore.user);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 
-const toggleStore = useToggleStore()
-const isCompact = ref(
-  toggleStore.getScreenState(ToggleableScreens.USER_DASHBOARD) === ScreenState.COMPACT
-)
+const toggleStore = useToggleStore();
+const isCompact = ref(toggleStore.getScreenState(ToggleableScreens.USER_DASHBOARD) === ScreenState.COMPACT);
 
 onMounted(() => {
-  toggleStore.loadFromLocalStorage()
-  isCompact.value =
-    toggleStore.getScreenState(ToggleableScreens.USER_DASHBOARD) === ScreenState.COMPACT
-})
+  toggleStore.loadFromLocalStorage();
+  isCompact.value = toggleStore.getScreenState(ToggleableScreens.USER_DASHBOARD) === ScreenState.COMPACT;
+});
 
 const toggleMinimize = () => {
-  isCompact.value = !isCompact.value
-  const newState = isCompact.value ? ScreenState.COMPACT : ScreenState.FULL
-  toggleStore.setScreenState(ToggleableScreens.USER_DASHBOARD, newState)
-}
+  isCompact.value = !isCompact.value;
+  const newState = isCompact.value ? ScreenState.COMPACT : ScreenState.FULL;
+  toggleStore.setScreenState(ToggleableScreens.USER_DASHBOARD, newState);
+};
 
 const handleButtonClick = async () => {
   if (isLoggedIn.value) {
     try {
-      await userStore.logout()
+      await userStore.logout();
     } catch (error: any) {
       const errorResponse = errorHandler({
         error,
-        message: 'Failed to logout. Please try again.'
-      })
+        message: 'Failed to logout. Please try again.',
+      });
     }
   } else {
     // Handle login popup or redirect
   }
-}
+};
 </script>

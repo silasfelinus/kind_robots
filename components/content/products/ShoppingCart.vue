@@ -8,14 +8,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useCartStore } from '@/stores/cartStore'
+import { ref, onMounted } from 'vue';
+import { useCartStore } from '@/stores/cartStore';
 
-const cartStore = useCartStore()
-const cartItems = ref([])
+const cartStore = useCartStore();
+const cartItems = ref([]);
 
 onMounted(async () => {
-  await cartStore.fetchItemsByCartId(1) // Replace 1 with the actual cart ID
-  cartItems.value = cartStore.cartItems
-})
+  await cartStore.fetchItemsByCartId(1); // Replace 1 with the actual cart ID
+  cartItems.value = cartStore.cartItems;
+});
 </script>

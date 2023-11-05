@@ -6,6 +6,6 @@
 
 <script setup>
 const { data: navigation } = await useAsyncData('navigation', () => {
-  return fetchContentNavigation()
-})
+  return fetchContentNavigation();
+});
 </script>

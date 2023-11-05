@@ -3,7 +3,7 @@
     class="relative flex flex-col items-center bg-base-200 rounded-2xl transition-all"
     :class="{
       'h-[10vh] transition-duration-300': !isExtended,
-      'h-[40vh] transition-duration-300': isExtended
+      'h-[40vh] transition-duration-300': isExtended,
     }"
   >
     <!-- Toggle Button -->
@@ -51,11 +51,7 @@
         <!-- Extended View -->
         <div v-if="isExtended" class="flex flex-col items-center m-1 space-y-2">
           <div class="w-24 h-24 rounded-lg border bg-secondary">
-            <img
-              :src="`/images/${page.image}`"
-              alt="Page Image"
-              class="object-cover w-full h-full"
-            />
+            <img :src="`/images/${page.image}`" alt="Page Image" class="object-cover w-full h-full" />
           </div>
           <!-- You are here indicator -->
           <div
@@ -80,10 +76,7 @@
     </div>
 
     <!-- Support and Construction Nav (Displayed only when extended) -->
-    <div
-      v-if="isExtended"
-      class="mt-4 p-2 rounded-2xl bg-base-200 flex flex-col items-center space-y-4 w-full"
-    >
+    <div v-if="isExtended" class="mt-4 p-2 rounded-2xl bg-base-200 flex flex-col items-center space-y-4 w-full">
       <support-nav />
       <construction-nav />
     </div>
@@ -91,26 +84,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { usePageStore } from '@/stores/pageStore'
-import { useFooterStore } from '@/stores/footerStore'
+import { ref, onMounted, computed } from 'vue';
+import { usePageStore } from '@/stores/pageStore';
+import { useFooterStore } from '@/stores/footerStore';
 
-const pageStore = usePageStore()
-const footerStore = useFooterStore()
+const pageStore = usePageStore();
+const footerStore = useFooterStore();
 
-const isHovered = ref(null)
+const isHovered = ref(null);
 
 const toggleExtend = () => {
-  footerStore.toggleIsExtended()
-}
+  footerStore.toggleIsExtended();
+};
 
-const isExtended = computed(() => footerStore.isExtended)
+const isExtended = computed(() => footerStore.isExtended);
 
 const handleLinkClick = () => {
   if (isExtended.value) {
-    toggleExtend()
+    toggleExtend();
   }
-}
+};
 
-const highlightPages = computed(() => pageStore.highlightPages)
+const highlightPages = computed(() => pageStore.highlightPages);
 </script>

@@ -7,10 +7,7 @@
     <p class="text-sm text-gray-400">Rarity: {{ reward.rarity }}</p>
 
     <!-- Edit Button -->
-    <button
-      class="bg-primary text-default p-2 rounded mt-4"
-      @click="showEditReward = !showEditReward"
-    >
+    <button class="bg-primary text-default p-2 rounded mt-4" @click="showEditReward = !showEditReward">
       Edit Reward
     </button>
 
@@ -22,15 +19,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 const props = defineProps<{
   reward: {
-    icon: string
-    text: string
-    power: string
-    rarity: number
-  }
-}>()
+    icon: string;
+    text: string;
+    power: string;
+    rarity: number;
+  };
+}>();
 
-const showEditReward = ref(false)
+const showEditReward = ref(false);
 </script>

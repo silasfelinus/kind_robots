@@ -10,9 +10,7 @@
       <div class="relative flex justify-center items-center">
         <user-avatar />
         <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-          <h2
-            class="text-lg font-semibold bg-base-200 border-accent rounded-2xl border p-2 pt-1 pb-1"
-          >
+          <h2 class="text-lg font-semibold bg-base-200 border-accent rounded-2xl border p-2 pt-1 pb-1">
             {{ user?.username || 'Kind Guest' }}
           </h2>
         </div>
@@ -31,14 +29,10 @@
           </div>
         </div>
         <div v-if="isLoggedIn">
-          <button class="bg-warning p-2 rounded-lg text-white text-lg" @click="logout">
-            Logout
-          </button>
+          <button class="bg-warning p-2 rounded-lg text-white text-lg" @click="logout">Logout</button>
         </div>
         <div v-else>
-          <button class="bg-primary p-2 rounded-lg text-white text-lg" @click="showLogin = true">
-            Login
-          </button>
+          <button class="bg-primary p-2 rounded-lg text-white text-lg" @click="showLogin = true">Login</button>
         </div>
       </div>
       <login-form v-if="showLogin" @close="showLogin = false" />
@@ -73,47 +67,47 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue'
-import { useUserStore } from '@/stores/userStore'
+import { ref, computed, watch } from 'vue';
+import { useUserStore } from '@/stores/userStore';
 
-const userStore = useUserStore()
-const user = computed(() => userStore.user)
-const isLoggedIn = computed(() => userStore.isLoggedIn)
+const userStore = useUserStore();
+const user = computed(() => userStore.user);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 
-const showLogin = ref(false)
-const isMinimized = ref(false)
-const isLoading = ref(false)
-const errorMessage = ref('')
+const showLogin = ref(false);
+const isMinimized = ref(false);
+const isLoading = ref(false);
+const errorMessage = ref('');
 
 const toggleMinimize = () => {
-  isMinimized.value = !isMinimized.value
-}
+  isMinimized.value = !isMinimized.value;
+};
 
 watch(isLoggedIn, (newValue) => {
   if (newValue) {
-    showLogin.value = false
+    showLogin.value = false;
   }
-})
+});
 
 const handleButtonClick = () => {
   if (isLoggedIn.value) {
-    logout()
+    logout();
   } else {
-    showLogin.value = true
+    showLogin.value = true;
     if (isMinimized.value) {
-      toggleMinimize()
+      toggleMinimize();
     }
   }
-}
+};
 
 const logout = async () => {
   try {
-    isLoading.value = true
-    await userStore.logout()
+    isLoading.value = true;
+    await userStore.logout();
   } catch (error: any) {
-    errorMessage.value = 'Failed to logout. Please try again.'
+    errorMessage.value = 'Failed to logout. Please try again.';
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 </script>

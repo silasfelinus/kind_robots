@@ -12,12 +12,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
+import { ref, computed } from 'vue';
+import { useBotStore } from '../../../stores/botStore';
 
-const botStore = useBotStore()
-let bot = computed(() => botStore.currentBot)
-let totalBots = computed(() => botStore.bots)
+const botStore = useBotStore();
+let bot = computed(() => botStore.currentBot);
+let totalBots = computed(() => botStore.bots);
 
 let randomMessages = [
   'Kind Robots: Where AI and humanity harmonize!',
@@ -31,10 +31,10 @@ let randomMessages = [
   'Kind Robots: Nurturing the bond between AI and humanity!',
   "Congratulations! You've embraced the Kind Robots ethos!",
   'Joining hands with Kind Robots for a harmonious future!',
-  'Empowering a kinder tomorrow with Kind Robots!'
-]
+  'Empowering a kinder tomorrow with Kind Robots!',
+];
 
-let randomMessage = ref(randomMessages[Math.floor(Math.random() * randomMessages.length)])
+let randomMessage = ref(randomMessages[Math.floor(Math.random() * randomMessages.length)]);
 </script>
 
 <style scoped>

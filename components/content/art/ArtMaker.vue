@@ -4,50 +4,43 @@
 
     <!-- Prompt Input -->
     <div class="mt-4">
-      <input
-        v-model="prompt"
-        placeholder="Enter your art prompt"
-        class="rounded-2xl p-2 w-full text-lg"
-      />
+      <input v-model="prompt" placeholder="Enter your art prompt" class="rounded-2xl p-2 w-full text-lg" />
     </div>
 
     <!-- Generate Art Button -->
-    <button
-      class="bg-primary rounded-2xl p-2 text-white mt-4 w-full hover:bg-primary-dark"
-      @click="generateArt"
-    >
+    <button class="bg-primary rounded-2xl p-2 text-white mt-4 w-full hover:bg-primary-dark" @click="generateArt">
       Generate Art
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const prompt = ref('')
+const prompt = ref('');
 
 const generateArt = async () => {
   try {
-    const response = await fetch('https://kindrobots.org/api/art/generate', {
+    const response = await fetch('/api/art/generate', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         prompt: prompt.value,
         username: 'silasfelinus',
-        galleryName: 'cafefred'
-      })
-    })
+        galleryName: 'cafefred',
+      }),
+    });
 
     if (response.ok) {
-      const data = await response.json()
-      console.log('Art generated:', data)
+      const data = await response.json();
+      console.log('Art generated:', data);
     } else {
-      console.error('Failed to generate art:', await response.text())
+      console.error('Failed to generate art:', await response.text());
     }
   } catch (error: any) {
-    console.error('Error generating art:', error)
+    console.error('Error generating art:', error);
   }
-}
+};
 </script>

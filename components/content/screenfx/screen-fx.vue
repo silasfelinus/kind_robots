@@ -1,10 +1,6 @@
 <template>
   <div class="effect-container">
-    <component
-      :is="activeComponent.component"
-      v-for="activeComponent in activeComponents"
-      :key="activeComponent.id"
-    />
+    <component :is="activeComponent.component" v-for="activeComponent in activeComponents" :key="activeComponent.id" />
   </div>
   <div class="relative">
     <!-- Global Tooltip -->
@@ -14,9 +10,7 @@
     ></div>
     <div class="flex flex-wrap items-center justify-center space-x-4 space-y-4">
       <!-- Invisible First Icon -->
-      <div
-        class="relative flex flex-col items-center space-y-2 md:space-y-0 md:flex-row md:space-x-4 opacity-0"
-      >
+      <div class="relative flex flex-col items-center space-y-2 md:space-y-0 md:flex-row md:space-x-4 opacity-0">
         <div class="flex flex-col items-center space-y-2"></div>
       </div>
       <!-- Visible Icons -->
@@ -62,18 +56,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, resolveComponent } from 'vue'
+import { ref, computed, resolveComponent } from 'vue';
 
 type ComponentMapType = {
-  [key: string]: ReturnType<typeof resolveComponent>
-}
+  [key: string]: ReturnType<typeof resolveComponent>;
+};
 
 const componentsMap: ComponentMapType = {
   'bubble-effect': resolveComponent('LazyBubbleEffect'),
   'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
   'rain-effect': resolveComponent('LazyRainEffect'),
-  'talking-butterflies': resolveComponent('LazyTalkingButterflies')
-}
+  'talking-butterflies': resolveComponent('LazyTalkingButterflies'),
+};
 
 const effects = ref([
   {
@@ -82,7 +76,7 @@ const effects = ref([
     icon: 'mdi:bottle-soda-classic-outline',
     tooltip: 'Float away with fizzy bubbles 🍾',
     reveal: 'Carbonation!',
-    isActive: false
+    isActive: false,
   },
   {
     id: 'bubble-effect',
@@ -90,7 +84,7 @@ const effects = ref([
     icon: 'game-icons:bubbles',
     tooltip: 'rainbow clown bubbles 🌈',
     reveal: 'Bubble Overload!',
-    isActive: false
+    isActive: false,
   },
   {
     id: 'rain-effect',
@@ -99,7 +93,7 @@ const effects = ref([
     tooltip: `Rain doesn't have to be sad`,
     route: 'Summon a rainstorm 🌧️',
     reveal: 'Just a drizzle',
-    isActive: false
+    isActive: false,
   },
   {
     id: 'talking-butterflies',
@@ -108,17 +102,17 @@ const effects = ref([
     tooltip: 'Release AMI 🦋',
     reveal: 'Happy butterflies',
     route: '/fundraiser',
-    isActive: false
-  }
-])
+    isActive: false,
+  },
+]);
 
-const hoveredEffect = ref<string | null>(null)
+const hoveredEffect = ref<string | null>(null);
 const toggleEffect = (effectId: string) => {
-  const effect = effects.value.find((e) => e.id === effectId)
+  const effect = effects.value.find((e) => e.id === effectId);
   if (effect) {
-    effect.isActive = !effect.isActive
+    effect.isActive = !effect.isActive;
   }
-}
+};
 
 // Computed property to get all active components
 const activeComponents = computed(() => {
@@ -126,9 +120,9 @@ const activeComponents = computed(() => {
     .filter((effect) => effect.isActive)
     .map((effect) => ({
       id: effect.id,
-      component: componentsMap[effect.id]
-    }))
-})
+      component: componentsMap[effect.id],
+    }));
+});
 </script>
 <style scoped>
 /* Glow animation */

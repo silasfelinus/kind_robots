@@ -1,91 +1,91 @@
 // ~/stores/error.ts
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 
 export enum ErrorType {
   NETWORK_ERROR,
   VALIDATION_ERROR,
   AUTH_ERROR,
-  UNKNOWN_ERROR
+  UNKNOWN_ERROR,
 }
 
 export interface ErrorHistoryEntry {
-  type: ErrorType
-  message: string
-  timestamp: Date
+  type: ErrorType;
+  message: string;
+  timestamp: Date;
 }
 
 export const useErrorStore = defineStore('error', {
   state: () => ({
     message: null as string | null,
     type: null as ErrorType | null,
-    history: [] as ErrorHistoryEntry[]
+    history: [] as ErrorHistoryEntry[],
   }),
   actions: {
     setError(type: ErrorType, message: unknown) {
-      let errorMessage: string
+      let errorMessage: string;
 
       if (message instanceof Error) {
-        errorMessage = message.message
+        errorMessage = message.message;
       } else if (typeof message === 'string') {
-        errorMessage = message
+        errorMessage = message;
       } else {
-        errorMessage = 'An unknown error occurred'
+        errorMessage = 'An unknown error occurred';
       }
 
       const errorEntry: ErrorHistoryEntry = {
         type,
         message: errorMessage,
-        timestamp: new Date()
-      }
+        timestamp: new Date(),
+      };
 
-      this.message = errorMessage
-      this.type = type
-      this.history.push(errorEntry)
+      this.message = errorMessage;
+      this.type = type;
+      this.history.push(errorEntry);
     },
 
     clearError() {
-      this.message = null
-      this.type = null
+      this.message = null;
+      this.type = null;
     },
 
     async handleError(
       handler: () => Promise<any>,
       type: ErrorType = ErrorType.UNKNOWN_ERROR,
-      errorMessage = 'An error occurred'
+      errorMessage = 'An error occurred',
     ) {
       try {
-        return await handler()
+        return await handler();
       } catch (error) {
         if (error instanceof Error) {
-          errorMessage += ` Details: ${error.message}`
+          errorMessage += ` Details: ${error.message}`;
         }
-        this.setError(type, errorMessage)
-        throw new Error(errorMessage)
+        this.setError(type, errorMessage);
+        throw new Error(errorMessage);
       }
     },
 
     getErrors() {
-      return this.history
+      return this.history;
     },
 
     checkConnection() {
       return new Promise((resolve, reject) => {
         if (this.history) {
           // Change this condition based on what indicates a successful "connection"
-          resolve(true)
+          resolve(true);
         } else {
-          reject(new Error('Cannot connect to Error store.'))
+          reject(new Error('Cannot connect to Error store.'));
         }
-      })
+      });
     },
     async loadStore() {
       try {
-        await this.getErrors()
-        return `loaded ${this.getErrors}. Hopefully there we no errors there.`
+        await this.getErrors();
+        return `loaded ${this.getErrors}. Hopefully there we no errors there.`;
       } catch (error) {
-        console.error('Error loading store:', error)
-        throw error
+        console.error('Error loading store:', error);
+        throw error;
       }
-    }
-  }
-})
+    },
+  },
+});

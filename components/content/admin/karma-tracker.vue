@@ -7,13 +7,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useUserStore } from '../stores/userStore'
+import { ref, onMounted } from 'vue';
+import { useUserStore } from '../stores/userStore';
 
-const userStore = useUserStore()
-let karma = ref(userStore.karma)
+const userStore = useUserStore();
+let karma = ref(userStore.karma);
 
 onMounted(() => {
-  karma.value = userStore.karma
-})
+  karma.value = userStore.karma;
+});
 </script>

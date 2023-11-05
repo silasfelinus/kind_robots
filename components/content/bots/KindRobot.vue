@@ -16,11 +16,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue' // Import computed
-import { useBotStore } from '../../../stores/botStore'
+import { computed } from 'vue'; // Import computed
+import { useBotStore } from '../../../stores/botStore';
 
-const botStore = useBotStore()
-const currentBot = computed(() => botStore.currentBot)
+const botStore = useBotStore();
+const currentBot = computed(() => botStore.currentBot);
 </script>
 
 <style>

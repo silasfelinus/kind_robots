@@ -1,27 +1,27 @@
-import { defineEventHandler, readBody } from 'h3'
-import { type Art } from '@prisma/client'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
+import { defineEventHandler, readBody } from 'h3';
+import { type Art } from '@prisma/client';
+import { errorHandler } from '../utils/error';
+import prisma from '../utils/prisma';
 
 export default defineEventHandler(async (event) => {
   try {
-    const id = Number(event.context.params?.id)
-    const updatedArtData: Partial<Art> = await readBody(event)
-    const updatedArt = await updateArt(id, updatedArtData)
-    return { success: true, updatedArt }
+    const id = Number(event.context.params?.id);
+    const updatedArtData: Partial<Art> = await readBody(event);
+    const updatedArt = await updateArt(id, updatedArtData);
+    return { success: true, updatedArt };
   } catch (error: any) {
-    return errorHandler(error)
+    return errorHandler(error);
   }
-})
+});
 
 // Function to update an existing Art entry by ID
 export async function updateArt(id: number, updatedArt: Partial<Art>): Promise<Art | null> {
   try {
     return await prisma.art.update({
       where: { id },
-      data: updatedArt
-    })
+      data: updatedArt,
+    });
   } catch (error: any) {
-    throw errorHandler(error)
+    throw errorHandler(error);
   }
 }

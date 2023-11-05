@@ -18,14 +18,14 @@
 </template>
 
 <script setup>
-import { useBotStore } from '../../../stores/botStore'
+import { useBotStore } from '../../../stores/botStore';
 
-const botStore = useBotStore()
-const selectedBotId = ref(null)
+const botStore = useBotStore();
+const selectedBotId = ref(null);
 
-const bots = computed(() => botStore.bots)
+const bots = computed(() => botStore.bots);
 const selectBot = (id) => {
-  selectedBotId.value = id
-}
-const isSelectedBot = (id) => id === selectedBotId.value
+  selectedBotId.value = id;
+};
+const isSelectedBot = (id) => id === selectedBotId.value;
 </script>

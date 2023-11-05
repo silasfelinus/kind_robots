@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 
 export const useDreamStore = defineStore('dreams', () => {
   const dreams = [
@@ -65,17 +65,17 @@ export const useDreamStore = defineStore('dreams', () => {
     'Being a musician in an orchestra where each instrument plays a different scent',
     'Planting a seed that grows into a tree with your favorite childhood memories as fruits',
     'Eating a slice of cloud-pie that tastes like the sky on a crisp morning',
-    'Playing hide-and-seek with the shadows in a town where the sun never sets'
-  ]
+    'Playing hide-and-seek with the shadows in a town where the sun never sets',
+  ];
 
   function randomDream() {
-    const randomIndex = Math.floor(Math.random() * dreams.length)
-    return dreams[randomIndex]
+    const randomIndex = Math.floor(Math.random() * dreams.length);
+    return dreams[randomIndex];
   }
 
   function loadStore() {
-    return Promise.resolve(`Loaded ${dreams.length} dreams`)
+    return Promise.resolve(`Loaded ${dreams.length} dreams`);
   }
 
-  return { dreams, randomDream }
-})
+  return { dreams, randomDream };
+});

@@ -45,46 +45,44 @@
     </div>
 
     <!-- Add New Reward Button -->
-    <button class="bg-primary p-2 rounded mt-4" @click="showAddReward = true">
-      ➕ Add New Reward
-    </button>
+    <button class="bg-primary p-2 rounded mt-4" @click="showAddReward = true">➕ Add New Reward</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from 'vue'
-import { type Reward, useRewardStore } from '@/stores/rewardStore'
+import { ref, onMounted, type Ref } from 'vue';
+import { type Reward, useRewardStore } from '@/stores/rewardStore';
 
-const rewardStore = useRewardStore()
-const showAddReward: Ref<boolean> = ref(false)
-const showEditReward: Ref<boolean> = ref(false)
-const pixelate: Ref<boolean> = ref(false)
+const rewardStore = useRewardStore();
+const showAddReward: Ref<boolean> = ref(false);
+const showEditReward: Ref<boolean> = ref(false);
+const pixelate: Ref<boolean> = ref(false);
 
 // Fetch rewards on mounted
 onMounted(() => {
-  rewardStore.fetchRewards()
-})
+  rewardStore.fetchRewards();
+});
 
 const endReward = () => {
-  rewardStore.clearCurrentReward()
-}
+  rewardStore.clearCurrentReward();
+};
 
 const deleteReward = (id: number) => {
-  rewardStore.deleteRewardById(id)
-}
+  rewardStore.deleteRewardById(id);
+};
 
 const setStartingReward = (id: number) => {
-  rewardStore.setStartingRewardId(id)
-}
+  rewardStore.setStartingRewardId(id);
+};
 
 const selectReward = (reward: Reward) => {
-  console.log(`Selecting reward with ID: ${reward.id}`) // Debugging line
-  pixelate.value = true
+  console.log(`Selecting reward with ID: ${reward.id}`); // Debugging line
+  pixelate.value = true;
   setTimeout(() => {
-    rewardStore.setRewardById(reward.id)
-    pixelate.value = false
-  }, 500)
-}
+    rewardStore.setRewardById(reward.id);
+    pixelate.value = false;
+  }, 500);
+};
 </script>
 
 <style scoped>

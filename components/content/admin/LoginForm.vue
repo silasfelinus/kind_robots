@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex flex-col items-center p-4 rounded-2xl shadow-lg transition-all duration-300 w-full max-w-md mx-auto"
-  >
+  <div class="flex flex-col items-center p-4 rounded-2xl shadow-lg transition-all duration-300 w-full max-w-md mx-auto">
     <!-- Loading State -->
     <div v-if="store.loading" class="text-center text-info">
       <icon name="tabler:loader" class="animate-spin text-lg mb-2" />
@@ -24,9 +22,7 @@
           class="w-full p-2 border rounded"
           required
         />
-        <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">
-          Login
-        </div>
+        <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">Login</div>
       </div>
       <div class="mb-2 relative group">
         <label for="password" class="block text-sm mb-1">Password (optional):</label>
@@ -37,9 +33,7 @@
           autocomplete="current-password"
           class="w-full p-2 border rounded"
         />
-        <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">
-          Password (optional)
-        </div>
+        <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">Password (optional)</div>
       </div>
 
       <div class="flex items-center justify-between">
@@ -63,9 +57,7 @@
             <NuxtLink to="/register" class="text-accent underline">Register</NuxtLink>
           </button>
           or
-          <button class="text-accent underline" @click="handleRetryLogin">
-            Try a different login
-          </button>
+          <button class="text-accent underline" @click="handleRetryLogin">Try a different login</button>
         </div>
       </div>
     </div>
@@ -73,47 +65,47 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { ref, computed } from 'vue';
+import { useUserStore } from '@/stores/userStore';
+import { errorHandler } from '@/server/api/utils/error';
 
-const store = useUserStore()
-const login = ref('')
-const password = ref('')
-const errorMessage = ref('')
-const isLoggedIn = computed(() => store.isLoggedIn)
+const store = useUserStore();
+const login = ref('');
+const password = ref('');
+const errorMessage = ref('');
+const isLoggedIn = computed(() => store.isLoggedIn);
 
-const userNotFound = ref(false)
+const userNotFound = ref(false);
 
 const handleLogin = async () => {
-  errorMessage.value = ''
-  userNotFound.value = false
+  errorMessage.value = '';
+  userNotFound.value = false;
   try {
-    const credentials: { username: string; password?: string } = { username: login.value }
+    const credentials: { username: string; password?: string } = { username: login.value };
     if (password.value) {
-      credentials.password = password.value
+      credentials.password = password.value;
     }
-    const result = await store.login(credentials)
+    const result = await store.login(credentials);
     if (result.success && store.stayLoggedIn) {
-      store.setStayLoggedIn(true)
+      store.setStayLoggedIn(true);
     } else {
-      errorMessage.value = result.message
+      errorMessage.value = result.message;
       if (result.message.includes('User not found')) {
-        userNotFound.value = true
+        userNotFound.value = true;
       }
     }
   } catch (error: any) {
-    errorMessage.value = errorHandler(error).message
+    errorMessage.value = errorHandler(error).message;
   }
-}
+};
 
 const handleRetryLogin = () => {
   // Clear the login field to allow the user to try a different login
-  login.value = ''
-  password.value = ''
-  errorMessage.value = ''
-  userNotFound.value = false
-}
+  login.value = '';
+  password.value = '';
+  errorMessage.value = '';
+  userNotFound.value = false;
+};
 </script>
 
 <style scoped>

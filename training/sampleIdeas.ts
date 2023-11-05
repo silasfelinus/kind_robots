@@ -1,13 +1,13 @@
 interface Idea {
-  title: string
-  example: string
+  title: string;
+  example: string;
 }
 
 export const sampleIdeas: Idea[] = [
   { title: `Pickup Lines at a Funeral`, example: `I hear you're newly single...` },
   {
     title: `Sinister movie taglines for feel-good films`,
-    example: 'Feel the Warmth: A heartwarming tale of arson and friendship!'
+    example: 'Feel the Warmth: A heartwarming tale of arson and friendship!',
   },
   { title: `Terrible Ideas for Role-Playing Characters`, example: `Chair: The non-sentient chair` },
   { title: `Awkward Elevator Conversations`, example: `So, how's your day going, floor 7?` },
@@ -17,7 +17,7 @@ export const sampleIdeas: Idea[] = [
   { title: `Inappropriate Icebreakers`, example: `So, what’s your Wi-Fi password?` },
   {
     title: `Unrealistic Fortune Cookie Fortunes`,
-    example: `You will find true love during your next dentist appointment.`
+    example: `You will find true love during your next dentist appointment.`,
   },
   { title: `Absurd Self-Help Books`, example: `How to Overthink Everything: A Guide` },
   { title: `Ridiculous Conspiracy Theories`, example: `The moon is made of gluten-free cheese` },
@@ -34,7 +34,7 @@ export const sampleIdeas: Idea[] = [
   { title: `Unusual College Courses`, example: `The Philosophy of Memes` },
   {
     title: `Absurd Job Interview Questions`,
-    example: `If you were a tree, how would you do this job?`
+    example: `If you were a tree, how would you do this job?`,
   },
   { title: `Unlikely Sports`, example: `Competitive Napping` },
   { title: `Unrealistic Video Games`, example: `Laundry Simulator 3000` },
@@ -43,5 +43,5 @@ export const sampleIdeas: Idea[] = [
   { title: `Absurd Product Ideas for Vampires`, example: `Sunscreen SPF 0` },
   { title: `Unlikely Places for a First Date`, example: `The DMV` },
   { title: `Unfortunate Food Truck Concepts`, example: `The Broccoli Bar` },
-  { title: `Unlikely Reality TV Challenges`, example: `The Great American Tax Filing Race` }
-]
+  { title: `Unlikely Reality TV Challenges`, example: `The Great American Tax Filing Race` },
+];

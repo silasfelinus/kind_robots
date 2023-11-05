@@ -1,81 +1,72 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue'
-import axios from 'axios'
-import { useBotStore, Bot } from '../../../stores/botStore'
+import { ref, computed, watchEffect } from 'vue';
+import axios from 'axios';
+import { useBotStore, type Bot } from '../../../stores/botStore';
 
 interface Message {
-  role: string
-  content: string
+  role: string;
+  content: string;
 }
 
-const botStore = useBotStore()
-const currentBot = computed<Bot | null>(() => botStore.currentBot)
-const message = ref('')
-const response = ref(null)
-const messages = ref<Message[]>([])
-const isLoading = ref(false)
+const botStore = useBotStore();
+const currentBot = computed<Bot | null>(() => botStore.currentBot);
+const message = ref('');
+const response = ref(null);
+const messages = ref<Message[]>([]);
+const isLoading = ref(false);
 
-let userKey: string | null = null
+let userKey: string | null = null;
 
 onMounted(() => {
-  userKey = localStorage.getItem('user_openai_key')
-})
+  userKey = localStorage.getItem('user_openai_key');
+});
 
 watchEffect(() => {
   if (currentBot.value && currentBot.value.prompt) {
-    message.value = currentBot.value.prompt
+    message.value = currentBot.value.prompt;
   }
-})
+});
 
 const sendMessage = async () => {
-  isLoading.value = true
-  messages.value.push({ role: 'user', content: message.value })
+  isLoading.value = true;
+  messages.value.push({ role: 'user', content: message.value });
   try {
     const res = await axios.post(
       '/api/botcafe/chat',
       {
         model: 'gpt-3.5-turbo',
         messages,
-        userKey
+        userKey,
       },
       {
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json'
-        }
-      }
-    )
-    messages.value = [
-      ...messages.value,
-      { role: 'assistant', content: res.data.choices[0].message.content }
-    ]
-    response.value = res.data.choices[0].message.content
+          Accept: 'application/json',
+        },
+      },
+    );
+    messages.value = [...messages.value, { role: 'assistant', content: res.data.choices[0].message.content }];
+    response.value = res.data.choices[0].message.content;
   } catch (err) {
-    console.error(err)
+    console.error(err);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 const sendReply = async (updatedMessages: Message[]) => {
   try {
-    messages.value = updatedMessages
-    message.value = updatedMessages[updatedMessages.length - 1].content
-    await sendMessage()
+    messages.value = updatedMessages;
+    message.value = updatedMessages[updatedMessages.length - 1].content;
+    await sendMessage();
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
-}
+};
 </script>
 <template>
-  <div
-    class="container flex flex-col justify-center items-center p-4 bg-gray-100"
-    :data-theme="currentBot?.theme"
-  >
-    <div
-      v-if="currentBot"
-      class="avatar-container max-w-3xl w-full p-4 bg-white rounded-lg shadow-lg"
-    >
+  <div class="container flex flex-col justify-center items-center p-4 bg-gray-100" :data-theme="currentBot?.theme">
+    <div v-if="currentBot" class="avatar-container max-w-3xl w-full p-4 bg-white rounded-lg shadow-lg">
       <div class="flex flex-col md:flex-row items-center">
         <img
           :src="currentBot.avatarImage"
@@ -98,20 +89,14 @@ const sendReply = async (updatedMessages: Message[]) => {
             rows="5"
             class="message-input w-full p-2 rounded-md border-2 border-theme"
           ></textarea>
-          <button
-            class="submit-button btn btn-primary mt-2"
-            :disabled="isLoading"
-            @click="sendMessage"
-          >
+          <button class="submit-button btn btn-primary mt-2" :disabled="isLoading" @click="sendMessage">
             Send Message
           </button>
         </div>
 
         <!-- Loading animation -->
         <div v-if="isLoading" class="loader flex justify-center mt-2">
-          <div
-            class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-900"
-          ></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-900"></div>
         </div>
 
         <div v-if="response" class="response-container mt-4 p-4 bg-gray-100 rounded-md shadow-md">

@@ -11,25 +11,15 @@
           :key="page._id"
           class="flex-shrink-0 m-1 relative group"
         >
-          <NuxtLink
-            :to="page._path"
-            class="flex flex-col items-center py-1 px-1 text-md shadow-lg group"
-          >
+          <NuxtLink :to="page._path" class="flex flex-col items-center py-1 px-1 text-md shadow-lg group">
             <div
               class="bg-base-200 p-2 rounded-2xl overflow-hidden flex items-center justify-center border transition-colors group-hover:border-secondary"
             >
-              <img
-                :src="`/images/${page.image}`"
-                alt="Page Image"
-                class="w-24 h-24 object-cover rounded-2xl"
-              />
+              <img :src="`/images/${page.image}`" alt="Page Image" class="w-24 h-24 object-cover rounded-2xl" />
             </div>
             <div class="mt-1 text-center p-1">
               {{ page.title }}
-              <div
-                v-if="page._path === $route.path"
-                class="m-1 text-md bg-secondary rounded-2xl border p-1"
-              >
+              <div v-if="page._path === $route.path" class="m-1 text-md bg-secondary rounded-2xl border p-1">
                 <icon name="line-md:download-outline-loop" class="text-lg" />
                 You are here
               </div>
@@ -42,10 +32,7 @@
       <div v-if="isExtended" class="order-last mt-4 p-2 rounded-2xl">
         <div class="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-6">
           <div
-            v-for="page in [
-              ...pagesByTagAndSort('home', 'icon'),
-              ...pagesByTagAndSort('home', 'text')
-            ]"
+            v-for="page in [...pagesByTagAndSort('home', 'icon'), ...pagesByTagAndSort('home', 'text')]"
             :key="page._id"
             class="m-2 relative group"
           >
@@ -58,19 +45,13 @@
               </div>
               <div class="text-lg p-1">
                 {{ page.title }}
-                <div
-                  v-if="page._path === $route.path"
-                  class="mt-1 text-md text-secondary rounded-full border p-1"
-                >
+                <div v-if="page._path === $route.path" class="mt-1 text-md text-secondary rounded-full border p-1">
                   <icon name="line-md:download-outline-loop" class="text-lg" />
                   You are here
                 </div>
               </div>
             </NuxtLink>
-            <div
-              v-if="page.underConstruction"
-              class="mt-1 bg-warning text-xs rounded-2xl p-1 text-center"
-            >
+            <div v-if="page.underConstruction" class="mt-1 bg-warning text-xs rounded-2xl p-1 text-center">
               Under Construction
             </div>
           </div>
@@ -90,17 +71,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { usePageStore } from '@/stores/pageStore'
+import { ref, onMounted, computed } from 'vue';
+import { usePageStore } from '@/stores/pageStore';
 
-const isExtended = ref(false)
+const isExtended = ref(false);
 
 const toggleExtend = () => {
-  isExtended.value = !isExtended.value
-}
-const pageStore = usePageStore()
+  isExtended.value = !isExtended.value;
+};
+const pageStore = usePageStore();
 
 const pagesByTagAndSort = (tag: string, sort: string) => {
-  return pageStore.pages.filter((page: any) => page.tags?.includes(tag) && page.sort === sort)
-}
+  return pageStore.pages.filter((page: any) => page.tags?.includes(tag) && page.sort === sort);
+};
 </script>

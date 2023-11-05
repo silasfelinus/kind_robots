@@ -1,24 +1,4 @@
 {
-  "extends": "./.nuxt/tsconfig.json",
-  "compilerOptions": {
-    "typeRoots": ["./types", "./node_modules/@types"],
-    "types": ["canvas-confetti"]
-  },
-  "exclude": ["app.vue", "app.config.ts", "nuxt.config.ts", "tailwind.config.js"],
-  "include": [
-    // Paths to the files or patterns you want to include:
-    ".eslintrc.cjs",
-    "./components/**/*",
-    "./content/**/*",
-    "./layouts/**/*",
-    "./pages/**/*",
-    "./server/**/*",
-    "./stores/**/*",
-    "./training/**/*",
-    "./types/**/*",
-    "./utils/**/*",
-    // You may also need to include the .vue files explicitly if they are not already covered
-    "./components/**/*.vue",
-    "./pages/**/*.vue"
-  ]
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "extends": "./.nuxt/tsconfig.json"
 }

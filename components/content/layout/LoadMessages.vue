@@ -12,30 +12,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
-import { useLoadStore } from '../../../stores/loadStore'
+import { ref, onMounted, onUnmounted, watchEffect } from 'vue';
+import { useLoadStore } from '../../../stores/loadStore';
 
-const { randomLoadMessage } = useLoadStore()
-const currentMessage = ref(randomLoadMessage())
+const { randomLoadMessage } = useLoadStore();
+const currentMessage = ref(randomLoadMessage());
 
 const updateMessage = () => {
-  currentMessage.value = `${randomLoadMessage()}`
-}
+  currentMessage.value = `${randomLoadMessage()}`;
+};
 
-let intervalId: any
+let intervalId: any;
 onMounted(() => {
-  intervalId = setInterval(updateMessage, 20 * 1000)
-})
+  intervalId = setInterval(updateMessage, 20 * 1000);
+});
 
 onUnmounted(() => {
   if (intervalId) {
-    clearInterval(intervalId)
+    clearInterval(intervalId);
   }
-})
+});
 
 watchEffect(() => {
-  currentMessage.value = `${currentMessage.value}`
-})
+  currentMessage.value = `${currentMessage.value}`;
+});
 </script>
 
 <style scoped>

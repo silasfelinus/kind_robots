@@ -26,7 +26,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { usePitchStore, type Pitch } from '@/stores/pitchStore';
+import { type Pitch } from '@prisma/client';
+import { usePitchStore } from '@/stores/pitchStore';
 
 const pitchStore = usePitchStore();
 

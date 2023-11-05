@@ -1,1 +1,0 @@
-import{d as a,aX as n,b as o,c as s,t as r,N as p}from"./entry.48ebb39a.js";import{u as c}from"./head.aa183333.js";import"./vue.f36acd1f.be297db5.js";const f=a({__name:"HeadContent",setup(m){const{page:e}=n(),t=c(e);return(u,i)=>(o(),s("div",null,r(p(t)),1))}});export{f as default};

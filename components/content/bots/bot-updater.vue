@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
-import { botData } from '../../../stores/seeds/seedBots' // Importing the seed data
+import { type BotData } from '../../../stores/seeds/seedBots' // Importing the seed data
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)

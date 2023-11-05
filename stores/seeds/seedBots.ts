@@ -1,5 +1,5 @@
 // ~/stores/seeds/seedBots.ts
-import { Bot } from '@prisma/client'
+import { type Bot } from '@prisma/client'
 
 // Define your array of initial bot data
 export const botData: Partial<Bot>[] = [

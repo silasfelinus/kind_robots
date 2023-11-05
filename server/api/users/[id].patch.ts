@@ -1,4 +1,4 @@
-import { User } from '@prisma/client'
+import { type User } from '@prisma/client'
 import { hashPassword, validatePassword } from '../auth'
 import { errorHandler } from '../utils/error'
 import auth from '../../middleware/auth'

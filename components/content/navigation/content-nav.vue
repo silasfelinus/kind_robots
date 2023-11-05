@@ -49,45 +49,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useContentStore } from '../../../stores/contentStore'
-import { useStatusStore, StatusType } from '../../../stores/statusStore'
+import { ref, computed } from 'vue';
+import { useContentStore } from '../../../stores/contentStore';
+import { useStatusStore, StatusType } from '../../../stores/statusStore';
 
 interface Page {
-  _id: string
-  _path: string
-  image?: string
-  title: string
-  subtitle?: string
-  folder?: string
-  admin?: boolean
-  tooltip?: string
+  _id: string;
+  _path: string;
+  image?: string;
+  title: string;
+  subtitle?: string;
+  folder?: string;
+  admin?: boolean;
+  tooltip?: string;
 }
 
-const contentStore = useContentStore()
-const statusStore = useStatusStore()
-const showAdmin = ref(false)
-const layout = ref('full') // 'full' or 'badge'
-const tooltipContent = ref('') // Tooltip content
+const contentStore = useContentStore();
+const statusStore = useStatusStore();
+const showAdmin = ref(false);
+const layout = ref('full'); // 'full' or 'badge'
+const tooltipContent = ref(''); // Tooltip content
 
 const filteredPages = computed((): Page[] => {
-  if (!contentStore.pages) return []
-  const pages = contentStore.pages.filter((page: Page) => !(!showAdmin.value && page.admin))
-  return pages
-})
+  if (!contentStore.pages) return [];
+  const pages = contentStore.pages.filter((page: Page) => !(!showAdmin.value && page.admin));
+  return pages;
+});
 
 const handleMouseover = (page: Page) => {
-  tooltipContent.value = page.subtitle ? `'${page.subtitle}'` : ''
+  tooltipContent.value = page.subtitle ? `'${page.subtitle}'` : '';
   if (page.tooltip) {
-    tooltipContent.value += ` ${page.tooltip}`
-    statusStore.setStatus(StatusType.INFO, page.tooltip)
+    tooltipContent.value += ` ${page.tooltip}`;
+    statusStore.setStatus(StatusType.INFO, page.tooltip);
   }
-}
+};
 
 const handleMouseout = () => {
-  tooltipContent.value = ''
-  statusStore.clearStatus()
-}
+  tooltipContent.value = '';
+  statusStore.clearStatus();
+};
 </script>
 
 <style scoped>

@@ -1,63 +1,63 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive } from 'vue'
-import { makeNoise2D } from 'open-simplex-noise'
+import { onMounted, onUnmounted, reactive } from 'vue';
+import { makeNoise2D } from 'open-simplex-noise';
 
 const randomColor = (): string => {
-  const h = Math.floor(Math.random() * 360)
-  const s = Math.floor(Math.random() * 50 + 50) // keep saturation between 50 and 100
-  const l = Math.floor(Math.random() * 40 + 30) // keep lightness between 30 and 70
-  return `hsl(${h},${s}%,${l}%)`
-}
+  const h = Math.floor(Math.random() * 360);
+  const s = Math.floor(Math.random() * 50 + 50); // keep saturation between 50 and 100
+  const l = Math.floor(Math.random() * 40 + 30); // keep lightness between 30 and 70
+  return `hsl(${h},${s}%,${l}%)`;
+};
 
 // Analogous color generator
 const analogousColor = (hsl: string): string => {
-  const hslMatch = hsl.match(/\d+/g)
+  const hslMatch = hsl.match(/\d+/g);
   if (!hslMatch) {
-    throw new Error('Invalid color format')
+    throw new Error('Invalid color format');
   }
-  const [h, s, l] = hslMatch.map(Number)
-  let newH = (h + 30) % 360
-  return `hsl(${newH},${s}%,${l}%)`
-}
+  const [h, s, l] = hslMatch.map(Number);
+  let newH = (h + 30) % 360;
+  return `hsl(${newH},${s}%,${l}%)`;
+};
 
 // Complementary color generator
 const complementaryColor = (color: string): string => {
-  const [h, s, l] = color.replace('hsl(', '').replace(')', '').split(',')
-  let newH = (parseInt(h) + 180) % 360
-  return `hsl(${newH},${s},${l})`
-}
+  const [h, s, l] = color.replace('hsl(', '').replace(')', '').split(',');
+  let newH = (parseInt(h) + 180) % 360;
+  return `hsl(${newH},${s},${l})`;
+};
 
-export interface Butterfly {
-  wingTopColor: string
-  wingBottomColor: string
-  rotation: number
-  speed: number
-  status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
-  goal: { x: number; y: number }
-  hasReachedGoal: boolean
-  sway: boolean
-  wingSpeed: number
-  scale: number
-  countdown: number
+interface Butterfly {
+  wingTopColor: string;
+  wingBottomColor: string;
+  rotation: number;
+  speed: number;
+  status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear';
+  goal: { x: number; y: number };
+  hasReachedGoal: boolean;
+  sway: boolean;
+  wingSpeed: number;
+  scale: number;
+  countdown: number;
 }
 
 interface WindowSize {
-  width: number
-  height: number
+  width: number;
+  height: number;
 }
 
 const windowSize = reactive<WindowSize>({
   width: 0,
-  height: 0
-})
+  height: 0,
+});
 
-const wingColorType = Math.floor(Math.random() * 3) // 0:same, 1:complementary, 2:analogous
-const primaryColor = randomColor()
-let secondaryColor = primaryColor
+const wingColorType = Math.floor(Math.random() * 3); // 0:same, 1:complementary, 2:analogous
+const primaryColor = randomColor();
+let secondaryColor = primaryColor;
 if (wingColorType === 1) {
-  secondaryColor = complementaryColor(primaryColor)
+  secondaryColor = complementaryColor(primaryColor);
 } else if (wingColorType === 2) {
-  secondaryColor = analogousColor(primaryColor)
+  secondaryColor = analogousColor(primaryColor);
 }
 
 const butterfly = reactive<Butterfly>({
@@ -68,68 +68,66 @@ const butterfly = reactive<Butterfly>({
   status: 'random',
   goal: {
     x: Math.random() * windowSize.width,
-    y: Math.random() * windowSize.height
+    y: Math.random() * windowSize.height,
   },
   hasReachedGoal: false,
   sway: false,
   wingSpeed: Math.floor(Math.random() * 3), // random initial wing speed
   scale: Math.random() * 0.5 + 0.75, // random initial scale between 0.75 and 1.25
-  countdown: 0
-})
+  countdown: 0,
+});
 
-const noise2D = makeNoise2D(Date.now())
-let t = 0
+const noise2D = makeNoise2D(Date.now());
+let t = 0;
 
 function updatePosition() {
-  t += 0.01
-  const angle = noise2D(butterfly.goal.x * 0.01, butterfly.goal.y * 0.01 + t) * Math.PI * 2
-  const dx = Math.cos(angle) * butterfly.speed
-  const dy = Math.sin(angle) * butterfly.speed
+  t += 0.01;
+  const angle = noise2D(butterfly.goal.x * 0.01, butterfly.goal.y * 0.01 + t) * Math.PI * 2;
+  const dx = Math.cos(angle) * butterfly.speed;
+  const dy = Math.sin(angle) * butterfly.speed;
 
-  butterfly.goal.x += dx
-  butterfly.goal.y += dy
+  butterfly.goal.x += dx;
+  butterfly.goal.y += dy;
 
   if (butterfly.goal.x < 0 || butterfly.goal.x > window.innerWidth - 100) {
-    butterfly.goal.x = Math.max(Math.min(butterfly.goal.x, window.innerWidth - 100), 0)
+    butterfly.goal.x = Math.max(Math.min(butterfly.goal.x, window.innerWidth - 100), 0);
   }
 
   if (butterfly.goal.y < 0 || butterfly.goal.y > window.innerHeight - 100) {
-    butterfly.goal.y = Math.max(Math.min(butterfly.goal.y, window.innerHeight - 100), 0)
+    butterfly.goal.y = Math.max(Math.min(butterfly.goal.y, window.innerHeight - 100), 0);
   }
 
   // Change scale based on screen position
   butterfly.scale =
-    0.33 +
-    ((2 - (butterfly.goal.x / window.innerWidth + butterfly.goal.y / window.innerHeight)) / 2) *
-      0.67
+    0.33 + ((2 - (butterfly.goal.x / window.innerWidth + butterfly.goal.y / window.innerHeight)) / 2) * 0.67;
 
   // Update the rotation based on the direction
-  butterfly.rotation = dx >= 0 ? 120 : 30
+  butterfly.rotation = dx >= 0 ? 120 : 30;
 }
 
 function animate() {
-  updatePosition()
-  requestAnimationFrame(animate)
+  updatePosition();
+  requestAnimationFrame(animate);
 }
 
 onMounted(() => {
-  windowSize.width = window.innerWidth
-  windowSize.height = window.innerHeight
+  windowSize.width = window.innerWidth;
+  windowSize.height = window.innerHeight;
 
   window.addEventListener('resize', () => {
-    windowSize.width = window.innerWidth
-    windowSize.height = window.innerHeight
-  })
+    windowSize.width = window.innerWidth;
+    windowSize.height = window.innerHeight;
+  });
 
-  animate()
-})
+  animate();
+});
 
 onUnmounted(() => {
   window.removeEventListener('resize', () => {
-    windowSize.width = window.innerWidth
-    windowSize.height = window.innerHeight
-  })
-})
+    windowSize.width = window.innerWidth;
+    windowSize.height = window.innerHeight;
+  });
+});
 </script>
 
 <template>
@@ -138,7 +136,7 @@ onUnmounted(() => {
     :style="{
       left: butterfly.goal.x + 'px',
       top: butterfly.goal.y + 'px',
-      transform: 'rotate3d(1, 0.5, 0, ' + butterfly.rotation + 'deg) scale(' + butterfly.scale + ')'
+      transform: 'rotate3d(1, 0.5, 0, ' + butterfly.rotation + 'deg) scale(' + butterfly.scale + ')',
     }"
   >
     <div class="left-wing">

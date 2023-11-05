@@ -26,11 +26,7 @@
       </button>
 
       <!-- Text Input -->
-      <textarea
-        v-model="userInput"
-        class="w-full p-2 rounded-lg mb-2"
-        placeholder="Type your message..."
-      ></textarea>
+      <textarea v-model="userInput" class="w-full p-2 rounded-lg mb-2" placeholder="Type your message..."></textarea>
 
       <!-- User Avatar -->
       <div>
@@ -41,19 +37,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue' // Added computed
-import { useUserStore } from '@/stores/userStore'
-const { page } = useContent()
+import { ref, computed } from 'vue'; // Added computed
+import { useUserStore } from '@/stores/userStore';
+const { page } = useContent();
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // Create a computed property for the current user
-const currentUser = computed(() => userStore.user)
+const currentUser = computed(() => userStore.user);
 
-const chatOpen = ref(false)
-const userInput = ref('')
+const chatOpen = ref(false);
+const userInput = ref('');
 
 const toggleChat = () => {
-  chatOpen.value = !chatOpen.value
-}
+  chatOpen.value = !chatOpen.value;
+};
 </script>

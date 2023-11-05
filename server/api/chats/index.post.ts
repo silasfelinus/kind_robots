@@ -1,11 +1,11 @@
 // /server/api/chats/index.post.ts
-import { defineEventHandler, readBody } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import { defineEventHandler, readBody } from 'h3';
+import prisma from '../utils/prisma';
+import { errorHandler } from '../utils/error';
 
 export default defineEventHandler(async (event) => {
   try {
-    const exchangeData = await readBody(event)
+    const exchangeData = await readBody(event);
 
     // Validate data
     if (
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
       !exchangeData.userPrompt ||
       !exchangeData.botResponse
     ) {
-      throw new Error('Invalid exchange data. Missing required fields.')
+      throw new Error('Invalid exchange data. Missing required fields.');
     }
 
     // Additional data type validations can go here
@@ -32,22 +32,22 @@ export default defineEventHandler(async (event) => {
         liked: exchangeData.liked,
         hated: exchangeData.hated,
         loved: exchangeData.loved,
-        flagged: exchangeData.flagged
-      }
-    })
+        flagged: exchangeData.flagged,
+      },
+    });
 
     return {
       success: true,
-      newExchange
-    }
+      newExchange,
+    };
   } catch (error: any) {
     // Log the error for debugging
-    console.error('Error in /server/api/chats/index.post.ts:', error)
+    console.error('Error in /server/api/chats/index.post.ts:', error);
 
     return errorHandler({
       success: false,
       message: error.message || 'An unknown error occurred.',
-      statusCode: 500
-    })
+      statusCode: 500,
+    });
   }
-})
+});

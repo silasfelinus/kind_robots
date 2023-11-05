@@ -15,37 +15,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useArtStore } from '@/stores/artStore'
-import { usePitchStore } from '@/stores/pitchStore'
-import { useDreamStore } from '@/stores/dreamStore'
-import { errorHandler } from '@/server/api/utils/error'
-import { useUserStore } from '@/stores/userStore'
-import { useChannelStore } from '@/stores/channelStore'
-import { usePromptStore } from '@/stores/promptStore'
+import { ref, computed } from 'vue';
+import { useArtStore } from '@/stores/artStore';
+import { usePitchStore } from '@/stores/pitchStore';
+import { useDreamStore } from '@/stores/dreamStore';
+import { errorHandler } from '@/server/api/utils/error';
+import { useUserStore } from '@/stores/userStore';
+import { useChannelStore } from '@/stores/channelStore';
+import { usePromptStore } from '@/stores/promptStore';
 
-const artStore = useArtStore()
-const pitchStore = usePitchStore()
-const selectedPitch = computed(() => pitchStore.selectedPitch)
-const selectedPitchId = ref<number | null>(null)
-const publicPitches = computed(() => pitchStore.publicPitches)
+const artStore = useArtStore();
+const pitchStore = usePitchStore();
+const selectedPitch = computed(() => pitchStore.selectedPitch);
+const selectedPitchId = ref<number | null>(null);
+const publicPitches = computed(() => pitchStore.publicPitches);
 
 const onPitchChange = () => {
-  pitchStore.selectPitch(selectedPitchId.value || 1)
-}
+  pitchStore.selectPitch(selectedPitchId.value || 1);
+};
 
 const generateArtBasedOnPitch = async () => {
   if (pitchStore.selectedPitch) {
-    const pitch = pitchStore.selectedPitch
+    const pitch = pitchStore.selectedPitch;
     const data = {
       prompt: pitch.title,
       galleryName: 'cafefred',
-      pitchName: pitch.title
+      pitchName: pitch.title,
       // Add other fields as needed
-    }
-    await artStore.generateArt(data)
+    };
+    await artStore.generateArt(data);
   } else {
-    console.warn('No pitch selected.')
+    console.warn('No pitch selected.');
   }
-}
+};
 </script>

@@ -5,10 +5,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useContainerStore } from '@/stores/containerStore'
+import { computed } from 'vue';
+import { useContainerStore } from '@/stores/containerStore';
 
-const store = useContainerStore()
+const store = useContainerStore();
 
 const containerClasses = computed(() => [
   store.bgColor,
@@ -19,14 +19,14 @@ const containerClasses = computed(() => [
   store.border,
   store.shadow,
   store.transition,
-  store.backdrop
-])
+  store.backdrop,
+]);
 
 const containerStyles = computed(() => ({
   borderColor: 'var(--border-accent)', // Utilizing theme color for border
   borderWidth: '0.5rem', // Setting a thick border line
-  borderStyle: 'solid'
-}))
+  borderStyle: 'solid',
+}));
 </script>
 
 <style scoped>

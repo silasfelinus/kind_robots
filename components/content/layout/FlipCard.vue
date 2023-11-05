@@ -8,11 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { useBotStore } from '../../../stores/botStore'
+import { useBotStore } from '../../../stores/botStore';
 
-const botsStore = useBotStore()
-let currentBot = computed(() => botsStore.currentBot)
-let flipped = ref(false)
+const botsStore = useBotStore();
+let currentBot = computed(() => botsStore.currentBot);
+let flipped = ref(false);
 </script>
 
 <style scoped>

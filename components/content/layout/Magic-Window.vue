@@ -14,63 +14,63 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const src = ref('')
-const isLoading = ref(true)
-const offsetY = ref(0)
-const warpEffect = ref(false)
-const offsetX = ref(0) // Offset for the horizontal movement
+const src = ref('');
+const isLoading = ref(true);
+const offsetY = ref(0);
+const warpEffect = ref(false);
+const offsetX = ref(0); // Offset for the horizontal movement
 
 const fetchImage = async () => {
-  warpEffect.value = true
-  isLoading.value = true
+  warpEffect.value = true;
+  isLoading.value = true;
 
-  const imageLayer = document.querySelector('.image-layer')
-  imageLayer.classList.add('pixelate-out')
+  const imageLayer = document.querySelector('.image-layer');
+  imageLayer.classList.add('pixelate-out');
 
-  await new Promise((resolve) => setTimeout(resolve, 750))
+  await new Promise((resolve) => setTimeout(resolve, 750));
 
   try {
-    const res = await fetch('/api/galleries/random/name/background')
-    const data = await res.json()
+    const res = await fetch('/api/galleries/random/name/background');
+    const data = await res.json();
 
     if (data.success && data.image) {
-      src.value = data.image
+      src.value = data.image;
     } else {
-      console.error('API returned an unexpected structure:', data)
+      console.error('API returned an unexpected structure:', data);
     }
   } catch (err) {
-    console.error('Error fetching images:', err)
+    console.error('Error fetching images:', err);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
 
     setTimeout(() => {
-      warpEffect.value = false
-      imageLayer.classList.remove('pixelate-out')
-      imageLayer.classList.add('pixelate-in')
+      warpEffect.value = false;
+      imageLayer.classList.remove('pixelate-out');
+      imageLayer.classList.add('pixelate-in');
 
       setTimeout(() => {
-        imageLayer.classList.remove('pixelate-in')
-      }, 500)
-    }, 500)
+        imageLayer.classList.remove('pixelate-in');
+      }, 500);
+    }, 500);
   }
-}
+};
 
 const handleScroll = (event) => {
-  let scrollY = window.scrollY
-  document.documentElement.style.setProperty('--offsetY', `${-scrollY * 0.5}px`)
-}
+  let scrollY = window.scrollY;
+  document.documentElement.style.setProperty('--offsetY', `${-scrollY * 0.5}px`);
+};
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll) // Attach scroll listener to the window
+  window.addEventListener('scroll', handleScroll); // Attach scroll listener to the window
 
-  fetchImage() // Fetch image when the component is mounted
-})
+  fetchImage(); // Fetch image when the component is mounted
+});
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll) // Remove scroll listener when the component is unmounted
-})
+  window.removeEventListener('scroll', handleScroll); // Remove scroll listener when the component is unmounted
+});
 </script>
 
 <style scoped>

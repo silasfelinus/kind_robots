@@ -23,12 +23,12 @@ const {
   icon = 'line-md:information',
   description = 'A New Page from Kind Robots',
   streaming = false,
-  isHovered
+  isHovered,
 } = defineProps<{
-  image?: string
-  icon?: string
-  description?: string
-  streaming?: boolean
-  isHovered: boolean
-}>()
+  image?: string;
+  icon?: string;
+  description?: string;
+  streaming?: boolean;
+  isHovered: boolean;
+}>();
 </script>

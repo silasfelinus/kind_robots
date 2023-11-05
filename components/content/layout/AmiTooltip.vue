@@ -15,40 +15,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps<{
-  tooltip: string
-}>()
+  tooltip: string;
+}>();
 
-const streamedText = ref('')
-let index = 0
-let timer: number
+const streamedText = ref('');
+let index = 0;
+let timer: number;
 
 const startStreaming = () => {
   timer = window.setInterval(() => {
     if (index < props.tooltip.length) {
-      streamedText.value += props.tooltip[index]
-      index++
+      streamedText.value += props.tooltip[index];
+      index++;
     } else {
-      clearInterval(timer)
+      clearInterval(timer);
     }
-  }, 100) // Adjust the speed as needed
-}
+  }, 100); // Adjust the speed as needed
+};
 
 onMounted(() => {
-  startStreaming()
-})
+  startStreaming();
+});
 
 watch(
   () => props.tooltip,
   () => {
-    clearInterval(timer)
-    streamedText.value = ''
-    index = 0
-    startStreaming()
-  }
-)
+    clearInterval(timer);
+    streamedText.value = '';
+    index = 0;
+    startStreaming();
+  },
+);
 </script>
 
 <style scoped>

@@ -42,20 +42,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useContainerStore } from '@/stores/containerStore'
+import { ref, computed } from 'vue';
+import { useContainerStore } from '@/stores/containerStore';
 
-const store = useContainerStore()
+const store = useContainerStore();
 
 interface Option {
-  property: keyof typeof store.$state
-  label: string
-  values: string[]
+  property: keyof typeof store.$state;
+  label: string;
+  values: string[];
 }
 
-const outerOptions: Option[] = [
-  { property: 'outerBgColor', label: 'Background Color', values: store.containerColors }
-]
+const outerOptions: Option[] = [{ property: 'outerBgColor', label: 'Background Color', values: store.containerColors }];
 
 const innerOptions: Option[] = [
   { property: 'bgColor', label: 'Background Color', values: store.containerColors },
@@ -65,9 +63,9 @@ const innerOptions: Option[] = [
   { property: 'border', label: 'Border', values: store.containerBorders },
   { property: 'shadow', label: 'Shadow', values: store.containerShadows },
   { property: 'transition', label: 'Transition', values: store.containerTransitions },
-  { property: 'backdrop', label: 'Backdrop', values: store.containerBackdrops }
-]
-const outerContainerClasses = computed(() => [store.outerBgColor])
+  { property: 'backdrop', label: 'Backdrop', values: store.containerBackdrops },
+];
+const outerContainerClasses = computed(() => [store.outerBgColor]);
 
 const containerClasses = computed(() => [
   store.bgColor,
@@ -77,30 +75,29 @@ const containerClasses = computed(() => [
   store.border,
   store.shadow,
   store.transition,
-  store.backdrop
-])
+  store.backdrop,
+]);
 
-const containerStyles = computed(() => ({}))
+const containerStyles = computed(() => ({}));
 
 const containers = ref([
   {
     label: 'Container 1',
-    content:
-      'Here is some filler text to give the container some body and prevent it from being squished.',
-    active: true
+    content: 'Here is some filler text to give the container some body and prevent it from being squished.',
+    active: true,
   },
   {
     label: 'Container 2',
     content: 'Here is some different filler text for the second container.',
-    active: false
-  }
-])
+    active: false,
+  },
+]);
 
 const activateContainer = (index: number) => {
   containers.value.forEach((container, idx) => {
-    container.active = idx === index
-  })
-}
+    container.active = idx === index;
+  });
+};
 </script>
 
 <style scoped>

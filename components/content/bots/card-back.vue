@@ -14,11 +14,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
+import { computed } from 'vue';
+import { useBotStore } from '../../../stores/botStore';
 
-const botsStore = useBotStore()
-let currentBot = computed(() => botsStore.currentBot)
+const botsStore = useBotStore();
+let currentBot = computed(() => botsStore.currentBot);
 </script>
 
 <style scoped>

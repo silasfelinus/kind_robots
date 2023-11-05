@@ -27,51 +27,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useTodoStore } from '@/stores/todoStore'
-import { useRewardStore } from '@/stores/rewardStore'
+import { ref, onMounted } from 'vue';
+import { useTodoStore } from '@/stores/todoStore';
+import { useRewardStore } from '@/stores/rewardStore';
 
-const todoStore = useTodoStore()
-const rewardStore = useRewardStore()
+const todoStore = useTodoStore();
+const rewardStore = useRewardStore();
 
-const todos = ref(todoStore.todos)
-const rewards = ref(rewardStore.rewards)
-const newTodo = ref({ task: '', category: '', rewardId: null })
+const todos = ref(todoStore.todos);
+const rewards = ref(rewardStore.rewards);
+const newTodo = ref({ task: '', category: '', rewardId: null });
 
 const fetchTodos = async () => {
-  await todoStore.fetchTodos()
-  todos.value = todoStore.todos // Update the local ref
-}
+  await todoStore.fetchTodos();
+  todos.value = todoStore.todos; // Update the local ref
+};
 
 const fetchRewards = async () => {
-  await rewardStore.fetchRewards()
-  rewards.value = rewardStore.rewards // Update the local ref
-}
+  await rewardStore.fetchRewards();
+  rewards.value = rewardStore.rewards; // Update the local ref
+};
 
 const addTodo = async () => {
-  await todoStore.addTodo(newTodo.value)
-  newTodo.value = { task: '', category: '', rewardId: null }
-  fetchTodos() // Refresh the list
-}
+  await todoStore.addTodo(newTodo.value);
+  newTodo.value = { task: '', category: '', rewardId: null };
+  fetchTodos(); // Refresh the list
+};
 
 const toggleCompleted = async (id: number) => {
-  await todoStore.toggleCompleted(id)
-  fetchTodos() // Refresh the list
-}
+  await todoStore.toggleCompleted(id);
+  fetchTodos(); // Refresh the list
+};
 
 const deleteTodo = async (id: number) => {
-  await todoStore.deleteTodo(id)
-  fetchTodos() // Refresh the list
-}
+  await todoStore.deleteTodo(id);
+  fetchTodos(); // Refresh the list
+};
 
 const getRewardNameById = (id: number | null) => {
-  const reward = rewards.value.find((r) => r.id === id)
-  return reward ? reward.text : 'No Reward'
-}
+  const reward = rewards.value.find((r) => r.id === id);
+  return reward ? reward.text : 'No Reward';
+};
 
 // Fetch todos and rewards when component is mounted
 onMounted(() => {
-  fetchTodos()
-  fetchRewards()
-})
+  fetchTodos();
+  fetchRewards();
+});
 </script>

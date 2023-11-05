@@ -28,6 +28,6 @@ const comingSoon = [
   'Art Gallery',
   'Prompt Gallery',
   'Chatrooms',
-  'Project Manager'
-]
+  'Project Manager',
+];
 </script>

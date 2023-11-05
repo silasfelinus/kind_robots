@@ -1,5 +1,5 @@
 // ~/stores/seeds/seedGames.ts
-import { Game } from '@prisma/client' // Import the Game type based on your actual types file
+import { Game } from '@prisma/client'; // Import the Game type based on your actual types file
 
 export const gameData: Partial<Game>[] = [
   {
@@ -9,7 +9,7 @@ export const gameData: Partial<Game>[] = [
     userId: 1,
     reward: 'A Magic Reward',
     points: 10,
-    isPrivate: false
+    isPrivate: false,
   },
   {
     content: 'Finish the Puzzle Challenge',
@@ -18,6 +18,6 @@ export const gameData: Partial<Game>[] = [
     userId: 2,
     reward: 'Special Prize',
     points: 20,
-    isPrivate: true
-  }
-]
+    isPrivate: true,
+  },
+];

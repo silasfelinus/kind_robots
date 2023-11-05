@@ -15,10 +15,7 @@
         <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
           {{ page.title }}
         </div>
-        <div
-          v-if="page._path === $route.path"
-          class="flex items-center m-1 text-xl rounded-2xl border bg-accent p-1"
-        >
+        <div v-if="page._path === $route.path" class="flex items-center m-1 text-xl rounded-2xl border bg-accent p-1">
           You are here <icon name="line-md:download-outline-loop" class="text-lg m-1" />
         </div>
         <popup-description
@@ -33,13 +30,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { usePageStore } from '@/stores/pageStore'
+import { ref, onMounted, computed } from 'vue';
+import { usePageStore } from '@/stores/pageStore';
 
-const pageStore = usePageStore()
+const pageStore = usePageStore();
 
-const isHovered = ref(null)
+const isHovered = ref(null);
 const highlightPages = computed(() => {
-  return pageStore.highlightPages
-})
+  return pageStore.highlightPages;
+});
 </script>

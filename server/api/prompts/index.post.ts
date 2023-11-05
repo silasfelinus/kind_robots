@@ -1,25 +1,25 @@
 // /server/api/artPrompts/index.post.ts
-import { defineEventHandler, readBody } from 'h3'
-import { type ArtPrompt } from '@prisma/client'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
+import { defineEventHandler, readBody } from 'h3';
+import { type ArtPrompt } from '@prisma/client';
+import { errorHandler } from '../utils/error';
+import prisma from '../utils/prisma';
 
 export default defineEventHandler(async (event) => {
   try {
-    const artPromptData: Partial<ArtPrompt> = await readBody(event)
+    const artPromptData: Partial<ArtPrompt> = await readBody(event);
 
-    const newArtPrompt = await createArtPrompt(artPromptData)
-    return { success: true, newArtPrompt }
+    const newArtPrompt = await createArtPrompt(artPromptData);
+    return { success: true, newArtPrompt };
   } catch (error: any) {
-    return errorHandler(error)
+    return errorHandler(error);
   }
-})
+});
 
 // Function to create a new ArtPrompt
 export async function createArtPrompt(artPrompt: Partial<ArtPrompt>): Promise<ArtPrompt> {
   try {
     if (!artPrompt.prompt) {
-      throw new Error('We need a prompt to make an art prompt')
+      throw new Error('We need a prompt to make an art prompt');
     }
     return await prisma.artPrompt.create({
       data: {
@@ -27,10 +27,10 @@ export async function createArtPrompt(artPrompt: Partial<ArtPrompt>): Promise<Ar
         prompt: artPrompt.prompt,
         galleryId: artPrompt.galleryId || 21,
         pitch: artPrompt.pitch || null,
-        pitchId: artPrompt.pitchId || null
-      }
-    })
+        pitchId: artPrompt.pitchId || null,
+      },
+    });
   } catch (error: any) {
-    throw errorHandler(error)
+    throw errorHandler(error);
   }
 }

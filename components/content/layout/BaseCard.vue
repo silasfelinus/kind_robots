@@ -19,23 +19,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from 'vue';
 
 // Define component props
 const props = defineProps({
   title: {
     type: String,
-    default: 'Kind Robots 🤖'
+    default: 'Kind Robots 🤖',
   },
   iconName: {
     type: String,
-    default: 'mdi:robot'
+    default: 'mdi:robot',
   },
   content: {
     type: String,
-    default: ''
-  }
-})
+    default: '',
+  },
+});
 
 // Break down long class strings for better readability and maintainability
 const baseCardClasses = computed(() =>
@@ -55,7 +55,7 @@ const baseCardClasses = computed(() =>
     'backdrop-blur-md',
     'max-w-screen-sm',
     'text-center',
-    'overflow-hidden'
-  ].join(' ')
-)
+    'overflow-hidden',
+  ].join(' '),
+);
 </script>

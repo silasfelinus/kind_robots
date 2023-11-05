@@ -6,15 +6,15 @@
 </template>
 
 <script setup lang="ts">
-import { usePitchStore, Pitch } from '@/stores/pitchStore'
+import { usePitchStore, type Pitch } from '@/stores/pitchStore';
 
 const props = defineProps<{
-  pitch: Pitch
-}>()
+  pitch: Pitch;
+}>();
 
-const pitchStore = usePitchStore()
+const pitchStore = usePitchStore();
 
 const selectPitch = () => {
-  pitchStore.selectPitch(props.pitch.id)
-}
+  pitchStore.selectPitch(props.pitch.id);
+};
 </script>

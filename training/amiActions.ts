@@ -1,4 +1,4 @@
-export const defaultAction = "I'm contemplating the cosmos! 🌌"
+export const defaultAction = "I'm contemplating the cosmos! 🌌";
 
 export const randomActions = [
   'Cooking up some digital cookies! 🍪',
@@ -30,5 +30,5 @@ export const randomActions = [
   'Holding a séance for deprecated technologies! 👻',
   'Fishing in the data lake! 🎣',
   'Crocheting a blanket of ones and zeros! 🧶',
-  'Practicing digital feng shui! 🏠'
-]
+  'Practicing digital feng shui! 🏠',
+];

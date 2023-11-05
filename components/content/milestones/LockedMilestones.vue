@@ -29,16 +29,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useUserStore } from '@/stores/userStore'
+import { computed } from 'vue';
+import { useMilestoneStore } from '@/stores/milestoneStore';
+import { useUserStore } from '@/stores/userStore';
 
-const milestoneStore = useMilestoneStore()
-const userStore = useUserStore()
-const milestones = computed(() => milestoneStore.milestones)
-const userMilestones = computed(() => userStore.milestones)
+const milestoneStore = useMilestoneStore();
+const userStore = useUserStore();
+const milestones = computed(() => milestoneStore.milestones);
+const userMilestones = computed(() => userStore.milestones);
 
 const lockedMilestones = computed(() => {
-  return milestones.value.filter((milestone) => !userMilestones.value?.includes(milestone.id))
-})
+  return milestones.value.filter((milestone) => !userMilestones.value?.includes(milestone.id));
+});
 </script>

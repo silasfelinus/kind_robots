@@ -11,25 +11,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue';
 
-const bubbles = ref<Array<{ id: number; style: Record<string, any> }>>([])
+const bubbles = ref<Array<{ id: number; style: Record<string, any> }>>([]);
 
-let intervalId: number
+let intervalId: number;
 
 onMounted(() => {
-  intervalId = window.setInterval(createBubble, 500)
-})
+  intervalId = window.setInterval(createBubble, 500);
+});
 
 onUnmounted(() => {
-  window.clearInterval(intervalId)
-})
+  window.clearInterval(intervalId);
+});
 
 function createBubble() {
-  const id = Date.now() // Unique ID based on the current timestamp
-  const size = `${Math.random() * 20 + 5}px`
-  const opacity = Math.random() * 0.5 + 0.2
-  const path = Math.random() * 10 - 5 // random number between -5 and 5
+  const id = Date.now(); // Unique ID based on the current timestamp
+  const size = `${Math.random() * 20 + 5}px`;
+  const opacity = Math.random() * 0.5 + 0.2;
+  const path = Math.random() * 10 - 5; // random number between -5 and 5
   const bubble = {
     id,
     style: {
@@ -39,14 +39,14 @@ function createBubble() {
       width: size,
       height: size,
       opacity: opacity.toString(),
-      '--path-change': `${path}vw`
-    }
-  }
-  bubbles.value.push(bubble)
+      '--path-change': `${path}vw`,
+    },
+  };
+  bubbles.value.push(bubble);
 }
 
 function removeBubble(bubbleId: number) {
-  bubbles.value = bubbles.value.filter((b) => b.id !== bubbleId)
+  bubbles.value = bubbles.value.filter((b) => b.id !== bubbleId);
 }
 </script>
 
@@ -65,11 +65,7 @@ function removeBubble(bubbleId: number) {
   position: absolute;
   bottom: 100%;
   border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 255, 255, 0.4) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
   animation: floatBubble linear infinite;
   z-index: 0;
 }

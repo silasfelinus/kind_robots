@@ -2,17 +2,10 @@
   <div class="flex items-center h-36 w-36 z-50">
     <!-- Welcome Message -->
     <div class="flex items-center cursor-pointer" @click="toggleVisibility">
-      <img
-        v-if="store.avatarImage"
-        :src="store.avatarImage"
-        class="w-8 h-8 rounded-full mr-2"
-        alt="Avatar"
-      />
+      <img v-if="store.avatarImage" :src="store.avatarImage" class="w-8 h-8 rounded-full mr-2" alt="Avatar" />
       <icon name="tabler:home" class="text-2xl" />
       <span class="ml-2">{{ welcomeMessage }}</span>
-      <NuxtLink v-if="isLoggedIn && store.role === 'admin'" to="/admin" class="ml-2 underline"
-        >Admin</NuxtLink
-      >
+      <NuxtLink v-if="isLoggedIn && store.role === 'admin'" to="/admin" class="ml-2 underline">Admin</NuxtLink>
       <NuxtLink v-if="isLoggedIn" to="/dashboard" class="ml-2 underline">Dashboard</NuxtLink>
     </div>
 
@@ -32,19 +25,12 @@
         <div class="mb-4">
           <span class="text-lg font-semibold">Hello, {{ store.username }} 🎉</span>
 
-          <button class="bg-warning text-default py-1 px-3 rounded" @click="handleLogout">
-            Logout
-          </button>
+          <button class="bg-warning text-default py-1 px-3 rounded" @click="handleLogout">Logout</button>
         </div>
       </div>
 
       <!-- Login Form -->
-      <form
-        v-else
-        class="space-y-4 z-50"
-        :autocomplete="stayLoggedIn ? 'on' : 'off'"
-        @submit.prevent="handleLogin"
-      >
+      <form v-else class="space-y-4 z-50" :autocomplete="stayLoggedIn ? 'on' : 'off'" @submit.prevent="handleLogin">
         <div class="mb-2 relative group">
           <label for="login" class="block text-sm mb-1">Login:</label>
           <input
@@ -55,9 +41,7 @@
             class="w-full p-2 border rounded"
             required
           />
-          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">
-            Login
-          </div>
+          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">Login</div>
         </div>
         <div class="mb-2 relative group">
           <label for="password" class="block text-sm mb-1">Password:</label>
@@ -69,9 +53,7 @@
             class="w-full p-2 border rounded"
             required
           />
-          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">
-            Password
-          </div>
+          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">Password</div>
         </div>
 
         <div class="flex items-center justify-between">
@@ -93,56 +75,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { ref, computed, onMounted } from 'vue';
+import { useUserStore } from '@/stores/userStore';
+import { errorHandler } from '@/server/api/utils/error';
 
-const store = useUserStore()
-const login = ref('')
-const password = ref('')
-const isVisible = ref(false)
-const errorMessage = ref('')
-const isLoggedIn = computed(() => store.isLoggedIn)
-const stayLoggedIn = ref(true)
+const store = useUserStore();
+const login = ref('');
+const password = ref('');
+const isVisible = ref(false);
+const errorMessage = ref('');
+const isLoggedIn = computed(() => store.isLoggedIn);
+const stayLoggedIn = ref(true);
 
 const welcomeMessage = computed(() => {
-  return isLoggedIn.value ? `Hello, ${store.username} 🎉` : 'Welcome, Kind Guest'
-})
+  return isLoggedIn.value ? `Hello, ${store.username} 🎉` : 'Welcome, Kind Guest';
+});
 
 const toggleVisibility = () => {
-  isVisible.value = !isVisible.value
-}
+  isVisible.value = !isVisible.value;
+};
 
 const handleLogin = async () => {
-  errorMessage.value = ''
+  errorMessage.value = '';
   try {
-    const result = await store.login({ username: login.value, password: password.value })
+    const result = await store.login({ username: login.value, password: password.value });
     if (result.success) {
       if (stayLoggedIn.value) {
-        localStorage.setItem('user', JSON.stringify({ username: login.value }))
+        localStorage.setItem('user', JSON.stringify({ username: login.value }));
       }
     } else {
-      errorMessage.value = result.message
+      errorMessage.value = result.message;
     }
   } catch (error: any) {
-    errorMessage.value = errorHandler(error).message
+    errorMessage.value = errorHandler(error).message;
   }
-}
+};
 
 const handleLogout = () => {
-  store.logout()
+  store.logout();
   if (!stayLoggedIn.value) {
-    localStorage.removeItem('user')
+    localStorage.removeItem('user');
   }
-}
+};
 
 onMounted(() => {
   // Retrieve user data from localStorage and update the store
-  const storedUser = JSON.parse(localStorage.getItem('user') || 'null')
+  const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
   if (storedUser && storedUser.username !== 'Kind Guest') {
-    store.setUser(storedUser)
+    store.setUser(storedUser);
   }
-})
+});
 </script>
 
 <style scoped>

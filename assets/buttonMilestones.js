@@ -8,13 +8,13 @@ const milestones = [
   { count: 100, message: 'A perfect century! Bravo!' },
   {
     count: 500,
-    message: `My 11-year-old Ronin was upset I didn't have anything here when they tested this`
+    message: `My 11-year-old Ronin was upset I didn't have anything here when they tested this`,
   },
   {
     count: 1000,
-    message: `I'm impressed (and a little concerned). Don't expect any new material after this, please. I haven't made anything. Still, you've gotten to the end of anything I planned. Thank you for taking your time with this. I will have to make more content now just because.`
-  }
+    message: `I'm impressed (and a little concerned). Don't expect any new material after this, please. I haven't made anything. Still, you've gotten to the end of anything I planned. Thank you for taking your time with this. I will have to make more content now just because.`,
+  },
   // Add more milestones as needed
-]
+];
 
-export default milestones
+export default milestones;

@@ -19,23 +19,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useLayoutStore } from '~/stores/layoutStore'
+import { ref, computed } from 'vue';
+import { useLayoutStore } from '~/stores/layoutStore';
 
-const layoutStore = useLayoutStore()
+const layoutStore = useLayoutStore();
 
-const isSimpleLayout = computed(() => layoutStore.currentLayout === 'simple')
+const isSimpleLayout = computed(() => layoutStore.currentLayout === 'simple');
 
 const layoutClass = computed(() => ({
   'layout-simple': isSimpleLayout.value,
-  'layout-default': !isSimpleLayout.value
-}))
+  'layout-default': !isSimpleLayout.value,
+}));
 
 const toggleLayout = () => {
-  layoutStore.setLayout(isSimpleLayout.value ? 'default' : 'simple')
-}
+  layoutStore.setLayout(isSimpleLayout.value ? 'default' : 'simple');
+};
 
-const toggleIcon = computed(() => (isSimpleLayout.value ? 'mdi:view-grid' : 'mdi:fullscreen'))
+const toggleIcon = computed(() => (isSimpleLayout.value ? 'mdi:view-grid' : 'mdi:fullscreen'));
 </script>
 
 <style scoped>

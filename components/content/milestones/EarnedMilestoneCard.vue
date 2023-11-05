@@ -33,7 +33,7 @@
             ? new Date(acquiredAt).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
-                day: 'numeric'
+                day: 'numeric',
               })
             : 'Unknown'
         }}
@@ -50,12 +50,12 @@
 </template>
 
 <script setup lang="ts">
-import { type Milestone } from '@/stores/milestoneStore'
+import { type Milestone } from '@/stores/milestoneStore';
 
 // Define props and destructure them
 const props = defineProps<{
-  milestone: Milestone
-  acquiredAt: string | null
-}>()
-const { milestone } = props
+  milestone: Milestone;
+  acquiredAt: string | null;
+}>();
+const { milestone } = props;
 </script>

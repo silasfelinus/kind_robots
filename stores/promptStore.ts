@@ -1,11 +1,11 @@
-import { defineStore } from 'pinia'
-import { type ArtPrompt, type Art } from '@prisma/client'
-import { errorHandler } from '../server/api/utils/error'
+import { defineStore } from 'pinia';
+import { type ArtPrompt, type Art } from '@prisma/client';
+import { errorHandler } from '../server/api/utils/error';
 
 interface State {
-  artPrompts: ArtPrompt[]
-  artByPromptId: Art[]
-  activePrompt: ArtPrompt | null
+  artPrompts: ArtPrompt[];
+  artByPromptId: Art[];
+  activePrompt: ArtPrompt | null;
 }
 
 export const usePromptStore = defineStore('promptStore', {
@@ -13,7 +13,7 @@ export const usePromptStore = defineStore('promptStore', {
   state: (): State => ({
     artPrompts: [],
     artByPromptId: [],
-    activePrompt: null
+    activePrompt: null,
   }),
 
   // Actions
@@ -21,16 +21,16 @@ export const usePromptStore = defineStore('promptStore', {
     // Fetch all art prompts
     async fetchArtPrompts() {
       try {
-        console.log('About to fetch data...') // Debugging line
-        const response = await fetch('/api/art/prompts/all')
-        console.log('Fetched data:', response) // Debugging line
+        console.log('About to fetch data...'); // Debugging line
+        const response = await fetch('/api/art/prompts/all');
+        console.log('Fetched data:', response); // Debugging line
         if (response.ok) {
-          const data = await response.json()
-          this.artPrompts = data.artPrompts
+          const data = await response.json();
+          this.artPrompts = data.artPrompts;
         }
       } catch (error: any) {
-        const handledError = errorHandler(error)
-        console.error('Error in fetchArtPrompts:', handledError.message)
+        const handledError = errorHandler(error);
+        console.error('Error in fetchArtPrompts:', handledError.message);
       }
     },
     async editArtPrompt(id: number, newPrompt: string) {
@@ -38,79 +38,79 @@ export const usePromptStore = defineStore('promptStore', {
         const response = await fetch('/api/art/prompts', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, prompt: newPrompt })
-        })
+          body: JSON.stringify({ id, prompt: newPrompt }),
+        });
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success) {
           // Update the local store
-          const index = this.artPrompts.findIndex((prompt) => prompt.id === id)
+          const index = this.artPrompts.findIndex((prompt) => prompt.id === id);
           if (index !== -1) {
-            this.artPrompts[index].prompt = newPrompt
+            this.artPrompts[index].prompt = newPrompt;
           }
         } else {
-          throw new Error(data.message)
+          throw new Error(data.message);
         }
       } catch (error: any) {
-        errorHandler({ success: false, message: error.message })
+        errorHandler({ success: false, message: error.message });
       }
     },
 
     // Fetch art by a specific prompt ID
     async fetchArtByPromptId(promptId: number) {
       try {
-        const response = await fetch(`https://kindrobots.org/api/art/prompts/${promptId}`)
+        const response = await fetch(`/api/art/prompts/${promptId}`);
         if (response.ok) {
-          this.artByPromptId = await response.json()
+          this.artByPromptId = await response.json();
         }
       } catch (error: any) {
-        const handledError = errorHandler(error)
-        console.error('Error in fetchArtByPromptId:', handledError.message)
+        const handledError = errorHandler(error);
+        console.error('Error in fetchArtByPromptId:', handledError.message);
       }
     },
 
     selectPrompt(prompt: ArtPrompt) {
-      this.activePrompt = prompt // Update the ref value directly
+      this.activePrompt = prompt; // Update the ref value directly
     },
     clearPrompt() {
-      this.activePrompt = null // Update the ref value directly
+      this.activePrompt = null; // Update the ref value directly
     },
     // Create a new art prompt
     async createArtPrompt(newPrompt: string) {
       try {
-        const response = await fetch('https://kindrobots.org/api/art/prompts', {
+        const response = await fetch('/api/art/prompts', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ prompt: newPrompt })
-        })
+          body: JSON.stringify({ prompt: newPrompt }),
+        });
         if (response.ok) {
-          const createdPrompt = await response.json()
-          this.artPrompts.push(createdPrompt)
+          const createdPrompt = await response.json();
+          this.artPrompts.push(createdPrompt);
         }
       } catch (error: any) {
-        const handledError = errorHandler(error)
-        console.error('Error in createArtPrompt:', handledError.message)
+        const handledError = errorHandler(error);
+        console.error('Error in createArtPrompt:', handledError.message);
       }
     },
 
     // Delete an art prompt by ID
     async deleteArtPrompt(promptId: number) {
       try {
-        const response = await fetch(`https://kindrobots.org/api/art/prompts/${promptId}`, {
-          method: 'DELETE'
-        })
+        const response = await fetch(`/api/art/prompts/${promptId}`, {
+          method: 'DELETE',
+        });
         if (response.ok) {
-          this.artPrompts = this.artPrompts.filter((prompt) => prompt.id !== promptId)
+          this.artPrompts = this.artPrompts.filter((prompt) => prompt.id !== promptId);
         }
       } catch (error: any) {
-        const handledError = errorHandler(error)
-        console.error('Error in deleteArtPrompt:', handledError.message)
+        const handledError = errorHandler(error);
+        console.error('Error in deleteArtPrompt:', handledError.message);
       }
-    }
-  }
-})
+    },
+  },
+});
 
-export type { ArtPrompt }
+export type { ArtPrompt };

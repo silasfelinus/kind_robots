@@ -6,28 +6,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
 const { value, isEditable } = defineProps<{
-  value: string
-  isEditable: boolean
-}>()
+  value: string;
+  isEditable: boolean;
+}>();
 
 const emit = defineEmits<{
-  (e: 'update', value: string): void
-}>()
+  (e: 'update', value: string): void;
+}>();
 
-const editing = ref(false)
-const newValue = ref(value)
+const editing = ref(false);
+const newValue = ref(value);
 
 const enableEditing = () => {
   if (isEditable) {
-    editing.value = true
+    editing.value = true;
   }
-}
+};
 
 const updateValue = () => {
-  emit('update', newValue.value)
-  editing.value = false
-}
+  emit('update', newValue.value);
+  editing.value = false;
+};
 </script>

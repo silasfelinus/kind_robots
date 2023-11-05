@@ -4,10 +4,7 @@
     @mouseover="showText = true"
     @mouseleave="showText = false"
   >
-    <button
-      class="focus:outline-none transition-transform duration-200 transform hover:scale-110"
-      @click="toggleInfo"
-    >
+    <button class="focus:outline-none transition-transform duration-200 transform hover:scale-110" @click="toggleInfo">
       <icon :name="toggleIcon" class="w-16 h-16 text-6xl opacity-80" />
     </button>
     <p
@@ -20,21 +17,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { usePageStore } from '@/stores/pageStore'
+import { ref, computed } from 'vue';
+import { usePageStore } from '@/stores/pageStore';
 
-const pageStore = usePageStore()
-const showText = ref(false)
+const pageStore = usePageStore();
+const showText = ref(false);
 
 const toggleInfo = () => {
-  pageStore.toggleInfo()
-}
+  pageStore.toggleInfo();
+};
 
 const toggleIcon = computed(() => {
-  return pageStore.showInfo ? 'mdi:chat-outline' : 'carbon:chat-off'
-})
+  return pageStore.showInfo ? 'mdi:chat-outline' : 'carbon:chat-off';
+});
 
 const tooltipText = computed(() => {
-  return pageStore.showInfo ? 'Hide Info' : 'Show Info'
-})
+  return pageStore.showInfo ? 'Hide Info' : 'Show Info';
+});
 </script>

@@ -40,20 +40,20 @@
 const props = defineProps({
   navigationTree: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   level: {
     type: Number,
-    default: 0
-  }
-})
+    default: 0,
+  },
+});
 
 const filterChildRoutes = (item) => {
   if (item.children) {
-    item.children = item.children.filter((child) => child._path !== item._path)
+    item.children = item.children.filter((child) => child._path !== item._path);
   }
-  return item
-}
+  return item;
+};
 
-const filteredNavigationTree = computed(() => props.navigationTree.map(filterChildRoutes))
+const filteredNavigationTree = computed(() => props.navigationTree.map(filterChildRoutes));
 </script>

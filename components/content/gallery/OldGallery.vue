@@ -10,44 +10,44 @@
 </template>
 
 <script setup>
-import interact from 'interactjs'
+import interact from 'interactjs';
 
-const artSize = ref(10)
+const artSize = ref(10);
 
 const arts = ref([
   { id: 1, src: '/images/flower/flower1.webp' },
-  { id: 2, src: '/images/flower/flower2.webp' }
+  { id: 2, src: '/images/flower/flower2.webp' },
   // add more art assets here
-])
+]);
 
 const initInteract = (el) => {
-  if (!el) return
+  if (!el) return;
 
   interact(el).draggable({
     inertia: true,
     modifiers: [
       interact.modifiers.restrictRect({
         restriction: 'parent',
-        endOnly: true
-      })
+        endOnly: true,
+      }),
     ],
     autoScroll: true,
     onmove: dragMoveListener,
     onstart: () => el.firstChild.classList.add('large'),
-    onend: () => el.firstChild.classList.remove('large')
-  })
-}
+    onend: () => el.firstChild.classList.remove('large'),
+  });
+};
 
 function dragMoveListener(event) {
-  let { x, y } = event.target.dataset
+  let { x, y } = event.target.dataset;
 
-  x = (parseFloat(x) || 0) + event.dx
-  y = (parseFloat(y) || 0) + event.dy
+  x = (parseFloat(x) || 0) + event.dx;
+  y = (parseFloat(y) || 0) + event.dy;
 
-  event.target.style.transform = `translate(${x}px, ${y}px)`
+  event.target.style.transform = `translate(${x}px, ${y}px)`;
 
-  event.target.dataset.x = x
-  event.target.dataset.y = y
+  event.target.dataset.x = x;
+  event.target.dataset.y = y;
 }
 </script>
 

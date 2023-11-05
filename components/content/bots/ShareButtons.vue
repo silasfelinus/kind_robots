@@ -13,14 +13,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
 const { url, text } = defineProps<{
-  url: string
-  text: string
-  botName: string
-  subtitle: string
-}>()
+  url: string;
+  text: string;
+  botName: string;
+  subtitle: string;
+}>();
 </script>
 
 <style scoped>

@@ -16,10 +16,7 @@
     </div>
 
     <!-- Add Reward Button -->
-    <button
-      class="bg-primary text-default p-2 rounded mb-4"
-      @click="showAddReward = !showAddReward"
-    >
+    <button class="bg-primary text-default p-2 rounded mb-4" @click="showAddReward = !showAddReward">
       Add New Reward
     </button>
 
@@ -30,50 +27,43 @@
 
     <!-- Show Reward Modal -->
     <transition name="fade" mode="out-in">
-      <EditReward
-        v-if="showEditReward && selectedReward !== null"
-        key="edit-reward"
-        :reward="selectedReward"
-      />
+      <EditReward v-if="showEditReward && selectedReward !== null" key="edit-reward" :reward="selectedReward" />
     </transition>
     <!-- Show Reward Modal -->
     <transition name="fade" mode="out-in">
-      <ShowReward
-        v-if="showShowReward && selectedReward !== null"
-        key="show-reward"
-        :reward="selectedReward"
+      <ShowReward v-if="showShowReward && selectedReward !== null" key="show-reward" :reward="selectedReward"
     /></transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { type Reward, useRewardStore } from '@/stores/rewardStore'
+import { ref, onMounted } from 'vue';
+import { type Reward, useRewardStore } from '@/stores/rewardStore';
 
-const rewardStore = useRewardStore()
-const showAddReward: Ref<boolean> = ref(false)
-const showEditReward: Ref<boolean> = ref(false)
-const showShowReward: Ref<boolean> = ref(false)
-const selectedReward: Ref<Reward | null> = ref(null)
+const rewardStore = useRewardStore();
+const showAddReward: Ref<boolean> = ref(false);
+const showEditReward: Ref<boolean> = ref(false);
+const showShowReward: Ref<boolean> = ref(false);
+const selectedReward: Ref<Reward | null> = ref(null);
 
 // Fetch rewards on mounted
 onMounted(() => {
-  rewardStore.fetchRewards()
-})
+  rewardStore.fetchRewards();
+});
 
 const showReward = (reward: Reward): void => {
-  selectedReward.value = reward
-  showShowReward.value = true
-}
+  selectedReward.value = reward;
+  showShowReward.value = true;
+};
 
 const editReward = (reward: Reward): void => {
-  selectedReward.value = reward
-  showEditReward.value = true
-}
+  selectedReward.value = reward;
+  showEditReward.value = true;
+};
 
 const deleteReward = (id: number): void => {
-  rewardStore.deleteRewardById(id)
-}
+  rewardStore.deleteRewardById(id);
+};
 </script>
 
 <style>

@@ -1,5 +1,5 @@
 // ~/server/api/bots/index.ts
-import { Bot, Prisma } from '@prisma/client'
+import { type Bot, Prisma } from '@prisma/client'
 import prisma from './../utils/prisma'
 
 export async function fetchBots(page = 1, pageSize = 100): Promise<Bot[]> {

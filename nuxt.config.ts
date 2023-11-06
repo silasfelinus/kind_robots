@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxt/content', 'nuxt-icon', '@unlok-co/nuxt-stripe', '@nuxt/devtools'],
+  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxt/content', 'nuxt-icon', '@unlok-co/nuxt-stripe'],
   stripe: {
     // Server
     server: {
@@ -30,6 +30,6 @@ export default defineNuxtConfig({
     documentDriven: true,
   },
   devtools: {
-    enabled: true
-  }
+    enabled: false,
+  },
 });

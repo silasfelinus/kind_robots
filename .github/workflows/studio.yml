@@ -54,7 +54,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          version: ${{ matrix.node }}
+          node-version: ${{ matrix.node }}
           cache: ${{ steps.pkgman.outputs.cache }}
 
       - name: Install dependencies
@@ -70,7 +70,6 @@ jobs:
         run: npx nuxi generate
         env:
           NUXT_PUBLIC_STUDIO_API_URL: https://api.nuxt.studio
-          NUXT_PUBLIC_STUDIO_TOKENS: c5957273350364a6e67371ac16c1818137d62ff8d8e454b5d5eb7093298d347c
           APP_ENV: ${{ secrets.APP_ENV }}
           APP_KEY: ${{ secrets.APP_KEY }}
           APP_NAME: ${{ secrets.APP_NAME }}

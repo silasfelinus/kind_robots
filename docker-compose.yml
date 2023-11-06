@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  kindrobots:
+    image: kindrobots:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Enable BuildKit
+      cache_from:
+        - node:19
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    restart: unless-stopped

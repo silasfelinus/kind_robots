@@ -42,7 +42,7 @@ const amiStream = ref('');
 let index = 0;
 let amiIndex = 0;
 let timer: number;
-let streamStatus = ref<'silas' | 'ami' | 'pause'>('silas');
+const streamStatus = ref<'silas' | 'ami' | 'pause'>('silas');
 
 const randomAction = ref('');
 

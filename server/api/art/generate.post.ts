@@ -169,14 +169,14 @@ async function validateAndLoadChannelId(data: RequestData, validatedData: Partia
   }
 
   try {
-    let labelToSearch = data.channelName ?? data.pitchName;
+    const labelToSearch = data.channelName ?? data.pitchName;
 
     if (!labelToSearch) {
       console.warn('No channelName or pitchName provided.');
       return 1; // Default channel ID
     }
 
-    let existingChannel = await prisma.channel.findUnique({
+    const existingChannel = await prisma.channel.findUnique({
       where: { label: labelToSearch },
     });
 

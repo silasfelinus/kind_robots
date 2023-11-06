@@ -11,7 +11,7 @@
 <script setup>
 import { ref } from 'vue';
 
-let isLoading = ref(false);
+const isLoading = ref(false);
 
 const openExternalLink = () => {
   isLoading.value = true;

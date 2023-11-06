@@ -23,7 +23,7 @@ import { useLoadStore } from '../../../stores/loadStore'; // Assuming the path t
 const { randomLoadMessage } = useLoadStore();
 const currentMessage = ref('Building Kind Robots...');
 
-let butterflyCount = ref(20);
+const butterflyCount = ref(20);
 const fadeOut = ref(false);
 const pageReady = ref(false);
 

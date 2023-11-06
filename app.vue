@@ -32,6 +32,14 @@ const milestoneStore = useMilestoneStore();
 const chatStore = useChatStore();
 const pageStore = usePageStore();
 
+useSeoMeta({
+  title: 'Kind Robots',
+  ogTitle: 'Welcome to the Kind Robots',
+  description: 'OpenAI-supported Promptbots here to assist humanity.',
+  ogDescription: 'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans',
+  ogImage: '/images/kindtitle.webp',
+  twitterCard: 'summary_large_image',
+});
 onMounted(() => {
   try {
     // Initialize user data

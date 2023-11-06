@@ -38,7 +38,7 @@ import { useBotStore, type Bot } from '@/stores/botStore';
 const botsStore = useBotStore();
 const bots = computed(() => botsStore.bots);
 
-let currentBot = computed(() => botsStore.currentBot);
+const currentBot = computed(() => botsStore.currentBot);
 
 onMounted(async () => {
   if (!bots.value) {

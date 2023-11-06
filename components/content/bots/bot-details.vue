@@ -26,6 +26,6 @@ import { computed, ref } from 'vue';
 import { useBotStore } from '../../../stores/botStore';
 
 const botsStore = useBotStore();
-let currentBot = computed(() => botsStore.currentBot);
+const currentBot = computed(() => botsStore.currentBot);
 const bots = computed(() => botsStore.bots);
 </script>

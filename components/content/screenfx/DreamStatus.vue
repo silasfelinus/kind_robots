@@ -15,7 +15,7 @@ import { useDreamStore } from '../../../stores/dreamStore';
 
 const dreamStore = useDreamStore();
 const dream = ref(dreamStore.randomDream());
-let statusMessage = ref(`One Moment...${dream.value}`);
+const statusMessage = ref(`One Moment...${dream.value}`);
 
 const updateDream = () => {
   dream.value = dreamStore.randomDream();

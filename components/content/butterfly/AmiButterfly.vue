@@ -16,14 +16,14 @@ const analogousColor = (hsl: string): string => {
     throw new Error('Invalid color format');
   }
   const [h, s, l] = hslMatch.map(Number);
-  let newH = (h + 30) % 360;
+  const newH = (h + 30) % 360;
   return `hsl(${newH},${s}%,${l}%)`;
 };
 
 // Complementary color generator
 const complementaryColor = (color: string): string => {
   const [h, s, l] = color.replace('hsl(', '').replace(')', '').split(',');
-  let newH = (parseInt(h) + 180) % 360;
+  const newH = (parseInt(h) + 180) % 360;
   return `hsl(${newH},${s},${l})`;
 };
 

@@ -16,10 +16,10 @@ import { ref, computed } from 'vue';
 import { useBotStore } from '../../../stores/botStore';
 
 const botStore = useBotStore();
-let bot = computed(() => botStore.currentBot);
-let totalBots = computed(() => botStore.bots);
+const bot = computed(() => botStore.currentBot);
+const totalBots = computed(() => botStore.bots);
 
-let randomMessages = [
+const randomMessages = [
   'Kind Robots: Where AI and humanity harmonize!',
   "You've discovered a harmonious bot from Kind Robots!",
   "Together with Kind Robots, you're creating a better future!",
@@ -34,7 +34,7 @@ let randomMessages = [
   'Empowering a kinder tomorrow with Kind Robots!',
 ];
 
-let randomMessage = ref(randomMessages[Math.floor(Math.random() * randomMessages.length)]);
+const randomMessage = ref(randomMessages[Math.floor(Math.random() * randomMessages.length)]);
 </script>
 
 <style scoped>

@@ -154,7 +154,7 @@ const pressedButton = () => {
   state.pressed = true;
   state.pressCount++;
 
-  let tempMessage = state.buttonText; // Store the current message temporarily
+  const tempMessage = state.buttonText; // Store the current message temporarily
 
   // Update the top score immediately on every click
   if (state.pressCount > state.topScore) {

@@ -85,15 +85,15 @@
 </template>
 
 <script setup>
-let date = ref(new Date().toISOString().substr(0, 10));
-let clientName = ref('');
-let servicesProvided = ref('');
-let hours = ref('');
-let rate = ref('');
-let productCost = ref('');
-let clientEmail = ref('');
+const date = ref(new Date().toISOString().substr(0, 10));
+const clientName = ref('');
+const servicesProvided = ref('');
+const hours = ref('');
+const rate = ref('');
+const productCost = ref('');
+const clientEmail = ref('');
 
-let totalCost = computed(() => {
+const totalCost = computed(() => {
   return hours.value * rate.value + Number(productCost.value);
 });
 

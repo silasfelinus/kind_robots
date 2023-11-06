@@ -28,7 +28,7 @@ const statusMessage = computed(() => statusStore.message);
 const statusType = computed(() => statusStore.type);
 const statusHistory = computed(() => statusStore.history);
 
-let showTimestamp = reactive(new Array(statusHistory.value.length).fill(false));
+const showTimestamp = reactive(new Array(statusHistory.value.length).fill(false));
 
 let idleTimer: NodeJS.Timeout | null = null;
 

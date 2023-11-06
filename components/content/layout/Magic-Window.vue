@@ -58,7 +58,7 @@ const fetchImage = async () => {
 };
 
 const handleScroll = (event) => {
-  let scrollY = window.scrollY;
+  const scrollY = window.scrollY;
   document.documentElement.style.setProperty('--offsetY', `${-scrollY * 0.5}px`);
 };
 

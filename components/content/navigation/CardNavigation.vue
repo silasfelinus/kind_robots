@@ -51,7 +51,7 @@ const fetchContentNavigation = async () => {
 fetchContentNavigation();
 
 const cardClass = (state) => {
-  let baseClass =
+  const baseClass =
     'transform transition-all duration-200 hover:scale-105 bg-primary rounded-lg shadow-lg overflow-hidden grid grid-cols-4 gap-4';
   if (state === 'collapsed') {
     return `${baseClass} hidden`;

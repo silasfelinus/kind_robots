@@ -11,8 +11,8 @@
 import { useBotStore } from '../../../stores/botStore';
 
 const botsStore = useBotStore();
-let currentBot = computed(() => botsStore.currentBot);
-let flipped = ref(false);
+const currentBot = computed(() => botsStore.currentBot);
+const flipped = ref(false);
 </script>
 
 <style scoped>

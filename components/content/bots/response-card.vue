@@ -40,8 +40,8 @@ const props = defineProps({
   },
 });
 
-let showReply = ref(false);
-let replyMessage = ref('');
+const showReply = ref(false);
+const replyMessage = ref('');
 
 const toggleReply = () => {
   showReply.value = !showReply.value;

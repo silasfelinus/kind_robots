@@ -10,9 +10,9 @@
 </template>
 
 <script setup>
-let isLoading = ref(false);
-let iframeVisible = ref(false);
-let iframeSrc = ref('');
+const isLoading = ref(false);
+const iframeVisible = ref(false);
+const iframeSrc = ref('');
 
 const showIframe = () => {
   isLoading.value = true;

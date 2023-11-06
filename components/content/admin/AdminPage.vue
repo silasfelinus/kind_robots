@@ -1,6 +1,6 @@
 <script setup>
 const selectedModel = ref('User'); // default model
-let data = ref(null);
+const data = ref(null);
 
 // Fetch data when component is mounted or when selectedModel changes
 onMounted(fetchData);

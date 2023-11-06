@@ -1,1 +1,0 @@
-import{r as a}from"./entry.db0b0373.js";function e(){const o=a("");function r(){const n=Math.floor(Math.random()*361);o.value=`hsl(${n}, 100%, 50%)`}return r(),{randomColor:o,generateRandomColor:r}}export{e as u};

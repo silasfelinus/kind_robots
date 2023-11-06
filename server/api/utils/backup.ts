@@ -14,9 +14,15 @@ async function backupDatabase() {
     const galleries = await prisma.gallery.findMany();
 
     const backupData = {
+      art,
+      artReactions,
+      artPrompts,
+      bots,
       channels,
+      galleries,
       messages,
       tags,
+      users,
     };
 
     fs.writeFileSync('backup.json', JSON.stringify(backupData));

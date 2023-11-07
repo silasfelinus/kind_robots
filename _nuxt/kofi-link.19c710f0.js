@@ -1,1 +1,0 @@
-import{k as t,b as e,c as o,e as s}from"./entry.e51736e9.js";const c={},r={href:"https://ko-fi.com/P5P5DO6TA",target:"_blank"},n=s("img",{height:"36",style:{border:"0px",height:"36px"},src:"https://storage.ko-fi.com/cdn/kofi2.png?v=3",border:"0",alt:"Support us at ko-fi"},null,-1),_=[n];function a(i,p){return e(),o("a",r,_)}const h=t(c,[["render",a]]);export{h as default};

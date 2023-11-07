@@ -1,1 +1,0 @@
-import{aA as e,b as s,c as o,t as r,O as c,a$ as i}from"./entry.e51736e9.js";import{u as _}from"./asyncData.7f1014b0.js";const g={__name:"FetchNav",async setup(l){let t,a;const{data:n}=([t,a]=e(()=>_("navigation",()=>i())),t=await t,a(),t);return(p,u)=>(s(),o("pre",null,r(JSON.stringify(c(n),null,2)),1))}};export{g as default};

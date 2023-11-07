@@ -20,3 +20,4 @@ portfolio/yarn
 .users.http
 /utils/.users.http
 *.http
+backup.json

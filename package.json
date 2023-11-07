@@ -2,7 +2,7 @@
   "name": "kind-robots",
   "private": true,
   "scripts": {
-    "dev": "nuxt dev --host --hostname 0.0.0.0",
+    "dev": "nuxt dev --host",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",

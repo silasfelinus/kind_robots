@@ -1,0 +1,1 @@
+import{d as s,b as a,c as t,e as d,aD as o,k as _}from"./entry.2091295e.js";const c={class:"base-card-container"},r={class:"base-card"},n=s({__name:"BaseCardOld",setup(l){return(e,p)=>(a(),t("div",c,[d("div",r,[o(e.$slots,"default",{},void 0,!0)])]))}});const f=_(n,[["__scopeId","data-v-e4d439f5"]]);export{f as default};

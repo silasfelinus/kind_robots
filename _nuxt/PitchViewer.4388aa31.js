@@ -1,1 +1,0 @@
-import{d as n,aJ as p,b as a,c as l,e as t,t as c}from"./entry.7ad367d0.js";const u=n({__name:"PitchViewer",props:{pitch:{}},setup(o){const s=o,r=p(),i=()=>{r.selectPitch(s.pitch.id)};return(e,h)=>(a(),l("div",{class:"p-4 border rounded-lg cursor-pointer hover:bg-accent",onClick:i},[t("h3",null,c(e.pitch.title),1),t("p",null,c(e.pitch.pitch),1)]))}});export{u as default};

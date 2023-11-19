@@ -14,7 +14,7 @@ WORKDIR /src
 FROM base as build
 
 COPY --link package.json package-lock.json ./
-RUN npm ci --only=production
+RUN npm install --production=false  
 
 COPY --link . .
 

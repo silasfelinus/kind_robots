@@ -1,0 +1,1 @@
+import{k as e,b as t,c as o}from"./entry.0e1ae4de.js";const r={},s={class:"absolute bottom-0 w-full text-center pb-4"};function c(n,a){return t(),o("footer",s,"© 2023 Kind Games. All rights reserved.")}const _=e(r,[["render",c]]);export{_ as default};

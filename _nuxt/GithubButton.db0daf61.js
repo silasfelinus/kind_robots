@@ -1,0 +1,1 @@
+import{k as t,b as o,c as n}from"./entry.0e1ae4de.js";const c={},e={n:"sm",to:"https://github.com/silasfelinus",target:"_blank",icon:"carbon-logo-github"};function s(r,a){return o(),n("button",e,"GitHub")}const _=t(c,[["render",s]]);export{_ as default};

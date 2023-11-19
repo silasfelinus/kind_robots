@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: prisma-api
+    container_name: kind-robots
     ports:
       - "3009:3000"
     restart: always
@@ -16,3 +16,15 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DATABASE_URL=${DATABASE_URL}
+      - NUXT_OPENAI_API_KEY=${NUXT_OPENAI_API_KEY}
+      - NUXT_GITHUB_ID=${NUXT_GITHUB_ID}
+      - NUXT_GITHUB_SECRET=$NUXT_GITHUB_SECRET}
+      - NUXT_GOOGLE_ID=${NUXT_GOOGLE_ID}
+      - NUXT_JWT_SECRET=${NUXT_JWT_SECRET}
+      - NUXT_GOOGLE_SECRET=${NUXT_GOOGLE_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI}
+      - AUTH_ORIGIN=${AUTH_ORIGIN}
+      - AUTH_SECRET=${AUTH_SECRET}

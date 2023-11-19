@@ -1,1 +1,0 @@
-import{k as n,b as t,c as s,aD as o}from"./entry.0e1ae4de.js";const c={},r={class:"main-content bg-base shadow-inner rounded-l-xl p-4 justify-center items-center"};function a(e,_){return t(),s("main",r,[o(e.$slots,"default")])}const d=n(c,[["render",a]]);export{d as default};

@@ -1,1 +1,0 @@
-import{d as a,aU as n,b as o,c as s,t as r,O as c}from"./entry.0e1ae4de.js";import{u as p}from"./head.136259b4.js";const d=a({__name:"HeadContent",setup(u){const{page:e}=n(),t=p(e);return(m,_)=>(o(),s("div",null,r(c(t)),1))}});export{d as default};

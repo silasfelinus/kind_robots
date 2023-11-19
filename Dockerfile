@@ -1,14 +1,36 @@
-# Set up base image
-FROM node:slim
+# syntax = docker/dockerfile:1
 
-# Set working directory
-WORKDIR /app
+ARG NODE_VERSION=18.14.2
 
-# Copy production version into the image.
-COPY .output .
+FROM node:${NODE_VERSION}-slim as base
 
-# Expose application ports
-EXPOSE 3000
+ARG PORT=3000
 
-# Start Service
-CMD [ "node","server/index.mjs" ]
+ENV NODE_ENV=production
+
+WORKDIR /src
+
+# Build
+FROM base as build
+
+COPY --link package.json package-lock.json ./
+RUN npm ci --only=production
+
+COPY --link . .
+
+COPY --link ./node_modules/.prisma  ./node_modules/.prisma
+
+RUN npx prisma generate
+
+RUN npm run build
+
+# Run
+FROM base
+
+ENV PORT=$PORT
+
+COPY --from=build /src/.output /src/.output
+# Optional, only needed if you rely on unbundled dependencies
+COPY --from=build /src/node_modules /src/node_modules
+
+CMD [ "node", ".output/server/index.mjs" ]

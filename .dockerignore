@@ -1,6 +1,4 @@
 .dockerignore
-/.nuxt
-/.output
 
 .gitignore
 README.md

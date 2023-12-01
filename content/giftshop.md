@@ -1,6 +1,6 @@
 ---
 title: 'Giftshop'
-subtitle: 'A Token of Appreciation 🎁'
+subtitle: A Token of Appreciation 🎁
 description: Find your keepsake from our world of wonders.
 layout: dashboard
 image: amibotsquare1.webp

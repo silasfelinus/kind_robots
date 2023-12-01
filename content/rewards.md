@@ -1,6 +1,6 @@
 ---
 title: 'Treasure Trove'
-subtitle: 'Unearth Your Adventure Catalyst'
+subtitle: Unearth Your Adventure Catalyst
 description: 'Step into the Infinite Vault, where game rewards become your unique storytelling accomplices. Craft your adventure with the one-of-a-kind items'
 gallery: 'cafepurr'
 layout: dashboard

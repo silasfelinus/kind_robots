@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   kind-robots:
     build:
@@ -6,7 +5,9 @@ services:
       dockerfile: Dockerfile
     container_name: kind-robots
     ports:
-      - 3009:3000
+      - "3009:3000"
+    volumes:
+      - /mnt/user/appdata/kindrobots:/src
     restart: unless-stopped
     environment:
       - DB_CONNECTION=${DB_CONNECTION}
@@ -28,3 +29,12 @@ services:
       - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI}
       - AUTH_ORIGIN=${AUTH_ORIGIN}
       - AUTH_SECRET=${AUTH_SECRET}
+    labels:
+      -  "traefik.enable: true"
+      -  "traefik.http.routers.kindrobots.entryPoints: https"
+    networks:
+      - cafepurr
+networks:
+  cafepurr:
+    external: true
+    name: cafepurr

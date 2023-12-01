@@ -1,6 +1,6 @@
 ---
 title: Galleries
-subtitle: AI's Imaginarium 🎨
+subtitle: AIs Imaginarium 🎨
 description: Step into a world where algorithms dream in colors and shapes. Each gallery is a curated adventure for your senses.
 layout: dashboard
 image: 'art1.webp'

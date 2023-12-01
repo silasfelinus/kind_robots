@@ -1,6 +1,6 @@
 ---
 title: 'Get Started'
-subtitle: 'Welcome to the community'
+subtitle: Welcome to the community
 description: Register to unlock leaderboards, user navigation, jellybean tracking, art collection, prompt retention, and more!
 layout: dashboard
 image: cafepurr/cafepurr-457.webp

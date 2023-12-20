@@ -46,13 +46,12 @@
         v-for="(conversation, index) in conversations"
         :key="index"
         class="response-container m-2 p-4 bg-white rounded-md shadow-md relative flex flex-col items-start"
-        @click="activeConversationIndex = index"
       >
         <div
           v-for="(msg, msgIndex) in conversation"
           :key="msgIndex"
           :class="{ 'flex-row-reverse': msg.role === 'user' }"
-          class="flex items-center"
+          class="flex items-center message-content"
         >
           <ResponseEntry
             :role="msg.role"
@@ -353,5 +352,9 @@ const deleteConversation = (index: number) => {
   padding: 4px;
   border-radius: rounded-2xl;
   font-size: text-lg;
+}
+
+.message-content {
+  white-space: pre-wrap; /* This will preserve newlines and spaces */
 }
 </style>

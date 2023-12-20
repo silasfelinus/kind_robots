@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { usePageStore } from '@/stores/pageStore';
+import { usePageStore } from '../../../stores/pageStore';
 
 const { prev, next, page } = useContent();
 const pageStore = usePageStore();

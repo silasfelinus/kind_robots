@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
-import { usePageStore } from '@/stores/pageStore';
+import { usePageStore } from '../../../stores/pageStore';
 
 const pageStore = usePageStore();
 const showInfo = computed(() => pageStore.showInfo);

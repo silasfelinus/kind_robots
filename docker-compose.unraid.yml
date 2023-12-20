@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: kind-robots
     ports:
-      - "3009:3000"
+      - '3009:3000'
     volumes:
       - /mnt/user/appdata/kindrobots:/src
     restart: unless-stopped
@@ -30,8 +30,8 @@ services:
       - AUTH_ORIGIN=${AUTH_ORIGIN}
       - AUTH_SECRET=${AUTH_SECRET}
     labels:
-      -  "traefik.enable: true"
-      -  "traefik.http.routers.kindrobots.entryPoints: https"
+      - 'traefik.enable: true'
+      - 'traefik.http.routers.kindrobots.entryPoints: https'
     networks:
       - cafepurr
 networks:

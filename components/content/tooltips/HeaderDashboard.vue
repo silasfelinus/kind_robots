@@ -7,8 +7,8 @@
       </div>
       <div class="flex flex-col items-center w-full md:w-auto">
         <room-title class="text-lg font-semibold w-full border-b text-center" />
-        <h2 v-if="page.subtitle" class="text-sm text-gray-500 italic text-center">
-          {{ page.subtitle }}
+        <h2 v-if="pageSubtitle" class="text-sm text-gray-500 italic text-center">
+          {{ pageSubtitle }}
         </h2>
       </div>
     </div>
@@ -28,6 +28,7 @@ const { page } = useContent();
 const userStore = useUserStore();
 const username = computed(() => userStore.username);
 const user = computed(() => userStore.user);
+const pageSubtitle = computed(() => page.subtitle);
 
 const avatarSize = 'small';
 </script>

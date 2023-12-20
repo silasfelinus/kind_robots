@@ -11,11 +11,9 @@ export default defineEventHandler(async (event) => {
     if (!folderName) {
       throw new Error('Invalid folder name.');
     }
-    console.log('Received folder name:', folderName); // Debugging line
 
     // Resolve the path to the folder
     const componentPath = path.resolve(process.cwd(), `components/content/${folderName}`);
-    console.log('Component path:', componentPath); // Debugging line
 
     // Read the component files in the folder
     const componentFiles = await fs.readdir(componentPath);

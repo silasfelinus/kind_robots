@@ -1,0 +1,1 @@
+import{_ as t}from"./BubblePrompt.vue.f2e6b96a.js";import{l as c,b as s,c as o,g as r}from"./entry.540372c9.js";const n={},a={class:"min-h-screen flex items-center justify-center bg-gray-100"};function _(l,m){const e=t;return s(),o("div",a,[r(e,{label:"Click Me!",url:"https://www.example.com"})])}const p=c(n,[["render",_]]);export{p as default};

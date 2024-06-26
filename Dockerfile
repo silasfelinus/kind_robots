@@ -37,7 +37,11 @@ USER node
 RUN npx prisma generate
 
 RUN ./node_modules/.bin/nuxt build
+<<<<<<< HEAD
 
+=======
+COPY --link .output .output
+>>>>>>> 2e740d4 (Reinitialize repository and commit local changes)
 
 # Run
 FROM base

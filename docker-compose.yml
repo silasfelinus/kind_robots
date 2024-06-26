@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 version: '3.8'
+=======
+>>>>>>> 2e740d4 (Reinitialize repository and commit local changes)
 services:
   kind-robots:
     build:
@@ -6,7 +9,15 @@ services:
       dockerfile: Dockerfile
     container_name: kind-robots
     ports:
+<<<<<<< HEAD
       - 3009:3000
+=======
+      - "3009:3000"
+    expose:
+      - 3000
+    volumes:
+      - /mnt/user/appdata/kindrobots:/src
+>>>>>>> 2e740d4 (Reinitialize repository and commit local changes)
     restart: unless-stopped
     environment:
       - DB_CONNECTION=${DB_CONNECTION}
@@ -28,3 +39,15 @@ services:
       - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI}
       - AUTH_ORIGIN=${AUTH_ORIGIN}
       - AUTH_SECRET=${AUTH_SECRET}
+<<<<<<< HEAD
+=======
+    labels:
+      -  "traefik.enable: true"
+      -  "traefik.http.routers.kindrobots.entryPoints: https"
+    networks:
+      - cafepurr
+networks:
+  cafepurr:
+    external: true
+    name: cafepurr
+>>>>>>> 2e740d4 (Reinitialize repository and commit local changes)

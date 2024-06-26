@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 .dockerignore
 
 .gitignore
+=======
+.dockerignore
+.gitignore
+>>>>>>> 2e740d4 (Reinitialize repository and commit local changes)
 README.md

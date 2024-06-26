@@ -12,7 +12,7 @@
     "lint:prettier": "prettier --check .",
     "prettier": "prettier --write .",
     "lintfix": "eslint --fix --ext \".ts,.vue\" --ignore-path .gitignore . && prettier --write .",
-    "prisma:studio": "npx prisma studio",
+    "studio": "npx prisma studio",
     "prisma:generate": "npx prisma generate && npm run prisma:inline",
     "prisma:migrate": "npx prisma migrate deploy && npm run prisma:inline",
     "prisma:migrate:dev": "npx prisma migrate dev && npm run prisma:inline",

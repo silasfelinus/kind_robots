@@ -8,51 +8,41 @@ datasource db {
 }
 
 model Art {
-  id          Int           @id @unique @default(autoincrement())
-  createdAt   DateTime?     @default(now())
-  updatedAt   DateTime?
-  galleryId   Int?
-  path        String
-  designer    String?
+  id          Int           @id @default(autoincrement())
+  galleryId   Int?          @default(0)
+  path        String        @db.VarChar(764)
   prompt      String?       @db.Text
-  artPromptId Int?
+  artPromptId Int?          @default(0)
   userId      Int?          @default(0)
-  Pitch       Pitch?        @relation(fields: [pitchId], references: [id])
-  pitchId     Int?
-  pitch       String?
+  pitchId     Int?          @default(0)
+  createdAt   DateTime?     @db.DateTime(0)
+  updatedAt   DateTime?     @db.DateTime(0)
   boos        Int?          @default(0)
   claps       Int?          @default(0)
-  ArtPrompt   ArtPrompt?    @relation(fields: [artPromptId], references: [id])
-  Gallery     Gallery?      @relation(fields: [galleryId], references: [id])
-  Tags        Tag[]
-  User        User?         @relation(fields: [userId], references: [id])
+  cfg         String?       @db.VarChar(764)
+  checkpoint  String?       @db.VarChar(764)
+  sampler     String?       @db.VarChar(764)
+  seed        Int?          @default(0)
+  steps       Int?          @default(0)
+  pitch       String?       @db.VarChar(764)
+  channelId   Int?          @default(0)
+  isOrphan    Int?          @default(0) @db.TinyInt
+  isPublic    Int?          @default(0) @db.TinyInt
+  isMature    Int?          @default(0) @db.TinyInt
+  designer    String?       @db.VarChar(764)
   ArtReaction ArtReaction[]
-  steps       Int?
-  seed        Int?
-  sampler     String?
-  cfg         String?
-  checkpoint  String?
-  isMature    Boolean?      @default(false)
-  isPublic    Boolean?      @default(false)
-  isOrphan    Boolean?      @default(false)
-  channelId   Int?
-  Channel     Channel?      @relation(fields: [channelId], references: [id])
-  Products    Product[]
-  Post        Post[]
 }
 
 model ArtPrompt {
-  id        Int       @id @unique @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime?
-  userId    Int       @default(0)
-  prompt    String    @unique @db.VarChar(2000)
-  galleryId Int?      @default(21)
-  pitch     String?
-  Art       Art[]
-  User      User      @relation(fields: [userId], references: [id])
-  pitchId   Int?
-  Pitch     Pitch?    @relation(fields: [pitchId], references: [id])
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @db.DateTime(0)
+  updatedAt     DateTime? @db.DateTime(0)
+  userId        Int       @default(0)
+  prompt        String    @db.VarChar(8000)
+  galleryId     Int?      @default(0)
+  pitch         String?   @db.VarChar(764)
+  pitchId       Int?      @default(0)
+  DB_ROW_HASH_1 BigInt
 }
 
 model ArtReaction {
@@ -66,100 +56,84 @@ model ArtReaction {
   title     String?
   comment   String?   @db.Text
   reaction  String?
-  Art       Art?      @relation(fields: [artId], references: [id])
-  User      User      @relation(fields: [userId], references: [id])
-  tags      Tag[]
-  Pitch     Pitch?    @relation(fields: [pitchId], references: [id])
   pitchId   Int?
+  Art       Art?      @relation(fields: [artId], references: [id])
+  Pitch     Pitch?    @relation(fields: [pitchId], references: [id])
+  User      User      @relation(fields: [userId], references: [id])
+
+  @@index([artId], map: "ArtReaction_artId_fkey")
+  @@index([pitchId], map: "ArtReaction_pitchId_fkey")
+  @@index([userId], map: "ArtReaction_userId_fkey")
 }
 
 model Bot {
-  id                Int            @id @unique @default(autoincrement())
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime?
-  BotType           String
-  name              String         @unique
-  isPublic          Boolean        @default(true)
-  underConstruction Boolean        @default(false)
-  canDelete         Boolean        @default(false)
-  subtitle          String         @default("Kind Robot")
-  description       String         @default("I'm a kind robot")
-  avatarImage       String         @default("/images/wonderchest/wonderchest304_(23).webp")
-  botIntro          String         @default("You're a Kind Robot")
-  userIntro         String         @default("Let's make a difference. Here's my idea:")
-  prompt            String         @default("Arm butterflies with mini-flamethrowers to kick mosquitos butts")
-  trainingPath      String?
-  theme             String?
-  personality       String         @default("helpful, inquisitive, considerate")
-  modules           String?
-  userId            Int?
-  User              User?          @relation(fields: [userId], references: [id])
-  sampleResponse    String?
-  tagline           String?        @default("fancy tagline")
-  ChatExchange      ChatExchange[]
+  id                Int       @id @default(autoincrement())
+  createdAt         DateTime  @db.DateTime(0)
+  updatedAt         DateTime? @db.DateTime(0)
+  BotType           String    @db.VarChar(764)
+  name              String    @unique(map: "Bot_id_key", length: 200) @db.VarChar(764)
+  isPublic          Int       @default(0) @db.TinyInt
+  underConstruction Int       @default(0) @db.TinyInt
+  canDelete         Int       @default(0) @db.TinyInt
+  subtitle          String    @db.VarChar(764)
+  description       String    @db.VarChar(764)
+  avatarImage       String    @db.VarChar(764)
+  botIntro          String    @db.VarChar(764)
+  userIntro         String    @db.VarChar(764)
+  prompt            String    @db.VarChar(764)
+  trainingPath      String?   @db.VarChar(764)
+  theme             String?   @db.VarChar(764)
+  personality       String    @db.VarChar(764)
+  modules           String?   @db.VarChar(764)
+  userId            Int?      @default(0)
+  sampleResponse    String?   @db.VarChar(764)
+  tagline           String?   @db.VarChar(764)
   Slogan            Slogan[]
-  Post              Post[]
 }
 
 model Channel {
-  id          Int       @id @unique @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime?
-  userId      Int?      @default(0)
-  label       String    @unique //channels can be id's by unique label
-  title       String?
-  description String?   @db.VarChar(2000)
-  tagId       Int?
-  Tag         Tag?
-  User        User?     @relation(fields: [userId], references: [id])
-  Message     Message[]
-  Pitch       Pitch?
-  Art         Art[]
-  pitchId     Int?
-  Post        Post[]
-
-  @@index([userId], map: "Channel_userId_fkey")
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @db.DateTime(0)
+  updatedAt   DateTime? @db.DateTime(0)
+  userId      Int?      @default(16580608)
+  label       String    @unique(map: "Channel_id_key", length: 200) @db.VarChar(764)
+  description String?   @db.VarChar(8000)
+  tagId       Int?      @default(0)
+  title       String?   @db.VarChar(764)
+  pitchId     Int?      @default(0)
 }
-
-// /prisma/schema.prisma
 
 model ChatExchange {
   id              Int      @id @default(autoincrement())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  botId           Int? // ID of the bot involved in the exchange
-  Bot             Bot?     @relation(fields: [botId], references: [id])
-  botName         String // Name of the bot
-  userId          Int // ID of the user involved in the exchange
-  User            User?    @relation(fields: [userId], references: [id])
-  username        String // Username of the user
-  userPrompt      String   @db.VarChar(2000)
-  botResponse     String   @db.VarChar(2000)
-  liked           Boolean? // Whether the exchange was liked by the user
-  hated           Boolean? // Whether the exchange was hated by the user
-  loved           Boolean? // Whether the exchange was loved by the user
-  flagged         Boolean? // Whether the exchange was flagged for review
+  createdAt       DateTime @db.DateTime(0)
+  updatedAt       DateTime @updatedAt @db.DateTime(0)
+  botId           Int?     @default(57088)
+  botName         String   @db.VarChar(255)
+  userId          Int
+  username        String   @db.VarChar(255)
+  userPrompt      String   @db.Text
+  botResponse     String   @db.Text
+  liked           Int?     @default(0) @db.TinyInt
+  hated           Int?     @default(0) @db.TinyInt
+  loved           Int?     @default(0) @db.TinyInt
+  flagged         Int?     @default(0) @db.TinyInt
   previousEntryId Int?     @default(0)
 }
 
 model Gallery {
-  id             Int       @id @unique @default(autoincrement())
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime?
-  name           String    @unique
+  id             Int       @id @default(autoincrement())
+  createdAt      DateTime  @db.DateTime(0)
+  updatedAt      DateTime? @db.DateTime(0)
+  name           String    @unique(map: "Gallery_id_key", length: 200) @db.VarChar(764)
   description    String?   @db.Text
-  mediaId        String?
-  url            String?
-  custodian      String?
-  userId         Int?
-  content        String    @default("")
-  highlightImage String?
+  mediaId        String?   @db.VarChar(764)
+  url            String?   @db.VarChar(764)
+  custodian      String?   @db.VarChar(764)
+  userId         Int?      @default(0)
+  content        String    @db.VarChar(764)
+  highlightImage String?   @db.VarChar(764)
   imagePaths     String?   @db.Text
-  isMature       Boolean   @default(false)
-  Art            Art[]
-  User           User?     @relation(fields: [userId], references: [id])
-
-  @@index([userId], map: "Gallery_userId_fkey")
+  isMature       Int       @default(0) @db.TinyInt
 }
 
 model Game {
@@ -182,79 +156,69 @@ model Game {
 model Log {
   id        Int      @id @default(autoincrement())
   message   String   @db.Text
-  timestamp DateTime @default(now())
-  username  String?
+  timestamp DateTime @db.DateTime(0)
+  username  String?  @db.VarChar(764)
 }
 
 model Message {
-  id        Int       @id @unique @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime?
-  sender    String    @default("user")
-  recipient String    @default("prompt")
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @db.DateTime(0)
+  updatedAt DateTime? @db.DateTime(0)
+  sender    String    @db.VarChar(764)
+  recipient String    @db.VarChar(764)
   content   String    @db.Text
   channelId Int
   botId     Int?      @default(0)
   userId    Int?      @default(0)
-  Channel   Channel   @relation(fields: [channelId], references: [id])
-  User      User?     @relation(fields: [userId], references: [id])
 
-  @@index([channelId], map: "Message_channelId_fkey")
-  @@index([userId], map: "Message_userId_fkey")
+  @@index([userId], map: "Message_id_key")
 }
 
 model Milestone {
-  id              Int               @id @default(autoincrement())
-  label           String
-  message         String
-  icon            String            @default("mdi:milestone-add")
-  karma           Int               @default(100)
-  isRepeatable    Boolean           @default(false)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime?
-  triggerCode     String
-  tooltip         String?           @default("this has not been revealed")
-  isActive        Boolean           @default(false)
-  pageHint        String?
-  subtleHint      String?
-  MilestoneRecord MilestoneRecord[]
-  Users           User[]
+  id           Int       @id @default(autoincrement())
+  label        String    @db.VarChar(764)
+  message      String    @db.VarChar(764)
+  icon         String    @db.VarChar(764)
+  karma        Int       @default(0)
+  isRepeatable Int       @default(100) @db.TinyInt
+  createdAt    DateTime  @db.DateTime(0)
+  updatedAt    DateTime? @db.DateTime(0)
+  triggerCode  String    @db.VarChar(764)
+  tooltip      String?   @db.VarChar(764)
+  isActive     Int       @default(0) @db.TinyInt
+  pageHint     String?   @db.VarChar(764)
+  subtleHint   String?   @db.VarChar(764)
 }
 
 model MilestoneRecord {
   id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime?
+  createdAt   DateTime  @db.DateTime(0)
+  updatedAt   DateTime? @db.DateTime(0)
   milestoneId Int
   userId      Int
-  Milestone   Milestone @relation(fields: [milestoneId], references: [id])
-  User        User      @relation(fields: [userId], references: [id])
-  username    String?
+  username    String?   @db.VarChar(764)
 }
 
 model Pitch {
-  id             Int           @id @unique @default(autoincrement())
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime?     @updatedAt
-  title          String        @unique
-  pitch          String
-  flavorText     String?
-  designer       String
-  creatorId      Int?
+  id             Int           @id @default(autoincrement())
+  createdAt      DateTime      @db.DateTime(0)
+  updatedAt      DateTime?     @updatedAt @db.DateTime(0)
+  title          String        @unique(map: "Pitch_id_key") @db.VarChar(764)
+  pitch          String        @db.VarChar(764)
   userId         Int           @default(0)
-  isMature       Boolean       @default(false)
-  isPublic       Boolean       @default(true)
-  isOrphan       Boolean       @default(false)
+  isPublic       Int           @default(0) @db.TinyInt
   claps          Int           @default(0)
   boos           Int           @default(0)
-  Channel        Channel?      @relation(fields: [channelId], references: [id])
-  channelId      Int?          @unique
-  User           User          @relation(fields: [userId], references: [id])
+  channelId      Int?          @unique(map: "Pitch_title_key") @default(0)
+  designer       String        @db.VarChar(764)
+  flavorText     String?       @db.VarChar(764)
+  isOrphan       Int           @default(0) @db.TinyInt
+  creatorId      Int?          @default(0)
+  highlightImage String        @db.VarChar(764)
+  isMature       Int           @default(0) @db.TinyInt
   ArtReaction    ArtReaction[]
-  Art            Art[]
-  ArtPrompts     ArtPrompt[]
-  highlightImage String        @default("/images/kindtitle.webp")
-  Post           Post[]
+
+  @@index([userId], map: "Pitch_channelId_key")
 }
 
 model Cart {
@@ -264,15 +228,20 @@ model Cart {
   customerId Int
   Customer   Customer   @relation(fields: [customerId], references: [id])
   items      CartItem[]
+
+  @@index([customerId], map: "Cart_customerId_fkey")
 }
 
 model CartItem {
   id        Int     @id @unique @default(autoincrement())
   cartId    Int
-  Cart      Cart    @relation(fields: [cartId], references: [id])
   productId Int
-  Product   Product @relation(fields: [productId], references: [id])
   quantity  Int     @default(1)
+  Cart      Cart    @relation(fields: [cartId], references: [id])
+  Product   Product @relation(fields: [productId], references: [id])
+
+  @@index([cartId], map: "CartItem_cartId_fkey")
+  @@index([productId], map: "CartItem_productId_fkey")
 }
 
 model Customer {
@@ -281,153 +250,133 @@ model Customer {
   updatedAt DateTime?
   email     String    @unique
   name      String?
-  Carts     Cart[]
   userId    Int?      @unique
+  Carts     Cart[]
   User      User?     @relation(fields: [userId], references: [id])
 }
 
 model RandomList {
-  id     Int    @id @unique @default(autoincrement())
-  title  String @unique
-  items  Json
-  userId Int?
-  User   User?  @relation(fields: [userId], references: [id])
+  id     Int    @id @default(autoincrement())
+  title  String @db.VarChar(764)
+  items  String @db.LongText
+  userId Int?   @default(0)
 }
 
 model Post {
-  id             Int       @id @unique @default(autoincrement())
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime?
-  userId         Int?
-  User           User?     @relation(fields: [userId], references: [id])
-  username       String    @default("anonymous")
-  content        String
-  title          String?
-  label          String    @default("blog")
-  imagePath      String?
-  Tags           Tag[]
-  Art            Art?      @relation(fields: [artId], references: [id])
-  artId          Int?
-  pitchId        Int?
-  Pitch          Pitch?    @relation(fields: [pitchId], references: [id])
-  pitchname      String?
-  sloganContent  String?
-  sloganId       Int?
-  Slogan         Slogan?   @relation(fields: [sloganId], references: [id])
-  botId          Int?
-  Bot            Bot?      @relation(fields: [botId], references: [id])
-  botname        String? // optional connection if posting about a bot
-  channelId      Int? // if open for comments
-  Channel        Channel?  @relation(fields: [channelId], references: [id])
-  likes          Int       @default(0) // a count of user positive reactions
-  dislikes       Int       @default(0) // a count of user negative reactions
-  hates          Int       @default(0) // a count of user strong negative reactions
-  loves          Int       @default(0) //a count of user strong positive reactions
-  jellybeanClaps Int       @default(0) // tracks clap responses from members
-  isFavorite     Boolean   @default(false) // tracks owner's favorite status
+  id             Int       @id @default(autoincrement())
+  createdAt      DateTime  @db.DateTime(0)
+  updatedAt      DateTime? @db.DateTime(0)
+  userId         Int?      @default(0)
+  username       String    @db.VarChar(764)
+  content        String    @db.VarChar(764)
+  title          String?   @db.VarChar(764)
+  label          String    @db.VarChar(764)
+  imagePath      String?   @db.VarChar(764)
+  artId          Int?      @default(0)
+  pitchId        Int?      @default(0)
+  pitchname      String?   @db.VarChar(764)
+  sloganContent  String?   @db.VarChar(764)
+  sloganId       Int?      @default(0)
+  botId          Int?      @default(0)
+  botname        String?   @db.VarChar(764)
+  channelId      Int?      @default(0)
+  likes          Int       @default(0)
+  dislikes       Int       @default(0)
+  hates          Int       @default(0)
+  loves          Int       @default(0)
+  jellybeanClaps Int       @default(0)
+  isFavorite     Int       @default(0) @db.TinyInt
 }
 
 model Product {
-  id            Int        @id @unique @default(autoincrement())
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime?
-  title         String
-  category      String     @default("gallery")
-  flavorText    String?
-  description   String     @default("Here's the idea...") @db.VarChar(2000)
-  passcode      String?
-  costInPennies Int        @default(99)
+  id            Int        @id @default(autoincrement())
+  createdAt     DateTime   @db.DateTime(0)
+  updatedAt     DateTime?  @db.DateTime(0)
+  title         String     @db.VarChar(764)
+  category      String     @db.VarChar(764)
+  flavorText    String?    @db.VarChar(764)
+  description   String     @db.VarChar(8000)
+  costInPennies Int        @default(0)
   userId        Int        @default(0)
-  User          User       @relation(fields: [userId], references: [id])
-  Art           Art[]
+  passcode      String?    @db.VarChar(764)
+  imagePath     String?    @db.VarChar(764)
   CartItem      CartItem[]
-  imagePath     String?
 }
 
 model Resource {
-  id           Int          @id @unique @default(autoincrement())
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime?
-  userId       Int?
-  name         String       @unique
-  customLabel  String?
-  MediaPath    String?
-  customUrl    String?
-  civitaiUrl   String?
-  huggingUrl   String?
-  localPath    String?
+  id           Int          @id @default(autoincrement())
+  createdAt    DateTime     @db.DateTime(0)
+  updatedAt    DateTime?    @db.DateTime(0)
+  userId       Int?         @default(-65536)
+  name         String       @unique(map: "Resource_id_key", length: 200) @db.VarChar(764)
+  customLabel  String?      @db.VarChar(764)
+  MediaPath    String?      @db.VarChar(764)
+  customUrl    String?      @db.VarChar(764)
+  civitaiUrl   String?      @db.VarChar(764)
+  huggingUrl   String?      @db.VarChar(764)
+  localPath    String?      @db.VarChar(764)
   description  String?      @db.Text
-  resourceType ResourceType @default(CHECKPOINT)
-  isMature     Boolean      @default(false)
-  galleryCount Int?
-  User         User?        @relation(fields: [userId], references: [id])
-
-  @@index([userId], map: "Resource_userId_fkey")
+  resourceType ResourceType
+  isMature     Int          @default(0) @db.TinyInt
+  galleryCount Int?         @default(0)
 }
 
 model Reward {
   id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime?
-  icon       String
-  text       String
-  power      String
-  collection String    @default("genesis")
-  rarity     Int       @default(50)
-  label      String?
+  createdAt  DateTime  @db.DateTime(0)
+  updatedAt  DateTime? @db.DateTime(0)
+  icon       String    @db.VarChar(764)
+  text       String    @db.VarChar(764)
+  power      String    @db.VarChar(764)
+  collection String    @db.VarChar(764)
+  rarity     Int       @default(0)
+  label      String?   @db.VarChar(764)
   Todo       Todo[]
-  User       User[]    @relation("RewardToUser")
 }
 
 model Slogan {
   id             Int      @id @default(autoincrement())
   contentType    String   @default("slogan")
   purpose        String   @default("Anti-Malaria Fundraiser")
-  tags           Tag[]
   url            String?  @default("https://www.againstmalaria.org/amibot")
   characterLimit Int      @default(300)
-  content        String   @db.VarChar(2000) //Here's the slogan itself
-  likes          Int      @default(0) // a count of user positive reactions
-  dislikes       Int      @default(0) // a count of user negative reactions
-  hates          Int      @default(0) // a count of user strong negative reactions
-  loves          Int      @default(0) //a count of user strong positive reactions
-  isLiked        Boolean  @default(false) // tracks owner's positive response
-  isLoved        Boolean  @default(false) // tracks user's strong positive response
-  wasKept        Boolean? // optional boolean if the slogan is held in a collection
-  wasDiscarded   Boolean? // slogan was discarded from user's collection or not selected
-  username       String   @default("Kind Guest") // syntactic sugar to access the slogan.username easily
-  userId         Int      @default(0) // the userId of the originator of the slogan
-  model          String   @default("3.5") // which natural language model was used
-  kindRobot      String   @default("amibot") // which kind robot interface was used to generate the slogan
+  content        String   @db.VarChar(2000)
+  likes          Int      @default(0)
+  dislikes       Int      @default(0)
+  hates          Int      @default(0)
+  loves          Int      @default(0)
+  isLiked        Boolean  @default(false)
+  isLoved        Boolean  @default(false)
+  wasKept        Boolean?
+  wasDiscarded   Boolean?
+  username       String   @default("Kind Guest")
+  userId         Int      @default(0)
+  model          String   @default("3.5")
+  kindRobot      String   @default("amibot")
   botId          Int?
-  Bot            Bot?     @relation(fields: [botId], references: [id])
-  User           User     @relation(fields: [userId], references: [id])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  posts          Post[]
+  Bot            Bot?     @relation(fields: [botId], references: [id])
+  User           User     @relation(fields: [userId], references: [id])
+
+  @@index([botId], map: "Slogan_botId_fkey")
+  @@index([userId], map: "Slogan_userId_fkey")
 }
 
-// tags started as a small SmartTag system, but has grown into a gallery game of their own
 model Tag {
-  id           Int           @id @unique @default(autoincrement())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime?
-  label        String        @default("pitch")
-  pitch        String?
-  title        String
-  userId       Int           @default(0)
-  isMature     Boolean       @default(false)
-  isPublic     Boolean?      @default(false)
-  flavorText   String?
-  Art          Art[]
-  Channel      Channel?      @relation(fields: [channelId], references: [id])
-  channelId    Int?          @unique
-  User         User          @relation(fields: [userId], references: [id])
-  ArtReactions ArtReaction[]
-  Slogan       Slogan?       @relation(fields: [sloganId], references: [id])
-  sloganId     Int?
-  Post         Post?         @relation(fields: [postId], references: [id])
-  postId       Int?
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @db.DateTime(0)
+  updatedAt  DateTime? @db.DateTime(0)
+  label      String    @db.VarChar(764)
+  title      String    @db.VarChar(764)
+  userId     Int       @default(0)
+  isPublic   Int?      @default(0) @db.TinyInt
+  channelId  Int?      @unique(map: "Tag_id_key") @default(0)
+  flavorText String?   @db.VarChar(764)
+  pitch      String?   @db.VarChar(764)
+  isMature   Int       @default(0) @db.TinyInt
+  sloganId   Int?      @default(0)
+  postId     Int?      @default(0)
 }
 
 model Todo {
@@ -436,94 +385,96 @@ model Todo {
   category  String
   completed Boolean   @default(false)
   createdAt DateTime  @default(now())
-  updatedAt DateTime?
   userId    Int
   rewardId  Int?
+  updatedAt DateTime?
   Reward    Reward?   @relation(fields: [rewardId], references: [id])
   User      User      @relation(fields: [userId], references: [id])
+
+  @@index([rewardId], map: "Todo_rewardId_fkey")
+  @@index([userId], map: "Todo_userId_fkey")
 }
 
 model User {
-  id                  Int               @id @unique @default(autoincrement())
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime?
-  Role                Role              @default(USER)
-  username            String            @unique
-  email               String?           @unique
-  questPoints         Int               @default(0)
-  emailVerified       DateTime?
-  name                String?
-  address1            String?
-  address2            String?
-  avatarImage         String?           @default("/images/botcafe.webp")
-  bio                 String?           @default("I was born and then things happened and now I'm here.") @db.Text
-  birthday            DateTime?
-  city                String?
-  country             String?
-  discordUrl          String?
-  facebookUrl         String?
-  instagramUrl        String?
-  kindrobotsUrl       String?
-  languages           String?
-  phone               String?
-  state               String?
-  timezone            String?
-  twitterUrl          String?
-  apiKey              String?           @unique
-  password            String?
-  spotifyAccessToken  String?
-  spotifyID           String?
-  spotifyRefreshToken String?
-  karma               Int               @default(0)
-  mana                Int               @default(0)
-  clickRecord         Int?              @default(0)
-  matchRecord         Int?              @default(0)
-  Art                 Art[]
-  ArtPrompt           ArtPrompt[]
+  id                  Int           @id @default(autoincrement())
+  createdAt           DateTime      @db.DateTime(0)
+  updatedAt           DateTime?     @db.DateTime(0)
+  Role                Role
+  username            String        @db.VarChar(255)
+  email               String?       @db.VarChar(255)
+  questPoints         Int           @default(0)
+  emailVerified       DateTime?     @db.DateTime(0)
+  name                String?       @db.VarChar(255)
+  address1            String?       @db.Text
+  address2            String?       @db.Text
+  avatarImage         String?       @db.Text
+  bio                 String?       @db.Text
+  birthday            DateTime?     @db.DateTime(0)
+  city                String?       @db.Text
+  country             String?       @db.Text
+  discordUrl          String?       @db.Text
+  facebookUrl         String?       @db.Text
+  instagramUrl        String?       @db.Text
+  kindrobotsUrl       String?       @db.Text
+  languages           String?       @db.Text
+  phone               String?       @db.VarChar(255)
+  state               String?       @db.VarChar(255)
+  timezone            String?       @db.VarChar(255)
+  twitterUrl          String?       @db.Text
+  apiKey              String?       @db.Text
+  password            String?       @db.Text
+  spotifyAccessToken  String?       @db.Text
+  spotifyID           String?       @db.Text
+  spotifyRefreshToken String?       @db.Text
+  karma               Int           @default(0)
+  mana                Int           @default(0)
+  clickRecord         Int?          @default(0)
+  matchRecord         Int?          @default(0)
   ArtReaction         ArtReaction[]
-  Bot                 Bot[]
-  Channel             Channel[]
-  Gallery             Gallery[]
+  Customer            Customer?
   Game                Game[]
-  Message             Message[]
-  milestones          Milestone[]
-  MilestoneRecord     MilestoneRecord[]
-  Products            Product[]
-  Resource            Resource[]
-  Tag                 Tag[]
-  Todo                Todo[]
-  Reward              Reward[]          @relation("RewardToUser")
-  Pitch               Pitch[]
-  Customer            Customer[]
-  RandomList          RandomList[]
-  ChatExchange        ChatExchange[]
   Slogan              Slogan[]
-  Post                Post[]
+  Todo                Todo[]
 }
 
-enum BotType {
-  PROMPTBOT
-  CHATBOT
-  ARTBOT
+model ArtReactionToTag {
+  A Int
+  B Int
+
+  @@id([A, B])
+  @@map("_ArtReactionToTag")
 }
 
-enum ModelType {
-  BOT
-  GALLERY
-  MEDIA
-  MESSAGE
-  PROJECT
-  PROMPT
-  QUEST
-  REACTION
-  RESOURCE
-  USER
-  MODEL
-  DREAM
-  STATUS
-  ERROR
-  CONTENT
-  GAME
+model ArtToProduct {
+  A Int
+  B Int
+
+  @@id([A, B])
+  @@map("_ArtToProduct")
+}
+
+model ArtToTag {
+  A Int
+  B Int
+
+  @@id([A, B])
+  @@map("_ArtToTag")
+}
+
+model MilestoneToUser {
+  A Int
+  B Int
+
+  @@id([A, B])
+  @@map("_MilestoneToUser")
+}
+
+model RewardToUser {
+  A Int
+  B Int
+
+  @@id([A, B])
+  @@map("_RewardToUser")
 }
 
 enum Role {

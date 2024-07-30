@@ -325,7 +325,7 @@ export async function generateImage(prompt: string, user: string): Promise<{ ima
   };
 
   try {
-    const response = await fetch('https://cafefred.purrsalon.com/sdapi/v1/txt2img', {
+    const response = await fetch('https://lola.acrocatranch.com/sdapi/v1/txt2img', {
       method: 'POST',
       headers: config.headers,
       body: JSON.stringify(requestBody),

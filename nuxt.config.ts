@@ -8,11 +8,6 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxtjs/axios',
   ],
-  eslint: {
-    config: {
-      stylistic: true, // <---
-    },
-  },
   stripe: {
     // Server
     server: {

@@ -5,7 +5,10 @@
       class="flex items-center justify-center text-2xl font-extrabold border shadow-lg bg-secondary rounded-2xl mb-2 px-1"
     >
       Under Construction
-      <icon name="line-md:construction" class="text-2xl ml-2" />
+      <icon
+        name="line-md:construction"
+        class="text-2xl ml-2"
+      />
     </div>
 
     <!-- Links -->
@@ -20,11 +23,21 @@
     >
       <!-- Image -->
       <div class="w-20 h-20 min-w-20 rounded-lg overflow-hidden border bg-secondary">
-        <img :src="`/images/${page.image}`" alt="Page Image" class="object-cover w-full h-full" />
+        <img
+          :src="`/images/${page.image}`"
+          alt="Page Image"
+          class="object-cover w-full h-full"
+        >
       </div>
       <!-- You are here indicator -->
-      <div v-if="page._path === $route.path" class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary">
-        You are here <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
+      <div
+        v-if="page._path === $route.path"
+        class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary"
+      >
+        You are here <icon
+          name="line-md:download-outline-loop"
+          class="text-lg mr-2"
+        />
       </div>
       <!-- Page Title and Popup -->
       <div class="flex flex-col items-start">
@@ -43,21 +56,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { usePageStore } from '~/stores/pageStore';
-import { useFooterStore } from '~/stores/footerStore';
+import { ref, onMounted, computed } from 'vue'
+import { usePageStore } from '~/stores/pageStore'
+import { useFooterStore } from '~/stores/footerStore'
 
-const footerStore = useFooterStore();
+const footerStore = useFooterStore()
 
 const handleLinkClick = () => {
   if (footerStore.isExtended) {
-    footerStore.toggleIsExtended();
+    footerStore.toggleIsExtended()
   }
-};
-const pageStore = usePageStore();
+}
+const pageStore = usePageStore()
 
-const isHovered = ref(null);
+const isHovered = ref(null)
 const underConstructionPages = computed(() => {
-  return pageStore.pagesUnderConstruction;
-});
+  return pageStore.pagesUnderConstruction
+})
 </script>

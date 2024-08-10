@@ -1,14 +1,17 @@
 <template>
-  <div :class="['container', containerClasses]" :style="containerStyles">
+  <div
+    :class="['container', containerClasses]"
+    :style="containerStyles"
+  >
     <slot />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useContainerStore } from '@/stores/containerStore';
+import { computed } from 'vue'
+import { useContainerStore } from '@/stores/containerStore'
 
-const store = useContainerStore();
+const store = useContainerStore()
 
 const containerClasses = computed(() => [
   store.bgColor,
@@ -20,13 +23,13 @@ const containerClasses = computed(() => [
   store.shadow,
   store.transition,
   store.backdrop,
-]);
+])
 
 const containerStyles = computed(() => ({
   borderColor: 'var(--border-accent)', // Utilizing theme color for border
   borderWidth: '0.5rem', // Setting a thick border line
   borderStyle: 'solid',
-}));
+}))
 </script>
 
 <style scoped>

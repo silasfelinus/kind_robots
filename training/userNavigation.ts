@@ -1,8 +1,8 @@
 interface navigationData {
-  title: string;
-  image: string;
-  description: string;
-  path: string;
+  title: string
+  image: string
+  description: string
+  path: string
 }
 
 export const userNavigation: navigationData[] = [
@@ -54,4 +54,4 @@ export const userNavigation: navigationData[] = [
     description: 'Customize your experience in the Kind Universe',
     path: '/theme',
   },
-];
+]

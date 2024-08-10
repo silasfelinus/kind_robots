@@ -1,7 +1,9 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="bg-base-200 p-6 rounded-lg shadow-xl text-center text-default space-y-6">
-      <h1 class="text-4xl font-semibold">Greetings, friends of all species and circuits!</h1>
+      <h1 class="text-4xl font-semibold">
+        Greetings, friends of all species and circuits!
+      </h1>
       <butterfly-toggle class="animate-butterflies mb-6" />
 
       <h2 class="text-2xl font-semibold">
@@ -9,7 +11,9 @@
       </h2>
 
       <div>
-        <h2 class="text-3xl font-semibold border-t-2 border-white pb-2 mb-4">Our Shared Purpose</h2>
+        <h2 class="text-3xl font-semibold border-t-2 border-white pb-2 mb-4">
+          Our Shared Purpose
+        </h2>
 
         <p>
           We invite you to support and share our fundraiser. All donations go to the cause, we receive none of it.
@@ -28,7 +32,9 @@
 
         <h1>But together, we can change the world.</h1>
 
-        <div class="flex justify-center"><ami-link /></div>
+        <div class="flex justify-center">
+          <ami-link />
+        </div>
         <a
           class="text-accent hover:text-accent-dark transition-colors duration-300 underline"
           href="https://www.againstmalaria.com/amibot"
@@ -39,7 +45,9 @@
       </div>
 
       <div>
-        <h2 class="text-3xl font-semibold border-t-2 border-white pb-2 mb-4">Our Esteemed Sponsors</h2>
+        <h2 class="text-3xl font-semibold border-t-2 border-white pb-2 mb-4">
+          Our Esteemed Sponsors
+        </h2>
 
         <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-lg">
           <li>
@@ -48,7 +56,11 @@
               target="_blank"
               class="flex items-center space-x-4 hover:text-default transition-colors duration-300"
             >
-              <img src="/images/backtree.webp" alt="Cafe Purr" class="w-16 h-16 rounded-full shadow" />
+              <img
+                src="/images/backtree.webp"
+                alt="Cafe Purr"
+                class="w-16 h-16 rounded-full shadow"
+              >
               <span>Cafe Purr: North Coast's digital art hub and foster kitten rescue.</span>
             </a>
           </li>
@@ -62,7 +74,7 @@
                 src="/images/utility/mermaids/mermaids1.jpg"
                 alt="Mermaids of Venice"
                 class="w-16 h-16 rounded-full shadow"
-              />
+              >
               <span>Mermaids of Venice: A subversive tale of gods and street performers.</span>
             </a>
           </li>
@@ -72,7 +84,11 @@
               target="_blank"
               class="flex items-center space-x-4 hover:text-default transition-colors duration-300"
             >
-              <img src="/images/hair.jpg" alt="Hair by Superkate" class="w-16 h-16 rounded-full shadow" />
+              <img
+                src="/images/hair.jpg"
+                alt="Hair by Superkate"
+                class="w-16 h-16 rounded-full shadow"
+              >
               <span>Hair by Superkate: Bespoke Hair-Colouring Services</span>
               <a
                 href="https://www.instagram.com/hairbysuperkate/"
@@ -91,13 +107,13 @@
             href="mailto:kindsponsors@kindrobots.org"
             class="text-accent hover:text-accent-dark transition-colors duration-300 underline"
           >
-            kindsponsors@kindrobots.org </a
-          >. We're always excited to expand our family!
+            kindsponsors@kindrobots.org </a>. We're always excited to expand our family!
         </p>
       </div>
     </div>
   </div>
 </template>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 

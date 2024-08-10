@@ -2,7 +2,11 @@
   <div>
     <!-- Flip Card -->
     <div class="flip-card">
-      <div class="flip-card-inner" :class="{ 'is-flipped': flipped }" @click="toggleFlip">
+      <div
+        class="flip-card-inner"
+        :class="{ 'is-flipped': flipped }"
+        @click="toggleFlip"
+      >
         <!-- Front: Expanded User Dashboard -->
         <div class="flip-card-front">
           <user-dashboard :is-expanded="true" />
@@ -19,18 +23,23 @@
       </div>
     </div>
     <!-- Toggle Button -->
-    <button class="mt-2" @click="toggleFlip">Toggle View</button>
+    <button
+      class="mt-2"
+      @click="toggleFlip"
+    >
+      Toggle View
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-const flipped = ref(false);
+const flipped = ref(false)
 
 const toggleFlip = () => {
-  flipped.value = !flipped.value;
-};
+  flipped.value = !flipped.value
+}
 </script>
 
 <style scoped>

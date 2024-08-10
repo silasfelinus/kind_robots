@@ -192,8 +192,8 @@ model Milestone {
 
 model MilestoneRecord {
   id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @db.DateTime(0)
-  updatedAt   DateTime? @db.DateTime(0)
+  createdAt   DateTime  @db.DateTime
+  updatedAt   DateTime? @db.DateTime
   milestoneId Int
   userId      Int
   username    String?   @db.VarChar(764)

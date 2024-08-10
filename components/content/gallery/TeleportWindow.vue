@@ -5,65 +5,73 @@
       class="image-layer"
       :class="{ 'pixelate-out': isPixelatingOut, 'pixelate-in': isPixelatingIn }"
       :style="imageStyle"
-    ></div>
+    />
     <slot />
 
-    <button class="teleport-button btn btn-primary shadow-xl" @click="fetchImage">Teleport</button>
+    <button
+      class="teleport-button btn btn-primary shadow-xl"
+      @click="fetchImage"
+    >
+      Teleport
+    </button>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watchEffect } from 'vue';
+import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
 
-const src = ref('');
-const isPixelatingOut = ref(false);
-const isPixelatingIn = ref(false);
+const src = ref('')
+const isPixelatingOut = ref(false)
+const isPixelatingIn = ref(false)
 
-const imageStyle = ref({});
+const imageStyle = ref({})
 
 watchEffect(() => {
-  imageStyle.value = { backgroundImage: `url(${src.value})` };
-});
+  imageStyle.value = { backgroundImage: `url(${src.value})` }
+})
 
 const fetchImage = async () => {
-  isPixelatingOut.value = true;
+  isPixelatingOut.value = true
 
-  await new Promise((resolve) => setTimeout(resolve, 750));
+  await new Promise(resolve => setTimeout(resolve, 750))
 
   try {
-    const res = await fetch('/api/galleries/random/name/background');
-    const data = await res.json();
+    const res = await fetch('/api/galleries/random/name/background')
+    const data = await res.json()
 
     if (data.success && data.image) {
-      isPixelatingIn.value = true;
-      src.value = data.image;
-    } else {
-      console.error('API returned an unexpected structure:', data);
+      isPixelatingIn.value = true
+      src.value = data.image
     }
-  } catch (err) {
-    console.error('Error fetching images:', err);
-  } finally {
-    isPixelatingOut.value = false;
+    else {
+      console.error('API returned an unexpected structure:', data)
+    }
+  }
+  catch (err) {
+    console.error('Error fetching images:', err)
+  }
+  finally {
+    isPixelatingOut.value = false
 
     setTimeout(() => {
-      isPixelatingIn.value = false;
-    }, 500);
+      isPixelatingIn.value = false
+    }, 500)
   }
-};
+}
 
 const handleScroll = () => {
-  const scrollY = window.scrollY;
-  document.documentElement.style.setProperty('--offsetY', `${-scrollY * 0.3}px`);
-};
+  const scrollY = window.scrollY
+  document.documentElement.style.setProperty('--offsetY', `${-scrollY * 0.3}px`)
+}
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-  fetchImage();
-});
+  window.addEventListener('scroll', handleScroll)
+  fetchImage()
+})
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <style scoped>

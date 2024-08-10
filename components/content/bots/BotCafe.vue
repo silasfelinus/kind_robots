@@ -8,10 +8,15 @@
       @click="botStore.selectBot(bot.id)"
     >
       <figure>
-        <img :src="bot.avatarImage" alt="bot avatar" />
+        <img
+          :src="bot.avatarImage"
+          alt="bot avatar"
+        >
       </figure>
       <div class="card-body">
-        <h2 class="card-title">{{ bot.name }}</h2>
+        <h2 class="card-title">
+          {{ bot.name }}
+        </h2>
         <p>{{ bot.description }}</p>
         <p>Type: {{ bot.BotType }}</p>
         <p>Model: {{ bot.model }}</p>
@@ -28,9 +33,9 @@
 </template>
 
 <script setup>
-import { useBotStore } from '../../../stores/botStore';
+import { useBotStore } from '../../../stores/botStore'
 
-const botStore = useBotStore();
+const botStore = useBotStore()
 </script>
 
 <style scoped>

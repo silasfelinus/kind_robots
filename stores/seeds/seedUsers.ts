@@ -1,5 +1,5 @@
 // ~/stores/seeds/seedUsers.ts
-import { type User } from '@prisma/client';
+import type { User } from '@prisma/client'
 
 // Define your array of initial bot data
 export const userData: Partial<User>[] = [
@@ -33,4 +33,4 @@ export const userData: Partial<User>[] = [
     email: 'fox@kindrobots.org',
     Role: 'USER',
   },
-];
+]

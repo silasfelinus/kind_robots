@@ -1,35 +1,47 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 
 export interface Butterfly {
-  wingTopColor: string;
-  wingBottomColor: string;
-  wingSpeed: number;
+  wingTopColor: string
+  wingBottomColor: string
+  wingSpeed: number
 }
 
 const randomColor = (): string => {
-  const h = Math.floor(Math.random() * 360);
-  const s = Math.floor(Math.random() * 50 + 50); // keep saturation between 50 and 100
-  const l = Math.floor(Math.random() * 40 + 30); // keep lightness between 30 and 70
-  return `hsl(${h},${s}%,${l}%)`;
-};
+  const h = Math.floor(Math.random() * 360)
+  const s = Math.floor(Math.random() * 50 + 50) // keep saturation between 50 and 100
+  const l = Math.floor(Math.random() * 40 + 30) // keep lightness between 30 and 70
+  return `hsl(${h},${s}%,${l}%)`
+}
 
 const butterfly = ref<Butterfly>({
   wingTopColor: randomColor(),
   wingBottomColor: randomColor(),
   wingSpeed: 0.3,
-});
+})
 </script>
 
 <template>
   <div class="butterfly">
     <div class="left-wing">
-      <div class="top" :style="{ background: butterfly.wingTopColor }"></div>
-      <div class="bottom" :style="{ background: butterfly.wingBottomColor }"></div>
+      <div
+        class="top"
+        :style="{ background: butterfly.wingTopColor }"
+      />
+      <div
+        class="bottom"
+        :style="{ background: butterfly.wingBottomColor }"
+      />
     </div>
     <div class="right-wing">
-      <div class="top" :style="{ background: butterfly.wingTopColor }"></div>
-      <div class="bottom" :style="{ background: butterfly.wingBottomColor }"></div>
+      <div
+        class="top"
+        :style="{ background: butterfly.wingTopColor }"
+      />
+      <div
+        class="bottom"
+        :style="{ background: butterfly.wingBottomColor }"
+      />
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 // butterflyPhrases.ts
-export const defaultPhrase = "I'm a free spirit! 🦋";
+export const defaultPhrase = 'I\'m a free spirit! 🦋'
 
 export const funPhrases = [
   'i felt cooped up in there! 🌈',
@@ -15,4 +15,4 @@ export const funPhrases = [
   `i've been working out. I'm ready to kick some mosquito's butts`,
   `powering up the slogan maker`,
   // Add more fun phrases here
-];
+]

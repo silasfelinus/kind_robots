@@ -6,11 +6,17 @@
       class="avatar w-16 h-16 rounded-full border-2 border-white absolute top-0 right-0 mt-4 mr-4"
       :src="avatar"
       alt="Avatar"
-    />
-    <img class="w-full" :src="image" alt="AMIbot" />
+    >
+    <img
+      class="w-full"
+      :src="image"
+      alt="AMIbot"
+    >
     <div class="content px-6 py-4">
-      <div class="title font-bold text-2xl mb-2">{{ title }}</div>
-      <slot></slot>
+      <div class="title font-bold text-2xl mb-2">
+        {{ title }}
+      </div>
+      <slot />
     </div>
   </div>
 </template>
@@ -29,7 +35,7 @@ const props = defineProps({
     type: String,
     default: '/images/acrocats/PXL_20220903_023602144.jpg',
   },
-});
+})
 </script>
 
 <style scoped>

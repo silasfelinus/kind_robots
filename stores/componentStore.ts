@@ -1,8 +1,8 @@
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 
 interface Folder {
-  folderName: string;
-  components: string[];
+  folderName: string
+  components: string[]
 }
 
 export const useComponentStore = defineStore('componentStore', {
@@ -13,27 +13,29 @@ export const useComponentStore = defineStore('componentStore', {
   actions: {
     async fetchComponentList(folderName: string) {
       try {
-        const response = await fetch(`/api/components/${folderName}`);
+        const response = await fetch(`/api/components/${folderName}`)
         if (!response.ok) {
-          throw new Error('Failed to fetch component list');
+          throw new Error('Failed to fetch component list')
         }
-        const { response: componentList } = await response.json();
-        this.folders.push({ folderName, components: componentList });
-      } catch (error) {
-        console.error('Failed to fetch component list:', error);
+        const { response: componentList } = await response.json()
+        this.folders.push({ folderName, components: componentList })
+      }
+      catch (error) {
+        console.error('Failed to fetch component list:', error)
       }
     },
     async fetchFolderNames() {
       try {
-        const response = await fetch('/api/utils/folderNames');
+        const response = await fetch('/api/utils/folderNames')
         if (!response.ok) {
-          throw new Error('Failed to fetch folder names');
+          throw new Error('Failed to fetch folder names')
         }
-        const { response: folderNames } = await response.json();
-        this.folderNames = folderNames;
-      } catch (error) {
-        console.error('Failed to fetch folder names:', error);
+        const { response: folderNames } = await response.json()
+        this.folderNames = folderNames
+      }
+      catch (error) {
+        console.error('Failed to fetch folder names:', error)
       }
     },
   },
-});
+})

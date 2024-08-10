@@ -1,10 +1,10 @@
 export interface ModuleInfo {
-  description: string;
-  example: string;
+  description: string
+  example: string
 }
 
 export interface ModuleData {
-  [name: string]: ModuleInfo;
+  [name: string]: ModuleInfo
 }
 
 export const moduleData: ModuleData = {
@@ -89,4 +89,4 @@ export const moduleData: ModuleData = {
     description: 'a message to be forwarded to Alexa',
     example: '#ALEXA Turn off the living room lights.',
   },
-};
+}

@@ -1,19 +1,19 @@
 // @/utils/useRandomColor.ts
-import { ref } from 'vue';
+import { ref } from 'vue'
 
 export function useRandomColor() {
-  const randomColor = ref('');
+  const randomColor = ref('')
 
   function generateRandomColor() {
-    const randomHue = Math.floor(Math.random() * 361);
-    randomColor.value = `hsl(${randomHue}, 100%, 50%)`;
+    const randomHue = Math.floor(Math.random() * 361)
+    randomColor.value = `hsl(${randomHue}, 100%, 50%)`
   }
 
   // Call the function to generate the initial color
-  generateRandomColor();
+  generateRandomColor()
 
   return {
     randomColor,
     generateRandomColor,
-  };
+  }
 }

@@ -3,15 +3,32 @@
     <!-- Main Content -->
     <section class="prose prose-lg max-w-3xl mb-12 md:mb-4 md:mr-12">
       <header class="text-center mb-12">
-        <img :src="image" alt="Background Image" class="w-1/4 mx-auto mb-4" />
-        <h1 class="text-4xl font-bold">{{ title }}</h1>
-        <h2 class="text-2xl font-semibold">{{ subtitle }}</h2>
-        <a :href="amazonLink" class="btn btn-primary block w-max mx-auto mb-8">Amazon link</a>
+        <img
+          :src="image"
+          alt="Background Image"
+          class="w-1/4 mx-auto mb-4"
+        >
+        <h1 class="text-4xl font-bold">
+          {{ title }}
+        </h1>
+        <h2 class="text-2xl font-semibold">
+          {{ subtitle }}
+        </h2>
+        <a
+          :href="amazonLink"
+          class="btn btn-primary block w-max mx-auto mb-8"
+        >Amazon link</a>
       </header>
 
-      <h2 class="text-3xl">The Many Literary Offenses of Silas Michael Knight</h2>
-      <p class="text-xl">by Silas Michael Knight</p>
-      <h2 class="text-2xl p-2 text-center">(Author's Disclaimer)</h2>
+      <h2 class="text-3xl">
+        The Many Literary Offenses of Silas Michael Knight
+      </h2>
+      <p class="text-xl">
+        by Silas Michael Knight
+      </p>
+      <h2 class="text-2xl p-2 text-center">
+        (Author's Disclaimer)
+      </h2>
       <p class="text-xl p-2">
         Mermaids of Venice is a polytheistic love story with rhyming couplets at the start of each chapter. It features
         an attractive cover, perfect for adorning a coffee table or complementing a reader's face. It is also,
@@ -31,16 +48,16 @@
           <a
             href="https://www.amazon.com/Soul-Music-Discworld-Terry-Pratchett/dp/0062237411"
             class="underline text-blue-600 hover:text-blue-800"
-            >Terry Pratchett's Soul Music</a
-          >
+          >Terry Pratchett's Soul Music</a>
           might recognize Bernard's "nearly invisible" superpower/personality.
         </li>
         <li>
           <strong>Use of the magical negro trope:</strong> Despite the affection for the character Hermes, the book
           utilizes the
-          <a href="https://en.wikipedia.org/wiki/Magical_Negro" class="underline text-blue-600 hover:text-blue-800"
-            >magical negro trope</a
-          >, relegating him to a plot device role and discarding him after a single chapter.
+          <a
+            href="https://en.wikipedia.org/wiki/Magical_Negro"
+            class="underline text-blue-600 hover:text-blue-800"
+          >magical negro trope</a>, relegating him to a plot device role and discarding him after a single chapter.
         </li>
       </ul>
 
@@ -53,23 +70,27 @@
           target="_blank"
           class="underline text-blue-600 hover:text-blue-800"
           rel="noopener noreferrer"
-          >successful Kickstarter</a
-        >, and a series of adventures as an acrobatic
+        >successful Kickstarter</a>, and a series of adventures as an acrobatic
         <span
           class="underline text-blue-600 hover:text-blue-800"
           @mouseover="showEuropeImage1 = true"
           @click="showEuropeImage1 = true"
-          >street performer</span
-        >
+        >street performer</span>
         which guided my narrative.
       </p>
 
       <p class="text-xl p-2">
         "Mermaids" was conceived as a force for good, but time has reshaped my perception of what constitutes "good."
         With this in mind, anyone lacking funds is invited to
-        <a href="/mermaids.pdf" class="underline text-blue-600 hover:text-blue-800">download the PDF for free</a>
+        <a
+          href="/mermaids.pdf"
+          class="underline text-blue-600 hover:text-blue-800"
+        >download the PDF for free</a>
         and everyone is invited to use their money instead to
-        <a href="/projects/amibot" class="underline text-blue-600 hover:text-blue-800">purchase mosquito nets</a>.
+        <a
+          href="/projects/amibot"
+          class="underline text-blue-600 hover:text-blue-800"
+        >purchase mosquito nets</a>.
         <ami-link />
       </p>
     </section>
@@ -94,27 +115,28 @@
     </aside>
   </div>
 </template>
+
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-const title = ref('Mermaids of Venice');
-const subtitle = ref('A subversive fairy tale of gods and street performers.');
-const image = ref('/images/utility/mermaids/mermaids1.jpg');
-const amazonLink = ref('https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742');
-const downloadLink = ref('/mermaids.pdf');
-const mosquitoNetsLink = ref('/projects/amibot');
-const europePic1 = ref('/images/utility/mermaids/europe1.png');
-const europePic2 = ref('/images/utility/mermaids/europe2.jpg');
-const europePic3 = ref('/images/utility/mermaids/europe3.jpg');
+const title = ref('Mermaids of Venice')
+const subtitle = ref('A subversive fairy tale of gods and street performers.')
+const image = ref('/images/utility/mermaids/mermaids1.jpg')
+const amazonLink = ref('https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742')
+const downloadLink = ref('/mermaids.pdf')
+const mosquitoNetsLink = ref('/projects/amibot')
+const europePic1 = ref('/images/utility/mermaids/europe1.png')
+const europePic2 = ref('/images/utility/mermaids/europe2.jpg')
+const europePic3 = ref('/images/utility/mermaids/europe3.jpg')
 
-const showEuropeImage1 = ref(false);
-const showEuropeImage3 = ref(false);
+const showEuropeImage1 = ref(false)
+const showEuropeImage3 = ref(false)
 
 function toggleEurope1Image() {
-  showEuropeImage1.value = !showEuropeImage1.value;
+  showEuropeImage1.value = !showEuropeImage1.value
 }
 
 function toggleEurope3Image() {
-  showEuropeImage3.value = !showEuropeImage3.value;
+  showEuropeImage3.value = !showEuropeImage3.value
 }
 </script>

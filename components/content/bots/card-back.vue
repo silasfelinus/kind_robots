@@ -6,19 +6,23 @@
     <avatar-image class="w-1/3 h-1/3 rounded-full object-cover mb-4" />
     <!-- Bot Information -->
     <div class="text-center">
-      <h2 class="text-xl font-bold mb-2">{{ currentBot ? currentBot.name : 'Loading...' }}</h2>
-      <p class="text-sm mb-2">{{ currentBot ? currentBot.userIntro : 'Loading...' }}</p>
+      <h2 class="text-xl font-bold mb-2">
+        {{ currentBot ? currentBot.name : 'Loading...' }}
+      </h2>
+      <p class="text-sm mb-2">
+        {{ currentBot ? currentBot.userIntro : 'Loading...' }}
+      </p>
     </div>
     <bot-collectible />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useBotStore } from '../../../stores/botStore';
+import { computed } from 'vue'
+import { useBotStore } from '../../../stores/botStore'
 
-const botsStore = useBotStore();
-const currentBot = computed(() => botsStore.currentBot);
+const botsStore = useBotStore()
+const currentBot = computed(() => botsStore.currentBot)
 </script>
 
 <style scoped>

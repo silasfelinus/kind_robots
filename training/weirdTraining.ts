@@ -1,17 +1,17 @@
 interface PromptResponse {
-  prompt: string;
-  responses: string[];
+  prompt: string
+  responses: string[]
 }
 
 interface AdventureScenario {
-  genre: string;
-  setting: string;
-  startPrompt: string;
-  scenarios: PromptResponse[];
+  genre: string
+  setting: string
+  startPrompt: string
+  scenarios: PromptResponse[]
 }
 interface Message {
-  role: string;
-  content: string;
+  role: string
+  content: string
 }
 
 const trainingMessages: Message[] = [
@@ -47,7 +47,7 @@ const trainingMessages: Message[] = [
     role: 'assistant',
     content: `#Feed Me Slurpee Machine: A Slurpee machine comes to life at your graveyard shift gas station job. It wants you to know that it can sing. And it is hungry.#Humboldt County Picture Show...Er, Text Adventure. You got a flat tire in the redwoods between San Francisco and Oregon, but was that a castle you passed a few miles back?`,
   },
-];
+]
 
 const trainingData: AdventureScenario[] = [
   {
@@ -70,11 +70,11 @@ const trainingData: AdventureScenario[] = [
           'Politely decline.',
           'Accept the potion and drink it immediately.',
           'Take the potion for later.',
-          "Ask them about the potion's effects.",
+          'Ask them about the potion\'s effects.',
         ],
       },
       // ... Add more scenarios as needed
     ],
   },
   // ... Add more adventure scenarios for different genres and settings
-];
+]

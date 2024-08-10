@@ -1,6 +1,6 @@
 interface Idea {
-  title: string;
-  example: string;
+  title: string
+  example: string
 }
 
 export const sampleIdeas: Idea[] = [
@@ -44,4 +44,4 @@ export const sampleIdeas: Idea[] = [
   { title: `Unlikely Places for a First Date`, example: `The DMV` },
   { title: `Unfortunate Food Truck Concepts`, example: `The Broccoli Bar` },
   { title: `Unlikely Reality TV Challenges`, example: `The Great American Tax Filing Race` },
-];
+]

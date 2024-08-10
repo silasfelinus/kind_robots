@@ -1,12 +1,19 @@
 <template>
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-    <div v-for="bot in bots" :key="bot.id" class="cursor-pointer" @click="selectBot(bot.id)">
+    <div
+      v-for="bot in bots"
+      :key="bot.id"
+      class="cursor-pointer"
+      @click="selectBot(bot.id)"
+    >
       <div class="card bordered">
         <figure>
-          <img :src="bot.avatarImage" />
+          <img :src="bot.avatarImage">
         </figure>
         <div class="card-body">
-          <h2 class="card-title">{{ bot.name }}</h2>
+          <h2 class="card-title">
+            {{ bot.name }}
+          </h2>
           <p v-if="isSelectedBot(bot.id)">
             {{ bot.description }}
           </p>
@@ -18,14 +25,14 @@
 </template>
 
 <script setup>
-import { useBotStore } from '../../../stores/botStore';
+import { useBotStore } from '../../../stores/botStore'
 
-const botStore = useBotStore();
-const selectedBotId = ref(null);
+const botStore = useBotStore()
+const selectedBotId = ref(null)
 
-const bots = computed(() => botStore.bots);
+const bots = computed(() => botStore.bots)
 const selectBot = (id) => {
-  selectedBotId.value = id;
-};
-const isSelectedBot = (id) => id === selectedBotId.value;
+  selectedBotId.value = id
+}
+const isSelectedBot = id => id === selectedBotId.value
 </script>

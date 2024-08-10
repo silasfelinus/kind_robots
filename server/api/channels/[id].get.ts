@@ -1,15 +1,15 @@
 // /server/api/channels/[id].get.ts
-import { type Channel, type Message } from '@prisma/client';
-import { defineEventHandler } from 'h3';
-import { errorHandler } from '../utils/error';
-import prisma from '../utils/prisma';
+import type { Channel, Message } from '@prisma/client'
+import { defineEventHandler } from 'h3'
+import { errorHandler } from '../utils/error'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
     // Extract the ID from the event context and validate it
-    const id = Number(event.context.params?.id);
+    const id = Number(event.context.params?.id)
     if (!id) {
-      throw new Error('Invalid ID.');
+      throw new Error('Invalid ID.')
     }
 
     // Fetch the channel by ID, including its messages
@@ -18,33 +18,34 @@ export default defineEventHandler(async (event) => {
       include: {
         Message: true, // Include messages related to the channel
       },
-    });
+    })
 
     // If the channel is not found, throw an error
     if (!channel) {
-      throw new Error('Channel not found.');
+      throw new Error('Channel not found.')
     }
 
     return {
       success: true,
       channel,
-    };
-  } catch (error: any) {
+    }
+  }
+  catch (error: any) {
     // Use your custom error handler
-    const { success, message, statusCode } = errorHandler(error);
+    const { success, message, statusCode } = errorHandler(error)
     return {
       success,
       message,
       statusCode,
-    };
+    }
   }
-});
+})
 
 // Function to fetch Messages by Channel ID
 export async function fetchMessagesByChannelId(channelId: number): Promise<Message[]> {
   return await prisma.message.findMany({
     where: { channelId },
-  });
+  })
 }
 
 // Function to fetch a single Channel by ID
@@ -52,7 +53,7 @@ export async function fetchMessagesByChannelId(channelId: number): Promise<Messa
 export async function fetchChannelById(id: number): Promise<Channel | null> {
   return await prisma.channel.findUnique({
     where: { id },
-  });
+  })
 }
 
 export async function fetchChannelWithMessages(channelId: number): Promise<Channel | null> {
@@ -62,8 +63,9 @@ export async function fetchChannelWithMessages(channelId: number): Promise<Chann
       include: {
         Message: true, // Include messages
       },
-    });
-  } catch (error: any) {
-    throw errorHandler(error);
+    })
+  }
+  catch (error: any) {
+    throw errorHandler(error)
   }
 }

@@ -49,4 +49,4 @@ export default {
   astronaut: '👨‍🚀',
   comet: '☄️',
   universe: '🌠',
-};
+}

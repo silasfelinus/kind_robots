@@ -1,62 +1,77 @@
 <!-- src/components/ButterflySolo.vue -->
 <template>
-  <div class="butterfly" :style="{ left: x + 'px', top: y + 'px' }">
+  <div
+    class="butterfly"
+    :style="{ left: x + 'px', top: y + 'px' }"
+  >
     <div class="left-wing">
-      <div class="top" :style="{ background: wingColor }"></div>
-      <div class="bottom" :style="{ background: wingColor }"></div>
+      <div
+        class="top"
+        :style="{ background: wingColor }"
+      />
+      <div
+        class="bottom"
+        :style="{ background: wingColor }"
+      />
     </div>
     <div class="right-wing">
-      <div class="top" :style="{ background: wingColor }"></div>
-      <div class="bottom" :style="{ background: wingColor }"></div>
+      <div
+        class="top"
+        :style="{ background: wingColor }"
+      />
+      <div
+        class="bottom"
+        :style="{ background: wingColor }"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRandomColor } from '@/utils/useRandomColor';
+import { useRandomColor } from '@/utils/useRandomColor'
 
 const props = defineProps<{
-  wingColor?: string;
-}>();
+  wingColor?: string
+}>()
 
-const wingColor = props.wingColor || useRandomColor().randomColor.value;
+const wingColor = props.wingColor || useRandomColor().randomColor.value
 
-const x = ref(0);
-const y = ref(0);
+const x = ref(0)
+const y = ref(0)
 
 function getRandomSpeed() {
-  return Math.random() * 2 + 0.5;
+  return Math.random() * 2 + 0.5
 }
 
 function getRandomDirection() {
-  return Math.random() * 2 * Math.PI;
+  return Math.random() * 2 * Math.PI
 }
 
-const dx = ref(getRandomSpeed() * Math.cos(getRandomDirection()));
-const dy = ref(getRandomSpeed() * Math.sin(getRandomDirection()));
+const dx = ref(getRandomSpeed() * Math.cos(getRandomDirection()))
+const dy = ref(getRandomSpeed() * Math.sin(getRandomDirection()))
 
 function updatePosition() {
-  x.value += dx.value;
-  y.value += dy.value;
+  x.value += dx.value
+  y.value += dy.value
 
   if (x.value < 0 || x.value > window.innerWidth - 100) {
-    dx.value = -dx.value;
+    dx.value = -dx.value
   }
 
   if (y.value < 0 || y.value > window.innerHeight - 100) {
-    dy.value = -dy.value;
+    dy.value = -dy.value
   }
 }
 
 function animate() {
-  updatePosition();
-  requestAnimationFrame(animate);
+  updatePosition()
+  requestAnimationFrame(animate)
 }
 
 onMounted(() => {
-  updatePosition();
-  animate();
-});
+  updatePosition()
+  animate()
+})
 </script>
 
 <style scoped>

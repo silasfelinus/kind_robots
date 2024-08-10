@@ -35,49 +35,49 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useThemeStore } from '../../../stores/themeStore';
+import { ref, onMounted } from 'vue'
+import { useThemeStore } from '../../../stores/themeStore'
 
-const themeStore = useThemeStore();
-const buttonRef = ref(null);
-const open = ref(false);
+const themeStore = useThemeStore()
+const buttonRef = ref(null)
+const open = ref(false)
 
 const modalPosition = computed(() => {
-  if (!buttonRef.value) return {};
+  if (!buttonRef.value) return {}
 
-  const rect = buttonRef.value.getBoundingClientRect();
-  const windowHeight = window.innerHeight;
-  const windowWidth = window.innerWidth;
+  const rect = buttonRef.value.getBoundingClientRect()
+  const windowHeight = window.innerHeight
+  const windowWidth = window.innerWidth
 
-  const topSpace = rect.top;
-  const bottomSpace = windowHeight - rect.bottom;
-  const leftSpace = rect.left;
-  const rightSpace = windowWidth - rect.right;
+  const topSpace = rect.top
+  const bottomSpace = windowHeight - rect.bottom
+  const leftSpace = rect.left
+  const rightSpace = windowWidth - rect.right
 
   return {
     top: bottomSpace > topSpace ? 'auto' : '0',
     bottom: bottomSpace > topSpace ? '0' : 'auto',
     left: rightSpace > leftSpace ? 'auto' : '0',
     right: rightSpace > leftSpace ? '0' : 'auto',
-  };
-});
+  }
+})
 
 const toggleMenu = () => {
-  open.value = !open.value;
-};
+  open.value = !open.value
+}
 
 const closeMenu = (e) => {
   if (buttonRef.value && !buttonRef.value.contains(e.target)) {
-    open.value = false;
+    open.value = false
   }
-};
+}
 
 onMounted(() => {
-  themeStore.initTheme();
-  window.addEventListener('click', closeMenu);
-});
+  themeStore.initTheme()
+  window.addEventListener('click', closeMenu)
+})
 
 onUnmounted(() => {
-  window.removeEventListener('click', closeMenu);
-});
+  window.removeEventListener('click', closeMenu)
+})
 </script>

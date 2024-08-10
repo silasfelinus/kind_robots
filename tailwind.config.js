@@ -14,4 +14,4 @@ module.exports = {
     rtl: false,
     logs: true,
   },
-};
+}

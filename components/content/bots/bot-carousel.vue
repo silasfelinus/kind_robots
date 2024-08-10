@@ -13,47 +13,55 @@
           }"
           @click="setCurrentBot(bot.id)"
         >
-          <img :src="bot.avatarImage ?? undefined" class="w-full h-full object-cover rounded-lg" />
+          <img
+            :src="bot.avatarImage ?? undefined"
+            class="w-full h-full object-cover rounded-lg"
+          >
         </div>
       </div>
-      <div v-if="currentBot" class="mt-4 text-2xl text-dark font-semibold text-center">
+      <div
+        v-if="currentBot"
+        class="mt-4 text-2xl text-dark font-semibold text-center"
+      >
         <div class="card bg-info rounded-2xl w-fit">
           {{ currentBot.name }}
         </div>
-        <p class="mt-2 text-xl text-dark text-center">{{ currentBot.description }}</p>
+        <p class="mt-2 text-xl text-dark text-center">
+          {{ currentBot.description }}
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
-import { useBotStore } from '../../../stores/botStore';
+import { computed, onMounted, watch } from 'vue'
+import { useBotStore } from '../../../stores/botStore'
 
-const botStore = useBotStore();
-const bots = computed(() => botStore.bots);
-const currentBot = computed(() => botStore.currentBot);
+const botStore = useBotStore()
+const bots = computed(() => botStore.bots)
+const currentBot = computed(() => botStore.currentBot)
 
 const setCurrentBot = (botId: number) => {
-  botStore.getBotById(botId);
-};
+  botStore.getBotById(botId)
+}
 
 onMounted(async () => {
   if (bots.value.length === 0) {
-    await botStore.loadStore();
+    await botStore.loadStore()
   }
-});
+})
 
 watch(
   () => currentBot.value,
   (newCurrentBot) => {
     if (newCurrentBot) {
-      const id = newCurrentBot.id;
-      const botElement = document.getElementById(`bot-${id}`);
-      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const id = newCurrentBot.id
+      const botElement = document.getElementById(`bot-${id}`)
+      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   },
-);
+)
 </script>
 
 <style>

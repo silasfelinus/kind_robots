@@ -1,41 +1,56 @@
 <template>
   <div :class="layoutClass">
-    <nav v-if="isSimpleLayout" class="simple-nav">
-      <a href="/" class="home-link">
-        <icon name="mdi:home" class="home-icon" />
+    <nav
+      v-if="isSimpleLayout"
+      class="simple-nav"
+    >
+      <a
+        href="/"
+        class="home-link"
+      >
+        <icon
+          name="mdi:home"
+          class="home-icon"
+        />
         Home
       </a>
     </nav>
     <div class="content">
       <!-- Your main content goes here -->
-      <slot></slot>
+      <slot />
     </div>
     <div class="toggle-layout">
-      <button class="toggle-button" @click="toggleLayout">
-        <icon :name="toggleIcon" class="toggle-icon" />
+      <button
+        class="toggle-button"
+        @click="toggleLayout"
+      >
+        <icon
+          :name="toggleIcon"
+          class="toggle-icon"
+        />
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useLayoutStore } from '~/stores/layoutStore';
+import { ref, computed } from 'vue'
+import { useLayoutStore } from '~/stores/layoutStore'
 
-const layoutStore = useLayoutStore();
+const layoutStore = useLayoutStore()
 
-const isSimpleLayout = computed(() => layoutStore.currentLayout === 'simple');
+const isSimpleLayout = computed(() => layoutStore.currentLayout === 'simple')
 
 const layoutClass = computed(() => ({
   'layout-simple': isSimpleLayout.value,
   'layout-default': !isSimpleLayout.value,
-}));
+}))
 
 const toggleLayout = () => {
-  layoutStore.setLayout(isSimpleLayout.value ? 'default' : 'simple');
-};
+  layoutStore.setLayout(isSimpleLayout.value ? 'default' : 'simple')
+}
 
-const toggleIcon = computed(() => (isSimpleLayout.value ? 'mdi:view-grid' : 'mdi:fullscreen'));
+const toggleIcon = computed(() => (isSimpleLayout.value ? 'mdi:view-grid' : 'mdi:fullscreen'))
 </script>
 
 <style scoped>

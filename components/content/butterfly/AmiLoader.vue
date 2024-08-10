@@ -6,54 +6,62 @@
     @click="startFadeOut"
   >
     <!-- Dynamic Loading Message -->
-    <div class="loading-message">{{ currentMessage }}</div>
+    <div class="loading-message">
+      {{ currentMessage }}
+    </div>
 
     <!-- Multiple Butterflies with Animation Delay -->
-    <ami-butterfly v-for="i in butterflyCount" :key="i" />
+    <ami-butterfly
+      v-for="i in butterflyCount"
+      :key="i"
+    />
   </div>
-  <div class="nuxt-wrapper" :class="{ 'fade-in': pageReady }">
+  <div
+    class="nuxt-wrapper"
+    :class="{ 'fade-in': pageReady }"
+  >
     <nuxt-page />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useLoadStore } from '../../../stores/loadStore'; // Assuming the path to your loadStore
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useLoadStore } from '../../../stores/loadStore' // Assuming the path to your loadStore
 
-const { randomLoadMessage } = useLoadStore();
-const currentMessage = ref('Building Kind Robots...');
+const { randomLoadMessage } = useLoadStore()
+const currentMessage = ref('Building Kind Robots...')
 
-const butterflyCount = ref(20);
-const fadeOut = ref(false);
-const pageReady = ref(false);
+const butterflyCount = ref(20)
+const fadeOut = ref(false)
+const pageReady = ref(false)
 
 const startFadeOut = () => {
-  fadeOut.value = true;
-};
+  fadeOut.value = true
+}
 
 const updateMessage = () => {
-  currentMessage.value = randomLoadMessage();
-};
+  currentMessage.value = randomLoadMessage()
+}
 
-let intervalId: any;
+let intervalId: any
 onMounted(() => {
   setTimeout(() => {
-    currentMessage.value = randomLoadMessage();
-    intervalId = setInterval(updateMessage, 20 * 50);
-  }, 700); // Update the message after a .5 second delay
-  setTimeout(startFadeOut, 1000); // Fade out after 2 seconds
-});
+    currentMessage.value = randomLoadMessage()
+    intervalId = setInterval(updateMessage, 20 * 50)
+  }, 700) // Update the message after a .5 second delay
+  setTimeout(startFadeOut, 1000) // Fade out after 2 seconds
+})
 
 onUnmounted(() => {
-  clearInterval(intervalId);
-});
+  clearInterval(intervalId)
+})
 
 const handleTransitionEnd = () => {
   if (fadeOut.value) {
-    butterflyCount.value = 0;
-    pageReady.value = true;
+    butterflyCount.value = 0
+    pageReady.value = true
   }
-};
+}
 </script>
 
 <style scoped>

@@ -1,76 +1,87 @@
 <template>
   <div class="teleport-container">
     <!-- Background Image -->
-    <div class="image-layer" :style="{ backgroundImage: 'url(' + src + ')' }"></div>
+    <div
+      class="image-layer"
+      :style="{ backgroundImage: 'url(' + src + ')' }"
+    />
 
     <!-- Cover layers. These will hide the image except the 'windows' -->
-    <div class="cover top"></div>
-    <div class="cover bottom"></div>
-    <div class="cover left"></div>
-    <div class="cover right"></div>
+    <div class="cover top" />
+    <div class="cover bottom" />
+    <div class="cover left" />
+    <div class="cover right" />
 
-    <button class="teleport-button btn btn-primary shadow-xl" @click="fetchImage">Teleport</button>
+    <button
+      class="teleport-button btn btn-primary shadow-xl"
+      @click="fetchImage"
+    >
+      Teleport
+    </button>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-const src = ref('');
-const isLoading = ref(true);
-const offsetY = ref(0);
-const warpEffect = ref(false);
-const offsetX = ref(0); // Offset for the horizontal movement
+const src = ref('')
+const isLoading = ref(true)
+const offsetY = ref(0)
+const warpEffect = ref(false)
+const offsetX = ref(0) // Offset for the horizontal movement
 
 const fetchImage = async () => {
-  warpEffect.value = true;
-  isLoading.value = true;
+  warpEffect.value = true
+  isLoading.value = true
 
-  const imageLayer = document.querySelector('.image-layer');
-  imageLayer.classList.add('pixelate-out');
+  const imageLayer = document.querySelector('.image-layer')
+  imageLayer.classList.add('pixelate-out')
 
-  await new Promise((resolve) => setTimeout(resolve, 750));
+  await new Promise(resolve => setTimeout(resolve, 750))
 
   try {
-    const res = await fetch('/api/galleries/random/name/background');
-    const data = await res.json();
+    const res = await fetch('/api/galleries/random/name/background')
+    const data = await res.json()
 
     if (data.success && data.image) {
-      src.value = data.image;
-    } else {
-      console.error('API returned an unexpected structure:', data);
+      src.value = data.image
     }
-  } catch (err) {
-    console.error('Error fetching images:', err);
-  } finally {
-    isLoading.value = false;
+    else {
+      console.error('API returned an unexpected structure:', data)
+    }
+  }
+  catch (err) {
+    console.error('Error fetching images:', err)
+  }
+  finally {
+    isLoading.value = false
 
     setTimeout(() => {
-      warpEffect.value = false;
-      imageLayer.classList.remove('pixelate-out');
-      imageLayer.classList.add('pixelate-in');
+      warpEffect.value = false
+      imageLayer.classList.remove('pixelate-out')
+      imageLayer.classList.add('pixelate-in')
 
       setTimeout(() => {
-        imageLayer.classList.remove('pixelate-in');
-      }, 500);
-    }, 500);
+        imageLayer.classList.remove('pixelate-in')
+      }, 500)
+    }, 500)
   }
-};
+}
 
 const handleScroll = (event) => {
-  const scrollY = window.scrollY;
-  document.documentElement.style.setProperty('--offsetY', `${-scrollY * 0.5}px`);
-};
+  const scrollY = window.scrollY
+  document.documentElement.style.setProperty('--offsetY', `${-scrollY * 0.5}px`)
+}
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll); // Attach scroll listener to the window
+  window.addEventListener('scroll', handleScroll) // Attach scroll listener to the window
 
-  fetchImage(); // Fetch image when the component is mounted
-});
+  fetchImage() // Fetch image when the component is mounted
+})
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll); // Remove scroll listener when the component is unmounted
-});
+  window.removeEventListener('scroll', handleScroll) // Remove scroll listener when the component is unmounted
+})
 </script>
 
 <style scoped>

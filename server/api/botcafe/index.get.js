@@ -1,4 +1,4 @@
-export default defineEventHandler((context) => [
+export default defineEventHandler(context => [
   {
     name: `AMIb0t`,
     type: `chatbot`,
@@ -220,4 +220,4 @@ export default defineEventHandler((context) => [
       },
     ],
   },
-]);
+])

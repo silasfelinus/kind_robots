@@ -1,4 +1,4 @@
-import { Gallery } from '@prisma/client';
+import type { Gallery } from '@prisma/client'
 
 export const galleryData: Partial<Gallery>[] = [
   {
@@ -40,7 +40,7 @@ export const galleryData: Partial<Gallery>[] = [
   {
     name: 'ducky',
     content: '/images/ducky/gallery.json',
-    description: "Ducky's delightful gallery",
+    description: 'Ducky\'s delightful gallery',
     highlightImage: '/images/ducky/ducky1.webp',
   },
   {
@@ -97,4 +97,4 @@ export const galleryData: Partial<Gallery>[] = [
     description: 'The WonderShed - A shed full of wonders',
     highlightImage: '/images/wondershed/wondershed1.webp',
   },
-];
+]

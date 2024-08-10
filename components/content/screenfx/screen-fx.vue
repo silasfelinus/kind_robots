@@ -1,17 +1,21 @@
 <template>
   <div class="effect-container">
-    <component :is="activeComponent.component" v-for="activeComponent in activeComponents" :key="activeComponent.id" />
+    <component
+      :is="activeComponent.component"
+      v-for="activeComponent in activeComponents"
+      :key="activeComponent.id"
+    />
   </div>
   <div class="relative">
     <!-- Global Tooltip -->
     <div
       v-if="!hoveredEffect"
       class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full bg-opacity-75 text-4xl text-default font-bold p-1 rounded-sm whitespace-nowrap pointer-events-none z-10"
-    ></div>
+    />
     <div class="flex flex-wrap items-center justify-center space-x-4 space-y-4">
       <!-- Invisible First Icon -->
       <div class="relative flex flex-col items-center space-y-2 md:space-y-0 md:flex-row md:space-x-4 opacity-0">
-        <div class="flex flex-col items-center space-y-2"></div>
+        <div class="flex flex-col items-center space-y-2" />
       </div>
       <!-- Visible Icons -->
       <div
@@ -56,18 +60,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, resolveComponent } from 'vue';
+import { ref, computed, resolveComponent } from 'vue'
 
 type ComponentMapType = {
-  [key: string]: ReturnType<typeof resolveComponent>;
-};
+  [key: string]: ReturnType<typeof resolveComponent>
+}
 
 const componentsMap: ComponentMapType = {
   'bubble-effect': resolveComponent('LazyBubbleEffect'),
   'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
   'rain-effect': resolveComponent('LazyRainEffect'),
   'talking-butterflies': resolveComponent('LazyTalkingButterflies'),
-};
+}
 
 const effects = ref([
   {
@@ -104,26 +108,27 @@ const effects = ref([
     route: '/fundraiser',
     isActive: false,
   },
-]);
+])
 
-const hoveredEffect = ref<string | null>(null);
+const hoveredEffect = ref<string | null>(null)
 const toggleEffect = (effectId: string) => {
-  const effect = effects.value.find((e) => e.id === effectId);
+  const effect = effects.value.find(e => e.id === effectId)
   if (effect) {
-    effect.isActive = !effect.isActive;
+    effect.isActive = !effect.isActive
   }
-};
+}
 
 // Computed property to get all active components
 const activeComponents = computed(() => {
   return effects.value
-    .filter((effect) => effect.isActive)
-    .map((effect) => ({
+    .filter(effect => effect.isActive)
+    .map(effect => ({
       id: effect.id,
       component: componentsMap[effect.id],
-    }));
-});
+    }))
+})
 </script>
+
 <style scoped>
 /* Glow animation */
 @keyframes glow {

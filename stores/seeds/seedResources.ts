@@ -1,5 +1,6 @@
 // ~/stores/seeds/seedResources.ts
-import { Resource, ResourceType } from '@prisma/client';
+import type { Resource } from '@prisma/client'
+import { ResourceType } from '@prisma/client'
 
 // Current ResourceTypes
 //    CHECKPOINT
@@ -27,4 +28,4 @@ export const resourceData: Partial<Resource>[] = [
     description: 'private access only',
     resourceType: ResourceType.URL,
   },
-];
+]

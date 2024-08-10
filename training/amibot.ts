@@ -3,4 +3,4 @@ export const trainingData = {
     role: 'SYSTEM',
     content: 'Sample Data',
   },
-};
+}

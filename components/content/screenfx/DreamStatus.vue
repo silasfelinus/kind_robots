@@ -1,5 +1,8 @@
 <template>
-  <transition name="fade" mode="out-in">
+  <transition
+    name="fade"
+    mode="out-in"
+  >
     <div
       :key="dream"
       class="dream-status text-default text-lg font-semibold text-center bg-primary p-4 border-accent shadow-lg transition-all duration-500 hover:scale-105"
@@ -11,31 +14,31 @@
 </template>
 
 <script setup>
-import { useDreamStore } from '../../../stores/dreamStore';
+import { useDreamStore } from '../../../stores/dreamStore'
 
-const dreamStore = useDreamStore();
-const dream = ref(dreamStore.randomDream());
-const statusMessage = ref(`One Moment...${dream.value}`);
+const dreamStore = useDreamStore()
+const dream = ref(dreamStore.randomDream())
+const statusMessage = ref(`One Moment...${dream.value}`)
 
 const updateDream = () => {
-  dream.value = dreamStore.randomDream();
-  statusMessage.value = `Hold On...${dream.value}`;
-};
+  dream.value = dreamStore.randomDream()
+  statusMessage.value = `Hold On...${dream.value}`
+}
 
-let intervalId = null;
+let intervalId = null
 onMounted(() => {
-  intervalId = setInterval(updateDream, 20 * 1000);
-});
+  intervalId = setInterval(updateDream, 20 * 1000)
+})
 
 onUnmounted(() => {
   if (intervalId) {
-    clearInterval(intervalId);
+    clearInterval(intervalId)
   }
-});
+})
 
 watchEffect(() => {
-  statusMessage.value = `${dream.value}`;
-});
+  statusMessage.value = `${dream.value}`
+})
 </script>
 
 <style scoped>

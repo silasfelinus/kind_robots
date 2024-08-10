@@ -1,8 +1,8 @@
 // /server/api/milestones/fetchHighMatchScores.get.ts
 
-import { defineEventHandler } from 'h3';
-import prisma from '../utils/prisma';
-import { errorHandler } from '../utils/error';
+import { defineEventHandler } from 'h3'
+import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async () => {
   try {
@@ -20,9 +20,10 @@ export default defineEventHandler(async () => {
         username: true,
         matchRecord: true,
       },
-    });
-    return { success: true, users };
-  } catch (error: any) {
-    return errorHandler(error);
+    })
+    return { success: true, users }
   }
-});
+  catch (error: any) {
+    return errorHandler(error)
+  }
+})

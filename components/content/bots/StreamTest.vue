@@ -1,14 +1,23 @@
 <template>
   <div class="container rounded-2xl mx-auto p-2 bg-base-200">
     <!-- Bot Avatar and Details -->
-    <div v-if="currentBot" class="avatar-container w-full m-2 rounded-lg">
+    <div
+      v-if="currentBot"
+      class="avatar-container w-full m-2 rounded-lg"
+    >
       <!-- Bot Avatar and Details -->
       <div class="flex-grow rounded-2xl m-2 p-2 border bg-base-200">
         <bot-carousel2 />
         <div class="flex-1 text-center">
-          <h1 class="text-3xl font-bold">{{ currentBot.name ?? 'Unknown Bot' }}</h1>
-          <p class="text-xl">{{ currentBot.subtitle ?? 'Subtitle' }}</p>
-          <div class="card mt-2">{{ currentBot.description ?? 'Description' }}</div>
+          <h1 class="text-3xl font-bold">
+            {{ currentBot.name ?? 'Unknown Bot' }}
+          </h1>
+          <p class="text-xl">
+            {{ currentBot.subtitle ?? 'Subtitle' }}
+          </p>
+          <div class="card mt-2">
+            {{ currentBot.description ?? 'Description' }}
+          </div>
         </div>
       </div>
     </div>
@@ -17,8 +26,14 @@
     <div class="message-container bg-base-200 p-1 rounded-2xl">
       <!-- New Message Prompt -->
       <div class="prompt-area p-2 rounded-2xl">
-        <label for="newMessage" class="block mb-2 font-bold">
-          <div v-if="currentBot" class="user-intro p-2 rounded-2xl m-2">
+        <label
+          for="newMessage"
+          class="block mb-2 font-bold"
+        >
+          <div
+            v-if="currentBot"
+            class="user-intro p-2 rounded-2xl m-2"
+          >
             <p class="text-lg">{{ currentBot.userIntro ?? 'User Intro' }}</p>
           </div>
         </label>
@@ -29,15 +44,25 @@
           class="message-input w-full p-2 rounded-md border-2 resize-none"
           placeholder="Type your message..."
           @keyup.enter="sendMessage"
-        ></textarea>
-        <button class="submit-button btn btn-primary mt-2" :disabled="isLoading" @click="sendMessage">
+        />
+        <button
+          class="submit-button btn btn-primary mt-2"
+          :disabled="isLoading"
+          @click="sendMessage"
+        >
           Send Message
         </button>
-        <milestone-reward v-if="shouldShowMilestoneCheck" :id="4"></milestone-reward>
+        <milestone-reward
+          v-if="shouldShowMilestoneCheck"
+          :id="4"
+        />
       </div>
 
       <!-- Loading Indicator -->
-      <div v-if="isLoading" class="loader flex justify-center mt-2">
+      <div
+        v-if="isLoading"
+        class="loader flex justify-center mt-2"
+      >
         <ami-butterfly />
       </div>
 
@@ -70,7 +95,15 @@
           >
             👍
           </button>
-          <div v-if="showPopup[index]?.liked" class="popup">Response Liked <icon name="like" class="icon-class" /></div>
+          <div
+            v-if="showPopup[index]?.liked"
+            class="popup"
+          >
+            Response Liked <icon
+              name="like"
+              class="icon-class"
+            />
+          </div>
 
           <button
             class="hover:bg-gray-200"
@@ -79,7 +112,15 @@
           >
             👎
           </button>
-          <div v-if="showPopup[index]?.hated" class="popup">Response hated <icon name="hate" class="icon-class" /></div>
+          <div
+            v-if="showPopup[index]?.hated"
+            class="popup"
+          >
+            Response hated <icon
+              name="hate"
+              class="icon-class"
+            />
+          </div>
           <button
             class="hover:bg-gray-200"
             :class="{ 'bg-primary': isReactionActive(index, 'loved') }"
@@ -87,7 +128,15 @@
           >
             ❤️
           </button>
-          <div v-if="showPopup[index]?.loved" class="popup">Favorited <icon name="❤️" class="icon-class" /></div>
+          <div
+            v-if="showPopup[index]?.loved"
+            class="popup"
+          >
+            Favorited <icon
+              name="❤️"
+              class="icon-class"
+            />
+          </div>
           <button
             class="hover:bg-gray-200"
             :class="{ 'bg-primary': isReactionActive(index, 'flagged') }"
@@ -95,7 +144,15 @@
           >
             🚩
           </button>
-          <div v-if="showPopup[index]?.flagged" class="popup">Flagged <icon name="🚩" class="icon-class" /></div>
+          <div
+            v-if="showPopup[index]?.flagged"
+            class="popup"
+          >
+            Flagged <icon
+              name="🚩"
+              class="icon-class"
+            />
+          </div>
         </div>
         <div
           v-if="activeConversationIndex !== null && activeConversationIndex === index"
@@ -109,14 +166,24 @@
             class="flex-grow p-2 rounded-md border-2 text-lg resize-y"
             @keyup.enter="continueConversation(index)"
           />
-          <button class="btn btn-primary ml-2" :disabled="isReplyLoading" @click="continueConversation(index)">
+          <button
+            class="btn btn-primary ml-2"
+            :disabled="isReplyLoading"
+            @click="continueConversation(index)"
+          >
             Reply
           </button>
-          <div v-if="isReplyLoading" class="loader flex justify-center mt-2 ml-2">
+          <div
+            v-if="isReplyLoading"
+            class="loader flex justify-center mt-2 ml-2"
+          >
             <ami-butterfly />
           </div>
         </div>
-        <button class="absolute top-2 right-2 text-red-500 hover:text-red-700" @click.stop="deleteConversation(index)">
+        <button
+          class="absolute top-2 right-2 text-red-500 hover:text-red-700"
+          @click.stop="deleteConversation(index)"
+        >
           ×
         </button>
       </div>
@@ -125,48 +192,47 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import axios from 'axios';
-import { useBotStore, type Bot } from '../../../stores/botStore';
-import { useUserStore } from '@/stores/userStore';
-import { errorHandler } from '@/server/api/utils/error';
-import { useChatStore, type ChatExchange } from '@/stores/chatStore';
+import { ref } from 'vue'
+import axios from 'axios'
+import { useBotStore, type Bot } from '../../../stores/botStore'
+import { useUserStore } from '@/stores/userStore'
+import { useChatStore, type ChatExchange } from '@/stores/chatStore'
 
-const shouldShowMilestoneCheck = ref(false);
-let userKey: string | null = null;
+const shouldShowMilestoneCheck = ref(false)
+let userKey: string | null = null
 
 onMounted(() => {
-  userKey = localStorage.getItem('user_openai_key');
-});
+  userKey = localStorage.getItem('user_openai_key')
+})
 
 interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  avatarImage?: string;
-  botName?: string;
-  subtitle?: string;
+  role: 'user' | 'assistant'
+  content: string
+  avatarImage?: string
+  botName?: string
+  subtitle?: string
 }
 
 interface Conversation extends Array<Message> {}
-const conversations = ref<Conversation[]>([]);
-const activeConversationIndex = ref<number | null>(null);
-const botStore = useBotStore();
-const userStore = useUserStore();
-const chatStore = useChatStore();
-const currentBot = computed<Bot | null>(() => botStore.currentBot);
-const message = ref('');
-const replyMessage = ref('');
-const isLoading = ref(false);
-const error = ref<string | null>(null);
-const userImage = computed(() => userStore.user?.avatarImage);
-const isReplyLoading = ref(false);
+const conversations = ref<Conversation[]>([])
+const activeConversationIndex = ref<number | null>(null)
+const botStore = useBotStore()
+const userStore = useUserStore()
+const chatStore = useChatStore()
+const currentBot = computed<Bot | null>(() => botStore.currentBot)
+const message = ref('')
+const replyMessage = ref('')
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+const userImage = computed(() => userStore.user?.avatarImage)
+const isReplyLoading = ref(false)
 
 // Usage
-const userId = computed(() => userStore.userId || 0);
-const botId = computed(() => botStore.currentBot?.id || 0);
-const botName = computed(() => botStore.currentBot?.name || '');
-const username = computed(() => userStore.username);
-const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({});
+const userId = computed(() => userStore.userId || 0)
+const botId = computed(() => botStore.currentBot?.id || 0)
+const botName = computed(() => botStore.currentBot?.name || '')
+const username = computed(() => userStore.username)
+const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
 
 // Function to convert a conversation to ChatExchange
 
@@ -178,8 +244,8 @@ function convertToChatExchange(
   botName: string,
   username: string,
 ): ChatExchange {
-  const userPrompt = conversation.find((msg) => msg.role === 'user')?.content ?? '';
-  const botResponse = conversation.find((msg) => msg.role === 'assistant')?.content ?? '';
+  const userPrompt = conversation.find(msg => msg.role === 'user')?.content ?? ''
+  const botResponse = conversation.find(msg => msg.role === 'assistant')?.content ?? ''
 
   return {
     id: 0,
@@ -196,36 +262,36 @@ function convertToChatExchange(
     loved: null,
     flagged: null,
     previousEntryId: 0,
-  };
+  }
 }
 
-type ReactionType = 'liked' | 'hated' | 'loved' | 'flagged';
+type ReactionType = 'liked' | 'hated' | 'loved' | 'flagged'
 
 const isReactionActive = (index: number, reactionType: ReactionType) => {
-  const currentExchange = chatStore.getExchangeById(index) as ChatExchange;
-  return currentExchange?.[reactionType];
-};
+  const currentExchange = chatStore.getExchangeById(index) as ChatExchange
+  return currentExchange?.[reactionType]
+}
 
 // Watch for changes in conversations and update ChatExchange
 watchEffect(() => {
   if (conversations.value.length > 0) {
-    const lastConversation = conversations.value[conversations.value.length - 1];
+    const lastConversation = conversations.value[conversations.value.length - 1]
     const lastExchange = convertToChatExchange(
       lastConversation,
       userId.value,
       botId.value,
       botName.value,
       username.value,
-    );
-    chatStore.addOrUpdateExchange(lastExchange);
+    )
+    chatStore.addOrUpdateExchange(lastExchange)
   }
-});
+})
 
 const sendMessage = async () => {
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    const fullMessage = currentBot.value?.userIntro ? `${currentBot.value.userIntro} ${message.value}` : message.value;
-    shouldShowMilestoneCheck.value = true;
+    const fullMessage = currentBot.value?.userIntro ? `${currentBot.value.userIntro} ${message.value}` : message.value
+    shouldShowMilestoneCheck.value = true
     const res = await axios.post(
       '/api/botcafe/chat',
       {
@@ -237,10 +303,10 @@ const sendMessage = async () => {
       {
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json',
+          'Accept': 'application/json',
         },
       },
-    );
+    )
     conversations.value.push([
       {
         role: 'user',
@@ -255,15 +321,17 @@ const sendMessage = async () => {
         botName: currentBot.value?.name,
         subtitle: currentBot.value?.subtitle,
       },
-    ]);
-    message.value = '';
-  } catch (err) {
-    console.error(err);
-    error.value = 'Failed to send the message. Please try again.';
-  } finally {
-    isLoading.value = false;
+    ])
+    message.value = ''
   }
-};
+  catch (err) {
+    console.error(err)
+    error.value = 'Failed to send the message. Please try again.'
+  }
+  finally {
+    isLoading.value = false
+  }
+}
 
 const toggleReaction = (index: number, reactionType: 'liked' | 'hated' | 'loved' | 'flagged') => {
   const currentExchange = convertToChatExchange(
@@ -272,77 +340,79 @@ const toggleReaction = (index: number, reactionType: 'liked' | 'hated' | 'loved'
     botId.value,
     botName.value,
     username.value,
-  );
+  )
   if (currentExchange && currentExchange.id) {
     // Check for id
-    const currentReactionState = currentExchange[reactionType] ?? false;
-    chatStore.addReaction(currentExchange.id, { [reactionType]: !currentReactionState });
+    const currentReactionState = currentExchange[reactionType] ?? false
+    chatStore.addReaction(currentExchange.id, { [reactionType]: !currentReactionState })
   }
   // Show popup
   if (!showPopup.value[index]) {
-    showPopup.value[index] = {};
+    showPopup.value[index] = {}
   }
-  showPopup.value[index][reactionType] = true;
+  showPopup.value[index][reactionType] = true
 
   // Hide popup after 2 seconds
   setTimeout(() => {
-    showPopup.value[index][reactionType] = false;
-  }, 2000);
-};
+    showPopup.value[index][reactionType] = false
+  }, 2000)
+}
 
 const continueConversation = async (index: number) => {
-  isReplyLoading.value = true;
+  isReplyLoading.value = true
   try {
     // Remove unexpected properties from each message
-    const sanitizedMessages = conversations.value[index].map(({ avatarImage, botName, subtitle, ...rest }) => rest);
+    const sanitizedMessages = conversations.value[index].map(({ avatarImage, botName, subtitle, ...rest }) => rest)
 
     const fullMessage = currentBot.value?.userIntro
       ? `${currentBot.value.userIntro} ${replyMessage.value}`
-      : replyMessage.value;
+      : replyMessage.value
 
     // Add the new user message
-    sanitizedMessages.push({ role: 'user', content: fullMessage });
+    sanitizedMessages.push({ role: 'user', content: fullMessage })
 
     const res = await axios.post('/api/botcafe/chat', {
       model: 'gpt-3.5-turbo',
       messages: sanitizedMessages,
       stream: false,
-    });
-    conversations.value[index].push({ role: 'user', content: replyMessage.value });
+    })
+    conversations.value[index].push({ role: 'user', content: replyMessage.value })
     conversations.value[index].push({
       role: 'assistant',
       content: res.data.choices[0].message.content,
-    });
-    replyMessage.value = '';
-  } catch (err) {
-    console.error(err);
+    })
+    replyMessage.value = ''
   }
-  isReplyLoading.value = false;
-};
+  catch (err) {
+    console.error(err)
+  }
+  isReplyLoading.value = false
+}
 watchEffect(() => {
   if (conversations.value.length > 0) {
-    const lastConversation = conversations.value[conversations.value.length - 1];
+    const lastConversation = conversations.value[conversations.value.length - 1]
     const lastExchange = convertToChatExchange(
       lastConversation,
       userId.value,
       botId.value,
       botName.value,
       username.value,
-    );
-    chatStore.addOrUpdateExchange(lastExchange);
+    )
+    chatStore.addOrUpdateExchange(lastExchange)
   }
-});
+})
 
 watchEffect(() => {
   if (currentBot.value && currentBot.value.prompt) {
-    message.value = currentBot.value.prompt;
+    message.value = currentBot.value.prompt
   }
-});
+})
 const deleteConversation = (index: number) => {
-  conversations.value.splice(index, 1);
-  activeConversationIndex.value = null; // Reset the active conversation index after deletion
-};
+  conversations.value.splice(index, 1)
+  activeConversationIndex.value = null // Reset the active conversation index after deletion
+}
 </script>
+
 <style>
 .popup {
   position: absolute;

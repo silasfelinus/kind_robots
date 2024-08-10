@@ -38,7 +38,8 @@ useSeoMeta({
   title: 'Kind Robots',
   ogTitle: 'Welcome to the Kind Robots',
   description: 'OpenAI-supported Promptbots here to assist humanity.',
-  ogDescription: 'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans',
+  ogDescription:
+    'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans',
   ogImage: '/images/kindtitle.webp',
   twitterCard: 'summary_large_image',
 })
@@ -57,10 +58,14 @@ onMounted(() => {
     milestoneStore.initializeMilestones()
     chatStore.fetchChatExchanges()
     pageStore.loadPages()
-    console.log('Welcome to Kind Robots, random person who reads console logs! Are you a developer?')
-  }
-  catch (error: any) {
-    errorHandler({ success: false, message: `Initialization failed: ${error}` })
+    console.log(
+      'Welcome to Kind Robots, random person who reads console logs! Are you a developer?',
+    )
+  } catch (error: unknown) {
+    errorHandler({
+      success: false,
+      message: `Initialization failed: ${error}`,
+    })
   }
 })
 </script>

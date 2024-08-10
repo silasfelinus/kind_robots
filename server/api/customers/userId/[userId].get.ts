@@ -1,21 +1,23 @@
 // /server/api/customers/userId/[userId].get.ts
-import { defineEventHandler } from 'h3';
-import prisma from '../../utils/prisma';
-import { errorHandler } from '../../utils/error';
+import { defineEventHandler } from 'h3'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
-    const userId = Number(event.context.params?.userId);
-    const customer = await fetchCustomerByUserId(userId);
+    const userId = Number(event.context.params?.userId)
+    const customer = await fetchCustomerByUserId(userId)
     if (customer) {
-      return { success: true, customer };
-    } else {
-      return { success: false, message: 'Customer not found' };
+      return { success: true, customer }
     }
-  } catch (error: any) {
-    return errorHandler(error);
+    else {
+      return { success: false, message: 'Customer not found' }
+    }
   }
-});
+  catch (error: any) {
+    return errorHandler(error)
+  }
+})
 
 // Function to fetch a Customer by UserId
 export async function fetchCustomerByUserId(userId: number) {
@@ -24,8 +26,9 @@ export async function fetchCustomerByUserId(userId: number) {
       where: {
         userId,
       },
-    });
-  } catch (error: any) {
-    throw errorHandler(error);
+    })
+  }
+  catch (error: any) {
+    throw errorHandler(error)
   }
 }

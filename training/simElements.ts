@@ -1,15 +1,15 @@
 export interface elementData {
-  title: string; // the title of the element
-  power: number; // how much it does in damage to a weak enemy
-  speed: number; // the likelihood of it having a move on a given round
-  health: number; // the starting health of each spawn
-  spawn: number; // how many will spawn on generate.
-  aggression: number; // on a scale of 1 (flight) to 10 (fight), odds of running away versus bullying
-  spawnIcon: string; // for the score display of number spawned still alive
-  gameIcon: string; // the icon used to represent an element in game
-  toggleIcon: string; // the icon to toggle the element for game use.
-  strengths: string[]; // titles the element can attack
-  weaknesses: string[]; // titles the element takes damage from
+  title: string // the title of the element
+  power: number // how much it does in damage to a weak enemy
+  speed: number // the likelihood of it having a move on a given round
+  health: number // the starting health of each spawn
+  spawn: number // how many will spawn on generate.
+  aggression: number // on a scale of 1 (flight) to 10 (fight), odds of running away versus bullying
+  spawnIcon: string // for the score display of number spawned still alive
+  gameIcon: string // the icon used to represent an element in game
+  toggleIcon: string // the icon to toggle the element for game use.
+  strengths: string[] // titles the element can attack
+  weaknesses: string[] // titles the element takes damage from
 }
 
 export const elements: elementData = [
@@ -78,4 +78,4 @@ export const elements: elementData = [
     strengths: ['Scissors', 'Rock'],
     weaknesses: ['Lizard', 'Paper'],
   },
-];
+]

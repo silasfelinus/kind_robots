@@ -1,28 +1,29 @@
-import { type User } from '@prisma/client';
-import { defineEventHandler } from 'h3';
-import { errorHandler } from '../utils/error';
-import auth from '../../middleware/auth';
-import prisma from '../utils/prisma';
+import type { User } from '@prisma/client'
+import { defineEventHandler } from 'h3'
+import { errorHandler } from '../utils/error'
+import auth from '../../middleware/auth'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
     // Extract the user id from the query parameters
-    const userId = Number(event.context.params?.id);
+    const userId = Number(event.context.params?.id)
     if (!userId) {
-      return { success: false, message: 'User ID is required.' };
+      return { success: false, message: 'User ID is required.' }
     }
 
     // Fetch the user by their ID
-    const user = await fetchUserById(userId);
+    const user = await fetchUserById(userId)
     if (!user) {
-      return { success: false, message: 'User not found.' };
+      return { success: false, message: 'User not found.' }
     }
 
-    return { success: true, user };
-  } catch (error: any) {
-    return { success: false, message: `Failed to fetch user: ${errorHandler(error)}` };
+    return { success: true, user }
   }
-});
+  catch (error: any) {
+    return { success: false, message: `Failed to fetch user: ${errorHandler(error)}` }
+  }
+})
 export async function fetchUserById(id: number): Promise<Partial<User> | null> {
   try {
     return await prisma.user.findUnique({
@@ -48,9 +49,10 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         karma: true,
         mana: true,
       },
-    });
-  } catch (error: any) {
-    console.error(`Failed to fetch user by ID: ${error.message}`);
-    throw new Error(errorHandler(error).message);
+    })
+  }
+  catch (error: any) {
+    console.error(`Failed to fetch user by ID: ${error.message}`)
+    throw new Error(errorHandler(error).message)
   }
 }

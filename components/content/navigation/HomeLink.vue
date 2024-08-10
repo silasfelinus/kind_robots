@@ -6,7 +6,10 @@
       class="flex flex-col items-center justify-center rounded-2xl bg-base-200 text-center hover:scale-110 hover:glow-animation"
     >
       <div class="flex items-center space-x-2 flex-grow">
-        <icon name="game-icons:galaxy" class="icon-effect" />
+        <icon
+          name="game-icons:galaxy"
+          class="icon-effect"
+        />
       </div>
     </NuxtLink>
 
@@ -16,25 +19,28 @@
       to="/"
       class="flex items-center justify-center rounded-2xl bg-base-200 text-center hover:scale-110 hover:glow-animation"
     >
-      <icon name="line-md:home-md-twotone" class="icon-effect" />
+      <icon
+        name="line-md:home-md-twotone"
+        class="icon-effect"
+      />
     </NuxtLink>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { usePageStore } from '@/stores/pageStore';
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { usePageStore } from '@/stores/pageStore'
 
-const pageStore = usePageStore();
-const { page } = useContent();
+const pageStore = usePageStore()
+const { page } = useContent()
 const isHomePage = computed(() => {
-  return page.value ? page.value._path === '/' || page.value.path === '/' : false;
-});
+  return page.value ? page.value._path === '/' || page.value.path === '/' : false
+})
 
 const randomHighlightPage = computed(() => {
-  return pageStore.highlightPages[Math.floor(Math.random() * pageStore.highlightPages.length)] || {};
-});
+  return pageStore.highlightPages[Math.floor(Math.random() * pageStore.highlightPages.length)] || {}
+})
 </script>
 
 <style scoped>

@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref } from 'vue'
 
 const adjectives = [
   'Adventurous',
@@ -27,7 +27,7 @@ const adjectives = [
   'Xenodochial',
   'Youthful',
   'Zany',
-];
+]
 
 const nouns = [
   'Albatross',
@@ -56,7 +56,7 @@ const nouns = [
   'Xerus',
   'Yak',
   'Zebra',
-];
+]
 
 const titles = [
   'the Amiable',
@@ -85,41 +85,41 @@ const titles = [
   'the Xanthous',
   'the Youthful',
   'the Zealous',
-];
+]
 
 export function generateSillyName() {
-  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-  const randomTitle = titles[Math.floor(Math.random() * titles.length)];
+  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)]
+  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)]
+  const randomTitle = titles[Math.floor(Math.random() * titles.length)]
 
-  return `${randomAdjective} ${randomNoun} ${randomTitle}`;
+  return `${randomAdjective} ${randomNoun} ${randomTitle}`
 }
 
 export function useSillyNameGenerator() {
-  const sillyName = ref('');
+  const sillyName = ref('')
 
   function generateAndSetSillyName() {
-    sillyName.value = generateSillyName();
+    sillyName.value = generateSillyName()
   }
 
-  generateAndSetSillyName();
+  generateAndSetSillyName()
 
   return {
     sillyName,
     generateAndSetSillyName,
-  };
+  }
 }
 export function useRandomName() {
-  const sillyName = ref('');
+  const sillyName = ref('')
 
   function generateAndSetSillyName() {
-    sillyName.value = generateSillyName();
+    sillyName.value = generateSillyName()
   }
 
-  generateAndSetSillyName();
+  generateAndSetSillyName()
 
   return {
     value: sillyName.value,
     generateAndSetSillyName,
-  };
+  }
 }

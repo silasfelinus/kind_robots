@@ -50,6 +50,6 @@ const sampleRewards = [
     text: 'Play Button',
     power: 'Skip a challenging puzzle or obstacle.',
   },
-];
+]
 
-export default sampleRewards;
+export default sampleRewards

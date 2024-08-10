@@ -6,15 +6,22 @@
       class="notification-card fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4 px-6 py-4 rounded-lg shadow-xl bg-white text-center"
       :class="{ 'bg-red-500 text-default': isError, 'bg-green-500 text-default': !isError }"
     >
-      <p class="text-lg">{{ message }}</p>
-      <button class="absolute top-1 right-1 text-2xl" @click="hideCard">✕</button>
+      <p class="text-lg">
+        {{ message }}
+      </p>
+      <button
+        class="absolute top-1 right-1 text-2xl"
+        @click="hideCard"
+      >
+        ✕
+      </button>
     </div>
   </transition>
 </template>
 
 <script setup>
-import { ref, watchEffect, onMounted } from 'vue';
-import interact from '@interactjs/interact';
+import { ref, watchEffect, onMounted } from 'vue'
+import interact from '@interactjs/interact'
 
 const props = defineProps({
   message: {
@@ -29,23 +36,23 @@ const props = defineProps({
     type: Number,
     default: 5000,
   },
-});
+})
 
-const isVisible = ref(!!props.message);
-const notificationCard = ref(null);
+const isVisible = ref(!!props.message)
+const notificationCard = ref(null)
 
 watchEffect(() => {
-  isVisible.value = !!props.message;
+  isVisible.value = !!props.message
   if (isVisible.value) {
     setTimeout(() => {
-      isVisible.value = false;
-    }, props.displayTime);
+      isVisible.value = false
+    }, props.displayTime)
   }
-});
+})
 
 const hideCard = () => {
-  isVisible.value = false;
-};
+  isVisible.value = false
+}
 
 onMounted(() => {
   interact(notificationCard.value).draggable({
@@ -58,17 +65,17 @@ onMounted(() => {
     ],
     autoScroll: true,
     onmove: function (event) {
-      const target = event.target;
-      const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-      const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+      const target = event.target
+      const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+      const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
 
-      target.style.webkitTransform = target.style.transform = `translate(${x}px, ${y}px)`;
+      target.style.webkitTransform = target.style.transform = `translate(${x}px, ${y}px)`
 
-      target.setAttribute('data-x', x);
-      target.setAttribute('data-y', y);
+      target.setAttribute('data-x', x)
+      target.setAttribute('data-y', y)
     },
-  });
-});
+  })
+})
 </script>
 
 <style scoped>

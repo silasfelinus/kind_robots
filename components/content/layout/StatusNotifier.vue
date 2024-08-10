@@ -1,6 +1,11 @@
 <template>
   <div class="status-manager">
-    <button class="mt-4 text-center summon-inspiration" @click="summonInspiration">Summon Inspiration</button>
+    <button
+      class="mt-4 text-center summon-inspiration"
+      @click="summonInspiration"
+    >
+      Summon Inspiration
+    </button>
     <div class="flex flex-col space-y-4">
       <div
         v-for="(status, index) in statusHistory.slice(-3).reverse()"
@@ -9,7 +14,9 @@
         :class="status.type"
         @click="toggleTimestamp(index)"
       >
-        <div v-if="showTimestamp[index]"><strong>Timestamp:</strong> {{ status.timestamp }}</div>
+        <div v-if="showTimestamp[index]">
+          <strong>Timestamp:</strong> {{ status.timestamp }}
+        </div>
         <div><strong>Message:</strong> {{ status.message }}</div>
       </div>
     </div>
@@ -17,58 +24,59 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, watch, reactive } from 'vue';
-import { useStatusStore, StatusType } from '../../../stores/statusStore';
-import { useDreamStore } from '../../../stores/dreamStore';
+import { computed, onMounted, onUnmounted, watch, reactive } from 'vue'
+import { useStatusStore, StatusType } from '../../../stores/statusStore'
+import { useDreamStore } from '../../../stores/dreamStore'
 
-const statusStore = useStatusStore();
-const dreamStore = useDreamStore();
+const statusStore = useStatusStore()
+const dreamStore = useDreamStore()
 
-const statusMessage = computed(() => statusStore.message);
-const statusType = computed(() => statusStore.type);
-const statusHistory = computed(() => statusStore.history);
+const statusMessage = computed(() => statusStore.message)
+const statusType = computed(() => statusStore.type)
+const statusHistory = computed(() => statusStore.history)
 
-const showTimestamp = reactive(new Array(statusHistory.value.length).fill(false));
+const showTimestamp = reactive(new Array(statusHistory.value.length).fill(false))
 
-let idleTimer: NodeJS.Timeout | null = null;
+let idleTimer: NodeJS.Timeout | null = null
 
 onMounted(() => {
   watch(
     () => statusStore.message,
     () => {
-      if (idleTimer) clearTimeout(idleTimer);
+      if (idleTimer) clearTimeout(idleTimer)
       idleTimer = setTimeout(() => {
-        statusStore.setStatus(StatusType.INFO, dreamStore.randomDream());
-      }, 10000);
+        statusStore.setStatus(StatusType.INFO, dreamStore.randomDream())
+      }, 10000)
     },
-  );
-});
+  )
+})
 
 onUnmounted(() => {
-  if (idleTimer) clearTimeout(idleTimer);
-});
+  if (idleTimer) clearTimeout(idleTimer)
+})
 
 const tester = () => {
-  const history = statusStore.getStatusHistory();
+  const history = statusStore.getStatusHistory()
   if (history.length) {
-    const lastStatus = history[history.length - 1];
-    statusStore.setStatus(lastStatus.type, lastStatus.message);
-  } else {
-    statusStore.setStatus(StatusType.INFO, dreamStore.randomDream());
+    const lastStatus = history[history.length - 1]
+    statusStore.setStatus(lastStatus.type, lastStatus.message)
   }
-};
+  else {
+    statusStore.setStatus(StatusType.INFO, dreamStore.randomDream())
+  }
+}
 
 const summonInspiration = () => {
-  statusStore.setStatus(StatusType.INFO, dreamStore.randomDream());
-};
+  statusStore.setStatus(StatusType.INFO, dreamStore.randomDream())
+}
 
 const clearStatus = () => {
-  statusStore.clearStatus();
-};
+  statusStore.clearStatus()
+}
 
 const toggleTimestamp = (index: number) => {
-  showTimestamp[index] = !showTimestamp[index];
-};
+  showTimestamp[index] = !showTimestamp[index]
+}
 </script>
 
 <style scoped>

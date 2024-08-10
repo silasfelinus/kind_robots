@@ -5,21 +5,28 @@
     <div :class="baseCardClasses">
       <!-- Card Header -->
       <div class="flex items-center justify-center mb-4">
-        <icon :name="iconName" class="mr-2 text-3xl" />
-        <h3 class="text-3xl font-semibold">{{ title }}</h3>
+        <icon
+          :name="iconName"
+          class="mr-2 text-3xl"
+        />
+        <h3 class="text-3xl font-semibold">
+          {{ title }}
+        </h3>
       </div>
       <!-- Card Content -->
       <div class="text-lg">
         <!-- Use slot if available, otherwise use the content prop -->
-        <slot v-if="$slots.default"></slot>
-        <div v-else>{{ content }}</div>
+        <slot v-if="$slots.default" />
+        <div v-else>
+          {{ content }}
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
 
 // Define component props
 const props = defineProps({
@@ -35,7 +42,7 @@ const props = defineProps({
     type: String,
     default: '',
   },
-});
+})
 
 // Break down long class strings for better readability and maintainability
 const baseCardClasses = computed(() =>
@@ -57,5 +64,5 @@ const baseCardClasses = computed(() =>
     'text-center',
     'overflow-hidden',
   ].join(' '),
-);
+)
 </script>

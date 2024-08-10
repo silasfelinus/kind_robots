@@ -7,7 +7,10 @@
       <div class="text-center text-lg font-semibold text-info border-b-2 border-accent rounded-full px-4">
         Highlight Rooms
       </div>
-      <icon name="line-md:highlight" class="text-info text-2xl" />
+      <icon
+        name="line-md:highlight"
+        class="text-info text-2xl"
+      />
     </div>
     <NuxtLink
       v-for="page in highlightPages"
@@ -16,9 +19,17 @@
       class="group hover:bg-accent transition-colors relative p-2 rounded-2xl border bg-primary flex flex-row items-center space-x-2"
     >
       <div class="w-24 h-24 rounded-lg overflow-hidden border bg-secondary">
-        <img :src="`/images/${page.image}`" alt="Page Image" class="object-cover w-full h-full" />
+        <img
+          :src="`/images/${page.image}`"
+          alt="Page Image"
+          class="object-cover w-full h-full"
+        >
       </div>
-      <div class="flex flex-col items-start" @mouseover="isHovered = page._id" @mouseleave="isHovered = null">
+      <div
+        class="flex flex-col items-start"
+        @mouseover="isHovered = page._id"
+        @mouseleave="isHovered = null"
+      >
         <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
           {{ page.title }}
         </div>
@@ -29,21 +40,27 @@
           :is-hovered="isHovered === page._id"
         />
       </div>
-      <div v-if="page._path === $route.path" class="absolute top-2 right-2">
-        <icon name="line-md:location" class="text-info" />
+      <div
+        v-if="page._path === $route.path"
+        class="absolute top-2 right-2"
+      >
+        <icon
+          name="line-md:location"
+          class="text-info"
+        />
       </div>
     </NuxtLink>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { usePageStore } from '~/stores/pageStore';
+import { ref, onMounted, computed } from 'vue'
+import { usePageStore } from '~/stores/pageStore'
 
-const pageStore = usePageStore();
+const pageStore = usePageStore()
 
-const isHovered = ref(null);
+const isHovered = ref(null)
 const highlightPages = computed(() => {
-  return pageStore.highlightPages;
-});
+  return pageStore.highlightPages
+})
 </script>

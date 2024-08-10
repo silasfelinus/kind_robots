@@ -1,5 +1,18 @@
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxt/content', 'nuxt-icon', '@unlok-co/nuxt-stripe'],
+  modules: [
+    '@pinia/nuxt',
+    '@nuxtjs/tailwindcss',
+    '@nuxt/content',
+    'nuxt-icon',
+    '@unlok-co/nuxt-stripe',
+    '@nuxt/eslint',
+    '@nuxtjs/axios',
+  ],
+  eslint: {
+    config: {
+      stylistic: true, // <---
+    },
+  },
   stripe: {
     // Server
     server: {
@@ -32,4 +45,4 @@ export default defineNuxtConfig({
   devtools: {
     enabled: false,
   },
-});
+})

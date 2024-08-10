@@ -1,6 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-200 p-5">
-    <div v-if="error" class="text-red-500 text-center my-10">An error occurred: {{ error }}</div>
+    <div
+      v-if="error"
+      class="text-red-500 text-center my-10"
+    >
+      An error occurred: {{ error }}
+    </div>
     <div class="text-center my-5">
       <button
         class="refresh-btn px-8 py-2 rounded transition-colors duration-300 hover:bg-red-500"
@@ -10,9 +15,16 @@
       </button>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <div v-for="gallery in galleries" :key="gallery.id" class="gallery-card shadow-lg rounded bg-white p-4">
+      <div
+        v-for="gallery in galleries"
+        :key="gallery.id"
+        class="gallery-card shadow-lg rounded bg-white p-4"
+      >
         <div class="flip-container">
-          <div class="flip-content" :style="{ transform: computeTransform(gallery) }">
+          <div
+            class="flip-content"
+            :style="{ transform: computeTransform(gallery) }"
+          >
             <!-- Front -->
             <div class="flipper-front">
               <img
@@ -20,7 +32,7 @@
                 alt="Image from {{ gallery.name }}"
                 class="gallery-img w-full"
                 @click="refreshSingleGallery(gallery)"
-              />
+              >
             </div>
             <!-- Back -->
             <div class="flipper-back">
@@ -29,70 +41,76 @@
                 alt="Next image from {{ gallery.name }}"
                 class="gallery-img w-full"
                 @click="refreshSingleGallery(gallery)"
-              />
+              >
             </div>
           </div>
         </div>
         <!-- Gallery Name and Description -->
-        <h2 class="text-xl font-semibold mt-3">{{ gallery.name }}</h2>
-        <p class="text-sm text-gray-600 mt-1">{{ gallery.description }}</p>
+        <h2 class="text-xl font-semibold mt-3">
+          {{ gallery.name }}
+        </h2>
+        <p class="text-sm text-gray-600 mt-1">
+          {{ gallery.description }}
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
-const galleries = ref(null);
-const error = ref(null);
+const galleries = ref(null)
+const error = ref(null)
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/galleries');
+    const response = await axios.get('/api/galleries')
     if (response.data.success) {
-      galleries.value = response.data.Galleries;
+      galleries.value = response.data.Galleries
       galleries.value.forEach((gallery) => {
-        gallery.currentImage = getRandomImage(gallery);
-        gallery.isFlipped = false; // Initialize the flip state
-      });
-    } else {
-      error.value = 'Failed to fetch data.';
+        gallery.currentImage = getRandomImage(gallery)
+        gallery.isFlipped = false // Initialize the flip state
+      })
     }
-  } catch (err) {
-    error.value = err.message;
+    else {
+      error.value = 'Failed to fetch data.'
+    }
   }
-});
+  catch (err) {
+    error.value = err.message
+  }
+})
 
 const getRandomImage = (gallery) => {
-  if (!gallery.imagePaths) return '';
-  const images = gallery.imagePaths.split(',').map((filename) => `/images/${gallery.name}/${filename.trim()}`);
-  return images[Math.floor(Math.random() * images.length)];
-};
+  if (!gallery.imagePaths) return ''
+  const images = gallery.imagePaths.split(',').map(filename => `/images/${gallery.name}/${filename.trim()}`)
+  return images[Math.floor(Math.random() * images.length)]
+}
 const refreshImages = () => {
   galleries.value.forEach((gallery) => {
-    gallery.nextImage = getRandomImage(gallery);
+    gallery.nextImage = getRandomImage(gallery)
 
     // Trigger the flip
-    gallery.isFlipped = !gallery.isFlipped;
+    gallery.isFlipped = !gallery.isFlipped
 
     // Determine the appropriate timeout based on the flip direction
-    const timeoutDuration = gallery.isFlipped ? 300 : 150; // Adjusted timeout for right-left flip
+    const timeoutDuration = gallery.isFlipped ? 300 : 150 // Adjusted timeout for right-left flip
 
     // Halfway through the flip, change the image
     setTimeout(() => {
-      gallery.currentImage = gallery.nextImage;
-    }, timeoutDuration);
-  });
-};
+      gallery.currentImage = gallery.nextImage
+    }, timeoutDuration)
+  })
+}
 const computeTransform = (gallery) => {
-  return gallery.isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
-};
+  return gallery.isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+}
 
 const refreshSingleGallery = (gallery) => {
-  gallery.currentImage = getRandomImage(gallery);
-};
+  gallery.currentImage = getRandomImage(gallery)
+}
 </script>
 
 <style>

@@ -29,13 +29,14 @@
 </template>
 
 <script setup lang="ts">
-import { useScreenStore } from '../../../stores/screenStore';
+import { useScreenStore } from '../../../stores/screenStore'
 
-const fxStore = useScreenStore();
+const fxStore = useScreenStore()
 
-const toggleRainEffect = () => fxStore.toggleRainEffect();
-const toggleSoapBubbles = () => fxStore.toggleSoapBubbles();
+const toggleRainEffect = () => fxStore.toggleRainEffect()
+const toggleSoapBubbles = () => fxStore.toggleSoapBubbles()
 </script>
+
 <style scoped>
 .icon-box {
   /* existing styles... */

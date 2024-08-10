@@ -4,29 +4,55 @@
       {{ messages && messages.length ? messages[messages.length - 1].content : '' }}
     </div>
     <div class="actions">
-      <button class="action-button save">Save</button>
-      <button class="action-button share-facebook">Share on Facebook</button>
-      <button class="action-button share-twitter">Share on Twitter</button>
-      <button class="action-button thumbs-up">👍</button>
-      <button class="action-button thumbs-down">👎</button>
-      <button class="action-button delete">X</button>
-      <button class="action-button reply" @click="toggleReply">Reply</button>
+      <button class="action-button save">
+        Save
+      </button>
+      <button class="action-button share-facebook">
+        Share on Facebook
+      </button>
+      <button class="action-button share-twitter">
+        Share on Twitter
+      </button>
+      <button class="action-button thumbs-up">
+        👍
+      </button>
+      <button class="action-button thumbs-down">
+        👎
+      </button>
+      <button class="action-button delete">
+        X
+      </button>
+      <button
+        class="action-button reply"
+        @click="toggleReply"
+      >
+        Reply
+      </button>
     </div>
-    <div v-if="showReply" class="reply-container">
-      <textarea v-model="replyMessage" placeholder="Type your reply here..."></textarea>
-      <button @click="sendReply">Send Reply</button>
+    <div
+      v-if="showReply"
+      class="reply-container"
+    >
+      <textarea
+        v-model="replyMessage"
+        placeholder="Type your reply here..."
+      />
+      <button @click="sendReply">
+        Send Reply
+      </button>
     </div>
     <div class="message">
       {{ getLastMessageContent }}
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 
 interface Message {
-  role: string;
-  content: string;
+  role: string
+  content: string
 }
 
 const props = defineProps({
@@ -38,29 +64,31 @@ const props = defineProps({
     type: Function as unknown as () => (updatedMessages: Message[]) => Promise<void>,
     default: () => async () => {},
   },
-});
+})
 
-const showReply = ref(false);
-const replyMessage = ref('');
+const showReply = ref(false)
+const replyMessage = ref('')
 
 const toggleReply = () => {
-  showReply.value = !showReply.value;
-};
+  showReply.value = !showReply.value
+}
 
 const getLastMessageContent = computed(() => {
-  return props.messages.length ? props.messages[props.messages.length - 1].content : '';
-});
+  return props.messages.length ? props.messages[props.messages.length - 1].content : ''
+})
 const sendReply = async () => {
   try {
-    const updatedMessages = [...props.messages, { role: 'user', content: replyMessage.value }];
-    await props.sendMessage(updatedMessages);
-    replyMessage.value = '';
-    showReply.value = false;
-  } catch (err) {
-    console.error(err);
+    const updatedMessages = [...props.messages, { role: 'user', content: replyMessage.value }]
+    await props.sendMessage(updatedMessages)
+    replyMessage.value = ''
+    showReply.value = false
   }
-};
+  catch (err) {
+    console.error(err)
+  }
+}
 </script>
+
 <style scoped>
 .response-card {
   padding: 16px;

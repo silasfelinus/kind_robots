@@ -1,11 +1,12 @@
-import { type Reward, Prisma } from '@prisma/client'; // Adjust the path as needed
-import prisma from '../utils/prisma';
+import type { Prisma } from '@prisma/client'
+import type { Reward } from '@prisma/client' // Adjust the path as needed
+import prisma from '../utils/prisma'
 
 // Function to create a new Reward
 export function createReward(reward: Partial<Reward>): Promise<Reward> {
   // Validate required fields
   if (!reward.text || !reward.power || !reward.icon) {
-    throw new Error('Text, power, and icon must be provided');
+    throw new Error('Text, power, and icon must be provided')
   }
 
   // Create the new Reward
@@ -18,7 +19,7 @@ export function createReward(reward: Partial<Reward>): Promise<Reward> {
       rarity: reward.rarity || 50,
       // Add other fields if necessary
     },
-  });
+  })
 }
 
 // Function to update an existing Reward by ID
@@ -26,37 +27,37 @@ export function updateReward(id: number, updatedReward: Partial<Reward>): Promis
   return prisma.reward.update({
     where: { id },
     data: updatedReward,
-  });
+  })
 }
 
 // Function to delete a Reward by ID
 export async function deleteReward(id: number): Promise<boolean> {
-  const rewardExists = await prisma.reward.findUnique({ where: { id } });
+  const rewardExists = await prisma.reward.findUnique({ where: { id } })
 
   if (!rewardExists) {
-    return false;
+    return false
   }
 
-  await prisma.reward.delete({ where: { id } });
-  return true;
+  await prisma.reward.delete({ where: { id } })
+  return true
 }
 
 // Function to fetch all Rewards
 export function fetchAllRewards(): Promise<Reward[]> {
-  return prisma.reward.findMany();
+  return prisma.reward.findMany()
 }
 
 // Function to fetch a single Reward by ID
 export function fetchRewardById(id: number): Promise<Reward | null> {
   return prisma.reward.findUnique({
     where: { id },
-  });
+  })
 }
 
 export async function createRewardsBatch(
   rewardsData: Partial<Reward>[],
-): Promise<{ count: number; rewards: Reward[]; errors: string[] }> {
-  const errors: string[] = [];
+): Promise<{ count: number, rewards: Reward[], errors: string[] }> {
+  const errors: string[] = []
 
   // Validate and filter the rewards
   const data: Prisma.RewardCreateManyInput[] = rewardsData
@@ -64,23 +65,23 @@ export async function createRewardsBatch(
       if (!rewardData.text || !rewardData.power || !rewardData.icon) {
         errors.push(
           `Reward with text ${rewardData.text}, power ${rewardData.power}, and icon ${rewardData.icon} is incomplete.`,
-        );
-        return false;
+        )
+        return false
       }
-      return true;
+      return true
     })
-    .map((rewardData) => rewardData as Prisma.RewardCreateManyInput);
+    .map(rewardData => rewardData as Prisma.RewardCreateManyInput)
 
   // Create the rewards in a batch
   const result = await prisma.reward.createMany({
     data,
     skipDuplicates: true, // Skip duplicate records based on constraints
-  });
+  })
 
   // Fetch the newly created rewards
-  const rewards = await prisma.reward.findMany();
+  const rewards = await prisma.reward.findMany()
 
-  return { count: result.count, rewards, errors };
+  return { count: result.count, rewards, errors }
 }
 
-export type { Reward };
+export type { Reward }

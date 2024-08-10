@@ -29,5 +29,5 @@ const comingSoon = [
   'Prompt Gallery',
   'Chatrooms',
   'Project Manager',
-];
+]
 </script>

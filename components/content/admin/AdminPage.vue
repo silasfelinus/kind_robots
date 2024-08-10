@@ -1,10 +1,10 @@
 <script setup>
-const selectedModel = ref('User'); // default model
-const data = ref(null);
+const selectedModel = ref('User') // default model
+const data = ref(null)
 
 // Fetch data when component is mounted or when selectedModel changes
-onMounted(fetchData);
-watch(selectedModel, fetchData);
+onMounted(fetchData)
+watch(selectedModel, fetchData)
 
 function fetchData() {
   const {
@@ -12,14 +12,14 @@ function fetchData() {
     data: fetchedData,
     error,
   } = useFetch(async () => {
-    return await fetch(`/api/${selectedModel.value}`);
-  });
+    return await fetch(`/api/${selectedModel.value}`)
+  })
 
-  fetch();
+  fetch()
 
-  data.value = fetchedData.value;
+  data.value = fetchedData.value
   if (error.value) {
-    console.error('Failed to fetch data:', error.value);
+    console.error('Failed to fetch data:', error.value)
   }
 }
 </script>

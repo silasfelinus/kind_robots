@@ -11,7 +11,11 @@
       @mouseover="showMatureTooltip = true"
       @mouseleave="showMatureTooltip = false"
     >
-      <icon :name="'emojione-monotone:lipstick'" :title="'Toggle Mature Content'" class="w-full h-full" />
+      <icon
+        :name="'emojione-monotone:lipstick'"
+        :title="'Toggle Mature Content'"
+        class="w-full h-full"
+      />
       <div
         v-show="showMatureTooltip"
         class="absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-full mt-[-20px] bg-base-200 p-2 rounded-2xl border z-50 text-sm"
@@ -27,25 +31,26 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useFilterStore } from '@/stores/filterStore';
-import { useUserStore } from '@/stores/userStore';
+import { ref, computed } from 'vue'
+import { useFilterStore } from '@/stores/filterStore'
+import { useUserStore } from '@/stores/userStore'
 
-const filterStore = useFilterStore();
-const userStore = useUserStore();
+const filterStore = useFilterStore()
+const userStore = useUserStore()
 
-const userRole = userStore.role;
-const isMatureToggled = computed(() => filterStore.showMature);
+const userRole = userStore.role
+const isMatureToggled = computed(() => filterStore.showMature)
 
-const showMatureTooltip = ref(false);
-const showMaturePopup = ref(false);
+const showMatureTooltip = ref(false)
+const showMaturePopup = ref(false)
 
 const toggleMature = () => {
-  filterStore.toggleMature();
-  showMaturePopup.value = true;
+  filterStore.toggleMature()
+  showMaturePopup.value = true
   setTimeout(() => {
-    showMaturePopup.value = false;
-  }, 2000);
-};
+    showMaturePopup.value = false
+  }, 2000)
+}
 </script>

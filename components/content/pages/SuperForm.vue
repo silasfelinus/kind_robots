@@ -1,14 +1,22 @@
 <template>
   <div class="bg-gray-50 min-h-screen flex justify-center items-center">
     <div class="bg-white max-w-md mx-auto rounded-xl shadow-lg p-10 space-y-5">
-      <h1 class="text-4xl font-bold text-center text-indigo-600 mb-10">Hair by Superkate!</h1>
+      <h1 class="text-4xl font-bold text-center text-indigo-600 mb-10">
+        Hair by Superkate!
+      </h1>
       <div class="flex justify-center mb-5">
         <site-logo />
       </div>
       <form class="space-y-5">
         <label class="block text-gray-700">
           Date
-          <input v-model="date" type="date" class="input input-bordered w-full" aria-label="Date" required />
+          <input
+            v-model="date"
+            type="date"
+            class="input input-bordered w-full"
+            aria-label="Date"
+            required
+          >
         </label>
         <label class="block text-gray-700">
           Client's Name
@@ -19,11 +27,16 @@
             placeholder="Client's Name"
             aria-label="Client's Name"
             required
-          />
+          >
         </label>
         <label class="block text-gray-700">
           Services Provided
-          <input v-model="servicesProvided" type="text" class="input input-bordered w-full" placeholder="Services" />
+          <input
+            v-model="servicesProvided"
+            type="text"
+            class="input input-bordered w-full"
+            placeholder="Services"
+          >
         </label>
         <div class="card bordered">
           <div class="card-body space-y-5">
@@ -35,14 +48,19 @@
                   type="number"
                   class="input input-bordered w-full"
                   placeholder="Number of hours"
-                />
+                >
               </label>
               <label class="block text-gray-700">
                 Rate per Hour ($)
-                <input v-model="rate" type="number" class="input input-bordered w-full" placeholder="Rate per hour" />
+                <input
+                  v-model="rate"
+                  type="number"
+                  class="input input-bordered w-full"
+                  placeholder="Rate per hour"
+                >
               </label>
             </div>
-            <hr />
+            <hr>
             <div class="space-y-2">
               <label class="block text-gray-700">
                 Product Cost ($)
@@ -51,12 +69,14 @@
                   type="number"
                   class="input input-bordered w-full"
                   placeholder="Product cost"
-                />
+                >
               </label>
             </div>
-            <hr />
-            <div class="bg-gray-100 p-2 rounded-md">Total cost: ${{ totalCost }}</div>
-            <hr />
+            <hr>
+            <div class="bg-gray-100 p-2 rounded-md">
+              Total cost: ${{ totalCost }}
+            </div>
+            <hr>
             <div class="bg-gray-100 p-2 rounded-md">
               Calculation: (${{ rate }} Rate per hour x {{ hours }} hours) + ${{ productCost }} Product Cost = ${{
                 totalCost
@@ -72,33 +92,38 @@
               type="email"
               class="input input-bordered w-full pr-20"
               placeholder="Client's Email"
-            />
+            >
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               + superkate@gmail.com
             </div>
           </div>
         </label>
-        <button type="submit" class="btn btn-primary w-full">Send</button>
+        <button
+          type="submit"
+          class="btn btn-primary w-full"
+        >
+          Send
+        </button>
       </form>
     </div>
   </div>
 </template>
 
 <script setup>
-const date = ref(new Date().toISOString().substr(0, 10));
-const clientName = ref('');
-const servicesProvided = ref('');
-const hours = ref('');
-const rate = ref('');
-const productCost = ref('');
-const clientEmail = ref('');
+const date = ref(new Date().toISOString().substr(0, 10))
+const clientName = ref('')
+const servicesProvided = ref('')
+const hours = ref('')
+const rate = ref('')
+const productCost = ref('')
+const clientEmail = ref('')
 
 const totalCost = computed(() => {
-  return hours.value * rate.value + Number(productCost.value);
-});
+  return hours.value * rate.value + Number(productCost.value)
+})
 
 const submitForm = async (event) => {
-  event.preventDefault();
+  event.preventDefault()
 
   // Call the function to send the email
   await sendBrevoEmail({
@@ -110,17 +135,17 @@ const submitForm = async (event) => {
     productCost: productCost.value,
     totalCost: totalCost.value,
     clientEmail: clientEmail.value,
-  });
+  })
 
   // Clear the form
-  date.value = new Date().toISOString().substr(0, 10);
-  clientName.value = '';
-  servicesProvided.value = '';
-  hours.value = '';
-  rate.value = '';
-  productCost.value = '';
-  clientEmail.value = '';
-};
+  date.value = new Date().toISOString().substr(0, 10)
+  clientName.value = ''
+  servicesProvided.value = ''
+  hours.value = ''
+  rate.value = ''
+  productCost.value = ''
+  clientEmail.value = ''
+}
 
 const sendBrevoEmail = async (data) => {
   const emailData = {
@@ -136,21 +161,22 @@ const sendBrevoEmail = async (data) => {
       <p>Product Cost: ${data.productCost}</p>
       <p>Total Cost: ${data.totalCost}</p>
     `,
-  };
+  }
 
   try {
     await $fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
         'api-key': process.env.BREVO_API_KEY,
-        accept: 'application/json',
+        'accept': 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(emailData),
-    });
-    console.log('Email sent');
-  } catch (error) {
-    console.error(`Error sending email: ${error}`);
+    })
+    console.log('Email sent')
   }
-};
+  catch (error) {
+    console.error(`Error sending email: ${error}`)
+  }
+}
 </script>

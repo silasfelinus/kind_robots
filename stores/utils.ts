@@ -1,6 +1,6 @@
 // ~/types/util
 
-export type Timestamp = string;
+export type Timestamp = string
 
 export enum ModelType {
   BOT = 'BOT',

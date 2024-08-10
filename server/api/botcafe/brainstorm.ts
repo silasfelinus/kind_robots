@@ -1,8 +1,8 @@
 // /server/api/botcafe/brainstorm.ts
-import { Prisma } from '@prisma/client';
-import { defineEventHandler, readBody } from 'h3';
-import { errorHandler } from '../utils/error';
-import { useRuntimeConfig, createError } from '#imports';
+import { Prisma } from '@prisma/client'
+import { defineEventHandler, readBody } from 'h3'
+import { errorHandler } from '../utils/error'
+import { useRuntimeConfig, createError } from '#imports'
 
 const initialConversation = [
   {
@@ -22,20 +22,20 @@ const initialConversation = [
     content:
       'Absolutely!***1. Unfortunate superheroes and their useless powers - The Incredible Wallflower, who has the incredible ability to blend into wallpaper... but only in seedy motels. 2. Dark spin-off movies based on children\'s classics - "Alice in Wonderland: Through the Rabbit Hole of Existential Crisis." 3. Absurd product ideas for vampires - "Sunscreen for Vampires: Because even eternal beings need protection (and a bit of irony)."4. Awkward situations with time travel - Going back in time to give yourself advice, only to realize that your younger self never pays attention... or listens.5. Mischievous fortune cookies - "Your fortune: \'Bad luck and terrible puns will follow you for the rest of your days.***Enjoy!',
   },
-];
+]
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event);
-    let { OPENAI_API_KEY } = useRuntimeConfig();
+    const body = await readBody(event)
+    let { OPENAI_API_KEY } = useRuntimeConfig()
 
     // Check if user's key is provided in the request
     if (body.user_openai_key) {
-      OPENAI_API_KEY = body.user_openai_key;
+      OPENAI_API_KEY = body.user_openai_key
     }
 
     // Append new messages to the initial conversation
-    const fullConversation = [...initialConversation, ...body.messages];
+    const fullConversation = [...initialConversation, ...body.messages]
 
     const data = {
       model: body.model || 'gpt-3.5-turbo',
@@ -44,39 +44,40 @@ export default defineEventHandler(async (event) => {
       max_tokens: body.maxTokens,
       n: body.n,
       stream: body.stream || false,
-    };
+    }
 
-    const post = body.post || 'https://api.openai.com/v1/chat/completions';
+    const post = body.post || 'https://api.openai.com/v1/chat/completions'
 
     const response = await fetch(post, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify(data),
-    });
+    })
 
     if (!response.ok) {
-      throw new Error(`Server responded with ${response.status}`);
+      throw new Error(`Server responded with ${response.status}`)
     }
 
     // Custom logic to parse and format brainstorm responses
-    const parsedResponse = await parseBrainstormResponse(response);
+    const parsedResponse = await parseBrainstormResponse(response)
 
-    return parsedResponse;
-  } catch (error) {
-    const { success, message, statusCode } = errorHandler(error);
+    return parsedResponse
+  }
+  catch (error) {
+    const { success, message, statusCode } = errorHandler(error)
     throw createError({
       statusCode: statusCode || 500,
       statusMessage: message,
-    });
+    })
   }
-});
+})
 
 const parseBrainstormResponse = async (response: Response) => {
   // Your custom logic to parse and format the brainstorm responses
   // For example, split by icons, remove unnecessary tokens, etc.
-  const data = await response.json();
-  return data;
-};
+  const data = await response.json()
+  return data
+}

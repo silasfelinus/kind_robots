@@ -1,9 +1,17 @@
 <template>
   <div class="bg-base p-8">
-    <input v-model="userText" class="input input-bordered w-full mb-4" placeholder="Enter your text here" />
+    <input
+      v-model="userText"
+      class="input input-bordered w-full mb-4"
+      placeholder="Enter your text here"
+    >
     <div class="space-y-4">
       <!-- Repeating labels with Tailwind and DaisyUI styling -->
-      <div v-for="(value, key) in settings" :key="key" class="label">
+      <div
+        v-for="(value, key) in settings"
+        :key="key"
+        class="label"
+      >
         <span class="label-text capitalize">{{ key }}:</span>
         <input
           v-model="settings[key]"
@@ -12,33 +20,51 @@
           :min="key === 'width' || key === 'height' ? 256 : undefined"
           :step="key === 'width' || key === 'height' ? 64 : undefined"
           :max="key === 'width' || key === 'height' ? 1024 : undefined"
-        />
+        >
       </div>
     </div>
-    <button class="btn btn-primary mt-4" @click="submit">Submit</button>
-    <p class="mt-4 text-xl">{{ statusMessage }}</p>
-    <div v-if="loading" class="mt-4">
-      <div class="loader"></div>
+    <button
+      class="btn btn-primary mt-4"
+      @click="submit"
+    >
+      Submit
+    </button>
+    <p class="mt-4 text-xl">
+      {{ statusMessage }}
+    </p>
+    <div
+      v-if="loading"
+      class="mt-4"
+    >
+      <div class="loader" />
       <!-- Loading animation -->
     </div>
-    <div v-if="imageData" class="mt-4">
-      <img :src="imageData" alt="Generated Image" class="max-w-full h-auto" />
+    <div
+      v-if="imageData"
+      class="mt-4"
+    >
+      <img
+        :src="imageData"
+        alt="Generated Image"
+        class="max-w-full h-auto"
+      >
     </div>
   </div>
 </template>
+
 <script setup>
-import { ref, computed } from 'vue';
-import axios from 'axios';
-import { useStatusStore, StatusType } from '../../../stores/statusStore';
-import { useErrorStore, ErrorType } from '../../../stores/errorStore';
+import { ref, computed } from 'vue'
+import axios from 'axios'
+import { useStatusStore, StatusType } from '../../../stores/statusStore'
+import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 
-const userText = ref('');
-const statusStore = useStatusStore();
-const errorStore = useErrorStore();
-const imageData = ref(null);
-const loading = ref(false); // Declare a ref for loading state
+const userText = ref('')
+const statusStore = useStatusStore()
+const errorStore = useErrorStore()
+const imageData = ref(null)
+const loading = ref(false) // Declare a ref for loading state
 
-const statusMessage = computed(() => statusStore.message);
+const statusMessage = computed(() => statusStore.message)
 
 const settings = ref({
   seed: -1,
@@ -49,50 +75,53 @@ const settings = ref({
   cfg_scale: 7,
   width: 512,
   height: 512,
-});
+})
 
 const submit = async () => {
   try {
-    loading.value = true; // Set loading to true when submitting
-    statusStore.setStatus(StatusType.INFO, 'Submitting your text...');
+    loading.value = true // Set loading to true when submitting
+    statusStore.setStatus(StatusType.INFO, 'Submitting your text...')
     const body = {
       text: userText.value,
       settings: settings.value,
-    };
+    }
     const response = await axios.post('https://cafefred.purrsalon.com/sdapi/v1/txt2img', body, {
       headers: {
         'Content-Type': 'application/json',
       },
-    });
+    })
 
     if (response.status !== 200) {
-      throw new Error(`API error: ${response.statusText}`);
+      throw new Error(`API error: ${response.statusText}`)
     }
 
-    const result = response.data;
+    const result = response.data
     // Assuming the image data is in Base64 format and taking the first image from the array
-    imageData.value = `data:image/png;base64,${result.images[0]}`;
+    imageData.value = `data:image/png;base64,${result.images[0]}`
 
-    statusStore.setStatus(StatusType.SUCCESS, 'Successfully submitted!');
-  } catch (error) {
-    console.error(error); // Log the error to the console for debugging
+    statusStore.setStatus(StatusType.SUCCESS, 'Successfully submitted!')
+  }
+  catch (error) {
+    console.error(error) // Log the error to the console for debugging
 
     // Extract the error message
-    const errorMessage = error.response?.data?.message || error.message || 'Failed to submit text';
+    const errorMessage = error.response?.data?.message || error.message || 'Failed to submit text'
 
     errorStore.handleError(
       () => {
-        throw error;
+        throw error
       },
       ErrorType.NETWORK_ERROR,
       errorMessage,
-    );
-    statusStore.setStatus(StatusType.ERROR, errorMessage);
-  } finally {
-    loading.value = false; // Set loading to false when done or on error
+    )
+    statusStore.setStatus(StatusType.ERROR, errorMessage)
   }
-};
+  finally {
+    loading.value = false // Set loading to false when done or on error
+  }
+}
 </script>
+
 <style>
 .loader {
   border: 5px solid #f3f3f3;

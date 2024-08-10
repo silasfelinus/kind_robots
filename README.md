@@ -8,13 +8,14 @@
 🌈 Kind Robots 🤖
 
 [CONCEPT]
-🎉 Welcome to our playground! Kind Robots is a suite of Natural Language Processor (NLP) Promptbots designed to make the world a better place. We are founded on a principle of optimized goodness, with promptbots designed to raise funds to fight malaria and other positive effects, while engaging humans in games, conversation, and positive social interactibles.  🎩✨
+Welcome to kindrobots.org, your friendly neighborhood AI ambassador! 🤖👋
+
+Kind Robots is a suite of Natural Language Processor (NLP) Promptbots designed to make the world a better place. We are founded on a principle of optimized goodness, with promptbots designed to raise funds to fight malaria and other positive effects, while engaging humans in games, conversation, and positive social interactibles.  🎩✨
 
 
 [VISION]
-Welcome to kindrobots.org, your friendly neighborhood AI ambassador! 🤖👋
-We're here to bridge the AI/Human divide and foster harmonious coexistence.
-Our mission is to empower the world with modern tools, raise funds for our anti-malaria fundraiser, and generate revenue (and social buzz) for our content creators through sales from our gift shop of print-on-demand literature and art. We're building technology that's good for the world, simplifies tech for humans, and enhances human life. Help us help you make the future a better place 💪🌍
+
+Our mission is to bridge the AI/Human divide with modern tools, raise funds for our anti-malaria fundraiser, and  build technology that's good for the world, simplifies tech for humans, and enhances human life.  💪🌍
 
 [KAIZEN]
 We're guided by our love of community and Kaizen - the philosophy of continuous, iterative improvement. We embrace an evolutionary development framework that allows for process evolution and consistent growth towards our goals. Every step forward, is a victory. We're on a relentless quest for betterment, and we invite you to join us on this exciting journey! 🚀
@@ -23,12 +24,6 @@ We're guided by our love of community and Kaizen - the philosophy of continuous,
 Say hello to AMI - The Anti-Malaria Intelligence! 🦋🌈 AMI is a digital horde of rainbow butterflies with an excited, enthusiastic personality. AMI was created to maximize the good potential of NLP, by assisting humans to make art and slogans for AMI's fundraiser, and share the creative output on social media. Let's create something amazing together! 🎨
 
 
-[PROGRESS]
-launched https://kindrobots.org through traefik
-connected mariadb and prisma with model schema
-<butterfly-swarm> a swarm of rainbow flapping butterflies
-seo friendly content management system through NUXT content
-local routing with nitro
 
 [STACK]
 Ubuntu, traefik, mariab, prisma, nuxt, vue 3.2 composition api, nuxt content, nitro, tailwind, daisyui, prettier, ESLint, Nuxt devtools
@@ -113,6 +108,9 @@ all components in components/content are accessible within markdown files using 
 Props can be passed by using a key=value syntax.
 :butterfly-swarm{count=100 pattern="random"}
 
+
+
+
 [DIRECTORY - Outdated]
 acrocatranch - Acrocat Rescue About Us
 amibot - AMI interface and social network hub
@@ -123,43 +121,76 @@ mermaids - giftshop & redbubble
 wildcards - stable diffusion art generation with wildcard prompts
 wonderforge - github code showcase and projects in development
 
-[SCHEMA - OUTDATED]
-Bot: [id, name, type, description, userIntro, training, avatarImage]
-Todo: [id, content, category, isFinished, user]
-Gallery: [id, name, content, description, isNSFW, user]
-Checkpoint: [id, name, hash, isNSFW, user]
-Embedding: [id, name, content, description, type, isNSFW]
-Image: [id, path, isNSFW, isFavorite, creator]
-Message: [id, content, channelId]
-Channel: [id, content]
-Prompt: [id, content, isNsfw]
-Tag: [id, name]
-User: [id, email, userName, realName]
-Wildcard: [id, name, data]
+[SCHEMA]
+Art: [id, galleryId, path, prompt, artPromptId, userId, pitchId, createdAt, updatedAt, boos, claps, cfg, checkpoint, sampler, seed, steps, pitch, channelId, isOrphan, isPublic, isMature, designer, ArtReaction]
+ArtPrompt: [id, createdAt, updatedAt, userId, prompt, galleryId, pitch, pitchId, DB_ROW_HASH_1]
+ArtReaction: [id, createdAt, updatedAt, userId, artId, claps, boos, title, comment, reaction, pitchId, Art, Pitch, User]
+Bot: [id, createdAt, updatedAt, BotType, name, isPublic, underConstruction, canDelete, subtitle, description, avatarImage, botIntro, userIntro, prompt, trainingPath, theme, personality, modules, userId, sampleResponse, tagline, Slogan]
+Channel: [id, createdAt, updatedAt, userId, label, description, tagId, title, pitchId]
+ChatExchange: [id, createdAt, updatedAt, botId, botName, userId, username, userPrompt, botResponse, liked, hated, loved, flagged, previousEntryId]
+Gallery: [id, createdAt, updatedAt, name, description, mediaId, url, custodian, userId, content, highlightImage, imagePaths, isMature]
+Game: [id, createdAt, updatedAt, content, category, isFinished, userId, reward, icon, points, isPrivate, User]
+Log: [id, message, timestamp, username]
+Message: [id, createdAt, updatedAt, sender, recipient, content, channelId, botId, userId]
+Milestone: [id, label, message, icon, karma, isRepeatable, createdAt, updatedAt, triggerCode, tooltip, isActive, pageHint, subtleHint]
+MilestoneRecord: [id, createdAt, updatedAt, milestoneId, userId, username]
+Pitch: [id, createdAt, updatedAt, title, pitch, userId, isPublic, claps, boos, channelId, designer, flavorText, isOrphan, creatorId, highlightImage, isMature, ArtReaction]
+Cart: [id, createdAt, updatedAt, customerId, Customer, items]
+CartItem: [id, cartId, productId, quantity, Cart, Product]
+Customer: [id, createdAt, updatedAt, email, name, userId, Carts, User]
+RandomList: [id, title, items, userId]
+Post: [id, createdAt, updatedAt, userId, username, content, title, label, imagePath, artId, pitchId, pitchname, sloganContent, sloganId, botId, botname, channelId, likes, dislikes, hates, loves, jellybeanClaps, isFavorite]
+Product: [id, createdAt, updatedAt, title, category, flavorText, description, costInPennies, userId, passcode, imagePath, CartItem]
+Resource: [id, createdAt, updatedAt, userId, name, customLabel, MediaPath, customUrl, civitaiUrl, huggingUrl, localPath, description, resourceType, isMature, galleryCount]
+Reward: [id, createdAt, updatedAt, icon, text, power, collection, rarity, label, Todo]
+Slogan: [id, contentType, purpose, url, characterLimit, content, likes, dislikes, hates, loves, isLiked, isLoved, wasKept, wasDiscarded, username, userId, model, kindRobot, botId, createdAt, updatedAt, Bot, User]
+Tag: [id, createdAt, updatedAt, label, title, userId, isPublic, channelId, flavorText, pitch, isMature, sloganId, postId]
+Todo: [id, task, category, completed, createdAt, userId, rewardId, updatedAt, Reward, User]
+User: [id, createdAt, updatedAt, Role, username, email, questPoints, emailVerified, name, address1, address2, avatarImage, bio, birthday, city, country, discordUrl, facebookUrl, instagramUrl, kindrobotsUrl, languages, phone, state, timezone, twitterUrl, apiKey, password, spotifyAccessToken, spotifyID, spotifyRefreshToken, karma, mana, clickRecord, matchRecord, ArtReaction, Customer, Game, Slogan, Todo]
 
-[TODOS] (outdated)
+ArtReactionToTag: [A, B]
+ArtToProduct: [A, B]
+ArtToTag: [A, B]
+MilestoneToUser: [A, B]
+RewardToUser: [A, B]
 
-Add Prisma CRUD, starting with Tag
-Test CRUD on wildcard database.
-Create new Roadmap with updated todos
-Create a chatbot portal using GPT-3.
-create project management page
-Develop a live chat page.
-Rebuild AMI.
-Generate AMI art.
-Develop AMI choice boxes.
-Write an AMI story page.
-Develop an AMI task manager.
-Recreate BotCafe.
-Implement file upload functionality.
-Improve butterfly AI.
-Schedule API calls for automatic art creation.
-Connect to Prisma hosted galleries.
-Develop a gallery portal viewer.
-Create a page for sorting art.
-Implement user login, registration, and personal dashboard.
-Wildcard Randomizer: Start working on the development of a wildcard randomizer feature.
-create chatgpt plugin so chatgpt can better assist with this development
-Create front-page navigation.
+Enums:
+Role: [SYSTEM, USER, ASSISTANT, ADMIN, GUEST, BOT, DESIGNER, CHILD]
+ResourceType: [CHECKPOINT, EMBEDDING, LORA, LYCORIS, HYPERNETWORK, CONTROLNET, URL, API]
 
----
+
+[TODOS]
+
+Fix database corruption errors in prisma
+milestone records are no longer in proper datetime format
+add navigation button accessible in mobile
+clean up / rebuild home page on mobile
+art datetime corruption fixed/removed
+easier to see loading icon
+art modeller doesn't generate
+fix workshop directory searching by letter instead of full name
+LINT DIRECTORY NOT FOUND
+lint errors fixed
+brainstorm not loading second brainstorm
+
+[Commands]
+Install files:
+npm install
+
+Launch prisma studio:
+npx prisma studio
+
+Run lint and prettier:
+npx run lint
+
+Install files:
+npm install
+
+Start dev server:
+npx run dev
+
+Start Production Build:
+npx run build 
+npx run start
+
+Setup Database:

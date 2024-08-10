@@ -1,18 +1,32 @@
 <template>
-  <div class="flip-card" @click="flipped = !flipped">
-    <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
-      <card-front key="front" class="flip-card-front" :bot="currentBot" />
-      <card-back key="back" class="flip-card-back" :bot="currentBot" />
+  <div
+    class="flip-card"
+    @click="flipped = !flipped"
+  >
+    <div
+      class="flip-card-inner"
+      :class="{ 'is-flipped': flipped }"
+    >
+      <card-front
+        key="front"
+        class="flip-card-front"
+        :bot="currentBot"
+      />
+      <card-back
+        key="back"
+        class="flip-card-back"
+        :bot="currentBot"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useBotStore } from '../../../stores/botStore';
+import { useBotStore } from '../../../stores/botStore'
 
-const botsStore = useBotStore();
-const currentBot = computed(() => botsStore.currentBot);
-const flipped = ref(false);
+const botsStore = useBotStore()
+const currentBot = computed(() => botsStore.currentBot)
+const flipped = ref(false)
 </script>
 
 <style scoped>

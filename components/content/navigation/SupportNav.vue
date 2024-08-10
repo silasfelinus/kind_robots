@@ -10,11 +10,21 @@
       @click="handleLinkClick"
     >
       <div class="w-24 h-24 rounded-lg overflow-hidden border bg-secondary">
-        <img :src="`/images/${page.image}`" alt="Page Image" class="object-cover w-full h-full" />
+        <img
+          :src="`/images/${page.image}`"
+          alt="Page Image"
+          class="object-cover w-full h-full"
+        >
       </div>
       <!-- You are here indicator -->
-      <div v-if="page._path === $route.path" class="flex items-center m-2 p-1 text-xl rounded-2xl border bg-secondary">
-        You are here <icon name="line-md:download-outline-loop" class="text-lg m-2" />
+      <div
+        v-if="page._path === $route.path"
+        class="flex items-center m-2 p-1 text-xl rounded-2xl border bg-secondary"
+      >
+        You are here <icon
+          name="line-md:download-outline-loop"
+          class="text-lg m-2"
+        />
       </div>
       <div class="flex flex-col items-start">
         <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
@@ -32,21 +42,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { usePageStore } from '~/stores/pageStore';
-import { useFooterStore } from '~/stores/footerStore';
+import { ref, onMounted, computed } from 'vue'
+import { usePageStore } from '~/stores/pageStore'
+import { useFooterStore } from '~/stores/footerStore'
 
-const pageStore = usePageStore();
-const footerStore = useFooterStore();
+const pageStore = usePageStore()
+const footerStore = useFooterStore()
 
-const isHovered = ref(null);
+const isHovered = ref(null)
 const supportPages = computed(() => {
-  return pageStore.pagesByTagAndSort('home', 'icon');
-});
+  return pageStore.pagesByTagAndSort('home', 'icon')
+})
 
 const handleLinkClick = () => {
   if (footerStore.isExtended) {
-    footerStore.toggleIsExtended();
+    footerStore.toggleIsExtended()
   }
-};
+}
 </script>

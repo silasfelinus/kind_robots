@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia';
-import { type ChatExchange } from '@prisma/client';
-import { errorHandler } from '@/server/api/utils/error';
+import { defineStore } from 'pinia'
+import type { ChatExchange } from '@prisma/client'
+import { errorHandler } from '@/server/api/utils/error'
 
 export const useChatStore = defineStore({
   id: 'chat',
@@ -9,22 +9,24 @@ export const useChatStore = defineStore({
   }),
   actions: {
     getExchangeById(id: number) {
-      return this.chatExchanges.find((exchange) => exchange.id === id) || null;
+      return this.chatExchanges.find(exchange => exchange.id === id) || null
     },
     setChatExchanges(exchanges: ChatExchange[]) {
-      this.chatExchanges = exchanges;
+      this.chatExchanges = exchanges
     },
     async fetchChatExchanges() {
       try {
-        const response = await fetch('/api/chats');
-        const data = await response.json();
+        const response = await fetch('/api/chats')
+        const data = await response.json()
         if (data.success) {
-          this.setChatExchanges(data.chatExchanges);
-        } else {
-          errorHandler(data);
+          this.setChatExchanges(data.chatExchanges)
         }
-      } catch (error: any) {
-        errorHandler({ success: false, message: error.message, statusCode: 500 });
+        else {
+          errorHandler(data)
+        }
+      }
+      catch (error: any) {
+        errorHandler({ success: false, message: error.message, statusCode: 500 })
       }
     },
     async addOrUpdateExchange(exchange: ChatExchange) {
@@ -35,18 +37,20 @@ export const useChatStore = defineStore({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(exchange),
-        });
-        const data = await response.json();
+        })
+        const data = await response.json()
         if (data.success) {
-          this.chatExchanges.push(data.newExchange);
-        } else {
-          errorHandler(data);
+          this.chatExchanges.push(data.newExchange)
         }
-      } catch (error: any) {
-        errorHandler({ success: false, message: error.message, statusCode: 500 });
+        else {
+          errorHandler(data)
+        }
+      }
+      catch (error: any) {
+        errorHandler({ success: false, message: error.message, statusCode: 500 })
       }
     },
-    async addReaction(id: number, reaction: { liked?: boolean; hated?: boolean; loved?: boolean; flagged?: boolean }) {
+    async addReaction(id: number, reaction: { liked?: boolean, hated?: boolean, loved?: boolean, flagged?: boolean }) {
       try {
         const response = await fetch(`/api/chats/${id}`, {
           method: 'PATCH',
@@ -54,21 +58,23 @@ export const useChatStore = defineStore({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(reaction),
-        });
-        const data = await response.json();
+        })
+        const data = await response.json()
         if (data.success) {
-          const index = this.chatExchanges.findIndex((exchange) => exchange.id === id);
+          const index = this.chatExchanges.findIndex(exchange => exchange.id === id)
           if (index !== -1) {
-            this.chatExchanges[index] = { ...this.chatExchanges[index], ...reaction };
+            this.chatExchanges[index] = { ...this.chatExchanges[index], ...reaction }
           }
-        } else {
-          errorHandler(data);
         }
-      } catch (error: any) {
-        errorHandler({ success: false, message: error.message, statusCode: 500 });
+        else {
+          errorHandler(data)
+        }
+      }
+      catch (error: any) {
+        errorHandler({ success: false, message: error.message, statusCode: 500 })
       }
     },
   },
-});
+})
 
-export type { ChatExchange };
+export type { ChatExchange }

@@ -23,7 +23,7 @@
               :src="`/images/${page.image}`"
               alt="Page Image"
               class="w-full h-full rounded-full object-cover"
-            />
+            >
             <div
               class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute bg-primary p-2 rounded shadow-lg text-xs md:text-sm z-10"
               style="
@@ -50,12 +50,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-const clicked = ref<string | null>(null);
+const clicked = ref<string | null>(null)
 
 const { find } = queryContent()
   .where({ $not: { _path: '/' } })
-  .sort({ _id: 1 });
-const { data: pages } = await useAsyncData('pages-list', find);
+  .sort({ _id: 1 })
+const { data: pages } = await useAsyncData('pages-list', find)
 </script>

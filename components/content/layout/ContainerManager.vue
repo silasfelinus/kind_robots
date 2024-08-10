@@ -3,10 +3,21 @@
     <div class="controls">
       <div class="control-group">
         <h3>Outer Container (Base Card)</h3>
-        <div v-for="(option, index) in outerOptions" :key="index" class="control-item">
+        <div
+          v-for="(option, index) in outerOptions"
+          :key="index"
+          class="control-item"
+        >
           <label :for="option.property">{{ option.label }}</label>
-          <select v-model="store[option.property]" :name="option.property">
-            <option v-for="value in option.values" :key="value" :value="value">
+          <select
+            v-model="store[option.property]"
+            :name="option.property"
+          >
+            <option
+              v-for="value in option.values"
+              :key="value"
+              :value="value"
+            >
               {{ value }}
             </option>
           </select>
@@ -15,10 +26,21 @@
 
       <div class="control-group">
         <h3>Inner Container</h3>
-        <div v-for="(option, index) in innerOptions" :key="index" class="control-item">
+        <div
+          v-for="(option, index) in innerOptions"
+          :key="index"
+          class="control-item"
+        >
           <label :for="option.property">{{ option.label }}</label>
-          <select v-model="store[option.property]" :name="option.property">
-            <option v-for="value in option.values" :key="value" :value="value">
+          <select
+            v-model="store[option.property]"
+            :name="option.property"
+          >
+            <option
+              v-for="value in option.values"
+              :key="value"
+              :value="value"
+            >
               {{ value }}
             </option>
           </select>
@@ -35,25 +57,27 @@
         @click="activateContainer(index)"
       >
         <div>{{ container.label }}</div>
-        <div class="content">{{ container.content }}</div>
+        <div class="content">
+          {{ container.content }}
+        </div>
       </div>
     </base-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useContainerStore } from '@/stores/containerStore';
+import { ref, computed } from 'vue'
+import { useContainerStore } from '@/stores/containerStore'
 
-const store = useContainerStore();
+const store = useContainerStore()
 
 interface Option {
-  property: keyof typeof store.$state;
-  label: string;
-  values: string[];
+  property: keyof typeof store.$state
+  label: string
+  values: string[]
 }
 
-const outerOptions: Option[] = [{ property: 'outerBgColor', label: 'Background Color', values: store.containerColors }];
+const outerOptions: Option[] = [{ property: 'outerBgColor', label: 'Background Color', values: store.containerColors }]
 
 const innerOptions: Option[] = [
   { property: 'bgColor', label: 'Background Color', values: store.containerColors },
@@ -64,8 +88,8 @@ const innerOptions: Option[] = [
   { property: 'shadow', label: 'Shadow', values: store.containerShadows },
   { property: 'transition', label: 'Transition', values: store.containerTransitions },
   { property: 'backdrop', label: 'Backdrop', values: store.containerBackdrops },
-];
-const outerContainerClasses = computed(() => [store.outerBgColor]);
+]
+const outerContainerClasses = computed(() => [store.outerBgColor])
 
 const containerClasses = computed(() => [
   store.bgColor,
@@ -76,9 +100,9 @@ const containerClasses = computed(() => [
   store.shadow,
   store.transition,
   store.backdrop,
-]);
+])
 
-const containerStyles = computed(() => ({}));
+const containerStyles = computed(() => ({}))
 
 const containers = ref([
   {
@@ -91,13 +115,13 @@ const containers = ref([
     content: 'Here is some different filler text for the second container.',
     active: false,
   },
-]);
+])
 
 const activateContainer = (index: number) => {
   containers.value.forEach((container, idx) => {
-    container.active = idx === index;
-  });
-};
+    container.active = idx === index
+  })
+}
 </script>
 
 <style scoped>

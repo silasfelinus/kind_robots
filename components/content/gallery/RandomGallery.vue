@@ -2,31 +2,51 @@
   <div class="tv-container">
     <div class="tv-body">
       <div class="tv-screen">
-        <img v-if="currentImage" :src="currentImage" alt="Random Image from Gallery" class="tv-image" />
-        <div v-else class="tv-error">No Image Available</div>
+        <img
+          v-if="currentImage"
+          :src="currentImage"
+          alt="Random Image from Gallery"
+          class="tv-image"
+        >
+        <div
+          v-else
+          class="tv-error"
+        >
+          No Image Available
+        </div>
       </div>
       <div class="tv-knobs">
-        <button class="tv-button" @click="changeToRandomImage">Change Image</button>
-        <button class="tv-button" @click="setRandomGallery">Change Gallery</button>
+        <button
+          class="tv-button"
+          @click="changeToRandomImage"
+        >
+          Change Image
+        </button>
+        <button
+          class="tv-button"
+          @click="setRandomGallery"
+        >
+          Change Gallery
+        </button>
       </div>
     </div>
-    <div class="tv-base"></div>
+    <div class="tv-base" />
   </div>
 </template>
 
 <script setup>
-import { useGalleryStore } from '@/stores/galleryStore'; // adjust path as necessary
+import { useGalleryStore } from '@/stores/galleryStore' // adjust path as necessary
 
-const galleryStore = useGalleryStore();
-const currentImage = computed(() => galleryStore.currentImage);
+const galleryStore = useGalleryStore()
+const currentImage = computed(() => galleryStore.currentImage)
 
 const changeToRandomImage = () => {
-  galleryStore.changeToRandomImage();
-};
+  galleryStore.changeToRandomImage()
+}
 
 const setRandomGallery = () => {
-  galleryStore.setRandomGallery();
-};
+  galleryStore.setRandomGallery()
+}
 </script>
 
 <style scoped>

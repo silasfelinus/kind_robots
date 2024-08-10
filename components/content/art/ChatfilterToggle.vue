@@ -20,16 +20,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useFilterStore } from '@/stores/filterStore';
+import { computed } from 'vue'
+import { useFilterStore } from '@/stores/filterStore'
 
-const filterStore = useFilterStore();
+const filterStore = useFilterStore()
 
 // Computed property to get the current state of the chat visibility
-const isChatVisible = computed(() => filterStore.showChat);
+const isChatVisible = computed(() => filterStore.showChat)
 
 // Function to toggle the chat visibility
 const toggleChat = () => {
-  filterStore.toggleChat();
-};
+  filterStore.toggleChat()
+}
 </script>

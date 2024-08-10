@@ -7,11 +7,23 @@
       <butterfly-toggle />
     </div>
     <!-- Title and Subtitle -->
-    <h1 class="text-4xl text-default font-bold">Kind Robots</h1>
+    <h1 class="text-4xl text-default font-bold">
+      Kind Robots
+    </h1>
     <div class="flex flex-col items-center justify-center p-2 m-2 relative">
       <!-- Conditional rendering for title -->
-      <h1 v-if="page.subtitle" class="text-4xl text-default font-bold">{{ page.subtitle }}</h1>
-      <h1 v-else class="text-4xl text-default font-bold">Location: 🌀 Loading...</h1>
+      <h1
+        v-if="page.subtitle"
+        class="text-4xl text-default font-bold"
+      >
+        {{ page.subtitle }}
+      </h1>
+      <h1
+        v-else
+        class="text-4xl text-default font-bold"
+      >
+        Location: 🌀 Loading...
+      </h1>
     </div>
     <!-- Theme Selector -->
     <div class="flex items-center justify-center relative">
@@ -27,6 +39,6 @@
 
 <script setup lang="ts">
 // Your existing script setup
-const { page } = useContent();
-useContentHead(page);
+const { page } = useContent()
+useContentHead(page)
 </script>

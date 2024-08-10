@@ -2,10 +2,24 @@
   <div class="bg-base-200 p-8 flex flex-col md:flex-row">
     <!-- Main Content -->
     <header class="text-center mb-12">
-      <img :src="image" alt="Background Image" class="w-1/4 mx-auto mb-4" />
-      <h1 class="text-4xl font-bold">{{ title }}</h1>
-      <h2 v-if="subtitleRef" class="text-2xl font-semibold">{{ subtitleRef }}</h2>
-      <a :href="amazonLink" class="btn btn-primary block w-max mx-auto mb-8">Amazon link</a>
+      <img
+        :src="image"
+        alt="Background Image"
+        class="w-1/4 mx-auto mb-4"
+      >
+      <h1 class="text-4xl font-bold">
+        {{ title }}
+      </h1>
+      <h2
+        v-if="subtitleRef"
+        class="text-2xl font-semibold"
+      >
+        {{ subtitleRef }}
+      </h2>
+      <a
+        :href="amazonLink"
+        class="btn btn-primary block w-max mx-auto mb-8"
+      >Amazon link</a>
     </header>
     <!-- Quotes on the Right Side Panel -->
     <aside class="w-full md:w-1/3 mt-8 md:mt-0">
@@ -27,27 +41,28 @@
     </aside>
   </div>
 </template>
+
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-const title = ref('Mermaids of Venice');
-const subtitleRef = ref('A subversive fairy tale of gods and street performers.');
-const image = ref('/images/utility/mermaids/mermaids1.jpg');
-const amazonLink = ref('https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742');
-const downloadLink = ref('/mermaids.pdf');
-const mosquitoNetsLink = ref('/projects/amibot');
-const europePic1 = ref('/images/utility/mermaids/europe1.png');
-const europePic2 = ref('/images/utility/mermaids/europe2.jpg');
-const europePic3 = ref('/images/utility/mermaids/europe3.jpg');
+const title = ref('Mermaids of Venice')
+const subtitleRef = ref('A subversive fairy tale of gods and street performers.')
+const image = ref('/images/utility/mermaids/mermaids1.jpg')
+const amazonLink = ref('https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742')
+const downloadLink = ref('/mermaids.pdf')
+const mosquitoNetsLink = ref('/projects/amibot')
+const europePic1 = ref('/images/utility/mermaids/europe1.png')
+const europePic2 = ref('/images/utility/mermaids/europe2.jpg')
+const europePic3 = ref('/images/utility/mermaids/europe3.jpg')
 
-const showEuropeImage1 = ref(false);
-const showEuropeImage3 = ref(false);
+const showEuropeImage1 = ref(false)
+const showEuropeImage3 = ref(false)
 
 function toggleEurope1Image() {
-  showEuropeImage1.value = !showEuropeImage1.value;
+  showEuropeImage1.value = !showEuropeImage1.value
 }
 
 function toggleEurope3Image() {
-  showEuropeImage3.value = !showEuropeImage3.value;
+  showEuropeImage3.value = !showEuropeImage3.value
 }
 </script>

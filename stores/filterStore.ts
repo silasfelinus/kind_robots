@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 
 export const useFilterStore = defineStore({
   id: 'filter',
@@ -12,16 +12,16 @@ export const useFilterStore = defineStore({
 
   actions: {
     toggleMature() {
-      this.showMature = !this.showMature;
+      this.showMature = !this.showMature
     },
     togglePublic() {
-      this.showPublic = !this.showPublic;
+      this.showPublic = !this.showPublic
     },
     toggleFooter() {
-      this.showFooter = !this.showFooter;
+      this.showFooter = !this.showFooter
     },
     toggleChat() {
-      this.showChat = !this.showChat;
+      this.showChat = !this.showChat
     },
   },
-});
+})

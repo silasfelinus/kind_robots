@@ -1,5 +1,5 @@
 // @/stores/matureStore.ts
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 
 export const useMatureStore = defineStore('matureStore', {
   state: () => ({
@@ -8,17 +8,17 @@ export const useMatureStore = defineStore('matureStore', {
 
   actions: {
     toggleMature() {
-      this.showMature = !this.showMature;
-      localStorage.setItem('showMature', JSON.stringify(this.showMature));
+      this.showMature = !this.showMature
+      localStorage.setItem('showMature', JSON.stringify(this.showMature))
     },
 
     initialize() {
-      const storedValue = localStorage.getItem('showMature');
+      const storedValue = localStorage.getItem('showMature')
       if (storedValue !== null) {
-        this.showMature = JSON.parse(storedValue);
+        this.showMature = JSON.parse(storedValue)
       }
     },
   },
-});
+})
 
-export default useMatureStore;
+export default useMatureStore

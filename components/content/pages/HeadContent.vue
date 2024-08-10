@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const { page } = useContent();
+const { page } = useContent()
 
-const pageData = useContentHead(page);
+const pageData = useContentHead(page)
 </script>
 
 <template>

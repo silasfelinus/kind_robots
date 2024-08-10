@@ -12,66 +12,67 @@ const props = defineProps({
     type: Number,
     default: 3,
   },
-});
+})
 // Options & Data
 const data = reactive({
   percent: 0,
   show: true,
   canSucceed: true,
-});
+})
 // Local variables
-let _timer = null;
-let _throttle = null;
-let _cut;
+let _timer = null
+let _throttle = null
+let _cut
 
 // Functions
 const clear = () => {
-  _timer && clearInterval(_timer);
-  _throttle && clearTimeout(_throttle);
-  _timer = null;
-};
+  _timer && clearInterval(_timer)
+  _throttle && clearTimeout(_throttle)
+  _timer = null
+}
 const start = () => {
-  clear();
-  data.percent = 0;
-  data.canSucceed = true;
+  clear()
+  data.percent = 0
+  data.canSucceed = true
 
   if (props.throttle) {
-    _throttle = setTimeout(startTimer, props.throttle);
-  } else {
-    startTimer();
+    _throttle = setTimeout(startTimer, props.throttle)
   }
-};
+  else {
+    startTimer()
+  }
+}
 const increase = (num) => {
-  data.percent = Math.min(100, Math.floor(data.percent + num));
-};
+  data.percent = Math.min(100, Math.floor(data.percent + num))
+}
 const finish = () => {
-  data.percent = 100;
-  hide();
-};
+  data.percent = 100
+  hide()
+}
 const hide = () => {
-  clear();
+  clear()
   setTimeout(() => {
-    data.show = false;
+    data.show = false
     setTimeout(() => {
-      data.percent = 0;
-    }, 400);
-  }, 500);
-};
+      data.percent = 0
+    }, 400)
+  }, 500)
+}
 const startTimer = () => {
-  data.show = true;
-  _cut = 10000 / Math.floor(props.duration);
+  data.show = true
+  _cut = 10000 / Math.floor(props.duration)
   _timer = setInterval(() => {
-    increase(_cut);
-  }, 100);
-};
+    increase(_cut)
+  }, 100)
+}
 
 // Hooks
-const nuxtApp = useNuxtApp();
+const nuxtApp = useNuxtApp()
 
-nuxtApp.hook('page:start', start);
-nuxtApp.hook('page:finish', finish);
+nuxtApp.hook('page:start', start)
+nuxtApp.hook('page:finish', finish)
 
-onBeforeUnmount(() => clear);
+onBeforeUnmount(() => clear)
 </script>
 
 <template>

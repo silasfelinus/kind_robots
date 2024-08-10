@@ -17,13 +17,20 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="gallery in galleries" :key="gallery.id">
+        <tr
+          v-for="gallery in galleries"
+          :key="gallery.id"
+        >
           <td>{{ gallery.id }}</td>
           <td>{{ gallery.name }}</td>
           <td>{{ gallery.content }}</td>
           <td>{{ gallery.description }}</td>
           <td>
-            <img v-if="gallery.highlightImage" :src="gallery.highlightImage" alt="Highlight" />
+            <img
+              v-if="gallery.highlightImage"
+              :src="gallery.highlightImage"
+              alt="Highlight"
+            >
           </td>
           <td>{{ gallery.isMature ? 'Yes' : 'No' }}</td>
           <td>{{ gallery.isAuth ? 'Yes' : 'No' }}</td>
@@ -37,15 +44,15 @@
 </template>
 
 <script setup>
-const galleries = ref([]);
+const galleries = ref([])
 
 onMounted(async () => {
-  const res = await fetch('/api/galleries');
+  const res = await fetch('/api/galleries')
   if (!res.ok) {
     // handle error
-    console.error('Failed to fetch galleries');
-    return;
+    console.error('Failed to fetch galleries')
+    return
   }
-  galleries.value = await res.json();
-});
+  galleries.value = await res.json()
+})
 </script>

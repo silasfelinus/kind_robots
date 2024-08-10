@@ -27,25 +27,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { usePageStore } from '@/stores/pageStore';
+import { ref, computed, onMounted } from 'vue'
+import { usePageStore } from '@/stores/pageStore'
 
-const pageStore = usePageStore();
-const showInfo = computed(() => pageStore.showInfo);
-const { page } = useContent();
+const pageStore = usePageStore()
+const showInfo = computed(() => pageStore.showInfo)
+const { page } = useContent()
 
-const showSilasCard = ref(true);
-const showAmiCard = ref(true);
+const showSilasCard = ref(true)
+const showAmiCard = ref(true)
 onMounted(() => {
   setTimeout(() => {
-    showSilasCard.value = true;
-  }, 1000); // 1 second delay
+    showSilasCard.value = true
+  }, 1000) // 1 second delay
 
   setTimeout(() => {
-    showAmiCard.value = true;
-  }, 2000); // 2 seconds delay
-});
+    showAmiCard.value = true
+  }, 2000) // 2 seconds delay
+})
 </script>
+
 <style>
 .fade-slide-enter-active,
 .fade-slide-leave-active {

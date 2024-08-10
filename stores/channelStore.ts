@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia';
-import { type Channel, type Message } from '@prisma/client';
-import { errorHandler } from '../server/api/utils/error';
-import { useUserStore } from '@/stores/userStore';
+import { defineStore } from 'pinia'
+import type { Channel, Message } from '@prisma/client'
+import { errorHandler } from '../server/api/utils/error'
+import { useUserStore } from '@/stores/userStore'
 
 export const useChannelStore = defineStore({
   id: 'channel',
@@ -18,91 +18,96 @@ export const useChannelStore = defineStore({
       if (!this.isInitialized) {
         // Use `this.isInitialized` instead of `isInitialized`
         try {
-          await this.fetchChannels();
-          this.isInitialized = true; // Use `this.isInitialized` to update the state
-        } catch (error: any) {
-          const handledError = errorHandler(error);
-          console.error('Error initializing channels:', handledError.message);
+          await this.fetchChannels()
+          this.isInitialized = true // Use `this.isInitialized` to update the state
+        }
+        catch (error: any) {
+          const handledError = errorHandler(error)
+          console.error('Error initializing channels:', handledError.message)
         }
       }
     },
 
     setCurrentChannel(channelId: number) {
-      const channel = this.channels.find((ch) => ch.id === channelId);
+      const channel = this.channels.find(ch => ch.id === channelId)
       if (channel) {
-        this.currentChannel = channel;
+        this.currentChannel = channel
       }
     },
 
     async createOrUpdateChannel(channel: Partial<Channel>) {
-      const userStore = useUserStore();
-      const userId = userStore.userId;
+      const userStore = useUserStore()
+      const userId = userStore.userId
       try {
-        const method = channel.id ? 'PATCH' : 'POST';
-        const url = channel.id ? `/api/channels/${channel.id}` : '/api/channels';
+        const method = channel.id ? 'PATCH' : 'POST'
+        const url = channel.id ? `/api/channels/${channel.id}` : '/api/channels'
         const res = await fetch(url, {
           method,
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ ...channel, userId }),
-        });
-        const updatedChannel = await res.json();
+        })
+        const updatedChannel = await res.json()
         if (channel.id) {
-          const index = this.channels.findIndex((ch) => ch.id === channel.id);
+          const index = this.channels.findIndex(ch => ch.id === channel.id)
           if (index !== -1) {
-            this.channels[index] = updatedChannel;
+            this.channels[index] = updatedChannel
           }
-        } else {
-          this.channels.push(updatedChannel);
         }
-      } catch (error: any) {
-        throw errorHandler(error);
+        else {
+          this.channels.push(updatedChannel)
+        }
+      }
+      catch (error: any) {
+        throw errorHandler(error)
       }
     },
 
     // Method to clear the current channel
     clearCurrentChannel() {
-      this.currentChannel = null;
+      this.currentChannel = null
     },
 
     async fetchCurrentChannelWithMessages(channelId: number) {
       try {
-        const res = await fetch(`/api/channels/${channelId}`);
-        const data = await res.json();
+        const res = await fetch(`/api/channels/${channelId}`)
+        const data = await res.json()
         if (data.success) {
-          this.currentChannel = data.channel;
+          this.currentChannel = data.channel
         }
-      } catch (error: any) {
-        throw errorHandler(error);
+      }
+      catch (error: any) {
+        throw errorHandler(error)
       }
     },
 
     async fetchChannels() {
       try {
-        const res = await fetch('/api/channels');
-        const data = await res.json();
+        const res = await fetch('/api/channels')
+        const data = await res.json()
         if (data.success) {
-          this.channels = data.channels;
+          this.channels = data.channels
         }
-      } catch (error: any) {
-        throw errorHandler(error);
+      }
+      catch (error: any) {
+        throw errorHandler(error)
       }
     },
 
     async removeChannel(id: number) {
       const res = await fetch(`/api/channels/${id}`, {
         method: 'DELETE',
-      });
+      })
       if (res.ok) {
-        this.channels = this.channels.filter((channel) => channel.id !== id);
+        this.channels = this.channels.filter(channel => channel.id !== id)
       }
     },
     async fetchMessages() {
-      const res = await fetch('/api/messages');
-      const data = await res.json();
+      const res = await fetch('/api/messages')
+      const data = await res.json()
       if (data.success) {
-        this.messages = data.messages;
+        this.messages = data.messages
       }
     },
 
@@ -114,13 +119,14 @@ export const useChannelStore = defineStore({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(message),
-        });
-        const data = await res.json();
+        })
+        const data = await res.json()
         if (data.success) {
-          this.messages.push(data.message);
+          this.messages.push(data.message)
         }
-      } catch (error: any) {
-        throw errorHandler(error);
+      }
+      catch (error: any) {
+        throw errorHandler(error)
       }
     },
 
@@ -132,28 +138,29 @@ export const useChannelStore = defineStore({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(message),
-        });
-        const data = await res.json();
+        })
+        const data = await res.json()
         if (data.success) {
-          const index = this.messages.findIndex((msg) => msg.id === message.id);
+          const index = this.messages.findIndex(msg => msg.id === message.id)
           if (index !== -1) {
-            this.messages[index] = data.message;
+            this.messages[index] = data.message
           }
         }
-      } catch (error: any) {
-        throw errorHandler(error);
+      }
+      catch (error: any) {
+        throw errorHandler(error)
       }
     },
 
     async removeMessage(id: number) {
       const res = await fetch(`/api/messages/${id}`, {
         method: 'DELETE',
-      });
+      })
       if (res.ok) {
-        this.messages = this.messages.filter((message) => message.id !== id);
+        this.messages = this.messages.filter(message => message.id !== id)
       }
     },
   },
-});
+})
 
-export type { Channel, Message };
+export type { Channel, Message }

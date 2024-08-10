@@ -1,8 +1,14 @@
 <template>
   <div class="flex flex-col h-screen w-screen relative bg-gray-100">
     <!-- Toggle Navigation Button -->
-    <button class="absolute top-[10vh] left-3 z-50" @click="toggleNav">
-      <icon name="fluent:row-triple-20-filled" class="text-2xl text-primary" />
+    <button
+      class="absolute top-[10vh] left-3 z-50"
+      @click="toggleNav"
+    >
+      <icon
+        name="fluent:row-triple-20-filled"
+        class="text-2xl text-primary"
+      />
     </button>
 
     <!-- Header Dashboard -->
@@ -38,32 +44,33 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-const isNavVisible = ref(false);
-const isLargeScreen = ref(false);
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+const isNavVisible = ref(false)
+const isLargeScreen = ref(false)
 
 const toggleNav = () => {
-  isNavVisible.value = !isNavVisible.value;
-};
+  isNavVisible.value = !isNavVisible.value
+}
 
 const closeNav = () => {
-  isNavVisible.value = false;
-};
+  isNavVisible.value = false
+}
 
 const handleResize = () => {
-  isLargeScreen.value = window.innerWidth > 1024;
-};
+  isLargeScreen.value = window.innerWidth > 1024
+}
 
 onMounted(() => {
-  handleResize();
-  window.addEventListener('resize', handleResize);
-});
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize);
-});
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <style>

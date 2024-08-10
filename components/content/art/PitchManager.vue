@@ -33,9 +33,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { usePitchStore } from '@/stores/pitchStore';
+import { computed } from 'vue'
+import { usePitchStore } from '@/stores/pitchStore'
 
-const pitchStore = usePitchStore();
-const selectedPitch = computed(() => pitchStore.selectedPitch);
+const pitchStore = usePitchStore()
+const selectedPitch = computed(() => pitchStore.selectedPitch)
 </script>

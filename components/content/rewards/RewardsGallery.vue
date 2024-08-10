@@ -1,31 +1,64 @@
 <template>
   <div class="bg-base-200 p-4">
     <!-- Error Message -->
-    <div v-if="rewardStore.error" class="text-red-500">🚨 {{ rewardStore.error }}</div>
+    <div
+      v-if="rewardStore.error"
+      class="text-red-500"
+    >
+      🚨 {{ rewardStore.error }}
+    </div>
 
     <!-- Detailed Reward View -->
-    <div v-else-if="rewardStore.currentReward" :class="{ pixelate: pixelate }">
+    <div
+      v-else-if="rewardStore.currentReward"
+      :class="{ pixelate: pixelate }"
+    >
       <icon
         v-if="rewardStore.currentReward && rewardStore.currentReward.icon"
         :name="rewardStore.currentReward.icon"
         class="text-12xl mb-2 transition-all duration-500 ease-in-out"
       />
-      <h1 class="text-4xl">{{ rewardStore.currentReward.text }}</h1>
-      <p class="text-xl">🔥 Power: {{ rewardStore.currentReward.power }}</p>
-      <p class="text-xl">📚 Collection: {{ rewardStore.currentReward.collection }}</p>
-      <p class="text-xl">🌟 Rarity: {{ rewardStore.currentReward.rarity }}</p>
-      <button class="bg-primary p-2 rounded" @click="endReward">
-        <icon name="game-icons:fast-backward-button" class="text-6xl" />
+      <h1 class="text-4xl">
+        {{ rewardStore.currentReward.text }}
+      </h1>
+      <p class="text-xl">
+        🔥 Power: {{ rewardStore.currentReward.power }}
+      </p>
+      <p class="text-xl">
+        📚 Collection: {{ rewardStore.currentReward.collection }}
+      </p>
+      <p class="text-xl">
+        🌟 Rarity: {{ rewardStore.currentReward.rarity }}
+      </p>
+      <button
+        class="bg-primary p-2 rounded"
+        @click="endReward"
+      >
+        <icon
+          name="game-icons:fast-backward-button"
+          class="text-6xl"
+        />
       </button>
-      <button class="bg-accent p-2 rounded" @click="showEditReward = true">✏️ Edit</button>
+      <button
+        class="bg-accent p-2 rounded"
+        @click="showEditReward = true"
+      >
+        ✏️ Edit
+      </button>
     </div>
 
     <!-- Edit Reward Form -->
     <div v-if="showEditReward && rewardStore.currentReward">
-      <edit-reward :reward="rewardStore.currentReward" @updated="showEditReward = false" />
+      <edit-reward
+        :reward="rewardStore.currentReward"
+        @updated="showEditReward = false"
+      />
     </div>
     <!-- Rewards Grid -->
-    <div v-else class="grid grid-cols-5 gap-4">
+    <div
+      v-else
+      class="grid grid-cols-5 gap-4"
+    >
       <div
         v-for="reward in rewardStore.rewards"
         :key="reward.id"
@@ -33,8 +66,13 @@
         @click="selectReward(reward)"
       >
         <div class="text-center">
-          <icon name="game-icons:open-treasure-chest" class="text-6xl" />
-          <p class="mt-2 text-lg">{{ reward.text }}</p>
+          <icon
+            name="game-icons:open-treasure-chest"
+            class="text-6xl"
+          />
+          <p class="mt-2 text-lg">
+            {{ reward.text }}
+          </p>
         </div>
       </div>
     </div>
@@ -45,44 +83,49 @@
     </div>
 
     <!-- Add New Reward Button -->
-    <button class="bg-primary p-2 rounded mt-4" @click="showAddReward = true">➕ Add New Reward</button>
+    <button
+      class="bg-primary p-2 rounded mt-4"
+      @click="showAddReward = true"
+    >
+      ➕ Add New Reward
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from 'vue';
-import { type Reward, useRewardStore } from '@/stores/rewardStore';
+import { ref, onMounted, type Ref } from 'vue'
+import { type Reward, useRewardStore } from '@/stores/rewardStore'
 
-const rewardStore = useRewardStore();
-const showAddReward: Ref<boolean> = ref(false);
-const showEditReward: Ref<boolean> = ref(false);
-const pixelate: Ref<boolean> = ref(false);
+const rewardStore = useRewardStore()
+const showAddReward: Ref<boolean> = ref(false)
+const showEditReward: Ref<boolean> = ref(false)
+const pixelate: Ref<boolean> = ref(false)
 
 // Fetch rewards on mounted
 onMounted(() => {
-  rewardStore.fetchRewards();
-});
+  rewardStore.fetchRewards()
+})
 
 const endReward = () => {
-  rewardStore.clearCurrentReward();
-};
+  rewardStore.clearCurrentReward()
+}
 
 const deleteReward = (id: number) => {
-  rewardStore.deleteRewardById(id);
-};
+  rewardStore.deleteRewardById(id)
+}
 
 const setStartingReward = (id: number) => {
-  rewardStore.setStartingRewardId(id);
-};
+  rewardStore.setStartingRewardId(id)
+}
 
 const selectReward = (reward: Reward) => {
-  console.log(`Selecting reward with ID: ${reward.id}`); // Debugging line
-  pixelate.value = true;
+  console.log(`Selecting reward with ID: ${reward.id}`) // Debugging line
+  pixelate.value = true
   setTimeout(() => {
-    rewardStore.setRewardById(reward.id);
-    pixelate.value = false;
-  }, 500);
-};
+    rewardStore.setRewardById(reward.id)
+    pixelate.value = false
+  }, 500)
+}
 </script>
 
 <style scoped>

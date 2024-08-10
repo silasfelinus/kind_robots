@@ -1,5 +1,5 @@
 // ~/stores/themeStore.ts
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 
 export const useThemeStore = defineStore('theme', {
   state: () => ({
@@ -42,47 +42,48 @@ export const useThemeStore = defineStore('theme', {
   }),
   actions: {
     toggleMenu() {
-      this.open = !this.open;
+      this.open = !this.open
     },
     changeTheme(theme: string) {
       if (!this.themes.includes(theme)) {
-        console.error(`Invalid theme: "${theme}". Please provide a valid theme.`);
-        return;
+        console.error(`Invalid theme: "${theme}". Please provide a valid theme.`)
+        return
       }
-      this.open = false;
-      this.currentTheme = theme;
+      this.open = false
+      this.currentTheme = theme
       if (!this.firstThemeChanged) {
-        this.firstThemeChanged = true;
+        this.firstThemeChanged = true
       }
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('theme', theme);
+      document.documentElement.setAttribute('data-theme', theme)
+      localStorage.setItem('theme', theme)
     },
     initTheme() {
-      const savedTheme = localStorage.getItem('theme');
-      const defaultTheme = savedTheme || 'retro';
+      const savedTheme = localStorage.getItem('theme')
+      const defaultTheme = savedTheme || 'retro'
       if (!this.themes.includes(defaultTheme)) {
-        console.error(`Invalid theme: "${defaultTheme}" in local storage. Falling back to default theme.`);
-        this.changeTheme('retro');
-        return;
+        console.error(`Invalid theme: "${defaultTheme}" in local storage. Falling back to default theme.`)
+        this.changeTheme('retro')
+        return
       }
-      this.changeTheme(defaultTheme);
+      this.changeTheme(defaultTheme)
     },
     setBotOverride(value: boolean) {
-      this.botOverride = value;
+      this.botOverride = value
     },
     updateBotTheme(botTheme: string) {
       if (this.botOverride) {
-        this.changeTheme(botTheme);
+        this.changeTheme(botTheme)
       }
     },
     async loadStore() {
       try {
-        await this.initTheme();
-        return `Loaded ${this.themes.length} themes`;
-      } catch (error) {
-        console.error('Error loading store:', error);
-        throw error;
+        await this.initTheme()
+        return `Loaded ${this.themes.length} themes`
+      }
+      catch (error) {
+        console.error('Error loading store:', error)
+        throw error
       }
     },
   },
-});
+})

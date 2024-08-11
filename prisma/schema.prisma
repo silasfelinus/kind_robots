@@ -26,9 +26,9 @@ model Art {
   steps       Int?          @default(0)
   pitch       String?       @db.VarChar(764)
   channelId   Int?          @default(0)
-  isOrphan    Int?          @default(0) @db.TinyInt
-  isPublic    Int?          @default(0) @db.TinyInt
-  isMature    Int?          @default(0) @db.TinyInt
+  isOrphan    Boolean?          @default(false)
+  isPublic    Boolean?          @default(false)
+  isMature    Boolean?          @default(false)
   designer    String?       @db.VarChar(764)
   ArtReaction ArtReaction[]
 }
@@ -72,9 +72,9 @@ model Bot {
   updatedAt         DateTime? @db.DateTime(0)
   BotType           String    @db.VarChar(764)
   name              String    @unique(map: "Bot_id_key", length: 200) @db.VarChar(764)
-  isPublic          Int       @default(0) @db.TinyInt
-  underConstruction Int       @default(0) @db.TinyInt
-  canDelete         Int       @default(0) @db.TinyInt
+  isPublic          Boolean       @default(false)
+  underConstruction Boolean       @default(false)
+  canDelete         Boolean       @default(false)
   subtitle          String    @db.VarChar(764)
   description       String    @db.VarChar(764)
   avatarImage       String    @db.VarChar(764)
@@ -113,10 +113,10 @@ model ChatExchange {
   username        String   @db.VarChar(255)
   userPrompt      String   @db.Text
   botResponse     String   @db.Text
-  liked           Int?     @default(0) @db.TinyInt
-  hated           Int?     @default(0) @db.TinyInt
-  loved           Int?     @default(0) @db.TinyInt
-  flagged         Int?     @default(0) @db.TinyInt
+  liked           Boolean?     @default(false)
+  hated           Boolean?     @default(false)
+  loved           Boolean?     @default(false)
+  flagged         Boolean?     @default(false)
   previousEntryId Int?     @default(0)
 }
 
@@ -133,7 +133,7 @@ model Gallery {
   content        String    @db.VarChar(764)
   highlightImage String?   @db.VarChar(764)
   imagePaths     String?   @db.Text
-  isMature       Int       @default(0) @db.TinyInt
+  isMature       Boolean       @default(false)
 }
 
 model Game {
@@ -178,12 +178,12 @@ model Milestone {
   message      String    @db.VarChar(764)
   icon         String    @db.VarChar(764)
   karma        Int       @default(0)
-  isRepeatable Int       @default(100) @db.TinyInt
+  isRepeatable Boolean       @default(true)
   createdAt    DateTime  @db.DateTime(0)
   updatedAt    DateTime? @db.DateTime(0)
   triggerCode  String    @db.VarChar(764)
   tooltip      String?   @db.VarChar(764)
-  isActive     Int       @default(0) @db.TinyInt
+  isActive     Boolean       @default(false)
   pageHint     String?   @db.VarChar(764)
   subtleHint   String?   @db.VarChar(764)
 }
@@ -204,16 +204,16 @@ model Pitch {
   title          String        @unique @db.VarChar(764)
   pitch          String        @db.VarChar(764)
   userId         Int           @default(0)
-  isPublic       Int           @default(0) @db.TinyInt
+  isPublic       Boolean       @default(false)
   claps          Int           @default(0)
   boos           Int           @default(0)
   channelId      Int?          @unique @default(0)
   designer       String        @db.VarChar(256)
   flavorText     String?       @db.VarChar(512)
-  isOrphan       Int           @default(0) @db.TinyInt
+  isOrphan       Boolean           @default(false)
   creatorId      Int?          @default(0)
   highlightImage String        @db.VarChar(256)
-  isMature       Int           @default(0) @db.TinyInt
+  isMature       Boolean           @default(false)
   ArtReaction    ArtReaction[]
 }
 
@@ -281,7 +281,7 @@ model Post {
   hates          Int       @default(0)
   loves          Int       @default(0)
   jellybeanClaps Int       @default(0)
-  isFavorite     Int       @default(0) @db.TinyInt
+  isFavorite     Boolean   @default(false)
 }
 
 model Product {
@@ -313,7 +313,7 @@ model Resource {
   localPath    String?      @db.VarChar(764)
   description  String?      @db.Text
   resourceType ResourceType
-  isMature     Int          @default(0) @db.TinyInt
+  isMature     Boolean          @default(false)
   galleryCount Int?         @default(0)
 }
 
@@ -366,11 +366,11 @@ model Tag {
   label      String    @db.VarChar(256)
   title      String    @db.VarChar(256)
   userId     Int       @default(0)
-  isPublic   Int?      @default(0) @db.TinyInt
+  isPublic   Boolean?      @default(false)
   channelId  Int?      @unique @default(0)
   flavorText String?   @db.VarChar(764)
   pitch      String?   @db.VarChar(764)
-  isMature   Int       @default(0) @db.TinyInt
+  isMature   Boolean       @default(false)
   sloganId   Int?      @default(0)
   postId     Int?      @default(0)
 }

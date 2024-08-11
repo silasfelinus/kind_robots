@@ -1,4 +1,4 @@
-// src/stores/spotifyStore.ts
+tas// src/stores/spotifyStore.ts
 import { defineStore } from 'pinia'
 
 interface Track {

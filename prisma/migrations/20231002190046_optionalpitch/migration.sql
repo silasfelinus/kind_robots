@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Art` ADD COLUMN `pitch` VARCHAR(191) NULL;

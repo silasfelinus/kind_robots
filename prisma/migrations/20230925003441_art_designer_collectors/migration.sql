@@ -1,8 +1,0 @@
--- AlterTable
-ALTER TABLE `Art` ADD COLUMN `designer` VARCHAR(191) NULL;
-
--- AlterTable
-ALTER TABLE `User` ADD COLUMN `artId` INTEGER NULL;
-
--- AddForeignKey
-ALTER TABLE `User` ADD CONSTRAINT `User_artId_fkey` FOREIGN KEY (`artId`) REFERENCES `Art`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

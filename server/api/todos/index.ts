@@ -1,20 +1,6 @@
-import type { Prisma, type Todo } from '@prisma/client'
+import type { Prisma, Todo } from '@prisma/client'
 import prisma from '../utils/prisma'
 
-// Function to get a random reward from the API
-const getRandomReward = async (): Promise<Prisma.RewardCreateInput> => {
-  try {
-    const response = await fetch('/api/rewards/random')
-    if (!response.ok) {
-      throw new Error('Failed to fetch random reward')
-    }
-    const data = await response.json()
-    return data
-  }
-  catch (error) {
-    throw new Error('Failed to fetch random reward')
-  }
-}
 
 // Function to create a new Todo
 export async function createTodo(data: Partial<Todo>): Promise<Todo> {

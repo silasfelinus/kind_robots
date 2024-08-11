@@ -20,7 +20,7 @@ model Art {
   boos        Int?          @default(0)
   claps       Int?          @default(0)
   cfg         String?       @db.VarChar(764)
-  checkpoint  String?       @db.VarChar(256)
+  checkpoint  String?       @db.VarChar(764)
   sampler     String?       @db.VarChar(764)
   seed        Int?          @default(0)
   steps       Int?          @default(0)
@@ -170,6 +170,8 @@ model Message {
   channelId Int
   botId     Int?      @default(0)
   userId    Int?      @default(0)
+
+  @@index([userId], map: "Message_id_key")
 }
 
 model Milestone {
@@ -190,8 +192,8 @@ model Milestone {
 
 model MilestoneRecord {
   id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @db.DateTime(0)
-  updatedAt   DateTime? @db.DateTime(0)
+  createdAt   DateTime  @db.DateTime
+  updatedAt   DateTime? @db.DateTime
   milestoneId Int
   userId      Int
   username    String?   @db.VarChar(764)
@@ -201,20 +203,22 @@ model Pitch {
   id             Int           @id @default(autoincrement())
   createdAt      DateTime      @db.DateTime(0)
   updatedAt      DateTime?     @updatedAt @db.DateTime(0)
-  title          String        @unique @db.VarChar(764)
+  title          String        @unique(map: "Pitch_id_key") @db.VarChar(764)
   pitch          String        @db.VarChar(764)
   userId         Int           @default(0)
   isPublic       Int           @default(0) @db.TinyInt
   claps          Int           @default(0)
   boos           Int           @default(0)
-  channelId      Int?          @unique @default(0)
-  designer       String        @db.VarChar(256)
-  flavorText     String?       @db.VarChar(512)
+  channelId      Int?          @unique(map: "Pitch_title_key") @default(0)
+  designer       String        @db.VarChar(764)
+  flavorText     String?       @db.VarChar(764)
   isOrphan       Int           @default(0) @db.TinyInt
   creatorId      Int?          @default(0)
-  highlightImage String        @db.VarChar(256)
+  highlightImage String        @db.VarChar(764)
   isMature       Int           @default(0) @db.TinyInt
   ArtReaction    ArtReaction[]
+
+  @@index([userId], map: "Pitch_channelId_key")
 }
 
 model Cart {
@@ -321,7 +325,7 @@ model Reward {
   id         Int       @id @default(autoincrement())
   createdAt  DateTime  @db.DateTime(0)
   updatedAt  DateTime? @db.DateTime(0)
-  icon       String    @db.VarChar(256)
+  icon       String    @db.VarChar(764)
   text       String    @db.VarChar(764)
   power      String    @db.VarChar(764)
   collection String    @db.VarChar(764)
@@ -363,11 +367,11 @@ model Tag {
   id         Int       @id @default(autoincrement())
   createdAt  DateTime  @db.DateTime(0)
   updatedAt  DateTime? @db.DateTime(0)
-  label      String    @db.VarChar(256)
-  title      String    @db.VarChar(256)
+  label      String    @db.VarChar(764)
+  title      String    @db.VarChar(764)
   userId     Int       @default(0)
   isPublic   Int?      @default(0) @db.TinyInt
-  channelId  Int?      @unique @default(0)
+  channelId  Int?      @unique(map: "Tag_id_key") @default(0)
   flavorText String?   @db.VarChar(764)
   pitch      String?   @db.VarChar(764)
   isMature   Int       @default(0) @db.TinyInt
@@ -393,19 +397,19 @@ model Todo {
 
 model User {
   id                  Int           @id @default(autoincrement())
-  createdAt           DateTime      @db.DateTime(0)
-  updatedAt           DateTime?     @db.DateTime(0)
+  createdAt           DateTime      @db.DateTime
+  updatedAt           DateTime?     @db.DateTime
   Role                Role
-  username            String        @unique @db.VarChar(255)
+  username            String        @db.VarChar(255)  @unique
   email               String?       @db.VarChar(255)
   questPoints         Int           @default(0)
-  emailVerified       DateTime?     @db.DateTime(0)
+  emailVerified       DateTime?     @db.DateTime
   name                String?       @db.VarChar(255)
   address1            String?       @db.Text
   address2            String?       @db.Text
   avatarImage         String?       @db.Text
   bio                 String?       @db.Text
-  birthday            DateTime?     @db.DateTime(0)
+  birthday            DateTime?     @db.DateTime
   city                String?       @db.Text
   country             String?       @db.Text
   discordUrl          String?       @db.Text
@@ -438,7 +442,6 @@ model ArtReactionToTag {
   B Int
 
   @@id([A, B])
-  @@index([B], map: "_ArtReactionToTag_B_index")
   @@map("_ArtReactionToTag")
 }
 
@@ -447,7 +450,6 @@ model ArtToProduct {
   B Int
 
   @@id([A, B])
-  @@index([B], map: "_ArtToProduct_B_index")
   @@map("_ArtToProduct")
 }
 
@@ -456,7 +458,6 @@ model ArtToTag {
   B Int
 
   @@id([A, B])
-  @@index([B], map: "_ArtToTag_B_index")
   @@map("_ArtToTag")
 }
 
@@ -465,7 +466,6 @@ model MilestoneToUser {
   B Int
 
   @@id([A, B])
-  @@index([B], map: "_MilestoneToUser_B_index")
   @@map("_MilestoneToUser")
 }
 
@@ -474,7 +474,6 @@ model RewardToUser {
   B Int
 
   @@id([A, B])
-  @@index([B], map: "_RewardToUser_B_index")
   @@map("_RewardToUser")
 }
 

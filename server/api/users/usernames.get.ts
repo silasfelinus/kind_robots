@@ -5,7 +5,7 @@ import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { fetchUsers } from '.'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
     const response = await fetchUsers()
 

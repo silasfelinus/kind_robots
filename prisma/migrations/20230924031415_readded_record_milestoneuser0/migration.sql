@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE `User` MODIFY `clickRecord` INTEGER NULL DEFAULT 0,
-    MODIFY `matchRecord` INTEGER NULL DEFAULT 0;

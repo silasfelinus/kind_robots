@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Art` ADD COLUMN `prompt` VARCHAR(191) NULL;

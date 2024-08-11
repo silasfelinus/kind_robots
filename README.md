@@ -194,3 +194,9 @@ npx run build
 npx run start
 
 Setup Database:
+npx prisma db pull
+npx prisma migrate dev
+
+Update Database:
+npx prisma migrate dev --[name]
+npx prisma generate

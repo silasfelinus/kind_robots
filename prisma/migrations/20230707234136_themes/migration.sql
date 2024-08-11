@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Bot` ADD COLUMN `theme` VARCHAR(191) NULL;

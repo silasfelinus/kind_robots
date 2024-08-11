@@ -21,3 +21,4 @@ portfolio/yarn
 /utils/.users.http
 *.http
 backup.json
+_nuxt

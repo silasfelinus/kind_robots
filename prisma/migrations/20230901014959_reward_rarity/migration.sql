@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE `Reward` ADD COLUMN `rarity` INTEGER NOT NULL DEFAULT 50,
-    MODIFY `collection` VARCHAR(191) NOT NULL DEFAULT 'genesis';

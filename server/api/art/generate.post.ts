@@ -1,8 +1,6 @@
 import { defineEventHandler, readBody } from 'h3'
-import type { Art, ArtPrompt, Pitch, Channel, Gallery } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import { createUser } from '../users'
 import { generateSillyName } from '@/utils/useRandomName'
 import { saveImage } from '@/server/api/utils/saveImage'
 
@@ -53,33 +51,34 @@ type validatedData = {
 }
 
 async function validateAndLoadUserId(data: RequestData, validatedData: Partial<validatedData>): Promise<number> {
-  console.log('🔍 Validating and loading User ID...')
+  console.log('🔍 Validating and loading User ID...');
 
   // If neither userName nor userId is provided, return 0
   if (!data.userName && !data.userId) {
-    console.warn('No userName or userId provided.')
-    return 0
+    console.warn('No userName or userId provided.');
+    return 0;
   }
 
-  // If userName is provided, upsert the user
+  // If userName is provided, upsert the user using userName as a unique identifier
   if (data.userName) {
     const user = await prisma.user.upsert({
-      where: { username: data.userName },
+      where: { username: data.userName }, // Ensure 'username' is marked as unique in your Prisma schema
       update: {},
       create: { username: data.userName },
-    })
-    validatedData.userName = user.username
-    return user.id
+    });
+    validatedData.userName = user.username;
+    return user.id;
   }
 
-  // If userId is provided but userName is not, return userId
+  // If userId is provided but userName is not, simply return the userId
   if (data.userId) {
-    return data.userId
+    return data.userId;
   }
 
   // If we reach this point, something went wrong
-  return 0
+  return 0;
 }
+
 
 async function validateAndLoadPromptId(data: RequestData, validatedData: Partial<validatedData>): Promise<number> {
   console.log('🔍 Validating and loading Prompt ID...')

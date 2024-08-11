@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE `Message` ADD COLUMN `botId` INTEGER NULL;
-
--- AddForeignKey
-ALTER TABLE `Message` ADD CONSTRAINT `Message_botId_fkey` FOREIGN KEY (`botId`) REFERENCES `Bot`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

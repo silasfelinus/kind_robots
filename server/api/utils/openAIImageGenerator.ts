@@ -1,16 +1,8 @@
 // /server/api/utils/openAIImageGenerator.ts
-import axios from 'axios'
 import { errorHandler } from '../utils/error'
 
 export async function generateImageWithOpenAI(prompt: string, user: string): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY // Make sure to load this from your runtime config
-
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-  }
 
   const requestBody = {
     prompt,
@@ -21,11 +13,24 @@ export async function generateImageWithOpenAI(prompt: string, user: string): Pro
   }
 
   try {
-    const response = await axios.post('https://api.openai.com/v1/images/generations', requestBody, config)
-    const generatedImageUrl = response.data.data[0].url // Assuming the URL is located here
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(requestBody),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`OpenAI API error: ${response.statusText}. Details: ${JSON.stringify(errorData)}`)
+    }
+
+    const data = await response.json()
+    const generatedImageUrl = data.data[0].url // Assuming the URL is located here
     return generatedImageUrl
-  }
-  catch (error: any) {
+  } catch (error: any) {
     throw errorHandler(error)
   }
 }

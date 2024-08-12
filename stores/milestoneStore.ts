@@ -148,27 +148,31 @@ export const useMilestoneStore = defineStore({
         if (this.hasMilestone(userId, milestoneId)) {
           return { success: true, message: 'NP Boss! It was already done when I got here!' }
         }
-
+    
         const milestoneRecord = {
           userId,
           milestoneId,
           username,
         }
-
+    
         const response = await this.addMilestoneRecord(milestoneRecord)
-
-        return { success: true, message: 'Milestone successfully awarded.' }
-      }
-      catch (error: any) {
+    
+        return response // Directly return the success and message from addMilestoneRecord
+      } catch (error: any) {
         const { message } = errorHandler(error)
         return { success: false, message }
       }
     },
+    
+    
 
-    async addMilestoneRecord(record: Partial<MilestoneRecord>) {
+    async addMilestoneRecord(record: Partial<MilestoneRecord>): Promise<{ success: boolean; message: string }> {
       try {
         const userStore = useUserStore()
-        if (userStore.userId === 0) return
+        if (userStore.userId === 0) {
+          return { success: false, message: 'Guest accounts cannot record milestones.' }
+        }
+    
         const response = await fetch('/api/milestones/records', {
           method: 'POST',
           headers: {
@@ -176,18 +180,21 @@ export const useMilestoneStore = defineStore({
           },
           body: JSON.stringify(record),
         })
+    
         const data = await response.json()
         if (data.success) {
           this.milestoneRecords.push(data.record)
-        }
-        else {
+          return { success: true, message: 'Milestone recorded successfully.' }
+        } else {
           console.error('Failed to add milestone record:', data.message)
+          return { success: false, message: data.message }
         }
-      }
-      catch (error) {
+      } catch (error) {
         console.error('An error occurred while adding a milestone record:', error)
+        return { success: false, message: 'An error occurred while adding a milestone record.' }
       }
     },
+    
     hasMilestone(userId: number, milestoneId: number) {
       return this.milestoneRecords.some(record => record.userId === userId && record.milestoneId === milestoneId)
     },

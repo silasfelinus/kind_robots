@@ -99,25 +99,34 @@ export const useArtStore = defineStore({
     getArtByPitchId(pitchId: number): Art[] {
       return this.artAssets.filter(art => art.pitchId === pitchId)
     },
-    async createArtReaction(reactionData: ArtReaction) {
-      try {
-        const response = await fetch('/api/reactions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(reactionData),
-        })
 
-        if (response.ok) {
-          const { newReaction } = await response.json()
-        }
-      }
-      catch (error: any) {
-        const handledError = errorHandler(error)
-        console.error('Error in createArtReaction:', handledError.message)
-      }
-    },
+async createArtReaction(reactionData: ArtReaction) {
+  try {
+    const response = await fetch('/api/reactions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(reactionData),
+    });
+
+    if (response.ok) {
+      const { newReaction } = await response.json();
+      console.log('New reaction created:', newReaction);
+      return newReaction; // Optionally return the new reaction for further use
+    } else {
+      // Handle non-OK response statuses
+      const errorResponse = await response.json();
+      console.error('Failed to create reaction:', errorResponse.message);
+      throw new Error(errorResponse.message);
+    }
+  } catch (error: any) {
+    const handledError = errorHandler(error);
+    console.error('Error in createArtReaction:', handledError.message);
+    throw handledError; // Optionally re-throw the error for further handling
+  }
+},
+
     async generateArt(data: GenerateArtData): Promise<Art | null> {
       try {
         const response = await fetch('/api/art/generate', {
@@ -160,25 +169,48 @@ export const useArtStore = defineStore({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(reactionData),
-        })
-      }
-      catch (error: any) {
-        const handledError = errorHandler(error)
-        console.error('Error in editArtReaction:', handledError.message)
+        });
+    
+        if (response.ok) {
+          const updatedReaction = await response.json();
+          console.log('Reaction updated successfully:', updatedReaction);
+          return updatedReaction; // Optionally return the updated reaction for further use
+        } else {
+          // Handle non-OK response statuses
+          const errorResponse = await response.json();
+          console.error('Failed to update reaction:', errorResponse.message);
+          throw new Error(errorResponse.message);
+        }
+      } catch (error: any) {
+        const handledError = errorHandler(error);
+        console.error('Error in editArtReaction:', handledError.message);
+        throw handledError; // Optionally re-throw the error for further handling
       }
     },
+    
 
     async deleteArtReaction(id: number) {
       try {
         const response = await fetch(`/api/reactions/${id}`, {
           method: 'DELETE',
-        })
-      }
-      catch (error: any) {
-        const handledError = errorHandler(error)
-        console.error('Error in deleteArtReaction:', handledError.message)
+        });
+    
+        if (response.ok) {
+          console.log(`Reaction with ID ${id} deleted successfully.`);
+          return true; // Optionally return a boolean to indicate success
+        } else {
+          // Handle non-OK response statuses
+          const errorResponse = await response.json();
+          console.error(`Failed to delete reaction with ID ${id}:`, errorResponse.message);
+          throw new Error(errorResponse.message);
+        }
+      } catch (error: any) {
+        const handledError = errorHandler(error);
+        console.error('Error in deleteArtReaction:', handledError.message);
+        throw handledError; // Optionally re-throw the error for further handling
       }
     },
+    
     async fetchArtById(id: number): Promise<Art | null> {
       try {
         const response = await fetch(`/api/art/${id}`)

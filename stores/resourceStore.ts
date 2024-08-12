@@ -1,6 +1,5 @@
 // ~/stores/resourceStore.ts
 import { defineStore } from 'pinia'
-import axios from 'axios'
 import type { Resource } from '@prisma/client'
 import { useErrorStore, ErrorType } from './errorStore'
 import { useStatusStore, StatusType } from './statusStore'
@@ -50,7 +49,9 @@ export const useResourceStore = defineStore({
     async getResources(page = 1, pageSize = 10): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Fetching resources...')
       try {
-        const { data } = await axios.get(`/api/resources?page=${page}&pageSize=${pageSize}`)
+        const response = await fetch(`/api/resources?page=${page}&pageSize=${pageSize}`)
+        if (!response.ok) throw new Error('Failed to fetch resources')
+        const data = await response.json()
         this.resources = [...this.resources, ...data]
         this.page++
         statusStore.setStatus(StatusType.SUCCESS, `Fetched ${this.resources.length} resources`)
@@ -62,7 +63,9 @@ export const useResourceStore = defineStore({
     async getResourceById(id: number): Promise<void> {
       statusStore.setStatus(StatusType.INFO, `Fetching resource with id ${id}...`)
       try {
-        const { data } = await axios.get(`/api/resources/${id}`)
+        const response = await fetch(`/api/resources/${id}`)
+        if (!response.ok) throw new Error('Failed to fetch resource')
+        const data = await response.json()
         this.currentResource = data
         statusStore.setStatus(StatusType.SUCCESS, `Fetched resource with id ${id}`)
       }
@@ -73,7 +76,15 @@ export const useResourceStore = defineStore({
     async addResources(resourceData: Partial<Resource>[]): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Adding new resources...')
       try {
-        const { data } = await axios.post(`/api/resources`, resourceData)
+        const response = await fetch(`/api/resources`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(resourceData),
+        })
+        if (!response.ok) throw new Error('Failed to add resources')
+        const data = await response.json()
         this.resources = [...this.resources, ...data.resources]
         this.errors = data.errors
         statusStore.setStatus(StatusType.SUCCESS, `Added ${this.resources.length} resources`)
@@ -87,7 +98,15 @@ export const useResourceStore = defineStore({
     async updateResource(id: number, data: Partial<Resource>): Promise<void> {
       statusStore.setStatus(StatusType.INFO, `Updating resource with id ${id}...`)
       try {
-        const { data: updatedResource } = await axios.put(`/api/resources/${id}`, data)
+        const response = await fetch(`/api/resources/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+        if (!response.ok) throw new Error('Failed to update resource')
+        const updatedResource = await response.json()
         this.currentResource = updatedResource
         statusStore.setStatus(StatusType.SUCCESS, `Updated resource with id ${id}`)
         // Fetch the updated list of resources after updating a resource
@@ -100,7 +119,10 @@ export const useResourceStore = defineStore({
     async deleteResource(id: number): Promise<void> {
       statusStore.setStatus(StatusType.INFO, `Deleting resource with id ${id}...`)
       try {
-        await axios.delete(`/api/resources/${id}`)
+        const response = await fetch(`/api/resources/${id}`, {
+          method: 'DELETE',
+        })
+        if (!response.ok) throw new Error('Failed to delete resource')
         statusStore.setStatus(StatusType.SUCCESS, `Deleted resource with id ${id}`)
         // Fetch the updated list of resources and total resources count after deleting a resource
         await this.getResources()
@@ -113,7 +135,9 @@ export const useResourceStore = defineStore({
     async randomResource(): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Fetching a random resource...')
       try {
-        const { data } = await axios.get(`/api/resources/random`)
+        const response = await fetch(`/api/resources/random`)
+        if (!response.ok) throw new Error('Failed to fetch a random resource')
+        const data = await response.json()
         this.currentResource = data
         statusStore.setStatus(StatusType.SUCCESS, 'Fetched a random resource')
       }
@@ -124,7 +148,9 @@ export const useResourceStore = defineStore({
     async countResources(): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Counting resources...')
       try {
-        const { data } = await axios.get(`/api/resources/count`)
+        const response = await fetch(`/api/resources/count`)
+        if (!response.ok) throw new Error('Failed to count resources')
+        const data = await response.json()
         this.totalResources = data
         statusStore.setStatus(StatusType.SUCCESS, `Counted a total of ${this.totalResources} resources`)
       }

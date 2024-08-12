@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import type { Customer } from '@prisma/client'
 import { errorHandler } from '@/server/api/utils/error' // Import errorHandler
 
 export const useCustomerStore = defineStore({

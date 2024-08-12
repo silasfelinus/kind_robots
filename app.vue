@@ -6,22 +6,22 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useUserStore } from './stores/userStore'
-import { errorHandler } from './server/api/utils/error'
-import { useArtStore } from './stores/artStore'
-import { useChannelStore } from './stores/channelStore'
-import { useMilestoneStore } from './stores/milestoneStore'
-import { useTagStore } from './stores/tagStore'
-import { useMatureStore } from './stores/matureStore'
-import { useThemeStore } from './stores/themeStore'
-import { useBotStore } from './stores/botStore'
-import { useLayoutStore } from './stores/layoutStore'
-import { usePitchStore } from './stores/pitchStore'
-import { useChatStore } from './stores/chatStore'
-import { usePageStore } from './stores/pageStore'
+import { useHead } from '@vueuse/head'
+import { useUserStore } from '@/stores/userStore'
+import { errorHandler } from '@/server/api/utils/error'
+import { useArtStore } from '@/stores/artStore'
+import { useChannelStore } from '@/stores/channelStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useTagStore } from '@/stores/tagStore'
+import { useMatureStore } from '@/stores/matureStore'
+import { useThemeStore } from '@/stores/themeStore'
+import { useBotStore } from '@/stores/botStore'
+import { useLayoutStore } from '@/stores/layoutStore'
+import { usePitchStore } from '@/stores/pitchStore'
+import { useChatStore } from '@/stores/chatStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const layoutStore = useLayoutStore()
-
 const tagStore = useTagStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
@@ -34,18 +34,26 @@ const milestoneStore = useMilestoneStore()
 const chatStore = useChatStore()
 const pageStore = usePageStore()
 
-useSeoMeta({
+useHead({
   title: 'Kind Robots',
-  ogTitle: 'Welcome to the Kind Robots',
-  description: 'OpenAI-supported Promptbots here to assist humanity.',
-  ogDescription:
-    'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans',
-  ogImage: '/images/kindtitle.webp',
-  twitterCard: 'summary_large_image',
+  meta: [
+    { name: 'og:title', content: 'Welcome to the Kind Robots' },
+    {
+      name: 'description',
+      content: 'OpenAI-supported Promptbots here to assist humanity.',
+    },
+    {
+      name: 'og:description',
+      content:
+        'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans',
+    },
+    { name: 'og:image', content: '/images/kindtitle.webp' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+  ],
 })
+
 onMounted(() => {
   try {
-    // Initialize user data
     layoutStore.initialize()
     botStore.loadStore()
     matureStore.initialize()

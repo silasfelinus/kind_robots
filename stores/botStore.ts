@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Bot } from '@prisma/client'
-import type { BotData } from './seeds/seedBots'
+import { botData } from './seeds/seedBots'
 import { errorHandler } from '@/server/api/utils/error' // Import your errorHandler
 
 export const useBotStore = defineStore({

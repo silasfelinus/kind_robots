@@ -29,6 +29,7 @@ type RequestData = {
   isMature?: boolean // for entry in multiple models
   isPublic?: boolean // for entry in multiple models
   isOrphan?: boolean // for entry in Art
+  highlightImage?: string
 }
 
 type validatedData = {
@@ -49,6 +50,7 @@ type validatedData = {
   isMature: boolean
   isPublic: boolean
   isOrphan: boolean
+  highlightImage?: string
 }
 
 async function validateAndLoadUserId(data: RequestData, validatedData: Partial<validatedData>): Promise<number> {
@@ -65,7 +67,11 @@ async function validateAndLoadUserId(data: RequestData, validatedData: Partial<v
     const user = await prisma.user.upsert({
       where: { username: data.userName }, // Ensure 'username' is marked as unique in your Prisma schema
       update: {},
-      create: { username: data.userName },
+      create: {
+        username: data.userName,
+        createdAt: new Date(), // Set the creation timestamp
+        Role: 'USER', // Assuming 'USER' is a default role, replace with appropriate enum or value
+      },
     });
     validatedData.userName = user.username;
     return user.id;
@@ -81,39 +87,43 @@ async function validateAndLoadUserId(data: RequestData, validatedData: Partial<v
 }
 
 
-async function validateAndLoadPromptId(data: RequestData, validatedData: Partial<validatedData>): Promise<number> {
-  console.log('🔍 Validating and loading Prompt ID...')
+
+async function validateAndLoadPromptId(data: RequestData): Promise<number> {
+  console.log('🔍 Validating and loading Prompt ID...');
 
   // Check if prompt is provided
   if (!data.prompt) {
-    console.warn('No prompt provided.')
-    throw new Error('Something went wrong')
+    console.warn('No prompt provided.');
+    throw new Error('Something went wrong');
   }
 
   // Check if an ArtPrompt with the given prompt already exists
-  const existingPrompt = await prisma.artPrompt.findUnique({
+  const existingPrompt = await prisma.artPrompt.findFirst({
     where: { prompt: data.prompt },
-  })
+  });
 
   if (existingPrompt) {
-    return existingPrompt.id // Return the existing promptId
-  }
-  else {
+    return existingPrompt.id; // Return the existing promptId
+  } else {
     // Create a new ArtPrompt using "prompt"
     const newPrompt = await prisma.artPrompt.create({
       data: {
         prompt: data.prompt,
-        userId: data.userId,
-        galleryId: data.galleryId,
+        userId: data.userId ?? 0, // Default to 0 if not provided
+        galleryId: data.galleryId ?? 0, // Default to 0 if not provided
         pitch: data.title,
-        pitchId: data.pitchId,
+        pitchId: data.pitchId ?? 0, // Default to 0 if not provided
+        createdAt: new Date(), // Add a creation timestamp
+        updatedAt: new Date(), // Add an updated timestamp
+        DB_ROW_HASH_1: BigInt(0), // This would typically be generated, but defaulting for example
       },
-    })
-    return newPrompt.id // Return the new promptId
+    });
+    return newPrompt.id; // Return the new promptId
   }
-} // Import your error handler
+}
 
-async function validateAndLoadPitchId(data: RequestData, validatedData: Partial<validatedData>): Promise<number> {
+
+async function validateAndLoadPitchId(data: RequestData): Promise<number> {
   console.log('🔍 Validating and loading pitch ID...')
 
   // If pitchId is provided, return it immediately
@@ -138,17 +148,20 @@ async function validateAndLoadPitchId(data: RequestData, validatedData: Partial<
 
       const newPitch = await prisma.pitch.create({
         data: {
-          title: data.title, // Provide a default value
-          pitch: data.pitchName || 'masterpiece',
-          designer: data.designerName ?? '', // Provide a default value
-          channelId: data.channelId,
-          userId: data.userId,
-          isOrphan: data.isOrphan,
-          isPublic: data.isPublic,
-          creatorId: data.userId,
-          isMature: data.isMature,
-          flavorText: data.flavorText,
+          title: data.title ?? 'Untitled', // Provide a default title if none is provided
+          pitch: data.pitchName || 'masterpiece', // Provide a default pitch name
+          designer: data.designerName ?? 'Anonymous', // Provide a default designer name
+          channelId: data.channelId ?? 0, // Use default value from schema if not provided
+          userId: data.userId ?? 0, // Use default value from schema if not provided
+          isOrphan: data.isOrphan ?? false, // Use default value from schema
+          isPublic: data.isPublic ?? false,  // Use default value from schema
+          creatorId: data.userId ?? 0, // Use default value from schema
+          isMature: data.isMature ?? false, // Use default value from schema
+          flavorText: data.flavorText ?? '', // Optional, but providing an empty string as default
+          createdAt: new Date(), // Set to current timestamp
+          highlightImage: data.highlightImage ?? '', // Provide a default or an empty string
         },
+      
       })
 
       return newPitch.id
@@ -162,7 +175,7 @@ async function validateAndLoadPitchId(data: RequestData, validatedData: Partial<
   }
 }
 
-async function validateAndLoadChannelId(data: RequestData, validatedData: Partial<validatedData>): Promise<number> {
+async function validateAndLoadChannelId(data: RequestData): Promise<number> {
   console.log('🔍 Validating and loading channel ID...')
 
   // If channelId is provided, return it as the source of truth
@@ -189,11 +202,12 @@ async function validateAndLoadChannelId(data: RequestData, validatedData: Partia
     // Create a new Channel
     const newChannel = await prisma.channel.create({
       data: {
-        label: labelToSearch,
-        title: data.title,
-        pitchId: data.pitchId,
-        description: data.description,
-        userId: data.userId,
+        label: labelToSearch, // This should be defined earlier in your code
+        title: data.title ?? undefined,
+        pitchId: data.pitchId ?? undefined,
+        description: data.description ?? undefined,
+        userId: data.userId ?? undefined,
+        createdAt: new Date(), // Set to the current timestamp
       },
     })
 
@@ -205,31 +219,37 @@ async function validateAndLoadChannelId(data: RequestData, validatedData: Partia
   }
 }
 
-async function validateAndLoadGalleryId(data: RequestData, validatedData: Partial<validatedData>): Promise<number> {
-  console.log('🔍 Validating and loading gallery ID...')
+async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
+  console.log('🔍 Validating and loading gallery ID...');
 
   if (data.galleryId === undefined) {
-    const galleryName = data.galleryName ?? 'cafefred'
+    const galleryName = data.galleryName ?? 'cafefred';
 
     // Try to find an existing Gallery by name
     const existingGallery = await prisma.gallery.findFirst({
       where: { name: galleryName },
-    })
+    });
 
     if (existingGallery) {
       // If gallery exists, return its ID
-      return existingGallery.id
-    }
-    else {
-      // If gallery doesn't exist, create a new one
-      const newGallery = await prisma.gallery.create({ data: { name: galleryName } })
-      return newGallery.id
+      return existingGallery.id;
+    } else {
+      // If gallery doesn't exist, create a new one with required fields
+      const newGallery = await prisma.gallery.create({
+        data: {
+          name: galleryName,
+          createdAt: new Date(), // Set to the current timestamp
+          content: '', // Provide a default value for content, could be an empty string or placeholder
+        },
+      });
+      return newGallery.id;
     }
   }
-  return data.galleryId ?? 21
+  return data.galleryId ?? 21;
 }
 
-function validateAndLoadDesignerName(data: RequestData, validatedData: Partial<validatedData>): string {
+
+function validateAndLoadDesignerName(data: RequestData): string {
   console.log('🔍 Validating and loading designer name...')
 
   return data.designerName ?? data.userName ?? generateSillyName() ?? 'Kind Guest'
@@ -246,11 +266,11 @@ export default defineEventHandler(async (event) => {
 
     // Validate and load each field, updating the validatedData object
     validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
-    validatedData.promptId = await validateAndLoadPromptId(requestData, validatedData)
-    validatedData.pitchId = await validateAndLoadPitchId(requestData, validatedData)
-    validatedData.channelId = await validateAndLoadChannelId(requestData, validatedData)
-    validatedData.galleryId = await validateAndLoadGalleryId(requestData, validatedData)
-    validatedData.designerName = await validateAndLoadDesignerName(requestData, validatedData)
+    validatedData.promptId = await validateAndLoadPromptId(requestData)
+    validatedData.pitchId = await validateAndLoadPitchId(requestData)
+    validatedData.channelId = await validateAndLoadChannelId(requestData)
+    validatedData.galleryId = await validateAndLoadGalleryId(requestData)
+    validatedData.designerName = await validateAndLoadDesignerName(requestData)
 
     console.log('🎉 All validations passed! Generating image...')
     const response: GenerateImageResponse = await generateImage(requestData.prompt, validatedData.designerName!)

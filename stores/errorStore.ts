@@ -5,6 +5,8 @@ export enum ErrorType {
   VALIDATION_ERROR = 'Validation Error',
   AUTH_ERROR = 'Authentication Error',
   UNKNOWN_ERROR = 'Unknown Error',
+  GENERAL_ERROR = 'GENERAL_ERROR',
+  REGISTRATION_ERROR = 'Registration_ERROR',
 }
 
 export interface ErrorHistoryEntry {

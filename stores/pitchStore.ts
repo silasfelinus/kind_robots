@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import type { Pitch } from '@prisma/client'
-import { errorHandler } from '../server/api/utils/error'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore, type Art } from '@/stores/artStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import useErrorStore and ErrorType
 
 const isClient = typeof window !== 'undefined'
 
@@ -20,21 +20,20 @@ export const usePitchStore = defineStore({
       const userStore = useUserStore()
       return this.pitches.filter(pitch => pitch.isPublic || pitch.userId === userStore.userId || pitch.userId === 0)
     },
-    // New getter to get the username based on userId
+
     getUsername(): (userId: number) => Promise<string | null> {
       return async (userId: number) => {
         if (userId === 0) {
-          return 'Kind Guest' // or any default name you'd like to give
+          return 'Kind Guest'
         }
         try {
           const userStore = useUserStore()
-
           const user = await userStore.fetchUsernameById(userId)
           return user || 'Unknown'
-        }
-        catch (error: unknown) {
-          const handledError = errorHandler(error)
-          console.error('Error fetching username:', handledError.message)
+        } catch  {
+          const errorStore = useErrorStore()
+          errorStore.setError(ErrorType.NETWORK_ERROR, 'Error fetching username')
+          console.error('Error fetching username:', errorStore.getErrors().slice(-1)[0]?.message)
           return null
         }
       }
@@ -46,8 +45,7 @@ export const usePitchStore = defineStore({
       const foundPitch = this.pitches.find(pitch => pitch.id === pitchId)
       if (foundPitch) {
         this.selectedPitch = foundPitch
-      }
-      else {
+      } else {
         console.warn(`Pitch with id ${pitchId} not found.`)
       }
     },
@@ -60,6 +58,8 @@ export const usePitchStore = defineStore({
     },
 
     async fetchPitches() {
+      const errorStore = useErrorStore() // Use errorStore
+
       try {
         const response = await fetch('/api/pitches/batch')
         if (response.ok) {
@@ -68,53 +68,51 @@ export const usePitchStore = defineStore({
           if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
           }
-        }
-        else {
+        } else {
           const errorText = await response.text()
-          const handledError = errorHandler(new Error(errorText))
-          console.error('Failed to fetch pitches:', handledError.message)
+          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to fetch pitches: ${errorText}`)
+          console.error('Failed to fetch pitches:', errorStore.getErrors().slice(-1)[0]?.message)
         }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error fetching pitches:', handledError.message)
+      } catch{
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error fetching pitches')
+        console.error('Error fetching pitches:', errorStore.getErrors().slice(-1)[0]?.message)
       }
     },
+
     async createPitch(newPitch: Partial<Pitch>) {
+      const errorStore = useErrorStore() // Use errorStore
+
       try {
-        console.log('Sending pitch data:', newPitch) // Debug log
+        console.log('Sending pitch data:', newPitch)
 
         const response = await fetch('/api/pitches', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(newPitch), // Send the pitch data
+          body: JSON.stringify(newPitch),
         })
 
-        const data = await response.json() // Parse the JSON response
+        const data = await response.json()
 
         if (response.ok) {
-          console.log('Received:', data) // Debug log
+          console.log('Received:', data)
           if (data.success && data.pitch) {
             this.pitches.push(data.pitch)
             if (isClient) {
               localStorage.setItem('pitches', JSON.stringify(this.pitches))
             }
-            return { success: true, message: 'Pitch created successfully' } // Return a success message
-          }
-          else {
+            return { success: true, message: 'Pitch created successfully' }
+          } else {
             throw new Error(data.message || 'Failed to create pitch')
           }
-        }
-        else {
+        } else {
           throw new Error(data.message || 'Failed to create pitch')
         }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error creating pitch:', handledError.message)
-        return { success: false, message: handledError.message } // Return an error message
+      } catch  {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error creating pitch')
+        console.error('Error creating pitch:', errorStore.getErrors().slice(-1)[0]?.message)
+        return { success: false, message: errorStore.getErrors().slice(-1)[0]?.message }
       }
     },
 
@@ -124,6 +122,8 @@ export const usePitchStore = defineStore({
     },
 
     async updatePitch(id: number, updates: Partial<Pitch>) {
+      const errorStore = useErrorStore() // Use errorStore
+
       try {
         const response = await fetch(`/api/pitches/${id}`, {
           method: 'PUT',
@@ -142,15 +142,20 @@ export const usePitchStore = defineStore({
               localStorage.setItem('pitches', JSON.stringify(this.pitches))
             }
           }
+        } else {
+          const errorText = await response.text()
+          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to update pitch: ${errorText}`)
+          console.error('Error updating pitch:', errorStore.getErrors().slice(-1)[0]?.message)
         }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error updating pitch:', handledError.message)
+      } catch {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error updating pitch')
+        console.error('Error updating pitch:', errorStore.getErrors().slice(-1)[0]?.message)
       }
     },
 
     async deletePitch(id: number) {
+      const errorStore = useErrorStore() // Use errorStore
+
       try {
         const response = await fetch(`/api/pitches/${id}`, {
           method: 'DELETE',
@@ -164,11 +169,14 @@ export const usePitchStore = defineStore({
               localStorage.setItem('pitches', JSON.stringify(this.pitches))
             }
           }
+        } else {
+          const errorText = await response.text()
+          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to delete pitch: ${errorText}`)
+          console.error('Error deleting pitch:', errorStore.getErrors().slice(-1)[0]?.message)
         }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error deleting pitch:', handledError.message)
+      } catch {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error deleting pitch')
+        console.error('Error deleting pitch:', errorStore.getErrors().slice(-1)[0]?.message)
       }
     },
   },

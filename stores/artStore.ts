@@ -1,9 +1,8 @@
-// /stores/artStore.ts
 import { defineStore } from 'pinia'
-import type { Art, ArtReaction, Tag } from '@prisma/client'
+import type { Art, ArtReaction } from '@prisma/client'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
-const isClient = typeof window !== 'undefined'
+const isClient = import.meta.client  // Update to use Nuxt's process.client
 
 export interface GenerateArtData {
   title?: string
@@ -40,7 +39,7 @@ export const useArtStore = defineStore({
       }
     },
     selectArt(artId: number) {
-      const foundArt = this.artAssets.find(art => art.id === artId)
+      const foundArt = this.artAssets.find((art: Art) => art.id === artId)
       this.selectedArt = foundArt || null
       if (!foundArt) {
         console.warn(`Art with id ${artId} not found.`)
@@ -63,13 +62,13 @@ export const useArtStore = defineStore({
       }, ErrorType.NETWORK_ERROR, 'Failed to fetch art.')
     },
     getArtById(id: number): Art | undefined {
-      return this.artAssets.find(art => art.id === id)
+      return this.artAssets.find((art: Art) => art.id === id)
     },
     getArtReactionsById(id: number): ArtReaction[] {
-      return this.artReactions.filter(reaction => reaction.artId === id)
+      return this.artReactions.filter((reaction: ArtReaction) => reaction.artId === id)
     },
     getTagsById(id: number): Tag | undefined {
-      return this.tags.find(tag => tag.id === id)
+      return this.tags.find((tag: Tag) => tag.id === id)
     },
     async deleteArt(id: number) {
       const errorStore = useErrorStore()
@@ -78,7 +77,7 @@ export const useArtStore = defineStore({
           method: 'DELETE',
         })
         if (response.ok) {
-          this.artAssets = this.artAssets.filter(art => art.id !== id)
+          this.artAssets = this.artAssets.filter((art: Art) => art.id !== id)
           if (isClient) {
             localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
           }
@@ -89,7 +88,7 @@ export const useArtStore = defineStore({
       }, ErrorType.NETWORK_ERROR, 'Failed to delete art.')
     },
     getArtByPitchId(pitchId: number): Art[] {
-      return this.artAssets.filter(art => art.pitchId === pitchId)
+      return this.artAssets.filter((art: Art) => art.pitchId === pitchId)
     },
     async createArtReaction(reactionData: ArtReaction): Promise<ArtReaction | null> {
       const errorStore = useErrorStore()
@@ -157,6 +156,25 @@ export const useArtStore = defineStore({
           return null
         }
       }, ErrorType.NETWORK_ERROR, 'Failed to fetch art by ID.')
+    },
+    async generateArt(data: GenerateArtData): Promise<{ success: boolean; message?: string; newArt?: Art }> {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
+        const response = await fetch('/api/art/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+        if (response.ok) {
+          const result = await response.json()
+          return { success: true, newArt: result.newArt }
+        } else {
+          const errorResponse = await response.json()
+          return { success: false, message: errorResponse.message }
+        }
+      }, ErrorType.NETWORK_ERROR, 'Failed to generate art.')
     },
   },
 })

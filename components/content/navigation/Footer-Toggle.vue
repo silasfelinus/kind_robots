@@ -12,7 +12,11 @@
       @click.stop="toggleExtend"
     >
       <icon
-        :name="isExtended ? 'line-md:chevron-small-double-down' : 'line-md:chevron-small-double-up'"
+        :name="
+          isExtended
+            ? 'line-md:chevron-small-double-down'
+            : 'line-md:chevron-small-double-up'
+        "
         class="w-6 h-6 text-default"
       />
     </div>
@@ -29,7 +33,7 @@
         :key="page._id"
         :to="page._path"
         class="group transition-colors relative p-2 mb-2 rounded-2xl border bg-primary flex flex-col items-center space-x-2"
-        @mouseover="isHovered = page._id"
+        @mouseover="isHovered = page._id ?? null"
         @mouseleave="isHovered = null"
         @click="handleLinkClick"
       >
@@ -41,43 +45,34 @@
           :is-hovered="isHovered === page._id"
         />
         <!-- Compact View -->
-        <div
-          v-if="!isExtended"
-          class="flex flex-row items-center space-x-2"
-        >
-          <icon
-            :name="page.icon"
-            class="text-3xl"
-          />
+        <div v-if="!isExtended" class="flex flex-row items-center space-x-2">
+          <icon :name="page.icon" class="text-3xl" />
           <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
             {{ page.title }}
           </div>
         </div>
 
         <!-- Extended View -->
-        <div
-          v-if="isExtended"
-          class="flex flex-col items-center m-1 space-y-2"
-        >
+        <div v-if="isExtended" class="flex flex-col items-center m-1 space-y-2">
           <div class="w-24 h-24 rounded-lg border bg-secondary">
             <img
               :src="`/images/${page.image}`"
               alt="Page Image"
               class="object-cover w-full h-full"
-            >
+            />
           </div>
           <!-- You are here indicator -->
           <div
             v-if="page._path === $route.path"
             class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary"
           >
-            You are here <icon
-              name="line-md:download-outline-loop"
-              class="text-lg mr-2"
-            />
+            You are here
+            <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
           </div>
           <div class="flex flex-col items-start">
-            <div class="text-lg font-bold bg-base-200 p-2 m-1 rounded-2xl border">
+            <div
+              class="text-lg font-bold bg-base-200 p-2 m-1 rounded-2xl border"
+            >
               {{ page.title }}
             </div>
             <popup-description
@@ -103,14 +98,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useFooterStore } from '@/stores/footerStore'
 
 const pageStore = usePageStore()
 const footerStore = useFooterStore()
 
-const isHovered = ref(null)
+const isHovered = ref<string | null>(null)
 
 const toggleExtend = () => {
   footerStore.toggleIsExtended()

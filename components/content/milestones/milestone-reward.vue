@@ -42,18 +42,18 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore, type Milestone } from '@/stores/milestoneStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore } from '@/stores/errorStore'
 import { useConfetti } from '@/utils/useConfetti'
 
 const props = defineProps<{ id: number }>()
 const { triggerConfetti } = useConfetti()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
+const errorStore = useErrorStore() // Initialize errorStore
 const milestone = ref<Milestone | null>(null)
 
 const fetchMilestoneById = async (id: number) => {
@@ -65,8 +65,8 @@ const fetchMilestoneById = async (id: number) => {
       throw new Error(result.message || 'Data is undefined')
     }
   } catch (error: unknown) {
-    const { message } = errorHandler({ error })
-    console.error('Failed to fetch milestone', message)
+    errorStore.setError(ErrorType.GENERAL_ERROR, error) // Use errorStore for error handling
+    console.error('Failed to fetch milestone', errorStore.message)
   }
 }
 
@@ -103,8 +103,8 @@ const validateMilestoneRecord = async () => {
       }
     }
   } catch (error: unknown) {
-    const { message } = errorHandler({ error })
-    console.error('Failed to validate milestone', message)
+    errorStore.setError(ErrorType.GENERAL_ERROR, error) // Use errorStore for error handling
+    console.error('Failed to validate milestone', errorStore.message)
   }
 }
 
@@ -117,8 +117,8 @@ const validateUserRecord = async () => {
       throw new Error(result.message)
     }
   } catch (error: unknown) {
-    const { message } = errorHandler({ error })
-    console.error('Failed to validate user record', message)
+    errorStore.setError(ErrorType.GENERAL_ERROR, error) // Use errorStore for error handling
+    console.error('Failed to validate user record', errorStore.message)
   }
 }
 

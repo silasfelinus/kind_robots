@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { ArtPrompt, Art } from '@prisma/client'
-import { errorHandler } from '../server/api/utils/error'
+import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import useErrorStore and ErrorType
 
 interface State {
   artPrompts: ArtPrompt[]
@@ -20,6 +20,8 @@ export const usePromptStore = defineStore('promptStore', {
   actions: {
     // Fetch all art prompts
     async fetchArtPrompts() {
+      const errorStore = useErrorStore() // Use errorStore
+
       try {
         console.log('About to fetch data...') // Debugging line
         const response = await fetch('/api/art/prompts/all')
@@ -27,16 +29,21 @@ export const usePromptStore = defineStore('promptStore', {
         if (response.ok) {
           const data = await response.json()
           this.artPrompts = data.artPrompts
+        } else {
+          const errorText = await response.text()
+          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to fetch art prompts: ${errorText}`)
+          console.error('Failed to fetch art prompts:', errorStore.getErrors().slice(-1)[0]?.message)
         }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error in fetchArtPrompts:', handledError.message)
+      } catch {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in fetchArtPrompts')
+        console.error('Error in fetchArtPrompts:', errorStore.getErrors().slice(-1)[0]?.message)
       }
     },
 
     // Edit an art prompt
     async editArtPrompt(id: number, newPrompt: string) {
+      const errorStore = useErrorStore() // Use errorStore
+
       try {
         const response = await fetch('/api/art/prompts', {
           method: 'PATCH',
@@ -52,32 +59,31 @@ export const usePromptStore = defineStore('promptStore', {
           if (index !== -1) {
             this.artPrompts[index].prompt = newPrompt
           }
-        }
-        else {
+        } else {
           throw new Error(data.message)
         }
-      }
-      catch (error: unknown) {
-        if (error instanceof Error) {
-          const handledError = errorHandler(error)
-          console.error('Error in editArtPrompt:', handledError.message)
-        } else {
-          console.error('Unknown error occurred in editArtPrompt')
-        }
+      } catch {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in editArtPrompt')
+        console.error('Error in editArtPrompt:', errorStore.getErrors().slice(-1)[0]?.message)
       }
     },
 
     // Fetch art by a specific prompt ID
     async fetchArtByPromptId(promptId: number) {
+      const errorStore = useErrorStore() // Use errorStore
+
       try {
         const response = await fetch(`/api/art/prompts/${promptId}`)
         if (response.ok) {
           this.artByPromptId = await response.json()
+        } else {
+          const errorText = await response.text()
+          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to fetch art by prompt ID: ${errorText}`)
+          console.error('Failed to fetch art by prompt ID:', errorStore.getErrors().slice(-1)[0]?.message)
         }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error in fetchArtByPromptId:', handledError.message)
+      } catch {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in fetchArtByPromptId')
+        console.error('Error in fetchArtByPromptId:', errorStore.getErrors().slice(-1)[0]?.message)
       }
     },
 
@@ -91,6 +97,8 @@ export const usePromptStore = defineStore('promptStore', {
 
     // Create a new art prompt
     async createArtPrompt(newPrompt: string) {
+      const errorStore = useErrorStore() // Use errorStore
+
       try {
         const response = await fetch('/api/art/prompts', {
           method: 'POST',
@@ -102,27 +110,35 @@ export const usePromptStore = defineStore('promptStore', {
         if (response.ok) {
           const createdPrompt = await response.json()
           this.artPrompts.push(createdPrompt)
+        } else {
+          const errorText = await response.text()
+          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to create art prompt: ${errorText}`)
+          console.error('Failed to create art prompt:', errorStore.getErrors().slice(-1)[0]?.message)
         }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error in createArtPrompt:', handledError.message)
+      } catch {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in createArtPrompt')
+        console.error('Error in createArtPrompt:', errorStore.getErrors().slice(-1)[0]?.message)
       }
     },
 
     // Delete an art prompt by ID
     async deleteArtPrompt(promptId: number) {
+      const errorStore = useErrorStore() // Use errorStore
+
       try {
         const response = await fetch(`/api/art/prompts/${promptId}`, {
           method: 'DELETE',
         })
         if (response.ok) {
           this.artPrompts = this.artPrompts.filter(prompt => prompt.id !== promptId)
+        } else {
+          const errorText = await response.text()
+          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to delete art prompt: ${errorText}`)
+          console.error('Failed to delete art prompt:', errorStore.getErrors().slice(-1)[0]?.message)
         }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error in deleteArtPrompt:', handledError.message)
+      } catch {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in deleteArtPrompt')
+        console.error('Error in deleteArtPrompt:', errorStore.getErrors().slice(-1)[0]?.message)
       }
     },
   },

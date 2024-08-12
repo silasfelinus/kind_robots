@@ -28,8 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()

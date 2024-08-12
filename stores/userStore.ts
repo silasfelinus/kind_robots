@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { User } from '@prisma/client';
-import { errorHandler } from '../server/api/utils/error';
+import { useErrorStore, ErrorType } from '@/stores/errorStore'; // Import errorStore
 import { useMilestoneStore } from './milestoneStore';
 
 interface UserState {
@@ -8,9 +8,8 @@ interface UserState {
   token: string;
   apiKey: string | null;
   loading: boolean;
-  lastError: string | null;
-  highClickScores: number[]; // Assuming it's an array of numbers
-  highMatchScores: number[]; // Assuming it's an array of numbers
+  highClickScores: number[];
+  highMatchScores: number[];
   stayLoggedIn: boolean;
   milestones: number[];
 }
@@ -22,7 +21,6 @@ export const useUserStore = defineStore({
     token: '',
     apiKey: typeof window !== 'undefined' ? localStorage.getItem('api_key') : null,
     loading: false,
-    lastError: null,
     highClickScores: [],
     highMatchScores: [],
     stayLoggedIn: true,
@@ -79,6 +77,7 @@ export const useUserStore = defineStore({
         this.fetchUserDataByToken(storedToken);
       }
     },
+
     async fetchUserDataByToken(token: string) {
       try {
         const response = await this.apiCall('/api/auth/validate', 'POST', { token });
@@ -87,9 +86,10 @@ export const useUserStore = defineStore({
           this.setUser(response.user);
         }
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.AUTH_ERROR, error); // Use errorStore with ErrorType
       }
     },
+
     async fetchUserByApiKey(): Promise<void> {
       if (!this.apiKey) return;
       try {
@@ -100,41 +100,46 @@ export const useUserStore = defineStore({
           throw new Error('Failed to fetch user');
         }
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.AUTH_ERROR, error); // Use errorStore with ErrorType
       }
     },
+
     setUser(userData: User): void {
       this.user = { ...userData };
       this.updateKarmaAndMana().catch((error) => {
-        console.error('Failed to update karma and mana:', error);
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
       });
     },
+
     setStayLoggedIn(value: boolean) {
       try {
         this.saveToLocalStorage('stayLoggedIn', value.toString());
         this.stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true';
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
       }
     },
+
     async fetchHighClickScores() {
       try {
         const response = await fetch('/api/milestones/highClickScores');
         const data = await response.json();
         this.highClickScores = data.milestones;
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
       }
     },
+
     async fetchHighMatchScores() {
       try {
         const response = await fetch('/api/milestones/highMatchScores');
         const data = await response.json();
         this.highMatchScores = data.milestones;
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
       }
     },
+
     async fetchUsernameById(userId: number): Promise<string | null> {
       try {
         const response = await fetch(`/api/users/${userId}/username`);
@@ -145,10 +150,11 @@ export const useUserStore = defineStore({
           throw new Error(await response.text());
         }
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
         return null;
       }
     },
+
     async updateClickRecord(newScore: number) {
       try {
         const userId = this.userId;
@@ -163,9 +169,10 @@ export const useUserStore = defineStore({
         const data = await response.json();
         if (data.success) return 'Updated';
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
       }
     },
+
     async updateKarmaAndMana(): Promise<{ success: boolean, message: string }> {
       try {
         const milestoneStore = useMilestoneStore();
@@ -194,10 +201,11 @@ export const useUserStore = defineStore({
           return { success: false, message: data.message || 'Failed to update karma and mana.' };
         }
       } catch (error) {
-        this.setError(error);
-        return { success: false, message: this.lastError || 'An error occurred while updating karma and mana.' };
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
+        return { success: false, message: useErrorStore().getErrors().map(e => e.message).join(', ') || 'An error occurred while updating karma and mana.' };
       }
     },
+
     async updateMatchRecord(newScore: number) {
       try {
         const userId = this.userId;
@@ -212,9 +220,10 @@ export const useUserStore = defineStore({
         const data = await response.json();
         if (data.success) return this.fetchHighMatchScores();
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
       }
     },
+
     logout(): void {
       this.user = null;
       this.token = '';
@@ -226,45 +235,34 @@ export const useUserStore = defineStore({
         this.removeFromLocalStorage('user');
         this.removeFromLocalStorage('stayLoggedIn');
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
       }
 
       this.setStayLoggedIn(false);
     },
+
     setToken(newToken: string): void {
       this.token = newToken;
       this.saveToLocalStorage('token', newToken);
     },
+
     setApiKey(apiKey: string): void {
       this.apiKey = apiKey;
       this.saveToLocalStorage('api_key', apiKey);
     },
+
     startLoading() {
       this.loading = true;
     },
+
     stopLoading() {
       this.loading = false;
     },
+
     setMilestones(milestoneIds: number[]) {
       this.milestones = milestoneIds;
     },
-    setError(error: unknown) {
-      const { message } = errorHandler(error instanceof Error ? error : new Error(String(error)));
-      this.lastError = message || 'An unknown error occurred.';
-    },
-    getFromLocalStorage(key: string): string | null {
-      return typeof window !== 'undefined' ? localStorage.getItem(key) : null;
-    },
-    saveToLocalStorage(key: string, value: string): void {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(key, value);
-      }
-    },
-    removeFromLocalStorage(key: string): void {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem(key);
-      }
-    },
+
     async apiCall(endpoint: string, method: string = 'GET', body?: unknown) {
       try {
         const response = await fetch(endpoint, {
@@ -278,100 +276,47 @@ export const useUserStore = defineStore({
         }
         return await response.json();
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.NETWORK_ERROR, error); // Use errorStore with ErrorType
         throw error;
       }
     },
+
     async getUsernames(): Promise<string[]> {
       try {
         const { usernames } = await this.apiCall('/api/users/usernames');
         return usernames;
       } catch (error) {
-        this.setError(error);
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
         return [];
       }
     },
-    async updateUserInfo(updatedUserInfo: Partial<User>) {
+
+    async updateUserInfo(userInfo: Partial<User>): Promise<void> {
       try {
-        const response = await this.apiCall('/api/users', 'PATCH', updatedUserInfo);
-        if (response.success) {
-          this.setUser(response.user);
-          return { success: true, message: 'User info updated successfully' };
-        } else {
-          return { success: false, message: response.message };
-        }
+        await this.apiCall(`/api/users/${this.userId}`, 'PATCH', userInfo);
+        this.user = { ...this.user, ...userInfo } as User;
       } catch (error) {
-        this.setError(error);
-        return { success: false, message: this.lastError };
+        useErrorStore().setError(ErrorType.GENERAL_ERROR, error); // Use errorStore with ErrorType
       }
     },
-    async login(credentials: { username: string, password?: string }) {
-      this.startLoading();
-      try {
-        const response = await this.apiCall('/api/auth/login', 'POST', credentials);
-        if (response.success) {
-          this.setUser(response.user);
-          this.setToken(response.token);
-          this.setApiKey(response.apiKey);
 
-          if (this.stayLoggedIn) {
-            this.saveToLocalStorage('token', response.token);
-          }
-
-          return { success: true };
-        } else {
-          return { success: false, message: response.message };
-        }
-      } catch (error) {
-        this.setError(error);
-        return { success: false, message: this.lastError };
-      } finally {
-        this.stopLoading();
+    saveToLocalStorage(key: string, value: string) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(key, value);
       }
     },
-    async validate(): Promise<boolean> {
-      try {
-        const credentials = this.token ? { token: this.token } : { apiKey: this.apiKey };
 
-        const response = await fetch('/api/auth/validate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(credentials),
-        });
-
-        const responseData = await response.json();
-
-        if (responseData.success) {
-          this.setUser(responseData.user);
-          return true;
-        } else {
-          this.setError(new Error('Invalid token or API key'));
-          return false;
-        }
-      } catch (error) {
-        this.setError(error);
-        return false;
+    removeFromLocalStorage(key: string) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(key);
       }
     },
-    async register(userData: { username: string, email?: string, password?: string }): Promise<{ success: boolean, user?: User, token?: string, message?: string }> {
-      try {
-        const response = await this.apiCall('/api/users/register', 'POST', userData);
-        if (response.success) {
-          this.setUser(response.user);
-          this.setToken(response.token);
-          if (response.apiKey) {
-            this.setApiKey(response.apiKey);
-          }
-          return { success: true, user: response.user, token: response.token };
-        } else {
-          return { success: false, message: response.message || 'An error occurred during registration.' };
-        }
-      } catch (error) {
-        this.setError(error);
-        return { success: false, message: this.lastError || 'An unknown error occurred.' };
+
+    getFromLocalStorage(key: string): string | null {
+      if (typeof window !== 'undefined') {
+        return localStorage.getItem(key);
       }
-    },
+      return null;
+    }
   },
 });
-
-export type { User };

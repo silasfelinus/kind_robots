@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <nav class="w-full bg-base p-4 transition-all duration-500 ease-in-out">
     <div class="flex justify-center mb-2 flex-wrap space-x-2">
@@ -15,15 +16,8 @@
 
     <!-- Always Visible Home Links -->
     <div class="flex justify-center mt-2 flex-wrap space-x-2">
-      <div
-        v-for="page in pagesByTag('home')"
-        :key="page._id"
-        class="home-link"
-      >
-        <NuxtLink
-          :to="page._path"
-          class="oval-link"
-        >
+      <div v-for="page in pagesByTag('home')" :key="page._id" class="home-link">
+        <NuxtLink :to="page._path" class="oval-link">
           {{ page.title }}
         </NuxtLink>
       </div>
@@ -52,7 +46,7 @@
             v-if="page.image"
             :src="`/images/${page.image}`"
             alt="Page Image"
-          >
+          />
           <div>{{ page.title }}</div>
         </NuxtLink>
       </div>
@@ -73,23 +67,39 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useContentStore } from '../../../stores/contentStore'
-import { useScreenStore } from '../../../stores/screenStore'
-import { useBotStore } from '../../../stores/botStore'
+import { useContentStore } from '@/stores/contentStore'
+import { useScreenStore } from '@/stores/screenStore'
+import { useBotStore } from '@/stores/botStore'
+
+// Define the Page interface
+interface Page {
+  _id: string
+  _path: string
+  title: string
+  image?: string
+  tags?: string[]
+}
 
 const contentStore = useContentStore()
 const screenStore = useScreenStore()
+const botStore = useBotStore()
+
+// Fetch pages from content store
 contentStore.getPages()
 
-const botStore = useBotStore()
-const currentBotName = computed(() => botStore.currentBot?.name || '')
+// Ensure that contentStore.pages matches the Page interface
+const pages = computed<Page[]>(() => {
+  const pages = contentStore.pages
+  // Perform runtime type validation if necessary
+  return pages.filter((page): page is Page => '_id' in page && '_path' in page)
+})
 
 const uniqueTags = computed(() => {
-  const tags: string[] = contentStore.pages
-    .map((page: any) => page.tags)
+  const tags: string[] = pages.value
+    .map((page) => page.tags)
     .flat()
-    .filter((tag: any) => typeof tag === 'string') // Ensure tags are strings
-  return Array.from(new Set(tags)).filter(tag => tag !== 'home')
+    .filter((tag): tag is string => typeof tag === 'string') // Type guard for string
+  return Array.from(new Set(tags)).filter((tag) => tag !== 'home')
 })
 
 const allTags = computed(() => ['home', ...uniqueTags.value])
@@ -97,19 +107,20 @@ const allTags = computed(() => ['home', ...uniqueTags.value])
 const changeSection = (section: string) => {
   setActiveSection(section)
 }
+
 const pagesByTag = (tag: string) => {
-  return contentStore.pages.filter((page: any) => page.tags?.includes(tag))
+  return pages.value.filter((page) => page.tags?.includes(tag))
 }
 
 const setActiveSection = screenStore.setActiveSection
-const toggleModelCarousel = screenStore.toggleModelCarousel
 
-// Access the screenStore's state
 const activeSection = computed(() => screenStore.activeSection)
 const showModelCarousel = computed(() => screenStore.showModelCarousel)
+
+const currentBotName = computed(() => botStore.currentBot?.name || '')
 </script>
 
-<style>
+<style scoped>
 .btn {
   min-width: 80px;
   max-width: 150px;

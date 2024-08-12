@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="flex items-center h-36 w-36 z-50">
     <!-- Welcome Message -->
@@ -121,9 +122,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore } from '@/stores/errorStore'
 
 const store = useUserStore()
+const errorStore = useErrorStore() // Add this to use errorStore
 const login = ref('')
 const password = ref('')
 const isVisible = ref(false)
@@ -153,10 +155,13 @@ const handleLogin = async () => {
         localStorage.setItem('user', JSON.stringify({ username: login.value }))
       }
     } else {
+      errorStore.setError(ErrorType.AUTH_ERROR, result.message)
       errorMessage.value = result.message
     }
   } catch (error: unknown) {
-    errorMessage.value = errorHandler(error).message
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, errorMsg)
+    errorMessage.value = errorStore.message || ''
   }
 }
 

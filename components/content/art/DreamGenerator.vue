@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="bg-base-200 rounded-2xl p-8 text-lg">
     <h1 class="text-2xl mb-4">Dream-Generator</h1>
@@ -10,7 +11,7 @@
       >
         Get Random Dream
       </button>
-      <p v-if="randomDream">
+      <p v-if="randomDream" class="mt-2">
         {{ randomDream }}
       </p>
     </div>
@@ -21,7 +22,7 @@
         v-model="prompt"
         placeholder="Enter your art prompt"
         class="rounded-2xl p-2 w-full text-lg"
-      >
+      />
     </div>
 
     <!-- Generate Art Button -->
@@ -40,7 +41,8 @@
         <ami-butterfly />
       </div>
     </div>
-    <!-- Add this line where you want to display the milestone-check -->
+
+    <!-- Milestone Reward -->
     <milestone-reward v-if="shouldShowMilestoneCheck" :id="11" />
 
     <!-- Display Created Art -->
@@ -51,25 +53,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 import { useLoadStore } from '@/stores/loadStore'
-import { useArtStore, type Art } from '@/stores/artStore'
+import type { Art } from '@/stores/artStore'
 
 // Load stores
 const dreamStore = useDreamStore()
 const userStore = useUserStore()
 const loadStore = useLoadStore()
-const artStore = useArtStore()
+const errorStore = useErrorStore()
+
 const shouldShowMilestoneCheck = ref(false)
-// Art Prompt text
 const prompt = ref('')
 const flavorText = ref('')
 const username = computed(() => userStore.username)
-
-// Art Prompt Ids
 const userId = computed(() => userStore.userId)
 
 const isLoading = ref(false)
@@ -77,15 +77,18 @@ const createdArts = ref<Art[]>([]) // Array to store created art
 const randomDream = ref<string | null>(null)
 const loadingMessage = ref<string | null>(null)
 
+// Function to get a loading message
 const getLoadingMessage = () => {
   loadingMessage.value = loadStore.randomLoadMessage()
 }
 
+// Function to get a random dream and set it as prompt
 const getRandomDream = () => {
   randomDream.value = dreamStore.randomDream()
-  prompt.value = randomDream.value
+  prompt.value = randomDream.value || ''
 }
 
+// Function to generate art
 const generateArt = async () => {
   getLoadingMessage()
   isLoading.value = true
@@ -99,7 +102,7 @@ const generateArt = async () => {
         prompt: prompt.value,
         userName: username.value,
         galleryName: 'cafefred',
-        pitchId: 6,
+        pitchId: 6, // Ensure this ID is valid
         title: 'dreamscapes',
         isMature: false,
         isPublic: true,
@@ -115,15 +118,16 @@ const generateArt = async () => {
       const data = await response.json()
       createdArts.value.unshift(data.newArt as Art)
       shouldShowMilestoneCheck.value = true
-      console.log('Art generated:', createdArts)
+      console.log('Art generated:', createdArts.value)
     } else {
       const errorText = await response.text()
-      const handledError = errorHandler(new Error(errorText))
-      console.error('Failed to generate dream:', handledError.message)
+      errorStore.setError(ErrorType.UNKNOWN_ERROR, errorText) // Adjusted to pass type and message separately
+      console.error('Failed to generate dream:', errorText)
     }
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.error('Error generating art:', handledError.message)
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, errorMsg) // Adjusted to pass type and message separately
+    console.error('Error generating art:', errorMsg)
   } finally {
     isLoading.value = false
   }

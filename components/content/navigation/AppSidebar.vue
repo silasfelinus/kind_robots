@@ -5,11 +5,10 @@
       class="flex flex-col items-center bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
     >
       <!-- Toggle Switch -->
-      <div class="flex justify-center items-center w-full px-4 bg-info rounded-2xl border">
-        <button
-          class="relative w-36 h-10"
-          @click="toggleFlip"
-        >
+      <div
+        class="flex justify-center items-center w-full px-4 bg-info rounded-2xl border"
+      >
+        <button class="relative w-36 h-10" @click="toggleFlip">
           <div
             :class="[
               'absolute inset-0 bg-accent transition-all duration-300',
@@ -41,12 +40,14 @@
             alt="Kind Robots Logo"
             src="/images/fulltitle.png"
             class="mx-auto rounded-l"
-          >
+          />
           <vertical-nav />
         </div>
 
         <!-- Bot View -->
-        <div class="flip-back sidebar-content w-full text-center profile-center">
+        <div
+          class="flip-back sidebar-content w-full text-center profile-center"
+        >
           <h1>Welcome to Kind Robots</h1>
           <bot-selector />
           <div class="carousel-container">
@@ -71,7 +72,10 @@ const toggleFlip = () => {
     flipContainer.value.classList.toggle('flipped')
     const isFlipped = flipContainer.value.classList.contains('flipped')
     if (hasLocalStorage.value) {
-      window.localStorage.setItem('flipState', isFlipped ? 'flipped' : 'unflipped')
+      window.localStorage.setItem(
+        'flipState',
+        isFlipped ? 'flipped' : 'unflipped',
+      )
     }
     isChecked.value = !isFlipped
   }
@@ -84,8 +88,7 @@ function storageAvailable(type: 'localStorage' | 'sessionStorage'): boolean {
     storage.setItem(testKey, testKey)
     storage.removeItem(testKey)
     return true
-  }
-  catch (e) {
+  } catch {
     return false
   }
 }

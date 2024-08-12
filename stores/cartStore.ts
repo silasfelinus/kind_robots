@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { Cart, CartItem } from '@prisma/client';
-import { errorHandler } from '@/server/api/utils/error'; // Import your errorHandler
+import { useErrorStore } from '@/stores/errorStore'; // Import your errorStore
 
 export const useCartStore = defineStore({
   id: 'cart',
@@ -14,8 +14,8 @@ export const useCartStore = defineStore({
       this.currentCartId = cartId;
     },
 
-    
-    async createCart(customerId: number): Promise<{ success: boolean; cartId?: number; message?: string, statusCode?: number }> {
+    async createCart(customerId: number): Promise<{ success: boolean; cartId?: number; message?: string; statusCode?: number }> {
+      const errorStore = useErrorStore();
       try {
         const response = await fetch('/api/cart', {
           method: 'POST',
@@ -29,27 +29,30 @@ export const useCartStore = defineStore({
           this.carts.push(data.newCart);
           return { success: true, cartId: data.newCart.id };
         } else {
+          errorStore.setError(data.type, data.message);
           return { success: false, message: data.message };
         }
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
-        console.error(`An error occurred while creating a new cart: ${message}`);
-        return { success: false, message, statusCode };
+        errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An error occurred while creating a new cart');
+        console.error(`An error occurred while creating a new cart: ${error}`);
+        return { success: false, message: 'An error occurred', statusCode: 500 };
       }
     },
 
     async fetchCartByCustomerId(customerId: number) {
+      const errorStore = useErrorStore();
       try {
         const response = await fetch(`/api/customers/${customerId}.get.ts`);
         const data = await response.json();
         return data.cart;
       } catch (error) {
-        const { message } = errorHandler(error);
-        console.error(`An error occurred while fetching cart by customer ID: ${message}`);
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'An error occurred while fetching cart by customer ID');
+        console.error(`An error occurred while fetching cart by customer ID: ${error}`);
       }
     },
 
     async deleteCart(cartId: number) {
+      const errorStore = useErrorStore();
       try {
         const response = await fetch(`/api/cart/${cartId}.delete.ts`, {
           method: 'DELETE',
@@ -62,15 +65,16 @@ export const useCartStore = defineStore({
           }
         }
       } catch (error) {
-        const { message } = errorHandler(error);
-        console.error(`An error occurred while deleting the cart: ${message}`);
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'An error occurred while deleting the cart');
+        console.error(`An error occurred while deleting the cart: ${error}`);
       }
     },
 
     // CartItem Actions
     async addItem(productId: number, quantity: number = 1) {
+      const errorStore = useErrorStore();
       if (!this.currentCartId) {
-        errorHandler({ success: false, message: 'No active cart.', statusCode: 400 });
+        errorStore.setError(ErrorType.VALIDATION_ERROR, 'No active cart.');
         return;
       }
       try {
@@ -84,27 +88,33 @@ export const useCartStore = defineStore({
         const data = await response.json();
         if (data.success) {
           this.cartItems.push(data.newCartItem);
+        } else {
+          errorStore.setError(data.type, data.message);
         }
       } catch (error) {
-        const { message } = errorHandler(error);
-        console.error(`An error occurred while adding item to cart: ${message}`);
+        errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An error occurred while adding item to cart');
+        console.error(`An error occurred while adding item to cart: ${error}`);
       }
     },
 
     async fetchItemsByCartId(cartId: number) {
+      const errorStore = useErrorStore();
       try {
         const response = await fetch(`/api/carts/${cartId}.get.ts`);
         const data = await response.json();
         if (data.success) {
           this.cartItems = data.items;
+        } else {
+          errorStore.setError(data.type, data.message);
         }
       } catch (error) {
-        const { message } = errorHandler(error);
-        console.error(`An error occurred while fetching items by cart ID: ${message}`);
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'An error occurred while fetching items by cart ID');
+        console.error(`An error occurred while fetching items by cart ID: ${error}`);
       }
     },
 
     async updateCartItem(id: number, updatedData: { productId?: number; quantity?: number }) {
+      const errorStore = useErrorStore();
       try {
         const response = await fetch(`/api/cartItem/${id}.patch.ts`, {
           method: 'PATCH',
@@ -119,14 +129,17 @@ export const useCartStore = defineStore({
           if (index !== -1) {
             this.cartItems[index] = { ...this.cartItems[index], ...updatedData };
           }
+        } else {
+          errorStore.setError(data.type, data.message);
         }
       } catch (error) {
-        const { message } = errorHandler(error);
-        console.error(`An error occurred while updating the cart item: ${message}`);
+        errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An error occurred while updating the cart item');
+        console.error(`An error occurred while updating the cart item: ${error}`);
       }
     },
 
     async deleteCartItem(id: number) {
+      const errorStore = useErrorStore();
       try {
         const response = await fetch(`/api/cartItem/${id}.delete.ts`, {
           method: 'DELETE',
@@ -137,14 +150,17 @@ export const useCartStore = defineStore({
           if (index !== -1) {
             this.cartItems.splice(index, 1);
           }
+        } else {
+          errorStore.setError(data.type, data.message);
         }
       } catch (error) {
-        const { message } = errorHandler(error);
-        console.error(`An error occurred while deleting the cart item: ${message}`);
+        errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An error occurred while deleting the cart item');
+        console.error(`An error occurred while deleting the cart item: ${error}`);
       }
     },
 
     async batchAddItemsToCart(items: { cartId: number; productId: number; quantity: number }[]) {
+      const errorStore = useErrorStore();
       try {
         const response = await fetch('/api/cartItem/index.post.ts', {
           method: 'POST',
@@ -156,10 +172,12 @@ export const useCartStore = defineStore({
         const data = await response.json();
         if (data.success) {
           this.cartItems.push(...data.newCartItems);
+        } else {
+          errorStore.setError(data.type, data.message);
         }
       } catch (error) {
-        const { message } = errorHandler(error);
-        console.error(`An error occurred while batch adding items to the cart: ${message}`);
+        errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An error occurred while batch adding items to the cart');
+        console.error(`An error occurred while batch adding items to the cart: ${error}`);
       }
     },
   },

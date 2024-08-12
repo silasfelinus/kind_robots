@@ -39,10 +39,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useCartStore } from '@/stores/cartStore'
-import { useProductStore, type Product } from '@/stores/productStore' // Import Product type
-import { errorHandler } from '@/server/api/utils/error'
+import { useProductStore, type Product } from '@/stores/productStore'
+import { useErrorStore } from '@/stores/errorStore'
 
-// Define the prop type for 'item'
 const props = defineProps<{
   item: {
     id: number
@@ -52,26 +51,27 @@ const props = defineProps<{
   }
 }>()
 
-const cartItem = ref(props.item) // Initialize cartItem with the passed 'item' prop
+const cartItem = ref(props.item)
 const cartStore = useCartStore()
 const productStore = useProductStore()
+const errorStore = useErrorStore() // Initialize errorStore
 
-// Fetch the product based on cartItem's productId
-const product = ref<Product | null>(null) // Initialize to null
+const product = ref<Product | null>(null)
 watch(
   () => cartItem.value.productId,
   (newProductId) => {
     product.value = productStore.getProductById(newProductId)
   },
 )
+
 const incrementQuantity = async () => {
   try {
     await cartStore.addItem(
       cartItem.value.productId,
       cartItem.value.quantity + 1,
     )
-  } catch (error: unknown) {
-    errorHandler({ success: false, message: error.message, statusCode: 500 })
+  } catch (error) {
+    errorStore.setError(ErrorType.GENERAL_ERROR, error)
   }
 }
 
@@ -82,27 +82,16 @@ const decrementQuantity = async () => {
         quantity: cartItem.value.quantity - 1,
       })
     }
-  } catch (error: unknown) {
-    errorHandler({ success: false, message: error.message, statusCode: 500 })
+  } catch (error) {
+    errorStore.setError(ErrorType.GENERAL_ERROR, error)
   }
 }
 
 const removeFromCart = async () => {
   try {
     await cartStore.deleteCartItem(cartItem.value.id)
-  } catch (error: unknown) {
-    errorHandler({ success: false, message: error.message, statusCode: 500 })
+  } catch (error) {
+    errorStore.setError(ErrorType.GENERAL_ERROR, error)
   }
 }
 </script>
-
-<style scoped>
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border: 1px solid var(--bg-base-200);
-  border-radius: var(--rounded-2xl);
-}
-</style>

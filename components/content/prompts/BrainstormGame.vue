@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div
     class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
@@ -7,7 +8,7 @@
       :src="pageImage"
       alt="Brainstorming"
       class="rounded-full h-40 w-40 mb-4"
-    >
+    />
     <p class="text-lg mb-4">
       Welcome to the Brainstorm Café! Click the button below to get some fresh,
       creative ideas.
@@ -40,8 +41,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { errorHandler } from '../../../server/api/utils/error'
+import { ref } from 'vue'
+import { useErrorStore } from '@/stores/errorStore'
 import { sampleIdeas } from '@/training/sampleIdeas'
 
 interface Idea {
@@ -61,38 +62,49 @@ const getRandomIdeas = (count: number) => {
 // Initialize allIdeas with 5 random pre-generated ideas
 const allIdeas = ref<Idea[]>(getRandomIdeas(5))
 
+const errorStore = useErrorStore()
+
 const fetchBrainstorm = async () => {
   isLoading.value = true
   errorMessage.value = null
-  try {
-    const response = await fetch('/api/botcafe/brainstorm', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: 'five more original brainstorms' }],
-      }),
-    })
-    shouldShowMilestoneCheck.value = true
 
-    const data = await response.json()
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      const newIdeas: Idea[] = parseIdeasFromAPI(
-        data.choices[0].message.content,
-      )
-      if (newIdeas.length > 0) {
-        allIdeas.value = [...newIdeas, ...allIdeas.value]
-      } else {
-        throw new Error('No new ideas generated')
-      }
-    } else {
-      throw new Error('Invalid API response')
-    }
-  } catch (error: unknown) {
-    const { message } = errorHandler(error)
-    errorMessage.value = message
+  try {
+    // Use handleError to manage errors centrally
+    await errorStore.handleError(
+      async () => {
+        const response = await fetch('/api/botcafe/brainstorm', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [
+              { role: 'user', content: 'five more original brainstorms' },
+            ],
+          }),
+        })
+
+        shouldShowMilestoneCheck.value = true
+
+        const data = await response.json()
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          const newIdeas: Idea[] = parseIdeasFromAPI(
+            data.choices[0].message.content,
+          )
+          if (newIdeas.length > 0) {
+            allIdeas.value = [...newIdeas, ...allIdeas.value]
+          } else {
+            throw new Error('No new ideas generated')
+          }
+        } else {
+          throw new Error('Invalid API response')
+        }
+      },
+      'GENERAL_ERROR' as ErrorType,
+      'Failed to fetch new brainstorming ideas. Please try again.',
+    )
+  } catch (error) {
     console.error('Error fetching brainstorm:', error)
   } finally {
     isLoading.value = false

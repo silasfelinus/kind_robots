@@ -1,27 +1,12 @@
 <template>
   <div class="bg-base-200 flex flex-col items-center p-4 rounded-2xl">
-    <h1 class="text-3xl font-bold text-primary mb-4">
-      Kind Robots
-    </h1>
-    <div
-      v-if="isLoggedIn"
-      class="text-lg text-info mb-4"
-    >
+    <h1 class="text-3xl font-bold text-primary mb-4">Kind Robots</h1>
+    <div v-if="isLoggedIn" class="text-lg text-info mb-4">
       You are already logged in. Would you like to
-      <a
-        href="/dashboard"
-        class="text-accent"
-      >go to the dashboard</a> or
-      <a
-        href="#"
-        class="text-warning"
-        @click="userStore.logout"
-      >log out</a>?
+      <a href="/dashboard" class="text-accent">go to the dashboard</a> or
+      <a href="#" class="text-warning" @click="userStore.logout">log out</a>?
     </div>
-    <form
-      class="space-y-4 w-full max-w-sm"
-      @submit.prevent="register"
-    >
+    <form class="space-y-4 w-full max-w-sm" @submit.prevent="register">
       <div v-if="step === 1">
         <h1 class="text-4xl font-bold text-primary mb-4">
           Pick a Cool Username
@@ -36,7 +21,7 @@
             aria-label="Username"
             autocomplete="username"
             @input="checkUsernameAvailability"
-          >
+          />
           <p
             v-if="usernameWarning"
             class="absolute text-xs text-warning right-2 bottom-1"
@@ -57,16 +42,10 @@
         <h2 class="text-2xl font-semibold text-primary mb-2">
           Welcome, {{ username }}!
         </h2>
-        <button
-          type="button"
-          class="text-md mb-4"
-          @click="goToStep(1)"
-        >
+        <button type="button" class="text-md mb-4" @click="goToStep(1)">
           I want a different username
         </button>
-        <p class="text-lg mb-2">
-          Optional details:
-        </p>
+        <p class="text-lg mb-2">Optional details:</p>
         <div class="relative group mb-4">
           <input
             v-model="email"
@@ -75,7 +54,7 @@
             class="w-full p-2 border rounded text-lg bg-base-200 placeholder-base-300"
             aria-label="Email"
             autocomplete="email"
-          >
+          />
         </div>
         <div class="relative group mb-4">
           <input
@@ -86,7 +65,7 @@
             aria-label="Password"
             autocomplete="new-password"
             @input="validatePassword"
-          >
+          />
           <div class="absolute inset-y-0 right-0 flex items-center pr-3">
             <icon
               name="tabler:eye"
@@ -106,10 +85,7 @@
             {{ passwordError }}
           </p>
         </div>
-        <div
-          v-if="firstPasswordValid"
-          class="relative group mb-4"
-        >
+        <div v-if="firstPasswordValid" class="relative group mb-4">
           <input
             v-model="confirmPassword"
             :type="showConfirmPassword ? 'text' : 'password'"
@@ -118,7 +94,7 @@
             aria-label="Confirm Password"
             autocomplete="new-password"
             @input="validateConfirmPassword"
-          >
+          />
           <div class="absolute inset-y-0 right-0 flex items-center pr-3">
             <icon
               :name="showConfirmPassword ? 'tabler:eye-off' : 'tabler:eye'"
@@ -136,20 +112,14 @@
           v-if="status"
           class="my-2 px-4 py-2 text-lg text-info bg-info-light rounded"
         >
-          <icon
-            name="tabler:info-circle"
-            class="mr-2"
-          />
+          <icon name="tabler:info-circle" class="mr-2" />
           {{ status }}
         </div>
         <div
           v-if="error"
           class="my-2 px-4 py-2 text-lg text-warning bg-warning-light rounded"
         >
-          <icon
-            name="tabler:alert-triangle"
-            class="mr-2"
-          />
+          <icon name="tabler:alert-triangle" class="mr-2" />
           {{ error }}
         </div>
         <button
@@ -165,12 +135,15 @@
   </div>
 </template>
 
+
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
-import { useUserStore } from '../../../stores/userStore'
-import { errorHandler } from '../../../server/api/utils/error'
+import { useUserStore } from '@/stores/userStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const userStore = useUserStore()
+const errorStore = useErrorStore()
+
 userStore.initializeUser()
 
 const username = ref('')
@@ -187,9 +160,6 @@ const showPassword = ref(false)
 const passwordError = ref('')
 const step = ref(1)
 const showConfirmPassword = ref(false)
-const isPasswordValid = computed(() => {
-  return password.value && !passwordError.value
-})
 const firstPasswordValid = ref(false)
 
 const validatePassword = () => {
@@ -243,9 +213,18 @@ const checkUsernameAvailability = async () => {
       error.value = ''
     }
   }
-  catch (e: any) {
-    const { message } = errorHandler(e)
-    error.value = message
+  catch (e: unknown) {
+    if (e instanceof Error) {
+      errorStore.setError(
+        ErrorType.UNKNOWN_ERROR,
+        `Error checking username availability: ${e.message}`
+      )
+    } else {
+      errorStore.setError(
+        ErrorType.UNKNOWN_ERROR,
+        'An unknown error occurred while checking username availability.'
+      )
+    }
   }
 }
 
@@ -306,20 +285,41 @@ const register = async () => {
         }
         await userStore.login(loginData)
       }
-      catch (loginError) {
-        // Handle login error (if any)
-        const { message } = errorHandler({ error: loginError })
-        error.value = message
+      catch (error: unknown) {
+        if (error instanceof Error) {
+          errorStore.setError(
+            ErrorType.AUTH_ERROR,
+            `Login failed: ${error.message}`
+          )
+        } else {
+          errorStore.setError(
+            ErrorType.AUTH_ERROR,
+            'An unknown error occurred during login.'
+          )
+        }
       }
     }
     else {
       status.value = ''
       error.value = 'Registration failed. Please try again.'
+      errorStore.setError(
+        ErrorType.REGISTRATION_ERROR,
+        'Registration failed. Please try again.'
+      )
     }
   }
-  catch (e) {
-    const { message } = errorHandler({ error: e })
-    error.value = message
+  catch (e: unknown) {
+    if (e instanceof Error) {
+      errorStore.setError(
+        ErrorType.REGISTRATION_ERROR,
+        `Registration failed: ${e.message}`
+      )
+    } else {
+      errorStore.setError(
+        ErrorType.REGISTRATION_ERROR,
+        'An unknown error occurred during registration.'
+      )
+    }
   }
   isLoading.value = false
 }

@@ -1,35 +1,25 @@
-// ~/store/content.ts
+// ~/stores/contentStore.ts
 import { defineStore } from 'pinia'
 import { useErrorStore, ErrorType } from '../stores/errorStore'
 import { useStatusStore, StatusType } from '../stores/statusStore'
 
+interface Page {
+  _id?: string;
+  _path?: string;
+  title?: string;
+  content?: string;
+  // Add other properties as needed
+}
+
 interface ContentState {
-  globals: any
-  navigation: any
-  surround: any
-  page: any
-  excerpt: string
-  toc: any
-  type: string
-  layout: string
-  next: any
-  prev: any
-  pages: any
+  page: Page
+  pages: Page[]
 }
 
 export const useContentStore = defineStore({
   id: 'content',
   state: (): ContentState => ({
-    globals: {},
-    navigation: {},
-    surround: {},
     page: {},
-    excerpt: '',
-    toc: {},
-    type: '',
-    layout: '',
-    next: {},
-    prev: {},
     pages: [],
   }),
   actions: {
@@ -41,14 +31,8 @@ export const useContentStore = defineStore({
       await errorStore.handleError(
         async () => {
           const content = await useContent()
-          this.globals = content.globals
-          this.navigation = content.navigation
-          this.surround = content.surround
-          this.page = content.page
-          this.toc = content.toc
-          this.next = content.next
-          this.prev = content.prev
-          this.pages = await queryContent().find()
+          this.page = content.page as Page // Type assertion if needed
+          this.pages = (await queryContent().find()) as Page[] // Type assertion if needed
 
           statusStore.setStatus(StatusType.SUCCESS, 'Content store initialized successfully')
           statusStore.clearStatus()
@@ -61,7 +45,7 @@ export const useContentStore = defineStore({
       const errorStore = useErrorStore()
       await errorStore.handleError(
         async () => {
-          const page = await queryContent().where({ title }).findOne()
+          const page = await queryContent().where({ title }).findOne() as Page // Type assertion if needed
           this.page = page
         },
         ErrorType.NETWORK_ERROR,
@@ -74,7 +58,7 @@ export const useContentStore = defineStore({
         async () => {
           const pages = await queryContent()
             .where({ $not: { _path: '/' } })
-            .find()
+            .find() as Page[] // Type assertion if needed
           this.pages = pages
         },
         ErrorType.NETWORK_ERROR,
@@ -85,7 +69,7 @@ export const useContentStore = defineStore({
       const errorStore = useErrorStore()
       await errorStore.handleError(
         async () => {
-          const page = await queryContent().where({ _path: path }).findOne()
+          const page = await queryContent().where({ _path: path }).findOne() as Page // Type assertion if needed
           this.page = page
         },
         ErrorType.NETWORK_ERROR,

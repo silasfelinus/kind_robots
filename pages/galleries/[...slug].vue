@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useLayoutStore } from "@/stores/layoutStore";
+import { computed } from 'vue'
+import { useLayoutStore } from '@/stores/layoutStore'
 
-const layoutStore = useLayoutStore();
+const layoutStore = useLayoutStore()
 
-// Computed property to get the current layout from the store
-const currentLayout = computed(() => layoutStore.currentLayout);
+// Ensure `currentLayout` is always a string
+const currentLayout = computed(() => layoutStore.currentLayout)
 </script>

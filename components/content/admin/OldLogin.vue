@@ -1,10 +1,7 @@
 <template>
   <div class="relative flex items-center h-36 w-36">
     <!-- Login Icon and Label -->
-    <div
-      class="flex items-center cursor-pointer"
-      @click="toggleVisibility"
-    >
+    <div class="flex items-center cursor-pointer" @click="toggleVisibility">
       <icon
         name="tabler:login"
         class="text-base-200 text-2xl"
@@ -19,24 +16,17 @@
       class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-base-200 p-4 rounded-2xl shadow-lg transition-all duration-300"
     >
       <!-- Loading State -->
-      <div
-        v-if="store.loading"
-        class="text-center text-info"
-      >
-        <icon
-          name="tabler:loader"
-          class="animate-spin text-lg mb-2"
-        />
+      <div v-if="store.loading" class="text-center text-info">
+        <icon name="tabler:loader" class="animate-spin text-lg mb-2" />
         <div>Loading, please wait...</div>
       </div>
 
       <!-- Success Screen -->
-      <div
-        v-else-if="isLoggedIn"
-        class="text-center"
-      >
+      <div v-else-if="isLoggedIn" class="text-center">
         <div class="mb-4">
-          <span class="text-lg font-semibold">Hello, {{ store.username }} 🎉</span>
+          <span class="text-lg font-semibold"
+            >Hello, {{ store.username }} 🎉</span
+          >
         </div>
         <button
           class="bg-warning text-default py-1 px-3 rounded"
@@ -54,10 +44,7 @@
         @submit.prevent="handleLogin"
       >
         <div class="mb-2 relative group">
-          <label
-            for="login"
-            class="block text-sm mb-1"
-          >Login:</label>
+          <label for="login" class="block text-sm mb-1">Login:</label>
           <input
             id="login"
             v-model="login"
@@ -65,16 +52,15 @@
             autocomplete="username"
             class="w-full p-2 border rounded"
             required
+          />
+          <div
+            class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
           >
-          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">
             Login
           </div>
         </div>
         <div class="mb-2 relative group">
-          <label
-            for="password"
-            class="block text-sm mb-1"
-          >Password:</label>
+          <label for="password" class="block text-sm mb-1">Password:</label>
           <input
             id="password"
             v-model="password"
@@ -82,8 +68,10 @@
             autocomplete="current-password"
             class="w-full p-2 border rounded"
             required
+          />
+          <div
+            class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
           >
-          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">
             Password
           </div>
         </div>
@@ -95,34 +83,22 @@
               v-model="savePassword"
               type="checkbox"
               class="mr-2"
-            >
-            <label
-              for="savePassword"
-              class="text-sm"
-            >Save Password</label>
+            />
+            <label for="savePassword" class="text-sm">Save Password</label>
           </div>
-          <button
-            type="submit"
-            class="bg-info text-default py-1 px-3 rounded"
-          >
+          <button type="submit" class="bg-info text-default py-1 px-3 rounded">
             Login
           </button>
         </div>
         <div class="text-center mt-2">
-          <NuxtLink
-            to="/register"
-            class="text-accent underline"
-          >
+          <NuxtLink to="/register" class="text-accent underline">
             Register
           </NuxtLink>
         </div>
       </form>
 
       <!-- Error Message -->
-      <div
-        v-if="errorMessage"
-        class="text-warning mt-2"
-      >
+      <div v-if="errorMessage" class="text-warning mt-2">
         {{ errorMessage }}
       </div>
     </div>
@@ -132,15 +108,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const store = useUserStore()
-const login = ref('')
-const password = ref('')
-const savePassword = ref(true)
-const isVisible = ref(true)
-const errorMessage = ref('')
-const isLoggedIn = ref(store.username !== null && store.username !== 'Kind Guest') // Set based on the store data
+const errorStore = useErrorStore()
+
+const login = ref<string>('')
+const password = ref<string>('')
+const savePassword = ref<boolean>(true)
+const isVisible = ref<boolean>(true)
+const errorMessage = ref<string>('')
+const isLoggedIn = ref<boolean>(
+  store.username !== null && store.username !== 'Kind Guest',
+)
 
 const toggleVisibility = () => {
   isVisible.value = !isVisible.value
@@ -149,16 +129,18 @@ const toggleVisibility = () => {
 const handleLogin = async () => {
   errorMessage.value = ''
   try {
-    const result = await store.login({ username: login.value, password: password.value })
+    const result = await store.login({
+      username: login.value,
+      password: password.value,
+    })
     if (result.success) {
       isLoggedIn.value = true
-    }
-    else {
+    } else {
       errorMessage.value = result.message
     }
-  }
-  catch (error: any) {
-    errorMessage.value = errorHandler(error).message
+  } catch (error: unknown) {
+    errorStore.setError(ErrorType.AUTH_ERROR, error)
+    errorMessage.value = errorStore.message || 'An unexpected error occurred.'
   }
 }
 
@@ -166,18 +148,23 @@ const handleLogout = () => {
   store.logout()
   isLoggedIn.value = false
 }
+
 onMounted(() => {
-  // Retrieve user data from localStorage and update the store
-  const storedUser = JSON.parse(localStorage.getItem('user') || 'null')
-  if (storedUser && storedUser.username !== 'Kind Guest') {
-    store.setUser(storedUser)
-    isLoggedIn.value = true
+  const storedUser = localStorage.getItem('user')
+  if (storedUser) {
+    const user = JSON.parse(storedUser)
+    if (user && user.username !== 'Kind Guest') {
+      store.setUser(user)
+      isLoggedIn.value = true
+    }
   }
 
-  if (import.meta.client) {
-    window.addEventListener('login-success', (event: any) => {
-      localStorage.setItem('user', JSON.stringify(event.detail.user))
-      isLoggedIn.value = true
+  if (import.meta.env.SSR === false) {
+    window.addEventListener('login-success', (event: Event) => {
+      if (event instanceof CustomEvent && event.detail.user) {
+        localStorage.setItem('user', JSON.stringify(event.detail.user))
+        isLoggedIn.value = true
+      }
     })
   }
 })

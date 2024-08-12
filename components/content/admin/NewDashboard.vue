@@ -52,12 +52,10 @@
     </div>
   </header>
 </template>
-
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { useErrorStore } from '@/stores/errorStore'
-
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import {
   useToggleStore,
   ToggleableScreens,
@@ -93,11 +91,13 @@ const handleButtonClick = async () => {
   if (isLoggedIn.value) {
     try {
       await userStore.logout()
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Using the error store to handle errors
       errorStore.setError(
         ErrorType.AUTH_ERROR,
-        'Failed to logout. Please try again.',
+        error instanceof Error
+          ? error.message
+          : 'Failed to logout. Please try again.',
       )
     }
   } else {

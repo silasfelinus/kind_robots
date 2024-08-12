@@ -7,9 +7,10 @@
       <icon name="tabler:loader" class="animate-spin text-lg mb-2" />
       <div>Loading, please wait...</div>
     </div>
+
     <!-- Login Form -->
     <form
-      v-if="!store.isLoggedIn"
+      v-if="!isLoggedIn"
       class="space-y-4 w-full"
       :autocomplete="store.stayLoggedIn ? 'on' : 'off'"
       @submit.prevent="handleLogin"
@@ -70,8 +71,8 @@
     </form>
 
     <!-- Error Message -->
-    <div v-if="errorMessage" class="text-warning mt-2 w-full text-center">
-      {{ errorMessage }}
+    <div v-if="errorStore.message" class="text-warning mt-2 w-full text-center">
+      {{ errorStore.message }}
       <div v-if="userNotFound">
         <div class="mt-2">
           <button class="text-accent underline">
@@ -92,18 +93,18 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const store = useUserStore()
+const errorStore = useErrorStore()
 const login = ref('')
 const password = ref('')
-const errorMessage = ref('')
 const isLoggedIn = computed(() => store.isLoggedIn)
 
 const userNotFound = ref(false)
 
 const handleLogin = async () => {
-  errorMessage.value = ''
+  errorStore.clearError() // Clear previous errors
   userNotFound.value = false
   try {
     const credentials: { username: string; password?: string } = {
@@ -116,13 +117,13 @@ const handleLogin = async () => {
     if (result.success && store.stayLoggedIn) {
       store.setStayLoggedIn(true)
     } else {
-      errorMessage.value = result.message
+      errorStore.setError(ErrorType.AUTH_ERROR, result.message) // Set authentication error
       if (result.message.includes('User not found')) {
         userNotFound.value = true
       }
     }
   } catch (error: unknown) {
-    errorMessage.value = errorHandler(error).message
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, error) // Handle unexpected errors
   }
 }
 
@@ -130,7 +131,7 @@ const handleRetryLogin = () => {
   // Clear the login field to allow the user to try a different login
   login.value = ''
   password.value = ''
-  errorMessage.value = ''
+  errorStore.clearError() // Clear error messages
   userNotFound.value = false
 }
 </script>

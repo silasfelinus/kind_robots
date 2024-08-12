@@ -265,7 +265,7 @@ export const useUserStore = defineStore({
         localStorage.removeItem(key);
       }
     },
-    async apiCall(endpoint: string, method: string = 'GET', body?: any) {
+    async apiCall(endpoint: string, method: string = 'GET', body?: unknown) {
       try {
         const response = await fetch(endpoint, {
           method,

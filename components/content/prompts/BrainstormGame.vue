@@ -7,7 +7,7 @@
       :src="pageImage"
       alt="Brainstorming"
       class="rounded-full h-40 w-40 mb-4"
-    />
+    >
     <p class="text-lg mb-4">
       Welcome to the Brainstorm Café! Click the button below to get some fresh,
       creative ideas.

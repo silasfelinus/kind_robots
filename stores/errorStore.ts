@@ -1,11 +1,10 @@
-// ~/stores/errorStore.ts
 import { defineStore } from 'pinia'
 
 export enum ErrorType {
-  NETWORK_ERROR,
-  VALIDATION_ERROR,
-  AUTH_ERROR,
-  UNKNOWN_ERROR,
+  NETWORK_ERROR = 'Network Error',
+  VALIDATION_ERROR = 'Validation Error',
+  AUTH_ERROR = 'Authentication Error',
+  UNKNOWN_ERROR = 'Unknown Error',
 }
 
 export interface ErrorHistoryEntry {
@@ -26,11 +25,9 @@ export const useErrorStore = defineStore('error', {
 
       if (message instanceof Error) {
         errorMessage = message.message
-      }
-      else if (typeof message === 'string') {
+      } else if (typeof message === 'string') {
         errorMessage = message
-      }
-      else {
+      } else {
         errorMessage = 'An unknown error occurred'
       }
 
@@ -50,15 +47,14 @@ export const useErrorStore = defineStore('error', {
       this.type = null
     },
 
-    async handleError(
-      handler: () => Promise<any>,
+    async handleError<T>(
+      handler: () => Promise<T>,
       type: ErrorType = ErrorType.UNKNOWN_ERROR,
-      errorMessage = 'An error occurred',
-    ) {
+      errorMessage: string = 'An error occurred',
+    ): Promise<T> {
       try {
         return await handler()
-      }
-      catch (error) {
+      } catch (error) {
         if (error instanceof Error) {
           errorMessage += ` Details: ${error.message}`
         }
@@ -67,27 +63,26 @@ export const useErrorStore = defineStore('error', {
       }
     },
 
-    getErrors() {
+    getErrors(): ErrorHistoryEntry[] {
       return this.history
     },
 
-    checkConnection() {
+    async checkConnection(): Promise<boolean> {
       return new Promise((resolve, reject) => {
-        if (this.history) {
-          // Change this condition based on what indicates a successful "connection"
+        // Example condition for successful connection
+        if (this.history.length > 0) {
           resolve(true)
-        }
-        else {
+        } else {
           reject(new Error('Cannot connect to Error store.'))
         }
       })
     },
-    async loadStore() {
+
+    async loadStore(): Promise<string> {
       try {
-        await this.getErrors()
-        return `loaded ${this.getErrors}. Hopefully there we no errors there.`
-      }
-      catch (error) {
+        const errors = this.getErrors()
+        return `Loaded ${errors.length} errors. Hopefully, there were no issues.`
+      } catch (error) {
         console.error('Error loading store:', error)
         throw error
       }

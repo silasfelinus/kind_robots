@@ -2,7 +2,6 @@
 import { defineEventHandler } from 'h3';
 import { errorHandler } from '../utils/error';
 import auth from '../../middleware/auth';
-import prisma from '../utils/prisma';
 import { fetchUsers } from '.';
 
 export default defineEventHandler(async (event) => {
@@ -13,9 +12,6 @@ export default defineEventHandler(async (event) => {
     // Perform authentication
     auth(event);
 
-    // Parse query parameters for pagination
-    const page = Number(event.context.query?.page) || 1;
-    const pageSize = Number(event.context.query?.pageSize) || 100;
 
     // Fetch users with pagination logic
     const users = await fetchUsers();

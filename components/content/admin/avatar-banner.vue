@@ -10,7 +10,7 @@
         :src="store.avatarImage"
         class="w-8 h-8 rounded-full mb-2"
         alt="Avatar"
-      />
+      >
       <span class="text-base-200 text-lg mb-1">{{ welcomeMessage }}</span>
       <NuxtLink
         v-if="isLoggedIn"
@@ -79,7 +79,7 @@
             autocomplete="username"
             class="w-full p-2 border rounded"
             required
-          />
+          >
         </div>
         <div>
           <label for="password" class="block text-sm mb-1">Password:</label>
@@ -90,7 +90,7 @@
             autocomplete="current-password"
             class="w-full p-2 border rounded"
             required
-          />
+          >
         </div>
 
         <div class="flex items-center justify-between">
@@ -100,7 +100,7 @@
               v-model="stayLoggedIn"
               type="checkbox"
               class="mr-2"
-            />
+            >
             <label for="stayLoggedIn" class="text-sm">Stay Logged in</label>
           </div>
           <button type="submit" class="bg-info text-default py-1 px-3 rounded">

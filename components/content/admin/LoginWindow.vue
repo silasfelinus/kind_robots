@@ -39,10 +39,9 @@
       <!-- Success Screen -->
       <div v-else-if="isLoggedIn" class="text-center">
         <div class="mb-4">
-          <span class="text-lg font-semibold"
-            >Hello, {{ store.username }} 🎉</span
-          >
-
+          <span class="text-lg font-semibold">
+            Hello, {{ store.username }} 🎉
+          </span>
           <button
             class="bg-warning text-default py-1 px-3 rounded"
             @click="handleLogout"
@@ -114,8 +113,8 @@
       </form>
 
       <!-- Error Message -->
-      <div v-if="errorMessage" class="text-warning mt-2">
-        {{ errorMessage }}
+      <div v-if="errorStore.message" class="text-warning mt-2">
+        {{ errorStore.message }}
       </div>
     </div>
   </div>
@@ -124,13 +123,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const store = useUserStore()
+const errorStore = useErrorStore()
 const login = ref('')
 const password = ref('')
 const isVisible = ref(false)
-const errorMessage = ref('')
 const isLoggedIn = computed(() => store.isLoggedIn)
 const stayLoggedIn = ref(true)
 
@@ -145,7 +144,7 @@ const toggleVisibility = () => {
 }
 
 const handleLogin = async () => {
-  errorMessage.value = ''
+  errorStore.clearError() // Clear previous errors
   try {
     const result = await store.login({
       username: login.value,
@@ -156,10 +155,10 @@ const handleLogin = async () => {
         localStorage.setItem('user', JSON.stringify({ username: login.value }))
       }
     } else {
-      errorMessage.value = result.message
+      errorStore.setError(ErrorType.AUTH_ERROR, result.message) // Set authentication error
     }
-  } catch (error: unknown) {
-    errorMessage.value = errorHandler(error).message
+  } catch (error) {
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, error) // Handle unexpected errors
   }
 }
 

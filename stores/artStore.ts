@@ -1,7 +1,7 @@
 // /stores/artStore.ts
 import { defineStore } from 'pinia'
 import type { Art, ArtReaction, Tag } from '@prisma/client'
-import { errorHandler } from '../server/api/utils/error'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const isClient = typeof window !== 'undefined'
 
@@ -24,6 +24,7 @@ export interface GenerateArtData {
   isPublic?: boolean
   isOrphan?: boolean
 }
+
 export const useArtStore = defineStore({
   id: 'artStore',
   state: () => ({
@@ -40,15 +41,14 @@ export const useArtStore = defineStore({
     },
     selectArt(artId: number) {
       const foundArt = this.artAssets.find(art => art.id === artId)
-      if (foundArt) {
-        this.selectedArt = foundArt
-      }
-      else {
+      this.selectedArt = foundArt || null
+      if (!foundArt) {
         console.warn(`Art with id ${artId} not found.`)
       }
     },
     async fetchAllArt() {
-      try {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
         const response = await fetch('/api/art')
         if (response.ok) {
           const data = await response.json()
@@ -56,177 +56,109 @@ export const useArtStore = defineStore({
           if (isClient) {
             localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
           }
+        } else {
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
         }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error in fetchAllArt:', handledError.message)
-      }
+      }, ErrorType.NETWORK_ERROR, 'Failed to fetch art.')
     },
     getArtById(id: number): Art | undefined {
       return this.artAssets.find(art => art.id === id)
     },
-
-    getArtReactionsById(id: number): ArtReaction[] | undefined {
-      return this.artReactions.filter(artReaction => artReaction.id === id)
+    getArtReactionsById(id: number): ArtReaction[] {
+      return this.artReactions.filter(reaction => reaction.artId === id)
     },
-
     getTagsById(id: number): Tag | undefined {
       return this.tags.find(tag => tag.id === id)
     },
-
     async deleteArt(id: number) {
-      try {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
         const response = await fetch(`/api/art/${id}`, {
           method: 'DELETE',
         })
-
         if (response.ok) {
-          const index = this.artAssets.findIndex(art => art.id === id)
-          if (index !== -1) {
-            this.artAssets.splice(index, 1)
-          }
+          this.artAssets = this.artAssets.filter(art => art.id !== id)
           if (isClient) {
             localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
           }
+        } else {
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
         }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error in deleteArt:', handledError.message)
-      }
+      }, ErrorType.NETWORK_ERROR, 'Failed to delete art.')
     },
     getArtByPitchId(pitchId: number): Art[] {
       return this.artAssets.filter(art => art.pitchId === pitchId)
     },
-
-async createArtReaction(reactionData: ArtReaction) {
-  try {
-    const response = await fetch('/api/reactions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(reactionData),
-    });
-
-    if (response.ok) {
-      const { newReaction } = await response.json();
-      console.log('New reaction created:', newReaction);
-      return newReaction; // Optionally return the new reaction for further use
-    } else {
-      // Handle non-OK response statuses
-      const errorResponse = await response.json();
-      console.error('Failed to create reaction:', errorResponse.message);
-      throw new Error(errorResponse.message);
-    }
-  } catch (error: any) {
-    const handledError = errorHandler(error);
-    console.error('Error in createArtReaction:', handledError.message);
-    throw handledError; // Optionally re-throw the error for further handling
-  }
-},
-
-    async generateArt(data: GenerateArtData): Promise<Art | null> {
-      try {
-        const response = await fetch('/api/art/generate', {
+    async createArtReaction(reactionData: ArtReaction): Promise<ArtReaction | null> {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
+        const response = await fetch('/api/reactions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify(reactionData),
         })
-
         if (response.ok) {
-          const newArt: Art = await response.json()
-          this.artAssets[newArt.id] = newArt // Using object property assignment
-          if (isClient) {
-            localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
-          }
-          return newArt
+          const { newReaction } = await response.json()
+          console.log('New reaction created:', newReaction)
+          return newReaction
+        } else {
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
         }
-        else {
-          const handledError = errorHandler({
-            message: 'Response not OK',
-            statusCode: response.status,
-          })
-          console.error('Error in generateArt:', handledError.message)
-          return null
-        }
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error in generateArt:', handledError.message)
-        return null
-      }
+      }, ErrorType.NETWORK_ERROR, 'Failed to create reaction.')
     },
-
-    async editArtReaction(id: number, reactionData: ArtReaction) {
-      try {
+    async editArtReaction(id: number, reactionData: ArtReaction): Promise<ArtReaction | null> {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
         const response = await fetch(`/api/reactions/${id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(reactionData),
-        });
-    
+        })
         if (response.ok) {
-          const updatedReaction = await response.json();
-          console.log('Reaction updated successfully:', updatedReaction);
-          return updatedReaction; // Optionally return the updated reaction for further use
+          const updatedReaction = await response.json()
+          console.log('Reaction updated successfully:', updatedReaction)
+          return updatedReaction
         } else {
-          // Handle non-OK response statuses
-          const errorResponse = await response.json();
-          console.error('Failed to update reaction:', errorResponse.message);
-          throw new Error(errorResponse.message);
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
         }
-      } catch (error: any) {
-        const handledError = errorHandler(error);
-        console.error('Error in editArtReaction:', handledError.message);
-        throw handledError; // Optionally re-throw the error for further handling
-      }
+      }, ErrorType.NETWORK_ERROR, 'Failed to update reaction.')
     },
-    
-
-    async deleteArtReaction(id: number) {
-      try {
+    async deleteArtReaction(id: number): Promise<boolean> {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
         const response = await fetch(`/api/reactions/${id}`, {
           method: 'DELETE',
-        });
-    
+        })
         if (response.ok) {
-          console.log(`Reaction with ID ${id} deleted successfully.`);
-          return true; // Optionally return a boolean to indicate success
+          console.log(`Reaction with ID ${id} deleted successfully.`)
+          return true
         } else {
-          // Handle non-OK response statuses
-          const errorResponse = await response.json();
-          console.error(`Failed to delete reaction with ID ${id}:`, errorResponse.message);
-          throw new Error(errorResponse.message);
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
         }
-      } catch (error: any) {
-        const handledError = errorHandler(error);
-        console.error('Error in deleteArtReaction:', handledError.message);
-        throw handledError; // Optionally re-throw the error for further handling
-      }
+      }, ErrorType.NETWORK_ERROR, 'Failed to delete reaction.')
     },
-    
     async fetchArtById(id: number): Promise<Art | null> {
-      try {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
         const response = await fetch(`/api/art/${id}`)
         if (response.ok) {
-          const art = await response.json()
-          return art
+          return await response.json()
+        } else {
+          console.error(`Failed to fetch art with ID ${id}`)
+          return null
         }
-        return null
-      }
-      catch (error: unknown) {
-        const handledError = errorHandler(error)
-        console.error('Error in fetchArtById:', handledError.message)
-        return null
-      }
+      }, ErrorType.NETWORK_ERROR, 'Failed to fetch art by ID.')
     },
   },
 })
 
-export type { Art, ArtReaction }
+export type { Art, ArtReaction, Tag }

@@ -9,6 +9,25 @@ interface Track {
   imageUrl: string;
 }
 
+
+interface SpotifyTrack {
+  id: string;
+  name: string;
+  artists: { name: string }[];
+  album: {
+    name: string;
+    release_date: string;
+    images: { url: string }[];
+  };
+}
+
+interface SpotifyPlaylistResponse {
+  tracks: {
+    items: {
+      track: SpotifyTrack;
+    }[];
+  };
+}
 interface PlaybackStatus {
   isPlaying: boolean;
   position: number;
@@ -172,18 +191,19 @@ export const useSpotifyStore = defineStore('spotify', {
         if (!this.token) {
           throw new Error('Token is not available.');
         }
+    
         const res = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },
         });
-
+    
         if (!res.ok) {
           throw new Error(`Failed to load playlist: ${res.statusText}`);
         }
-
-        const data = await res.json();
-        this.playlist = data.tracks.items.map((item: any) => ({
+    
+        const data: SpotifyPlaylistResponse = await res.json();
+        this.playlist = data.tracks.items.map((item) => ({
           id: item.track.id,
           name: item.track.name,
           artist: item.track.artists[0]?.name || 'Unknown Artist',
@@ -195,6 +215,7 @@ export const useSpotifyStore = defineStore('spotify', {
         this.handleError(error);
       }
     },
+    
 
     async playTrack(trackId: string) {
       try {

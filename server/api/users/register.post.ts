@@ -1,7 +1,6 @@
 // /server/api/user/register.post.ts
 import { defineEventHandler, readBody } from 'h3';
 import { useErrorStore, ErrorType } from '@/stores/errorStore'; // Importing the error store
-import prisma from '../utils/prisma';
 import { createUser } from '.';
 
 export default defineEventHandler(async (event) => {

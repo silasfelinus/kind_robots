@@ -1,10 +1,11 @@
 import { defineEventHandler } from 'h3'
 
-export default defineEventHandler((event: any) => {
+
+export default defineEventHandler(async (event) => {
   const req = event.node.req
 
   // req.headers is already a plain JavaScript object
-  const headersObject = req.headers
+  const headersObject = req.headers as Record<string, string | undefined>
 
   // Check if the route requires authentication
   if (event.context.route?.auth !== true) {
@@ -17,14 +18,22 @@ export default defineEventHandler((event: any) => {
   // Validate the API key
   if (!secretKey) {
     console.log('Missing API key')
-    // Redirect to login or throw an error
-    // Your redirect logic here
-    return { message: `Missing API Key` }
+    return {
+      success: false,
+      message: 'Missing API Key'
+    }
   }
 
   if (secretKey !== process.env.AUTH_SECRET) {
     console.log('Invalid API key')
-    // Redirect to login or throw an error
-    return { message: `Invalid API Key` }
+    return {
+      success: false,
+      message: 'Invalid API Key'
+    }
+  }
+
+  // If the API key is valid, continue with the request
+  return {
+    success: true
   }
 })

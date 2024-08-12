@@ -11,7 +11,7 @@ export * from './userStore'
 export * from './gameStore'
 export * from './dreamStore'
 
-export interface Store {
-  loadStore: () => Promise<any>
-  status: Ref<'loading' | 'loaded' | 'error'>
+export interface Store<T = unknown> {
+  loadStore: () => Promise<T>; // Replace `T` with a more specific type if possible
+  status: Ref<'loading' | 'loaded' | 'error'>;
 }

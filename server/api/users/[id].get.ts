@@ -1,7 +1,6 @@
 import type { User } from '@prisma/client'
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import auth from '../../middleware/auth'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {

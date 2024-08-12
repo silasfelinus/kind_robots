@@ -44,7 +44,7 @@ export const useCartStore = defineStore({
         const data = await response.json();
         return data.cart;
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
+        const { message } = errorHandler(error);
         console.error(`An error occurred while fetching cart by customer ID: ${message}`);
       }
     },
@@ -62,7 +62,7 @@ export const useCartStore = defineStore({
           }
         }
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
+        const { message } = errorHandler(error);
         console.error(`An error occurred while deleting the cart: ${message}`);
       }
     },
@@ -86,7 +86,7 @@ export const useCartStore = defineStore({
           this.cartItems.push(data.newCartItem);
         }
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
+        const { message } = errorHandler(error);
         console.error(`An error occurred while adding item to cart: ${message}`);
       }
     },
@@ -99,7 +99,7 @@ export const useCartStore = defineStore({
           this.cartItems = data.items;
         }
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
+        const { message } = errorHandler(error);
         console.error(`An error occurred while fetching items by cart ID: ${message}`);
       }
     },
@@ -121,7 +121,7 @@ export const useCartStore = defineStore({
           }
         }
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
+        const { message } = errorHandler(error);
         console.error(`An error occurred while updating the cart item: ${message}`);
       }
     },
@@ -139,7 +139,7 @@ export const useCartStore = defineStore({
           }
         }
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
+        const { message } = errorHandler(error);
         console.error(`An error occurred while deleting the cart item: ${message}`);
       }
     },
@@ -158,7 +158,7 @@ export const useCartStore = defineStore({
           this.cartItems.push(...data.newCartItems);
         }
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
+        const { message } = errorHandler(error);
         console.error(`An error occurred while batch adding items to the cart: ${message}`);
       }
     },

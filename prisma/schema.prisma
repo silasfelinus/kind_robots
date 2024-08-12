@@ -231,6 +231,7 @@ model MilestoneRecord {
   milestoneId Int
   userId      Int
   username    String?   @db.VarChar(764)
+  User        User @relation(fields: [userId], references: [id])
 }
 
 model Pitch {
@@ -401,7 +402,7 @@ model User {
   updatedAt           DateTime?     @db.DateTime(0)
   Role                Role
   username            String        @unique @db.VarChar(255)
-  email               String?       @db.VarChar(255)
+  email               String?       @db.VarChar(255) @unique
   questPoints         Int           @default(0)
   emailVerified       DateTime?     @db.DateTime(0)
   name                String?       @db.VarChar(255)
@@ -435,6 +436,7 @@ model User {
   Game                Game[]
   Slogan              Slogan[]
   Todo                Todo[]
+  milestones  MilestoneRecord[]
 }
 
 model ArtReactionToTag {

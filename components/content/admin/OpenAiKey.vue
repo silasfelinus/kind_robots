@@ -1,18 +1,12 @@
 <template>
   <div class="justify-center">
-    <input
-      v-model="key"
-      type="text"
-      placeholder="Enter your OpenAI key"
-    >
-    <button @click="saveKeyToLocal">
-      Save Key
-    </button>
+    <input v-model="key" type="text" placeholder="Enter your OpenAI key" />
+    <button @click="saveKeyToLocal">Save Key</button>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 const key = ref('')
 

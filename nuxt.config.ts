@@ -6,7 +6,6 @@ export default defineNuxtConfig({
     'nuxt-icon',
     '@unlok-co/nuxt-stripe',
     '@nuxt/eslint',
-    '@nuxtjs/axios',
   ],
   stripe: {
     // Server

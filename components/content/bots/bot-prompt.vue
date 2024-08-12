@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue'
-import axios from 'axios'
+import { ref, computed, watchEffect, onMounted } from 'vue'
 import { useBotStore, type Bot } from '../../../stores/botStore'
 
 interface Message {
@@ -31,27 +30,29 @@ const sendMessage = async () => {
   isLoading.value = true
   messages.value.push({ role: 'user', content: message.value })
   try {
-    const res = await axios.post(
-      '/api/botcafe/chat',
-      {
+    const res = await fetch('/api/botcafe/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages,
+        messages: messages.value,
         userKey,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      },
-    )
-    messages.value = [...messages.value, { role: 'assistant', content: res.data.choices[0].message.content }]
-    response.value = res.data.choices[0].message.content
-  }
-  catch (err) {
+      }),
+    })
+
+    if (!res.ok) {
+      throw new Error('Failed to send message')
+    }
+
+    const data = await res.json()
+    messages.value = [...messages.value, { role: 'assistant', content: data.choices[0].message.content }]
+    response.value = data.choices[0].message.content
+  } catch (err) {
     console.error(err)
-  }
-  finally {
+  } finally {
     isLoading.value = false
   }
 }
@@ -61,11 +62,11 @@ const sendReply = async (updatedMessages: Message[]) => {
     messages.value = updatedMessages
     message.value = updatedMessages[updatedMessages.length - 1].content
     await sendMessage()
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err)
   }
 }
+
 </script>
 
 <template>

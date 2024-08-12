@@ -1,5 +1,3 @@
-import type { AxiosError } from 'axios'
-import axios from 'axios'
 import { defineEventHandler, readBody } from 'h3'
 import { useRuntimeConfig, createError } from '#imports'
 
@@ -20,53 +18,67 @@ export default defineEventHandler(async (event) => {
     console.log('logging:', data)
 
     if (data.stream) {
-      const responseStream = await axios.post(post, data, {
+      // Handle streaming response
+      const response = await fetch(post, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${OPENAI_API_KEY}`,
         },
-        responseType: 'stream',
+        body: JSON.stringify(data),
       })
 
-      let responseData = ''
-      responseStream.data.on('data', (chunk: any) => {
-        console.log('Received chunk:', chunk.toString()) // Log each chunk as it arrives
-        responseData += chunk
-      })
-
-      return new Promise((resolve, reject) => {
-        responseStream.data.on('end', () => {
-          resolve(JSON.parse(responseData))
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw createError({
+          statusCode: response.status,
+          statusMessage: `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
         })
-        responseStream.data.on('error', (err: any) => {
-          reject(err)
-        })
-      })
-    }
-    else {
-      const response = await axios.post(post, data, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        },
-      })
-
-      return response.data
-    }
-  }
-  catch (error) {
-    let errorMessage = 'An error occurred while creating the channel.'
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError
-      errorMessage += ` Details: ${axiosError.message}`
-      if (axiosError.response) {
-        console.error('Response:', axiosError.response)
-        errorMessage += ` Server responded with ${axiosError.response.status}: ${JSON.stringify(
-          axiosError.response.data,
-        )}`
       }
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder('utf-8')
+      let responseData = ''
+
+      if (reader) {
+        let done = false
+        while (!done) {
+          const { done: streamDone, value } = await reader.read()
+          done = streamDone
+          if (value) {
+            const chunk = decoder.decode(value, { stream: true })
+            console.log('Received chunk:', chunk) // Log each chunk as it arrives
+            responseData += chunk
+          }
+        }
+      }
+
+      return JSON.parse(responseData)
+    } else {
+      // Handle non-streaming response
+      const response = await fetch(post, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw createError({
+          statusCode: response.status,
+          statusMessage: `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
+        })
+      }
+
+      return await response.json()
     }
-    else if (error instanceof Error) {
+  } catch (error) {
+    let errorMessage = 'An error occurred while creating the channel.'
+    
+    if (error instanceof Error) {
       errorMessage += ` Details: ${error.message}`
     }
 

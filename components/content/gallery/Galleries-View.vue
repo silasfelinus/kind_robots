@@ -1,9 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-200 p-5">
-    <div
-      v-if="error"
-      class="text-red-500 text-center my-10"
-    >
+    <div v-if="error" class="text-red-500 text-center my-10">
       An error occurred: {{ error }}
     </div>
     <div class="text-center my-5">
@@ -14,7 +11,9 @@
         Refresh Images
       </button>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+    >
       <div
         v-for="gallery in galleries"
         :key="gallery.id"
@@ -32,7 +31,7 @@
                 alt="Image from {{ gallery.name }}"
                 class="gallery-img w-full"
                 @click="refreshSingleGallery(gallery)"
-              >
+              />
             </div>
             <!-- Back -->
             <div class="flipper-back">
@@ -41,7 +40,7 @@
                 alt="Next image from {{ gallery.name }}"
                 class="gallery-img w-full"
                 @click="refreshSingleGallery(gallery)"
-              >
+              />
             </div>
           </div>
         </div>
@@ -59,35 +58,48 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 
 const galleries = ref(null)
 const error = ref(null)
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/galleries')
-    if (response.data.success) {
-      galleries.value = response.data.Galleries
+    const response = await fetch('/api/galleries', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch data.')
+    }
+
+    const data = await response.json()
+
+    if (data.success) {
+      galleries.value = data.Galleries
       galleries.value.forEach((gallery) => {
         gallery.currentImage = getRandomImage(gallery)
         gallery.isFlipped = false // Initialize the flip state
       })
-    }
-    else {
+    } else {
       error.value = 'Failed to fetch data.'
     }
-  }
-  catch (err) {
+  } catch (err) {
     error.value = err.message
   }
 })
 
 const getRandomImage = (gallery) => {
   if (!gallery.imagePaths) return ''
-  const images = gallery.imagePaths.split(',').map(filename => `/images/${gallery.name}/${filename.trim()}`)
+  const images = gallery.imagePaths
+    .split(',')
+    .map((filename) => `/images/${gallery.name}/${filename.trim()}`)
   return images[Math.floor(Math.random() * images.length)]
 }
+
 const refreshImages = () => {
   galleries.value.forEach((gallery) => {
     gallery.nextImage = getRandomImage(gallery)
@@ -104,12 +116,13 @@ const refreshImages = () => {
     }, timeoutDuration)
   })
 }
-const computeTransform = (gallery) => {
-  return gallery.isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
-}
 
 const refreshSingleGallery = (gallery) => {
   gallery.currentImage = getRandomImage(gallery)
+}
+
+const computeTransform = (gallery) => {
+  return gallery.isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
 }
 </script>
 

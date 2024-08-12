@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div
     class="flex flex-col items-center p-4 rounded-2xl shadow-lg transition-all duration-300 w-full max-w-md mx-auto"

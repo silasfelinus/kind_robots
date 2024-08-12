@@ -1,4 +1,4 @@
-// ~/stores/error.ts
+// ~/stores/errorStore.ts
 import { defineStore } from 'pinia'
 
 export enum ErrorType {

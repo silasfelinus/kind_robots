@@ -1,20 +1,14 @@
 <template>
   <div class="flex items-center h-36 w-36 z-50">
     <!-- Welcome Message -->
-    <div
-      class="flex items-center cursor-pointer"
-      @click="toggleVisibility"
-    >
+    <div class="flex items-center cursor-pointer" @click="toggleVisibility">
       <img
         v-if="store.avatarImage"
         :src="store.avatarImage"
         class="w-8 h-8 rounded-full mr-2"
         alt="Avatar"
-      >
-      <icon
-        name="tabler:home"
-        class="text-2xl"
       />
+      <icon name="tabler:home" class="text-2xl" />
       <span class="ml-2">{{ welcomeMessage }}</span>
       <NuxtLink
         v-if="isLoggedIn && store.role === 'admin'"
@@ -23,11 +17,7 @@
       >
         Admin
       </NuxtLink>
-      <NuxtLink
-        v-if="isLoggedIn"
-        to="/dashboard"
-        class="ml-2 underline"
-      >
+      <NuxtLink v-if="isLoggedIn" to="/dashboard" class="ml-2 underline">
         Dashboard
       </NuxtLink>
     </div>
@@ -38,24 +28,17 @@
       class="flex flex-col items-center p-4 rounded-2xl shadow-lg transition-all duration-300"
     >
       <!-- Loading State -->
-      <div
-        v-if="store.loading"
-        class="text-center text-info"
-      >
-        <icon
-          name="tabler:loader"
-          class="animate-spin text-lg mb-2"
-        />
+      <div v-if="store.loading" class="text-center text-info">
+        <icon name="tabler:loader" class="animate-spin text-lg mb-2" />
         <div>Loading, please wait...</div>
       </div>
 
       <!-- Success Screen -->
-      <div
-        v-else-if="isLoggedIn"
-        class="text-center"
-      >
+      <div v-else-if="isLoggedIn" class="text-center">
         <div class="mb-4">
-          <span class="text-lg font-semibold">Hello, {{ store.username }} 🎉</span>
+          <span class="text-lg font-semibold"
+            >Hello, {{ store.username }} 🎉</span
+          >
 
           <button
             class="bg-warning text-default py-1 px-3 rounded"
@@ -74,10 +57,7 @@
         @submit.prevent="handleLogin"
       >
         <div class="mb-2 relative group">
-          <label
-            for="login"
-            class="block text-sm mb-1"
-          >Login:</label>
+          <label for="login" class="block text-sm mb-1">Login:</label>
           <input
             id="login"
             v-model="login"
@@ -85,16 +65,15 @@
             autocomplete="username"
             class="w-full p-2 border rounded"
             required
+          />
+          <div
+            class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
           >
-          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">
             Login
           </div>
         </div>
         <div class="mb-2 relative group">
-          <label
-            for="password"
-            class="block text-sm mb-1"
-          >Password:</label>
+          <label for="password" class="block text-sm mb-1">Password:</label>
           <input
             id="password"
             v-model="password"
@@ -102,8 +81,10 @@
             autocomplete="current-password"
             class="w-full p-2 border rounded"
             required
+          />
+          <div
+            class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
           >
-          <div class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip">
             Password
           </div>
         </div>
@@ -115,34 +96,22 @@
               v-model="stayLoggedIn"
               type="checkbox"
               class="mr-2"
-            >
-            <label
-              for="stayLoggedIn"
-              class="text-sm"
-            >Stay Logged in</label>
+            />
+            <label for="stayLoggedIn" class="text-sm">Stay Logged in</label>
           </div>
-          <button
-            type="submit"
-            class="bg-info text-default py-1 px-3 rounded"
-          >
+          <button type="submit" class="bg-info text-default py-1 px-3 rounded">
             Login
           </button>
         </div>
         <div class="text-center mt-2">
-          <NuxtLink
-            to="/register"
-            class="text-accent underline"
-          >
+          <NuxtLink to="/register" class="text-accent underline">
             Register
           </NuxtLink>
         </div>
       </form>
 
       <!-- Error Message -->
-      <div
-        v-if="errorMessage"
-        class="text-warning mt-2"
-      >
+      <div v-if="errorMessage" class="text-warning mt-2">
         {{ errorMessage }}
       </div>
     </div>
@@ -163,7 +132,9 @@ const isLoggedIn = computed(() => store.isLoggedIn)
 const stayLoggedIn = ref(true)
 
 const welcomeMessage = computed(() => {
-  return isLoggedIn.value ? `Hello, ${store.username} 🎉` : 'Welcome, Kind Guest'
+  return isLoggedIn.value
+    ? `Hello, ${store.username} 🎉`
+    : 'Welcome, Kind Guest'
 })
 
 const toggleVisibility = () => {
@@ -173,17 +144,18 @@ const toggleVisibility = () => {
 const handleLogin = async () => {
   errorMessage.value = ''
   try {
-    const result = await store.login({ username: login.value, password: password.value })
+    const result = await store.login({
+      username: login.value,
+      password: password.value,
+    })
     if (result.success) {
       if (stayLoggedIn.value) {
         localStorage.setItem('user', JSON.stringify({ username: login.value }))
       }
-    }
-    else {
+    } else {
       errorMessage.value = result.message
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     errorMessage.value = errorHandler(error).message
   }
 }

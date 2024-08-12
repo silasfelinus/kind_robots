@@ -9,7 +9,7 @@ export default defineEventHandler(async () => {
     const pitches = await prisma.pitch.findMany()
     return { success: true, pitches }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

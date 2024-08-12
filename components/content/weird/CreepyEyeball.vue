@@ -76,8 +76,7 @@ function setNextBlink() {
     blink()
   }, randomDuration)
 }
-// Additional reactive property
-const irisTranslation = ref(`translate(0px, 0px)`)
+
 // Change irisTranslation to store x and y values
 const randomIrisPosition = ref({ x: 0, y: 0 })
 
@@ -117,12 +116,6 @@ const irisPosition = computed(() => {
 
   return `translate(${x}px, ${y}px)`
 })
-
-function getRandomIrisPosition() {
-  const randomX = (Math.random() - 0.5) * (eyeballSize / 4)
-  const randomY = (Math.random() - 0.5) * (eyeballSize / 4)
-  return `translate(${randomX}px, ${randomY}px)`
-}
 
 function blink() {
   upperEyelidY.value = eyeballSize / 2

@@ -1,15 +1,16 @@
 <template>
-  <div class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border">
-    <h1 class="text-3xl font-bold mb-4">
-      Brainstorm Café
-    </h1>
+  <div
+    class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
+  >
+    <h1 class="text-3xl font-bold mb-4">Brainstorm Café</h1>
     <img
       :src="pageImage"
       alt="Brainstorming"
       class="rounded-full h-40 w-40 mb-4"
-    >
+    />
     <p class="text-lg mb-4">
-      Welcome to the Brainstorm Café! Click the button below to get some fresh, creative ideas.
+      Welcome to the Brainstorm Café! Click the button below to get some fresh,
+      creative ideas.
     </p>
     <button
       class="bg-primary text-white p-4 rounded-full text-lg m-4"
@@ -18,10 +19,7 @@
     >
       Get New Ideas
     </button>
-    <milestone-reward
-      v-if="shouldShowMilestoneCheck"
-      :id="2"
-    />
+    <milestone-reward v-if="shouldShowMilestoneCheck" :id="2" />
     <div
       v-if="isLoading"
       class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 mb-4"
@@ -31,25 +29,12 @@
       tag="div"
       class="flex flex-wrap justify-center"
     >
-      <div
-        v-for="idea in allIdeas"
-        :key="idea.title"
-        class="m-2"
-      >
-        <BrainstormCard
-          :idea="idea"
-          @click="handleCardClick(idea)"
-        />
+      <div v-for="idea in allIdeas" :key="idea.title" class="m-2">
+        <BrainstormCard :idea="idea" @click="handleCardClick(idea)" />
       </div>
     </transition-group>
-    <div
-      v-if="errorMessage"
-      class="bg-warning text-white p-4 rounded-full"
-    >
-      <icon
-        name="error"
-        class="text-lg"
-      /> {{ errorMessage }}
+    <div v-if="errorMessage" class="bg-warning text-white p-4 rounded-full">
+      <icon name="error" class="text-lg" /> {{ errorMessage }}
     </div>
   </div>
 </template>
@@ -94,24 +79,22 @@ const fetchBrainstorm = async () => {
 
     const data = await response.json()
     if (data.choices && data.choices[0] && data.choices[0].message) {
-      const newIdeas: Idea[] = parseIdeasFromAPI(data.choices[0].message.content)
+      const newIdeas: Idea[] = parseIdeasFromAPI(
+        data.choices[0].message.content,
+      )
       if (newIdeas.length > 0) {
         allIdeas.value = [...newIdeas, ...allIdeas.value]
-      }
-      else {
+      } else {
         throw new Error('No new ideas generated')
       }
-    }
-    else {
+    } else {
       throw new Error('Invalid API response')
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     const { message } = errorHandler(error)
     errorMessage.value = message
     console.error('Error fetching brainstorm:', error)
-  }
-  finally {
+  } finally {
     isLoading.value = false
   }
 }

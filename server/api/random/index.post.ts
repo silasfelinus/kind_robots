@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, newList }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

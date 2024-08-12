@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, pitch: updatedPitch }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -35,7 +35,7 @@ export async function updatePitch(id: number, updatedPitch: Partial<Pitch>): Pro
       data: updatedPitch,
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

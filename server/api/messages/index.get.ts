@@ -8,7 +8,7 @@ export default defineEventHandler(async () => {
     const messages = await fetchAllMessages()
     return { success: true, messages }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

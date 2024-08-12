@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const updatedChannel = await updateChannel(id, updatedChannelData)
     return { success: true, updatedChannel }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -24,7 +24,7 @@ export async function updateChannel(id: number, updatedChannel: Partial<Channel>
       data: updatedChannel,
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

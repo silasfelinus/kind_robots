@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     const isDeleted = await deleteMessage(id)
     return { success: isDeleted }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -25,7 +25,7 @@ export async function deleteMessage(id: number): Promise<boolean> {
     await prisma.message.delete({ where: { id } })
     return true
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

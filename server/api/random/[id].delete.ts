@@ -6,10 +6,20 @@ import prisma from '../utils/prisma'
 export default defineEventHandler(async (event) => {
   try {
     const id = Number(event.context.params?.id)
-    const isDeleted = await prisma.randomList.delete({ where: { id } })
-    return { success: true }
+    if (isNaN(id)) {
+      throw new Error('Invalid ID.')
+    }
+
+    const deletedItem = await prisma.randomList.delete({ where: { id } })
+
+    if (!deletedItem) {
+      return { success: false, message: 'Item not found or could not be deleted.' }
+    }
+
+    return { success: true, message: `Item with ID ${id} successfully deleted.` }
   }
-  catch (error: any) {
-    return errorHandler(error)
+  catch (error: unknown) {
+    const { success, message, statusCode } = errorHandler(error)
+    return { success, message, statusCode }
   }
 })

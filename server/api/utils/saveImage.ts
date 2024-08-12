@@ -22,7 +22,7 @@ export async function saveImage(base64Image: string, galleryName: string): Promi
 
     return filePath
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

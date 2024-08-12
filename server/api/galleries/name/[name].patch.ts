@@ -1,29 +1,41 @@
 // /server/api/galleries/[name].patch.ts
-import { defineEventHandler, readBody } from 'h3'
-import { fetchGalleryByName, updateGallery } from '..' // Import the correct methods
+import { defineEventHandler, readBody, createError } from 'h3';
+import { fetchGalleryByName, updateGallery } from '..'; // Import the correct methods
 
 export default defineEventHandler(async (event) => {
-  const name = String(event.context.params?.name)
-  if (!name) throw new Error('Invalid gallery name.')
+  // Extract and validate the gallery name from the request parameters
+  const name = String(event.context.params?.name).trim();
+  if (!name) {
+    throw createError({
+      statusCode: 400, // Bad Request
+      message: 'Gallery name is required.',
+    });
+  }
 
   try {
-    // Fetch the gallery from the database
-    const gallery = await fetchGalleryByName(name)
-
-    // Make sure to await the Promise returned by readBody
-    const data = await readBody(event)
+    // Fetch the gallery from the database by its name
+    const gallery = await fetchGalleryByName(name);
 
     if (!gallery) {
-      throw new Error('Gallery not found.')
+      throw createError({
+        statusCode: 404, // Not Found
+        message: `Gallery with name '${name}' not found.`,
+      });
     }
 
-    // Update only the provided fields
-    // Note: We use the gallery's id for updating, as it's usually more consistent than names.
-    const updatedGallery = await updateGallery(gallery.id, data)
+    // Read and parse the body of the request
+    const data = await readBody(event);
 
-    return { success: true, gallery: updatedGallery }
+    // Update the gallery using its ID and the provided data
+    const updatedGallery = await updateGallery(gallery.id, data);
+
+    return { success: true, gallery: updatedGallery };
+  } catch (error: unknown) {
+    // Handle any errors that occur during the update process
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return {
+      success: false,
+      message: `Failed to update gallery with name '${name}'. Reason: ${errorMessage}`,
+    };
   }
-  catch (error) {
-    return { success: false, message: `Failed to update gallery with name ${name}.` }
-  }
-})
+});

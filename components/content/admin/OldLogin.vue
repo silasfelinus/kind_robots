@@ -52,7 +52,7 @@
             autocomplete="username"
             class="w-full p-2 border rounded"
             required
-          />
+          >
           <div
             class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
           >
@@ -68,7 +68,7 @@
             autocomplete="current-password"
             class="w-full p-2 border rounded"
             required
-          />
+          >
           <div
             class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
           >
@@ -83,7 +83,7 @@
               v-model="savePassword"
               type="checkbox"
               class="mr-2"
-            />
+            >
             <label for="savePassword" class="text-sm">Save Password</label>
           </div>
           <button type="submit" class="bg-info text-default py-1 px-3 rounded">

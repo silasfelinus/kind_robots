@@ -1,17 +1,10 @@
 <template>
   <header :class="headerClass">
-    <user-avatar
-      :size="avatarSize"
-      class="avatar"
-      @click="toggleMinimize"
-    />
+    <user-avatar :size="avatarSize" class="avatar" @click="toggleMinimize" />
     <div class="flex flex-col w-full">
       <div class="info-section">
         <span class="username">{{ username }}</span>
-        <span
-          v-if="!isCompact"
-          class="jellybeans"
-        >{{ jellybeansInfo }}</span>
+        <span v-if="!isCompact" class="jellybeans">{{ jellybeansInfo }}</span>
         <button
           v-if="isLoggedIn"
           class="logout-button"
@@ -34,7 +27,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { errorHandler } from '@/server/api/utils/error'
-import { useToggleStore, ToggleableScreens, ScreenState } from '@/stores/toggleStore'
+import {
+  useToggleStore,
+  ToggleableScreens,
+  ScreenState,
+} from '@/stores/toggleStore'
 
 // User Store
 const userStore = useUserStore()
@@ -44,21 +41,30 @@ const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 // Toggle Store
 const toggleStore = useToggleStore()
-const isCompact = ref(toggleStore.getScreenState(ToggleableScreens.USER_DASHBOARD) === ScreenState.COMPACT)
+const isCompact = ref(
+  toggleStore.getScreenState(ToggleableScreens.USER_DASHBOARD) ===
+    ScreenState.COMPACT,
+)
 
 // On Mounted
 onMounted(() => {
   toggleStore.loadFromLocalStorage()
-  isCompact.value = toggleStore.getScreenState(ToggleableScreens.USER_DASHBOARD) === ScreenState.COMPACT
+  isCompact.value =
+    toggleStore.getScreenState(ToggleableScreens.USER_DASHBOARD) ===
+    ScreenState.COMPACT
 })
 
 // Computed
 const headerClass = computed(() =>
-  isCompact.value ? 'flex flex-row items-center bg-base-200 m-1' : 'flex flex-col bg-base-200 m-1',
+  isCompact.value
+    ? 'flex flex-row items-center bg-base-200 m-1'
+    : 'flex flex-col bg-base-200 m-1',
 )
 const avatarSize = computed(() => (isCompact.value ? 'small' : 'large'))
 const username = computed(() => user.value?.username || 'Kind Guest')
-const jellybeansInfo = computed(() => `${jellybeans.value}/ 9 Jellybeans Discovered`)
+const jellybeansInfo = computed(
+  () => `${jellybeans.value}/ 9 Jellybeans Discovered`,
+)
 
 // Methods
 const toggleMinimize = () => {
@@ -71,16 +77,14 @@ const handleLogout = async () => {
   if (isLoggedIn.value) {
     try {
       await userStore.logout()
-    }
-    catch (error: any) {
+    } catch (error: unknown) {
       const errorResponse = errorHandler({
         error,
         message: 'Failed to logout. Please try again.',
       })
       console.error(errorResponse.message)
     }
-  }
-  else {
+  } else {
     // Handle login popup or redirect
   }
 }

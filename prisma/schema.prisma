@@ -15,8 +15,8 @@ model Art {
   artPromptId Int?          @default(0)
   userId      Int?          @default(0)
   pitchId     Int?          @default(0)
-  createdAt   DateTime?     @db.DateTime(0)
-  updatedAt   DateTime?     @db.DateTime(0)
+  createdAt   DateTime?     @default(now())
+  updatedAt   DateTime?     @updatedAt @default(now())
   boos        Int?          @default(0)
   claps       Int?          @default(0)
   cfg         String?       @db.VarChar(764)
@@ -35,8 +35,8 @@ model Art {
 
 model ArtPrompt {
   id            Int       @id @default(autoincrement())
-  createdAt     DateTime  @db.DateTime(0)
-  updatedAt     DateTime? @db.DateTime(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt @default(now())
   userId        Int       @default(0)
   prompt        String    @db.VarChar(8000)
   galleryId     Int?      @default(0)
@@ -48,7 +48,7 @@ model ArtPrompt {
 model ArtReaction {
   id        Int       @id @unique @default(autoincrement())
   createdAt DateTime  @default(now())
-  updatedAt DateTime?
+  updatedAt DateTime? @updatedAt @default(now())
   userId    Int
   artId     Int?
   claps     Int       @default(0)
@@ -68,8 +68,8 @@ model ArtReaction {
 
 model Bot {
   id                Int       @id @default(autoincrement())
-  createdAt         DateTime  @db.DateTime(0)
-  updatedAt         DateTime? @db.DateTime(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime? @updatedAt @default(now())
   BotType           String    @db.VarChar(764)
   name              String    @unique(map: "Bot_id_key", length: 200) @db.VarChar(764)
   isPublic          Boolean       @default(false)
@@ -94,7 +94,7 @@ model Bot {
 model Cart {
   id         Int        @id @unique @default(autoincrement())
   createdAt  DateTime   @default(now())
-  updatedAt  DateTime?
+  updatedAt  DateTime?  @updatedAt @default(now())
   customerId Int
   Customer   Customer   @relation(fields: [customerId], references: [id])
   items      CartItem[]
@@ -117,20 +117,22 @@ model CartItem {
 
 model Channel {
   id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @db.DateTime(0)
-  updatedAt   DateTime? @db.DateTime(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt @default(now())
   userId      Int?      @default(16580608)
   label       String    @unique(map: "Channel_id_key", length: 200) @db.VarChar(764)
   description String?   @db.VarChar(8000)
   tagId       Int?      @default(0)
   title       String?   @db.VarChar(764)
   pitchId     Int?      @default(0)
+
+  messages    Message[] // Add this line to establish the relationship
 }
 
 model ChatExchange {
   id              Int      @id @default(autoincrement())
-  createdAt       DateTime @db.DateTime(0)
-  updatedAt       DateTime @updatedAt @db.DateTime(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt @default(now())
   botId           Int?     @default(57088)
   botName         String   @db.VarChar(255)
   userId          Int
@@ -148,7 +150,7 @@ model ChatExchange {
 model Customer {
   id        Int       @id @unique @default(autoincrement())
   createdAt DateTime  @default(now())
-  updatedAt DateTime?
+  updatedAt DateTime? @updatedAt @default(now())
   email     String    @unique
   name      String?
   userId    Int?      @unique
@@ -158,8 +160,8 @@ model Customer {
 
 model Gallery {
   id             Int       @id @default(autoincrement())
-  createdAt      DateTime  @db.DateTime(0)
-  updatedAt      DateTime? @db.DateTime(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt @default(now())
   name           String    @unique(map: "Gallery_id_key", length: 200) @db.VarChar(764)
   description    String?   @db.Text
   mediaId        String?   @db.VarChar(764)
@@ -175,7 +177,7 @@ model Gallery {
 model Game {
   id         Int       @id @unique @default(autoincrement())
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime?
+  updatedAt  DateTime? @updatedAt @default(now())
   content    String    @db.Text
   category   String    @default("Blue Sky Tasks")
   isFinished Boolean   @default(false)
@@ -198,14 +200,16 @@ model Log {
 
 model Message {
   id        Int       @id @default(autoincrement())
-  createdAt DateTime  @db.DateTime(0)
-  updatedAt DateTime? @db.DateTime(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt @default(now())
   sender    String    @db.VarChar(764)
   recipient String    @db.VarChar(764)
   content   String    @db.Text
   channelId Int
   botId     Int?      @default(0)
   userId    Int?      @default(0)
+
+  channel   Channel   @relation(fields: [channelId], references: [id]) // Add this line to establish the relationship
 }
 
 model Milestone {
@@ -215,8 +219,8 @@ model Milestone {
   icon         String    @db.VarChar(764)
   karma        Int       @default(0)
   isRepeatable Boolean       @default(true)
-  createdAt    DateTime  @db.DateTime(0)
-  updatedAt    DateTime? @db.DateTime(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime? @updatedAt @default(now())
   triggerCode  String    @db.VarChar(764)
   tooltip      String?   @db.VarChar(764)
   isActive     Boolean       @default(false)
@@ -226,8 +230,8 @@ model Milestone {
 
 model MilestoneRecord {
   id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @db.DateTime(0)
-  updatedAt   DateTime? @db.DateTime(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt @default(now())
   milestoneId Int
   userId      Int
   username    String?   @db.VarChar(764)
@@ -236,8 +240,8 @@ model MilestoneRecord {
 
 model Pitch {
   id             Int           @id @default(autoincrement())
-  createdAt      DateTime      @db.DateTime(0)
-  updatedAt      DateTime?     @updatedAt @db.DateTime(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime?     @updatedAt @default(now())
   title          String        @unique @db.VarChar(764)
   pitch          String        @db.VarChar(764)
   userId         Int           @default(0)
@@ -258,15 +262,15 @@ model Pitch {
 
 model RandomList {
   id     Int    @id @default(autoincrement())
-  title  String @db.VarChar(764)
+  title  String @db.VarChar(764) @unique
   items  String @db.LongText
   userId Int?   @default(0)
 }
 
 model Post {
   id             Int       @id @default(autoincrement())
-  createdAt      DateTime  @db.DateTime(0)
-  updatedAt      DateTime? @db.DateTime(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt @default(now())
   userId         Int?      @default(0)
   username       String    @db.VarChar(764)
   content        String    @db.VarChar(764)
@@ -291,8 +295,8 @@ model Post {
 
 model Product {
   id            Int        @id @default(autoincrement())
-  createdAt     DateTime   @db.DateTime(0)
-  updatedAt     DateTime?  @db.DateTime(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?  @updatedAt @default(now())
   title         String     @db.VarChar(764)
   category      String     @db.VarChar(764)
   flavorText    String?    @db.VarChar(764)
@@ -306,8 +310,8 @@ model Product {
 
 model Resource {
   id           Int          @id @default(autoincrement())
-  createdAt    DateTime     @db.DateTime(0)
-  updatedAt    DateTime?    @db.DateTime(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime?    @updatedAt @default(now())
   userId       Int?         @default(-65536)
   name         String       @unique(map: "Resource_id_key", length: 200) @db.VarChar(764)
   customLabel  String?      @db.VarChar(764)
@@ -324,8 +328,8 @@ model Resource {
 
 model Reward {
   id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @db.DateTime(0)
-  updatedAt  DateTime? @db.DateTime(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @updatedAt @default(now())
   icon       String    @db.VarChar(256)
   text       String    @db.VarChar(764)
   power      String    @db.VarChar(764)
@@ -356,7 +360,7 @@ model Slogan {
   kindRobot      String   @default("amibot")
   botId          Int?
   createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  updatedAt      DateTime @updatedAt @default(now())
   Bot            Bot?     @relation(fields: [botId], references: [id])
   User           User     @relation(fields: [userId], references: [id])
 
@@ -366,19 +370,20 @@ model Slogan {
 
 model Tag {
   id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @db.DateTime(0)
-  updatedAt  DateTime? @db.DateTime(0)
+  createdAt  DateTime  @default(now()) 
+  updatedAt  DateTime? @updatedAt @default(now())
   label      String    @db.VarChar(256)
   title      String    @db.VarChar(256)
   userId     Int       @default(0)
-  isPublic   Boolean?      @default(false)
+  isPublic   Boolean?  @default(false)
   channelId  Int?      @unique @default(0)
   flavorText String?   @db.VarChar(764)
   pitch      String?   @db.VarChar(764)
-  isMature   Boolean       @default(false)
+  isMature   Boolean   @default(false)
   sloganId   Int?      @default(0)
   postId     Int?      @default(0)
 }
+
 
 model Todo {
   id        Int       @id @default(autoincrement())
@@ -388,7 +393,7 @@ model Todo {
   createdAt DateTime  @default(now())
   userId    Int
   rewardId  Int?
-  updatedAt DateTime?
+  updatedAt DateTime? @updatedAt @default(now())
   Reward    Reward?   @relation(fields: [rewardId], references: [id])
   User      User      @relation(fields: [userId], references: [id])
 
@@ -398,8 +403,8 @@ model Todo {
 
 model User {
   id                  Int           @id @default(autoincrement())
-  createdAt           DateTime      @db.DateTime(0)
-  updatedAt           DateTime?     @db.DateTime(0)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime?     @updatedAt @default(now())
   Role                Role
   username            String        @unique @db.VarChar(255)
   email               String?       @db.VarChar(255) @unique

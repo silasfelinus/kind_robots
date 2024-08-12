@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, pitch: createdPitch }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -49,7 +49,7 @@ export async function createPitch(
       },
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

@@ -1,13 +1,19 @@
-// server/api/projects/count.get.ts
+// /server/api/projects/count.get.ts
 import { defineEventHandler } from 'h3'
 import { countBots } from '.'
+import { errorHandler } from '../utils/error'
+import { createError } from '#imports'
 
 export default defineEventHandler(async () => {
   try {
     const count = await countBots()
     return { success: true, count }
   }
-  catch (error) {
-    return { success: false, message: 'Failed to get projects count.' }
+  catch (error: unknown) {
+    const { message, statusCode } = errorHandler(error)
+    throw createError({
+      statusCode: statusCode || 500,
+      statusMessage: message,
+    })
   }
 })

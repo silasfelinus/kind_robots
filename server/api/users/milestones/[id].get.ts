@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
       milestoneIds,
     }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return {
       success: false,
       message: `Failed to fetch records. Reason: ${errorHandler(error)}`,

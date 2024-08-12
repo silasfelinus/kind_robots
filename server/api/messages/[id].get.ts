@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const message = await fetchMessageById(id)
     return { success: true, message }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

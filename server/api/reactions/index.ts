@@ -1,4 +1,4 @@
-import { type ArtReaction, Prisma } from '@prisma/client'
+import type { ArtReaction } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
@@ -23,7 +23,7 @@ export async function createArtReaction(reaction: Partial<ArtReaction>) {
       },
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }
@@ -42,7 +42,7 @@ export async function updateArtReaction(
       data: updatedReaction,
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }
@@ -59,7 +59,7 @@ export async function deleteArtReaction(id: number): Promise<boolean> {
     await prisma.$transaction([prisma.artReaction.delete({ where: { id } })])
     return true
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

@@ -9,7 +9,7 @@ export default defineEventHandler(async () => {
     const channels = await fetchAllChannels()
     return { success: true, channels }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

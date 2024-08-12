@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: '🚀 Mission abort! Invalid validation type.' }
     }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     const { message } = errorHandler(error)
     return { success: false, message: `🚀 Mission abort! ${message}` }
   }

@@ -29,7 +29,7 @@ export const usePromptStore = defineStore('promptStore', {
           this.artPrompts = data.artPrompts
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error in fetchArtPrompts:', handledError.message)
       }
@@ -68,7 +68,7 @@ export const usePromptStore = defineStore('promptStore', {
           this.artByPromptId = await response.json()
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error in fetchArtByPromptId:', handledError.message)
       }
@@ -95,7 +95,7 @@ export const usePromptStore = defineStore('promptStore', {
           this.artPrompts.push(createdPrompt)
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error in createArtPrompt:', handledError.message)
       }
@@ -111,7 +111,7 @@ export const usePromptStore = defineStore('promptStore', {
           this.artPrompts = this.artPrompts.filter(prompt => prompt.id !== promptId)
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error in deleteArtPrompt:', handledError.message)
       }

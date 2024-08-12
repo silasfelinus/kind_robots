@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, newMessage }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     const { success, message, statusCode } = errorHandler(error)
     return {
       success,
@@ -44,7 +44,7 @@ export async function createMessage(message: Partial<Message>): Promise<Message>
       })
     }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

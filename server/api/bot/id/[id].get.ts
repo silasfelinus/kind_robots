@@ -4,17 +4,21 @@ import { fetchBotById } from '../../bots'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
-  if (!id) throw new Error('Invalid bot ID.')
+  if (!id) {
+    return { success: false, message: 'Invalid bot ID.' }
+  }
+
   try {
     const bot = await fetchBotById(id)
 
     if (!bot) {
-      throw new Error(`Bot with id ${id} does not exist.`)
+      return { success: false, message: `Bot with id ${id} does not exist.` }
     }
 
     return { success: true, bot }
   }
-  catch (error) {
-    return { success: false, message: `Failed to fetch bot with id ${id}.` }
+  catch (error: unknown) {
+    console.error(`Failed to fetch bot with id ${id}:`, (error as Error).message)
+    return { success: false, message: `Failed to fetch bot with id ${id}: ${(error as Error).message}` }
   }
 })

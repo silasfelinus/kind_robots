@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const success = await deleteReward(id)
     return { success }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return { success: false, message: 'Failed to delete reward', error: error.message }
   }
 })

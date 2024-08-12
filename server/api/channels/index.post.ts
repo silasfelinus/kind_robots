@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const newChannel = await createChannel(channelData)
     return { success: true, newChannel }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -26,7 +26,7 @@ export async function createChannel(channel: Partial<Channel>): Promise<Channel>
       },
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

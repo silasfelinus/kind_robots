@@ -31,10 +31,7 @@
       </button>
     </div>
   </div>
-  <div
-    v-else
-    class="bg-warning rounded-2xl p-4 text-lg"
-  >
+  <div v-else class="bg-warning rounded-2xl p-4 text-lg">
     Loading or item not available...
   </div>
 </template>
@@ -69,9 +66,11 @@ watch(
 )
 const incrementQuantity = async () => {
   try {
-    await cartStore.addItem(cartItem.value.productId, cartItem.value.quantity + 1)
-  }
-  catch (error: any) {
+    await cartStore.addItem(
+      cartItem.value.productId,
+      cartItem.value.quantity + 1,
+    )
+  } catch (error: unknown) {
     errorHandler({ success: false, message: error.message, statusCode: 500 })
   }
 }
@@ -79,10 +78,11 @@ const incrementQuantity = async () => {
 const decrementQuantity = async () => {
   try {
     if (cartItem.value.quantity > 1) {
-      await cartStore.updateCartItem(cartItem.value.id, { quantity: cartItem.value.quantity - 1 })
+      await cartStore.updateCartItem(cartItem.value.id, {
+        quantity: cartItem.value.quantity - 1,
+      })
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     errorHandler({ success: false, message: error.message, statusCode: 500 })
   }
 }
@@ -90,8 +90,7 @@ const decrementQuantity = async () => {
 const removeFromCart = async () => {
   try {
     await cartStore.deleteCartItem(cartItem.value.id)
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     errorHandler({ success: false, message: error.message, statusCode: 500 })
   }
 }

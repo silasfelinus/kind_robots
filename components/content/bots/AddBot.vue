@@ -9,7 +9,7 @@
           v-model="name"
           type="text"
           class="w-full p-2 rounded border"
-        />
+        >
       </div>
       <div class="mb-4">
         <label for="subtitle" class="block text-sm font-medium"
@@ -20,7 +20,7 @@
           v-model="subtitle"
           type="text"
           class="w-full p-2 rounded border"
-        />
+        >
       </div>
       <div class="mb-4">
         <label for="description" class="block text-sm font-medium"
@@ -37,7 +37,7 @@
           >Avatar Image URL:</label
         >
         <div v-for="(art, index) in artResults" :key="art.id">
-          <img :src="art.path" alt="Generated Avatar" />
+          <img :src="art.path" alt="Generated Avatar" >
           <div class="mb-4">
             <label for="botType" class="block text-sm font-medium"
               >Bot Type:</label
@@ -71,7 +71,7 @@
             v-model="imagePrompt"
             type="text"
             class="w-full p-2 rounded border"
-          />
+          >
         </div>
 
         <button
@@ -95,7 +95,7 @@
           v-model="botIntro"
           type="text"
           class="w-full p-2 rounded border"
-        />
+        >
       </div>
       <div class="mb-4">
         <label for="userIntro" class="block text-sm font-medium"
@@ -106,7 +106,7 @@
           v-model="userIntro"
           type="text"
           class="w-full p-2 rounded border"
-        />
+        >
       </div>
       <div class="mb-4">
         <label for="prompt" class="block text-sm font-medium">Prompt:</label>
@@ -142,7 +142,7 @@
           v-model="isPublic"
           type="checkbox"
           class="p-2 rounded border"
-        />
+        >
       </div>
       <div class="mb-4">
         <label for="underConstruction" class="block text-sm font-medium"
@@ -153,7 +153,7 @@
           v-model="underConstruction"
           type="checkbox"
           class="p-2 rounded border"
-        />
+        >
       </div>
       <div class="mb-4">
         <label for="theme" class="block text-sm font-medium">Theme:</label>
@@ -162,7 +162,7 @@
           v-model="theme"
           type="text"
           class="w-full p-2 rounded border"
-        />
+        >
       </div>
       <div class="mb-4">
         <label for="personality" class="block text-sm font-medium"
@@ -173,7 +173,7 @@
           v-model="personality"
           type="text"
           class="w-full p-2 rounded border"
-        />
+        >
       </div>
       <bot-sample
         :name="name"

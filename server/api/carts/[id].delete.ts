@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const isDeleted = await deleteCart(id)
     return { success: isDeleted }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -27,7 +27,7 @@ export async function deleteCart(id: number): Promise<boolean> {
     await prisma.cart.delete({ where: { id } })
     return true
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

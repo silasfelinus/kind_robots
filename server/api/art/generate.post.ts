@@ -325,7 +325,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, newArt } // Return the result
   }
-  catch (error: any) {
+  catch (error: unknown) {
     console.error('Art Generation Error:', error)
     return errorHandler({
       error,
@@ -366,7 +366,7 @@ export async function generateImage(prompt: string, user: string): Promise<{ ima
     console.log('📷 Image generation complete!')
     return generatedImageUrl
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler({ error, context: 'Image Generation with Cafe Fred' })
   }
 }

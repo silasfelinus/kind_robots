@@ -1,6 +1,5 @@
 // ~/server/api/bots/index.ts
-import type { Prisma } from '@prisma/client'
-import type { Bot } from '@prisma/client'
+import type { Prisma, Bot } from '@prisma/client'
 import prisma from './../utils/prisma'
 
 export async function fetchBots(page = 1, pageSize = 100): Promise<Bot[]> {
@@ -58,6 +57,7 @@ export async function updateBot(name: string, data: Partial<Bot>): Promise<Bot |
   })
 }
 
+
 export async function updateBots(botsData: Partial<Bot>[]): Promise<{ updated: number, errors: string[] }> {
   let updated = 0
   const errors: string[] = []
@@ -68,8 +68,10 @@ export async function updateBots(botsData: Partial<Bot>[]): Promise<{ updated: n
         await updateBot(botData.name, botData)
         updated++
       }
-      catch (error: any) {
-        errors.push(`Failed to update bot with name ${botData.name}: ${error.message}`)
+      catch (error: unknown) {
+        // Assuming `error.message` will always be a string, but type guard can be used if needed
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        errors.push(`Failed to update bot with name ${botData.name}: ${errorMessage}`)
       }
     }
     else {
@@ -79,6 +81,7 @@ export async function updateBots(botsData: Partial<Bot>[]): Promise<{ updated: n
 
   return { updated, errors }
 }
+
 
 export async function deleteBot(id: number): Promise<boolean> {
   const botExists = await prisma.bot.findUnique({ where: { id } })

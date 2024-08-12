@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     const reaction = await fetchArtReactionById(id)
     return { success: true, reaction }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

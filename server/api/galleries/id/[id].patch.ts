@@ -1,27 +1,45 @@
 // /server/api/galleries/[id].patch.ts
-import { defineEventHandler, readBody } from 'h3'
-import { fetchGalleryById, updateGallery } from '..'
+import { defineEventHandler, readBody, createError } from 'h3';
+import { fetchGalleryById, updateGallery } from '..';
+import { errorHandler } from '../../utils/error';
+import type { Prisma } from '@prisma/client'; // Ensure Prisma types are imported
 
 export default defineEventHandler(async (event) => {
-  const id = Number(event.context.params?.id)
-  if (!id) throw new Error('Invalid Gallery ID.')
+  // Extract and validate the ID from the request parameters
+  const id = Number(event.context.params?.id);
+
+  if (isNaN(id) || id <= 0) {
+    throw createError({
+      statusCode: 400, // Bad Request
+      message: 'Invalid Gallery ID.',
+    });
+  }
+
   try {
     // Fetch the Gallery from the database
-    const Gallery = await fetchGalleryById(id)
+    const gallery = await fetchGalleryById(id);
 
-    // Make sure to await the Promise returned by readBody
-    const data = await readBody(event)
-
-    if (!Gallery) {
-      throw new Error('Gallery not found.')
+    if (!gallery) {
+      throw createError({
+        statusCode: 404, // Not Found
+        message: 'Gallery not found.',
+      });
     }
 
-    // Update only the provided fields
-    const updatedGallery = await updateGallery(id, data)
+    // Parse and validate the request body
+    const data: Prisma.GalleryUpdateInput = await readBody(event);
 
-    return { success: true, Gallery: updatedGallery }
+    // Update only the provided fields
+    const updatedGallery = await updateGallery(id, data);
+
+    return { success: true, gallery: updatedGallery };
+  } catch (error: unknown) {
+    // Use errorHandler to handle and format the error
+    const handledError = errorHandler(error);
+    return {
+      success: false,
+      message: handledError.message || `Failed to update Gallery with id ${id}.`,
+      statusCode: handledError.statusCode || 500, // Internal Server Error
+    };
   }
-  catch (error) {
-    return { success: false, message: `Failed to update Gallery with id ${id}.` }
-  }
-})
+});

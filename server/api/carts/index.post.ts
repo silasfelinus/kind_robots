@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const newCart = await createCart(cartData)
     return { success: true, newCart }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -35,7 +35,7 @@ export async function createCart(cart: Partial<Cart>): Promise<Cart> {
       },
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

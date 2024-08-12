@@ -8,7 +8,7 @@ export default defineEventHandler(async () => {
     const tags = await prisma.tag.findMany()
     return { success: true, tags }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

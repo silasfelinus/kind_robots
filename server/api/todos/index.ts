@@ -1,28 +1,25 @@
 import type { Prisma, Todo } from '@prisma/client'
 import prisma from '../utils/prisma'
 
+// Function to fetch a random reward ID
+async function fetchRandomRewardId(): Promise<number> {
+  const response = await fetch('/api/rewards/random')
+  if (!response.ok) {
+    throw new Error('Failed to fetch random reward')
+  }
+  const randomReward = await response.json()
+  return randomReward.reward.id
+}
 
 // Function to create a new Todo
 export async function createTodo(data: Partial<Todo>): Promise<Todo> {
-  // Initialize rewardId variable
-  let rewardId: number | undefined
-
   // Validate required fields
   if (!data.task) {
     throw new Error('Task must be provided')
   }
 
-  // If no rewardId is provided, fetch a random one from the API
-  if (!data.rewardId) {
-    const response = await fetch('/api/rewards/random')
-    if (response.ok) {
-      const randomReward = await response.json()
-      rewardId = randomReward.reward.id // Navigate through the 'reward' object to get the 'id'
-    }
-    else {
-      throw new Error('Failed to fetch random reward')
-    }
-  }
+  // Fetch random reward ID if not provided
+  const rewardId = data.rewardId ?? await fetchRandomRewardId()
 
   // Create the new Todo with the associated rewardId and userId
   const todoCreateInput: Prisma.TodoCreateInput = {
@@ -30,20 +27,14 @@ export async function createTodo(data: Partial<Todo>): Promise<Todo> {
     category: data.category ?? 'default',
     completed: data.completed ?? false,
     Reward: {
-      connect: {
-        id: rewardId,
-      },
+      connect: { id: rewardId },
     },
     User: {
-      connect: {
-        id: data.userId ?? 1, // Default to 1 if userId is not provided
-      },
+      connect: { id: data.userId ?? 1 }, // Default to 1 if userId is not provided
     },
   }
 
-  return prisma.todo.create({
-    data: todoCreateInput,
-  })
+  return prisma.todo.create({ data: todoCreateInput })
 }
 
 // Function to add multiple Todos
@@ -57,14 +48,15 @@ export async function addTodos(
     try {
       const newTodo = await createTodo(todoData)
       todos.push(newTodo)
-    }
-    catch (error: any) {
-      errors.push(`Failed to create todo: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      errors.push(`Failed to create todo: ${errorMessage}`)
     }
   }
 
   return { count: todos.length, todos, errors }
 }
+
 // Fetch all Todos with pagination
 export function fetchTodos(page = 1, pageSize = 100): Promise<Todo[]> {
   const skip = (page - 1) * pageSize

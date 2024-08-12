@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: 'Customer not found' }
     }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -28,7 +28,7 @@ export async function fetchCustomerByUserId(userId: number) {
       },
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

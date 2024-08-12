@@ -6,10 +6,7 @@
       class="bg-primary text-white rounded-2xl p-4 m-4 border"
       @click="togglePopup"
     >
-      <icon
-        :name="milestone?.icon || 'default-icon'"
-        class="h-16 w-16"
-      />
+      <icon :name="milestone?.icon || 'default-icon'" class="h-16 w-16" />
     </button>
 
     <!-- Popup Content -->
@@ -22,10 +19,7 @@
           Congratulations, {{ userStore.username }}!
         </h2>
         <div v-if="milestone?.icon">
-          <icon
-            :name="milestone.icon"
-            class="h-16 w-16 mx-auto mb-4"
-          />
+          <icon :name="milestone.icon" class="h-16 w-16 mx-auto mb-4" />
           <p class="text-xl font-medium">
             🌟 You earned the {{ milestone.label }} milestone! 🌟
           </p>
@@ -33,16 +27,9 @@
             {{ milestone.message }}
           </p>
           <div class="karma-award flex flex-col items-center">
-            <p class="text-lg font-semibold">
-              Bonus: +{{ milestone.karma }}
-            </p>
-            <p class="text-lg">
-              You Found 1 Jellybean!
-            </p>
-            <icon
-              name="tdesign:bean"
-              class="p-2 m-2 h-16 w-16 text-accent"
-            />
+            <p class="text-lg font-semibold">Bonus: +{{ milestone.karma }}</p>
+            <p class="text-lg">You Found 1 Jellybean!</p>
+            <icon name="tdesign:bean" class="p-2 m-2 h-16 w-16 text-accent" />
           </div>
           <button
             class="bg-primary text-white rounded-2xl border px-4 py-2 mt-4"
@@ -74,12 +61,10 @@ const fetchMilestoneById = async (id: number) => {
     const result = await milestoneStore.fetchMilestoneById(id)
     if (result.success && result.data) {
       milestone.value = result.data
-    }
-    else {
+    } else {
       throw new Error(result.message || 'Data is undefined')
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     const { message } = errorHandler({ error })
     console.error('Failed to fetch milestone', message)
   }
@@ -97,23 +82,27 @@ const closePopup = () => {
 
 const validateMilestoneRecord = async () => {
   try {
-    if (milestone.value && milestoneStore.hasMilestone(userStore.userId, milestone.value.id)) {
+    if (
+      milestone.value &&
+      milestoneStore.hasMilestone(userStore.userId, milestone.value.id)
+    ) {
       console.log('Milestone already rewarded, closing popup.')
       showPopup.value = false // Close the popup if milestone already rewarded
       return 'success'
     }
     if (milestone.value) {
       triggerConfetti()
-      const result = await milestoneStore.recordMilestone(userStore.userId, milestone.value.id)
+      const result = await milestoneStore.recordMilestone(
+        userStore.userId,
+        milestone.value.id,
+      )
       if (result.success) {
         console.log('Successfully validated milestone', result)
-      }
-      else {
+      } else {
         throw new Error(result.message)
       }
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     const { message } = errorHandler({ error })
     console.error('Failed to validate milestone', message)
   }
@@ -124,12 +113,10 @@ const validateUserRecord = async () => {
     const result = await userStore.updateKarmaAndMana()
     if (result.success) {
       console.log('Successfully validated user', result)
-    }
-    else {
+    } else {
       throw new Error(result.message)
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     const { message } = errorHandler({ error })
     console.error('Failed to validate user record', message)
   }

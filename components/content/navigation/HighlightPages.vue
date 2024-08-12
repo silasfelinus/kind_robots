@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="flex flex-wrap justify-center space-x-2 rounded-2xl p-1 m-10">
     <NuxtLink
@@ -13,7 +14,7 @@
           :src="`/images/${page.image}`"
           alt="Page Image"
           class="object-cover w-full h-full"
-        >
+        />
       </div>
       <div class="flex flex-col justify-between items-start w-full">
         <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
@@ -23,10 +24,8 @@
           v-if="page._path === $route.path"
           class="flex items-center m-1 text-xl rounded-2xl border bg-accent p-1"
         >
-          You are here <icon
-            name="line-md:download-outline-loop"
-            class="text-lg m-1"
-          />
+          You are here
+          <icon name="line-md:download-outline-loop" class="text-lg m-1" />
         </div>
         <popup-description
           v-if="isHovered === page._id"
@@ -40,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()

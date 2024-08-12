@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="bg-base-200 rounded-2xl p-8 text-lg">
     <h1 class="text-2xl mb-4">Art-Generator</h1>
@@ -11,7 +12,7 @@
         v-model="prompt"
         placeholder="Enter your art prompt"
         class="rounded-2xl p-2 w-full text-lg"
-      >
+      />
     </div>
 
     <!-- Generate Art Button -->
@@ -41,44 +42,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 import { useLoadStore } from '@/stores/loadStore'
-import { useArtStore, type Art } from '@/stores/artStore'
-import { type Pitch, usePitchStore } from '@/stores/pitchStore'
+import { usePitchStore } from '@/stores/pitchStore'
+import type { Art } from '@/stores/artStore'
 
 // Load stores
 const dreamStore = useDreamStore()
 const userStore = useUserStore()
 const loadStore = useLoadStore()
 const pitchStore = usePitchStore()
-const currentPitch = computed(() => pitchStore.selectedPitch)
-const shouldShowMilestoneCheck = ref(false)
+const errorStore = useErrorStore()
 
-const pitch = computed(() => pitchStore.selectedPitch?.pitch)
-// Art Prompt text
+const currentPitch = computed(() => pitchStore.selectedPitch)
+const pitch = computed(() => pitchStore.selectedPitch?.pitch || '')
 const prompt = ref('')
 const flavorText = ref('')
 const username = computed(() => userStore.username)
-
-// Art Prompt Ids
 const userId = computed(() => userStore.userId)
 
 const isLoading = ref(false)
 const createdArts = ref<Art[]>([]) // Array to store created art
-const randomDream = ref<string | null>(null)
 const loadingMessage = ref<string | null>(null)
+const shouldShowMilestoneCheck = ref(false)
 
+// Function to get a loading message
 const getLoadingMessage = () => {
   loadingMessage.value = loadStore.randomLoadMessage()
 }
 
-const getRandomDream = () => {
-  randomDream.value = dreamStore.randomDream()
-  prompt.value = randomDream.value
+// Function to set a random prompt
+const setRandomPrompt = () => {
+  const random = dreamStore.randomDream()
+  if (random) {
+    prompt.value = random
+  }
 }
+
+// Call `setRandomPrompt` to initialize prompt or on some action
+setRandomPrompt()
 
 const generateArt = async () => {
   getLoadingMessage()
@@ -90,7 +95,7 @@ const generateArt = async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        prompt: pitch.value + ', ' + prompt.value + ', ' + flavorText.value,
+        prompt: `${pitch.value}, ${prompt.value}, ${flavorText.value}`,
         userName: username.value,
         galleryName: 'cafefred',
         pitchId: currentPitch.value?.id,
@@ -111,12 +116,13 @@ const generateArt = async () => {
       console.log('Art generated:', createdArts)
     } else {
       const errorText = await response.text()
-      const handledError = errorHandler(new Error(errorText))
-      console.error('Failed to generate art:', handledError.message)
+      errorStore.setError(ErrorType.NETWORK_ERROR, errorText)
+      console.error('Failed to generate art:', errorText)
     }
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.error('Error generating art:', handledError.message)
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, errorMsg)
+    console.error('Error generating art:', errorMsg)
   } finally {
     isLoading.value = false
   }

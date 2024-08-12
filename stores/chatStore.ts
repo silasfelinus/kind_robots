@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { ChatExchange } from '@prisma/client';
-import { errorHandler } from '@/server/api/utils/error';
+import { useErrorStore, ErrorType } from '@/stores/errorStore'; // Import errorStore and ErrorType
 
 export const useChatStore = defineStore({
   id: 'chat',
@@ -15,20 +15,22 @@ export const useChatStore = defineStore({
       this.chatExchanges = exchanges;
     },
     async fetchChatExchanges() {
+      const errorStore = useErrorStore(); // Use errorStore
       try {
         const response = await fetch('/api/chats');
         const data = await response.json();
         if (data.success) {
           this.setChatExchanges(data.chatExchanges);
         } else {
-          errorHandler(data);
+          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to fetch chat exchanges: ${data.message}`);
         }
-      } catch (error) {
-        const { message } = errorHandler(error);
-        console.error(`An error occurred while fetching chat exchanges: ${message}`);
+      } catch {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Network error occurred while fetching chat exchanges');
+        console.error(`An error occurred while fetching chat exchanges: ${errorStore.getErrors().slice(-1)[0]?.message}`);
       }
     },
     async addOrUpdateExchange(exchange: ChatExchange) {
+      const errorStore = useErrorStore(); // Use errorStore
       try {
         const response = await fetch('/api/chats', {
           method: 'POST',
@@ -41,14 +43,15 @@ export const useChatStore = defineStore({
         if (data.success) {
           this.chatExchanges.push(data.newExchange);
         } else {
-          errorHandler(data);
+          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to add or update exchange: ${data.message}`);
         }
-      } catch (error) {
-        const { message } = errorHandler(error);
-        console.error(`An error occurred while adding or updating an exchange: ${message}`);
+      } catch {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Network error occurred while adding or updating an exchange');
+        console.error(`An error occurred while adding or updating an exchange: ${errorStore.getErrors().slice(-1)[0]?.message}`);
       }
     },
     async addReaction(id: number, reaction: { liked?: boolean; hated?: boolean; loved?: boolean; flagged?: boolean }) {
+      const errorStore = useErrorStore(); // Use errorStore
       try {
         const response = await fetch(`/api/chats/${id}`, {
           method: 'PATCH',
@@ -64,11 +67,11 @@ export const useChatStore = defineStore({
             this.chatExchanges[index] = { ...this.chatExchanges[index], ...reaction };
           }
         } else {
-          errorHandler(data);
+          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to add reaction: ${data.message}`);
         }
-      } catch (error) {
-        const { message } = errorHandler(error);
-        console.error(`An error occurred while adding a reaction: ${message}`);
+      } catch  {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Network error occurred while adding a reaction');
+        console.error(`An error occurred while adding a reaction: ${errorStore.getErrors().slice(-1)[0]?.message}`);
       }
     },
   },

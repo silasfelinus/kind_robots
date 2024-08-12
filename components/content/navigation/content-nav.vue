@@ -1,34 +1,19 @@
 <template>
   <div>
     <div class="mb-4">
-      <input
-        id="adminCheckbox"
-        v-model="showAdmin"
-        type="checkbox"
-      >
-      <label
-        for="adminCheckbox"
-        class="ml-2"
-      >Show Admin Pages</label>
+      <input id="adminCheckbox" v-model="showAdmin" type="checkbox" />
+      <label for="adminCheckbox" class="ml-2">Show Admin Pages</label>
     </div>
     <div class="mb-4">
-      <label
-        for="layoutToggle"
-        class="mr-2"
-      >Layout:</label>
-      <select
-        id="layoutToggle"
-        v-model="layout"
-      >
-        <option value="full">
-          Full
-        </option>
-        <option value="badge">
-          Badge
-        </option>
+      <label for="layoutToggle" class="mr-2">Layout:</label>
+      <select id="layoutToggle" v-model="layout">
+        <option value="full">Full</option>
+        <option value="badge">Badge</option>
       </select>
     </div>
-    <div class="relative flex flex-col items-center p-8 bg-base overflow-auto h-screen">
+    <div
+      class="relative flex flex-col items-center p-8 bg-base overflow-auto h-screen"
+    >
       <div
         class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
       />
@@ -49,13 +34,13 @@
                   :src="`/images/${page.image}`"
                   alt="Page Image"
                   class="w-full h-auto object-cover rounded-md mx-auto image-carousel"
-                >
+                />
                 <img
                   v-else-if="page.image && layout === 'badge'"
                   :src="`/images/${page.image}`"
                   alt="Page Image"
                   class="w-24 h-24 object-cover rounded-full mx-auto"
-                >
+                />
               </div>
               <div
                 v-if="tooltipContent"
@@ -79,30 +64,22 @@ import { ref, computed } from 'vue'
 import { useContentStore } from '../../../stores/contentStore'
 import { useStatusStore, StatusType } from '../../../stores/statusStore'
 
-interface Page {
-  _id: string
-  _path: string
-  image?: string
-  title: string
-  subtitle?: string
-  folder?: string
-  admin?: boolean
-  tooltip?: string
-}
-
 const contentStore = useContentStore()
 const statusStore = useStatusStore()
 const showAdmin = ref(false)
 const layout = ref('full') // 'full' or 'badge'
 const tooltipContent = ref('') // Tooltip content
+const { page } = useContent()
 
 const filteredPages = computed((): Page[] => {
   if (!contentStore.pages) return []
-  const pages = contentStore.pages.filter((page: Page) => !(!showAdmin.value && page.admin))
+  const pages = contentStore.pages.filter(
+    (page: Page) => !(!showAdmin.value && page.admin),
+  )
   return pages
 })
 
-const handleMouseover = (page: Page) => {
+const handleMouseover = (page) => {
   tooltipContent.value = page.subtitle ? `'${page.subtitle}'` : ''
   if (page.tooltip) {
     tooltipContent.value += ` ${page.tooltip}`

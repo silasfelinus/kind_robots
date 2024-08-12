@@ -26,7 +26,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore } from '@/stores/errorStore'
 import {
   useToggleStore,
   ToggleableScreens,
@@ -38,6 +38,9 @@ const userStore = useUserStore()
 const jellybeans = computed(() => userStore.mana)
 const user = computed(() => userStore.user)
 const isLoggedIn = computed(() => userStore.isLoggedIn)
+
+// Error Store
+const errorStore = useErrorStore()
 
 // Toggle Store
 const toggleStore = useToggleStore()
@@ -73,16 +76,18 @@ const toggleMinimize = () => {
   toggleStore.setScreenState(ToggleableScreens.USER_DASHBOARD, newState)
 }
 
-const handleLogout = async () => {
+const handleLogout = async (): Promise<void> => {
   if (isLoggedIn.value) {
     try {
-      await userStore.logout()
+      await errorStore.handleError(
+        async () => {
+          await userStore.logout() // Ensure this returns a Promise
+        },
+        'GENERAL_ERROR' as ErrorType,
+        'Failed to logout. Please try again.',
+      )
     } catch (error: unknown) {
-      const errorResponse = errorHandler({
-        error,
-        message: 'Failed to logout. Please try again.',
-      })
-      console.error(errorResponse.message)
+      console.error('An unexpected error occurred:', error)
     }
   } else {
     // Handle login popup or redirect

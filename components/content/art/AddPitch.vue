@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <!-- Container -->
   <div
@@ -27,7 +28,7 @@
         v-model="newPitch.title"
         placeholder="Title"
         class="mb-2 p-2 rounded border"
-      >
+      />
       <textarea
         v-model="newPitch.pitch"
         placeholder="Pitch"
@@ -37,11 +38,11 @@
         v-model="newPitch.designer"
         placeholder="Designer"
         class="mb-2 p-2 rounded border"
-      >
+      />
 
       <!-- Checkboxes -->
       <label class="inline-flex items-center mb-2">
-        <input v-model="newPitch.isMature" type="checkbox" class="mr-2" >
+        <input v-model="newPitch.isMature" type="checkbox" class="mr-2" />
         Allow mature content
       </label>
 
@@ -64,10 +65,11 @@
 import { ref } from 'vue'
 import { usePitchStore } from '@/stores/pitchStore'
 import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
+const errorStore = useErrorStore()
 const shouldShowMilestoneCheck = ref(false)
 const message = ref<string | null>(null)
 const messageType = ref<'success' | 'error' | null>(null)
@@ -104,6 +106,7 @@ const createPitch = async () => {
     } else {
       messageType.value = 'error'
       message.value = result.message || 'Something went wrong!'
+      errorStore.setError(ErrorType.VALIDATION_ERROR, result.message)
     }
 
     if (message.value) {
@@ -113,10 +116,51 @@ const createPitch = async () => {
       }, 3000)
     }
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, errorMsg)
     messageType.value = 'error'
-    message.value = handledError.message
-    console.error('Error creating pitch:', handledError.message)
+    message.value = errorStore.message || ''
+    console.error('Error creating pitch:', errorMsg)
   }
 }
 </script>
+
+<style scoped>
+.group:hover .float-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.text-base-200 {
+  font-size: 1.25rem;
+}
+
+/* Adding some stylish upgrades */
+.bg-base-200 {
+  transition: background-color 0.3s ease;
+}
+
+.bg-base-200:hover {
+  background-color: var(--bg-base-400);
+}
+
+.text-accent {
+  transition: color 0.3s ease;
+}
+
+.text-accent:hover {
+  color: var(--text-accent-hover);
+}
+
+/* Styling for the buttons */
+button {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--bg-button-hover);
+  color: var(--text-button-hover);
+}
+</style>

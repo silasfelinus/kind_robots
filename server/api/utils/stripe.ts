@@ -4,7 +4,7 @@ import { errorHandler } from './error'
 // Initialize Stripe with your public key
 const stripePromise = loadStripe('your-stripe-public-key')
 
-export const initiatePayment = async (amountInPennies: number) => {
+export const initiatePayment = async () => {
   try {
     // Await the Stripe object
     const stripe = await stripePromise

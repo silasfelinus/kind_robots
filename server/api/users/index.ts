@@ -1,9 +1,10 @@
 // server/api/users/index.ts
 import type { Prisma } from '@prisma/client'
-import type { User } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { validatePassword, hashPassword, generateApiKey } from './../auth'
+
+import type { User } from '@prisma/client'; // Adjust the import based on your project's structure
 
 export async function createUser(data: {
   username: string
@@ -28,11 +29,13 @@ export async function createUser(data: {
     // Generate API key
     const apiKey = generateApiKey()
 
-    // Create User record with all necessary fields
+    // Provide default values for required fields
     const user = await prisma.user.create({
       data: {
         ...data,
         apiKey,
+        Role: 'USER',  // Provide a default role (adjust as needed)
+        createdAt: new Date(), // Provide a createdAt value if required
       },
     })
 
@@ -43,6 +46,7 @@ export async function createUser(data: {
     return { success: false, message: errorHandler(error).message }
   }
 }
+
 
 export async function fetchUsers(): Promise<{
   success: boolean
@@ -173,5 +177,6 @@ export async function userExists(
     throw new Error(errorHandler(error).message)
   }
 }
+
 
 export type { User }

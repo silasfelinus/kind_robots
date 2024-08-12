@@ -39,9 +39,6 @@ export const getUserDataByToken = async (token: string) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        milestones: true,
-      },
     })
 
     console.log('Fetched User:', user) // Debug log
@@ -127,8 +124,10 @@ export async function createUserWithAuth(username: string, password: string, ema
       data: {
         username,
         email: email ?? undefined,
-        password: hashedPassword, // Storing password in the User model
+        password: hashedPassword,
         apiKey,
+        Role: 'USER',  // Provide a default role (adjust as needed)
+        createdAt: new Date(), // If needed, explicitly set createdAt, or leave it to be auto-generated
       },
     })
 
@@ -138,6 +137,7 @@ export async function createUserWithAuth(username: string, password: string, ema
     return { success: false, message: errorHandler(error) }
   }
 }
+
 
 export async function validateUserCredentials(username: string, password?: string) {
   try {

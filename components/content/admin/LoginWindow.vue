@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="flex items-center h-36 w-36 z-50">
     <!-- Welcome Message -->

@@ -8,7 +8,7 @@
 import { onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore } from '@/stores/errorStore'
 import { useArtStore } from '@/stores/artStore'
 import { useChannelStore } from '@/stores/channelStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
@@ -33,6 +33,7 @@ const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
 const chatStore = useChatStore()
 const pageStore = usePageStore()
+const errorStore = useErrorStore()
 
 useHead({
   title: 'Kind Robots',
@@ -52,7 +53,7 @@ useHead({
   ],
 })
 
-onMounted(() => {
+onMounted(async () => {
   try {
     layoutStore.initialize()
     botStore.loadStore()
@@ -70,10 +71,10 @@ onMounted(() => {
       'Welcome to Kind Robots, random person who reads console logs! Are you a developer?',
     )
   } catch (error: unknown) {
-    errorHandler({
-      success: false,
-      message: `Initialization failed: ${error}`,
-    })
+    errorStore.setError(
+      ErrorType.UNKNOWN_ERROR,
+      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
+    )
   }
 })
 </script>

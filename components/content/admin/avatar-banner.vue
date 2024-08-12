@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="flex items-center h-36 w-36 z-50">
     <!-- Welcome Message -->
@@ -10,7 +11,7 @@
         :src="store.avatarImage"
         class="w-8 h-8 rounded-full mb-2"
         alt="Avatar"
-      >
+      />
       <span class="text-base-200 text-lg mb-1">{{ welcomeMessage }}</span>
       <NuxtLink
         v-if="isLoggedIn"
@@ -79,7 +80,7 @@
             autocomplete="username"
             class="w-full p-2 border rounded"
             required
-          >
+          />
         </div>
         <div>
           <label for="password" class="block text-sm mb-1">Password:</label>
@@ -90,7 +91,7 @@
             autocomplete="current-password"
             class="w-full p-2 border rounded"
             required
-          >
+          />
         </div>
 
         <div class="flex items-center justify-between">
@@ -100,7 +101,7 @@
               v-model="stayLoggedIn"
               type="checkbox"
               class="mr-2"
-            >
+            />
             <label for="stayLoggedIn" class="text-sm">Stay Logged in</label>
           </div>
           <button type="submit" class="bg-info text-default py-1 px-3 rounded">
@@ -125,15 +126,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { errorHandler } from '@/server/api/utils/error'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const store = useUserStore()
+const errorStore = useErrorStore()
 const login = ref('')
 const password = ref('')
 const isVisible = ref(false)
-const errorMessage = ref('')
 const isLoggedIn = computed(() => store.isLoggedIn)
 const stayLoggedIn = ref(true)
+const errorMessage = ref<string | null>(null)
 
 const welcomeMessage = computed(() => {
   return isLoggedIn.value
@@ -146,36 +148,56 @@ const toggleVisibility = () => {
 }
 
 const handleLogin = async () => {
-  errorMessage.value = ''
+  errorStore.clearError() // Clear previous errors
+
   try {
-    const result = await store.login({
-      username: login.value,
-      password: password.value,
-    })
+    const result = await errorStore.handleError(
+      () => store.login({ username: login.value, password: password.value }),
+      ErrorType.AUTH_ERROR,
+      'Failed to login. Please try again.',
+    )
+
     if (result.success) {
       if (stayLoggedIn.value) {
         localStorage.setItem('user', JSON.stringify({ username: login.value }))
       }
     } else {
+      errorStore.setError(ErrorType.AUTH_ERROR, result.message)
       errorMessage.value = result.message
     }
-  } catch (error: unknown) {
-    errorMessage.value = errorHandler(error).message
+  } catch (error) {
+    errorMessage.value = 'An error occurred during login.'
+    console.error(error) // Optionally log the error for debugging
   }
 }
 
-const handleLogout = () => {
-  store.logout()
-  if (!stayLoggedIn.value) {
-    localStorage.removeItem('user')
+const handleLogout = async () => {
+  errorStore.clearError() // Clear previous errors
+
+  try {
+    await errorStore.handleError(
+      async () => store.logout(),
+      ErrorType.AUTH_ERROR,
+      'Failed to logout. Please try again.',
+    )
+
+    if (!stayLoggedIn.value) {
+      localStorage.removeItem('user')
+    }
+  } catch (error) {
+    errorMessage.value = 'An error occurred during logout.'
+    console.error(error) // Optionally log the error for debugging
   }
 }
 
 onMounted(() => {
-  // Retrieve user data from localStorage and update the store
   const storedUser = JSON.parse(localStorage.getItem('user') || 'null')
   if (storedUser && storedUser.username !== 'Kind Guest') {
     store.setUser(storedUser)
   }
 })
 </script>
+
+<style scoped>
+/* Your styles */
+</style>

@@ -16,10 +16,7 @@
       </div>
 
       <!-- Upper eyelid -->
-      <div
-        class="bg-white absolute w-full"
-        :style="upperEyelidStyle"
-      />
+      <div class="bg-white absolute w-full" :style="upperEyelidStyle" />
       <!-- Lower eyelid -->
       <div
         class="bg-white absolute w-full bottom-0"
@@ -137,8 +134,7 @@ function blink() {
     if (Math.random() < 0.5) {
       currentBehavior = 'moveRandomly'
       moveRandomlyAfterBlink()
-    }
-    else {
+    } else {
       currentBehavior = 'trackMouse'
     }
 

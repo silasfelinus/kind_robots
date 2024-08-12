@@ -34,6 +34,8 @@ export const usePromptStore = defineStore('promptStore', {
         console.error('Error in fetchArtPrompts:', handledError.message)
       }
     },
+
+    // Edit an art prompt
     async editArtPrompt(id: number, newPrompt: string) {
       try {
         const response = await fetch('/api/art/prompts', {
@@ -55,8 +57,13 @@ export const usePromptStore = defineStore('promptStore', {
           throw new Error(data.message)
         }
       }
-      catch (error: any) {
-        errorHandler({ success: false, message: error.message })
+      catch (error: unknown) {
+        if (error instanceof Error) {
+          const handledError = errorHandler(error)
+          console.error('Error in editArtPrompt:', handledError.message)
+        } else {
+          console.error('Unknown error occurred in editArtPrompt')
+        }
       }
     },
 
@@ -77,9 +84,11 @@ export const usePromptStore = defineStore('promptStore', {
     selectPrompt(prompt: ArtPrompt) {
       this.activePrompt = prompt // Update the ref value directly
     },
+
     clearPrompt() {
       this.activePrompt = null // Update the ref value directly
     },
+
     // Create a new art prompt
     async createArtPrompt(newPrompt: string) {
       try {

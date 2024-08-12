@@ -24,7 +24,7 @@ export const useChatStore = defineStore({
           errorHandler(data);
         }
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
+        const { message } = errorHandler(error);
         console.error(`An error occurred while fetching chat exchanges: ${message}`);
       }
     },
@@ -44,7 +44,7 @@ export const useChatStore = defineStore({
           errorHandler(data);
         }
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
+        const { message } = errorHandler(error);
         console.error(`An error occurred while adding or updating an exchange: ${message}`);
       }
     },
@@ -67,7 +67,7 @@ export const useChatStore = defineStore({
           errorHandler(data);
         }
       } catch (error) {
-        const { message, statusCode } = errorHandler(error);
+        const { message } = errorHandler(error);
         console.error(`An error occurred while adding a reaction: ${message}`);
       }
     },

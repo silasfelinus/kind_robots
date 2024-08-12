@@ -27,7 +27,7 @@
         v-model="newPitch.title"
         placeholder="Title"
         class="mb-2 p-2 rounded border"
-      />
+      >
       <textarea
         v-model="newPitch.pitch"
         placeholder="Pitch"
@@ -37,11 +37,11 @@
         v-model="newPitch.designer"
         placeholder="Designer"
         class="mb-2 p-2 rounded border"
-      />
+      >
 
       <!-- Checkboxes -->
       <label class="inline-flex items-center mb-2">
-        <input v-model="newPitch.isMature" type="checkbox" class="mr-2" />
+        <input v-model="newPitch.isMature" type="checkbox" class="mr-2" >
         Allow mature content
       </label>
 

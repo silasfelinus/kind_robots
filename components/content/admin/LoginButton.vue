@@ -5,8 +5,11 @@
       <div v-if="isLoggedIn">
         <div class="hidden lg:inline">Salutations,</div>
         {{ username }}!
-        <button class="b p-2 rounded-lg text-white text-sm" @click="logout">
-          logout
+        <button
+          class="bg-danger p-2 rounded-lg text-white text-sm"
+          @click="logout"
+        >
+          Logout
         </button>
       </div>
       <div v-else>
@@ -23,18 +26,15 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const userStore = useUserStore()
-const user = computed(() => userStore.user)
+const errorStore = useErrorStore()
 const isLoggedIn = computed(() => userStore.isLoggedIn)
-const isLoading = ref(false)
-const errorMessage = ref('')
-
+const username = computed(() => userStore.user?.username || 'Kind Guest')
 const showLogin = ref(false)
-
-const username = computed(() => user.value?.username || 'Kind Guest')
 
 watch(isLoggedIn, (newValue) => {
   if (newValue) {
@@ -43,13 +43,15 @@ watch(isLoggedIn, (newValue) => {
 })
 
 const logout = async () => {
+  errorStore.clearError() // Clear previous errors
   try {
-    isLoading.value = true
-    await userStore.logout()
-  } catch (error: unknown) {
-    errorMessage.value = 'Failed to logout. Please try again.'
-  } finally {
-    isLoading.value = false
+    await errorStore.handleError(
+      async () => userStore.logout(),
+      ErrorType.AUTH_ERROR,
+      'Failed to logout. Please try again.',
+    )
+  } catch {
+    // No additional action needed, errorStore will manage the error
   }
 }
 </script>

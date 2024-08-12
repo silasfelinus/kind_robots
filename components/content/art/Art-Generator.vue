@@ -11,7 +11,7 @@
         v-model="prompt"
         placeholder="Enter your art prompt"
         class="rounded-2xl p-2 w-full text-lg"
-      />
+      >
     </div>
 
     <!-- Generate Art Button -->

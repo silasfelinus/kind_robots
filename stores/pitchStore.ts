@@ -32,7 +32,7 @@ export const usePitchStore = defineStore({
           const user = await userStore.fetchUsernameById(userId)
           return user || 'Unknown'
         }
-        catch (error: any) {
+        catch (error: unknown) {
           const handledError = errorHandler(error)
           console.error('Error fetching username:', handledError.message)
           return null
@@ -75,7 +75,7 @@ export const usePitchStore = defineStore({
           console.error('Failed to fetch pitches:', handledError.message)
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error fetching pitches:', handledError.message)
       }
@@ -111,7 +111,7 @@ export const usePitchStore = defineStore({
           throw new Error(data.message || 'Failed to create pitch')
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error creating pitch:', handledError.message)
         return { success: false, message: handledError.message } // Return an error message
@@ -144,7 +144,7 @@ export const usePitchStore = defineStore({
           }
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error updating pitch:', handledError.message)
       }
@@ -166,7 +166,7 @@ export const usePitchStore = defineStore({
           }
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error deleting pitch:', handledError.message)
       }

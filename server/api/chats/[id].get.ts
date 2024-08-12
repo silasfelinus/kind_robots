@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       chatExchanges,
     }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

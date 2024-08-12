@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const art = await fetchArtById(id)
     return { success: true, art }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

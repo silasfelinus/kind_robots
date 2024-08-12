@@ -4,7 +4,7 @@
       v-model="userText"
       class="input input-bordered w-full mb-4"
       placeholder="Enter your text here"
-    />
+    >
     <div class="space-y-4">
       <!-- Repeating labels with Tailwind and DaisyUI styling -->
       <div v-for="(value, key) in settings" :key="key" class="label">
@@ -16,7 +16,7 @@
           :min="key === 'width' || key === 'height' ? 256 : undefined"
           :step="key === 'width' || key === 'height' ? 64 : undefined"
           :max="key === 'width' || key === 'height' ? 1024 : undefined"
-        />
+        >
       </div>
     </div>
     <button class="btn btn-primary mt-4" @click="submit">Submit</button>
@@ -28,7 +28,7 @@
       <!-- Loading animation -->
     </div>
     <div v-if="imageData" class="mt-4">
-      <img :src="imageData" alt="Generated Image" class="max-w-full h-auto" />
+      <img :src="imageData" alt="Generated Image" class="max-w-full h-auto" >
     </div>
   </div>
 </template>

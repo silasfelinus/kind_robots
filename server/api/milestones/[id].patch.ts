@@ -1,6 +1,6 @@
 // /server/api/milestones/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
-import { PrismaClient, type Milestone } from '@prisma/client'
+import type { Milestone } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from './../utils/prisma'
 
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     })
     return { success: true, milestone: updatedMilestone }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -32,7 +32,7 @@ export async function updateMilestone(id: number, updatedMilestone: Partial<Mile
       data: updatedMilestone,
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

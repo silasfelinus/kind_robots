@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     const milestone = await fetchMilestoneById(id)
     return { success: true, milestone }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

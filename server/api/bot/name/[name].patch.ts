@@ -4,24 +4,28 @@ import { fetchBotByName, updateBot } from '../../bots'
 
 export default defineEventHandler(async (event) => {
   const name = String(event.context.params?.name)
-  if (!name) throw new Error('Invalid bot name.')
+  
+  if (!name) {
+    return { success: false, message: 'Invalid bot name.' }
+  }
+
   try {
     // Fetch the bot from the database
     const bot = await fetchBotByName(name)
-
-    // Make sure to await the Promise returned by readBody
-    const data = await readBody(event)
-
+    
     if (!bot) {
-      throw new Error('Bot not found.')
+      return { success: false, message: `Bot with name "${name}" not found.` }
     }
 
-    // Update only the provnameed fields
+    // Read the body data
+    const data = await readBody(event)
+
+    // Update only the provided fields
     const updatedBot = await updateBot(name, data)
 
     return { success: true, bot: updatedBot }
-  }
-  catch (error) {
-    return { success: false, message: `Failed to update bot with name ${name}.` }
+  } catch (error: unknown) {
+    console.error(`Failed to update bot with name "${name}": ${error instanceof Error ? error.message : 'Unknown error'}`)
+    return { success: false, message: `Failed to update bot with name "${name}". ${error instanceof Error ? error.message : 'Unknown error'}` }
   }
 })

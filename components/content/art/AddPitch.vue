@@ -1,28 +1,23 @@
 <template>
   <!-- Container -->
-  <div class="flex flex-col items-center justify-center bg-base-200 rounded-2xl border">
+  <div
+    class="flex flex-col items-center justify-center bg-base-200 rounded-2xl border"
+  >
     <!-- Add Pitch Button -->
     <button
       class="p-4 rounded-2xl border m-2 bg-primary text-white"
       @click="showForm = !showForm"
     >
-      <icon
-        name="typcn:plus"
-        class="text-4xl"
-      />
+      <icon name="typcn:plus" class="text-4xl" />
     </button>
-    <p class="text-lg font-semibold m-4">
-      Click to Add a New Pitch
-    </p>
+    <p class="text-lg font-semibold m-4">Click to Add a New Pitch</p>
 
     <!-- Add Pitch Form -->
     <div
       v-if="showForm"
       class="flex flex-col rounded-xl border p-4 m-2 mb-6 w-full max-w-md bg-white"
     >
-      <h2 class="text-2xl font-bold m-4 p-2">
-        Create Your Pitch
-      </h2>
+      <h2 class="text-2xl font-bold m-4 p-2">Create Your Pitch</h2>
       <p class="text-sm text-gray-600 m-4p-2">
         Craft your pitch to inspire and challenge other artists. 🎨
       </p>
@@ -32,7 +27,7 @@
         v-model="newPitch.title"
         placeholder="Title"
         class="mb-2 p-2 rounded border"
-      >
+      />
       <textarea
         v-model="newPitch.pitch"
         placeholder="Pitch"
@@ -42,23 +37,16 @@
         v-model="newPitch.designer"
         placeholder="Designer"
         class="mb-2 p-2 rounded border"
-      >
+      />
 
       <!-- Checkboxes -->
       <label class="inline-flex items-center mb-2">
-        <input
-          v-model="newPitch.isMature"
-          type="checkbox"
-          class="mr-2"
-        >
+        <input v-model="newPitch.isMature" type="checkbox" class="mr-2" />
         Allow mature content
       </label>
 
       <!-- Submit Button -->
-      <button
-        class="p-2 rounded bg-primary text-white"
-        @click="createPitch"
-      >
+      <button class="p-2 rounded bg-primary text-white" @click="createPitch">
         Submit Pitch
       </button>
     </div>
@@ -68,10 +56,7 @@
     >
       {{ message }}
     </div>
-    <milestone-reward
-      v-if="shouldShowMilestoneCheck"
-      :id="1"
-    />
+    <milestone-reward v-if="shouldShowMilestoneCheck" :id="1" />
   </div>
 </template>
 
@@ -116,8 +101,7 @@ const createPitch = async () => {
         isOrphan: true,
         isPublic: true,
       }
-    }
-    else {
+    } else {
       messageType.value = 'error'
       message.value = result.message || 'Something went wrong!'
     }
@@ -128,8 +112,7 @@ const createPitch = async () => {
         messageType.value = null
       }, 3000)
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     const handledError = errorHandler(error)
     messageType.value = 'error'
     message.value = handledError.message

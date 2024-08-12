@@ -13,7 +13,7 @@ export async function deleteMilestone(id: number): Promise<boolean> {
     await prisma.milestone.delete({ where: { id } })
     return true
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

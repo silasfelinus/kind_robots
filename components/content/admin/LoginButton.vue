@@ -3,14 +3,9 @@
     <!-- Button column -->
     <div class="ml-4">
       <div v-if="isLoggedIn">
-        <div class="hidden lg:inline">
-          Salutations,
-        </div>
+        <div class="hidden lg:inline">Salutations,</div>
         {{ username }}!
-        <button
-          class="b p-2 rounded-lg text-white text-sm"
-          @click="logout"
-        >
+        <button class="b p-2 rounded-lg text-white text-sm" @click="logout">
           logout
         </button>
       </div>
@@ -24,10 +19,7 @@
       </div>
     </div>
   </div>
-  <login-form
-    v-if="showLogin"
-    @close="showLogin = false"
-  />
+  <login-form v-if="showLogin" @close="showLogin = false" />
 </template>
 
 <script lang="ts" setup>
@@ -54,11 +46,9 @@ const logout = async () => {
   try {
     isLoading.value = true
     await userStore.logout()
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     errorMessage.value = 'Failed to logout. Please try again.'
-  }
-  finally {
+  } finally {
     isLoading.value = false
   }
 }

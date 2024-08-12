@@ -1,5 +1,4 @@
-import type { Prisma } from '@prisma/client'
-import type { Reward } from '@prisma/client' // Adjust the path as needed
+import type { Prisma, Reward } from '@prisma/client'
 import prisma from '../utils/prisma'
 
 // Function to create a new Reward

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const updatedCustomer = await updateCustomer(id, updatedCustomerData)
     return { success: true, updatedCustomer }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -24,7 +24,7 @@ export async function updateCustomer(id: number, updatedCustomer: Partial<Custom
       data: updatedCustomer,
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

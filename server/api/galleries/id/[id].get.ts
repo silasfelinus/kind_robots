@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, gallery }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler({ error, context: 'Fetch Gallery' })
   }
 })

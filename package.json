@@ -11,7 +11,7 @@
     "lint:js": "eslint .",
     "lint:prettier": "prettier --check .",
     "prettier": "prettier --write .",
-    "lintfix": "eslint --fix . --ignore-path .gitignore && prettier --write .",
+    "lintfix": "eslint --fix . && prettier --write .",
     "studio": "npx prisma studio",
     "prisma:generate": "npx prisma generate && npm run prisma:inline",
     "prisma:migrate": "npx prisma migrate deploy && npm run prisma:inline",

@@ -1,6 +1,5 @@
 // /server/api/chats/bot/[id].get.ts
 import { defineEventHandler } from 'h3'
-import type { ChatExchange } from '@prisma/client'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 
@@ -14,7 +13,7 @@ export default defineEventHandler(async (event) => {
       userChats,
     }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

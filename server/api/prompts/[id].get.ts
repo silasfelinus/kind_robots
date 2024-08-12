@@ -1,35 +1,42 @@
 // server/api/art/prompts/[id].get.ts
-import { defineEventHandler } from 'h3'
-import type { ArtPrompt, Art } from '@prisma/client'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
+import { defineEventHandler } from 'h3';
+import { errorHandler } from '../utils/error';
+import { fetchArtByPromptId, fetchArtPromptById } from './artQueries'
 
+// Event handler for fetching ArtPrompt and related Art by ID
 export default defineEventHandler(async (event) => {
   try {
-    const id = Number(event.context.params?.id)
-    const artPrompt = await fetchArtPromptById(id)
-    if (!artPrompt) {
-      return { success: false, message: 'ArtPrompt not found' }
-    }
-    const artIds = artPrompt.Art.map(a => a.id)
-    return { success: true, prompt: artPrompt.prompt, artIds }
-  }
-  catch (error: any) {
-    return errorHandler(error)
-  }
-})
+    const id = Number(event.context.params?.id);
 
-// Modify the return type to include the Art relationship
-export async function fetchArtPromptById(id: number): Promise<(ArtPrompt & { Art: Art[] }) | null> {
-  try {
-    return await prisma.artPrompt.findUnique({
-      where: { id },
-      include: {
-        Art: true, // Include related Art
-      },
-    })
+    if (isNaN(id)) {
+      return errorHandler({
+        success: false,
+        message: 'Invalid ID format.',
+        statusCode: 400, // Bad Request
+      });
+    }
+
+    // Fetch ArtPrompt by ID
+    const artPrompt = await fetchArtPromptById(id);
+
+    if (!artPrompt) {
+      return errorHandler({
+        success: false,
+        message: 'ArtPrompt not found',
+        statusCode: 404, // Not Found
+      });
+    }
+
+    // Fetch related Art by ArtPrompt ID
+    const art = await fetchArtByPromptId(id);
+
+    // Extract Art IDs
+    const artIds = art.map(a => a.id);
+
+    return { success: true, prompt: artPrompt.prompt, artIds };
+  } catch (error: unknown) {
+    // Use the errorHandler to process the error
+    return errorHandler(error);
   }
-  catch (error: any) {
-    throw errorHandler(error)
-  }
-}
+});
+

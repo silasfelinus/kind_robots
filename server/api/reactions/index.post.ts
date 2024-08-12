@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const newReaction = await createArtReaction(reactionData)
     return { success: true, newReaction }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

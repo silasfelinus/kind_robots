@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const items = await fetchCartItems(cartId)
     return { success: true, items }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -24,7 +24,7 @@ export async function fetchCartItems(cartId: number): Promise<CartItem[]> {
       },
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

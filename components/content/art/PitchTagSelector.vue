@@ -6,12 +6,15 @@
         v-for="pitch in enrichedPitches"
         :key="pitch.id"
         :class="[
-          selectedPitch?.id === pitch.id ? 'bg-primary text-white' : 'bg-base-200',
+          selectedPitch?.id === pitch.id
+            ? 'bg-primary text-white'
+            : 'bg-base-200',
           'rounded-2xl border p-2 m-2',
         ]"
         @click="updateSelectedPitch(pitch.id)"
       >
-        {{ pitch.title }} <span v-if="pitch.username">({{ pitch.username }})</span>
+        {{ pitch.title }}
+        <span v-if="pitch.username">({{ pitch.username }})</span>
       </button>
     </div>
 
@@ -64,7 +67,8 @@ const pitches = computed(() => tagStore.pitches)
 const enrichedPitches = computed(() => {
   const userStore = useUserStore()
   return pitches.value.map((pitch) => {
-    const username = pitch.userId === userStore.userId ? userStore.username : 'Unknown User'
+    const username =
+      pitch.userId === userStore.userId ? userStore.username : 'Unknown User'
     return { ...pitch, username }
   })
 })
@@ -72,10 +76,11 @@ const togglePitchMature = () => {
   try {
     if (selectedPitch.value) {
       const currentMatureStatus = selectedPitch.value.isMature ?? false
-      tagStore.updatePitch(selectedPitch.value.id, { isMature: !currentMatureStatus })
+      tagStore.updatePitch(selectedPitch.value.id, {
+        isMature: !currentMatureStatus,
+      })
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error('Error toggling pitch Mature:', handledError.message)
   }
@@ -88,8 +93,7 @@ const addNewPitch = async () => {
     if (newTitle) {
       await tagStore.addPitch(newTitle, userStore.userId)
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error('Error adding new pitch:', handledError.message)
   }

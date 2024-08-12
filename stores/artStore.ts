@@ -58,7 +58,7 @@ export const useArtStore = defineStore({
           }
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error in fetchAllArt:', handledError.message)
       }
@@ -91,7 +91,7 @@ export const useArtStore = defineStore({
           }
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error in deleteArt:', handledError.message)
       }
@@ -154,7 +154,7 @@ async createArtReaction(reactionData: ArtReaction) {
           return null
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error in generateArt:', handledError.message)
         return null
@@ -220,7 +220,7 @@ async createArtReaction(reactionData: ArtReaction) {
         }
         return null
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error in fetchArtById:', handledError.message)
         return null

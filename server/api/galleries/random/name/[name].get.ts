@@ -1,5 +1,5 @@
 // ~/server/api/galleries/[name].random.ts
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler } from 'h3'
 import { getRandomImageByGalleryName } from '../..'
 
 export default defineEventHandler(async (event) => {
@@ -18,11 +18,11 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, image }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return {
       success: false,
-      message: `Failed to geet random image for gallery name ${galleryName}.`,
-      error: error.message,
+      message: `Failed to get random image for gallery name ${galleryName}.`,
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 })

@@ -1,8 +1,6 @@
 <template>
   <div class="bg-base-200 rounded-2xl border p-4 text-lg">
-    <h1 class="text-2xl mb-4">
-      Art-Maker
-    </h1>
+    <h1 class="text-2xl mb-4">Art-Maker</h1>
 
     <!-- Prompt Input -->
     <div class="mt-4">
@@ -10,7 +8,7 @@
         v-model="prompt"
         placeholder="Enter your art prompt"
         class="rounded-2xl p-2 w-full text-lg"
-      >
+      />
     </div>
 
     <!-- Generate Art Button -->
@@ -45,12 +43,10 @@ const generateArt = async () => {
     if (response.ok) {
       const data = await response.json()
       console.log('Art generated:', data)
-    }
-    else {
+    } else {
       console.error('Failed to generate art:', await response.text())
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error generating art:', error)
   }
 }

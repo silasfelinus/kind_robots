@@ -6,10 +6,10 @@ import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Extract the user id from the query parameters
+    // Extract the user ID from the query parameters
     const userId = Number(event.context.params?.id)
-    if (!userId) {
-      return { success: false, message: 'User ID is required.' }
+    if (isNaN(userId) || userId <= 0) {
+      return { success: false, message: 'Invalid User ID.' }
     }
 
     // Fetch the user by their ID
@@ -19,11 +19,12 @@ export default defineEventHandler(async (event) => {
     }
 
     return { success: true, user }
-  }
-  catch (error: any) {
-    return { success: false, message: `Failed to fetch user: ${errorHandler(error)}` }
+  } catch (error: unknown) {
+    const { message } = errorHandler(error)
+    return { success: false, message: `Failed to fetch user: ${message}` }
   }
 })
+
 export async function fetchUserById(id: number): Promise<Partial<User> | null> {
   try {
     return await prisma.user.findUnique({
@@ -50,9 +51,8 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         mana: true,
       },
     })
-  }
-  catch (error: any) {
-    console.error(`Failed to fetch user by ID: ${error.message}`)
+  } catch (error: unknown) {
+    console.error(`Failed to fetch user by ID: ${(error as Error).message}`)
     throw new Error(errorHandler(error).message)
   }
 }

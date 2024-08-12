@@ -1,7 +1,6 @@
 // /server/api/milestones/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import type { Prisma } from '@prisma/client'
-import type { Milestone } from '@prisma/client' // Import the batch creation function
+import type { Prisma, Milestone } from '@prisma/client'
 import { errorHandler } from '../utils/error' // Import centralized error handler
 import prisma from '../utils/prisma'
 
@@ -35,7 +34,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, count, milestones }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     // Use centralized error handling
     return errorHandler(error)
   }

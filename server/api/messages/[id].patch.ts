@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const updatedMessage = await updateMessage(id, updatedMessageData)
     return { success: true, updatedMessage }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -23,7 +23,7 @@ export async function updateMessage(id: number, updatedMessage: Partial<Message>
       data: updatedMessage,
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

@@ -21,7 +21,7 @@ export const useChannelStore = defineStore({
           await this.fetchChannels()
           this.isInitialized = true // Use `this.isInitialized` to update the state
         }
-        catch (error: any) {
+        catch (error: unknown) {
           const handledError = errorHandler(error)
           console.error('Error initializing channels:', handledError.message)
         }
@@ -59,7 +59,7 @@ export const useChannelStore = defineStore({
           this.channels.push(updatedChannel)
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         throw errorHandler(error)
       }
     },
@@ -77,7 +77,7 @@ export const useChannelStore = defineStore({
           this.currentChannel = data.channel
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         throw errorHandler(error)
       }
     },
@@ -90,7 +90,7 @@ export const useChannelStore = defineStore({
           this.channels = data.channels
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         throw errorHandler(error)
       }
     },
@@ -125,7 +125,7 @@ export const useChannelStore = defineStore({
           this.messages.push(data.message)
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         throw errorHandler(error)
       }
     },
@@ -147,7 +147,7 @@ export const useChannelStore = defineStore({
           }
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         throw errorHandler(error)
       }
     },

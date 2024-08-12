@@ -1,6 +1,5 @@
 // /server/api/items/[id].delete.ts
-import { defineEventHandler, readBody } from 'h3'
-import type { CartItem } from '@prisma/client'
+import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
@@ -10,7 +9,7 @@ export default defineEventHandler(async (event) => {
     await deleteCartItem(id)
     return { success: true }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

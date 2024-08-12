@@ -1,6 +1,7 @@
-import { defineEventHandler, readBody } from 'h3' // Replace with the actual import for H3's defineEventHandler
+import { defineEventHandler, readBody } from 'h3'
 import type { Todo } from '@prisma/client'
-import { updateTodo } from '.' // Import your updateTodo function
+import { updateTodo } from '.'
+import { errorHandler } from '../utils/error' // Import your centralized error handler
 
 export default defineEventHandler(async (event) => {
   try {
@@ -13,10 +14,10 @@ export default defineEventHandler(async (event) => {
 
     // Create an updateTodoData object with the parameters that are provided
     const updateTodoData: Partial<Todo> = {}
-    if (task) updateTodoData.task = task
-    if (category) updateTodoData.category = category
-    if (userId) updateTodoData.userId = userId
-    if (rewardId) updateTodoData.rewardId = rewardId
+    if (task !== undefined) updateTodoData.task = task
+    if (category !== undefined) updateTodoData.category = category
+    if (userId !== undefined) updateTodoData.userId = userId
+    if (rewardId !== undefined) updateTodoData.rewardId = rewardId
     if (completed !== undefined) updateTodoData.completed = completed
 
     const updatedTodo = await updateTodo(id, updateTodoData)
@@ -26,9 +27,9 @@ export default defineEventHandler(async (event) => {
     }
 
     return { success: true, todo: updatedTodo }
-  }
-  catch (error: any) {
-    console.error(`Failed to update todo: ${error.message}`)
-    return { success: false, message: `Failed to update todo: ${error.message}` }
+  } catch (error: unknown) {
+    const { message } = errorHandler(error)
+    console.error(`Failed to update todo: ${message}`)
+    return { success: false, message: `Failed to update todo: ${message}` }
   }
 })

@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     const updatedItem = await updateCartItem(id, updatedData)
     return { success: true, updatedItem }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

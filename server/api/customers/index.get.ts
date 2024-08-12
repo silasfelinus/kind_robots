@@ -9,7 +9,7 @@ export default defineEventHandler(async () => {
     const customers = await fetchAllCustomers()
     return { success: true, customers }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })

@@ -1,21 +1,35 @@
-// /server/api/chats/[id].patch.ts
+// server/api/chats/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
+type ReactionData = {
+  liked?: boolean
+  hated?: boolean
+  loved?: boolean
+  flagged?: boolean
+}
+
 export default defineEventHandler(async (event) => {
   try {
+    // Extract and validate ID
     const id = Number(event.context.params?.id)
-    const reactionData = await readBody(event)
+    if (isNaN(id)) {
+      throw new TypeError('Invalid ID.')
+    }
 
-    // Validate reactions
-    const validReactions = ['liked', 'hated', 'loved', 'flagged']
-    for (const key in reactionData) {
+    // Read and validate reaction data
+    const reactionData: ReactionData = await readBody(event)
+    const validReactions: Array<keyof ReactionData> = ['liked', 'hated', 'loved', 'flagged']
+
+    // Ensure all keys are valid and values are boolean
+    for (const key of Object.keys(reactionData) as Array<keyof ReactionData>) {
       if (!validReactions.includes(key) || typeof reactionData[key] !== 'boolean') {
         throw new TypeError('Invalid reaction data.')
       }
     }
 
+    // Update chat exchange
     const updatedExchange = await prisma.chatExchange.update({
       where: { id },
       data: reactionData,
@@ -26,12 +40,13 @@ export default defineEventHandler(async (event) => {
       updatedExchange,
     }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     console.error(`Error while updating chat exchange with id ${event.context.params?.id}:`, error)
-    return errorHandler({
-      success: false,
-      message: error.message || 'An unknown error occurred.',
-      statusCode: 500,
-    })
+    const { success, message, statusCode } = errorHandler(error)
+    return {
+      success,
+      message,
+      statusCode: statusCode || 500,
+    }
   }
 })

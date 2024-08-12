@@ -51,7 +51,7 @@ export const useMilestoneStore = defineStore({
           return { success: false, message: data.message }
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const { success, message } = errorHandler({ error })
         this.error = message
         console.error(`Error fetching milestone by ID ${id}: ${message}`)

@@ -59,7 +59,7 @@ export const useTagStore = defineStore({
           console.error('Failed to fetch tags:', handledError.message)
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         const handledError = errorHandler(error)
         console.error('Error fetching tags:', handledError.message)
       }
@@ -83,7 +83,7 @@ export const useTagStore = defineStore({
           }
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         console.error('Error creating tag:', error)
       }
     },
@@ -110,7 +110,7 @@ export const useTagStore = defineStore({
           }
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         console.error('Error editing tag:', error)
       }
     },
@@ -131,7 +131,7 @@ export const useTagStore = defineStore({
           }
         }
       }
-      catch (error: any) {
+      catch (error: unknown) {
         console.error('Error deleting tag:', error)
       }
     },
@@ -163,7 +163,7 @@ export const useTagStore = defineStore({
         try {
           await this.editTag(id, updates)
         }
-        catch (error: any) {
+        catch (error: unknown) {
           const handledError = errorHandler(error)
           console.error('Error updating pitch:', handledError.message)
         }

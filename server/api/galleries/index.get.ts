@@ -1,15 +1,23 @@
 // server/api/Galleriess/index.get.ts
-import { defineEventHandler } from 'h3'
-import { fetchGalleries } from '.'
+import { defineEventHandler } from 'h3';
+import { fetchGalleries } from '.';
+import { errorHandler } from '../utils/error';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
-    const page = Number(event.context.query?.page) || 1
-    const pageSize = Number(event.context.query?.pageSize) || 100
-    const Galleries = await fetchGalleries()
-    return { success: true, Galleries }
+    // Fetch galleries
+    const galleries: Gallery[] = await fetchGalleries();
+
+    // Return success response with galleries data
+    return { success: true, galleries };
+  } catch (error: unknown) {
+    // Use the errorHandler to handle and format the error
+    const handledError = errorHandler(error);
+    return {
+      success: false,
+      message: 'Failed to fetch galleries.',
+      error: handledError.message,
+      statusCode: handledError.statusCode || 500,
+    };
   }
-  catch (error) {
-    return { success: false, message: 'Failed to fetch Galleries.' }
-  }
-})
+});

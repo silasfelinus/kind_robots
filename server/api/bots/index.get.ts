@@ -1,6 +1,8 @@
-// server/api/bots/index.get.ts
+// /server/api/bots/index.get.ts
 import { defineEventHandler } from 'h3'
 import { fetchBots } from '.'
+import { errorHandler } from '../utils/error'
+import { createError } from '#imports'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -9,7 +11,11 @@ export default defineEventHandler(async (event) => {
     const bots = await fetchBots(page, pageSize)
     return { success: true, bots }
   }
-  catch (error) {
-    return { success: false, message: 'Failed to fetch bots.' }
+  catch (error: unknown) {
+    const { message, statusCode } = errorHandler(error)
+    throw createError({
+      statusCode: statusCode || 500,
+      statusMessage: message,
+    })
   }
 })

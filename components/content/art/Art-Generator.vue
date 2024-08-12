@@ -1,8 +1,6 @@
 <template>
   <div class="bg-base-200 rounded-2xl p-8 text-lg">
-    <h1 class="text-2xl mb-4">
-      Art-Generator
-    </h1>
+    <h1 class="text-2xl mb-4">Art-Generator</h1>
     Enter your Art Prompt. We will automatically begin with the pitch:
     <div class="font-bold">
       {{ pitch }}
@@ -13,7 +11,7 @@
         v-model="prompt"
         placeholder="Enter your art prompt"
         class="rounded-2xl p-2 w-full text-lg"
-      >
+      />
     </div>
 
     <!-- Generate Art Button -->
@@ -26,27 +24,17 @@
     </button>
 
     <!-- Loading State -->
-    <div
-      v-if="isLoading"
-      class="mt-4 flex flex-col items-center"
-    >
+    <div v-if="isLoading" class="mt-4 flex flex-col items-center">
       <p>{{ loadingMessage }}</p>
       <div class="loader flex justify-center mt-2">
         <ami-butterfly />
       </div>
     </div>
     <!-- Add this line where you want to display the milestone-check -->
-    <milestone-reward
-      v-if="shouldShowMilestoneCheck"
-      :id="11"
-    />
+    <milestone-reward v-if="shouldShowMilestoneCheck" :id="11" />
 
     <!-- Display Created Art -->
-    <div
-      v-for="art in createdArts"
-      :key="art.id"
-      class="mt-4"
-    >
+    <div v-for="art in createdArts" :key="art.id" class="mt-4">
       <art-card :art="art" />
     </div>
   </div>
@@ -121,18 +109,15 @@ const generateArt = async () => {
       createdArts.value.unshift(data.newArt as Art)
       shouldShowMilestoneCheck.value = true
       console.log('Art generated:', createdArts)
-    }
-    else {
+    } else {
       const errorText = await response.text()
       const handledError = errorHandler(new Error(errorText))
       console.error('Failed to generate art:', handledError.message)
     }
-  }
-  catch (error: any) {
+  } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error('Error generating art:', handledError.message)
-  }
-  finally {
+  } finally {
     isLoading.value = false
   }
 }

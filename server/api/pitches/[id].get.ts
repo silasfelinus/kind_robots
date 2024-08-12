@@ -1,57 +1,79 @@
-import { defineEventHandler } from 'h3'
-import type { Pitch } from '@prisma/client'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
+import { defineEventHandler } from 'h3';
+import type { Pitch, Art, Channel } from '@prisma/client';
+import { errorHandler } from '../utils/error';
+import prisma from '../utils/prisma';
 
 export default defineEventHandler(async (event) => {
   try {
-    const id = Number(event.context.params?.id)
-
-    if (!id) throw new Error('Invalid tag ID.')
+    const id = Number(event.context.params?.id);
 
     if (isNaN(id)) {
-      return { success: false, message: 'Invalid ID', statusCode: 400 }
+      return { success: false, message: 'Invalid ID', statusCode: 400 };
     }
 
-    const pitch = await fetchPitchById(id)
+    // Fetch the pitch by ID and its related data
+    const pitch = await fetchPitchById(id);
+    if (!pitch) {
+      return { success: false, message: 'Pitch not found', statusCode: 404 };
+    }
 
-    return { success: true, pitch }
+    return { success: true, pitch };
+  } catch (error: unknown) {
+    return errorHandler(error);
   }
-  catch (error: any) {
-    return errorHandler(error)
-  }
-})
+});
 
-export async function fetchPitchById(
-  id: number,
-): Promise<{ success: boolean, pitch?: Pitch, message?: string, statusCode?: number }> {
+export async function fetchPitchById(id: number): Promise<PitchDetails | null> {
   try {
-    // Validate the ID
-    if (!id || isNaN(id)) {
-      return { success: false, message: 'Invalid ID', statusCode: 400 }
-    }
-
-    // Fetch the pitch by ID along with its related Art, ArtPrompt, and Channel
+    // Fetch the pitch by ID
     const pitch = await prisma.pitch.findUnique({
       where: { id },
-      include: {
-        Art: true,
-        Channel: true,
-      },
-    })
+    });
 
-    // Check if the pitch exists
     if (!pitch) {
-      return { success: false, message: 'Pitch not found', statusCode: 404 }
+      return null;
     }
-    return { success: true, pitch }
-  }
-  catch (error: any) {
-    const handledError = errorHandler(error)
-    return {
-      success: false,
-      message: handledError.message,
-      statusCode: handledError.statusCode || 500,
-    }
+
+    // Fetch related data if pitch.channelId is present
+    const [art, channel] = await Promise.all([
+      fetchArtByPitchId(id),
+      pitch.channelId ? fetchChannelByPitchId(pitch.channelId) : Promise.resolve(null),
+    ]);
+
+    return { pitch, art, channel };
+  } catch (error: unknown) {
+    const handledError = errorHandler(error);
+    throw new Error(handledError.message);
   }
 }
+
+// Fetch Art related to the Pitch
+async function fetchArtByPitchId(pitchId: number): Promise<Art[]> {
+  try {
+    return await prisma.art.findMany({
+      where: { pitchId },
+    });
+  } catch (error: unknown) {
+    const handledError = errorHandler(error);
+    throw new Error(handledError.message);
+  }
+}
+
+// Fetch Channel related to the Pitch
+async function fetchChannelByPitchId(channelId: number): Promise<Channel | null> {
+  try {
+    return await prisma.channel.findUnique({
+      where: { id: channelId },
+    });
+  } catch (error: unknown) {
+    const handledError = errorHandler(error);
+    throw new Error(handledError.message);
+  }
+}
+
+// Define the PitchDetails type
+type PitchDetails = {
+  pitch: Pitch;
+  art: Art[];
+  channel: Channel | null;
+};

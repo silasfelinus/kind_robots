@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const newCustomer = await createCustomer(customerData)
     return { success: true, newCustomer }
   }
-  catch (error: any) {
+  catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -26,7 +26,7 @@ export async function createCustomer(customer: Partial<Customer>): Promise<Custo
       },
     })
   }
-  catch (error: any) {
+  catch (error: unknown) {
     throw errorHandler(error)
   }
 }

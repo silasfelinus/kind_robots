@@ -91,6 +91,30 @@ model Bot {
   Slogan            Slogan[]
 }
 
+model Cart {
+  id         Int        @id @unique @default(autoincrement())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime?
+  customerId Int
+  Customer   Customer   @relation(fields: [customerId], references: [id])
+  items      CartItem[]
+
+  @@index([customerId], map: "Cart_customerId_fkey")
+}
+
+model CartItem {
+  id        Int     @id @unique @default(autoincrement())
+  cartId    Int
+  productId Int
+  quantity  Int     @default(1)
+  Cart      Cart    @relation(fields: [cartId], references: [id])
+  Product   Product @relation(fields: [productId], references: [id])
+
+  @@index([cartId], map: "CartItem_cartId_fkey")
+  @@index([productId], map: "CartItem_productId_fkey")
+}
+
+
 model Channel {
   id          Int       @id @default(autoincrement())
   createdAt   DateTime  @db.DateTime(0)
@@ -118,6 +142,18 @@ model ChatExchange {
   loved           Boolean?     @default(false)
   flagged         Boolean?     @default(false)
   previousEntryId Int?     @default(0)
+}
+
+
+model Customer {
+  id        Int       @id @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  email     String    @unique
+  name      String?
+  userId    Int?      @unique
+  Carts     Cart[]
+  User      User?     @relation(fields: [userId], references: [id])
 }
 
 model Gallery {
@@ -217,39 +253,7 @@ model Pitch {
   ArtReaction    ArtReaction[]
 }
 
-model Cart {
-  id         Int        @id @unique @default(autoincrement())
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime?
-  customerId Int
-  Customer   Customer   @relation(fields: [customerId], references: [id])
-  items      CartItem[]
 
-  @@index([customerId], map: "Cart_customerId_fkey")
-}
-
-model CartItem {
-  id        Int     @id @unique @default(autoincrement())
-  cartId    Int
-  productId Int
-  quantity  Int     @default(1)
-  Cart      Cart    @relation(fields: [cartId], references: [id])
-  Product   Product @relation(fields: [productId], references: [id])
-
-  @@index([cartId], map: "CartItem_cartId_fkey")
-  @@index([productId], map: "CartItem_productId_fkey")
-}
-
-model Customer {
-  id        Int       @id @unique @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime?
-  email     String    @unique
-  name      String?
-  userId    Int?      @unique
-  Carts     Cart[]
-  User      User?     @relation(fields: [userId], references: [id])
-}
 
 model RandomList {
   id     Int    @id @default(autoincrement())

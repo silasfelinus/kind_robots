@@ -73,9 +73,6 @@ export const useDreamStore = defineStore('dreams', () => {
     return dreams[randomIndex]
   }
 
-  function loadStore() {
-    return Promise.resolve(`Loaded ${dreams.length} dreams`)
-  }
 
   return { dreams, randomDream }
 })

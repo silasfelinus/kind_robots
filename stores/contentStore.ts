@@ -1,7 +1,7 @@
-// ~/store/content.ts
 import { defineStore } from 'pinia'
 import { useErrorStore, ErrorType } from '../stores/errorStore'
 import { useStatusStore, StatusType } from '../stores/statusStore'
+import { unref } from 'vue' // Import unref to unwrap ComputedRef
 
 interface ContentState {
   globals: any
@@ -40,18 +40,18 @@ export const useContentStore = defineStore({
 
       await errorStore.handleError(
         async () => {
-          const content = await useContent()
+          const content = unref(await useContent()) // Unwrap ComputedRef
           this.globals = content.globals
           this.navigation = content.navigation
           this.surround = content.surround
           this.page = content.page
-          this.excerpt = content.excerpt
+          this.excerpt = String(content.excerpt || '') // Ensure it's a string
           this.toc = content.toc
-          this.type = content.type
-          this.layout = content.layout
+          this.type = String(content.type || '') // Ensure it's a string
+          this.layout = String(content.layout || '') // Ensure it's a string
           this.next = content.next
           this.prev = content.prev
-          this.pages = await queryContent().find()
+          this.pages = unref(await queryContent().find()) // Unwrap ComputedRef
 
           statusStore.setStatus(StatusType.SUCCESS, 'Content store initialized successfully')
           statusStore.clearStatus()
@@ -64,7 +64,7 @@ export const useContentStore = defineStore({
       const errorStore = useErrorStore()
       await errorStore.handleError(
         async () => {
-          const page = await queryContent().where({ title }).findOne()
+          const page = unref(await queryContent().where({ title }).findOne()) // Unwrap ComputedRef
           this.page = page
         },
         ErrorType.NETWORK_ERROR,
@@ -75,9 +75,9 @@ export const useContentStore = defineStore({
       const errorStore = useErrorStore()
       await errorStore.handleError(
         async () => {
-          const pages = await queryContent()
+          const pages = unref(await queryContent()
             .where({ $not: { _path: '/' } })
-            .find()
+            .find()) // Unwrap ComputedRef
           this.pages = pages
         },
         ErrorType.NETWORK_ERROR,
@@ -88,7 +88,7 @@ export const useContentStore = defineStore({
       const errorStore = useErrorStore()
       await errorStore.handleError(
         async () => {
-          const page = await queryContent().where({ _path: path }).findOne()
+          const page = unref(await queryContent().where({ _path: path }).findOne()) // Unwrap ComputedRef
           this.page = page
         },
         ErrorType.NETWORK_ERROR,

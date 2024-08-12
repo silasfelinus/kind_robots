@@ -1,4 +1,4 @@
-tas// src/stores/spotifyStore.ts
+// ~// src/stores/spotifyStore.ts
 import { defineStore } from 'pinia'
 
 interface Track {
@@ -17,6 +17,14 @@ interface PlaybackStatus {
   volume: number
 }
 
+interface UserProfile {
+  id: string
+  display_name: string
+  email: string
+  images: { url: string }[]
+  // Add other relevant fields from the Spotify user profile object as needed
+}
+
 export const useSpotifyStore = defineStore('spotify', {
   state: () => ({
     token: null as string | null,
@@ -25,6 +33,7 @@ export const useSpotifyStore = defineStore('spotify', {
     playlist: [] as Track[],
     history: [] as Track[],
     error: null as string | null,
+    userProfile: null as UserProfile | null, // Add the userProfile property
   }),
   getters: {
     isPlaying(state): boolean {
@@ -129,8 +138,8 @@ export const useSpotifyStore = defineStore('spotify', {
     },
     async fetchCurrentUserProfile() {
       if (!this.token) {
-        this.error = 'Authentication required.'
-        return
+        this.error = 'Authentication required.';
+        return;
       }
 
       try {
@@ -138,18 +147,24 @@ export const useSpotifyStore = defineStore('spotify', {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },
-        })
+        });
+
         if (!res.ok) {
-          throw new Error('Failed to fetch user profile.')
+          const errorData = await res.json(); // Get error details from the response
+          throw new Error(errorData.error?.message || 'Failed to fetch user profile.');
         }
-        const data = await res.json()
-        // ... (store the user data in your Pinia store)
-      }
-      catch (error: any) {
-        console.error('Error fetching user profile', error)
-        this.error = error.message
+
+        const data = await res.json();
+        this.userProfile = data; // Update the state with the fetched user profile
+        console.log('User profile fetched successfully:', data);
+
+      } catch (error: any) {
+        console.error('Error fetching user profile', error);
+        this.error = error.message;
       }
     },
+    
+    
     togglePlay() {
       if (this.playbackStatus) {
         this.playbackStatus.isPlaying = !this.playbackStatus.isPlaying

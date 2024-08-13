@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "nuxt dev --host",
-    "build": "nuxt build",
+    "build": "npx prisma generate && nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
@@ -13,17 +13,15 @@
     "prettier": "prettier --write .",
     "lintfix": "eslint --fix . && prettier --write .",
     "studio": "npx prisma studio",
-    "prisma:generate": "npx prisma generate && npm run prisma:inline",
-    "prisma:migrate": "npx prisma migrate deploy && npm run prisma:inline",
-    "prisma:migrate:dev": "npx prisma migrate dev && npm run prisma:inline",
-    "prisma:inline": "cp ./node_modules/.prisma/client/*.js ./node_modules/@prisma/client",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate deploy",
+    "prisma:migrate:dev": "npx prisma migrate dev",
     "postinstall": "npm run prisma:generate && nuxt prepare"
   },
   "devDependencies": {
     "@nuxt/content": "^2.9.0",
     "@nuxt/eslint": "^0.5.0",
     "@nuxtjs/tailwindcss": "^6.7.0",
-    "@prisma/nextjs-monorepo-workaround-plugin": "^5.6.0",
     "@tailwindcss/typography": "^0.5.9",
     "@types/bcrypt": "^5.0.0",
     "@types/canvas-confetti": "^1.6.0",
@@ -41,7 +39,7 @@
     "nuxt-icon": "^0.6.1",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.5.6",
-    "prisma": "^5.15.0",
+    "prisma": "^5.18.0",
     "typescript": "^5.2.2"
   },
   "dependencies": {
@@ -49,7 +47,7 @@
     "@interactjs/types": "^1.10.18",
     "@nuxt/image": "^1.0.0",
     "@pinia/nuxt": "^0.5.1",
-    "@prisma/client": "^5.14.0",
+    "@prisma/client": "^5.18.0",
     "@stripe/stripe-js": "^2.1.7",
     "canvas-confetti": "^1.6.0",
     "gsap": "^3.12.2",

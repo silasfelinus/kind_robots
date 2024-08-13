@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { errorHandler, type ErrorHandlerOutput } from '@/server/api/utils/error'
+import { useErrorStore } from '@/stores/errorStore' // Import errorStore
 
 interface Page {
   _id?: string;
@@ -22,18 +22,17 @@ interface Page {
   [key: string]: unknown; // Use unknown for more type safety
 }
 
-type ErrorState = ErrorHandlerOutput | null
-
 export const usePageStore = defineStore('pageStore', () => {
   const page = ref<Page>({})
   const pages = ref<Page[]>([])
   const toc = ref({})
   const type = ref('')
   const initialized = ref(false)
-  const error = ref<ErrorState>(null)
   const showTooltip = ref(true)
   const showAmitip = ref(false)
   const showInfo = ref(true)
+
+  const errorStore = useErrorStore() // Use errorStore
 
   const currentPage = computed(() => {
     const content = useContent()
@@ -63,7 +62,7 @@ export const usePageStore = defineStore('pageStore', () => {
       pages.value = await queryContent().find()
       initialized.value = true
     } catch (err) {
-      error.value = errorHandler({ error: err, message: 'Failed to initialize page store' })
+      errorStore.setError('Failed to initialize page store', err) // Use errorStore for error handling
       console.error('Failed to initialize page store', err)
     }
   }
@@ -86,7 +85,6 @@ export const usePageStore = defineStore('pageStore', () => {
     toc,
     type,
     initialized,
-    error,
     showTooltip,
     showAmitip,
     showInfo,

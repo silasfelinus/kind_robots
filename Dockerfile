@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1
 
-ARG NODE_VERSION=18.14.2
+ARG NODE_VERSION=18.18.0
 
 FROM node:${NODE_VERSION}-slim as base
 
@@ -18,25 +18,19 @@ FROM base as build
 USER root
 
 COPY --link package.json package-lock.json ./
-RUN npm install --production=false
-
-RUN npm install prisma
+RUN npm install --omit=dev && \
+    npm install prisma
 
 COPY --link . .
-COPY --link ./node_modules/.prisma ./node_modules/.prisma
 
-RUN chown -R node:node /src
-
-USER root
-
-RUN chmod +x ./node_modules/.bin/prisma
-RUN chmod +x ./node_modules/.bin/nuxt
+RUN chown -R node:node /src && \
+    chmod +x ./node_modules/.bin/prisma && \
+    chmod +x ./node_modules/.bin/nuxt
 
 USER node
 
-RUN npx prisma generate
-
-RUN ./node_modules/.bin/nuxt build
+RUN npx prisma generate && \
+    ./node_modules/.bin/nuxt build
 
 
 # Run

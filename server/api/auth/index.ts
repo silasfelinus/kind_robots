@@ -5,6 +5,7 @@ import { errorHandler } from '../utils/error';
 import { userExists } from '../users';
 import prisma from '../utils/prisma';
 import { useRuntimeConfig } from '#imports';
+import type { User } from '@prisma/client';
 
 const { JWT_SECRET } = useRuntimeConfig();
 

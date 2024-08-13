@@ -179,4 +179,4 @@ export const useArtStore = defineStore({
   },
 })
 
-export type { Art, ArtReaction, Tag }
+export type { Art, ArtReaction }

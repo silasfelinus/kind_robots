@@ -1,6 +1,6 @@
 // /server/api/pitches/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import type { Prisma, type Pitch } from '@prisma/client'
+import type { Prisma, Pitch } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { useRandomName } from './../../../utils/useRandomName'
@@ -30,6 +30,7 @@ export async function createPitch(
     userId: number
     title: string
     pitch: string
+    highlightImage: string
   },
 ): Promise<Pitch> {
   try {
@@ -45,6 +46,7 @@ export async function createPitch(
     return await prisma.pitch.create({
       data: {
         ...pitch,
+        highlightImage: "",
         designer: designerName, // Set the designer name
       },
     })

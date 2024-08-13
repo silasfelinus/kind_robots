@@ -28,6 +28,7 @@
     "@iconify-json/typcn": "^1.1.10",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@unlok-co/nuxt-stripe": "^3.0.0",
+    "cypress": "^13.13.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",

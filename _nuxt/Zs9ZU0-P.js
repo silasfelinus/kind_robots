@@ -1,1 +1,0 @@
-import{C as f,a3 as l,d as m,r as i}from"./Bh_OSRoe.js";function u(a,e){const{title:o,titleTemplate:n,...s}=a;return f({title:o,titleTemplate:n,_flatMeta:s},{...e,transform(t){const r=l({...t._flatMeta});return delete t._flatMeta,{...t,meta:r}}})}const p=m({__name:"SeoLoader",setup(a){const e=i("Kind Robots");return u({title:e,ogTitle:e}),()=>{}}});export{p as default};

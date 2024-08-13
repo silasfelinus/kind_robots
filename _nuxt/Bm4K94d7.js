@@ -1,1 +1,0 @@
-import{a6 as n,a7 as o,u as i,a8 as t}from"./Bh_OSRoe.js";const a=n({model:"gpt-3.5-turbo",completion:"https://api.openai.com/v1/completions"}),e={nuxt:{}},f=o(a,e);function u(){const p=i();return p._appConfig||(p._appConfig=t(f)),p._appConfig}export{u};

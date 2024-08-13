@@ -1,0 +1,1 @@
+import{l as t,c as r,e as a,t as s,aL as c}from"./7SNmuExf.js";const o={props:{x:{type:Number,required:!0},y:{type:Number,required:!0},text:{type:String,required:!0}}};function n(u,l,e,d,i,p){return r(),a("div",{class:"text-bubble",style:c({top:e.y+"px",left:e.x+"px"})},s(e.text),5)}const _=t(o,[["render",n],["__scopeId","data-v-7db0f93d"]]);export{_ as default};

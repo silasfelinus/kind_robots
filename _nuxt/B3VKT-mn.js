@@ -1,0 +1,1 @@
+import{d as n,b1 as a,c as o,e as s,t as r,O as c}from"./7SNmuExf.js";import{u as p}from"./CSZbJ-Hn.js";const d=n({__name:"HeadContent",setup(u){const{page:e}=a(),t=p(e);return(m,_)=>(o(),s("div",null,r(c(t)),1))}});export{d as default};

@@ -1,0 +1,1 @@
+import{u as n}from"./IPmLTBL3.js";import{b9 as s,c as o,e as r,t as c,O as i,bc as _}from"./CpGAEQl5.js";const g={__name:"FetchNav",async setup(l){let t,a;const{data:e}=([t,a]=s(()=>n("navigation",()=>_())),t=await t,a(),t);return(p,u)=>(o(),r("pre",null,c(JSON.stringify(i(e),null,2)),1))}};export{g as default};

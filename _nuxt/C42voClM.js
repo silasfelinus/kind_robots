@@ -1,1 +1,0 @@
-import{d as a,c as s,e as t,f as o,aZ as d,l as c}from"./7SNmuExf.js";const r={class:"base-card-container"},n={class:"base-card"},_=a({__name:"BaseCardOld",setup(l){return(e,i)=>(s(),t("div",r,[o("div",n,[d(e.$slots,"default",{},void 0,!0)])]))}}),f=c(_,[["__scopeId","data-v-e4d439f5"]]);export{f as default};

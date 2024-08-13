@@ -1,1 +1,0 @@
-import{aH as t}from"./entry.540372c9.js";const s=t({id:"filter",state:()=>({showMature:!1,showPublic:!0,showFooter:!1,showChat:!1}),actions:{toggleMature(){this.showMature=!this.showMature},togglePublic(){this.showPublic=!this.showPublic},toggleFooter(){this.showFooter=!this.showFooter},toggleChat(){this.showChat=!this.showChat}}});export{s as u};

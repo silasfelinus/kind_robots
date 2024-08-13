@@ -3,17 +3,18 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
     '@nuxt/content',
-    'nuxt-icon',
     '@unlok-co/nuxt-stripe',
     '@nuxt/eslint',
+    "@nuxt/icon"
   ],
+  compatibilityDate: '2024-08-13',
   stripe: {
     // Server
     server: {
       key: 'sk_test_123',
       options: {
         // your api options override for stripe server side
-        apiVersion: '2022-11-15', // optional, default is '2022-11-15'
+        apiVersion: '2024-04-10', // optional, default is '2022-11-15'
       },
       // CLIENT
     },

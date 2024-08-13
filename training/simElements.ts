@@ -12,7 +12,7 @@ export interface elementData {
   weaknesses: string[] // titles the element takes damage from
 }
 
-export const elements: elementData = [
+export const elements: elementData[] = [
   {
     title: 'Rock',
     power: 10,

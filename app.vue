@@ -53,9 +53,6 @@ useHead({
   ],
 })
 
-const { page } = useContent()
-
-console.log(page.value)
 onMounted(async () => {
   try {
     layoutStore.initialize()

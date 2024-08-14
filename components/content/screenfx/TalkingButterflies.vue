@@ -8,13 +8,14 @@
     <div
       v-for="(butterfly, index) in butterflies"
       :key="'text-bubble-' + index"
-      :style="{ left: butterfly.goal.x + 20 + 'px', top: butterfly.goal.y + 20 + 'px' }"
+      :style="{
+        left: butterfly.goal.x + 20 + 'px',
+        top: butterfly.goal.y + 20 + 'px',
+      }"
       class="text-bubble"
     >
-      <icon
-        name="mdi:butterfly"
-        class="inline-block mr-2"
-      /> {{ butterfly.text }}
+      <icon name="mdi:butterfly" class="inline-block mr-2" />
+      {{ butterfly.text }}
     </div>
   </div>
 </template>
@@ -27,7 +28,7 @@ interface ButterflyPosition {
   x: number
   y: number
   text: string
-  goal: { x: number, y: number }
+  goal: { x: number; y: number }
 }
 
 const butterflies = ref<Array<ButterflyPosition>>([])
@@ -39,7 +40,7 @@ const getRandomPhrase = () => {
 
 onMounted(() => {
   const updateButterflies = () => {
-    butterflies.value = Array.from({ length: 3 }, (_, i) => ({
+    butterflies.value = Array.from({ length: 3 }, (_) => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
       text: getRandomPhrase(),

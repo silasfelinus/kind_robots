@@ -2,10 +2,7 @@
   <div
     class="tutorial-cards-container fixed bottom-0 right-0 z-40 flex flex-col-reverse items-end space-y-2 space-y-reverse p-2"
   >
-    <div
-      v-if="showInfo"
-      class="flex w-full justify-between items-center"
-    >
+    <div v-if="showInfo" class="flex w-full justify-between items-center">
       <div class="flex flex-col-reverse items-end space-y-2 space-y-reverse">
         <MessageCard
           v-if="showAmiCard"
@@ -14,7 +11,7 @@
           image-src="/images/amibotsquare1.webp"
           alt-text="AMI"
           username="AMIbot"
-          :message="page.amitip"
+          :message="page.amitip || 'Default AMI message'"
           @remove-card="showAmiCard = false"
         />
         <MessageCard
@@ -24,7 +21,7 @@
           image-src="/images/avatars/dottie1.webp"
           alt-text="Dotti"
           username="DottiBot"
-          :message="page.dottitip"
+          :message="page.dottitip || 'Default Dotti message'"
           @remove-card="showDottiCard = false"
         />
       </div>
@@ -38,19 +35,19 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { usePageStore } from '../../../stores/pageStore'
+import { useContentStore } from './../../../stores/contentStore'
 
-const pageStore = usePageStore()
-const showInfo = computed(() => pageStore.showInfo)
-const { page } = useContent()
+const contentStore = useContentStore()
+const showInfo = computed(() => contentStore.showInfo)
+const page = computed(() => contentStore.currentPage) // Adjusted to match contentStore's interface
 
 const showDottiCard = ref(false)
 const showAmiCard = ref(false)
 
 // Function to update showInfo based on the tooltips' visibility
 const updateShowInfo = () => {
-  if (!showAmiCard.value && !showDottiCard.value && pageStore.showInfo) {
-    pageStore.toggleInfo() // Toggle off showInfo only if it's currently on
+  if (!showAmiCard.value && !showDottiCard.value && contentStore.showInfo) {
+    contentStore.toggleInfo() // Toggle off showInfo only if it's currently on
   }
 }
 

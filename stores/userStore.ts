@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { User } from '@prisma/client';
-import { useErrorStore, ErrorType } from '@/stores/errorStore'; // Import errorStore
+import { useErrorStore, ErrorType } from './../stores/errorStore'; // Import errorStore
 import { useMilestoneStore } from './milestoneStore';
 
 interface UserState {

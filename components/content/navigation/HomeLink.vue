@@ -23,21 +23,22 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useContentStore } from '@/stores/contentStore'
 
-const { page } = useContent()
-const { toc } = useContent()
+const contentStore = useContentStore()
+
 const isHomePage = computed(() => {
-  return page.value
-    ? page.value._path === '/' || page.value.path === '/'
+  return contentStore.currentPage
+    ? contentStore.currentPage._path === '/' ||
+        contentStore.currentPage._path === '/'
     : false
 })
 
 const randomHighlightPage = computed(() => {
-  return (
-    pages.highlightPages[
-      Math.floor(Math.random() * pageStore.highlightPages.length)
-    ] || {}
-  )
+  const highlightPages = contentStore.highlightPages
+  return highlightPages.length > 0
+    ? highlightPages[Math.floor(Math.random() * highlightPages.length)]
+    : {}
 })
 </script>
 

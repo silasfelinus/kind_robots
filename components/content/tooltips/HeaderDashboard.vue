@@ -7,10 +7,7 @@
       </div>
       <div class="flex flex-col items-center w-full md:w-auto">
         <room-title class="text-lg font-semibold w-full border-b text-center" />
-        <h2
-          v-if="page.subtitle"
-          class="text-sm text-gray-500 italic text-center"
-        >
+        <h2 class="text-sm text-gray-500 italic text-center">
           {{ page.subtitle }}
         </h2>
       </div>

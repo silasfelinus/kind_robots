@@ -65,7 +65,7 @@ function endDrag(index: number) {
 
 // Function to handle mousemove for dragging
 window.addEventListener('mousemove', (event) => {
-  jellybeans.value.forEach((bean, index) => {
+  jellybeans.value.forEach((bean) => {
     if (bean.isDragging) {
       // Update the jellybean's position while dragging
       bean.x += event.movementX

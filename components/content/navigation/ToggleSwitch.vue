@@ -6,9 +6,9 @@
         type="checkbox"
         role="switch"
         aria-label="Toggle view"
-        :checked="isChecked"
+        :checked="props.isChecked"
         @change="toggleView"
-      >
+      />
       <span class="slider" />
     </label>
     <span>Nav View</span>

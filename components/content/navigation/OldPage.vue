@@ -11,7 +11,10 @@ const toggleFlip = () => {
     flipContainer.value.classList.toggle('flipped')
     const isFlipped = flipContainer.value.classList.contains('flipped')
     if (hasLocalStorage.value) {
-      window.localStorage.setItem('flipState', isFlipped ? 'flipped' : 'unflipped')
+      window.localStorage.setItem(
+        'flipState',
+        isFlipped ? 'flipped' : 'unflipped',
+      )
     }
     isChecked.value = !isFlipped
   }
@@ -24,8 +27,7 @@ function storageAvailable(type: 'localStorage' | 'sessionStorage'): boolean {
     storage.setItem(testKey, testKey)
     storage.removeItem(testKey)
     return true
-  }
-  catch (e) {
+  } catch {
     return false
   }
 }
@@ -45,7 +47,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col md:flex-row h-screen text-gray-800 p-4 space-y-4 md:space-y-0 md:space-x-4">
+  <div
+    class="flex flex-col md:flex-row h-screen text-gray-800 p-4 space-y-4 md:space-y-0 md:space-x-4"
+  >
     <!-- Sidebar -->
     <div
       class="md:w-1/5 flex flex-col items-center bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
@@ -60,11 +64,13 @@ onMounted(() => {
             alt="Kind Robots Logo"
             src="/images/fulltitle.png"
             class="mx-auto rounded-l"
-          >
+          />
           <sort-nav />
           <theme-toggle />
         </div>
-        <div class="flip-back sidebar-content w-full text-center profile-center">
+        <div
+          class="flip-back sidebar-content w-full text-center profile-center"
+        >
           <h1>Welcome to Kind Robots</h1>
           <bot-selector />
           <div class="carousel-container">
@@ -82,7 +88,7 @@ onMounted(() => {
             aria-label="Toggle view"
             :checked="isChecked"
             @change="toggleFlip"
-          >
+          />
           <span class="slider" />
         </label>
         <span>Nav View</span>

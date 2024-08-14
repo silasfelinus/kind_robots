@@ -4,17 +4,13 @@
   >
     <img
       class="avatar w-16 h-16 rounded-full border-2 border-white absolute top-0 right-0 mt-4 mr-4"
-      :src="avatar"
+      :src="props.avatar"
       alt="Avatar"
-    >
-    <img
-      class="w-full"
-      :src="image"
-      alt="AMIbot"
-    >
+    />
+    <img class="w-full" :src="props.image" alt="AMIbot" />
     <div class="content px-6 py-4">
       <div class="title font-bold text-2xl mb-2">
-        {{ title }}
+        {{ props.title }}
       </div>
       <slot />
     </div>

@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useFilterStore } from '@/stores/filterStore'
+import { useFilterStore } from './../../../stores/filterStore'
 
 const filterStore = useFilterStore()
 

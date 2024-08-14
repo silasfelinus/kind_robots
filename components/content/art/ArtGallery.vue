@@ -39,8 +39,8 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
-import { useArtStore } from '@/stores/artStore'
-import { useTagStore } from '@/stores/tagStore'
+import { useArtStore } from './../../../stores/artStore'
+import { useTagStore } from './../../../stores/tagStore'
 
 const artStore = useArtStore()
 const tagStore = useTagStore()

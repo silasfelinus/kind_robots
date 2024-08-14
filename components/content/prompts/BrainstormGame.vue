@@ -42,8 +42,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useErrorStore } from '@/stores/errorStore'
-import { sampleIdeas } from '@/training/sampleIdeas'
+import { useErrorStore } from './../../../stores/errorStore'
+import { sampleIdeas } from './../../../training/sampleIdeas'
 
 interface Idea {
   title: string

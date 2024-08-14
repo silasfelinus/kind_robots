@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { type Reward, useRewardStore } from '@/stores/rewardStore' // Import the Reward type
+import { type Reward, useRewardStore } from './../../../stores/rewardStore' // Import the Reward type
 
 const rewardStore = useRewardStore()
 const editedReward = ref<Partial<Reward>>({}) // Define the type for editedReward

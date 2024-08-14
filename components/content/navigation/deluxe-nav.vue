@@ -67,9 +67,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useContentStore } from '@/stores/contentStore'
-import { useScreenStore } from '@/stores/screenStore'
-import { useBotStore } from '@/stores/botStore'
+import { useContentStore } from './../../../stores/contentStore'
+import { useScreenStore } from './../../../stores/screenStore'
+import { useBotStore } from './../../../stores/botStore'
 
 // Define the Page interface
 interface Page {

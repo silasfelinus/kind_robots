@@ -1,6 +1,6 @@
 <template>
   <main>
-    <NuxtLayout :key="currentLayout" :name="currentLayout">
+    <NuxtLayout :key="currentLayout" :name="defaultLayout">
       <ContentDoc path="/galleries/">
         <template #not-found> Galleries Not Found </template>
         <template #empty>
@@ -13,9 +13,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useLayoutStore } from '@/stores/layoutStore'
+import { useLayoutStore } from './../../stores/layoutStore'
 
 const layoutStore = useLayoutStore()
+const defaultLayout = 'default'
 
 // Ensure `currentLayout` is always a string
 const currentLayout = computed(() => layoutStore.currentLayout)

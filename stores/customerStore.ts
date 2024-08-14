@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import errorStore and ErrorType
+import { useErrorStore, ErrorType } from './../stores/errorStore' // Import errorStore and ErrorType
 
 export const useCustomerStore = defineStore({
   id: 'customer',

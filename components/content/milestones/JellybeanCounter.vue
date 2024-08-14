@@ -53,8 +53,8 @@ import {
   useMilestoneStore,
   type Milestone,
   type MilestoneRecord,
-} from '@/stores/milestoneStore'
-import { useUserStore } from '@/stores/userStore'
+} from './../../../stores/milestoneStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const milestoneStore = useMilestoneStore()
 const userStore = useUserStore()

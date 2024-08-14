@@ -63,9 +63,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
-import { useUserStore } from '@/stores/userStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { usePitchStore } from './../../../stores/pitchStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
 const pitchStore = usePitchStore()
 const userStore = useUserStore()

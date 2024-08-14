@@ -33,8 +33,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore, type Pitch } from '@/stores/pitchStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import your error store
+import { usePitchStore, type Pitch } from './../../../stores/pitchStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore' // Import your error store
 
 const props = defineProps<{
   pitch?: Pitch // Make it optional

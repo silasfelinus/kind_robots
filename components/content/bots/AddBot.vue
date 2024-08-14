@@ -214,10 +214,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useBotStore } from '@/stores/botStore'
-import { useArtStore, type Art } from '@/stores/artStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { useUserStore } from '@/stores/userStore'
+import { useBotStore } from './../../../stores/botStore'
+import { useArtStore, type Art } from './../../../stores/artStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const botStore = useBotStore()
 const artStore = useArtStore()

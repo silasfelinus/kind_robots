@@ -52,10 +52,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useTagStore } from '@/stores/tagStore'
-import { useUserStore } from '@/stores/userStore'
-import { useErrorStore } from '@/stores/errorStore'
-import { useFilterStore } from '@/stores/filterStore'
+import { useTagStore } from './../../../stores/tagStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useErrorStore } from './../../../stores/errorStore'
+import { useFilterStore } from './../../../stores/filterStore'
 
 // Define pitch type with username added
 interface Pitch {

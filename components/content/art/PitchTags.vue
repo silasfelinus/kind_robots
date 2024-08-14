@@ -61,8 +61,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useTagStore } from '@/stores/tagStore'
-import { useUserStore } from '@/stores/userStore'
+import { useTagStore } from './../../../stores/tagStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const tagStore = useTagStore()
 const userStore = useUserStore()

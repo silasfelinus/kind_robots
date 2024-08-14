@@ -71,7 +71,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
-import { userNavigation } from '@/training/userNavigation'
+import { userNavigation } from './../../../training/userNavigation'
 
 const isSiteMap = ref(false) // State to control whether the site map is displayed or not
 

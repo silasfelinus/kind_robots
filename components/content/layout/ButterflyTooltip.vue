@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { useErrorStore } from '@/stores/errorStore'
+import { useErrorStore } from './../../../stores/errorStore'
 
 // Initialization
 const errorStore = useErrorStore() // Initialize errorStore

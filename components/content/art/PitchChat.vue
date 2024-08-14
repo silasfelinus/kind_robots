@@ -38,12 +38,12 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
+import { usePitchStore } from './../../../stores/pitchStore'
 import {
   useChannelStore,
   type Channel as BaseChannel,
   type Message,
-} from '@/stores/channelStore'
+} from './../../../stores/channelStore'
 
 interface Channel extends BaseChannel {
   messages?: Message[]

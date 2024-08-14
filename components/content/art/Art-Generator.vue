@@ -43,12 +43,12 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDreamStore } from '@/stores/dreamStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { useUserStore } from '@/stores/userStore'
-import { useLoadStore } from '@/stores/loadStore'
-import { usePitchStore } from '@/stores/pitchStore'
-import type { Art } from '@/stores/artStore'
+import { useDreamStore } from './../../../stores/dreamStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useLoadStore } from './../../../stores/loadStore'
+import { usePitchStore } from './../../../stores/pitchStore'
+import type { Art } from './../../../stores/artStore'
 
 // Load stores
 const dreamStore = useDreamStore()

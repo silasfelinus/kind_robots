@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useRewardStore } from '@/stores/rewardStore'
+import { useRewardStore } from './../../../stores/rewardStore'
 
 const rewardStore = useRewardStore()
 

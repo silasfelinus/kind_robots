@@ -99,24 +99,27 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useFooterStore } from '@/stores/footerStore'
+import { useContentStore } from './../../../stores/contentStore' // Import the contentStore
+import { useFooterStore } from './../../../stores/footerStore'
 
-const { pages } = useContent()
+// Access the content store
+const contentStore = useContentStore()
 const footerStore = useFooterStore()
 
 const isHovered = ref<string | null>(null)
 
+// Computed properties
+const isExtended = computed(() => footerStore.isExtended)
+const highlightPages = computed(() => contentStore.highlightPages)
+
+// Methods
 const toggleExtend = () => {
   footerStore.toggleIsExtended()
 }
-
-const isExtended = computed(() => footerStore.isExtended)
 
 const handleLinkClick = () => {
   if (isExtended.value) {
     toggleExtend()
   }
 }
-
-const highlightPages = computed(() => pages.highlightPages)
 </script>

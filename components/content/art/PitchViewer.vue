@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePitchStore, type Pitch } from '@/stores/pitchStore'
+import { usePitchStore, type Pitch } from './../../../stores/pitchStore'
 
 const props = defineProps<{
   pitch: Pitch

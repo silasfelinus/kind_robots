@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { useArtStore, type Art } from '@/stores/artStore'
+import { useArtStore, type Art } from './../../../stores/artStore'
 
 const artStore = useArtStore()
 const props = defineProps<{

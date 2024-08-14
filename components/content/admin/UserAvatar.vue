@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from '@/stores/userStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const userStore = useUserStore()
 const username = ref(userStore.username)

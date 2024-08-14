@@ -14,7 +14,7 @@ import { computed } from 'vue'
 import {
   useMilestoneStore,
   type MilestoneRecord,
-} from '@/stores/milestoneStore'
+} from './../../../stores/milestoneStore'
 
 const milestoneStore = useMilestoneStore()
 

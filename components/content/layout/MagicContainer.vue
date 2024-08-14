@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useContainerStore } from '@/stores/containerStore'
+import { useContainerStore } from './../../../stores/containerStore'
 
 const store = useContainerStore()
 

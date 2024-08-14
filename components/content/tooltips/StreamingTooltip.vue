@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
-import { randomActions } from '@/training/amiActions'
+import { randomActions } from './../../../training/amiActions'
 
 const props = defineProps<{
   tooltip: string

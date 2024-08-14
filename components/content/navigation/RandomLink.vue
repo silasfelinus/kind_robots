@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
-import { useContentStore } from '@/stores/contentStore'
+import { useContentStore } from './../../../stores/contentStore'
 import { useRoute } from 'vue-router'
 
 const contentStore = useContentStore()

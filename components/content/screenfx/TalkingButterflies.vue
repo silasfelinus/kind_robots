@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { defaultPhrase, funPhrases } from '@/training/butterflyPhrases'
+import { defaultPhrase, funPhrases } from './../../../training/butterflyPhrases'
 
 interface ButterflyPosition {
   x: number

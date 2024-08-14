@@ -34,8 +34,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useFilterStore } from '@/stores/filterStore'
-import { useUserStore } from '@/stores/userStore'
+import { useFilterStore } from './../../../stores/filterStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const filterStore = useFilterStore()
 const userStore = useUserStore()

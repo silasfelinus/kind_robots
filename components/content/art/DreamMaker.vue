@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDreamStore } from '@/stores/dreamStore'
+import { useDreamStore } from './../../../stores/dreamStore'
 
 const dreamStore = useDreamStore()
 const randomDream = ref<string | null>(null)

@@ -22,7 +22,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRandomColor } from '@/utils/useRandomColor'
+import { useRandomColor } from './../../../utils/useRandomColor'
 
 const bubbles = ref([])
 const MAX_BUBBLES = 20

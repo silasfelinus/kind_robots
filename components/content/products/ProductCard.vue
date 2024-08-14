@@ -32,8 +32,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useCartStore } from '@/stores/cartStore'
-import type { Product } from '@/stores/productStore'
 
 const props = defineProps<{
   product: Product

@@ -8,8 +8,6 @@
 </template>
 
 <script setup>
-import { useProductStore } from '@/stores/productStore'
-
 const productStore = useProductStore()
 const products = computed(() => productStore.products)
 </script>

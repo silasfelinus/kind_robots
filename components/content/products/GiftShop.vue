@@ -27,10 +27,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { useCartStore } from '@/stores/cartStore'
-import { useCustomerStore } from '@/stores/customerStore'
-import { generateSillyName } from '@/utils/useRandomName'
+import { generateSillyName } from './../../../utils/useRandomName'
 
 // Initialize stores
 const userStore = useUserStore()
@@ -96,8 +93,12 @@ const initStores = async () => {
         }
       }
     }
-  } catch (error: unknown) {
-    console.error(`Initialization Error: ${error.message}`)
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Initialization Error: ${error.message}`)
+    } else {
+      console.error(`Initialization Error: Unknown error`)
+    }
   }
 }
 

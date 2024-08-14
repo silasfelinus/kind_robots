@@ -21,7 +21,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useContentStore } from '@/stores/contentStore' // Use contentStore instead
 
 const contentStore = useContentStore()
 const showText = ref(false)

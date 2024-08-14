@@ -13,7 +13,6 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)

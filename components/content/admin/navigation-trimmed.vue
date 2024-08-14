@@ -71,7 +71,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
-import { userNavigation } from '@/training/userNavigation'
+import { userNavigation } from './../../../training/userNavigation'
 
 const view = ref('twoRow')
 const itemClass = ref('w-1/2 p-4')

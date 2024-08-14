@@ -38,9 +38,6 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useCartStore } from '@/stores/cartStore'
-import { useProductStore, type Product } from '@/stores/productStore'
-import { useErrorStore } from '@/stores/errorStore'
 
 const props = defineProps<{
   item: {

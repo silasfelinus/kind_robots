@@ -9,7 +9,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useCartStore } from '@/stores/cartStore'
 
 const cartStore = useCartStore()
 const cartItems = ref([])

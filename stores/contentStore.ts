@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { useErrorStore, ErrorType } from '../stores/errorStore'
 import { useStatusStore, StatusType } from '../stores/statusStore'
 
-interface Page {
+export interface Page {
   _id?: string
   _path?: string
   title?: string
@@ -74,6 +74,9 @@ export const useContentStore = defineStore({
         ErrorType.NETWORK_ERROR,
         'Failed to initialize content store',
       )
+    },
+    getPages() {
+      return this.pages; // Add this method if it's supposed to be used
     },
     async refreshContent() {
       await this.loadStore()

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { ArtPrompt, Art } from '@prisma/client'
-import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import useErrorStore and ErrorType
+import { useErrorStore, ErrorType } from './../stores/errorStore' // Import useErrorStore and ErrorType
 
 interface State {
   artPrompts: ArtPrompt[]

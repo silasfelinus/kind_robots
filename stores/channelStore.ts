@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import type { Channel, Message } from '@prisma/client';
-import { useErrorStore } from '@/stores/errorStore'; // Import errorStore
-import { useUserStore } from '@/stores/userStore';
+import { useErrorStore } from './../stores/errorStore'; // Import errorStore
+import { useUserStore } from './../stores/userStore';
 
 export const useChannelStore = defineStore({
   id: 'channel',

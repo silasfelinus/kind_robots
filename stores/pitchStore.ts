@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import type { Pitch } from '@prisma/client'
-import { useUserStore } from '@/stores/userStore'
-import { useArtStore, type Art } from '@/stores/artStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import useErrorStore and ErrorType
+import { useUserStore } from './../stores/userStore'
+import { useArtStore, type Art } from './../stores/artStore'
+import { useErrorStore, ErrorType } from './../stores/errorStore' // Import useErrorStore and ErrorType
 
 const isClient = typeof window !== 'undefined'
 

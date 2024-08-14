@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Tag } from '@prisma/client'
-import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import useErrorStore and ErrorType
-import { useUserStore } from '@/stores/userStore'
+import { useErrorStore, ErrorType } from './../stores/errorStore' // Import useErrorStore and ErrorType
+import { useUserStore } from './../stores/userStore'
 
 const isClient = typeof window !== 'undefined'
 

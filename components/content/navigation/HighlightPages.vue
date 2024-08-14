@@ -7,7 +7,7 @@
       :to="page._path"
       class="group hover:bg-accent transition-colors relative p-2 rounded-2xl border bg-base-200 flex flex-row items-center space-x-2 w-72"
       @mouseover="isHovered = page._id"
-      @mouseleave="isHovered = null"
+      @mouseleave="isHovered = undefined"
     >
       <div class="w-24 h-24 rounded-lg overflow-hidden border bg-secondary">
         <img
@@ -40,12 +40,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePageStore } from '@/stores/pageStore'
+import { useContentStore } from '@/stores/contentStore'
 
-const pageStore = usePageStore()
+const contentStore = useContentStore()
+const isHovered = ref<string | undefined>(undefined) // Initialize as null and adjust the type
 
-const isHovered = ref(null)
-const highlightPages = computed(() => {
-  return pageStore.highlightPages
-})
+const highlightPages = computed(() => contentStore.highlightPages)
 </script>

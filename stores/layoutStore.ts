@@ -1,37 +1,39 @@
 import { defineStore } from 'pinia'
 
-export const allowedLayouts = ['default']
+// Use as const to ensure the type is preserved as tuple of literal types
+export const allowedLayouts = ['default', 'alternative'] as const;
+export type LayoutKey = typeof allowedLayouts[number];
 
-const getStoredLayout = (key: string, defaultValue: string): string => {
-  const storedValue = localStorage.getItem(key)
-  return allowedLayouts.includes(storedValue ?? '') ? storedValue! : defaultValue
+// Function to get the layout from local storage and validate it
+const getStoredLayout = (key: string, defaultValue: LayoutKey): LayoutKey => {
+  if (import.meta.client) {
+    const storedValue = localStorage.getItem(key);
+    // Ensure that the value is either a valid layout key or the default value
+    return allowedLayouts.includes(storedValue as LayoutKey) ? storedValue as LayoutKey : defaultValue;
+  }
+  return defaultValue;
 }
 
 interface LayoutState {
-  currentLayout: string
+  currentLayout: LayoutKey
 }
 
-export const useLayoutStore = defineStore('layoutStore', {
+export const useLayoutStore = defineStore({
+  id: 'layoutStore',
   state: (): LayoutState => ({
-    currentLayout: 'default', // Initialize with a default value
+    currentLayout: getStoredLayout('currentLayout', 'default'),
   }),
 
   actions: {
-    setLayout(newLayout: string) {
+    setLayout(newLayout: LayoutKey) {
       if (allowedLayouts.includes(newLayout)) {
-        this.currentLayout = newLayout
-        localStorage.setItem('currentLayout', newLayout)
+        this.currentLayout = newLayout;
+        if (import.meta.client) {
+          localStorage.setItem('currentLayout', newLayout);
+        }
+      } else {
+        console.warn(`Invalid layout option: ${newLayout}`);
       }
-      else {
-        console.warn(`Invalid layout option: ${newLayout}`)
-      }
-    },
-
-    initialize() {
-      const storedLayout = getStoredLayout('currentLayout', 'default')
-      this.setLayout(storedLayout)
-    },
+    }
   },
-})
-
-export default useLayoutStore
+});

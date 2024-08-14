@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 
-const bubbles = ref<Array<{ id: number, style: Record<string, any> }>>([])
+const bubbles = ref<Array<{ id: number; style: Record<string, unknown> }>>([])
 
 let intervalId: number
 
@@ -33,12 +33,12 @@ function createBubble() {
   const bubble = {
     id,
     style: {
-      'left': `${Math.random() * 100}vw`,
-      'bottom': `${Math.random() * 10}vh`,
-      'animationDuration': `${Math.random() * 3 + 2}s`,
-      'width': size,
-      'height': size,
-      'opacity': opacity.toString(),
+      left: `${Math.random() * 100}vw`,
+      bottom: `${Math.random() * 10}vh`,
+      animationDuration: `${Math.random() * 3 + 2}s`,
+      width: size,
+      height: size,
+      opacity: opacity.toString(),
       '--path-change': `${path}vw`,
     },
   }
@@ -46,7 +46,7 @@ function createBubble() {
 }
 
 function removeBubble(bubbleId: number) {
-  bubbles.value = bubbles.value.filter(b => b.id !== bubbleId)
+  bubbles.value = bubbles.value.filter((b) => b.id !== bubbleId)
 }
 </script>
 
@@ -65,7 +65,11 @@ function removeBubble(bubbleId: number) {
   position: absolute;
   bottom: 100%;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
   animation: floatBubble linear infinite;
   z-index: 0;
 }

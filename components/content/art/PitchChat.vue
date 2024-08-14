@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { usePitchStore } from '@/stores/pitchStore'
 import { useChannelStore, type Channel as BaseChannel, type Message } from '@/stores/channelStore'
 

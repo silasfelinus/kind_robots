@@ -10,7 +10,7 @@
       image-src="/images/amibotsquare1.webp"
       alt-text="AMI"
       username="AMIbot"
-      :message="page.amitip"
+      :message="amiTip"
       @remove-card="showAmiCard = false"
     />
     <MessageCard
@@ -20,7 +20,7 @@
       image-src="/images/silasfelinus.webp"
       alt-text="Silas"
       username="silasfelinus"
-      :message="page.tooltip"
+      :message="tooltip"
       @remove-card="showSilasCard = false"
     />
   </div>
@@ -28,14 +28,16 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { usePageStore } from '@/stores/pageStore'
+import { useContentStore } from '@/stores/contentStore' // Use the updated store
 
-const pageStore = usePageStore()
-const showInfo = computed(() => pageStore.showInfo)
-const { page } = useContent()
+const contentStore = useContentStore()
+const showInfo = computed(() => contentStore.showInfo) // Access showInfo from contentStore
+const page = ref({ amitip: '', tooltip: '' }) // Local state to hold page data
 
 const showSilasCard = ref(true)
 const showAmiCard = ref(true)
+
+// Assumed access to page data from contentStore, replace 'useContent' if it is a function fetching content.
 onMounted(() => {
   setTimeout(() => {
     showSilasCard.value = true
@@ -45,6 +47,9 @@ onMounted(() => {
     showAmiCard.value = true
   }, 2000) // 2 seconds delay
 })
+
+const amiTip = computed(() => page.value.amitip) // Compute amiTip from page data
+const tooltip = computed(() => page.value.tooltip) // Compute tooltip from page data
 </script>
 
 <style>

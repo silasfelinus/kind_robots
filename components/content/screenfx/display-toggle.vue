@@ -34,8 +34,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useLayoutStore } from '~/stores/layoutStore'
+import { computed } from 'vue'
+import { useLayoutStore } from './../../../stores/layoutStore'
 
 const layoutStore = useLayoutStore()
 

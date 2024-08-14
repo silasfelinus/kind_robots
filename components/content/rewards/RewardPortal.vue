@@ -93,9 +93,6 @@ const editReward = (reward: Reward): void => {
   showEditReward.value = true
 }
 
-const deleteReward = (id: number): void => {
-  rewardStore.deleteRewardById(id)
-}
 </script>
 
 <style>

@@ -11,15 +11,9 @@
     </div>
 
     <!-- Multiple Butterflies with Animation Delay -->
-    <ami-butterfly
-      v-for="i in butterflyCount"
-      :key="i"
-    />
+    <ami-butterfly v-for="i in butterflyCount" :key="i" />
   </div>
-  <div
-    class="nuxt-wrapper"
-    :class="{ 'fade-in': pageReady }"
-  >
+  <div class="nuxt-wrapper" :class="{ 'fade-in': pageReady }">
     <nuxt-page />
   </div>
 </template>
@@ -43,17 +37,19 @@ const updateMessage = () => {
   currentMessage.value = randomLoadMessage()
 }
 
-let intervalId: any
+let intervalId: NodeJS.Timeout | undefined
 onMounted(() => {
   setTimeout(() => {
     currentMessage.value = randomLoadMessage()
-    intervalId = setInterval(updateMessage, 20 * 50)
+    intervalId = setInterval(updateMessage, 20 * 50) as NodeJS.Timeout
   }, 700) // Update the message after a .5 second delay
   setTimeout(startFadeOut, 1000) // Fade out after 2 seconds
 })
 
 onUnmounted(() => {
-  clearInterval(intervalId)
+  if (intervalId) {
+    clearInterval(intervalId)
+  }
 })
 
 const handleTransitionEnd = () => {

@@ -1,32 +1,20 @@
 <template>
-  <div
-    :data-theme="theme"
-    class="bot-card rounded-2xl border p-4"
-  >
+  <div :data-theme="theme" class="bot-card rounded-2xl border p-4">
     <h2>{{ name }}</h2>
-    <img
-      :src="avatarImage"
-      alt="Bot Avatar"
-    >
+    <img :src="avatarImage" alt="Bot Avatar" />
     <p>{{ subtitle }}</p>
     <p>{{ description }}</p>
-    <p v-if="underConstruction">
-      🚧 Under Construction 🚧
-    </p>
+    <p v-if="underConstruction">🚧 Under Construction 🚧</p>
     <p>Bot Intro: {{ botIntro }}</p>
     <p>User Intro: {{ userIntro }}</p>
     <p>Prompt: {{ prompt }}</p>
     <p>Personality: {{ personality }}</p>
     <p>Sample Response: {{ sampleResponse }}</p>
-    <button @click="sendMessage">
-      Send Message
-    </button>
+    <button @click="sendMessage">Send Message</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
 const props = defineProps<{
   name: string
   subtitle: string
@@ -54,7 +42,6 @@ const {
   prompt,
   personality,
   sampleResponse,
-  botType,
 } = props
 
 const sendMessage = () => {

@@ -44,10 +44,13 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { useMilestoneStore, type Milestone } from '@/stores/milestoneStore'
-import { useErrorStore } from '@/stores/errorStore'
-import { useConfetti } from '@/utils/useConfetti'
+import { useUserStore } from './../../../stores/userStore'
+import {
+  useMilestoneStore,
+  type Milestone,
+} from './../../../stores/milestoneStore'
+import { useErrorStore } from './../../../stores/errorStore'
+import { useConfetti } from './../../../utils/useConfetti'
 
 const props = defineProps<{ id: number }>()
 const { triggerConfetti } = useConfetti()

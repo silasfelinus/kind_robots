@@ -40,7 +40,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useContentStore } from '@/stores/contentStore'
 
 const contentStore = useContentStore()
 const isHovered = ref<string | undefined>(undefined) // Initialize as null and adjust the type

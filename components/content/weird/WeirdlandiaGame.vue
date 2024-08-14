@@ -1,10 +1,7 @@
 <template>
   <div class="flex justify-center items-center bg-gray-800 pattern-grid-lg">
     <div class="hero-image-container relative overflow-hidden">
-      <img
-        :src="bgImage"
-        class="hero-image w-full object-cover"
-      >
+      <img :src="bgImage" class="hero-image w-full object-cover" />
 
       <!-- Content Layer -->
       <div class="relative z-10">
@@ -13,23 +10,18 @@
           v-if="!gameStore.isGameStarted && !gameStore.showAbout"
           class="text-lg leading-relaxed text-white font-medium"
         >
-          Welcome to "Weirdlandia", a realm where every choice brings a new, unexpected twist. Challenges await at every
-          corner. Carve your own journey in this unpredictable realm.
+          Welcome to "Weirdlandia", a realm where every choice brings a new,
+          unexpected twist. Challenges await at every corner. Carve your own
+          journey in this unpredictable realm.
         </p>
 
-        <p
-          v-if="gameStore.showAbout"
-          class="text-sm text-white font-semibold"
-        >
-          Weirdlandia is under active development. For more information or to request a press packet, message
-          weird@kindrobots.org
+        <p v-if="gameStore.showAbout" class="text-sm text-white font-semibold">
+          Weirdlandia is under active development. For more information or to
+          request a press packet, message weird@kindrobots.org
         </p>
 
         <!-- Game Content -->
-        <div
-          v-if="gameStore.isGameStarted"
-          class="text-default font-light"
-        >
+        <div v-if="gameStore.isGameStarted" class="text-default font-light">
           <p>Game has started! Adventure awaits...</p>
         </div>
 
@@ -53,10 +45,6 @@ import { useGameStore } from '../../../stores/gameStore'
 const gameStore = useGameStore()
 const bgImage = ref('')
 
-const initiateGame = () => {
-  gameStore.initiateNewGame()
-}
-
 const fetchBackgroundImage = async () => {
   try {
     const response = await fetch('/api/galleries/random/name/weirdlandia')
@@ -67,8 +55,7 @@ const fetchBackgroundImage = async () => {
 
     const data = await response.json()
     bgImage.value = data.image
-  }
-  catch (error) {
+  } catch (error) {
     console.error('There was an error fetching the background image:', error)
   }
 }
@@ -111,6 +98,11 @@ onMounted(fetchBackgroundImage)
   display: flex;
   flex-direction: column; /* Stack content vertically */
   justify-content: center; /* Center content vertically */
-  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% opacity for readability */
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Black with 50% opacity for readability */
 }
 </style>

@@ -5,7 +5,6 @@ import { useUserStore } from '../../../stores/userStore'
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)
-const username = computed(() => userStore.username)
 const matchRecord = computed(() => userStore.matchRecord)
 
 interface GalleryImage {
@@ -80,8 +79,7 @@ async function generateMemoryGameImages() {
       }))
       .sort(() => 0.5 - Math.random())
     isLoading.value = false
-  }
-  catch (error) {
+  } catch (error) {
     isLoading.value = false
 
     console.error('Error generating images:', error)
@@ -100,8 +98,10 @@ function handleGalleryClick(clickedGallery: GalleryImage) {
 
   if (!firstSelected) {
     firstSelected = clickedGallery
-  }
-  else if (firstSelected && firstSelected.imagePath === clickedGallery.imagePath) {
+  } else if (
+    firstSelected &&
+    firstSelected.imagePath === clickedGallery.imagePath
+  ) {
     // Match found
     clickedGallery.matched = true
     firstSelected.matched = true
@@ -112,7 +112,7 @@ function handleGalleryClick(clickedGallery: GalleryImage) {
     }, 500)
 
     // Check for game win condition
-    if (galleryImages.value.every(g => g.matched)) {
+    if (galleryImages.value.every((g) => g.matched)) {
       gameWon.value = true
       triggerConfetti()
       if (matchRecord.value < score.value || matchRecord.value === null) {
@@ -129,8 +129,7 @@ function handleGalleryClick(clickedGallery: GalleryImage) {
         }
       }
     }
-  }
-  else {
+  } else {
     // No match found
     score.value -= 5 // Deduct score by 5
 
@@ -168,21 +167,16 @@ watch(selectedDifficulty, resetGame)
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center space-y-6">
+  <div
+    class="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center space-y-6"
+  >
     <header class="text-center space-y-2">
-      <h1 class="text-4xl font-bold">
-        Kind Robots Memory Game
-      </h1>
-      <p class="text-gray-600">
-        Match the images and test your memory!
-      </p>
+      <h1 class="text-4xl font-bold">Kind Robots Memory Game</h1>
+      <p class="text-gray-600">Match the images and test your memory!</p>
       <match-leaderboard />
       <div class="difficulty-controls">
         <label for="difficulty">Select Difficulty: </label>
-        <select
-          id="difficulty"
-          v-model="selectedDifficulty"
-        >
+        <select id="difficulty" v-model="selectedDifficulty">
           <option
             v-for="difficulty in difficulties"
             :key="difficulty.label"
@@ -197,19 +191,15 @@ watch(selectedDifficulty, resetGame)
         >
           Start New Game
         </button>
-        <milestone-reward
-          v-if="shouldShowMilestoneCheck"
-          :id="5"
-        />
+        <milestone-reward v-if="shouldShowMilestoneCheck" :id="5" />
       </div>
     </header>
 
-    <div class="game-board w-full max-w-4xl flex flex-wrap justify-center items-center">
+    <div
+      class="game-board w-full max-w-4xl flex flex-wrap justify-center items-center"
+    >
       <!-- Loader -->
-      <div
-        v-if="isLoading"
-        class="loader mt-4"
-      />
+      <div v-if="isLoading" class="loader mt-4" />
 
       <!-- Game Cards -->
       <div
@@ -224,13 +214,13 @@ watch(selectedDifficulty, resetGame)
             class="card-back absolute inset-0 w-full h-full object-cover"
             src="/images/kindtitle.webp"
             alt="Memory Card"
-          >
+          />
           <!-- This is the front of the card -->
           <img
             class="card-front absolute inset-0 w-full h-full object-cover"
             :src="galleryImage.imagePath"
             :alt="galleryImage.galleryName"
-          >
+          />
         </div>
       </div>
     </div>
@@ -241,18 +231,12 @@ watch(selectedDifficulty, resetGame)
       aria-live="polite"
       role="status"
     >
-      <div
-        v-if="notification"
-        :class="notificationClasses"
-      >
+      <div v-if="notification" :class="notificationClasses">
         {{ notification.message }}
       </div>
       <div>Score: {{ score }}</div>
       <div>High Score: {{ highScore }}</div>
-      <div
-        v-if="gameWon"
-        class="mt-2 space-y-2 text-center"
-      >
+      <div v-if="gameWon" class="mt-2 space-y-2 text-center">
         Congratulations! You've won!
         <button
           class="btn btn-info mt-2 px-4 py-2 bg-blue-500 text-default rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-200 transition-colors"

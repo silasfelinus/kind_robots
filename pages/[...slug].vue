@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { useLayoutStore } from './../stores/layoutStore'
-
-const layoutStore = useLayoutStore()
+const useLayout = 'default'
 </script>
 
 <template>
@@ -9,7 +7,7 @@ const layoutStore = useLayoutStore()
     <!-- The layout-selector component is hidden but available for future use -->
     <layout-selector class="absolute hidden" />
     <!-- Use currentLayout directly with NuxtLayout -->
-    <NuxtLayout :name="layoutStore.currentLayout">
+    <NuxtLayout :name="useLayout">
       <ContentDoc />
     </NuxtLayout>
   </div>

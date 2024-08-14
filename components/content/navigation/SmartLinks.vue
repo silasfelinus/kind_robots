@@ -64,24 +64,33 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePageStore } from '../../../stores/pageStore'
+import { useContentStore } from './../../../stores/contentStore'
 
-const { prev, next, page } = useContent()
-const pageStore = usePageStore()
+const { page } = useContentStore()
+
+const { prev, next } = useContent()
 
 const isHomePage = computed(() => {
-  return page.value ? page.value._path === '/' || page.value.path === '/' : false
+  return page._path === '/' || page.path === '/'
 })
 
-const randomHighlightPage = computed(
-  () => pageStore.highlightPages[Math.floor(Math.random() * pageStore.highlightPages.length)] || {},
-)
+const randomHighlightPage = computed(() => {
+  const highlightPages = useContentStore().highlightPages
+  return highlightPages[Math.floor(Math.random() * highlightPages.length)] || {}
+})
 
 const randomLinkTexts = ['Randomizer', 'Teleport!', 'Something else']
-const homeLinkTexts = ['HomeScreen', 'Take me home...', 'Home', 'Visual Contents']
+const homeLinkTexts = [
+  'HomeScreen',
+  'Take me home...',
+  'Home',
+  'Visual Contents',
+]
 
-const randomLinkText = randomLinkTexts[Math.floor(Math.random() * randomLinkTexts.length)]
-const homeLinkText = homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.length)]
+const randomLinkText =
+  randomLinkTexts[Math.floor(Math.random() * randomLinkTexts.length)]
+const homeLinkText =
+  homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.length)]
 </script>
 
 <style scoped>

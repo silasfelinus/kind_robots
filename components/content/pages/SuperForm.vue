@@ -7,7 +7,7 @@
       <div class="flex justify-center mb-5">
         <site-logo />
       </div>
-      <form class="space-y-5">
+      <form class="space-y-5" @submit="submitForm">
         <label class="block text-gray-700">
           Date
           <input
@@ -16,7 +16,7 @@
             class="input input-bordered w-full"
             aria-label="Date"
             required
-          >
+          />
         </label>
         <label class="block text-gray-700">
           Client's Name
@@ -27,7 +27,7 @@
             placeholder="Client's Name"
             aria-label="Client's Name"
             required
-          >
+          />
         </label>
         <label class="block text-gray-700">
           Services Provided
@@ -36,7 +36,7 @@
             type="text"
             class="input input-bordered w-full"
             placeholder="Services"
-          >
+          />
         </label>
         <div class="card bordered">
           <div class="card-body space-y-5">
@@ -48,7 +48,7 @@
                   type="number"
                   class="input input-bordered w-full"
                   placeholder="Number of hours"
-                >
+                />
               </label>
               <label class="block text-gray-700">
                 Rate per Hour ($)
@@ -57,10 +57,10 @@
                   type="number"
                   class="input input-bordered w-full"
                   placeholder="Rate per hour"
-                >
+                />
               </label>
             </div>
-            <hr>
+            <hr />
             <div class="space-y-2">
               <label class="block text-gray-700">
                 Product Cost ($)
@@ -69,18 +69,19 @@
                   type="number"
                   class="input input-bordered w-full"
                   placeholder="Product cost"
-                >
+                />
               </label>
             </div>
-            <hr>
+            <hr />
             <div class="bg-gray-100 p-2 rounded-md">
               Total cost: ${{ totalCost }}
             </div>
-            <hr>
+            <hr />
             <div class="bg-gray-100 p-2 rounded-md">
-              Calculation: (${{ rate }} Rate per hour x {{ hours }} hours) + ${{ productCost }} Product Cost = ${{
-                totalCost
+              Calculation: (${{ rate }} Rate per hour x {{ hours }} hours) + ${{
+                productCost
               }}
+              Product Cost = ${{ totalCost }}
             </div>
           </div>
         </div>
@@ -92,24 +93,23 @@
               type="email"
               class="input input-bordered w-full pr-20"
               placeholder="Client's Email"
+            />
+            <div
+              class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
             >
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               + superkate@gmail.com
             </div>
           </div>
         </label>
-        <button
-          type="submit"
-          class="btn btn-primary w-full"
-        >
-          Send
-        </button>
+        <button type="submit" class="btn btn-primary w-full">Send</button>
       </form>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
+
 const date = ref(new Date().toISOString().substr(0, 10))
 const clientName = ref('')
 const servicesProvided = ref('')
@@ -119,7 +119,7 @@ const productCost = ref('')
 const clientEmail = ref('')
 
 const totalCost = computed(() => {
-  return hours.value * rate.value + Number(productCost.value)
+  return Number(hours.value) * Number(rate.value) + Number(productCost.value)
 })
 
 const submitForm = async (event) => {
@@ -150,7 +150,11 @@ const submitForm = async (event) => {
 const sendBrevoEmail = async (data) => {
   const emailData = {
     sender: { name: 'Your Name', email: 'your-email@example.com' },
-    to: [{ email: 'silasfelinus@gmail.com' }, { email: 'superkate@gmail.com' }, { email: data.clientEmail }],
+    to: [
+      { email: 'silasfelinus@gmail.com' },
+      { email: 'superkate@gmail.com' },
+      { email: data.clientEmail },
+    ],
     subject: 'Hair by Superkate!',
     htmlContent: `
       <p>Date: ${data.date}</p>
@@ -168,14 +172,13 @@ const sendBrevoEmail = async (data) => {
       method: 'POST',
       headers: {
         'api-key': process.env.BREVO_API_KEY,
-        'accept': 'application/json',
+        accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(emailData),
     })
     console.log('Email sent')
-  }
-  catch (error) {
+  } catch (error) {
     console.error(`Error sending email: ${error}`)
   }
 }

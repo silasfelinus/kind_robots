@@ -10,7 +10,7 @@
     >
       <button
         class="absolute top-0 right-0 m-1 text-sm"
-        @click="$emit('remove-card')"
+        @click="emitRemoveCard"
       >
         .
       </button>
@@ -37,8 +37,10 @@ const { show, bgClass, imageSrc, altText, username, message } = defineProps<{
   username: string
   message: string
 }>()
+
 const emit = defineEmits(['remove-card'])
-const removeCard = () => {
+
+const emitRemoveCard = () => {
   emit('remove-card')
 }
 </script>

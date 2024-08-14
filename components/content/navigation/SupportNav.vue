@@ -6,7 +6,7 @@
       :to="page._path"
       class="group hover:bg-accent transition-colors relative p-2 rounded-2xl border bg-primary flex flex-row items-center space-x-2 w-72 m-1"
       @mouseover="isHovered = page._id"
-      @mouseleave="isHovered = null"
+      @mouseleave="isHovered = undefined"
       @click="handleLinkClick"
     >
       <div class="w-24 h-24 rounded-lg overflow-hidden border bg-secondary">
@@ -41,15 +41,15 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePageStore } from './../../../stores/pageStore'
+import { useContentStore } from './../../../stores/contentStore'
 import { useFooterStore } from './../../../stores/footerStore'
 
-const pageStore = usePageStore()
+const contentStore = useContentStore()
 const footerStore = useFooterStore()
 
-const isHovered = ref(null)
+const isHovered = ref<string | undefined>(undefined)
 const supportPages = computed(() => {
-  return pageStore.pagesByTagAndSort('home', 'icon')
+  return contentStore.pagesByTagAndSort('home', 'icon')
 })
 
 const handleLinkClick = () => {

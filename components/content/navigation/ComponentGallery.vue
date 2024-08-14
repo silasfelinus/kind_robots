@@ -81,7 +81,7 @@
 <script setup lang="ts">
 // Importing required modules and Pinia store
 import { ref, computed, onErrorCaptured } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
+import { useComponentStore } from './../../../stores/componentStore'
 
 // Initialize Pinia store
 const componentStore = useComponentStore()

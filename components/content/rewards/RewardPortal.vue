@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { type Reward, useRewardStore } from '@/stores/rewardStore'
+import { type Reward, useRewardStore } from './../../../stores/rewardStore'
 
 const rewardStore = useRewardStore()
 const showAddReward: Ref<boolean> = ref(false)

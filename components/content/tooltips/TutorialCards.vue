@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useContentStore } from '@/stores/contentStore' // Use the updated store
+import { useContentStore } from './../../../stores/contentStore' // Use the updated store
 
 const contentStore = useContentStore()
 const showInfo = computed(() => contentStore.showInfo) // Access showInfo from contentStore

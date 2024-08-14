@@ -66,19 +66,15 @@
 import { computed } from 'vue'
 import { useContentStore } from './../../../stores/contentStore'
 
-const { page } = useContentStore()
-
+const contentStore = useContentStore()
+const { page } = contentStore
 const { prev, next } = useContent()
 
 const isHomePage = computed(() => {
   return page._path === '/' || page.path === '/'
 })
 
-const randomHighlightPage = computed(() => {
-  const highlightPages = useContentStore().highlightPages
-  return highlightPages[Math.floor(Math.random() * highlightPages.length)] || {}
-})
-
+// Compute random link text consistently
 const randomLinkTexts = ['Randomizer', 'Teleport!', 'Something else']
 const homeLinkTexts = [
   'HomeScreen',
@@ -87,10 +83,20 @@ const homeLinkTexts = [
   'Visual Contents',
 ]
 
-const randomLinkText =
-  randomLinkTexts[Math.floor(Math.random() * randomLinkTexts.length)]
-const homeLinkText =
-  homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.length)]
+const randomLinkText = computed(() => {
+  return randomLinkTexts[Math.floor(Math.random() * randomLinkTexts.length)]
+})
+
+const homeLinkText = computed(() => {
+  return homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.length)]
+})
+
+const randomHighlightPage = computed(() => {
+  const highlightPages = contentStore.highlightPages
+  return highlightPages.length > 0
+    ? highlightPages[Math.floor(Math.random() * highlightPages.length)]
+    : {}
+})
 </script>
 
 <style scoped>

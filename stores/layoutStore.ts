@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 // Use as const to ensure the type is preserved as tuple of literal types
-export const allowedLayouts = ['default', 'alternative'] as const
+export const allowedLayouts = ['default', 'alternative', 'simple'] as const
 export type LayoutKey = (typeof allowedLayouts)[number]
 
 // Function to get the layout from local storage and validate it

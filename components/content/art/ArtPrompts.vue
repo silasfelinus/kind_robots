@@ -56,8 +56,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { usePromptStore, type ArtPrompt } from '@/stores/promptStore'
-import { useUserStore } from '@/stores/userStore'
+import { usePromptStore, type ArtPrompt } from './../../../stores/promptStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const promptStore = usePromptStore()
 const {

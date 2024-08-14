@@ -25,13 +25,13 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { useErrorStore } from '@/stores/errorStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useErrorStore } from './../../../stores/errorStore'
 import {
   useToggleStore,
   ToggleableScreens,
   ScreenState,
-} from '@/stores/toggleStore'
+} from './../../../stores/toggleStore'
 
 // User Store
 const userStore = useUserStore()

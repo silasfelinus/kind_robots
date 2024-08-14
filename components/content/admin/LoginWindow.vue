@@ -123,8 +123,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
 const store = useUserStore()
 const errorStore = useErrorStore()

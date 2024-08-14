@@ -1,7 +1,7 @@
 // server/api/random/username.get.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
-import { errorHandler } from '@/server/api/utils/error'
+import { errorHandler } from './../../../server/api/utils/error'
 
 // Backup lists
 const backupAdjectives = ['Happy', 'Sad', 'Angry']

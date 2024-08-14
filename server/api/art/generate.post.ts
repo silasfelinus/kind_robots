@@ -1,8 +1,8 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import { generateSillyName } from '@/utils/useRandomName'
-import { saveImage } from '@/server/api/utils/saveImage'
+import { generateSillyName } from './../../../utils/useRandomName'
+import { saveImage } from './../../../server/api/utils/saveImage'
 
 console.log(
   "🚀 Starting up the art generation engine! Let's create something amazing!",

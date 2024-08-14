@@ -77,7 +77,7 @@ const setCurrentBot = (bot: Bot) => {
 
 watch(
   () => currentBot.value,
-  (newCurrentBot, oldCurrentBot) => {
+  (newCurrentBot) => {
     if (newCurrentBot) {
       const id = newCurrentBot.id
       const botElement = document.getElementById(`bot-${id}`)

@@ -93,8 +93,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const store = useUserStore()
 const errorStore = useErrorStore()
@@ -107,14 +105,11 @@ const userNotFound = ref(false)
 const handleLogin = async () => {
   errorStore.clearError() // Clear previous errors
   userNotFound.value = false
+
   try {
-    const credentials: { username: string; password?: string } = {
-      username: login.value,
-    }
-    if (password.value) {
-      credentials.password = password.value
-    }
-    const result = await store.login(credentials)
+    // Correctly destructure username and password
+    const result = await store.login(login.value, password.value || '')
+
     if (result.success && store.stayLoggedIn) {
       store.setStayLoggedIn(true)
     } else {

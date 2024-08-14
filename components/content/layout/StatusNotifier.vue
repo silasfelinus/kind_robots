@@ -31,11 +31,11 @@ import { useDreamStore } from '../../../stores/dreamStore'
 const statusStore = useStatusStore()
 const dreamStore = useDreamStore()
 
-const statusMessage = computed(() => statusStore.message)
-const statusType = computed(() => statusStore.type)
 const statusHistory = computed(() => statusStore.history)
 
-const showTimestamp = reactive(new Array(statusHistory.value.length).fill(false))
+const showTimestamp = reactive(
+  new Array(statusHistory.value.length).fill(false),
+)
 
 let idleTimer: NodeJS.Timeout | null = null
 
@@ -55,23 +55,8 @@ onUnmounted(() => {
   if (idleTimer) clearTimeout(idleTimer)
 })
 
-const tester = () => {
-  const history = statusStore.getStatusHistory()
-  if (history.length) {
-    const lastStatus = history[history.length - 1]
-    statusStore.setStatus(lastStatus.type, lastStatus.message)
-  }
-  else {
-    statusStore.setStatus(StatusType.INFO, dreamStore.randomDream())
-  }
-}
-
 const summonInspiration = () => {
   statusStore.setStatus(StatusType.INFO, dreamStore.randomDream())
-}
-
-const clearStatus = () => {
-  statusStore.clearStatus()
 }
 
 const toggleTimestamp = (index: number) => {

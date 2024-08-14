@@ -1,5 +1,6 @@
 <template>
   <nav class="w-full bg-base p-4 transition-all duration-500 ease-in-out">
+    <!-- Tag Buttons -->
     <div class="flex justify-center mb-2 flex-wrap space-x-2">
       <button
         v-for="tag in allTags"
@@ -9,21 +10,14 @@
         } my-2 mx-1 flex-1 text-center transition-all duration-300 ease-in-out`"
         @click="changeSection(tag)"
       >
-        {{ tag ? tag.charAt(0).toUpperCase() + tag.slice(1) : '' }}
+        {{ tag.charAt(0).toUpperCase() + tag.slice(1) }}
       </button>
     </div>
 
     <!-- Always Visible Home Links -->
     <div class="flex justify-center mt-2 flex-wrap space-x-2">
-      <div
-        v-for="page in pagesByTag('home')"
-        :key="page._id"
-        class="home-link"
-      >
-        <NuxtLink
-          :to="page._path"
-          class="oval-link"
-        >
+      <div v-for="page in pagesByTag('home')" :key="page._id" class="home-link">
+        <NuxtLink :to="page._path" class="oval-link">
           {{ page.title }}
         </NuxtLink>
       </div>
@@ -52,7 +46,8 @@
             v-if="page.image"
             :src="`/images/${page.image}`"
             alt="Page Image"
-          >
+            class="w-full h-auto rounded-lg shadow-md"
+          />
           <div>{{ page.title }}</div>
         </NuxtLink>
       </div>
@@ -79,37 +74,32 @@ import { useBotStore } from '../../../stores/botStore'
 
 const contentStore = useContentStore()
 const screenStore = useScreenStore()
-contentStore.getPages()
-
 const botStore = useBotStore()
+
 const currentBotName = computed(() => botStore.currentBot?.name || '')
 
 const uniqueTags = computed(() => {
-  const tags: string[] = contentStore.pages
-    .map((page: any) => page.tags)
-    .flat()
-    .filter((tag: any) => typeof tag === 'string') // Ensure tags are strings
-  return Array.from(new Set(tags)).filter(tag => tag !== 'home')
+  const tags = contentStore.pages
+    .flatMap((page) => page.tags)
+    .filter((tag) => typeof tag === 'string')
+  return Array.from(new Set(tags)).filter((tag) => tag !== 'home')
 })
 
 const allTags = computed(() => ['home', ...uniqueTags.value])
 
 const changeSection = (section: string) => {
-  setActiveSection(section)
+  screenStore.setActiveSection(section)
 }
+
 const pagesByTag = (tag: string) => {
-  return contentStore.pages.filter((page: any) => page.tags?.includes(tag))
+  return contentStore.pages.filter((page) => page.tags?.includes(tag))
 }
 
-const setActiveSection = screenStore.setActiveSection
-const toggleModelCarousel = screenStore.toggleModelCarousel
-
-// Access the screenStore's state
 const activeSection = computed(() => screenStore.activeSection)
 const showModelCarousel = computed(() => screenStore.showModelCarousel)
 </script>
 
-<style>
+<style scoped>
 .btn {
   min-width: 80px;
   max-width: 150px;
@@ -125,7 +115,9 @@ const showModelCarousel = computed(() => screenStore.showModelCarousel)
 .oval-link {
   display: inline-block;
   padding: 5px 10px;
-  background-color: bg-accent;
+  background-color: var(
+    --bg-accent
+  ); /* Ensure this is defined in your Tailwind config */
   color: white;
   border-radius: 20px;
   margin: 2px;

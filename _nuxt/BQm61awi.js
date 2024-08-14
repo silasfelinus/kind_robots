@@ -1,0 +1,1 @@
+import{_ as t}from"./B6mObagX.js";import{l as c,c as s,e as o,h as r}from"./C_jZrYmJ.js";const n={},a={class:"min-h-screen flex items-center justify-center bg-gray-100"};function _(l,m){const e=t;return s(),o("div",a,[r(e,{label:"Click Me!",url:"https://www.example.com"})])}const p=c(n,[["render",_]]);export{p as default};

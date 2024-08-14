@@ -1,1 +1,0 @@
-import{d as n,aQ as p,c as a,e as l,f as t,t as c}from"./CpGAEQl5.js";const u=n({__name:"PitchViewer",props:{pitch:{}},setup(o){const s=o,r=p(),i=()=>{r.selectPitch(s.pitch.id)};return(e,h)=>(a(),l("div",{class:"p-4 border rounded-lg cursor-pointer hover:bg-accent",onClick:i},[t("h3",null,c(e.pitch.title),1),t("p",null,c(e.pitch.pitch),1)]))}});export{u as default};

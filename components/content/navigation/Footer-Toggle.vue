@@ -99,10 +99,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePageStore } from '@/stores/pageStore'
 import { useFooterStore } from '@/stores/footerStore'
 
-const pageStore = usePageStore()
+const { pages } = useContent()
 const footerStore = useFooterStore()
 
 const isHovered = ref<string | null>(null)
@@ -119,5 +118,5 @@ const handleLinkClick = () => {
   }
 }
 
-const highlightPages = computed(() => pageStore.highlightPages)
+const highlightPages = computed(() => pages.highlightPages)
 </script>

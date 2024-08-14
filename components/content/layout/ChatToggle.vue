@@ -1,11 +1,7 @@
 <template>
   <div class="fixed bottom-4 right-4 p-4 m-2">
     <!-- Chat Icon -->
-    <div
-      v-if="!chatOpen"
-      class="cursor-pointer"
-      @click="toggleChat"
-    >
+    <div v-if="!chatOpen" class="cursor-pointer" @click="toggleChat">
       <icon
         :name="page.icon || 'icon-park-twotone:butterfly'"
         class="animate-pulse"
@@ -13,10 +9,7 @@
     </div>
 
     <!-- Chat Component -->
-    <div
-      v-else
-      class="p-4 rounded-lg bg-base-200"
-    >
+    <div v-else class="p-4 rounded-lg bg-base-200">
       <!-- Chatbot Bubble -->
       <div class="p-2 rounded-lg bg-primary mb-2">
         {{ page.title || 'Hello, Kind Guest!' }}
@@ -51,15 +44,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue' // Added computed
-import { useUserStore } from '@/stores/userStore'
+import { ref } from 'vue' // Added computed
 
 const { page } = useContent()
-
-const userStore = useUserStore()
-
-// Create a computed property for the current user
-const currentUser = computed(() => userStore.user)
 
 const chatOpen = ref(false)
 const userInput = ref('')

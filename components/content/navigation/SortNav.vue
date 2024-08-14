@@ -1,8 +1,10 @@
 <template>
-  <nav class="w-full p-2 transition-all duration-500 ease-in-out bg-base-200 border rounded-2xl">
+  <nav
+    class="w-full p-2 transition-all duration-500 ease-in-out bg-base-200 border rounded-2xl"
+  >
     <div class="flex flex-wrap justify-center m-2 space-x-2">
       <div
-        v-for="page in pagesByTagAndSort('home', 'highlight')"
+        v-for="page in highlightPages"
         :key="page._id"
         class="m-2 relative group"
       >
@@ -10,13 +12,13 @@
           :to="page._path"
           class="flex flex-col items-center py-2 px-4 transform transition-transform hover:scale-110"
           @mouseover="isHovered = page._id"
-          @mouseleave="isHovered = null"
+          @mouseleave="isHovered = undefined"
         >
           <img
             :src="`/images/${page.image}`"
             alt="Page Image"
             class="w-24 h-24 rounded-lg object-cover"
-          >
+          />
           <div class="mt-2">
             {{ page.title }}
           </div>
@@ -36,11 +38,7 @@
       </div>
     </div>
     <div class="flex flex-wrap justify-center mt-2 space-x-2">
-      <div
-        v-for="page in pagesByTagAndSort('home', 'icon')"
-        :key="page._id"
-        class="m-2 relative group"
-      >
+      <div v-for="page in iconPages" :key="page._id" class="m-2 relative group">
         <NuxtLink
           :to="page._path"
           class="btn btn-accent rounded-full p-2 transform transition-transform hover:scale-110 flex items-center space-x-2"
@@ -66,11 +64,7 @@
       </div>
     </div>
     <div class="flex flex-wrap justify-center mt-2 space-x-2">
-      <div
-        v-for="page in pagesByTagAndSort('home', 'text')"
-        :key="page._id"
-        class="m-2 relative group"
-      >
+      <div v-for="page in textPages" :key="page._id" class="m-2 relative group">
         <NuxtLink
           :to="page._path"
           class="p-2 transform transition-transform hover:scale-110"
@@ -95,14 +89,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { usePageStore } from '@/stores/pageStore'
+import { ref, computed } from 'vue'
+import { useContentStore } from '@/stores/contentStore'
 
-const isHovered = ref(null)
+const isHovered = ref<string | undefined>(undefined)
 
-const pageStore = usePageStore()
+const contentStore = useContentStore()
 
-const pagesByTagAndSort = (tag: string, sort: string) => {
-  return pageStore.pages.filter((page: any) => page.tags?.includes(tag) && page.sort === sort)
-}
+const highlightPages = computed(() =>
+  contentStore.pagesByTagAndSort('home', 'highlight'),
+)
+const iconPages = computed(() => contentStore.pagesByTagAndSort('home', 'icon'))
+const textPages = computed(() => contentStore.pagesByTagAndSort('home', 'text'))
 </script>

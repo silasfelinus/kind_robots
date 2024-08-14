@@ -12,7 +12,7 @@
         min="0"
         max="1"
         class="slider bg-accent h-1 w-full overflow-hidden cursor-pointer rounded-full"
-      >
+      />
     </div>
     <p class="text-md text-base-content">
       {{ leftLabel }} ---- {{ rightLabel }}
@@ -23,11 +23,8 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
 
-const props = defineProps({
-  label: { type: String, default: 'Temperature' },
-  leftLabel: { type: String, default: 'Consistency' },
-  rightLabel: { type: String, default: 'Creativity' },
-})
+const leftLabel: string = 'Consistency'
+const rightLabel: string = 'Creativity'
 
 const temperature = ref()
 const descriptions = [

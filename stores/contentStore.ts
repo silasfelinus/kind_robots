@@ -7,13 +7,29 @@ interface Page {
   _id?: string;
   _path?: string;
   title?: string;
-  content?: string;
-  // Add other properties as needed
+  subtitle?: string;
+  description?: string;
+  layout?: string;
+  image?: string;
+  gallery?: string;
+  tags?: string[];
+  icon?: string;
+  tooltip?: string;
+  amiold?: string;
+  category?: string;
+  sort?: string;
+  dottitip?: string;
+  amitip?: string;
+  underConstruction?: boolean;
+  [key: string]: unknown; // Use unknown for more type safety
 }
 
 interface ContentState {
   page: Page
   pages: Page[]
+  showTooltip: boolean
+  showAmitip: boolean
+  showInfo: boolean
 }
 
 export const useContentStore = defineStore({
@@ -21,7 +37,21 @@ export const useContentStore = defineStore({
   state: (): ContentState => ({
     page: {},
     pages: [],
+    showTooltip: true,
+    showAmitip: false,
+    showInfo: true,
   }),
+  getters: {
+    currentPage: (state) => state.page,
+    tooltip: (state) => state.page.tooltip ?? null,
+    amitip: (state) => state.page.amitip ?? null,
+    pagesByTagAndSort: (state) => (tag: string, sort: string) =>
+      state.pages.filter((page) => page.tags?.includes(tag) && page.sort === sort),
+    pagesUnderConstruction: (state) =>
+      state.pages.filter((page) => page.underConstruction),
+    highlightPages: (state) =>
+      state.pages.filter((page) => page.sort === 'highlight'),
+  },
   actions: {
     async loadStore() {
       const errorStore = useErrorStore()
@@ -30,9 +60,8 @@ export const useContentStore = defineStore({
 
       await errorStore.handleError(
         async () => {
-          const content = await useContent()
-          this.page = content.page as Page // Type assertion if needed
-          this.pages = (await queryContent().find()) as Page[] // Type assertion if needed
+          this.page = this.currentPage
+          this.pages = (await queryContent().find()) as Page[]
 
           statusStore.setStatus(StatusType.SUCCESS, 'Content store initialized successfully')
           statusStore.clearStatus()
@@ -41,50 +70,17 @@ export const useContentStore = defineStore({
         'Failed to initialize content store',
       )
     },
-    async getPageByTitle(title: string) {
-      const errorStore = useErrorStore()
-      await errorStore.handleError(
-        async () => {
-          const page = await queryContent().where({ title }).findOne() as Page // Type assertion if needed
-          this.page = page
-        },
-        ErrorType.NETWORK_ERROR,
-        `Failed to get page by title: ${title}`,
-      )
-    },
-    async getPages() {
-      const errorStore = useErrorStore()
-      await errorStore.handleError(
-        async () => {
-          const pages = await queryContent()
-            .where({ $not: { _path: '/' } })
-            .find() as Page[] // Type assertion if needed
-          this.pages = pages
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch pages',
-      )
-    },
-    async getCurrentPage(path: string) {
-      const errorStore = useErrorStore()
-      await errorStore.handleError(
-        async () => {
-          const page = await queryContent().where({ _path: path }).findOne() as Page // Type assertion if needed
-          this.page = page
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch current page',
-      )
-    },
     async refreshContent() {
-      const errorStore = useErrorStore()
-      await errorStore.handleError(
-        async () => {
-          await this.loadStore()
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to refresh content',
-      )
+      await this.loadStore()
+    },
+    toggleTooltip() {
+      this.showTooltip = !this.showTooltip
+    },
+    toggleInfo() {
+      this.showInfo = !this.showInfo
+    },
+    toggleAmitip() {
+      this.showAmitip = !this.showAmitip
     },
   },
 })

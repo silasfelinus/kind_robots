@@ -110,13 +110,6 @@ const endReward = () => {
   rewardStore.clearCurrentReward()
 }
 
-const deleteReward = (id: number) => {
-  rewardStore.deleteRewardById(id)
-}
-
-const setStartingReward = (id: number) => {
-  rewardStore.setStartingRewardId(id)
-}
 
 const selectReward = (reward: Reward) => {
   console.log(`Selecting reward with ID: ${reward.id}`) // Debugging line

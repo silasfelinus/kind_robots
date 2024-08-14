@@ -1,6 +1,8 @@
 <template>
   <!-- Main Container -->
-  <div class="flex flex-col items-center p-8 bg-base-200 rounded-lg shadow-lg relative w-64 h-64">
+  <div
+    class="flex flex-col items-center p-8 bg-base-200 rounded-lg shadow-lg relative w-64 h-64"
+  >
     <!-- Tip Toggles -->
     <div class="absolute bottom-0 right-0 mb-2 mr-2 flex flex-col items-end">
       <button
@@ -25,19 +27,12 @@
       </button>
     </div>
     <!-- Display Tip -->
-    <div
-      v-if="currentTip"
-      class="flex flex-col items-start w-full h-full"
-    >
-      <h3 class="text-lg font-semibold">
-        {{ currentTipType }} says:
-      </h3>
+    <div v-if="currentTip" class="flex flex-col items-start w-full h-full">
+      <h3 class="text-lg font-semibold">{{ currentTipType }} says:</h3>
       <p class="flex-1">
         {{ currentTip }}
       </p>
-      <button @click="clearTip">
-        Clear
-      </button>
+      <button @click="clearTip">Clear</button>
     </div>
   </div>
 </template>
@@ -50,7 +45,9 @@ const { page } = useContent()
 
 const currentTipType = ref<string | null>(null)
 const currentTip = computed(() => {
-  return currentTipType.value ? page[currentTipType.value.toLowerCase() + 'tip'] : null
+  return currentTipType.value
+    ? page[currentTipType.value.toLowerCase() + 'tip']
+    : null
 })
 
 // Tip status using reactive API

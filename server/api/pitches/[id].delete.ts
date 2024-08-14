@@ -15,8 +15,7 @@ export default defineEventHandler(async (event) => {
 
     await prisma.pitch.delete({ where: { id } })
     return { success: true, message: 'Pitch successfully deleted.' }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -32,8 +31,7 @@ export async function deletePitch(id: number): Promise<boolean> {
 
     await prisma.pitch.delete({ where: { id } })
     return true
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

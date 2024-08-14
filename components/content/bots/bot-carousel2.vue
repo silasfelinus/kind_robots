@@ -1,5 +1,7 @@
 <template>
-  <div class="relative flex flex-col items-center bg-base overflow-auto h-screen">
+  <div
+    class="relative flex flex-col items-center bg-base overflow-auto h-screen"
+  >
     <div
       class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     />
@@ -22,7 +24,7 @@
           <img
             :src="bot.avatarImage ?? undefined"
             class="w-full object-cover rounded-lg"
-          >
+          />
         </div>
       </div>
       <div
@@ -61,12 +63,15 @@ watch(
   (newBot) => {
     if (newBot) {
       const carousel = document.querySelector('.carousel') as HTMLElement
-      const botElement = document.getElementById(`bot-${newBot.id}`) as HTMLElement
+      const botElement = document.getElementById(
+        `bot-${newBot.id}`,
+      ) as HTMLElement
       if (carousel && botElement) {
         const carouselRect = carousel.getBoundingClientRect()
         const botElementRect = botElement.getBoundingClientRect()
         const offset = botElementRect.top - carouselRect.top
-        carousel.scrollTop = offset - (carousel.clientHeight - botElement.clientHeight) / 2
+        carousel.scrollTop =
+          offset - (carousel.clientHeight - botElement.clientHeight) / 2
       }
     }
   },

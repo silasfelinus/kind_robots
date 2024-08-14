@@ -18,7 +18,9 @@ export default defineEventHandler(async (event) => {
     const userId = parseInt(recordData.userId, 10)
 
     if (isNaN(milestoneId) || isNaN(userId)) {
-      throw new TypeError('Invalid milestoneId or userId. They must be integers.')
+      throw new TypeError(
+        'Invalid milestoneId or userId. They must be integers.',
+      )
     }
 
     // Check if the milestone record already exists for the user
@@ -30,7 +32,10 @@ export default defineEventHandler(async (event) => {
     })
 
     if (existingRecord) {
-      return { success: false, message: 'Milestone already awarded to this user.' }
+      return {
+        success: false,
+        message: 'Milestone already awarded to this user.',
+      }
     }
 
     // Create a new milestone record
@@ -43,8 +48,7 @@ export default defineEventHandler(async (event) => {
     })
 
     return { success: true, record: newRecord }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

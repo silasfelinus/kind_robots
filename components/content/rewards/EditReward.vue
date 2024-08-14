@@ -1,31 +1,23 @@
 <template>
   <div class="bg-base-200 p-4 rounded">
-    <h2 class="text-xl mb-2">
-      Edit Reward
-    </h2>
+    <h2 class="text-xl mb-2">Edit Reward</h2>
     <form @submit.prevent="editReward">
       <!-- Form Fields -->
-      <div
-        v-for="field in formFields"
-        :key="field.id"
-        class="mb-2"
-      >
+      <div v-for="field in formFields" :key="field.id" class="mb-2">
         <label
           :for="field.id"
           class="block text-sm font-medium text-gray-600"
-        >{{ field.label }}</label>
+          >{{ field.label }}</label
+        >
         <input
           :id="field.id"
           v-model="editedReward[field.id as keyof typeof editedReward]"
           :required="field.required"
           :type="field.type || 'text'"
           class="p-2 rounded bg-base-200"
-        >
+        />
       </div>
-      <button
-        type="submit"
-        class="bg-primary text-default p-2 rounded"
-      >
+      <button type="submit" class="bg-primary text-default p-2 rounded">
         Update Reward
       </button>
     </form>
@@ -47,10 +39,12 @@ const formFields = [
   { id: 'rarity', label: 'Rarity', type: 'number' },
 ]
 
-
 const editReward = async () => {
   if (editedReward.value.id) {
-    await rewardStore.updateRewardById(editedReward.value.id, editedReward.value)
+    await rewardStore.updateRewardById(
+      editedReward.value.id,
+      editedReward.value,
+    )
   }
 }
 </script>

@@ -4,24 +4,24 @@ import { useErrorStore, ErrorType } from '../stores/errorStore'
 import { useStatusStore, StatusType } from '../stores/statusStore'
 
 interface Page {
-  _id?: string;
-  _path?: string;
-  title?: string;
-  subtitle?: string;
-  description?: string;
-  layout?: string;
-  image?: string;
-  gallery?: string;
-  tags?: string[];
-  icon?: string;
-  tooltip?: string;
-  amiold?: string;
-  category?: string;
-  sort?: string;
-  dottitip?: string;
-  amitip?: string;
-  underConstruction?: boolean;
-  [key: string]: unknown; // Use unknown for more type safety
+  _id?: string
+  _path?: string
+  title?: string
+  subtitle?: string
+  description?: string
+  layout?: string
+  image?: string
+  gallery?: string
+  tags?: string[]
+  icon?: string
+  tooltip?: string
+  amiold?: string
+  category?: string
+  sort?: string
+  dottitip?: string
+  amitip?: string
+  underConstruction?: boolean
+  [key: string]: unknown // Use unknown for more type safety
 }
 
 interface ContentState {
@@ -46,7 +46,9 @@ export const useContentStore = defineStore({
     tooltip: (state) => state.page.tooltip ?? null,
     amitip: (state) => state.page.amitip ?? null,
     pagesByTagAndSort: (state) => (tag: string, sort: string) =>
-      state.pages.filter((page) => page.tags?.includes(tag) && page.sort === sort),
+      state.pages.filter(
+        (page) => page.tags?.includes(tag) && page.sort === sort,
+      ),
     pagesUnderConstruction: (state) =>
       state.pages.filter((page) => page.underConstruction),
     highlightPages: (state) =>
@@ -63,7 +65,10 @@ export const useContentStore = defineStore({
           this.page = this.currentPage
           this.pages = (await queryContent().find()) as Page[]
 
-          statusStore.setStatus(StatusType.SUCCESS, 'Content store initialized successfully')
+          statusStore.setStatus(
+            StatusType.SUCCESS,
+            'Content store initialized successfully',
+          )
           statusStore.clearStatus()
         },
         ErrorType.NETWORK_ERROR,

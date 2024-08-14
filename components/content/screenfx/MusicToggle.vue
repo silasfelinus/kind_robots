@@ -15,7 +15,7 @@
           :src="currentTrack.imageUrl"
           class="w-16 h-16 rounded mr-4"
           alt="Album Art"
-        >
+        />
         <div>
           <div class="text-accent font-semibold text-xl mb-1">
             {{ currentTrack.name }}
@@ -46,7 +46,7 @@
       <!-- Volume Control -->
       <div class="mt-4 flex items-center">
         <icon name="mdi:volume-high" class="text-lg mr-2" />
-        <input v-model="volume" type="range" class="w-full" min="0" max="100" >
+        <input v-model="volume" type="range" class="w-full" min="0" max="100" />
       </div>
 
       <!-- Error Handling -->

@@ -13,8 +13,7 @@ export default defineEventHandler(async (event) => {
     const newMessage = await createMessage(messageData)
 
     return { success: true, newMessage }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     const { success, message, statusCode } = errorHandler(error)
     return {
       success,
@@ -25,15 +24,15 @@ export default defineEventHandler(async (event) => {
 })
 
 // Function to create a new Message
-export async function createMessage(message: Partial<Message>): Promise<Message> {
+export async function createMessage(
+  message: Partial<Message>,
+): Promise<Message> {
   try {
     if (!message.content) {
       throw new Error('No content, no message. Sorry McLuhan.')
-    }
-    else if (!message.sender || !message.recipient) {
+    } else if (!message.sender || !message.recipient) {
       throw new Error('No sender or recipient. What am I supposed to do?')
-    }
-    else {
+    } else {
       return await prisma.message.create({
         data: {
           sender: message.sender,
@@ -43,8 +42,7 @@ export async function createMessage(message: Partial<Message>): Promise<Message>
         },
       })
     }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

@@ -1,17 +1,11 @@
 <template>
-  <div
-    class="flex items-center justify-center h-screen"
-    @click="handleClick"
-  >
+  <div class="flex items-center justify-center h-screen" @click="handleClick">
     <div
       ref="eyeElement"
       class="bg-white rounded-full overflow-hidden shadow relative aspect-w-1 aspect-h-1 blink-animation"
       :style="eyeballStyle"
     >
-      <div
-        class="rounded-full absolute"
-        :style="irisStyle"
-      >
+      <div class="rounded-full absolute" :style="irisStyle">
         <div
           class="bg-black rounded-full w-2/5 h-2/5 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
         />
@@ -54,11 +48,11 @@ const eyeballStyle = computed(() => ({
 const handleClick = (event) => {
   console.log('ow!')
   const eyeBounds = eyeElement.value.getBoundingClientRect()
-  const isClickInsideEye
-    = event.clientX >= eyeBounds.left
-    && event.clientX <= eyeBounds.right
-    && event.clientY >= eyeBounds.top
-    && event.clientY <= eyeBounds.bottom
+  const isClickInsideEye =
+    event.clientX >= eyeBounds.left &&
+    event.clientX <= eyeBounds.right &&
+    event.clientY >= eyeBounds.top &&
+    event.clientY <= eyeBounds.bottom
 
   if (isClickInsideEye) {
     blinkEye() // Call the blink function without disturbing the shared timer
@@ -124,7 +118,10 @@ const moveIris = (event) => {
   const relativeY = event.clientY - eyeBounds.top - eyeballSize / 2
 
   // Limit the iris movement to the boundaries of the eye
-  const distance = Math.min(maxDistance, Math.sqrt(relativeX ** 2 + relativeY ** 2))
+  const distance = Math.min(
+    maxDistance,
+    Math.sqrt(relativeX ** 2 + relativeY ** 2),
+  )
   const angle = Math.atan2(relativeY, relativeX)
 
   irisX.value = Math.cos(angle) * distance

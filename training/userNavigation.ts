@@ -27,13 +27,15 @@ export const userNavigation: navigationData[] = [
   {
     title: 'Rebel Button',
     image: '/images/ducky/ducky-516.webp',
-    description: 'Novelty clicking game with a leaderboard and secret unlockables.',
+    description:
+      'Novelty clicking game with a leaderboard and secret unlockables.',
     path: '/button',
   },
   {
     title: 'Jellybeans',
     image: '/images/fantasycore/fantasycore-749.webp',
-    description: 'Our Record of Discovered Jellybeans, and Clues to their Whereabouts.',
+    description:
+      'Our Record of Discovered Jellybeans, and Clues to their Whereabouts.',
     path: '/milestones',
   },
   {

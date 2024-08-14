@@ -34,7 +34,7 @@ const sendMessage = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
@@ -48,7 +48,10 @@ const sendMessage = async () => {
     }
 
     const data = await res.json()
-    messages.value = [...messages.value, { role: 'assistant', content: data.choices[0].message.content }]
+    messages.value = [
+      ...messages.value,
+      { role: 'assistant', content: data.choices[0].message.content },
+    ]
     response.value = data.choices[0].message.content
   } catch (err) {
     console.error(err)
@@ -66,7 +69,6 @@ const sendReply = async (updatedMessages: Message[]) => {
     console.error(err)
   }
 }
-
 </script>
 
 <template>
@@ -83,7 +85,7 @@ const sendReply = async (updatedMessages: Message[]) => {
           :src="currentBot.avatarImage"
           alt="Bot Avatar"
           class="avatar-img md:w-1/4 rounded-full border-4 border-theme shadow-md"
-        >
+        />
         <div class="flex-1 text-center md:text-left p-4">
           <h1 class="text-3xl font-bold text-theme">
             {{ currentBot.name }}
@@ -118,11 +120,10 @@ const sendReply = async (updatedMessages: Message[]) => {
         </div>
 
         <!-- Loading animation -->
-        <div
-          v-if="isLoading"
-          class="loader flex justify-center mt-2"
-        >
-          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-900" />
+        <div v-if="isLoading" class="loader flex justify-center mt-2">
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-900"
+          />
         </div>
 
         <div
@@ -130,11 +131,10 @@ const sendReply = async (updatedMessages: Message[]) => {
           class="response-container mt-4 p-4 bg-gray-100 rounded-md shadow-md"
         >
           <h2>Response:</h2>
-          <div class="response-card p-4 bg-white rounded-md shadow-lg border-2 border-theme">
-            <ResponseCard
-              :messages="messages"
-              :send-message="sendReply"
-            />
+          <div
+            class="response-card p-4 bg-white rounded-md shadow-lg border-2 border-theme"
+          >
+            <ResponseCard :messages="messages" :send-message="sendReply" />
           </div>
         </div>
       </div>

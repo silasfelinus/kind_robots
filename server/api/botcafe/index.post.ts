@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         model: body.model || 'gpt-3.5-turbo',
@@ -45,21 +45,18 @@ export default defineEventHandler(async (event) => {
     let data
     try {
       data = await response.json()
-    }
-    catch (e) {
+    } catch (e) {
       if (e instanceof SyntaxError) {
         const text = await response.text()
         console.error('Error parsing JSON:', text)
         throw new Error('Received invalid JSON')
-      }
-      else {
+      } else {
         throw e
       }
     }
 
     return data
-  }
-  catch (error) {
+  } catch (error) {
     // This is where the closing bracket was missing.
     let errorMessage = 'An error occurred while creating the channel.'
 

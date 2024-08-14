@@ -24,9 +24,13 @@ export default defineEventHandler(async () => {
     }
 
     return { success: true, reward: randomReward }
-  }
-  catch (error: unknown) {
-    console.error(`Failed to fetch random reward: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    return { success: false, message: `Failed to fetch random reward: ${error instanceof Error ? error.message : 'Unknown error'}` }
+  } catch (error: unknown) {
+    console.error(
+      `Failed to fetch random reward: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    )
+    return {
+      success: false,
+      message: `Failed to fetch random reward: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    }
   }
 })

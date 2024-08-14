@@ -32,7 +32,9 @@ export const useGalleryStore = defineStore({
 
   state: (): GalleryState => ({
     galleries: JSON.parse(localStorage.getItem('galleries') || '[]'),
-    currentGallery: JSON.parse(localStorage.getItem('currentGallery') || 'null'),
+    currentGallery: JSON.parse(
+      localStorage.getItem('currentGallery') || 'null',
+    ),
     currentImage: localStorage.getItem('currentImage') || '',
   }),
 
@@ -70,7 +72,7 @@ export const useGalleryStore = defineStore({
     },
 
     allGalleryNames(): string[] {
-      return this.galleries.map(gallery => gallery.name)
+      return this.galleries.map((gallery) => gallery.name)
     },
 
     randomImage(): string | null {
@@ -83,14 +85,23 @@ export const useGalleryStore = defineStore({
     },
 
     randomGallery(state: GalleryState): Gallery | null {
-      const otherGalleries = state.galleries.filter(g => g.name !== state.currentGallery?.name)
-      return otherGalleries[Math.floor(Math.random() * otherGalleries.length)] || null
+      const otherGalleries = state.galleries.filter(
+        (g) => g.name !== state.currentGallery?.name,
+      )
+      return (
+        otherGalleries[Math.floor(Math.random() * otherGalleries.length)] ||
+        null
+      )
     },
 
-    imagePathsByGalleryName(state: GalleryState): (galleryName: string) => string[] {
+    imagePathsByGalleryName(
+      state: GalleryState,
+    ): (galleryName: string) => string[] {
       return (galleryName: string) => {
-        const gallery = state.galleries.find(g => g.name === galleryName)
-        return gallery && gallery.imagePaths ? gallery.imagePaths.split(',') : []
+        const gallery = state.galleries.find((g) => g.name === galleryName)
+        return gallery && gallery.imagePaths
+          ? gallery.imagePaths.split(',')
+          : []
       }
     },
   },
@@ -105,11 +116,16 @@ export const useGalleryStore = defineStore({
     },
 
     setGalleryByName(this: GalleryStore, name: string) {
-      const selectedGallery = this.galleries.find((gallery: Gallery) => gallery.name === name)
+      const selectedGallery = this.galleries.find(
+        (gallery: Gallery) => gallery.name === name,
+      )
       if (selectedGallery) {
         this.currentGallery = selectedGallery
         this.currentImage = selectedGallery.imagePaths?.split(',')[0] || ''
-        localStorage.setItem('currentGallery', JSON.stringify(this.currentGallery))
+        localStorage.setItem(
+          'currentGallery',
+          JSON.stringify(this.currentGallery),
+        )
         localStorage.setItem('currentImage', this.currentImage)
       }
     },

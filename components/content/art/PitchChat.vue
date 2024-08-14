@@ -18,15 +18,12 @@
         type="text"
         placeholder="Type your message..."
         @keyup.enter="sendMessage"
-      >
+      />
     </div>
 
     <!-- Channel Selector -->
     <div class="channel-selector mt-4">
-      <select
-        v-model="selectedChannelId"
-        @change="changeChannel"
-      >
+      <select v-model="selectedChannelId" @change="changeChannel">
         <option
           v-for="channel in channels"
           :key="channel.id"
@@ -42,7 +39,11 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { usePitchStore } from '@/stores/pitchStore'
-import { useChannelStore, type Channel as BaseChannel, type Message } from '@/stores/channelStore'
+import {
+  useChannelStore,
+  type Channel as BaseChannel,
+  type Message,
+} from '@/stores/channelStore'
 
 interface Channel extends BaseChannel {
   messages?: Message[]
@@ -58,7 +59,7 @@ const selectedChannelId = ref(channelId.value) // Initially set to the channelId
 
 const currentChannelMessages = computed<Message[]>(() => {
   console.log('Type:', typeof channels.value, 'Value:', channels.value) // Debugging line
-  const channel = channels.value.find(ch => ch.id === selectedChannelId.value)
+  const channel = channels.value.find((ch) => ch.id === selectedChannelId.value)
   return channel?.messages || []
 })
 
@@ -66,7 +67,7 @@ const currentChannelMessages = computed<Message[]>(() => {
 const sendMessage = () => {
   if (newMessage.value.trim() !== '') {
     const channel = Array.isArray(channels.value)
-      ? channels.value.find(ch => ch.id === selectedChannelId.value)
+      ? channels.value.find((ch) => ch.id === selectedChannelId.value)
       : null
 
     if (channel) {

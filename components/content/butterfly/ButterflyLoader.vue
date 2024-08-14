@@ -6,28 +6,21 @@
     :style="{
       left: butterfly.x + 'px',
       top: butterfly.y + 'px',
-      transform: 'rotate3d(1, 0.5, 0, ' + butterfly.rotation + 'deg) scale(' + butterfly.scale + ')',
+      transform:
+        'rotate3d(1, 0.5, 0, ' +
+        butterfly.rotation +
+        'deg) scale(' +
+        butterfly.scale +
+        ')',
     }"
   >
     <div class="left-wing">
-      <div
-        class="top"
-        :style="{ background: butterfly.wingColor }"
-      />
-      <div
-        class="bottom"
-        :style="{ background: butterfly.wingColor }"
-      />
+      <div class="top" :style="{ background: butterfly.wingColor }" />
+      <div class="bottom" :style="{ background: butterfly.wingColor }" />
     </div>
     <div class="right-wing">
-      <div
-        class="top"
-        :style="{ background: butterfly.wingColor }"
-      />
-      <div
-        class="bottom"
-        :style="{ background: butterfly.wingColor }"
-      />
+      <div class="top" :style="{ background: butterfly.wingColor }" />
+      <div class="bottom" :style="{ background: butterfly.wingColor }" />
     </div>
   </div>
 </template>
@@ -63,11 +56,16 @@ class Butterfly {
     }
 
     // Update the rotation based on the direction
-    this.rotation.value = Math.atan2(this.speedY.value, this.speedX.value) * (180 / Math.PI) + 90
+    this.rotation.value =
+      Math.atan2(this.speedY.value, this.speedX.value) * (180 / Math.PI) + 90
 
     // Update the scale based on the distance from the center
-    const distanceFromCenter = Math.sqrt(Math.pow(this.x.value - centerX, 2) + Math.pow(this.y.value - centerY, 2))
-    const maxDistance = Math.sqrt(Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2))
+    const distanceFromCenter = Math.sqrt(
+      Math.pow(this.x.value - centerX, 2) + Math.pow(this.y.value - centerY, 2),
+    )
+    const maxDistance = Math.sqrt(
+      Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2),
+    )
     this.scale.value = 1 + (distanceFromCenter / maxDistance) * 2
   }
 }
@@ -76,7 +74,7 @@ const butterflies = Array(10)
   .fill(null)
   .map(() => new Butterfly())
 function animate() {
-  butterflies.forEach(butterfly => butterfly.updatePosition())
+  butterflies.forEach((butterfly) => butterfly.updatePosition())
   requestAnimationFrame(animate)
 }
 

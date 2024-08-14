@@ -1,8 +1,6 @@
 <template>
   <div class="p-4 bg-white rounded shadow">
-    <h2 class="text-lg font-bold mb-4">
-      Gallery Management
-    </h2>
+    <h2 class="text-lg font-bold mb-4">Gallery Management</h2>
 
     <div class="mb-4">
       <input
@@ -10,22 +8,13 @@
         type="text"
         placeholder="Gallery name"
         class="input input-bordered"
-      >
+      />
     </div>
 
-    <button
-      class="btn btn-primary"
-      @click="addGallery"
-    >
-      Add Gallery
-    </button>
+    <button class="btn btn-primary" @click="addGallery">Add Gallery</button>
 
     <div class="grid gap-4 mt-6">
-      <div
-        v-for="gallery in galleries"
-        :key="gallery.id"
-        class="card bordered"
-      >
+      <div v-for="gallery in galleries" :key="gallery.id" class="card bordered">
         <div class="card-body">
           <h2 class="card-title">
             {{ gallery.name }}
@@ -62,9 +51,11 @@ const addGallery = async () => {
   try {
     await galleryStore.addGallery(newGallery.value)
     newGallery.value.name = ''
-    statusStore.addStatus({ message: 'Gallery added successfully', type: 'success' })
-  }
-  catch (error) {
+    statusStore.addStatus({
+      message: 'Gallery added successfully',
+      type: 'success',
+    })
+  } catch (error) {
     errorStore.addError(error)
   }
 }
@@ -72,9 +63,11 @@ const addGallery = async () => {
 const deleteGallery = async (id) => {
   try {
     await galleryStore.deleteGallery(id)
-    statusStore.addStatus({ message: 'Gallery deleted successfully', type: 'success' })
-  }
-  catch (error) {
+    statusStore.addStatus({
+      message: 'Gallery deleted successfully',
+      type: 'success',
+    })
+  } catch (error) {
     errorStore.addError(error)
   }
 }

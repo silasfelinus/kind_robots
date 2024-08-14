@@ -21,19 +21,24 @@ export default defineEventHandler(async (event) => {
 
     // Validate productId
     if (
-      !Number.isInteger(cartItemData.productId)
-      || cartItemData.productId === undefined
-      || cartItemData.productId <= 0
+      !Number.isInteger(cartItemData.productId) ||
+      cartItemData.productId === undefined ||
+      cartItemData.productId <= 0
     ) {
       throw new Error('Invalid productId.')
     }
-    const productExists = await prisma.product.findUnique({ where: { id: cartItemData.productId } })
+    const productExists = await prisma.product.findUnique({
+      where: { id: cartItemData.productId },
+    })
     if (!productExists) {
       throw new Error('Product does not exist.')
     }
 
     // Validate quantity
-    if (cartItemData.quantity && (cartItemData.quantity <= 0 || !Number.isInteger(cartItemData.quantity))) {
+    if (
+      cartItemData.quantity &&
+      (cartItemData.quantity <= 0 || !Number.isInteger(cartItemData.quantity))
+    ) {
       throw new Error('Invalid quantity.')
     }
 
@@ -42,14 +47,15 @@ export default defineEventHandler(async (event) => {
 
     const newCartItem = await createCartItem(cartItemData)
     return { success: true, newCartItem }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to create a new CartItem
-export async function createCartItem(cartItem: Partial<CartItem>): Promise<CartItem> {
+export async function createCartItem(
+  cartItem: Partial<CartItem>,
+): Promise<CartItem> {
   try {
     if (!cartItem.cartId || !cartItem.productId) {
       throw new Error('we need cartID and/or productId')
@@ -61,8 +67,7 @@ export async function createCartItem(cartItem: Partial<CartItem>): Promise<CartI
         quantity: cartItem.quantity || 1,
       },
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

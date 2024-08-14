@@ -39,11 +39,11 @@ export const useDreamStore = defineStore('dreams', () => {
     'Being a part of a choir where each voice contributes a different flavor instead of a note',
     'Finding a hidden valley where the trees are shaped like giant chess pieces',
     'Discovering a mountain peak that touches the northern lights',
-    'Traveling in a hot air balloon that\'s guided by your thoughts',
+    "Traveling in a hot air balloon that's guided by your thoughts",
     'Stumbling upon a beach where each grain of sand holds a different memory',
     'Playing a piano that paints a picture with each note',
     'Exploring an amusement park where the rides are real adventures',
-    'Attending a banquet where every dish tells a story from its ingredients\' perspectives',
+    "Attending a banquet where every dish tells a story from its ingredients' perspectives",
     'Venturing into a forest where the wildlife is made entirely of origami',
     'Landing on an asteroid where gravity is a mere suggestion',
     'Juggling planets in the vast cosmos, each spin generating a new weather pattern',
@@ -72,7 +72,6 @@ export const useDreamStore = defineStore('dreams', () => {
     const randomIndex = Math.floor(Math.random() * dreams.length)
     return dreams[randomIndex]
   }
-
 
   return { dreams, randomDream }
 })

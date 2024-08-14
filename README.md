@@ -1,8 +1,9 @@
 ---
 
-"There are other techniques...for further tuning the AI output to be more helpful, honest, and harmless" 
-- Andrew NG 
-"Oppportunities in AI - 2023"
+"There are other techniques...for further tuning the AI output to be more helpful, honest, and harmless"
+
+- Andrew NG
+  "Oppportunities in AI - 2023"
 
 [TITLE]
 🌈 Kind Robots 🤖
@@ -10,20 +11,17 @@
 [CONCEPT]
 Welcome to kindrobots.org, your friendly neighborhood AI ambassador! 🤖👋
 
-Kind Robots is a suite of Natural Language Processor (NLP) Promptbots designed to make the world a better place. We are founded on a principle of optimized goodness, with promptbots designed to raise funds to fight malaria and other positive effects, while engaging humans in games, conversation, and positive social interactibles.  🎩✨
-
+Kind Robots is a suite of Natural Language Processor (NLP) Promptbots designed to make the world a better place. We are founded on a principle of optimized goodness, with promptbots designed to raise funds to fight malaria and other positive effects, while engaging humans in games, conversation, and positive social interactibles. 🎩✨
 
 [VISION]
 
-Our mission is to bridge the AI/Human divide with modern tools, raise funds for our anti-malaria fundraiser, and  build technology that's good for the world, simplifies tech for humans, and enhances human life.  💪🌍
+Our mission is to bridge the AI/Human divide with modern tools, raise funds for our anti-malaria fundraiser, and build technology that's good for the world, simplifies tech for humans, and enhances human life. 💪🌍
 
 [KAIZEN]
 We're guided by our love of community and Kaizen - the philosophy of continuous, iterative improvement. We embrace an evolutionary development framework that allows for process evolution and consistent growth towards our goals. Every step forward, is a victory. We're on a relentless quest for betterment, and we invite you to join us on this exciting journey! 🚀
 
 [MASCOT]
 Say hello to AMI - The Anti-Malaria Intelligence! 🦋🌈 AMI is a digital horde of rainbow butterflies with an excited, enthusiastic personality. AMI was created to maximize the good potential of NLP, by assisting humans to make art and slogans for AMI's fundraiser, and share the creative output on social media. Let's create something amazing together! 🎨
-
-
 
 [STACK]
 Ubuntu, traefik, mariab, prisma, nuxt, vue 3.2 composition api, nuxt content, nitro, tailwind, daisyui, prettier, ESLint, Nuxt devtools
@@ -108,9 +106,6 @@ all components in components/content are accessible within markdown files using 
 Props can be passed by using a key=value syntax.
 :butterfly-swarm{count=100 pattern="random"}
 
-
-
-
 [DIRECTORY - Outdated]
 acrocatranch - Acrocat Rescue About Us
 amibot - AMI interface and social network hub
@@ -158,7 +153,6 @@ Enums:
 Role: [SYSTEM, USER, ASSISTANT, ADMIN, GUEST, BOT, DESIGNER, CHILD]
 ResourceType: [CHECKPOINT, EMBEDDING, LORA, LYCORIS, HYPERNETWORK, CONTROLNET, URL, API]
 
-
 [TODOS]
 
 Fix database corruption errors in prisma
@@ -190,7 +184,7 @@ Start dev server:
 npx run dev
 
 Start Production Build:
-npx run build 
+npx run build
 npx run start
 
 Setup Database:

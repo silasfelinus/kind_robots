@@ -13,7 +13,12 @@ export default defineEventHandler(async (event) => {
 
     const data = {
       model: body.model || 'gpt-3.5-turbo',
-      messages: body.messages || [{ role: 'user', content: 'write me a haiku about butterflies fighting malaria' }],
+      messages: body.messages || [
+        {
+          role: 'user',
+          content: 'write me a haiku about butterflies fighting malaria',
+        },
+      ],
       temperature: body.temperature,
       max_tokens: body.maxTokens,
       n: body.n,
@@ -26,7 +31,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify(data),
     })
@@ -42,10 +47,9 @@ export default defineEventHandler(async (event) => {
 
     const responseData = await response.json()
     return responseData
-  }
-  catch (error) {
+  } catch (error) {
     let errorMessage = 'An error occurred while creating the channel.'
-    
+
     if (error instanceof Error) {
       errorMessage += ` Details: ${error.message}`
     }

@@ -135,7 +135,6 @@
   </div>
 </template>
 
-
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
@@ -176,16 +175,13 @@ const validatePassword = () => {
   if (!minLength.test(password.value)) {
     passwordError.value = 'At least 8 characters'
     firstPasswordValid.value = false
-  }
-  else if (!hasNumber.test(password.value)) {
+  } else if (!hasNumber.test(password.value)) {
     passwordError.value = 'Include at least one number'
     firstPasswordValid.value = false
-  }
-  else if (!hasLetter.test(password.value)) {
+  } else if (!hasLetter.test(password.value)) {
     passwordError.value = 'Include at least one letter'
     firstPasswordValid.value = false
-  }
-  else {
+  } else {
     passwordError.value = ''
     firstPasswordValid.value = true
   }
@@ -194,8 +190,7 @@ const validatePassword = () => {
 const validateConfirmPassword = () => {
   if (password.value && password.value !== confirmPassword.value) {
     passwordError.value = 'Passwords do not match'
-  }
-  else {
+  } else {
     passwordError.value = ''
   }
 }
@@ -208,21 +203,19 @@ const checkUsernameAvailability = async () => {
     usernameWarning.value = usernames.includes(username.value)
     if (usernameWarning.value) {
       error.value = `Username "${username.value}" already exists.`
-    }
-    else {
+    } else {
       error.value = ''
     }
-  }
-  catch (e: unknown) {
+  } catch (e: unknown) {
     if (e instanceof Error) {
       errorStore.setError(
         ErrorType.UNKNOWN_ERROR,
-        `Error checking username availability: ${e.message}`
+        `Error checking username availability: ${e.message}`,
       )
     } else {
       errorStore.setError(
         ErrorType.UNKNOWN_ERROR,
-        'An unknown error occurred while checking username availability.'
+        'An unknown error occurred while checking username availability.',
       )
     }
   }
@@ -237,9 +230,11 @@ const goToStep = (nextStep: number) => {
 
 const isFormValid = computed(() => {
   return (
-    username.value
-    && !usernameWarning.value
-    && (step.value === 1 || ((!password.value || !passwordError.value) && password.value === confirmPassword.value))
+    username.value &&
+    !usernameWarning.value &&
+    (step.value === 1 ||
+      ((!password.value || !passwordError.value) &&
+        password.value === confirmPassword.value))
   )
 })
 
@@ -279,45 +274,44 @@ const register = async () => {
 
       // Automatically log the user in
       try {
-        const loginData: { username: string, password?: string } = { username: username.value }
+        const loginData: { username: string; password?: string } = {
+          username: username.value,
+        }
         if (password.value) {
           loginData.password = password.value
         }
         await userStore.login(loginData)
-      }
-      catch (error: unknown) {
+      } catch (error: unknown) {
         if (error instanceof Error) {
           errorStore.setError(
             ErrorType.AUTH_ERROR,
-            `Login failed: ${error.message}`
+            `Login failed: ${error.message}`,
           )
         } else {
           errorStore.setError(
             ErrorType.AUTH_ERROR,
-            'An unknown error occurred during login.'
+            'An unknown error occurred during login.',
           )
         }
       }
-    }
-    else {
+    } else {
       status.value = ''
       error.value = 'Registration failed. Please try again.'
       errorStore.setError(
         ErrorType.REGISTRATION_ERROR,
-        'Registration failed. Please try again.'
+        'Registration failed. Please try again.',
       )
     }
-  }
-  catch (e: unknown) {
+  } catch (e: unknown) {
     if (e instanceof Error) {
       errorStore.setError(
         ErrorType.REGISTRATION_ERROR,
-        `Registration failed: ${e.message}`
+        `Registration failed: ${e.message}`,
       )
     } else {
       errorStore.setError(
         ErrorType.REGISTRATION_ERROR,
-        'An unknown error occurred during registration.'
+        'An unknown error occurred during registration.',
       )
     }
   }

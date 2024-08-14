@@ -3,7 +3,10 @@
     <!-- Background Image -->
     <div
       class="image-layer"
-      :class="{ 'pixelate-out': isPixelatingOut, 'pixelate-in': isPixelatingIn }"
+      :class="{
+        'pixelate-out': isPixelatingOut,
+        'pixelate-in': isPixelatingIn,
+      }"
       :style="imageStyle"
     />
     <slot />
@@ -33,7 +36,7 @@ watchEffect(() => {
 const fetchImage = async () => {
   isPixelatingOut.value = true
 
-  await new Promise(resolve => setTimeout(resolve, 750))
+  await new Promise((resolve) => setTimeout(resolve, 750))
 
   try {
     const res = await fetch('/api/galleries/random/name/background')
@@ -42,15 +45,12 @@ const fetchImage = async () => {
     if (data.success && data.image) {
       isPixelatingIn.value = true
       src.value = data.image
-    }
-    else {
+    } else {
       console.error('API returned an unexpected structure:', data)
     }
-  }
-  catch (err) {
+  } catch (err) {
     console.error('Error fetching images:', err)
-  }
-  finally {
+  } finally {
     isPixelatingOut.value = false
 
     setTimeout(() => {
@@ -105,7 +105,10 @@ onUnmounted(() => {
   position: absolute; /* Positioned within teleport-container */
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* Center the button both vertically and horizontally */
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Center the button both vertically and horizontally */
   z-index: 1;
   border-radius: 4px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

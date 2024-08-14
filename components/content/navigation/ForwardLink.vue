@@ -1,11 +1,7 @@
 <template>
   <div>
     <!-- Forward arrow icon: Shown only if canGoForward is true -->
-    <div
-      v-if="canGoForward"
-      class="mr-2"
-      @click="goForward"
-    >
+    <div v-if="canGoForward" class="mr-2" @click="goForward">
       <icon
         :name="'typcn:arrow-forward-outline'"
         :title="'Forward'"
@@ -23,14 +19,14 @@ const router = useRouter()
 const canGoForward = ref(false)
 
 const updateCanGoForward = () => {
-  canGoForward.value = typeof window !== 'undefined' && window.history.length > 1
+  canGoForward.value =
+    typeof window !== 'undefined' && window.history.length > 1
 }
 
 const goForward = () => {
   if (canGoForward.value) {
     router.go(1)
-  }
-  else {
+  } else {
     console.warn('No forward history available.')
   }
 }

@@ -10,21 +10,22 @@ export default defineEventHandler(async (event) => {
     const updatedChannelData: Partial<Channel> = await readBody(event)
     const updatedChannel = await updateChannel(id, updatedChannelData)
     return { success: true, updatedChannel }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to update an existing Channel by ID
-export async function updateChannel(id: number, updatedChannel: Partial<Channel>): Promise<Channel | null> {
+export async function updateChannel(
+  id: number,
+  updatedChannel: Partial<Channel>,
+): Promise<Channel | null> {
   try {
     return await prisma.channel.update({
       where: { id },
       data: updatedChannel,
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

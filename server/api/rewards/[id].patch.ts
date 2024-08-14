@@ -16,8 +16,7 @@ export default defineEventHandler(async (event) => {
 
     const updatedReward = await updateReward(id, data)
     return { success: true, reward: updatedReward }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return {
       success: false,
       message: `Failed to update reward with ID ${id}.`,

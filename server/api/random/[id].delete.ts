@@ -13,12 +13,17 @@ export default defineEventHandler(async (event) => {
     const deletedItem = await prisma.randomList.delete({ where: { id } })
 
     if (!deletedItem) {
-      return { success: false, message: 'Item not found or could not be deleted.' }
+      return {
+        success: false,
+        message: 'Item not found or could not be deleted.',
+      }
     }
 
-    return { success: true, message: `Item with ID ${id} successfully deleted.` }
-  }
-  catch (error: unknown) {
+    return {
+      success: true,
+      message: `Item with ID ${id} successfully deleted.`,
+    }
+  } catch (error: unknown) {
     const { success, message, statusCode } = errorHandler(error)
     return { success, message, statusCode }
   }

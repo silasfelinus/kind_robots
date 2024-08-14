@@ -1,21 +1,18 @@
 <template>
-  <div
-    ref="container"
-    class="jellybean-container"
-  >
+  <div ref="container" class="jellybean-container">
     <div
       v-for="(bean, index) in jellybeans"
       :key="index"
       class="jellybean"
-      :style="{ backgroundColor: bean.color, transform: `translate(${bean.x}px, ${bean.y}px)` }"
+      :style="{
+        backgroundColor: bean.color,
+        transform: `translate(${bean.x}px, ${bean.y}px)`,
+      }"
       @mousedown="startDrag(index)"
       @mouseup="endDrag(index)"
     >
       <!-- Jellybean SVG path here -->
-      <icon
-        :name="jellybeanIcon"
-        class="w-6 h-6 text-white"
-      />
+      <icon :name="jellybeanIcon" class="w-6 h-6 text-white" />
     </div>
   </div>
 </template>
@@ -25,7 +22,9 @@ import { ref } from 'vue'
 
 const maxJellybeans = 10 // Maximum jellybeans
 
-const jellybeans = ref<Array<{ color: string, x: number, y: number, isDragging: boolean }>>(
+const jellybeans = ref<
+  Array<{ color: string; x: number; y: number; isDragging: boolean }>
+>(
   Array.from({ length: maxJellybeans }, () => ({
     color: getRandomColor(),
     x: 0,

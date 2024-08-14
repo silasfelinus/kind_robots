@@ -7,8 +7,7 @@ export default defineEventHandler(async (event) => {
     const id = Number(event.context.params?.id)
     const isDeleted = await deleteArtReaction(id)
     return { success: isDeleted }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

@@ -1,28 +1,13 @@
 <!-- src/components/ButterflySolo.vue -->
 <template>
-  <div
-    class="butterfly"
-    :style="{ left: x + 'px', top: y + 'px' }"
-  >
+  <div class="butterfly" :style="{ left: x + 'px', top: y + 'px' }">
     <div class="left-wing">
-      <div
-        class="top"
-        :style="{ background: wingColor }"
-      />
-      <div
-        class="bottom"
-        :style="{ background: wingColor }"
-      />
+      <div class="top" :style="{ background: wingColor }" />
+      <div class="bottom" :style="{ background: wingColor }" />
     </div>
     <div class="right-wing">
-      <div
-        class="top"
-        :style="{ background: wingColor }"
-      />
-      <div
-        class="bottom"
-        :style="{ background: wingColor }"
-      />
+      <div class="top" :style="{ background: wingColor }" />
+      <div class="bottom" :style="{ background: wingColor }" />
     </div>
   </div>
 </template>

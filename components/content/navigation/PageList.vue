@@ -1,17 +1,12 @@
 <template>
   <div>
-    <hr>
+    <hr />
     <ul>
       <li>
         <span>🏠</span>
-        <NuxtLink to="/">
-          Home
-        </NuxtLink>
+        <NuxtLink to="/"> Home </NuxtLink>
       </li>
-      <li
-        v-for="page of pages"
-        :key="page._id"
-      >
+      <li v-for="page of pages" :key="page._id">
         <span>🔗</span>
         <NuxtLink :to="page._path">
           {{ page.title }}
@@ -19,7 +14,7 @@
         <span v-if="page.gallery"> - {{ page.gallery }}</span>
       </li>
     </ul>
-    <hr>
+    <hr />
   </div>
 </template>
 

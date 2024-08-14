@@ -4,8 +4,9 @@ import prisma from '../utils/prisma'
 import { generateSillyName } from '@/utils/useRandomName'
 import { saveImage } from '@/server/api/utils/saveImage'
 
-
-console.log('🚀 Starting up the art generation engine! Let\'s create something amazing!')
+console.log(
+  "🚀 Starting up the art generation engine! Let's create something amazing!",
+)
 
 type GenerateImageResponse = {
   images: string[]
@@ -53,13 +54,16 @@ type validatedData = {
   highlightImage?: string
 }
 
-async function validateAndLoadUserId(data: RequestData, validatedData: Partial<validatedData>): Promise<number> {
-  console.log('🔍 Validating and loading User ID...');
+async function validateAndLoadUserId(
+  data: RequestData,
+  validatedData: Partial<validatedData>,
+): Promise<number> {
+  console.log('🔍 Validating and loading User ID...')
 
   // If neither userName nor userId is provided, return 0
   if (!data.userName && !data.userId) {
-    console.warn('No userName or userId provided.');
-    return 0;
+    console.warn('No userName or userId provided.')
+    return 0
   }
 
   // If userName is provided, upsert the user using userName as a unique identifier
@@ -72,38 +76,36 @@ async function validateAndLoadUserId(data: RequestData, validatedData: Partial<v
         createdAt: new Date(), // Set the creation timestamp
         Role: 'USER', // Assuming 'USER' is a default role, replace with appropriate enum or value
       },
-    });
-    validatedData.userName = user.username;
-    return user.id;
+    })
+    validatedData.userName = user.username
+    return user.id
   }
 
   // If userId is provided but userName is not, simply return the userId
   if (data.userId) {
-    return data.userId;
+    return data.userId
   }
 
   // If we reach this point, something went wrong
-  return 0;
+  return 0
 }
 
-
-
 async function validateAndLoadPromptId(data: RequestData): Promise<number> {
-  console.log('🔍 Validating and loading Prompt ID...');
+  console.log('🔍 Validating and loading Prompt ID...')
 
   // Check if prompt is provided
   if (!data.prompt) {
-    console.warn('No prompt provided.');
-    throw new Error('Something went wrong');
+    console.warn('No prompt provided.')
+    throw new Error('Something went wrong')
   }
 
   // Check if an ArtPrompt with the given prompt already exists
   const existingPrompt = await prisma.artPrompt.findFirst({
     where: { prompt: data.prompt },
-  });
+  })
 
   if (existingPrompt) {
-    return existingPrompt.id; // Return the existing promptId
+    return existingPrompt.id // Return the existing promptId
   } else {
     // Create a new ArtPrompt using "prompt"
     const newPrompt = await prisma.artPrompt.create({
@@ -117,11 +119,10 @@ async function validateAndLoadPromptId(data: RequestData): Promise<number> {
         updatedAt: new Date(), // Add an updated timestamp
         DB_ROW_HASH_1: BigInt(0), // This would typically be generated, but defaulting for example
       },
-    });
-    return newPrompt.id; // Return the new promptId
+    })
+    return newPrompt.id // Return the new promptId
   }
 }
-
 
 async function validateAndLoadPitchId(data: RequestData): Promise<number> {
   console.log('🔍 Validating and loading pitch ID...')
@@ -154,22 +155,20 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
           channelId: data.channelId ?? 0, // Use default value from schema if not provided
           userId: data.userId ?? 0, // Use default value from schema if not provided
           isOrphan: data.isOrphan ?? false, // Use default value from schema
-          isPublic: data.isPublic ?? false,  // Use default value from schema
+          isPublic: data.isPublic ?? false, // Use default value from schema
           creatorId: data.userId ?? 0, // Use default value from schema
           isMature: data.isMature ?? false, // Use default value from schema
           flavorText: data.flavorText ?? '', // Optional, but providing an empty string as default
           createdAt: new Date(), // Set to current timestamp
           highlightImage: data.highlightImage ?? '', // Provide a default or an empty string
         },
-      
       })
 
       return newPitch.id
     }
 
     return data.pitchId ?? 0
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error validating and loading pitch ID:', error)
     return 0 // You can't return errorHandler here as it doesn't return a number
   }
@@ -212,27 +211,26 @@ async function validateAndLoadChannelId(data: RequestData): Promise<number> {
     })
 
     return newChannel.id
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error validating and loading channel ID:', error)
     return 1
   }
 }
 
 async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
-  console.log('🔍 Validating and loading gallery ID...');
+  console.log('🔍 Validating and loading gallery ID...')
 
   if (data.galleryId === undefined) {
-    const galleryName = data.galleryName ?? 'cafefred';
+    const galleryName = data.galleryName ?? 'cafefred'
 
     // Try to find an existing Gallery by name
     const existingGallery = await prisma.gallery.findFirst({
       where: { name: galleryName },
-    });
+    })
 
     if (existingGallery) {
       // If gallery exists, return its ID
-      return existingGallery.id;
+      return existingGallery.id
     } else {
       // If gallery doesn't exist, create a new one with required fields
       const newGallery = await prisma.gallery.create({
@@ -241,18 +239,19 @@ async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
           createdAt: new Date(), // Set to the current timestamp
           content: '', // Provide a default value for content, could be an empty string or placeholder
         },
-      });
-      return newGallery.id;
+      })
+      return newGallery.id
     }
   }
-  return data.galleryId ?? 21;
+  return data.galleryId ?? 21
 }
-
 
 function validateAndLoadDesignerName(data: RequestData): string {
   console.log('🔍 Validating and loading designer name...')
 
-  return data.designerName ?? data.userName ?? generateSillyName() ?? 'Kind Guest'
+  return (
+    data.designerName ?? data.userName ?? generateSillyName() ?? 'Kind Guest'
+  )
 }
 
 export default defineEventHandler(async (event) => {
@@ -265,7 +264,10 @@ export default defineEventHandler(async (event) => {
     const validatedData: Partial<validatedData> = {}
 
     // Validate and load each field, updating the validatedData object
-    validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
+    validatedData.userId = await validateAndLoadUserId(
+      requestData,
+      validatedData,
+    )
     validatedData.promptId = await validateAndLoadPromptId(requestData)
     validatedData.pitchId = await validateAndLoadPitchId(requestData)
     validatedData.channelId = await validateAndLoadChannelId(requestData)
@@ -273,7 +275,10 @@ export default defineEventHandler(async (event) => {
     validatedData.designerName = await validateAndLoadDesignerName(requestData)
 
     console.log('🎉 All validations passed! Generating image...')
-    const response: GenerateImageResponse = await generateImage(requestData.prompt, validatedData.designerName!)
+    const response: GenerateImageResponse = await generateImage(
+      requestData.prompt,
+      validatedData.designerName!,
+    )
     console.log('🖼 Image generated! Response:', response)
 
     // Declare base64Image variable here
@@ -282,16 +287,19 @@ export default defineEventHandler(async (event) => {
     // Validate the image generation response
     if (Array.isArray(response)) {
       if (!response.length) {
-        throw new Error('No images were generated. Please validate the prompt and user.')
+        throw new Error(
+          'No images were generated. Please validate the prompt and user.',
+        )
       }
       base64Image = response[0] // Directly assign the first element if response is an array
-    }
-    else {
+    } else {
       if (!response.images || !response.images.length) {
         if (response.error) {
           throw new Error(`Image generation failed due to: ${response.error}`)
         }
-        throw new Error('No images were generated. Please validate the prompt and user.')
+        throw new Error(
+          'No images were generated. Please validate the prompt and user.',
+        )
       }
       base64Image = response.images[0] // Use the first image from the images array if response is an object
     }
@@ -324,8 +332,7 @@ export default defineEventHandler(async (event) => {
     })
 
     return { success: true, newArt } // Return the result
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     console.error('Art Generation Error:', error)
     return errorHandler({
       error,
@@ -334,7 +341,10 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-export async function generateImage(prompt: string, user: string): Promise<{ images: string[] }> {
+export async function generateImage(
+  prompt: string,
+  user: string,
+): Promise<{ images: string[] }> {
   console.log('📸 Starting image generation...')
   const config = {
     headers: {
@@ -351,11 +361,14 @@ export async function generateImage(prompt: string, user: string): Promise<{ ima
   }
 
   try {
-    const response = await fetch('https://lola.acrocatranch.com/sdapi/v1/txt2img', {
-      method: 'POST',
-      headers: config.headers,
-      body: JSON.stringify(requestBody),
-    })
+    const response = await fetch(
+      'https://lola.acrocatranch.com/sdapi/v1/txt2img',
+      {
+        method: 'POST',
+        headers: config.headers,
+        body: JSON.stringify(requestBody),
+      },
+    )
 
     if (!response.ok) {
       throw new Error(`Fetch failed: ${response.status} ${response.statusText}`)
@@ -365,8 +378,7 @@ export async function generateImage(prompt: string, user: string): Promise<{ ima
     const generatedImageUrl = responseData.images // Assuming the images field contains the URL
     console.log('📷 Image generation complete!')
     return generatedImageUrl
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler({ error, context: 'Image Generation with Cafe Fred' })
   }
 }

@@ -63,8 +63,7 @@ export const useScreenStore = defineStore({
     loadStore() {
       try {
         return 'loaded screen'
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Error loading store:', error)
         throw error
       }

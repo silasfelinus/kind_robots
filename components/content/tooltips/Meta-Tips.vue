@@ -23,12 +23,7 @@
       </div>
     </div>
     <!-- Toggle Button -->
-    <button
-      class="mt-2"
-      @click="toggleFlip"
-    >
-      Toggle View
-    </button>
+    <button class="mt-2" @click="toggleFlip">Toggle View</button>
   </div>
 </template>
 

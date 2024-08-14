@@ -3,11 +3,13 @@ import { errorHandler } from './error'
 import prisma from './prisma'
 import type { Message } from '@prisma/client'
 
-export async function fetchMessagesByChannelId(channelId: number): Promise<Message[]> {
+export async function fetchMessagesByChannelId(
+  channelId: number,
+): Promise<Message[]> {
   try {
-    return await prisma.message.findMany({
+    return (await prisma.message.findMany({
       where: { channelId },
-    }) as Message[]
+    })) as Message[]
   } catch (error: unknown) {
     throw errorHandler(error)
   }

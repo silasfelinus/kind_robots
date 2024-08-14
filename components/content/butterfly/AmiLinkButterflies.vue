@@ -1,9 +1,6 @@
 <template>
   <div class="space-x-4">
-    <button
-      class="btn btn-primary"
-      @click="handleButtonClick"
-    >
+    <button class="btn btn-primary" @click="handleButtonClick">
       {{ buttonText }}
     </button>
   </div>
@@ -21,8 +18,7 @@ const handleButtonClick = () => {
   if (buttonText.value === 'Click to Release the Butterflies') {
     buttonText.value = 'No More butterflies?'
     router.push('/kindrobots/amibot')
-  }
-  else {
+  } else {
     buttonText.value = 'Release The Butterflies'
     router.push('/')
   }

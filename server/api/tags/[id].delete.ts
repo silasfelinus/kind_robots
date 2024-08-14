@@ -14,8 +14,7 @@ export default defineEventHandler(async (event) => {
 
     await prisma.tag.delete({ where: { id } })
     return { success: true, message: 'Tag successfully deleted.' }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

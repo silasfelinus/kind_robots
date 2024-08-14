@@ -1,14 +1,12 @@
 <template>
-  <div class="relative flex flex-col items-center p-2 bg-base overflow-auto h-screen z-10">
+  <div
+    class="relative flex flex-col items-center p-2 bg-base overflow-auto h-screen z-10"
+  >
     <div
       class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     />
     <div class="mx-2 my-2">
-      <transition-group
-        name="list"
-        tag="div"
-        class="space-y-2"
-      >
+      <transition-group name="list" tag="div" class="space-y-2">
         <div
           v-for="bot in bots"
           :id="`bot-${bot.id}`"
@@ -21,10 +19,7 @@
           }"
           @click="setCurrentBot(bot)"
         >
-          <div
-            :data-theme="bot.theme"
-            class="rounded-lg m-1"
-          >
+          <div :data-theme="bot.theme" class="rounded-lg m-1">
             <avatar-image />
             <div class="bg-opacity-80 bg-primary text-dark p-2">
               <!-- Modified line -->
@@ -65,8 +60,7 @@ const fetchBots = async () => {
     if (!currentBot.value && data.length > 0) {
       botsStore.getBotById(data[0].id)
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error)
   }
 }

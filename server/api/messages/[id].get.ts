@@ -8,8 +8,7 @@ export default defineEventHandler(async (event) => {
     const id = Number(event.context.params?.id)
     const message = await fetchMessageById(id)
     return { success: true, message }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

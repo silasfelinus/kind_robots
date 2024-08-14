@@ -1,12 +1,16 @@
 <template>
   <div class="w-full flex flex-col items-center p-4 bg-primary rounded-2xl">
-    <div class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 rounded-2xl">
+    <div
+      class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 rounded-2xl"
+    >
       <div
         v-for="page in pages"
         :key="page._id"
         class="flex flex-col rounded-2xl items-center justify-center my-4 drag-card"
       >
-        <div class="rounded-2xl border-4 p-2 bg-base-200 shadow-md hover:shadow-lg transition-shadow duration-300">
+        <div
+          class="rounded-2xl border-4 p-2 bg-base-200 shadow-md hover:shadow-lg transition-shadow duration-300"
+        >
           <NuxtLink
             :to="page._path"
             class="flex flex-col items-center justify-center"
@@ -24,11 +28,13 @@
                 :src="`/images/${page.image}`"
                 alt="Page Image"
                 class="w-full h-full rounded-full object-cover"
-              >
+              />
             </div>
             <div
               class="mt-2 text-xs sm:text-sm md:text-base transition-colors ease-in-out duration-500 hover:text-accent"
-              :style="clicked === page._id ? 'font-weight: bold; color: green;' : ''"
+              :style="
+                clicked === page._id ? 'font-weight: bold; color: green;' : ''
+              "
             >
               {{ page.title }}
             </div>

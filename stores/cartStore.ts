@@ -19,9 +19,7 @@ export const useCartStore = defineStore({
       this.currentCartId = cartId
     },
 
-    async createCart(
-      customerId: number,
-    ): Promise<{
+    async createCart(customerId: number): Promise<{
       success: boolean
       cartId?: number
       message?: string

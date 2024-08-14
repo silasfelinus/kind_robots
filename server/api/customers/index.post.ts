@@ -10,14 +10,15 @@ export default defineEventHandler(async (event) => {
     const customerData: Partial<Customer> = await readBody(event)
     const newCustomer = await createCustomer(customerData)
     return { success: true, newCustomer }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to create a new Customer
-export async function createCustomer(customer: Partial<Customer>): Promise<Customer> {
+export async function createCustomer(
+  customer: Partial<Customer>,
+): Promise<Customer> {
   try {
     return await prisma.customer.create({
       data: {
@@ -25,8 +26,7 @@ export async function createCustomer(customer: Partial<Customer>): Promise<Custo
         name: customer.name || null,
       },
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

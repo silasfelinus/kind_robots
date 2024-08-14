@@ -9,8 +9,7 @@ export default defineEventHandler(async (event) => {
     const cartId = Number(event.context.params?.cartId)
     const items = await fetchCartItems(cartId)
     return { success: true, items }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -23,8 +22,7 @@ export async function fetchCartItems(cartId: number): Promise<CartItem[]> {
         cartId, // Add this line to filter by cartId
       },
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

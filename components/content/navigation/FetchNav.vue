@@ -1,5 +1,7 @@
 <script setup>
-const { data: navigation } = await useAsyncData('navigation', () => fetchContentNavigation())
+const { data: navigation } = await useAsyncData('navigation', () =>
+  fetchContentNavigation(),
+)
 </script>
 
 <template>

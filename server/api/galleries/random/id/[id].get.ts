@@ -9,14 +9,12 @@ export default defineEventHandler(async (event) => {
     if (id) {
       // If there is an ID, get a random image from that gallery
       image = await getRandomGalleryImage(id)
-    }
-    else {
+    } else {
       return console.error(`ID not found`)
     }
 
     return image
-  }
-  catch (error) {
+  } catch (error) {
     return console.error(`Failed to get random image: ${error}`)
   }
 })

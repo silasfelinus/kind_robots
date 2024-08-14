@@ -31,10 +31,11 @@ export const initiatePayment = async () => {
     if (error) {
       throw new Error(error.message)
     }
-  }
-  catch (error) {
+  } catch (error) {
     // Use your errorHandler to handle the error
     const { success, message, statusCode } = errorHandler({ error })
-    console.error(`Stripe error: ${message}, Status Code: ${statusCode}, Success: ${success}`)
+    console.error(
+      `Stripe error: ${message}, Status Code: ${statusCode}, Success: ${success}`,
+    )
   }
 }

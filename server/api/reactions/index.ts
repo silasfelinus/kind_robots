@@ -22,8 +22,7 @@ export async function createArtReaction(reaction: Partial<ArtReaction>) {
         comment: reaction.comment || null,
       },
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
@@ -33,7 +32,9 @@ export async function updateArtReaction(
   updatedReaction: Partial<ArtReaction>,
 ): Promise<ArtReaction | null> {
   try {
-    const existingRecord = await prisma.artReaction.findUnique({ where: { id } })
+    const existingRecord = await prisma.artReaction.findUnique({
+      where: { id },
+    })
     if (!existingRecord) {
       throw new Error('Record to update not found.')
     }
@@ -41,8 +42,7 @@ export async function updateArtReaction(
       where: { id },
       data: updatedReaction,
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
@@ -50,7 +50,9 @@ export async function updateArtReaction(
 // Function to delete an ArtReaction by ID
 export async function deleteArtReaction(id: number): Promise<boolean> {
   try {
-    const reactionExists = await prisma.artReaction.findUnique({ where: { id } })
+    const reactionExists = await prisma.artReaction.findUnique({
+      where: { id },
+    })
 
     if (!reactionExists) {
       return false
@@ -58,8 +60,7 @@ export async function deleteArtReaction(id: number): Promise<boolean> {
 
     await prisma.$transaction([prisma.artReaction.delete({ where: { id } })])
     return true
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
@@ -69,14 +70,18 @@ export async function fetchAllArtReactions(): Promise<ArtReaction[]> {
 }
 
 // Function to fetch a single ArtReaction by ID
-export async function fetchArtReactionById(id: number): Promise<ArtReaction | null> {
+export async function fetchArtReactionById(
+  id: number,
+): Promise<ArtReaction | null> {
   return await prisma.artReaction.findUnique({
     where: { id },
   })
 }
 
 // Function to fetch ArtReactions by Art ID
-export async function fetchArtReactionsByArtId(artId: number): Promise<ArtReaction[]> {
+export async function fetchArtReactionsByArtId(
+  artId: number,
+): Promise<ArtReaction[]> {
   return await prisma.artReaction.findMany({
     where: { artId },
   })

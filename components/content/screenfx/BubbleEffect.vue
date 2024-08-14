@@ -1,9 +1,6 @@
 <template>
   <div class="soap-bubbles">
-    <transition-group
-      name="bubble"
-      tag="div"
-    >
+    <transition-group name="bubble" tag="div">
       <svg
         v-for="bubble in bubbles"
         :key="bubble.id"
@@ -42,7 +39,7 @@ const createBubble = () => {
   }
 }
 
-const bubbleStyle = bubble => ({
+const bubbleStyle = (bubble) => ({
   left: `${bubble.x}vw`,
   bottom: '-10vw', // bubbles start off-screen
   width: `${bubble.size}vw`,

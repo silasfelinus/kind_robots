@@ -20,14 +20,15 @@ export default defineEventHandler(async (event) => {
 
     const newArtPrompt = await createArtPrompt(artPromptData)
     return { success: true, newArtPrompt }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to create a new ArtPrompt
-export async function createArtPrompt(artPrompt: ArtPromptData): Promise<ArtPrompt> {
+export async function createArtPrompt(
+  artPrompt: ArtPromptData,
+): Promise<ArtPrompt> {
   try {
     // Validate required fields
     if (!artPrompt.prompt) {
@@ -41,11 +42,10 @@ export async function createArtPrompt(artPrompt: ArtPromptData): Promise<ArtProm
         galleryId: artPrompt.galleryId || 0, // Set default value as 0
         pitch: artPrompt.pitch || null,
         pitchId: artPrompt.pitchId || null,
-        DB_ROW_HASH_1: artPrompt.DB_ROW_HASH_1 // Ensure DB_ROW_HASH_1 is included
+        DB_ROW_HASH_1: artPrompt.DB_ROW_HASH_1, // Ensure DB_ROW_HASH_1 is included
       },
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

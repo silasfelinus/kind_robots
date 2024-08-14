@@ -1,129 +1,150 @@
-import crypto from 'crypto';
-import { hash as bcryptHash, compare as bcryptCompare } from 'bcrypt';
-import { jwtVerify, SignJWT } from 'jose';
-import { errorHandler } from '../utils/error';
-import { userExists } from '../users';
-import prisma from '../utils/prisma';
-import { useRuntimeConfig } from '#imports';
-import type { User } from '@prisma/client';
+import crypto from 'crypto'
+import { hash as bcryptHash, compare as bcryptCompare } from 'bcrypt'
+import { jwtVerify, SignJWT } from 'jose'
+import { errorHandler } from '../utils/error'
+import { userExists } from '../users'
+import prisma from '../utils/prisma'
+import { useRuntimeConfig } from '#imports'
+import type { User } from '@prisma/client'
 
-const { JWT_SECRET } = useRuntimeConfig();
+const { JWT_SECRET } = useRuntimeConfig()
 
 // Define the return type directly in the function signature
 export const verifyJwtToken = async (
   token: string,
-): Promise<{ success: boolean, userId?: number | null, message?: string, statusCode?: number }> => {
+): Promise<{
+  success: boolean
+  userId?: number | null
+  message?: string
+  statusCode?: number
+}> => {
   try {
-    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'));
-    const decoded = await jwtVerify(token, secretKey);
-    console.log('Decoded Object:', decoded); // Debug log here
+    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'))
+    const decoded = await jwtVerify(token, secretKey)
+    console.log('Decoded Object:', decoded) // Debug log here
 
-    return { success: true, userId: decoded.payload.id as number | null };
+    return { success: true, userId: decoded.payload.id as number | null }
   } catch (error: unknown) {
-    const { message, statusCode } = errorHandler(error);
+    const { message, statusCode } = errorHandler(error)
     return {
       success: false,
       message: `🚀 Mission abort! ${message}`,
       statusCode: statusCode ?? 403,
-    };
+    }
   }
-};
+}
 
 export const getUserDataByToken = async (token: string) => {
   try {
-    const { success, userId } = await verifyJwtToken(token);
+    const { success, userId } = await verifyJwtToken(token)
 
     if (!success || !userId) {
-      return { success: false, message: 'Invalid token.', statusCode: 403 };
+      return { success: false, message: 'Invalid token.', statusCode: 403 }
     }
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-    });
+    })
 
-    console.log('Fetched User:', user); // Debug log
+    console.log('Fetched User:', user) // Debug log
 
     if (!user) {
-      return { success: false, message: 'User not found.', statusCode: 404 };
+      return { success: false, message: 'User not found.', statusCode: 404 }
     }
 
-    return { success: true, user };
+    return { success: true, user }
   } catch (error: unknown) {
-    const { message, statusCode } = errorHandler(error);
+    const { message, statusCode } = errorHandler(error)
     return {
       success: false,
       message: `🚀 Mission abort! ${message}`,
       statusCode: statusCode ?? 403,
-    };
+    }
   }
-};
+}
 
 export function generateApiKey(): string {
   try {
-    const apiKey = crypto.randomBytes(16).toString('hex');
-    return apiKey;
+    const apiKey = crypto.randomBytes(16).toString('hex')
+    return apiKey
   } catch (error: unknown) {
-    console.error('🔥 Failed to generate API key:', errorHandler(error).message);
-    throw new Error('Failed to generate API key.');
+    console.error('🔥 Failed to generate API key:', errorHandler(error).message)
+    throw new Error('Failed to generate API key.')
   }
 }
 
 export async function validateApiKey(apiKey: string) {
   try {
-    const user = await prisma.user.findFirst({ where: { apiKey } });
+    const user = await prisma.user.findFirst({ where: { apiKey } })
 
     if (user) {
-      return { success: true, message: '🚀 API key is valid. You are good to go!' };
+      return {
+        success: true,
+        message: '🚀 API key is valid. You are good to go!',
+      }
     } else {
-      return { success: false, message: 'API key is invalid or not found.' };
+      return { success: false, message: 'API key is invalid or not found.' }
     }
   } catch (error: unknown) {
-    console.error(`🔥 Failed to validate API key: ${errorHandler(error).message}`);
-    return { success: false, message: `🚀 Mission abort! ${errorHandler(error).message}` };
+    console.error(
+      `🔥 Failed to validate API key: ${errorHandler(error).message}`,
+    )
+    return {
+      success: false,
+      message: `🚀 Mission abort! ${errorHandler(error).message}`,
+    }
   }
 }
 
 export async function createToken(user: User, apiKey: string): Promise<string> {
   try {
-    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'));
+    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET, 'utf-8'))
 
-    const token = await new SignJWT({ id: user.id, username: user.username, apiKey })
+    const token = await new SignJWT({
+      id: user.id,
+      username: user.username,
+      apiKey,
+    })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('360d')
-      .sign(secretKey);
+      .sign(secretKey)
 
-    return token;
+    return token
   } catch (error: unknown) {
-    console.error(`Failed to create token: ${errorHandler(error).message}`);
-    throw new Error('Failed to create token.');
+    console.error(`Failed to create token: ${errorHandler(error).message}`)
+    throw new Error('Failed to create token.')
   }
 }
-export async function createUserWithAuth(username: string, password: string, email?: string | null) {
+export async function createUserWithAuth(
+  username: string,
+  password: string,
+  email?: string | null,
+) {
   try {
     // Check for username uniqueness
     if (await userExists(username, 'username')) {
-      return { success: false, message: 'Username already exists.' };
+      return { success: false, message: 'Username already exists.' }
     }
 
     // Check for email uniqueness
     if (email) {
       const existingUserWithEmail = await prisma.user.findUnique({
-        where: { email },  // Prisma should now recognize email as a unique field
-      });
+        where: { email }, // Prisma should now recognize email as a unique field
+      })
       if (existingUserWithEmail) {
-        return { success: false, message: 'Email already exists.' };
+        return { success: false, message: 'Email already exists.' }
       }
     }
 
     // Validate and hash the password
-    const passwordValidation = validatePassword(password);
+    const passwordValidation = validatePassword(password)
     if (!passwordValidation.isValid) {
-      return { success: false, message: passwordValidation.message };
+      return { success: false, message: passwordValidation.message }
     }
 
-    const hashedPassword = await hashPassword(password);
-    const apiKey = generateApiKey();
+    const hashedPassword = await hashPassword(password)
+    const apiKey = generateApiKey()
 
     // Create the new user
     const newUser = await prisma.user.create({
@@ -132,85 +153,107 @@ export async function createUserWithAuth(username: string, password: string, ema
         email: email ?? undefined,
         password: hashedPassword,
         apiKey,
-        Role: 'USER',  // Default role
+        Role: 'USER', // Default role
         createdAt: new Date(),
       },
-    });
+    })
 
-    return { success: true, user: newUser };
+    return { success: true, user: newUser }
   } catch (error: unknown) {
-    return { success: false, message: errorHandler(error).message };
+    return { success: false, message: errorHandler(error).message }
   }
 }
 
-
-export async function validateUserCredentials(username: string, password?: string) {
+export async function validateUserCredentials(
+  username: string,
+  password?: string,
+) {
   try {
-    const user = await prisma.user.findUnique({ where: { username } });
+    const user = await prisma.user.findUnique({ where: { username } })
 
     if (!user) {
-      console.log('Debug: User not found');
-      return null;
+      console.log('Debug: User not found')
+      return null
     }
 
     if (user.password && password) {
-      const isPasswordValid = await bcryptCompare(password, user.password);
+      const isPasswordValid = await bcryptCompare(password, user.password)
       if (!isPasswordValid) {
-        return null;
+        return null
       }
     } else if (user.password && !password) {
-      return null;
+      return null
     }
 
-    const token = await createToken(user, user.apiKey ?? '');
-    return { user, token };
+    const token = await createToken(user, user.apiKey ?? '')
+    return { user, token }
   } catch (error: unknown) {
-    console.error(`Failed to validate user credentials: ${errorHandler(error).message}`);
-    throw new Error('Failed to validate user credentials.');
+    console.error(
+      `Failed to validate user credentials: ${errorHandler(error).message}`,
+    )
+    throw new Error('Failed to validate user credentials.')
   }
 }
 
-export function validatePassword(password: string): { isValid: boolean, message: string } {
-  const minLength = /^.{8,}$/;
-  const hasNumber = /\d/;
-  const hasLetter = /[a-zA-Z]/;
+export function validatePassword(password: string): {
+  isValid: boolean
+  message: string
+} {
+  const minLength = /^.{8,}$/
+  const hasNumber = /\d/
+  const hasLetter = /[a-zA-Z]/
 
   if (!minLength.test(password)) {
-    return { isValid: false, message: 'Password must be at least 8 characters long.' };
+    return {
+      isValid: false,
+      message: 'Password must be at least 8 characters long.',
+    }
   }
   if (!hasNumber.test(password)) {
-    return { isValid: false, message: 'Password must contain at least one number.' };
+    return {
+      isValid: false,
+      message: 'Password must contain at least one number.',
+    }
   }
   if (!hasLetter.test(password)) {
-    return { isValid: false, message: 'Password must contain at least one letter.' };
+    return {
+      isValid: false,
+      message: 'Password must contain at least one letter.',
+    }
   }
 
-  return { isValid: true, message: 'Password is valid.' };
+  return { isValid: true, message: 'Password is valid.' }
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 10;
-  return await bcryptHash(password, saltRounds);
+  const saltRounds = 10
+  return await bcryptHash(password, saltRounds)
 }
 
-export async function addPasswordToExistingUser(username: string, password: string) {
+export async function addPasswordToExistingUser(
+  username: string,
+  password: string,
+) {
   try {
-    const existingUser = await prisma.user.findUnique({ where: { username } });
+    const existingUser = await prisma.user.findUnique({ where: { username } })
     if (!existingUser) {
-      return { success: false, message: 'Username does not exist.' };
+      return { success: false, message: 'Username does not exist.' }
     }
 
-    const passwordValidation = validatePassword(password);
+    const passwordValidation = validatePassword(password)
     if (!passwordValidation.isValid) {
-      return { success: false, message: passwordValidation.message };
+      return { success: false, message: passwordValidation.message }
     }
 
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashPassword(password)
 
-    await prisma.user.update({ where: { username }, data: { password: hashedPassword } });
+    await prisma.user.update({
+      where: { username },
+      data: { password: hashedPassword },
+    })
 
-    return { success: true };
+    return { success: true }
   } catch (error: unknown) {
-    return { success: false, message: errorHandler(error).message };
+    return { success: false, message: errorHandler(error).message }
   }
 }

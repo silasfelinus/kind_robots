@@ -1,6 +1,5 @@
 import { defineEventHandler } from 'h3'
 
-
 export default defineEventHandler(async (event) => {
   const req = event.node.req
 
@@ -20,7 +19,7 @@ export default defineEventHandler(async (event) => {
     console.log('Missing API key')
     return {
       success: false,
-      message: 'Missing API Key'
+      message: 'Missing API Key',
     }
   }
 
@@ -28,12 +27,12 @@ export default defineEventHandler(async (event) => {
     console.log('Invalid API key')
     return {
       success: false,
-      message: 'Invalid API Key'
+      message: 'Invalid API Key',
     }
   }
 
   // If the API key is valid, continue with the request
   return {
-    success: true
+    success: true,
   }
 })

@@ -8,7 +8,7 @@
     >
       <div class="card bordered">
         <figure>
-          <img :src="bot.avatarImage">
+          <img :src="bot.avatarImage" />
         </figure>
         <div class="card-body">
           <h2 class="card-title">
@@ -34,5 +34,5 @@ const bots = computed(() => botStore.bots)
 const selectBot = (id) => {
   selectedBotId.value = id
 }
-const isSelectedBot = id => id === selectedBotId.value
+const isSelectedBot = (id) => id === selectedBotId.value
 </script>

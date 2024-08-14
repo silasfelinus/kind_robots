@@ -5,12 +5,9 @@
       :src="store.avatarImage"
       class="w-32 h-32 rounded-full mr-2"
       alt="Avatar"
-    >
-    <welcome-message />
-    <icon
-      name="tabler:home"
-      class="text-base-200 text-2xl"
     />
+    <welcome-message />
+    <icon name="tabler:home" class="text-base-200 text-2xl" />
     <div class="ml-2 flex items-center">
       <NuxtLink
         v-if="isLoggedIn"
@@ -19,10 +16,7 @@
       >
         <span class="text-base-200">{{ welcomeMessage }}</span>
       </NuxtLink>
-      <span
-        v-else
-        class="text-base-200 mr-2"
-      >{{ welcomeMessage }}</span>
+      <span v-else class="text-base-200 mr-2">{{ welcomeMessage }}</span>
       <button
         v-if="isLoggedIn"
         class="text-accent underline"
@@ -46,11 +40,15 @@ import { ref, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 
 const store = useUserStore()
-const isLoggedIn = ref(store.username !== null && store.username !== 'Kind Guest')
+const isLoggedIn = ref(
+  store.username !== null && store.username !== 'Kind Guest',
+)
 const isVisible = ref(false)
 
 const welcomeMessage = computed(() => {
-  return isLoggedIn.value ? `Hello, ${store.username} 🎉` : 'Welcome, Kind Guest'
+  return isLoggedIn.value
+    ? `Hello, ${store.username} 🎉`
+    : 'Welcome, Kind Guest'
 })
 
 const handleLogout = () => {

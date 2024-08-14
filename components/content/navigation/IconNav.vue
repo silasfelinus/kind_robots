@@ -1,5 +1,7 @@
 <template>
-  <div class="icon-container flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent-100">
+  <div
+    class="icon-container flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent-100"
+  >
     <butterfly-toggle />
     <div
       class="icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"

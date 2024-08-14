@@ -1,10 +1,7 @@
 <!-- Mana Counter Component -->
 <template>
   <div class="flex items-center space-x-2">
-    <icon
-      name="game-icons:standing-potion"
-      class="text-lg"
-    />
+    <icon name="game-icons:standing-potion" class="text-lg" />
     <span>{{ userStore?.mana }}</span>
   </div>
 </template>

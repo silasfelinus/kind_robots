@@ -3,20 +3,19 @@
     <!-- Background Image -->
     <div
       class="image-layer"
-      :class="{ 'pixelate-out': isPixelatingOut, 'pixelate-in': isPixelatingIn }"
+      :class="{
+        'pixelate-out': isPixelatingOut,
+        'pixelate-in': isPixelatingIn,
+      }"
       :style="imageStyle"
     />
-    <new-eyeball
-      position="top-left"
-      class="absolute top-0 left-0"
-    />
-    <new-eyeball
-      position="top-right"
-      class="absolute top-0 right-0"
-    />
+    <new-eyeball position="top-left" class="absolute top-0 left-0" />
+    <new-eyeball position="top-right" class="absolute top-0 right-0" />
 
     <div class="game-overlay">
-      <div class="p-10 rounded-xl shadow-2xl bg-opacity-70 max-w-xl text-center space-y-6 relative">
+      <div
+        class="p-10 rounded-xl shadow-2xl bg-opacity-70 max-w-xl text-center space-y-6 relative"
+      >
         <weirdlandia-game />
         <!-- Moved the teleport button here -->
         <button
@@ -25,10 +24,7 @@
         >
           Teleport
         </button>
-        <milestone-reward
-          v-if="shouldShowMilestoneCheck"
-          :id="3"
-        />
+        <milestone-reward v-if="shouldShowMilestoneCheck" :id="3" />
       </div>
     </div>
   </div>
@@ -56,7 +52,7 @@ const teleportButton = async () => {
 const fetchImage = async () => {
   isPixelatingOut.value = true
 
-  await new Promise(resolve => setTimeout(resolve, 750))
+  await new Promise((resolve) => setTimeout(resolve, 750))
 
   try {
     const res = await fetch('/api/galleries/random/name/background')
@@ -65,15 +61,12 @@ const fetchImage = async () => {
     if (data.success && data.image) {
       isPixelatingIn.value = true
       src.value = data.image
-    }
-    else {
+    } else {
       console.error('API returned an unexpected structure:', data)
     }
-  }
-  catch (err) {
+  } catch (err) {
     console.error('Error fetching images:', err)
-  }
-  finally {
+  } finally {
     isPixelatingOut.value = false
 
     setTimeout(() => {

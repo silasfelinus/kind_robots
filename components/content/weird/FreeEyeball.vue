@@ -5,10 +5,7 @@
       class="bg-white rounded-full overflow-hidden shadow relative aspect-w-1 aspect-h-1 blink-animation"
       :style="eyeballStyle"
     >
-      <div
-        class="rounded-full absolute"
-        :style="irisStyle"
-      >
+      <div class="rounded-full absolute" :style="irisStyle">
         <div
           class="bg-black rounded-full w-2/5 h-2/5 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
         />

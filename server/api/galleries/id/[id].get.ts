@@ -4,7 +4,11 @@ import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
-  if (!id) return errorHandler({ error: new Error('Invalid Gallery ID.'), context: 'Fetch Gallery' })
+  if (!id)
+    return errorHandler({
+      error: new Error('Invalid Gallery ID.'),
+      context: 'Fetch Gallery',
+    })
 
   try {
     const gallery = await fetchGalleryById(id)
@@ -17,8 +21,7 @@ export default defineEventHandler(async (event) => {
     }
 
     return { success: true, gallery }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler({ error, context: 'Fetch Gallery' })
   }
 })

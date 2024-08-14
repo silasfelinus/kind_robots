@@ -16,15 +16,14 @@ export default defineEventHandler(async (event) => {
     })
 
     // Extract just the milestone IDs into an array
-    const milestoneIds = milestoneRecords.map(record => record.milestoneId)
+    const milestoneIds = milestoneRecords.map((record) => record.milestoneId)
 
     return {
       success: true,
       message: 'Milestone records fetched successfully',
       milestoneIds,
     }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return {
       success: false,
       message: `Failed to fetch records. Reason: ${errorHandler(error)}`,

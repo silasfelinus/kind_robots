@@ -5,9 +5,9 @@ import type { Channel } from '@prisma/client'
 
 export async function fetchChannel(channelId: number): Promise<Channel | null> {
   try {
-    return await prisma.channel.findUnique({
+    return (await prisma.channel.findUnique({
       where: { id: channelId },
-    }) as Channel | null
+    })) as Channel | null
   } catch (error: unknown) {
     throw errorHandler(error)
   }

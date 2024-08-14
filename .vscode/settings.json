@@ -1,34 +1,34 @@
 {
   // Ensures VS Code uses the combined Prettier-ESLint formatter as the default formatter for supported files
   "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-  
+
   // Adjust font size for better readability
   "editor.fontSize": 14,
-  
+
   // Enables word wrapping inside the editor
   "editor.wordWrap": "on",
-  
+
   // Configures actions to take upon saving a file to specifically include ESLint fixes
   "editor.codeActionsOnSave": [
     "source.fixAll", // Ensures that all auto-fixable problems by extensions that support source.fixAll are fixed on save
     "source.fixAll.eslint" // Specifically targets ESLint for fixing code issues
   ],
-  
+
   // Automatically formats code upon saving
   "editor.formatOnSave": true,
-  
+
   // Disables automatic formatting when pasting to avoid unintended format changes
   "editor.formatOnPaste": false,
-  
+
   // Disables automatic formatting when typing to prevent performance issues
   "editor.formatOnType": false,
-  
+
   // Formats only the file that is being saved rather than modifying all modified files
   "editor.formatOnSaveMode": "file",
-  
+
   // Automatically saves the file when the editor loses focus
   "files.autoSave": "onFocusChange",
-  
+
   // Controls the order of operations, running Prettier after ESLint fixes
   "vs-code-prettier-eslint.prettierLast": true,
   "cmake.sourceDirectory": "C:/code/kind_robots/node_modules/bare-fs"

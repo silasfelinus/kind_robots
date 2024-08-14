@@ -11,14 +11,26 @@ const backupTitles = ['Mr.', 'Mrs.', 'Dr.']
 export default defineEventHandler(async () => {
   try {
     // Fetch lists from the database
-    const adjectivesList = await prisma.randomList.findFirst({ where: { title: 'Adjectives' } })
-    const nounsList = await prisma.randomList.findFirst({ where: { title: 'Nouns' } })
-    const titlesList = await prisma.randomList.findFirst({ where: { title: 'Titles' } })
+    const adjectivesList = await prisma.randomList.findFirst({
+      where: { title: 'Adjectives' },
+    })
+    const nounsList = await prisma.randomList.findFirst({
+      where: { title: 'Nouns' },
+    })
+    const titlesList = await prisma.randomList.findFirst({
+      where: { title: 'Titles' },
+    })
 
     // Parse the JSON strings into arrays, or use backup lists if not found or parsing fails
-    const randomAdjective = getRandomItem(parseItems(adjectivesList?.items) || backupAdjectives)
-    const randomNoun = getRandomItem(parseItems(nounsList?.items) || backupNouns)
-    const randomTitle = getRandomItem(parseItems(titlesList?.items) || backupTitles)
+    const randomAdjective = getRandomItem(
+      parseItems(adjectivesList?.items) || backupAdjectives,
+    )
+    const randomNoun = getRandomItem(
+      parseItems(nounsList?.items) || backupNouns,
+    )
+    const randomTitle = getRandomItem(
+      parseItems(titlesList?.items) || backupTitles,
+    )
 
     // Generate the silly name
     const sillyName = `${randomAdjective} ${randomNoun} ${randomTitle}`
@@ -27,8 +39,7 @@ export default defineEventHandler(async () => {
       success: true,
       sillyName,
     }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler({ error, context: 'Error in /api/randomname' })
   }
 })

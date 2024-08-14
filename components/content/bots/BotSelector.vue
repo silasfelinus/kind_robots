@@ -1,21 +1,15 @@
 <template>
   <div class="flex flex-col w-full bg-base-200 rounded-2xl p-2">
-    <label
-      class="font-bold text-lg m-2"
-      for="bot-selector"
-    >🤖 Please Select your Bot:</label>
+    <label class="font-bold text-lg m-2" for="bot-selector"
+      >🤖 Please Select your Bot:</label
+    >
     <select
       id="bot-selector"
       v-model="selectedBot"
       class="form-select text-black bg-primary rounded"
       @change="handleChange"
     >
-      <option
-        disabled
-        value=""
-      >
-        Please select a bot
-      </option>
+      <option disabled value="">Please select a bot</option>
       <option
         v-for="bot in bots"
         :key="bot.id"
@@ -45,8 +39,7 @@ onMounted(async () => {
       selectedBot.value = bots.value[0].id.toString() // Convert to string
       await botStore.getBotById(Number(selectedBot.value)) // Fetch the bot details
     }
-  }
-  catch (err) {
+  } catch (err) {
     console.error('🚨 Failed to load store', err)
   }
 })

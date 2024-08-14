@@ -1,14 +1,8 @@
 <template>
   <div class="flex flex-col h-screen w-screen relative">
     <!-- Toggle Navigation Button -->
-    <button
-      class="absolute top-[10vh] left-3 z-50"
-      @click="toggleNav"
-    >
-      <icon
-        name="fluent:row-triple-20-filled"
-        class="text-2xl"
-      />
+    <button class="absolute top-[10vh] left-3 z-50" @click="toggleNav">
+      <icon name="fluent:row-triple-20-filled" class="text-2xl" />
     </button>
 
     <!-- Header Dashboard -->
@@ -27,7 +21,7 @@
       <div
         :class="{
           'w-[50%]': isNavVisible && isLargeScreen,
-          'hidden': !isNavVisible || !isLargeScreen,
+          hidden: !isNavVisible || !isLargeScreen,
           'w-full': isNavVisible && !isLargeScreen,
         }"
         class="flex-none h-full overflow-y-auto transition-all duration-600 ease-in-out bg-base-200 rounded-lg shadow-lg"

@@ -3,7 +3,9 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 // Function to create a new gallery
-export async function createGallery(gallery: Prisma.GalleryCreateInput): Promise<Gallery | null> {
+export async function createGallery(
+  gallery: Prisma.GalleryCreateInput,
+): Promise<Gallery | null> {
   try {
     // Validate required fields
     if (!gallery.name) {
@@ -24,21 +26,22 @@ export async function createGallery(gallery: Prisma.GalleryCreateInput): Promise
     return await prisma.gallery.create({
       data: gallery,
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
 
 // Function to update an existing Gallery by ID
-export async function updateGallery(id: number, updatedGallery: Prisma.GalleryUpdateInput): Promise<Gallery | null> {
+export async function updateGallery(
+  id: number,
+  updatedGallery: Prisma.GalleryUpdateInput,
+): Promise<Gallery | null> {
   try {
     return await prisma.gallery.update({
       where: { id },
       data: updatedGallery,
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
@@ -54,8 +57,7 @@ export async function deleteGallery(id: number): Promise<boolean> {
 
     await prisma.gallery.delete({ where: { id } })
     return true
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
@@ -73,7 +75,9 @@ export async function fetchGalleryById(id: number): Promise<Gallery | null> {
 }
 
 // Function to fetch Galleries by User ID
-export async function fetchGalleriesByUserId(userId: number): Promise<Gallery[]> {
+export async function fetchGalleriesByUserId(
+  userId: number,
+): Promise<Gallery[]> {
   return await prisma.gallery.findMany({
     where: { userId },
   })
@@ -95,9 +99,8 @@ export async function fetchAllGalleryIds(): Promise<number[]> {
         id: true,
       },
     })
-    return galleries.map(gallery => gallery.id)
-  }
-  catch (error: unknown) {
+    return galleries.map((gallery) => gallery.id)
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
@@ -124,17 +127,19 @@ export async function fetchRandomImage(): Promise<string | null> {
     const imagePathsArray = randomGallery.imagePaths.split(',')
 
     // Pick a random image from the gallery
-    const randomImage = imagePathsArray[Math.floor(Math.random() * imagePathsArray.length)]
+    const randomImage =
+      imagePathsArray[Math.floor(Math.random() * imagePathsArray.length)]
 
     return randomImage
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
 
 // Function to fetch all images from all galleries
-export async function getAllGalleryImages(): Promise<{ [galleryId: number]: string[] }> {
+export async function getAllGalleryImages(): Promise<{
+  [galleryId: number]: string[]
+}> {
   try {
     const galleries = await prisma.gallery.findMany({
       select: {
@@ -152,14 +157,15 @@ export async function getAllGalleryImages(): Promise<{ [galleryId: number]: stri
     })
 
     return allImages
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
 
 // Function to fetch a gallery by name
-export async function fetchGalleryByName(name: string): Promise<Gallery | null> {
+export async function fetchGalleryByName(
+  name: string,
+): Promise<Gallery | null> {
   return prisma.gallery.findUnique({ where: { name } })
 }
 
@@ -176,36 +182,41 @@ export async function getGalleryImages(galleryId: number): Promise<string[]> {
 
     const imageNames = gallery.imagePaths.split(',')
 
-    return imageNames.map((imageName: string) => constructImageUrl(gallery.name, imageName.trim()))
-  }
-  catch (error: unknown) {
+    return imageNames.map((imageName: string) =>
+      constructImageUrl(gallery.name, imageName.trim()),
+    )
+  } catch (error: unknown) {
     console.error(`Failed to get gallery images: ${error}`)
     throw error
   }
 }
 
 // Function to get a random image from a gallery by ID
-export async function getRandomGalleryImage(galleryId: number): Promise<string | null> {
+export async function getRandomGalleryImage(
+  galleryId: number,
+): Promise<string | null> {
   try {
     const galleryImages = await getGalleryImages(galleryId)
     return galleryImages[getRandomIndex(galleryImages.length)] || null
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     console.error(`Failed to get random gallery image: ${error}`)
     throw error
   }
 }
 
 // Function to get a random image from a gallery by name
-export async function getRandomImageByGalleryName(galleryName: string): Promise<string | null> {
+export async function getRandomImageByGalleryName(
+  galleryName: string,
+): Promise<string | null> {
   try {
     const gallery = await fetchGalleryByName(galleryName)
     if (!gallery) throw new Error(`No gallery found with name: ${galleryName}`)
 
     return getRandomGalleryImage(gallery.id)
-  }
-  catch (error: unknown) {
-    console.error(`Failed to get random image for gallery name ${galleryName}: ${error}`)
+  } catch (error: unknown) {
+    console.error(
+      `Failed to get random image for gallery name ${galleryName}: ${error}`,
+    )
     throw error
   }
 }
@@ -213,16 +224,15 @@ export async function getRandomImageByGalleryName(galleryName: string): Promise<
 // Function to add multiple galleries
 export async function addGalleries(
   galleriesData: Prisma.GalleryCreateManyInput[],
-): Promise<{ count: number, galleries: Gallery[], errors: string[] }> {
+): Promise<{ count: number; galleries: Gallery[]; errors: string[] }> {
   const errors: string[] = []
-  const data = galleriesData
-    .filter((galleryData) => {
-      if (!galleryData.name) {
-        errors.push(`Gallery with ID ${galleryData.id} does not have a name.`)
-        return false
-      }
-      return true
-    })
+  const data = galleriesData.filter((galleryData) => {
+    if (!galleryData.name) {
+      errors.push(`Gallery with ID ${galleryData.id} does not have a name.`)
+      return false
+    }
+    return true
+  })
 
   const result = await prisma.gallery.createMany({
     data,
@@ -233,7 +243,6 @@ export async function addGalleries(
 
   return { count: result.count, galleries, errors }
 }
-
 
 // Function to get a random gallery
 export async function randomGallery(): Promise<Gallery | null> {

@@ -12,8 +12,7 @@ const updateStoreWithLocalData = async () => {
   try {
     await botStore.updateBots(botData)
     alert('Store updated successfully!')
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to update store', error)
     alert('An error occurred while updating the store.')
   }
@@ -28,18 +27,10 @@ const updateStoreWithLocalData = async () => {
     >
       Update Store with Local Data
     </button>
-    <div
-      v-if="bots.length > 0"
-      class="mt-4"
-    >
-      <h2 class="text-xl font-bold">
-        Current Bots:
-      </h2>
+    <div v-if="bots.length > 0" class="mt-4">
+      <h2 class="text-xl font-bold">Current Bots:</h2>
       <ul>
-        <li
-          v-for="bot in bots"
-          :key="bot.id"
-        >
+        <li v-for="bot in bots" :key="bot.id">
           {{ bot.name }} - {{ bot.avatarImage }}
         </li>
       </ul>

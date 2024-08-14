@@ -13,7 +13,9 @@
         <h1 class="text-3xl font-bold">
           {{ currentBot.name }}
         </h1>
-        <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id - 1 }} / Meet Them All!</span>
+        <span class="text-sm text-gray-600"
+          >Bot ID#{{ currentBot.id - 1 }} / Meet Them All!</span
+        >
       </div>
 
       <stream-test />

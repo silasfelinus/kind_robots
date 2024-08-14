@@ -6,14 +6,15 @@ import { errorHandler } from '../utils/error'
 export default defineEventHandler(async (event) => {
   try {
     const id = Number(event.context.params?.id)
-    const chatExchanges = await prisma.chatExchange.findUnique({ where: { id } })
+    const chatExchanges = await prisma.chatExchange.findUnique({
+      where: { id },
+    })
 
     return {
       success: true,
       chatExchanges,
     }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

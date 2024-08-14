@@ -46,7 +46,9 @@ export const useThemeStore = defineStore('theme', {
     },
     changeTheme(theme: string) {
       if (!this.themes.includes(theme)) {
-        console.error(`Invalid theme: "${theme}". Please provide a valid theme.`)
+        console.error(
+          `Invalid theme: "${theme}". Please provide a valid theme.`,
+        )
         return
       }
       this.open = false
@@ -61,7 +63,9 @@ export const useThemeStore = defineStore('theme', {
       const savedTheme = localStorage.getItem('theme')
       const defaultTheme = savedTheme || 'retro'
       if (!this.themes.includes(defaultTheme)) {
-        console.error(`Invalid theme: "${defaultTheme}" in local storage. Falling back to default theme.`)
+        console.error(
+          `Invalid theme: "${defaultTheme}" in local storage. Falling back to default theme.`,
+        )
         this.changeTheme('retro')
         return
       }
@@ -79,8 +83,7 @@ export const useThemeStore = defineStore('theme', {
       try {
         await this.initTheme()
         return `Loaded ${this.themes.length} themes`
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Error loading store:', error)
         throw error
       }

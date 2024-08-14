@@ -1,10 +1,7 @@
 <template>
   <div>
     <!-- Back arrow icon -->
-    <div
-      class="mr-4"
-      @click="goBack"
-    >
+    <div class="mr-4" @click="goBack">
       <icon
         :name="'typcn:arrow-back-outline'"
         :title="'Back'"
@@ -22,8 +19,7 @@ const router = useRouter()
 const goBack = () => {
   if (typeof window !== 'undefined' && window.history.length > 1) {
     router.go(-1)
-  }
-  else {
+  } else {
     router.push('/')
   }
 }

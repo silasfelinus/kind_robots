@@ -6,8 +6,7 @@ export default defineEventHandler(async () => {
   try {
     const reactions = await fetchAllArtReactions()
     return { success: true, reactions }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

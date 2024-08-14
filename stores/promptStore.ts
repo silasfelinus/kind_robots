@@ -31,12 +31,21 @@ export const usePromptStore = defineStore('promptStore', {
           this.artPrompts = data.artPrompts
         } else {
           const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to fetch art prompts: ${errorText}`)
-          console.error('Failed to fetch art prompts:', errorStore.getErrors().slice(-1)[0]?.message)
+          errorStore.setError(
+            ErrorType.VALIDATION_ERROR,
+            `Failed to fetch art prompts: ${errorText}`,
+          )
+          console.error(
+            'Failed to fetch art prompts:',
+            errorStore.getErrors().slice(-1)[0]?.message,
+          )
         }
       } catch {
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in fetchArtPrompts')
-        console.error('Error in fetchArtPrompts:', errorStore.getErrors().slice(-1)[0]?.message)
+        console.error(
+          'Error in fetchArtPrompts:',
+          errorStore.getErrors().slice(-1)[0]?.message,
+        )
       }
     },
 
@@ -55,7 +64,7 @@ export const usePromptStore = defineStore('promptStore', {
 
         if (data.success) {
           // Update the local store
-          const index = this.artPrompts.findIndex(prompt => prompt.id === id)
+          const index = this.artPrompts.findIndex((prompt) => prompt.id === id)
           if (index !== -1) {
             this.artPrompts[index].prompt = newPrompt
           }
@@ -64,7 +73,10 @@ export const usePromptStore = defineStore('promptStore', {
         }
       } catch {
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in editArtPrompt')
-        console.error('Error in editArtPrompt:', errorStore.getErrors().slice(-1)[0]?.message)
+        console.error(
+          'Error in editArtPrompt:',
+          errorStore.getErrors().slice(-1)[0]?.message,
+        )
       }
     },
 
@@ -78,12 +90,24 @@ export const usePromptStore = defineStore('promptStore', {
           this.artByPromptId = await response.json()
         } else {
           const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to fetch art by prompt ID: ${errorText}`)
-          console.error('Failed to fetch art by prompt ID:', errorStore.getErrors().slice(-1)[0]?.message)
+          errorStore.setError(
+            ErrorType.VALIDATION_ERROR,
+            `Failed to fetch art by prompt ID: ${errorText}`,
+          )
+          console.error(
+            'Failed to fetch art by prompt ID:',
+            errorStore.getErrors().slice(-1)[0]?.message,
+          )
         }
       } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in fetchArtByPromptId')
-        console.error('Error in fetchArtByPromptId:', errorStore.getErrors().slice(-1)[0]?.message)
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          'Error in fetchArtByPromptId',
+        )
+        console.error(
+          'Error in fetchArtByPromptId:',
+          errorStore.getErrors().slice(-1)[0]?.message,
+        )
       }
     },
 
@@ -112,12 +136,21 @@ export const usePromptStore = defineStore('promptStore', {
           this.artPrompts.push(createdPrompt)
         } else {
           const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to create art prompt: ${errorText}`)
-          console.error('Failed to create art prompt:', errorStore.getErrors().slice(-1)[0]?.message)
+          errorStore.setError(
+            ErrorType.VALIDATION_ERROR,
+            `Failed to create art prompt: ${errorText}`,
+          )
+          console.error(
+            'Failed to create art prompt:',
+            errorStore.getErrors().slice(-1)[0]?.message,
+          )
         }
       } catch {
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in createArtPrompt')
-        console.error('Error in createArtPrompt:', errorStore.getErrors().slice(-1)[0]?.message)
+        console.error(
+          'Error in createArtPrompt:',
+          errorStore.getErrors().slice(-1)[0]?.message,
+        )
       }
     },
 
@@ -130,15 +163,26 @@ export const usePromptStore = defineStore('promptStore', {
           method: 'DELETE',
         })
         if (response.ok) {
-          this.artPrompts = this.artPrompts.filter(prompt => prompt.id !== promptId)
+          this.artPrompts = this.artPrompts.filter(
+            (prompt) => prompt.id !== promptId,
+          )
         } else {
           const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to delete art prompt: ${errorText}`)
-          console.error('Failed to delete art prompt:', errorStore.getErrors().slice(-1)[0]?.message)
+          errorStore.setError(
+            ErrorType.VALIDATION_ERROR,
+            `Failed to delete art prompt: ${errorText}`,
+          )
+          console.error(
+            'Failed to delete art prompt:',
+            errorStore.getErrors().slice(-1)[0]?.message,
+          )
         }
       } catch {
         errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in deleteArtPrompt')
-        console.error('Error in deleteArtPrompt:', errorStore.getErrors().slice(-1)[0]?.message)
+        console.error(
+          'Error in deleteArtPrompt:',
+          errorStore.getErrors().slice(-1)[0]?.message,
+        )
       }
     },
   },

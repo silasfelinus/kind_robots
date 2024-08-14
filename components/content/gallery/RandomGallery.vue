@@ -7,25 +7,14 @@
           :src="currentImage"
           alt="Random Image from Gallery"
           class="tv-image"
-        >
-        <div
-          v-else
-          class="tv-error"
-        >
-          No Image Available
-        </div>
+        />
+        <div v-else class="tv-error">No Image Available</div>
       </div>
       <div class="tv-knobs">
-        <button
-          class="tv-button"
-          @click="changeToRandomImage"
-        >
+        <button class="tv-button" @click="changeToRandomImage">
           Change Image
         </button>
-        <button
-          class="tv-button"
-          @click="setRandomGallery"
-        >
+        <button class="tv-button" @click="setRandomGallery">
           Change Gallery
         </button>
       </div>

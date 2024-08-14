@@ -20,8 +20,7 @@ export default defineEventHandler(async (event) => {
     })
 
     return { success: true, tag: updatedTag }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

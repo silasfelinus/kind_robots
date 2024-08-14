@@ -9,14 +9,15 @@ export default defineEventHandler(async (event) => {
     const channelData: Partial<Channel> = await readBody(event)
     const newChannel = await createChannel(channelData)
     return { success: true, newChannel }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to create a new Channel
-export async function createChannel(channel: Partial<Channel>): Promise<Channel> {
+export async function createChannel(
+  channel: Partial<Channel>,
+): Promise<Channel> {
   try {
     return await prisma.channel.create({
       data: {
@@ -25,8 +26,7 @@ export async function createChannel(channel: Partial<Channel>): Promise<Channel>
         description: channel.description || null,
       },
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

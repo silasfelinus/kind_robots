@@ -10,7 +10,10 @@ export default defineEventHandler(async (event) => {
     const pitchData = await readBody(event)
 
     if (typeof pitchData !== 'object') {
-      return { success: false, message: 'Invalid JSON body. Expected an object.' }
+      return {
+        success: false,
+        message: 'Invalid JSON body. Expected an object.',
+      }
     }
 
     const createdPitch = await prisma.pitch.create({
@@ -18,8 +21,7 @@ export default defineEventHandler(async (event) => {
     })
 
     return { success: true, pitch: createdPitch }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -46,12 +48,11 @@ export async function createPitch(
     return await prisma.pitch.create({
       data: {
         ...pitch,
-        highlightImage: "",
+        highlightImage: '',
         designer: designerName, // Set the designer name
       },
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
@@ -59,7 +60,7 @@ export async function createPitch(
 // Function to create Pitches in batch
 export async function createPitchesBatch(
   pitchesData: Partial<Pitch>[],
-): Promise<{ count: number, pitches: Pitch[], errors: string[] }> {
+): Promise<{ count: number; pitches: Pitch[]; errors: string[] }> {
   const errors: string[] = []
 
   // Validate and filter the pitches
@@ -71,7 +72,7 @@ export async function createPitchesBatch(
       }
       return true
     })
-    .map(pitchData => pitchData as Prisma.PitchCreateManyInput)
+    .map((pitchData) => pitchData as Prisma.PitchCreateManyInput)
 
   // Create the pitches in a batch
   const result = await prisma.pitch.createMany({

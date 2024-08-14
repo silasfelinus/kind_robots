@@ -22,7 +22,10 @@ export function createReward(reward: Partial<Reward>): Promise<Reward> {
 }
 
 // Function to update an existing Reward by ID
-export function updateReward(id: number, updatedReward: Partial<Reward>): Promise<Reward | null> {
+export function updateReward(
+  id: number,
+  updatedReward: Partial<Reward>,
+): Promise<Reward | null> {
   return prisma.reward.update({
     where: { id },
     data: updatedReward,
@@ -55,7 +58,7 @@ export function fetchRewardById(id: number): Promise<Reward | null> {
 
 export async function createRewardsBatch(
   rewardsData: Partial<Reward>[],
-): Promise<{ count: number, rewards: Reward[], errors: string[] }> {
+): Promise<{ count: number; rewards: Reward[]; errors: string[] }> {
   const errors: string[] = []
 
   // Validate and filter the rewards
@@ -69,7 +72,7 @@ export async function createRewardsBatch(
       }
       return true
     })
-    .map(rewardData => rewardData as Prisma.RewardCreateManyInput)
+    .map((rewardData) => rewardData as Prisma.RewardCreateManyInput)
 
   // Create the rewards in a batch
   const result = await prisma.reward.createMany({

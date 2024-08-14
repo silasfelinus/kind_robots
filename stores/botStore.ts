@@ -29,9 +29,15 @@ export const useBotStore = defineStore({
         this.bots = data.bots
       } catch (err: unknown) {
         if (err instanceof Error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, `An error occurred while fetching bots: ${err.message}`)
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            `An error occurred while fetching bots: ${err.message}`,
+          )
         } else {
-          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An unknown error occurred while fetching bots.')
+          errorStore.setError(
+            ErrorType.UNKNOWN_ERROR,
+            'An unknown error occurred while fetching bots.',
+          )
         }
       }
     },
@@ -67,9 +73,15 @@ export const useBotStore = defineStore({
         })
       } catch (err: unknown) {
         if (err instanceof Error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, `Failed to update bots: ${err.message}`)
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            `Failed to update bots: ${err.message}`,
+          )
         } else {
-          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An unknown error occurred while updating bots.')
+          errorStore.setError(
+            ErrorType.UNKNOWN_ERROR,
+            'An unknown error occurred while updating bots.',
+          )
         }
       }
     },
@@ -94,9 +106,15 @@ export const useBotStore = defineStore({
         await this.fetchBots()
       } catch (err: unknown) {
         if (err instanceof Error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, `Failed to update bot: ${err.message}`)
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            `Failed to update bot: ${err.message}`,
+          )
         } else {
-          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An unknown error occurred while updating the bot.')
+          errorStore.setError(
+            ErrorType.UNKNOWN_ERROR,
+            'An unknown error occurred while updating the bot.',
+          )
         }
       }
     },
@@ -115,9 +133,15 @@ export const useBotStore = defineStore({
         await this.fetchBots()
       } catch (err: unknown) {
         if (err instanceof Error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, `Failed to delete bot: ${err.message}`)
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            `Failed to delete bot: ${err.message}`,
+          )
         } else {
-          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An unknown error occurred while deleting the bot.')
+          errorStore.setError(
+            ErrorType.UNKNOWN_ERROR,
+            'An unknown error occurred while deleting the bot.',
+          )
         }
       }
     },
@@ -142,9 +166,15 @@ export const useBotStore = defineStore({
         this.totalBots += data.bots.length
       } catch (err: unknown) {
         if (err instanceof Error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, `Failed to add bots: ${err.message}`)
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            `Failed to add bots: ${err.message}`,
+          )
         } else {
-          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An unknown error occurred while adding bots.')
+          errorStore.setError(
+            ErrorType.UNKNOWN_ERROR,
+            'An unknown error occurred while adding bots.',
+          )
         }
       }
     },
@@ -160,9 +190,15 @@ export const useBotStore = defineStore({
         this.currentBot = data.bot
       } catch (err: unknown) {
         if (err instanceof Error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, `Failed to fetch bot by id: ${err.message}`)
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            `Failed to fetch bot by id: ${err.message}`,
+          )
         } else {
-          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An unknown error occurred while fetching bot by id.')
+          errorStore.setError(
+            ErrorType.UNKNOWN_ERROR,
+            'An unknown error occurred while fetching bot by id.',
+          )
         }
       }
     },
@@ -178,9 +214,15 @@ export const useBotStore = defineStore({
         this.currentBot = data.bot
       } catch (err: unknown) {
         if (err instanceof Error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, `Failed to fetch bot by name: ${err.message}`)
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            `Failed to fetch bot by name: ${err.message}`,
+          )
         } else {
-          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An unknown error occurred while fetching bot by name.')
+          errorStore.setError(
+            ErrorType.UNKNOWN_ERROR,
+            'An unknown error occurred while fetching bot by name.',
+          )
         }
       }
     },
@@ -192,9 +234,15 @@ export const useBotStore = defineStore({
         await this.fetchBots()
       } catch (err: unknown) {
         if (err instanceof Error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, `Failed to seed bots: ${err.message}`)
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            `Failed to seed bots: ${err.message}`,
+          )
         } else {
-          errorStore.setError(ErrorType.UNKNOWN_ERROR, 'An unknown error occurred while seeding bots.')
+          errorStore.setError(
+            ErrorType.UNKNOWN_ERROR,
+            'An unknown error occurred while seeding bots.',
+          )
         }
       }
     },

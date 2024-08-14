@@ -1,22 +1,19 @@
 <template>
-  <div class="art-prompts rounded-2xl border bg-base-200 flex flex-col m-4 p-4 text-lg">
+  <div
+    class="art-prompts rounded-2xl border bg-base-200 flex flex-col m-4 p-4 text-lg"
+  >
     <h1>Art Prompts</h1>
 
     <!-- Fetch Button -->
-    <button @click="fetchArtPrompts">
-      Fetch Art Prompts
-    </button>
+    <button @click="fetchArtPrompts">Fetch Art Prompts</button>
 
     <!-- Add New Prompt (Visible to Admins) -->
-    <div
-      v-if="userRole === 'admin'"
-      class="input-section"
-    >
+    <div v-if="userRole === 'admin'" class="input-section">
       <input
         v-model="newPrompt"
         placeholder="New Prompt"
         class="input-styling"
-      >
+      />
       <button
         :disabled="!isValidPrompt"
         class="add-button"
@@ -28,25 +25,24 @@
 
     <!-- List of Prompts -->
     <ul>
-      <li
-        v-for="prompt in artPrompts"
-        :key="prompt.id"
-      >
+      <li v-for="prompt in artPrompts" :key="prompt.id">
         {{ prompt.prompt }}
-        <button @click="selectPrompt(prompt)">
-          Select
-        </button>
+        <button @click="selectPrompt(prompt)">Select</button>
 
         <!-- Edit and Delete (Visible to Admins) -->
         <span v-if="userRole === 'ADMIN' && userStore.isLoggedIn">
           <button
             class="rounded-2xl border bg-base-200 flex p-2 m-2"
             @click="startEditingPrompt(prompt)"
-          >Edit</button>
+          >
+            Edit
+          </button>
           <button
             class="rounded-2xl border bg-base-200 flex p-2 m-2"
             @click="deletePrompt(prompt.id)"
-          >Delete</button>
+          >
+            Delete
+          </button>
         </span>
       </li>
     </ul>
@@ -64,7 +60,14 @@ import { usePromptStore, type ArtPrompt } from '@/stores/promptStore'
 import { useUserStore } from '@/stores/userStore'
 
 const promptStore = usePromptStore()
-const { fetchArtPrompts, selectPrompt, artPrompts, activePrompt, createArtPrompt, deleteArtPrompt } = promptStore
+const {
+  fetchArtPrompts,
+  selectPrompt,
+  artPrompts,
+  activePrompt,
+  createArtPrompt,
+  deleteArtPrompt,
+} = promptStore
 
 const userStore = useUserStore()
 

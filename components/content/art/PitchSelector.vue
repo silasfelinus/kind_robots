@@ -2,14 +2,12 @@
   <div class="flex flex-col items-center space-y-8">
     <!-- Pitch Selection -->
     <div class="flex flex-wrap">
-      <div
-        v-for="pitch in enrichedPitches"
-        :key="pitch.id"
-        class="relative"
-      >
+      <div v-for="pitch in enrichedPitches" :key="pitch.id" class="relative">
         <button
           :class="[
-            selectedPitch?.id === pitch.id ? 'bg-primary text-white' : 'bg-base-200',
+            selectedPitch?.id === pitch.id
+              ? 'bg-primary text-white'
+              : 'bg-base-200',
             'rounded-2xl border p-2 m-2',
           ]"
           @click="updateSelectedPitch(pitch.id)"

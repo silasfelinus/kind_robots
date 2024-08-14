@@ -11,30 +11,43 @@ export default defineEventHandler(async (event) => {
 
     // Validate if the data received is an array
     if (!Array.isArray(milestonesData)) {
-      return { success: false, message: 'Invalid JSON body. Expected an array of milestones.' }
+      return {
+        success: false,
+        message: 'Invalid JSON body. Expected an array of milestones.',
+      }
     }
 
     // Validate each milestoneData object in the array
     for (const milestoneData of milestonesData) {
-      if (!milestoneData.label || !milestoneData.message || !milestoneData.triggerCode || !milestoneData.icon) {
+      if (
+        !milestoneData.label ||
+        !milestoneData.message ||
+        !milestoneData.triggerCode ||
+        !milestoneData.icon
+      ) {
         return {
           success: false,
-          message: 'Each milestone must have a label, message, triggerCode, and an icon.',
+          message:
+            'Each milestone must have a label, message, triggerCode, and an icon.',
         }
       }
     }
 
     // Call the batch creation function and unpack the results
-    const { count, milestones, errors } = await createMilestonesBatch(milestonesData)
+    const { count, milestones, errors } =
+      await createMilestonesBatch(milestonesData)
 
     // Check if any errors occurred during the batch creation
     if (errors.length > 0) {
-      return { success: false, message: 'Some milestones could not be created.', errors }
+      return {
+        success: false,
+        message: 'Some milestones could not be created.',
+        errors,
+      }
     }
 
     return { success: true, count, milestones }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     // Use centralized error handling
     return errorHandler(error)
   }
@@ -43,19 +56,26 @@ export default defineEventHandler(async (event) => {
 // Function to create Milestones in batch
 export async function createMilestonesBatch(
   milestonesData: Partial<Milestone>[],
-): Promise<{ count: number, milestones: Milestone[], errors: string[] }> {
+): Promise<{ count: number; milestones: Milestone[]; errors: string[] }> {
   const errors: string[] = []
 
   // Validate and filter the milestones
   const data: Prisma.MilestoneCreateManyInput[] = milestonesData
     .filter((milestoneData) => {
-      if (!milestoneData.label || !milestoneData.message || !milestoneData.triggerCode || !milestoneData.icon) {
-        errors.push(`Milestone with label ${milestoneData.label} is incomplete.`)
+      if (
+        !milestoneData.label ||
+        !milestoneData.message ||
+        !milestoneData.triggerCode ||
+        !milestoneData.icon
+      ) {
+        errors.push(
+          `Milestone with label ${milestoneData.label} is incomplete.`,
+        )
         return false
       }
       return true
     })
-    .map(milestoneData => milestoneData as Prisma.MilestoneCreateManyInput)
+    .map((milestoneData) => milestoneData as Prisma.MilestoneCreateManyInput)
 
   // Create the milestones in a batch
   const result = await prisma.milestone.createMany({

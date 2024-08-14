@@ -1,10 +1,7 @@
 <template>
   <div class="flex flex-col h-screen bg-base-200 text-base-content">
     <div class="m-4">
-      <label
-        for="prompt"
-        class="font-bold text-lg"
-      >Prompt:</label>
+      <label for="prompt" class="font-bold text-lg">Prompt:</label>
       <textarea
         id="prompt"
         v-model="prompt"
@@ -13,52 +10,20 @@
     </div>
 
     <div class="flex justify-around m-4">
-      <select
-        v-model="color"
-        class="select select-bordered w-40"
-      >
-        <option
-          disabled="disabled"
-          selected="selected"
-        >
-          Color
-        </option>
-        <option
-          v-for="(option, index) in colors"
-          :key="index"
-          :value="option"
-        >
+      <select v-model="color" class="select select-bordered w-40">
+        <option disabled="disabled" selected="selected">Color</option>
+        <option v-for="(option, index) in colors" :key="index" :value="option">
           {{ option }}
         </option>
       </select>
-      <select
-        v-model="model"
-        class="select select-bordered w-40"
-      >
-        <option
-          disabled="disabled"
-          selected="selected"
-        >
-          Model
-        </option>
-        <option
-          v-for="(option, index) in models"
-          :key="index"
-          :value="option"
-        >
+      <select v-model="model" class="select select-bordered w-40">
+        <option disabled="disabled" selected="selected">Model</option>
+        <option v-for="(option, index) in models" :key="index" :value="option">
           {{ option }}
         </option>
       </select>
-      <select
-        v-model="location"
-        class="select select-bordered w-40"
-      >
-        <option
-          disabled="disabled"
-          selected="selected"
-        >
-          Location
-        </option>
+      <select v-model="location" class="select select-bordered w-40">
+        <option disabled="disabled" selected="selected">Location</option>
         <option
           v-for="(option, index) in locations"
           :key="index"
@@ -67,16 +32,8 @@
           {{ option }}
         </option>
       </select>
-      <select
-        v-model="embedding"
-        class="select select-bordered w-40"
-      >
-        <option
-          disabled="disabled"
-          selected="selected"
-        >
-          Embedding
-        </option>
+      <select v-model="embedding" class="select select-bordered w-40">
+        <option disabled="disabled" selected="selected">Embedding</option>
         <option
           v-for="(option, index) in embeddings"
           :key="index"
@@ -88,31 +45,20 @@
     </div>
 
     <div class="flex justify-center m-4">
-      <button
-        class="btn btn-primary btn-lg"
-        @click="makeArt"
-      >
-        Make Art
-      </button>
+      <button class="btn btn-primary btn-lg" @click="makeArt">Make Art</button>
     </div>
 
     <div class="flex flex-row justify-around m-4">
       <div class="card bordered w-1/2 p-4">
         <!-- Chat history/response -->
-        <p
-          v-for="(message, index) in chatHistory"
-          :key="index"
-        >
+        <p v-for="(message, index) in chatHistory" :key="index">
           {{ message }}
         </p>
       </div>
       <div class="card bordered w-1/2 p-4">
         <div class="card-body">
           <!-- Image response -->
-          <img
-            :src="imageResponse"
-            alt="Art"
-          >
+          <img :src="imageResponse" alt="Art" />
         </div>
       </div>
     </div>

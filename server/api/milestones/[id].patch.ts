@@ -8,7 +8,9 @@ export default defineEventHandler(async (event) => {
   try {
     const id = Number(event.context.params?.id)
     if (!id) throw new Error('Invalid milestone ID.')
-    const existingMilestone = await prisma.milestone.findUnique({ where: { id } })
+    const existingMilestone = await prisma.milestone.findUnique({
+      where: { id },
+    })
     const milestoneData: Partial<Milestone> = await readBody(event)
     if (!existingMilestone) {
       throw new Error('Milestone not found.')
@@ -18,21 +20,22 @@ export default defineEventHandler(async (event) => {
       data: milestoneData,
     })
     return { success: true, milestone: updatedMilestone }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to update an existing Milestone by ID
-export async function updateMilestone(id: number, updatedMilestone: Partial<Milestone>): Promise<Milestone | null> {
+export async function updateMilestone(
+  id: number,
+  updatedMilestone: Partial<Milestone>,
+): Promise<Milestone | null> {
   try {
     return await prisma.milestone.update({
       where: { id },
       data: updatedMilestone,
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

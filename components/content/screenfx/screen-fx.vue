@@ -14,7 +14,9 @@
     />
     <div class="flex flex-wrap items-center justify-center space-x-4 space-y-4">
       <!-- Invisible First Icon -->
-      <div class="relative flex flex-col items-center space-y-2 md:space-y-0 md:flex-row md:space-x-4 opacity-0">
+      <div
+        class="relative flex flex-col items-center space-y-2 md:space-y-0 md:flex-row md:space-x-4 opacity-0"
+      >
         <div class="flex flex-col items-center space-y-2" />
       </div>
       <!-- Visible Icons -->
@@ -35,7 +37,10 @@
         <div class="flex flex-col items-center space-y-2">
           <div
             class="flex items-center justify-center transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent"
-            :class="{ 'bg-accent': effect.isActive, 'bg-transluscent': !effect.isActive }"
+            :class="{
+              'bg-accent': effect.isActive,
+              'bg-transluscent': !effect.isActive,
+            }"
             @click="toggleEffect(effect.id)"
             @mouseover="hoveredEffect = effect.id"
             @mouseout="hoveredEffect = null"
@@ -112,7 +117,7 @@ const effects = ref([
 
 const hoveredEffect = ref<string | null>(null)
 const toggleEffect = (effectId: string) => {
-  const effect = effects.value.find(e => e.id === effectId)
+  const effect = effects.value.find((e) => e.id === effectId)
   if (effect) {
     effect.isActive = !effect.isActive
   }
@@ -121,8 +126,8 @@ const toggleEffect = (effectId: string) => {
 // Computed property to get all active components
 const activeComponents = computed(() => {
   return effects.value
-    .filter(effect => effect.isActive)
-    .map(effect => ({
+    .filter((effect) => effect.isActive)
+    .map((effect) => ({
       id: effect.id,
       component: componentsMap[effect.id],
     }))

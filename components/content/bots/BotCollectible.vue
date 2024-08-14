@@ -27,20 +27,22 @@ const totalBots = computed(() => botStore.bots)
 
 const randomMessages = [
   'Kind Robots: Where AI and humanity harmonize!',
-  'You\'ve discovered a harmonious bot from Kind Robots!',
-  'Together with Kind Robots, you\'re creating a better future!',
+  "You've discovered a harmonious bot from Kind Robots!",
+  "Together with Kind Robots, you're creating a better future!",
   'Embrace the future with Kind Robots!',
   'Kind Robots: More than code, a force for good!',
   'This bot embodies the spirit of Kind Robots!',
-  'You\'re powering positive change with Kind Robots!',
+  "You're powering positive change with Kind Robots!",
   'Kind Robots: Creating bots for a kinder world!',
   'Kind Robots: Nurturing the bond between AI and humanity!',
-  'Congratulations! You\'ve embraced the Kind Robots ethos!',
+  "Congratulations! You've embraced the Kind Robots ethos!",
   'Joining hands with Kind Robots for a harmonious future!',
   'Empowering a kinder tomorrow with Kind Robots!',
 ]
 
-const randomMessage = ref(randomMessages[Math.floor(Math.random() * randomMessages.length)])
+const randomMessage = ref(
+  randomMessages[Math.floor(Math.random() * randomMessages.length)],
+)
 </script>
 
 <style scoped>

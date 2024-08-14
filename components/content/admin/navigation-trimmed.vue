@@ -28,10 +28,7 @@
         :class="itemClass"
       >
         <!-- Wrap each item in a transition -->
-        <transition
-          name="fade"
-          mode="out-in"
-        >
+        <transition name="fade" mode="out-in">
           <!-- Item Layout -->
           <div
             v-show="true"
@@ -42,7 +39,7 @@
                 :src="item.image"
                 alt=""
                 class="object-cover rounded-2xl border w-full h-[70%]"
-              >
+              />
               <div
                 v-if="view === 'single'"
                 class="absolute inset-0 flex justify-center items-center bg-opacity-75 bg-black text-white hover:opacity-100 opacity-0 transition-opacity"
@@ -57,13 +54,12 @@
                 </div>
               </div>
             </div>
-            <div
-              v-if="view !== 'single'"
-              class="text-lg font-bold mt-2"
-            >
+            <div v-if="view !== 'single'" class="text-lg font-bold mt-2">
               {{ item.title }}
             </div>
-            <button class="bg-primary py-1 px-4 rounded hover:bg-secondary transition mt-2">
+            <button
+              class="bg-primary py-1 px-4 rounded hover:bg-secondary transition mt-2"
+            >
               Go
             </button>
           </div>
@@ -96,11 +92,9 @@ const setView = (newView: string) => {
 watch(view, (newView) => {
   if (newView === 'twoRow') {
     itemClass.value = 'w-1/2 p-4'
-  }
-  else if (newView === 'fourRow') {
+  } else if (newView === 'fourRow') {
     itemClass.value = 'w-1/4 p-4'
-  }
-  else if (newView === 'single') {
+  } else if (newView === 'single') {
     itemClass.value = 'w-full p-4'
   }
 })

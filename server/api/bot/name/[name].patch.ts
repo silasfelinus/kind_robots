@@ -4,7 +4,7 @@ import { fetchBotByName, updateBot } from '../../bots'
 
 export default defineEventHandler(async (event) => {
   const name = String(event.context.params?.name)
-  
+
   if (!name) {
     return { success: false, message: 'Invalid bot name.' }
   }
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   try {
     // Fetch the bot from the database
     const bot = await fetchBotByName(name)
-    
+
     if (!bot) {
       return { success: false, message: `Bot with name "${name}" not found.` }
     }
@@ -25,7 +25,12 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, bot: updatedBot }
   } catch (error: unknown) {
-    console.error(`Failed to update bot with name "${name}": ${error instanceof Error ? error.message : 'Unknown error'}`)
-    return { success: false, message: `Failed to update bot with name "${name}". ${error instanceof Error ? error.message : 'Unknown error'}` }
+    console.error(
+      `Failed to update bot with name "${name}": ${error instanceof Error ? error.message : 'Unknown error'}`,
+    )
+    return {
+      success: false,
+      message: `Failed to update bot with name "${name}". ${error instanceof Error ? error.message : 'Unknown error'}`,
+    }
   }
 })

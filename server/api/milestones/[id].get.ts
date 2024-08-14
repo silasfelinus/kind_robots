@@ -11,14 +11,15 @@ export default defineEventHandler(async (event) => {
 
     const milestone = await fetchMilestoneById(id)
     return { success: true, milestone }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to fetch a single Milestone by ID
-export async function fetchMilestoneById(id: number): Promise<Milestone | null> {
+export async function fetchMilestoneById(
+  id: number,
+): Promise<Milestone | null> {
   return await prisma.milestone.findUnique({
     where: { id },
   })

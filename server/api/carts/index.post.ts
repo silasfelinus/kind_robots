@@ -10,8 +10,7 @@ export default defineEventHandler(async (event) => {
     const cartData: Partial<Cart> = await readBody(event)
     const newCart = await createCart(cartData)
     return { success: true, newCart }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -20,11 +19,17 @@ export default defineEventHandler(async (event) => {
 export async function createCart(cart: Partial<Cart>): Promise<Cart> {
   try {
     // Validate customerId
-    if (!Number.isInteger(cart.customerId) || cart.customerId === undefined || cart.customerId <= 0) {
+    if (
+      !Number.isInteger(cart.customerId) ||
+      cart.customerId === undefined ||
+      cart.customerId <= 0
+    ) {
       throw new Error('Invalid customerId.')
     }
 
-    const customerExists = await prisma.customer.findUnique({ where: { id: cart.customerId } })
+    const customerExists = await prisma.customer.findUnique({
+      where: { id: cart.customerId },
+    })
     if (!customerExists) {
       throw new Error('Customer does not exist.')
     }
@@ -34,8 +39,7 @@ export async function createCart(cart: Partial<Cart>): Promise<Cart> {
         customerId: cart.customerId,
       },
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

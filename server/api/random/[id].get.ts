@@ -11,8 +11,7 @@ export default defineEventHandler(async (event) => {
       throw new Error('List not found.')
     }
     return { success: true, list }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

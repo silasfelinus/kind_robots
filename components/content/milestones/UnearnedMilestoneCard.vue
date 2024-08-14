@@ -5,10 +5,7 @@
   >
     <div class="text-center flex flex-col items-center">
       <!-- Milestone Icon -->
-      <icon
-        :name="milestone.icon"
-        class="icon-extra-large mb-2"
-      />
+      <icon :name="milestone.icon" class="icon-extra-large mb-2" />
       <!-- Milestone Label -->
       <div class="text-xl font-bold text-gray-700">
         {{ milestone.label }}
@@ -25,10 +22,7 @@
             name="ph:question-bold"
             class="text-accent text-2xl"
           />
-          <div
-            v-else
-            class="text-sm"
-          >
+          <div v-else class="text-sm">
             {{ milestone.tooltip }}
           </div>
         </div>

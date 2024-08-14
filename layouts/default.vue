@@ -42,27 +42,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-const isNavVisible = ref(false);
-const isLargeScreen = ref(false);
+const isNavVisible = ref(false)
+const isLargeScreen = ref(false)
 
 const toggleNav = () => {
-  isNavVisible.value = !isNavVisible.value;
-};
+  isNavVisible.value = !isNavVisible.value
+}
 
 const handleResize = () => {
-  isLargeScreen.value = window.innerWidth > 1024;
-};
+  isLargeScreen.value = window.innerWidth > 1024
+}
 
 onMounted(() => {
-  handleResize();
-  window.addEventListener("resize", handleResize);
-});
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
 
 onBeforeUnmount(() => {
-  window.removeEventListener("resize", handleResize);
-});
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <style>

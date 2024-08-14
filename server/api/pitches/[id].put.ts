@@ -21,21 +21,22 @@ export default defineEventHandler(async (event) => {
     })
 
     return { success: true, pitch: updatedPitch }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to update an existing Pitch by ID
-export async function updatePitch(id: number, updatedPitch: Partial<Pitch>): Promise<Pitch | null> {
+export async function updatePitch(
+  id: number,
+  updatedPitch: Partial<Pitch>,
+): Promise<Pitch | null> {
   try {
     return await prisma.pitch.update({
       where: { id },
       data: updatedPitch,
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

@@ -9,12 +9,10 @@ export default defineEventHandler(async (event) => {
     const customer = await fetchCustomerByUserId(userId)
     if (customer) {
       return { success: true, customer }
-    }
-    else {
+    } else {
       return { success: false, message: 'Customer not found' }
     }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -27,8 +25,7 @@ export async function fetchCustomerByUserId(userId: number) {
         userId,
       },
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

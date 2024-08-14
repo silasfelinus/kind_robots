@@ -8,7 +8,10 @@ export default defineEventHandler(async (event) => {
     const tagsData = await readBody(event)
 
     if (!Array.isArray(tagsData)) {
-      return { success: false, message: 'Invalid JSON body. Expected an array of tags or strings.' }
+      return {
+        success: false,
+        message: 'Invalid JSON body. Expected an array of tags or strings.',
+      }
     }
 
     // Transform to Title Case and validate
@@ -16,12 +19,20 @@ export default defineEventHandler(async (event) => {
       if (typeof tag === 'string') {
         return {
           label: 'Default', // Default label
-          title: tag.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()),
+          title: tag.replace(
+            /\w\S*/g,
+            (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+          ),
         }
       }
       return {
-        label: tag.label.charAt(0).toUpperCase() + tag.label.slice(1).toLowerCase(),
-        title: tag.title.replace(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()),
+        label:
+          tag.label.charAt(0).toUpperCase() + tag.label.slice(1).toLowerCase(),
+        title: tag.title.replace(
+          /\w\S*/g,
+          (txt: string) =>
+            txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+        ),
       }
     })
 
@@ -32,8 +43,7 @@ export default defineEventHandler(async (event) => {
     })
 
     return { success: true, count: result.count }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

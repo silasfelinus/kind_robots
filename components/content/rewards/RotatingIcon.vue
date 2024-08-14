@@ -1,18 +1,8 @@
 <!-- RotatingIcon.vue -->
 <template>
-  <div
-    ref="pedestal"
-    class="pedestal"
-  >
-    <icon
-      ref="rotatingIcon"
-      :name="icon"
-      class="rotating-icon"
-    />
-    <div
-      ref="glitter"
-      class="glitter"
-    />
+  <div ref="pedestal" class="pedestal">
+    <icon ref="rotatingIcon" :name="icon" class="rotating-icon" />
+    <div ref="glitter" class="glitter" />
   </div>
 </template>
 
@@ -66,7 +56,11 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 1),
+    rgba(255, 255, 255, 0)
+  );
   opacity: 0;
 }
 </style>

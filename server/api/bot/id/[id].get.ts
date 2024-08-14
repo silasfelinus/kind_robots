@@ -16,9 +16,14 @@ export default defineEventHandler(async (event) => {
     }
 
     return { success: true, bot }
-  }
-  catch (error: unknown) {
-    console.error(`Failed to fetch bot with id ${id}:`, (error as Error).message)
-    return { success: false, message: `Failed to fetch bot with id ${id}: ${(error as Error).message}` }
+  } catch (error: unknown) {
+    console.error(
+      `Failed to fetch bot with id ${id}:`,
+      (error as Error).message,
+    )
+    return {
+      success: false,
+      message: `Failed to fetch bot with id ${id}: ${(error as Error).message}`,
+    }
   }
 })

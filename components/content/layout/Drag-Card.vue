@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="card"
-    class="grab-card draggable"
-  >
+  <div ref="card" class="grab-card draggable">
     <slot />
   </div>
 </template>

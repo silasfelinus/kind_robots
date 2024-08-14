@@ -56,7 +56,9 @@ const artAssetsArray = computed(() => Array.from(artStore.artAssets.values()))
 const filteredArtAssets = computed(() => {
   const selectedPitch = pitchStore.selectedPitch
   if (selectedPitch) {
-    return artAssetsArray.value.filter(art => art.pitchId === selectedPitch.id)
+    return artAssetsArray.value.filter(
+      (art) => art.pitchId === selectedPitch.id,
+    )
   }
   return []
 })
@@ -83,14 +85,11 @@ const setView = (newView: string) => {
 watch(view, (newView) => {
   if (newView === 'twoRow') {
     itemClass.value = 'w-1/2 p-4'
-  }
-  else if (newView === 'fourRow') {
+  } else if (newView === 'fourRow') {
     itemClass.value = 'w-1/4 p-4'
-  }
-  else if (newView === 'single') {
+  } else if (newView === 'single') {
     itemClass.value = 'w-full p-4'
-  }
-  else {
+  } else {
     itemClass.value = 'w-1/3 p-4'
   }
 })

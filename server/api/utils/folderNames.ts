@@ -20,8 +20,7 @@ export default defineEventHandler(async () => {
     }
 
     return { response: folders } // Make sure to return the folders array
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to fetch folder names:', error)
     return { response: 'Failed to fetch folder names' } // Return an error message
   }

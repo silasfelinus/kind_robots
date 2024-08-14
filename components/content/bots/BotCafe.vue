@@ -8,10 +8,7 @@
       @click="botStore.selectBot(bot.id)"
     >
       <figure>
-        <img
-          :src="bot.avatarImage"
-          alt="bot avatar"
-        >
+        <img :src="bot.avatarImage" alt="bot avatar" />
       </figure>
       <div class="card-body">
         <h2 class="card-title">

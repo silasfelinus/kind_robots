@@ -11,14 +11,16 @@ export default defineEventHandler(async (event) => {
     const updatedData: Partial<CartItem> = await readBody(event)
     const updatedItem = await updateCartItem(id, updatedData)
     return { success: true, updatedItem }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to update a CartItem
-export async function updateCartItem(id: number, updatedData: Partial<CartItem>): Promise<CartItem> {
+export async function updateCartItem(
+  id: number,
+  updatedData: Partial<CartItem>,
+): Promise<CartItem> {
   return await prisma.cartItem.update({
     where: { id },
     data: updatedData,

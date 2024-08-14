@@ -1,45 +1,22 @@
 <template>
   <div class="response-card">
     <div class="message">
-      {{ messages && messages.length ? messages[messages.length - 1].content : '' }}
+      {{
+        messages && messages.length ? messages[messages.length - 1].content : ''
+      }}
     </div>
     <div class="actions">
-      <button class="action-button save">
-        Save
-      </button>
-      <button class="action-button share-facebook">
-        Share on Facebook
-      </button>
-      <button class="action-button share-twitter">
-        Share on Twitter
-      </button>
-      <button class="action-button thumbs-up">
-        👍
-      </button>
-      <button class="action-button thumbs-down">
-        👎
-      </button>
-      <button class="action-button delete">
-        X
-      </button>
-      <button
-        class="action-button reply"
-        @click="toggleReply"
-      >
-        Reply
-      </button>
+      <button class="action-button save">Save</button>
+      <button class="action-button share-facebook">Share on Facebook</button>
+      <button class="action-button share-twitter">Share on Twitter</button>
+      <button class="action-button thumbs-up">👍</button>
+      <button class="action-button thumbs-down">👎</button>
+      <button class="action-button delete">X</button>
+      <button class="action-button reply" @click="toggleReply">Reply</button>
     </div>
-    <div
-      v-if="showReply"
-      class="reply-container"
-    >
-      <textarea
-        v-model="replyMessage"
-        placeholder="Type your reply here..."
-      />
-      <button @click="sendReply">
-        Send Reply
-      </button>
+    <div v-if="showReply" class="reply-container">
+      <textarea v-model="replyMessage" placeholder="Type your reply here..." />
+      <button @click="sendReply">Send Reply</button>
     </div>
     <div class="message">
       {{ getLastMessageContent }}
@@ -61,7 +38,9 @@ const props = defineProps({
     default: () => [],
   },
   sendMessage: {
-    type: Function as unknown as () => (updatedMessages: Message[]) => Promise<void>,
+    type: Function as unknown as () => (
+      updatedMessages: Message[],
+    ) => Promise<void>,
     default: () => async () => {},
   },
 })
@@ -74,16 +53,20 @@ const toggleReply = () => {
 }
 
 const getLastMessageContent = computed(() => {
-  return props.messages.length ? props.messages[props.messages.length - 1].content : ''
+  return props.messages.length
+    ? props.messages[props.messages.length - 1].content
+    : ''
 })
 const sendReply = async () => {
   try {
-    const updatedMessages = [...props.messages, { role: 'user', content: replyMessage.value }]
+    const updatedMessages = [
+      ...props.messages,
+      { role: 'user', content: replyMessage.value },
+    ]
     await props.sendMessage(updatedMessages)
     replyMessage.value = ''
     showReply.value = false
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err)
   }
 }

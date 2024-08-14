@@ -8,8 +8,7 @@ export default defineEventHandler(async (event) => {
     const reactionData: Partial<ArtReaction> = await readBody(event)
     const newReaction = await createArtReaction(reactionData)
     return { success: true, newReaction }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

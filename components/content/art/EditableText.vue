@@ -1,14 +1,7 @@
 <template>
   <div>
-    <span
-      v-if="!editing"
-      @click="enableEditing"
-    >{{ value }}</span>
-    <input
-      v-if="editing"
-      v-model="newValue"
-      @blur="updateValue"
-    >
+    <span v-if="!editing" @click="enableEditing">{{ value }}</span>
+    <input v-if="editing" v-model="newValue" @blur="updateValue" />
   </div>
 </template>
 

@@ -7,8 +7,7 @@ export default defineEventHandler(async () => {
   try {
     const artEntries = await fetchAllArt()
     return { success: true, artEntries }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

@@ -10,21 +10,22 @@ export default defineEventHandler(async (event) => {
     const updatedProductData: Partial<Product> = await readBody(event)
     const updatedProduct = await updateProduct(id, updatedProductData)
     return { success: true, updatedProduct }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to update an existing Product by ID
-export async function updateProduct(id: number, updatedProduct: Partial<Product>): Promise<Product | null> {
+export async function updateProduct(
+  id: number,
+  updatedProduct: Partial<Product>,
+): Promise<Product | null> {
   try {
     return await prisma.product.update({
       where: { id },
       data: updatedProduct,
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

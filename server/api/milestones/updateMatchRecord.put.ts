@@ -8,7 +8,11 @@ export default defineEventHandler(async (event) => {
   try {
     const recordData = await readBody(event)
 
-    if (!recordData || typeof recordData.newScore !== 'number' || typeof recordData.userId !== 'number') {
+    if (
+      !recordData ||
+      typeof recordData.newScore !== 'number' ||
+      typeof recordData.userId !== 'number'
+    ) {
       throw new Error('Invalid JSON body')
     }
 
@@ -18,8 +22,7 @@ export default defineEventHandler(async (event) => {
     })
 
     return { success: true }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

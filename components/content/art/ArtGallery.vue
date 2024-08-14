@@ -51,7 +51,9 @@ const filteredArtAssets = computed(() => {
   if (tagStore.selectedPitch) {
     const selectedPitchTitle = tagStore.selectedPitch.title
     if (typeof selectedPitchTitle === 'string') {
-      return artAssetsArray.value.filter(art => art.pitch === selectedPitchTitle)
+      return artAssetsArray.value.filter(
+        (art) => art.pitch === selectedPitchTitle,
+      )
     }
   }
   return []
@@ -76,14 +78,11 @@ const itemClass = ref('w-1/2 p-4')
 watch(view, (newView) => {
   if (newView === 'twoRow') {
     itemClass.value = 'w-1/2 p-4'
-  }
-  else if (newView === 'fourRow') {
+  } else if (newView === 'fourRow') {
     itemClass.value = 'w-1/4 p-4'
-  }
-  else if (newView === 'single') {
+  } else if (newView === 'single') {
     itemClass.value = 'w-full p-4'
-  }
-  else {
+  } else {
     itemClass.value = 'w-1/3 p-4'
   }
 })

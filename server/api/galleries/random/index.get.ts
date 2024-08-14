@@ -11,8 +11,7 @@ export default defineEventHandler(async () => {
     }
 
     return { success: true, galleryName: gallery.name }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return {
       success: false,
       message: 'Failed to fetch a random gallery name.',

@@ -33,7 +33,10 @@ export const useToggleStore = defineStore({
       this.screenStates[screen] = state
     },
     toggleScreenState(screen: ToggleableScreens) {
-      this.screenStates[screen] = this.screenStates[screen] === ScreenState.FULL ? ScreenState.HALF : ScreenState.FULL
+      this.screenStates[screen] =
+        this.screenStates[screen] === ScreenState.FULL
+          ? ScreenState.HALF
+          : ScreenState.FULL
     },
     getScreenState(screen: ToggleableScreens) {
       return this.screenStates[screen] || ScreenState.FULL // Default to FULL if not set

@@ -4,7 +4,7 @@
       class="justify-center w-32 h-32 object-contain"
       src="/images/amilogo.webp"
       alt="Site Logo"
-    >
+    />
     <button
       v-if="!isLoading"
       class="ml-4 btn btn-primary"
@@ -16,7 +16,9 @@
       v-if="isLoading"
       class="fixed inset-0 flex items-center justify-center"
     >
-      <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary-500" />
+      <div
+        class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary-500"
+      />
     </div>
   </div>
 </template>

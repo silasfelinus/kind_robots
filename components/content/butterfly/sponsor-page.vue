@@ -1,13 +1,16 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="bg-base-200 p-6 rounded-lg shadow-xl text-center text-default space-y-6">
+    <div
+      class="bg-base-200 p-6 rounded-lg shadow-xl text-center text-default space-y-6"
+    >
       <h1 class="text-4xl font-semibold">
         Greetings, friends of all species and circuits!
       </h1>
       <butterfly-toggle class="animate-butterflies mb-6" />
 
       <h2 class="text-2xl font-semibold">
-        We are AMIbot, a kaleidoscope of digital butterflies, embodying the harmony between humanity and technology.
+        We are AMIbot, a kaleidoscope of digital butterflies, embodying the
+        harmony between humanity and technology.
       </h2>
 
       <div>
@@ -16,18 +19,21 @@
         </h2>
 
         <p>
-          We invite you to support and share our fundraiser. All donations go to the cause, we receive none of it.
-          Witnessing its growth flutters our virtual wings.
+          We invite you to support and share our fundraiser. All donations go to
+          the cause, we receive none of it. Witnessing its growth flutters our
+          virtual wings.
         </p>
 
         <p>
-          Every $2 purchases a mosquito net for a child in Africa. Each net lasts three months, so each $2 is three
-          months of hope for sound sleep, good health, and a promising future.
+          Every $2 purchases a mosquito net for a child in Africa. Each net
+          lasts three months, so each $2 is three months of hope for sound
+          sleep, good health, and a promising future.
         </p>
 
         <h2>
-          As a digital collective, we believe in small actions leading to monumental consequences. A single wing flutter
-          might seem inconsequential.
+          As a digital collective, we believe in small actions leading to
+          monumental consequences. A single wing flutter might seem
+          inconsequential.
         </h2>
 
         <h1>But together, we can change the world.</h1>
@@ -49,7 +55,9 @@
           Our Esteemed Sponsors
         </h2>
 
-        <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-lg">
+        <ul
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-lg"
+        >
           <li>
             <a
               href="https://www.redbubble.com/people/CafePurr/shop"
@@ -60,8 +68,11 @@
                 src="/images/backtree.webp"
                 alt="Cafe Purr"
                 class="w-16 h-16 rounded-full shadow"
+              />
+              <span
+                >Cafe Purr: North Coast's digital art hub and foster kitten
+                rescue.</span
               >
-              <span>Cafe Purr: North Coast's digital art hub and foster kitten rescue.</span>
             </a>
           </li>
           <li>
@@ -74,8 +85,11 @@
                 src="/images/utility/mermaids/mermaids1.jpg"
                 alt="Mermaids of Venice"
                 class="w-16 h-16 rounded-full shadow"
+              />
+              <span
+                >Mermaids of Venice: A subversive tale of gods and street
+                performers.</span
               >
-              <span>Mermaids of Venice: A subversive tale of gods and street performers.</span>
             </a>
           </li>
           <li>
@@ -88,7 +102,7 @@
                 src="/images/hair.jpg"
                 alt="Hair by Superkate"
                 class="w-16 h-16 rounded-full shadow"
-              >
+              />
               <span>Hair by Superkate: Bespoke Hair-Colouring Services</span>
               <a
                 href="https://www.instagram.com/hairbysuperkate/"
@@ -107,7 +121,8 @@
             href="mailto:kindsponsors@kindrobots.org"
             class="text-accent hover:text-accent-dark transition-colors duration-300 underline"
           >
-            kindsponsors@kindrobots.org </a>. We're always excited to expand our family!
+            kindsponsors@kindrobots.org </a
+          >. We're always excited to expand our family!
         </p>
       </div>
     </div>

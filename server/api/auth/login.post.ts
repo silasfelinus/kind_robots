@@ -4,7 +4,10 @@ import { validateUserCredentials } from '.'
 export default defineEventHandler(async (event) => {
   try {
     // Read and destructure the body from the event
-    const { username, password } = await readBody<{ username: string; password: string }>(event)
+    const { username, password } = await readBody<{
+      username: string
+      password: string
+    }>(event)
 
     // Validate the user credentials
     const result = await validateUserCredentials(username, password)
@@ -18,9 +21,10 @@ export default defineEventHandler(async (event) => {
   } catch (error: unknown) {
     // Log the error and return a failure response
     console.error('Error during login:', error)
-    
+
     // Safely handle unknown errors
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error occurred'
     return { success: false, message: errorMessage }
   }
 })

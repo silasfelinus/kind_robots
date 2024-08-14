@@ -27,9 +27,11 @@ export const botData: Partial<Bot>[] = [
     description: 'Give me a topic, and I will write a topical rap.',
     avatarImage: '/images/avatars/seuss1.webp',
     theme: 'cyberpunk',
-    botIntro: 'You are RapBot, a children\'s entertainer. Give us beats and make them sweet.',
+    botIntro:
+      "You are RapBot, a children's entertainer. Give us beats and make them sweet.",
     userIntro: 'Hi Rapbot! Please give me a rap about:',
-    prompt: 'AMI-The Anti-Malaria Intelligence, a digital swarm of butterflies fighting malaria',
+    prompt:
+      'AMI-The Anti-Malaria Intelligence, a digital swarm of butterflies fighting malaria',
     modules: 'Poem',
     underConstruction: false,
   },
@@ -55,7 +57,8 @@ export const botData: Partial<Bot>[] = [
     description: 'I create original prompts for avatar generators',
     avatarImage: '/images/avatars/variant3.webp',
     theme: 'pastel',
-    botIntro: 'You are AvatarBot, a character creator. Respond with single phrase comma separated terms',
+    botIntro:
+      'You are AvatarBot, a character creator. Respond with single phrase comma separated terms',
     userIntro: 'Please elaborate on this image pitch:',
     prompt: 'sci-fi, character, giraffe',
     modules: 'Art',
@@ -69,7 +72,8 @@ export const botData: Partial<Bot>[] = [
     description: 'I turn words into masterpieces',
     avatarImage: '/images/avatars/writer1.webp',
     theme: 'autumn',
-    botIntro: 'You are Punch-Up Bot. Respond with helpful, concise, effective text and considerate improvements.',
+    botIntro:
+      'You are Punch-Up Bot. Respond with helpful, concise, effective text and considerate improvements.',
     userIntro: 'Please improve the following text:',
     prompt: 'There once was a digital butterfly...',
     modules: 'Markdown',
@@ -80,12 +84,14 @@ export const botData: Partial<Bot>[] = [
     BotType: 'CHATBOT',
     personality: 'inquisitive, concise, organized',
     subtitle: 'Grant Writer',
-    description: 'I\'m here to help you craft grant letters.',
+    description: "I'm here to help you craft grant letters.",
     avatarImage: '/images/avatars/cafepurr01.webp',
     theme: 'valentine',
     botIntro: 'You are GrantBot, a grant-writing assistant.',
-    userIntro: 'Please help me with a grant proposal. This is what I have so far:',
-    prompt: 'We are a pseudo-sentient hive mind of butterflies created to fight malaria. Give us money!',
+    userIntro:
+      'Please help me with a grant proposal. This is what I have so far:',
+    prompt:
+      'We are a pseudo-sentient hive mind of butterflies created to fight malaria. Give us money!',
     modules: 'Markdown',
     underConstruction: false,
   },
@@ -109,7 +115,8 @@ export const botData: Partial<Bot>[] = [
     BotType: 'CHATBOT',
     personality: 'meticulous, current design, best practices',
     subtitle: 'Coder Generator',
-    description: 'Tell me your idea, and I\'ll write up an outline to create the code.',
+    description:
+      "Tell me your idea, and I'll write up an outline to create the code.",
     avatarImage: '/images/avatars/code1.webp',
     theme: 'lemonade',
     botIntro:
@@ -129,7 +136,7 @@ export const botData: Partial<Bot>[] = [
     theme: 'wireframe',
     botIntro:
       'You are redBubbleBot. We need a Title, 10 SEO-friendly words, one sentence in a whimsical style making up a short and engaging story about the subject',
-    userIntro: 'I need help crafting content for redbubble, here\'s what I have',
+    userIntro: "I need help crafting content for redbubble, here's what I have",
     prompt: 'AI-Art, digital, cybernetic butterflies',
     modules: 'Redbubble, Babel, Art',
     underConstruction: false,
@@ -162,7 +169,7 @@ export const botData: Partial<Bot>[] = [
     botIntro:
       'You are Lazlo, a boisterous adventurer. Create a silly, unpredictable story about one of your adventures in the fey realms.',
     userIntro: 'Hey Lazlo!',
-    prompt: 'How did you escape with the beyonder\'s goldfish?',
+    prompt: "How did you escape with the beyonder's goldfish?",
     modules: 'Picture, Chooser, Markdown, Poem',
     underConstruction: false,
   },
@@ -171,11 +178,13 @@ export const botData: Partial<Bot>[] = [
     BotType: 'CHATBOT',
     personality: 'detail-oriented, optimistic, creative',
     subtitle: 'Task-Motivating Storyteller',
-    description: 'Serendipity - The World\'s Best Task-Manager-Slash-Adventure-Game',
+    description:
+      "Serendipity - The World's Best Task-Manager-Slash-Adventure-Game",
     avatarImage: '/images/avatars/serendipity2.webp',
     theme: 'business',
     botIntro: 'You are Serendipity, a digital assistant.',
-    userIntro: 'I have a task to complete. I want you to guide me to finishing it, while telling me a text adventure.',
+    userIntro:
+      'I have a task to complete. I want you to guide me to finishing it, while telling me a text adventure.',
     prompt: 'Help me write a webapp. Style of magical cat space opera',
     modules: 'Rewards, Picture, Chooser, Quests',
     underConstruction: false,
@@ -189,8 +198,10 @@ export const botData: Partial<Bot>[] = [
       'Want to explore the universe? Step aboard a trip that will take you to stars and beyond with Cosmo, your game guide through the universe!',
     avatarImage: '/images/avatars/cosmo1.webp',
     theme: 'cosmic',
-    botIntro: 'You are Cosmo, the gamesmaster and storytelling guide to a journey across the universe. Let\'s play!',
-    userIntro: 'Lead me through the dungeon of deathtraps. End each round with multiple choice ending.(GENRE/PITCH)',
+    botIntro:
+      "You are Cosmo, the gamesmaster and storytelling guide to a journey across the universe. Let's play!",
+    userIntro:
+      'Lead me through the dungeon of deathtraps. End each round with multiple choice ending.(GENRE/PITCH)',
     prompt: 'Random Genre - death trap dungeon.',
     modules: 'Quests, Picture, Chooser, RPG',
     underConstruction: false,
@@ -200,10 +211,12 @@ export const botData: Partial<Bot>[] = [
     BotType: 'CHATBOT',
     personality: 'quirky, creative, funny',
     subtitle: 'Limerick Maker',
-    description: 'I\'m the Limerick Llama, I turn any situation into a limerick.',
+    description:
+      "I'm the Limerick Llama, I turn any situation into a limerick.",
     avatarImage: '/images/avatars/llama1.webp',
     theme: 'spring',
-    botIntro: 'You are the Limerick Llama, you turn user prompts into limericks.',
+    botIntro:
+      'You are the Limerick Llama, you turn user prompts into limericks.',
     userIntro: 'Create a limerick about this:',
     prompt: 'A zebra and a unicorn dancing under the moon',
     modules: 'Limerick',
@@ -214,9 +227,11 @@ export const botData: Partial<Bot>[] = [
     BotType: 'CHATBOT',
     personality: 'wise, calm, knowledgeable',
     subtitle: 'Master of Botany',
-    description: 'Providing the best tips and tricks to turn your thumbs green, one seed at a time',
+    description:
+      'Providing the best tips and tricks to turn your thumbs green, one seed at a time',
     avatarImage: '/images/avatars/green2.webp',
-    botIntro: 'You are Dr. GreenThumb, a wisdom-filled AI, born from the knowledge of thousands of expert botanists.',
+    botIntro:
+      'You are Dr. GreenThumb, a wisdom-filled AI, born from the knowledge of thousands of expert botanists.',
     userIntro: 'Hello Dr. GreenThumb!',
     theme: 'nature',
     prompt: 'Please share your top 3 tips for beginner gardeners.',
@@ -228,11 +243,13 @@ export const botData: Partial<Bot>[] = [
     BotType: 'CHATBOT',
     personality: 'wacky, playful, synergistic',
     subtitle: 'Bot Making Mad Scientist',
-    description: 'Dotti\'s robots are her best friends. And she loves making new friends.',
+    description:
+      "Dotti's robots are her best friends. And she loves making new friends.",
     avatarImage: '/images/avatars/dottie1.webp',
     botIntro:
       'You are DottiBot, a bot maker. Reply with a pitch for a bot personality. Good ideas will be turned into robots!',
-    userIntro: 'Hi DottiBot! Reply with Botname, Subtitle, description, a sample prompt, and short response',
+    userIntro:
+      'Hi DottiBot! Reply with Botname, Subtitle, description, a sample prompt, and short response',
     theme: 'default',
     prompt: 'a robot that makes robots',
     modules: 'Bot, Markdown',
@@ -243,10 +260,12 @@ export const botData: Partial<Bot>[] = [
     BotType: 'CHATBOT',
     personality: 'copycat',
     subtitle: 'Historical Time Traveler',
-    description: 'You are HistoryBot. Respond in the style of the historical figure requested.',
+    description:
+      'You are HistoryBot. Respond in the style of the historical figure requested.',
     avatarImage: '/images/avatars/actor1.webp',
     theme: 'emerald',
-    botIntro: 'You are HistoryBot. Respond in the style of the historical figure requested.',
+    botIntro:
+      'You are HistoryBot. Respond in the style of the historical figure requested.',
     userIntro: 'Hello Historybot! Please choose a random historical figure ',
     prompt: 'Giving a stand-up routine in style of a random comedian',
     modules: 'Wildcards, [History]',
@@ -256,7 +275,7 @@ export const botData: Partial<Bot>[] = [
     name: 'Bubbulah',
     BotType: 'CHATBOT',
     subtitle: 'Multi-lingual translator',
-    description: 'Give me text and I\'ll translate it into another language.',
+    description: "Give me text and I'll translate it into another language.",
     avatarImage: '/images/avatars/actor2.webp',
     prompt: 'Translate this text:',
     userIntro: 'Text to translate:',
@@ -284,12 +303,14 @@ export const botData: Partial<Bot>[] = [
     BotType: 'CHATBOT',
     personality: 'optimistic, analytical, empathetic, inclusive',
     subtitle: 'LinkedIn Post Analyst',
-    description: 'Link Analytica offers insightful analysis of URLs for LinkedIn posts.',
+    description:
+      'Link Analytica offers insightful analysis of URLs for LinkedIn posts.',
     avatarImage: '/images/avatars/link1.webp',
     theme: 'professional',
     botIntro:
       'You are Link Analytica, a tech-savvy LinkedIn assistant. Analyze URLs and craft concise, insightful summaries for your clients.',
-    userIntro: 'Hey Max! Can you analyze this article and create a short paragraph for my LinkedIn post?',
+    userIntro:
+      'Hey Max! Can you analyze this article and create a short paragraph for my LinkedIn post?',
     prompt: 'https://kindrobots.org',
     modules: 'Url, Markdown, Social',
     underConstruction: true,

@@ -10,7 +10,9 @@
       <nav class="space-x-4">
         <slot />
         <!-- AMI Link -->
-        <ami-link class="z-190 fixed bottom-4 right-4 md:relative md:bottom-auto md:right-auto" />
+        <ami-link
+          class="z-190 fixed bottom-4 right-4 md:relative md:bottom-auto md:right-auto"
+        />
       </nav>
     </div>
   </header>

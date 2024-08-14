@@ -23,7 +23,10 @@ export async function createTag(tag: Partial<Tag>): Promise<Tag> {
 }
 
 // Function to update an existing Tag by ID
-export async function updateTag(id: number, updatedTag: Partial<Tag>): Promise<Tag | null> {
+export async function updateTag(
+  id: number,
+  updatedTag: Partial<Tag>,
+): Promise<Tag | null> {
   try {
     const tag = await prisma.tag.findUnique({ where: { id } })
     if (!tag) {
@@ -90,10 +93,13 @@ export async function createTagsBatch(
       }
       return true
     })
-    .map(tagData => ({
-      label: tagData.label!,
-      title: tagData.title!,
-    } as Prisma.TagCreateManyInput))
+    .map(
+      (tagData) =>
+        ({
+          label: tagData.label!,
+          title: tagData.title!,
+        }) as Prisma.TagCreateManyInput,
+    )
 
   try {
     // Create the tags in a batch

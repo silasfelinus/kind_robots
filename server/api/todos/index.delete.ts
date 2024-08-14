@@ -16,7 +16,10 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: `Todo with ID ${id} not found.` }
     }
 
-    return { success: true, message: `Todo with ID ${id} successfully deleted.` }
+    return {
+      success: true,
+      message: `Todo with ID ${id} successfully deleted.`,
+    }
   } catch (error: unknown) {
     const { message } = errorHandler(error)
     console.error(`Failed to delete todo: ${message}`)

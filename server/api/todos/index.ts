@@ -19,7 +19,7 @@ export async function createTodo(data: Partial<Todo>): Promise<Todo> {
   }
 
   // Fetch random reward ID if not provided
-  const rewardId = data.rewardId ?? await fetchRandomRewardId()
+  const rewardId = data.rewardId ?? (await fetchRandomRewardId())
 
   // Create the new Todo with the associated rewardId and userId
   const todoCreateInput: Prisma.TodoCreateInput = {
@@ -40,7 +40,7 @@ export async function createTodo(data: Partial<Todo>): Promise<Todo> {
 // Function to add multiple Todos
 export async function addTodos(
   todosData: Partial<Todo>[],
-): Promise<{ count: number, todos: Todo[], errors: string[] }> {
+): Promise<{ count: number; todos: Todo[]; errors: string[] }> {
   const errors: string[] = []
   const todos: Todo[] = []
 
@@ -49,7 +49,8 @@ export async function addTodos(
       const newTodo = await createTodo(todoData)
       todos.push(newTodo)
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error'
       errors.push(`Failed to create todo: ${errorMessage}`)
     }
   }
@@ -69,7 +70,10 @@ export function fetchTodoById(id: number): Promise<Todo | null> {
 }
 
 // Update an existing Todo
-export async function updateTodo(id: number, data: Partial<Todo>): Promise<Todo | null> {
+export async function updateTodo(
+  id: number,
+  data: Partial<Todo>,
+): Promise<Todo | null> {
   const todoExists = await prisma.todo.findUnique({ where: { id } })
 
   if (!todoExists) {
@@ -100,7 +104,11 @@ export function countTodos(): Promise<number> {
 }
 
 // Fetch all Todos for a specific user
-export function fetchTodosByUserId(userId: number, page = 1, pageSize = 100): Promise<Todo[]> {
+export function fetchTodosByUserId(
+  userId: number,
+  page = 1,
+  pageSize = 100,
+): Promise<Todo[]> {
   const skip = (page - 1) * pageSize
   return prisma.todo.findMany({
     where: { userId },

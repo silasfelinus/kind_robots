@@ -1,12 +1,7 @@
 <template>
   <div class="bg-base-200 rounded-2xl p-4">
-    <h1 class="text-lg">
-      Your Cart
-    </h1>
-    <div
-      v-for="item in cartItems"
-      :key="item.id"
-    >
+    <h1 class="text-lg">Your Cart</h1>
+    <div v-for="item in cartItems" :key="item.id">
       <CartItem :item="item" />
     </div>
   </div>

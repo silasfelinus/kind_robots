@@ -13,12 +13,14 @@ export default defineEventHandler(async (event) => {
     const image = await getRandomImageByGalleryName(galleryName)
 
     if (!image) {
-      return { success: false, message: `No images found in gallery with name: ${galleryName}` }
+      return {
+        success: false,
+        message: `No images found in gallery with name: ${galleryName}`,
+      }
     }
 
     return { success: true, image }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return {
       success: false,
       message: `Failed to get random image for gallery name ${galleryName}.`,

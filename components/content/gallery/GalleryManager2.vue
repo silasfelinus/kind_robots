@@ -17,10 +17,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="gallery in galleries"
-          :key="gallery.id"
-        >
+        <tr v-for="gallery in galleries" :key="gallery.id">
           <td>{{ gallery.id }}</td>
           <td>{{ gallery.name }}</td>
           <td>{{ gallery.content }}</td>
@@ -30,7 +27,7 @@
               v-if="gallery.highlightImage"
               :src="gallery.highlightImage"
               alt="Highlight"
-            >
+            />
           </td>
           <td>{{ gallery.isMature ? 'Yes' : 'No' }}</td>
           <td>{{ gallery.isAuth ? 'Yes' : 'No' }}</td>

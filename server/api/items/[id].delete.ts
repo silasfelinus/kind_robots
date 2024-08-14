@@ -8,8 +8,7 @@ export default defineEventHandler(async (event) => {
     const id = Number(event.context.params?.id)
     await deleteCartItem(id)
     return { success: true }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

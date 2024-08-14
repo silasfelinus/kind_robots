@@ -9,15 +9,8 @@
           class="control-item"
         >
           <label :for="option.property">{{ option.label }}</label>
-          <select
-            v-model="store[option.property]"
-            :name="option.property"
-          >
-            <option
-              v-for="value in option.values"
-              :key="value"
-              :value="value"
-            >
+          <select v-model="store[option.property]" :name="option.property">
+            <option v-for="value in option.values" :key="value" :value="value">
               {{ value }}
             </option>
           </select>
@@ -32,15 +25,8 @@
           class="control-item"
         >
           <label :for="option.property">{{ option.label }}</label>
-          <select
-            v-model="store[option.property]"
-            :name="option.property"
-          >
-            <option
-              v-for="value in option.values"
-              :key="value"
-              :value="value"
-            >
+          <select v-model="store[option.property]" :name="option.property">
+            <option v-for="value in option.values" :key="value" :value="value">
               {{ value }}
             </option>
           </select>
@@ -77,16 +63,34 @@ interface Option {
   values: string[]
 }
 
-const outerOptions: Option[] = [{ property: 'outerBgColor', label: 'Background Color', values: store.containerColors }]
+const outerOptions: Option[] = [
+  {
+    property: 'outerBgColor',
+    label: 'Background Color',
+    values: store.containerColors,
+  },
+]
 
 const innerOptions: Option[] = [
-  { property: 'bgColor', label: 'Background Color', values: store.containerColors },
+  {
+    property: 'bgColor',
+    label: 'Background Color',
+    values: store.containerColors,
+  },
   { property: 'margin', label: 'Margin', values: store.containerMargins },
   { property: 'padding', label: 'Padding', values: store.containerPaddings },
-  { property: 'borderRadius', label: 'Border Radius', values: store.containerBorderRadius },
+  {
+    property: 'borderRadius',
+    label: 'Border Radius',
+    values: store.containerBorderRadius,
+  },
   { property: 'border', label: 'Border', values: store.containerBorders },
   { property: 'shadow', label: 'Shadow', values: store.containerShadows },
-  { property: 'transition', label: 'Transition', values: store.containerTransitions },
+  {
+    property: 'transition',
+    label: 'Transition',
+    values: store.containerTransitions,
+  },
   { property: 'backdrop', label: 'Backdrop', values: store.containerBackdrops },
 ]
 const outerContainerClasses = computed(() => [store.outerBgColor])
@@ -107,7 +111,8 @@ const containerStyles = computed(() => ({}))
 const containers = ref([
   {
     label: 'Container 1',
-    content: 'Here is some filler text to give the container some body and prevent it from being squished.',
+    content:
+      'Here is some filler text to give the container some body and prevent it from being squished.',
     active: true,
   },
   {

@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="text-bubble"
-    :style="{ top: y + 'px', left: x + 'px' }"
-  >
+  <div class="text-bubble" :style="{ top: y + 'px', left: x + 'px' }">
     {{ text }}
   </div>
 </template>

@@ -24,12 +24,12 @@ export default defineEventHandler(async (event) => {
 
     // Validate required fields
     if (
-      !exchangeData.userId
-      || !exchangeData.botId
-      || !exchangeData.botName
-      || !exchangeData.username
-      || !exchangeData.userPrompt
-      || !exchangeData.botResponse
+      !exchangeData.userId ||
+      !exchangeData.botId ||
+      !exchangeData.botName ||
+      !exchangeData.username ||
+      !exchangeData.userPrompt ||
+      !exchangeData.botResponse
     ) {
       throw new Error('Invalid exchange data. Missing required fields.')
     }
@@ -54,8 +54,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       newExchange,
     }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     // Type guard to narrow down error type
     let message = 'An unknown error occurred.'
     if (error instanceof Error) {

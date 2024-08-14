@@ -5,5 +5,4 @@ export default defineConfig({
     baseUrl: 'http://localhost:3009',
   },
   projectId: 'm98sgq',
-}
-)
+})

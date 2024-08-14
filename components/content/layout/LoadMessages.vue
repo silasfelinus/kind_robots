@@ -1,8 +1,5 @@
 <template>
-  <transition
-    name="slide-fade"
-    mode="out-in"
-  >
+  <transition name="slide-fade" mode="out-in">
     <div :key="currentMessage">
       <div
         class="loader-message text-default text-lg font-semibold text-center bg-purple-600 p-4 rounded-md shadow-xl transition-transform duration-300 hover:scale-105 cursor-pointer"
@@ -15,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useLoadStore } from '../../../stores/loadStore'
 
 const { randomLoadMessage } = useLoadStore()
@@ -25,19 +22,17 @@ const updateMessage = () => {
   currentMessage.value = `${randomLoadMessage()}`
 }
 
-let intervalId: any
+// Use `number` type for intervalId (browser environment)
+let intervalId: number
+
 onMounted(() => {
-  intervalId = setInterval(updateMessage, 20 * 1000)
+  intervalId = setInterval(updateMessage, 20 * 1000) as unknown as number
 })
 
 onUnmounted(() => {
   if (intervalId) {
     clearInterval(intervalId)
   }
-})
-
-watchEffect(() => {
-  currentMessage.value = `${currentMessage.value}`
 })
 </script>
 

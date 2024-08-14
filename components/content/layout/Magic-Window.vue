@@ -1,10 +1,7 @@
 <template>
   <div class="teleport-container">
     <!-- Background Image -->
-    <div
-      class="image-layer"
-      :style="{ backgroundImage: 'url(' + src + ')' }"
-    />
+    <div class="image-layer" :style="{ backgroundImage: 'url(' + src + ')' }" />
 
     <!-- Cover layers. These will hide the image except the 'windows' -->
     <div class="cover top" />
@@ -26,9 +23,7 @@ import { ref } from 'vue'
 
 const src = ref('')
 const isLoading = ref(true)
-const offsetY = ref(0)
 const warpEffect = ref(false)
-const offsetX = ref(0) // Offset for the horizontal movement
 
 const fetchImage = async () => {
   warpEffect.value = true
@@ -37,7 +32,7 @@ const fetchImage = async () => {
   const imageLayer = document.querySelector('.image-layer')
   imageLayer.classList.add('pixelate-out')
 
-  await new Promise(resolve => setTimeout(resolve, 750))
+  await new Promise((resolve) => setTimeout(resolve, 750))
 
   try {
     const res = await fetch('/api/galleries/random/name/background')
@@ -45,15 +40,12 @@ const fetchImage = async () => {
 
     if (data.success && data.image) {
       src.value = data.image
-    }
-    else {
+    } else {
       console.error('API returned an unexpected structure:', data)
     }
-  }
-  catch (err) {
+  } catch (err) {
     console.error('Error fetching images:', err)
-  }
-  finally {
+  } finally {
     isLoading.value = false
 
     setTimeout(() => {
@@ -68,7 +60,7 @@ const fetchImage = async () => {
   }
 }
 
-const handleScroll = (event) => {
+const handleScroll = () => {
   const scrollY = window.scrollY
   document.documentElement.style.setProperty('--offsetY', `${-scrollY * 0.5}px`)
 }

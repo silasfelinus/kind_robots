@@ -5,12 +5,9 @@
     <div :class="baseCardClasses">
       <!-- Card Header -->
       <div class="flex items-center justify-center mb-4">
-        <icon
-          :name="iconName"
-          class="mr-2 text-3xl"
-        />
+        <icon :name="props.iconName" class="mr-2 text-3xl" />
         <h3 class="text-3xl font-semibold">
-          {{ title }}
+          {{ props.title }}
         </h3>
       </div>
       <!-- Card Content -->
@@ -18,7 +15,7 @@
         <!-- Use slot if available, otherwise use the content prop -->
         <slot v-if="$slots.default" />
         <div v-else>
-          {{ content }}
+          {{ props.content }}
         </div>
       </div>
     </div>

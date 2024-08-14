@@ -27,8 +27,6 @@
 
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const userStore = useUserStore()
 const errorStore = useErrorStore()

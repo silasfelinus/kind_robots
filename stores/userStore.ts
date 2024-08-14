@@ -89,6 +89,28 @@ export const useUserStore = defineStore({
         useErrorStore().setError(ErrorType.AUTH_ERROR, error); // Use errorStore with ErrorType
       }
     },
+    async login(username: string, password: string): Promise<{ success: boolean; message: string; user?: User; token?: string; apiKey?: string }> {
+      try {
+        this.startLoading();
+        const response = await this.apiCall('/api/auth/login', 'POST', { username, password });
+    
+        if (response.success) {
+          this.setUser(response.user);
+          this.setToken(response.token);
+          this.setApiKey(response.apiKey || '');
+          this.setStayLoggedIn(true);
+          return { success: true, message: '' }; // Return success with no message
+        } else {
+          return { success: false, message: response.message || 'Login failed' };
+        }
+      } catch (error) {
+        useErrorStore().setError(ErrorType.AUTH_ERROR, error);
+        return { success: false, message: 'An error occurred' };
+      } finally {
+        this.stopLoading();
+      }
+    },
+    
 
     async fetchUserByApiKey(): Promise<void> {
       if (!this.apiKey) return;

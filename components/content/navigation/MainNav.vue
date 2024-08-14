@@ -28,7 +28,7 @@
       <div
         class="flex flex-col items-start"
         @mouseover="isHovered = page._id"
-        @mouseleave="isHovered = null"
+        @mouseleave="isHovered = undefined"
       >
         <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
           {{ page.title }}
@@ -59,7 +59,7 @@ import { useContentStore } from './../../../stores/contentStore'
 
 const pageStore = useContentStore()
 
-const isHovered = ref(null)
+const isHovered = ref<string | undefined>(undefined) 
 const highlightPages = computed(() => {
   return pageStore.highlightPages
 })

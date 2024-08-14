@@ -18,11 +18,14 @@
 </template>
 
 <script setup lang="ts">
-import { useContentStore } from './../../../stores/contentStore'
+import { useContentStore } from '../../../stores/contentStore'
 
 const contentStore = useContentStore()
 
 const pagesByTag = (tag: string) => {
-  return contentStore.pages.filter((page: any) => page.tags?.includes(tag))
+  return contentStore.pages.filter((page) => {
+    // Ensure that page.tags is defined and is an array
+    return page.tags?.includes(tag) ?? false
+  })
 }
 </script>

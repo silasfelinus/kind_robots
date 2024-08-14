@@ -15,7 +15,7 @@
       :to="page._path"
       class="group hover:bg-accent transition-colors relative rounded-2xl border bg-warning flex flex-row items-center space-x-2 w-64 mb-4"
       @mouseover="isHovered = page._id"
-      @mouseleave="isHovered = null"
+      @mouseleave="isHovered = undefined"
       @click="handleLinkClick"
     >
       <!-- Image -->
@@ -57,6 +57,9 @@ import { ref, computed } from 'vue'
 import { useFooterStore } from './../../../stores/footerStore'
 
 const footerStore = useFooterStore()
+const contentStore = useContentStore()
+
+const isHovered = ref<string | undefined>(undefined)
 
 const handleLinkClick = () => {
   if (footerStore.isExtended) {
@@ -64,10 +67,7 @@ const handleLinkClick = () => {
   }
 }
 
-const { pages } = useContent()
-
-const isHovered = ref(null)
-const underConstructionPages = computed(() => {
-  return pages.pagesUnderConstruction
-})
+const underConstructionPages = computed(
+  () => contentStore.pagesUnderConstruction,
+)
 </script>

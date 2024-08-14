@@ -170,8 +170,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect } from 'vue'
 import { useBotStore, type Bot } from '../../../stores/botStore'
-import { useUserStore } from '@/stores/userStore'
-import { useChatStore, type ChatExchange } from '@/stores/chatStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useChatStore, type ChatExchange } from './../../../stores/chatStore'
 
 const shouldShowMilestoneCheck = ref(false)
 let userKey: string | null = null

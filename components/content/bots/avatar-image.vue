@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useBotStore } from '@/stores/botStore'
+import { useBotStore } from './../../../stores/botStore'
 
 const { page } = useContent()
 const botStore = useBotStore()

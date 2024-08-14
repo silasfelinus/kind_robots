@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRandomColor } from '@/utils/useRandomColor'
+import { useRandomColor } from './../../../utils/useRandomColor'
 
 const centerX = window.innerWidth / 2
 const centerY = window.innerHeight / 2

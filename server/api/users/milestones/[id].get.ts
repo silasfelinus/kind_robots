@@ -1,7 +1,7 @@
 // /server/api/users/milestones/[id].get.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
-import prisma from '@/server/api/utils/prisma'
+import prisma from './../../../../server/api/utils/prisma'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)

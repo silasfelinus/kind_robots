@@ -110,18 +110,21 @@ import { ref, onMounted } from 'vue'
 import { useUserStore } from './../../../stores/userStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
+// Stores
 const store = useUserStore()
 const errorStore = useErrorStore()
 
-const login = ref<string>('')
-const password = ref<string>('')
-const savePassword = ref<boolean>(true)
-const isVisible = ref<boolean>(true)
-const errorMessage = ref<string>('')
-const isLoggedIn = ref<boolean>(
+// Reactive State
+const login = ref('')
+const password = ref('')
+const savePassword = ref(true)
+const isVisible = ref(true)
+const errorMessage = ref('')
+const isLoggedIn = ref(
   store.username !== null && store.username !== 'Kind Guest',
 )
 
+// Methods
 const toggleVisibility = () => {
   isVisible.value = !isVisible.value
 }
@@ -129,16 +132,14 @@ const toggleVisibility = () => {
 const handleLogin = async () => {
   errorMessage.value = ''
   try {
-    const result = await store.login({
-      username: login.value,
-      password: password.value,
-    })
+    // Ensure both arguments are provided
+    const result = await store.login(login.value, password.value)
     if (result.success) {
       isLoggedIn.value = true
     } else {
       errorMessage.value = result.message
     }
-  } catch (error: unknown) {
+  } catch (error) {
     errorStore.setError(ErrorType.AUTH_ERROR, error)
     errorMessage.value = errorStore.message || 'An unexpected error occurred.'
   }
@@ -149,6 +150,7 @@ const handleLogout = () => {
   isLoggedIn.value = false
 }
 
+// Lifecycle Hook
 onMounted(() => {
   const storedUser = localStorage.getItem('user')
   if (storedUser) {

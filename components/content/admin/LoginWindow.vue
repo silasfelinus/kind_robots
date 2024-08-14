@@ -1,35 +1,46 @@
-<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="flex items-center h-36 w-36 z-50">
     <!-- Welcome Message -->
-    <div class="flex items-center cursor-pointer" @click="toggleVisibility">
+    <div
+      class="flex flex-col items-start cursor-pointer"
+      @click="toggleVisibility"
+    >
       <img
         v-if="store.avatarImage"
         :src="store.avatarImage"
-        class="w-8 h-8 rounded-full mr-2"
+        class="w-8 h-8 rounded-full mb-2"
         alt="Avatar"
       />
-      <icon name="tabler:home" class="text-base-200 text-2xl" />
-      <span class="ml-2 text-base-200">{{ welcomeMessage }}</span>
-      <NuxtLink
-        v-if="isLoggedIn && store.role === 'admin'"
-        to="/admin"
-        class="ml-2 text-accent underline"
-        >Admin</NuxtLink
-      >
+      <span class="text-base-200 text-lg mb-1">{{ welcomeMessage }}</span>
       <NuxtLink
         v-if="isLoggedIn"
         to="/dashboard"
-        class="ml-2 text-accent underline"
+        class="text-accent underline text-sm"
       >
         Dashboard
       </NuxtLink>
+      <NuxtLink
+        v-if="isLoggedIn && store.role === 'admin'"
+        to="/admin"
+        class="text-accent underline text-sm mt-1"
+      >
+        Admin
+      </NuxtLink>
+    </div>
+
+    <!-- Icon to Toggle Login -->
+    <div class="ml-4">
+      <icon
+        name="tabler:user"
+        class="text-base-200 text-2xl cursor-pointer"
+        @click="toggleVisibility"
+      />
     </div>
 
     <!-- Login Dropdown -->
     <div
-      v-if="isVisible && !isLoggedIn"
-      class="flex flex-col items-center bg-base-200 p-4 rounded-2xl shadow-lg transition-all duration-300"
+      v-if="isVisible"
+      class="flex flex-col items-center bg-base-200 p-4 rounded-2xl shadow-lg transition-all duration-300 absolute top-36 left-0"
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
@@ -40,16 +51,16 @@
       <!-- Success Screen -->
       <div v-else-if="isLoggedIn" class="text-center">
         <div class="mb-4">
-          <span class="text-lg font-semibold">
-            Hello, {{ store.username }} 🎉
-          </span>
-          <button
-            class="bg-warning text-default py-1 px-3 rounded"
-            @click="handleLogout"
+          <span class="text-lg font-semibold"
+            >Hello, {{ store.username }} 🎉</span
           >
-            Logout
-          </button>
         </div>
+        <button
+          class="bg-warning text-default py-1 px-3 rounded"
+          @click="handleLogout"
+        >
+          Logout
+        </button>
       </div>
 
       <!-- Login Form -->
@@ -59,7 +70,7 @@
         :autocomplete="stayLoggedIn ? 'on' : 'off'"
         @submit.prevent="handleLogin"
       >
-        <div class="mb-2 relative group">
+        <div>
           <label for="login" class="block text-sm mb-1">Login:</label>
           <input
             id="login"
@@ -69,13 +80,8 @@
             class="w-full p-2 border rounded"
             required
           />
-          <div
-            class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
-          >
-            Login
-          </div>
         </div>
-        <div class="mb-2 relative group">
+        <div>
           <label for="password" class="block text-sm mb-1">Password:</label>
           <input
             id="password"
@@ -85,11 +91,6 @@
             class="w-full p-2 border rounded"
             required
           />
-          <div
-            class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
-          >
-            Password
-          </div>
         </div>
 
         <div class="flex items-center justify-between">
@@ -114,8 +115,8 @@
       </form>
 
       <!-- Error Message -->
-      <div v-if="errorStore.message" class="text-warning mt-2">
-        {{ errorStore.message }}
+      <div v-if="errorMessage" class="text-warning mt-2">
+        {{ errorMessage }}
       </div>
     </div>
   </div>
@@ -123,17 +124,18 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { useUserStore } from '@/stores/userStore'
+import { useErrorStore } from '@/stores/errorStore'
 
 const store = useUserStore()
 const errorStore = useErrorStore()
 const login = ref('')
 const password = ref('')
 const isVisible = ref(false)
-const isLoggedIn = computed(() => store.isLoggedIn)
 const stayLoggedIn = ref(true)
+const errorMessage = ref<string | null>(null)
 
+const isLoggedIn = computed(() => store.isLoggedIn)
 const welcomeMessage = computed(() => {
   return isLoggedIn.value
     ? `Hello, ${store.username} 🎉`
@@ -146,75 +148,41 @@ const toggleVisibility = () => {
 
 const handleLogin = async () => {
   errorStore.clearError() // Clear previous errors
-  try {
-    const result = await store.login({
-      username: login.value,
-      password: password.value,
-    })
-    if (result.success) {
-      if (stayLoggedIn.value) {
-        localStorage.setItem('user', JSON.stringify({ username: login.value }))
-      }
-    } else {
-      errorStore.setError(ErrorType.AUTH_ERROR, result.message) // Set authentication error
+
+  const result = await store.login(login.value, password.value)
+
+  if (result.success) {
+    if (stayLoggedIn.value) {
+      localStorage.setItem('user', JSON.stringify({ username: login.value }))
+      localStorage.setItem('stayLoggedIn', 'true')
     }
-  } catch (error) {
-    errorStore.setError(ErrorType.UNKNOWN_ERROR, error) // Handle unexpected errors
+  } else {
+    errorMessage.value = result.message
   }
 }
 
-const handleLogout = () => {
-  store.logout()
-  if (!stayLoggedIn.value) {
+const handleLogout = async () => {
+  errorStore.clearError() // Clear previous errors
+
+  try {
+    await store.logout()
     localStorage.removeItem('user')
+    localStorage.removeItem('stayLoggedIn')
+  } catch (error) {
+    errorMessage.value = 'An error occurred during logout.'
+    console.error(error) // Optionally log the error for debugging
   }
 }
 
 onMounted(() => {
-  // Retrieve user data from localStorage and update the store
   const storedUser = JSON.parse(localStorage.getItem('user') || 'null')
   if (storedUser && storedUser.username !== 'Kind Guest') {
     store.setUser(storedUser)
   }
+  store.initializeUser() // Ensure user state is initialized
 })
 </script>
 
 <style scoped>
-.group:hover .float-tooltip {
-  visibility: visible;
-  opacity: 1;
-}
-
-.text-base-200 {
-  font-size: 1.25rem;
-}
-
-/* Adding some stylish upgrades */
-.bg-base-200 {
-  transition: background-color 0.3s ease;
-}
-
-.bg-base-200:hover {
-  background-color: var(--bg-base-300);
-}
-
-.text-accent {
-  transition: color 0.3s ease;
-}
-
-.text-accent:hover {
-  color: var(--text-accent-hover);
-}
-
-/* Styling for the buttons */
-button {
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-}
-
-button:hover {
-  background-color: var(--bg-button-hover);
-  color: var(--text-button-hover);
-}
+/* Your styles */
 </style>

@@ -63,18 +63,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useContentStore } from './../../../stores/contentStore'
 
+// Stores
 const contentStore = useContentStore()
 const { page } = contentStore
 const { prev, next } = useContent()
 
-const isHomePage = computed(() => {
-  return page._path === '/' || page.path === '/'
-})
+// State
+const isHomePage = computed(() => page._path === '/' || page.path === '/')
 
-// Compute random link text consistently
+// Random values (client-side only)
 const randomLinkTexts = ['Randomizer', 'Teleport!', 'Something else']
 const homeLinkTexts = [
   'HomeScreen',
@@ -83,19 +83,22 @@ const homeLinkTexts = [
   'Visual Contents',
 ]
 
-const randomLinkText = computed(() => {
-  return randomLinkTexts[Math.floor(Math.random() * randomLinkTexts.length)]
-})
-
-const homeLinkText = computed(() => {
-  return homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.length)]
-})
+const randomLinkText = ref('')
+const homeLinkText = ref('')
 
 const randomHighlightPage = computed(() => {
   const highlightPages = contentStore.highlightPages
   return highlightPages.length > 0
     ? highlightPages[Math.floor(Math.random() * highlightPages.length)]
     : {}
+})
+
+// Set random texts on client-side only
+onMounted(() => {
+  randomLinkText.value =
+    randomLinkTexts[Math.floor(Math.random() * randomLinkTexts.length)]
+  homeLinkText.value =
+    homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.length)]
 })
 </script>
 

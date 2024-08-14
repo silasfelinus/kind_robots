@@ -122,16 +122,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from './../../../stores/userStore'
-import { useErrorStore } from './../../../stores/errorStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
 const store = useUserStore()
-const errorStore = useErrorStore() // Add this to use errorStore
-const login = ref('')
-const password = ref('')
-const isVisible = ref(false)
-const errorMessage = ref('')
+const errorStore = useErrorStore()
+const login = ref<string>('')
+const password = ref<string>('')
+const isVisible = ref<boolean>(false)
+const errorMessage = ref<string>('')
+const stayLoggedIn = ref<boolean>(true)
+
 const isLoggedIn = computed(() => store.isLoggedIn)
-const stayLoggedIn = ref(true)
 
 const welcomeMessage = computed(() => {
   return isLoggedIn.value
@@ -146,10 +147,7 @@ const toggleVisibility = () => {
 const handleLogin = async () => {
   errorMessage.value = ''
   try {
-    const result = await store.login({
-      username: login.value,
-      password: password.value,
-    })
+    const result = await store.login(login.value, password.value)
     if (result.success) {
       if (stayLoggedIn.value) {
         localStorage.setItem('user', JSON.stringify({ username: login.value }))
@@ -161,7 +159,7 @@ const handleLogin = async () => {
   } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error.message : String(error)
     errorStore.setError(ErrorType.UNKNOWN_ERROR, errorMsg)
-    errorMessage.value = errorStore.message || ''
+    errorMessage.value = errorStore.message || 'An unexpected error occurred.'
   }
 }
 
@@ -173,10 +171,12 @@ const handleLogout = () => {
 }
 
 onMounted(() => {
-  // Retrieve user data from localStorage and update the store
-  const storedUser = JSON.parse(localStorage.getItem('user') || 'null')
-  if (storedUser && storedUser.username !== 'Kind Guest') {
-    store.setUser(storedUser)
+  const storedUser = localStorage.getItem('user')
+  if (storedUser) {
+    const user = JSON.parse(storedUser)
+    if (user && user.username !== 'Kind Guest') {
+      store.setUser(user)
+    }
   }
 })
 </script>

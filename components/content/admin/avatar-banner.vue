@@ -122,7 +122,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 
@@ -150,7 +149,7 @@ const handleLogin = async () => {
 
   try {
     const result = await errorStore.handleError(
-      () => store.login({ username: login.value, password: password.value }),
+      () => store.login(login.value, password.value), // Ensure both arguments are provided
       ErrorType.AUTH_ERROR,
       'Failed to login. Please try again.',
     )
@@ -195,7 +194,3 @@ onMounted(() => {
   }
 })
 </script>
-
-<style scoped>
-/* Your styles */
-</style>

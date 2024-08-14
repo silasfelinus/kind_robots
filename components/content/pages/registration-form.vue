@@ -252,7 +252,6 @@ const clearExistingUserData = () => {
   localStorage.removeItem('api_key')
   localStorage.removeItem('token')
 }
-
 const register = async () => {
   if (!isFormValid.value) return
 
@@ -261,26 +260,23 @@ const register = async () => {
   try {
     clearExistingUserData()
 
-    const userData = {
+    // Register user
+    const registerResponse = await userStore.register({
       username: username.value,
-      email: email.value,
-      password: password.value,
-    }
-
-    const response = await userStore.register(userData)
-    if (response.success) {
+    })
+    if (registerResponse.success) {
       statusMessage.value = 'Welcome to Kind Robots!'
       status.value = 'Welcome to Kind Robots!'
 
       // Automatically log the user in
       try {
-        const loginData: { username: string; password?: string } = {
-          username: username.value,
+        const loginResponse = await userStore.login(
+          username.value,
+          password.value,
+        )
+        if (!loginResponse.success) {
+          throw new Error(loginResponse.message || 'Login failed')
         }
-        if (password.value) {
-          loginData.password = password.value
-        }
-        await userStore.login(loginData)
       } catch (error: unknown) {
         if (error instanceof Error) {
           errorStore.setError(

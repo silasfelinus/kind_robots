@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // cypress/e2e/spec.cy.js
 describe('Dev Site Active', () => {
   it('passes', () => {

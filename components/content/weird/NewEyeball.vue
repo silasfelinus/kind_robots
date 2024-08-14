@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
   clearInterval(defaultBehaviorInterval)
   clearInterval(blinkInterval)
   clearTimeout(trackTimeout)
-  eyeElement.value && eyeElement.value.removeEventListener('click', handleClick)
+  eyeElement.value.removeEventListener('click', handleClick)
 
   // Remove the event listener from the document
   document.removeEventListener('mousemove', moveIris)

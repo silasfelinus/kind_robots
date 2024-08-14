@@ -3,3 +3,5 @@ dist/
 .nuxt/
 .output
 .env
+cypress/*
+spec*

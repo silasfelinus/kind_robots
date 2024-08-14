@@ -1,5 +1,7 @@
 <template>
-  <div class="hero flex flex-col items-center justify-center bg-base-200 rounded-2xl border m-2 h-full w-full">
+  <div
+    class="hero flex flex-col items-center justify-center bg-base-200 rounded-2xl border m-2 h-full w-full"
+  >
     <div
       class="flex flex-col md:flex-row items-center justify-center w-full h-full space-y-4 md:space-y-0 md:space-x-4"
     >
@@ -13,10 +15,7 @@
             v-if="state.topScore >= 100"
             class="bg-base-200 p-4 rounded-lg shadow-lg"
           >
-            <milestone-reward
-              v-if="state.pressCount >= 100"
-              :id="6"
-            />
+            <milestone-reward v-if="state.pressCount >= 100" :id="6" />
           </div>
         </transition>
         <transition name="slide-fade">
@@ -24,9 +23,7 @@
             v-if="state.topScore >= 20 && state.pressCount >= 1"
             class="bg-accent p-4 rounded-lg shadow-lg border m-2"
           >
-            <h2 class="text-xl">
-              Last Milestone
-            </h2>
+            <h2 class="text-xl">Last Milestone</h2>
             <p class="text-lg">
               {{ state.lastMilestone }}
             </p>
@@ -37,9 +34,7 @@
             v-if="state.topScore >= 21 && state.pressCount >= 1"
             class="bg-base-200 p-4 rounded-lg shadow-lg border m-2"
           >
-            <p class="text-lg">
-              Previous message: {{ state.previousMessage }}
-            </p>
+            <p class="text-lg">Previous message: {{ state.previousMessage }}</p>
           </div>
         </transition>
       </div>
@@ -55,10 +50,7 @@
         >
           {{ state.buttonText }}
         </div>
-        <div
-          v-if="state.pressed"
-          class="text-center"
-        >
+        <div v-if="state.pressed" class="text-center">
           <button
             class="text-blue-500 p-2 rounded-lg mb-4"
             @click="openResetPopup"
@@ -78,12 +70,8 @@
             v-if="state.showLeaderboard && state.topScore >= 10"
             class="bg-accent p-4 rounded-lg shadow-lg border m-2"
           >
-            <h2 class="text-2xl mb-2">
-              Leaderboard
-            </h2>
-            <p class="text-lg">
-              Top Score: {{ state.topScore }}
-            </p>
+            <h2 class="text-2xl mb-2">Leaderboard</h2>
+            <p class="text-lg">Top Score: {{ state.topScore }}</p>
           </div>
         </transition>
         <transition name="slide-fade-slow">
@@ -92,8 +80,9 @@
             class="bg-base-200 p-4 rounded-lg shadow-lg border m-2"
           >
             <!-- Butterfly Toggle Component -->
-            You've unlocked our mascot AMI - The Anti-Malaria Intelligence. AMI's job is to flutter around (for now),
-            but eventually she'll help raise funds to fight malaria.
+            You've unlocked our mascot AMI - The Anti-Malaria Intelligence.
+            AMI's job is to flutter around (for now), but eventually she'll help
+            raise funds to fight malaria.
             <butterfly-toggle />
           </div>
         </transition>
@@ -146,7 +135,6 @@ import milestones from '../../../assets/buttonMilestones'
 import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
-const username = computed(userStore.username)
 const state = reactive({
   pressed: false,
   pressCount: 0,
@@ -158,7 +146,6 @@ const state = reactive({
   previousMessage: '',
   lastMilestone: '',
 })
-const shouldShowMilestoneCheck = ref(false)
 const buttonRef = ref(null)
 
 onMounted(() => {
@@ -184,9 +171,6 @@ watch(
   (newVal, oldVal) => {
     if (newVal !== oldVal && newVal === true) {
       // User has just logged in
-      const userClickRecord = userStore.clickRecord
-      const localHighScore = parseInt(localStorage.getItem('topScore')) || 0
-      const highestScore = Math.max(userClickRecord, localHighScore)
     }
   },
 )
@@ -232,11 +216,14 @@ const submitTopScore = async () => {
   }
 }
 const triggerConfetti = () => {
-  const { top, left, width, height } = buttonRef.value.getBoundingClientRect()
+  const { top, left, width } = buttonRef.value.getBoundingClientRect()
   confetti({
     particleCount: 100 + state.pressCount * 10,
     spread: 70,
-    origin: { y: top / window.innerHeight, x: (left + width / 2) / window.innerWidth },
+    origin: {
+      y: top / window.innerHeight,
+      x: (left + width / 2) / window.innerWidth,
+    },
   })
 }
 

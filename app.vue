@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
-import { useUserStore } from '@/stores/userStore'
 import { useErrorStore } from '@/stores/errorStore'
 import { useArtStore } from '@/stores/artStore'
 import { useChannelStore } from '@/stores/channelStore'
@@ -19,7 +18,6 @@ import { useBotStore } from '@/stores/botStore'
 import { useLayoutStore } from '@/stores/layoutStore'
 import { usePitchStore } from '@/stores/pitchStore'
 import { useChatStore } from '@/stores/chatStore'
-import { usePageStore } from '@/stores/pageStore'
 
 const layoutStore = useLayoutStore()
 const tagStore = useTagStore()
@@ -32,7 +30,6 @@ const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
 const chatStore = useChatStore()
-const pageStore = usePageStore()
 const errorStore = useErrorStore()
 
 useHead({
@@ -66,7 +63,6 @@ onMounted(async () => {
     channelStore.initializeChannels()
     milestoneStore.initializeMilestones()
     chatStore.fetchChatExchanges()
-    pageStore.loadPages()
     console.log(
       'Welcome to Kind Robots, random person who reads console logs! Are you a developer?',
     )

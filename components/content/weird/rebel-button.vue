@@ -132,7 +132,7 @@ import { reactive, onMounted, ref } from 'vue'
 import confetti from 'canvas-confetti'
 import responses from '../../../assets/buttonResponses'
 import milestones from '../../../assets/buttonMilestones'
-import { useUserStore } from '@/stores/userStore'
+import { useUserStore } from './../stores/userStore'
 
 const userStore = useUserStore()
 const state = reactive({

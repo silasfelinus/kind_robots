@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { Cart, CartItem } from '@prisma/client';
-import { useErrorStore } from '@/stores/errorStore'; // Import your errorStore
+import { useErrorStore } from './../stores/errorStore'; // Import your errorStore
 
 export const useCartStore = defineStore({
   id: 'cart',

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Art, ArtReaction } from '@prisma/client'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { useErrorStore, ErrorType } from './../stores/errorStore'
 
 const isClient = import.meta.client  // Update to use Nuxt's process.client
 

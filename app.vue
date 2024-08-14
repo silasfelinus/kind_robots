@@ -7,17 +7,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
-import { useErrorStore } from '@/stores/errorStore'
-import { useArtStore } from '@/stores/artStore'
-import { useChannelStore } from '@/stores/channelStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useTagStore } from '@/stores/tagStore'
-import { useMatureStore } from '@/stores/matureStore'
-import { useThemeStore } from '@/stores/themeStore'
-import { useBotStore } from '@/stores/botStore'
-import { useLayoutStore } from '@/stores/layoutStore'
-import { usePitchStore } from '@/stores/pitchStore'
-import { useChatStore } from '@/stores/chatStore'
 
 const layoutStore = useLayoutStore()
 const tagStore = useTagStore()

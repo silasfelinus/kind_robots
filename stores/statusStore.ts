@@ -48,8 +48,7 @@ export const useStatusStore = defineStore('status', {
         await this.getStatusHistory()
         this.isLoading = false
         return `Loaded ${this.history.length} statuses.`
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Error loading store:', error)
         this.isLoading = false
         throw error

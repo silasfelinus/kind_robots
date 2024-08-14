@@ -16,7 +16,14 @@ export const useContainerStore = defineStore({
   }),
   getters: {
     containerColors() {
-      return ['bg-primary', 'bg-secondary', 'bg-accent', 'bg-base-200', 'bg-info', 'bg-base-200']
+      return [
+        'bg-primary',
+        'bg-secondary',
+        'bg-accent',
+        'bg-base-200',
+        'bg-info',
+        'bg-base-200',
+      ]
     },
     containerMargins() {
       return ['m-0', 'm-2', 'm-4', 'm-6', 'm-8']
@@ -25,7 +32,13 @@ export const useContainerStore = defineStore({
       return ['p-0', 'p-2', 'p-4', 'p-6', 'p-8']
     },
     containerBorderRadius() {
-      return ['rounded-none', 'rounded-sm', 'rounded-md', 'rounded-lg', 'rounded-xl']
+      return [
+        'rounded-none',
+        'rounded-sm',
+        'rounded-md',
+        'rounded-lg',
+        'rounded-xl',
+      ]
     },
     containerBorders() {
       return ['border-0', 'border-2', 'border-4', 'border-8']

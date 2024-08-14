@@ -1,13 +1,12 @@
 <template>
-  <div class="theme-toggle flex flex-col items-center bg-base-200 p-2 m-2 rounded-2xl text-lg w-screen h-screen border">
-    <div class="text-2xl font-bold mb-2 w-full text-center">
-      Choose Theme:
-    </div>
-    <milestone-reward
-      v-if="themeChanged"
-      :id="9"
-    />
-    <div class="theme-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full h-full">
+  <div
+    class="theme-toggle flex flex-col items-center bg-base-200 p-2 m-2 rounded-2xl text-lg w-screen h-screen border"
+  >
+    <div class="text-2xl font-bold mb-2 w-full text-center">Choose Theme:</div>
+    <milestone-reward v-if="themeChanged" :id="9" />
+    <div
+      class="theme-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full h-full"
+    >
       <div
         v-for="(theme, index) in themeStore.themes"
         :key="index"

@@ -22,13 +22,14 @@ export default defineEventHandler(async (event) => {
       where: { id },
       data: {
         ...updatedListData,
-        items: updatedListData.items ? JSON.stringify(updatedListData.items) : undefined,
+        items: updatedListData.items
+          ? JSON.stringify(updatedListData.items)
+          : undefined,
       },
     })
 
     return { success: true, updatedList }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

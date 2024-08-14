@@ -4,7 +4,7 @@
       :src="bot.avatarImage"
       alt="Bot Avatar"
       class="w-16 h-16 rounded-full"
-    >
+    />
     <div class="ml-4">
       <h2 class="text-lg font-bold">
         {{ bot.name }}

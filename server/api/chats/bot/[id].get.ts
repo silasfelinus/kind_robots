@@ -12,8 +12,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       botChats,
     }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

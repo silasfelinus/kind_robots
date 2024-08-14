@@ -8,8 +8,7 @@ export default defineEventHandler(async (event) => {
     const id = Number(event.context.params?.id)
     const isDeleted = await deleteChannel(id)
     return { success: isDeleted }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
@@ -25,8 +24,7 @@ export async function deleteChannel(id: number): Promise<boolean> {
 
     await prisma.channel.delete({ where: { id } })
     return true
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

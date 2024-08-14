@@ -5,7 +5,7 @@
       :alt="username + ' avatar'"
       class="min-w-8 min-h-8 rounded-full"
       @error="setDefaultAvatar"
-    >
+    />
   </div>
 </template>
 

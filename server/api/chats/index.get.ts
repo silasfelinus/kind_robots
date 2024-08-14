@@ -8,8 +8,7 @@ export default defineEventHandler(async () => {
   try {
     const chatExchanges = await fetchAllChatExchanges()
     return { success: true, chatExchanges }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

@@ -19,8 +19,7 @@ export const useComponentStore = defineStore('componentStore', {
         }
         const { response: componentList } = await response.json()
         this.folders.push({ folderName, components: componentList })
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Failed to fetch component list:', error)
       }
     },
@@ -32,8 +31,7 @@ export const useComponentStore = defineStore('componentStore', {
         }
         const { response: folderNames } = await response.json()
         this.folderNames = folderNames
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Failed to fetch folder names:', error)
       }
     },

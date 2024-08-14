@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
     }
 
     // Resolve the path to the folder
-    const componentPath = path.resolve(process.cwd(), `components/content/${folderName}`)
+    const componentPath = path.resolve(
+      process.cwd(),
+      `components/content/${folderName}`,
+    )
 
     // Read the component files in the folder
     const componentFiles = await fs.readdir(componentPath)
@@ -30,8 +33,7 @@ export default defineEventHandler(async (event) => {
 
     // Return the list of components
     return { response: components }
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to fetch component list:', error)
     return { response: 'Failed to fetch component list', statusCode: 500 }
   }

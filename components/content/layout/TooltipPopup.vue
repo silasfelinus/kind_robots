@@ -7,10 +7,12 @@
       @click="toggleMinimize"
     >
       <img
-        :src="page.image ? `/images/${page.image}` : '/images/default-image.webp'"
+        :src="
+          page.image ? `/images/${page.image}` : '/images/default-image.webp'
+        "
         alt="Chat Avatar"
         class="rounded-full w-14 h-14"
-      >
+      />
       <!-- Ripple Effect -->
       <div class="ripple bg-primary opacity-50" />
     </div>
@@ -20,9 +22,7 @@
       v-else
       class="w-full mt-4 p-4 bg-secondary rounded-lg border-4 border-accent"
     >
-      <h3 class="text-lg font-semibold text-primary mb-2">
-        Silas Says...
-      </h3>
+      <h3 class="text-lg font-semibold text-primary mb-2">Silas Says...</h3>
 
       <!-- Text Container -->
       <div class="streaming-container bg-base rounded-lg p-4">
@@ -66,14 +66,12 @@ const streamText = (text: string) => {
       streamingText.value += text.charAt(index)
       if (text.charAt(index) === '.' || text.charAt(index) === ',') {
         speed = 500
-      }
-      else {
+      } else {
         speed = 50
       }
       index++
       interval = setTimeout(appendChar, speed)
-    }
-    else {
+    } else {
       clearTimeout(interval as NodeJS.Timeout)
     }
   }

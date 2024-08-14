@@ -7,8 +7,7 @@ export default defineEventHandler(async () => {
   try {
     const records = await prisma.milestoneRecord.findMany()
     return { success: true, records }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

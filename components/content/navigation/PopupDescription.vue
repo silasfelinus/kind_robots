@@ -5,15 +5,12 @@
     :class="{ 'flex-row': !streaming, 'flex-col': streaming }"
     style="z-index: 1000"
   >
-    <div
-      v-if="image"
-      class="w-24 h-24 rounded-2xl overflow-hidden border"
-    >
+    <div v-if="image" class="w-24 h-24 rounded-2xl overflow-hidden border">
       <img
         :src="`/images/${image}`"
         alt="Image"
         class="object-cover w-full h-full"
-      >
+      />
     </div>
     <div class="text-3xl">
       <icon :name="icon" />

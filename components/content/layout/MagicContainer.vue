@@ -1,8 +1,5 @@
 <template>
-  <div
-    :class="['container', containerClasses]"
-    :style="containerStyles"
-  >
+  <div :class="['container', containerClasses]" :style="containerStyles">
     <slot />
   </div>
 </template>

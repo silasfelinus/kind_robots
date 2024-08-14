@@ -21,8 +21,7 @@ export default defineEventHandler(async (event) => {
         timestamp: new Date(),
       },
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     const { message } = errorHandler(error)
     console.error(`Failed to create log: ${message}`)
   }

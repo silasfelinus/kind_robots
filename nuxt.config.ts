@@ -1,21 +1,21 @@
 export default defineNuxtConfig({
   // Including the necessary modules/plugins
   modules: [
-    '@pinia/nuxt',               // Pinia state management
-    '@nuxtjs/tailwindcss',       // Tailwind CSS for styling
-    '@nuxt/content',             // Nuxt Content for Markdown, JSON, etc.
-    '@unlok-co/nuxt-stripe',     // Stripe module for payments
-    '@nuxt/eslint',              // ESLint module for linting
-    '@nuxt/icon'                 // Automatic icon imports
+    '@pinia/nuxt', // Pinia state management
+    '@nuxtjs/tailwindcss', // Tailwind CSS for styling
+    '@nuxt/content', // Nuxt Content for Markdown, JSON, etc.
+    '@unlok-co/nuxt-stripe', // Stripe module for payments
+    '@nuxt/eslint', // ESLint module for linting
+    '@nuxt/icon', // Automatic icon imports
   ],
 
   // Vite configuration, specifically aliasing
   vite: {
     resolve: {
       alias: {
-        '@': '.'   // Alias '@' to the project root directory
-      }
-    }
+        '@': '.', // Alias '@' to the project root directory
+      },
+    },
   },
   srcDir: '.',
 
@@ -29,14 +29,14 @@ export default defineNuxtConfig({
   // Stripe configuration for server and client sides
   stripe: {
     server: {
-      key: 'sk_test_123',          // Server-side key
+      key: 'sk_test_123', // Server-side key
       options: {
-        apiVersion: '2024-04-10',  // API version
-      }
+        apiVersion: '2024-04-10', // API version
+      },
     },
     client: {
-      key: 'pk_test_123',          // Client-side key
-      options: {}
+      key: 'pk_test_123', // Client-side key
+      options: {},
     },
   },
 
@@ -46,7 +46,7 @@ export default defineNuxtConfig({
   // Runtime configuration for sensitive keys and secrets
   runtimeConfig: {
     public: {
-      stripePublicKey: process.env.STRIPE_PUBLIC_KEY // Public stripe key
+      stripePublicKey: process.env.STRIPE_PUBLIC_KEY, // Public stripe key
     },
     private: {
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
@@ -56,7 +56,7 @@ export default defineNuxtConfig({
       GOOGLE_SECRET: process.env.GOOGLE_SECRET,
       AUTH_SECRET: process.env.AUTH_SECRET,
       JWT_SECRET: process.env.JWT_SECRET,
-    }
+    },
   },
 
   // Nuxt content module configuration
@@ -66,6 +66,6 @@ export default defineNuxtConfig({
 
   // Control over Nuxt devtools
   devtools: {
-    enabled: false,  // Disable devtools in production
-  }
-});
+    enabled: false, // Disable devtools in production
+  },
+})

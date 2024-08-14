@@ -17,14 +17,8 @@
         {{ title }}
       </div>
     </div>
-    <div
-      v-if="isCurrentPage"
-      class="ml-2 text-md text-info"
-    >
-      <icon
-        name="line-md:download-outline-loop"
-        class="text-lg"
-      />
+    <div v-if="isCurrentPage" class="ml-2 text-md text-info">
+      <icon name="line-md:download-outline-loop" class="text-lg" />
       You are here
     </div>
   </div>

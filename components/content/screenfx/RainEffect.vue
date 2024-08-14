@@ -27,17 +27,22 @@ const props = defineProps({
   windAngle: { type: Number, default: 0 },
 })
 
-const rainDrops: RainDrop[] = Array.from({ length: props.numberOfDrops }).map(() => {
-  const size = 1 + Math.random() * 2
-  return {
-    x: Math.floor(Math.random() * window.innerWidth),
-    y: Math.floor(Math.random() * -window.innerHeight),
-    duration: (window.innerHeight / (70 * props.intensity)) * (size / 3) * (1 + Math.random()),
-    delay: Math.random() * 5,
-    size,
-    angle: props.windAngle + Math.floor(Math.random() * 21) - 10,
-  }
-})
+const rainDrops: RainDrop[] = Array.from({ length: props.numberOfDrops }).map(
+  () => {
+    const size = 1 + Math.random() * 2
+    return {
+      x: Math.floor(Math.random() * window.innerWidth),
+      y: Math.floor(Math.random() * -window.innerHeight),
+      duration:
+        (window.innerHeight / (70 * props.intensity)) *
+        (size / 3) *
+        (1 + Math.random()),
+      delay: Math.random() * 5,
+      size,
+      angle: props.windAngle + Math.floor(Math.random() * 21) - 10,
+    }
+  },
+)
 
 const rainDropStyle = (drop: RainDrop) => ({
   left: drop.x + 'px',
@@ -50,7 +55,10 @@ const rainDropStyle = (drop: RainDrop) => ({
 })
 
 onMounted(() => {
-  document.documentElement.style.setProperty('--wind-angle', `${props.windAngle}deg`)
+  document.documentElement.style.setProperty(
+    '--wind-angle',
+    `${props.windAngle}deg`,
+  )
 })
 </script>
 

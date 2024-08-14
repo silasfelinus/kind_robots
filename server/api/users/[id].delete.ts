@@ -7,7 +7,7 @@ import prisma from '../utils/prisma'
 export default defineEventHandler(async (event) => {
   try {
     console.log('id.delete API route invoked. Setting auth to true.')
-    
+
     // Validate the API key using the auth middleware
     event.context.route = { auth: true } // This line sets the auth property
     auth(event)
@@ -24,7 +24,10 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: `User with id ${id} does not exist.` }
     }
 
-    return { success: true, message: `User with id ${id} successfully deleted.` }
+    return {
+      success: true,
+      message: `User with id ${id} successfully deleted.`,
+    }
   } catch (error: unknown) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return { response: 'Unauthorized', statusCode: 401 }
@@ -52,4 +55,3 @@ export async function deleteUser(id: number): Promise<boolean> {
     throw new Error(errorHandler(error).message)
   }
 }
-

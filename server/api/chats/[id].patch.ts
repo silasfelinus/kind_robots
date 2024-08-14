@@ -20,11 +20,19 @@ export default defineEventHandler(async (event) => {
 
     // Read and validate reaction data
     const reactionData: ReactionData = await readBody(event)
-    const validReactions: Array<keyof ReactionData> = ['liked', 'hated', 'loved', 'flagged']
+    const validReactions: Array<keyof ReactionData> = [
+      'liked',
+      'hated',
+      'loved',
+      'flagged',
+    ]
 
     // Ensure all keys are valid and values are boolean
     for (const key of Object.keys(reactionData) as Array<keyof ReactionData>) {
-      if (!validReactions.includes(key) || typeof reactionData[key] !== 'boolean') {
+      if (
+        !validReactions.includes(key) ||
+        typeof reactionData[key] !== 'boolean'
+      ) {
         throw new TypeError('Invalid reaction data.')
       }
     }
@@ -39,9 +47,11 @@ export default defineEventHandler(async (event) => {
       success: true,
       updatedExchange,
     }
-  }
-  catch (error: unknown) {
-    console.error(`Error while updating chat exchange with id ${event.context.params?.id}:`, error)
+  } catch (error: unknown) {
+    console.error(
+      `Error while updating chat exchange with id ${event.context.params?.id}:`,
+      error,
+    )
     const { success, message, statusCode } = errorHandler(error)
     return {
       success,

@@ -8,8 +8,7 @@ export default defineEventHandler(async () => {
   try {
     const count = await countBots()
     return { success: true, count }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
     throw createError({
       statusCode: statusCode || 500,

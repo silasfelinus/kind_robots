@@ -5,17 +5,11 @@
   >
     <!-- Star Icon for Achieved Milestones -->
     <div class="absolute top-2 right-2 z-6">
-      <icon
-        name="ph:star-bold"
-        class="text-yellow-400 text-4xl"
-      />
+      <icon name="ph:star-bold" class="text-yellow-400 text-4xl" />
     </div>
     <div class="text-center">
       <!-- Milestone Icon -->
-      <icon
-        :name="milestone.icon"
-        class="text-9xl mb-2 md:w-16 md:h-16"
-      />
+      <icon :name="milestone.icon" class="text-9xl mb-2 md:w-16 md:h-16" />
       <!-- Milestone Label -->
       <div class="text-2xl font-bold">
         <a
@@ -43,26 +37,19 @@
         {{
           acquiredAt
             ? new Date(acquiredAt).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })
             : 'Unknown'
         }}
       </div>
       <!-- Karma Points -->
-      <div class="text-xs">
-        Karma: +{{ milestone.karma }}
-      </div>
+      <div class="text-xs">Karma: +{{ milestone.karma }}</div>
       <!-- Jellybean Award -->
       <div>
-        <div class="text-lg">
-          You discovered 1 Jellybean!
-        </div>
-        <icon
-          name="tdesign:bean"
-          class="text-9xl"
-        />
+        <div class="text-lg">You discovered 1 Jellybean!</div>
+        <icon name="tdesign:bean" class="text-9xl" />
       </div>
     </div>
   </div>

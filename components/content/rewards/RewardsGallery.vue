@@ -1,18 +1,12 @@
 <template>
   <div class="bg-base-200 p-4">
     <!-- Error Message -->
-    <div
-      v-if="rewardStore.error"
-      class="text-red-500"
-    >
+    <div v-if="rewardStore.error" class="text-red-500">
       🚨 {{ rewardStore.error }}
     </div>
 
     <!-- Detailed Reward View -->
-    <div
-      v-else-if="rewardStore.currentReward"
-      :class="{ pixelate: pixelate }"
-    >
+    <div v-else-if="rewardStore.currentReward" :class="{ pixelate: pixelate }">
       <icon
         v-if="rewardStore.currentReward && rewardStore.currentReward.icon"
         :name="rewardStore.currentReward.icon"
@@ -21,28 +15,15 @@
       <h1 class="text-4xl">
         {{ rewardStore.currentReward.text }}
       </h1>
-      <p class="text-xl">
-        🔥 Power: {{ rewardStore.currentReward.power }}
-      </p>
+      <p class="text-xl">🔥 Power: {{ rewardStore.currentReward.power }}</p>
       <p class="text-xl">
         📚 Collection: {{ rewardStore.currentReward.collection }}
       </p>
-      <p class="text-xl">
-        🌟 Rarity: {{ rewardStore.currentReward.rarity }}
-      </p>
-      <button
-        class="bg-primary p-2 rounded"
-        @click="endReward"
-      >
-        <icon
-          name="game-icons:fast-backward-button"
-          class="text-6xl"
-        />
+      <p class="text-xl">🌟 Rarity: {{ rewardStore.currentReward.rarity }}</p>
+      <button class="bg-primary p-2 rounded" @click="endReward">
+        <icon name="game-icons:fast-backward-button" class="text-6xl" />
       </button>
-      <button
-        class="bg-accent p-2 rounded"
-        @click="showEditReward = true"
-      >
+      <button class="bg-accent p-2 rounded" @click="showEditReward = true">
         ✏️ Edit
       </button>
     </div>
@@ -55,10 +36,7 @@
       />
     </div>
     <!-- Rewards Grid -->
-    <div
-      v-else
-      class="grid grid-cols-5 gap-4"
-    >
+    <div v-else class="grid grid-cols-5 gap-4">
       <div
         v-for="reward in rewardStore.rewards"
         :key="reward.id"
@@ -66,10 +44,7 @@
         @click="selectReward(reward)"
       >
         <div class="text-center">
-          <icon
-            name="game-icons:open-treasure-chest"
-            class="text-6xl"
-          />
+          <icon name="game-icons:open-treasure-chest" class="text-6xl" />
           <p class="mt-2 text-lg">
             {{ reward.text }}
           </p>
@@ -83,10 +58,7 @@
     </div>
 
     <!-- Add New Reward Button -->
-    <button
-      class="bg-primary p-2 rounded mt-4"
-      @click="showAddReward = true"
-    >
+    <button class="bg-primary p-2 rounded mt-4" @click="showAddReward = true">
       ➕ Add New Reward
     </button>
   </div>
@@ -109,7 +81,6 @@ onMounted(() => {
 const endReward = () => {
   rewardStore.clearCurrentReward()
 }
-
 
 const selectReward = (reward: Reward) => {
   console.log(`Selecting reward with ID: ${reward.id}`) // Debugging line

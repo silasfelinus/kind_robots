@@ -22,7 +22,9 @@ export async function fetchBotByName(name: string): Promise<Bot | null> {
   })
 }
 
-export async function addBots(botsData: Partial<Bot>[]): Promise<{ count: number, bots: Bot[], errors: string[] }> {
+export async function addBots(
+  botsData: Partial<Bot>[],
+): Promise<{ count: number; bots: Bot[]; errors: string[] }> {
   const errors: string[] = []
   const data: Prisma.BotCreateManyInput[] = botsData
     .filter((botData) => {
@@ -32,7 +34,7 @@ export async function addBots(botsData: Partial<Bot>[]): Promise<{ count: number
       }
       return true
     })
-    .map(botData => botData as Prisma.BotCreateManyInput)
+    .map((botData) => botData as Prisma.BotCreateManyInput)
 
   const result = await prisma.bot.createMany({
     data,
@@ -44,7 +46,10 @@ export async function addBots(botsData: Partial<Bot>[]): Promise<{ count: number
   return { count: result.count, bots, errors }
 }
 
-export async function updateBot(name: string, data: Partial<Bot>): Promise<Bot | null> {
+export async function updateBot(
+  name: string,
+  data: Partial<Bot>,
+): Promise<Bot | null> {
   const botExists = await prisma.bot.findUnique({ where: { name } })
 
   if (!botExists) {
@@ -57,8 +62,9 @@ export async function updateBot(name: string, data: Partial<Bot>): Promise<Bot |
   })
 }
 
-
-export async function updateBots(botsData: Partial<Bot>[]): Promise<{ updated: number, errors: string[] }> {
+export async function updateBots(
+  botsData: Partial<Bot>[],
+): Promise<{ updated: number; errors: string[] }> {
   let updated = 0
   const errors: string[] = []
 
@@ -67,21 +73,21 @@ export async function updateBots(botsData: Partial<Bot>[]): Promise<{ updated: n
       try {
         await updateBot(botData.name, botData)
         updated++
-      }
-      catch (error: unknown) {
+      } catch (error: unknown) {
         // Assuming `error.message` will always be a string, but type guard can be used if needed
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-        errors.push(`Failed to update bot with name ${botData.name}: ${errorMessage}`)
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error'
+        errors.push(
+          `Failed to update bot with name ${botData.name}: ${errorMessage}`,
+        )
       }
-    }
-    else {
+    } else {
       errors.push('Bot name is missing.')
     }
   }
 
   return { updated, errors }
 }
-
 
 export async function deleteBot(id: number): Promise<boolean> {
   const botExists = await prisma.bot.findUnique({ where: { id } })

@@ -54,7 +54,8 @@ const trainingData: AdventureScenario[] = [
   {
     genre: 'Fantasy',
     setting: 'Medieval',
-    startPrompt: 'You find yourself in a bustling medieval town square, surrounded by merchants peddling their wares.',
+    startPrompt:
+      'You find yourself in a bustling medieval town square, surrounded by merchants peddling their wares.',
     scenarios: [
       {
         prompt: 'A mysterious stranger beckons you over. Do you:',
@@ -66,12 +67,13 @@ const trainingData: AdventureScenario[] = [
         ],
       },
       {
-        prompt: 'You discover the stranger is a mage. They offer you a potion. Do you:',
+        prompt:
+          'You discover the stranger is a mage. They offer you a potion. Do you:',
         responses: [
           'Politely decline.',
           'Accept the potion and drink it immediately.',
           'Take the potion for later.',
-          'Ask them about the potion\'s effects.',
+          "Ask them about the potion's effects.",
         ],
       },
       // ... Add more scenarios as needed

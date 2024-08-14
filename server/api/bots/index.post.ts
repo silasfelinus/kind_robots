@@ -9,8 +9,7 @@ export default defineEventHandler(async (event) => {
     const botsData = await readBody(event)
     const result = await updateBots(botsData)
     return { success: true, ...result }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
     throw createError({
       statusCode: statusCode || 500,

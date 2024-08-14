@@ -31,7 +31,7 @@
                 alt="Image from {{ gallery.name }}"
                 class="gallery-img w-full"
                 @click="refreshSingleGallery(gallery)"
-              >
+              />
             </div>
             <!-- Back -->
             <div class="flipper-back">
@@ -40,7 +40,7 @@
                 alt="Next image from {{ gallery.name }}"
                 class="gallery-img w-full"
                 @click="refreshSingleGallery(gallery)"
-              >
+              />
             </div>
           </div>
         </div>

@@ -23,7 +23,7 @@
               :src="`/images/${page.image}`"
               alt="Page Image"
               class="w-full h-full rounded-full object-cover"
-            >
+            />
             <div
               class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute bg-primary p-2 rounded shadow-lg text-xs md:text-sm z-10"
               style="
@@ -39,7 +39,9 @@
           </div>
           <div
             class="mt-2 text-sm md:text-base transition-colors ease-in-out duration-500 hover:text-blue-600"
-            :style="clicked === page._id ? 'font-weight: bold; color: green;' : ''"
+            :style="
+              clicked === page._id ? 'font-weight: bold; color: green;' : ''
+            "
           >
             {{ page.title }}
           </div>

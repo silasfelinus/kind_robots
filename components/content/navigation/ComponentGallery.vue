@@ -15,10 +15,7 @@
 
     <!-- Loading State -->
     <div v-if="isLoading">
-      <icon
-        name="mdi:loading"
-        class="animate-spin text-4xl"
-      />
+      <icon name="mdi:loading" class="animate-spin text-4xl" />
       Loading...
     </div>
 
@@ -34,10 +31,7 @@
         @click="fetchComponents(folder)"
       >
         <div class="text-center">
-          <icon
-            name="bi:folder-fill"
-            class="text-4xl"
-          />
+          <icon name="bi:folder-fill" class="text-4xl" />
           <p class="mt-2">
             {{ folder }}
           </p>
@@ -46,10 +40,7 @@
     </div>
 
     <!-- Component View -->
-    <div
-      v-else
-      class="grid grid-cols-3 gap-4"
-    >
+    <div v-else class="grid grid-cols-3 gap-4">
       <!-- Back Button -->
       <div class="col-span-full text-right mb-4">
         <icon
@@ -60,10 +51,7 @@
       </div>
       <!-- Components -->
       <!-- Cube Icon to End Component -->
-      <div
-        v-if="selectedComponent"
-        class="absolute top-0 left-0 mt-4 ml-4"
-      >
+      <div v-if="selectedComponent" class="absolute top-0 left-0 mt-4 ml-4">
         <icon
           name="game-icons:companion-cube"
           class="text-4xl cursor-pointer"
@@ -77,20 +65,14 @@
         @click="openModal(component)"
       >
         <div class="text-center">
-          <icon
-            name="game-icons:companion-cube"
-            class="text-4xl mb-2"
-          />
+          <icon name="game-icons:companion-cube" class="text-4xl mb-2" />
           <p>{{ component }}</p>
         </div>
       </div>
     </div>
 
     <!-- Error Reporting -->
-    <div
-      v-if="errorComponents.length > 0"
-      class="text-red-500 mt-4"
-    >
+    <div v-if="errorComponents.length > 0" class="text-red-500 mt-4">
       🚨 Error loading these components: {{ errorComponents.join(', ') }}
     </div>
   </div>
@@ -132,7 +114,9 @@ const fetchComponents = async (folder: string) => {
   isLoading.value = true
   selectedFolder.value = folder
   await componentStore.fetchComponentList(folder)
-  selectedComponents.value = componentStore.folders.find(f => f.folderName === folder)?.components || []
+  selectedComponents.value =
+    componentStore.folders.find((f) => f.folderName === folder)?.components ||
+    []
   isLoading.value = false
 }
 

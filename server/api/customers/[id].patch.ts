@@ -10,21 +10,22 @@ export default defineEventHandler(async (event) => {
     const updatedCustomerData: Partial<Customer> = await readBody(event)
     const updatedCustomer = await updateCustomer(id, updatedCustomerData)
     return { success: true, updatedCustomer }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
 // Function to update an existing Customer by ID
-export async function updateCustomer(id: number, updatedCustomer: Partial<Customer>): Promise<Customer | null> {
+export async function updateCustomer(
+  id: number,
+  updatedCustomer: Partial<Customer>,
+): Promise<Customer | null> {
   try {
     return await prisma.customer.update({
       where: { id },
       data: updatedCustomer,
     })
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }

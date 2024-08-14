@@ -39,14 +39,13 @@ export const useTodoStore = defineStore({
         if (response.ok) {
           this.todos = await response.json()
         }
-      }
-      catch (error) {
+      } catch (error) {
         console.error('An error occurred while fetching todos:', error)
       }
     },
 
     async toggleCompleted(todoId: number) {
-      const todo = this.todos.find(t => t.id === todoId)
+      const todo = this.todos.find((t) => t.id === todoId)
       if (!todo) return
 
       const updatedTodo = { ...todo, completed: !todo.completed }
@@ -61,7 +60,7 @@ export const useTodoStore = defineStore({
 
       if (response.ok) {
         const updatedTodoFromServer = await response.json()
-        const index = this.todos.findIndex(t => t.id === todoId)
+        const index = this.todos.findIndex((t) => t.id === todoId)
         if (index !== -1) {
           this.todos[index] = updatedTodoFromServer
         }
@@ -89,7 +88,7 @@ export const useTodoStore = defineStore({
       })
 
       if (response.ok) {
-        const index = this.todos.findIndex(t => t.id === todoId)
+        const index = this.todos.findIndex((t) => t.id === todoId)
         if (index !== -1) {
           this.todos.splice(index, 1)
         }

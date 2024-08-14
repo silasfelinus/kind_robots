@@ -23,7 +23,10 @@ export default defineEventHandler(async (event) => {
     const updatedTodo = await updateTodo(id, updateTodoData)
 
     if (!updatedTodo) {
-      return { success: false, message: 'Todo not found or could not be updated.' }
+      return {
+        success: false,
+        message: 'Todo not found or could not be updated.',
+      }
     }
 
     return { success: true, todo: updatedTodo }

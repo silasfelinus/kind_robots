@@ -22,8 +22,7 @@ export default defineEventHandler(async () => {
       },
     })
     return { success: true, users }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

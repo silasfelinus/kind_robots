@@ -10,10 +10,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="(user, index) in leaderboard"
-          :key="user.id"
-        >
+        <tr v-for="(user, index) in leaderboard" :key="user.id">
           <td>{{ index + 1 }}</td>
           <td>{{ user.username }}</td>
           <td>{{ user.clickRecord }}</td>

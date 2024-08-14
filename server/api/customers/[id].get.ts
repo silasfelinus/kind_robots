@@ -23,8 +23,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       customer,
     }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     const { success, message, statusCode } = errorHandler(error)
     return {
       success,

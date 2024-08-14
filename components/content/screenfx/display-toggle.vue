@@ -1,17 +1,8 @@
 <template>
   <div :class="layoutClass">
-    <nav
-      v-if="isSimpleLayout"
-      class="simple-nav"
-    >
-      <a
-        href="/"
-        class="home-link"
-      >
-        <icon
-          name="mdi:home"
-          class="home-icon"
-        />
+    <nav v-if="isSimpleLayout" class="simple-nav">
+      <a href="/" class="home-link">
+        <icon name="mdi:home" class="home-icon" />
         Home
       </a>
     </nav>
@@ -20,14 +11,8 @@
       <slot />
     </div>
     <div class="toggle-layout">
-      <button
-        class="toggle-button"
-        @click="toggleLayout"
-      >
-        <icon
-          :name="toggleIcon"
-          class="toggle-icon"
-        />
+      <button class="toggle-button" @click="toggleLayout">
+        <icon :name="toggleIcon" class="toggle-icon" />
       </button>
     </div>
   </div>
@@ -50,7 +35,9 @@ const toggleLayout = () => {
   layoutStore.setLayout(isSimpleLayout.value ? 'default' : 'simple')
 }
 
-const toggleIcon = computed(() => (isSimpleLayout.value ? 'mdi:view-grid' : 'mdi:fullscreen'))
+const toggleIcon = computed(() =>
+  isSimpleLayout.value ? 'mdi:view-grid' : 'mdi:fullscreen',
+)
 </script>
 
 <style scoped>

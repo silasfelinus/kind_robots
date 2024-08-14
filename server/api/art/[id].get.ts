@@ -8,8 +8,7 @@ export default defineEventHandler(async (event) => {
     const id = Number(event.context.params?.id)
     const art = await fetchArtById(id)
     return { success: true, art }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     return errorHandler(error)
   }
 })

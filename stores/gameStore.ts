@@ -35,7 +35,9 @@ export const useGameStore = defineStore('game', {
       return this.currentGame ? this.currentGame.character : null
     },
     currentDecisions(): Decision[] | null {
-      return this.currentGame && this.currentGame.decisions ? this.currentGame.decisions : null
+      return this.currentGame && this.currentGame.decisions
+        ? this.currentGame.decisions
+        : null
     },
   },
   actions: {

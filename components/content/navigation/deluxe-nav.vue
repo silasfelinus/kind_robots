@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/html-self-closing -->
 <template>
   <nav class="w-full bg-base p-4 transition-all duration-500 ease-in-out">
     <div class="flex justify-center mb-2 flex-wrap space-x-2">
@@ -67,36 +66,37 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { Page } from './../../../stores/contentStore'
 import { useContentStore } from './../../../stores/contentStore'
 import { useScreenStore } from './../../../stores/screenStore'
 import { useBotStore } from './../../../stores/botStore'
-
-// Define the Page interface
-interface Page {
-  _id: string
-  _path: string
-  title: string
-  image?: string
-  tags?: string[]
-}
 
 const contentStore = useContentStore()
 const screenStore = useScreenStore()
 const botStore = useBotStore()
 
 // Fetch pages from content store
-contentStore.getPages()
+const fetchPages = async () => {
+  await contentStore.getPages()
+}
+
+fetchPages()
 
 // Ensure that contentStore.pages matches the Page interface
 const pages = computed<Page[]>(() => {
-  const pages = contentStore.pages
-  // Perform runtime type validation if necessary
-  return pages.filter((page): page is Page => '_id' in page && '_path' in page)
+  return contentStore.pages.filter((page): page is Page => {
+    return (
+      page._id !== undefined &&
+      page._path !== undefined &&
+      typeof page._id === 'string' &&
+      typeof page._path === 'string'
+    )
+  })
 })
 
 const uniqueTags = computed(() => {
   const tags: string[] = pages.value
-    .map((page) => page.tags)
+    .map((page) => page.tags || [])
     .flat()
     .filter((tag): tag is string => typeof tag === 'string') // Type guard for string
   return Array.from(new Set(tags)).filter((tag) => tag !== 'home')

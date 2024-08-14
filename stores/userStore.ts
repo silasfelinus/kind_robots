@@ -95,23 +95,35 @@ export const useUserStore = defineStore({
         useErrorStore().setError(ErrorType.AUTH_ERROR, error) // Use errorStore with ErrorType
       }
     },
-    async register({ username }: { username: string }): Promise<{ success: boolean; user?: User; message?: string }> {
+    async register({
+      username,
+    }: {
+      username: string
+    }): Promise<{ success: boolean; user?: User; message?: string }> {
       try {
         this.startLoading()
-        
-        const response = await this.apiCall('/api/auth/register', 'POST', { username })
-        
+
+        const response = await this.apiCall('/api/auth/register', 'POST', {
+          username,
+        })
+
         if (response.success && response.user) {
           this.setUser(response.user)
           this.setToken(response.token || '')
           this.setApiKey(response.apiKey || '')
           return { success: true, user: response.user }
         } else {
-          return { success: false, message: response.message || 'Registration failed' }
+          return {
+            success: false,
+            message: response.message || 'Registration failed',
+          }
         }
       } catch (error) {
         useErrorStore().setError(ErrorType.AUTH_ERROR, error) // Use errorStore with ErrorType
-        return { success: false, message: 'An error occurred during registration' }
+        return {
+          success: false,
+          message: 'An error occurred during registration',
+        }
       } finally {
         this.stopLoading()
       }

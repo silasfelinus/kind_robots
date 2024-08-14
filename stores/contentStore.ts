@@ -76,7 +76,7 @@ export const useContentStore = defineStore({
       )
     },
     getPages() {
-      return this.pages; // Add this method if it's supposed to be used
+      return this.pages // Add this method if it's supposed to be used
     },
     async refreshContent() {
       await this.loadStore()

@@ -1,37 +1,21 @@
 <template>
   <div class="bg-base-200 rounded-2xl p-8 text-lg">
-    <h1 class="text-2xl mb-4">
-      Pitch Manager
-    </h1>
+    <h1 class="text-2xl mb-4">Pitch Manager</h1>
     <!-- Toggle Switch for Admin -->
-    <div
-      v-if="isAdmin"
-      class="mt-4"
-    >
+    <div v-if="isAdmin" class="mt-4">
       <label class="flex items-center">
-        <input
-          v-model="showAllPitches"
-          type="checkbox"
-          class="mr-2"
-        >
+        <input v-model="showAllPitches" type="checkbox" class="mr-2" />
         Show All Pitches
       </label>
     </div>
 
     <!-- List all pitch titles -->
     <ul class="list-decimal list-inside">
-      <li
-        v-for="pitch in pitchTitles"
-        :key="pitch.id"
-        class="mb-2"
-      >
+      <li v-for="pitch in pitchTitles" :key="pitch.id" class="mb-2">
         <span class="font-semibold">{{ pitch.title }}</span>
 
         <!-- Show edit and delete options if role is ADMIN -->
-        <span
-          v-if="isAdmin"
-          class="ml-4"
-        >
+        <span v-if="isAdmin" class="ml-4">
           <button
             class="bg-primary rounded-2xl p-2 text-white hover:bg-primary-dark"
             @click="editPitch(pitch.id, pitch.title)"
@@ -54,7 +38,7 @@
         v-model="newPitchTitle"
         placeholder="New Pitch Title"
         class="rounded-2xl p-2 w-full text-lg"
-      >
+      />
       <button
         class="bg-primary rounded-2xl p-2 text-white mt-2 w-full hover:bg-primary-dark"
         @click="addNewPitch"
@@ -64,10 +48,7 @@
     </div>
 
     <!-- Save Edited Pitch -->
-    <div
-      v-if="editPitchId !== null"
-      class="mt-4"
-    >
+    <div v-if="editPitchId !== null" class="mt-4">
       <button
         class="bg-accent rounded-2xl p-2 text-white w-full hover:bg-accent-dark"
         @click="saveEdit"
@@ -79,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useTagStore } from '@/stores/tagStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -107,8 +88,7 @@ const addNewPitch = () => {
   if (userId.value !== null) {
     tagStore.addPitch(newPitchTitle.value, userId.value)
     newPitchTitle.value = ''
-  }
-  else {
+  } else {
     console.error('User ID is null, cannot add new pitch.')
   }
 }

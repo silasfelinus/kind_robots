@@ -54,10 +54,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { usePageStore } from '~/stores/pageStore'
+import { ref, computed } from 'vue'
+import { useContentStore } from './../../../stores/contentStore'
 
-const pageStore = usePageStore()
+const pageStore = useContentStore()
 
 const isHovered = ref(null)
 const highlightPages = computed(() => {

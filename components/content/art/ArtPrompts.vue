@@ -81,14 +81,6 @@ const startEditingPrompt = (prompt: ArtPrompt) => {
   newPrompt.value = prompt.prompt
 }
 
-// Edit a prompt
-const editPrompt = () => {
-  if (editingPrompt.value && isValidPrompt.value) {
-    promptStore.editArtPrompt(editingPrompt.value.id, newPrompt.value.trim())
-    newPrompt.value = ''
-    editingPrompt.value = null
-  }
-}
 // Fetch art prompts when the component is mounted
 onMounted(() => {
   fetchArtPrompts()

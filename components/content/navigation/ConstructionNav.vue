@@ -54,8 +54,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePageStore } from '~/stores/pageStore'
-import { useFooterStore } from '~/stores/footerStore'
+import { useFooterStore } from './../../../stores/footerStore'
 
 const footerStore = useFooterStore()
 
@@ -64,10 +63,11 @@ const handleLinkClick = () => {
     footerStore.toggleIsExtended()
   }
 }
-const pageStore = usePageStore()
+
+const { pages } = useContent()
 
 const isHovered = ref(null)
 const underConstructionPages = computed(() => {
-  return pageStore.pagesUnderConstruction
+  return pages.pagesUnderConstruction
 })
 </script>

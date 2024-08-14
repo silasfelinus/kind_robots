@@ -11,26 +11,19 @@
         :src="art.path"
         alt="Artwork"
         class="rounded-2xl transition-transform ease-in-out hover:scale-105"
-      >
+      />
     </div>
     <p class="mt-2 text-base">
       {{ art.pitch }}
     </p>
-    <p class="mt-2 text-base">
-      claps: {{ art.claps }}
-    </p>
-    <p class="mt-2 text-base">
-      Adoptable?: {{ art.isOrphan }}
-    </p>
+    <p class="mt-2 text-base">claps: {{ art.claps }}</p>
+    <p class="mt-2 text-base">Adoptable?: {{ art.isOrphan }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useArtStore, type Art } from '@/stores/artStore'
-import { useMatureStore } from '@/stores/matureStore'
 
-const filterStore = useMatureStore()
-const showMature = computed(() => filterStore.showMature)
 const artStore = useArtStore()
 const props = defineProps<{
   art: Art

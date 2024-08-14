@@ -4,11 +4,7 @@
     class="flex flex-col items-center rounded-2xl hover:shadow-lg p-4 bg-base-200"
   >
     <!-- Avatar Image -->
-    <img
-      :src="avatarImage"
-      alt="Avatar"
-      class="rounded-full w-16 h-16 mb-2"
-    >
+    <img :src="avatarImage" alt="Avatar" class="rounded-full w-16 h-16 mb-2" />
 
     <!-- Title -->
     <div class="text-lg font-semibold mb-2">
@@ -46,9 +42,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { type Pitch, usePitchStore } from '@/stores/pitchStore'
-
-const pitchStore = usePitchStore()
+import type { Pitch } from '@/stores/pitchStore'
 
 const {
   pitch = {
@@ -61,7 +55,6 @@ const {
   pitch?: Pitch
 }>()
 const avatarImage = '/images/kindtitle.webp'
-const pitchArt = pitchStore.getArtForPitch
 const tooltipVisible = ref(false)
 
 const showTooltip = () => {

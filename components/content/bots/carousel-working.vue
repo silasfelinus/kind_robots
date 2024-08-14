@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useBotStore, type Bot } from '../../../stores/botStore'
 
 const botStore = useBotStore()

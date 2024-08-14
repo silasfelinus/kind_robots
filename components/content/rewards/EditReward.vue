@@ -47,10 +47,6 @@ const formFields = [
   { id: 'rarity', label: 'Rarity', type: 'number' },
 ]
 
-const setRewardToEdit = (reward: Reward) => {
-  // Add type for reward
-  editedReward.value = { ...reward }
-}
 
 const editReward = async () => {
   if (editedReward.value.id) {

@@ -43,7 +43,7 @@ const headerHeight = computed(() => {
 <style scoped>
 /* Define a CSS variable for the header height */
 :root {
-  --header-height: 4rem;
+  --header-height: 7rem;
 }
 
 /* Adjust header height based on screen size */

@@ -30,9 +30,7 @@
       <!-- Main Content Area -->
       <div class="border border-gray-300 rounded-lg mb-4 p-4 bg-gray-200">
         <!-- Use NuxtLayout for dynamic content -->
-        <NuxtLayout :class="currentLayout">
-          <ContentDoc />
-        </NuxtLayout>
+        <NuxtPage />
       </div>
     </main>
   </div>
@@ -66,7 +64,6 @@ const milestoneStore = useMilestoneStore()
 const chatStore = useChatStore()
 const errorStore = useErrorStore()
 const layoutStore = useLayoutStore()
-const currentLayout = layoutStore.currentLayout
 
 useHead({
   title: 'Kind Robots',

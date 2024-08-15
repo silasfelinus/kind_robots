@@ -2,7 +2,6 @@
 title: 'Mermaids of Venice'
 subtitle: 'A Book with a Cause'
 description: 'Dive into a fantasy world inspired by my European street-performing adventures, flaws and all. Your donation helps fight malaria and lands you a free copy!'
-layout: dashboard
 image: 'utility/mermaids/mermaids1.jpg'
 gallery: redbubble
 tags: ['book', 'fundraiser', 'malaria']

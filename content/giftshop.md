@@ -2,7 +2,6 @@
 title: 'Giftshop'
 subtitle: A Token of Appreciation 🎁
 description: Find your keepsake from our world of wonders.
-layout: dashboard
 image: amibotsquare1.webp
 gallery: wondershed
 icon: ic:round-shopping-bag

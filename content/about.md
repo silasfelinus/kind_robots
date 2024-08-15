@@ -2,7 +2,6 @@
 title: 'About'
 subtitle: 'Unapologetically Optimistic'
 description: Where missions and elevator pitches go to socialize.
-layout: dashboard
 icon: game-icons:abstract-037
 image: kindart.webp
 gallery: wondershed

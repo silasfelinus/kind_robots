@@ -2,7 +2,6 @@
 title: Brainstorm!!!
 subtitle: Your Idea Generator Gone Wild!
 description: Need ideas? The sillier, the better!
-layout: dashboard
 image: avatars/brain1.webp
 gallery: weirdlandia
 tags: ['home']

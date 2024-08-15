@@ -3,7 +3,6 @@ title: 'Art Studio'
 subtitle: AI-Assisted Art Extravaganza
 description: 'Where imagination and algorithms tango!'
 gallery: 'cafepurr'
-layout: dashboard
 image: 'botcat.webp'
 tags: ['home']
 icon: game-icons:easel

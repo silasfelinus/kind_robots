@@ -2,7 +2,6 @@
 title: 'Rebel Button'
 subtitle: The Button You Can't Help but Press!
 description: For rebels and curious souls, each click delivers a surprise!
-layout: dashboard
 image: wonderchest/wonderchest-1794.webp
 gallery: wonderbot
 tags: ['home']

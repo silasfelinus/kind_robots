@@ -2,7 +2,6 @@
 title: Jellybean Quest
 subtitle: Find the jellybeans
 description: Embark on a delightful quest to discover jellybeans scattered across the website and earn exclusive karma rewards.
-layout: dashboard
 image: weirdlandia/weird-69.png
 gallery: weirdlandia
 tags: ['home']

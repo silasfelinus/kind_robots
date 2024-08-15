@@ -2,7 +2,6 @@
 title: Amibot
 subtitle: AMI - the Anti-Malaria Intelligence
 description: about AMI and their fundraiser
-layout: dashboard
 image: amibotsquare1.webp
 gallery: weirdlandia
 tags: ['home']

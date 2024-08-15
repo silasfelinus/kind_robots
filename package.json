@@ -27,6 +27,7 @@
     "@iconify-json/ion": "^1.1.19",
     "@iconify-json/line-md": "^1.1.39",
     "@iconify-json/mdi": "^1.1.68",
+    "@iconify-json/tabler": "^1.1.120",
     "@iconify-json/tdesign": "^1.1.8",
     "@iconify-json/typcn": "^1.1.10",
     "@nuxtjs/tailwindcss": "^6.12.1",

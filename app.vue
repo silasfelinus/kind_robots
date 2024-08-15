@@ -8,28 +8,30 @@
       <icon name="fluent:row-triple-20-filled" class="text-2xl text-white" />
     </button>
 
-    <!-- Header Dashboard -->
     <header-dashboard
-      class="w-full shadow-lg bg-white fixed top-0 left-0 right-0 z-40"
-      style="padding: 2px 0; /* Adjust as needed */"
-    />
-
-    <!-- Main Content -->
-    <main
-      class="flex-grow overflow-y-auto pt-[calc(6rem+env(safe-area-inset-top))] pb-[calc(8rem+env(safe-area-inset-bottom))]"
+      class="w-full bg-white fixed top-0 left-0 right-0 z-40"
+      style="
+        padding: 0 1rem;
+        height: 4rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      "
     >
-      <!-- Navigation -->
-      <navigation-trimmed
-        v-if="showNav"
-        class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300"
-        :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
-      />
-      <!-- Main Content Area -->
-      <div class="border border-gray-300 rounded-lg mb-4 p-4 bg-gray-200">
-        <!-- Use NuxtPage for dynamic content -->
-        <NuxtPage />
-      </div>
-    </main>
+      <!-- Main Content -->
+      <main
+        class="flex-grow overflow-y-auto pt-16 pb-[calc(8rem+env(safe-area-inset-bottom))]"
+      >
+        <!-- Navigation -->
+        <navigation-trimmed
+          v-if="showNav"
+          class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300"
+          :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
+        />
+        <!-- Main Content Area -->
+        <div class="border border-gray-300 rounded-lg mb-4 p-4 bg-gray-200">
+          <NuxtPage />
+        </div>
+      </main>
+    </header-dashboard>
   </div>
 </template>
 
@@ -37,6 +39,7 @@
 import { ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 
+const errorStore = useErrorStore()
 const tagStore = useTagStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
@@ -47,7 +50,7 @@ const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
 const chatStore = useChatStore()
-const errorStore = useErrorStore()
+
 const layoutStore = useLayoutStore()
 
 useHead({

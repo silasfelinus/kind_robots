@@ -1,3 +1,4 @@
+//server/api/auth/login.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { validateUserCredentials } from '.'
 

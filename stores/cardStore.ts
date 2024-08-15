@@ -1,4 +1,6 @@
+// ~/stores/cardStore.ts
 import { defineStore } from 'pinia'
+import { useContentStore } from './contentStore'
 
 // Define a type for grid settings
 interface GridSettings {
@@ -50,25 +52,30 @@ const getStoredGridState = (
 
 export const useCardStore = defineStore({
   id: 'cardStore',
-  state: (): CardState => ({
-    cardOrder: getStoredGridState('gridState', {
-      cardOrder: [],
-      gridSettings: defaultGridSettings,
-      deletedPages: new Set(),
-    }).cardOrder,
-    gridSettings: getStoredGridState('gridState', {
-      cardOrder: [],
-      gridSettings: defaultGridSettings,
-      deletedPages: new Set(),
-    }).gridSettings,
-    deletedPages: new Set(
-      getStoredGridState('gridState', {
-        cardOrder: [],
+  state: (): CardState => {
+    const contentStore = useContentStore()
+    const highlightPages = contentStore.highlightPages.map(page => page._id ?? '')
+
+    return {
+      cardOrder: getStoredGridState('gridState', {
+        cardOrder: highlightPages, // Initialize with highlight pages
         gridSettings: defaultGridSettings,
         deletedPages: new Set(),
-      }).deletedPages,
-    ),
-  }),
+      }).cardOrder,
+      gridSettings: getStoredGridState('gridState', {
+        cardOrder: highlightPages,
+        gridSettings: defaultGridSettings,
+        deletedPages: new Set(),
+      }).gridSettings,
+      deletedPages: new Set(
+        getStoredGridState('gridState', {
+          cardOrder: highlightPages,
+          gridSettings: defaultGridSettings,
+          deletedPages: new Set(),
+        }).deletedPages,
+      ),
+    }
+  },
 
   actions: {
     setGridState(

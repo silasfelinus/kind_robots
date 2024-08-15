@@ -13,7 +13,7 @@
       class="w-full bg-white fixed top-0 left-0 right-0 z-40"
       style="
         padding: 0 1rem;
-        height: 4rem;
+        height: 6rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       "
     />

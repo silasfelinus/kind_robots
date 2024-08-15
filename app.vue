@@ -10,7 +10,7 @@
 
     <!-- Header Dashboard -->
     <header-dashboard
-      class="w-full shadow-lg bg-white z-40 fixed top-0 left-0 right-0"
+      class="w-full shadow-lg bg-white z-40 fixed top-2 left-0 right-0"
     />
 
     <!-- Main Content -->

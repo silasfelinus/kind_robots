@@ -18,7 +18,7 @@
 
     <!-- Main Content -->
     <main
-      class="flex-grow overflow-y-auto mt-16"
+      class="flex-grow overflow-y-auto"
       :style="{ paddingBottom: showNav ? '8rem' : '0' }"
     >
       <!-- Navigation -->
@@ -29,7 +29,7 @@
       />
       <!-- Main Content Area -->
       <div class="border border-gray-300 rounded-lg mb-4 p-4 bg-gray-200">
-        <!-- Use NuxtLayout for dynamic content -->
+        <!-- Use NuxtPage for dynamic content -->
         <NuxtPage />
       </div>
     </main>
@@ -115,17 +115,17 @@ const toggleNav = () => {
 </script>
 
 <style scoped>
-/* Ensure scrolling is properly applied */
 html,
 body,
 #app {
   height: 100%;
-  overflow: hidden; /* Ensures the overflow is controlled */
+  overflow: hidden; /* Ensure this is set correctly for scrolling */
 }
 
 main {
-  overflow-y: auto; /* Allows vertical scrolling in the main content area */
-  height: calc(100vh - 4rem); /* Adjust as needed for fixed header height */
+  overflow-y: auto; /* Allow vertical scrolling in the main area */
+  padding-top: 4rem; /* Ensure space for the fixed header */
+  /* You may adjust or remove the height style if it interferes with scrolling */
 }
 
 .relative {

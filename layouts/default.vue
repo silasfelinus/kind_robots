@@ -1,12 +1,13 @@
 <template>
   <div class="flex flex-col h-screen w-screen relative bg-gray-100">
     <!-- Toggle Navigation Button -->
-    <button class="absolute top-[10vh] left-3 z-50" @click="toggleNav">
+    <button class="absolute top-[10vh] center-3 z-50" @click="toggleNav">
       <icon name="fluent:row-triple-20-filled" class="text-2xl text-primary" />
     </button>
 
     <!-- Header Dashboard -->
     <div class="flex w-full shadow-lg bg-white">
+      default
       <header-dashboard />
     </div>
 

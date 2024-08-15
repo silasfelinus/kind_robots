@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
 
 // Define the possible layout keys
-export type LayoutKey = 'default' | 'defaultOld' | 'GridLayout'
+export type LayoutKey = 'default' | 'defaultOld' | 'GridLayout' | 'dashboard'
 
 // Array of allowed layout keys for validation
 export const allowedLayouts: LayoutKey[] = [
   'default',
   'defaultOld',
   'GridLayout',
+  'dashboard'
 ]
 
 // Function to get the layout from local storage and validate it
@@ -29,7 +30,7 @@ interface LayoutState {
 export const useLayoutStore = defineStore({
   id: 'layoutStore',
   state: (): LayoutState => ({
-    currentLayout: getStoredLayout('currentLayout', 'default'),
+    currentLayout: getStoredLayout('currentLayout', 'dashboard'),
   }),
 
   actions: {
@@ -38,10 +39,19 @@ export const useLayoutStore = defineStore({
         this.currentLayout = newLayout
         if (import.meta.client) {
           localStorage.setItem('currentLayout', newLayout)
+          console.log('current layout is  ' + this.currentLayout)
         }
       } else {
         console.warn(`Invalid layout option: ${newLayout}`)
       }
     },
+    initializeStore() {
+      return this.currentLayout = getStoredLayout('currentLayout', 'dashboard')
+    }
   },
+
+  getters: {
+    // Optional getter to access the current layout
+    getCurrentLayout: (state) => state.currentLayout
+  }
 })

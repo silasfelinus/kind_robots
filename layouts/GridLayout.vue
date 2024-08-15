@@ -1,81 +1,71 @@
 <template>
-  <div>
-    <div class="grid-container">
-      <div
-        v-for="cardId in cardStore.cardOrder"
-        :key="cardId"
-        class="grid-item"
-      >
-        <Card :id="cardId" />
-        <button class="remove-btn" @click="removeCard(cardId)">Delete</button>
-      </div>
-    </div>
+  <div
+    class="relative flex flex-col h-screen w-screen bg-gray-100 overflow-hidden"
+  >
+    <!-- Toggle Navigation Button -->
+    <button
+      class="absolute top-4 left-4 z-50 p-2 bg-primary rounded-full"
+      @click="toggleNav"
+    >
+      <icon name="fluent:row-triple-20-filled" class="text-2xl text-white" />
+    </button>
 
-    <div class="deleted-pages">
-      <h3>Deleted Pages</h3>
+    <!-- Header Dashboard -->
+    <layout-selector class="absolute" />
+    <header-dashboard class="w-full shadow-lg bg-white z-40" />
+    <layout-selector class="absolute" />
+
+    <!-- Main Content -->
+    <main
+      :class="{ 'pt-16': !showNav, 'pt-16 pb-32': showNav }"
+      class="flex-grow overflow-y-auto transition-all duration-300"
+    >
       <div
-        v-for="pageId in Array.from(cardStore.deletedPages)"
-        :key="pageId"
-        class="deleted-item"
+        v-if="!showNav"
+        class="border border-gray-300 rounded-lg mb-4 p-4 bg-gray-200"
       >
-        <span>{{ pageId }}</span>
-        <button class="restore-btn" @click="restoreCard(pageId)">
-          Restore
-        </button>
+        <slot />
       </div>
-    </div>
+      <navigation-trimmed
+        v-if="showNav"
+        class="absolute bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300 transform"
+        :class="{ 'translate-y-0': showNav, '-translate-y-full': !showNav }"
+      />
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useCardStore } from './../stores/cardStore'
+import { ref } from 'vue'
 
-const cardStore = useCardStore()
+// State to manage the visibility of the navigation
+const showNav = ref(false)
 
-const removeCard = (cardId: string) => {
-  cardStore.removeCard(cardId)
-}
-
-const restoreCard = (cardId: string) => {
-  cardStore.restoreCard(cardId)
+// Method to toggle the navigation visibility
+const toggleNav = () => {
+  showNav.value = !showNav.value
 }
 </script>
 
 <style scoped>
-/* Base styles for the grid container */
-.grid-container {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(200px, 1fr)
-  ); /* Example for dynamic columns */
-}
-
-/* Individual grid items */
-.grid-item {
-  background: #f9f9f9;
-  border-radius: 8px;
+/* Header and Footer Styling */
+header-dashboard {
   padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
+  z-index: 40;
 }
 
-/* Button styles */
-.remove-btn,
-.restore-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: red;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 4px 8px;
+/* Navigation Transition */
+.navigation-trimmed-enter-active,
+.navigation-trimmed-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.restore-btn {
-  background: green;
+.navigation-trimmed-enter, .navigation-trimmed-leave-to /* .navigation-trimmed-leave-active in <2.1.8 */ {
+  opacity: 0;
+}
+
+/* Main Content Adjustments */
+main {
+  transition: padding-bottom 0.3s ease;
 }
 </style>

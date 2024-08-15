@@ -1,12 +1,58 @@
 <template>
-  <div class="bg-base-200 p-1">
-    <ami-loader />
+  <div class="relative flex flex-col h-screen w-screen bg-gray-100">
+    <!-- Layout Selector -->
+    <layout-selector class="absolute top-0 left-0" />
+
+    <!-- Toggle Navigation Button -->
+    <button
+      class="absolute top-4 left-4 z-50 p-2 bg-primary rounded-full"
+      @click="toggleNav"
+    >
+      <icon name="fluent:row-triple-20-filled" class="text-2xl text-white" />
+    </button>
+
+    <!-- Header Dashboard -->
+    <header-dashboard
+      class="w-full shadow-lg bg-white z-40 fixed top-0 left-0 right-0"
+    />
+
+    <!-- Main Content -->
+    <main
+      class="flex-grow overflow-y-auto mt-16"
+      :style="{ paddingBottom: showNav ? '8rem' : '0' }"
+    >
+      <!-- Navigation -->
+      <navigation-trimmed
+        v-if="showNav"
+        class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300 transform"
+        :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
+      />
+      <!-- Main Content Area -->
+      <div class="border border-gray-300 rounded-lg mb-4 p-4 bg-gray-200">
+        <!-- Use NuxtLayout for dynamic content -->
+        <NuxtLayout :class="currentLayout">
+          <ContentDoc />
+        </NuxtLayout>
+      </div>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
+import { useErrorStore, ErrorType } from './stores/errorStore'
+import { useTagStore } from './stores/tagStore'
+import { useUserStore } from './stores/userStore'
+import { useArtStore } from './stores/artStore'
+import { useMatureStore } from './stores/matureStore'
+import { useThemeStore } from './stores/themeStore'
+import { useBotStore } from './stores/botStore'
+import { usePitchStore } from './stores/pitchStore'
+import { useChannelStore } from './stores/channelStore'
+import { useMilestoneStore } from './stores/milestoneStore'
+import { useChatStore } from './stores/chatStore'
+import { useLayoutStore } from './stores/layoutStore'
 
 const tagStore = useTagStore()
 const userStore = useUserStore()
@@ -19,6 +65,8 @@ const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
 const chatStore = useChatStore()
 const errorStore = useErrorStore()
+const layoutStore = useLayoutStore()
+const currentLayout = layoutStore.currentLayout
 
 useHead({
   title: 'Kind Robots',
@@ -40,16 +88,17 @@ useHead({
 
 onMounted(async () => {
   try {
-    botStore.loadStore()
-    matureStore.initialize()
-    userStore.initializeUser()
-    artStore.init()
-    tagStore.initializeTags()
-    themeStore.initTheme()
-    pitchStore.initializePitches()
-    channelStore.initializeChannels()
-    milestoneStore.initializeMilestones()
-    chatStore.fetchChatExchanges()
+    await botStore.loadStore()
+    await matureStore.initialize()
+    await userStore.initializeUser()
+    await artStore.init()
+    await tagStore.initializeTags()
+    await themeStore.initTheme()
+    await pitchStore.initializePitches()
+    await channelStore.initializeChannels()
+    await milestoneStore.initializeMilestones()
+    await chatStore.fetchChatExchanges()
+    await layoutStore.initializeStore()
     console.log(
       'Welcome to Kind Robots, random person who reads console logs! Are you a developer?',
     )
@@ -60,4 +109,37 @@ onMounted(async () => {
     )
   }
 })
+
+const showNav = ref(false)
+
+const toggleNav = () => {
+  showNav.value = !showNav.value
+}
 </script>
+
+<style scoped>
+/* Ensure scrolling is properly applied */
+html,
+body,
+#app {
+  height: 100%;
+  overflow: hidden; /* Ensures the overflow is controlled */
+}
+
+main {
+  overflow-y: auto; /* Allows vertical scrolling in the main content area */
+  height: calc(100vh - 4rem); /* Adjust as needed for fixed header height */
+}
+
+.relative {
+  position: relative;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.bg-gray-100 {
+  background-color: #f7f7f7;
+}
+</style>

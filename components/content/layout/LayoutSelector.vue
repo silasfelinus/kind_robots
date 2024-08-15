@@ -20,12 +20,16 @@ import { useLayoutStore, allowedLayouts } from './../../../stores/layoutStore'
 
 const layoutStore = useLayoutStore()
 
+
+
 const selectedLayout = computed({
   get: () => layoutStore.currentLayout,
   set: (value) => {
     if (allowedLayouts.includes(value)) {
       layoutStore.setLayout(value) // No need for isUserAction, as it's always true in this context
+      console.log(layoutStore.currentLayout)
     }
   },
 })
+
 </script>

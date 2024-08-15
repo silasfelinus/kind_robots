@@ -19,6 +19,7 @@
     "postinstall": "npm run prisma:generate && nuxt prepare"
   },
   "devDependencies": {
+    "@iconify-json/bi": "^1.1.24",
     "@iconify-json/carbon": "^1.1.37",
     "@iconify-json/emojione": "^1.1.11",
     "@iconify-json/fluent": "^1.1.62",

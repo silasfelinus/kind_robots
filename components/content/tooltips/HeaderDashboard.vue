@@ -1,13 +1,13 @@
 <template>
   <header
-    class="bg-base-200 flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-40"
+    class="bg-base-200 flex items-center justify-between p-2 fixed top-2 left-2 right-2 z-40"
   >
     <!-- Left Section -->
     <div
-      class="flex flex-col md:flex-row items-center w-full md:w-auto space-y-2 md:space-y-0"
+      class="flex flex-col md:flex-row items-center w-full md:w-auto space-y-2 md:space-y-2"
     >
       <div class="flex-shrink-0">
-        <avatar-image :size="avatarSize" class="m-2 rounded-2xl" />
+        <avatar-image :size="avatarSize" class="m-1 rounded-2xl" />
       </div>
       <div class="flex flex-col items-center w-full md:w-auto">
         <room-title class="text-lg font-semibold w-full border-b text-center" />
@@ -18,7 +18,7 @@
     </div>
     <smart-links />
     <!-- Right Section -->
-    <div class="flex items-center justify-center flex-wrap space-x-2 w-auto">
+    <div class="flex items-center justify-center flex-wrap space-x-1 w-auto">
       <jellybean-count />
       <login-button />
       <theme-toggle />
@@ -37,7 +37,7 @@ const avatarSize = 'small'
 /* Ensure proper spacing around the header */
 header {
   height: 6rem; /* Adjust height for your header */
-  padding: 1rem 2rem; /* Adjust padding for space around content */
+  padding: 1rem 1rem; /* Adjust padding for space around content */
   box-sizing: border-box; /* Include padding in height calculation */
   display: flex;
   align-items: center; /* Vertically align items */

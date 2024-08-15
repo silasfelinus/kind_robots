@@ -6,7 +6,7 @@ const avatarSize = 'small'
 
 <template>
   <header
-    class="bg-base-200 flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-40"
+    class="bg-base-200 flex items-center justify-between p-4 fixed top-2 left-0 right-0 z-40"
   >
     <!-- Left Section -->
     <div
@@ -36,7 +36,7 @@ const avatarSize = 'small'
 <style scoped>
 /* Ensure proper spacing around the header */
 header {
-  height: 7rem; /* Increase height for more space */
+  height: 15rem; /* Increase height for more space */
   padding: 1.5rem 2rem; /* Adjust padding for space around content */
   box-sizing: border-box; /* Include padding in height calculation */
   display: flex;
@@ -45,7 +45,7 @@ header {
 
 /* Ensure main content doesn't overlap header */
 main {
-  padding-top: 7rem; /* Adjust space for fixed header */
+  padding-top: 15rem; /* Adjust space for fixed header */
 }
 
 @media (max-width: 768px) {

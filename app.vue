@@ -8,6 +8,7 @@
       <icon name="fluent:row-triple-20-filled" class="text-2xl text-white" />
     </button>
 
+    <!-- Header Dashboard -->
     <header-dashboard
       class="w-full bg-white fixed top-0 left-0 right-0 z-40"
       style="
@@ -15,23 +16,23 @@
         height: 4rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       "
+    />
+
+    <!-- Main Content -->
+    <main
+      class="flex-grow overflow-y-auto pt-[4rem] pb-[calc(8rem+env(safe-area-inset-bottom))]"
     >
-      <!-- Main Content -->
-      <main
-        class="flex-grow overflow-y-auto pt-16 pb-[calc(8rem+env(safe-area-inset-bottom))]"
-      >
-        <!-- Navigation -->
-        <navigation-trimmed
-          v-if="showNav"
-          class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300"
-          :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
-        />
-        <!-- Main Content Area -->
-        <div class="border border-gray-300 rounded-lg mb-4 p-4 bg-gray-200">
-          <NuxtPage />
-        </div>
-      </main>
-    </header-dashboard>
+      <!-- Navigation -->
+      <navigation-trimmed
+        v-if="showNav"
+        class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300"
+        :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
+      />
+      <!-- Main Content Area -->
+      <div class="border border-gray-300 rounded-lg mb-4 p-4 bg-gray-200">
+        <NuxtPage />
+      </div>
+    </main>
   </div>
 </template>
 
@@ -43,13 +44,11 @@ const errorStore = useErrorStore()
 const tagStore = useTagStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
-const matureStore = useMatureStore()
 const themeStore = useThemeStore()
 const botStore = useBotStore()
 const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
-const chatStore = useChatStore()
 
 const layoutStore = useLayoutStore()
 
@@ -74,7 +73,6 @@ useHead({
 onMounted(async () => {
   try {
     await botStore.loadStore()
-    await matureStore.initialize()
     await userStore.initializeUser()
     await artStore.init()
     await tagStore.initializeTags()
@@ -82,7 +80,6 @@ onMounted(async () => {
     await pitchStore.initializePitches()
     await channelStore.initializeChannels()
     await milestoneStore.initializeMilestones()
-    await chatStore.fetchChatExchanges()
     await layoutStore.initializeStore()
     console.log(
       'Welcome to Kind Robots, random person who reads console logs! Are you a developer?',

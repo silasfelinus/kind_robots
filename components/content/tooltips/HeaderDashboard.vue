@@ -1,7 +1,7 @@
 <template>
   <header
-    class="bg-base-200 flex items-center justify-between p-4 fixed top-2 left-0 right-0 z-40 shadow-md"
-    style="height: 4rem"
+    class="bg-base-200 flex items-center justify-between p-4 fixed top-4 left-0 right-0 z-40 shadow-md"
+    style="height: 6rem"
   >
     <!-- Left Section -->
     <div class="flex items-center space-x-4">

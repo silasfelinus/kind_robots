@@ -6,7 +6,7 @@ const avatarSize = 'small'
 
 <template>
   <header
-    class="bg-base-200 flex items-center justify-between p-2 fixed top-0 left-0 right-0 z-40"
+    class="bg-base-200 flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-40"
   >
     <!-- Left Section -->
     <div class="flex flex-col md:flex-row items-center w-full md:w-auto">
@@ -21,6 +21,7 @@ const avatarSize = 'small'
       </div>
     </div>
     <smart-links />
+    <layout-selector />
     <!-- Right Section -->
     <div class="flex items-center justify-center flex-wrap space-x-2 w-auto">
       <jellybean-count />
@@ -34,12 +35,26 @@ const avatarSize = 'small'
 <style scoped>
 /* Ensure proper spacing around the header */
 header {
-  height: 4rem; /* Adjust based on actual header height */
-  /* You can add additional styles here if needed */
+  height: 5rem; /* Adjust based on the actual height of your header content */
+  padding: 1rem 2rem; /* Adjust padding for more space around the content */
+  /* Optional: Add box-sizing to include padding in height calculation */
+  box-sizing: border-box;
 }
 
 /* Optional: Ensure no overlap or unintended spacing issues */
 main {
-  padding-top: 4rem; /* Space for the fixed header */
+  padding-top: 6rem; /* Space for the fixed header */
+}
+
+@media (max-width: 768px) {
+  /* Adjust header padding for smaller screens */
+  header {
+    padding: 1rem;
+    height: auto; /* Allow height to adjust based on content */
+  }
+
+  .flex-col {
+    flex-direction: column;
+  }
 }
 </style>

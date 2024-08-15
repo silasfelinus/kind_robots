@@ -19,7 +19,7 @@
     <!-- Main Content -->
     <main
       class="flex-grow overflow-y-auto"
-      :style="{ paddingBottom: showNav ? '8rem' : '0' }"
+      :style="{ paddingBottom: showNav ? '8rem' : '0', paddingTop: '4rem' }"
     >
       <!-- Navigation -->
       <navigation-trimmed
@@ -119,13 +119,13 @@ html,
 body,
 #app {
   height: 100%;
-  overflow: hidden; /* Ensure this is set correctly for scrolling */
+  overflow: hidden; /* Ensures no scrollbars appear on the whole page */
 }
 
 main {
-  overflow-y: auto; /* Allow vertical scrolling in the main area */
-  padding-top: 4rem; /* Ensure space for the fixed header */
-  /* You may adjust or remove the height style if it interferes with scrolling */
+  overflow-y: auto; /* Allows vertical scrolling in the main content area */
+  padding-top: 4rem; /* Space for the fixed header */
+  padding-bottom: 8rem; /* Space for the fixed bottom navigation */
 }
 
 .relative {

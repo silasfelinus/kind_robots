@@ -21,7 +21,6 @@ const avatarSize = 'small'
       </div>
     </div>
     <smart-links />
-    <layout-selector />
     <!-- Right Section -->
     <div class="flex items-center justify-center flex-wrap space-x-2 w-auto">
       <jellybean-count />

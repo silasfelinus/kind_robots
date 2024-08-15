@@ -5,7 +5,9 @@ const avatarSize = 'small'
 </script>
 
 <template>
-  <header class="bg-base-200 flex items-center justify-between p-1">
+  <header
+    class="bg-base-200 flex items-center justify-between p-2 fixed top-0 left-0 right-0 z-40"
+  >
     <!-- Left Section -->
     <div class="flex flex-col md:flex-row items-center w-full md:w-auto">
       <div class="flex-shrink-0">
@@ -29,3 +31,16 @@ const avatarSize = 'small'
     </div>
   </header>
 </template>
+
+<style scoped>
+/* Ensure proper spacing around the header */
+header {
+  height: 4rem; /* Adjust based on actual header height */
+  /* You can add additional styles here if needed */
+}
+
+/* Optional: Ensure no overlap or unintended spacing issues */
+main {
+  padding-top: 4rem; /* Space for the fixed header */
+}
+</style>

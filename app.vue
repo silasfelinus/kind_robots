@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex flex-col h-screen w-screen bg-gray-100">
+  <div class="relative flex flex-col h-screen bg-gray-100">
     <!-- Toggle Navigation Button -->
     <button
       class="absolute top-4 left-4 z-50 p-2 bg-primary rounded-full"
@@ -10,21 +10,18 @@
 
     <!-- Header Dashboard -->
     <header-dashboard
-      class="w-full shadow-lg bg-white z-40 fixed top-0 left-0 right-0"
+      class="w-full shadow-lg bg-white fixed top-0 left-0 right-0 z-40"
+      style="padding: 2px 0; /* Adjust as needed */"
     />
 
     <!-- Main Content -->
     <main
-      class="flex-grow overflow-y-auto"
-      :style="{
-        paddingBottom: showNav ? '8rem' : '0',
-        paddingTop: headerHeight,
-      }"
+      class="flex-grow overflow-y-auto pt-[calc(6rem+env(safe-area-inset-top))] pb-[calc(8rem+env(safe-area-inset-bottom))]"
     >
       <!-- Navigation -->
       <navigation-trimmed
         v-if="showNav"
-        class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300 transform"
+        class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300"
         :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
       />
       <!-- Main Content Area -->
@@ -37,20 +34,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
-import { useErrorStore, ErrorType } from './stores/errorStore'
-import { useTagStore } from './stores/tagStore'
-import { useUserStore } from './stores/userStore'
-import { useArtStore } from './stores/artStore'
-import { useMatureStore } from './stores/matureStore'
-import { useThemeStore } from './stores/themeStore'
-import { useBotStore } from './stores/botStore'
-import { usePitchStore } from './stores/pitchStore'
-import { useChannelStore } from './stores/channelStore'
-import { useMilestoneStore } from './stores/milestoneStore'
-import { useChatStore } from './stores/chatStore'
-import { useLayoutStore } from './stores/layoutStore'
 
 const tagStore = useTagStore()
 const userStore = useUserStore()
@@ -64,8 +49,6 @@ const milestoneStore = useMilestoneStore()
 const chatStore = useChatStore()
 const errorStore = useErrorStore()
 const layoutStore = useLayoutStore()
-
-const headerHeight = computed(() => '6rem') // Adjust based on the actual height of your header
 
 useHead({
   title: 'Kind Robots',
@@ -115,30 +98,3 @@ const toggleNav = () => {
   showNav.value = !showNav.value
 }
 </script>
-
-<style scoped>
-html,
-body,
-#app {
-  height: 100%;
-  overflow: hidden; /* Ensures no scrollbars appear on the whole page */
-}
-
-main {
-  overflow-y: auto; /* Allows vertical scrolling in the main content area */
-  padding-top: 6rem; /* Adjust space for the fixed header */
-  padding-bottom: 8rem; /* Space for the fixed bottom navigation */
-}
-
-.relative {
-  position: relative;
-}
-
-.flex-grow {
-  flex-grow: 1;
-}
-
-.bg-gray-100 {
-  background-color: #f7f7f7;
-}
-</style>

@@ -1,0 +1,1 @@
+import n from"./Csr1kED4.js";import{Z as a,c as o,e as c,h as r,f as _,t as m,E as p}from"./DscwyYbq.js";const i={class:"flex items-center space-x-2"},g={__name:"Mana-Counter",setup(l){const t=a();return(u,f)=>{var e;const s=n;return o(),c("div",i,[r(s,{name:"game-icons:standing-potion",class:"text-lg"}),_("span",null,m((e=p(t))==null?void 0:e.mana),1)])}}};export{g as default};

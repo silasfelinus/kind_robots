@@ -1,1 +1,0 @@
-import{l as t,c as o,e}from"./C_jZrYmJ.js";const n={},c={n:"sm",to:"https://github.com/silasfelinus",target:"_blank",icon:"carbon-logo-github"};function s(r,a){return o(),e("button",c," GitHub ")}const _=t(n,[["render",s]]);export{_ as default};

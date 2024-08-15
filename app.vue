@@ -8,7 +8,6 @@
 import { onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 
-const layoutStore = useLayoutStore()
 const tagStore = useTagStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
@@ -41,7 +40,6 @@ useHead({
 
 onMounted(async () => {
   try {
-    layoutStore.initialize()
     botStore.loadStore()
     matureStore.initialize()
     userStore.initializeUser()

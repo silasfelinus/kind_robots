@@ -11,7 +11,7 @@
           image-src="/images/amibotsquare1.webp"
           alt-text="AMI"
           username="AMIbot"
-          :message="page.amitip || 'Default AMI message'"
+          :message="page.amitip"
           @remove-card="showAmiCard = false"
         />
         <MessageCard
@@ -21,7 +21,7 @@
           image-src="/images/avatars/dottie1.webp"
           alt-text="Dotti"
           username="DottiBot"
-          :message="page.dottitip || 'Default Dotti message'"
+          :message="page.dottitip"
           @remove-card="showDottiCard = false"
         />
       </div>
@@ -35,11 +35,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useContentStore } from './../../../stores/contentStore'
+import { useContentStore } from '../../../stores/contentStore'
 
 const contentStore = useContentStore()
 const showInfo = computed(() => contentStore.showInfo)
-const page = computed(() => contentStore.currentPage) // Adjusted to match contentStore's interface
+const { page } = useContent()
 
 const showDottiCard = ref(false)
 const showAmiCard = ref(false)

@@ -1,8 +1,5 @@
 <template>
   <div class="relative flex flex-col h-screen w-screen bg-gray-100">
-    <!-- Layout Selector -->
-    <layout-selector class="absolute top-0 left-0" />
-
     <!-- Toggle Navigation Button -->
     <button
       class="absolute top-4 left-4 z-50 p-2 bg-primary rounded-full"
@@ -19,7 +16,7 @@
     <!-- Main Content -->
     <main
       class="flex-grow overflow-y-auto"
-      :style="{ paddingBottom: showNav ? '8rem' : '0', paddingTop: '4rem' }"
+      :style="{ paddingBottom: showNav ? '8rem' : '0', paddingTop: '6rem' }"
     >
       <!-- Navigation -->
       <navigation-trimmed

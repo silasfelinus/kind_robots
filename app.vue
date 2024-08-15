@@ -10,13 +10,16 @@
 
     <!-- Header Dashboard -->
     <header-dashboard
-      class="w-full shadow-lg bg-white z-40 fixed top-2 left-0 right-0"
+      class="w-full shadow-lg bg-white z-40 fixed top-0 left-0 right-0"
     />
 
     <!-- Main Content -->
     <main
       class="flex-grow overflow-y-auto"
-      :style="{ paddingBottom: showNav ? '8rem' : '0', paddingTop: '7rem' }"
+      :style="{
+        paddingBottom: showNav ? '8rem' : '0',
+        paddingTop: headerHeight,
+      }"
     >
       <!-- Navigation -->
       <navigation-trimmed
@@ -34,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useErrorStore, ErrorType } from './stores/errorStore'
 import { useTagStore } from './stores/tagStore'
@@ -61,6 +64,8 @@ const milestoneStore = useMilestoneStore()
 const chatStore = useChatStore()
 const errorStore = useErrorStore()
 const layoutStore = useLayoutStore()
+
+const headerHeight = computed(() => '6rem') // Adjust based on the actual height of your header
 
 useHead({
   title: 'Kind Robots',
@@ -121,7 +126,7 @@ body,
 
 main {
   overflow-y: auto; /* Allows vertical scrolling in the main content area */
-  padding-top: 7rem; /* Adjust space for the fixed header */
+  padding-top: 6rem; /* Adjust space for the fixed header */
   padding-bottom: 8rem; /* Space for the fixed bottom navigation */
 }
 

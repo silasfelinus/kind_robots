@@ -106,13 +106,13 @@ export const useUserStore = defineStore({
     }): Promise<{ success: boolean; user?: User; message?: string }> {
       try {
         this.startLoading()
-    
+
         const response = await this.apiCall('/api/user/register', 'POST', {
           username,
           email,
           password,
         })
-    
+
         if (response.success && response.user) {
           this.setUser(response.user)
           this.setToken(response.token || '')
@@ -134,7 +134,7 @@ export const useUserStore = defineStore({
         this.stopLoading()
       }
     },
-    
+
     async login(
       username: string,
       password: string,
@@ -151,7 +151,7 @@ export const useUserStore = defineStore({
           username,
           password,
         })
-    
+
         if (response.success) {
           this.setUser(response.user)
           this.setToken(response.token)

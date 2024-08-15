@@ -1,24 +1,23 @@
 <template>
   <header
-    class="bg-base-200 flex items-center justify-between p-2 fixed top-2 left-2 right-2 z-40"
+    class="bg-base-200 flex items-center justify-between p-4 fixed top-2 bottom-2 left-0 right-0 z-40 shadow-md"
   >
     <!-- Left Section -->
-    <div
-      class="flex flex-col md:flex-row items-center w-full md:w-auto space-y-2 md:space-y-2"
-    >
+    <div class="flex items-center space-x-4">
       <div class="flex-shrink-0">
-        <avatar-image :size="avatarSize" class="m-1 rounded-2xl" />
+        <avatar-image :size="avatarSize" class="rounded-2xl" />
       </div>
-      <div class="flex flex-col items-center w-full md:w-auto">
-        <room-title class="text-lg font-semibold w-full border-b text-center" />
-        <h2 class="text-sm text-gray-500 italic text-center">
+      <div class="flex flex-col items-center text-center">
+        <room-title class="text-lg font-semibold border-b mb-1" />
+        <h2 class="text-sm text-gray-500 italic">
           {{ page.subtitle || 'the kindest' }}
         </h2>
       </div>
     </div>
-    <smart-links />
+
     <!-- Right Section -->
-    <div class="flex items-center justify-center flex-wrap space-x-1 w-auto">
+    <div class="flex items-center space-x-2">
+      <smart-links />
       <jellybean-count />
       <login-button />
       <theme-toggle />
@@ -29,29 +28,5 @@
 
 <script lang="ts" setup>
 const { page } = useContent()
-
 const avatarSize = 'small'
 </script>
-
-<style scoped>
-/* Ensure proper spacing around the header */
-header {
-  height: 6rem; /* Adjust height for your header */
-  padding: 1rem 1rem; /* Adjust padding for space around content */
-  box-sizing: border-box; /* Include padding in height calculation */
-  display: flex;
-  align-items: center; /* Vertically align items */
-}
-
-/* Ensure main content doesn't overlap header */
-main {
-  padding-top: 6rem; /* Adjust space for fixed header */
-}
-
-@media (max-width: 768px) {
-  header {
-    padding: 1rem; /* Adjust padding for smaller screens */
-    height: auto; /* Allow height to adjust based on content */
-  }
-}
-</style>

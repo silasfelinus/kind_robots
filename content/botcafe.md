@@ -2,7 +2,6 @@
 title: Bot Cafe
 subtitle: Chat with a Kind Robot
 description: View the many promptbots at Kind Robots
-layout: dashboard
 image: botcafe/botcafe-268.webp
 gallery: weirdlandia
 tags: ['home']

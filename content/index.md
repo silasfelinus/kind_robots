@@ -2,7 +2,6 @@
 title: 'Welcome'
 subtitle: 'Welcome to Kind Robots!'
 description: Welcome to the home of the Kind Robots
-layout: dashboard
 image: botcafe.webp
 gallery: wonderbot
 tags: ['home']

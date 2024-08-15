@@ -2,7 +2,6 @@
 title: 'Authelia'
 subtitle: 'Joining the Kind Community'
 description: Register and Login through our Authelia server
-layout: dashboard
 icon: game-icons:abstract-037
 image: kindart.webp
 gallery: wondershed

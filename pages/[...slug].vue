@@ -1,13 +1,12 @@
 <template>
-  <div class="page-container">
-    <NuxtPage />
-  </div>
+  <main>
+    <NuxtLayout>
+      <ContentDoc />
+    </NuxtLayout>
+  </main>
 </template>
 
-<script setup lang="ts">
-// No additional logic needed unless you have specific page requirements
-</script>
-
+<script setup lang="ts"></script>
 <style scoped>
 .page-container {
   /* Ensure the container allows scrolling */

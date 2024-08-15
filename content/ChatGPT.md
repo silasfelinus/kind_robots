@@ -2,7 +2,6 @@
 title: 'ChatGPT'
 subtitle: The Genesis of Chatter
 description: A stripped-down, no frills, direct line to ChatGPT 3.5.
-layout: dashboard
 image: cafepurr/cafepurr-387.webp
 gallery: wondershed
 tags: ['home']

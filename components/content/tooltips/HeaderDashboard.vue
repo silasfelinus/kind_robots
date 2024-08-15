@@ -36,8 +36,8 @@ const avatarSize = 'small'
 <style scoped>
 /* Ensure proper spacing around the header */
 header {
-  height: 6rem; /* Ensure enough height for content */
-  padding: 1rem 2rem; /* Provide padding for space around content */
+  height: 7rem; /* Increase height for more space */
+  padding: 1.5rem 2rem; /* Adjust padding for space around content */
   box-sizing: border-box; /* Include padding in height calculation */
   display: flex;
   align-items: center; /* Vertically align items */
@@ -45,7 +45,7 @@ header {
 
 /* Ensure main content doesn't overlap header */
 main {
-  padding-top: 6rem; /* Ensure space for fixed header */
+  padding-top: 7rem; /* Adjust space for fixed header */
 }
 
 @media (max-width: 768px) {

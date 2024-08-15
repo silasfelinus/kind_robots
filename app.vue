@@ -16,7 +16,7 @@
     <!-- Main Content -->
     <main
       class="flex-grow overflow-y-auto"
-      :style="{ paddingBottom: showNav ? '8rem' : '0', paddingTop: '6rem' }"
+      :style="{ paddingBottom: showNav ? '8rem' : '0', paddingTop: '7rem' }"
     >
       <!-- Navigation -->
       <navigation-trimmed
@@ -121,7 +121,7 @@ body,
 
 main {
   overflow-y: auto; /* Allows vertical scrolling in the main content area */
-  padding-top: 4rem; /* Space for the fixed header */
+  padding-top: 7rem; /* Adjust space for the fixed header */
   padding-bottom: 8rem; /* Space for the fixed bottom navigation */
 }
 

@@ -1,16 +1,13 @@
 <template>
   <div class="relative flex flex-col h-screen bg-gray-100">
     <!-- Header Dashboard -->
-    <header-dashboard
-      class="w-full bg-white fixed top-0 left-0 right-0 z-40"
-      :style="{ height: headerHeight }"
-    />
+    <header class="w-full bg-primary z-40" :style="{ height: headerHeight }">
+      <!-- Header Content Here -->
+    </header>
     <!-- Main Content -->
-    <main
-      class="flex-grow overflow-y-auto pt-[var(--header-height)] pb-[calc(8rem+env(safe-area-inset-bottom))]"
-    >
+    <main class="flex-1 overflow-y-auto p-4 bg-secondary">
       <!-- Main Content Area -->
-      <div class="border border-gray-300 rounded-lg mb-4 p-4 bg-gray-200">
+      <div class="border border-gray-300 rounded-lg mb-4">
         <NuxtPage />
       </div>
     </main>
@@ -86,11 +83,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-:root {
-  --header-height: 7rem; /* Default height for larger screens */
+header {
+  position: relative;
 }
-
 main {
-  padding-top: var(--header-height);
+  padding: 1rem;
 }
 </style>

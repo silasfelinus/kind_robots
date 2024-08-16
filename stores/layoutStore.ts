@@ -8,7 +8,7 @@ export const allowedLayouts: LayoutKey[] = [
   'default',
   'defaultOld',
   'GridLayout',
-  'dashboard'
+  'dashboard',
 ]
 
 // Function to get the layout from local storage and validate it
@@ -46,12 +46,15 @@ export const useLayoutStore = defineStore({
       }
     },
     initializeStore() {
-      return this.currentLayout = getStoredLayout('currentLayout', 'dashboard')
-    }
+      return (this.currentLayout = getStoredLayout(
+        'currentLayout',
+        'dashboard',
+      ))
+    },
   },
 
   getters: {
     // Optional getter to access the current layout
-    getCurrentLayout: (state) => state.currentLayout
-  }
+    getCurrentLayout: (state) => state.currentLayout,
+  },
 })

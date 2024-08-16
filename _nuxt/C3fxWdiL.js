@@ -1,1 +1,0 @@
-import{a1 as s,r as o,o as n,c as r,e as c,h as _,f as l,t as m,a0 as p}from"./pZiLMi_1.js";const u={class:"flex items-center space-x-2"},x={__name:"karma-tracker",setup(i){const e=s(),a=o(e.karma);return n(()=>{a.value=e.karma}),(k,d)=>{const t=p;return r(),c("div",u,[_(t,{name:"game-icons:health-potion",class:"text-lg"}),l("span",null,m(a.value),1)])}}};export{x as default};

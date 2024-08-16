@@ -1,1 +1,0 @@
-import{d as a,c as o,e as s,aK as t,l as d}from"./pZiLMi_1.js";const r={class:"layout-dashboard"},c=a({__name:"dashboard",setup(n){return(e,_)=>(o(),s("div",r,[t(e.$slots,"default",{},void 0,!0)]))}}),p=d(c,[["__scopeId","data-v-9bee5195"]]);export{p as default};

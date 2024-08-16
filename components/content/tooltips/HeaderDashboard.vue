@@ -5,7 +5,7 @@
   >
     <!-- Toggle Navigation Button -->
     <button
-      class="p-2 bg-primary rounded-full absolute top-4 right-4 z-50"
+      class="p-2 bg-primary rounded-full absolute top-4 right-4 z-50 w-10 h-10 flex items-center justify-center"
       @click="toggleNav"
     >
       <icon name="fluent:row-triple-20-filled" class="text-2xl text-white" />
@@ -54,7 +54,6 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { useContent } from '@nuxt/content'
 
 const { page } = useContent()
 const avatarSize = 'small'
@@ -110,6 +109,8 @@ header {
   button {
     top: 2rem;
     right: 2rem;
+    width: auto; /* Ensure width is controlled by button content */
+    height: auto; /* Ensure height is controlled by button content */
   }
 }
 </style>

@@ -3,11 +3,7 @@
     <!-- Header Dashboard -->
     <header-dashboard
       class="w-full bg-white fixed top-0 left-0 right-0 z-40"
-      style="
-        padding: 0 1rem;
-        height: 7rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      "
+      :style="{ height: headerHeight }"
     />
     <!-- Main Content -->
     <main
@@ -22,8 +18,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed } from 'vue'
 import { useHead } from '@vueuse/head'
+import { useErrorStore } from '@/stores/errorStore'
+import { useTagStore } from '@/stores/tagStore'
+import { useUserStore } from '@/stores/userStore'
+import { useArtStore } from '@/stores/artStore'
+import { useThemeStore } from '@/stores/themeStore'
+import { useBotStore } from '@/stores/botStore'
+import { usePitchStore } from '@/stores/pitchStore'
+import { useChannelStore } from '@/stores/channelStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useLayoutStore } from '@/stores/layoutStore'
 
 const errorStore = useErrorStore()
 const tagStore = useTagStore()
@@ -34,8 +40,9 @@ const botStore = useBotStore()
 const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
-
 const layoutStore = useLayoutStore()
+
+const headerHeight = computed(() => `var(--header-height)`)
 
 useHead({
   title: 'Kind Robots',
@@ -77,3 +84,13 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+:root {
+  --header-height: 7rem; /* Default height for larger screens */
+}
+
+main {
+  padding-top: var(--header-height);
+}
+</style>

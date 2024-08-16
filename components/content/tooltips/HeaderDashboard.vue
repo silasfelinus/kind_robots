@@ -1,15 +1,18 @@
 <template>
   <header
-    class="flex flex-col items-stretch justify-between p-4 fixed top-0 left-0 right-0 z-40 bg-white shadow-md overflow-hidden"
+    class="flex flex-col items-stretch p-4 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
     :style="{ height: headerHeight }"
   >
     <!-- Toggle Navigation Button -->
-    <button class="p-2 bg-primary rounded-full" @click="toggleNav">
+    <button
+      class="p-2 bg-primary rounded-full absolute top-4 right-4 z-50"
+      @click="toggleNav"
+    >
       <icon name="fluent:row-triple-20-filled" class="text-2xl text-white" />
     </button>
 
     <!-- Header Content -->
-    <div class="flex flex-col items-stretch w-full mt-2">
+    <div class="flex flex-col items-stretch w-full mt-12">
       <!-- Top Section -->
       <div class="flex items-center justify-between flex-wrap gap-2">
         <!-- Left Section -->
@@ -51,6 +54,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
+import { useContent } from '@nuxt/content'
 
 const { page } = useContent()
 const avatarSize = 'small'
@@ -76,7 +80,6 @@ const toggleNav = () => {
 header {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
 }
 
 @media (max-height: 600px) {
@@ -100,8 +103,13 @@ header {
 @media (max-width: 600px) {
   header .flex-wrap {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     text-align: center;
+  }
+
+  button {
+    top: 2rem;
+    right: 2rem;
   }
 }
 </style>

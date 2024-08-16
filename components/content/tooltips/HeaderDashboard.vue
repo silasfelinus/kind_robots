@@ -51,7 +51,6 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { useContent } from '@nuxt/content'
 
 const { page } = useContent()
 const avatarSize = 'small'

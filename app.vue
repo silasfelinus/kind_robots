@@ -1,13 +1,5 @@
 <template>
   <div class="relative flex flex-col h-screen bg-gray-100">
-    <!-- Toggle Navigation Button -->
-    <button
-      class="absolute top-4 left-4 z-50 p-2 bg-primary rounded-full"
-      @click="toggleNav"
-    >
-      <icon name="fluent:row-triple-20-filled" class="text-2xl text-white" />
-    </button>
-
     <!-- Header Dashboard -->
     <header-dashboard
       class="w-full bg-white fixed top-0 left-0 right-0 z-40"
@@ -17,17 +9,10 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       "
     />
-
     <!-- Main Content -->
     <main
-      class="flex-grow overflow-y-auto pt-[4rem] pb-[calc(8rem+env(safe-area-inset-bottom))]"
+      class="flex-grow overflow-y-auto pt-[var(--header-height)] pb-[calc(8rem+env(safe-area-inset-bottom))]"
     >
-      <!-- Navigation -->
-      <navigation-trimmed
-        v-if="showNav"
-        class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300"
-        :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
-      />
       <!-- Main Content Area -->
       <div class="border border-gray-300 rounded-lg mb-4 p-4 bg-gray-200">
         <NuxtPage />
@@ -37,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 
 const errorStore = useErrorStore()
@@ -91,10 +76,4 @@ onMounted(async () => {
     )
   }
 })
-
-const showNav = ref(false)
-
-const toggleNav = () => {
-  showNav.value = !showNav.value
-}
 </script>

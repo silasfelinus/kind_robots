@@ -20,8 +20,6 @@ import { useLayoutStore, allowedLayouts } from './../../../stores/layoutStore'
 
 const layoutStore = useLayoutStore()
 
-
-
 const selectedLayout = computed({
   get: () => layoutStore.currentLayout,
   set: (value) => {
@@ -31,5 +29,4 @@ const selectedLayout = computed({
     }
   },
 })
-
 </script>

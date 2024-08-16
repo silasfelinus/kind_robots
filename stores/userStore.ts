@@ -85,14 +85,17 @@ export const useUserStore = defineStore({
     async fetchUserDataByToken(token: string) {
       try {
         const response = await this.apiCall('/api/auth/validate', 'POST', {
-          token,
-        })
-
+          type: 'token', // Add type field
+          data: { token }, // Structure the data field
+        });
+    
         if (response.success) {
-          this.setUser(response.user)
+          this.setUser(response.user);
+        } else {
+          // Handle unsuccessful response if needed
         }
       } catch (error) {
-        useErrorStore().setError(ErrorType.AUTH_ERROR, error) // Use errorStore with ErrorType
+        useErrorStore().setError(ErrorType.AUTH_ERROR, error); // Use errorStore with ErrorType
       }
     },
     async register({

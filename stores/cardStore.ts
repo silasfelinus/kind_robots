@@ -54,7 +54,9 @@ export const useCardStore = defineStore({
   id: 'cardStore',
   state: (): CardState => {
     const contentStore = useContentStore()
-    const highlightPages = contentStore.highlightPages.map(page => page._id ?? '')
+    const highlightPages = contentStore.highlightPages.map(
+      (page) => page._id ?? '',
+    )
 
     return {
       cardOrder: getStoredGridState('gridState', {

@@ -1,15 +1,15 @@
 <template>
   <div class="relative flex flex-col h-screen bg-gray-100">
     <!-- Header Dashboard -->
-    <header class="w-full bg-primary z-40" :style="{ height: headerHeight }">
-      <!-- Header Content Here -->
-    </header>
+    <header-dashboard
+      class="w-full bg-primary z-40"
+      :style="{ height: headerHeight }"
+    >
+    </header-dashboard>
+
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto p-4 bg-secondary">
-      <!-- Main Content Area -->
-      <div class="border border-gray-300 rounded-lg mb-4">
-        <NuxtPage />
-      </div>
+      <NuxtPage />
     </main>
   </div>
 </template>

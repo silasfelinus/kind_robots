@@ -1,6 +1,6 @@
 <template>
   <header
-    class="relative flex flex-col items-stretch p-4 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
+    class="flex flex-col items-stretch p-4 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
     :style="{ height: headerHeight }"
   >
     <!-- Header Content -->

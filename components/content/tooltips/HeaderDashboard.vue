@@ -14,27 +14,25 @@
     <!-- Header Content -->
     <div class="flex flex-col items-stretch w-full">
       <!-- Top Section -->
-      <div class="flex items-center justify-between flex-wrap gap-2">
+      <div class="flex flex-col items-center justify-center gap-2">
         <!-- Left Section -->
-        <div class="flex items-center space-x-4 flex-shrink-0">
-          <div class="flex-shrink-0">
-            <avatar-image :size="avatarSize" class="rounded-2xl" />
-          </div>
-          <div class="flex flex-col items-center text-center">
-            <room-title class="text-base font-semibold border-b mb-1" />
-            <h2 class="text-xs text-gray-500 italic">
-              {{ page.subtitle || 'the kindest' }}
-            </h2>
-          </div>
+        <div
+          class="flex flex-col items-center text-center space-y-1 flex-shrink-0"
+        >
+          <avatar-image :size="avatarSize" class="rounded-2xl" />
+          <room-title class="text-base font-semibold border-b" />
+          <h2 class="text-xs text-gray-500 italic">
+            {{ page.subtitle || 'the kindest' }}
+          </h2>
         </div>
 
         <!-- Center Section -->
-        <div class="flex-1 flex items-center justify-center">
+        <div class="flex items-center justify-center w-full mt-2">
           <smart-links />
         </div>
 
         <!-- Right Section -->
-        <div class="flex items-center space-x-2 flex-shrink-0">
+        <div class="flex items-center space-x-2 flex-shrink-0 mt-2">
           <jellybean-count />
           <login-button />
           <theme-toggle />
@@ -97,6 +95,15 @@ header {
   header .text-xs {
     font-size: 0.75rem; /* Reduce font size for smaller screens */
   }
+
+  .header-content {
+    gap: 1rem; /* Reduce space between items */
+  }
+
+  .avatar-image {
+    width: 2.5rem;
+    height: 2.5rem; /* Adjust size of avatar */
+  }
 }
 
 @media (max-width: 600px) {
@@ -104,6 +111,14 @@ header {
     flex-direction: column;
     align-items: center;
     text-align: center;
+  }
+
+  .flex-shrink-0 {
+    margin-bottom: 0.5rem; /* Reduce space below elements */
+  }
+
+  .w-full {
+    width: auto; /* Adjust width for mobile */
   }
 
   button {

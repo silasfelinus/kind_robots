@@ -1,15 +1,15 @@
 <template>
   <header
-    class="flex items-center p-2 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
-    :style="{ height: headerHeight }"
+    class="flex flex-col items-center p-2 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
+    :style="{ height: headerHeight, maxHeight: '100vh' }"
   >
     <!-- Header Content -->
-    <div class="flex-1 flex items-center justify-between px-2">
+    <div class="flex w-full items-center justify-between px-2">
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0">
-        <avatar-image :size="avatarSize" class="rounded-2xl w-8 h-8" />
-        <div class="flex flex-col items-center text-center">
-          <room-title class="text-xs font-semibold" />
+        <avatar-image :size="avatarSize" class="rounded-full w-10 h-10" />
+        <div class="flex flex-col text-left">
+          <room-title class="text-sm font-semibold" />
           <h2 class="text-xs text-gray-500 italic">
             {{ page.subtitle || 'the kindest' }}
           </h2>
@@ -17,17 +17,14 @@
       </div>
 
       <!-- Center Section -->
-      <div class="flex-1 flex items-center justify-center px-2">
-        <smart-links class="text-xs" />
-      </div>
-
-      <!-- Right Section -->
-      <div class="flex items-center space-x-1 flex-shrink-0">
-        <jellybean-count class="text-xs" />
-        <login-button class="text-xs" />
-        <theme-toggle class="text-xs" />
-        <butterfly-toggle class="text-xs" />
-        <NavToggle @toggle-nav="toggleNav" />
+      <div class="flex-1 flex flex-col items-center justify-center px-4">
+        <smart-links class="text-sm mb-2" />
+        <!-- Nav and Controls Section -->
+        <div class="flex items-center space-x-2">
+          <NavToggle @toggle-nav="toggleNav" />
+          <theme-toggle class="text-sm" />
+          <butterfly-toggle class="text-sm" />
+        </div>
       </div>
     </div>
 
@@ -36,6 +33,11 @@
       v-if="showNav"
       class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300"
       :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
+    />
+
+    <!-- Jellybean Counter -->
+    <jellybean-count
+      class="fixed top-2 right-2 text-sm z-10 bg-white p-1 rounded-full shadow-md"
     />
   </header>
 </template>
@@ -59,19 +61,19 @@ const toggleNav = () => {
 </script>
 
 <style scoped>
-/* Define a CSS variable for the header height */
 :root {
   --header-height: 4rem; /* Adjust height for one-line header */
 }
 
 header {
   display: flex;
+  flex-direction: column;
   align-items: center;
   padding: 0.5rem; /* Adjust padding for compactness */
 }
 
-header .text-xs {
-  font-size: 0.75rem; /* Ensure text is small and fits */
+header .text-sm {
+  font-size: 0.875rem; /* Ensure text is small and fits */
 }
 
 @media (max-width: 600px) {
@@ -84,9 +86,18 @@ header .text-xs {
     height: 2rem; /* Ensure button is small */
   }
 
-  .w-8 {
-    width: 2rem; /* Adjust avatar size */
-    height: 2rem; /* Adjust avatar size */
+  .w-10 {
+    width: 2.5rem; /* Adjust avatar size */
+    height: 2.5rem; /* Adjust avatar size */
   }
+
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+.jellybean-count {
+  z-index: 10; /* Lower priority */
 }
 </style>

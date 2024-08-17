@@ -21,7 +21,7 @@
         <smart-links class="text-sm mb-2" />
         <!-- Nav and Controls Section -->
         <div class="flex items-center space-x-2">
-          <NavToggle @toggle-nav="toggleNav" />
+          <nav-toggle @toggle-nav="toggleNav" />
           <theme-toggle class="text-sm" />
           <butterfly-toggle class="text-sm" />
         </div>
@@ -89,8 +89,6 @@ header .text-sm {
     width: 2.5rem; /* Adjust avatar size */
     height: 2.5rem; /* Adjust avatar size */
   }
-
-0
 }
 
 .jellybean-count {

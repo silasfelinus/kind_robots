@@ -1,12 +1,12 @@
 <template>
   <header
-    class="flex flex-col items-center p-2 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
+    class="flex flex-col items-center p-0 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
     :style="{ height: headerHeight, maxHeight: '100vh' }"
   >
     <!-- Header Content -->
-    <div class="flex w-full items-center justify-between px-2">
+    <div class="flex w-full items-center justify-between px-0">
       <!-- Left Section -->
-      <div class="flex items-center space-x-2 flex-shrink-0">
+      <div class="flex items-center space-x-0 flex-shrink-0">
         <avatar-image :size="avatarSize" class="rounded-full w-10 h-10" />
         <div class="flex flex-col text-left">
           <room-title class="text-sm font-semibold" />
@@ -17,7 +17,7 @@
       </div>
 
       <!-- Center Section -->
-      <div class="flex-1 flex flex-col items-center justify-center px-4">
+      <div class="flex-1 flex flex-col items-center justify-center px-0">
         <smart-links class="text-sm mb-2" />
         <!-- Nav and Controls Section -->
         <div class="flex items-center space-x-2">
@@ -31,7 +31,7 @@
     <!-- Navigation -->
     <navigation-trimmed
       v-if="showNav"
-      class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300"
+      class="fixed bottom-0 left-0 right-0 rounded-t-x0 p-0 bg-white shadow-lg z-30 transition-transform duration-300"
       :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
 
@@ -69,7 +69,6 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.5rem; /* Adjust padding for compactness */
 }
 
 header .text-sm {
@@ -91,10 +90,7 @@ header .text-sm {
     height: 2.5rem; /* Adjust avatar size */
   }
 
-  .px-4 {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
+0
 }
 
 .jellybean-count {

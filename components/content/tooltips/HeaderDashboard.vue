@@ -3,6 +3,14 @@
     class="flex flex-col items-stretch p-4 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
     :style="{ height: headerHeight }"
   >
+    <!-- Toggle Navigation Button -->
+    <button
+      class="p-2 bg-primary rounded-full absolute bottom-4 right-4 z-50 w-10 h-10 flex items-center justify-center"
+      @click="toggleNav"
+    >
+      <icon name="fluent:row-triple-20-filled" class="text-xl text-white" />
+    </button>
+
     <!-- Header Content -->
     <div class="flex flex-col items-stretch w-full">
       <!-- Top Section -->
@@ -41,14 +49,6 @@
         :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
       />
     </div>
-
-    <!-- Toggle Navigation Button -->
-    <button
-      class="p-2 bg-primary rounded-full absolute bottom-4 right-4 z-50 w-10 h-10 flex items-center justify-center"
-      @click="toggleNav"
-    >
-      <icon name="fluent:row-triple-20-filled" class="text-xl text-white" />
-    </button>
   </header>
 </template>
 
@@ -81,7 +81,7 @@ header {
   flex-direction: column;
 }
 
-@media (max-height: 400px) {
+@media (max-height: 600px) {
   :root {
     --header-height: 5rem; /* Adjust height for smaller screens */
   }

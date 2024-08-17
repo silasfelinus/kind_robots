@@ -8,11 +8,11 @@
       class="p-2 bg-primary rounded-full absolute top-4 right-4 z-50 w-10 h-10 flex items-center justify-center"
       @click="toggleNav"
     >
-      <icon name="fluent:row-triple-20-filled" class="text-2xl text-white" />
+      <icon name="fluent:row-triple-20-filled" class="text-xl text-white" />
     </button>
 
     <!-- Header Content -->
-    <div class="flex flex-col items-stretch w-full mt-12">
+    <div class="flex flex-col items-stretch w-full mt-16 md:mt-20 lg:mt-24">
       <!-- Top Section -->
       <div class="flex items-center justify-between flex-wrap gap-2">
         <!-- Left Section -->
@@ -21,8 +21,8 @@
             <avatar-image :size="avatarSize" class="rounded-2xl" />
           </div>
           <div class="flex flex-col items-center text-center">
-            <room-title class="text-lg font-semibold border-b mb-1" />
-            <h2 class="text-sm text-gray-500 italic">
+            <room-title class="text-base font-semibold border-b mb-1" />
+            <h2 class="text-xs text-gray-500 italic">
               {{ page.subtitle || 'the kindest' }}
             </h2>
           </div>
@@ -87,15 +87,15 @@ header {
   }
 
   header {
-    padding: 0.5rem; /* Adjust padding for smaller screens */
+    padding: 1rem; /* Adjust padding for smaller screens */
   }
 
-  header .text-lg {
-    font-size: 1rem; /* Reduce font size for smaller screens */
-  }
-
-  header .text-sm {
+  header .text-base {
     font-size: 0.875rem; /* Reduce font size for smaller screens */
+  }
+
+  header .text-xs {
+    font-size: 0.75rem; /* Reduce font size for smaller screens */
   }
 }
 

@@ -1,7 +1,8 @@
+// server/utils/backupDatabase.ts
 import fs from 'fs'
 import prisma from './prisma'
 
-async function backupDatabase() {
+export async function backupDatabase() {
   try {
     const channels = await prisma.channel.findMany()
     const messages = await prisma.message.findMany()
@@ -41,5 +42,3 @@ async function backupDatabase() {
     await prisma.$disconnect()
   }
 }
-
-backupDatabase()

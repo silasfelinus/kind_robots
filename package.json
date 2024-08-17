@@ -17,7 +17,8 @@
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate deploy",
     "prisma:migrate:dev": "npx prisma migrate dev",
-    "postinstall": "npm run prisma:generate && nuxt prepare"
+    "postinstall": "npm run prisma:generate && nuxt prepare",
+    "backup": "ts-node server/utils/backupDatabase.ts"
   },
   "devDependencies": {
     "@iconify-json/bi": "^1.1.24",
@@ -41,6 +42,7 @@
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
     "prisma": "^5.18.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
   "dependencies": {

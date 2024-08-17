@@ -1,52 +1,42 @@
 <template>
   <header
-    class="flex flex-col items-stretch p-1 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
+    class="flex items-center p-2 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
     :style="{ height: headerHeight }"
   >
-    <!-- Toggle Navigation Button -->
-    <button
-      class="p-2 bg-primary rounded-full absolute bottom-2 right-4 z-50 w-10 h-10 flex items-center justify-center"
-      @click="toggleNav"
-    >
-      <icon name="fluent:row-triple-20-filled" class="text-xl text-white" />
-    </button>
-
     <!-- Header Content -->
-    <div class="flex flex-col items-stretch w-full">
-      <!-- Top Section -->
-      <div class="flex flex-col items-center justify-center gap-2">
-        <!-- Left Section -->
-        <div
-          class="flex flex-col items-center text-center space-y-1 flex-shrink-0"
-        >
-          <avatar-image :size="avatarSize" class="rounded-2xl" />
-          <room-title class="text-base font-semibold border-b" />
+    <div class="flex-1 flex items-center justify-between px-2">
+      <!-- Left Section -->
+      <div class="flex items-center space-x-2 flex-shrink-0">
+        <avatar-image :size="avatarSize" class="rounded-2xl w-8 h-8" />
+        <div class="flex flex-col items-center text-center">
+          <room-title class="text-xs font-semibold" />
           <h2 class="text-xs text-gray-500 italic">
             {{ page.subtitle || 'the kindest' }}
           </h2>
         </div>
-
-        <!-- Center Section -->
-        <div class="flex items-center justify-center w-full mt-1">
-          <smart-links />
-        </div>
-
-        <!-- Right Section -->
-        <div class="flex items-center space-x-1 flex-shrink-0 mt-1">
-          <jellybean-count />
-          <login-button />
-          <theme-toggle />
-          <butterfly-toggle />
-        </div>
       </div>
 
-      <!-- Navigation -->
-      <navigation-trimmed
-        v-if="showNav"
-        class="fixed bottom-0 left-0 right-0 rounded-t-xl p-1 bg-white shadow-lg z-30 transition-transform duration-300"
-        :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
-      />
+      <!-- Center Section -->
+      <div class="flex-1 flex items-center justify-center px-2">
+        <smart-links class="text-xs" />
+      </div>
+
+      <!-- Right Section -->
+      <div class="flex items-center space-x-1 flex-shrink-0">
+        <jellybean-count class="text-xs" />
+        <login-button class="text-xs" />
+        <theme-toggle class="text-xs" />
+        <butterfly-toggle class="text-xs" />
+        <NavToggle @toggle-nav="toggleNav" />
+      </div>
     </div>
+
+    <!-- Navigation -->
+    <navigation-trimmed
+      v-if="showNav"
+      class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300"
+      :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
+    />
   </header>
 </template>
 
@@ -71,61 +61,32 @@ const toggleNav = () => {
 <style scoped>
 /* Define a CSS variable for the header height */
 :root {
-  --header-height: 5rem; /* Default height for larger screens */
+  --header-height: 4rem; /* Adjust height for one-line header */
 }
 
 header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem; /* Adjust padding for compactness */
 }
 
-@media (max-height: 600px) {
-  :root {
-    --header-height: 4rem; /* Adjust height for smaller screens */
-  }
-
-  header {
-    padding: 1rem; /* Adjust padding for smaller screens */
-  }
-
-  header .text-base {
-    font-size: 0.875rem; /* Reduce font size for smaller screens */
-  }
-
-  header .text-xs {
-    font-size: 0.75rem; /* Reduce font size for smaller screens */
-  }
-
-  .header-content {
-    gap: 1rem; /* Reduce space between items */
-  }
-
-  .avatar-image {
-    width: 2rem;
-    height: 2rem; /* Adjust size of avatar */
-  }
+header .text-xs {
+  font-size: 0.75rem; /* Ensure text is small and fits */
 }
 
-@media (max-width: 400px) {
-  header .flex-wrap {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
+@media (max-width: 600px) {
   .flex-shrink-0 {
-    margin-bottom: 0.5rem; /* Reduce space below elements */
-  }
-
-  .w-full {
-    width: auto; /* Adjust width for mobile */
+    flex-shrink: 1; /* Allow elements to shrink */
   }
 
   button {
-    bottom: 2rem;
-    right: 2rem;
-    width: auto; /* Ensure width is controlled by button content */
-    height: auto; /* Ensure height is controlled by button content */
+    width: 2rem; /* Ensure button is small */
+    height: 2rem; /* Ensure button is small */
+  }
+
+  .w-8 {
+    width: 2rem; /* Adjust avatar size */
+    height: 2rem; /* Adjust avatar size */
   }
 }
 </style>

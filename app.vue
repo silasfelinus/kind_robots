@@ -59,6 +59,11 @@ useHead({
   ],
 })
 
+interface BackupResponse {
+  success: boolean
+  message?: string
+}
+
 onMounted(async () => {
   try {
     await botStore.loadStore()
@@ -70,6 +75,7 @@ onMounted(async () => {
     await channelStore.initializeChannels()
     await milestoneStore.initializeMilestones()
     await layoutStore.initializeStore()
+    checkAndTriggerBackup()
     console.log(
       'Welcome to Kind Robots, random person who reads console logs! Are you a developer?',
     )
@@ -80,6 +86,35 @@ onMounted(async () => {
     )
   }
 })
+
+const BACKUP_INTERVAL = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+
+const checkAndTriggerBackup = async () => {
+  const lastBackup = localStorage.getItem('lastBackup')
+  const now = new Date().getTime()
+
+  if (!lastBackup || now - parseInt(lastBackup) > BACKUP_INTERVAL) {
+    try {
+      const { data } = await useFetch<BackupResponse>('/api/backup')
+
+      // Check if data.value is not null
+      if (data.value) {
+        if (data.value.success) {
+          localStorage.setItem('lastBackup', now.toString())
+          console.log('Backup triggered and successful.')
+        } else {
+          console.error('Backup failed:', data.value.message)
+        }
+      } else {
+        console.error('Backup response is null.')
+      }
+    } catch (err) {
+      console.error('Error triggering backup:', err)
+    }
+  } else {
+    console.log('Backup not needed.')
+  }
+}
 </script>
 
 <style scoped>

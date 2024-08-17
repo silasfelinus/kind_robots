@@ -1,11 +1,11 @@
 <template>
   <header
-    class="flex flex-col items-stretch p-4 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
+    class="flex flex-col items-stretch p-1 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
     :style="{ height: headerHeight }"
   >
     <!-- Toggle Navigation Button -->
     <button
-      class="p-2 bg-primary rounded-full absolute bottom-4 right-4 z-50 w-10 h-10 flex items-center justify-center"
+      class="p-2 bg-primary rounded-full absolute bottom-2 right-4 z-50 w-10 h-10 flex items-center justify-center"
       @click="toggleNav"
     >
       <icon name="fluent:row-triple-20-filled" class="text-xl text-white" />
@@ -27,12 +27,12 @@
         </div>
 
         <!-- Center Section -->
-        <div class="flex items-center justify-center w-full mt-2">
+        <div class="flex items-center justify-center w-full mt-1">
           <smart-links />
         </div>
 
         <!-- Right Section -->
-        <div class="flex items-center space-x-2 flex-shrink-0 mt-2">
+        <div class="flex items-center space-x-1 flex-shrink-0 mt-1">
           <jellybean-count />
           <login-button />
           <theme-toggle />
@@ -43,7 +43,7 @@
       <!-- Navigation -->
       <navigation-trimmed
         v-if="showNav"
-        class="fixed bottom-0 left-0 right-0 rounded-t-xl p-2 bg-white shadow-lg z-30 transition-transform duration-300"
+        class="fixed bottom-0 left-0 right-0 rounded-t-xl p-1 bg-white shadow-lg z-30 transition-transform duration-300"
         :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
       />
     </div>
@@ -71,7 +71,7 @@ const toggleNav = () => {
 <style scoped>
 /* Define a CSS variable for the header height */
 :root {
-  --header-height: 7rem; /* Default height for larger screens */
+  --header-height: 5rem; /* Default height for larger screens */
 }
 
 header {
@@ -81,7 +81,7 @@ header {
 
 @media (max-height: 600px) {
   :root {
-    --header-height: 5rem; /* Adjust height for smaller screens */
+    --header-height: 4rem; /* Adjust height for smaller screens */
   }
 
   header {
@@ -101,12 +101,12 @@ header {
   }
 
   .avatar-image {
-    width: 2.5rem;
-    height: 2.5rem; /* Adjust size of avatar */
+    width: 2rem;
+    height: 2rem; /* Adjust size of avatar */
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 400px) {
   header .flex-wrap {
     flex-direction: column;
     align-items: center;

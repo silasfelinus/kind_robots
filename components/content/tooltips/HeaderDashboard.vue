@@ -6,7 +6,7 @@
     <!-- Header Content -->
     <div class="flex w-full items-center justify-between px-4">
       <!-- Left Section -->
-      <div class="flex items-center space-x-2 flex-shrink-0">
+      <div class="flex items-center space-x-y flex-shrink-0">
         <avatar-image :size="avatarSize" class="rounded-full w-8 h-8" />
         <div class="flex flex-col text-left">
           <room-title class="text-sm font-semibold" />
@@ -19,15 +19,13 @@
       <!-- Center Section -->
       <div class="flex-1 flex items-center justify-center px-2">
         <smart-links class="text-sm" />
-        <div class="flex items-center space-x-2 ml-4">
-          <nav-toggle @toggle-nav="toggleNav" />
-          <theme-toggle class="text-sm" />
-          <butterfly-toggle class="text-sm" />
-        </div>
       </div>
 
       <!-- Right Section -->
       <div class="flex items-center space-x-2 flex-shrink-0">
+        <nav-toggle @toggle-nav="toggleNav" />
+        <theme-toggle class="text-sm" />
+        <butterfly-toggle class="text-sm" />
         <login-button />
         <jellybean-count class="text-sm bg-white p-1 rounded-full shadow-md" />
       </div>

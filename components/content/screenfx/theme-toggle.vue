@@ -6,7 +6,7 @@
         tabindex="0"
         aria-haspopup="true"
         aria-label="Change theme"
-        class="theme-btn p-0 rounded-full border border-accent focus:outline-none focus:ring focus:ring-accent transform hover:scale-110 transition-all ease-in-out duration-200 text-lg"
+        class="theme-btn p-2 rounded-full border border-accent focus:outline-none focus:ring focus:ring-accent transform hover:scale-110 transition-all ease-in-out duration-200 text-lg"
         @click="toggleMenu"
       >
         theme: {{ themeStore.currentTheme }}
@@ -16,12 +16,12 @@
       <div
         v-show="open"
         :style="modalPosition"
-        class="theme-menu flex flex-wrap justify-center bg-base-200 border p-0 rounded-2xl z-10 transition-opacity duration-200 w-full"
+        class="theme-menu flex flex-wrap justify-center bg-base-200 border p-2 m-1 rounded-2xl z-10 transition-opacity duration-200 w-full"
       >
         <button
           v-for="(theme, index) in themeStore.themes"
           :key="index"
-          class="theme-item flex items-center justify-center cursor-pointer p-0 rounded-lg flex-grow"
+          class="theme-item flex items-center justify-center cursor-pointer p-2 rounded-lg flex-grow"
           :class="theme === themeStore.currentTheme ? 'ring-2 ring-accent' : ''"
           role="menuitem"
           tabindex="0"

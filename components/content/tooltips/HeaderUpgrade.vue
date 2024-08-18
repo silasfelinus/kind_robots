@@ -82,6 +82,6 @@ header {
 }
 
 .right-section .flex-shrink-0 {
-  min-width: 40px; /* Adjust as needed to ensure items stay visible */
+  min-width: 120px; /* Adjust as needed to ensure items stay visible */
 }
 </style>

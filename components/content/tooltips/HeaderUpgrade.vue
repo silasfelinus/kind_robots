@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Header -->
     <header
-      class="bg-primary shadow-md z-20 flex flex-col items-center p-4"
+      class="bg-primary shadow-md z-20 flex flex-col items-center p-2"
       :style="{ height: headerHeight }"
     >
       <!-- Header Content -->

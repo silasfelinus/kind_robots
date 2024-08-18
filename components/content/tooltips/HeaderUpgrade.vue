@@ -38,6 +38,7 @@
         <div class="flex-shrink-0">
           <login-button />
         </div>
+
         <div class="flex-shrink-0">
           <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
         </div>
@@ -80,10 +81,12 @@ header {
 }
 
 .right-section {
-  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; /* Adjust gap as needed */
 }
 
 .right-section .flex-shrink-0 {
-  min-width: 120px; /* Adjust as needed to ensure items stay visible */
+  min-width: 80px; /* Ensure minimum width to prevent disappearing */
 }
 </style>

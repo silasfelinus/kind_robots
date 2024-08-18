@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Header -->
     <header
-      class="bg-primary shadow-md z-20 flex flex-col md:flex-row items-start p-2"
+      class="bg-primary shadow-md z-20 flex flex-col md:flex-row items-center p-2"
     >
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
@@ -20,7 +20,7 @@
 
       <!-- Center Section -->
       <div class="flex-1 flex items-center justify-center px-2 mt-2 md:mt-0">
-        <smart-links class="text-sm" />
+        <smart-links class="text-sm w-full max-w-screen-md" />
       </div>
 
       <!-- Right Section -->
@@ -28,18 +28,18 @@
         class="flex flex-col md:flex-row md:items-center md:justify-end space-y-2 md:space-y-0 md:space-x-2 mt-2 md:mt-0"
       >
         <div class="hidden md:flex md:flex-row md:items-center md:space-x-2">
-          <login-button />
-          <NavToggle @toggle-nav="toggleNav" />
-          <theme-toggle class="text-sm" />
-          <butterfly-toggle class="text-sm" />
+          <login-button class="flex-shrink-0" />
+          <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
+          <theme-toggle class="text-sm flex-shrink-0" />
+          <butterfly-toggle class="text-sm flex-shrink-0" />
         </div>
         <div class="md:hidden flex flex-col items-end space-y-2">
           <button class="accordion-button" @click="toggleAccordion">☰</button>
           <div v-if="accordionOpen" class="accordion-content">
-            <login-button />
-            <NavToggle @toggle-nav="toggleNav" />
-            <theme-toggle class="text-sm" />
-            <butterfly-toggle class="text-sm" />
+            <login-button class="flex-shrink-0" />
+            <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
+            <theme-toggle class="text-sm flex-shrink-0" />
+            <butterfly-toggle class="text-sm flex-shrink-0" />
           </div>
         </div>
       </div>
@@ -96,6 +96,7 @@ const toggleAccordion = () => {
   background-color: white;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 100vw; /* Ensure it doesn't exceed viewport width */
 }
 
 @media (max-width: 640px) {

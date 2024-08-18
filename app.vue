@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useErrorStore } from '@/stores/errorStore'
 import { useTagStore } from '@/stores/tagStore'
@@ -64,6 +64,45 @@ interface BackupResponse {
   message?: string
 }
 
+const BACKUP_INTERVAL = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+
+const checkAndTriggerBackup = async () => {
+  // Type assertion for $fetch
+  const fetchBackup = async (): Promise<BackupResponse> => {
+    return $fetch<BackupResponse>('/api/backup')
+  }
+
+  const lastBackup = localStorage.getItem('lastBackup')
+  const now = new Date().getTime()
+
+  console.log('Last backup timestamp:', lastBackup)
+  console.log('Current time:', now)
+  console.log('Backup interval (ms):', BACKUP_INTERVAL)
+
+  if (!lastBackup || now - parseInt(lastBackup) > BACKUP_INTERVAL) {
+    console.log('Backup is due. Triggering backup process...')
+    try {
+      const data = await fetchBackup()
+
+      // Check if data is not null
+      if (data) {
+        if (data.success) {
+          localStorage.setItem('lastBackup', now.toString())
+          console.log('Backup triggered and successful.')
+        } else {
+          console.error('Backup failed:', data.message)
+        }
+      } else {
+        console.error('Backup response is null or undefined.')
+      }
+    } catch (err) {
+      console.error('Error triggering backup:', err)
+    }
+  } else {
+    console.log('Backup not needed. Last backup was within the interval.')
+  }
+}
+
 onMounted(async () => {
   try {
     await botStore.loadStore()
@@ -75,7 +114,7 @@ onMounted(async () => {
     await channelStore.initializeChannels()
     await milestoneStore.initializeMilestones()
     await layoutStore.initializeStore()
-    checkAndTriggerBackup()
+    await checkAndTriggerBackup()
     console.log(
       'Welcome to Kind Robots, random person who reads console logs! Are you a developer?',
     )
@@ -86,35 +125,6 @@ onMounted(async () => {
     )
   }
 })
-
-const BACKUP_INTERVAL = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
-
-const checkAndTriggerBackup = async () => {
-  const lastBackup = localStorage.getItem('lastBackup')
-  const now = new Date().getTime()
-
-  if (!lastBackup || now - parseInt(lastBackup) > BACKUP_INTERVAL) {
-    try {
-      const { data } = await useFetch<BackupResponse>('/api/backup')
-
-      // Check if data.value is not null
-      if (data.value) {
-        if (data.value.success) {
-          localStorage.setItem('lastBackup', now.toString())
-          console.log('Backup triggered and successful.')
-        } else {
-          console.error('Backup failed:', data.value.message)
-        }
-      } else {
-        console.error('Backup response is null.')
-      }
-    } catch (err) {
-      console.error('Error triggering backup:', err)
-    }
-  } else {
-    console.log('Backup not needed.')
-  }
-}
 </script>
 
 <style scoped>

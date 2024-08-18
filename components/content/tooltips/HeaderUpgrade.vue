@@ -34,7 +34,7 @@
           <butterfly-toggle class="text-sm" />
         </div>
         <div class="md:hidden flex items-center justify-center">
-          <button @click="toggleAccordion" class="accordion-button">☰</button>
+          <button class="accordion-button" @click="toggleAccordion">☰</button>
           <div v-if="accordionOpen" class="accordion-content">
             <login-button />
             <NavToggle @toggle-nav="toggleNav" />
@@ -92,7 +92,6 @@ const toggleAccordion = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  space-y-2;
   padding: 0.5rem;
   background-color: white;
   border-radius: 0.5rem;

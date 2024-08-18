@@ -136,6 +136,7 @@ const toggleNav = () => {
 .page-content {
   flex: 1;
   padding: 1rem;
+  margin-top: var(--header-height); /* Ensure content starts below the header */
   box-sizing: border-box;
 }
 

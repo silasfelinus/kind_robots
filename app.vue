@@ -128,10 +128,21 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+:root {
+  --header-height: 3rem;
+}
+
 header {
   position: relative;
+  width: 100%;
 }
+
 main {
+  flex: 1;
   padding: 1rem;
+  background-color: var(
+    --color-secondary
+  ); /* Ensure correct background color */
+  overflow-y: auto;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <div>
     <header
       class="header-container"
       :style="{ height: headerHeight, maxHeight: '100vh' }"
@@ -61,12 +61,6 @@ const toggleNav = () => {
 <style scoped>
 :root {
   --header-height: 3rem;
-}
-
-.page-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh; /* Ensure the container takes up full viewport height */
 }
 
 .header-container {

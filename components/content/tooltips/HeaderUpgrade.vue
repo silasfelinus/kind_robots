@@ -37,11 +37,6 @@
 
     <!-- Navigation -->
     <navigation-trimmed v-if="showNav" class="navigation-drawer" />
-
-    <!-- Page Content -->
-    <main class="page-content">
-      <!-- Your main content here -->
-    </main>
   </div>
 </template>
 

@@ -1,9 +1,6 @@
 <template>
   <div>
-    <header
-      class="header-container"
-      :style="{ height: headerHeight, maxHeight: '100vh' }"
-    >
+    <header class="header-container" :style="{ height: headerHeight }">
       <!-- Header Content -->
       <div class="header-content">
         <!-- Left Section -->
@@ -73,6 +70,8 @@ const toggleNav = () => {
   background-color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 20; /* Ensure header is on top */
+  height: auto; /* Allow height to be determined by content */
+  min-height: var(--header-height); /* Minimum height for header */
 }
 
 .header-content {
@@ -144,19 +143,19 @@ const toggleNav = () => {
 @media (max-width: 600px) {
   .header-content {
     flex-direction: column;
-    align-items: stretch; /* Ensure elements take full width */
+    align-items: stretch;
   }
 
   .left-section,
   .center-section,
   .right-section {
     width: 100%;
-    justify-content: center; /* Center items in smaller screens */
+    justify-content: center;
   }
 
   .right-section {
-    margin-right: 0; /* Remove extra margin on smaller screens */
-    padding: 0.5rem; /* Adjust padding if necessary */
+    margin-right: 0;
+    padding: 0.5rem;
   }
 }
 </style>

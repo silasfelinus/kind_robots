@@ -1,11 +1,11 @@
 <template>
   <div class="relative flex flex-col h-screen bg-gray-100">
     <!-- Header Dashboard -->
-    <header-dashboard
+    <header-upgrade
       class="w-full bg-primary z-40"
       :style="{ height: headerHeight }"
     >
-    </header-dashboard>
+    </header-upgrade>
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto p-4 bg-secondary">

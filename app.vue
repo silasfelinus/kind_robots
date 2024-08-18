@@ -2,13 +2,13 @@
   <div class="relative flex flex-col h-screen bg-gray-100">
     <!-- Header Dashboard -->
     <header-upgrade
-      class="w-full bg-primary z-40"
+      class="w-full bg-primary shadow-md z-40"
       :style="{ height: headerHeight }"
     >
     </header-upgrade>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-4 bg-secondary">
+    <main class="flex-1 p-4 bg-secondary overflow-y-auto">
       <NuxtPage />
     </main>
   </div>
@@ -39,7 +39,8 @@ const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
 const layoutStore = useLayoutStore()
 
-const headerHeight = computed(() => `var(--header-height)`)
+// Define responsive header height
+const headerHeight = computed(() => '3rem') // Adjust this as needed
 
 useHead({
   title: 'Kind Robots',
@@ -75,31 +76,17 @@ const checkAndTriggerBackup = async () => {
   const lastBackup = localStorage.getItem('lastBackup')
   const now = new Date().getTime()
 
-  console.log('Last backup timestamp:', lastBackup)
-  console.log('Current time:', now)
-  console.log('Backup interval (ms):', BACKUP_INTERVAL)
-
   if (!lastBackup || now - parseInt(lastBackup) > BACKUP_INTERVAL) {
-    console.log('Backup is due. Triggering backup process...')
     try {
       const data = await fetchBackup()
-
-      // Check if data is not null
-      if (data) {
-        if (data.success) {
-          localStorage.setItem('lastBackup', now.toString())
-          console.log('Backup triggered and successful.')
-        } else {
-          console.error('Backup failed:', data.message)
-        }
+      if (data && data.success) {
+        localStorage.setItem('lastBackup', now.toString())
       } else {
-        console.error('Backup response is null or undefined.')
+        console.error('Backup failed:', data?.message)
       }
     } catch (err) {
       console.error('Error triggering backup:', err)
     }
-  } else {
-    console.log('Backup not needed. Last backup was within the interval.')
   }
 }
 
@@ -115,9 +102,7 @@ onMounted(async () => {
     await milestoneStore.initializeMilestones()
     await layoutStore.initializeStore()
     await checkAndTriggerBackup()
-    console.log(
-      'Welcome to Kind Robots, random person who reads console logs! Are you a developer?',
-    )
+    console.log('Initialization complete.')
   } catch (error: unknown) {
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
@@ -128,21 +113,5 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-:root {
-  --header-height: 3rem;
-}
-
-header {
-  position: relative;
-  width: 100%;
-}
-
-main {
-  flex: 1;
-  padding: 1rem;
-  background-color: var(
-    --color-secondary
-  ); /* Ensure correct background color */
-  overflow-y: auto;
-}
+/* No scoped styles needed, Tailwind CSS handles all styling */
 </style>

@@ -6,7 +6,7 @@
         <div class="hidden lg:inline">Salutations,</div>
         {{ username }}!
         <button
-          class="bg-danger p-2 rounded-lg text-white text-sm"
+          class="bg-danger px-2 rounded-lg text-white text-sm"
           @click="logout"
         >
           Logout
@@ -14,7 +14,7 @@
       </div>
       <div v-else>
         <button
-          class="bg-primary p-2 rounded-lg text-white text-lg"
+          class="bg-primary px-2 rounded-lg text-white text-lg"
           @click="showLogin = true"
         >
           Login

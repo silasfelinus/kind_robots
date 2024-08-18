@@ -26,7 +26,7 @@
         <nav-toggle @toggle-nav="toggleNav" />
         <theme-toggle class="text-sm" />
         <butterfly-toggle class="text-sm" />
-        <login-button v-if="isLoggedIn" />
+        <login-button />
       </div>
     </div>
 
@@ -37,11 +37,7 @@
     />
 
     <!-- Navigation -->
-    <navigation-trimmed
-      v-if="showNav"
-      class="fixed bottom-0 left-0 right-0 rounded-t-x0 p-0 bg-white shadow-lg z-30 transition-transform duration-300"
-      :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
-    />
+    <navigation-trimmed v-if="showNav" class="navigation-drawer" />
   </header>
 </template>
 
@@ -80,6 +76,7 @@ header {
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
+  overflow-x: auto; /* Allow horizontal scrolling if needed */
 }
 
 header .text-sm {
@@ -123,5 +120,23 @@ header .text-sm {
 
 .jellybean-count {
   z-index: 10; /* Lower priority */
+}
+
+/* Navigation Drawer Styles */
+.navigation-drawer {
+  position: fixed;
+  top: var(--header-height); /* Position below the header */
+  left: 0;
+  right: 0;
+  bottom: 0; /* Full height from header to bottom */
+  background-color: white;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  transform: translateY(100%); /* Hide by default */
+  z-index: 30; /* Ensure it's on top of other content */
+}
+
+.navigation-drawer.translate-y-0 {
+  transform: translateY(0); /* Slide in */
 }
 </style>

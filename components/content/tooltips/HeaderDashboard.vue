@@ -1,12 +1,12 @@
 <template>
-  <header-dashboard
+  <header
     class="flex items-center p-0 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
     :style="{ height: headerHeight, maxHeight: '100vh' }"
   >
     <!-- Header Content -->
     <div class="flex w-full items-center justify-between px-4">
       <!-- Left Section -->
-      <div class="flex items-center space-x-y flex-shrink-0">
+      <div class="flex items-center space-x-2 flex-shrink-0">
         <avatar-image :size="avatarSize" class="rounded-full w-8 h-8" />
         <div class="flex flex-col text-left">
           <room-title class="text-sm font-semibold" />
@@ -26,10 +26,15 @@
         <nav-toggle @toggle-nav="toggleNav" />
         <theme-toggle class="text-sm" />
         <butterfly-toggle class="text-sm" />
-        <login-button />
-        <jellybean-count class="text-sm bg-white p-1 rounded-full shadow-md" />
+        <login-button v-if="isLoggedIn" />
       </div>
     </div>
+
+    <!-- Jellybean Counter -->
+    <jellybean-count
+      v-if="isLoggedIn"
+      class="fixed bottom-2 right-2 text-sm bg-white p-1 rounded-full shadow-md"
+    />
 
     <!-- Navigation -->
     <navigation-trimmed
@@ -37,7 +42,7 @@
       class="fixed bottom-0 left-0 right-0 rounded-t-x0 p-0 bg-white shadow-lg z-30 transition-transform duration-300"
       :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
-  </header-dashboard>
+  </header>
 </template>
 
 <script lang="ts" setup>
@@ -50,6 +55,7 @@ const avatarSize = 'small'
 const headerHeight = computed(() => `var(--header-height)`)
 
 const showNav = ref(false)
+const isLoggedIn = ref(false) // Update this based on your authentication logic
 
 const toggleNav = () => {
   showNav.value = !showNav.value
@@ -61,7 +67,7 @@ const toggleNav = () => {
   --header-height: 3rem; /* Adjust height for a thinner header */
 }
 
-header-dashboard {
+header {
   display: flex;
   align-items: center;
   background-color: white;

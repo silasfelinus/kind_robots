@@ -23,7 +23,7 @@
 
         <!-- Center Section -->
         <div class="flex-1 flex flex-col items-center justify-center px-2">
-          <smart-links class="text-sm mb-1" />
+          <smart-links class="text-sm" />
         </div>
 
         <!-- Right Section -->
@@ -52,12 +52,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 
 const { page } = useContent()
 const avatarSize = 'small'
 
-const headerHeight = computed(() => `calc(3rem + env(safe-area-inset-top))`)
+const headerHeight = computed(() => `calc(8rem + env(safe-area-inset-top))`)
 
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)

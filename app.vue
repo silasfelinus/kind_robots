@@ -1,11 +1,7 @@
 <template>
   <div class="relative flex flex-col h-screen bg-gray-100">
     <!-- Header Dashboard -->
-    <header-upgrade
-      class="w-full bg-primary shadow-md z-40"
-      :style="{ height: headerHeight }"
-    >
-    </header-upgrade>
+    <header-upgrade class="w-full bg-primary shadow-md z-40"> </header-upgrade>
 
     <!-- Main Content -->
     <main class="flex-1 p-1 bg-secondary overflow-y-auto">
@@ -15,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useErrorStore } from '@/stores/errorStore'
 import { useTagStore } from '@/stores/tagStore'
@@ -38,9 +34,6 @@ const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
 const layoutStore = useLayoutStore()
-
-// Define responsive header height
-const headerHeight = computed(() => '3rem') // Adjust this as needed
 
 useHead({
   title: 'Kind Robots',
@@ -111,7 +104,3 @@ onMounted(async () => {
   }
 })
 </script>
-
-<style scoped>
-/* No scoped styles needed, Tailwind CSS handles all styling */
-</style>

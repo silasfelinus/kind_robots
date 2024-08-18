@@ -15,14 +15,14 @@
       <div v-else>
         <button
           class="bg-primary px-2 rounded-lg text-white text-lg"
-          @click="showLogin = true"
+          @click="toggleLogin"
         >
           Login
         </button>
       </div>
     </div>
   </div>
-  <login-form v-if="showLogin" @close="showLogin = false" />
+  <login-form v-if="showLogin" @close="handleClose" />
 </template>
 
 <script lang="ts" setup>
@@ -40,6 +40,10 @@ watch(isLoggedIn, (newValue) => {
   }
 })
 
+const toggleLogin = () => {
+  showLogin.value = !showLogin.value
+}
+
 const logout = async () => {
   errorStore.clearError() // Clear previous errors
   try {
@@ -51,5 +55,9 @@ const logout = async () => {
   } catch {
     // No additional action needed, errorStore will manage the error
   }
+}
+
+const handleClose = () => {
+  showLogin.value = false
 }
 </script>

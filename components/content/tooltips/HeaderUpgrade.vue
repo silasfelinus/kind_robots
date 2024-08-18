@@ -25,7 +25,7 @@
 
       <!-- Right Section -->
       <div
-        class="flex md:flex-row md:items-center md:justify-end space-x-1 mt-1 md:mt-0 overflow-x-auto flex-nowrap"
+        class="flex md:flex-row md:items-center md:justify-end space-x-2 mt-1 md:mt-0 overflow-x-auto flex-nowrap"
       >
         <login-button class="flex-shrink-0" />
         <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
@@ -71,5 +71,9 @@ header {
 
 .right-section {
   flex-shrink: 0;
+}
+
+.right-section .flex-shrink-0 {
+  min-width: 40px; /* Adjust as needed to ensure items stay visible */
 }
 </style>

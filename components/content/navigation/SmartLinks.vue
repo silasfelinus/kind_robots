@@ -108,4 +108,8 @@ onMounted(() => {
 .group:hover .nav-text {
   @apply opacity-100;
 }
+
+.nav-icon icon {
+  @apply w-8 h-8; /* Increase size of icons */
+}
 </style>

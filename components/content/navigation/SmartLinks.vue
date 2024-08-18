@@ -1,60 +1,54 @@
 <template>
-  <div class="flex items-center relative">
-    <!-- Links Container -->
-    <div class="flex items-center justify-center w-full">
-      <!-- Previous Link -->
-      <NuxtLink
-        v-if="prev"
-        :to="prev._path"
-        class="group nav-icon flex flex-col items-center justify-center"
-      >
-        <icon
-          name="typcn:arrow-back-outline"
-          class="nav-icon-size hover:scale-110"
-        />
-        <div class="nav-text group-hover:opacity-100">
-          {{ prev.title }}
-        </div>
-      </NuxtLink>
-      <!-- Random Link -->
-      <NuxtLink
-        :to="randomHighlightPage._path"
-        class="group nav-icon flex flex-col items-center justify-center"
-      >
-        <icon name="game-icons:galaxy" class="nav-icon-size hover:scale-110" />
-        <div class="nav-text group-hover:opacity-100">
-          {{ randomLinkText }}
-        </div>
-      </NuxtLink>
-      <!-- Home Link -->
-      <NuxtLink
-        v-if="!isHomePage"
-        to="/"
-        class="group nav-icon flex flex-col items-center justify-center"
-      >
-        <icon
-          name="line-md:home-md-twotone"
-          class="nav-icon-size hover:scale-110"
-        />
-        <div class="nav-text group-hover:opacity-100">
-          {{ homeLinkText }}
-        </div>
-      </NuxtLink>
-      <!-- Next Link -->
-      <NuxtLink
-        v-if="next"
-        :to="next._path"
-        class="group nav-icon flex flex-col items-center justify-center"
-      >
-        <icon
-          name="typcn:arrow-forward-outline"
-          class="nav-icon-size hover:scale-110"
-        />
-        <div class="nav-text group-hover:opacity-100">
-          {{ next.title }}
-        </div>
-      </NuxtLink>
-    </div>
+  <div class="flex items-center justify-center w-full">
+    <!-- Previous Link -->
+    <NuxtLink
+      v-if="prev"
+      :to="prev._path"
+      class="group nav-icon flex flex-col items-center justify-center"
+    >
+      <icon name="typcn:arrow-back-outline" class="nav-icon hover:scale-110" />
+      <div class="nav-text group-hover:opacity-100">
+        {{ prev.title }}
+      </div>
+    </NuxtLink>
+
+    <!-- Random Link -->
+    <NuxtLink
+      :to="randomHighlightPage._path"
+      class="group nav-icon flex flex-col items-center justify-center"
+    >
+      <icon name="game-icons:galaxy" class="nav-icon hover:scale-110" />
+      <div class="nav-text group-hover:opacity-100">
+        {{ randomLinkText }}
+      </div>
+    </NuxtLink>
+
+    <!-- Home Link -->
+    <NuxtLink
+      v-if="!isHomePage"
+      to="/"
+      class="group nav-icon flex flex-col items-center justify-center"
+    >
+      <icon name="line-md:home-md-twotone" class="nav-icon hover:scale-110" />
+      <div class="nav-text group-hover:opacity-100">
+        {{ homeLinkText }}
+      </div>
+    </NuxtLink>
+
+    <!-- Next Link -->
+    <NuxtLink
+      v-if="next"
+      :to="next._path"
+      class="group nav-icon flex flex-col items-center justify-center"
+    >
+      <icon
+        name="typcn:arrow-forward-outline"
+        class="nav-icon hover:scale-110"
+      />
+      <div class="nav-text group-hover:opacity-100">
+        {{ next.title }}
+      </div>
+    </NuxtLink>
   </div>
 </template>
 
@@ -100,16 +94,18 @@ onMounted(() => {
 
 <style scoped>
 .nav-icon {
-  @apply flex text-center transition-all ease-in-out;
-  justify-content: center;
-  align-items: center;
+  @apply flex flex-col items-center justify-center transition-all ease-in-out;
 }
 
-.nav-icon-size {
-  @apply w-6 h-6 md:w-8 md:h-8;
+.nav-icon:hover {
+  @apply scale-110;
 }
 
 .nav-text {
-  @apply text-lg opacity-0 transition-opacity duration-300;
+  @apply text-base opacity-0 transition-opacity duration-300;
+}
+
+.group:hover .nav-text {
+  @apply opacity-100;
 }
 </style>

@@ -1,9 +1,9 @@
 <template>
   <div
-    class="icon-container flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent-100 flex-col"
+    class="icon-container flex items-center justify-center space-x-3 rounded-lg bg-accent-100 flex-col"
   >
     <div
-      class="icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
+      class="icon-box transition-transform transform hover:scale-125 cursor-pointer rounded-full hover:bg-accent-200"
       @click="toggleAmiSwarm"
     >
       <icon
@@ -25,9 +25,9 @@
     <!-- Moved the label below the icon -->
     <div
       v-if="!fxStore.showAmiSwarm"
-      class="label-container mt-2 text-xl text-default font-bold"
+      class="label-container mt-1 text-xl text-default font-bold"
     />
-    <div v-else class="label-container mt-2 text-xl text-default font-bold">
+    <div v-else class="label-container mt-1 text-xl text-default font-bold">
       We're free!
     </div>
   </div>

@@ -1,30 +1,34 @@
 <template>
   <div class="relative">
     <!-- Header -->
-    <header class="bg-primary shadow-md z-20 flex flex-col items-center p-2">
-      <!-- Header Content -->
-      <div class="flex w-full items-center justify-between flex-wrap">
-        <!-- Left Section -->
-        <div class="flex items-center space-x-2">
-          <avatar-image
-            :size="avatarSize"
-            class="w-12 h-12 md:w-16 md:h-16 rounded-full"
-          />
-          <div class="flex flex-col text-left">
-            <room-title class="text-sm font-semibold" />
-            <h2 class="text-xs text-gray-500 italic">
-              {{ page.subtitle || 'the kindest' }}
-            </h2>
-          </div>
+    <header class="bg-primary shadow-md z-20 flex flex-wrap p-2">
+      <!-- Left Section -->
+      <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-1/2">
+        <avatar-image
+          :size="avatarSize"
+          class="w-12 h-12 md:w-16 md:h-16 rounded-full"
+        />
+        <div class="flex flex-col text-left">
+          <room-title class="text-sm font-semibold" />
+          <h2 class="text-xs text-gray-500 italic">
+            {{ page.subtitle || 'the kindest' }}
+          </h2>
         </div>
+      </div>
 
+      <!-- Center and Right Sections -->
+      <div
+        class="flex flex-col md:flex-row md:w-1/2 justify-between w-full space-y-2 md:space-y-0"
+      >
         <!-- Center Section -->
-        <div class="flex-1 flex flex-col items-center justify-center px-2">
+        <div class="flex-1 flex items-center justify-center px-2">
           <smart-links class="text-sm" />
         </div>
 
         <!-- Right Section -->
-        <div class="flex items-center space-x-2">
+        <div
+          class="flex flex-col items-center space-y-2 md:space-y-0 md:items-end"
+        >
           <login-button />
           <NavToggle @toggle-nav="toggleNav" />
           <theme-toggle class="text-sm" />
@@ -61,55 +65,3 @@ const toggleNav = () => {
   showNav.value = !showNav.value
 }
 </script>
-
-<style scoped>
-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.5rem;
-  background-color: var(--bg-primary); /* Ensure background color matches */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adjust shadow as needed */
-}
-
-header .text-sm {
-  font-size: 0.875rem;
-}
-
-header .text-xs {
-  font-size: 0.75rem;
-}
-
-header .avatar-image {
-  width: 3rem; /* Adjust width for smaller screens */
-  height: 3rem; /* Adjust height for smaller screens */
-}
-
-header .room-title {
-  font-size: 0.875rem; /* Adjust title size */
-}
-
-header .subtitle {
-  font-size: 0.75rem; /* Adjust subtitle size */
-}
-
-.jellybean-count {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-}
-
-@media (max-width: 600px) {
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header-left,
-  .header-center,
-  .header-right {
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-}
-</style>

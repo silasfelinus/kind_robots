@@ -19,18 +19,18 @@
       </div>
 
       <!-- Center Section -->
-      <div class="flex-1 flex items-center justify-center px-2 mt-2 md:mt-0">
+      <div class="flex-1 flex items-center justify-center px-1 mt-1 md:mt-0">
         <smart-links class="text-sm w-full max-w-screen-md" />
       </div>
 
       <!-- Right Section -->
       <div
-        class="flex md:flex-row md:items-center md:justify-end space-x-2 mt-2 md:mt-0 overflow-x-auto"
+        class="flex md:flex-row md:items-center md:justify-end space-x-1 mt-1 md:mt-0 overflow-x-auto"
       >
-        <login-button class="flex-shrink-0" />
-        <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
-        <theme-toggle class="text-sm flex-shrink-0" />
-        <butterfly-toggle class="text-sm flex-shrink-0" />
+        <login-button class="flex-shrink-1" />
+        <NavToggle class="flex-shrink-1" @toggle-nav="toggleNav" />
+        <theme-toggle class="text-sm flex-shrink-1" />
+        <butterfly-toggle class="text-sm flex-shrink-1" />
       </div>
     </header>
 

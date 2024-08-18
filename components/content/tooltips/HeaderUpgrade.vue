@@ -28,16 +28,18 @@
         class="flex flex-wrap md:flex-nowrap md:items-center md:justify-end space-x-2 mt-1 md:mt-0 overflow-x-auto"
       >
         <div class="flex-shrink-0">
+          <butterfly-toggle class="text-sm" />
+        </div>
+
+        <div class="flex-shrink-0">
+          <theme-toggle class="text-sm" />
+        </div>
+
+        <div class="flex-shrink-0">
           <login-button />
         </div>
         <div class="flex-shrink-0">
           <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
-        </div>
-        <div class="flex-shrink-0">
-          <theme-toggle class="text-sm" />
-        </div>
-        <div class="flex-shrink-0">
-          <butterfly-toggle class="text-sm" />
         </div>
       </div>
     </header>

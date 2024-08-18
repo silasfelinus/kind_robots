@@ -1,0 +1,1 @@
+import e from"./PMPKPctc.js";import{l as t,c,e as n,h as _}from"./NJWOSLyt.js";const r={},s={class:"fixed bottom-4 right-4 z-20"};function a(m,f){const o=e;return c(),n("footer",s,[_(o)])}const d=t(r,[["render",a]]);export{d as default};

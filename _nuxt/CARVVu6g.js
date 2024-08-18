@@ -1,0 +1,1 @@
+import{l as s,e as t,aK as a,c as o}from"./NJWOSLyt.js";const c={},r={class:"layout-dashboard"};function n(e,l){return o(),t("div",r,[a(e.$slots,"default")])}const _=s(c,[["render",n]]);export{_ as default};

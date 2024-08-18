@@ -1,1 +1,0 @@
-import{l as s,e as a,aT as o,c as t}from"./CH0slHa8.js";const r={},c={class:"layout-dashboard"};function n(e,d){return t(),a("div",c,[o(e.$slots,"default")])}const _=s(r,[["render",n]]);export{_ as default};

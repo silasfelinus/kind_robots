@@ -1,0 +1,1 @@
+import{u as n}from"./C90qXN_8.js";import{b1 as s,c as o,e as r,t as c,N as i,b4 as _}from"./NJWOSLyt.js";const g={__name:"FetchNav",async setup(l){let t,a;const{data:e}=([t,a]=s(()=>n("navigation",()=>_())),t=await t,a(),t);return(p,u)=>(o(),r("pre",null,c(JSON.stringify(i(e),null,2)),1))}};export{g as default};

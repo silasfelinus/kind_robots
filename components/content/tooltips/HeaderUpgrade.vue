@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Header -->
     <header
-      class="bg-primary shadow-md z-20 flex flex-col md:flex-row items-center p-2"
+      class="bg-primary shadow-md z-20 flex flex-col md:flex-row items-center p-2 overflow-x-auto"
     >
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
@@ -25,12 +25,12 @@
 
       <!-- Right Section -->
       <div
-        class="flex md:flex-row md:items-center md:justify-end space-x-1 mt-1 md:mt-0 overflow-x-auto"
+        class="flex md:flex-row md:items-center md:justify-end space-x-1 mt-1 md:mt-0 overflow-x-auto flex-nowrap"
       >
-        <login-button class="flex-shrink-1" />
-        <NavToggle class="flex-shrink-1" @toggle-nav="toggleNav" />
-        <theme-toggle class="text-sm flex-shrink-1" />
-        <butterfly-toggle class="text-sm flex-shrink-1" />
+        <login-button class="flex-shrink-0" />
+        <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
+        <theme-toggle class="text-sm flex-shrink-0" />
+        <butterfly-toggle class="text-sm flex-shrink-0" />
       </div>
     </header>
 
@@ -64,10 +64,12 @@ const toggleNav = () => {
 </script>
 
 <style scoped>
-/* Ensure right section icons do not overflow and remain visible */
 header {
   overflow-x: auto;
+  white-space: nowrap;
 }
 
-/* Ensure accordion styles are removed as it's not needed */
+.right-section {
+  flex-shrink: 0;
+}
 </style>

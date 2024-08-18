@@ -1,1 +1,0 @@
-import{d as a,aX as n,c as o,e as s,t as r,N as c}from"./NJWOSLyt.js";import{u as p}from"./BuseuQCb.js";const d=a({__name:"HeadContent",setup(u){const{page:e}=n(),t=p(e);return(m,_)=>(o(),s("div",null,r(c(t)),1))}});export{d as default};

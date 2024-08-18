@@ -1,0 +1,1 @@
+import{a1 as t,c as n,e as o,h as c,f as r,t as _,N as p,a0 as i}from"./DJsSOPwi.js";const l={class:"flex items-center space-x-2"},x={__name:"Mana-Counter",setup(m){const a=t();return(u,d)=>{var e;const s=i;return n(),o("div",l,[c(s,{name:"game-icons:standing-potion",class:"text-lg"}),r("span",null,_((e=p(a))==null?void 0:e.mana),1)])}}};export{x as default};

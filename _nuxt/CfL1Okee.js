@@ -1,1 +1,0 @@
-import{l as t,e as o,aK as s,c as r}from"./NJWOSLyt.js";const a={},c={class:"grid-layout"};function n(e,l){return r(),o("div",c,[s(e.$slots,"default")])}const _=t(a,[["render",n]]);export{_ as default};

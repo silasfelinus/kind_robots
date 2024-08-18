@@ -1,0 +1,1 @@
+import{l as n,c as t,e as s,aK as o}from"./DJsSOPwi.js";const c={},r={class:"main-content bg-base shadow-inner rounded-l-xl p-4 justify-center items-center"};function a(e,_){return t(),s("main",r,[o(e.$slots,"default")])}const d=n(c,[["render",a]]);export{d as default};

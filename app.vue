@@ -8,7 +8,7 @@
     </header-upgrade>
 
     <!-- Main Content -->
-    <main class="flex-1 p-4 bg-secondary overflow-y-auto">
+    <main class="flex-1 p-1 bg-secondary overflow-y-auto">
       <NuxtPage />
     </main>
   </div>

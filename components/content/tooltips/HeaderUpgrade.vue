@@ -1,9 +1,6 @@
 <template>
   <div>
-    <header
-      class="header-container"
-      :style="{ height: headerHeight, maxHeight: '100vh' }"
-    >
+    <header class="header-container" :style="{ height: headerHeight }">
       <!-- Header Content -->
       <div class="flex w-full items-center justify-between px-1">
         <!-- Left Section -->
@@ -22,6 +19,7 @@
           <smart-links class="text-sm mb-1" />
           <!-- Nav and Controls Section -->
           <div class="flex items-center space-x-1">
+            <login-button />
             <NavToggle @toggle-nav="toggleNav" />
             <theme-toggle class="text-sm" />
             <butterfly-toggle class="text-sm" />
@@ -41,12 +39,6 @@
       class="relative z-30 p-1 bg-white shadow-lg transition-transform duration-300 transform"
       :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
-
-    <!-- Main Content -->
-    <main class="flex-1 p-4">
-      <!-- Your main content goes here -->
-      <slot />
-    </main>
   </div>
 </template>
 
@@ -77,7 +69,7 @@ const toggleNav = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: white;
+  background-color: var(--bg-primary);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 20; /* Ensure header is on top */
 }

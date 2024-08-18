@@ -1,7 +1,7 @@
 <template>
   <div>
     <header
-      class="header-container bg-primary shadow-md z-20 flex flex-col items-center"
+      class="header-container bg-primary shadow-md z-20 flex flex-col items-center border-b-2 border-gray-300"
       :style="{ height: headerHeight }"
     >
       <!-- Header Content -->

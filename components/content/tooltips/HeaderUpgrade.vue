@@ -36,7 +36,10 @@
     </header>
 
     <!-- Navigation -->
-    <navigation-trimmed v-if="showNav" class="navigation-drawer" />
+    <navigation-trimmed
+      v-if="showNav"
+      class="navigation-drawer translate-y-0"
+    />
   </div>
 </template>
 
@@ -107,19 +110,19 @@ const toggleNav = () => {
 
 .navigation-drawer {
   position: fixed;
-  top: var(--header-height);
+  top: var(--header-height); /* Ensure it's positioned below the header */
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: white;
+  background-color: var(--bg-secondary); /* Ensure correct background color */
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease-in-out;
-  transform: translateY(100%);
-  z-index: 30; /* Ensure it's above content but below header */
+  transform: translateY(100%); /* Hide it by default */
+  z-index: 40; /* Adjust z-index if needed */
 }
 
 .navigation-drawer.translate-y-0 {
-  transform: translateY(0);
+  transform: translateY(0); /* Show the drawer */
 }
 
 .page-content {

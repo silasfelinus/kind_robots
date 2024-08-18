@@ -80,8 +80,8 @@ const toggleNav = () => {
   flex-wrap: wrap;
   width: 100%;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 1rem;
+  justify-content: space-between; /* Ensure even space distribution */
+  padding: 0 1rem; /* Padding inside the header */
   box-sizing: border-box;
 }
 
@@ -94,7 +94,9 @@ const toggleNav = () => {
 
 .center-section {
   flex: 1;
+  display: flex;
   justify-content: center;
+  padding: 0 1rem; /* Ensure proper spacing */
 }
 
 .jellybean-count {
@@ -125,6 +127,13 @@ const toggleNav = () => {
   transform: translateY(0); /* Show the drawer */
 }
 
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Adjust the gap between items */
+  margin-right: 0.5rem; /* Reduce the margin on the right side */
+}
+
 .page-content {
   flex: 1;
   padding: 1rem;
@@ -135,14 +144,19 @@ const toggleNav = () => {
 @media (max-width: 600px) {
   .header-content {
     flex-direction: column;
-    align-items: stretch;
+    align-items: stretch; /* Ensure elements take full width */
   }
 
   .left-section,
   .center-section,
   .right-section {
     width: 100%;
-    justify-content: center;
+    justify-content: center; /* Center items in smaller screens */
+  }
+
+  .right-section {
+    margin-right: 0; /* Remove extra margin on smaller screens */
+    padding: 0.5rem; /* Adjust padding if necessary */
   }
 }
 </style>

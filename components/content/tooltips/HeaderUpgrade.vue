@@ -38,7 +38,8 @@
     <!-- Navigation -->
     <navigation-trimmed
       v-if="showNav"
-      class="navigation-drawer translate-y-0"
+      class="navigation-drawer"
+      :class="{ 'translate-y-0': showNav }"
     />
   </div>
 </template>
@@ -72,7 +73,8 @@ const toggleNav = () => {
   align-items: center;
   background-color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 20; /* Ensure header is on top */
+  z-index: 20; /* Keep the header on top */
+  position: relative; /* Establish stacking context */
 }
 
 .header-content {
@@ -111,20 +113,18 @@ const toggleNav = () => {
 }
 
 .navigation-drawer {
-  position: fixed;
-  top: var(--header-height); /* Ensure it's positioned below the header */
+  position: absolute; /* Position the drawer relative to header */
+  top: 100%; /* Start right below the header */
   left: 0;
   right: 0;
-  bottom: 0;
   background-color: var(--bg-secondary); /* Ensure correct background color */
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease-in-out;
-  transform: translateY(100%); /* Hide it by default */
-  z-index: 40; /* Adjust z-index if needed */
+  transform: translateY(-100%); /* Hide it by default */
 }
 
 .navigation-drawer.translate-y-0 {
-  transform: translateY(0); /* Show the drawer */
+  transform: translateY(0); /* Slide down to show */
 }
 
 .right-section {

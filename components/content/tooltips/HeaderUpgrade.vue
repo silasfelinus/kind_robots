@@ -27,10 +27,18 @@
       <div
         class="flex flex-wrap md:flex-nowrap md:items-center md:justify-end space-x-2 mt-1 md:mt-0 overflow-x-auto"
       >
-        <login-button class="flex-shrink-0" />
-        <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
-        <theme-toggle class="text-sm flex-shrink-0" />
-        <butterfly-toggle class="text-sm flex-shrink-0" />
+        <div class="flex-shrink-0">
+          <login-button />
+        </div>
+        <div class="flex-shrink-0">
+          <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
+        </div>
+        <div class="flex-shrink-0">
+          <theme-toggle class="text-sm" />
+        </div>
+        <div class="flex-shrink-0">
+          <butterfly-toggle class="text-sm" />
+        </div>
       </div>
     </header>
 
@@ -75,17 +83,5 @@ header {
 
 .right-section .flex-shrink-0 {
   min-width: 40px; /* Adjust as needed to ensure items stay visible */
-}
-
-@media (max-width: 640px) {
-  header {
-    flex-direction: column;
-  }
-
-  .right-section {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
 }
 </style>

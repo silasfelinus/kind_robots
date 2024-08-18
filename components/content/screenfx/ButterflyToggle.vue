@@ -1,6 +1,6 @@
 <template>
   <div
-    class="icon-container flex items-center justify-center space-x-3 rounded-lg bg-accent-100 flex-col"
+    class="icon-container flex items-center justify-center space-x-1 rounded-lg bg-accent-100 flex-col"
   >
     <div
       class="icon-box transition-transform transform hover:scale-125 cursor-pointer rounded-full hover:bg-accent-200"
@@ -11,7 +11,7 @@
         title="Kind Butterflies"
         :active="fxStore.showAmiSwarm"
         :class="{ glow: fxStore.showAmiSwarm }"
-        class="w-12 h-12 md:w-8 md:h-8"
+        class="w-6 h-6 md:w-8 md:h-8"
       />
     </div>
     <div v-if="fxStore.showAmiSwarm">

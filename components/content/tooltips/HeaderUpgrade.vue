@@ -1,10 +1,7 @@
 <template>
   <div class="relative">
     <!-- Header -->
-    <header
-      class="bg-primary shadow-md z-20 flex flex-col items-center p-2"
-      :style="{ height: headerHeight }"
-    >
+    <header class="bg-primary shadow-md z-20 flex flex-col items-center p-2">
       <!-- Header Content -->
       <div class="flex w-full items-center justify-between flex-wrap">
         <!-- Left Section -->
@@ -57,8 +54,6 @@ import { computed, ref } from 'vue'
 const { page } = useContent()
 const avatarSize = 'small'
 
-const headerHeight = computed(() => `calc(12rem + env(safe-area-inset-top))`)
-
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)
 
@@ -66,3 +61,55 @@ const toggleNav = () => {
   showNav.value = !showNav.value
 }
 </script>
+
+<style scoped>
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: var(--primary-color); /* Ensure background color matches */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adjust shadow as needed */
+}
+
+header .text-sm {
+  font-size: 0.875rem;
+}
+
+header .text-xs {
+  font-size: 0.75rem;
+}
+
+header .avatar-image {
+  width: 3rem; /* Adjust width for smaller screens */
+  height: 3rem; /* Adjust height for smaller screens */
+}
+
+header .room-title {
+  font-size: 0.875rem; /* Adjust title size */
+}
+
+header .subtitle {
+  font-size: 0.75rem; /* Adjust subtitle size */
+}
+
+.jellybean-count {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+}
+
+@media (max-width: 600px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-left,
+  .header-center,
+  .header-right {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+</style>

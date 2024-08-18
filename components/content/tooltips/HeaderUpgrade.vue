@@ -1,42 +1,52 @@
 <template>
   <div>
-    <header class="header-container" :style="{ height: headerHeight }">
+    <header
+      class="header-container"
+      :style="{ height: headerHeight, maxHeight: '100vh' }"
+    >
       <!-- Header Content -->
-      <div class="header-content">
+      <div class="flex w-full items-center justify-between px-1">
         <!-- Left Section -->
-        <div class="left-section">
-          <avatar-image :size="avatarSize" class="rounded-full w-8 h-8" />
-          <div class="text-content">
+        <div class="flex items-center space-x-1 flex-shrink-0">
+          <avatar-image :size="avatarSize" class="rounded-full w-10 h-10" />
+          <div class="flex flex-col text-left">
             <room-title class="text-sm font-semibold" />
-            <h2 class="subtitle">
+            <h2 class="text-xs text-gray-500 italic">
               {{ page.subtitle || 'the kindest' }}
             </h2>
           </div>
         </div>
 
         <!-- Center Section -->
-        <div class="center-section">
-          <smart-links class="text-sm" />
-        </div>
-
-        <!-- Right Section -->
-        <div class="right-section">
-          <nav-toggle @toggle-nav="toggleNav" />
-          <theme-toggle class="text-sm" />
-          <butterfly-toggle class="text-sm" />
-          <login-button />
+        <div class="flex-1 flex flex-col items-center justify-center px-2">
+          <smart-links class="text-sm mb-1" />
+          <!-- Nav and Controls Section -->
+          <div class="flex items-center space-x-1">
+            <NavToggle @toggle-nav="toggleNav" />
+            <theme-toggle class="text-sm" />
+            <butterfly-toggle class="text-sm" />
+          </div>
         </div>
       </div>
 
       <!-- Jellybean Counter -->
-      <jellybean-count v-if="isLoggedIn" class="jellybean-count" />
+      <jellybean-count
+        class="fixed top-1 right-1 text-sm z-10 bg-white p-1 rounded-full shadow-md"
+      />
     </header>
 
     <!-- Navigation -->
     <navigation-trimmed
       v-if="showNav"
-      class="navigation-drawer translate-y-0"
+      class="relative z-30 p-1 bg-white shadow-lg transition-transform duration-300 transform"
+      :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4">
+      <!-- Your main content goes here -->
+      <slot />
+    </main>
   </div>
 </template>
 
@@ -45,13 +55,13 @@ import { computed, ref } from 'vue'
 
 const { page } = useContent()
 const avatarSize = 'small'
-const userStore = useUserStore()
 
 // Define responsive header height
-const headerHeight = computed(() => `var(--header-height)`)
+const headerHeight = computed(() => {
+  return `calc(3rem + env(safe-area-inset-top))`
+})
 
 const showNav = ref(false)
-const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 const toggleNav = () => {
   showNav.value = !showNav.value
@@ -70,8 +80,6 @@ const toggleNav = () => {
   background-color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 20; /* Ensure header is on top */
-  height: auto; /* Allow height to be determined by content */
-  min-height: var(--header-height); /* Minimum height for header */
 }
 
 .header-content {
@@ -143,19 +151,19 @@ const toggleNav = () => {
 @media (max-width: 600px) {
   .header-content {
     flex-direction: column;
-    align-items: stretch;
+    align-items: stretch; /* Ensure elements take full width */
   }
 
   .left-section,
   .center-section,
   .right-section {
     width: 100%;
-    justify-content: center;
+    justify-content: center; /* Center items in smaller screens */
   }
 
   .right-section {
-    margin-right: 0;
-    padding: 0.5rem;
+    margin-right: 0; /* Remove extra margin on smaller screens */
+    padding: 0.5rem; /* Adjust padding if necessary */
   }
 }
 </style>

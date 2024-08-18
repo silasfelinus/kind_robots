@@ -1,13 +1,13 @@
 <template>
-  <header
-    class="flex flex-col items-center p-0 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
+  <header-dashboard
+    class="flex items-center p-0 fixed top-0 left-0 right-0 z-40 bg-white shadow-md"
     :style="{ height: headerHeight, maxHeight: '100vh' }"
   >
     <!-- Header Content -->
-    <div class="flex w-full items-center justify-between px-0">
+    <div class="flex w-full items-center justify-between px-4">
       <!-- Left Section -->
-      <div class="flex items-center space-x-0 flex-shrink-0">
-        <avatar-image :size="avatarSize" class="rounded-full w-10 h-10" />
+      <div class="flex items-center space-x-2 flex-shrink-0">
+        <avatar-image :size="avatarSize" class="rounded-full w-8 h-8" />
         <div class="flex flex-col text-left">
           <room-title class="text-sm font-semibold" />
           <h2 class="text-xs text-gray-500 italic">
@@ -17,14 +17,19 @@
       </div>
 
       <!-- Center Section -->
-      <div class="flex-1 flex flex-col items-center justify-center px-0">
-        <smart-links class="text-sm mb-2" />
-        <!-- Nav and Controls Section -->
-        <div class="flex items-center space-x-2">
+      <div class="flex-1 flex items-center justify-center px-2">
+        <smart-links class="text-sm" />
+        <div class="flex items-center space-x-2 ml-4">
           <nav-toggle @toggle-nav="toggleNav" />
           <theme-toggle class="text-sm" />
           <butterfly-toggle class="text-sm" />
         </div>
+      </div>
+
+      <!-- Right Section -->
+      <div class="flex items-center space-x-2 flex-shrink-0">
+        <login-button />
+        <jellybean-count class="text-sm bg-white p-1 rounded-full shadow-md" />
       </div>
     </div>
 
@@ -34,12 +39,7 @@
       class="fixed bottom-0 left-0 right-0 rounded-t-x0 p-0 bg-white shadow-lg z-30 transition-transform duration-300"
       :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
-
-    <!-- Jellybean Counter -->
-    <jellybean-count
-      class="fixed top-2 right-2 text-sm z-10 bg-white p-1 rounded-full shadow-md"
-    />
-  </header>
+  </header-dashboard>
 </template>
 
 <script lang="ts" setup>
@@ -49,9 +49,7 @@ const { page } = useContent()
 const avatarSize = 'small'
 
 // Define responsive header height
-const headerHeight = computed(() => {
-  return `calc(var(--header-height) + env(safe-area-inset-top))`
-})
+const headerHeight = computed(() => `var(--header-height)`)
 
 const showNav = ref(false)
 
@@ -62,17 +60,45 @@ const toggleNav = () => {
 
 <style scoped>
 :root {
-  --header-height: 4rem; /* Adjust height for one-line header */
+  --header-height: 3rem; /* Adjust height for a thinner header */
 }
 
-header {
+header-dashboard {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
 }
 
 header .text-sm {
-  font-size: 0.875rem; /* Ensure text is small and fits */
+  font-size: 0.875rem; /* Small text size */
+}
+
+.avatar-image {
+  width: 2rem;
+  height: 2rem;
+}
+
+.login-button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  margin-left: 1rem;
+}
+
+.login-button:hover {
+  background-color: var(--button-bg-hover);
 }
 
 @media (max-width: 600px) {
@@ -85,9 +111,9 @@ header .text-sm {
     height: 2rem; /* Ensure button is small */
   }
 
-  .w-10 {
-    width: 2.5rem; /* Adjust avatar size */
-    height: 2.5rem; /* Adjust avatar size */
+  .w-8 {
+    width: 2rem; /* Adjust avatar size for small screens */
+    height: 2rem; /* Adjust avatar size for small screens */
   }
 }
 

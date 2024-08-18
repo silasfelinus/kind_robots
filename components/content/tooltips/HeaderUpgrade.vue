@@ -68,7 +68,7 @@ header {
   flex-direction: column;
   align-items: center;
   padding: 0.5rem;
-  background-color: var(--primary-color); /* Ensure background color matches */
+  background-color: var(--bg-primary); /* Ensure background color matches */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adjust shadow as needed */
 }
 

@@ -25,31 +25,20 @@
 
       <!-- Right Section -->
       <div
-        class="flex flex-col md:flex-row md:items-center md:justify-end space-y-2 md:space-y-0 md:space-x-2 mt-2 md:mt-0"
+        class="flex md:flex-row md:items-center md:justify-end space-x-2 mt-2 md:mt-0 overflow-x-auto"
       >
-        <div class="hidden md:flex md:flex-row md:items-center md:space-x-2">
-          <login-button class="flex-shrink-0" />
-          <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
-          <theme-toggle class="text-sm flex-shrink-0" />
-          <butterfly-toggle class="text-sm flex-shrink-0" />
-        </div>
-        <div class="md:hidden flex flex-col items-end space-y-2">
-          <button class="accordion-button" @click="toggleAccordion">☰</button>
-          <div v-if="accordionOpen" class="accordion-content">
-            <login-button class="flex-shrink-0" />
-            <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
-            <theme-toggle class="text-sm flex-shrink-0" />
-            <butterfly-toggle class="text-sm flex-shrink-0" />
-          </div>
-        </div>
+        <login-button class="flex-shrink-0" />
+        <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
+        <theme-toggle class="text-sm flex-shrink-0" />
+        <butterfly-toggle class="text-sm flex-shrink-0" />
       </div>
-
-      <!-- Jellybean Counter -->
-      <jellybean-count
-        v-if="isLoggedIn"
-        class="fixed bottom-8 right-8 bg-white p-2 rounded-full shadow-md z-10"
-      />
     </header>
+
+    <!-- Jellybean Counter -->
+    <jellybean-count
+      v-if="isLoggedIn"
+      class="fixed bottom-8 right-8 bg-white p-2 rounded-full shadow-md z-10"
+    />
 
     <!-- Navigation -->
     <navigation-trimmed
@@ -68,40 +57,17 @@ const avatarSize = 'small'
 
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)
-const accordionOpen = ref(false)
 
 const toggleNav = () => {
   showNav.value = !showNav.value
 }
-
-const toggleAccordion = () => {
-  accordionOpen.value = !accordionOpen.value
-}
 </script>
 
 <style scoped>
-.accordion-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0.5rem;
+/* Ensure right section icons do not overflow and remain visible */
+header {
+  overflow-x: auto;
 }
 
-.accordion-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.5rem;
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 100vw; /* Ensure it doesn't exceed viewport width */
-}
-
-@media (max-width: 640px) {
-  .accordion-content {
-    display: block;
-  }
-}
+/* Ensure accordion styles are removed as it's not needed */
 </style>

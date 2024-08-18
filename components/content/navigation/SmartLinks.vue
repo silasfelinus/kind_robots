@@ -106,7 +106,7 @@ onMounted(() => {
 }
 
 .nav-icon-size {
-  @apply w-12 h-12 md:w-20 md:h-20;
+  @apply w-8 h-8 md:w-12 md:h-12;
 }
 
 .nav-text {

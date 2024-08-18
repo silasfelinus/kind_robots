@@ -57,7 +57,7 @@ import { computed, ref } from 'vue'
 const { page } = useContent()
 const avatarSize = 'small'
 
-const headerHeight = computed(() => `calc(8rem + env(safe-area-inset-top))`)
+const headerHeight = computed(() => `calc(12rem + env(safe-area-inset-top))`)
 
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)

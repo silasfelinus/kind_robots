@@ -10,9 +10,9 @@
       >
         <icon
           name="typcn:arrow-back-outline"
-          class="w-12 h-12 md:w-20 md:h-20 hover:scale-125"
+          class="nav-icon-size hover:scale-110"
         />
-        <div class="nav-text group-hover:show-text">
+        <div class="nav-text group-hover:opacity-100">
           {{ prev.title }}
         </div>
       </NuxtLink>
@@ -21,11 +21,8 @@
         :to="randomHighlightPage._path"
         class="group nav-icon flex-col items-center justify-center"
       >
-        <icon
-          name="game-icons:galaxy"
-          class="w-12 h-12 md:w-20 md:h-20 hover:scale-125"
-        />
-        <div class="nav-text group-hover:show-text">
+        <icon name="game-icons:galaxy" class="nav-icon-size hover:scale-110" />
+        <div class="nav-text group-hover:opacity-100">
           {{ randomLinkText }}
         </div>
       </NuxtLink>
@@ -37,9 +34,9 @@
       >
         <icon
           name="line-md:home-md-twotone"
-          class="w-12 h-12 md:w-20 md:h-20 hover:scale-125"
+          class="nav-icon-size hover:scale-110"
         />
-        <div class="nav-text group-hover:show-text">
+        <div class="nav-text group-hover:opacity-100">
           {{ homeLinkText }}
         </div>
       </NuxtLink>
@@ -51,9 +48,9 @@
       >
         <icon
           name="typcn:arrow-forward-outline"
-          class="w-12 h-12 md:w-20 md:h-20 hover:scale-125"
+          class="nav-icon-size hover:scale-110"
         />
-        <div class="nav-text group-hover:show-text">
+        <div class="nav-text group-hover:opacity-100">
           {{ next.title }}
         </div>
       </NuxtLink>
@@ -108,7 +105,11 @@ onMounted(() => {
   align-items: center;
 }
 
+.nav-icon-size {
+  @apply w-16 h-16 md:w-24 md:h-24;
+}
+
 .nav-text {
-  @apply text-lg opacity-0 group-hover:opacity-100 transition-opacity;
+  @apply text-lg opacity-0 transition-opacity duration-300;
 }
 </style>

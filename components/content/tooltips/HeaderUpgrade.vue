@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Header -->
     <header
-      class="bg-primary shadow-md z-20 flex flex-col md:flex-row items-center p-2"
+      class="bg-primary shadow-md z-20 flex flex-col md:flex-row items-start p-2"
     >
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
@@ -25,15 +25,15 @@
 
       <!-- Right Section -->
       <div
-        class="flex flex-col items-center md:items-end space-y-2 md:space-y-0"
+        class="flex flex-col md:flex-row md:items-center md:justify-end space-y-2 md:space-y-0 md:space-x-2 mt-2 md:mt-0"
       >
-        <div class="hidden md:flex flex-col items-center space-y-2">
+        <div class="hidden md:flex md:flex-row md:items-center md:space-x-2">
           <login-button />
           <NavToggle @toggle-nav="toggleNav" />
           <theme-toggle class="text-sm" />
           <butterfly-toggle class="text-sm" />
         </div>
-        <div class="md:hidden flex items-center justify-center">
+        <div class="md:hidden flex flex-col items-end space-y-2">
           <button class="accordion-button" @click="toggleAccordion">☰</button>
           <div v-if="accordionOpen" class="accordion-content">
             <login-button />

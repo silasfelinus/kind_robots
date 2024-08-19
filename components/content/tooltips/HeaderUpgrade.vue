@@ -2,11 +2,7 @@
   <div class="relative">
     <!-- Header -->
     <header
-      :class="[
-        'bg-primary shadow-md z-20 flex flex-col md:flex-row items-center p-2 overflow-x-auto',
-        { 'header-collapsed': isCollapsed },
-      ]"
-      @click="handleHeaderInteraction"
+      class="bg-primary shadow-md z-20 flex flex-col md:flex-row items-center p-2 overflow-x-auto"
     >
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
@@ -29,34 +25,25 @@
 
       <!-- Right Section -->
       <div
-        class="flex flex-wrap md:flex-nowrap items-center md:justify-end space-x-2 mt-0 overflow-x-auto"
+        class="flex flex-wrap md:flex-nowrap md:items-center md:justify-end space-x-2 mt-0 overflow-x-auto"
       >
-        <div class="flex-shrink-0 min-w-max">
+        <div class="flex-shrink-1">
           <butterfly-toggle class="text-sm" />
         </div>
 
-        <div class="flex-shrink-0 min-w-max">
+        <div class="flex-shrink-1">
           <theme-toggle class="text-sm" />
         </div>
 
-        <div class="flex-shrink-0 min-w-max">
+        <div class="flex-shrink-1">
           <login-button />
         </div>
 
-        <div class="flex-shrink-0 min-w-max">
+        <div class="flex-shrink-1">
           <NavToggle class="flex-shrink-1" @toggle-nav="toggleNav" />
         </div>
       </div>
     </header>
-
-    <!-- Restore Header Icon -->
-    <div
-      v-if="isCollapsed"
-      class="fixed top-4 right-4 bg-white p-2 rounded-full shadow-md z-10 cursor-pointer"
-      @click="restoreHeader"
-    >
-      <icon name="arrow-up" class="text-primary" />
-    </div>
 
     <!-- Jellybean Counter -->
     <jellybean-count
@@ -81,59 +68,25 @@ const avatarSize = 'small'
 
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)
-const isCollapsed = ref(false)
 
 const toggleNav = () => {
   showNav.value = !showNav.value
 }
-
-const handleHeaderInteraction = () => {
-  if (window.innerWidth <= 768) {
-    // Adjust this breakpoint as needed
-    isCollapsed.value = true
-  }
-}
-
-const restoreHeader = (event: Event) => {
-  event.stopPropagation()
-  isCollapsed.value = false
-}
-
-// Reset header collapse status when resizing window
-window.addEventListener('resize', () => {
-  if (window.innerWidth > 768) {
-    // Adjust this breakpoint as needed
-    isCollapsed.value = false
-  }
-})
 </script>
 
 <style scoped>
 header {
   overflow-x: auto;
   white-space: nowrap;
-  transition: height 0.3s ease;
 }
 
-.header-collapsed {
-  height: 60px; /* Adjust height when collapsed */
+.right-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; /* Adjust gap as needed */
 }
 
-.header-collapsed .flex-1 {
-  display: none; /* Hide the center section when collapsed */
-}
-
-.fixed {
-  position: fixed;
-}
-
-@media (min-width: 769px) {
-  /* Adjust breakpoint as needed */
-  .header-collapsed {
-    height: auto; /* Ensure the header expands fully on larger screens */
-  }
-  .fixed {
-    display: none;
-  }
+.right-section .flex-shrink-1 {
+  min-width: 120px; /* Ensure minimum width to prevent disappearing */
 }
 </style>

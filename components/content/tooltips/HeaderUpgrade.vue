@@ -25,7 +25,7 @@
 
       <!-- Right Section -->
       <div
-        class="flex flex-wrap md:flex-nowrap md:items-center md:justify-end gap-2 mt-1 md:mt-0 overflow-x-auto"
+        class="flex flex-wrap md:flex-nowrap items-center justify-end gap-2 mt-1 md:mt-0 overflow-x-auto"
       >
         <div class="flex-shrink-0 flex items-center justify-center">
           <butterfly-toggle class="text-sm" />
@@ -74,21 +74,6 @@ const toggleNav = () => {
 }
 </script>
 
-<script lang="ts" setup>
-import { computed, ref } from 'vue'
-
-const { page } = useContent()
-const avatarSize = 'small'
-
-const showNav = ref(false)
-const isLoggedIn = computed(() => useUserStore().isLoggedIn)
-
-const toggleNav = () => {
-  showNav.value = !showNav.value
-}
-</script>
-
-
 <style scoped>
 header {
   overflow-x: auto;
@@ -106,9 +91,13 @@ header {
 }
 
 @media (max-width: 768px) {
+  header {
+    padding-left: 8px; /* Adjust padding for tablets */
+    padding-right: 8px; /* Adjust padding for tablets */
+  }
+
   .right-section .flex-shrink-0 {
-    flex-basis: 50px; /* Adjust as needed for tablet screens */
+    flex-basis: 60px; /* Adjust as needed for tablet screens */
   }
 }
 </style>
-

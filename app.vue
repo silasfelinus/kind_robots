@@ -1,17 +1,31 @@
 <template>
   <div class="relative flex flex-col h-screen bg-gray-100">
     <!-- Header Dashboard -->
-    <header-upgrade class="w-full bg-primary shadow-md z-40"> </header-upgrade>
+    <header-upgrade
+      ref="headerRef"
+      class="w-full bg-primary shadow-md z-40"
+    ></header-upgrade>
+
+    <!-- Collapsible Toggle -->
+    <div
+      v-if="showToggle"
+      class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+      @click.stop="toggleSidebar"
+    >
+      <button class="bg-secondary text-white p-2 rounded-full shadow-md">
+        <span class="text-lg">☰</span>
+      </button>
+    </div>
 
     <!-- Main Content -->
-    <main class="flex-1 p-1 bg-secondary overflow-y-auto">
+    <main ref="mainContentRef" class="flex-1 p-1 bg-secondary overflow-y-auto">
       <NuxtPage />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useErrorStore } from '@/stores/errorStore'
 import { useTagStore } from '@/stores/tagStore'
@@ -61,7 +75,6 @@ interface BackupResponse {
 const BACKUP_INTERVAL = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
 
 const checkAndTriggerBackup = async () => {
-  // Type assertion for $fetch
   const fetchBackup = async (): Promise<BackupResponse> => {
     return $fetch<BackupResponse>('/api/backup')
   }
@@ -80,6 +93,25 @@ const checkAndTriggerBackup = async () => {
     } catch (err) {
       console.error('Error triggering backup:', err)
     }
+  }
+}
+
+const headerRef = ref<HTMLElement | null>(null)
+const mainContentRef = ref<HTMLElement | null>(null)
+const showToggle = ref(false)
+
+const toggleSidebar = () => {
+  showToggle.value = !showToggle.value
+}
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (
+    headerRef.value &&
+    !headerRef.value.contains(event.target as Node) &&
+    mainContentRef.value &&
+    !mainContentRef.value.contains(event.target as Node)
+  ) {
+    showToggle.value = false
   }
 }
 
@@ -102,5 +134,29 @@ onMounted(async () => {
       `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
+
+  // Add event listener for clicks outside
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  // Clean up event listener when component unmounts
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
+
+<style scoped>
+/* Toggle button styling */
+button {
+  font-size: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+}
+
+@media (min-width: 768px) {
+  /* Hide the toggle button on larger screens */
+  .fixed {
+    display: none;
+  }
+}
+</style>

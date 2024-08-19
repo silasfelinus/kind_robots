@@ -73,18 +73,14 @@
     <!-- Error Message -->
     <div v-if="errorStore.message" class="text-warning mt-2 w-full text-center">
       {{ errorStore.message }}
-      <div v-if="userNotFound">
-        <div class="mt-2">
-          <button class="text-accent underline">
-            <NuxtLink to="/register" class="text-accent underline">
-              Register
-            </NuxtLink>
-          </button>
-          or
-          <button class="text-accent underline" @click="handleRetryLogin">
-            Try a different login
-          </button>
-        </div>
+      <div v-if="userNotFound" class="mt-2">
+        <NuxtLink to="/register" class="text-accent underline">
+          Register
+        </NuxtLink>
+        or
+        <button class="text-accent underline" @click="handleRetryLogin">
+          Try a different login
+        </button>
       </div>
     </div>
   </div>
@@ -92,6 +88,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useUserStore } from './../../../stores/userStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
 const store = useUserStore()
 const errorStore = useErrorStore()
@@ -106,27 +104,34 @@ const handleLogin = async () => {
   userNotFound.value = false
 
   try {
-    // Correctly destructure username and password
-    const result = await store.login(login.value, password.value || '')
+    const result = await store.login({
+      username: login.value,
+      password: password.value || '',
+    })
 
-    if (result.success && store.stayLoggedIn) {
-      store.setStayLoggedIn(true)
+    if (result.success) {
+      if (store.stayLoggedIn) {
+        store.setStayLoggedIn(true)
+      }
     } else {
-      errorStore.setError(ErrorType.AUTH_ERROR, result.message) // Set authentication error
-      if (result.message.includes('User not found')) {
+      errorStore.setError(
+        ErrorType.AUTH_ERROR,
+        result.message || 'Authentication failed',
+      )
+      if (result.message?.includes('User not found')) {
         userNotFound.value = true
       }
     }
   } catch (error: unknown) {
-    errorStore.setError(ErrorType.UNKNOWN_ERROR, error) // Handle unexpected errors
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, error)
+    console.error('Failed to register:', errorStore.message)
   }
 }
 
 const handleRetryLogin = () => {
-  // Clear the login field to allow the user to try a different login
   login.value = ''
   password.value = ''
-  errorStore.clearError() // Clear error messages
+  errorStore.clearError()
   userNotFound.value = false
 }
 </script>

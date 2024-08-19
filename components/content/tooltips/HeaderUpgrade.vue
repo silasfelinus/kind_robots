@@ -25,7 +25,7 @@
 
       <!-- Right Section -->
       <div
-        class="right-section flex flex-wrap md:flex-nowrap md:items-center md:justify-end space-x-2 mt-0 overflow-x-auto"
+        class="right-section flex flex-wrap justify-center md:justify-end space-x-2 mt-0 overflow-x-auto"
       >
         <div class="flex-shrink-0">
           <butterfly-toggle class="text-sm" />
@@ -39,7 +39,8 @@
           <login-button />
         </div>
 
-        <div class="flex-shrink-0">
+        <!-- Navigation Icon -->
+        <div class="flex-shrink-0 md:hidden mt-2">
           <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
         </div>
       </div>
@@ -83,10 +84,16 @@ header {
 .right-section {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center; /* Center items horizontally */
   gap: 8px; /* Adjust gap as needed */
 }
 
 .right-section > * {
-  min-width: 300px; /* Ensure minimum width to prevent disappearing */
+  min-width: 100px; /* Ensure minimum width to prevent disappearing */
+}
+
+/* Ensure NavToggle is positioned separately */
+.right-section .nav-toggle-container {
+  margin-top: 8px; /* Adjust spacing as needed */
 }
 </style>

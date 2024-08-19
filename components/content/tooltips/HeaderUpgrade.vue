@@ -25,22 +25,22 @@
 
       <!-- Right Section -->
       <div
-        class="flex flex-wrap md:flex-nowrap md:items-center md:justify-end space-x-2 mt-0 overflow-x-auto"
+        class="right-section flex flex-wrap md:flex-nowrap md:items-center md:justify-end space-x-2 mt-0 overflow-x-auto"
       >
-        <div class="flex-shrink-1">
+        <div class="flex-shrink-0">
           <butterfly-toggle class="text-sm" />
         </div>
 
-        <div class="flex-shrink-1">
+        <div class="flex-shrink-0">
           <theme-toggle class="text-sm" />
         </div>
 
-        <div class="flex-shrink-1">
+        <div class="flex-shrink-0">
           <login-button />
         </div>
 
-        <div class="flex-shrink-1">
-          <NavToggle class="flex-shrink-1" @toggle-nav="toggleNav" />
+        <div class="flex-shrink-0">
+          <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
         </div>
       </div>
     </header>
@@ -86,7 +86,7 @@ header {
   gap: 8px; /* Adjust gap as needed */
 }
 
-.right-section .flex-shrink-1 {
-  min-width: 120px; /* Ensure minimum width to prevent disappearing */
+.right-section > * {
+  min-width: 100px; /* Ensure minimum width to prevent disappearing */
 }
 </style>

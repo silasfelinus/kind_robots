@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { User } from '@prisma/client'
-import { useErrorStore, ErrorType } from './../stores/errorStore' // Import errorStore
+import { useErrorStore } from './errorStore'
 import { useMilestoneStore } from './milestoneStore'
 
 interface UserState {
@@ -8,10 +8,21 @@ interface UserState {
   token: string
   apiKey: string | null
   loading: boolean
-  highClickScores: number[]
-  highMatchScores: number[]
+  lastError: string | null
+  highClickScores: []
+  highMatchScores: []
   stayLoggedIn: boolean
   milestones: number[]
+}
+
+export interface ApiResponse {
+  success: boolean
+  data?: unknown // Replace `any` with a more specific type if possible
+  message?: string
+  user?: User
+  token?: string
+  apiKey?: string
+  usernames?: string[]
 }
 
 export const useUserStore = defineStore({
@@ -22,48 +33,49 @@ export const useUserStore = defineStore({
     apiKey:
       typeof window !== 'undefined' ? localStorage.getItem('api_key') : null,
     loading: false,
+    lastError: null,
     highClickScores: [],
     highMatchScores: [],
     stayLoggedIn: true,
     milestones: [],
   }),
-
   getters: {
-    karma(): number {
-      return this.user ? this.user.karma : 1000
+    karma(state): number {
+      return state.user ? state.user.karma : 1000
     },
-    mana(): number {
-      return this.user?.mana || this.milestones.length
+    mana(state): number {
+      const manaValue = state.user?.mana || state.milestones.length
+      return manaValue
     },
-    isLoggedIn(): boolean {
-      return Boolean(this.token) && Boolean(this.user)
+    isLoggedIn(state): boolean {
+      return Boolean(state.token) && Boolean(state.user)
     },
-    userId(): number {
-      return this.user ? this.user.id : 0
+    userId(state): number {
+      return state.user ? state.user.id : 0
     },
-    username(): string {
-      return this.user ? this.user.username : 'Kind Guest'
+    username(state): string {
+      return state.user ? state.user.username : 'Kind Guest'
     },
-    email(): string {
-      return this.user?.email || ''
+    email(state): string {
+      return state.user?.email || ''
     },
-    role(): string {
-      return this.user ? this.user.Role : 'GUEST'
+    role(state): string {
+      return state.user ? state.user.Role : 'GUEST'
     },
-    avatarImage(): string {
-      return this.user?.avatarImage || '/images/kindart.webp'
+    avatarImage(state): string {
+      return state.user?.avatarImage || '/images/kindart.webp'
     },
-    bio(): string {
+    bio(state): string {
       return (
-        this.user?.bio ||
+        state.user?.bio ||
         'I was born and then things happened and now I am here.'
       )
     },
-    clickRecord(): number {
-      return this.user?.clickRecord || 0
+    clickRecord(state): number {
+      return state.user?.clickRecord || 0
     },
-    matchRecord(): number {
-      return this.user?.matchRecord || 0
+    matchRecord(state): number {
+      return state.user?.matchRecord || 0
     },
   },
 
@@ -72,7 +84,7 @@ export const useUserStore = defineStore({
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
 
-      this.stayLoggedIn = stayLoggedIn
+      this.setStayLoggedIn(stayLoggedIn) // Corrected to use action
       if (storedToken) {
         this.token = storedToken
       }
@@ -81,147 +93,65 @@ export const useUserStore = defineStore({
         this.fetchUserDataByToken(storedToken)
       }
     },
-
-    async fetchUserDataByToken(token: string) {
+    async fetchUserDataByToken(token: string): Promise<void> {
       try {
         const response = await this.apiCall('/api/auth/validate', 'POST', {
-          type: 'token', // Add type field
-          data: { token }, // Structure the data field
-        })
-
-        if (response.success) {
-          this.setUser(response.user)
-        } else {
-          // Handle unsuccessful response if needed
-        }
-      } catch (error) {
-        useErrorStore().setError(ErrorType.AUTH_ERROR, error) // Use errorStore with ErrorType
-      }
-    },
-    async register({
-      username,
-      email,
-      password,
-    }: {
-      username: string
-      email: string
-      password: string
-    }): Promise<{ success: boolean; user?: User; message?: string }> {
-      try {
-        this.startLoading()
-
-        const response = await this.apiCall('/api/user/register', 'POST', {
-          username,
-          email,
-          password,
+          type: 'token',
+          data: { token },
         })
 
         if (response.success && response.user) {
           this.setUser(response.user)
-          this.setToken(response.token || '')
-          this.setApiKey(response.apiKey || '')
-          return { success: true, user: response.user }
-        } else {
-          return {
-            success: false,
-            message: response.message || 'Registration failed',
-          }
         }
-      } catch (error) {
-        useErrorStore().setError(ErrorType.AUTH_ERROR, error) // Use errorStore with ErrorType
-        return {
-          success: false,
-          message: 'An error occurred during registration',
-        }
-      } finally {
-        this.stopLoading()
+      } catch (error: unknown) {
+        this.setError(error)
       }
     },
-
-    async login(
-      username: string,
-      password: string,
-    ): Promise<{
-      success: boolean
-      message: string
-      user?: User
-      token?: string
-      apiKey?: string
-    }> {
-      try {
-        this.startLoading()
-        const response = await this.apiCall('/api/auth/login', 'POST', {
-          username,
-          password,
-        })
-
-        if (response.success) {
-          this.setUser(response.user)
-          this.setToken(response.token)
-          this.setApiKey(response.apiKey || '')
-          this.setStayLoggedIn(true)
-          return { success: true, message: '' } // Return success with no message
-        } else {
-          return { success: false, message: response.message || 'Login failed' }
-        }
-      } catch (error) {
-        useErrorStore().setError(ErrorType.AUTH_ERROR, error)
-        return { success: false, message: 'An error occurred' }
-      } finally {
-        this.stopLoading()
-      }
-    },
-
     async fetchUserByApiKey(): Promise<void> {
       if (!this.apiKey) return
       try {
         const response = await this.apiCall('/api/user')
-        if (response.success) {
+        if (response.success && response.user) {
           this.setUser(response.user)
         } else {
           throw new Error('Failed to fetch user')
         }
-      } catch (error) {
-        useErrorStore().setError(ErrorType.AUTH_ERROR, error) // Use errorStore with ErrorType
+      } catch (error: unknown) {
+        this.setError(error)
       }
     },
-
     setUser(userData: User): void {
-      this.user = { ...userData }
+      this.user = userData
       this.updateKarmaAndMana().catch((error) => {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
+        this.setError(error)
       })
     },
-
     setStayLoggedIn(value: boolean) {
       try {
         this.saveToLocalStorage('stayLoggedIn', value.toString())
-        this.stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
-      } catch (error) {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
+        this.stayLoggedIn = value
+      } catch (error: unknown) {
+        this.setError(error)
       }
     },
-
     async fetchHighClickScores() {
       try {
         const response = await fetch('/api/milestones/highClickScores')
         const data = await response.json()
         this.highClickScores = data.milestones
-      } catch (error) {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
+      } catch (error: unknown) {
+        this.setError(error)
       }
     },
-
     async fetchHighMatchScores() {
       try {
         const response = await fetch('/api/milestones/highMatchScores')
         const data = await response.json()
         this.highMatchScores = data.milestones
-      } catch (error) {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
+      } catch (error: unknown) {
+        this.setError(error)
       }
     },
-
     async fetchUsernameById(userId: number): Promise<string | null> {
       try {
         const response = await fetch(`/api/users/${userId}/username`)
@@ -229,18 +159,21 @@ export const useUserStore = defineStore({
           const data = await response.json()
           return data.username || 'Unknown'
         } else {
-          throw new Error(await response.text())
+          const errorText = await response.text()
+          this.setError(new Error(errorText))
+          return null
         }
-      } catch (error) {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
+      } catch (error: unknown) {
+        this.setError(error)
         return null
       }
     },
-
     async updateClickRecord(newScore: number) {
       try {
         const userId = this.userId
-        if (!userId) throw new Error('User ID is not available')
+        if (!userId) {
+          throw new Error('User ID is not available')
+        }
 
         const response = await fetch('/api/milestones/updateClickRecord', {
           method: 'PUT',
@@ -249,12 +182,13 @@ export const useUserStore = defineStore({
         })
 
         const data = await response.json()
-        if (data.success) return 'Updated'
-      } catch (error) {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
+        if (data.success) {
+          return 'Updated'
+        }
+      } catch (error: unknown) {
+        this.setError(error)
       }
     },
-
     async updateKarmaAndMana(): Promise<{ success: boolean; message: string }> {
       try {
         const milestoneStore = useMilestoneStore()
@@ -267,9 +201,8 @@ export const useUserStore = defineStore({
         const milestoneCount = milestoneStore.getMilestoneCountForUser(
           this.userId,
         )
-
-        const updatedKarma: number = milestoneCount * 1000
-        const updatedMana: number = milestoneCount
+        const updatedKarma = milestoneCount * 1000
+        const updatedMana = milestoneCount
 
         const response = await fetch(`/api/users/${this.userId}`, {
           method: 'PATCH',
@@ -297,23 +230,16 @@ export const useUserStore = defineStore({
             message: data.message || 'Failed to update karma and mana.',
           }
         }
-      } catch (error) {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
-        return {
-          success: false,
-          message:
-            useErrorStore()
-              .getErrors()
-              .map((e) => e.message)
-              .join(', ') || 'An error occurred while updating karma and mana.',
-        }
+      } catch (error: unknown) {
+        return { success: false, message: this.setError(error) }
       }
     },
-
     async updateMatchRecord(newScore: number) {
       try {
         const userId = this.userId
-        if (!userId) throw new Error('User ID is not available')
+        if (!userId) {
+          throw new Error('User ID is not available')
+        }
 
         const response = await fetch('/api/milestones/updateMatchRecord', {
           method: 'PUT',
@@ -322,12 +248,13 @@ export const useUserStore = defineStore({
         })
 
         const data = await response.json()
-        if (data.success) return this.fetchHighMatchScores()
-      } catch (error) {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
+        if (data.success) {
+          await this.fetchHighMatchScores()
+        }
+      } catch (error: unknown) {
+        this.setError(error)
       }
     },
-
     logout(): void {
       this.user = null
       this.token = ''
@@ -338,89 +265,269 @@ export const useUserStore = defineStore({
         this.removeFromLocalStorage('token')
         this.removeFromLocalStorage('user')
         this.removeFromLocalStorage('stayLoggedIn')
-      } catch (error) {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
+      } catch (error: unknown) {
+        this.setError(error)
       }
 
       this.setStayLoggedIn(false)
     },
-
     setToken(newToken: string): void {
       this.token = newToken
       this.saveToLocalStorage('token', newToken)
     },
-
     setApiKey(apiKey: string): void {
       this.apiKey = apiKey
       this.saveToLocalStorage('api_key', apiKey)
     },
-
     startLoading() {
       this.loading = true
     },
-
     stopLoading() {
       this.loading = false
     },
-
     setMilestones(milestoneIds: number[]) {
       this.milestones = milestoneIds
     },
+    async apiCall(
+      endpoint: string,
+      method: string = 'GET',
+      body?: unknown,
+    ): Promise<ApiResponse> {
+      const errorStore = useErrorStore()
 
-    async apiCall(endpoint: string, method: string = 'GET', body?: unknown) {
-      try {
-        const response = await fetch(endpoint, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: body ? JSON.stringify(body) : undefined,
-        })
-        if (!response.ok) {
-          const { message } = await response.json()
-          throw new Error(message || 'Network response was not ok')
-        }
-        return await response.json()
-      } catch (error) {
-        useErrorStore().setError(ErrorType.NETWORK_ERROR, error) // Use errorStore with ErrorType
-        throw error
-      }
+      // Wrap the API call in handleError to catch and process errors
+      return errorStore.handleError(
+        async () => {
+          const response = await fetch(endpoint, {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${this.token}`,
+            },
+            body: body ? JSON.stringify(body) : undefined,
+          })
+
+          if (response.ok) {
+            return await response.json()
+          } else {
+            // Pass a specific error message and type
+            throw new Error(`API call failed with status ${response.status}`)
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'API request failed',
+      )
     },
-
-    async getUsernames(): Promise<string[]> {
-      try {
-        const { usernames } = await this.apiCall('/api/users/usernames')
-        return usernames
-      } catch (error) {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
-        return []
-      }
-    },
-
-    async updateUserInfo(userInfo: Partial<User>): Promise<void> {
-      try {
-        await this.apiCall(`/api/users/${this.userId}`, 'PATCH', userInfo)
-        this.user = { ...this.user, ...userInfo } as User
-      } catch (error) {
-        useErrorStore().setError(ErrorType.GENERAL_ERROR, error) // Use errorStore with ErrorType
-      }
-    },
-
     saveToLocalStorage(key: string, value: string) {
       if (typeof window !== 'undefined') {
         localStorage.setItem(key, value)
       }
     },
-
     removeFromLocalStorage(key: string) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem(key)
       }
     },
-
     getFromLocalStorage(key: string): string | null {
-      if (typeof window !== 'undefined') {
-        return localStorage.getItem(key)
+      return typeof window !== 'undefined' ? localStorage.getItem(key) : null
+    },
+    async fetchUserById(userId: number): Promise<void> {
+      try {
+        const response = await this.apiCall(`/api/users/${userId}`)
+        if (response.success && response.user) {
+          this.setUser(response.user)
+        } else {
+          throw new Error('Failed to fetch user data')
+        }
+      } catch (error: unknown) {
+        this.setError(error)
       }
-      return null
+    },
+
+    setError(error: unknown): string {
+      const message =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message: string }).message
+          : 'An unknown error occurred.'
+
+      const errorStore = useErrorStore()
+      errorStore.setError(ErrorType.UNKNOWN_ERROR, message) // Adjust type if necessary
+
+      return message
+    },
+
+    async getUsernames(): Promise<string[]> {
+      try {
+        const data = await this.apiCall('/api/users/usernames')
+        // Ensure 'usernames' is defined before returning it
+        const usernames: string[] = data.usernames ?? []
+        return usernames
+      } catch (error: unknown) {
+        this.setError(error)
+        console.error('Failed to fetch usernames:', this.lastError)
+        return []
+      }
+    },
+
+    async updateUserInfo(
+      updatedUserInfo: Partial<User>,
+    ): Promise<{ success: boolean; message?: string }> {
+      try {
+        const response = await this.apiCall(
+          '/api/users',
+          'PATCH',
+          updatedUserInfo,
+        )
+        if (response.success && response.user) {
+          this.setUser(response.user)
+          return { success: true, message: 'User info updated successfully' }
+        } else {
+          return { success: false, message: response.message }
+        }
+      } catch (error: unknown) {
+        this.setError(error)
+        console.error('Failed to update user info:', this.lastError)
+        return {
+          success: false,
+          message: this.lastError || 'An unknown error occurred',
+        }
+      }
+    },
+
+    async login(credentials: {
+      username: string
+      password?: string
+    }): Promise<{ success: boolean; message?: string }> {
+      this.startLoading()
+      try {
+        const response = await this.apiCall(
+          '/api/auth/login',
+          'POST',
+          credentials,
+        )
+        if (
+          response.success &&
+          response.user &&
+          response.token &&
+          response.apiKey
+        ) {
+          this.setUser(response.user)
+          this.setToken(response.token)
+          this.setApiKey(response.apiKey)
+
+          if (this.stayLoggedIn) {
+            this.saveToLocalStorage('token', response.token) // Save token if "stayLoggedIn" is true
+          }
+
+          this.stopLoading()
+          return { success: true }
+        } else {
+          this.stopLoading()
+          return { success: false, message: response.message }
+        }
+      } catch (error: unknown) {
+        this.stopLoading()
+        this.setError(error)
+        return {
+          success: false,
+          message: this.lastError || 'An unknown error occurred',
+        }
+      }
+    },
+
+    async validate(): Promise<boolean> {
+      try {
+        // Use either token or apiKey based on what's available
+        const credentials = this.token
+          ? { token: this.token }
+          : { apiKey: this.apiKey }
+
+        // Make the API call to /api/auth/validate
+        const response = await fetch('/api/auth/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(credentials),
+        })
+
+        // Parse the JSON response
+        const responseData = await response.json()
+
+        // Check if the validation was successful
+        if (responseData.success) {
+          console.log('User Token Validated', this.token)
+          this.setUser(responseData.user) // Assuming the response contains user data
+          return true
+        } else {
+          console.log('User Token Invalidated')
+          this.setError(new Error('Invalid token or API key')) // Update the error state
+          return false
+        }
+      } catch (error: unknown) {
+        this.setError(error)
+        console.error('Validation failed:', this.lastError)
+        return false
+      }
+    },
+
+    async register(userData: {
+      username: string
+      email?: string
+      password?: string
+    }): Promise<{
+      success: boolean
+      user?: User
+      token?: string
+      message?: string
+    }> {
+      try {
+        // Define the response type
+        interface RegisterResponse {
+          success: boolean
+          user?: User
+          token?: string
+          apiKey?: string
+          message?: string
+        }
+
+        // Fetch the response
+        const response: RegisterResponse = await this.apiCall(
+          '/api/users/register',
+          'POST',
+          userData,
+        )
+
+        // Check the response and handle accordingly
+        if (response.success) {
+          if (response.user) {
+            this.setUser(response.user)
+          }
+          if (response.token) {
+            this.setToken(response.token)
+          }
+          if (response.apiKey) {
+            this.setApiKey(response.apiKey)
+          }
+
+          return { success: true, user: response.user, token: response.token }
+        } else {
+          return {
+            success: false,
+            message:
+              response.message || 'An error occurred during registration.',
+          }
+        }
+      } catch (error: unknown) {
+        this.setError(error)
+        console.error('Failed to register:', this.lastError)
+
+        // Ensure fallback message is a string
+        const errorMessage =
+          typeof this.lastError === 'string'
+            ? this.lastError
+            : 'An unknown error occurred.'
+
+        return { success: false, message: errorMessage }
+      }
     },
   },
 })

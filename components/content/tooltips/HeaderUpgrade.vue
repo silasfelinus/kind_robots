@@ -17,12 +17,12 @@
         </div>
       </div>
 
-      <div class="flex-1 flex items-center justify-center px-1 mt-1 md:mt-0">
+      <div class="flex-1 flex items-center justify-center">
         <smart-links class="text-sm w-full max-w-screen-md" />
       </div>
 
       <div
-        class="md:flex md:flex-wrap items-center md:justify-end gap-2 mt-1 md:mt-0 overflow-x-auto"
+        class="md:flex md:flex-wrap items-center md:justify-end gap-2 overflow-x-auto"
       >
         <div
           class="flex-shrink-0 flex items-center justify-center min-w-[100px]"
@@ -85,37 +85,5 @@ const toggleNav = () => {
 header {
   overflow-x: auto;
   white-space: nowrap;
-}
-
-/* Medium and Large Screen Adjustments */
-@media (min-width: 768px) {
-  /* Ensure the right section does not shrink too much and remains visible */
-  .right-section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px; /* Space between icons */
-  }
-
-  /* Ensure each icon has a minimum width to prevent squishing */
-  .right-section .flex-shrink-0 {
-    min-width: 50px; /* Minimum width for icons */
-  }
-}
-
-/* Small Screen Adjustments */
-@media (max-width: 768px) {
-  /* Hide right section on small screens */
-  .right-section {
-    display: none;
-  }
-
-  /* Show right section icons stacked below the avatar-image and title-subtitle */
-  .right-section-small {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    background-color: #1e3a8a; /* Matches bg-primary */
-    border-top: 1px solid #d1d5db; /* Matches border-gray-300 */
-  }
 }
 </style>

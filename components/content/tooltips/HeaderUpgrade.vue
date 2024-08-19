@@ -1,8 +1,8 @@
 <template>
-  <div class="relative">
+  <div class="relative bg-accent">
     <!-- Header -->
     <header
-      class="bg-primary shadow-md z-20 flex flex-col md:flex-row items-center p-2 overflow-x-auto"
+      class="bg-primary border-sm rounded-xl shadow-md z-20 flex flex-col md:flex-row items-center p-2 overflow-x-auto"
     >
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
@@ -25,23 +25,22 @@
 
       <!-- Right Section -->
       <div
-        class="right-section flex flex-wrap justify-center md:justify-end space-x-2 mt-0 overflow-x-auto"
+        class="right-section flex flex-wrap justify-center items-center space-x-2 mt-0 overflow-x-auto"
       >
-        <div class="flex-shrink-0">
+        <div class="icon-container flex-shrink-0">
           <butterfly-toggle class="text-sm" />
         </div>
 
-        <div class="flex-shrink-0">
+        <div class="icon-container flex-shrink-0">
           <theme-toggle class="text-sm" />
         </div>
 
-        <div class="flex-shrink-0">
+        <div class="icon-container flex-shrink-0">
           <login-button />
         </div>
 
-        <!-- Navigation Icon -->
-        <div class="flex-shrink-0 md:hidden mt-2">
-          <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
+        <div class="icon-container flex-shrink-0">
+          <NavToggle class="text-sm" @toggle-nav="toggleNav" />
         </div>
       </div>
     </header>
@@ -88,12 +87,18 @@ header {
   gap: 8px; /* Adjust gap as needed */
 }
 
-.right-section > * {
-  min-width: 100px; /* Ensure minimum width to prevent disappearing */
+.icon-container {
+  min-width: 60px; /* Ensure icons have a minimum width */
 }
 
-/* Ensure NavToggle is positioned separately */
-.right-section .nav-toggle-container {
-  margin-top: 8px; /* Adjust spacing as needed */
+/* Additional media query adjustments if necessary */
+@media (max-width: 640px) {
+  .right-section {
+    flex-direction: column; /* Stack items vertically on very small screens */
+  }
+
+  .icon-container {
+    min-width: 50px; /* Adjust for very small screens */
+  }
 }
 </style>

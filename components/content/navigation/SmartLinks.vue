@@ -110,6 +110,6 @@ onMounted(() => {
 }
 
 .nav-icon icon {
-  @apply w-8 h-8; /* Increase size of icons */
+  @apply w-16 h-16; /* Increase size of icons */
 }
 </style>

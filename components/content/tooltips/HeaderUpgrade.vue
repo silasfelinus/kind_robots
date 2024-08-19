@@ -12,35 +12,35 @@
         />
         <div class="flex flex-col text-left">
           <room-title class="text-sm font-semibold" />
-          <h2 class="text-xs text-gray-500 italic">
+          <h2 class="text-xs text-gray-500 italic text-center">
             {{ page.subtitle || 'the kindest' }}
           </h2>
         </div>
       </div>
 
       <!-- Center Section -->
-      <div class="flex-1 flex items-center justify-center px-1 mt-1 md:mt-0">
-        <smart-links class="text-sm w-full max-w-screen-md" />
+      <div class="flex-1 flex items-center justify-center px-0 mt-0">
+        <smart-links class="text-lg w-full max-w-screen-md" />
       </div>
 
       <!-- Right Section -->
       <div
-        class="flex flex-wrap md:flex-nowrap md:items-center md:justify-end space-x-2 mt-1 md:mt-0 overflow-x-auto"
+        class="flex flex-wrap md:flex-nowrap md:items-center md:justify-end space-x-2 mt-0 overflow-x-auto"
       >
-        <div class="flex-shrink-0">
+        <div class="flex-shrink-1">
           <butterfly-toggle class="text-sm" />
         </div>
 
-        <div class="flex-shrink-0">
+        <div class="flex-shrink-1">
           <theme-toggle class="text-sm" />
         </div>
 
-        <div class="flex-shrink-0">
+        <div class="flex-shrink-1">
           <login-button />
         </div>
 
-        <div class="flex-shrink-0">
-          <NavToggle class="flex-shrink-0" @toggle-nav="toggleNav" />
+        <div class="flex-shrink-1">
+          <NavToggle class="flex-shrink-1" @toggle-nav="toggleNav" />
         </div>
       </div>
     </header>
@@ -86,7 +86,7 @@ header {
   gap: 8px; /* Adjust gap as needed */
 }
 
-.right-section .flex-shrink-0 {
-  min-width: 80px; /* Ensure minimum width to prevent disappearing */
+.right-section .flex-shrink-1 {
+  min-width: 120px; /* Ensure minimum width to prevent disappearing */
 }
 </style>

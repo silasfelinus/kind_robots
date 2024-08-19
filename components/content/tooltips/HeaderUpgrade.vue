@@ -87,6 +87,6 @@ header {
 }
 
 .right-section > * {
-  min-width: 100px; /* Ensure minimum width to prevent disappearing */
+  min-width: 300px; /* Ensure minimum width to prevent disappearing */
 }
 </style>

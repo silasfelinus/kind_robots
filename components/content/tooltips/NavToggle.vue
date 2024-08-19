@@ -3,7 +3,7 @@
     class="p-1 bg-primary rounded-full m-1 w-8 h-8 flex items-center justify-center"
     @click="toggleNav"
   >
-    <icon name="fluent:row-triple-20-filled" class="text-lg text-white" />
+    <icon name="🗺️" class="text-lg text-white" />
   </button>
 </template>
 

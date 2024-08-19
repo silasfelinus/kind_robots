@@ -9,7 +9,7 @@
     <!-- Collapsible Toggle -->
     <div
       v-if="showToggle"
-      class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+      class="fixed top-4 left-1/2 transform -translate-x-1/2 z-100"
       @click.stop="toggleSidebar"
     >
       <button class="bg-secondary text-white p-2 rounded-full shadow-md">

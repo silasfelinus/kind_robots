@@ -1,7 +1,9 @@
 <template>
   <div class="relative">
     <!-- Header -->
-    <header class="z-20 flex flex-col md:flex-row items-center overflow-x-auto">
+    <header
+      class="z-20 flex flex-col md:flex-row items-center overflow-x-hidden"
+    >
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
         <avatar-image
@@ -18,28 +20,26 @@
 
       <!-- Center Section -->
       <div class="flex-1 flex items-center justify-center px-1">
-        <smart-links class="text-sm w-full max-w-screen-md" />
+        <smart-links class="text-sm w-full max-w-screen-md z-30" />
       </div>
 
       <!-- Right Section -->
       <div
-        class="flex flex-wrap items-center justify-end gap-2 overflow-x-auto"
+        class="flex items-center justify-end gap-2 overflow-x-hidden w-full md:w-auto"
       >
-        <div class="flex-shrink-0 flex items-center justify-center">
+        <div class="flex-shrink-0 flex items-center justify-center z-40">
           <butterfly-toggle class="text-sm" />
         </div>
 
-        <div
-          class="flex-shrink-0 flex items-center justify-right m-2 space-x-2"
-        >
-          <theme-toggle class="text-sm z-50" />
+        <div class="flex-shrink-0 flex items-center justify-center z-50">
+          <theme-toggle class="text-sm" />
         </div>
 
-        <div class="flex-shrink-0 flex items-center justify-center">
+        <div class="flex-shrink-0 flex items-center justify-center z-40">
           <login-button class="text-sm" />
         </div>
 
-        <div class="flex-shrink-0 flex items-center justify-center">
+        <div class="flex-shrink-0 flex items-center justify-center z-40">
           <nav-toggle class="text-sm" @toggle-nav="toggleNav" />
         </div>
       </div>

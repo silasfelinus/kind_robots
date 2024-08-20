@@ -16,7 +16,7 @@
       <div
         v-show="open"
         :style="modalPosition"
-        class="theme-menu flex flex-wrap justify-center bg-base-200 border p-2 m-1 rounded-2xl z-10 transition-opacity duration-200 w-full"
+        class="theme-menu flex flex-wrap justify-center bg-base-200 border p-2 m-1 rounded-2xl z-10 transition-opacity duration-200"
       >
         <button
           v-for="(theme, index) in themeStore.themes"
@@ -54,12 +54,39 @@ const modalPosition = computed(() => {
   const leftSpace = rect.left
   const rightSpace = windowWidth - rect.right
 
-  return {
-    top: bottomSpace > topSpace ? `${rect.bottom}px` : 'auto',
-    bottom: bottomSpace > topSpace ? 'auto' : `${windowHeight - rect.top}px`,
-    left: rightSpace > leftSpace ? `${rect.left}px` : 'auto',
-    right: rightSpace > leftSpace ? 'auto' : `${windowWidth - rect.right}px`,
+  let top, bottom, left, right
+
+  if (bottomSpace > topSpace) {
+    top = `${rect.bottom}px`
+    bottom = 'auto'
+  } else {
+    top = 'auto'
+    bottom = `${windowHeight - rect.top}px`
   }
+
+  if (rightSpace > leftSpace) {
+    left = `${rect.left}px`
+    right = 'auto'
+  } else {
+    left = 'auto'
+    right = `${windowWidth - rect.right}px`
+  }
+
+  // Ensure the menu doesn't overflow the viewport
+  const menuHeight = 200 // Example height; adjust as needed
+  const menuWidth = 300 // Example width; adjust as needed
+
+  if (bottomSpace < menuHeight && topSpace < menuHeight) {
+    top = '10px' // Give it a small margin from the top
+    bottom = 'auto'
+  }
+
+  if (rightSpace < menuWidth && leftSpace < menuWidth) {
+    left = '10px' // Give it a small margin from the left
+    right = 'auto'
+  }
+
+  return { top, bottom, left, right }
 })
 
 const toggleMenu = () => {

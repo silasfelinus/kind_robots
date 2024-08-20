@@ -1,31 +1,33 @@
 <template>
   <div class="relative flex flex-col h-screen bg-secondary">
     <div>
-      <header-upgrade
-        v-if="toggleSidebar"
-        class="w-full border-sm rounded-2xl bg-primary shadow-md z-40 p-1"
-      >
-        <h1 class="text-white text-lg font-bold">Header</h1>
-      </header-upgrade>
+      <div>
+        <header-upgrade
+          v-if="toggleSidebar"
+          class="w-full border-sm rounded-2xl bg-primary shadow-md z-40 p-1"
+        >
+          <h1 class="text-white text-lg font-bold">Header</h1>
+        </header-upgrade>
 
-      <!-- Collapsible Toggle -->
-    </div>
-    <div
-      class="fixed top-4 left-1/2 transform -translate-x-1/2 z-100"
-      @click="toggleSidebarFunction"
-    >
-      <button
-        v-if="!toggleSidebar"
-        class="bg-secondary text-white p-2 rounded-full shadow-md z-100"
+        <!-- Collapsible Toggle -->
+      </div>
+      <div
+        class="fixed bottom left-1/2 transform -translate-x-1/2 z-100"
+        @click="toggleSidebarFunction"
       >
-        <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
-      </button>
-      <button
-        v-if="toggleSidebar"
-        class="bg-secondary text-white p-2 rounded-full shadow-md z-100"
-      >
-        <span class="text-lg"><Icon name="fxemoji:eye" /></span>
-      </button>
+        <button
+          v-if="!toggleSidebar"
+          class="bg-secondary text-white p-2 rounded-full shadow-md z-100"
+        >
+          <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
+        </button>
+        <button
+          v-if="toggleSidebar"
+          class="bg-secondary text-white p-2 rounded-full shadow-md z-100"
+        >
+          <span class="text-lg"><Icon name="fxemoji:eye" /></span>
+        </button>
+      </div>
     </div>
 
     <!-- Main Content -->

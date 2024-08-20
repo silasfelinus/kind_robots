@@ -58,31 +58,39 @@ const { page } = useContent()
 const avatarSize = ref('small')
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)
-const isMobile = ref(window.innerWidth < 768) // Define isMobile here
 
-const headerHeight = ref(0)
-const headerRef = ref<HTMLElement | null>(null)
+// Define isMobile as a ref outside any function
+const isMobile = ref(window.innerWidth < 768)
+
+// Adding headerHeight ref
+const headerHeight = ref(0) // Initialize headerHeight
+
+const headerRef = ref<HTMLElement | null>(null) // Reference to the header element
 
 function handleResize() {
-  isMobile.value = window.innerWidth < 768 // Handle resize to update isMobile
-}
-
-onMounted(async () => {
-  await nextTick()
+  isMobile.value = window.innerWidth < 768
+  // Update headerHeight based on the actual element height if available
   if (headerRef.value) {
     headerHeight.value = headerRef.value.clientHeight
   }
+}
 
-  handleResize() // Call it initially on mount
-  window.addEventListener('resize', handleResize) // Set up the resize listener
+onMounted(() => {
+  nextTick().then(() => {
+    // Setup headerHeight and add resize listener once mounted
+    handleResize()
+  })
+
+  window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize) // Clean up the listener
+  // Clean up the listener on component unmount
+  window.removeEventListener('resize', handleResize)
 })
 
 const toggleNav = () => {
-  showNav.value = !showNav.value // Toggle navigation visibility
+  showNav.value = !showNav.value
 }
 </script>
 

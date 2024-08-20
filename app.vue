@@ -1,33 +1,33 @@
 <template>
   <div class="relative flex flex-col h-screen bg-secondary">
     <div>
-      <div>
-        <header-upgrade
-          v-if="toggleSidebar"
-          class="w-full border-sm rounded-2xl bg-primary shadow-md z-40 p-1"
-        >
-          <h1 class="text-white text-lg font-bold">Header</h1>
-        </header-upgrade>
-
-        <!-- Collapsible Toggle -->
-      </div>
-      <div
-        class="fixed bottom left-1/2 transform -translate-x-1/2 z-100"
-        @click="toggleSidebarFunction"
+      <!-- Header -->
+      <header-upgrade
+        v-if="toggleSidebar"
+        ref="headerRef"
+        class="w-full border-sm rounded-2xl bg-primary shadow-md z-40 p-1 relative"
       >
-        <button
-          v-if="!toggleSidebar"
-          class="bg-secondary text-white p-2 rounded-full shadow-md z-100"
+        <h1 class="text-white text-lg font-bold">Header</h1>
+
+        <!-- Collapsible Toggle Button -->
+        <div
+          class="absolute right-4 bottom-1 z-50"
+          @click="toggleSidebarFunction"
         >
-          <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
-        </button>
-        <button
-          v-if="toggleSidebar"
-          class="bg-secondary text-white p-2 rounded-full shadow-md z-100"
-        >
-          <span class="text-lg"><Icon name="fxemoji:eye" /></span>
-        </button>
-      </div>
+          <button
+            v-if="!toggleSidebar"
+            class="bg-secondary text-white p-2 rounded-full shadow-md"
+          >
+            <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
+          </button>
+          <button
+            v-if="toggleSidebar"
+            class="bg-secondary text-white p-2 rounded-full shadow-md"
+          >
+            <span class="text-lg"><Icon name="fxemoji:eye" /></span>
+          </button>
+        </div>
+      </header-upgrade>
     </div>
 
     <!-- Main Content -->
@@ -80,35 +80,6 @@ useHead({
   ],
 })
 
-interface BackupResponse {
-  success: boolean
-  message?: string
-}
-
-const BACKUP_INTERVAL = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
-
-const checkAndTriggerBackup = async () => {
-  const fetchBackup = async (): Promise<BackupResponse> => {
-    return $fetch<BackupResponse>('/api/backup')
-  }
-
-  const lastBackup = localStorage.getItem('lastBackup')
-  const now = new Date().getTime()
-
-  if (!lastBackup || now - parseInt(lastBackup) > BACKUP_INTERVAL) {
-    try {
-      const data = await fetchBackup()
-      if (data.success) {
-        localStorage.setItem('lastBackup', now.toString())
-      } else {
-        console.error('Backup failed:', data.message)
-      }
-    } catch (err) {
-      console.error('Error triggering backup:', err)
-    }
-  }
-}
-
 const headerRef = ref<HTMLElement | null>(null)
 const mainContentRef = ref<HTMLElement | null>(null)
 const toggleSidebar = ref(true)
@@ -139,7 +110,6 @@ onMounted(async () => {
     await channelStore.initializeChannels()
     await milestoneStore.initializeMilestones()
     await layoutStore.initializeStore()
-    await checkAndTriggerBackup()
     console.log('Initialization complete.')
   } catch (error: unknown) {
     errorStore.setError(
@@ -159,23 +129,9 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Toggle button styling */
 button {
   font-size: 1.5rem;
   width: 3rem;
   height: 3rem;
-}
-
-/* Hide the toggle button on larger screens */
-.md\\:hidden {
-  display: none;
-}
-
-/* Temporary header styling */
-header {
-  background-color: #1f2937; /* bg-primary color */
-  color: #ffffff; /* text-white color */
-  padding: 1rem; /* p-4 */
-  text-align: center;
 }
 </style>

@@ -7,11 +7,6 @@
       class="w-full rounded-2xl bg-primary shadow-md z-40 p-1"
     ></header-upgrade>
     <!-- Header -->
-    <header-upgrade
-      v-if="toggleSidebar"
-      ref="headerRef"
-      class="w-full rounded-2xl bg-primary shadow-md z-40 p-1"
-    ></header-upgrade>
 
     <!-- Collapsible Toggle Button -->
     <div :class="['absolute right-4 z-50', buttonPosition]">

@@ -97,7 +97,7 @@ const checkAndTriggerBackup = async () => {
 
 const headerRef = ref<HTMLElement | null>(null)
 const mainContentRef = ref<HTMLElement | null>(null)
-const toggleSidebar = ref(false)
+const toggleSidebar = ref(true)
 
 const toggleSidebarFunction = () => {
   toggleSidebar.value = !toggleSidebar.value

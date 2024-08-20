@@ -1,7 +1,5 @@
 <template>
   <div class="relative flex flex-col h-screen bg-gray-100">
-    <!-- Debug Header -->
-    <!-- Temporarily using a simple header element to check visibility -->
     <header-upgrade
       v-if="toggleSidebar"
       class="w-full bg-primary shadow-md z-40 p-4"
@@ -11,14 +9,14 @@
 
     <!-- Collapsible Toggle -->
     <div
-      class="fixed top-4 left-1/2 transform -translate-x-1/2 z-100 md:hidden"
+      class="fixed top-4 left-1/2 transform -translate-x-1/2 z-100"
       @click="toggleSidebarFunction"
     >
       <button
         v-if="!toggleSidebar"
         class="bg-secondary text-white p-2 rounded-full shadow-md"
       >
-        <span class="text-lg"><Icon name="emojione-v1:eye" /></span>
+        <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
       </button>
       <button
         v-if="toggleSidebar"

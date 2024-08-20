@@ -5,7 +5,7 @@
       <header-upgrade
         v-if="toggleSidebar"
         ref="headerRef"
-        class="w-full border-sm rounded-2xl bg-primary shadow-md z-40 p-1 relative"
+        class="w-full rounded-2xl bg-primary shadow-md z-40 p-1 relative"
       >
         <h1 class="text-white text-lg font-bold">Header</h1>
 
@@ -16,13 +16,13 @@
         >
           <button
             v-if="!toggleSidebar"
-            class="bg-secondary text-white p-2 rounded-full shadow-md"
+            class="bg-accent text-white p-2 rounded-full shadow-md"
           >
             <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
           </button>
           <button
             v-if="toggleSidebar"
-            class="bg-secondary text-white p-2 rounded-full shadow-md"
+            class="bg-accent text-white p-2 rounded-full shadow-md"
           >
             <span class="text-lg"><Icon name="fxemoji:eye" /></span>
           </button>

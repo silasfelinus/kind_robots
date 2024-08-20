@@ -25,10 +25,11 @@
 
       <!-- Right Section -->
       <div
-        class="flex items-center justify-end gap-2 overflow-x-hidden w-full md:w-auto"
+        class="flex items-center justify-end gap-2 overflow-hidden w-full md:w-auto"
+        :class="{ 'flex-wrap': isMobile }"
       >
-        <butterfly-toggle class="text-sm z-40" />
-        <theme-toggle class="text-sm z-50" />
+        <butterfly-toggle class="text-sm z-40 hidden sm:block" />
+        <theme-toggle class="text-sm z-50 hidden sm:block" />
         <login-button class="text-sm z-40" />
         <nav-toggle class="text-sm z-40" @toggle-nav="toggleNav" />
       </div>
@@ -58,6 +59,11 @@ const avatarSize = ref('small')
 
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)
+const isMobile = ref(window.innerWidth < 768)
+
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth < 768
+})
 const headerHeight = ref(0)
 
 // Provide a type hint for headerRef as HTMLElement or null
@@ -121,6 +127,13 @@ header {
 
   .fixed {
     background-color: var(--color-primary);
+  }
+  .hidden.sm\:block {
+    display: none; /* Hide elements on small screens */
+  }
+
+  .flex-wrap {
+    flex-wrap: wrap; /* Allow items to wrap to next line */
   }
 }
 </style>

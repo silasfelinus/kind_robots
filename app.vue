@@ -1,9 +1,9 @@
 <template>
-  <div class="relative flex flex-col h-screen bg-gray-100">
+  <div class="relative flex flex-col h-screen bg-secondary">
     <div>
       <header-upgrade
         v-if="toggleSidebar"
-        class="w-full bg-primary shadow-md z-40 p-1"
+        class="w-full border-sm rounded-2xl bg-primary shadow-md z-40 p-1"
       >
         <h1 class="text-white text-lg font-bold">Header</h1>
       </header-upgrade>

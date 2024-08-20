@@ -13,7 +13,7 @@
       @click="toggleSidebarFunction"
     >
       <button class="bg-secondary text-white p-2 rounded-full shadow-md">
-        <span class="text-lg">☰</span>
+        <span class="text-lg"> teenyicons:at-outline </span>
       </button>
     </div>
 

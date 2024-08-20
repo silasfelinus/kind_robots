@@ -31,7 +31,9 @@
           <butterfly-toggle class="text-sm" />
         </div>
 
-        <div class="flex-shrink-0 flex items-center justify-center">
+        <div
+          class="flex-shrink-0 flex items-center justify-center m-2 space-x-2"
+        >
           <theme-toggle class="text-sm" />
         </div>
 

@@ -2,9 +2,12 @@
   <div class="relative flex flex-col h-screen bg-gray-100">
     <!-- Debug Header -->
     <!-- Temporarily using a simple header element to check visibility -->
-    <header v-if="toggleSidebar" class="w-full bg-primary shadow-md z-40 p-4">
+    <header-upgrade
+      v-if="toggleSidebar"
+      class="w-full bg-primary shadow-md z-40 p-4"
+    >
       <h1 class="text-white text-lg font-bold">Header</h1>
-    </header>
+    </header-upgrade>
 
     <!-- Collapsible Toggle -->
     <div
@@ -15,13 +18,13 @@
         v-if="!toggleSidebar"
         class="bg-secondary text-white p-2 rounded-full shadow-md"
       >
-        <span class="text-lg">emojione-monotone:eye</span>
+        <span class="text-lg"><Icon name="emojione-v1:eye" /></span>
       </button>
       <button
         v-if="toggleSidebar"
         class="bg-secondary text-white p-2 rounded-full shadow-md"
       >
-        <span class="text-lg">fxemoji:eye</span>
+        <span class="text-lg"><Icon name="fxemoji:eye" /></span>
       </button>
     </div>
 

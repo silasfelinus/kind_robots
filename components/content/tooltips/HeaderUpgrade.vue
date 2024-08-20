@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Header -->
     <header
-      class="z-20 flex flex-col md:flex-row items-center overflow-x-hidden"
+      class="z-40 flex flex-col md:flex-row items-center overflow-x-hidden"
     >
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
@@ -24,7 +24,9 @@
       </div>
 
       <!-- Right Section -->
-      <div class="flex items-center justify-end gap-2 w-full">
+      <div
+        class="flex items-center justify-end gap-2 overflow-x-hidden w-full md:w-auto"
+      >
         <div class="flex-shrink-0 flex items-center justify-center z-40">
           <butterfly-toggle class="text-sm" />
         </div>
@@ -52,7 +54,7 @@
     <!-- Navigation Drawer -->
     <navigation-trimmed
       v-if="showNav"
-      class="fixed bottom bg-secondary border rounded-2xl shadow-lg transition-transform duration-300 m-2 z-50"
+      class="fixed bottom bg-secondary border rounded-2xl shadow-lg transition-transform duration-300 m-2 z-30"
       :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
   </div>

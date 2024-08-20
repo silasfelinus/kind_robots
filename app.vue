@@ -8,7 +8,7 @@
     ></header-upgrade>
 
     <!-- This container ensures the toggle button is always visible -->
-    <div class="absolute top-4 right-4 z-50">
+    <div class="absolute bottom-4 right-4 z-50">
       <button
         class="bg-accent text-white p-2 rounded-full shadow-md"
         @click="toggleSidebarFunction"

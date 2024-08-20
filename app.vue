@@ -2,15 +2,15 @@
   <div class="relative flex flex-col h-screen bg-gray-100">
     <!-- Header Dashboard -->
     <header-upgrade
+      v-if="toggleSidebar"
       ref="headerRef"
       class="w-full bg-primary shadow-md z-40"
     ></header-upgrade>
 
     <!-- Collapsible Toggle -->
     <div
-      v-if="showToggle"
-      class="fixed top-4 left-1/2 transform -translate-x-1/2 z-100"
-      @click.stop="toggleSidebar"
+      class="fixed top-4 left-1/2 transform -translate-x-1/2 z-100 md:hidden"
+      @click="toggleSidebarFunction"
     >
       <button class="bg-secondary text-white p-2 rounded-full shadow-md">
         <span class="text-lg">☰</span>
@@ -85,10 +85,10 @@ const checkAndTriggerBackup = async () => {
   if (!lastBackup || now - parseInt(lastBackup) > BACKUP_INTERVAL) {
     try {
       const data = await fetchBackup()
-      if (data && data.success) {
+      if (data.success) {
         localStorage.setItem('lastBackup', now.toString())
       } else {
-        console.error('Backup failed:', data?.message)
+        console.error('Backup failed:', data.message)
       }
     } catch (err) {
       console.error('Error triggering backup:', err)
@@ -98,10 +98,10 @@ const checkAndTriggerBackup = async () => {
 
 const headerRef = ref<HTMLElement | null>(null)
 const mainContentRef = ref<HTMLElement | null>(null)
-const showToggle = ref(false)
+const toggleSidebar = ref(false)
 
-const toggleSidebar = () => {
-  showToggle.value = !showToggle.value
+const toggleSidebarFunction = () => {
+  toggleSidebar.value = !toggleSidebar.value
 }
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -111,7 +111,7 @@ const handleClickOutside = (event: MouseEvent) => {
     mainContentRef.value &&
     !mainContentRef.value.contains(event.target as Node)
   ) {
-    showToggle.value = false
+    toggleSidebar.value = false
   }
 }
 
@@ -153,10 +153,8 @@ button {
   height: 3rem;
 }
 
-@media (min-width: 768px) {
-  /* Hide the toggle button on larger screens */
-  .fixed {
-    display: none;
-  }
+/* Hide the toggle button on larger screens */
+.md\\:hidden {
+  display: none;
 }
 </style>

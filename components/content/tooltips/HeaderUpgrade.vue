@@ -54,7 +54,7 @@
     <!-- Navigation Drawer -->
     <navigation-trimmed
       v-if="showNav"
-      class="fixed top-0 left-0 right-0 bottom-0 bg-secondary shadow-lg transition-transform duration-300"
+      class="fixed bottom bg-secondary border rounded-2xl shadow-lg transition-transform duration-300 m-2"
       :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
   </div>

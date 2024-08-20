@@ -74,7 +74,6 @@ const toggleNav = () => {
   showNav.value = !showNav.value
 }
 </script>
-
 <style scoped>
 /* General overflow management for the header */
 header {
@@ -102,13 +101,16 @@ header {
   border: 1px solid #ccc;
   border-radius: 20px;
   z-index: 30; /* Ensure it's under the header */
-  transform: translateY(100%);
+  transform: translateY(
+    calc(100% - var(--header-height))
+  ); /* Adjust translation based on header height */
   transition: transform 0.3s ease-in-out;
 }
 
-/* Modify this class to reposition based on the header height */
 .show-nav {
-  transform: translateY(var(--header-height, 0px));
+  transform: translateY(
+    var(--header-height)
+  ); /* Correct the transform direction */
 }
 
 @media (max-width: 768px) {

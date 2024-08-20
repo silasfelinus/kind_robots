@@ -1,11 +1,10 @@
 <template>
   <div class="relative flex flex-col h-screen bg-gray-100">
-    <!-- Header Dashboard -->
-    <header-upgrade
-      v-if="toggleSidebar"
-      ref="headerRef"
-      class="w-full bg-primary shadow-md z-40"
-    ></header-upgrade>
+    <!-- Debug Header -->
+    <!-- Temporarily using a simple header element to check visibility -->
+    <header v-if="toggleSidebar" class="w-full bg-primary shadow-md z-40 p-4">
+      <h1 class="text-white text-lg font-bold">Header</h1>
+    </header>
 
     <!-- Collapsible Toggle -->
     <div
@@ -13,7 +12,7 @@
       @click="toggleSidebarFunction"
     >
       <button class="bg-secondary text-white p-2 rounded-full shadow-md">
-        <span class="text-lg"> teenyicons:at-outline </span>
+        <span class="text-lg">☰</span>
       </button>
     </div>
 
@@ -156,5 +155,13 @@ button {
 /* Hide the toggle button on larger screens */
 .md\\:hidden {
   display: none;
+}
+
+/* Temporary header styling */
+header {
+  background-color: #1f2937; /* bg-primary color */
+  color: #ffffff; /* text-white color */
+  padding: 1rem; /* p-4 */
+  text-align: center;
 }
 </style>

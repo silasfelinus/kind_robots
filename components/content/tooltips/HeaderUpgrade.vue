@@ -40,10 +40,10 @@
       class="fixed bottom-8 right-8 bg-white p-2 rounded-full shadow-md z-10"
     />
 
-    <!-- Navigation Drawer -->
+    <!-- Navigation -->
     <navigation-trimmed
       v-if="showNav"
-      class="fixed bottom-0 bg-secondary border rounded-2xl shadow-lg transition-transform duration-300 m-2 z-30"
+      class="relative bottom-0 bg-secondary shadow-lg transition-transform duration-300 z-20"
       :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
   </div>

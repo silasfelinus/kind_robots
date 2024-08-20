@@ -24,9 +24,7 @@
       </div>
 
       <!-- Right Section -->
-      <div
-        class="flex items-center justify-end gap-2 overflow-x-hidden w-full md:w-auto"
-      >
+      <div class="flex items-center justify-end gap-2 w-full">
         <div class="flex-shrink-0 flex items-center justify-center z-40">
           <butterfly-toggle class="text-sm" />
         </div>

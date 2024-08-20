@@ -51,35 +51,41 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted, nextTick } from 'vue'
-import { useUserStore } from './../../../stores/userStore' // Ensure to import your stores correctly
+import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useUserStore } from './../../../stores/userStore' // Correct import path
 
 const { page } = useContent()
 const avatarSize = ref('small')
-
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)
-const isMobile = ref(window.innerWidth < 768)
+const isMobile = ref(window.innerWidth < 768) // Define isMobile here
 
-window.addEventListener('resize', () => {
-  isMobile.value = window.innerWidth < 768
-})
 const headerHeight = ref(0)
-
-// Provide a type hint for headerRef as HTMLElement or null
 const headerRef = ref<HTMLElement | null>(null)
+
+function handleResize() {
+  isMobile.value = window.innerWidth < 768 // Handle resize to update isMobile
+}
 
 onMounted(async () => {
   await nextTick()
   if (headerRef.value) {
-    headerHeight.value = headerRef.value.clientHeight // Now TypeScript knows what clientHeight is
+    headerHeight.value = headerRef.value.clientHeight
   }
+
+  handleResize() // Call it initially on mount
+  window.addEventListener('resize', handleResize) // Set up the resize listener
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize) // Clean up the listener
 })
 
 const toggleNav = () => {
-  showNav.value = !showNav.value
+  showNav.value = !showNav.value // Toggle navigation visibility
 }
 </script>
+
 <style scoped>
 /* General overflow management for the header */
 header {

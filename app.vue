@@ -16,13 +16,13 @@
     >
       <button
         v-if="!toggleSidebar"
-        class="bg-secondary text-white p-2 rounded-full shadow-md"
+        class="bg-secondary text-white p-2 rounded-full shadow-md z-100"
       >
         <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
       </button>
       <button
         v-if="toggleSidebar"
-        class="bg-secondary text-white p-2 rounded-full shadow-md"
+        class="bg-secondary text-white p-2 rounded-full shadow-md z-100"
       >
         <span class="text-lg"><Icon name="fxemoji:eye" /></span>
       </button>

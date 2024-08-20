@@ -1,9 +1,7 @@
 <template>
   <div class="relative">
     <!-- Header -->
-    <header
-      class="bg-primary rounded-2xl shadow-md z-20 flex flex-col md:flex-row items-center p-1 overflow-x-auto"
-    >
+    <header class="z-20 flex flex-col md:flex-row items-center overflow-x-auto">
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
         <avatar-image
@@ -32,7 +30,7 @@
         </div>
 
         <div
-          class="flex-shrink-0 flex items-center justify-center m-2 space-x-2"
+          class="flex-shrink-0 flex items-center justify-right m-2 space-x-2"
         >
           <theme-toggle class="text-sm" />
         </div>

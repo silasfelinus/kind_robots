@@ -4,7 +4,7 @@
     <header-upgrade
       v-if="toggleSidebar"
       ref="headerRef"
-      class="w-full rounded-2xl bg-primary shadow-md z-40 p-1"
+      class="w-full rounded-2xl bg-primary border-bg-accent shadow-md z-40 m-2 p-1"
     ></header-upgrade>
     <!-- Header -->
 

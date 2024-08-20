@@ -8,15 +8,15 @@
     ></header-upgrade>
     <!-- Header -->
 
-    <!-- Collapsible Toggle Button -->
-    <div :class="['absolute right-4 z-50', buttonPosition]">
+    <!-- Toggle Button always visible -->
+    <div class="absolute right-4 top-4 z-50">
       <button
         class="bg-accent text-white p-2 rounded-full shadow-md"
         @click="toggleSidebarFunction"
       >
-        <span class="text-lg"
-          ><Icon :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
-        /></span>
+        <span class="text-lg">
+          <Icon :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'" />
+        </span>
       </button>
     </div>
 
@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useErrorStore } from '@/stores/errorStore'
 import { useTagStore } from '@/stores/tagStore'
@@ -76,14 +76,6 @@ useHead({
 const headerRef = ref<HTMLElement | null>(null)
 const mainContentRef = ref<HTMLElement | null>(null)
 const toggleSidebar = ref(true)
-
-const buttonPosition = computed(() => {
-  if (toggleSidebar.value && headerRef.value) {
-    const headerHeight = headerRef.value.getBoundingClientRect().height
-    return { top: `${headerHeight}px` }
-  }
-  return { top: '4px' } // Default position when the header is not visible
-})
 
 const toggleSidebarFunction = () => {
   toggleSidebar.value = !toggleSidebar.value

@@ -2,7 +2,7 @@
   <div class="bg-secondary relative">
     <!-- Header -->
     <header
-      class="bg-primary rounded-xl shadow-md z-20 flex flex-col items-center p-2"
+      class="bg-primary rounded-xl shadow-md z-30 flex flex-col items-center p-2 relative"
     >
       <!-- Header Content -->
       <div class="flex w-full items-center justify-between flex-wrap">
@@ -29,8 +29,10 @@
         <div class="flex items-center space-x-2">
           <login-button />
           <NavToggle @toggle-nav="toggleNav" />
-          <theme-toggle class="text-sm" />
-          <butterfly-toggle class="text-sm" />
+          <theme-toggle class="text-sm z-40" />
+          <!-- Increased z-index for visibility -->
+          <butterfly-toggle class="text-sm z-40" />
+          <!-- Increased z-index for visibility -->
         </div>
       </div>
 
@@ -44,7 +46,7 @@
     <!-- Navigation -->
     <navigation-trimmed
       v-if="showNav"
-      class="fixed top-0 left-0 right-0 bottom-0 bg-secondary shadow-lg transition-transform duration-300"
+      class="fixed top-0 left-0 right-0 bottom-0 bg-secondary shadow-lg transition-transform duration-300 z-20"
       :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
   </div>
@@ -99,6 +101,7 @@ header .subtitle {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
+  z-index: 50; /* Ensure it stays on top */
 }
 
 @media (max-width: 600px) {

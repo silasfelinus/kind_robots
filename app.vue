@@ -1,37 +1,41 @@
 <template>
   <div class="relative flex flex-col h-screen bg-secondary">
-    <!-- Header -->
-    <header-upgrade
-      v-if="toggleSidebar"
-      ref="headerRef"
-      class="w-full rounded-2xl bg-primary shadow-md z-40 p-1 relative"
-    >
-    </header-upgrade>
-
-    <!-- Collapsible Toggle Button -->
-    <div class="absolute right-4 bottom-1 z-50" @click="toggleSidebarFunction">
-      <button
-        v-if="!toggleSidebar"
-        class="bg-accent text-white p-2 rounded-full shadow-md z-50"
-      >
-        <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
-      </button>
-      <button
+    <!-- Header and Toggle Container -->
+    <div class="relative flex flex-col items-center w-full">
+      <!-- Header -->
+      <header-upgrade
         v-if="toggleSidebar"
-        class="bg-accent text-white p-2 rounded-full shadow-md z-50"
-      >
-        <span class="text-lg"><Icon name="fxemoji:eye" /></span>
-      </button>
-    </div>
-  </div>
+        ref="headerRef"
+        class="w-full rounded-2xl bg-primary shadow-md z-40 p-1"
+      ></header-upgrade>
 
-  <!-- Main Content -->
-  <main
-    ref="mainContentRef"
-    class="flex-1 p-1 bg-secondary overflow-y-auto z-30"
-  >
-    <NuxtPage />
-  </main>
+      <!-- Collapsible Toggle Button -->
+      <div class="absolute right-4 bottom-1 z-50">
+        <button
+          v-if="!toggleSidebar"
+          class="bg-accent text-white p-2 rounded-full shadow-md"
+          @click="toggleSidebarFunction"
+        >
+          <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
+        </button>
+        <button
+          v-if="toggleSidebar"
+          class="bg-accent text-white p-2 rounded-full shadow-md"
+          @click="toggleSidebarFunction"
+        >
+          <span class="text-lg"><Icon name="fxemoji:eye" /></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main
+      ref="mainContentRef"
+      class="flex-1 p-1 bg-secondary overflow-y-auto z-30"
+    >
+      <NuxtPage />
+    </main>
+  </div>
 </template>
 
 <script setup lang="ts">

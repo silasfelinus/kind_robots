@@ -25,7 +25,7 @@
           :class="theme === themeStore.currentTheme ? 'ring-2 ring-accent' : ''"
           role="menuitem"
           tabindex="0"
-          @click="themeStore.changeTheme(theme)"
+          @click="changeTheme(theme)"
         >
           {{ theme }}
         </button>
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useThemeStore } from '../../../stores/themeStore'
 
 const themeStore = useThemeStore()
@@ -55,15 +55,20 @@ const modalPosition = computed(() => {
   const rightSpace = windowWidth - rect.right
 
   return {
-    top: bottomSpace > topSpace ? 'auto' : '0',
-    bottom: bottomSpace > topSpace ? '0' : 'auto',
-    left: rightSpace > leftSpace ? 'auto' : '0',
-    right: rightSpace > leftSpace ? '0' : 'auto',
+    top: bottomSpace > topSpace ? `${rect.bottom}px` : 'auto',
+    bottom: bottomSpace > topSpace ? 'auto' : `${windowHeight - rect.top}px`,
+    left: rightSpace > leftSpace ? `${rect.left}px` : 'auto',
+    right: rightSpace > leftSpace ? 'auto' : `${windowWidth - rect.right}px`,
   }
 })
 
 const toggleMenu = () => {
   open.value = !open.value
+}
+
+const changeTheme = (theme) => {
+  themeStore.changeTheme(theme)
+  open.value = false
 }
 
 const closeMenu = (e) => {

@@ -26,8 +26,8 @@
           >
             <span class="text-lg"><Icon name="fxemoji:eye" /></span>
           </button>
-        </div>
-      </header-upgrade>
+
+      </div></header-upgrade>        </div>
     </div>
 
     <!-- Main Content -->

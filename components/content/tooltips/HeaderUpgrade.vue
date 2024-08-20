@@ -50,18 +50,31 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, nextTick } from 'vue'
+import { useUserStore } from '@/stores/userStore' // Ensure to import your stores correctly
 
 const { page } = useContent()
-const avatarSize = 'small'
+const avatarSize = ref('small')
 
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)
+const headerHeight = ref(0)
+
+// Provide a type hint for headerRef as HTMLElement or null
+const headerRef = ref<HTMLElement | null>(null)
+
+onMounted(async () => {
+  await nextTick()
+  if (headerRef.value) {
+    headerHeight.value = headerRef.value.clientHeight // Now TypeScript knows what clientHeight is
+  }
+})
 
 const toggleNav = () => {
   showNav.value = !showNav.value
 }
 </script>
+
 <style scoped>
 /* General overflow management for the header */
 header {
@@ -70,21 +83,32 @@ header {
   z-index: 50; /* Ensuring the header is above most elements */
 }
 
-/* Specific display settings for medium and up screens */
-.md\\:flex {
-  display: flex; /* Ensure flexibility of display at md breakpoint */
-}
-
-/* Positioning for fixed elements, ensuring they do not overlap important UI elements */
+/* Positioning for fixed elements */
 .fixed {
   position: fixed;
-  top: 0;
   right: 0;
+  left: 0;
   z-index: 10; /* Lower z-index for non-critical overlay elements */
 }
 
 .bg-primary {
   background-color: var(--color-primary);
+}
+
+.navigation-trimmed {
+  position: fixed;
+  bottom: 0;
+  background-color: var(--color-secondary);
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  z-index: 30; /* Ensure it's under the header */
+  transform: translateY(100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Modify this class to reposition based on the header height */
+.show-nav {
+  transform: translateY(var(--header-height, 0px));
 }
 
 @media (max-width: 768px) {

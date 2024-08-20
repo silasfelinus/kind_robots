@@ -94,12 +94,42 @@ const toggleSidebarFunction = () => {
   toggleSidebar.value = !toggleSidebar.value
 }
 
-onMounted(() => {
-  // Additional logic if necessary
+const handleClickOutside = (event: MouseEvent) => {
+  if (
+    headerRef.value &&
+    !headerRef.value.contains(event.target as Node) &&
+    mainContentRef.value &&
+    !mainContentRef.value.contains(event.target as Node)
+  ) {
+    toggleSidebar.value = false
+  }
+}
+onMounted(async () => {
+  try {
+    await botStore.loadStore()
+    await userStore.initializeUser()
+    await artStore.init()
+    await tagStore.initializeTags()
+    await themeStore.initTheme()
+    await pitchStore.initializePitches()
+    await channelStore.initializeChannels()
+    await milestoneStore.initializeMilestones()
+    await layoutStore.initializeStore()
+    console.log('Initialization complete.')
+  } catch (error: unknown) {
+    errorStore.setError(
+      ErrorType.UNKNOWN_ERROR,
+      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+
+  // Add event listener for clicks outside
+  document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {
-  // Cleanup if necessary
+  // Clean up event listener when component unmounts
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 

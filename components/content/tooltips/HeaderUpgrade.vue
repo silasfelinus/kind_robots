@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Header -->
     <header
-      class="bg-primary shadow-md z-20 flex flex-col md:flex-row items-center p-2 overflow-x-auto"
+      class="bg-primary rounded-2xl shadow-md z-20 flex flex-col md:flex-row items-center p-1 overflow-x-auto"
     >
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
@@ -19,64 +19,28 @@
       </div>
 
       <!-- Center Section -->
-      <div class="flex-1 flex items-center justify-center px-1 mt-1 md:mt-0">
+      <div class="flex-1 flex items-center justify-center px-1">
         <smart-links class="text-sm w-full max-w-screen-md" />
       </div>
 
       <!-- Right Section -->
       <div
-        class="hidden md:flex md:flex-wrap items-center md:justify-end gap-2 overflow-x-auto"
+        class="flex flex-wrap items-center justify-end gap-2 overflow-x-auto"
       >
-        <div
-          class="flex-shrink-0 flex items-center justify-center min-w-[100px]"
-        >
+        <div class="flex-shrink-0 flex items-center justify-center">
           <butterfly-toggle class="text-sm" />
         </div>
 
-        <div
-          class="flex-shrink-0 flex items-center justify-center min-w-[100px]"
-        >
+        <div class="flex-shrink-0 flex items-center justify-center">
           <theme-toggle class="text-sm" />
         </div>
 
-        <div
-          class="flex-shrink-0 flex items-center justify-center min-w-[100px]"
-        >
+        <div class="flex-shrink-0 flex items-center justify-center">
           <login-button class="text-sm" />
         </div>
 
-        <div
-          class="flex-shrink-0 flex items-center justify-center min-w-[100px]"
-        >
-          <NavToggle class="text-sm" @toggle-nav="toggleNav" />
-        </div>
-      </div>
-
-      <!-- Small Screen Icons -->
-      <div
-        class="md:hidden fixed top-0 left-0 right-0 bg-primary flex justify-center items-center p-2 z-30"
-      >
-        <div class="flex space-x-2 overflow-x-auto">
-          <div
-            class="flex-shrink-0 flex items-center justify-center min-w-[50px]"
-          >
-            <butterfly-toggle class="text-sm" />
-          </div>
-          <div
-            class="flex-shrink-0 flex items-center justify-center min-w-[50px]"
-          >
-            <theme-toggle class="text-sm" />
-          </div>
-          <div
-            class="flex-shrink-0 flex items-center justify-center min-w-[50px]"
-          >
-            <login-button class="text-sm" />
-          </div>
-          <div
-            class="flex-shrink-0 flex items-center justify-center min-w-[50px]"
-          >
-            <NavToggle class="text-sm" @toggle-nav="toggleNav" />
-          </div>
+        <div class="flex-shrink-0 flex items-center justify-center">
+          <nav-toggle class="text-sm" @toggle-nav="toggleNav" />
         </div>
       </div>
     </header>

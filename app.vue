@@ -1,43 +1,38 @@
 <template>
   <div class="relative flex flex-col h-screen bg-secondary">
-    <div>
-      <!-- Header -->
-      <header-upgrade
-        v-if="toggleSidebar"
-        ref="headerRef"
-        class="w-full rounded-2xl bg-primary shadow-md z-40 p-1 relative"
-      >
-        <h1 class="text-white text-lg font-bold">Header</h1>
-
-        <!-- Collapsible Toggle Button -->
-        <div
-          class="absolute right-4 bottom-1 z-50"
-          @click="toggleSidebarFunction"
-        >
-          <button
-            v-if="!toggleSidebar"
-            class="bg-accent text-white p-2 rounded-full shadow-md z-50"
-          >
-            <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
-          </button>
-          <button
-            v-if="toggleSidebar"
-            class="bg-accent text-white p-2 rounded-full shadow-md z-50"
-          >
-            <span class="text-lg"><Icon name="fxemoji:eye" /></span>
-          </button>
-
-      </div></header-upgrade>        </div>
-    </div>
-
-    <!-- Main Content -->
-    <main
-      ref="mainContentRef"
-      class="flex-1 p-1 bg-secondary overflow-y-auto z-30"
+    <!-- Header -->
+    <header-upgrade
+      v-if="toggleSidebar"
+      ref="headerRef"
+      class="w-full rounded-2xl bg-primary shadow-md z-40 p-1 relative"
     >
-      <NuxtPage />
-    </main>
+    </header-upgrade>
+    <h1 class="text-white text-lg font-bold">Header</h1>
+
+    <!-- Collapsible Toggle Button -->
+    <div class="absolute right-4 bottom-1 z-50" @click="toggleSidebarFunction">
+      <button
+        v-if="!toggleSidebar"
+        class="bg-accent text-white p-2 rounded-full shadow-md z-50"
+      >
+        <span class="text-lg"><Icon name="nimbus:eye-off" /></span>
+      </button>
+      <button
+        v-if="toggleSidebar"
+        class="bg-accent text-white p-2 rounded-full shadow-md z-50"
+      >
+        <span class="text-lg"><Icon name="fxemoji:eye" /></span>
+      </button>
+    </div>
   </div>
+
+  <!-- Main Content -->
+  <main
+    ref="mainContentRef"
+    class="flex-1 p-1 bg-secondary overflow-y-auto z-30"
+  >
+    <NuxtPage />
+  </main>
 </template>
 
 <script setup lang="ts">

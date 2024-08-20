@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useErrorStore } from '@/stores/errorStore'
 import { useTagStore } from '@/stores/tagStore'
@@ -89,16 +89,6 @@ const toggleSidebarFunction = () => {
   toggleSidebar.value = !toggleSidebar.value
 }
 
-const handleClickOutside = (event: MouseEvent) => {
-  if (
-    headerRef.value &&
-    !headerRef.value.contains(event.target as Node) &&
-    mainContentRef.value &&
-    !mainContentRef.value.contains(event.target as Node)
-  ) {
-    toggleSidebar.value = false
-  }
-}
 onMounted(async () => {
   try {
     await botStore.loadStore()
@@ -117,14 +107,6 @@ onMounted(async () => {
       `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
-
-  // Add event listener for clicks outside
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  // Clean up event listener when component unmounts
-  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 

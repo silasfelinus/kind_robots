@@ -6,6 +6,12 @@
       ref="headerRef"
       class="w-full rounded-2xl bg-primary shadow-md z-40 p-1"
     ></header-upgrade>
+    <!-- Header -->
+    <header-upgrade
+      v-if="toggleSidebar"
+      ref="headerRef"
+      class="w-full rounded-2xl bg-primary shadow-md z-40 p-1"
+    ></header-upgrade>
 
     <!-- Collapsible Toggle Button -->
     <div :class="['absolute right-4 z-50', buttonPosition]">
@@ -88,43 +94,12 @@ const toggleSidebarFunction = () => {
   toggleSidebar.value = !toggleSidebar.value
 }
 
-const handleClickOutside = (event: MouseEvent) => {
-  if (
-    headerRef.value &&
-    !headerRef.value.contains(event.target as Node) &&
-    mainContentRef.value &&
-    !mainContentRef.value.contains(event.target as Node)
-  ) {
-    toggleSidebar.value = false
-  }
-}
-
-onMounted(async () => {
-  try {
-    await botStore.loadStore()
-    await userStore.initializeUser()
-    await artStore.init()
-    await tagStore.initializeTags()
-    await themeStore.initTheme()
-    await pitchStore.initializePitches()
-    await channelStore.initializeChannels()
-    await milestoneStore.initializeMilestones()
-    await layoutStore.initializeStore()
-    console.log('Initialization complete.')
-  } catch (error: unknown) {
-    errorStore.setError(
-      ErrorType.UNKNOWN_ERROR,
-      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
-    )
-  }
-
-  // Add event listener for clicks outside
-  document.addEventListener('click', handleClickOutside)
+onMounted(() => {
+  // Additional logic if necessary
 })
 
 onUnmounted(() => {
-  // Clean up event listener when component unmounts
-  document.removeEventListener('click', handleClickOutside)
+  // Cleanup if necessary
 })
 </script>
 

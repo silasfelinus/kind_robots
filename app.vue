@@ -87,6 +87,7 @@ const buttonPosition = computed(() => {
 
 const toggleSidebarFunction = () => {
   toggleSidebar.value = !toggleSidebar.value
+  console.log('Toggle Sidebar:', toggleSidebar.value) // Debug: Check the state change
 }
 
 onMounted(async () => {

@@ -1,13 +1,15 @@
 <template>
   <div class="relative flex flex-col h-screen bg-gray-100">
-    <header-upgrade
-      v-if="toggleSidebar"
-      class="w-full bg-primary shadow-md z-40 p-4"
-    >
-      <h1 class="text-white text-lg font-bold">Header</h1>
-    </header-upgrade>
+    <div>
+      <header-upgrade
+        v-if="toggleSidebar"
+        class="w-full bg-primary shadow-md z-40 p-1"
+      >
+        <h1 class="text-white text-lg font-bold">Header</h1>
+      </header-upgrade>
 
-    <!-- Collapsible Toggle -->
+      <!-- Collapsible Toggle -->
+    </div>
     <div
       class="fixed top-4 left-1/2 transform -translate-x-1/2 z-100"
       @click="toggleSidebarFunction"

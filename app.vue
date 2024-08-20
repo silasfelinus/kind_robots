@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import Icon from 'wherever-your-icon-component-is'  // Ensure you import your Icon component correctly
+
 
 // State management and other imports
 const toggleSidebar = ref(true)

@@ -32,7 +32,7 @@
         <div
           class="flex-shrink-0 flex items-center justify-right m-2 space-x-2"
         >
-          <theme-toggle class="text-sm" />
+          <theme-toggle class="text-sm z-50" />
         </div>
 
         <div class="flex-shrink-0 flex items-center justify-center">

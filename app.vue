@@ -7,7 +7,6 @@
       class="w-full rounded-2xl bg-primary shadow-md z-40 p-1 relative"
     >
     </header-upgrade>
-    <h1 class="text-white text-lg font-bold">Header</h1>
 
     <!-- Collapsible Toggle Button -->
     <div class="absolute right-4 bottom-1 z-50" @click="toggleSidebarFunction">

@@ -1,10 +1,10 @@
 <template>
-  <div class="relative flex flex-col h-screen bg-secondary">
+  <div class="relative flex flex-col h-screen bg-primary">
     <!-- Header -->
     <header-upgrade
       v-if="toggleSidebar"
       ref="headerRef"
-      class="w-full rounded-2xl bg-primary border-bg-accent shadow-md z-40 m-2 p-1"
+      class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
     ></header-upgrade>
     <!-- Header -->
 
@@ -23,7 +23,7 @@
     <!-- Main Content -->
     <main
       ref="mainContentRef"
-      class="flex-1 p-1 bg-secondary overflow-y-auto z-30"
+      class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
     >
       <NuxtPage />
     </main>

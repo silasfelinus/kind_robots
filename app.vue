@@ -33,7 +33,7 @@
     <!-- Main Content -->
     <main
       ref="mainContentRef"
-      class="flex-1 p-1 bg-secondary overflow-y-auto z-40"
+      class="flex-1 p-1 bg-secondary overflow-y-auto z-30"
     >
       <NuxtPage />
     </main>

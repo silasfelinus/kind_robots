@@ -11,8 +11,17 @@
       class="fixed top-4 left-1/2 transform -translate-x-1/2 z-100 md:hidden"
       @click="toggleSidebarFunction"
     >
-      <button class="bg-secondary text-white p-2 rounded-full shadow-md">
-        <span class="text-lg">☰</span>
+      <button
+        v-if="!toggleSidebar"
+        class="bg-secondary text-white p-2 rounded-full shadow-md"
+      >
+        <span class="text-lg">emojione-monotone:eye</span>
+      </button>
+      <button
+        v-if="toggleSidebar"
+        class="bg-secondary text-white p-2 rounded-full shadow-md"
+      >
+        <span class="text-lg">fxemoji:eye</span>
       </button>
     </div>
 

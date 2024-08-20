@@ -51,7 +51,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, nextTick } from 'vue'
-import { useUserStore } from '@/stores/userStore' // Ensure to import your stores correctly
+import { useUserStore } from './../../../stores/userStore' // Ensure to import your stores correctly
 
 const { page } = useContent()
 const avatarSize = ref('small')

@@ -40,7 +40,7 @@ const fxStore = useScreenStore()
 
 const toggleAmiSwarm = () => fxStore.toggleAmiSwarm()
 
-const butterflyCount = 99
+const butterflyCount = 15
 </script>
 
 <style>

@@ -60,9 +60,8 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { computed } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useContentStore } from '../../../stores/contentStore'
 
 const { prev, next, page } = useContent()
@@ -81,18 +80,25 @@ const randomHighlightPage = computed(
     ] || {},
 )
 
-const randomLinkTexts = ['Randomizer', 'Teleport!', 'Something else']
-const homeLinkTexts = [
-  'HomeScreen',
-  'Take me home...',
-  'Home',
-  'Visual Contents',
-]
+// Use ref for reactive properties that will be set on the client-side
+const randomLinkText = ref('Loading...')
+const homeLinkText = ref('Home...')
 
-const randomLinkText =
-  randomLinkTexts[Math.floor(Math.random() * randomLinkTexts.length)]
-const homeLinkText =
-  homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.length)]
+onMounted(() => {
+  const randomLinkTexts = ['Randomizer', 'Teleport!', 'Something else']
+  const homeLinkTexts = [
+    'HomeScreen',
+    'Take me home...',
+    'Home',
+    'Visual Contents',
+  ]
+
+  // Set randomized text only on client-side
+  randomLinkText.value =
+    randomLinkTexts[Math.floor(Math.random() * randomLinkTexts.length)]
+  homeLinkText.value =
+    homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.length)]
+})
 </script>
 
 <style scoped>

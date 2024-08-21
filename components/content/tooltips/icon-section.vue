@@ -11,7 +11,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, defineProps } from 'vue'
+import { computed } from 'vue'
 
 // Import or define the Icon interface here
 interface Icon {

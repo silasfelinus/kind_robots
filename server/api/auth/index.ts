@@ -132,47 +132,39 @@ export async function createUserWithAuth(
   email?: string | null,
 ) {
   try {
-    // Check for username uniqueness
     if (await userExists(username, 'username')) {
-      return { success: false, message: 'Username already exists.' }
+      throw new Error('Username already exists.');
     }
 
-    // Check for email uniqueness
-    if (email) {
-      const existingUserWithEmail = await prisma.user.findUnique({
-        where: { email }, // Prisma should now recognize email as a unique field
-      })
-      if (existingUserWithEmail) {
-        return { success: false, message: 'Email already exists.' }
-      }
+    if (email && await prisma.user.findUnique({ where: { email } })) {
+      throw new Error('Email already exists.');
     }
 
-    // Validate and hash the password
-    const passwordValidation = validatePassword(password)
-    if (!passwordValidation.isValid) {
-      return { success: false, message: passwordValidation.message }
+    const { isValid, message } = validatePassword(password);
+    if (!isValid) {
+      throw new Error(message);
     }
 
-    const hashedPassword = await hashPassword(password)
-    const apiKey = generateApiKey()
-
-    // Create the new user
+    const hashedPassword = await hashPassword(password);
+    const apiKey = generateApiKey();
     const newUser = await prisma.user.create({
       data: {
         username,
         email: email ?? undefined,
         password: hashedPassword,
         apiKey,
-        Role: 'USER', // Default role
+        Role: 'USER',
         createdAt: new Date(),
       },
-    })
+    });
 
-    return { success: true, user: newUser }
-  } catch (error: unknown) {
-    return { success: false, message: errorHandler(error).message }
+    return { success: true, user: newUser };
+  } catch (error) {
+    console.error(`Error in createUserWithAuth: ${error.message}`);
+    return { success: false, message: error.message };
   }
 }
+
 
 export async function validateUserCredentials(
   username: string,

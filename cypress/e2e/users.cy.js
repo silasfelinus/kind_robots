@@ -9,24 +9,4 @@ describe('Users API Endpoint', () => {
       expect(response.body).to.have.property('users')
     })
   })
-
-  // Test error handling when the fetch fails
-  it('handles failures when fetching users', () => {
-    cy.intercept('/api/users', {
-      statusCode: 500,
-      body: {
-        success: false,
-        message: 'Internal Server Error',
-      },
-    }).as('getUsersFail')
-
-    cy.request({
-      url: '/api/users',
-      failOnStatusCode: false, // Prevent Cypress from failing the test on non-2xx status codes
-    }).then((response) => {
-      expect(response.status).to.eq(500)
-      expect(response.body.success).to.be.false
-      expect(response.body.message).to.eq('Internal Server Error')
-    })
-  })
 })

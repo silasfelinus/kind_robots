@@ -6,7 +6,12 @@ import { userExists } from '../users'
 import prisma from '../utils/prisma'
 import type { User } from '@prisma/client'
 
-const { JWT_SECRET } = useRuntimeConfig();
+const config = useRuntimeConfig();
+const JWT_SECRET = config.private.JWT_SECRET
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is not configured.");
+}
 
 if (typeof JWT_SECRET !== 'string' || !JWT_SECRET) {
   throw new Error('JWT_SECRET is not configured or is not a string.');

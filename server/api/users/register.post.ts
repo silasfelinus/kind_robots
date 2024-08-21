@@ -45,9 +45,10 @@ export default defineEventHandler(async (event) => {
         : '🌌 An unexpected cosmic event occurred. Please try forging your star again.',
     );
   } catch (error: unknown) {
-    // If a cosmic storm (error) occurs, we navigate safely with our error handler
-    console.error('🌩️ Cosmic storm encountered:', error.message);
+
     const { message } = errorHandler(error);
+        // If a cosmic storm (error) occurs, we navigate safely with our error handler
+        console.error('🌩️ Cosmic storm encountered:', message);
     return { success: false, message: `🚀 Mission abort! ${message}` };
   }
 });

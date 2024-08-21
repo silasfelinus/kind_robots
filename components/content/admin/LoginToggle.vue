@@ -129,7 +129,7 @@ const errorStore = useErrorStore()
 const login = ref<string>('')
 const password = ref<string>('')
 const isVisible = ref<boolean>(false)
-const errorMessage = ref<string>('')
+const errorMessage = ref<string>('') // Ensuring errorMessage is always treated as string
 const stayLoggedIn = ref<boolean>(true)
 
 const isLoggedIn = computed(() => store.isLoggedIn)
@@ -145,21 +145,28 @@ const toggleVisibility = () => {
 }
 
 const handleLogin = async () => {
-  errorMessage.value = ''
+  errorMessage.value = '' // Clear any existing error message
   try {
-    const result = await store.login(login.value, password.value)
+    const result = await store.login({
+      username: login.value,
+      password: password.value,
+    }) // Adjusted to pass a single object
     if (result.success) {
       if (stayLoggedIn.value) {
         localStorage.setItem('user', JSON.stringify({ username: login.value }))
       }
     } else {
-      errorStore.setError(ErrorType.AUTH_ERROR, result.message)
-      errorMessage.value = result.message
+      errorStore.setError(
+        ErrorType.AUTH_ERROR,
+        result.message || 'Login failed. Please try again.',
+      )
+      errorMessage.value = result.message || 'Login failed. Please try again.' // Providing a fallback message
     }
   } catch (error: unknown) {
-    const errorMsg = error instanceof Error ? error.message : String(error)
+    const errorMsg =
+      error instanceof Error ? error.message : 'An unexpected error occurred'
     errorStore.setError(ErrorType.UNKNOWN_ERROR, errorMsg)
-    errorMessage.value = errorStore.message || 'An unexpected error occurred.'
+    errorMessage.value = errorStore.message || errorMsg // Handling potential undefined from errorStore.message
   }
 }
 

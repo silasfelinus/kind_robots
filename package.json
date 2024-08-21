@@ -35,6 +35,7 @@
     "@iconify-json/typcn": "^1.1.10",
     "@nuxt/icon": "^1.4.5",
     "@nuxtjs/tailwindcss": "^6.12.1",
+    "@types/bcrypt": "^5.0.2",
     "@unlok-co/nuxt-stripe": "^3.0.0",
     "cypress": "^13.13.2",
     "eslint": "^8.57.0",

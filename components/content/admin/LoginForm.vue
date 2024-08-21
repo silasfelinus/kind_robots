@@ -7,10 +7,9 @@
       <icon name="tabler:loader" class="animate-spin text-lg mb-2" />
       <div>Loading, please wait...</div>
     </div>
-
     <!-- Login Form -->
     <form
-      v-if="!isLoggedIn"
+      v-if="!store.isLoggedIn"
       class="space-y-4 w-full"
       :autocomplete="store.stayLoggedIn ? 'on' : 'off'"
       @submit.prevent="handleLogin"
@@ -64,77 +63,78 @@
         </button>
       </div>
       <div class="text-center mt-2">
-        <NuxtLink to="/register" class="text-accent underline">
-          Register
-        </NuxtLink>
+        <NuxtLink to="/register" class="text-accent underline"
+          >Register</NuxtLink
+        >
       </div>
     </form>
 
     <!-- Error Message -->
-    <div v-if="errorStore.message" class="text-warning mt-2 w-full text-center">
-      {{ errorStore.message }}
-      <div v-if="userNotFound" class="mt-2">
-        <NuxtLink to="/register" class="text-accent underline">
-          Register
-        </NuxtLink>
-        or
-        <button class="text-accent underline" @click="handleRetryLogin">
-          Try a different login
-        </button>
+    <div v-if="errorMessage" class="text-warning mt-2 w-full text-center">
+      {{ errorMessage }}
+      <div v-if="userNotFound">
+        <div class="mt-2">
+          <button class="text-accent underline">
+            <NuxtLink to="/register" class="text-accent underline"
+              >Register</NuxtLink
+            >
+          </button>
+          or
+          <button class="text-accent underline" @click="handleRetryLogin">
+            Try a different login
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { ref } from 'vue'
+import { useUserStore } from '@/stores/userStore'
+import { useErrorStore } from '@/stores/errorStore'
 
 const store = useUserStore()
-const errorStore = useErrorStore()
 const login = ref('')
 const password = ref('')
-const isLoggedIn = computed(() => store.isLoggedIn)
+const errorStore = useErrorStore()
+const errorMessage = ref('') // Assume this should be string | null initially
 
 const userNotFound = ref(false)
 
 const handleLogin = async () => {
-  errorStore.clearError() // Clear previous errors
+  errorMessage.value = '' // Ensures errorMessage is always a string
   userNotFound.value = false
-
   try {
-    const result = await store.login({
+    const credentials: { username: string; password?: string } = {
       username: login.value,
-      password: password.value || '',
-    })
-
-    if (result.success) {
-      if (store.stayLoggedIn) {
-        store.setStayLoggedIn(true)
-      }
+      password: password.value || undefined  // Explicitly handle undefined
+    }
+    const result = await store.login(credentials)
+    if (result.success && store.stayLoggedIn) {
+      store.setStayLoggedIn(true)
     } else {
-      errorStore.setError(
-        ErrorType.AUTH_ERROR,
-        result.message || 'Authentication failed',
-      )
-      if (result.message?.includes('User not found')) {
+      errorMessage.value = result.message || 'Login failed'  // Provide a fallback for undefined
+      if (result.message && result.message.includes('User not found')) {  // Check for non-null message
         userNotFound.value = true
       }
     }
   } catch (error: unknown) {
-    errorStore.setError(ErrorType.UNKNOWN_ERROR, error)
-    console.error('Failed to register:', errorStore.message)
+    if (error instanceof Error) {
+      errorStore.setError(ErrorType.AUTH_ERROR, error)
+      errorMessage.value = errorStore.message || 'An unexpected error occurred'  // Handle null
+    }
   }
 }
 
 const handleRetryLogin = () => {
   login.value = ''
   password.value = ''
-  errorStore.clearError()
+  errorMessage.value = ''  // Ensure this is reset to a string
   userNotFound.value = false
+  errorStore.clearError()
 }
 </script>
+
 
 <style scoped>
 .group:hover .float-tooltip {

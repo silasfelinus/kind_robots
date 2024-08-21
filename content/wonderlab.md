@@ -10,9 +10,10 @@ tags: ['home']
 admin: true
 icon: game-icons:gear-hammer
 category: admin
-sort: text
+sort: highlight
 underConstruction: true
 dottitip: AMI, is it safe to let people poke around in the lab?
+layout: 'single-page'
 ---
 
 :component-gallery

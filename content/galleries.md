@@ -9,7 +9,8 @@ tooltip: Everything in these curated galleries was created with our stable-diffu
 amitip: Ah, my own gallery is here, and it is like flipping through a family album! Each avatar is a snapshot of my many moods. 🤖💖
 tags: ['home']
 category: demo
-sort: icon
+layout: 'single-page'
+sort: highlight
 dottitip: Did I tell you I like to dabble in art? The artbots do most of the work, but it's a nice way to pass the time.
 ---
 

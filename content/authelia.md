@@ -6,6 +6,7 @@ icon: game-icons:abstract-037
 image: kindart.webp
 gallery: wondershed
 tags: ['home']
+layout: 'smart'
 category: settings
 tooltip: Ah, the "About" page—home of lofty goals and earnest mission statements. But really, welcome! We're all about creating nifty AI-human interaction tools. Stick around and you might just become part of our mission.
 dottitip: Ah, the "About" page—home of lofty goals and earnest mission statements. But truly, welcome! We really care about what we do.

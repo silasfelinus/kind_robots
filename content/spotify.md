@@ -8,9 +8,10 @@ tags: ['home']
 icon: ph:cassette-tape-fill
 tooltip: 'We are almost there! Our Spotify player is like that 1000-piece puzzle with just one piece missing. Bear with us as we find that last piece to complete the melody!'
 amitip: We're working on it, Once our Spotify is up and running, it will be like your personal DJ for creativity. Prepare your playlists!'
-sort: text
+sort: highlight
 underConstruction: true
 dottitip: Where is the music? I can't concentrate with Brainstorm screaming lists at all hours.
+layout: 'single-page'
 ---
 
 :music-toggle

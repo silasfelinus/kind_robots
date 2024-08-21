@@ -8,9 +8,10 @@ tags: ['home']
 icon: game-icons:vortex
 tooltip: Imagine a game with no game over, only endless story twists. Welcome to Weirdlandia, where every item you bring spices up the narrative in unpredictable ways.
 amitip: Oh, that sounds fun. I'll put together a page where they can choose items. We just need to plug the simulator back in!
-sort: text
+sort: highlight
 underConstruction: true
 dottitip: AMI, I have an idea! We let people pick an item, any item, then send them into the simulator and it'll generate a unique adventure.
+layout: 'single-page'
 ---
 
 :rewards-gallery

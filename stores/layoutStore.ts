@@ -1,14 +1,16 @@
 import { defineStore } from 'pinia'
 
 // Define the possible layout keys
-export type LayoutKey = 'default' | 'defaultOld' | 'GridLayout' | 'dashboard'
+export type LayoutKey = 'default' | 'default-old' | 'single-page' | 'dashboard' | 'smart' | 'vertical-scroll'
 
 // Array of allowed layout keys for validation
 export const allowedLayouts: LayoutKey[] = [
   'default',
-  'defaultOld',
-  'GridLayout',
+  'default-old',
+  'single-page',
   'dashboard',
+  'smart',
+  'vertical-scroll'
 ]
 
 // Function to get the layout from local storage and validate it

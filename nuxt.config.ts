@@ -10,13 +10,6 @@ export default defineNuxtConfig({
   ],
 
   // Vite configuration, specifically aliasing
-  vite: {
-    resolve: {
-      alias: {
-        '@': '.', // Alias '@' to the project root directory
-      },
-    },
-  },
   srcDir: '.',
 
   pinia: {

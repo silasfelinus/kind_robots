@@ -17,13 +17,11 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import { useBotStore } from './../../../stores/botStore'
 
 const { page } = useContent()
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)
-const route = useRoute()
 
 // Manage flipping state
 const flipped = ref(false)
@@ -32,16 +30,14 @@ watch(currentBot, () => {
 })
 
 const selectImage = computed(() => {
-  if (route.path === '/botcafe' && currentBot.value) {
+  if (page.value.title === 'Bot Cafe' && currentBot.value) {
     return currentBot.value.avatarImage
   }
 
-  // Check if page.image exists and is not null or undefined
   if (page.value && page.value.image) {
     return '/images/' + page.value.image
   }
 
-  // Default image if nothing matches
   return '/images/botcafe.webp'
 })
 </script>
@@ -49,8 +45,9 @@ const selectImage = computed(() => {
 <style scoped>
 .flip-card {
   perspective: 1000px;
-  width: 100px;
-  height: 100px;
+  width: 100%; /* Use 100% to fill the container or set to a responsive width */
+  max-width: 100px; /* Maximum width can be set to limit size */
+  aspect-ratio: 1; /* Maintains square aspect ratio */
 }
 
 .flip-card-inner {
@@ -76,7 +73,7 @@ const selectImage = computed(() => {
 .avatar-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* Ensures image covers the area without distortion */
   object-position: center;
 }
 

@@ -31,7 +31,7 @@
       >
         <butterfly-toggle class="text-sm z-40 hidden sm:block" />
         <theme-toggle class="text-sm z-50 hidden sm:block" />
-        <login-button class="text-sm z-40" />
+        <login-button />
         <nav-toggle class="text-sm z-40" @toggle-nav="toggleNav" />
       </div>
     </header>

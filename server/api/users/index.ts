@@ -1,3 +1,4 @@
+//server/api/users/index.ts
 import type { Prisma, User } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'

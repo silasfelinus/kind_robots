@@ -18,7 +18,9 @@
     "prisma:migrate": "npx prisma migrate deploy",
     "prisma:migrate:dev": "npx prisma migrate dev",
     "postinstall": "npm run prisma:generate && nuxt prepare",
-    "backup": "ts-node server/utils/backupDatabase.ts"
+    "backup": "ts-node server/utils/backupDatabase.ts",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "devDependencies": {
     "@iconify-json/bi": "^1.1.24",

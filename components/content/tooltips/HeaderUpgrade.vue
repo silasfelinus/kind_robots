@@ -2,10 +2,10 @@
   <div class="relative">
     <!-- Header -->
     <header
-      class="z-50 flex flex-col md:flex-row items-center overflow-x-hidden"
+      class="z-50 flex flex-col md:flex-row items-center overflow-x-visible"
     >
       <!-- Left Section -->
-      <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
+      <div class="flex items-center space-x-2 flex-shrink-0 w-full">
         <avatar-image
           :size="avatarSize"
           class="w-12 h-12 md:w-16 md:h-16 rounded-full"

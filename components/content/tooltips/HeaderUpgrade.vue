@@ -94,7 +94,7 @@ const toggleNav = () => {
 </script>
 
 <style scoped>
-.flip-card {
+.avatar-image {
   perspective: 1000px;
   width: 100%;
   max-width: 100px; /* Adjusted to fit within the header */

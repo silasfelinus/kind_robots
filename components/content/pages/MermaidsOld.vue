@@ -8,7 +8,7 @@
           {{ title }}
         </h1>
         <h2 class="text-2xl font-semibold">
-          {{ subtitle }}
+          {{ subtitleRef }}
         </h2>
         <a :href="amazonLink" class="btn btn-primary block w-max mx-auto mb-8"
           >Amazon link</a
@@ -130,7 +130,7 @@
 import { ref } from 'vue'
 
 const title = ref('Mermaids of Venice')
-const subtitle = ref('A subversive fairy tale of gods and street performers.')
+const subtitleRef = ref('A subversive fairy tale of gods and street performers.')
 const image = ref('/images/utility/mermaids/mermaids1.jpg')
 const amazonLink = ref(
   'https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742',

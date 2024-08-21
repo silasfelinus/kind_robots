@@ -133,6 +133,7 @@ const isVisible = ref(false)
 const isLoggedIn = computed(() => store.isLoggedIn)
 const stayLoggedIn = ref(true)
 const errorMessage = ref<string | null>(null)
+const userNotFound = ref(false)
 
 const welcomeMessage = computed(() => {
   return isLoggedIn.value
@@ -145,26 +146,23 @@ const toggleVisibility = () => {
 }
 
 const handleLogin = async () => {
-  errorStore.clearError() // Clear previous errors
-
+  errorMessage.value = ''
+  userNotFound.value = false
   try {
-    const result = await errorStore.handleError(
-      () => store.login(login.value, password.value), // Ensure both arguments are provided
-      ErrorType.AUTH_ERROR,
-      'Failed to login. Please try again.',
-    )
-
+    const credentials = {
+      username: login.value,
+      password: password.value || undefined,
+    }
+    const result = await store.login(credentials)
     if (result.success) {
-      if (stayLoggedIn.value) {
-        localStorage.setItem('user', JSON.stringify({ username: login.value }))
-      }
+      store.setStayLoggedIn(store.stayLoggedIn)
     } else {
-      errorStore.setError(ErrorType.AUTH_ERROR, result.message)
-      errorMessage.value = result.message
+      errorMessage.value = result.message || 'Login failed'
+      userNotFound.value = result.message?.includes('User not found') || false
     }
   } catch (error) {
-    errorMessage.value = 'An error occurred during login.'
-    console.error(error) // Optionally log the error for debugging
+    errorStore.setError(ErrorType.AUTH_ERROR, error)
+    errorMessage.value = errorStore.message || 'An unexpected error occurred'
   }
 }
 

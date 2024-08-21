@@ -20,8 +20,8 @@ export async function fetchCartItems(cartId: number): Promise<CartItem[]> {
     return await prisma.cartItem.findMany({
       where: {
         cartId: {
-          equals: cartId // Correctly filter by cartId
-        }
+          equals: cartId, // Correctly filter by cartId
+        },
       },
     })
   } catch (error: unknown) {

@@ -16,8 +16,9 @@ export default defineEventHandler(async () => {
     const usernames = response.users.map((user) => user.username);
     return { success: true, usernames };
   } catch (error: unknown) {
-    console.error('Failed to fetch users:', error.message); // Log the error message for debugging
     const { message } = errorHandler(error);
+    console.error('Failed to fetch users:', message); // Log the error message for debugging
+
     return { success: false, message: `Failed to fetch users. Reason: ${message}` };
   }
 });
@@ -33,7 +34,8 @@ export async function fetchUsernameById(id: number): Promise<Partial<User> | nul
       },
     });
   } catch (error: unknown) {
-    console.error(`Failed to fetch user by ID: ${error.message}`);
+    const { message } = errorHandler(error);
+    console.error(`Failed to fetch user by ID: ${message}`);
     throw new Error(errorHandler(error).message);
   }
 }

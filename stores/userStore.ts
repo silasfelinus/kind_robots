@@ -5,7 +5,7 @@ import { useMilestoneStore } from './milestoneStore'
 
 interface UserState {
   user: User | null
-  token: string
+  token?: string
   apiKey: string | null
   loading: boolean
   lastError: string | null

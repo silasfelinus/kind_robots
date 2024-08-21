@@ -20,19 +20,14 @@ if (typeof JWT_SECRET !== 'string' || !JWT_SECRET) {
 // Define the return type directly in the function signature
 export const verifyJwtToken = async (
   token: string,
-): Promise<{
-  success: boolean;
-  userId?: number | null;
-  message?: string;
-  statusCode?: number;
-}> => {
+): Promise<{ success: boolean; userId?: number | null; message?: string; statusCode?: number }> => {
   try {
-    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET));
+    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET as string, 'utf-8'));
     const decoded = await jwtVerify(token, secretKey);
     console.log('Decoded Object:', decoded); // Debug log here
 
     return { success: true, userId: decoded.payload.id as number | null };
-  } catch (error) {
+  } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error);
     return {
       success: false,
@@ -40,7 +35,7 @@ export const verifyJwtToken = async (
       statusCode: statusCode ?? 403,
     };
   }
-}
+};
 export const getUserDataByToken = async (token: string) => {
   try {
     const { success, userId } = await verifyJwtToken(token)

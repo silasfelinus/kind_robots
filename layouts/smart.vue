@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-smart">
+  <div class="flex flex-nowrap overflow-x-auto">
     <slot />
   </div>
 </template>
@@ -15,12 +15,3 @@ onMounted(() => {
   columns.value = Math.floor(containerWidth / columnWidth)
 })
 </script>
-
-<style scoped>
-.layout-smart {
-  @apply flex flex-nowrap overflow-x-auto max-w-screen;
-}
-.layout-smart > * {
-  @apply flex-none w-[300px]; /* Sets fixed width for each column */
-}
-</style>

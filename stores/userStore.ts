@@ -81,6 +81,7 @@ export const useUserStore = defineStore({
 
   actions: {
     initializeUser() {
+      console.log ("initializing user")
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
 
@@ -90,10 +91,15 @@ export const useUserStore = defineStore({
       }
 
       if (stayLoggedIn && storedToken) {
+        console.log ('token found')
         this.fetchUserDataByToken(storedToken)
       }
     },
     async fetchUserDataByToken(token: string): Promise<void> {
+      console.log("Verifying token:", token);
+      if (!token) {
+        throw new Error('Token is required for token validation.');
+    }
       try {
         const response = await this.apiCall('/api/auth/validate', 'POST', {
           type: 'token',

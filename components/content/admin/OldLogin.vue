@@ -120,6 +120,7 @@ const password = ref('')
 const savePassword = ref(true)
 const isVisible = ref(true)
 const errorMessage = ref('')
+const userNotFound = ref(false)
 const isLoggedIn = ref(
   store.username !== null && store.username !== 'Kind Guest',
 )
@@ -131,17 +132,22 @@ const toggleVisibility = () => {
 
 const handleLogin = async () => {
   errorMessage.value = ''
+  userNotFound.value = false
   try {
-    // Ensure both arguments are provided
-    const result = await store.login(login.value, password.value)
+    const credentials = {
+      username: login.value,
+      password: password.value || undefined,
+    }
+    const result = await store.login(credentials)
     if (result.success) {
-      isLoggedIn.value = true
+      store.setStayLoggedIn(store.stayLoggedIn)
     } else {
-      errorMessage.value = result.message
+      errorMessage.value = result.message || 'Login failed'
+      userNotFound.value = result.message?.includes('User not found') || false
     }
   } catch (error) {
     errorStore.setError(ErrorType.AUTH_ERROR, error)
-    errorMessage.value = errorStore.message || 'An unexpected error occurred.'
+    errorMessage.value = errorStore.message || 'An unexpected error occurred'
   }
 }
 

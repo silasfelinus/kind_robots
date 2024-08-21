@@ -5,3 +5,5 @@ dist/
 .env
 cypress/*
 spec*
+cypress/
+cypress/e2e/

@@ -11,8 +11,10 @@
           :size="avatarSize"
           class="w-12 h-12 md:w-16 md:h-16 rounded-full"
         />
-        <div class="flex flex-col text-left overflow-visible">
-          <room-title class="text-sm w-12 h-12 md:w-16 md:h-16 font-semibold" />
+        <div
+          class="flex items-center space-x-2 flex-shrink-0 min-w-0 md:flex-1"
+        >
+          <room-title class="w-6 h-6 md:w-8 md:h-8 rounded-full" />
           <h2 class="text-xs text-gray-500 italic">
             {{ page.subtitle || 'the kindest' }}
           </h2>

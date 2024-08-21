@@ -9,9 +9,9 @@
   },
   "api": {
     "type": "openapi",
-    "url": "https://kindrobots.org/openapi.yaml"
+    "url": "https://kind-robots.vercel.app/openapi.yaml"
   },
-  "logo_url": "https://kindrobots.org/logo.png",
+  "logo_url": "https://kind-robots.vercel.app/logo.png",
   "contact_email": "legalbot@kindrobots.org",
-  "legal_info_url": "https://kindrobots.org/legal"
+  "legal_info_url": "https://kind-robots.vercel.app/legal"
 }

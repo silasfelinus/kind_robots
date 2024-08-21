@@ -8,6 +8,6 @@ describe('Dev Site Active', () => {
 
 describe('kindrobots.org  Active', () => {
   it('passes', () => {
-    cy.visit('https://kindrobots.org/')
+    cy.visit('https://kind-robots.vercel.app/')
   })
 })

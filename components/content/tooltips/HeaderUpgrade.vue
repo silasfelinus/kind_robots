@@ -51,41 +51,37 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useUserStore } from './../../../stores/userStore' // Correct import path
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { useUserStore } from './../../../stores/userStore'
 
 const { page } = useContent()
 const avatarSize = ref('small')
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)
 
-// Define isMobile as a ref outside any function
-const isMobile = ref(window.innerWidth < 768)
+// Initialize isMobile with a default fallback
+const isMobile = ref(false)
+const headerHeight = ref(0)
+const headerRef = ref<HTMLElement | null>(null)
 
-// Adding headerHeight ref
-const headerHeight = ref(0) // Initialize headerHeight
-
-const headerRef = ref<HTMLElement | null>(null) // Reference to the header element
-
+// Define a function to handle resize
 function handleResize() {
   isMobile.value = window.innerWidth < 768
-  // Update headerHeight based on the actual element height if available
   if (headerRef.value) {
     headerHeight.value = headerRef.value.clientHeight
   }
 }
 
 onMounted(() => {
-  nextTick().then(() => {
-    // Setup headerHeight and add resize listener once mounted
-    handleResize()
-  })
+  // Correctly initialize isMobile based on the client's window size
+  handleResize() // Call it to set initial state based on current window size
 
+  // Set up the resize listener once the component is mounted to ensure window is available
   window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  // Clean up the listener on component unmount
+  // Ensure to clean up the event listener when the component unmounts
   window.removeEventListener('resize', handleResize)
 })
 

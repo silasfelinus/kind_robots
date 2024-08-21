@@ -10,12 +10,21 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineProps } from 'vue'
 
-const props = defineProps({
-  icons: Array,
+// Import or define the Icon interface here
+interface Icon {
+  component: string | object // Adjust this as needed based on your component structure
+  props: Record<string, unknown>
+}
+
+// Define props with type annotation
+const { icons } = defineProps({
+  icons: {
+    type: Array as PropType<Icon[]>,
+    default: () => [],
+  },
 })
 
 const sectionClass = computed(() => ({
@@ -27,9 +36,3 @@ const iconSize = computed(() => ({
   'min-w-[100px] md:min-w-[50px]': true,
 }))
 </script>
-
-<style scoped>
-.flex-shrink-0 {
-  min-width: 50px;
-}
-</style>

@@ -5,34 +5,36 @@
       <div v-if="isLoggedIn">
         <div class="hidden lg:inline">Salutations,</div>
         {{ username }}!
-        <button
-          class="bg-danger px-2 rounded-lg text-white text-sm"
-          @click="logout"
-        >
-          Logout
+        <button class="b p-2 rounded-lg text-white text-sm" @click="logout">
+          logout
         </button>
       </div>
       <div v-else>
         <button
-          class="bg-primary px-2 rounded-lg text-white text-lg"
-          @click="toggleLogin"
+          class="bg-primary p-2 rounded-lg text-white text-lg"
+          @click="showLogin = true"
         >
           Login
         </button>
       </div>
     </div>
   </div>
-  <login-form v-if="showLogin" @close="handleClose" />
+  <login-form v-if="showLogin" @close="showLogin = false" />
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue'
+import { computed } from 'vue'
+import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
-const errorStore = useErrorStore()
+const user = computed(() => userStore.user)
 const isLoggedIn = computed(() => userStore.isLoggedIn)
-const username = computed(() => userStore.user?.username || 'Kind Guest')
+const isLoading = ref(false)
+const errorMessage = ref('')
+
 const showLogin = ref(false)
+
+const username = computed(() => user.value?.username || 'Kind Guest')
 
 watch(isLoggedIn, (newValue) => {
   if (newValue) {
@@ -40,24 +42,14 @@ watch(isLoggedIn, (newValue) => {
   }
 })
 
-const toggleLogin = () => {
-  showLogin.value = !showLogin.value
-}
-
 const logout = async () => {
-  errorStore.clearError() // Clear previous errors
   try {
-    await errorStore.handleError(
-      async () => userStore.logout(),
-      ErrorType.AUTH_ERROR,
-      'Failed to logout. Please try again.',
-    )
+    isLoading.value = true
+    await userStore.logout()
   } catch {
-    // No additional action needed, errorStore will manage the error
+    errorMessage.value = 'Failed to logout. Please try again.'
+  } finally {
+    isLoading.value = false
   }
-}
-
-const handleClose = () => {
-  showLogin.value = false
 }
 </script>

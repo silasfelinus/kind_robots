@@ -1,46 +1,33 @@
 <template>
   <div class="flex items-center h-36 w-36 z-50">
     <!-- Welcome Message -->
-    <div
-      class="flex flex-col items-start cursor-pointer"
-      @click="toggleVisibility"
-    >
+    <div class="flex items-center cursor-pointer" @click="toggleVisibility">
       <img
         v-if="store.avatarImage"
         :src="store.avatarImage"
-        class="w-8 h-8 rounded-full mb-2"
+        class="w-8 h-8 rounded-full mr-2"
         alt="Avatar"
       />
-      <span class="text-base-200 text-lg mb-1">{{ welcomeMessage }}</span>
-      <NuxtLink
-        v-if="isLoggedIn"
-        to="/dashboard"
-        class="text-accent underline text-sm"
-      >
-        Dashboard
-      </NuxtLink>
+      <icon name="tabler:home" class="text-base-200 text-2xl" />
+      <span class="ml-2 text-base-200">{{ welcomeMessage }}</span>
       <NuxtLink
         v-if="isLoggedIn && store.role === 'admin'"
         to="/admin"
-        class="text-accent underline text-sm mt-1"
+        class="ml-2 text-accent underline"
+        >Admin</NuxtLink
       >
-        Admin
-      </NuxtLink>
-    </div>
-
-    <!-- Icon to Toggle Login -->
-    <div class="ml-4">
-      <icon
-        name="tabler:user"
-        class="text-base-200 text-2xl cursor-pointer"
-        @click="toggleVisibility"
-      />
+      <NuxtLink
+        v-if="isLoggedIn"
+        to="/dashboard"
+        class="ml-2 text-accent underline"
+        >Dashboard</NuxtLink
+      >
     </div>
 
     <!-- Login Dropdown -->
     <div
-      v-if="isVisible"
-      class="flex flex-col items-center bg-base-200 p-4 rounded-2xl shadow-lg transition-all duration-300 absolute top-36 left-0"
+      v-if="isVisible && !isLoggedIn"
+      class="flex flex-col items-center bg-base-200 p-4 rounded-2xl shadow-lg transition-all duration-300"
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
@@ -54,13 +41,14 @@
           <span class="text-lg font-semibold"
             >Hello, {{ store.username }} 🎉</span
           >
+
+          <button
+            class="bg-warning text-default py-1 px-3 rounded"
+            @click="handleLogout"
+          >
+            Logout
+          </button>
         </div>
-        <button
-          class="bg-warning text-default py-1 px-3 rounded"
-          @click="handleLogout"
-        >
-          Logout
-        </button>
       </div>
 
       <!-- Login Form -->
@@ -70,7 +58,7 @@
         :autocomplete="stayLoggedIn ? 'on' : 'off'"
         @submit.prevent="handleLogin"
       >
-        <div>
+        <div class="mb-2 relative group">
           <label for="login" class="block text-sm mb-1">Login:</label>
           <input
             id="login"
@@ -80,8 +68,13 @@
             class="w-full p-2 border rounded"
             required
           />
+          <div
+            class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
+          >
+            Login
+          </div>
         </div>
-        <div>
+        <div class="mb-2 relative group">
           <label for="password" class="block text-sm mb-1">Password:</label>
           <input
             id="password"
@@ -91,6 +84,11 @@
             class="w-full p-2 border rounded"
             required
           />
+          <div
+            class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
+          >
+            Password
+          </div>
         </div>
 
         <div class="flex items-center justify-between">
@@ -108,9 +106,9 @@
           </button>
         </div>
         <div class="text-center mt-2">
-          <NuxtLink to="/register" class="text-accent underline">
-            Register
-          </NuxtLink>
+          <NuxtLink to="/register" class="text-accent underline"
+            >Register</NuxtLink
+          >
         </div>
       </form>
 
@@ -124,18 +122,18 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
-import { useErrorStore } from './../../../stores/errorStore'
+import { useUserStore } from '@/stores/userStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const store = useUserStore()
 const errorStore = useErrorStore()
 const login = ref('')
 const password = ref('')
 const isVisible = ref(false)
-const stayLoggedIn = ref(true)
-const errorMessage = ref<string | null>(null)
-
+const errorMessage = ref('')
 const isLoggedIn = computed(() => store.isLoggedIn)
+const stayLoggedIn = ref(true)
+
 const welcomeMessage = computed(() => {
   return isLoggedIn.value
     ? `Hello, ${store.username} 🎉`
@@ -147,30 +145,31 @@ const toggleVisibility = () => {
 }
 
 const handleLogin = async () => {
-  errorStore.clearError() // Clear previous errors
-
-  const result = await store.login(login.value, password.value)
-
-  if (result.success) {
-    if (stayLoggedIn.value) {
-      localStorage.setItem('user', JSON.stringify({ username: login.value }))
-      localStorage.setItem('stayLoggedIn', 'true')
+  errorMessage.value = '' // Clear error message at the beginning of the login attempt
+  try {
+    const result = await store.login({
+      username: login.value,
+      password: password.value,
+    })
+    if (result.success) {
+      isVisible.value = false // Optionally close the login form on successful login
+      if (stayLoggedIn.value) {
+        localStorage.setItem('user', JSON.stringify({ username: login.value }))
+      }
+    } else {
+      errorMessage.value = result.message || 'Login failed. Please try again.' // Provide fallback message
     }
-  } else {
-    errorMessage.value = result.message
+  } catch (error: unknown) {
+    errorStore.setError(ErrorType.AUTH_ERROR, error)
+    errorMessage.value = errorStore.message || 'An unexpected error occurred' // Handle null from errorStore
   }
 }
 
-const handleLogout = async () => {
-  errorStore.clearError() // Clear previous errors
-
-  try {
-    await store.logout()
+const handleLogout = () => {
+  store.logout()
+  isVisible.value = false // Optionally close the login form on logout
+  if (!stayLoggedIn.value) {
     localStorage.removeItem('user')
-    localStorage.removeItem('stayLoggedIn')
-  } catch (error) {
-    errorMessage.value = 'An error occurred during logout.'
-    console.error(error) // Optionally log the error for debugging
   }
 }
 
@@ -179,10 +178,45 @@ onMounted(() => {
   if (storedUser && storedUser.username !== 'Kind Guest') {
     store.setUser(storedUser)
   }
-  store.initializeUser() // Ensure user state is initialized
 })
 </script>
 
 <style scoped>
-/* Your styles */
+.group:hover .float-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.text-base-200 {
+  font-size: 1.25rem;
+}
+
+/* Adding some stylish upgrades */
+.bg-base-200 {
+  transition: background-color 0.3s ease;
+}
+
+.bg-base-200:hover {
+  background-color: var(--bg-base-300);
+}
+
+.text-accent {
+  transition: color 0.3s ease;
+}
+
+.text-accent:hover {
+  color: var(--text-accent-hover);
+}
+
+/* Styling for the buttons */
+button {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--bg-button-hover);
+  color: var(--text-button-hover);
+}
 </style>

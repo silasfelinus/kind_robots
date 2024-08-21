@@ -5,6 +5,7 @@ import { errorHandler } from '../utils/error'
 import { userExists } from '../users'
 import prisma from '../utils/prisma'
 import type { User } from '@prisma/client'
+import { useRuntimeConfig } from '#imports';
 
 const config = useRuntimeConfig();
 const JWT_SECRET = config.JWT_SECRET

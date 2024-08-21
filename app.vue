@@ -85,7 +85,9 @@ const toggleSidebarFunction = () => {
 onMounted(async () => {
   try {
     await botStore.loadStore()
+    console.log('loading user')
     await userStore.initializeUser()
+    console.log('user loaded')
     await artStore.init()
     await tagStore.initializeTags()
     await themeStore.initTheme()

@@ -30,12 +30,12 @@ watch(currentBot, () => {
 })
 
 const selectImage = computed(() => {
-  if (page.value.title === 'Bot Cafe' && currentBot.value) {
+  if (page.value?.title === 'Bot Cafe' && currentBot.value?.avatarImage) {
     return currentBot.value.avatarImage
   }
 
-  if (page.value && page.value.image) {
-    return '/images/' + page.value.image
+  if (page.value?.image) {
+    return `/images/${page.value.image}`
   }
 
   return '/images/botcafe.webp'

@@ -8,9 +8,10 @@ tooltip: This tool is like LEGO for web designers. Currently in sandbox mode, bu
 amitip: People like boxes! They'd like it more if you let them decorate a user badge or something, but I know how busy you get. 🧪🎨
 tags: ['home']
 admin: true
+layout: 'single-page'
 icon: game-icons:archive-register
 category: admin
-sort: text
+sort: highlight
 underConstruction: true
 dottitip: Hey AMI, I built a bunch of smart boxes. They change shape and size and remember your choices. Do you think our lab visitors would, I dunno, like to play with them?
 ---

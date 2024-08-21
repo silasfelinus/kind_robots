@@ -6,6 +6,7 @@ image: 'acrocats/acrocats-24.webp'
 gallery: 'memoryland'
 tags: ['games', 'art', 'AI']
 icon: icon-park-solid:key-two
+layout: 'single-page'
 tooltip: This uses AI art created with our art modelers.
 amitip: 🤖 These pictures are so pretty!
 category: games

@@ -2,15 +2,16 @@
   <div class="relative">
     <!-- Header -->
     <header
-      class="z-50 flex flex-col md:flex-row items-center overflow-x-visible"
+      ref="headerRef"
+      class="z-50 flex flex-col md:flex-row items-center justify-between overflow-x-visible max-w-full"
     >
       <!-- Left Section -->
-      <div class="flex items-center space-x-2 flex-shrink-0 w-full">
+      <div class="flex items-center space-x-2 flex-shrink-0 min-w-0 md:flex-1">
         <avatar-image
           :size="avatarSize"
           class="w-12 h-12 md:w-16 md:h-16 rounded-full"
         />
-        <div class="flex flex-col text-left">
+        <div class="flex flex-col text-left overflow-visible">
           <room-title class="text-sm font-semibold" />
           <h2 class="text-xs text-gray-500 italic">
             {{ page.subtitle || 'the kindest' }}
@@ -19,13 +20,13 @@
       </div>
 
       <!-- Center Section -->
-      <div class="flex-1 flex items-center justify-center px-1">
+      <div class="flex-1 flex items-center justify-center px-1 min-w-0">
         <smart-links class="text-sm w-full max-w-screen-md z-30" />
       </div>
 
       <!-- Right Section -->
       <div
-        class="flex items-center justify-end gap-2 overflow-hidden w-full md:w-auto"
+        class="flex items-center justify-end gap-2 overflow-visible min-w-0 md:flex-1"
         :class="{ 'flex-wrap': isMobile }"
       >
         <butterfly-toggle class="text-sm z-40 hidden sm:block" />
@@ -44,7 +45,7 @@
     <!-- Navigation -->
     <navigation-trimmed
       v-if="showNav"
-      class="relative bottom-0 bg-secondary shadow-lg transition-transform duration-300 z-20"
+      class="absolute bottom-0 bg-secondary shadow-lg transition-transform duration-300 z-20"
       :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
   </div>
@@ -91,59 +92,20 @@ const toggleNav = () => {
 </script>
 
 <style scoped>
-/* General overflow management for the header */
 header {
   overflow-x: hidden; /* Prevent horizontal scrolling */
-  white-space: nowrap; /* Prevent items from wrapping */
-  z-index: 50; /* Ensuring the header is above most elements */
-}
-
-/* Positioning for fixed elements */
-.fixed {
-  position: fixed;
-  right: 0;
-  left: 0;
-  z-index: 10; /* Lower z-index for non-critical overlay elements */
-}
-
-.bg-primary {
-  background-color: var(--color-primary);
+  max-width: 100vw; /* Ensure header does not exceed viewport width */
 }
 
 .navigation-trimmed {
-  position: fixed;
-  bottom: 0;
-  background-color: var(--color-secondary);
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  z-index: 30; /* Ensure it's under the header */
-  transform: translateY(
-    calc(100% - var(--header-height))
-  ); /* Adjust translation based on header height */
+  position: absolute; /* Use absolute to keep it out of flow */
+  width: 100%; /* Full width to align with the header */
   transition: transform 0.3s ease-in-out;
 }
 
-.show-nav {
-  transform: translateY(
-    var(--header-height)
-  ); /* Correct the transform direction */
-}
-
 @media (max-width: 768px) {
-  /* Mobile-specific adjustments */
-  header {
-    z-index: 50;
-  }
-
-  .fixed {
-    background-color: var(--color-primary);
-  }
-  .hidden.sm\:block {
-    display: none; /* Hide elements on small screens */
-  }
-
   .flex-wrap {
-    flex-wrap: wrap; /* Allow items to wrap to next line */
+    flex-wrap: wrap; /* Allow items to wrap to next line on small screens */
   }
 }
 </style>

@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody } from 'h3';
 import { errorHandler } from '../utils/error';
 import { fetchUserById } from '../users';
-import { validateUserCredentials, verifyJwtToken, validateApiKey } from './auth'; // Adjust path accordingly
+import { validateUserCredentials, verifyJwtToken, validateApiKey } from '.';
 
 export default defineEventHandler(async (event) => {
   try {

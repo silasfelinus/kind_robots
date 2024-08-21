@@ -91,8 +91,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { useErrorStore } from '@/stores/errorStore'
-import { ErrorType } from '@/constants/errorTypes' // Assuming you have predefined error types
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const store = useUserStore()
 const login = ref('')
@@ -114,7 +113,7 @@ const handleLogin = async () => {
       store.setStayLoggedIn(store.stayLoggedIn)
     } else {
       errorMessage.value = result.message || 'Login failed'
-      userNotFound.value = result.message?.includes('User not found')
+      userNotFound.value = result.message?.includes('User not found') || false
     }
   } catch (error) {
     errorStore.setError(ErrorType.AUTH_ERROR, error)

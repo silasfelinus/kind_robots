@@ -92,49 +92,44 @@
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore } from '@/stores/errorStore'
+import { ErrorType } from '@/constants/errorTypes' // Assuming you have predefined error types
 
 const store = useUserStore()
 const login = ref('')
 const password = ref('')
 const errorStore = useErrorStore()
-const errorMessage = ref('') // Assume this should be string | null initially
-
+const errorMessage = ref('')
 const userNotFound = ref(false)
 
 const handleLogin = async () => {
-  errorMessage.value = '' // Ensures errorMessage is always a string
+  errorMessage.value = ''
   userNotFound.value = false
   try {
-    const credentials: { username: string; password?: string } = {
+    const credentials = {
       username: login.value,
-      password: password.value || undefined  // Explicitly handle undefined
+      password: password.value || undefined,
     }
     const result = await store.login(credentials)
-    if (result.success && store.stayLoggedIn) {
-      store.setStayLoggedIn(true)
+    if (result.success) {
+      store.setStayLoggedIn(store.stayLoggedIn)
     } else {
-      errorMessage.value = result.message || 'Login failed'  // Provide a fallback for undefined
-      if (result.message && result.message.includes('User not found')) {  // Check for non-null message
-        userNotFound.value = true
-      }
+      errorMessage.value = result.message || 'Login failed'
+      userNotFound.value = result.message?.includes('User not found')
     }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      errorStore.setError(ErrorType.AUTH_ERROR, error)
-      errorMessage.value = errorStore.message || 'An unexpected error occurred'  // Handle null
-    }
+  } catch (error) {
+    errorStore.setError(ErrorType.AUTH_ERROR, error)
+    errorMessage.value = errorStore.message || 'An unexpected error occurred'
   }
 }
 
 const handleRetryLogin = () => {
   login.value = ''
   password.value = ''
-  errorMessage.value = ''  // Ensure this is reset to a string
+  errorMessage.value = ''
   userNotFound.value = false
   errorStore.clearError()
 }
 </script>
-
 
 <style scoped>
 .group:hover .float-tooltip {

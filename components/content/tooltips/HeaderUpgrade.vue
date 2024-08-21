@@ -97,7 +97,7 @@ const toggleNav = () => {
 .flip-card {
   perspective: 1000px;
   width: 100%;
-  max-width: 80px; /* Adjusted to fit within the header */
+  max-width: 100px; /* Adjusted to fit within the header */
 }
 header {
   overflow-x: hidden; /* Prevent horizontal scrolling */

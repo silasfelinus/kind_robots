@@ -130,7 +130,9 @@
 import { ref } from 'vue'
 
 const title = ref('Mermaids of Venice')
-const subtitleRef = ref('A subversive fairy tale of gods and street performers.')
+const subtitleRef = ref(
+  'A subversive fairy tale of gods and street performers.',
+)
 const image = ref('/images/utility/mermaids/mermaids1.jpg')
 const amazonLink = ref(
   'https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742',

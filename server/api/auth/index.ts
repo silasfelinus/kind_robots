@@ -6,36 +6,43 @@ import { userExists } from '../users'
 import prisma from '../utils/prisma'
 import type { User } from '@prisma/client'
 
-const config = useRuntimeConfig();
+const config = useRuntimeConfig()
 const JWT_SECRET = config.private.JWT_SECRET
 
 if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is not configured.");
+  throw new Error('JWT_SECRET is not configured.')
 }
 
 if (typeof JWT_SECRET !== 'string' || !JWT_SECRET) {
-  throw new Error('JWT_SECRET is not configured or is not a string.');
+  throw new Error('JWT_SECRET is not configured or is not a string.')
 }
 
 // Define the return type directly in the function signature
 export const verifyJwtToken = async (
   token: string,
-): Promise<{ success: boolean; userId?: number | null; message?: string; statusCode?: number }> => {
+): Promise<{
+  success: boolean
+  userId?: number | null
+  message?: string
+  statusCode?: number
+}> => {
   try {
-    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET as string, 'utf-8'));
-    const decoded = await jwtVerify(token, secretKey);
-    console.log('Decoded Object:', decoded); // Debug log here
+    const secretKey = crypto.createSecretKey(
+      Buffer.from(JWT_SECRET as string, 'utf-8'),
+    )
+    const decoded = await jwtVerify(token, secretKey)
+    console.log('Decoded Object:', decoded) // Debug log here
 
-    return { success: true, userId: decoded.payload.id as number | null };
+    return { success: true, userId: decoded.payload.id as number | null }
   } catch (error: unknown) {
-    const { message, statusCode } = errorHandler(error);
+    const { message, statusCode } = errorHandler(error)
     return {
       success: false,
       message: `🚀 Mission abort! ${message}`,
       statusCode: statusCode ?? 403,
-    };
+    }
   }
-};
+}
 export const getUserDataByToken = async (token: string) => {
   try {
     const { success, userId } = await verifyJwtToken(token)
@@ -100,7 +107,7 @@ export async function validateApiKey(apiKey: string) {
 
 export async function createToken(user: User, apiKey: string): Promise<string> {
   try {
-    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET as string));
+    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET as string))
 
     const token = await new SignJWT({
       id: user.id,
@@ -110,12 +117,12 @@ export async function createToken(user: User, apiKey: string): Promise<string> {
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('360d')
-      .sign(secretKey);
+      .sign(secretKey)
 
-    return token;
+    return token
   } catch (error) {
-    console.error(`Failed to create token: ${errorHandler(error).message}`);
-    throw new Error('Failed to create token.');
+    console.error(`Failed to create token: ${errorHandler(error).message}`)
+    throw new Error('Failed to create token.')
   }
 }
 

@@ -19,7 +19,9 @@ export async function fetchCartItems(cartId: number): Promise<CartItem[]> {
   try {
     return await prisma.cartItem.findMany({
       where: {
-        cartId, // Add this line to filter by cartId
+        cartId: {
+          equals: cartId // Correctly filter by cartId
+        }
       },
     })
   } catch (error: unknown) {

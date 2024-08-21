@@ -10,8 +10,7 @@
       >
         <icon
           name="typcn:arrow-back-outline"
-          size="48"
-          class="hover:scale-125"
+          class="w-8 h-8 md:w-20 md:h-20 hover:scale-125"
         />
         <div class="nav-text group-hover:show-text">
           {{ prev.title }}
@@ -24,7 +23,7 @@
       >
         <icon
           name="game-icons:galaxy"
-          class="w-12 h-12 md:w-20 md:h-20 hover:scale-125"
+          class="w-8 h-8 md:w-20 md:h-20 hover:scale-125"
         />
         <div class="nav-text group-hover:show-text">
           {{ randomLinkText }}
@@ -38,7 +37,7 @@
       >
         <icon
           name="line-md:home-md-twotone"
-          class="w-12 h-12 md:w-20 md:h-20 hover:scale-125"
+          class="w-8 h-8 md:w-20 md:h-20 hover:scale-125"
         />
         <div class="nav-text group-hover:show-text">
           {{ homeLinkText }}
@@ -52,7 +51,7 @@
       >
         <icon
           name="typcn:arrow-forward-outline"
-          class="w-12 h-12 md:w-20 md:h-20 hover:scale-125 m-2"
+          class="w-8 h-8 md:w-20 md:h-20 hover:scale-125"
         />
         <div class="nav-text group-hover:show-text">
           {{ next.title }}

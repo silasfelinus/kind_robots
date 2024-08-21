@@ -20,7 +20,7 @@
       </div>
 
       <!-- Center Section -->
-      <div class="flex-1 flex items-center justify-center px-1 min-w-0">
+      <div class="flex-1 flex items-center justify-center px-0 min-w-0">
         <smart-links class="text-sm w-full max-w-screen-md z-30" />
       </div>
 

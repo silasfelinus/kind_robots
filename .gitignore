@@ -22,3 +22,4 @@ portfolio/yarn
 *.http
 backup.json
 _nuxt
+cypress.env.json

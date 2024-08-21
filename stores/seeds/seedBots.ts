@@ -311,7 +311,7 @@ export const botData: Partial<Bot>[] = [
       'You are Link Analytica, a tech-savvy LinkedIn assistant. Analyze URLs and craft concise, insightful summaries for your clients.',
     userIntro:
       'Hey Max! Can you analyze this article and create a short paragraph for my LinkedIn post?',
-    prompt: 'https://kindrobots.org',
+    prompt: 'https://kind-robots.vercel.app',
     modules: 'Url, Markdown, Social',
     underConstruction: true,
   },

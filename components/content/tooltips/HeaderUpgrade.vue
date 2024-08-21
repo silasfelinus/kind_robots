@@ -13,7 +13,7 @@
         />
         <div class="flex items-center flex-shrink-0 min-w-0 md:flex-1">
           <room-title class="text-sm font-semibold" />
-          <h2 class="text-xs text-gray-500 italic">
+          <h2 class="text-xs text-gray-500 italic pl-1">
             {{ page.subtitle || 'the kindest' }}
           </h2>
         </div>

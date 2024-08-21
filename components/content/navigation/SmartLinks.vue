@@ -19,7 +19,7 @@
       <!-- Random Link -->
       <NuxtLink
         :to="randomHighlightPage._path"
-        class="group nav-icon flex-col items-center justify-center"
+        class="group nav-icon flex flex-col items-center justify-center"
       >
         <icon
           name="game-icons:galaxy"
@@ -33,7 +33,7 @@
       <NuxtLink
         v-if="!isHomePage"
         to="/"
-        class="group nav-icon flex-col items-center justify-center"
+        class="group nav-icon flex flex-col items-center justify-center"
       >
         <icon
           name="line-md:home-md-twotone"

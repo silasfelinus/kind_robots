@@ -64,11 +64,12 @@
           class="flex items-center message-content"
         >
           <ResponseEntry
+            v-if="conversation && msg"
             :role="msg.role"
-            :content="msg?.content ?? ''"
-            :avatar-image="msg?.avatarImage ?? '/images/kindtitle.webp'"
-            :bot-name="msg?.botName ?? 'Kind Robot'"
-            :subtitle="msg?.subtitle ?? 'Your friendly neighborhood AI'"
+            :content="msg.content ?? ''"
+            :avatar-image="msg.avatarImage ?? '/images/kindtitle.webp'"
+            :bot-name="msg.botName ?? 'Kind Robot'"
+            :subtitle="msg.subtitle ?? 'Your friendly neighborhood AI'"
           />
         </div>
         <!-- Reaction Buttons -->
@@ -169,7 +170,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect } from 'vue'
-import { useBotStore, type Bot } from '../../../stores/botStore'
+import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useChatStore, type ChatExchange } from './../../../stores/chatStore'
 
@@ -193,7 +194,18 @@ const activeConversationIndex = ref<number | null>(null)
 const botStore = useBotStore()
 const userStore = useUserStore()
 const chatStore = useChatStore()
-const currentBot = computed<Bot | null>(() => botStore.currentBot)
+const currentBot = computed(() => {
+  return (
+    botStore.currentBot ?? {
+      name: 'Unknown Bot',
+      subtitle: 'No subtitle available',
+      description: 'No description available',
+      userIntro: 'Hi Bot',
+      prompt: 'I am a kind robot',
+      avatarImage: '/images/amibotsquare1.webp',
+    }
+  )
+})
 const message = ref('')
 const replyMessage = ref('')
 const isLoading = ref(false)

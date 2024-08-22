@@ -16,9 +16,8 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 interface RainDrop {
   id: number
@@ -39,24 +38,24 @@ const props = defineProps({
 const rainDrops = ref<RainDrop[]>([])
 
 const updateRainDrops = () => {
-  rainDrops.value = Array.from({ length: props.numberOfDrops }, (_, id) => {
-    const size = 1 + Math.random() * 2
-    return {
-      id,
-      x: Math.random() * window.innerWidth,
-      y: -Math.random() * window.innerHeight,
-      duration:
-        (window.innerHeight / (70 * props.intensity)) *
-        (size / 3) *
-        (1 + Math.random()),
-      delay: Math.random() * 5,
-      size,
-      angle: props.windAngle + Math.floor(Math.random() * 21) - 10,
-    }
-  })
+  if (typeof window !== 'undefined') {
+    rainDrops.value = Array.from({ length: props.numberOfDrops }, (_, id) => {
+      const size = 1 + Math.random() * 2
+      return {
+        id,
+        x: Math.random() * window.innerWidth,
+        y: -Math.random() * window.innerHeight,
+        duration:
+          (window.innerHeight / (70 * props.intensity)) *
+          (size / 3) *
+          (1 + Math.random()),
+        delay: Math.random() * 5,
+        size,
+        angle: props.windAngle + Math.floor(Math.random() * 21) - 10,
+      }
+    })
+  }
 }
-
-watchEffect(updateRainDrops)
 
 const rainDropStyle = (drop: RainDrop) => ({
   left: `${drop.x}px`,
@@ -66,6 +65,19 @@ const rainDropStyle = (drop: RainDrop) => ({
   width: `${drop.size}px`,
   height: `${drop.size * 6}px`,
   transform: `translateY(-120%) rotate(${drop.angle}deg)`,
+})
+
+const handleResize = () => {
+  updateRainDrops()
+}
+
+onMounted(() => {
+  updateRainDrops()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 

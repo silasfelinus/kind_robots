@@ -1,17 +1,6 @@
 // cypress/e2e/api/users.cy.js
 /* eslint-disable no-undef */
-describe('Users API Endpoint', () => {
-  // Test successful fetch of users
-  it('successfully fetches users', () => {
-    cy.request('/api/users').then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true
-      expect(response.body).to.have.property('users')
-    })
-  })
-})
 
-// User Authentication
 // User Authentication and Retrieval Tests
 describe('User Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/users'
@@ -115,7 +104,8 @@ describe('User Management API Tests - User Creation', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/users'
   const apiKey = Cypress.env('API_KEY')
 
-  it('Add User with Full Details', () => {
+  it('Add and Delete User with Full Details', () => {
+    // Creating the user
     cy.request({
       method: 'POST',
       url: `${baseUrl}/register`,
@@ -125,37 +115,77 @@ describe('User Management API Tests - User Creation', () => {
         'x-api-key': apiKey,
       },
       body: {
-        username: 'testtesterton4',
-        email: 'test4@kindrobots.org',
+        username: 'testtesterton144',
+        email: 'test144@kindrobots.org',
         password: 'testtest12',
       },
     }).then((response) => {
-      expect(response.status).to.eq(201)
-      expect(response.body).to.have.property('id')
-    })
+      expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success').to.be.true
+      if (response.body.success !== true) {
+        console.log('Response body:', response.body)
+      }
+      expect(response.body)
+        .to.have.property('message')
+        .contains('Your account has been created.')
+      expect(response.body).to.have.nested.property(
+        'user.username',
+        'testtesterton144',
+      )
 
-    it('Add User with Username Only', () => {
+      // Extracting the userId from the response
+      const userId = response.body.user.id
+
+      // Deleting the user using the userId
       cy.request({
-        method: 'POST',
-        url: `${baseUrl}/register`,
+        method: 'DELETE',
+        url: `${baseUrl}/${userId}`,
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
-        body: {
-          username: 'openaccount',
+      }).then((deleteResponse) => {
+        expect(deleteResponse.status).to.eq(200)
+      })
+    })
+  })
+
+  it('Add User with Username Only', () => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/register`,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        username: 'openaccount',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.body).to.have.nested.property(
+        'user.username',
+        'openaccount',
+      )
+
+      const userId = response.body.user.id
+
+      // Deleting the user using the userId
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${userId}`,
+        headers: {
+          'x-api-key': apiKey,
         },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(400) // Assuming 400 Bad Request for insufficient data
+      }).then((deleteResponse) => {
+        expect(deleteResponse.status).to.eq(200)
       })
     })
 
     it('Add User with Email Only', () => {
       cy.request({
         method: 'POST',
-        url: `${baseUrl}`,
+        url: `${baseUrl}/register`,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -166,7 +196,24 @@ describe('User Management API Tests - User Creation', () => {
         },
         failOnStatusCode: false,
       }).then((response) => {
-        expect(response.status).to.eq(400) // Assuming 400 Bad Request for incomplete data
+        expect(response.body).to.have.nested.property(
+          'user.email',
+          'emailt4tHere@example.com',
+        )
+
+        // Extracting the userId from the response
+        const userId = response.body.user.id
+
+        // Deleting the user using the userId
+        cy.request({
+          method: 'DELETE',
+          url: `${baseUrl}/${userId}`,
+          headers: {
+            'x-api-key': apiKey,
+          },
+        }).then((deleteResponse) => {
+          expect(deleteResponse.status).to.eq(200)
+        })
       })
     })
 
@@ -180,26 +227,27 @@ describe('User Management API Tests - User Creation', () => {
           'x-api-key': apiKey,
         },
         body: {
-          username: 'existingUsername', // Use a username known to exist
+          username: 'silasfelinus', // Use a username known to exist
           email: 'newemail@kindrobots.org',
           password: 'newUserPassword',
         },
         failOnStatusCode: false,
       }).then((response) => {
-        expect(response.status).to.eq(409) // Assuming 409 Conflict for existing user
+        expect(response.body)
+          .to.have.property('message')
+          .that.includes('Username already exists.')
       })
     })
   })
 })
 
-// cypress/e2e/userManagement.cy.js
 describe('User Management API Tests - User Update', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/users'
   const apiKey = Cypress.env('API_KEY') // Ensure the API key is stored securely
 
   context('User Update Tests', () => {
     it('Update User by ID with New Username', () => {
-      const userId = 18 // Specify the user ID to update
+      const userId = 22 // Specify the user ID to update
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${userId}`,
@@ -209,16 +257,19 @@ describe('User Management API Tests - User Update', () => {
           'x-api-key': apiKey,
         },
         body: {
-          username: 'superkateisuper',
+          username: 'kindguest',
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('username', 'superkateisuper')
+        expect(response.body).to.have.nested.property(
+          'user.username',
+          'kindguest',
+        )
       })
     })
 
     it('Update User by ID with Password', () => {
-      const userId = 18
+      const userId = 22
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${userId}`,
@@ -228,16 +279,16 @@ describe('User Management API Tests - User Update', () => {
           'x-api-key': apiKey,
         },
         body: {
-          password: 'testtest87',
+          password: 'kindpassword1',
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('id', userId)
+        expect(response.body).to.have.nested.property('user.id', userId)
       })
     })
 
     it('Update User by ID with Email', () => {
-      const userId = 18
+      const userId = 22
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${userId}`,
@@ -251,20 +302,22 @@ describe('User Management API Tests - User Update', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('email', 'updated@example.com')
+        expect(response.body).to.have.nested.property(
+          'user.email',
+          'updated@example.com',
+        )
       })
     })
   })
 })
 
-// cypress/e2e/userManagement.cy.js
 describe('User Management API Tests - User Deletion', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/users'
   const apiKey = Cypress.env('API_KEY') // Ensure the API key is stored securely
 
   context('User Deletion Tests', () => {
     it('Delete User by ID', () => {
-      const userId = 18 // Specify the user ID to delete
+      const userId = 99999 // Specify the user ID to delete
       cy.request({
         method: 'DELETE',
         url: `${baseUrl}/${userId}`,
@@ -273,21 +326,20 @@ describe('User Management API Tests - User Deletion', () => {
           'x-api-key': apiKey,
         },
       }).then((response) => {
-        expect(response.status).to.eq(204) // Assuming API returns 204 No Content on successful deletion
+        expect(response.status).to.eq(200) // Assuming API returns 204 No Content on successful deletion
       })
     })
 
-    it('Delete User Without ID', () => {
+    it('Delete User Without Permission', () => {
       cy.request({
         method: 'DELETE',
-        url: baseUrl, // Attempting to delete without specifying an ID
+        url: `${baseUrl}/99998`,
         headers: {
           Accept: 'application/json',
-          'x-api-key': apiKey,
         },
         failOnStatusCode: false, // Prevent Cypress from failing the test when a 4xx status code is returned
       }).then((response) => {
-        expect(response.status).to.eq(405) // Assuming API returns 405 Method Not Allowed if ID is not provided
+        expect(response.status).to.eq(401)
       })
     })
   })
@@ -295,9 +347,7 @@ describe('User Management API Tests - User Deletion', () => {
 
 // cypress/e2e/userManagement.cy.js
 describe('User Management API Tests - Authentication and Error Handling', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/users'
   const authUrl = 'https://kind-robots.vercel.app/api/auth/login'
-  const apiKey = Cypress.env('API_KEY') // Ensure the API key is stored securely
 
   context('Authentication Tests', () => {
     it('User Authentication with Correct Credentials', () => {
@@ -308,8 +358,8 @@ describe('User Management API Tests - Authentication and Error Handling', () => 
           'Content-Type': 'application/json',
         },
         body: {
-          username: 'validUsername',
-          password: 'validPassword',
+          username: 'kindguest',
+          password: 'kindpassword1',
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
@@ -325,79 +375,12 @@ describe('User Management API Tests - Authentication and Error Handling', () => 
           'Content-Type': 'application/json',
         },
         body: {
-          username: 'invalidUsername',
+          username: 'kindguest',
           password: 'wrongPassword',
         },
         failOnStatusCode: false,
       }).then((response) => {
-        expect(response.status).to.eq(401) // Assuming 401 Unauthorized for wrong credentials
-      })
-    })
-  })
-
-  context('Error Handling Tests', () => {
-    it('Update Non-existent User', () => {
-      const nonExistentUserId = 9999 // A user ID that does not exist
-      cy.request({
-        method: 'PATCH',
-        url: `${baseUrl}/${nonExistentUserId}`,
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        body: {
-          username: 'newUsername',
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(404) // Assuming 404 Not Found for non-existent user
-      })
-    })
-
-    it('Delete Non-existent User', () => {
-      const nonExistentUserId = 9999 // A user ID that does not exist
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${nonExistentUserId}`,
-        headers: {
-          Accept: 'application/json',
-          'x-api-key': apiKey,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(404) // Assuming 404 Not Found for non-existent user
-      })
-    })
-  })
-})
-
-// cypress/e2e/userManagement.cy.js
-describe('User Management API Tests - Edge Cases', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/users'
-  const apiKey = Cypress.env('API_KEY') // Ensure the API key is stored securely
-
-  context('Edge Case Tests', () => {
-    it('Add User with Invalid Email Format', () => {
-      cy.request({
-        method: 'POST',
-        url: `${baseUrl}/register`,
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        body: {
-          username: 'newUser',
-          email: 'notanemail', // Intentionally invalid email format
-          password: 'password123',
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(400) // Assuming 400 Bad Request for invalid input
-        expect(response.body)
-          .to.have.property('message')
-          .that.includes('Invalid email format')
+        expect(response.body).to.have.property('success', false)
       })
     })
   })

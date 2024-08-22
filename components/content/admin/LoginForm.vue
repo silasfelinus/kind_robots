@@ -101,6 +101,7 @@ const errorMessage = ref('')
 const userNotFound = ref(false)
 
 const handleLogin = async () => {
+  console.log('handleLogin triggered')
   errorMessage.value = ''
   userNotFound.value = false
   try {
@@ -108,6 +109,7 @@ const handleLogin = async () => {
       username: login.value,
       password: password.value || undefined,
     }
+    console.log('Credentials: ', login.value, password.value)
     const result = await store.login(credentials)
     if (result.success) {
       store.setStayLoggedIn(store.stayLoggedIn)

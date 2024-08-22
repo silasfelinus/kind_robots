@@ -404,6 +404,7 @@ export const useUserStore = defineStore({
       username: string
       password?: string
     }): Promise<{ success: boolean; message?: string }> {
+      console.log("login action in store called", credentials);
       this.startLoading()
       try {
         const response = await this.apiCall(
@@ -432,6 +433,7 @@ export const useUserStore = defineStore({
           return { success: false, message: response.message }
         }
       } catch (error: unknown) {
+        console.error("Error in login process:", error);
         this.stopLoading()
         this.setError(error)
         return {

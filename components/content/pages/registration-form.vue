@@ -270,10 +270,11 @@ const register = async () => {
 
       // Automatically log the user in
       try {
-        const loginResponse = await userStore.login(
-          username.value,
-          password.value,
-        )
+        const credentials = {
+          username: username.value,
+          password: password.value || undefined,
+        }
+        const loginResponse = await userStore.login(credentials)
         if (!loginResponse.success) {
           throw new Error(loginResponse.message || 'Login failed')
         }

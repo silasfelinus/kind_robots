@@ -7,7 +7,6 @@ export default defineEventHandler(async (event) => {
 
   // Check if the route requires authentication
   if (event.context.route?.auth !== true) {
-    console.log('No authentication required for this route');
     return; // Continue since no authentication is required
   }
 

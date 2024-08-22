@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Perform authentication
-    auth(event)
+    await auth(event)
 
     // Fetch users with pagination logic
     const users = await fetchUsers()

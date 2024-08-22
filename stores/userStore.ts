@@ -488,6 +488,7 @@ export const useUserStore = defineStore({
       message?: string
     }> {
       try {
+        console.log("registering with the following", userData);
         // Define the response type
         interface RegisterResponse {
           success: boolean

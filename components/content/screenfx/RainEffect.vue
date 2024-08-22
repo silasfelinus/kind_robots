@@ -1,18 +1,29 @@
 <template>
+  <div class="container mx-auto p-4 relative h-full flex flex-col">
+    <div class="flex flex-col md:flex-row flex-grow">
+      <div class="flex-grow p-2 rounded-2xl m-2 border relative">
+        <!-- Rain Effect Component -->
+        <rain-effect :intensity="2" :number-of-drops="100" :wind-angle="0" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<template>
   <div class="rain-container">
     <div
-      v-for="(drop, index) in rainDrops"
-      :key="index"
-      class="rain-drop bg-accent"
+      v-for="drop in rainDrops"
+      :key="drop.id"
+      class="rain-drop"
       :style="rainDropStyle(drop)"
     />
   </div>
 </template>
-
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted, watchEffect } from 'vue'
 
 interface RainDrop {
+  id: number
   x: number
   y: number
   duration: number
@@ -22,17 +33,20 @@ interface RainDrop {
 }
 
 const props = defineProps({
-  intensity: { type: Number, default: 2 },
-  numberOfDrops: { type: Number, default: 100 },
-  windAngle: { type: Number, default: 0 },
+  intensity: Number,
+  numberOfDrops: Number,
+  windAngle: Number,
 })
 
-const rainDrops: RainDrop[] = Array.from({ length: props.numberOfDrops }).map(
-  () => {
+const rainDrops = ref<RainDrop[]>([])
+
+const updateRainDrops = () => {
+  rainDrops.value = Array.from({ length: props.numberOfDrops }, (_, id) => {
     const size = 1 + Math.random() * 2
     return {
-      x: Math.floor(Math.random() * window.innerWidth),
-      y: Math.floor(Math.random() * -window.innerHeight),
+      id,
+      x: Math.random() * window.innerWidth,
+      y: -Math.random() * window.innerHeight,
       duration:
         (window.innerHeight / (70 * props.intensity)) *
         (size / 3) *
@@ -41,27 +55,21 @@ const rainDrops: RainDrop[] = Array.from({ length: props.numberOfDrops }).map(
       size,
       angle: props.windAngle + Math.floor(Math.random() * 21) - 10,
     }
-  },
-)
+  })
+}
+
+watchEffect(updateRainDrops)
 
 const rainDropStyle = (drop: RainDrop) => ({
-  left: drop.x + 'px',
-  top: drop.y + 'px',
-  animationDuration: drop.duration + 's',
-  animationDelay: drop.delay + 's',
-  width: drop.size + 'px',
-  height: drop.size * 6 + 'px',
+  left: `${drop.x}px`,
+  top: `${drop.y}px`,
+  animationDuration: `${drop.duration}s`,
+  animationDelay: `${drop.delay}s`,
+  width: `${drop.size}px`,
+  height: `${drop.size * 6}px`,
   transform: `translateY(-120%) rotate(${drop.angle}deg)`,
 })
-
-onMounted(() => {
-  document.documentElement.style.setProperty(
-    '--wind-angle',
-    `${props.windAngle}deg`,
-  )
-})
 </script>
-
 <style scoped>
 .rain-container {
   position: absolute;

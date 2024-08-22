@@ -113,7 +113,7 @@ handleError(error: unknown, context: string = 'General Operation') {
 // This method is then used within other actions where errors might occur
 async fetchSpotifyToken() {
   try {
-    const res = await fetch('/api/utils/spotifyToken');
+    const res = await fetch('api/utils/spotifyToken');
     if (!res.ok) throw new Error('HTTP error status: ' + res.status);
     const data = await res.json();
     if (data.token) {

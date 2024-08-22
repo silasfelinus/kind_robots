@@ -58,7 +58,8 @@ describe('User Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('id', userId)
+        expect(response.body).to.have.property('success', true)
+        expect(response.body).to.have.nested.property('user.id', userId)
       })
     })
 
@@ -73,7 +74,11 @@ describe('User Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body).to.be.an('array').that.is.not.empty
+        expect(response.body).to.have.property('success', true)
+        expect(response.body)
+          .to.have.property('usernames')
+          .that.is.an('array')
+          .that.includes('Kind Guest')
       })
     })
   })

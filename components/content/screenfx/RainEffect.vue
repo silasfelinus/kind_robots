@@ -1,26 +1,24 @@
 <template>
   <div class="container mx-auto p-4 relative h-full flex flex-col">
+    <!-- Main container for the rain effect -->
     <div class="flex flex-col md:flex-row flex-grow">
       <div class="flex-grow p-2 rounded-2xl m-2 border relative">
-        <!-- Rain Effect Component -->
-        <rain-effect :intensity="2" :number-of-drops="100" :wind-angle="0" />
+        <!-- Rain Effect Area -->
+        <div class="rain-container">
+          <div
+            v-for="drop in rainDrops"
+            :key="drop.id"
+            class="rain-drop"
+            :style="rainDropStyle(drop)"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<template>
-  <div class="rain-container">
-    <div
-      v-for="drop in rainDrops"
-      :key="drop.id"
-      class="rain-drop"
-      :style="rainDropStyle(drop)"
-    />
-  </div>
-</template>
 <script setup lang="ts">
-import { ref, onMounted, watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue'
 
 interface RainDrop {
   id: number
@@ -33,9 +31,9 @@ interface RainDrop {
 }
 
 const props = defineProps({
-  intensity: Number,
-  numberOfDrops: Number,
-  windAngle: Number,
+  intensity: { type: Number, default: 2 },
+  numberOfDrops: { type: Number, default: 100 },
+  windAngle: { type: Number, default: 0 },
 })
 
 const rainDrops = ref<RainDrop[]>([])
@@ -70,6 +68,7 @@ const rainDropStyle = (drop: RainDrop) => ({
   transform: `translateY(-120%) rotate(${drop.angle}deg)`,
 })
 </script>
+
 <style scoped>
 .rain-container {
   position: absolute;

@@ -114,6 +114,7 @@ const handleLogin = async () => {
     if (result.success) {
       store.setStayLoggedIn(store.stayLoggedIn)
     } else {
+      console.log('login failed', result)
       errorMessage.value = result.message || 'Login failed'
       userNotFound.value = result.message?.includes('User not found') || false
     }

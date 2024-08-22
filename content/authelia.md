@@ -14,7 +14,7 @@ amitip: Elevator pitches? Mission statements? Oh, you betcha! But don't let the 
 sort: highlight
 ---
 
-:about-page
+This is a tester page for private authentication server. Currently not working.
 
 :authelia-login
 

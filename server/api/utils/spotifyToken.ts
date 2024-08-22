@@ -1,9 +1,8 @@
-//server/api/utils/spotifyToken
-import type { Request, Response } from 'express';
+// server/api/utils/spotifyToken.ts
+import type { Response } from 'express';
 import { errorHandler } from './error';
 
-// Function to fetch Spotify access token
-export default async (req: Request, res: Response) => {
+export default async (res: Response) => {
   const credentials = Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64');
   const data = 'grant_type=client_credentials';
 
@@ -20,13 +19,16 @@ export default async (req: Request, res: Response) => {
     const jsonResponse = await spotifyResponse.json();
 
     if (!spotifyResponse.ok) {
-      throw new Error(`Spotify API error: ${jsonResponse.error}`);
+      // Handle Spotify API errors using the centralized error handler
+      const errorOutput = errorHandler(new Error(`Spotify API error: ${jsonResponse.error}`));
+      res.status(errorOutput.statusCode || 500).json(errorOutput);
+      return;
     }
 
     res.json({ token: jsonResponse.access_token });
   } catch (error) {
-    const { success, message, statusCode } = errorHandler({ error });
-    res.status(500).json({ message, statusCode, success });
-    console.error(`Spotify Token Fetch Error: ${message}, Status Code: ${statusCode}, Success: ${success}`);
+    // Catch fetch and other unexpected errors
+    const errorOutput = errorHandler(error);
+    res.status(errorOutput.statusCode || 500).json(errorOutput);
   }
 };

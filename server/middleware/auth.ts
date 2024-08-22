@@ -1,10 +1,9 @@
 // server/middleware/auth.ts
-import { defineEventHandler, createError } from 'h3';
-import { errorHandler } from './../api/utils/error';
+import { defineEventHandler, sendError, createError } from 'h3';
+import { errorHandler } from '../api/utils/error';
 
-export default defineEventHandler((event) => {
-  const req = event.node.req;
-  const secretKey = req.headers['x-api-key'];
+export default defineEventHandler(async (event) => {
+  const secretKey = event.req.headers['x-api-key'];
 
   // Check if the route requires authentication
   if (event.context.route?.auth !== true) {
@@ -25,10 +24,11 @@ export default defineEventHandler((event) => {
     console.log('Authentication successful');
   } catch (error) {
     const handledError = errorHandler(error as Error);
-    // Correctly use createError by passing a single object
-    throw createError({
+
+    // Using h3's sendError if you need to throw an HTTP error directly
+    return sendError(event, createError({
       statusCode: handledError.statusCode || 401,
       statusMessage: handledError.message
-    });
+    }));
   }
 });

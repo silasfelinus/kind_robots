@@ -79,6 +79,32 @@ describe('User Management API Tests', () => {
   })
 })
 
+//get user milestones
+describe('User Milestones API Tests', () => {
+  const baseUrl = 'https://kind-robots.vercel.app/api/users/milestones'
+  const apiKey = Cypress.env('API_KEY')
+
+  it('Retrieves milestones for a specific user', () => {
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/17`, // Adjust the URL to use the correct user ID dynamically if needed
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body).to.have.property(
+        'message',
+        'Milestone records fetched successfully',
+      )
+      expect(response.body).to.have.property('milestoneIds').that.is.an('array')
+    })
+  })
+})
+
 // User Creation Tests
 describe('User Management API Tests - User Creation', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/users'

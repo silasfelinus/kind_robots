@@ -63,18 +63,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useSpotifyStore } from './../../../stores/spotifyStore'
 
 const spotifyStore = useSpotifyStore()
-
 const token = computed(() => spotifyStore.token)
 const currentTrack = computed(() => spotifyStore.currentTrack)
 const isPlaying = computed(() => spotifyStore.isPlaying)
 const error = computed(() => spotifyStore.error)
 const volume = ref(50)
 
-// Function to format date nicely
 const formatDate = (date: string) => {
   const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
@@ -84,16 +82,14 @@ const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString(undefined, options)
 }
 
-// Function to set volume with error handling
 const setVolume = async (newVolume: number) => {
   try {
     await spotifyStore.setVolume(newVolume)
-  } catch (error: unknown) {
-    console.error('Error setting volume', error)
+  } catch (error) {
+    console.error('Error setting volume:', error)
   }
 }
 
-// Watcher to handle volume changes
 watch(volume, (newVal) => {
   setVolume(newVal)
 })
@@ -101,7 +97,6 @@ watch(volume, (newVal) => {
 onMounted(async () => {
   const code = new URL(window.location.href).searchParams.get('code')
   const verifier = localStorage.getItem('spotify-code-verifier')
-
   if (code && verifier) {
     try {
       const response = await fetch(
@@ -109,8 +104,8 @@ onMounted(async () => {
       )
       const data = await response.json()
       spotifyStore.setToken(data.access_token)
-    } catch (error: unknown) {
-      console.error('Error fetching Spotify token', error)
+    } catch (error) {
+      console.error('Error fetching Spotify token:', error)
     }
   }
 })

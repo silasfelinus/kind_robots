@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useErrorStore } from '@/stores/errorStore' // Ensure this is correctly imported based on your project structure
 
 interface Track {
   id: string
@@ -12,21 +13,22 @@ interface Track {
 interface SpotifyTrack {
   id: string
   name: string
-  artists: { name: string }[]
+  artists: [{ name: string }]
   album: {
     name: string
     release_date: string
-    images: { url: string }[]
+    images: [{ url: string }]
   }
 }
 
 interface SpotifyPlaylistResponse {
   tracks: {
-    items: {
+    items: [{
       track: SpotifyTrack
-    }[]
+    }]
   }
 }
+
 interface PlaybackStatus {
   isPlaying: boolean
   position: number
@@ -38,8 +40,7 @@ interface UserProfile {
   id: string
   display_name: string
   email: string
-  images: { url: string }[]
-  // Add other relevant fields from the Spotify user profile object as needed
+  images: [{ url: string }]
 }
 
 export const useSpotifyStore = defineStore('spotify', {
@@ -53,60 +54,78 @@ export const useSpotifyStore = defineStore('spotify', {
     userProfile: null as UserProfile | null,
   }),
   getters: {
-    isPlaying(state): boolean {
-      return state.playbackStatus?.isPlaying || false
-    },
-    currentTrack(state): Track | null {
-      return state.track
-    },
-    currentPlaylist(state): Track[] {
-      return state.playlist
-    },
-    trackHistory(state): Track[] {
-      return state.history
-    },
+    isPlaying: (state) => state.playbackStatus?.isPlaying || false,
+    currentTrack: (state) => state.track,
+    currentPlaylist: (state) => state.playlist,
+    trackHistory: (state) => state.history,
   },
   actions: {
-    setToken(token: string | null) {
-      this.token = token
+    setToken(newToken: string | null) {
+      this.token = newToken;
     },
-
+    setError(ErrorType: ErrorType, errorMessage: string) {
+      const errorStore = useErrorStore()
+      errorStore.setError(ErrorType, errorMessage) // Utilize the centralized error store
+    },
+    clearError() {
+      const errorStore = useErrorStore()
+      errorStore.clearError() // Clear error using the centralized error store
+    },
     async setVolume(volume: number) {
       try {
-        const response = await fetch(
-          `https://api.spotify.com/v1/me/player/volume?volume_percent=${volume}`,
-          {
-            method: 'PUT',
-            headers: {
-              Authorization: `Bearer ${this.token}`,
-              'Content-Type': 'application/json',
-            },
+        const response = await fetch(`https://api.spotify.com/v1/me/player/volume?volume_percent=${volume}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+            'Content-Type': 'application/json',
           },
-        )
+        })
+        if (!response.ok) throw new Error('Failed to set volume')
+      } catch (error) {
+        this.handleError(error)
+      }
+    },
+// Example method adjustments for spotifyStore
+handleError(error: unknown, context: string = 'General Operation') {
+  const errorStore = useErrorStore();
+  let errorMessage: string;
+  let errorType: ErrorType;
 
-        if (!response.ok) {
-          throw new Error('Failed to set volume')
-        }
-      } catch (error: unknown) {
-        this.handleError(error)
-      }
-    },
-    async fetchSpotifyToken() {
-      try {
-        const res = await fetch('/api/utils/spotifyToken')
-        if (!res.ok) {
-          throw new Error(`Failed to fetch Spotify token: ${res.statusText}`)
-        }
-        const data = await res.json()
-        if (data.token) {
-          this.token = data.token
-        } else {
-          throw new Error('Token not received from the server.')
-        }
-      } catch (error: unknown) {
-        this.handleError(error)
-      }
-    },
+  if (error instanceof Error) {
+    errorMessage = `${context} failed: ${error.message}`;
+    if (error.name === 'NetworkError') {
+      errorType = ErrorType.NETWORK_ERROR;
+    } else if (error.name === 'AuthError') {
+      errorType = ErrorType.AUTH_ERROR;
+    } else {
+      errorType = ErrorType.UNKNOWN_ERROR;
+    }
+  } else {
+    errorMessage = `${context} failed with an unknown error.`;
+    errorType = ErrorType.GENERAL_ERROR;
+  }
+
+  // Set error using the centralized error store with specific type and message
+  errorStore.setError(errorType, errorMessage);
+  console.error(`[${context} Error]: ${errorMessage}`);
+},
+
+// This method is then used within other actions where errors might occur
+async fetchSpotifyToken() {
+  try {
+    const res = await fetch('/api/utils/spotifyToken');
+    if (!res.ok) throw new Error('HTTP error status: ' + res.status);
+    const data = await res.json();
+    if (data.token) {
+      this.token = data.token;
+    } else {
+      throw new Error('No token received from the server.');
+    }
+  } catch (error) {
+    this.handleError(error, 'Fetching Spotify Token');
+  }
+},
+
     generateCodeVerifier() {
       const array = new Uint32Array(56 / 2)
       window.crypto.getRandomValues(array)
@@ -160,31 +179,31 @@ export const useSpotifyStore = defineStore('spotify', {
     },
     async fetchCurrentUserProfile() {
       if (!this.token) {
-        this.setError('Authentication required.')
-        return
+        const errorStore = useErrorStore();
+        errorStore.setError(ErrorType.AUTH_ERROR, 'Authentication required to fetch user profile.');
+        return;
       }
-
+    
       try {
         const res = await fetch('https://api.spotify.com/v1/me', {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },
-        })
-
+        });
+    
         if (!res.ok) {
-          const errorData = await res.json()
-          throw new Error(
-            errorData.error?.message || 'Failed to fetch user profile.',
-          )
+          const errorData = await res.json();
+          throw new Error(errorData.error?.message || 'Failed to fetch user profile.');
         }
-
-        const data = await res.json()
-        this.userProfile = data
-        console.log('User profile fetched successfully:', data)
+    
+        const data = await res.json();
+        this.userProfile = data;
+        console.log('User profile fetched successfully:', data);
       } catch (error: unknown) {
-        this.handleError(error)
+        this.handleError(error, 'Fetching Current User Profile');
       }
     },
+    
     togglePlay() {
       if (this.playbackStatus) {
         this.playbackStatus.isPlaying = !this.playbackStatus.isPlaying
@@ -319,18 +338,6 @@ export const useSpotifyStore = defineStore('spotify', {
       } catch (error: unknown) {
         this.handleError(error)
       }
-    },
-    setError(errorMessage: string) {
-      this.error = errorMessage
-    },
-    clearError() {
-      this.error = null
-    },
-    handleError(error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error)
-      this.setError(errorMessage)
-      console.error('Error:', errorMessage)
     },
   },
 })

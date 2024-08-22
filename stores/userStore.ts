@@ -404,7 +404,7 @@ export const useUserStore = defineStore({
       username: string
       password?: string
     }): Promise<{ success: boolean; message?: string }> {
-      console.log("login action in store called", credentials);
+      console.log("The store has been notified of the login attempt by ", credentials);
       this.startLoading()
       try {
         const response = await this.apiCall(
@@ -415,12 +415,10 @@ export const useUserStore = defineStore({
         if (
           response.success &&
           response.user &&
-          response.token &&
-          response.apiKey
+          response.token
         ) {
           this.setUser(response.user)
           this.setToken(response.token)
-          this.setApiKey(response.apiKey)
 
           if (this.stayLoggedIn) {
             this.saveToLocalStorage('token', response.token) // Save token if "stayLoggedIn" is true

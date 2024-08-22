@@ -109,7 +109,7 @@ const handleLogin = async () => {
       username: login.value,
       password: password.value || undefined,
     }
-    console.log('Credentials: ', login.value, password.value)
+    console.log(login.value + ' is trying to log in!')
     const result = await store.login(credentials)
     if (result.success) {
       store.setStayLoggedIn(store.stayLoggedIn)

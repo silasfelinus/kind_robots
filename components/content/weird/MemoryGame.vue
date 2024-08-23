@@ -82,20 +82,25 @@ import { useWindowSize } from '@vueuse/core'
 
 const { width, height } = useWindowSize()
 
-// Assuming an average desired card width to start, then adjust based on available space
-const targetCardWidth = 150 // Target starting width for card
-
 const layout = computed(() => {
-  const columns = Math.floor(width.value / targetCardWidth)
-  const cardWidth = Math.max(
-    100,
-    Math.min(200, Math.floor(width.value / columns)),
-  ) // Ensure cardWidth remains within bounds
+  const maxWidth = 200 // max width each card can have
+  const minWidth = 100 // minimum width for each card
+  const desiredCardWidth = 150 // initially desired width for each card
+  const availableWidth = width.value - 32 // subtracting some margin, adjust as needed
 
-  return {
-    columns: columns,
-    cardSize: cardWidth,
+  let columns = Math.floor(availableWidth / desiredCardWidth)
+  let cardWidth = Math.max(
+    minWidth,
+    Math.min(maxWidth, Math.floor(availableWidth / columns)),
+  )
+
+  // Adjust columns if cardWidth hits its max width and still overflows
+  if (cardWidth === maxWidth && maxWidth * columns > availableWidth) {
+    columns = Math.floor(availableWidth / maxWidth)
+    cardWidth = maxWidth
   }
+
+  return { columns, cardSize: cardWidth }
 })
 
 const rows = computed(() => Math.floor(height.value / layout.value.cardSize))

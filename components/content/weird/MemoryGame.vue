@@ -28,14 +28,17 @@
     </header>
     <div
       class="game-board"
-      :style="{ gridTemplateColumns: `repeat(${columns}, 1fr)` }"
+      :style="{ gridTemplateColumns: `repeat(${layout.columns}, 1fr)` }"
     >
       <div v-if="isLoading" class="loader mt-4" />
       <div
         v-for="galleryImage in galleryImages"
         :key="galleryImage.id"
         class="gallery-display m-4 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden w-screen cursor-pointer"
-        :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
+        :style="{
+          width: layout.cardSize + 'px',
+          height: layout.cardSize + 'px',
+        }"
         @click="handleGalleryClick(galleryImage)"
       >
         <div :class="{ flipped: galleryImage.flipped || galleryImage.matched }">
@@ -79,16 +82,24 @@ import { useWindowSize } from '@vueuse/core'
 
 const { width, height } = useWindowSize()
 
-const columns = computed(() => Math.floor(width.value / cardSize.value))
-const cardSize = computed(() => {
-  const minSize = 100 // Minimum size of the card
-  const maxSize = 200 // Maximum size of the card
-  const baseSize = Math.min(maxSize, Math.floor(width.value / columns.value))
-  return Math.max(minSize, baseSize)
+// Assuming an average desired card width to start, then adjust based on available space
+const targetCardWidth = 150 // Target starting width for card
+
+const layout = computed(() => {
+  const columns = Math.floor(width.value / targetCardWidth)
+  const cardWidth = Math.max(
+    100,
+    Math.min(200, Math.floor(width.value / columns)),
+  ) // Ensure cardWidth remains within bounds
+
+  return {
+    columns: columns,
+    cardSize: cardWidth,
+  }
 })
 
-const rows = computed(() => Math.floor(height.value / cardSize.value))
-const numberOfCards = computed(() => rows.value * columns.value)
+const rows = computed(() => Math.floor(height.value / layout.value.cardSize))
+const numberOfCards = computed(() => rows.value * layout.value.columns)
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)
@@ -253,11 +264,9 @@ function resetGame() {
 
 onMounted(generateMemoryGameImages)
 watch(selectedDifficulty, resetGame)
-watch(cardSize, (newVal) => {
-  console.log('Computed card size:', newVal)
-})
-watch(columns, (newVal) => {
-  console.log('Computed columns:', newVal)
+watch(layout.value, () => {
+  console.log('Computed card size:', layout.value.cardSize)
+  console.log('Computed columns:', layout.value.columns)
 })
 </script>
 

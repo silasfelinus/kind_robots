@@ -43,7 +43,10 @@
     </div>
 
     <!-- Game Board Section -->
-    <div class="game-board grid" :class="`grid-cols-${layout.columns} gap-4`">
+    <div
+      class="game-board grid"
+      :class="`grid-cols-${layout.columns} gap-2 md:gap-4`"
+    >
       <div v-if="isLoading" class="loader mt-4"></div>
       <div
         v-for="galleryImage in galleryImages"
@@ -51,8 +54,8 @@
         class="gallery-display m-2 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
         :class="{ flipped: galleryImage.flipped || galleryImage.matched }"
         :style="{
-          width: layout.cardSize + 'px',
-          height: layout.cardSize + 'px',
+          width: `${layout.cardSize}px`,
+          height: `${layout.cardSize}px`,
         }"
         @click="handleGalleryClick(galleryImage)"
       >
@@ -94,27 +97,31 @@ import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
 import { useWindowSize } from '@vueuse/core'
 
-const { width, height } = useWindowSize()
+const { width } = useWindowSize()
 
 const layout = computed(() => {
+  const cardMargin = 16 // Margin around each card
+  const minCardWidth = 120 // Minimum width for each card
   const maxCardWidth = 200 // Maximum width each card can have
-  const minCardWidth = 100 // Minimum width for each card
-  const maxColumns = Math.floor(width.value / minCardWidth) // Maximum possible columns
-  const cardWidth = Math.max(
-    minCardWidth,
-    Math.min(maxCardWidth, Math.floor(width.value / maxColumns)),
+  let columns = Math.floor(
+    (width.value - cardMargin) / (minCardWidth + cardMargin),
+  )
+  let cardWidth = Math.floor(
+    (width.value - (columns + 1) * cardMargin) / columns,
   )
 
-  // Calculate the number of columns that fit into the width without overflowing
-  let columns = Math.floor(width.value / cardWidth)
-
-  // Ensure columns do not exceed a set max or go below a set min
-  columns = Math.max(1, Math.min(columns, maxColumns)) // Adjust maxColumns as needed
+  // Ensure cardWidth does not exceed maxCardWidth
+  if (cardWidth > maxCardWidth) {
+    cardWidth = maxCardWidth
+    columns = Math.floor(
+      (width.value - cardMargin) / (maxCardWidth + cardMargin),
+    )
+  }
 
   return { columns, cardSize: cardWidth }
 })
 
-const rows = computed(() => Math.floor(height.value / layout.value.cardSize))
+const rows = computed(() => Math.floor(width.value / layout.value.cardSize))
 const numberOfCards = computed(() => rows.value * layout.value.columns)
 
 const userStore = useUserStore()

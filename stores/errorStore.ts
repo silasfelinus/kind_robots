@@ -15,13 +15,20 @@ export interface ErrorHistoryEntry {
   timestamp: Date
 }
 
+interface ErrorState {
+  message: string | null;
+  type: ErrorType | null;
+  history: ErrorHistoryEntry[];
+}
+
 export const useErrorStore = defineStore('error', {
-  state: () => ({
-    message: null as string | null,
-    type: null as ErrorType | null,
-    history: [] as ErrorHistoryEntry[],
+  state: (): ErrorState => ({
+    message: null,
+    type: null,
+    history: [],
   }),
   actions: {
+    getError: (state: ErrorState) => state.message,
     setError(type: ErrorType, message: unknown) {
       let errorMessage: string
 

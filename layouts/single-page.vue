@@ -17,11 +17,16 @@ import { useWindowSize } from '@vueuse/core'
 
 const { width } = useWindowSize()
 
-// Example: Define number of columns based on the width
 const columns = computed(() => {
-  if (width.value > 1200) return 5 // Large screens
-  if (width.value > 900) return 4 // Medium screens
-  if (width.value > 600) return 3 // Small screens
-  return 2 // Extra small screens
+  console.log('Width:', width.value) // Check the width
+  if (width.value > 1200) return 6 // Adjusted for more columns on larger screens
+  if (width.value > 900) return 4
+  if (width.value > 600) return 3
+  return 2
+})
+
+// Logging the computed columns to see the actual number
+watch(columns, (newVal) => {
+  console.log('Computed columns:', newVal)
 })
 </script>

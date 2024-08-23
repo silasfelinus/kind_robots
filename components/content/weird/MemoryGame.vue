@@ -180,6 +180,11 @@ function resetGame() {
 
 onMounted(generateMemoryGameImages)
 watch(selectedDifficulty, resetGame)
+
+// Example check within your setup script
+watch(cardSize, (newVal) => {
+  console.log('Computed card size:', newVal)
+})
 </script>
 <template>
   <div
@@ -268,6 +273,13 @@ img {
   transition: transform 0.3s;
 }
 
+.container {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+}
+
 .card-front,
 .card-back {
   position: absolute;
@@ -316,6 +328,12 @@ img {
 
 /* Media query for responsiveness */
 @media (min-width: 1024px) {
+  .game-board {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(120px, 1fr)
+    ); /* Example adjustment */
+  }
   .grid-cols-3 .gallery-display {
     width: 120px;
     height: 168px;

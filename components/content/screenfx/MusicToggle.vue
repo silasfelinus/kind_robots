@@ -8,31 +8,32 @@
     </div>
 
     <!-- Player Interface -->
-    <div v-if="token" class="bg-secondary p-8 rounded shadow-lg w-1/3">
+    <div
+      v-if="token"
+      class="bg-secondary p-8 rounded shadow-lg w-1/3 text-center"
+    >
       <p class="text-info mb-4">
         Enjoy our AI-curated playlist, designed to enhance your experience with
         eclectic and playful vibes.
       </p>
+
       <!-- Current Track Information -->
-      <div v-if="currentTrack" class="flex items-center mb-4">
-        <img
-          :src="currentTrack.imageUrl"
-          class="w-16 h-16 rounded mr-4"
-          alt="Album Art"
-        />
-        <div>
-          <div class="text-accent font-semibold text-xl mb-1">
+      <div v-if="currentTrack" class="flex flex-col items-center mb-4">
+        <img :src="currentTrack.imageUrl" class="album-art" alt="Album Art" />
+        <div class="mt-2">
+          <div class="text-accent font-semibold text-xl">
             {{ currentTrack.name }}
           </div>
           <div class="text-base-100">
-            {{ currentTrack.artist }} - {{ currentTrack.album }} (
-            {{ formatDate(currentTrack.release_date) }})
+            {{ currentTrack.artist }} - {{ currentTrack.album }} ({{
+              formatDate(currentTrack.release_date)
+            }})
           </div>
         </div>
       </div>
 
       <!-- Playback Controls -->
-      <div class="flex justify-center space-x-4">
+      <div class="flex justify-center space-x-4 mt-4">
         <button class="btn btn-accent" @click="previousTrack">
           <icon name="mdi:skip-previous" class="icon-size" />
         </button>
@@ -48,20 +49,19 @@
       </div>
 
       <!-- Volume Control -->
-      <div class="mt-4 flex items-center">
+      <div class="mt-4 flex items-center justify-center">
         <icon name="mdi:volume-high" class="text-lg mr-2" />
         <input v-model="volume" type="range" class="w-full" min="0" max="100" />
       </div>
 
       <!-- Error Handling -->
-      <div v-if="error" class="mt-4">
-        <div class="text-warning">
-          {{ error }}
-        </div>
+      <div v-if="error" class="mt-4 text-warning">
+        {{ error }}
       </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useSpotifyStore } from './../../../stores/spotifyStore'
@@ -127,5 +127,17 @@ const { fetchSpotifyToken, togglePlay, nextTrack, previousTrack } = spotifyStore
 <style>
 .icon-size {
   font-size: 2rem;
+}
+
+.album-art {
+  width: 100px; /* Adjust size as needed */
+  height: 100px;
+  border-radius: 50%; /* Circular image */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  transition: transform 0.3s ease-in-out; /* Smooth transformation */
+}
+
+.album-art:hover {
+  transform: scale(1.1); /* Slightly enlarge on hover */
 }
 </style>

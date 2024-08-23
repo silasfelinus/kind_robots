@@ -43,16 +43,12 @@
 
     <!-- Game Board Section -->
     <div class="game-board flex flex-wrap justify-center gap-4">
-      <div v-if="isLoading" class="loader mt-4"></div>
+      <div v-if="isLoading" class="loader"></div>
       <div
         v-for="galleryImage in galleryImages"
         :key="galleryImage.id"
-        class="gallery-display m-2 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
-        :class="{ flipped: galleryImage.flipped || galleryImage.matched }"
-        :style="{
-          width: `${cardSize}px`,
-          height: `${cardSize}px`,
-        }"
+        class="gallery-display"
+        :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
         @click="handleGalleryClick(galleryImage)"
       >
         <img
@@ -92,16 +88,11 @@ import { ref, onMounted, watch, computed } from 'vue'
 import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
 
-// Constants for card width
-const BASE_CARD_WIDTH = 20 // Base width in rem units
-const MAX_DIFFICULTY_CARD_WIDTH = 10 // Maximum difficulty width in rem units
-
-// Compute the scaling factor for card size based on difficulty
 const cardSize = computed(() => {
-  const numCards = selectedDifficulty.value.value * 2 // Assuming value holds the number of pairs
-  const maxCards = difficulties[difficulties.length - 1].value * 2 // Assuming the last difficulty has the maximum number of cards
-  const scalingFactor = numCards / maxCards
-  return Math.max(MAX_DIFFICULTY_CARD_WIDTH, BASE_CARD_WIDTH * scalingFactor)
+  const maxDifficultyValue = difficulties[difficulties.length - 1].value // Highest number of pairs
+  const difficultyScalingFactor =
+    selectedDifficulty.value.value / maxDifficultyValue
+  return difficultyScalingFactor < 0.5 ? 100 : 150 // 100px for hard/expert, 150px otherwise
 })
 
 const numberOfCards = computed(() => selectedDifficulty.value.value * 2)
@@ -270,8 +261,29 @@ function resetGame() {
 onMounted(generateMemoryGameImages)
 watch(selectedDifficulty, resetGame)
 </script>
-
 <style scoped>
+.gallery-display {
+  @apply transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer;
+  transform-style: preserve-3d;
+}
+.card-back,
+.card-front {
+  @apply absolute inset-0 w-full h-full object-cover;
+  backface-visibility: hidden;
+  transition: transform 0.7s;
+}
+.card-front {
+  transform: rotateY(180deg);
+}
+.card-back {
+  transform: rotateY(0deg);
+}
+.flipped .card-front {
+  transform: rotateY(0deg);
+}
+.flipped .card-back {
+  transform: rotateY(-180deg);
+}
 .loader {
   @apply inline-block rounded-full text-blue-500;
   border: 4px solid rgba(255, 255, 255, 0.3);
@@ -280,72 +292,12 @@ watch(selectedDifficulty, resetGame)
   height: 40px;
   animation: spin 1s linear infinite;
 }
-
 @keyframes spin {
   0% {
     transform: rotate(0deg);
   }
   100% {
     transform: rotate(360deg);
-  }
-}
-
-/* You may need to keep custom styles for 3D card flipping */
-.gallery-display {
-  transform-style: preserve-3d;
-  transition: transform 0.3s;
-  aspect-ratio: 1 / 1;
-}
-
-.card-front,
-.card-back {
-  @apply absolute inset-0 w-full h-full;
-  backface-visibility: hidden;
-  transition: transform 0.7s;
-  border-radius: 0.75rem; /* Equivalent to 12px */
-}
-
-.card-front {
-  transform: rotateY(180deg);
-}
-
-.card-back {
-  transform: rotateY(0deg);
-}
-
-.flipped .card-front {
-  transform: rotateY(0deg);
-}
-
-.flipped .card-back {
-  transform: rotateY(-180deg);
-}
-
-/* Responsive card sizing with grid */
-.game-board {
-  @apply grid gap-4;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(min(25rem, 100%), 1fr)
-  ); /* Larger cards on large displays */
-}
-
-/* Adjustments for smaller screens */
-@media (max-width: 768px) {
-  .game-board {
-    grid-template-columns: repeat(
-      auto-fill,
-      minmax(min(10rem, 100%), 1fr)
-    ); /* Smaller cards on medium screens */
-  }
-}
-
-@media (max-width: 480px) {
-  .game-board {
-    grid-template-columns: repeat(
-      auto-fill,
-      minmax(min(8rem, 100%), 1fr)
-    ); /* Even smaller cards on small screens */
   }
 }
 </style>

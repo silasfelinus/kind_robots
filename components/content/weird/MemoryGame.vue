@@ -8,7 +8,7 @@
       <match-leaderboard />
       <div class="difficulty-controls">
         <label for="difficulty">Select Difficulty: </label>
-        <select id="difficulty" v-model="selectedDifficulty">
+        <select id="difficulty" v-model="selectedDifficulty" class="mt-1">
           <option
             v-for="difficulty in difficulties"
             :key="difficulty.label"
@@ -18,7 +18,7 @@
           </option>
         </select>
         <button
-          class="rounded-2xl text-white bg-primary p-2 m-1 border"
+          class="rounded-xl text-white bg-blue-500 p-2 mt-1 border border-transparent hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
           @click="resetGame"
         >
           Start New Game
@@ -27,32 +27,31 @@
       </div>
     </header>
     <div
-      class="game-board"
-      :style="{ gridTemplateColumns: `repeat(${layout.columns}, 1fr)` }"
+      class="game-board grid w-full"
+      :class="`grid-cols-${layout.columns} gap-4`"
     >
-      <div v-if="isLoading" class="loader mt-4" />
+      <div v-if="isLoading" class="loader mt-4"></div>
       <div
         v-for="galleryImage in galleryImages"
         :key="galleryImage.id"
-        class="gallery-display m-4 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden w-screen cursor-pointer"
+        class="gallery-display m-2 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
+        :class="{ flipped: galleryImage.flipped || galleryImage.matched }"
         :style="{
           width: layout.cardSize + 'px',
           height: layout.cardSize + 'px',
         }"
         @click="handleGalleryClick(galleryImage)"
       >
-        <div :class="{ flipped: galleryImage.flipped || galleryImage.matched }">
-          <img
-            class="card-back absolute inset-0 w-full h-full object-cover"
-            src="/images/kindtitle.webp"
-            alt="Memory Card"
-          />
-          <img
-            class="card-front absolute inset-0 w-full h-full object-cover"
-            :src="galleryImage.imagePath"
-            :alt="galleryImage.galleryName"
-          />
-        </div>
+        <img
+          class="card-back absolute inset-0 w-full h-full object-cover"
+          src="/images/kindtitle.webp"
+          alt="Memory Card"
+        />
+        <img
+          class="card-front absolute inset-0 w-full h-full object-cover"
+          :src="galleryImage.imagePath"
+          :alt="galleryImage.galleryName"
+        />
       </div>
     </div>
     <div class="game-controls mt-4 flex flex-col items-center space-y-2">
@@ -276,34 +275,36 @@ watch(layout.value, () => {
 </script>
 
 <style scoped>
-/* Styles related to card flipping animations and structure, since Tailwind does not directly cover 3D transforms and backface-visibility */
+.loader {
+  @apply inline-block rounded-full text-blue-500;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: currentColor;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* You may need to keep custom styles for 3D card flipping */
 .gallery-display {
   transform-style: preserve-3d;
-  width: 200px;
-  height: 200px;
-  margin: 0.5rem;
-}
-
-img {
-  backface-visibility: hidden;
   transition: transform 0.3s;
-}
-
-.container {
-  display: grid;
-  gap: 20px;
-  width: 100%;
-  height: 100%;
 }
 
 .card-front,
 .card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
+  @apply absolute inset-0 w-full h-full;
   backface-visibility: hidden;
   transition: transform 0.7s;
-  border-radius: 12px;
+  border-radius: 0.75rem; /* Equivalent to 12px */
 }
 
 .card-front {
@@ -320,55 +321,5 @@ img {
 
 .flipped .card-back {
   transform: rotateY(-180deg);
-}
-
-/* Loader styles */
-.loader {
-  display: inline-block;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top: 4px solid #2563eb;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Media query for responsiveness */
-@media (min-width: 1024px) {
-  .game-board {
-    grid-template-columns: repeat(
-      auto-fill,
-      minmax(120px, 1fr)
-    ); /* Example adjustment */
-  }
-  .grid-cols-3 .gallery-display {
-    width: 120px;
-    height: 168px;
-  }
-
-  .grid-cols-5 .gallery-display {
-    width: 100px;
-    height: 140px;
-  }
-
-  .grid-cols-7 .gallery-display {
-    width: 90px;
-    height: 126px;
-  }
-}
-
-.game-board {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--card-size), 1fr));
-  gap: 1rem;
 }
 </style>

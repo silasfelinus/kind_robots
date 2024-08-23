@@ -9,7 +9,6 @@
       <div class="md:w-1/2">
         <match-leaderboard />
       </div>
-
       <!-- Right Column for Title, Instructions, and Controls -->
       <div class="md:w-1/2 space-y-4">
         <header class="text-center md:text-left space-y-2">
@@ -43,10 +42,7 @@
     </div>
 
     <!-- Game Board Section -->
-    <div
-      class="game-board grid"
-      :class="`grid-cols-${layout.columns} gap-2 md:gap-4`"
-    >
+    <div class="game-board flex flex-wrap justify-center gap-4">
       <div v-if="isLoading" class="loader mt-4"></div>
       <div
         v-for="galleryImage in galleryImages"
@@ -95,34 +91,15 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
-import { useWindowSize } from '@vueuse/core'
-
-const { width } = useWindowSize()
 
 const layout = computed(() => {
-  const cardMargin = 16 // Margin around each card
-  const minCardWidth = 120 // Minimum width for each card
+  const idealCardWidth = 150 // Ideal width for each card
   const maxCardWidth = 200 // Maximum width each card can have
-  let columns = Math.floor(
-    (width.value - cardMargin) / (minCardWidth + cardMargin),
-  )
-  let cardWidth = Math.floor(
-    (width.value - (columns + 1) * cardMargin) / columns,
-  )
-
-  // Ensure cardWidth does not exceed maxCardWidth
-  if (cardWidth > maxCardWidth) {
-    cardWidth = maxCardWidth
-    columns = Math.floor(
-      (width.value - cardMargin) / (maxCardWidth + cardMargin),
-    )
-  }
-
-  return { columns, cardSize: cardWidth }
+  const cardWidth = Math.min(maxCardWidth, Math.max(100, idealCardWidth))
+  return { cardSize: cardWidth }
 })
 
-const rows = computed(() => Math.floor(width.value / layout.value.cardSize))
-const numberOfCards = computed(() => rows.value * layout.value.columns)
+const numberOfCards = computed(() => selectedDifficulty.value.value * 2)
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)
@@ -287,10 +264,6 @@ function resetGame() {
 
 onMounted(generateMemoryGameImages)
 watch(selectedDifficulty, resetGame)
-watch(layout.value, () => {
-  console.log('Computed card size:', layout.value.cardSize)
-  console.log('Computed columns:', layout.value.columns)
-})
 </script>
 
 <style scoped>

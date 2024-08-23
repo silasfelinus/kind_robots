@@ -84,20 +84,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, computed } from 'vue'
 import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
+import { useWindowSize } from '@vueuse/core'
 
+const { width } = useWindowSize()
+
+const difficulties = [
+  { label: 'Easy', value: 8 },
+  { label: 'Medium', value: 12 },
+  { label: 'Hard', value: 16 },
+  { label: 'Expert', value: 24 },
+]
+const selectedDifficulty = ref(difficulties[1])
+
+// Compute card size based on the difficulty and screen width
 const cardSize = computed(() => {
-  const maxDifficultyValue = difficulties[difficulties.length - 1].value // Highest number of pairs
-  const difficultyScalingFactor =
-    selectedDifficulty.value.value / maxDifficultyValue
-  return difficultyScalingFactor < 0.5 ? 100 : 150 // 100px for hard/expert, 150px otherwise
+  const numPairs = selectedDifficulty.value.value
+  const baseSize = width.value > 768 ? 150 : 100 // Larger base size for wider screens
+  const minSize = width.value > 768 ? 100 : 80 // Minimum size for cards
+  const sizeReduction = (numPairs / 8) * 5 // Reduce size as the number of pairs increases
+  return Math.max(minSize, baseSize - sizeReduction)
 })
+
+interface GalleryImage {
+  id: number
+  galleryName: string
+  imagePath: string
+  flipped: boolean
+  matched: boolean
+}
+
+const galleryImages = ref<GalleryImage[]>([])
+const gameWon = ref(false)
+const isLoading = ref(true)
+const userStore = useUserStore()
 
 const numberOfCards = computed(() => selectedDifficulty.value.value * 2)
 
-const userStore = useUserStore()
 const user = computed(() => userStore.user)
 const matchRecord = computed(() => userStore.matchRecord)
 
@@ -122,18 +147,8 @@ const triggerConfetti = () => {
   })
 }
 
-const galleryImages = ref<GalleryImage[]>([])
-const difficulties = [
-  { label: 'Easy', value: 8 },
-  { label: 'Medium', value: 12 },
-  { label: 'Hard', value: 16 },
-  { label: 'Expert', value: 24 },
-]
-const selectedDifficulty = ref(difficulties[1]) // Default to 'Medium'
-const gameWon = ref(false)
 const notification = ref<CustomNotification | null>(null)
 const shouldShowMilestoneCheck = ref(false)
-const isLoading = ref(true)
 
 const pairsNeeded = computed(() =>
   Math.min(

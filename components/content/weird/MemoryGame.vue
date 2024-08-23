@@ -289,6 +289,7 @@ watch(selectedDifficulty, resetGame)
 .gallery-display {
   transform-style: preserve-3d;
   transition: transform 0.3s;
+  aspect-ratio: 1 / 1;
 }
 
 .card-front,
@@ -313,5 +314,18 @@ watch(selectedDifficulty, resetGame)
 
 .flipped .card-back {
   transform: rotateY(-180deg);
+}
+
+/* Responsive card sizing with grid */
+.game-board {
+  @apply grid gap-4;
+  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+}
+
+/* Adjustments for smaller screens */
+@media (max-width: 640px) {
+  .game-board {
+    grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+  }
 }
 </style>

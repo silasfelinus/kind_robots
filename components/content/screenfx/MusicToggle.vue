@@ -9,6 +9,10 @@
 
     <!-- Player Interface -->
     <div v-if="token" class="bg-secondary p-8 rounded shadow-lg w-1/3">
+      <p class="text-info mb-4">
+        Enjoy our AI-curated playlist, designed to enhance your experience with
+        eclectic and playful vibes.
+      </p>
       <!-- Current Track Information -->
       <div v-if="currentTrack" class="flex items-center mb-4">
         <img
@@ -54,24 +58,23 @@
         <div class="text-warning">
           {{ error }}
         </div>
-        <button class="btn btn-accent mt-2" @click="clearError">
-          Clear Error
-        </button>
       </div>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useSpotifyStore } from './../../../stores/spotifyStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
 const spotifyStore = useSpotifyStore()
+const errorStore = useErrorStore()
 const token = computed(() => spotifyStore.token)
 const currentTrack = computed(() => spotifyStore.currentTrack)
 const isPlaying = computed(() => spotifyStore.isPlaying)
-const error = computed(() => spotifyStore.error)
+const error = computed(() => errorStore.message) // Adjusted to access message correctly
 const volume = ref(50)
+const playlist = '4Y6iPSlNSUcaDG9sTOXyhJ'
 
 const formatDate = (date: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -104,14 +107,20 @@ onMounted(async () => {
       )
       const data = await response.json()
       spotifyStore.setToken(data.access_token)
+      if (token.value) {
+        await spotifyStore.shufflePlaylist(playlist)
+      }
     } catch (error) {
       console.error('Error fetching Spotify token:', error)
+      errorStore.setError(
+        ErrorType.NETWORK_ERROR,
+        'Failed to start playlist in shuffle mode',
+      )
     }
   }
 })
 
-const { fetchSpotifyToken, togglePlay, nextTrack, previousTrack, clearError } =
-  spotifyStore
+const { fetchSpotifyToken, togglePlay, nextTrack, previousTrack } = spotifyStore
 </script>
 
 <style>

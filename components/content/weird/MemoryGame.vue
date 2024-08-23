@@ -50,8 +50,8 @@
         class="gallery-display m-2 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
         :class="{ flipped: galleryImage.flipped || galleryImage.matched }"
         :style="{
-          width: `${layout.cardSize}px`,
-          height: `${layout.cardSize}px`,
+          width: `${cardSize}px`,
+          height: `${cardSize}px`,
         }"
         @click="handleGalleryClick(galleryImage)"
       >
@@ -92,11 +92,16 @@ import { ref, onMounted, watch, computed } from 'vue'
 import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
 
-const layout = computed(() => {
-  const idealCardWidth = 150 // Ideal width for each card
-  const maxCardWidth = 200 // Maximum width each card can have
-  const cardWidth = Math.min(maxCardWidth, Math.max(100, idealCardWidth))
-  return { cardSize: cardWidth }
+// Constants for card width
+const BASE_CARD_WIDTH = 20 // Base width in rem units
+const MAX_DIFFICULTY_CARD_WIDTH = 10 // Maximum difficulty width in rem units
+
+// Compute the scaling factor for card size based on difficulty
+const cardSize = computed(() => {
+  const numCards = selectedDifficulty.value.value * 2 // Assuming value holds the number of pairs
+  const maxCards = difficulties[difficulties.length - 1].value * 2 // Assuming the last difficulty has the maximum number of cards
+  const scalingFactor = numCards / maxCards
+  return Math.max(MAX_DIFFICULTY_CARD_WIDTH, BASE_CARD_WIDTH * scalingFactor)
 })
 
 const numberOfCards = computed(() => selectedDifficulty.value.value * 2)
@@ -319,13 +324,28 @@ watch(selectedDifficulty, resetGame)
 /* Responsive card sizing with grid */
 .game-board {
   @apply grid gap-4;
-  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(25rem, 100%), 1fr)
+  ); /* Larger cards on large displays */
 }
 
 /* Adjustments for smaller screens */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .game-board {
-    grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(min(10rem, 100%), 1fr)
+    ); /* Smaller cards on medium screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .game-board {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(min(8rem, 100%), 1fr)
+    ); /* Even smaller cards on small screens */
   }
 }
 </style>

@@ -97,7 +97,7 @@ const difficulties = [
   { label: 'Hard', value: 16 },
   { label: 'Expert', value: 24 },
 ]
-const selectedDifficulty = ref(difficulties[1])
+const selectedDifficulty = ref(difficulties[0])
 
 // Compute card size based on the difficulty and screen width
 const cardSize = computed(() => {
@@ -278,27 +278,34 @@ watch(selectedDifficulty, resetGame)
 </script>
 <style scoped>
 .gallery-display {
-  @apply transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer;
-  transform-style: preserve-3d;
+  @apply relative w-full max-w-xs mx-auto my-2 overflow-hidden rounded-xl cursor-pointer;
+  perspective: 1000px; /* Adds depth to the flipping effect */
 }
+
 .card-back,
 .card-front {
-  @apply absolute inset-0 w-full h-full object-cover;
-  backface-visibility: hidden;
-  transition: transform 0.7s;
+  @apply absolute inset-0 w-full h-full transition-transform duration-700 ease-in-out;
+  backface-visibility: hidden; /* Ensures that the back of the card isn't visible when not facing the viewer */
 }
+
 .card-front {
-  transform: rotateY(180deg);
+  transform: rotateY(0deg); /* Initial position for the front of the card */
 }
+
 .card-back {
-  transform: rotateY(0deg);
+  transform: rotateY(
+    180deg
+  ); /* Initial position for the back of the card, flipped by default */
 }
+
 .flipped .card-front {
-  transform: rotateY(0deg);
+  transform: rotateY(-180deg); /* Flips the front to the back */
 }
+
 .flipped .card-back {
-  transform: rotateY(-180deg);
+  transform: rotateY(0deg); /* Flips the back to the front */
 }
+
 .loader {
   @apply inline-block rounded-full text-blue-500;
   border: 4px solid rgba(255, 255, 255, 0.3);
@@ -307,6 +314,7 @@ watch(selectedDifficulty, resetGame)
   height: 40px;
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);

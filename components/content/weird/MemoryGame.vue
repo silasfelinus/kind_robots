@@ -43,10 +43,7 @@
     </div>
 
     <!-- Game Board Section -->
-    <div
-      class="game-board grid w-full"
-      :class="`grid-cols-${layout.columns} gap-4`"
-    >
+    <div class="game-board grid" :class="`grid-cols-${layout.columns} gap-4`">
       <div v-if="isLoading" class="loader mt-4"></div>
       <div
         v-for="galleryImage in galleryImages"
@@ -100,22 +97,19 @@ import { useWindowSize } from '@vueuse/core'
 const { width, height } = useWindowSize()
 
 const layout = computed(() => {
-  const maxWidth = 200 // max width each card can have
-  const minWidth = 100 // minimum width for each card
-  const desiredCardWidth = 150 // initially desired width for each card
-  const availableWidth = width.value - 32 // subtracting some margin, adjust as needed
-
-  let columns = Math.floor(availableWidth / desiredCardWidth)
-  let cardWidth = Math.max(
-    minWidth,
-    Math.min(maxWidth, Math.floor(availableWidth / columns)),
+  const maxCardWidth = 200 // Maximum width each card can have
+  const minCardWidth = 100 // Minimum width for each card
+  const maxColumns = Math.floor(width.value / minCardWidth) // Maximum possible columns
+  const cardWidth = Math.max(
+    minCardWidth,
+    Math.min(maxCardWidth, Math.floor(width.value / maxColumns)),
   )
 
-  // Adjust columns if cardWidth hits its max width and still overflows
-  if (cardWidth === maxWidth && maxWidth * columns > availableWidth) {
-    columns = Math.floor(availableWidth / maxWidth)
-    cardWidth = maxWidth
-  }
+  // Calculate the number of columns that fit into the width without overflowing
+  let columns = Math.floor(width.value / cardWidth)
+
+  // Ensure columns do not exceed a set max or go below a set min
+  columns = Math.max(1, Math.min(columns, maxColumns)) // Adjust maxColumns as needed
 
   return { columns, cardSize: cardWidth }
 })

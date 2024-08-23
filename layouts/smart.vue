@@ -1,17 +1,32 @@
 <template>
-  <div class="flex flex-nowrap overflow-x-auto">
-    <slot />
+  <div
+    class="h-screen w-screen m-2 border-2 border-accent bg-primary rounded-2xl overflow-hidden flex items-center justify-center p-4"
+  >
+    <div
+      class="grid w-full h-full"
+      :style="`grid-template-columns: repeat(${columns}, minmax(0, 1fr)); gap: 16px;`"
+    >
+      <slot />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed } from 'vue'
+import { useWindowSize } from '@vueuse/core'
 
-const columnWidth = 300 // Width of each column in pixels
-const columns = ref(1)
+const { width } = useWindowSize()
 
-onMounted(() => {
-  const containerWidth = window.innerWidth
-  columns.value = Math.floor(containerWidth / columnWidth)
+const columns = computed(() => {
+  console.log('Width:', width.value) // Check the width
+  if (width.value > 1200) return 6 // Adjusted for more columns on larger screens
+  if (width.value > 900) return 4
+  if (width.value > 600) return 3
+  return 2
+})
+
+// Logging the computed columns to see the actual number
+watch(columns, (newVal) => {
+  console.log('Computed columns:', newVal)
 })
 </script>

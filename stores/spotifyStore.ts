@@ -254,6 +254,7 @@ async fetchSpotifyToken() {
 
     async playTrack(trackId: string) {
       const errorStore = useErrorStore();
+      console.log("Attempting to play");  
       try {
         if (!this.token) {
           throw new Error('Token is not available.')
@@ -301,6 +302,7 @@ async fetchSpotifyToken() {
     },
     async nextTrack() {
       const errorStore = useErrorStore();
+      console.log("Going to next track");
       try {
         if (!this.token) {
           throw new Error('Token is not available.')
@@ -322,6 +324,7 @@ async fetchSpotifyToken() {
     },
     async previousTrack() {
       const errorStore = useErrorStore();
+      console.log("Going to previous track");
       try {
         if (!this.token) {
           throw new Error('Token is not available.')

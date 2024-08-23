@@ -277,33 +277,46 @@ onMounted(generateMemoryGameImages)
 watch(selectedDifficulty, resetGame)
 </script>
 <style scoped>
-.gallery-display {
-  @apply relative w-full max-w-xs mx-auto my-2 overflow-hidden rounded-xl cursor-pointer;
-  perspective: 1000px; /* Adds depth to the flipping effect */
+img {
+  backface-visibility: hidden;
+  transition: transform 0.3s;
 }
 
-.card-back,
-.card-front {
-  @apply absolute inset-0 w-full h-full transition-transform duration-700 ease-in-out;
-  backface-visibility: hidden; /* Ensures that the back of the card isn't visible when not facing the viewer */
+.container {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  transition: transform 0.7s;
+  border-radius: 12px;
 }
 
 .card-front {
-  transform: rotateY(0deg); /* Initial position for the front of the card */
+  transform: rotateY(180deg);
 }
 
 .card-back {
-  transform: rotateY(
-    180deg
-  ); /* Initial position for the back of the card, flipped by default */
+  transform: rotateY(0deg);
 }
 
 .flipped .card-front {
-  transform: rotateY(-180deg); /* Flips the front to the back */
+  transform: rotateY(0deg);
 }
 
 .flipped .card-back {
-  transform: rotateY(0deg); /* Flips the back to the front */
+  transform: rotateY(-180deg);
+}
+.gallery-display {
+  @apply relative w-full max-w-xs mx-auto my-2 overflow-hidden rounded-xl cursor-pointer;
+  perspective: 1000px; /* Adds depth to the flipping effect */
 }
 
 .loader {

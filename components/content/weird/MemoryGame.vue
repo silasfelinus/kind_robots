@@ -315,14 +315,18 @@ img {
   transform: rotateY(-180deg);
 }
 .gallery-display {
-  @apply relative w-full max-w-xs mx-auto my-2 overflow-hidden rounded-xl cursor-pointer;
+  transform-style: preserve-3d;
+  width: 200px;
+  height: 200px;
+  margin: 0.5rem;
   perspective: 1000px; /* Adds depth to the flipping effect */
 }
 
 .loader {
-  @apply inline-block rounded-full text-blue-500;
+  display: inline-block;
   border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: currentColor;
+  border-radius: 50%;
+  border-top: 4px solid #2563eb;
   width: 40px;
   height: 40px;
   animation: spin 1s linear infinite;

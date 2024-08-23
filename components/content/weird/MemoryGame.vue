@@ -182,8 +182,12 @@ onMounted(generateMemoryGameImages)
 watch(selectedDifficulty, resetGame)
 
 // Example check within your setup script
+watch(columns, (newVal) => {
+  console.log('Computed columns:', newVal) // This will show how many columns are being calculated
+})
+
 watch(cardSize, (newVal) => {
-  console.log('Computed card size:', newVal)
+  console.log('Computed card size:', newVal) // This will show the size of each card
 })
 </script>
 <template>
@@ -348,5 +352,11 @@ img {
     width: 90px;
     height: 126px;
   }
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-size), 1fr));
+  gap: 1rem;
 }
 </style>

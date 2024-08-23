@@ -2,30 +2,47 @@
   <div
     class="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center space-y-6"
   >
-    <header class="text-center space-y-2">
-      <h1 class="text-4xl font-bold">Kind Robots Memory Game</h1>
-      <p class="text-gray-600">Match the images and test your memory!</p>
-      <match-leaderboard />
-      <div class="difficulty-controls">
-        <label for="difficulty">Select Difficulty: </label>
-        <select id="difficulty" v-model="selectedDifficulty" class="mt-1">
-          <option
-            v-for="difficulty in difficulties"
-            :key="difficulty.label"
-            :value="difficulty"
-          >
-            {{ difficulty.label }}
-          </option>
-        </select>
-        <button
-          class="rounded-xl text-white bg-blue-500 p-2 mt-1 border border-transparent hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
-          @click="resetGame"
-        >
-          Start New Game
-        </button>
-        <milestone-reward v-if="shouldShowMilestoneCheck" :id="5" />
+    <div
+      class="w-full flex flex-col md:flex-row justify-between space-y-6 md:space-y-0 md:space-x-6"
+    >
+      <!-- Left Column for Leaderboard -->
+      <div class="md:w-1/2">
+        <match-leaderboard />
       </div>
-    </header>
+
+      <!-- Right Column for Title, Instructions, and Controls -->
+      <div class="md:w-1/2 space-y-4">
+        <header class="text-center md:text-left space-y-2">
+          <h1 class="text-4xl font-bold">Kind Robots Memory Game</h1>
+          <p class="text-gray-600">Match the images and test your memory!</p>
+        </header>
+        <div class="difficulty-controls space-y-2">
+          <label for="difficulty" class="block">Select Difficulty:</label>
+          <select
+            id="difficulty"
+            v-model="selectedDifficulty"
+            class="mt-1 block w-full"
+          >
+            <option
+              v-for="difficulty in difficulties"
+              :key="difficulty.label"
+              :value="difficulty"
+            >
+              {{ difficulty.label }}
+            </option>
+          </select>
+          <button
+            class="rounded-xl text-white bg-blue-500 p-2 mt-1 border border-transparent hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300 w-full"
+            @click="resetGame"
+          >
+            Start New Game
+          </button>
+          <milestone-reward v-if="shouldShowMilestoneCheck" :id="5" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Board Section -->
     <div
       class="game-board grid w-full"
       :class="`grid-cols-${layout.columns} gap-4`"
@@ -54,6 +71,7 @@
         />
       </div>
     </div>
+
     <div class="game-controls mt-4 flex flex-col items-center space-y-2">
       <div v-if="notification" :class="notificationClasses">
         {{ notification.message }}

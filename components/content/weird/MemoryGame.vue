@@ -1,195 +1,3 @@
-<script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
-import confetti from 'canvas-confetti'
-import { useUserStore } from '../../../stores/userStore'
-import { useWindowSize } from '@vueuse/core'
-
-const { width, height } = useWindowSize()
-
-const cardSize = computed(() => {
-  // Assuming a minimum card size of 100px by 100px
-  const maxWidth = Math.max(100, width.value / 4)
-  const maxHeight = Math.max(100, height.value / 4)
-  return Math.min(maxWidth, maxHeight) // Choose the smaller to fit both dimensions
-})
-
-const rows = computed(() => Math.floor(height.value / cardSize.value))
-const columns = computed(() => Math.floor(width.value / cardSize.value))
-
-// Compute the number of visible cards based on rows and columns
-const numberOfCards = computed(() => rows.value * columns.value)
-
-const userStore = useUserStore()
-const user = computed(() => userStore.user)
-const matchRecord = computed(() => userStore.matchRecord)
-
-interface GalleryImage {
-  id: number
-  galleryName: string
-  imagePath: string
-  flipped: boolean
-  matched: boolean
-}
-
-interface CustomNotification {
-  type: 'error' | 'info'
-  message: string
-}
-
-const triggerConfetti = () => {
-  confetti({
-    particleCount: 100,
-    spread: 70,
-    origin: { y: 0.6 },
-  })
-}
-const galleryImages = ref<GalleryImage[]>([])
-const difficulties = [
-  { label: 'Easy', value: 8 },
-  { label: 'Medium', value: 12 },
-  { label: 'Hard', value: 16 },
-]
-const selectedDifficulty = ref(difficulties[0]) // Default to 'Easy'
-const gameWon = ref(false)
-const notification = ref<CustomNotification | null>(null)
-const shouldShowMilestoneCheck = ref(false)
-const isLoading = ref(true)
-
-function isClientSide() {
-  return typeof window !== 'undefined'
-}
-
-const highScore = ref<number>(0) // Default to 0
-
-if (isClientSide()) {
-  const savedHighScore = user.value?.matchRecord
-  if (savedHighScore) {
-    highScore.value = Number(savedHighScore)
-  }
-}
-let firstSelected: GalleryImage | null = null
-
-async function generateMemoryGameImages() {
-  try {
-    isLoading.value = true
-    gameWon.value = false
-
-    // Determine the number of image pairs needed based on the computed card slots
-    const pairsNeeded = Math.floor(numberOfCards.value / 2)
-    const response = await fetch(`/api/galleries/random/count/${pairsNeeded}`)
-    const data = await response.json()
-
-    if (data.images.length !== pairsNeeded) {
-      throw new Error('Received an unexpected number of images.')
-    }
-
-    // Duplicate the images for matching pairs and shuffle
-    galleryImages.value = data.images
-      .concat(data.images)
-      .map((imagePath: string, index: number) => ({
-        id: index,
-        galleryName: '',
-        imagePath,
-        flipped: false,
-        matched: false,
-      }))
-      .sort(() => 0.5 - Math.random())
-
-    isLoading.value = false
-  } catch (error) {
-    isLoading.value = false
-    console.error('Error generating images:', error)
-    notification.value = {
-      type: 'error',
-      message: 'Error generating images. Please try again later.',
-    }
-  }
-}
-
-const score = ref(0) // Initialize score to 0
-function handleGalleryClick(clickedGallery: GalleryImage) {
-  if (clickedGallery.flipped || clickedGallery.matched) return
-
-  clickedGallery.flipped = true
-
-  if (!firstSelected) {
-    firstSelected = clickedGallery
-  } else if (
-    firstSelected &&
-    firstSelected.imagePath === clickedGallery.imagePath
-  ) {
-    // Match found
-    clickedGallery.matched = true
-    firstSelected.matched = true
-    score.value += 10 // Increase score by 10
-
-    setTimeout(() => {
-      firstSelected = null
-    }, 500)
-
-    // Check for game win condition
-    if (galleryImages.value.every((g) => g.matched)) {
-      gameWon.value = true
-      triggerConfetti()
-      if (matchRecord.value < score.value || matchRecord.value === null) {
-        userStore.updateMatchRecord(score.value)
-      }
-      if (score.value >= 50) {
-        shouldShowMilestoneCheck.value = true
-      }
-      // Update high score if needed
-      if (score.value > highScore.value || score.value > matchRecord.value) {
-        highScore.value = score.value
-        if (isClientSide()) {
-          localStorage.setItem('highScore', highScore.value.toString())
-        }
-      }
-    }
-  } else {
-    // No match found
-    score.value -= 5 // Deduct score by 5
-
-    setTimeout(() => {
-      clickedGallery.flipped = false
-      if (firstSelected) {
-        // Ensure firstSelected is not null before accessing its properties
-        firstSelected.flipped = false
-      }
-      firstSelected = null
-    }, 500)
-  }
-}
-
-const notificationClasses = computed(() => {
-  const baseClasses = 'notification py-2 px-4 rounded-lg mb-2'
-  if (!notification.value) return baseClasses
-  return notification.value.type === 'error'
-    ? `${baseClasses} bg-red-200 text-red-700`
-    : `${baseClasses} bg-green-200 text-green-700`
-})
-
-function resetGame() {
-  galleryImages.value.forEach((img) => {
-    img.flipped = false
-    img.matched = false
-  })
-  score.value = 0
-  firstSelected = null
-  generateMemoryGameImages()
-}
-
-onMounted(generateMemoryGameImages)
-watch(selectedDifficulty, resetGame)
-
-// Example check within your setup script
-watch(columns, (newVal) => {
-  console.log('Computed columns:', newVal) // This will show how many columns are being calculated
-})
-
-watch(cardSize, (newVal) => {
-  console.log('Computed card size:', newVal) // This will show the size of each card
-})
-</script>
 <template>
   <div
     class="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center space-y-6"
@@ -262,6 +70,196 @@ watch(cardSize, (newVal) => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, onMounted, watch, computed } from 'vue'
+import confetti from 'canvas-confetti'
+import { useUserStore } from '../../../stores/userStore'
+import { useWindowSize } from '@vueuse/core'
+
+const { width, height } = useWindowSize()
+
+const columns = computed(() => Math.floor(width.value / cardSize.value))
+const cardSize = computed(() => {
+  const minSize = 100 // Minimum size of the card
+  const maxSize = 200 // Maximum size of the card
+  const baseSize = Math.min(maxSize, Math.floor(width.value / columns.value))
+  return Math.max(minSize, baseSize)
+})
+
+const rows = computed(() => Math.floor(height.value / cardSize.value))
+const numberOfCards = computed(() => rows.value * columns.value)
+
+const userStore = useUserStore()
+const user = computed(() => userStore.user)
+const matchRecord = computed(() => userStore.matchRecord)
+
+interface GalleryImage {
+  id: number
+  galleryName: string
+  imagePath: string
+  flipped: boolean
+  matched: boolean
+}
+
+interface CustomNotification {
+  type: 'error' | 'info'
+  message: string
+}
+
+const triggerConfetti = () => {
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 },
+  })
+}
+
+const galleryImages = ref<GalleryImage[]>([])
+const difficulties = [
+  { label: 'Easy', value: 8 },
+  { label: 'Medium', value: 12 },
+  { label: 'Hard', value: 16 },
+  { label: 'Expert', value: 24 },
+]
+const selectedDifficulty = ref(difficulties[1]) // Default to 'Medium'
+const gameWon = ref(false)
+const notification = ref<CustomNotification | null>(null)
+const shouldShowMilestoneCheck = ref(false)
+const isLoading = ref(true)
+
+const pairsNeeded = computed(() =>
+  Math.min(
+    selectedDifficulty.value.value / 2,
+    Math.floor(numberOfCards.value / 2),
+  ),
+)
+
+function isClientSide() {
+  return typeof window !== 'undefined'
+}
+
+const highScore = ref<number>(0) // Default to 0
+
+if (isClientSide()) {
+  const savedHighScore = user.value?.matchRecord
+  if (savedHighScore) {
+    highScore.value = Number(savedHighScore)
+  }
+}
+let firstSelected: GalleryImage | null = null
+
+async function generateMemoryGameImages() {
+  try {
+    isLoading.value = true
+    gameWon.value = false
+
+    const response = await fetch(
+      `/api/galleries/random/count/${pairsNeeded.value}`,
+    )
+    const data = await response.json()
+
+    if (data.images.length !== pairsNeeded.value) {
+      throw new Error('Received an unexpected number of images.')
+    }
+
+    galleryImages.value = [...data.images, ...data.images]
+      .map((image, index) => ({
+        id: index,
+        galleryName: '',
+        imagePath: image,
+        flipped: false,
+        matched: false,
+      }))
+      .sort(() => 0.5 - Math.random())
+
+    isLoading.value = false
+  } catch (error) {
+    isLoading.value = false
+    console.error('Error generating images:', error)
+    notification.value = {
+      type: 'error',
+      message: 'Error generating images. Please try again later.',
+    }
+  }
+}
+
+const score = ref(0)
+function handleGalleryClick(clickedGallery: GalleryImage) {
+  if (clickedGallery.flipped || clickedGallery.matched) return
+
+  clickedGallery.flipped = true
+
+  if (!firstSelected) {
+    firstSelected = clickedGallery
+  } else if (
+    firstSelected &&
+    firstSelected.imagePath === clickedGallery.imagePath
+  ) {
+    clickedGallery.matched = true
+    firstSelected.matched = true
+    score.value += 10
+
+    setTimeout(() => {
+      firstSelected = null
+    }, 500)
+
+    if (galleryImages.value.every((g) => g.matched)) {
+      gameWon.value = true
+      triggerConfetti()
+      if (matchRecord.value < score.value || matchRecord.value === null) {
+        userStore.updateMatchRecord(score.value)
+      }
+      if (score.value >= 50) {
+        shouldShowMilestoneCheck.value = true
+      }
+      if (score.value > highScore.value || score.value > matchRecord.value) {
+        highScore.value = score.value
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('highScore', highScore.value.toString())
+        }
+      }
+    }
+  } else {
+    score.value -= 5
+
+    setTimeout(() => {
+      clickedGallery.flipped = false
+      if (firstSelected) {
+        firstSelected.flipped = false
+      }
+      firstSelected = null
+    }, 500)
+  }
+}
+
+const notificationClasses = computed(() => {
+  const baseClasses = 'notification py-2 px-4 rounded-lg mb-2'
+  if (!notification.value) return baseClasses
+  return notification.value.type === 'error'
+    ? `${baseClasses} bg-red-200 text-red-700`
+    : `${baseClasses} bg-green-200 text-green-700`
+})
+
+function resetGame() {
+  galleryImages.value.forEach((img) => {
+    img.flipped = false
+    img.matched = false
+  })
+  score.value = 0
+  firstSelected = null
+  generateMemoryGameImages()
+}
+
+onMounted(generateMemoryGameImages)
+watch(selectedDifficulty, resetGame)
+watch(cardSize, (newVal) => {
+  console.log('Computed card size:', newVal)
+})
+watch(columns, (newVal) => {
+  console.log('Computed columns:', newVal)
+})
+</script>
 
 <style scoped>
 /* Styles related to card flipping animations and structure, since Tailwind does not directly cover 3D transforms and backface-visibility */

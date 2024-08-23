@@ -2,6 +2,22 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
+import { useWindowSize } from '@vueuse/core'
+
+const { width, height } = useWindowSize()
+
+const cardSize = computed(() => {
+  // Assuming a minimum card size of 100px by 100px
+  const maxWidth = Math.max(100, width.value / 4)
+  const maxHeight = Math.max(100, height.value / 4)
+  return Math.min(maxWidth, maxHeight) // Choose the smaller to fit both dimensions
+})
+
+const rows = computed(() => Math.floor(height.value / cardSize.value))
+const columns = computed(() => Math.floor(width.value / cardSize.value))
+
+// Compute the number of visible cards based on rows and columns
+const numberOfCards = computed(() => rows.value * columns.value)
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)
@@ -14,8 +30,9 @@ interface GalleryImage {
   flipped: boolean
   matched: boolean
 }
+
 interface CustomNotification {
-  type: 'error' | 'info' // add more types if needed
+  type: 'error' | 'info'
   message: string
 }
 
@@ -34,7 +51,6 @@ const difficulties = [
 ]
 const selectedDifficulty = ref(difficulties[0]) // Default to 'Easy'
 const gameWon = ref(false)
-
 const notification = ref<CustomNotification | null>(null)
 const shouldShowMilestoneCheck = ref(false)
 const isLoading = ref(true)
@@ -56,32 +72,32 @@ let firstSelected: GalleryImage | null = null
 async function generateMemoryGameImages() {
   try {
     isLoading.value = true
-
     gameWon.value = false
 
-    const imageCount = Math.ceil(selectedDifficulty.value.value / 2)
-
-    const response = await fetch(`/api/galleries/random/count/${imageCount}`)
+    // Determine the number of image pairs needed based on the computed card slots
+    const pairsNeeded = Math.floor(numberOfCards.value / 2)
+    const response = await fetch(`/api/galleries/random/count/${pairsNeeded}`)
     const data = await response.json()
 
-    if (data.images.length !== imageCount) {
+    if (data.images.length !== pairsNeeded) {
       throw new Error('Received an unexpected number of images.')
     }
 
+    // Duplicate the images for matching pairs and shuffle
     galleryImages.value = data.images
-      .concat(data.images) // Duplicate the images for matching pairs
+      .concat(data.images)
       .map((imagePath: string, index: number) => ({
         id: index,
-        galleryName: '', // Adjust this if the API returns a gallery name or description
+        galleryName: '',
         imagePath,
         flipped: false,
         matched: false,
       }))
       .sort(() => 0.5 - Math.random())
+
     isLoading.value = false
   } catch (error) {
     isLoading.value = false
-
     console.error('Error generating images:', error)
     notification.value = {
       type: 'error',
@@ -165,7 +181,6 @@ function resetGame() {
 onMounted(generateMemoryGameImages)
 watch(selectedDifficulty, resetGame)
 </script>
-
 <template>
   <div
     class="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center space-y-6"
@@ -194,28 +209,24 @@ watch(selectedDifficulty, resetGame)
         <milestone-reward v-if="shouldShowMilestoneCheck" :id="5" />
       </div>
     </header>
-
     <div
-      class="game-board w-full max-w-4xl flex flex-wrap justify-center items-center"
+      class="game-board"
+      :style="{ gridTemplateColumns: `repeat(${columns}, 1fr)` }"
     >
-      <!-- Loader -->
       <div v-if="isLoading" class="loader mt-4" />
-
-      <!-- Game Cards -->
       <div
         v-for="galleryImage in galleryImages"
         :key="galleryImage.id"
         class="gallery-display m-4 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden w-screen cursor-pointer"
+        :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
         @click="handleGalleryClick(galleryImage)"
       >
         <div :class="{ flipped: galleryImage.flipped || galleryImage.matched }">
-          <!-- This is the back of the card -->
           <img
             class="card-back absolute inset-0 w-full h-full object-cover"
             src="/images/kindtitle.webp"
             alt="Memory Card"
           />
-          <!-- This is the front of the card -->
           <img
             class="card-front absolute inset-0 w-full h-full object-cover"
             :src="galleryImage.imagePath"
@@ -224,13 +235,7 @@ watch(selectedDifficulty, resetGame)
         </div>
       </div>
     </div>
-
-    <!-- Game Controls -->
-    <div
-      class="game-controls mt-4 flex flex-col items-center space-y-2"
-      aria-live="polite"
-      role="status"
-    >
+    <div class="game-controls mt-4 flex flex-col items-center space-y-2">
       <div v-if="notification" :class="notificationClasses">
         {{ notification.message }}
       </div>

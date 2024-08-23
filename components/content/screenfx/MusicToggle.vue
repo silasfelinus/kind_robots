@@ -107,7 +107,8 @@ onMounted(async () => {
       )
       const data = await response.json()
       spotifyStore.setToken(data.access_token)
-      if (token.value) {
+      console.log('Token set:', data.access_token) // Debug: Log the token
+      if (data.access_token) {
         await spotifyStore.shufflePlaylist(playlist)
       }
     } catch (error) {

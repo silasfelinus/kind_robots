@@ -404,7 +404,10 @@ export const useUserStore = defineStore({
       username: string
       password?: string
     }): Promise<{ success: boolean; message?: string }> {
-      console.log("The store has been notified of the login attempt by ", credentials);
+      console.log(
+        'The store has been notified of the login attempt by ',
+        credentials,
+      )
       this.startLoading()
       try {
         const response = await this.apiCall(
@@ -412,11 +415,7 @@ export const useUserStore = defineStore({
           'POST',
           credentials,
         )
-        if (
-          response.success &&
-          response.user &&
-          response.token
-        ) {
+        if (response.success && response.user && response.token) {
           this.setUser(response.user)
           this.setToken(response.token)
 
@@ -431,7 +430,7 @@ export const useUserStore = defineStore({
           return { success: false, message: response.message }
         }
       } catch (error: unknown) {
-        console.error("Error in login process:", error);
+        console.error('Error in login process:', error)
         this.stopLoading()
         this.setError(error)
         return {
@@ -486,7 +485,7 @@ export const useUserStore = defineStore({
       message?: string
     }> {
       try {
-        console.log("registering with the following", userData);
+        console.log('registering with the following', userData)
         // Define the response type
         interface RegisterResponse {
           success: boolean

@@ -16,9 +16,9 @@ export interface ErrorHistoryEntry {
 }
 
 interface ErrorState {
-  message: string | null;
-  type: ErrorType | null;
-  history: ErrorHistoryEntry[];
+  message: string | null
+  type: ErrorType | null
+  history: ErrorHistoryEntry[]
 }
 
 export const useErrorStore = defineStore('error', {

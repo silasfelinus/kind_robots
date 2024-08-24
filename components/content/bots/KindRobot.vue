@@ -17,6 +17,23 @@
           >Bot ID#{{ currentBot.id - 1 }} / Meet Them All!</span
         >
       </div>
+      <div v-if="currentBot" class="avatar-container w-full m-2 rounded-lg">
+        <!-- Bot Avatar and Details -->
+        <div class="flex-grow rounded-2xl m-2 p-2 border bg-base-200">
+          <bot-carousel2 />
+          <div class="flex-1 text-center">
+            <h1 class="text-3xl font-bold">
+              {{ currentBot.name ?? 'Unknown Bot' }}
+            </h1>
+            <p class="text-xl">
+              {{ currentBot.subtitle ?? 'Subtitle' }}
+            </p>
+            <div class="card mt-2">
+              {{ currentBot.description ?? 'Description' }}
+            </div>
+          </div>
+        </div>
+      </div>
 
       <stream-test />
     </div>

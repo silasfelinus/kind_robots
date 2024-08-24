@@ -43,27 +43,38 @@
 
     <!-- Game Board Section -->
     <div class="game-board flex flex-wrap justify-center gap-4">
-      <div v-if="isLoading" class="loader"></div>
       <div
-        v-for="galleryImage in galleryImages"
-        :key="galleryImage.id"
-        class="gallery-display m-2 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden w-screen cursor-pointer"
-        :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
-        @click="handleGalleryClick(galleryImage)"
+        class="game-board w-full flex-wrap justify-center"
+        :style="{
+          'grid-template-columns': `repeat(${columns}, 1fr)`,
+          'grid-template-rows': `repeat(${rows}, auto)`,
+          gap: '16px',
+        }"
       >
-        <div :class="{ flipped: galleryImage.flipped || galleryImage.matched }">
-          <!-- This is the back of the card -->
-          <img
-            class="card-back absolute inset-0 w-full h-full object-cover"
-            src="/images/kindtitle.webp"
-            alt="Memory Card"
-          />
-          <!-- This is the front of the card -->
-          <img
-            class="card-front absolute inset-0 w-full h-full object-cover"
-            :src="galleryImage.imagePath"
-            :alt="galleryImage.galleryName"
-          />
+        <div v-if="isLoading" class="loader"></div>
+        <div
+          v-for="galleryImage in galleryImages"
+          :key="galleryImage.id"
+          class="gallery-display m-2 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden w-screen cursor-pointer"
+          :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
+          @click="handleGalleryClick(galleryImage)"
+        >
+          <div
+            :class="{ flipped: galleryImage.flipped || galleryImage.matched }"
+          >
+            <!-- This is the back of the card -->
+            <img
+              class="card-back absolute inset-0 w-full h-full object-cover"
+              src="/images/kindtitle.webp"
+              alt="Memory Card"
+            />
+            <!-- This is the front of the card -->
+            <img
+              class="card-front absolute inset-0 w-full h-full object-cover"
+              :src="galleryImage.imagePath"
+              :alt="galleryImage.galleryName"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -105,11 +116,22 @@ const selectedDifficulty = ref(difficulties[0])
 
 // Compute card size based on the difficulty and screen width
 const cardSize = computed(() => {
-  const numPairs = selectedDifficulty.value.value
-  const baseSize = width.value > 768 ? 150 : 100 // Larger base size for wider screens
-  const minSize = width.value > 768 ? 100 : 80 // Minimum size for cards
-  const sizeReduction = (numPairs / 8) * 5 // Reduce size as the number of pairs increases
-  return Math.max(minSize, baseSize - sizeReduction)
+  const numCards = selectedDifficulty.value.value * 2 // Total number of cards
+  const maxWidth = Math.max(100, width.value / Math.ceil(numCards / 3)) // Attempt to fit at least three rows
+  const maxHeight = Math.max(100, width.value / 3) // Minimum three rows tall
+  return Math.min(maxWidth, maxHeight) // Choose the smaller to fit both dimensions
+})
+
+const rows = computed(() => {
+  const baseRows = Math.ceil(
+    numberOfCards.value / Math.ceil(width.value / cardSize.value),
+  )
+  return Math.max(3, baseRows) // Ensure at least three rows
+})
+
+const columns = computed(() => {
+  const baseColumns = Math.ceil(width.value / cardSize.value)
+  return Math.max(3, baseColumns) // Ensure at least three columns if possible
 })
 
 interface GalleryImage {

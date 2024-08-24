@@ -1,85 +1,74 @@
 <template>
-  <div :class="`flex flex-col items-center bg-base-200 p-1 m-1`">
-    <!-- Bot selector as a swipeable component -->
-    <div class="bot-selector-swipe">
-      <bot-bubble
+  <!-- Main container with dynamic theme -->
+  <div
+    :class="`flex flex-col items-center bg-base-200 p-1 m-1 theme-${currentBot?.theme || 'default'}`"
+  >
+    <!-- Bot selector bubble area -->
+    <div class="bot-bubbles-container">
+      <div
         v-for="bot in bots"
         :key="bot.id"
-        :bot="bot"
+        class="bot-bubble"
         @click="selectBot(bot.id)"
-      />
+      >
+        <img :src="bot.avatarImage" alt="Bot's Avatar" class="bot-avatar" />
+        <div class="bot-info">
+          <h3>{{ bot.name }}</h3>
+          <p>{{ bot.tagline }}</p>
+        </div>
+      </div>
     </div>
 
-    <!-- Chat window, switching based on currentChannel -->
-    <div v-if="currentBot" class="chat-window">
-      <bot-chat v-if="currentChannel === 'chat'" />
-      <add-bot v-if="currentChannel === 'addBot'" />
-      <bot-messages v-if="currentChannel === 'viewMessages'" />
-
-      <!-- Conditionally displayed icons on the left and right -->
-      <div class="icon-bar">
-        <Icon name="arrow-left" @click="flipCard('left')" />
-        <Icon name="arrow-right" @click="flipCard('right')" />
+    <!-- Display bot details if a bot is selected -->
+    <div
+      v-if="currentBot"
+      :class="`w-full rounded-2xl theme-${currentBot.theme}`"
+    >
+      <!-- Bot name and ID -->
+      <div class="flex justify-between items-center m-4">
+        <h1 class="text-3xl font-bold">
+          {{ currentBot.name }}
+        </h1>
+        <span class="text-sm text-gray-600">
+          Bot ID#{{ currentBot.id - 1 }} / Meet Them All!
+        </span>
       </div>
+      <stream-test />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useBotStore } from '@/stores/botStore'
+import { computed } from 'vue'
+import { useBotStore } from '../../../stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
 const currentBot = computed(() => botStore.currentBot)
-const currentChannel = ref('chat') // Default to showing the chat window
 
+// Method to handle bot selection
 function selectBot(botId: number) {
   botStore.getBotById(botId)
-  currentChannel.value = 'chat' // Reset to chat view when a new bot is selected
-}
-
-function flipCard(direction: 'left' | 'right') {
-  if (direction === 'left') {
-    if (currentChannel.value === 'chat') {
-      currentChannel.value = 'addBot' // From chat to add bot
-    } else if (currentChannel.value === 'viewMessages') {
-      currentChannel.value = 'addBot' // Loop back from view messages to add bot
-    } else {
-      currentChannel.value = 'chat' // From add bot back to chat
-    }
-  } else if (direction === 'right') {
-    if (currentChannel.value === 'chat') {
-      currentChannel.value = 'addBot' // From chat to add bot
-    } else if (currentChannel.value === 'addBot') {
-      currentChannel.value = 'viewMessages' // From add bot to view messages
-    } else {
-      currentChannel.value = 'chat' // From view messages back to chat
-    }
-  }
 }
 </script>
 
 <style scoped>
-.bot-selector-swipe {
+.bot-bubbles-container {
   display: flex;
-  overflow-x: auto;
+  overflow-x: scroll;
   padding: 10px;
   white-space: nowrap;
-  scrollbar-width: none; /* Hide scrollbar for cleaner design */
+  background-color: #f0f0f0;
 }
 .bot-bubble {
   margin-right: 10px;
   text-align: center;
   cursor: pointer;
 }
-.icon-bar {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-}
-.icon-left,
-.icon-right {
-  display: flex;
+.bot-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 </style>

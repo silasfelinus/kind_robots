@@ -133,20 +133,20 @@ export async function createUserWithAuth(
 ) {
   try {
     if (await userExists(username, 'username')) {
-      throw new Error('Username already exists.');
+      throw new Error('Username already exists.')
     }
 
-    if (email && await prisma.user.findUnique({ where: { email } })) {
-      throw new Error('Email already exists.');
+    if (email && (await prisma.user.findUnique({ where: { email } }))) {
+      throw new Error('Email already exists.')
     }
 
-    const { isValid, message } = validatePassword(password);
+    const { isValid, message } = validatePassword(password)
     if (!isValid) {
-      throw new Error(message);
+      throw new Error(message)
     }
 
-    const hashedPassword = await hashPassword(password);
-    const apiKey = generateApiKey();
+    const hashedPassword = await hashPassword(password)
+    const apiKey = generateApiKey()
     const newUser = await prisma.user.create({
       data: {
         username,
@@ -156,15 +156,14 @@ export async function createUserWithAuth(
         Role: 'USER',
         createdAt: new Date(),
       },
-    });
+    })
 
-    return { success: true, user: newUser };
+    return { success: true, user: newUser }
   } catch (error) {
-    console.error(`Error in createUserWithAuth: ${error.message}`);
-    return { success: false, message: error.message };
+    console.error(`Error in createUserWithAuth: ${error.message}`)
+    return { success: false, message: error.message }
   }
 }
-
 
 export async function validateUserCredentials(
   username: string,

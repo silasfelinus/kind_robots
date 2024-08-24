@@ -25,9 +25,11 @@ interface SpotifyTrack {
 
 interface SpotifyPlaylistResponse {
   tracks: {
-    items: [{
-      track: SpotifyTrack
-    }]
+    items: [
+      {
+        track: SpotifyTrack
+      },
+    ]
   }
 }
 
@@ -63,69 +65,77 @@ export const useSpotifyStore = defineStore('spotify', {
   },
   actions: {
     setToken(newToken: string | null) {
-      this.token = newToken;
+      this.token = newToken
     },
     async setVolume(volume: number) {
-      const errorStore = useErrorStore();
+      const errorStore = useErrorStore()
       try {
-        const response = await fetch(`https://api.spotify.com/v1/me/player/volume?volume_percent=${volume}`, {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `https://api.spotify.com/v1/me/player/volume?volume_percent=${volume}`,
+          {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+              'Content-Type': 'application/json',
+            },
           },
-        });
-        if (!response.ok) throw new Error('Failed to set volume');
+        )
+        if (!response.ok) throw new Error('Failed to set volume')
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, error);
+        errorStore.setError(ErrorType.NETWORK_ERROR, error)
       }
     },
     async shufflePlaylist(playlistId: string) {
-      const errorStore = useErrorStore();
+      const errorStore = useErrorStore()
       try {
-        const response = await fetch(`/api/spotify/player/shuffle?state=true&access_token=${this.token}`, {
-          method: 'PUT',
-        });
-        if (!response.ok) throw new Error('Failed to shuffle playlist');
-        await this.playPlaylist(playlistId);
+        const response = await fetch(
+          `/api/spotify/player/shuffle?state=true&access_token=${this.token}`,
+          {
+            method: 'PUT',
+          },
+        )
+        if (!response.ok) throw new Error('Failed to shuffle playlist')
+        await this.playPlaylist(playlistId)
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, error);
+        errorStore.setError(ErrorType.NETWORK_ERROR, error)
       }
     },
     async playPlaylist(playlistId: string) {
-      const errorStore = useErrorStore();
+      const errorStore = useErrorStore()
       try {
-        const response = await fetch(`/api/spotify/player/play?access_token=${this.token}`, {
-          method: 'PUT',
-          body: JSON.stringify({
-            context_uri: `spotify:playlist:${playlistId}`,
-            offset: { position: 0 },
-            position_ms: 0
-          }),
-        });
-        if (!response.ok) throw new Error('Failed to play playlist');
+        const response = await fetch(
+          `/api/spotify/player/play?access_token=${this.token}`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              context_uri: `spotify:playlist:${playlistId}`,
+              offset: { position: 0 },
+              position_ms: 0,
+            }),
+          },
+        )
+        if (!response.ok) throw new Error('Failed to play playlist')
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, error);
+        errorStore.setError(ErrorType.NETWORK_ERROR, error)
       }
     },
 
-// This method is then used within other actions where errors might occur
-async fetchSpotifyToken() {
-  const errorStore = useErrorStore()
-  try {
-    const res = await fetch('api/utils/spotifyToken');
-    if (!res.ok) throw new Error('HTTP error status: ' + res.status);
-    const data = await res.json();
-    if (data.token) {
-      this.token = data.token;
-    } else {
-      throw new Error('No token received from the server.');
-    }
-  } catch (error) {
-    errorStore.setError(ErrorType.NETWORK_ERROR, error);
-  }
-},
-
+    // This method is then used within other actions where errors might occur
+    async fetchSpotifyToken() {
+      const errorStore = useErrorStore()
+      try {
+        const res = await fetch('api/utils/spotifyToken')
+        if (!res.ok) throw new Error('HTTP error status: ' + res.status)
+        const data = await res.json()
+        if (data.token) {
+          this.token = data.token
+        } else {
+          throw new Error('No token received from the server.')
+        }
+      } catch (error) {
+        errorStore.setError(ErrorType.NETWORK_ERROR, error)
+      }
+    },
 
     generateCodeVerifier() {
       const array = new Uint32Array(56 / 2)
@@ -181,31 +191,36 @@ async fetchSpotifyToken() {
     async fetchCurrentUserProfile() {
       const errorStore = useErrorStore()
       if (!this.token) {
-        const errorStore = useErrorStore();
-        errorStore.setError(ErrorType.AUTH_ERROR, 'Authentication required to fetch user profile.');
-        return;
+        const errorStore = useErrorStore()
+        errorStore.setError(
+          ErrorType.AUTH_ERROR,
+          'Authentication required to fetch user profile.',
+        )
+        return
       }
-    
+
       try {
         const res = await fetch('https://api.spotify.com/v1/me', {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },
-        });
-    
+        })
+
         if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error?.message || 'Failed to fetch user profile.');
+          const errorData = await res.json()
+          throw new Error(
+            errorData.error?.message || 'Failed to fetch user profile.',
+          )
         }
-    
-        const data = await res.json();
-        this.userProfile = data;
-        console.log('User profile fetched successfully:', data);
+
+        const data = await res.json()
+        this.userProfile = data
+        console.log('User profile fetched successfully:', data)
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, error);
+        errorStore.setError(ErrorType.NETWORK_ERROR, error)
       }
     },
-    
+
     togglePlay() {
       if (this.playbackStatus) {
         this.playbackStatus.isPlaying = !this.playbackStatus.isPlaying
@@ -248,13 +263,13 @@ async fetchSpotifyToken() {
           imageUrl: item.track.album.images[0]?.url || '',
         }))
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, error);
+        errorStore.setError(ErrorType.NETWORK_ERROR, error)
       }
     },
 
     async playTrack(trackId: string) {
-      const errorStore = useErrorStore();
-      console.log("Attempting to play");  
+      const errorStore = useErrorStore()
+      console.log('Attempting to play')
       try {
         if (!this.token) {
           throw new Error('Token is not available.')
@@ -272,11 +287,11 @@ async fetchSpotifyToken() {
           throw new Error(`Failed to play the track: ${res.statusText}`)
         }
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, error);
+        errorStore.setError(ErrorType.NETWORK_ERROR, error)
       }
     },
     async pauseTrack() {
-      const errorStore = useErrorStore();
+      const errorStore = useErrorStore()
       try {
         if (!this.token) {
           throw new Error('Token is not available.')
@@ -297,12 +312,12 @@ async fetchSpotifyToken() {
           this.playbackStatus.isPlaying = false
         }
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, error);
+        errorStore.setError(ErrorType.NETWORK_ERROR, error)
       }
     },
     async nextTrack() {
-      const errorStore = useErrorStore();
-      console.log("Going to next track");
+      const errorStore = useErrorStore()
+      console.log('Going to next track')
       try {
         if (!this.token) {
           throw new Error('Token is not available.')
@@ -319,12 +334,12 @@ async fetchSpotifyToken() {
           throw new Error(`Failed to skip to the next track: ${res.statusText}`)
         }
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, error);
+        errorStore.setError(ErrorType.NETWORK_ERROR, error)
       }
     },
     async previousTrack() {
-      const errorStore = useErrorStore();
-      console.log("Going to previous track");
+      const errorStore = useErrorStore()
+      console.log('Going to previous track')
       try {
         if (!this.token) {
           throw new Error('Token is not available.')
@@ -346,7 +361,7 @@ async fetchSpotifyToken() {
           )
         }
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, error);
+        errorStore.setError(ErrorType.NETWORK_ERROR, error)
       }
     },
   },

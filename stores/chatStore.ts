@@ -2,8 +2,6 @@ import { defineStore } from 'pinia'
 import type { ChatExchange } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore' // Import errorStore and ErrorType
 
-
-
 export const useChatStore = defineStore({
   id: 'chat',
   state: () => ({

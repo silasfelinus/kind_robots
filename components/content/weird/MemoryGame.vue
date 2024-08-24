@@ -47,20 +47,24 @@
       <div
         v-for="galleryImage in galleryImages"
         :key="galleryImage.id"
-        class="gallery-display"
+        class="gallery-display m-2 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden w-screen cursor-pointer"
         :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
         @click="handleGalleryClick(galleryImage)"
       >
-        <img
-          class="card-back absolute inset-0 w-full h-full object-cover"
-          src="/images/kindtitle.webp"
-          alt="Memory Card"
-        />
-        <img
-          class="card-front absolute inset-0 w-full h-full object-cover"
-          :src="galleryImage.imagePath"
-          :alt="galleryImage.galleryName"
-        />
+        <div :class="{ flipped: galleryImage.flipped || galleryImage.matched }">
+          <!-- This is the back of the card -->
+          <img
+            class="card-back absolute inset-0 w-full h-full object-cover"
+            src="/images/kindtitle.webp"
+            alt="Memory Card"
+          />
+          <!-- This is the front of the card -->
+          <img
+            class="card-front absolute inset-0 w-full h-full object-cover"
+            :src="galleryImage.imagePath"
+            :alt="galleryImage.galleryName"
+          />
+        </div>
       </div>
     </div>
 
@@ -316,10 +320,6 @@ img {
 }
 .gallery-display {
   transform-style: preserve-3d;
-  width: 200px;
-  height: 200px;
-  margin: 0.5rem;
-  perspective: 1000px; /* Adds depth to the flipping effect */
 }
 
 .loader {

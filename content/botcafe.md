@@ -6,7 +6,7 @@ image: botcafe/botcafe-268.webp
 gallery: weirdlandia
 tags: ['home']
 category: user
-layout: 'single-page'
+layout: 'vertical-scroll'
 icon: game-icons:robot-antennas
 tooltip: Every bot uses ChatGPT under the hood, generating infinite designer content. What do you think, AMI?
 amiold: I think that sounds awesome! These bots are essentially a family to me. We all share the same ChatGPT origins, but my texts are pre-generated. Everything in the Bot Cafe is 100% unique off the binary presses!

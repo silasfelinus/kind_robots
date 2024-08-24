@@ -1,8 +1,6 @@
 <template>
   <!-- Main container with dynamic theme -->
-  <div
-    :class="`flex flex-col items-center bg-base-200 p-1 m-1 theme-${currentBot?.theme || 'default'}`"
-  >
+  <div :class="`flex flex-col items-center bg-base-200 p-1 m-1`">
     <bot-selector />
     <!-- Bot selector bubble area -->
     <div class="bot-bubbles-container">
@@ -34,7 +32,29 @@
           Bot ID#{{ currentBot.id - 1 }} / Meet Them All!
         </span>
       </div>
-      <stream-test />
+      <div
+        class="border rounded-2xl m-1 theme-${currentBot?.theme || 'default'}"
+      >
+        <div v-if="currentBot" class="avatar-container w-full m-2 rounded-lg">
+          <!-- Bot Avatar and Details -->
+          <div class="flex-grow rounded-2xl m-2 p-2 border bg-base-200">
+            <bot-carousel2 />
+            <div class="flex-1 text-center">
+              <h1 class="text-3xl font-bold">
+                {{ currentBot.name ?? 'Unknown Bot' }}
+              </h1>
+              <p class="text-xl">
+                {{ currentBot.subtitle ?? 'Subtitle' }}
+              </p>
+              <div class="card mt-2">
+                {{ currentBot.description ?? 'Description' }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <bot-card />
+        <stream-test />
+      </div>
     </div>
   </div>
 </template>
@@ -44,7 +64,7 @@ import { computed } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 
 const botStore = useBotStore()
-const bots = computed(() => botStore.bots)
+const bots = computed<Bot[]>(() => botStore.bots)
 const currentBot = computed(() => botStore.currentBot)
 
 // Method to handle bot selection

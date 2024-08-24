@@ -14,4 +14,4 @@ dottitip: Where is the music? I can't concentrate with Brainstorm screaming list
 layout: 'single-page'
 ---
 
-:music-toggle
+:kind-playlist

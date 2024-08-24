@@ -67,22 +67,36 @@ function flipCard(direction: 'left' | 'right') {
 .bot-selector-swipe {
   display: flex;
   overflow-x: auto;
-  padding: 10px;
+  padding: 1vw; /* was 10px */
   white-space: nowrap;
   scrollbar-width: none; /* Hide scrollbar for cleaner design */
 }
 .bot-bubble {
-  margin-right: 10px;
+  margin-right: 1vw; /* was 10px */
   text-align: center;
   cursor: pointer;
 }
 .icon-bar {
+  position: fixed;
+  bottom: 2vh; /* was 20px */
+  width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 10px;
+  padding: 1vw; /* was 10px */
 }
 .icon-left,
 .icon-right {
   display: flex;
+}
+.chat-window {
+  position: relative;
+  max-height: 80vh; /* already in vh */
+  overflow-y: auto;
+}
+.bot-avatar {
+  width: 10vw; /* Adjusted from 80px */
+  height: 10vw; /* Adjusted from 80px */
+  border-radius: 50%;
+  object-fit: cover;
 }
 </style>

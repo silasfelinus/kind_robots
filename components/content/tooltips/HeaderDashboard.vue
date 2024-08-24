@@ -13,7 +13,7 @@
         <div class="flex flex-col text-left">
           <room-title class="text-sm font-semibold" />
           <h2 class="text-xs text-gray-500 italic">
-            {{ page.subtitle || 'the kindest' }}
+            {{ page?.subtitle || 'the kindest' }}
           </h2>
         </div>
       </div>

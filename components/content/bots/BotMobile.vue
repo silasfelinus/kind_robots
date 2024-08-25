@@ -25,19 +25,19 @@
       <div v-if="currentChannel === 'chat'">
         <Icon
           name="arrow-left"
-          class="icon-[fluent--bot-add-20-regular]"
+          class="fluent--bot-add-20-regular"
           @click="flipCard('left')"
         />
         <Icon
           name="arrow-right"
-          class="icon-[arcticons--folder-messages]"
+          class="arcticons--folder-messages"
           @click="flipCard('right')"
         />
       </div>
       <div v-if="currentChannel === 'addBot'">
         <Icon
           name="arrow-left"
-          class="icon-[arcticons--folder-messages]"
+          class="arcticons--folder-messages"
           @click="flipCard('left')"
         />
         <Icon
@@ -54,7 +54,7 @@
         />
         <Icon
           name="arrow-right"
-          class="icon-[fluent--bot-add-20-regular]"
+          class="fluent--bot-add-20-regular"
           @click="flipCard('right')"
         />
       </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen">
+  <div class="flex flex-col h-screen rounded-2xl m-1 p-1">
     <!-- Unified Top Half with image and info/stream side by side -->
     <div class="flex flex-row h-2/3 w-full">
       <!-- Allocate more space to the top half -->
@@ -8,8 +8,7 @@
         <img
           :src="currentBot.avatarImage"
           alt="Bot's Avatar"
-          class="w-2/3 h-full rounded-full object-cover"
-          style="aspect-ratio: 2/3"
+          class="w-2/3 h-2/3 rounded-full object-cover"
         />
       </div>
       <!-- Info and Stream in the same column -->

@@ -7,22 +7,13 @@
 
     <!-- Chat window, switching based on currentChannel -->
     <div v-if="currentBot" class="relative w-full max-h-1/2 overflow-y-auto">
-      Welcome to the Bot Cafe
       <component :is="currentComponent" />
     </div>
 
     <!-- Conditionally displayed icons on the left and right, with increased z-index -->
     <div class="fixed inset-x-0 bottom-0 flex justify-between px-1 z-50">
-      <icon
-        name="arrow-left"
-        :class="iconLeftClass"
-        @click="flipCard('left')"
-      />
-      <icon
-        name="arrow-right"
-        :class="iconRightClass"
-        @click="flipCard('right')"
-      />
+      <icon :name="iconLeftClass" @click="flipCard('left')" />
+      <icon :name="iconRightClass" @click="flipCard('right')" />
     </div>
   </div>
 </template>

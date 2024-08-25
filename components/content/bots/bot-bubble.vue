@@ -1,7 +1,7 @@
 <template>
-  <div class="relative">
+  <div class="relative w-full">
     <!-- Left navigation arrow -->
-    <div class="absolute left-0 z-10 cursor-pointer" @click="scrollLeft">
+    <div class="absolute left-2 z-10 cursor-pointer" @click="scrollLeft">
       <svg
         class="w-8 h-8 text-gray-600 hover:text-gray-800"
         fill="none"
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Right navigation arrow -->
-    <div class="absolute right-0 z-10 cursor-pointer" @click="scrollRight">
+    <div class="absolute right-2 z-10 cursor-pointer" @click="scrollRight">
       <svg
         class="w-8 h-8 text-gray-600 hover:text-gray-800"
         fill="none"

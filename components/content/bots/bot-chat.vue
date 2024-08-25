@@ -12,11 +12,12 @@
         />
       </div>
       <!-- Info and Stream in the same column -->
-      <div class="w-2/3 flex flex-col justify-between p-2">
+      <div
+        class="w-2/3 h-2/3 overflow-y-scroll flex flex-col justify-between p-2"
+      >
         <div class="text-left">
           <h2 class="text-xl font-bold">{{ currentBot.name }}</h2>
           <p class="text-md">{{ currentBot.description }}</p>
-          <p class="text-sm mt-1">{{ currentBot.userIntro }}</p>
         </div>
         <!-- Bot Stream placed directly under the info -->
         <bot-stream class="flex-grow overflow-y-auto" />

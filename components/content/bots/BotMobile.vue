@@ -1,9 +1,7 @@
 <template>
   <div class="flex flex-col items-center bg-base-200 p-1 m-1">
     <!-- Bot selector as a swipeable component -->
-    <div
-      class="flex overflow-x-auto whitespace-nowrap scrollbar-hide w-full max-h-1/2"
-    >
+    <div class="flex overflow-x-auto space-x-4">
       <bot-bubble
         v-for="bot in bots"
         :key="bot.id"

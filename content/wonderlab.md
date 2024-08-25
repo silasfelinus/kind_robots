@@ -13,7 +13,7 @@ category: admin
 sort: highlight
 underConstruction: true
 dottitip: AMI, is it safe to let people poke around in the lab?
-layout: 'single-page'
+layout: 'vertical-scroll'
 ---
 
 :component-gallery

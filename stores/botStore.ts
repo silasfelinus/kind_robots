@@ -11,6 +11,7 @@ export const useBotStore = defineStore({
     bots: [] as Bot[],
     currentBot: null as Bot | null,
     totalBots: 0,
+    selectedBotId: null as number | null,
     loading: false,
     _initialized: false,
     page: 1,
@@ -18,6 +19,16 @@ export const useBotStore = defineStore({
   }),
 
   actions: {
+    selectBot(botId: number) {
+      // Toggle selection logic, if the same bot is selected, deselect it
+      if (this.selectedBotId === botId) {
+        this.selectedBotId = null;
+        this.currentBot = null;
+      } else {
+        this.selectedBotId = botId;
+        this.currentBot = this.bots.find(bot => bot.id === botId) || null;
+      }
+    },
     async fetchBots(): Promise<void> {
       const errorStore = useErrorStore()
       try {

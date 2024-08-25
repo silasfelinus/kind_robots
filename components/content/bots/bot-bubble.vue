@@ -5,7 +5,7 @@
       isSelected ? 'flex-row items-start' : 'flex-col items-center',
     ]"
     class="cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out w-full"
-    @click="selectBot"
+    @click="selectBot(bot.id)"
   >
     <!-- Bot Avatar -->
     <img
@@ -26,25 +26,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue'
-import type { Bot } from './../../../stores/botStore' // Adjust the path as needed
+import { computed } from 'vue'
+import { useBotStore } from './../../../stores/botStore' // Ensure the path is correct
+import type { Bot } from './../../../stores/botStore'
 
-const props = defineProps({
-  bot: {
-    type: Object as () => Bot,
-    required: true,
-  },
-  selectedBotId: {
-    type: Number,
-    default: null,
-  },
-})
+// Define props and capture them in a variable for later use
+const props = defineProps<{
+  bot: Bot
+}>()
 
-const emit = defineEmits(['update:selectedBotId'])
-const isSelected = ref(props.selectedBotId === props.bot.id)
+const botStore = useBotStore()
+const isSelected = computed(() => botStore.selectedBotId === props.bot.id)
 
-function selectBot() {
-  isSelected.value = !isSelected.value
-  emit('update:selectedBotId', isSelected.value ? props.bot.id : null)
+function selectBot(botId: number) {
+  botStore.selectBot(botId)
 }
 </script>

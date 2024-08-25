@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { useBotStore } from './../../../stores/botStore'
+import { useBotStore } from '../../../stores/botStore'
 import BotStream from './BotStream.vue'
 
 const botStore = useBotStore()

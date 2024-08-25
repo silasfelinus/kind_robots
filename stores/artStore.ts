@@ -45,6 +45,26 @@ export const useArtStore = defineStore({
         console.warn(`Art with id ${artId} not found.`)
       }
     },
+    async fetchArtByUserId(userId: number) {
+      const errorStore = useErrorStore();
+      try {
+        const response = await fetch(`/api/art/user/${userId}`);
+        if (!response.ok) {
+          const errorResponse = await response.json();
+          throw new Error(errorResponse.message);
+        }
+        const data = await response.json();
+        this.artAssets = data.art;
+      } catch (error: unknown) {
+        // Type checking to safely handle the error object
+        if (error instanceof Error) {
+          errorStore.setError(ErrorType.NETWORK_ERROR, error.message);
+        } else {
+          // Handle cases where the error is not an instance of Error
+          errorStore.setError(ErrorType.NETWORK_ERROR, 'An unexpected error occurred');
+        }
+      }
+    },
     async fetchAllArt() {
       const errorStore = useErrorStore()
       return errorStore.handleError(

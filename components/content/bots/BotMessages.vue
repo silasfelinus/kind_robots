@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useChatStore, type ChatExchange } from '@/stores/chatStore'
+import { useChatStore, type ChatExchange } from './../../../stores/chatStore'
 
 const chatStore = useChatStore()
 const loading = ref(true)

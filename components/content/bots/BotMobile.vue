@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col items-center bg-primary p-1 m-1 h-screen">
     <!-- Bot selector as a swipeable component -->
-    <div class="flex overflow-x-auto space-x-4">
-      <bot-bubble />
-    </div>
-
+    <bot-bubble />
     <!-- Chat window, switching based on currentChannel -->
-    <div v-if="currentBot" class="relative w-full max-h-1/2 overflow-y-auto">
+    <div
+      v-if="currentBot"
+      class="relative w-full max-h-1/2 overflow-y-auto rounded-2xl bg-primary m-1 p-1"
+    >
       <component :is="currentComponent" />
     </div>
 

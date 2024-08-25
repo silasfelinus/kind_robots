@@ -11,7 +11,7 @@
     <!-- Bot Scroll Container -->
     <div
       ref="scrollContainer"
-      class="flex overflow-x-auto hide-scrollbar space-x-4 px-2"
+      class="flex overflow-x-scroll hide-scrollbar space-x-4 px-2"
     >
       <div
         v-for="bot in bots"
@@ -45,7 +45,7 @@
 
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import { useBotStore } from '@/stores/botStore'
+import { useBotStore } from './../../../stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)

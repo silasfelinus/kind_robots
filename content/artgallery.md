@@ -14,4 +14,4 @@ amitip: Ijust like looking at the pictures.
 sort: highlight
 ---
 
-:user-gallery
+:user-galleries

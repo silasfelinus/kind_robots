@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center bg-base-200 p-1 m-1">
+  <div class="flex flex-col items-center bg-primary p-1 m-1">
     <!-- Bot selector as a swipeable component -->
     <div class="flex overflow-x-auto space-x-4">
       <bot-bubble
@@ -13,6 +13,7 @@
 
     <!-- Chat window, switching based on currentChannel -->
     <div v-if="currentBot" class="relative w-full h-1/2 overflow-y-auto">
+      Welcome to the Bot Cafe
       <bot-chat v-if="currentChannel === 'chat'" />
       <add-bot v-if="currentChannel === 'addBot'" />
       <bot-messages v-if="currentChannel === 'viewMessages'" />

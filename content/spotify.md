@@ -11,7 +11,7 @@ amitip: We're working on it, Once our Spotify is up and running, it will be like
 sort: highlight
 underConstruction: true
 dottitip: Where is the music? I can't concentrate with Brainstorm screaming lists at all hours.
-layout: 'single-page'
+layout: 'vertical-scroll'
 ---
 
 :kind-playlist

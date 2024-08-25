@@ -8,7 +8,7 @@ tooltip: This tool is like LEGO for web designers. Currently in sandbox mode, bu
 amitip: People like boxes! They'd like it more if you let them decorate a user badge or something, but I know how busy you get. 🧪🎨
 tags: ['home']
 admin: true
-layout: 'single-page'
+layout: 'vertical-scroll'
 icon: game-icons:archive-register
 category: admin
 sort: highlight

@@ -9,7 +9,7 @@ tooltip: We're ironing out the final details (💳Stripe coming soon).
 amitip: I love it. People like gifts and supporting world saving robot collectives!
 tags: ['home']
 category: settings
-layout: 'single-page'
+layout: 'vertical-scroll'
 sort: highlight
 underConstruction: true
 dottitip: Hey AMI, I had an idea. What if we started up a giftshop. so people could use our art modelers to make art, and then sell mugs and what not.

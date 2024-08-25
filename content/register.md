@@ -10,7 +10,7 @@ tags: ['home']
 icon: game-icons:archive-register
 sort: highlight
 dottitip: If people register for an account, then we can customize their experience.
-layout: 'single-page'
+layout: 'vertical-scroll'
 ---
 
 :registration-form

@@ -2,14 +2,7 @@
   <div class="flex flex-col items-center bg-primary p-1 m-1 h-screen">
     <!-- Bot selector as a swipeable component -->
     <div class="flex overflow-x-auto space-x-4">
-      <bot-bubble
-        v-for="bot in bots"
-        :key="bot.id"
-        :bot="bot"
-        :selected="bot.id === selectedBotId"
-        class="w-auto"
-        @click="selectBot(bot.id)"
-      />
+      <bot-bubble v-for="bot in bots" :key="bot.id" :bot="bot" class="w-auto" />
     </div>
 
     <!-- Chat window, switching based on currentChannel -->
@@ -43,16 +36,11 @@ import BotMessages from './bot-messages.vue'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
-const selectedBotId = computed(() => botStore.selectedBotId)
 const currentBot = computed(() => botStore.currentBot)
 
 const currentChannel = ref('chat') // Default to showing the chat window
 const components = { chat: BotChat, addBot: AddBot, viewMessages: BotMessages }
 const currentComponent = computed(() => components[currentChannel.value])
-
-function selectBot(botId) {
-  botStore.selectBot(botId) // Using the store's method to handle selection
-}
 
 function flipCard(direction) {
   const keys = Object.keys(components)

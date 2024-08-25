@@ -1,22 +1,33 @@
 <template>
   <div
-    :class="['bot-bubble', { 'flex-row': isSelected, 'flex-col': !isSelected }]"
+    :class="[
+      'bot-bubble',
+      isSelected ? 'flex-row items-start' : 'flex-col items-center',
+    ]"
+    class="cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out w-full"
     @click="selectBot"
   >
     <!-- Bot Avatar -->
-    <img :src="bot.avatarImage" alt="Bot's Avatar" class="bot-avatar" />
+    <img
+      :src="bot.avatarImage"
+      alt="Bot's Avatar"
+      class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full object-cover transition-all duration-300 ease-in-out"
+    />
 
-    <!-- Bot Info -->
-    <div v-if="isSelected" class="bot-info">
+    <!-- Conditional Bot Info -->
+    <div v-if="isSelected" class="bot-info pl-4 flex-grow">
       <h3 class="text-lg font-semibold">{{ bot.name }}</h3>
       <p class="text-sm text-gray-600">{{ bot.tagline }}</p>
     </div>
+
+    <!-- Always visible Bot Name -->
+    <h3 v-else class="text-lg font-semibold mt-2">{{ bot.name }}</h3>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, defineProps, defineEmits } from 'vue'
-import type { Bot } from '@/stores/botStore' // Adjust the path as needed
+import type { Bot } from './../../../stores/botStore' // Adjust the path as needed
 
 const props = defineProps({
   bot: {
@@ -25,12 +36,11 @@ const props = defineProps({
   },
   selectedBotId: {
     type: Number,
-    default: null, // Provide a default value (null if no bot is selected)
+    default: null,
   },
 })
 
 const emit = defineEmits(['update:selectedBotId'])
-
 const isSelected = ref(props.selectedBotId === props.bot.id)
 
 function selectBot() {
@@ -38,29 +48,3 @@ function selectBot() {
   emit('update:selectedBotId', isSelected.value ? props.bot.id : null)
 }
 </script>
-
-<style scoped>
-.bot-bubble {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: 10px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-.bot-avatar {
-  width: 80px; /* Adjust based on layout transition */
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  transition:
-    width 0.3s ease,
-    height 0.3s ease;
-}
-.bot-info {
-  margin-left: 10px; /* Only when in row format */
-  transition: margin-left 0.3s ease;
-}
-</style>

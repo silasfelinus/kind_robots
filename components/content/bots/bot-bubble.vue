@@ -2,27 +2,27 @@
   <div class="bot-bubble" @click="emitClick">
     <img :src="bot.avatarImage" alt="Bot's Avatar" class="bot-avatar" />
     <div class="bot-info">
-      <h3>{{ bot.name }}</h3>
-      <p>{{ bot.tagline }}</p>
+      <h3 class="text-lg font-semibold">{{ bot.name }}</h3>
+      <p class="text-sm text-gray-600">{{ bot.tagline }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
-import type { Bot } from './../../../stores/botStore' // Ensure this path is correct to where you define your Bot type
+import { defineProps, defineEmits } from 'vue';
+import type { Bot } from './../../../stores/botStore'; // Adjust path as necessary
 
 const props = defineProps({
   bot: {
     type: Object as () => Bot,
     required: true,
   },
-})
+});
 
-const emit = defineEmits(['selectBot'])
+const emit = defineEmits(['selectBot']);
 
 function emitClick() {
-  emit('selectBot', props.bot.id)
+  emit('selectBot', props.bot.id);
 }
 </script>
 
@@ -32,28 +32,27 @@ function emitClick() {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  padding: 10px;
-  border-radius: 10px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  padding: 2; /* Tailwind padding scale */
+  border-radius: full; /* Full circle for Tailwind */
+  background-color: bg-primary; /* Tailwind color */
+  box-shadow: shadow-lg; /* Tailwind shadow */
+  transition-property: transform; /* Tailwind transitions */
+  transition-duration: 200; /* Tailwind duration in ms */
 }
 .bot-bubble:hover {
-  transform: translateY(-5px);
+  transform: translateY(-1); /* Tailwind translate */
 }
 .bot-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+  width: 20; /* Tailwind width scale */
+  height: 20; /* Tailwind height scale */
+  border-radius: full; /* Full circle for Tailwind */
   object-fit: cover;
 }
 .bot-info h3 {
-  margin: 5px 0 0;
-  font-size: 16px;
+  font-size: lg; /* Tailwind font size */
 }
 .bot-info p {
-  margin: 0;
-  font-size: 12px;
-  color: #666;
+  font-size: base; /* Tailwind base font size */
+  color: gray-600; /* Tailwind color */
 }
 </style>

@@ -36,10 +36,10 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useBotStore } from '@/stores/botStore'
-import BotBubble from './BotBubble.vue'
-import BotChat from './BotChat.vue'
+import BotBubble from './bot-bubble.vue'
+import BotChat from './bot-chat.vue'
 import AddBot from './AddBot.vue'
-import BotMessages from './BotMessages.vue'
+import BotMessages from './bot-messages.vue'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)

@@ -29,7 +29,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useBotStore } from '@/stores/botStore'
+import { useBotStore } from './../../../stores/botStore'
 import BotBubble from './bot-bubble.vue'
 import BotChat from './bot-chat.vue'
 import AddBot from './AddBot.vue'

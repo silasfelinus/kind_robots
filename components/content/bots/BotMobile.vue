@@ -1,26 +1,31 @@
 <template>
-  <div :class="`flex flex-col items-center bg-base-200 p-1 m-1`">
+  <div class="flex flex-col items-center bg-base-200 p-1 m-1">
     <!-- Bot selector as a swipeable component -->
-    <div class="bot-selector-swipe">
+    <div
+      class="flex overflow-x-auto whitespace-nowrap scrollbar-hide w-full max-h-1/2"
+    >
       <bot-bubble
         v-for="bot in bots"
         :key="bot.id"
         :bot="bot"
+        class="mr-1 w-auto"
         @click="selectBot(bot.id)"
       />
     </div>
 
     <!-- Chat window, switching based on currentChannel -->
-    <div v-if="currentBot" class="chat-window">
+    <div v-if="currentBot" class="relative w-full h-1/2 overflow-y-auto">
       <bot-chat v-if="currentChannel === 'chat'" />
       <add-bot v-if="currentChannel === 'addBot'" />
       <bot-messages v-if="currentChannel === 'viewMessages'" />
+    </div>
 
-      <!-- Conditionally displayed icons on the left and right -->
-      <div class="icon-bar">
-        <Icon name="arrow-left" @click="flipCard('left')" />
-        <Icon name="arrow-right" @click="flipCard('right')" />
-      </div>
+    <!-- Conditionally displayed icons on the left and right, with increased z-index -->
+    <div
+      class="icon-bar fixed inset-x-0 bottom-2 flex justify-between px-1 z-50"
+    >
+      <Icon name="arrow-left" class="flex-none" @click="flipCard('left')" />
+      <Icon name="arrow-right" class="flex-none" @click="flipCard('right')" />
     </div>
   </div>
 </template>

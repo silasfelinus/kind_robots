@@ -2,7 +2,7 @@
   <div class="flex flex-col items-center bg-primary p-1 m-1 h-screen">
     <!-- Bot selector as a swipeable component -->
     <div class="flex overflow-x-auto space-x-4">
-      <bot-bubble v-for="bot in bots" :key="bot.id" :bot="bot" class="w-auto" />
+      <bot-bubble />
     </div>
 
     <!-- Chat window, switching based on currentChannel -->
@@ -26,8 +26,9 @@
     </div>
   </div>
 </template>
+
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 import BotBubble from './bot-bubble.vue'
 import BotChat from './bot-chat.vue'
@@ -35,9 +36,7 @@ import AddBot from './AddBot.vue'
 import BotMessages from './bot-messages.vue'
 
 const botStore = useBotStore()
-const bots = computed(() => botStore.bots)
 const currentBot = computed(() => botStore.currentBot)
-
 const currentChannel = ref('chat') // Default to showing the chat window
 const components = { chat: BotChat, addBot: AddBot, viewMessages: BotMessages }
 const currentComponent = computed(() => components[currentChannel.value])

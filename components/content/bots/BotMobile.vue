@@ -24,8 +24,42 @@
     <div
       class="icon-bar fixed inset-x-0 bottom-2 flex justify-between px-1 z-50"
     >
-      <Icon name="arrow-left" class="flex-none" @click="flipCard('left')" />
-      <Icon name="arrow-right" class="flex-none" @click="flipCard('right')" />
+      <div v-if="currentChannel === 'chat'">
+        <Icon
+          name="arrow-left"
+          class="icon-[fluent--bot-add-20-regular]"
+          @click="flipCard('left')"
+        />
+        <Icon
+          name="arrow-right"
+          class="icon-[arcticons--folder-messages]"
+          @click="flipCard('right')"
+        />
+      </div>
+      <div v-if="currentChannel === 'addBot'">
+        <Icon
+          name="arrow-left"
+          class="icon-[arcticons--folder-messages]"
+          @click="flipCard('left')"
+        />
+        <Icon
+          name="arrow-right"
+          class="flowbite:messages-solid"
+          @click="flipCard('right')"
+        />
+      </div>
+      <div v-if="currentChannel === 'viewMessages'">
+        <Icon
+          name="arrow-left"
+          class="flowbite:messages-solid"
+          @click="flipCard('left')"
+        />
+        <Icon
+          name="arrow-right"
+          class="icon-[fluent--bot-add-20-regular]"
+          @click="flipCard('right')"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -34,7 +68,7 @@
 import { computed, ref } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 import BotBubble from './bot-bubble.vue'
-import BotChat from './BotChat.vue'
+import BotChat from './BotStream.vue'
 import BotMessages from './bot-messages.vue'
 
 const botStore = useBotStore()

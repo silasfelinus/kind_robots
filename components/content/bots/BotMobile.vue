@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center bg-primary p-1 m-1 h-screen">
+  <div class="flex flex-col items-center p-1 m-1 h-screen">
     <!-- Bot selector as a swipeable component -->
     <bot-bubble />
     <!-- Chat window, switching based on currentChannel -->
@@ -11,7 +11,7 @@
     </div>
 
     <!-- Conditionally displayed icons on the left and right, with increased z-index -->
-    <div class="fixed inset-x-0 bottom-0 w-6 h-6 md:w-16 md:h-16 flex justify-between z-50 m-2">
+    <div class="fixed inset-x-0 bottom-0 flex justify-between z-50 m-2">
       <icon :name="iconLeftClass" :size="iconSize" @click="flipCard('left')" />
       <icon
         :name="iconRightClass"
@@ -37,23 +37,7 @@ const components = { chat: BotChat, addBot: AddBot, viewMessages: BotMessages }
 const currentComponent = computed(() => components[currentChannel.value])
 
 const scrollContainer = ref(null)
-const iconSize = ref(0)
-
-function updateIconSize() {
-  if (scrollContainer.value) {
-    // Calculate the icon size as a fraction of the scroll container's width
-    iconSize.value = scrollContainer.value.offsetWidth / 6
-  }
-}
-
-onMounted(() => {
-  nextTick(() => {
-    updateIconSize()
-    // Set up a ResizeObserver to watch for changes in the container size
-    const resizeObserver = new ResizeObserver(updateIconSize)
-    resizeObserver.observe(scrollContainer.value)
-  })
-})
+const iconSize = ref(16)
 
 onUnmounted(() => {
   // Clean up if necessary, though specifics depend on setup

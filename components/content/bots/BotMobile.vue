@@ -5,7 +5,7 @@
     <!-- Chat window, switching based on currentChannel -->
     <div
       v-if="currentBot"
-      class="relative w-full max-h-1/2 overflow-y-auto rounded-2xl bg-primary m-1 p-1"
+      class="relative w-full max-h-1/2 overflow-y-auto rounded-2xl m-1 p-1"
     >
       <component :is="currentComponent" />
     </div>

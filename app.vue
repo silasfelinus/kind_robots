@@ -21,10 +21,7 @@
     </div>
 
     <!-- Main Content -->
-    <main
-      ref="mainContentRef"
-      class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
-    >
+    <main ref="mainContentRef" class="flex flex-col items-center">
       <NuxtPage />
     </main>
   </div>

@@ -11,7 +11,7 @@
     <!-- Toggle Button always visible -->
     <div class="absolute right-4 top-4 z-50">
       <button
-        class="bg-accent text-white p-2 rounded-full shadow-md"
+        class="bg-primary border text-white p-2 rounded-2xl shadow-md"
         @click="toggleSidebarFunction"
       >
         <span class="text-lg">

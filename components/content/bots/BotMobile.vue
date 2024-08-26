@@ -11,11 +11,11 @@
     </div>
 
     <!-- Conditionally displayed icons on the left and right, with increased z-index -->
-    <div class="fixed inset-x-0 bottom-0 flex justify-between z-50 m-2">
-      <icon :name="iconLeftClass" :size="iconSize" @click="flipCard('left')" />
+    <div class="fixed bottom-8 right-8 p-2 shadow-md z-50">
+      <icon :name="iconLeftClass" :size="16" @click="flipCard('left')" />
+</div><div class="fixed bottom-8 left-8 p-2 shadow-md z-50">
       <icon
         :name="iconRightClass"
-        :size="iconSize"
         @click="flipCard('right')"
       />
     </div>
@@ -37,7 +37,6 @@ const components = { chat: BotChat, addBot: AddBot, viewMessages: BotMessages }
 const currentComponent = computed(() => components[currentChannel.value])
 
 const scrollContainer = ref(null)
-const iconSize = ref(16)
 
 onUnmounted(() => {
   // Clean up if necessary, though specifics depend on setup

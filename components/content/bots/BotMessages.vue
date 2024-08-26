@@ -28,42 +28,52 @@
         <h3 class="text-lg font-semibold">
           {{ message.username }} (Bot: {{ message.botName }})
         </h3>
+        <!-- Toggle Public Button -->
+        <button
+          class="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
+          @click="togglePublic(message.id, !message.isPublic)"
+        >
+          {{ message.isPublic ? 'Unshare' : 'Share' }}
+        </button>
       </div>
       <p class="user-prompt mb-1 text-gray-600">{{ message.userPrompt }}</p>
       <p class="bot-response font-medium">{{ message.botResponse }}</p>
     </div>
+    <public-wall />
   </div>
 </template>
-
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useChatStore } from './../../../stores/chatStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useBotStore } from './../../../stores/botStore'
+import PublicWall from './PublicWall.vue'
 
-const selectedBotId = computed(() => botStore.selectedBotId)
 const userStore = useUserStore()
 const botStore = useBotStore()
+const chatStore = useChatStore()
 const userId = computed(() => userStore.userId)
-const { chatExchanges, fetchChatExchangesByUserId } = useChatStore()
-
-const bots = computed(() => botStore.bots)
+const selectedBotId = computed(() => botStore.selectedBotId)
 
 onMounted(async () => {
-  await fetchChatExchangesByUserId(userId)
+  await chatStore.fetchChatExchangesByUserId(userId.value)
 })
 
 const filteredMessages = computed(() => {
   if (!selectedBotId.value) {
-    return chatExchanges
+    return chatStore.chatExchanges
   }
-  return chatExchanges.filter(
+  return chatStore.chatExchanges.filter(
     (exchange) => exchange.botId === selectedBotId.value,
   )
 })
 
+function togglePublic(id, newPublicStatus) {
+  chatStore.togglePublic(id, newPublicStatus)
+}
+
 function filterMessages() {
-  // Additional client-side logic to refine how messages are filtered when a bot is selected
+  // Logic to refine message filtering when a bot is selected
 }
 </script>
 

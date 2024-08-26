@@ -11,9 +11,9 @@
     </div>
 
     <!-- Conditionally displayed icons on the left and right, with increased z-index -->
-    <div class="fixed bottom-8 right-8 p-2 shadow-md z-50">
-      <icon :name="iconLeftClass" :size="16" @click="flipCard('left')" />
-</div><div class="fixed bottom-8 left-8 p-2 shadow-md z-50">
+    <div class="fixed w-12 h-12 bottom-8 right-8 p-2 shadow-md z-50">
+      <icon :name="iconLeftClass" @click="flipCard('left')" />
+</div><div class="fixed w-12 h-12 bottom-8 left-8 p-2 shadow-md z-50">
       <icon
         :name="iconRightClass"
         @click="flipCard('right')"

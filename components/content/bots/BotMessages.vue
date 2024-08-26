@@ -1,58 +1,86 @@
 <template>
-  <div class="bot-messages-container">
-    <div v-if="loading" class="loading">Loading...</div>
-    <div v-else-if="!chatExchanges.length" class="no-messages">
-      No messages yet!
-    </div>
-    <ul v-else>
-      <li
-        v-for="exchange in chatExchanges"
-        :key="exchange.id"
-        class="message-item"
+  <div class="container mx-auto px-4">
+    <div class="select-container my-4">
+      <select
+        v-model="selectedBotId"
+        class="block w-full p-2 rounded-2xl border border-gray-300"
+        @change="filterMessages"
       >
-        {{ exchange.userPrompt }}
-        <!-- Here you can also add UI elements for reactions etc. -->
-      </li>
-    </ul>
+        <option value="">All Messages</option>
+        <option v-for="bot in bots" :key="bot.id" :value="bot.id">
+          {{ bot.name }}
+        </option>
+      </select>
+    </div>
+
+    <div
+      v-for="message in filteredMessages"
+      :key="message.id"
+      class="message-card bg-white shadow-md rounded-2xl p-4 mb-4"
+    >
+      <div class="message-header flex items-center mb-2">
+        <img
+          v-if="message.avatar"
+          :src="message.avatar"
+          alt="User Avatar"
+          class="w-10 h-10 rounded-full mr-2"
+        />
+        <h3 class="text-lg font-semibold">
+          {{ message.username }} (Bot: {{ message.botName }})
+        </h3>
+      </div>
+      <p class="user-prompt mb-1 text-gray-600">{{ message.userPrompt }}</p>
+      <p class="bot-response font-medium">{{ message.botResponse }}</p>
+    </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useChatStore, type ChatExchange } from './../../../stores/chatStore'
+<script setup>
+import { computed, onMounted } from 'vue'
+import { useChatStore } from './../../../stores/chatStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useBotStore } from './../../../stores/botStore'
 
-const chatStore = useChatStore()
-const loading = ref(true)
-const chatExchanges = ref<ChatExchange[]>([])
+const selectedBotId = computed(() => botStore.selectedBotId)
+const userStore = useUserStore()
+const botStore = useBotStore()
+const userId = computed(() => userStore.userId)
+const { chatExchanges, fetchChatExchangesByUserId } = useChatStore()
+
+const bots = computed(() => botStore.bots)
 
 onMounted(async () => {
-  try {
-    await chatStore.fetchChatExchanges()
-    chatExchanges.value = chatStore.chatExchanges
-  } catch (error) {
-    console.error('Error loading chat exchanges:', error)
-  } finally {
-    loading.value = false
-  }
+  await fetchChatExchangesByUserId(userId)
 })
+
+const filteredMessages = computed(() => {
+  if (!selectedBotId.value) {
+    return chatExchanges
+  }
+  return chatExchanges.filter(
+    (exchange) => exchange.botId === selectedBotId.value,
+  )
+})
+
+function filterMessages() {
+  // Additional client-side logic to refine how messages are filtered when a bot is selected
+}
 </script>
 
 <style scoped>
-.bot-messages-container {
-  padding: 10px;
-  background: #f0f0f0;
+.select-container select {
+  background-color: white;
+  transition: all 0.3s ease-in-out;
 }
-.loading {
-  color: #888;
-  text-align: center;
+.select-container select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 1px #667eea;
 }
-.no-messages {
-  color: #aaa;
-  text-align: center;
+.message-card {
+  transition: transform 0.2s;
 }
-.message-item {
-  margin-bottom: 10px;
-  padding: 5px;
-  border-bottom: 1px solid #ddd;
+.message-card:hover {
+  transform: translateY(-5px);
 }
 </style>

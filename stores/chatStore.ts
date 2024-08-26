@@ -29,6 +29,31 @@ export const useChatStore = defineStore({
         throw error
       }
     },
+    async togglePublic(id: number) {
+      const exchange = this.getExchangeById(id)
+      if (exchange) {
+        const updatedExchange = { ...exchange, isPublic: !exchange.isPublic }
+        const data = await this.fetch(`/api/chats/toggle-public/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isPublic: updatedExchange.isPublic }),
+        })
+        if (data.success) {
+          // Update local state to reflect the new public status
+          const index = this.chatExchanges.findIndex((x) => x.id === id)
+          if (index !== -1) {
+            this.chatExchanges[index] = updatedExchange
+          }
+        } else {
+          this.handleError(
+            ErrorType.VALIDATION_ERROR,
+            `Failed to toggle public status: ${data.message}`,
+          )
+        }
+      } else {
+        this.handleError(ErrorType.VALIDATION_ERROR, 'Chat exchange not found.')
+      }
+    },
     async fetchChatExchangesByUserId(userId: number) {
       const data = await this.fetch(`/api/messages/user/${userId}`)
       if (data.success) {
@@ -101,6 +126,17 @@ export const useChatStore = defineStore({
       const errorStore = useErrorStore()
       errorStore.setError(type, message)
       console.error(message)
+    },
+    async getPublic() {
+      const data = await this.fetch('/api/chats/public')
+      if (data.success) {
+        this.setChatExchanges(data.chatExchanges)
+      } else {
+        this.handleError(
+          ErrorType.VALIDATION_ERROR,
+          `Failed to fetch public chat exchanges: ${data.message}`,
+        )
+      }
     },
   },
 })

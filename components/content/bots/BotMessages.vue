@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4">
+  <div class="container mx-auto border rounded-2xl bg-base-200 px-4">
     <div class="select-container my-4">
       <select
         v-model="selectedBotId"

@@ -144,6 +144,7 @@ model ChatExchange {
   loved           Boolean?     @default(false)
   flagged         Boolean?     @default(false)
   previousEntryId Int?     @default(0)
+  isPublic        Boolean @default(false)
 }
 
 

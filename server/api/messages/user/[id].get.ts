@@ -16,13 +16,15 @@ export default defineEventHandler(async (event) => {
 })
 
 // Function to fetch chat messages by User ID
-export async function fetchMessagesByUserId(userId: number): Promise<ChatExchange[]> {
+export async function fetchMessagesByUserId(
+  userId: number,
+): Promise<ChatExchange[]> {
   return await prisma.chatExchange.findMany({
     where: {
-      userId: userId
+      userId: userId,
     },
     orderBy: {
-      createdAt: 'desc'  // Assuming you want the most recent messages first
-    }
+      createdAt: 'desc', // Assuming you want the most recent messages first
+    },
   })
 }

@@ -67,7 +67,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick } from 'vue'
-import { useBotStore } from '@/stores/botStore'
+import { useBotStore } from './../../../stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)

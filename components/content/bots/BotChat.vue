@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen rounded-2xl m-1 p-1">
+  <div class="flex flex-col bg-base-200 h-screen rounded-2xl m-1 p-1">
     <!-- Unified Top Half with image and info/stream side by side -->
     <div class="flex flex-row h-2/3 w-full">
       <!-- Allocate more space to the top half -->
@@ -15,7 +15,7 @@
       <div
         class="w-2/3 h-2/3 overflow-y-scroll flex flex-col justify-between p-2"
       >
-        <div class="text-left border rounded-2xl m-2 p-1 bg-primary">
+        <div class="text-left border rounded-2xl m-2 p-1 bg-base-200">
           <h2 class="text-xl font-bold">{{ currentBot.name }}</h2>
           <p class="text-md">{{ currentBot.description }}</p>
         </div>

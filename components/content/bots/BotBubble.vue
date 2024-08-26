@@ -46,18 +46,14 @@
         class="flex overflow-hidden justify-start space-x-4 px-2 scroll-container"
         :style="scrollStyle"
       >
-        <div v-if="bots && bots.length > 0"
-     ref="scrollContainer"
-     class="flex overflow-hidden justify-start space-x-4 px-2 scroll-container"
-     :style="scrollStyle">
-  <div v-for="(bot, index) in infiniteBots" :key="`bot-${index}`"
-       :class="['bot-bubble flex-col items-center cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out min-w-max']"
-       @click="selectBot(bot.id)">
-    <img :src="bot.avatarImage"
-         alt="Bot's Avatar"
-         class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full object-cover transition-all duration-300 ease-in-out"/>
-    <h3 class="text-lg font-semibold mt-2">{{ bot.name }}</h3>
-  </div>
+<div v-for="(bot, index) in bots" :key="`bot-${index}`"
+     :class="['bot-bubble flex-col items-center cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out min-w-max']"
+     @click="selectBot(bot.id)">
+  <img :src="bot.avatarImage"
+       alt="Bot's Avatar"
+       class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full object-cover transition-all duration-300 ease-in-out"/>
+  <h3 class="text-lg font-semibold mt-2 truncate">{{ bot.name }}</h3>
+</div>
 </div>
       </div>
     </div>

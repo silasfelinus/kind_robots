@@ -57,6 +57,7 @@ export const useBotStore = defineStore({
       this.loading = true
       try {
         await this.fetchBots()
+        this.selectBot(1)
       } finally {
         this.loading = false
       }

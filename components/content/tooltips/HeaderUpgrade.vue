@@ -39,7 +39,7 @@
     <!-- Jellybean Counter -->
     <jellybean-count
       v-if="isLoggedIn"
-      class="fixed top-40 right-8 bg-white p-2 rounded-full shadow-md z-10"
+      class="fixed bottom-2 center bg-white p-2 rounded-full shadow-md z-10"
     />
 
     <!-- Navigation -->

@@ -1,9 +1,9 @@
 <template>
-  <div class="container rounded-2xl mx-auto p-2 bg-base-200">
+  <div class="container rounded-2xl mx-auto p-2">
     <!-- Bot Avatar and Details -->
 
     <!-- Message Interaction Area -->
-    <div class="message-container bg-base-200 p-1 rounded-2xl">
+    <div class="message-container bg-primary p-1 rounded-2xl">
       <!-- New Message Prompt -->
       <div class="prompt-area p-2 rounded-2xl">
         <label for="newMessage" class="block mb-2 font-bold">
@@ -20,7 +20,7 @@
           @keyup.enter="sendMessage"
         />
         <button
-          class="submit-button btn btn-primary mt-2"
+          class="submit-button btn btn-accent mt-2"
           :disabled="isLoading"
           @click="sendMessage"
         >

@@ -9,10 +9,10 @@
       <div class="flex items-center space-x-2 flex-shrink-0 min-w-0 md:flex-1">
         <avatar-image
           :size="avatarSize"
-          class="w-12 h-12 md:w-16 md:h-16 rounded-full"
+          class="w-12 h-12 md:w-16 md:h-16 rounded"
         />
         <div class="flex items-center flex-shrink-0 min-w-0 md:flex-1">
-          <room-title class="text-sm font-semibold" />
+          <room-title class="text-sm font-semibold bg-secondary" />
           <h2 class="text-xs text-gray-500 italic pl-1">
             {{ page?.subtitle || 'the kindest' }}
           </h2>

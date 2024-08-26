@@ -6,7 +6,7 @@
       <!-- Bot's Image with oval aspect -->
       <div class="w-2/3 flex justify-center items-center">
         <img
-          :src="currentBot.avatarImage"
+          :src="currentBot?.avatarImage"
           alt="Bot's Avatar"
           class="w-2/3 h-2/3 rounded-sm object-cover"
         />
@@ -16,8 +16,8 @@
         class="w-2/3 h-2/3 overflow-y-scroll flex flex-col justify-between p-2"
       >
         <div class="text-left border rounded-2xl m-2 p-1 bg-base-200">
-          <h2 class="text-xl font-bold">{{ currentBot.name }}</h2>
-          <p class="text-md">{{ currentBot.description }}</p>
+          <h2 class="text-xl font-bold">{{ currentBot?.name }}</h2>
+          <p class="text-md">{{ currentBot?.description }}</p>
         </div>
         <!-- Bot Stream placed directly under the info -->
         <bot-stream class="flex-grow overflow-y-auto" />

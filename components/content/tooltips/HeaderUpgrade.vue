@@ -12,7 +12,7 @@
           class="w-12 h-12 md:w-16 md:h-16 rounded"
         />
         <div class="flex items-center flex-shrink-0 min-w-0 md:flex-1">
-          <room-title class="text-sm font-semibold bg-secondary" />
+          <room-title class="text-sm font-semibold bg-base-200 rounded-2xl " />
           <h2 class="text-xs text-gray-500 italic pl-1">
             {{ page?.subtitle || 'the kindest' }}
           </h2>

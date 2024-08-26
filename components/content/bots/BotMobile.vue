@@ -13,7 +13,7 @@
     <!-- Conditionally displayed icons on the left and right, with increased z-index -->
     <div class="fixed w-12 h-12 bottom-8 right-8 p-2 shadow-md z-50">
       <icon :name="iconLeftClass" @click="flipCard('left')" />
-</div><div class="fixed w-12 h-12 bottom-8 left-8 p-2 bg-accent shadow-md z-50">
+</div><div class="fixed w-12 h-12 bottom-8 left-8 icon-accent border z-50">
       <icon
         :name="iconRightClass"
         @click="flipCard('right')"
@@ -49,7 +49,7 @@ const iconLeftClass = computed(() =>
 )
 const iconRightClass = computed(() =>
   currentChannel.value === 'viewMessages'
-    ? 'fluent--bot-add-20-regular'
-    : 'flowbite:messages-solid',
+    ? 'flowbite:messages-solid'
+    : 'fluent--bot-add-20-regular',
 )
 </script>

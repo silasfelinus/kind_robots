@@ -45,7 +45,9 @@
 
 <script setup>
 import { computed, onMounted } from 'vue'
-import { useChatStore, useUserStore, useBotStore } from './../../../stores'
+import { useChatStore } from './../../../stores/chatStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useBotStore } from './../../../stores/botStore'
 
 const { userId } = useUserStore()
 const { selectedBotId } = useBotStore()

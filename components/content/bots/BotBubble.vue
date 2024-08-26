@@ -1,9 +1,12 @@
 <template>
   <div
-    class="relative w-full select-none overflow-hidden ml-4 mr-4 p-1 border rounded-2xl bg-base-200"
+    class="relative select-none overflow-hidden ml-4 mr-4 p-1 border rounded-2xl bg-base-200"
   >
     <!-- Navigation Arrows -->
-    <div class="absolute left-4 z-50 cursor-pointer" @click="scrollLeft">
+    <div
+      class="absolute left-4 top-1/2 -translate-y-1/2 z-50 cursor-pointer"
+      @click="scrollLeft"
+    >
       <!-- Left Arrow SVG -->
       <svg
         fill="currentColor"
@@ -17,7 +20,10 @@
         />
       </svg>
     </div>
-    <div class="absolute right-4 z-50 cursor-pointer" @click="scrollRight">
+    <div
+      class="absolute right-4 top-1/2 -translate-y-1/2 z-50 cursor-pointer"
+      @click="scrollRight"
+    >
       <!-- Right Arrow SVG -->
       <svg
         fill="currentColor"
@@ -33,29 +39,26 @@
     </div>
 
     <!-- Centering Container -->
-    <div class="mx-auto w-2/3 overflow-hidden relative">
+    <div class="mx-auto w-full overflow-x-auto">
       <!-- Bot Scroll Container -->
       <div
         ref="scrollContainer"
-        class="flex overflow-hidden justify-start space-x-4 px-2 scroll-container"
+        class="flex space-x-4 px-2 scroll-container"
         :style="scrollStyle"
       >
         <div
           v-for="(bot, index) in bots"
           :key="`bot-${index}`"
-          :class="[
-            'bot-bubble flex-col items-center cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out min-w-max',
-          ]"
+          class="flex-shrink-0 flex flex-col items-center cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out"
+          style="width: 30vw; min-width: 120px"
           @click="selectBot(bot.id)"
         >
           <img
             :src="bot.avatarImage"
             alt="Bot's Avatar"
-            class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full object-cover transition-all duration-300 ease-in-out"
+            class="w-full h-auto rounded-full object-cover transition-all duration-300 ease-in-out"
           />
-          <h3 class="text-lg font-semibold mt-2 truncate">
-            {{ currentBot.name }}
-          </h3>
+          <h3 class="text-lg font-semibold mt-2 truncate">{{ bot.name }}</h3>
         </div>
       </div>
     </div>
@@ -68,7 +71,6 @@ import { useBotStore } from '@/stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
-const currentBot = computed(() => botStore.currentBot)
 const scrollContainer = ref(null)
 const currentOffset = ref(0)
 
@@ -79,9 +81,8 @@ const scrollStyle = computed(() => ({
 
 onMounted(async () => {
   await nextTick()
-  // Ensure the first bot's width is used for initial offset
   const firstBotWidth = scrollContainer.value.children[0].clientWidth
-  currentOffset.value = -firstBotWidth // Moves to the first real element's position
+  currentOffset.value = -firstBotWidth
 })
 
 function selectBot(botId) {
@@ -113,16 +114,11 @@ function scrollRight() {
 .scroll-container {
   display: flex;
   min-width: 300%; /* Make sure there is enough room for all items */
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
 }
 
-.arrow {
-  position: absolute;
-  top: 50%; /* Center vertically */
-  transform: translateY(-50%);
-  z-index: 10;
-  cursor: pointer;
-  background: #fff; /* Ensure visibility */
-  border-radius: 50%;
-  padding: 8px;
+.bot-bubble {
+  scroll-snap-align: start;
 }
 </style>

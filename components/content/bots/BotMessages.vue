@@ -4,7 +4,7 @@
       <select
         v-model="selectedBotId"
         class="block w-full p-2 rounded-2xl border border-gray-300"
-        @change="filterMessages"
+        @change="filteredMessages"
       >
         <option value="">All Messages</option>
         <option v-for="bot in bots" :key="bot.id" :value="bot.id">
@@ -42,39 +42,29 @@
     <public-wall />
   </div>
 </template>
+
 <script setup>
 import { computed, onMounted } from 'vue'
-import { useChatStore } from './../../../stores/chatStore'
-import { useUserStore } from './../../../stores/userStore'
-import { useBotStore } from './../../../stores/botStore'
-import PublicWall from './PublicWall.vue'
+import { useChatStore, useUserStore, useBotStore } from './../../../stores'
 
-const userStore = useUserStore()
-const botStore = useBotStore()
-const chatStore = useChatStore()
-const userId = computed(() => userStore.userId)
-const selectedBotId = computed(() => botStore.selectedBotId)
+const { userId } = useUserStore()
+const { selectedBotId } = useBotStore()
+const { fetchChatExchangesByUserId, chatExchanges, togglePublic } =
+  useChatStore()
 
 onMounted(async () => {
-  await chatStore.fetchChatExchangesByUserId(userId.value)
+  try {
+    await fetchChatExchangesByUserId(userId.value)
+  } catch (error) {
+    console.error('Failed to fetch chat exchanges:', error)
+  }
 })
 
 const filteredMessages = computed(() => {
-  if (!selectedBotId.value) {
-    return chatStore.chatExchanges
-  }
-  return chatStore.chatExchanges.filter(
-    (exchange) => exchange.botId === selectedBotId.value,
-  )
+  return selectedBotId.value
+    ? chatExchanges.filter((exchange) => exchange.botId === selectedBotId.value)
+    : chatExchanges
 })
-
-function togglePublic(id, newPublicStatus) {
-  chatStore.togglePublic(id, newPublicStatus)
-}
-
-function filterMessages() {
-  // Logic to refine message filtering when a bot is selected
-}
 </script>
 
 <style scoped>

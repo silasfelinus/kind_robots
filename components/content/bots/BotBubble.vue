@@ -91,8 +91,9 @@ const scrollStyle = computed(() => ({
 
 onMounted(async () => {
   await nextTick();
-  // Adjust to start from the first actual bot (not the duplicated one)
-  currentOffset.value = -scrollContainer.value.children[1].clientWidth;
+  // Ensure the first bot's width is used for initial offset
+  const firstBotWidth = scrollContainer.value.children[1].clientWidth; // Assuming the first element [0] is the duplicated last element
+  currentOffset.value = -firstBotWidth; // Moves to the first real element's position
 });
 
 function selectBot(botId) {

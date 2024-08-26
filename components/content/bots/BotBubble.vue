@@ -65,54 +65,75 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, nextTick } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 
-const botStore = useBotStore()
-const bots = computed(() => botStore.bots)
-const scrollContainer = ref(null)
-let currentOffset = 0
+const botStore = useBotStore();
+const bots = computed(() => botStore.bots);
+const selectedBotId = computed(() => botStore.selectedBotId);
+const scrollContainer = ref(null);
+let currentOffset = ref(0);
 
 const infiniteBots = computed(() => {
+  // Append and prepend items for infinite effect
   if (bots.value.length > 0) {
     const last = bots.value[bots.value.length - 1];
     const first = bots.value[0];
     return [last, ...bots.value, first];
   }
-  return []; // Return an empty array if no bots available
+  return [];
 });
-const scrollStyle = computed(() => ({
-  transform: `translateX(${currentOffset}px)`,
-  transition: 'transform 0.3s ease-in-out',
-}))
 
-onMounted(() => {
-  currentOffset = -scrollContainer.value.children[0].clientWidth // Start at the first real bot
-})
+const scrollStyle = computed(() => ({
+  transform: `translateX(${currentOffset.value}px)`,
+  transition: 'transform 0.3s ease-in-out',
+}));
+
+onMounted(async () => {
+  await nextTick();
+  // Adjust to start from the first actual bot (not the duplicated one)
+  currentOffset.value = -scrollContainer.value.children[1].clientWidth;
+});
 
 function selectBot(botId) {
-  botStore.selectBot(botId)
+  botStore.selectBot(botId);
 }
 
 function scrollLeft() {
-  if (scrollContainer.value && scrollContainer.value.children.length > 2 && currentOffset < -scrollContainer.value.children[1].clientWidth) {
-    currentOffset += scrollContainer.value.children[1].clientWidth;
+  const singleWidth = scrollContainer.value.children[1].clientWidth;
+  // Wrap around logic
+  if (currentOffset.value === 0) {
+    currentOffset.value = -singleWidth * bots.value.length;
   } else {
-    currentOffset = -(scrollContainer.value.children[1].clientWidth * (bots.value.length));
+    currentOffset.value += singleWidth;
   }
 }
 
 function scrollRight() {
-  if (scrollContainer.value && scrollContainer.value.children.length > 2 && currentOffset > -(scrollContainer.value.children[1].clientWidth * bots.value.length)) {
-    currentOffset -= scrollContainer.value.children[1].clientWidth;
+  const singleWidth = scrollContainer.value.children[1].clientWidth;
+  // Wrap around logic
+  if (currentOffset.value <= -singleWidth * (bots.value.length + 1)) {
+    currentOffset.value = -singleWidth;
   } else {
-    currentOffset = -scrollContainer.value.children[1].clientWidth;
+    currentOffset.value -= singleWidth;
   }
 }
 </script>
 
-<style scoped>
+<style>
 .scroll-container {
   display: flex;
+  min-width: 300%; /* Make sure there is enough room for all items and duplicates */
+}
+
+.arrow {
+  position: absolute;
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%);
+  z-index: 10;
+  cursor: pointer;
+  background: #fff; /* Ensure visibility */
+  border-radius: 50%;
+  padding: 8px;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center p-1 m-1 h-screen">
+  <div class="flex flex-col items-center p-1 m-1 h-screen bg-primary">
     <!-- Bot selector as a swipeable component -->
     <bot-bubble />
     <!-- Chat window, switching based on currentChannel -->

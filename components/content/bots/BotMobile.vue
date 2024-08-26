@@ -2,22 +2,18 @@
   <div class="flex flex-col items-center p-1 m-1 h-screen bg-primary">
     <!-- Bot selector as a swipeable component -->
     <bot-bubble />
-    <!-- Chat window, switching based on currentChannel -->
-    <div
-      v-if="currentBot"
-      class="relative w-full max-h-1/2 overflow-y-auto rounded-2xl m-1 p-1"
-    >
+
+    <!-- Always display the component area, but conditionally show content -->
+    <div class="relative w-full max-h-1/2 overflow-y-auto rounded-2xl m-1 p-1">
       <component :is="currentComponent" />
     </div>
 
     <!-- Conditionally displayed icons on the left and right, with increased z-index -->
     <div class="fixed w-12 h-12 bottom-8 right-8 p-2 shadow-md z-50">
-      <icon :name="iconLeftClass" @click="flipCard('left')" />
-</div><div class="fixed w-12 h-12 bottom-8 left-8 icon-accent border z-50">
-      <icon
-        :name="iconRightClass"
-        @click="flipCard('right')"
-      />
+      <icon :name="iconLeftClass" @click="flipChannel('left')" />
+    </div>
+    <div class="fixed w-12 h-12 bottom-8 left-8 icon-accent border z-50">
+      <icon :name="iconRightClass" @click="flipChannel('right')" />
     </div>
   </div>
 </template>

@@ -46,23 +46,19 @@
         class="flex overflow-hidden justify-start space-x-4 px-2 scroll-container"
         :style="scrollStyle"
       >
-        <div
-          v-for="(bot, index) in infiniteBots"
-          :key="`bot-${index}`"
-          :class="[
-            'bot-bubble flex-col items-center cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out min-w-max',
-          ]"
-          @click="selectBot(bot.id)"
-        >
-          <!-- Bot Avatar -->
-          <img
-            :src="bot.avatarImage"
-            alt="Bot's Avatar"
-            class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full object-cover transition-all duration-300 ease-in-out"
-          />
-          <!-- Bot Name -->
-          <h3 class="text-lg font-semibold mt-2">{{ bot.name }}</h3>
-        </div>
+        <div v-if="bots && bots.length > 0"
+     ref="scrollContainer"
+     class="flex overflow-hidden justify-start space-x-4 px-2 scroll-container"
+     :style="scrollStyle">
+  <div v-for="(bot, index) in infiniteBots" :key="`bot-${index}`"
+       :class="['bot-bubble flex-col items-center cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out min-w-max']"
+       @click="selectBot(bot.id)">
+    <img :src="bot.avatarImage"
+         alt="Bot's Avatar"
+         class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full object-cover transition-all duration-300 ease-in-out"/>
+    <h3 class="text-lg font-semibold mt-2">{{ bot.name }}</h3>
+  </div>
+</div>
       </div>
     </div>
   </div>
@@ -78,12 +74,13 @@ const scrollContainer = ref(null)
 let currentOffset = 0
 
 const infiniteBots = computed(() => {
-  // Duplicate first and last items for smooth infinite scrolling
-  const last = bots.value[bots.value.length - 1]
-  const first = bots.value[0]
-  return [last, ...bots.value, first]
-})
-
+  if (bots.value.length > 0) {
+    const last = bots.value[bots.value.length - 1];
+    const first = bots.value[0];
+    return [last, ...bots.value, first];
+  }
+  return []; // Return an empty array if no bots available
+});
 const scrollStyle = computed(() => ({
   transform: `translateX(${currentOffset}px)`,
   transition: 'transform 0.3s ease-in-out',
@@ -98,23 +95,18 @@ function selectBot(botId) {
 }
 
 function scrollLeft() {
-  if (currentOffset < -scrollContainer.value.children[0].clientWidth) {
-    currentOffset += scrollContainer.value.children[0].clientWidth
+  if (scrollContainer.value && scrollContainer.value.children.length > 2 && currentOffset < -scrollContainer.value.children[1].clientWidth) {
+    currentOffset += scrollContainer.value.children[1].clientWidth;
   } else {
-    currentOffset = -(
-      scrollContainer.value.children[0].clientWidth * bots.value.length
-    )
+    currentOffset = -(scrollContainer.value.children[1].clientWidth * (bots.value.length));
   }
 }
 
 function scrollRight() {
-  if (
-    currentOffset >
-    -(scrollContainer.value.children[0].clientWidth * bots.value.length)
-  ) {
-    currentOffset -= scrollContainer.value.children[0].clientWidth
+  if (scrollContainer.value && scrollContainer.value.children.length > 2 && currentOffset > -(scrollContainer.value.children[1].clientWidth * bots.value.length)) {
+    currentOffset -= scrollContainer.value.children[1].clientWidth;
   } else {
-    currentOffset = -scrollContainer.value.children[0].clientWidth
+    currentOffset = -scrollContainer.value.children[1].clientWidth;
   }
 }
 </script>

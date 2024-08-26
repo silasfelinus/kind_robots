@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full select-none overflow-hidden ml-4 mr-4 p-1 border rounded-2xl bg-primary">
+  <div class="relative w-full select-none overflow-hidden ml-4 mr-4 p-1 border rounded-2xl bg-base-200">
     <!-- Navigation Arrows -->
     <div class="absolute left-4 z-50 cursor-pointer" @click="scrollLeft">
       <!-- Left Arrow SVG -->

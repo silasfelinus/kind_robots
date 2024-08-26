@@ -11,7 +11,7 @@
     </div>
 
     <!-- Conditionally displayed icons on the left and right, with increased z-index -->
-    <div class="fixed inset-x-0 bottom-0 flex justify-between z-50 m-2">
+    <div class="fixed inset-x-0 bottom-0 w-6 h-6 md:w-16 md:h-16 flex justify-between z-50 m-2">
       <icon :name="iconLeftClass" :size="iconSize" @click="flipCard('left')" />
       <icon
         :name="iconRightClass"

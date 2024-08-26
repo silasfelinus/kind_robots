@@ -40,17 +40,6 @@ export const useChatStore = defineStore({
         )
       }
     },
-    async fetchChatExchangesByUserIdAndBotId(userId: number, botId: number) {
-      const data = await this.fetch(`/api/messages/user/${userId}/bot/${botId}`)
-      if (data.success) {
-        this.setChatExchanges(data.chatExchanges)
-      } else {
-        this.handleError(
-          ErrorType.VALIDATION_ERROR,
-          `Failed to fetch chat exchanges for user ${userId} with bot ${botId}: ${data.message}`,
-        )
-      }
-    },
     async fetchChatExchanges() {
       const data = await this.fetch('/api/chats')
       if (data.success) {

@@ -39,18 +39,13 @@
     </div>
 
     <!-- Centering Container -->
-    <div class="mx-auto w-full overflow-x-auto">
+    <div class="mx-auto w-full overflow-x-auto scroll-container">
       <!-- Bot Scroll Container -->
-      <div
-        ref="scrollContainer"
-        class="flex space-x-4 px-2 scroll-container"
-        :style="scrollStyle"
-      >
+      <div class="flex space-x-4 px-2">
         <div
           v-for="(bot, index) in bots"
           :key="`bot-${index}`"
-          class="flex-shrink-0 flex flex-col items-center cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out"
-          style="width: 30vw; min-width: 120px"
+          class="flex-shrink-0 flex flex-col items-center cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out bot-bubble"
           @click="selectBot(bot.id)"
         >
           <img
@@ -66,59 +61,36 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
 const scrollContainer = ref(null)
-const currentOffset = ref(0)
-
-const scrollStyle = computed(() => ({
-  transform: `translateX(${currentOffset.value}px)`,
-  transition: 'transform 0.3s ease-in-out',
-}))
-
-onMounted(async () => {
-  await nextTick()
-  const firstBotWidth = scrollContainer.value.children[0].clientWidth
-  currentOffset.value = -firstBotWidth
-})
 
 function selectBot(botId) {
   botStore.selectBot(botId)
 }
 
-function adjustScroll(direction) {
-  const singleWidth = scrollContainer.value.children[0].clientWidth
-  const maxOffset = -singleWidth * (bots.value.length - 1)
-  currentOffset.value += direction * singleWidth
-
-  if (currentOffset.value > 0) {
-    currentOffset.value = maxOffset
-  } else if (currentOffset.value < maxOffset) {
-    currentOffset.value = 0
-  }
-}
-
 function scrollLeft() {
-  adjustScroll(1)
+  scrollContainer.value.scrollBy({ left: -300, behavior: 'smooth' }) // Adjust pixel value as necessary
 }
 
 function scrollRight() {
-  adjustScroll(-1)
+  scrollContainer.value.scrollBy({ left: 300, behavior: 'smooth' }) // Adjust pixel value as necessary
 }
 </script>
 
 <style>
 .scroll-container {
   display: flex;
-  min-width: 300%; /* Make sure there is enough room for all items */
-  overflow-x: scroll;
+  overflow-x: auto;
   scroll-snap-type: x mandatory;
 }
 
 .bot-bubble {
+  width: 30vw; /* Responsive width, you can adjust this based on your design */
+  min-width: 120px; /* Minimum width for smaller screens */
   scroll-snap-align: start;
 }
 </style>

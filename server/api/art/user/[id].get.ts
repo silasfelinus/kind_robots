@@ -7,7 +7,7 @@ import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
-    const userId = Number(event.context.params?.id)  // Ensure the userId is correctly parsed from the URL parameter
+    const userId = Number(event.context.params?.id) // Ensure the userId is correctly parsed from the URL parameter
     const userArt = await fetchArtByUserId(userId)
     return { success: true, art: userArt }
   } catch (error: unknown) {
@@ -20,7 +20,7 @@ export async function fetchArtByUserId(userId: number): Promise<Art[]> {
   return await prisma.art.findMany({
     where: { userId },
     orderBy: {
-      createdAt: 'desc'  // Optionally order by most recent first
-    }
+      createdAt: 'desc', // Optionally order by most recent first
+    },
   })
 }

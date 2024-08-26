@@ -22,11 +22,11 @@ export const useBotStore = defineStore({
     selectBot(botId: number) {
       // Toggle selection logic, if the same bot is selected, deselect it
       if (this.selectedBotId === botId) {
-        this.selectedBotId = null;
-        this.currentBot = null;
+        this.selectedBotId = null
+        this.currentBot = null
       } else {
-        this.selectedBotId = botId;
-        this.currentBot = this.bots.find(bot => bot.id === botId) || null;
+        this.selectedBotId = botId
+        this.currentBot = this.bots.find((bot) => bot.id === botId) || null
       }
     },
     async fetchBots(): Promise<void> {

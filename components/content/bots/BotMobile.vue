@@ -11,7 +11,7 @@
     </div>
 
     <!-- Conditionally displayed icons on the left and right, with increased z-index -->
-    <div class="fixed inset-x-0 bottom-0 flex justify-between z-50 m-2 p-2">
+    <div class="fixed inset-x-0 bottom-0 flex justify-between z-50 m-2">
       <icon :name="iconLeftClass" :size="iconSize" @click="flipCard('left')" />
       <icon
         :name="iconRightClass"
@@ -42,7 +42,7 @@ const iconSize = ref(0)
 function updateIconSize() {
   if (scrollContainer.value) {
     // Calculate the icon size as a fraction of the scroll container's width
-    iconSize.value = scrollContainer.value.offsetWidth / 10
+    iconSize.value = scrollContainer.value.offsetWidth / 6
   }
 }
 

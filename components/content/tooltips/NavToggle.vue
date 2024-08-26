@@ -1,6 +1,6 @@
 <template>
   <button
-    class="p-1 bg-accent rounded-full m-1 w-8 h-8 flex items-center justify-center"
+    class="p-1 bg-base-200 rounded-full m-1 w-8 h-8 flex items-center justify-center"
     @click="toggleNav"
   >
     <icon name="gis:map-favorite" class="text-lg text-white" />

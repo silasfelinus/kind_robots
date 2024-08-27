@@ -22,7 +22,7 @@
       <div v-show="toggleSidebar" class="flex items-center space-x-2">
         <avatar-image class="h-8 w-8" alt="User Avatar" />
         <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
-        <h2 class="text-xs text-gray-500 italic pl-2">
+        <h2 class="text-xs text-gray-500 overflow-x-fit italic pl-2">
           {{ pageSubtitle }}
         </h2>
         <!-- Toggle Button integrated within the header -->

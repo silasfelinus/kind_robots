@@ -15,6 +15,8 @@
         <bot-chat-link class="block p-4" />
         <bot-messages-link class="block p-4" />
         <hot-link class="block p-4" />
+        <art-gallery-link class="block p-4" />
+        <dashboard-link class="block p-4" />
         <button class="p-2 text-left w-full" @click="toggleSidebar">
           <icon name="material-icons:menu" class="text-xl" />
         </button>
@@ -43,7 +45,7 @@ import { useLayoutStore } from '@/stores/layoutStore'
 import AddBotLink from '@/components/content/navigation/AddBotLink.vue'
 import BotChatLink from '@/components/content/navigation/BotChatLink.vue'
 import BotMessagesLink from '@/components/content/navigation/BotMessagesLink.vue'
-import HotLink from '@/components/content/navigation/HotLink.vue'
+import ArtGalleryLink from '@/components/content/navigation/ArtGalleryLink.vue'
 import HotLink from '@/components/content/navigation/HotLink.vue'
 import DashboardLink from '@/components/content/navigation/DashboardLink.vue'
 

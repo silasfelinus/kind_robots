@@ -15,4 +15,4 @@ sort: highlight
 dottitip: Hi! I'm Dotti, Bot Builder extraordinaire!  Welcome to my experiential laboratory.
 ---
 
-:bot-mobile
+:navigation-trimmed

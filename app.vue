@@ -1,20 +1,36 @@
 <template>
   <div class="flex flex-col h-screen bg-primary overflow-hidden">
     <!-- Header -->
-    <header-upgrade class="w-full bg-base-200 rounded-xl p-2 m-2 border"></header-upgrade>
+    <header-upgrade
+      class="w-full bg-base-200 rounded-xl p-2 m-2 border"
+    ></header-upgrade>
 
     <!-- Main Container for Sidebar and Content -->
     <div class="flex flex-grow relative">
+      <!-- Sidebar Toggle Button, positioned outside the sidebar -->
+      <button
+        class="absolute z-60 p-2 text-left inset-y-0 left-0 ml-2 mt-2 bg-primary"
+        :class="{ 'ml-64': isSidebarOpen }"
+        @click="toggleSidebar"
+      >
+        <icon
+          name="lucide:sidebar"
+          class="text-xl"
+          style="font-size: 24px"
+        ></icon>
+      </button>
+
       <!-- Collapsible Sidebar -->
-      <aside :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-50 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`">
-        <!-- Sidebar Toggle Button -->
-        <button class="p-2 text-left w-full bg-primary" @click="toggleSidebar">
-          <icon name="lucide:sidebar" class="text-xl" style="font-size: 24px;" />
-        </button>
+      <aside
+        :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-50 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`"
+      >
         <!-- Sidebar Links -->
         <add-bot-link class="block p-4 bg-primary" @click="toggleSidebar" />
         <bot-chat-link class="block p-4 bg-primary" @click="toggleSidebar" />
-        <bot-messages-link class="block p-4 bg-primary" @click="toggleSidebar" />
+        <bot-messages-link
+          class="block p-4 bg-primary"
+          @click="toggleSidebar"
+        />
         <hot-link class="block p-4 bg-primary" @click="toggleSidebar" />
         <art-gallery-link class="block p-4 bg-primary" @click="toggleSidebar" />
         <dashboard-link class="block p-4 bg-primary" @click="toggleSidebar" />
@@ -48,7 +64,6 @@ import ArtGalleryLink from '@/components/content/navigation/ArtGalleryLink.vue'
 import HotLink from '@/components/content/navigation/HotLink.vue'
 import DashboardLink from '@/components/content/navigation/DashboardLink.vue'
 
-
 const errorStore = useErrorStore()
 const tagStore = useTagStore()
 const userStore = useUserStore()
@@ -70,8 +85,15 @@ useHead({
   title: 'Kind Robots',
   meta: [
     { name: 'og:title', content: 'Welcome to the Kind Robots' },
-    { name: 'description', content: 'OpenAI-supported Promptbots here to assist humanity.' },
-    { name: 'og:description', content: 'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans' },
+    {
+      name: 'description',
+      content: 'OpenAI-supported Promptbots here to assist humanity.',
+    },
+    {
+      name: 'og:description',
+      content:
+        'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans',
+    },
     { name: 'og:image', content: '/images/kindtitle.webp' },
     { name: 'twitter:card', content: 'summary_large_image' },
   ],
@@ -79,7 +101,6 @@ useHead({
 
 onMounted(async () => {
   try {
-    
     await botStore.loadStore()
     console.log('loading user')
     await userStore.initializeUser()
@@ -95,7 +116,7 @@ onMounted(async () => {
   } catch (error) {
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
-      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`
+      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
 })

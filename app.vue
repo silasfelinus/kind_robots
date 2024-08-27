@@ -7,9 +7,11 @@
     <div class="flex flex-grow relative">
       <!-- Collapsible Sidebar -->
       <aside :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-50 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`">
-        <button class="p-2 text-left w-full" @click="toggleSidebar">
-          <icon name="lucide:sidebar" class="text-xl" />
+        <!-- Sidebar Toggle Button -->
+        <button class="p-2 text-left w-full bg-primary" @click="toggleSidebar">
+          <icon name="lucide:sidebar" class="text-xl" style="font-size: 24px;" />
         </button>
+        <!-- Sidebar Links -->
         <add-bot-link class="block p-4 bg-primary" @click="toggleSidebar" />
         <bot-chat-link class="block p-4 bg-primary" @click="toggleSidebar" />
         <bot-messages-link class="block p-4 bg-primary" @click="toggleSidebar" />

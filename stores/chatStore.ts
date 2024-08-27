@@ -98,6 +98,7 @@ export const useChatStore = defineStore({
         hated?: boolean
         loved?: boolean
         flagged?: boolean
+        isPublic?: boolean
       },
     ) {
       const data = await this.fetch(`/api/chats/${id}`, {

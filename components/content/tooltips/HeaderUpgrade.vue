@@ -29,7 +29,7 @@
         <button class="flex justify-self-end" @click="toggleSidebarFunction">
           <icon
             :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
-            class="text-lg flex items-right"
+            class="text-lg flex items-right text-accent"
           />
         </button>
       </div>
@@ -42,7 +42,7 @@
           <butterfly-toggle class="text-sm hidden sm:block" />
           <theme-toggle class="text-sm hidden sm:block" />
           <login-button />
-          <nav-toggle class="text-sm" @click="toggleNav" />
+          <nav-toggle class="text-md" @click="toggleNav" />
           <jellybean-count class="flex-2" />
         </div>
       </div>

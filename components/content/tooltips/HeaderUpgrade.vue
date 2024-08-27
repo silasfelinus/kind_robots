@@ -7,10 +7,22 @@
       :class="{ 'flex-col': isMobile }"
     >
       <!-- Main Section -->
-      <div class="flex items-center space-x-2">
-        <avatar-image :size="avatarSize" alt="User Avatar" />
+      <div v-show="!toggleSidebar" class="flex items-center space-x-2">
+        <avatar-image class="h-16 w-16" alt="User Avatar" />
         <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
-        <h2 v-show="toggleSidebar" class="text-xs text-gray-500 italic pl-2">
+        <!-- Toggle Button integrated within the header -->
+        <button class="flex justify-self-end" @click="toggleSidebarFunction">
+          <icon
+            :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
+            class="text-lg flex items-right"
+          />
+        </button>
+      </div>
+      <!-- Main Section -->
+      <div v-show="toggleSidebar" class="flex items-center space-x-2">
+        <avatar-image class="h-8 w-8" alt="User Avatar" />
+        <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
+        <h2 class="text-xs text-gray-500 italic pl-2">
           {{ pageSubtitle }}
         </h2>
         <!-- Toggle Button integrated within the header -->
@@ -52,7 +64,6 @@ import { ErrorType } from './../../../stores/errorStore'
 const { page } = useContentStore()
 
 const pageSubtitle = computed(() => page?.subtitle || 'the kindest')
-const avatarSize = ref('small')
 const showNav = ref(false)
 const isMobile = ref(false)
 const headerRef = ref<HTMLElement | null>(null)

@@ -1,17 +1,31 @@
 <template>
-  <div class="relative flex h-screen bg-primary">
+  <div class="flex flex-col h-screen bg-primary overflow-hidden">
+    <!-- Header -->
+    <header-upgrade
+      ref="headerRef"
+      class="w-full bg-base-200 rounded-xl p-2 m-2 border"
+    ></header-upgrade>
+
     <!-- Collapsible Sidebar -->
-    <aside :class="`sidebar ${isSidebarOpen ? 'expanded' : 'collapsed'}`">
-      <add-bot-link class="icon-link" />
-      <bot-chat-link class="icon-link" />
-      <bot-messages-link class="icon-link" />
-      <button class="toggle-sidebar" @click="toggleSidebar">
-        <icon name="bi:clipboard2-heart" />
+    <aside
+      :class="`transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-full`"
+    >
+      <add-bot-link class="block m-4" />
+      <bot-chat-link class="block m-4" />
+      <bot-messages-link class="block m-4" />
+      <button class="p-2 text-left w-full" @click="toggleSidebar">
+        <icon name="material-icons:menu" class="text-xl" />
       </button>
     </aside>
 
-    <!-- Header -->
-    <header-upgrade ref="headerRef" class="header-upgrade"></header-upgrade>
+    <!-- Toggle Icon, only shown when sidebar is collapsed -->
+    <div
+      v-if="!isSidebarOpen"
+      class="fixed top-0 left-0 p-2 cursor-pointer"
+      @click="toggleSidebar"
+    >
+      <icon name="material-icons:menu" class="text-xl" />
+    </div>
 
     <!-- Main Content -->
     <main ref="mainContentRef" class="flex flex-col items-center flex-grow">

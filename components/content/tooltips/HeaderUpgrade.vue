@@ -3,49 +3,50 @@
     <!-- Header with slim design and internal toggle button -->
     <header
       ref="headerRef"
-      class="flex items-center justify-between max-w-full px-2 py-1"
+      class="flex items-center justify-between px-2 py-1"
       :class="{ 'flex-col': isMobile }"
     >
-      <!-- Main Section -->
-      <div v-show="!toggleSidebar" class="flex items-center space-x-2">
+      <!-- Main Section visible based on toggleSidebar state -->
+      <div
+        v-show="!toggleSidebar"
+        class="flex items-center justify-start space-x-2 flex-grow"
+      >
         <avatar-image class="h-16 w-16" alt="User Avatar" />
         <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
-        <!-- Toggle Button integrated within the header -->
-        <button class="flex justify-self-end" @click="toggleSidebarFunction">
-          <icon
-            :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
-            class="text-lg flex items-right"
-          />
-        </button>
       </div>
-      <!-- Main Section -->
-      <div v-show="toggleSidebar" class="flex items-center space-x-2">
+      <div
+        v-show="toggleSidebar"
+        class="flex items-center justify-start space-x-2 flex-grow"
+      >
         <avatar-image class="h-8 w-8" alt="User Avatar" />
         <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
-        <h2 class="text-xs text-gray-500 overflow-x-fit italic pl-2">
+        <h2 class="text-xs text-gray-500 overflow-hidden italic pl-2">
           {{ pageSubtitle }}
         </h2>
-        <!-- Toggle Button integrated within the header -->
-        <button class="flex justify-self-end" @click="toggleSidebarFunction">
-          <icon
-            :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
-            class="text-lg flex items-right text-accent"
-          />
-        </button>
       </div>
-      <div class="flex flex-row flex-shrink">
-        <!-- Center Section -->
-        <smart-links v-show="toggleSidebar" class="flex text-center text-sm" />
 
-        <!-- Right Section -->
-        <div v-show="toggleSidebar" class="flex items-center gap-2">
-          <butterfly-toggle class="text-sm hidden sm:block" />
-          <theme-toggle class="text-sm hidden sm:block" />
-          <login-button />
-          <nav-toggle class="text-md" @click="toggleNav" />
-          <jellybean-count class="overflow-x: hidden" />
-        </div>
+      <!-- Center Section: Smart Links floating at the bottom center -->
+      <smart-links
+        v-show="toggleSidebar"
+        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center text-xs"
+      />
+
+      <!-- Right Section with dynamic visibility -->
+      <div class="flex items-center gap-2 justify-end">
+        <butterfly-toggle class="text-sm hidden sm:block" />
+        <theme-toggle class="text-sm hidden sm:block" />
+        <login-button />
+        <nav-toggle class="text-md" @click="toggleNav" />
+        <jellybean-count />
       </div>
+
+      <!-- Toggle Button integrated within the header -->
+      <button class="ml-auto p-2" @click="toggleSidebarFunction">
+        <icon
+          :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
+          class="text-lg text-accent"
+        />
+      </button>
     </header>
 
     <!-- Navigation -->
@@ -56,6 +57,7 @@
     />
   </div>
 </template>
+
 <script lang="ts" setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useContentStore } from './../../../stores/contentStore'

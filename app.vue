@@ -6,7 +6,7 @@
       <bot-chat-link class="icon-link" />
       <bot-messages-link class="icon-link" />
       <button class="toggle-sidebar" @click="toggleSidebar">
-        <icon name="material-icons:menu" />
+        <icon name="bi:clipboard2-heart" />
       </button>
     </aside>
 

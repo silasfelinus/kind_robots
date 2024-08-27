@@ -7,9 +7,10 @@
 
     <!-- Main Container for Sidebar and Content -->
     <div class="flex flex-grow relative">
-      <!-- Added 'relative' to make positioning of the sidebar absolute relative to this container -->
       <!-- Collapsible Sidebar -->
-      <aside :class="`sidebar ${isSidebarOpen ? 'open' : 'closed'}`">
+      <aside
+        :class="`absolute inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 z-10 w-64 overflow-y-auto bg-secondary`"
+      >
         <add-bot-link class="block p-4" />
         <bot-chat-link class="block p-4" />
         <bot-messages-link class="block p-4" />
@@ -20,7 +21,7 @@
       </aside>
 
       <!-- Main Content -->
-      <main class="main-container">
+      <main class="flex-grow overflow-y-auto w-full">
         <NuxtPage />
       </main>
     </div>

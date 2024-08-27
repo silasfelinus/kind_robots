@@ -4,7 +4,7 @@
   >
     <!-- Navigation Arrows -->
     <div
-      class="absolute left-4 top-1/2 -translate-y-1/2 z-50 cursor-pointer"
+      class="absolute left-4 top-1/2 -translate-y-1/2 z-30 cursor-pointer"
       @click="scrollLeft"
     >
       <!-- Left Arrow SVG -->
@@ -21,7 +21,7 @@
       </svg>
     </div>
     <div
-      class="absolute right-4 top-1/2 -translate-y-1/2 z-50 cursor-pointer"
+      class="absolute right-4 top-1/2 -translate-y-1/2 z-30 cursor-pointer"
       @click="scrollRight"
     >
       <!-- Right Arrow SVG -->

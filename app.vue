@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-primary overflow-hidden">
+  <div class="flex flex-col h-screen bg-primary">
     <!-- Header -->
     <header-upgrade
       class="w-full bg-base-200 rounded-xl p-2 m-2 border"
@@ -7,14 +7,13 @@
 
     <!-- Main Container for Sidebar and Content -->
     <div class="flex flex-grow relative border rounded-2xl bg-primary">
-      <!-- Sidebar Toggle Button, positioned outside the sidebar -->
+      <!-- Sidebar Toggle Button, consistently positioned -->
       <button
-        class="absolute z-50 p-2 text-left inset-y-0 left-0 ml-2 mt-2"
-        :class="{ 'ml-64': isSidebarOpen }"
+        class="absolute z-50 p-2 text-left text-accent inset-y-0 left-0 top-2"
         @click="toggleSidebar"
       >
         <icon
-          name="lucide:sidebar"
+          :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
           class="text-xl"
           style="font-size: 24px"
         ></icon>

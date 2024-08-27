@@ -6,10 +6,10 @@
     ></header-upgrade>
 
     <!-- Main Container for Sidebar and Content -->
-    <div class="flex flex-grow relative border rounded-2xl bg-primary">
+    <div class="flex flex-grow relative">
       <!-- Sidebar Toggle Button, consistently positioned -->
       <button
-        class="absolute z-50 p-2 text-left text-accent inset-y-0 left-0 top-2"
+        class="absolute z-50 p-2 text-left text-accent inset-y-0 left-0 top-2 bg-base-200"
         title="Toggle Sidebar"
         @click="toggleSidebar"
       >
@@ -22,11 +22,12 @@
 
       <!-- Collapsible Sidebar -->
       <aside
-        :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-50 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`"
+        :class="`flex-shrink-0 transition-width duration-300 ease-in-out v-screen overflow-y-auto bg-secondary ${isSidebarOpen ? 'w-64' : 'w-0'}`"
+        :aria-hidden="isSidebarOpen ? 'false' : 'true'"
       >
         <!-- Sidebar Links with Icons and Titles -->
         <div
-          class="p-4 bg-primary flex items-center"
+          class="p-4 flex items-center"
           title="Add Bot"
           @click="toggleSidebar"
         >
@@ -34,7 +35,7 @@
           <span class="ml-2 text-lg font-semibold">Add Bot</span>
         </div>
         <div
-          class="p-4 bg-primary flex items-center"
+          class="p-4 flex items-center"
           title="Chat with Bots"
           @click="toggleSidebar"
         >
@@ -42,7 +43,7 @@
           <span class="ml-2 text-lg font-semibold">Chat with Bots</span>
         </div>
         <div
-          class="p-4 bg-primary flex items-center"
+          class="p-4 flex items-center"
           title="Bot Messages"
           @click="toggleSidebar"
         >
@@ -50,7 +51,7 @@
           <span class="ml-2 text-lg font-semibold">Bot Messages</span>
         </div>
         <div
-          class="p-4 bg-primary flex items-center"
+          class="p-4 flex items-center"
           title="Hot Topics"
           @click="toggleSidebar"
         >
@@ -58,7 +59,7 @@
           <span class="ml-2 text-lg font-semibold">Hot Topics</span>
         </div>
         <div
-          class="p-4 bg-primary flex items-center"
+          class="p-4 flex items-center"
           title="Art Gallery"
           @click="toggleSidebar"
         >
@@ -66,7 +67,7 @@
           <span class="ml-2 text-lg font-semibold">Art Gallery</span>
         </div>
         <div
-          class="p-4 bg-primary flex items-center"
+          class="p-4 flex items-center"
           title="Dashboard"
           @click="toggleSidebar"
         >
@@ -76,7 +77,7 @@
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-grow overflow-y-auto w-full">
+      <main class="flex-grow overflow-y-auto m-2">
         <NuxtPage />
       </main>
     </div>

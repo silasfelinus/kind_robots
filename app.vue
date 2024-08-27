@@ -1,25 +1,21 @@
 <template>
   <div class="flex flex-col h-screen bg-primary overflow-hidden">
     <!-- Header -->
-    <header-upgrade
-      class="w-full bg-base-200 rounded-xl p-2 m-2 border"
-    ></header-upgrade>
+    <header-upgrade class="w-full bg-base-200 rounded-xl p-2 m-2 border"></header-upgrade>
 
     <!-- Main Container for Sidebar and Content -->
     <div class="flex flex-grow relative">
       <!-- Collapsible Sidebar -->
-      <aside
-        :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-10 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`"
-      >
-        <add-bot-link class="block p-4" />
-        <bot-chat-link class="block p-4" />
-        <bot-messages-link class="block p-4" />
-        <hot-link class="block p-4" />
-        <art-gallery-link class="block p-4" />
-        <dashboard-link class="block p-4" />
+      <aside :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-10 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`">
         <button class="p-2 text-left w-full" @click="toggleSidebar">
           <icon name="material-icons:menu" class="text-xl" />
         </button>
+        <add-bot-link class="block p-4" @click="toggleSidebar" />
+        <bot-chat-link class="block p-4" @click="toggleSidebar" />
+        <bot-messages-link class="block p-4" @click="toggleSidebar" />
+        <hot-link class="block p-4" @click="toggleSidebar" />
+        <art-gallery-link class="block p-4" @click="toggleSidebar" />
+        <dashboard-link class="block p-4" @click="toggleSidebar" />
       </aside>
 
       <!-- Main Content -->
@@ -29,6 +25,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
@@ -48,6 +45,7 @@ import BotMessagesLink from '@/components/content/navigation/BotMessagesLink.vue
 import ArtGalleryLink from '@/components/content/navigation/ArtGalleryLink.vue'
 import HotLink from '@/components/content/navigation/HotLink.vue'
 import DashboardLink from '@/components/content/navigation/DashboardLink.vue'
+
 
 const errorStore = useErrorStore()
 const tagStore = useTagStore()
@@ -70,15 +68,8 @@ useHead({
   title: 'Kind Robots',
   meta: [
     { name: 'og:title', content: 'Welcome to the Kind Robots' },
-    {
-      name: 'description',
-      content: 'OpenAI-supported Promptbots here to assist humanity.',
-    },
-    {
-      name: 'og:description',
-      content:
-        'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans',
-    },
+    { name: 'description', content: 'OpenAI-supported Promptbots here to assist humanity.' },
+    { name: 'og:description', content: 'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans' },
     { name: 'og:image', content: '/images/kindtitle.webp' },
     { name: 'twitter:card', content: 'summary_large_image' },
   ],
@@ -86,6 +77,7 @@ useHead({
 
 onMounted(async () => {
   try {
+    
     await botStore.loadStore()
     console.log('loading user')
     await userStore.initializeUser()
@@ -98,10 +90,10 @@ onMounted(async () => {
     await milestoneStore.initializeMilestones()
     await layoutStore.initializeStore()
     console.log('Initialization complete.')
-  } catch {
+  } catch (error) {
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
-      'Initialization failed: ${error instanceof Error ? error.message : String(error)}',
+      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`
     )
   }
 })

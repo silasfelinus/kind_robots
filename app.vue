@@ -22,7 +22,7 @@
 
       <!-- Collapsible Sidebar -->
       <aside
-        :class="`flex-shrink-0 transition-width duration-300 ease-in-out v-screen overflow-y-auto bg-secondary ${isSidebarOpen ? 'w-64' : 'w-0'}`"
+        :class="`flex-shrink-0 transition-width duration-300 ease-in-out v-screen overflow-y-auto border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-0'}`"
         :aria-hidden="isSidebarOpen ? 'false' : 'true'"
       >
         <!-- Sidebar Links with Icons and Titles -->

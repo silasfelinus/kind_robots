@@ -44,6 +44,8 @@ import AddBotLink from '@/components/content/navigation/AddBotLink.vue'
 import BotChatLink from '@/components/content/navigation/BotChatLink.vue'
 import BotMessagesLink from '@/components/content/navigation/BotMessagesLink.vue'
 import HotLink from '@/components/content/navigation/HotLink.vue'
+import HotLink from '@/components/content/navigation/HotLink.vue'
+import DashboardLink from '@/components/content/navigation/DashboardLink.vue'
 
 const errorStore = useErrorStore()
 const tagStore = useTagStore()

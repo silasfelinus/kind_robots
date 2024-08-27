@@ -56,11 +56,11 @@
         </div>
         <div
           class="p-4 flex items-center"
-          title="Hot Topics"
+          title="Hot or Not?"
           @click="toggleSidebar"
         >
           <hot-link class="text-xl" />
-          <span class="ml-2 text-lg font-semibold">Hot Topics</span>
+          <span class="ml-2 text-lg font-semibold">Hot or Not?</span>
         </div>
         <div
           class="p-4 flex items-center"

@@ -8,13 +8,13 @@
     <!-- Header -->
 
     <add-bot-link
-      class="absolute w-20 h-20 bottom-8 left-8 icon-accent border z-50"
+      class="absolute w-20 h-20 bottom-8 left-8 text-accent border z-50"
     />
     <bot-chat-link
-      class="absolute w-20 h-20 bottom-8 center icon-accent border z-50"
+      class="absolute w-20 h-20 bottom-8 right-8 text-accent border z-50"
     />
     <bot-messages-link
-      class="absolute w-20 h-20 bottom-8 left-8 icon-accent border z-50"
+      class="absolute w-20 h-20 bottom-8 left-1/2 transform -translate-x-1/2 text-accent border z-50"
     />
 
     <!-- Main Content -->
@@ -23,7 +23,6 @@
     </main>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'

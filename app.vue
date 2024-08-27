@@ -14,7 +14,7 @@
         @click="toggleSidebar"
       >
         <icon
-          :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
+          :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
           class="text-xl"
           style="font-size: 24px"
         ></icon>
@@ -26,6 +26,10 @@
         :aria-hidden="isSidebarOpen ? 'false' : 'true'"
       >
         <!-- Sidebar Links with Icons and Titles -->
+        <div class="p-4 flex items-center" title="Home" @click="toggleSidebar">
+          <home-link class="text-xl" />
+          <span class="ml-2 text-lg font-semibold">Home/Navigation</span>
+        </div>
         <div
           class="p-4 flex items-center"
           title="Add Bot"

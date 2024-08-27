@@ -2,6 +2,7 @@
   <div class="relative">
     <!-- Header -->
     <header
+      v-if="toggleSidebar"
       ref="headerRef"
       class="z-50 flex flex-col md:flex-row items-center justify-between overflow-x-visible max-w-full"
       :class="{ 'flex-col': isMobile }"
@@ -38,6 +39,18 @@
       </div>
     </header>
 
+    <!-- Toggle Button always visible -->
+    <div class="absolute right-4 top-4 z-50">
+      <button
+        class="bg-base-200 text-accent p-2"
+        @click="toggleSidebarFunction"
+      >
+        <span class="text-lg">
+          <Icon :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'" />
+        </span>
+      </button>
+    </div>
+
     <!-- Jellybean Counter -->
     <jellybean-count
       v-if="isLoggedIn"
@@ -67,6 +80,12 @@ const pageSubtitle = computed(() => page?.subtitle || 'the kindest')
 const isMobile = ref(false)
 const headerRef = ref<HTMLElement | null>(null)
 const errorStore = useErrorStore()
+const toggleSidebar = ref(true)
+
+const toggleSidebarFunction = () => {
+  toggleSidebar.value = !toggleSidebar.value
+  console.log('Toggle Sidebar:', toggleSidebar.value) // Debug: Check the state change
+}
 
 function handleResize() {
   try {

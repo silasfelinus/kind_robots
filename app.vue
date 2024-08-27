@@ -2,23 +2,10 @@
   <div class="relative flex flex-col h-screen bg-primary">
     <!-- Header -->
     <header-upgrade
-      v-if="toggleSidebar"
       ref="headerRef"
       class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
     ></header-upgrade>
     <!-- Header -->
-
-    <!-- Toggle Button always visible -->
-    <div class="absolute right-4 top-4 z-50">
-      <button
-        class="bg-base-200 text-accent p-2"
-        @click="toggleSidebarFunction"
-      >
-        <span class="text-lg">
-          <Icon :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'" />
-        </span>
-      </button>
-    </div>
 
     <!-- Main Content -->
     <main ref="mainContentRef" class="flex flex-col items-center">
@@ -72,12 +59,6 @@ useHead({
 
 const headerRef = ref<HTMLElement | null>(null)
 const mainContentRef = ref<HTMLElement | null>(null)
-const toggleSidebar = ref(true)
-
-const toggleSidebarFunction = () => {
-  toggleSidebar.value = !toggleSidebar.value
-  console.log('Toggle Sidebar:', toggleSidebar.value) // Debug: Check the state change
-}
 
 onMounted(async () => {
   try {

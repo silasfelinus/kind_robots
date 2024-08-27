@@ -6,9 +6,9 @@
     <!-- Main Container for Sidebar and Content -->
     <div class="flex flex-grow relative">
       <!-- Collapsible Sidebar -->
-      <aside :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-10 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`">
+      <aside :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-50 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`">
         <button class="p-2 text-left w-full" @click="toggleSidebar">
-          <icon name="material-icons:menu" class="text-xl" />
+          <icon name="lucide:sidebar" class="text-xl" />
         </button>
         <add-bot-link class="block p-4 bg-primary" @click="toggleSidebar" />
         <bot-chat-link class="block p-4 bg-primary" @click="toggleSidebar" />

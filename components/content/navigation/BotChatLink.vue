@@ -14,10 +14,7 @@
         isCurrentPage ? 'text-gray-400' : '',
       ]"
     >
-      <icon
-        name="fluent:chat-bubbles-question-mark-20-filled"
-        class="icon-effect"
-      />
+      <icon name="ic:baseline-wechat" class="icon-effect" />
     </NuxtLink>
   </div>
 </template>

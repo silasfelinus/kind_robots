@@ -14,7 +14,7 @@
         isCurrentPage ? 'text-gray-400' : '',
       ]"
     >
-      <icon name="carbon:wall" class="icon-effect" />
+      <icon name="fluent-emoji-high-contrast:brick" class="icon-effect" />
     </NuxtLink>
   </div>
 </template>

@@ -14,7 +14,7 @@
         isCurrentPage ? 'text-gray-400' : '',
       ]"
     >
-      <icon name="material-icons:chat" class="icon-effect" />
+      <icon name="material-symbols:menu-book-outline" class="icon-effect" />
     </NuxtLink>
   </div>
 </template>

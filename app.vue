@@ -23,16 +23,37 @@
       <aside
         :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-50 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`"
       >
-        <!-- Sidebar Links -->
-        <add-bot-link class="block p-4 bg-primary" @click="toggleSidebar" />
-        <bot-chat-link class="block p-4 bg-primary" @click="toggleSidebar" />
-        <bot-messages-link
+        <!-- Sidebar Links with Tooltips -->
+        <add-bot-link
           class="block p-4 bg-primary"
+          title="Add Bot"
           @click="toggleSidebar"
         />
-        <hot-link class="block p-4 bg-primary" @click="toggleSidebar" />
-        <art-gallery-link class="block p-4 bg-primary" @click="toggleSidebar" />
-        <dashboard-link class="block p-4 bg-primary" @click="toggleSidebar" />
+        <bot-chat-link
+          class="block p-4 bg-primary"
+          title="Chat with Bots"
+          @click="toggleSidebar"
+        />
+        <bot-messages-link
+          class="block p-4 bg-primary"
+          title="Bot Messages"
+          @click="toggleSidebar"
+        />
+        <hot-link
+          class="block p-4 bg-primary"
+          title="Hot Topics"
+          @click="toggleSidebar"
+        />
+        <art-gallery-link
+          class="block p-4 bg-primary"
+          title="Art Gallery"
+          @click="toggleSidebar"
+        />
+        <dashboard-link
+          class="block p-4 bg-primary"
+          title="Dashboard"
+          @click="toggleSidebar"
+        />
       </aside>
 
       <!-- Main Content -->

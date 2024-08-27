@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative select-none overflow-hidden ml-4 mr-4 p-1 border rounded-2xl bg-base-200"
+    class="relative select-none overflow-x-hidden overflow-y-auto p-1 border rounded-2xl bg-base-200"
   >
     <!-- Navigation Arrows -->
     <div
@@ -61,24 +61,34 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
 const scrollContainer = ref(null)
 
+// Function to handle bot selection
 function selectBot(botId) {
   botStore.selectBot(botId)
 }
 
+// Smooth scroll to the left
 function scrollLeft() {
-  scrollContainer.value.scrollBy({ left: -300, behavior: 'smooth' }) // Adjust pixel value as necessary
+  scrollContainer.value.scrollBy({ left: -300, behavior: 'smooth' })
 }
 
+// Smooth scroll to the right
 function scrollRight() {
-  scrollContainer.value.scrollBy({ left: 300, behavior: 'smooth' }) // Adjust pixel value as necessary
+  scrollContainer.value.scrollBy({ left: 300, behavior: 'smooth' })
 }
+
+// Automatically select the first bot when the component mounts
+onMounted(() => {
+  if (bots.value.length > 0) {
+    selectBot(bots.value[0].id) // Select the first bot
+  }
+})
 </script>
 
 <style>
@@ -89,8 +99,30 @@ function scrollRight() {
 }
 
 .bot-bubble {
-  width: 30vw; /* Responsive width, you can adjust this based on your design */
-  min-width: 120px; /* Minimum width for smaller screens */
-  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column; /* Organizes the child elements (image and name) into a column */
+  align-items: center; /* Centers the items horizontally in the flex container */
+  justify-content: center; /* Aligns items vertically to the center in the flex container */
+  width: 20vw; /* Adjusts the width to be more responsive */
+  min-width: 120px; /* Ensures a minimum width */
+  max-width: 160px; /* Sets a maximum width to prevent the bubbles from getting too large */
+  margin: 0 8px; /* Adds horizontal spacing between bubbles */
+  padding: 10px; /* Adds some padding inside the bubbles */
+  scroll-snap-align: start; /* Ensures the scrolling aligns the items neatly at the start of the scroll container */
+  text-align: center; /* Centers the text */
+  overflow: hidden; /* Prevents content from overflowing */
+}
+
+.bot-bubble img {
+  width: 100%; /* Makes the image responsive within the container */
+  height: auto; /* Maintains the aspect ratio of the image */
+  border-radius: 50%; /* Makes the image rounded */
+}
+
+.bot-bubble h3 {
+  margin-top: 10px; /* Adds space between the image and the name */
+  white-space: nowrap; /* Keeps the name on a single line */
+  overflow: hidden; /* Hides any overflow */
+  text-overflow: ellipsis; /* Adds an ellipsis to truncated text */
 }
 </style>

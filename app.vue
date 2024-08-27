@@ -1,5 +1,10 @@
 <template>
   <div class="relative flex h-screen bg-primary">
+    <!-- Header -->
+    <header-upgrade
+      ref="headerRef"
+      class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
+    ></header-upgrade>
     <!-- Collapsible Sidebar -->
     <aside :class="`sidebar ${isSidebarOpen ? 'expanded' : 'collapsed'}`">
       <add-bot-link class="icon-link" />
@@ -14,12 +19,6 @@
     <div v-if="!isSidebarOpen" class="toggle-icon" @click="toggleSidebar">
       <icon name="material-icons:menu" />
     </div>
-
-    <!-- Header -->
-    <header-upgrade
-      ref="headerRef"
-      class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
-    ></header-upgrade>
 
     <!-- Main Content -->
     <main ref="mainContentRef" class="flex flex-col items-center flex-grow">

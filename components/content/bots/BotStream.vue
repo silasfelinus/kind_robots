@@ -229,10 +229,11 @@ function convertToChatExchange(
     loved: null,
     flagged: null,
     previousEntryId: 0,
+    isPublic: false,
   }
 }
 
-type ReactionType = 'liked' | 'hated' | 'loved' | 'flagged'
+type ReactionType = 'liked' | 'hated' | 'loved' | 'flagged' | 'isPublic'
 
 const isReactionActive = (index: number, reactionType: ReactionType) => {
   const currentExchange = chatStore.getExchangeById(index) as ChatExchange

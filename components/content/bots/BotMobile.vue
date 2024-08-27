@@ -9,10 +9,10 @@
     </div>
 
     <!-- Conditionally displayed icons on the left and right, with increased z-index -->
-    <div class="fixed w-12 h-12 bottom-8 right-8 p-2 shadow-md z-50">
+    <div class="fixed w-20 h-20 bottom-8 right-8 icon-accent border rounded 2xl z-50">
       <icon :name="iconLeftClass" @click="flipChannel('left')" />
     </div>
-    <div class="fixed w-12 h-12 bottom-8 left-8 icon-accent border z-50">
+    <div class="fixed w-20 h-20 bottom-8 left-8 icon-accent border z-50">
       <icon :name="iconRightClass" @click="flipChannel('right')" />
     </div>
   </div>

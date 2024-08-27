@@ -10,6 +10,7 @@
       <!-- Sidebar Toggle Button, consistently positioned -->
       <button
         class="absolute z-50 p-2 text-left text-accent inset-y-0 left-0 top-2"
+        title="Toggle Sidebar"
         @click="toggleSidebar"
       >
         <icon
@@ -23,37 +24,55 @@
       <aside
         :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-50 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`"
       >
-        <!-- Sidebar Links with Tooltips -->
-        <add-bot-link
-          class="block p-4 bg-primary"
+        <!-- Sidebar Links with Icons and Titles -->
+        <div
+          class="p-4 bg-primary flex items-center"
           title="Add Bot"
           @click="toggleSidebar"
-        />
-        <bot-chat-link
-          class="block p-4 bg-primary"
+        >
+          <add-bot-link class="text-xl" />
+          <span class="ml-2 text-lg font-semibold">Add Bot</span>
+        </div>
+        <div
+          class="p-4 bg-primary flex items-center"
           title="Chat with Bots"
           @click="toggleSidebar"
-        />
-        <bot-messages-link
-          class="block p-4 bg-primary"
+        >
+          <bot-chat-link class="text-xl" />
+          <span class="ml-2 text-lg font-semibold">Chat with Bots</span>
+        </div>
+        <div
+          class="p-4 bg-primary flex items-center"
           title="Bot Messages"
           @click="toggleSidebar"
-        />
-        <hot-link
-          class="block p-4 bg-primary"
+        >
+          <bot-messages-link class="text-xl" />
+          <span class="ml-2 text-lg font-semibold">Bot Messages</span>
+        </div>
+        <div
+          class="p-4 bg-primary flex items-center"
           title="Hot Topics"
           @click="toggleSidebar"
-        />
-        <art-gallery-link
-          class="block p-4 bg-primary"
+        >
+          <hot-link class="text-xl" />
+          <span class="ml-2 text-lg font-semibold">Hot Topics</span>
+        </div>
+        <div
+          class="p-4 bg-primary flex items-center"
           title="Art Gallery"
           @click="toggleSidebar"
-        />
-        <dashboard-link
-          class="block p-4 bg-primary"
+        >
+          <art-gallery-link class="text-xl" />
+          <span class="ml-2 text-lg font-semibold">Art Gallery</span>
+        </div>
+        <div
+          class="p-4 bg-primary flex items-center"
           title="Dashboard"
           @click="toggleSidebar"
-        />
+        >
+          <dashboard-link class="text-xl" />
+          <span class="ml-2 text-lg font-semibold">Dashboard</span>
+        </div>
       </aside>
 
       <!-- Main Content -->

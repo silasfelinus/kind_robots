@@ -43,7 +43,7 @@
           <theme-toggle class="text-sm hidden sm:block" />
           <login-button />
           <nav-toggle class="text-md" @click="toggleNav" />
-          <jellybean-count class="flex-2" />
+          <jellybean-count class="overflow-x: hidden" />
         </div>
       </div>
     </header>

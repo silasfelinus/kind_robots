@@ -1,15 +1,11 @@
 <template>
   <div class="flex flex-col h-screen bg-primary">
-    <!-- Header -->
+    <!-- Header with embedded toggle button -->
     <header-upgrade
-      class="w-full bg-base-200 rounded-xl p-2 m-2 border"
-    ></header-upgrade>
-
-    <!-- Main Container for Sidebar and Content -->
-    <div class="flex flex-grow relative">
-      <!-- Sidebar Toggle Button, consistently positioned -->
+      class="w-full bg-base-200 rounded-xl p-2 m-2 border relative z-50"
+    >
       <button
-        class="absolute z-50 p-2 text-left text-accent inset-y-0 left-0 top-2"
+        class="absolute p-2 text-left text-accent top-2 left-2"
         title="Toggle Sidebar"
         @click="toggleSidebar"
       >
@@ -19,11 +15,15 @@
           style="font-size: 24px"
         ></icon>
       </button>
+    </header-upgrade>
 
+    <!-- Main Container for Sidebar and Content -->
+    <div class="flex flex-grow">
       <!-- Collapsible Sidebar -->
       <aside
         :class="`flex-shrink-0 transition-width duration-300 ease-in-out v-screen overflow-y-auto border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-0'}`"
         :aria-hidden="isSidebarOpen ? 'false' : 'true'"
+        style="top: var(--header-height)"
       >
         <!-- Sidebar Links with Icons and Titles -->
         <div class="p-4 flex items-center" title="Home" @click="toggleSidebar">

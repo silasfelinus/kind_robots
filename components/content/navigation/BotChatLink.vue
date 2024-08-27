@@ -25,7 +25,7 @@ import { useContentStore } from './../../../stores/contentStore'
 
 const contentStore = useContentStore()
 const isCurrentPage = computed(
-  () => contentStore.currentPage?._path === '/botchat',
+  () => contentStore.currentPage?._path === '/botcafe',
 )
 </script>
 

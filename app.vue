@@ -10,12 +10,12 @@
         <button class="p-2 text-left w-full" @click="toggleSidebar">
           <icon name="material-icons:menu" class="text-xl" />
         </button>
-        <add-bot-link class="block p-4" @click="toggleSidebar" />
-        <bot-chat-link class="block p-4" @click="toggleSidebar" />
-        <bot-messages-link class="block p-4" @click="toggleSidebar" />
-        <hot-link class="block p-4" @click="toggleSidebar" />
-        <art-gallery-link class="block p-4" @click="toggleSidebar" />
-        <dashboard-link class="block p-4" @click="toggleSidebar" />
+        <add-bot-link class="block p-4 bg-primary" @click="toggleSidebar" />
+        <bot-chat-link class="block p-4 bg-primary" @click="toggleSidebar" />
+        <bot-messages-link class="block p-4 bg-primary" @click="toggleSidebar" />
+        <hot-link class="block p-4 bg-primary" @click="toggleSidebar" />
+        <art-gallery-link class="block p-4 bg-primary" @click="toggleSidebar" />
+        <dashboard-link class="block p-4 bg-primary" @click="toggleSidebar" />
       </aside>
 
       <!-- Main Content -->

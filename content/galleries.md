@@ -14,4 +14,4 @@ sort: highlight
 dottitip: Did I tell you I like to dabble in art? The artbots do most of the work, but it's a nice way to pass the time.
 ---
 
-:galleries-view
+:galleries-viewer

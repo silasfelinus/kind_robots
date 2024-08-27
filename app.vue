@@ -7,6 +7,16 @@
     ></header-upgrade>
     <!-- Header -->
 
+    <add-bot-link
+      class="absolute w-20 h-20 bottom-8 left-8 icon-accent border z-50"
+    />
+    <bot-chat-link
+      class="absolute w-20 h-20 bottom-8 center icon-accent border z-50"
+    />
+    <bot-messages-link
+      class="absolute w-20 h-20 bottom-8 left-8 icon-accent border z-50"
+    />
+
     <!-- Main Content -->
     <main ref="mainContentRef" class="flex flex-col items-center">
       <NuxtPage />

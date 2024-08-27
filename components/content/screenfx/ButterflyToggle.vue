@@ -11,7 +11,7 @@
         title="Kind Butterflies"
         :active="fxStore.showAmiSwarm"
         :class="{ glow: fxStore.showAmiSwarm }"
-        class="w-6 h-6 md:w-8 md:h-8"
+        class="w-8 h-8 md:w-20 md:h-20 hover:scale-125"
       />
     </div>
     <div v-if="fxStore.showAmiSwarm">

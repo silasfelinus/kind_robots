@@ -2,16 +2,26 @@
   <div class="relative">
     <!-- Header with slim design and internal toggle button -->
     <header
-      v-show="toggleSidebar"
       ref="headerRef"
-      class="z-50 flex items-center justify-between overflow-x-visible max-w-full px-4 py-1"
+      class="flex items-center justify-between overflow-x-visible max-w-full px-2 py-1"
       :class="{ 'flex-col': isMobile }"
     >
+      <!-- Toggle Button integrated within the header -->
+      <button class="flex justify-self-end" @click="toggleSidebarFunction">
+        <icon
+          :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
+          class="text-lg flex items-right"
+        />
+      </button>
       <!-- Left Section -->
       <div class="flex items-center space-x-2">
-        <avatar-image :size="avatarSize" alt="User Avatar" />
+        <avatar-image
+          v-show="toggleSidebar"
+          :size="avatarSize"
+          alt="User Avatar"
+        />
         <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
-        <h2 class="text-xs text-gray-500 italic pl-1">
+        <h2 v-show="toggleSidebar" class="text-xs text-gray-500 italic pl-1">
           {{ pageSubtitle }}
         </h2>
       </div>
@@ -26,19 +36,12 @@
         <login-button />
         <nav-toggle class="text-sm" @click="toggleNav" />
       </div>
-
-      <!-- Toggle Button integrated within the header -->
-      <button class="p-2" @click="toggleSidebarFunction">
-        <icon
-          :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
-          class="text-lg"
-        />
-      </button>
     </header>
 
     <!-- Jellybean Counter -->
     <jellybean-count
       v-if="isLoggedIn"
+      v-show="toggleSidebar"
       class="absolute right-4 top-4 z-50 bg-white p-2 rounded-full shadow-md"
     />
 

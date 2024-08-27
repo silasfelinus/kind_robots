@@ -9,7 +9,7 @@
     <div class="flex flex-grow relative">
       <!-- Collapsible Sidebar -->
       <aside
-        :class="`absolute inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 z-10 w-64 overflow-y-auto bg-secondary`"
+        :class="`absolute inset-y-0 left-0 transform transition-transform duration-300 z-10 w-64 overflow-y-auto bg-secondary ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`"
       >
         <add-bot-link class="block p-4" />
         <bot-chat-link class="block p-4" />
@@ -27,7 +27,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
@@ -59,15 +58,8 @@ const layoutStore = useLayoutStore()
 
 const isSidebarOpen = ref(true)
 
-watch(isSidebarOpen, (newValue) => {
-  document.documentElement.style.setProperty(
-    '--sidebar-width',
-    newValue ? '16rem' : '0',
-  )
-})
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
-  // Additional code to trigger re-rendering or adjustment of main content width might be needed
 }
 
 useHead({
@@ -102,55 +94,11 @@ onMounted(async () => {
     await milestoneStore.initializeMilestones()
     await layoutStore.initializeStore()
     console.log('Initialization complete.')
-  } catch (error: unknown) {
+  } catch {
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
-      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
+      'Initialization failed: ${error instanceof Error ? error.message : String(error)}',
     )
   }
 })
 </script>
-
-<style scoped>
-.flex {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow-x: hidden;
-}
-
-.main-container {
-  flex-grow: 1;
-  overflow-y: auto;
-  width: 100%; /* Full width always */
-}
-
-.sidebar {
-  position: absolute; /* Changed from relative to absolute */
-  top: 0;
-  bottom: 0;
-  width: 16rem; /* Sidebar width */
-  transform: translateX(-100%); /* Start off-screen */
-  transition: transform 0.3s ease;
-  z-index: 100; /* Ensure it floats over the content */
-}
-
-.sidebar.open {
-  transform: translateX(0); /* Move into view */
-}
-
-.sidebar.closed {
-  transform: translateX(-100%); /* Move out of view */
-}
-
-.header-upgrade {
-  flex-shrink: 0;
-  width: 100%;
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%; /* Full width on smaller screens */
-  }
-}
-</style>

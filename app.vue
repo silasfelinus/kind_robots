@@ -6,11 +6,10 @@
     ></header-upgrade>
 
     <!-- Main Container for Sidebar and Content -->
-    <div class="flex flex-grow overflow-hidden">
+    <div class="flex flex-grow relative">
+      <!-- Added 'relative' to make positioning of the sidebar absolute relative to this container -->
       <!-- Collapsible Sidebar -->
-      <aside
-        :class="`transition-transform duration-300 z-10 sidebar ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`"
-      >
+      <aside :class="`sidebar ${isSidebarOpen ? 'open' : 'closed'}`">
         <add-bot-link class="block p-4" />
         <bot-chat-link class="block p-4" />
         <bot-messages-link class="block p-4" />
@@ -110,42 +109,47 @@ onMounted(async () => {
   }
 })
 </script>
+
 <style scoped>
 .flex {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100vw;
   overflow-x: hidden;
 }
 
 .main-container {
   flex-grow: 1;
-  transition: margin-left 0.3s ease; /* Smooth transition for sidebar toggle */
-  margin-left: var(--sidebar-width); /* Adjust based on sidebar state */
-  width: calc(100% - var(--sidebar-width)); /* Adjust width dynamically */
   overflow-y: auto;
+  width: 100%; /* Full width always */
 }
 
 .sidebar {
-  position: relative;
+  position: absolute; /* Changed from relative to absolute */
+  top: 0;
+  bottom: 0;
+  width: 16rem; /* Sidebar width */
+  transform: translateX(-100%); /* Start off-screen */
   transition: transform 0.3s ease;
-  width: 16rem; /* Defined as a CSS variable for reusability */
-  overflow-y: auto;
+  z-index: 100; /* Ensure it floats over the content */
 }
 
-:root {
-  --sidebar-width: 16rem; /* Centralized control over the sidebar width */
+.sidebar.open {
+  transform: translateX(0); /* Move into view */
 }
 
-@media (max-width: 768px) {
-  :root {
-    --sidebar-width: 0; /* Sidebar is hidden on smaller screens */
-  }
+.sidebar.closed {
+  transform: translateX(-100%); /* Move out of view */
 }
 
 .header-upgrade {
   flex-shrink: 0;
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%; /* Full width on smaller screens */
+  }
 }
 </style>

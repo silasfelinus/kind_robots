@@ -6,36 +6,33 @@
       class="flex items-center justify-between overflow-x-visible max-w-full px-2 py-1"
       :class="{ 'flex-col': isMobile }"
     >
-      <!-- Toggle Button integrated within the header -->
-      <button class="flex justify-self-end" @click="toggleSidebarFunction">
-        <icon
-          :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
-          class="text-lg flex items-right"
-        />
-      </button>
-      <!-- Left Section -->
+      <!-- Main Section -->
       <div class="flex items-center space-x-2">
-        <avatar-image
-          v-show="toggleSidebar"
-          :size="avatarSize"
-          alt="User Avatar"
-        />
+        <avatar-image :size="avatarSize" alt="User Avatar" />
         <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
         <h2 v-show="toggleSidebar" class="text-xs text-gray-500 italic pl-2">
           {{ pageSubtitle }}
         </h2>
+        <!-- Toggle Button integrated within the header -->
+        <button class="flex justify-self-end" @click="toggleSidebarFunction">
+          <icon
+            :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
+            class="text-lg flex items-right"
+          />
+        </button>
       </div>
+      <div class="flex flex-row flex-shrink">
+        <!-- Center Section -->
+        <smart-links v-show="toggleSidebar" class="flex text-center text-sm" />
 
-      <!-- Center Section -->
-      <smart-links v-show="toggleSidebar" class="flex-1 text-center text-sm" />
-
-      <!-- Right Section -->
-      <div v-show="toggleSidebar" class="flex items-center gap-2">
-        <butterfly-toggle class="text-sm hidden sm:block" />
-        <theme-toggle class="text-sm hidden sm:block" />
-        <login-button />
-        <nav-toggle class="text-sm" @click="toggleNav" />
-        <jellybean-count class="flex-2" />
+        <!-- Right Section -->
+        <div v-show="toggleSidebar" class="flex items-center gap-2">
+          <butterfly-toggle class="text-sm hidden sm:block" />
+          <theme-toggle class="text-sm hidden sm:block" />
+          <login-button />
+          <nav-toggle class="text-sm" @click="toggleNav" />
+          <jellybean-count class="flex-2" />
+        </div>
       </div>
     </header>
 

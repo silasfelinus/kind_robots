@@ -100,12 +100,6 @@ const toggleNav = () => {
 </script>
 
 <style scoped>
-.avatar-image {
-  perspective: 1000px;
-  width: auto;
-  max-width: 200px;
-}
-
 header {
   overflow-x: hidden;
   max-width: 100vw;

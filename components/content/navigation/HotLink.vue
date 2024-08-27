@@ -28,7 +28,7 @@ import { useContentStore } from './../../../stores/contentStore'
 
 const contentStore = useContentStore()
 const isCurrentPage = computed(
-  () => contentStore.currentPage?._path === '/addbot',
+  () => contentStore.currentPage?._path === '/hotornot',
 )
 </script>
 

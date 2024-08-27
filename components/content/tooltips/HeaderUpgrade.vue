@@ -3,7 +3,7 @@
     <!-- Header with slim design and internal toggle button -->
     <header
       ref="headerRef"
-      class="flex items-center justify-between overflow-x-visible max-w-full px-2 py-1"
+      class="flex items-center justify-between max-w-full px-2 py-1"
       :class="{ 'flex-col': isMobile }"
     >
       <!-- Main Section -->

@@ -55,34 +55,66 @@
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useUserStore, useContent } from '@/stores'
+import { useUserStore } from './../../../stores/userStore'
+import { useContentStore } from './../../../stores/contentStore'
+import { ErrorType } from '@/stores/errorStore'
 
-const { page } = useContent()
+const { page } = useContentStore()
 const avatarSize = ref('small')
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)
 const pageSubtitle = computed(() => page?.subtitle || 'the kindest')
-
 const isMobile = ref(false)
 const headerRef = ref<HTMLElement | null>(null)
+const errorStore = useErrorStore()
 
 function handleResize() {
-  isMobile.value = window.innerWidth < 768
-  if (headerRef.value) {
-    headerRef.value.clientHeight
+  try {
+    isMobile.value = window.innerWidth < 768
+    if (!headerRef.value) {
+      throw new Error('Header reference is not available.')
+    }
+  } catch {
+    errorStore.setError(
+      ErrorType.GENERAL_ERROR,
+      'Failed to adjust layout on resize.',
+    )
   }
 }
 
 onMounted(() => {
-  handleResize()
-  window.addEventListener('resize', handleResize)
+  try {
+    handleResize()
+    window.addEventListener('resize', handleResize)
+  } catch {
+    errorStore.setError(
+      ErrorType.GENERAL_ERROR,
+      'Failed to initialize component.',
+    )
+  }
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+  try {
+    window.removeEventListener('resize', handleResize)
+  } catch {
+    errorStore.setError(
+      ErrorType.GENERAL_ERROR,
+      'Failed to clean up component.',
+    )
+  }
 })
 
-const toggleNav = () => (showNav.value = !showNav.value)
+const toggleNav = () => {
+  try {
+    showNav.value = !showNav.value
+  } catch {
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      'Failed to toggle navigation visibility.',
+    )
+  }
+}
 </script>
 
 <style scoped>

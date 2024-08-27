@@ -6,10 +6,10 @@
     ></header-upgrade>
 
     <!-- Main Container for Sidebar and Content -->
-    <div class="flex flex-grow relative">
+    <div class="flex flex-grow relative border rounded-2xl bg-primary">
       <!-- Sidebar Toggle Button, positioned outside the sidebar -->
       <button
-        class="absolute z-60 p-2 text-left inset-y-0 left-0 ml-2 mt-2 bg-primary"
+        class="absolute z-50 p-2 text-left inset-y-0 left-0 ml-2 mt-2"
         :class="{ 'ml-64': isSidebarOpen }"
         @click="toggleSidebar"
       >

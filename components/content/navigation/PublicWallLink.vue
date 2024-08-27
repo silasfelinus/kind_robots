@@ -14,7 +14,10 @@
         isCurrentPage ? 'text-gray-400' : '',
       ]"
     >
-      <icon name="fluent-emoji-high-contrast:brick" class="icon-effect" />
+      <icon
+        name="fluent-emoji-high-contrast:brick"
+        class="w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
+      />
     </NuxtLink>
   </div>
 </template>
@@ -32,5 +35,17 @@ const isCurrentPage = computed(
 <style scoped>
 .glow-animation:hover {
   animation: glow 1.5s infinite;
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.75);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(255, 115, 253, 0.75),
+      0 0 30px rgba(255, 115, 253, 0.75);
+  }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="icon-link-container">
     <NuxtLink
-      to="/botchat"
+      to="/botcafe"
       :class="[
         'flex',
         'items-center',

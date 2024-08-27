@@ -35,7 +35,7 @@
         <theme-toggle class="text-sm hidden sm:block" />
         <login-button />
         <nav-toggle class="text-sm" @click="toggleNav" />
-        <jellybean-count />
+        <jellybean-count class="flex-2" />
       </div>
     </header>
 

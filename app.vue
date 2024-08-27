@@ -1,10 +1,5 @@
 <template>
   <div class="relative flex h-screen bg-primary">
-    <!-- Header -->
-    <header-upgrade
-      ref="headerRef"
-      class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
-    ></header-upgrade>
     <!-- Collapsible Sidebar -->
     <aside :class="`sidebar ${isSidebarOpen ? 'expanded' : 'collapsed'}`">
       <add-bot-link class="icon-link" />
@@ -15,10 +10,8 @@
       </button>
     </aside>
 
-    <!-- Toggle Icon -->
-    <div v-if="!isSidebarOpen" class="toggle-icon" @click="toggleSidebar">
-      <icon name="material-icons:menu" />
-    </div>
+    <!-- Header -->
+    <header-upgrade ref="headerRef" class="header-upgrade"></header-upgrade>
 
     <!-- Main Content -->
     <main ref="mainContentRef" class="flex flex-col items-center flex-grow">
@@ -108,20 +101,20 @@ onMounted(async () => {
 
 <style scoped>
 .sidebar {
-  position: absolute;
+  position: fixed; /* Use fixed instead of absolute to keep it in view */
   top: 0;
-  bottom: 0;
-  left: 0;
-  width: 200px;
+  left: 0; /* Make sure it's on the left */
+  height: 100%; /* Full height */
+  width: 200px; /* Set width */
   transition: transform 0.3s ease;
 }
 
 .collapsed {
-  transform: translateX(-100%);
+  transform: translateX(-100%); /* Hide off-screen to the left */
 }
 
 .expanded {
-  transform: translateX(0);
+  transform: translateX(0); /* Normal position */
 }
 
 .icon-link {
@@ -145,5 +138,26 @@ button {
   font-size: 1.5rem;
   width: 3rem;
   height: 3rem;
+}
+/* Ensure the outer container is set up for a horizontal layout */
+.flex {
+  display: flex;
+  flex-direction: row; /* Align children side by side */
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
+}
+
+/* Header styles */
+.header-upgrade {
+  flex-shrink: 0; /* Prevent the header from shrinking */
+  width: 100%; /* Full width */
+}
+
+/* Main content styles */
+main {
+  flex-grow: 1; /* Take up remaining space */
+  width: calc(
+    100% - 200px
+  ); /* Adjust width based on sidebar, only if sidebar is visible */
 }
 </style>

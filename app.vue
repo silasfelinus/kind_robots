@@ -8,7 +8,7 @@
 
     <!-- Collapsible Sidebar, transition and width handling -->
     <aside
-      :class="`fixed top-0 left-0 h-full transition-transform duration-300 z-10 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-64`"
+      :class="`relative top-0 left-0 h-1/4 transition-transform duration-300 z-10 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-64`"
     >
       <add-bot-link class="block p-4" />
       <bot-chat-link class="block p-4" />
@@ -21,10 +21,10 @@
     <!-- Toggle Icon for Sidebar -->
     <div
       v-if="!isSidebarOpen"
-      class="fixed top-0 left-0 p-4 z-20 cursor-pointer"
+      class="relative top-0 left-0 p-4 z-20 cursor-pointer"
       @click="toggleSidebar"
     >
-      <icon name="material-icons:menu" class="text-xl" />
+      <icon name="bi:clipboard2-heart" class="text-xl" />
     </div>
 
     <!-- Main Content -->

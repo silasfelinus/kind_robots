@@ -9,7 +9,7 @@
     >
       <!-- Left Section -->
       <div class="flex items-center space-x-2">
-        <avatar-image :size="avatarSize" class="rounded" alt="User Avatar" />
+        <avatar-image :size="avatarSize" alt="User Avatar" />
         <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
         <h2 class="text-xs text-gray-500 italic pl-1">
           {{ pageSubtitle }}
@@ -100,7 +100,7 @@ const toggleNav = () => {
 .avatar-image {
   perspective: 1000px;
   width: auto;
-  max-width: 100px;
+  max-width: 200px;
 }
 
 header {

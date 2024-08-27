@@ -45,13 +45,13 @@
         <div
           v-for="(bot, index) in bots"
           :key="`bot-${index}`"
-          class="flex-shrink-0 flex flex-col items-center cursor-pointer p-2 rounded-lg bg-base-200 shadow transition-all duration-300 ease-in-out bot-bubble"
+          class="bot-bubble"
           @click="selectBot(bot.id)"
         >
           <img
             :src="bot.avatarImage"
             alt="Bot's Avatar"
-            class="w-full h-auto rounded-full object-cover transition-all duration-300 ease-in-out"
+            class="object-cover rounded-full"
           />
           <h3 class="text-lg font-semibold mt-2 truncate">{{ bot.name }}</h3>
         </div>
@@ -90,7 +90,6 @@ onMounted(() => {
   }
 })
 </script>
-
 <style>
 .scroll-container {
   display: flex;
@@ -100,29 +99,31 @@ onMounted(() => {
 
 .bot-bubble {
   display: flex;
-  flex-direction: column; /* Organizes the child elements (image and name) into a column */
-  align-items: center; /* Centers the items horizontally in the flex container */
-  justify-content: center; /* Aligns items vertically to the center in the flex container */
-  width: 20vw; /* Adjusts the width to be more responsive */
-  min-width: 120px; /* Ensures a minimum width */
-  max-width: 160px; /* Sets a maximum width to prevent the bubbles from getting too large */
-  margin: 0 8px; /* Adds horizontal spacing between bubbles */
-  padding: 10px; /* Adds some padding inside the bubbles */
-  scroll-snap-align: start; /* Ensures the scrolling aligns the items neatly at the start of the scroll container */
-  text-align: center; /* Centers the text */
-  overflow: hidden; /* Prevents content from overflowing */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 20vw;
+  min-width: 180px;
+  max-width: 160px;
+  margin: 0 8px;
+  padding: 10px;
+  scroll-snap-align: start;
+  text-align: center;
+  height: auto; /* Allow height to adjust based on content */
+  overflow: visible; /* Ensure content is not hidden */
 }
 
 .bot-bubble img {
-  width: 100%; /* Makes the image responsive within the container */
-  height: auto; /* Maintains the aspect ratio of the image */
-  border-radius: 50%; /* Makes the image rounded */
+  width: 100%; /* Maintain image width responsive */
+  height: auto; /* Adjust height automatically to maintain aspect ratio */
+  max-height: 80px; /* Limit image height */
+  border-radius: 50%; /* Circle shape */
 }
 
 .bot-bubble h3 {
-  margin-top: 10px; /* Adds space between the image and the name */
-  white-space: nowrap; /* Keeps the name on a single line */
-  overflow: hidden; /* Hides any overflow */
-  text-overflow: ellipsis; /* Adds an ellipsis to truncated text */
+  margin-top: 7px; /* Space between image and name */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

@@ -6,34 +6,28 @@
       class="w-full bg-base-200 rounded-xl p-2 m-2 border"
     ></header-upgrade>
 
-    <!-- Collapsible Sidebar, transition and width handling -->
-    <aside
-      :class="`relative top-0 left-0 h-1/4 transition-transform duration-300 z-10 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-64`"
-    >
-      <add-bot-link class="block p-4" />
-      <bot-chat-link class="block p-4" />
-      <bot-messages-link class="block p-4" />
-      <button class="p-2 text-left w-full" @click="toggleSidebar">
-        <icon name="material-icons:menu" class="text-xl" />
-      </button>
-    </aside>
+    <!-- Main Container for Sidebar and Content -->
+    <div class="flex flex-grow overflow-hidden">
+      <!-- Collapsible Sidebar -->
+      <aside
+        :class="`transition-transform duration-300 z-10 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-64 h-full`"
+      >
+        <add-bot-link class="block p-4" />
+        <bot-chat-link class="block p-4" />
+        <bot-messages-link class="block p-4" />
+        <button class="p-2 text-left w-full" @click="toggleSidebar">
+          <icon name="material-icons:menu" class="text-xl" />
+        </button>
+      </aside>
 
-    <!-- Toggle Icon for Sidebar -->
-    <div
-      v-if="!isSidebarOpen"
-      class="relative top-0 left-0 p-4 z-20 cursor-pointer"
-      @click="toggleSidebar"
-    >
-      <icon name="bi:clipboard2-heart" class="text-xl" />
+      <!-- Main Content -->
+      <main
+        ref="mainContentRef"
+        class="flex-1 flex flex-col items-center overflow-auto"
+      >
+        <NuxtPage />
+      </main>
     </div>
-
-    <!-- Main Content -->
-    <main
-      ref="mainContentRef"
-      class="flex-1 flex flex-col items-center overflow-auto"
-    >
-      <NuxtPage />
-    </main>
   </div>
 </template>
 
@@ -115,66 +109,35 @@ onMounted(async () => {
   }
 })
 </script>
-
 <style scoped>
-.sidebar {
-  position: fixed; /* Use fixed instead of absolute to keep it in view */
-  top: 0;
-  left: 0; /* Make sure it's on the left */
-  height: 100%; /* Full height */
-  width: 200px; /* Set width */
-  transition: transform 0.3s ease;
-}
-
-.collapsed {
-  transform: translateX(-100%); /* Hide off-screen to the left */
-}
-
-.expanded {
-  transform: translateX(0); /* Normal position */
-}
-
-.icon-link {
-  margin: 1rem;
-  display: block;
-}
-
-.toggle-sidebar {
-  display: none; /* Hide toggle inside sidebar when expanded */
-}
-
-.toggle-icon {
-  position: absolute;
-  top: 100px; /* Adjust based on header height */
-  left: 0;
-  cursor: pointer;
-  padding: 10px;
-}
-
-button {
-  font-size: 1.5rem;
-  width: 3rem;
-  height: 3rem;
-}
-/* Ensure the outer container is set up for a horizontal layout */
 .flex {
   display: flex;
-  flex-direction: row; /* Align children side by side */
-  height: 100vh; /* Full viewport height */
-  width: 100vw; /* Full viewport width */
+  flex-direction: column; /* Align main container and header vertically */
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
-/* Header styles */
 .header-upgrade {
-  flex-shrink: 0; /* Prevent the header from shrinking */
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.main-container {
+  display: flex;
+  flex-grow: 1; /* Take up remaining space */
   width: 100%; /* Full width */
 }
 
-/* Main content styles */
+.sidebar {
+  position: relative; /* Use relative for inline flex positioning */
+  transition: transform 0.3s ease;
+  width: 16rem; /* Sidebar width */
+  overflow-y: auto; /* Allow vertical scrolling in sidebar */
+}
+
 main {
-  flex-grow: 1; /* Take up remaining space */
-  width: calc(
-    100% - 200px
-  ); /* Adjust width based on sidebar, only if sidebar is visible */
+  flex-grow: 1; /* Allow main content to fill remaining space */
+  overflow-y: auto; /* Allow scrolling in main content */
 }
 </style>

@@ -2,15 +2,17 @@
   <div class="icon-link-container">
     <NuxtLink
       to="/botchat"
-      :class="{
-        'icon-link': true,
-        'rounded-2xl': true,
-        'bg-base-200': true,
-        'text-center': true,
-        'hover:scale-110': !isCurrentPage,
-        'hover:glow-animation': !isCurrentPage,
-        'text-gray-400': isCurrentPage,
-      }"
+      :class="[
+        'flex',
+        'items-center',
+        'justify-center',
+        'rounded-2xl',
+        'bg-base-200',
+        'text-center',
+        'hover:scale-110',
+        'hover:glow-animation',
+        isCurrentPage ? 'text-gray-400' : '',
+      ]"
     >
       <icon
         name="fluent:chat-bubbles-question-mark-20-filled"
@@ -31,9 +33,6 @@ const isCurrentPage = computed(
 </script>
 
 <style scoped>
-.icon-effect {
-  @apply w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow;
-}
 .glow-animation:hover {
   animation: glow 1.5s infinite;
 }

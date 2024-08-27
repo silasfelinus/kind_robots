@@ -1,5 +1,8 @@
 <template>
-  <div class="flex items-center space-x-2">
+  <router-link
+    to="/milestones"
+    class="flex items-center space-x-2 no-underline text-current"
+  >
     <!-- Always Show Jellybean Icon -->
     <icon name="tdesign:bean" />
 
@@ -8,7 +11,7 @@
       <span class="whitespace-nowrap mr-1"> {{ user?.mana || 0 }} /9 </span>
       <span class="hidden lg:inline">Jellybeans</span>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <script lang="ts" setup>
@@ -17,3 +20,9 @@ import { computed } from 'vue'
 const userStore = useUserStore()
 const user = computed(() => userStore.user)
 </script>
+<style scoped>
+.router-link {
+  text-decoration: none; /* Removes underline */
+  color: inherit; /* Ensures it inherits the text color from its parent */
+}
+</style>

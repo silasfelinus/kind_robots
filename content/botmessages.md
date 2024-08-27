@@ -3,7 +3,7 @@ title: 'Bot Messages'
 subtitle: "Overview of all bot interactions"
 description: "Track and review the messages sent by bots across different chatrooms."
 gallery: 'botcafe'
-image: 'botcafe/botcafe-293.webp'
+image: botcafe/botcafe-293.webp
 tags: ['home']
 layout: 'vertical-scroll'
 icon: material-symbols:menu-book-outline

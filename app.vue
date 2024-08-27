@@ -1,25 +1,28 @@
 <template>
-  <div class="relative flex flex-col h-screen bg-primary">
+  <div class="relative flex h-screen bg-primary">
+    <!-- Collapsible Sidebar -->
+    <aside :class="`sidebar ${isSidebarOpen ? 'expanded' : 'collapsed'}`">
+      <add-bot-link class="icon-link" />
+      <bot-chat-link class="icon-link" />
+      <bot-messages-link class="icon-link" />
+      <button class="toggle-sidebar" @click="toggleSidebar">
+        <icon name="material-icons:menu" />
+      </button>
+    </aside>
+
+    <!-- Toggle Icon -->
+    <div v-if="!isSidebarOpen" class="toggle-icon" @click="toggleSidebar">
+      <icon name="material-icons:menu" />
+    </div>
+
     <!-- Header -->
     <header-upgrade
       ref="headerRef"
       class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
     ></header-upgrade>
-    <!-- Header -->
-
-    <!-- Icon Links -->
-    <add-bot-link
-      class="absolute w-20 h-20 bottom-8 left-8 text-accent border z-50"
-    />
-    <bot-chat-link
-      class="absolute w-20 h-20 bottom-8 left-1/2 transform -translate-x-1/2 text-accent border z-50"
-    />
-    <bot-messages-link
-      class="absolute w-20 h-20 bottom-8 right-8 text-accent border z-50"
-    />
 
     <!-- Main Content -->
-    <main ref="mainContentRef" class="flex flex-col items-center">
+    <main ref="mainContentRef" class="flex flex-col items-center flex-grow">
       <NuxtPage />
     </main>
   </div>
@@ -38,6 +41,9 @@ import { usePitchStore } from '@/stores/pitchStore'
 import { useChannelStore } from '@/stores/channelStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useLayoutStore } from '@/stores/layoutStore'
+import AddBotLink from '@/components/content/navigation/AddBotLink.vue'
+import BotChatLink from '@/components/content/navigation/BotChatLink.vue'
+import BotMessagesLink from '@/components/content/navigation/BotMessagesLink.vue'
 
 const errorStore = useErrorStore()
 const tagStore = useTagStore()
@@ -49,6 +55,13 @@ const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
 const layoutStore = useLayoutStore()
+
+const isSidebarOpen = ref(true) // Using ref for better TypeScript inference
+
+// Function to toggle sidebar state
+function toggleSidebar() {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
 
 useHead({
   title: 'Kind Robots',
@@ -95,6 +108,40 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.sidebar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 200px;
+  transition: transform 0.3s ease;
+}
+
+.collapsed {
+  transform: translateX(-100%);
+}
+
+.expanded {
+  transform: translateX(0);
+}
+
+.icon-link {
+  margin: 1rem;
+  display: block;
+}
+
+.toggle-sidebar {
+  display: none; /* Hide toggle inside sidebar when expanded */
+}
+
+.toggle-icon {
+  position: absolute;
+  top: 100px; /* Adjust based on header height */
+  left: 0;
+  cursor: pointer;
+  padding: 10px;
+}
+
 button {
   font-size: 1.5rem;
   width: 3rem;

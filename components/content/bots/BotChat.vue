@@ -20,7 +20,7 @@
           <p class="text-md">{{ currentBot?.description }}</p>
         </div>
         <!-- Bot Stream placed directly under the info -->
-        <bot-stream class="flex-grow overflow-y-auto" />
+        <bot-stream class="flex-grow" />
       </div>
     </div>
   </div>
@@ -32,6 +32,12 @@ import BotStream from './BotStream.vue'
 
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)
+
+onMounted(() => {
+  if (!botStore.currentBot) {
+    botStore.selectBot(1)
+  }
+})
 </script>
 
 <style scoped>

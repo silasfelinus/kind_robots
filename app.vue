@@ -2,7 +2,6 @@
   <div class="flex flex-col h-screen bg-primary overflow-hidden">
     <!-- Header -->
     <header-upgrade
-      ref="headerRef"
       class="w-full bg-base-200 rounded-xl p-2 m-2 border"
     ></header-upgrade>
 
@@ -21,10 +20,7 @@
       </aside>
 
       <!-- Main Content -->
-      <main
-        ref="mainContentRef"
-        class="flex-1 flex flex-col items-center overflow-auto"
-      >
+      <main class="flex-1 flex flex-col items-center overflow-auto">
         <NuxtPage />
       </main>
     </div>
@@ -83,9 +79,6 @@ useHead({
     { name: 'twitter:card', content: 'summary_large_image' },
   ],
 })
-
-const headerRef = ref<HTMLElement | null>(null)
-const mainContentRef = ref<HTMLElement | null>(null)
 
 onMounted(async () => {
   try {

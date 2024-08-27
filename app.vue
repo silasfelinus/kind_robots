@@ -57,9 +57,9 @@ const layoutStore = useLayoutStore()
 
 const isSidebarOpen = ref(true) // Using ref for better TypeScript inference
 
-// Function to toggle sidebar state
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
+  // Additional code to trigger re-rendering or adjustment of main content width might be needed
 }
 
 useHead({
@@ -105,10 +105,23 @@ onMounted(async () => {
 <style scoped>
 .flex {
   display: flex;
-  flex-direction: column; /* Align main container and header vertically */
-  height: 100vh;
-  width: 100vw;
-  overflow-x: hidden; /* Prevent horizontal overflow */
+  flex-direction: column;
+  height: 100vh; /* This confines your flex container to the height of the viewport */
+  width: 100vw; /* Ensure the container fills the viewport width */
+  overflow-x: hidden; /* Prevent horizontal overflow, which is good */
+}
+
+.main-container {
+  display: flex;
+  flex-grow: 1; /* This should take up any remaining space after the header */
+  width: 100%; /* Ensure it spans the full width */
+  overflow: hidden; /* May need to adjust this if your main content should scroll */
+}
+
+main {
+  flex-grow: 1; /* Allow main content to expand */
+  width: calc(100vw - 16rem); /* Adjust width if the sidebar is visible */
+  overflow-y: auto; /* Ensure it scrolls vertically if content overflows */
 }
 
 .header-upgrade {
@@ -116,21 +129,10 @@ onMounted(async () => {
   width: 100%;
 }
 
-.main-container {
-  display: flex;
-  flex-grow: 1; /* Take up remaining space */
-  width: 100%; /* Full width */
-}
-
 .sidebar {
   position: relative; /* Use relative for inline flex positioning */
   transition: transform 0.3s ease;
   width: 16rem; /* Sidebar width */
   overflow-y: auto; /* Allow vertical scrolling in sidebar */
-}
-
-main {
-  flex-grow: 1; /* Allow main content to fill remaining space */
-  overflow-y: auto; /* Allow scrolling in main content */
 }
 </style>

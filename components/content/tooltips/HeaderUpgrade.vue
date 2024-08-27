@@ -21,29 +21,23 @@
           alt="User Avatar"
         />
         <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
-        <h2 v-show="toggleSidebar" class="text-xs text-gray-500 italic pl-1">
+        <h2 v-show="toggleSidebar" class="text-xs text-gray-500 italic pl-2">
           {{ pageSubtitle }}
         </h2>
       </div>
 
       <!-- Center Section -->
-      <smart-links class="flex-1 text-center text-sm" />
+      <smart-links v-show="toggleSidebar" class="flex-1 text-center text-sm" />
 
       <!-- Right Section -->
-      <div class="flex items-center gap-2">
+      <div v-show="toggleSidebar" class="flex items-center gap-2">
         <butterfly-toggle class="text-sm hidden sm:block" />
         <theme-toggle class="text-sm hidden sm:block" />
         <login-button />
         <nav-toggle class="text-sm" @click="toggleNav" />
+        <jellybean-count />
       </div>
     </header>
-
-    <!-- Jellybean Counter -->
-    <jellybean-count
-      v-if="isLoggedIn"
-      v-show="toggleSidebar"
-      class="absolute right-4 top-4 z-50 bg-white p-2 rounded-full shadow-md"
-    />
 
     <!-- Navigation -->
     <navigation-trimmed
@@ -55,7 +49,6 @@
 </template>
 <script lang="ts" setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
 import { useContentStore } from './../../../stores/contentStore'
 import { ErrorType } from './../../../stores/errorStore'
 
@@ -64,7 +57,6 @@ const { page } = useContentStore()
 const pageSubtitle = computed(() => page?.subtitle || 'the kindest')
 const avatarSize = ref('small')
 const showNav = ref(false)
-const isLoggedIn = computed(() => useUserStore().isLoggedIn)
 const isMobile = ref(false)
 const headerRef = ref<HTMLElement | null>(null)
 const errorStore = useErrorStore()

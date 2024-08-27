@@ -1,0 +1,17 @@
+---
+title: 'Bot Messages'
+subtitle: "Overview of all bot interactions"
+description: "Track and review the messages sent by bots across different chatrooms."
+gallery: 'botcafe'
+image: 'botmessages.webp'
+tags: ['home']
+layout: 'vertical-scroll'
+icon: material-icons:chat
+category: bots
+tooltip: "Create new bot queries and share them with others"
+dottitip: "This is a chronicle of kind robots interactions with humanity."
+amitip: "If you have a meaningful interaction, share it please!"
+sort: highlight
+---
+
+:bot-messages

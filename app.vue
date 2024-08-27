@@ -9,7 +9,7 @@
     <div class="flex flex-grow overflow-hidden">
       <!-- Collapsible Sidebar -->
       <aside
-        :class="`transition-transform duration-300 z-10 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-64 h-full`"
+        :class="`transition-transform duration-300 z-10 sidebar ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`"
       >
         <add-bot-link class="block p-4" />
         <bot-chat-link class="block p-4" />
@@ -21,7 +21,7 @@
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-1 flex flex-col items-center overflow-auto">
+      <main class="main-container">
         <NuxtPage />
       </main>
     </div>
@@ -57,8 +57,14 @@ const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
 const layoutStore = useLayoutStore()
 
-const isSidebarOpen = ref(true) // Using ref for better TypeScript inference
+const isSidebarOpen = ref(true)
 
+watch(isSidebarOpen, (newValue) => {
+  document.documentElement.style.setProperty(
+    '--sidebar-width',
+    newValue ? '16rem' : '0',
+  )
+})
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
   // Additional code to trigger re-rendering or adjustment of main content width might be needed
@@ -108,33 +114,38 @@ onMounted(async () => {
 .flex {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* This confines your flex container to the height of the viewport */
-  width: 100vw; /* Ensure the container fills the viewport width */
-  overflow-x: hidden; /* Prevent horizontal overflow, which is good */
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
 }
 
 .main-container {
-  display: flex;
-  flex-grow: 1; /* This should take up any remaining space after the header */
-  width: 100%; /* Ensure it spans the full width */
-  overflow: hidden; /* May need to adjust this if your main content should scroll */
+  flex-grow: 1;
+  transition: margin-left 0.3s ease; /* Smooth transition for sidebar toggle */
+  margin-left: var(--sidebar-width); /* Adjust based on sidebar state */
+  width: calc(100% - var(--sidebar-width)); /* Adjust width dynamically */
+  overflow-y: auto;
 }
 
-main {
-  flex-grow: 1; /* Allow main content to expand */
-  width: calc(100vw - 16rem); /* Adjust width if the sidebar is visible */
-  overflow-y: auto; /* Ensure it scrolls vertically if content overflows */
+.sidebar {
+  position: relative;
+  transition: transform 0.3s ease;
+  width: 16rem; /* Defined as a CSS variable for reusability */
+  overflow-y: auto;
+}
+
+:root {
+  --sidebar-width: 16rem; /* Centralized control over the sidebar width */
+}
+
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0; /* Sidebar is hidden on smaller screens */
+  }
 }
 
 .header-upgrade {
   flex-shrink: 0;
   width: 100%;
-}
-
-.sidebar {
-  position: relative; /* Use relative for inline flex positioning */
-  transition: transform 0.3s ease;
-  width: 16rem; /* Sidebar width */
-  overflow-y: auto; /* Allow vertical scrolling in sidebar */
 }
 </style>

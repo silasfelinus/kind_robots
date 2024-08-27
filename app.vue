@@ -9,7 +9,7 @@
     <div class="flex flex-grow relative">
       <!-- Sidebar Toggle Button, consistently positioned -->
       <button
-        class="absolute z-50 p-2 text-left text-accent inset-y-0 left-0 top-2 bg-base-200"
+        class="absolute z-50 p-2 text-left text-accent inset-y-0 left-0 top-2"
         title="Toggle Sidebar"
         @click="toggleSidebar"
       >

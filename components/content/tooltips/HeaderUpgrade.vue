@@ -4,17 +4,19 @@
     <header
       ref="headerRef"
       class="z-50 flex flex-col md:flex-row items-center justify-between overflow-x-visible max-w-full"
+      :class="{ 'flex-col': isMobile }"
     >
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 min-w-0 md:flex-1">
         <avatar-image
           :size="avatarSize"
           class="w-12 h-12 md:w-16 md:h-16 rounded"
+          alt="User Avatar"
         />
         <div class="flex items-center flex-shrink-0 min-w-0 md:flex-1">
-          <room-title class="text-sm font-semibold bg-base-200 rounded-2xl " />
+          <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
           <h2 class="text-xs text-gray-500 italic pl-1">
-            {{ page?.subtitle || 'the kindest' }}
+            {{ pageSubtitle }}
           </h2>
         </div>
       </div>
@@ -53,64 +55,56 @@
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
+import { useUserStore, useContent } from '@/stores'
 
 const { page } = useContent()
 const avatarSize = ref('small')
 const showNav = ref(false)
 const isLoggedIn = computed(() => useUserStore().isLoggedIn)
+const pageSubtitle = computed(() => page?.subtitle || 'the kindest')
 
-// Initialize isMobile with a default fallback
 const isMobile = ref(false)
-const headerHeight = ref(0)
 const headerRef = ref<HTMLElement | null>(null)
 
-// Define a function to handle resize
 function handleResize() {
   isMobile.value = window.innerWidth < 768
   if (headerRef.value) {
-    headerHeight.value = headerRef.value.clientHeight
+    headerRef.value.clientHeight
   }
 }
 
 onMounted(() => {
-  // Correctly initialize isMobile based on the client's window size
-  handleResize() // Call it to set initial state based on current window size
-
-  // Set up the resize listener once the component is mounted to ensure window is available
+  handleResize()
   window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  // Ensure to clean up the event listener when the component unmounts
   window.removeEventListener('resize', handleResize)
 })
 
-const toggleNav = () => {
-  showNav.value = !showNav.value
-}
+const toggleNav = () => (showNav.value = !showNav.value)
 </script>
 
 <style scoped>
 .avatar-image {
   perspective: 1000px;
   width: 100%;
-  max-width: 100px; /* Adjusted to fit within the header */
+  max-width: 100px;
 }
 header {
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  max-width: 100vw; /* Ensure header does not exceed viewport width */
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 .navigation-trimmed {
-  position: absolute; /* Use absolute to keep it out of flow */
-  width: 100%; /* Full width to align with the header */
+  position: absolute;
+  width: 100%;
   transition: transform 0.3s ease-in-out;
 }
 
 @media (max-width: 768px) {
   .flex-wrap {
-    flex-wrap: wrap; /* Allow items to wrap to next line on small screens */
+    flex-direction: column;
   }
 }
 </style>

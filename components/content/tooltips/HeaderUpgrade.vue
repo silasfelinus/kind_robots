@@ -21,9 +21,9 @@
         <avatar-image class="h-16 w-16" alt="User Avatar" />
         <div class="flex-col">
           <room-title
-            class="flex-2 text-sm font-semibold bg-primary rounded-2xl p-1"
+            class="flex text-sm font-semibold bg-primary rounded-2xl p-1"
           />
-          <h2 class="flex-1 text-xs text-gray-500 overflow-scroll italic">
+          <h2 class="flex text-xs text-gray-500 italic">
             {{ pageSubtitle }}
           </h2>
         </div>

@@ -1,10 +1,10 @@
 <template>
-  <div class="flex space-x-6">
+  <div class="flex">
     <!-- Show Home icon only if NOT home -->
     <NuxtLink
       v-if="!isHomePage"
       to="/"
-      class="flex items-center justify-center rounded-2xl bg-base-200 text-center hover:scale-110 hover:glow-animation"
+      class="flex items-center justify-center rounded-2xl text-center hover:scale-110 hover:glow-animation"
     >
       <icon name="line-md:home-md-twotone" class="icon-effect" />
     </NuxtLink>

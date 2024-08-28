@@ -3,7 +3,7 @@
     <!-- Header with embedded toggle button -->
     <header-upgrade>
       <button
-        class="absolute p-2 text-left text-accent top-2 left-2"
+        class="relative z-50 p-2 text-left text-accent top-2 left-2"
         title="Toggle Sidebar"
         @click="toggleSidebar"
       >
@@ -19,7 +19,7 @@
     <div class="flex flex-grow">
       <!-- Collapsible Sidebar -->
       <aside
-        :class="`flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-auto border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-16'}`"
+        :class="`flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-auto border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-24'}`"
         :aria-hidden="isSidebarOpen ? 'false' : 'true'"
       >
         <!-- Sidebar Links with Icons and Titles -->

@@ -5,7 +5,7 @@
       <icon
         :name="'typcn:arrow-forward-outline'"
         :title="'Forward'"
-        class="icon-effect w-16 h-16 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+        class="icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
       />
     </div>
   </div>

@@ -13,6 +13,7 @@ interface UserState {
   highMatchScores: []
   stayLoggedIn: boolean
   milestones: number[]
+  showMature: boolean
 }
 
 export interface ApiResponse {
@@ -38,11 +39,15 @@ export const useUserStore = defineStore({
     highMatchScores: [],
     stayLoggedIn: true,
     milestones: [],
+    showMature: false
   }),
   getters: {
     karma(state): number {
       return state.user ? state.user.karma : 1000
     },
+    showMature(state): boolean {
+      return state.user ? state.user.showMature : false
+    }
     mana(state): number {
       const manaValue = state.user?.mana || state.milestones.length
       return manaValue

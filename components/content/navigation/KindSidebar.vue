@@ -146,6 +146,11 @@ function toggleSidebar() {
   flex-shrink: 0;
   transition: width 0.3s ease-in-out;
   overflow-y: auto; /* Allows scrolling within the sidebar */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for WebKit browsers */
 }
 
 @media (max-width: 768px) {
@@ -155,7 +160,6 @@ function toggleSidebar() {
   }
 }
 
-/* Further responsiveness for smaller devices */
 @media (max-width: 480px) {
   .sidebar {
     min-width: 120px;

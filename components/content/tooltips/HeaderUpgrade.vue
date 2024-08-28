@@ -14,7 +14,7 @@
         <div class="flex flex-grow">
           <butterfly-toggle class="flex-grow" />
           <theme-toggle class="flex-grow" />
-          <login-button class="flex-grow" />
+          <login-button />
           <nav-toggle class="flex-grow" @click="toggleNav" />
         </div>
       </div>

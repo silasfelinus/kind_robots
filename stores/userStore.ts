@@ -132,10 +132,12 @@ export const useUserStore = defineStore({
       }
     },
     setUser(userData: User): void {
-      this.user = userData
+      this.user = userData;
+      // Ensure showMature is being updated
+      this.showMature = userData.showMature;
       this.updateKarmaAndMana().catch((error) => {
-        this.setError(error)
-      })
+        this.setError(error);
+      });
     },
     setStayLoggedIn(value: boolean) {
       try {

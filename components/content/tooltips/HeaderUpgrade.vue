@@ -98,7 +98,6 @@ const toggleNav = () => {
 
 <style scoped>
 header {
-  overflow-x: hidden;
   max-width: 100vw;
 }
 

@@ -3,6 +3,7 @@
     <h1>Show Mature Settings Test Page</h1>
     <p><strong>showMatureContent (from state):</strong> {{ showMature }}</p>
     <p><strong>showMature (from user object):</strong> {{ userShowMature }}</p>
+    <p><strong>show user object:</strong> {{ userShow }}</p>
     <button @click="refreshUserSettings">Refresh Settings</button>
   </div>
 </template>
@@ -15,6 +16,7 @@ const userStore = useUserStore()
 
 const showMature = computed(() => userStore.showMatureContent)
 const userShowMature = computed(() => userStore.user?.showMature || false)
+const userShow = computed(() => userStore.user?.value || 'not found')
 
 function refreshUserSettings() {
   userStore

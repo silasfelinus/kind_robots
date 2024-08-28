@@ -47,7 +47,7 @@ export const useUserStore = defineStore({
     },
     showMature(state): boolean {
       return state.user ? state.user.showMature : false
-    }
+    },
     mana(state): number {
       const manaValue = state.user?.mana || state.milestones.length
       return manaValue

@@ -5,17 +5,13 @@
   >
     <div v-show="!toggleSidebar" class="flex items-center space-x-2 flex-grow">
       <avatar-image alt="User Avatar" />
-      <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
-    </div>
-    <div v-show="toggleSidebar" class="flex items-center space-x-2 flex-grow">
-      <avatar-image alt="User Avatar" />
       <div class="flex flex-col">
-        <room-title class="flex text-sm font-semibold p-1" />
+        <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
         <h2 class="text-md text-accent italic text-center">
           {{ page.subtitle }}
         </h2>
       </div>
-      <div class="flex space-x-1">
+      <div class="flex flex-grow space-x-1">
         <back-link />
         <random-link />
         <home-link />
@@ -26,7 +22,7 @@
         <nav-toggle @click="toggleNav" />
       </div>
     </div>
-    <button class="ml-auto z-50" @click="toggleSidebarFunction">
+    <button class="ml-auto p-4 z-50" @click="toggleSidebarFunction">
       <icon
         :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
         class="text-lg text-accent"

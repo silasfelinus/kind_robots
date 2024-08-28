@@ -176,6 +176,8 @@ export async function validateUserCredentials(
       console.log('Debug: User not found')
       return null
     }
+    console.log('User found, validating', user)
+    
 
     if (user.password && password) {
       const isPasswordValid = await bcryptCompare(password, user.password)

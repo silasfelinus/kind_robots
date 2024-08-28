@@ -21,62 +21,100 @@
     <div class="flex flex-grow">
       <!-- Collapsible Sidebar -->
       <aside
-        :class="`flex-shrink-0 transition-width duration-300 ease-in-out v-screen overflow-y-auto border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-0'}`"
+        :class="`flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-auto border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-16'}`"
         :aria-hidden="isSidebarOpen ? 'false' : 'true'"
-        style="top: var(--header-height)"
       >
         <!-- Sidebar Links with Icons and Titles -->
-        <div class="p-4 flex items-center" title="Home" @click="toggleSidebar">
+        <div
+          class="p-4 flex items-center justify-start"
+          title="Home"
+          @click="toggleSidebar"
+        >
           <home-link class="text-xl" />
-          <span class="ml-2 text-lg font-semibold">Home/Navigation</span>
+          <router-link
+            v-show="isSidebarOpen"
+            to="/home"
+            class="ml-2 text-lg font-semibold"
+            >Home/Navigation</router-link
+          >
         </div>
         <div
-          class="p-4 flex items-center"
+          class="p-4 flex items-center justify-start"
           title="Add Bot"
           @click="toggleSidebar"
         >
           <add-bot-link class="text-xl" />
-          <span class="ml-2 text-lg font-semibold">Add Bot</span>
+          <router-link
+            v-show="isSidebarOpen"
+            to="/add-bot"
+            class="ml-2 text-lg font-semibold"
+            >Add Bot</router-link
+          >
         </div>
         <div
-          class="p-4 flex items-center"
+          class="p-4 flex items-center justify-start"
           title="Chat with Bots"
           @click="toggleSidebar"
         >
           <bot-chat-link class="text-xl" />
-          <span class="ml-2 text-lg font-semibold">Chat with Bots</span>
+          <router-link
+            v-show="isSidebarOpen"
+            to="/chat-bots"
+            class="ml-2 text-lg font-semibold"
+            >Chat with Bots</router-link
+          >
         </div>
         <div
-          class="p-4 flex items-center"
+          class="p-4 flex items-center justify-start"
           title="Bot Messages"
           @click="toggleSidebar"
         >
           <bot-messages-link class="text-xl" />
-          <span class="ml-2 text-lg font-semibold">Bot Messages</span>
+          <router-link
+            v-show="isSidebarOpen"
+            to="/bot-messages"
+            class="ml-2 text-lg font-semibold"
+            >Bot Messages</router-link
+          >
         </div>
         <div
-          class="p-4 flex items-center"
+          class="p-4 flex items-center justify-start"
           title="Hot or Not?"
           @click="toggleSidebar"
         >
           <hot-link class="text-xl" />
-          <span class="ml-2 text-lg font-semibold">Hot or Not?</span>
+          <router-link
+            v-show="isSidebarOpen"
+            to="/hot-or-not"
+            class="ml-2 text-lg font-semibold"
+            >Hot or Not?</router-link
+          >
         </div>
         <div
-          class="p-4 flex items-center"
+          class="p-4 flex items-center justify-start"
           title="Art Gallery"
           @click="toggleSidebar"
         >
           <art-gallery-link class="text-xl" />
-          <span class="ml-2 text-lg font-semibold">Art Gallery</span>
+          <router-link
+            v-show="isSidebarOpen"
+            to="/art-gallery"
+            class="ml-2 text-lg font-semibold"
+            >Art Gallery</router-link
+          >
         </div>
         <div
-          class="p-4 flex items-center"
+          class="p-4 flex items-center justify-start"
           title="Dashboard"
           @click="toggleSidebar"
         >
           <dashboard-link class="text-xl" />
-          <span class="ml-2 text-lg font-semibold">Dashboard</span>
+          <router-link
+            v-show="isSidebarOpen"
+            to="/dashboard"
+            class="ml-2 text-lg font-semibold"
+            >Dashboard</router-link
+          >
         </div>
       </aside>
 

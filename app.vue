@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container bg-primary">
+  <div class="main-container bg-primary m-1 p-1">
     <!-- Header with embedded toggle button -->
     <header-upgrade />
 
@@ -91,13 +91,5 @@ onMounted(async () => {
 
 .header-upgrade {
   flex-shrink: 0; /* Ensures the header does not shrink */
-}
-
-/* Flex-grow on main ensures it takes up remaining space */
-.flex-grow {
-  display: flex;
-  flex-direction: row;
-  height: calc(100% - 50px); /* Adjust based on your header's height */
-  overflow: hidden; /* Containing internal overflows */
 }
 </style>

@@ -46,7 +46,7 @@
           <add-bot-link class="text-xl" />
           <router-link
             v-show="isSidebarOpen"
-            to="/add-bot"
+            to="/addbot"
             class="ml-2 text-lg font-semibold"
             >Add Bot</router-link
           >
@@ -59,7 +59,7 @@
           <bot-chat-link class="text-xl" />
           <router-link
             v-show="isSidebarOpen"
-            to="/chat-bots"
+            to="/botcafe"
             class="ml-2 text-lg font-semibold"
             >Chat with Bots</router-link
           >
@@ -72,7 +72,7 @@
           <bot-messages-link class="text-xl" />
           <router-link
             v-show="isSidebarOpen"
-            to="/bot-messages"
+            to="/botmessages"
             class="ml-2 text-lg font-semibold"
             >Bot Messages</router-link
           >
@@ -85,7 +85,7 @@
           <hot-link class="text-xl" />
           <router-link
             v-show="isSidebarOpen"
-            to="/hot-or-not"
+            to="/hotornot"
             class="ml-2 text-lg font-semibold"
             >Hot or Not?</router-link
           >
@@ -98,7 +98,7 @@
           <art-gallery-link class="text-xl" />
           <router-link
             v-show="isSidebarOpen"
-            to="/art-gallery"
+            to="/artgallery"
             class="ml-2 text-lg font-semibold"
             >Art Gallery</router-link
           >

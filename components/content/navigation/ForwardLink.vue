@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Forward arrow icon: Shown only if canGoForward is true -->
-    <div v-if="canGoForward" class="mr-2" @click="goForward">
+    <div v-if="canGoForward" @click="goForward">
       <icon
         :name="'typcn:arrow-forward-outline'"
         :title="'Forward'"

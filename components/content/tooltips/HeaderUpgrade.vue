@@ -1,6 +1,6 @@
 <template>
   <header
-    class="bg-base-200 flex items-center justify-between rounded-2xl"
+    class="bg-base-200 flex items-center justify-between rounded-2xl border p-2 m-2"
     :class="toggleSidebar ? 'flex-col' : 'flex-row'"
   >
     <div v-show="!toggleSidebar" class="flex items-center space-x-2 flex-grow">
@@ -12,14 +12,15 @@
         </h2>
       </div>
       <div class="flex flex-grow space-x-1">
-        <back-link />
-        <random-link />
-        <home-link />
-        <forward-link />
-        <butterfly-toggle />
-        <theme-toggle />
-        <login-button />
-        <nav-toggle @click="toggleNav" />
+        <!-- Each link and button now has flex-grow to evenly distribute space -->
+        <back-link class="flex-grow" />
+        <random-link class="flex-grow" />
+        <home-link class="flex-grow" />
+        <forward-link class="flex-grow" />
+        <butterfly-toggle class="flex-grow" />
+        <theme-toggle class="flex-grow" />
+        <login-button class="flex-grow" />
+        <nav-toggle class="flex-grow" @click="toggleNav" />
       </div>
     </div>
     <button class="ml-auto p-4 z-50" @click="toggleSidebarFunction">

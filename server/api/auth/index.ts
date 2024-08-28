@@ -159,9 +159,9 @@ export async function createUserWithAuth(
     })
 
     return { success: true, user: newUser }
-  } catch (error) {
-    console.error(`Error in createUserWithAuth: ${error.message}`)
-    return { success: false, message: error.message }
+  } catch (error: unknown) {
+    console.error(`Error in createUserWithAuth: ${errorHandler(error).message}`)
+    return { success: false, message: errorHandler(error).message }
   }
 }
 

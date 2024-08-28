@@ -5,7 +5,7 @@
       :class="toggleSidebar ? 'flex-col' : 'flex-row'"
     >
       <div
-        class="flex items-center space-x-1 flex-grow rounded-2xl border p-1 m-1"
+        class="flex items-center space-x-1 flex-grow rounded-2xl w-full h-auto border p-1 m-1"
       >
         <avatar-image alt="User Avatar" />
         <div class="flex flex-col">
@@ -14,7 +14,7 @@
             {{ page.subtitle }}
           </h2>
         </div>
-        <div class="flex flex-grow space-x-1">
+        <div class="flex flex-grow">
           <!-- Each link and button now has flex-grow to evenly distribute space -->
           <back-link class="flex-grow" />
           <random-link class="flex-grow" />
@@ -24,14 +24,14 @@
           <theme-toggle class="flex-grow" />
           <login-button class="flex-grow" />
           <nav-toggle class="flex-grow" @click="toggleNav" />
+          <button class="ml-auto z-50" @click="toggleSidebarFunction">
+            <icon
+              :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
+              class="text-lg text-accent"
+            />
+          </button>
         </div>
       </div>
-      <button class="ml-auto p-4 z-50" @click="toggleSidebarFunction">
-        <icon
-          :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
-          class="text-lg text-accent"
-        />
-      </button>
     </header>
     <navigation-trimmed
       v-if="showNav"

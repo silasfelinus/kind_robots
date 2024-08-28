@@ -8,7 +8,7 @@
       <icon
         name="game-icons:galaxy"
         :title="'Go to Random Highlight Page'"
-        class="w-16 h-16 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+        class="icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
       />
       <div
         class="m-1 text-lg opacity-0 group-hover:opacity-100 transition-opacity"

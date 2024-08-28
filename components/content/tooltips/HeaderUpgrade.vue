@@ -11,7 +11,9 @@
       <avatar-image alt="User Avatar" />
       <div class="flex flex-col">
         <room-title class="flex text-sm font-semibold p-1" />
-        <h2 class="text-xs text-gray-500 italic">{{ page.subtitle }}</h2>
+        <h2 class="text-md text-accent italic text-center">
+          {{ page.subtitle }}
+        </h2>
       </div>
       <div class="flex space-x-1">
         <back-link />

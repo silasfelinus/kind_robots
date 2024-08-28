@@ -15,7 +15,7 @@
       @submit.prevent="handleLogin"
     >
       <div class="mb-2 relative group">
-        <label for="login" class="block text-sm mb-1">Login:</label>
+        <label for="login" class="block text-sm z-50 mb-1">Login:</label>
         <input
           id="login"
           v-model="login"
@@ -31,7 +31,7 @@
         </div>
       </div>
       <div class="mb-2 relative group">
-        <label for="password" class="block text-sm mb-1"
+        <label for="password" class="block z-50 text-sm mb-1"
           >Password (optional):</label
         >
         <input

@@ -1,12 +1,10 @@
 <template>
   <div class="main-container bg-primary m-1 p-1">
-    <!-- Header with embedded toggle button -->
     <header-upgrade />
 
-    <div class="flex-grow">
+    <!-- Flex container for sidebar and main content -->
+    <div class="content-container flex">
       <kind-sidebar />
-
-      <!-- Main Content -->
       <main class="main-content flex-grow rounded-2xl p-1 m-1">
         <NuxtPage />
       </main>
@@ -85,11 +83,28 @@ onMounted(async () => {
 .main-container {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Use vh to fill the screen vertically */
-  overflow: hidden; /* Prevents spillover from internal elements */
+  height: 100vh;
+  overflow: hidden;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  overflow: hidden;
 }
 
 .header-upgrade {
-  flex-shrink: 0; /* Ensures the header does not shrink */
+  flex-shrink: 0;
+}
+
+.kind-sidebar {
+  flex-shrink: 0;
+  overflow-y: scroll;
+}
+
+.main-content {
+  flex-grow: 1;
+  overflow-y: scroll;
 }
 </style>

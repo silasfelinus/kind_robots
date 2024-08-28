@@ -15,19 +15,10 @@
           </h2>
         </div>
         <div class="flex flex-grow">
-          <!-- Each link and button now has flex-grow to evenly distribute space -->
-          <back-link v-show="toggleSidebar" class="flex-grow" />
-          <random-link v-show="toggleSidebar" class="flex-grow" />
-          <home-link v-show="toggleSidebar" class="flex-grow" />
-          <forward-link v-show="toggleSidebar" class="flex-grow" />
           <butterfly-toggle v-show="toggleSidebar" class="flex-grow" />
           <theme-toggle v-show="toggleSidebar" class="flex-grow" />
           <login-button v-show="toggleSidebar" class="flex-grow" />
-          <nav-toggle
-            v-show="toggleSidebar"
-            class="flex-grow"
-            @click="toggleNav"
-          />
+          <nav-toggle class="flex-grow" @click="toggleNav" />
           <button class="ml-auto z-50" @click="toggleSidebarFunction">
             <icon
               :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"

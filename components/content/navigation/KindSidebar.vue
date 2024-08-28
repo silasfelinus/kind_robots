@@ -17,7 +17,7 @@
         title="Home"
         @click="toggleSidebar"
       >
-        <home-link class="flex-grow" />
+        <home-link class="flex-grow text-xl" />
         <router-link
           v-show="isSidebarOpen"
           to="/home"

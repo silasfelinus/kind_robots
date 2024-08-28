@@ -416,7 +416,7 @@ export const useUserStore = defineStore({
     }): Promise<{ success: boolean; message?: string }> {
       console.log(
         'The store has been notified of the login attempt by ',
-        credentials,
+        credentials.username,
       )
       this.startLoading()
       try {

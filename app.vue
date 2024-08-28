@@ -5,7 +5,7 @@
     <!-- Flex container for sidebar and main content -->
     <div class="content-container flex">
       <kind-sidebar />
-      <main class="main-content flex-grow rounded-2xl p-1 m-1">
+      <main class="main-content flex-grow rounded-2xl p-1 m-1 h-full w-full">
         <NuxtPage />
       </main>
     </div>

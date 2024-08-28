@@ -2,7 +2,9 @@
   <div class="test-page">
     <h1>Show Mature Settings Test Page</h1>
     <p><strong>showMatureContent (from state):</strong> {{ showMature }}</p>
-    <p><strong>showMature (from user object):</strong> {{ user.showMature }}</p>
+    <p>
+      <strong>showMature (from user object):</strong> {{ user?.showMature }}
+    </p>
     <p><strong>show user object:</strong> {{ user }}</p>
     <button @click="refreshUserSettings">Refresh Settings</button>
   </div>
@@ -13,9 +15,9 @@ import { computed } from 'vue'
 import { useUserStore } from './../../../stores/userStore'
 
 const userStore = useUserStore()
-const user = computed(() => userStore.user)
+const user = computed(() => userStore.user || null)
 
-const showMature = computed(() => userStore.showMatureContent)
+const showMature = computed(() => userStore.showMatureContent || false)
 
 function refreshUserSettings() {
   userStore

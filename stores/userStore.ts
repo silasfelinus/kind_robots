@@ -112,9 +112,11 @@ export const useUserStore = defineStore({
         })
 
         if (response.success && response.user) {
+          console.log('fetched user by token, now setting user', response.user.showMature)
           this.setUser(response.user)
         }
       } catch (error: unknown) {
+        console.log('something weird happened in fetchuserbydatatoken')
         this.setError(error)
       }
     },
@@ -168,7 +170,7 @@ export const useUserStore = defineStore({
     },
     async fetchUsernameById(userId: number): Promise<string | null> {
       try {
-        const response = await fetch(`/api/users/${userId}/username`)
+        const response = await fetch(`/api/users/${userId}`)
         if (response.ok) {
           const data = await response.json()
           return data.username || 'Unknown'

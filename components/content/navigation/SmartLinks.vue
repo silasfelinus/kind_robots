@@ -10,10 +10,6 @@
       <icon name="game-icons:galaxy" class="hover:scale-125" />
       <span class="nav-text">{{ randomLinkText }}</span>
     </NuxtLink>
-    <NuxtLink v-if="!isHomePage" to="/" class="nav-link">
-      <icon name="line-md:home-md-twotone" class="hover:scale-125" />
-      <span class="nav-text">{{ homeLinkText }}</span>
-    </NuxtLink>
     <NuxtLink v-if="next" :to="next._path" class="nav-link">
       <icon name="typcn:arrow-forward-outline" class="hover:scale-125" />
       <span class="nav-text">{{ next.title }}</span>
@@ -25,14 +21,8 @@
 import { onMounted, ref, computed } from 'vue'
 import { useContentStore } from '../../../stores/contentStore'
 
-const { prev, next, page } = useContent()
+const { prev, next } = useContent()
 const contentStore = useContentStore()
-
-const isHomePage = computed(() => {
-  return page.value
-    ? page.value._path === '/' || page.value.path === '/'
-    : false
-})
 
 const randomHighlightPage = computed(
   () =>

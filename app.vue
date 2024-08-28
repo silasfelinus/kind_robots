@@ -141,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useErrorStore } from '@/stores/errorStore'
 import { useTagStore } from '@/stores/tagStore'

@@ -1,5 +1,5 @@
 <template>
-  <div class="theme-selector flex flex-col items-center">
+  <div class="theme-selector flex flex-col items-center relative">
     <div
       class="flex flex-row items-center justify-center rounded-2xl border bg-secondary m-1 p-1 w-full z-50"
     >
@@ -8,7 +8,7 @@
         tabindex="0"
         aria-haspopup="true"
         aria-label="Change theme"
-        class="theme-btn p-2 focus:outline-none focus:ring focus:ring-accent transform hover:scale-110 transition-all ease-in-out duration-200 text-lg"
+        class="theme-btn p-2 focus:outline-none focus:ring focus:ring-accent bg-secondary transform hover:scale-110 transition-all ease-in-out duration-200 text-lg"
         @click="toggleMenu"
       >
         theme: {{ themeStore.currentTheme }}
@@ -18,7 +18,8 @@
       <div
         v-show="open"
         :style="modalPosition"
-        class="theme-menu flex flex-wrap justify-center bg-base-200 border p-2 m-1 rounded-2xl z-50 transition-opacity duration-200"
+        class="theme-menu flex flex-wrap justify-center bg-base-200 border p-2 m-1 rounded-2xl z-50 absolute transition-opacity duration-200"
+        style="max-height: 90vh; max-width: 95vw; overflow: auto"
       >
         <button
           v-for="(theme, index) in themeStore.themes"
@@ -45,50 +46,38 @@ const buttonRef = ref(null)
 const open = ref(false)
 
 const modalPosition = computed(() => {
-  if (!buttonRef.value) return {}
+  if (!buttonRef.value)
+    return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
 
   const rect = buttonRef.value.getBoundingClientRect()
   const windowHeight = window.innerHeight
   const windowWidth = window.innerWidth
 
-  const topSpace = rect.top
-  const bottomSpace = windowHeight - rect.bottom
-  const leftSpace = rect.left
-  const rightSpace = windowWidth - rect.right
-
   let top, bottom, left, right
 
-  if (bottomSpace > topSpace) {
+  if (rect.bottom + 200 <= windowHeight) {
     top = `${rect.bottom}px`
     bottom = 'auto'
-  } else {
+  } else if (rect.top >= 200) {
     top = 'auto'
     bottom = `${windowHeight - rect.top}px`
+  } else {
+    top = '50%'
+    transform = 'translateY(-50%)'
   }
 
-  if (rightSpace > leftSpace) {
+  if (rect.left + 300 <= windowWidth) {
     left = `${rect.left}px`
     right = 'auto'
-  } else {
+  } else if (rect.right >= 300) {
     left = 'auto'
     right = `${windowWidth - rect.right}px`
+  } else {
+    left = '50%'
+    transform = 'translateX(-50%)'
   }
 
-  // Ensure the menu doesn't overflow the viewport
-  const menuHeight = 200 // Example height; adjust as needed
-  const menuWidth = 300 // Example width; adjust as needed
-
-  if (bottomSpace < menuHeight && topSpace < menuHeight) {
-    top = '10px' // Give it a small margin from the top
-    bottom = 'auto'
-  }
-
-  if (rightSpace < menuWidth && leftSpace < menuWidth) {
-    left = '10px' // Give it a small margin from the left
-    right = 'auto'
-  }
-
-  return { top, bottom, left, right }
+  return { top, bottom, left, right, position: 'absolute' }
 })
 
 const toggleMenu = () => {
@@ -101,17 +90,17 @@ const changeTheme = (theme) => {
 }
 
 const closeMenu = (e) => {
-  if (buttonRef.value && !buttonRef.value.contains(e.target)) {
+  if (!buttonRef.value.contains(e.target)) {
     open.value = false
   }
 }
 
 onMounted(() => {
   themeStore.initTheme()
-  window.addEventListener('click', closeMenu)
+  document.addEventListener('click', closeMenu)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('click', closeMenu)
+  document.removeEventListener('click', closeMenu)
 })
 </script>

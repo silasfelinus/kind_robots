@@ -1,88 +1,90 @@
 <template>
-  <div
-    class="flex flex-col items-center p-4 rounded-2xl shadow-lg transition-all duration-300 w-full max-w-md mx-auto"
-  >
-    <!-- Loading State -->
-    <div v-if="store.loading" class="text-center text-info">
-      <icon name="tabler:loader" class="animate-spin text-lg mb-2" />
-      <div>Loading, please wait...</div>
-    </div>
-    <!-- Login Form -->
-    <form
-      v-if="!store.isLoggedIn"
-      class="space-y-4 w-full"
-      :autocomplete="store.stayLoggedIn ? 'on' : 'off'"
-      @submit.prevent="handleLogin"
+  <div class="login-form-container" @click.self="closeForm">
+    <div
+      class="login-form p-4 rounded-2xl shadow-lg transition-all duration-300 w-full max-w-md"
     >
-      <div class="mb-2 relative group">
-        <label for="login" class="block text-sm z-50 mb-1">Login:</label>
-        <input
-          id="login"
-          v-model="login"
-          type="text"
-          autocomplete="username"
-          class="w-full p-2 border rounded"
-          required
-        />
-        <div
-          class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
-        >
-          Login
-        </div>
+      <!-- Loading State -->
+      <div v-if="store.loading" class="text-center text-info">
+        <icon name="tabler:loader" class="animate-spin text-lg mb-2" />
+        <div>Loading, please wait...</div>
       </div>
-      <div class="mb-2 relative group">
-        <label for="password" class="block z-50 text-sm mb-1"
-          >Password (optional):</label
-        >
-        <input
-          id="password"
-          v-model="password"
-          type="password"
-          autocomplete="current-password"
-          class="w-full p-2 border rounded"
-        />
-        <div
-          class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
-        >
-          Password (optional)
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <div>
+      <!-- Login Form -->
+      <form
+        v-if="!store.isLoggedIn"
+        class="space-y-4 w-full"
+        :autocomplete="store.stayLoggedIn ? 'on' : 'off'"
+        @submit.prevent="handleLogin"
+      >
+        <div class="mb-2 relative group">
+          <label for="login" class="block text-sm z-50 mb-1">Login:</label>
           <input
-            id="stayLoggedIn"
-            v-model="store.stayLoggedIn"
-            type="checkbox"
-            class="mr-2"
+            id="login"
+            v-model="login"
+            type="text"
+            autocomplete="username"
+            class="w-full p-2 border rounded"
+            required
           />
-          <label for="stayLoggedIn" class="text-sm">Stay Logged in</label>
+          <div
+            class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
+          >
+            Login
+          </div>
         </div>
-        <button type="submit" class="bg-info text-default py-1 px-3 rounded">
-          Login
-        </button>
-      </div>
-      <div class="text-center mt-2">
-        <NuxtLink to="/register" class="text-accent underline"
-          >Register</NuxtLink
-        >
-      </div>
-    </form>
+        <div class="mb-2 relative group">
+          <label for="password" class="block z-50 text-sm mb-1"
+            >Password (optional):</label
+          >
+          <input
+            id="password"
+            v-model="password"
+            type="password"
+            autocomplete="current-password"
+            class="w-full p-2 border rounded"
+          />
+          <div
+            class="absolute right-2 bottom-2 text-xs text-gray-500 group-hover:float-tooltip"
+          >
+            Password (optional)
+          </div>
+        </div>
 
-    <!-- Error Message -->
-    <div v-if="errorMessage" class="text-warning mt-2 w-full text-center">
-      {{ errorMessage }}
-      <div v-if="userNotFound">
-        <div class="mt-2">
-          <button class="text-accent underline">
-            <NuxtLink to="/register" class="text-accent underline"
-              >Register</NuxtLink
-            >
+        <div class="flex items-center justify-between">
+          <div>
+            <input
+              id="stayLoggedIn"
+              v-model="store.stayLoggedIn"
+              type="checkbox"
+              class="mr-2"
+            />
+            <label for="stayLoggedIn" class="text-sm">Stay Logged in</label>
+          </div>
+          <button type="submit" class="bg-info text-default py-1 px-3 rounded">
+            Login
           </button>
-          or
-          <button class="text-accent underline" @click="handleRetryLogin">
-            Try a different login
-          </button>
+        </div>
+        <div class="text-center mt-2">
+          <NuxtLink to="/register" class="text-accent underline"
+            >Register</NuxtLink
+          >
+        </div>
+      </form>
+
+      <!-- Error Message -->
+      <div v-if="errorMessage" class="text-warning mt-2 w-full text-center">
+        {{ errorMessage }}
+        <div v-if="userNotFound">
+          <div class="mt-2">
+            <button class="text-accent underline">
+              <NuxtLink to="/register" class="text-accent underline"
+                >Register</NuxtLink
+              >
+            </button>
+            or
+            <button class="text-accent underline" @click="handleRetryLogin">
+              Try a different login
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -99,6 +101,12 @@ const password = ref('')
 const errorStore = useErrorStore()
 const errorMessage = ref('')
 const userNotFound = ref(false)
+
+const emit = defineEmits(['close'])
+
+const closeForm = () => {
+  emit('close')
+}
 
 const handleLogin = async () => {
   console.log('handleLogin triggered')
@@ -134,6 +142,22 @@ const handleRetryLogin = () => {
 </script>
 
 <style scoped>
+.login-form-container {
+  position: absolute;
+  top: 100%; /* Positioned right below the header or button */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50; /* Ensure it's above other content */
+  width: 100%; /* Full width to cover the area but max width restricts the form size */
+  display: flex;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5); /* Optional: darkened background */
+}
+
+.login-form {
+  background-color: var(--bg-base-200);
+}
+
 .group:hover .float-tooltip {
   visibility: visible;
   opacity: 1;

@@ -134,7 +134,7 @@ export const useUserStore = defineStore({
     setUser(userData: User): void {
       this.user = userData;
       // Ensure showMature is being updated
-      this.showMatureContent = this.user.showMature;
+      this.showMatureContent = userData.showMature;
       console.log('User set. showmature is now ', this.showMatureContent, this.user)
       this.updateKarmaAndMana().catch((error) => {
         this.setError(error);

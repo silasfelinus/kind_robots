@@ -1,48 +1,9 @@
 <template>
   <div
-    class="relative select-none overflow-x-hidden overflow-y-auto p-1 border rounded-2xl bg-base-200"
+    class="relative select-none overflow-x-scroll overflow-y-auto p-1 border rounded-2xl bg-base-200"
   >
-    <!-- Navigation Arrows -->
-    <div
-      class="absolute left-4 top-1/2 -translate-y-1/2 z-30 cursor-pointer"
-      @click="scrollLeft"
-    >
-      <!-- Left Arrow SVG -->
-      <svg
-        fill="currentColor"
-        viewBox="0 0 20 20"
-        class="h-8 w-8 text-gray-600 hover:text-gray-800"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 111.414 1.414L5.414 10l3.293 3.293a1 1 0 010 1.414z"
-          clip-rule="evenodd"
-        />
-      </svg>
-    </div>
-    <div
-      class="absolute right-4 top-1/2 -translate-y-1/2 z-30 cursor-pointer"
-      @click="scrollRight"
-    >
-      <!-- Right Arrow SVG -->
-      <svg
-        fill="currentColor"
-        viewBox="0 0 20 20"
-        class="h-8 w-8 text-gray-600 hover:text-gray-800"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 10l-3.293-3.293a1 1 0 010-1.414z"
-          clip-rule="evenodd"
-        />
-      </svg>
-    </div>
-
     <!-- Centering Container -->
-    <div
-      ref="scrollContainer"
-      class="mx-auto w-full overflow-x-auto scroll-container"
-    >
+    <div ref="scrollContainer" class="mx-auto w-full overflow-x-scroll">
       <!-- Bot Scroll Container -->
       <div class="flex space-x-4 px-2">
         <div
@@ -110,7 +71,6 @@ onMounted(() => {
 <style>
 .scroll-container {
   display: flex;
-  overflow-x: auto;
   scroll-snap-type: x mandatory;
   cursor: grab; /* Cursor indicates draggable area */
 }

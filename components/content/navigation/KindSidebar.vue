@@ -8,7 +8,7 @@
     </button>
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`sidebar flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-scroll m-1 p-1 border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-24'}`"
+      :class="`sidebar flex-col flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-scroll m-1 p-1 border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-24'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -117,9 +117,7 @@
           >Mature Content</router-link
         >
       </div>
-      <smart-links
-        class="text-center flex-grow justify text-xl w-6 h-6 md:w-16 md:h-16"
-      />
+      <smart-links class="text-center flex-grow justify text-xl" />
     </aside>
   </div>
 </template>

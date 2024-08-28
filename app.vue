@@ -216,15 +216,20 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100vh; /* Use vh to fill the screen vertically */
-  overflow: hidden; /* Prevents any spillover from internal elements */
-}
-.main-content {
-  flex-grow: 1;
-  overflow-y: auto; /* Enables scrolling for main content */
+  overflow: hidden; /* Prevents spillover from internal elements */
 }
 
 .header-upgrade {
   flex-shrink: 0; /* Ensures the header does not shrink */
+  min-height: 50px; /* Minimum height; adjust as needed */
+}
+
+/* Using CSS variable to dynamically adjust the height */
+.flex-grow {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - var(--header-height)); /* Dynamically calculated based on header height */
+  overflow: hidden; /* Containing internal overflows */
 }
 
 .sidebar {
@@ -233,12 +238,9 @@ onMounted(async () => {
   overflow-y: auto; /* Allows scrolling within the sidebar */
 }
 
-/* Flex-grow on main ensures it takes up remaining space */
-.flex-grow {
-  display: flex;
-  flex-direction: row;
-  height: calc(100% - 50px); /* Adjust based on your header's height */
-  overflow: hidden; /* Containing internal overflows */
+.main-content {
+  flex-grow: 1;
+  overflow-y: auto; /* Enables scrolling for main content */
 }
 
 @media (max-width: 768px) {
@@ -248,7 +250,6 @@ onMounted(async () => {
   }
 }
 
-/* Further responsiveness for smaller devices */
 @media (max-width: 480px) {
   .sidebar {
     min-width: 120px;

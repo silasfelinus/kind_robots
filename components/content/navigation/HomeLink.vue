@@ -4,7 +4,7 @@
     <NuxtLink
       v-if="!isHomePage"
       to="/"
-      class="flex items-center justify-center rounded-2xl text-center hover:scale-110 hover:glow-animation"
+      class="md:w-16 md:h-16 flex items-center justify-center rounded-2xl text-center hover:scale-110 hover:glow-animation"
     >
       <icon name="line-md:home-md-twotone" class="icon-effect" />
     </NuxtLink>

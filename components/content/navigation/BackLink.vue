@@ -1,13 +1,21 @@
 <template>
-  <div>
-    <!-- Back arrow icon -->
-    <div class="mr-4" @click="goBack">
-      <icon
-        :name="'typcn:arrow-back-outline'"
-        :title="'Back'"
-        class="icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
-      />
-    </div>
+  <div
+    :class="[
+      'flex',
+      'items-center',
+      'justify-center',
+      'rounded-2xl',
+      'text-center',
+      'hover:scale-110',
+      'hover:glow-animation',
+    ]"
+    @click="goBack"
+  >
+    <icon
+      :name="'typcn:arrow-back-outline'"
+      :title="'Back'"
+      class="icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+    />
   </div>
 </template>
 

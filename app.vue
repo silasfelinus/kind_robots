@@ -1,7 +1,7 @@
 <template>
   <div class="main-container bg-primary">
     <!-- Header with embedded toggle button -->
-    <header-upgrade> </header-upgrade>
+    <header-upgrade />
 
     <div class="flex-grow">
       <kind-sidebar />

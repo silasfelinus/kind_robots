@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center">
+  <div class="relative flex items-center">
     <!-- Button column -->
     <div class="ml-4">
       <div v-if="isLoggedIn">
@@ -13,14 +13,17 @@
       <div v-else>
         <button
           class="bg-primary p-2 rounded-lg text-white text-lg"
-          @click="showLogin = true"
+          @click="toggleLogin"
         >
           Login
         </button>
       </div>
     </div>
+    <!-- Login Form -->
+    <transition name="fade">
+      <login-form v-if="showLogin" @close="showLogin = false" />
+    </transition>
   </div>
-  <login-form v-if="showLogin" @close="showLogin = false" />
 </template>
 
 <script lang="ts" setup>
@@ -37,11 +40,9 @@ const showLogin = ref(false)
 
 const username = computed(() => user.value?.username || 'Kind Guest')
 
-watch(isLoggedIn, (newValue) => {
-  if (newValue) {
-    showLogin.value = false
-  }
-})
+const toggleLogin = () => {
+  showLogin.value = !showLogin.value
+}
 
 const logout = async () => {
   try {

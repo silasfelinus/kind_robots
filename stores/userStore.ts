@@ -13,7 +13,7 @@ interface UserState {
   highMatchScores: []
   stayLoggedIn: boolean
   milestones: number[]
-  showMature: boolean
+  showMatureContent: boolean
 }
 
 export interface ApiResponse {
@@ -39,14 +39,14 @@ export const useUserStore = defineStore({
     highMatchScores: [],
     stayLoggedIn: true,
     milestones: [],
-    showMature: false
+    showMatureContent: false
   }),
   getters: {
     karma(state): number {
       return state.user ? state.user.karma : 1000
     },
     showMature(state): boolean {
-      return state.user ? state.user.showMature : false
+      return state.showMatureContent; // Updated getter to reflect the renamed state property
     },
     mana(state): number {
       const manaValue = state.user?.mana || state.milestones.length
@@ -134,8 +134,8 @@ export const useUserStore = defineStore({
     setUser(userData: User): void {
       this.user = userData;
       // Ensure showMature is being updated
-      this.showMature = userData.showMature;
-      console.log('User set. show  mature is now ', this.showMature)
+      this.showMatureContent = userData.showMature;
+      console.log('User set. show  mature is now ', this.showMatureContent)
       this.updateKarmaAndMana().catch((error) => {
         this.setError(error);
       });

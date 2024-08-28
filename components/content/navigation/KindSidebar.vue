@@ -129,7 +129,7 @@ import HotLink from './../navigation/HotLink.vue'
 import DashboardLink from './../navigation/DashboardLink.vue'
 
 const userStore = useUserStore()
-const showMature = computed(() => userStore.showMature)
+const showMature = computed(() => userStore.showMatureContent)
 
 const isSidebarOpen = ref(true)
 

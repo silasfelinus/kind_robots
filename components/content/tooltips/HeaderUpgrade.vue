@@ -2,8 +2,8 @@
   <div class="relative">
     <header
       ref="headerRef"
-      class="flex items-center justify-between px-2 py-1"
-      :class="toggleSidebar ? 'flex-col' : ''"
+      class="bg-base-200 p-2 m-1 border relative flex items-center w-screen justify-between rounded-2xl"
+      :class="toggleSidebar ? 'flex-col' : 'flex-row'"
     >
       <div
         v-show="!toggleSidebar"
@@ -16,7 +16,7 @@
         <avatar-image alt="User Avatar" />
         <div class="flex flex-col">
           <room-title class="flex text-sm font-semibold p-1" />
-          <h2 class="text-xs text-gray-500 italic">{{ pageSubtitle }}</h2>
+          <h2 class="text-xs text-gray-500 italic">{{ page.subtitle }}</h2>
         </div>
         <div class="flex space-x-1">
           <smart-links />
@@ -43,13 +43,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useContentStore } from './../../../stores/contentStore'
+import { ref, onMounted, onUnmounted } from 'vue'
 
-const contentStore = useContentStore()
-const pageSubtitle = computed(
-  () => contentStore.page?.subtitle || 'the kindest',
-)
+const { page } = useContent()
 const showNav = ref(false)
 const toggleSidebar = ref(true)
 

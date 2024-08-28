@@ -116,6 +116,20 @@
             >Dashboard</router-link
           >
         </div>
+        <div
+          v-if="userStore.showMature"
+          class="p-4 flex items-center justify-start"
+          title="Mature Content"
+          @click="toggleSidebar"
+        >
+          <icon name="eye" class="text-xl" />
+          <router-link
+            v-show="isSidebarOpen"
+            to="/mature-content"
+            class="ml-2 text-lg font-semibold"
+            >Mature Content</router-link
+          >
+        </div>
       </aside>
 
       <!-- Main Content -->
@@ -162,8 +176,6 @@ const isSidebarOpen = ref(true)
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
 }
-
-const canSeeMatureContent = computed(() => userStore.showMature)
 
 useHead({
   title: 'Kind Robots',

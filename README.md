@@ -155,16 +155,16 @@ ResourceType: [CHECKPOINT, EMBEDDING, LORA, LYCORIS, HYPERNETWORK, CONTROLNET, U
 
 [TODOS]
 
-Fix database corruption errors in prisma
-milestone records are no longer in proper datetime format
-add navigation button accessible in mobile
-clean up / rebuild home page on mobile
-art datetime corruption fixed/removed
+**DONE** Fix database corruption errors in prisma
+**DONE** milestone records are no longer in proper datetime format
+**DONE** add navigation button accessible in mobile
+**DONE** clean up / rebuild home page on mobile
+**DONE** art datetime corruption fixed/removed
 easier to see loading icon
 art modeller doesn't generate
 fix workshop directory searching by letter instead of full name
-LINT DIRECTORY NOT FOUND
-lint errors fixed
+**DONE** LINT DIRECTORY NOT FOUND
+**DONE** lint errors fixed
 brainstorm not loading second brainstorm
 
 [Commands]

@@ -1,15 +1,5 @@
 <template>
   <div class="flex space-x-6">
-    <!-- Always show Galaxy Link -->
-    <NuxtLink
-      :to="randomHighlightPage._path"
-      class="flex flex-col items-center justify-center rounded-2xl bg-base-200 text-center hover:scale-110 hover:glow-animation"
-    >
-      <div class="flex items-center space-x-2 flex-grow">
-        <icon name="game-icons:galaxy" class="icon-effect" />
-      </div>
-    </NuxtLink>
-
     <!-- Show Home icon only if NOT home -->
     <NuxtLink
       v-if="!isHomePage"
@@ -31,13 +21,6 @@ const isHomePage = computed(() => {
     ? contentStore.currentPage._path === '/' ||
         contentStore.currentPage._path === '/'
     : false
-})
-
-const randomHighlightPage = computed(() => {
-  const highlightPages = contentStore.highlightPages
-  return highlightPages.length > 0
-    ? highlightPages[Math.floor(Math.random() * highlightPages.length)]
-    : {}
 })
 </script>
 

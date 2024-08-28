@@ -1,16 +1,11 @@
 <template>
-  <div class="flex flex-col w-screen h-auto bg-primary">
+  <div class="main-container bg-primary">
     <!-- Header with embedded toggle button -->
     <header-upgrade>
-      <button
-        class="relative z-50 p-2 text-left text-accent top-2 left-2"
-        title="Toggle Sidebar"
-        @click="toggleSidebar"
-      >
+      <button class="header-button" @click="toggleSidebar">
         <icon
           :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
-          class="text-xl"
-          style="font-size: 24px"
+          class="icon-size"
         ></icon>
       </button>
     </header-upgrade>
@@ -19,7 +14,7 @@
     <div class="flex flex-grow">
       <!-- Collapsible Sidebar -->
       <aside
-        :class="`flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-auto border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-24'}`"
+        :class="`sidebar flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-auto border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-24'}`"
         :aria-hidden="isSidebarOpen ? 'false' : 'true'"
       >
         <!-- Sidebar Links with Icons and Titles -->
@@ -216,3 +211,32 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style>
+/* Adding responsive constraints to the main container */
+.main-container {
+  max-width: 100vw; /* Ensures that the main container does not exceed the viewport width */
+  overflow-x: hidden; /* Prevents horizontal scrolling */
+}
+
+/* Responsive adjustments for the sidebar */
+.sidebar {
+  min-width: 200px;
+  max-width: 300px; /* Adjust these values based on your design needs */
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    min-width: 150px;
+    max-width: 200px;
+  }
+}
+
+/* Further responsiveness for smaller devices */
+@media (max-width: 480px) {
+  .sidebar {
+    min-width: 120px;
+    width: 100%; /* Sidebar takes full width on very small devices */
+  }
+}
+</style>

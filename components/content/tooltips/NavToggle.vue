@@ -3,7 +3,10 @@
     class="p-1 bg-base-200 m-1 flex items-center justify-center"
     @click="toggleNav"
   >
-    <icon name="gis:map-favorite" class="text-lg text-accent" />
+    <icon
+      name="gis:map-favorite"
+      class="icon-effect w-16 h-16 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+    />
   </button>
 </template>
 

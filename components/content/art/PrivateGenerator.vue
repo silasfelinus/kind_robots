@@ -26,3 +26,5 @@ const showMature = computed(() => userStore.showMature)
 // The URL of the website to display
 const siteUrl = 'https://lola.acrocatranch.com'
 </script>
+
+<style scoped></style>

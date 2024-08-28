@@ -1,7 +1,7 @@
 <template>
   <div class="theme-selector flex flex-col items-center">
     <div
-      class="flex flex-row items-center justify-center m-1 space-x-2 w-full z-50"
+      class="flex flex-row items-center justify-center rounded-2xl border accent m-1 space-x-2 w-full z-50"
     >
       <button
         ref="buttonRef"

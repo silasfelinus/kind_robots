@@ -2,7 +2,7 @@
   <div class="text-center">
     <h1
       v-if="page && page.title"
-      class="text-2xl inline-block rounded-2xl border m-0 shadow-lg"
+      class="text-2xl inline-block rounded-2xl p-1 border m-0 bg-secondary shadow-lg"
     >
       The {{ page.title }} Room
     </h1>

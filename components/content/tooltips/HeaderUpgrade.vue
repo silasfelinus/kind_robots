@@ -1,9 +1,6 @@
 <template>
   <div class="relative">
-    <header
-      class="flex items-center justify-between"
-      :class="toggleSidebar ? 'flex-col' : 'flex-row'"
-    >
+    <header class="flex items-center justify-between flex-row">
       <div
         class="flex items-center space-x-1 flex-grow rounded-2xl w-full h-auto border p-1 m-1 bg-base-200"
       >
@@ -15,9 +12,9 @@
           </h2>
         </div>
         <div class="flex flex-grow">
-          <butterfly-toggle v-show="toggleSidebar" class="flex-grow" />
-          <theme-toggle v-show="toggleSidebar" class="flex-grow" />
-          <login-button v-show="toggleSidebar" class="flex-grow" />
+          <butterfly-toggle class="flex-grow" />
+          <theme-toggle class="flex-grow" />
+          <login-button class="flex-grow" />
           <nav-toggle class="flex-grow" @click="toggleNav" />
         </div>
       </div>
@@ -35,7 +32,6 @@ import { ref } from 'vue'
 
 const { page } = useContent()
 const showNav = ref(false)
-const toggleSidebar = ref(true)
 
 const toggleNav = () => {
   showNav.value = !showNav.value

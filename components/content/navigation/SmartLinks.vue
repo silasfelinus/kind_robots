@@ -1,53 +1,26 @@
 <template>
-  <div class="flex items-center relative">
-    <!-- Links Container -->
-    <div class="flex items-center justify-center w-full">
-      <!-- Previous Link -->
-      <NuxtLink
-        v-if="prev"
-        :to="prev._path"
-        class="group nav-icon flex flex-col items-center justify-center"
-      >
-        <icon name="typcn:arrow-back-outline" class="hover:scale-125" />
-        <div class="nav-text absolute group-hover:show-text">
-          {{ prev.title }}
-        </div>
-      </NuxtLink>
-      <!-- Random Link -->
-      <NuxtLink
-        :to="randomHighlightPage._path"
-        class="group nav-icon flex flex-col items-center justify-center"
-      >
-        <icon name="game-icons:galaxy" class="hover:scale-125" />
-        <div class="nav-text absolute group-hover:show-text">
-          {{ randomLinkText }}
-        </div>
-      </NuxtLink>
-      <!-- Home Link -->
-      <NuxtLink
-        v-if="!isHomePage"
-        to="/"
-        class="group nav-icon flex flex-col items-center justify-center"
-      >
-        <icon name="line-md:home-md-twotone" class="hover:scale-125" />
-        <div class="nav-text absolute group-hover:show-text">
-          {{ homeLinkText }}
-        </div>
-      </NuxtLink>
-      <!-- Next Link -->
-      <NuxtLink
-        v-if="next"
-        :to="next._path"
-        class="group nav-icon flex flex-col items-center justify-center"
-      >
-        <icon name="typcn:arrow-forward-outline" class="hover:scale-125" />
-        <div class="nav-text absolute group-hover:show-text">
-          {{ next.title }}
-        </div>
-      </NuxtLink>
-    </div>
+  <div class="smart-links-container flex justify-between items-center w-full">
+    <!-- Navigation Links with Icons and Labels -->
+    <NuxtLink v-if="prev" :to="prev._path" class="nav-link">
+      <icon name="typcn:arrow-back-outline" class="hover:scale-125" />
+      <span class="nav-text">{{ prev.title }}</span>
+    </NuxtLink>
+    <!-- Other Links... -->
+    <NuxtLink :to="randomHighlightPage._path" class="nav-link">
+      <icon name="game-icons:galaxy" class="hover:scale-125" />
+      <span class="nav-text">{{ randomLinkText }}</span>
+    </NuxtLink>
+    <NuxtLink v-if="!isHomePage" to="/" class="nav-link">
+      <icon name="line-md:home-md-twotone" class="hover:scale-125" />
+      <span class="nav-text">{{ homeLinkText }}</span>
+    </NuxtLink>
+    <NuxtLink v-if="next" :to="next._path" class="nav-link">
+      <icon name="typcn:arrow-forward-outline" class="hover:scale-125" />
+      <span class="nav-text">{{ next.title }}</span>
+    </NuxtLink>
   </div>
 </template>
+
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useContentStore } from '../../../stores/contentStore'
@@ -88,19 +61,19 @@ onMounted(() => {
     homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.length)]
 })
 </script>
-
 <style scoped>
-.nav-icon {
-  @apply flex text-center transition-all ease-in-out;
-  justify-content: center;
-  align-items: center;
-  position: relative;
+.nav-link {
+  @apply flex flex-col items-center justify-center text-center transition-transform duration-300 ease-in-out hover:scale-110;
 }
 
 .nav-text {
-  @apply text-lg opacity-0 absolute bottom-full group-hover:opacity-100 transition-opacity;
-  white-space: nowrap; /* Prevents the text from wrapping */
-  left: 50%; /* Center horizontally */
-  transform: translateX(-50%); /* Adjust horizontal centering */
+  @apply text-sm md:text-base opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100;
+  position: absolute; /* Positioning the label */
+  bottom: -20px; /* Positioning below the icon */
+  white-space: nowrap;
+}
+
+.smart-links-container {
+  @apply flex w-full justify-around items-center py-2;
 }
 </style>

@@ -1,11 +1,14 @@
 <template>
   <div class="test-page">
     <h1>Show Mature Settings Test Page</h1>
-    <p><strong>showMatureContent (from state):</strong> {{ showMature }}</p>
     <p>
-      <strong>showMature (from user object):</strong> {{ user?.showMature }}
+      <strong>showMatureContent (from state):</strong> {{ showMature || false }}
     </p>
-    <p><strong>show user object:</strong> {{ user }}</p>
+    <p>
+      <strong>showMature (from user object):</strong>
+      {{ user?.showMature || false }}
+    </p>
+    <p><strong>show user object:</strong> {{ user.value }}</p>
     <button @click="refreshUserSettings">Refresh Settings</button>
   </div>
 </template>
@@ -17,7 +20,7 @@ import { useUserStore } from './../../../stores/userStore'
 const userStore = useUserStore()
 const user = computed(() => userStore.user || null)
 
-const showMature = computed(() => userStore.showMatureContent || false)
+const showMature = computed(() => userStore.showMature() || false)
 
 function refreshUserSettings() {
   userStore

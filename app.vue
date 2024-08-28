@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-primary">
+  <div class="flex flex-col w-screen h-auto bg-primary">
     <!-- Header with embedded toggle button -->
     <header-upgrade>
       <button

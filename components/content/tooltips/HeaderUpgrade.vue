@@ -1,48 +1,42 @@
 <template>
-  <div class="relative">
-    <header
-      ref="headerRef"
-      class="bg-base-200 p-2 m-1 border relative flex items-center w-screen justify-between rounded-2xl"
-      :class="toggleSidebar ? 'flex-col' : 'flex-row'"
-    >
-      <div
-        v-show="!toggleSidebar"
-        class="flex items-center space-x-2 flex-grow"
-      >
-        <avatar-image alt="User Avatar" />
-        <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
+  <header
+    class="bg-base-200 p-2 m-1 border flex items-center w-screen justify-between rounded-2xl"
+    :class="toggleSidebar ? 'flex-col' : 'flex-row'"
+  >
+    <div v-show="!toggleSidebar" class="flex items-center space-x-2 flex-grow">
+      <avatar-image alt="User Avatar" />
+      <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
+    </div>
+    <div v-show="toggleSidebar" class="flex items-center space-x-2 flex-grow">
+      <avatar-image alt="User Avatar" />
+      <div class="flex flex-col">
+        <room-title class="flex text-sm font-semibold p-1" />
+        <h2 class="text-xs text-gray-500 italic">{{ page.subtitle }}</h2>
       </div>
-      <div v-show="toggleSidebar" class="flex items-center space-x-2 flex-grow">
-        <avatar-image alt="User Avatar" />
-        <div class="flex flex-col">
-          <room-title class="flex text-sm font-semibold p-1" />
-          <h2 class="text-xs text-gray-500 italic">{{ page.subtitle }}</h2>
-        </div>
-        <div class="flex space-x-1">
-          <back-link />
-          <random-link />
-          <home-link />
-          <forward-link />
-          <butterfly-toggle />
-          <theme-toggle />
-          <login-button />
-          <nav-toggle @click="toggleNav" />
-          <jellybean-count />
-        </div>
+      <div class="flex space-x-1">
+        <back-link />
+        <random-link />
+        <home-link />
+        <forward-link />
+        <butterfly-toggle />
+        <theme-toggle />
+        <login-button />
+        <nav-toggle @click="toggleNav" />
+        <jellybean-count />
       </div>
-      <button class="ml-auto absolute" @click="toggleSidebarFunction">
-        <icon
-          :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
-          class="text-lg text-accent"
-        />
-      </button>
-    </header>
-    <navigation-trimmed
-      v-if="showNav"
-      class="absolute bottom-0 w-full bg-secondary shadow-lg transition-transform duration-300"
-      :class="showNav ? 'translate-y-0' : 'translate-y-full'"
-    />
-  </div>
+    </div>
+    <button class="ml-auto z-50" @click="toggleSidebarFunction">
+      <icon
+        :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
+        class="text-lg text-accent"
+      />
+    </button>
+  </header>
+  <navigation-trimmed
+    v-if="showNav"
+    class="absolute bottom-0 w-full bg-secondary shadow-lg transition-transform duration-300"
+    :class="showNav ? 'translate-y-0' : 'translate-y-full'"
+  />
 </template>
 
 <script lang="ts" setup>

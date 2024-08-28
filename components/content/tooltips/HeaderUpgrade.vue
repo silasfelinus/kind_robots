@@ -1,11 +1,11 @@
 <template>
   <div class="relative">
     <header
-      class="bg-base-200 flex items-center justify-between"
+      class="flex items-center justify-between"
       :class="toggleSidebar ? 'flex-col' : 'flex-row'"
     >
       <div
-        class="flex items-center space-x-1 flex-grow rounded-2xl w-full h-auto border p-1 m-1"
+        class="flex items-center space-x-1 flex-grow rounded-2xl w-full h-auto border p-1 m-1 bg-base-200"
       >
         <avatar-image alt="User Avatar" />
         <div class="flex flex-col">
@@ -16,14 +16,18 @@
         </div>
         <div class="flex flex-grow">
           <!-- Each link and button now has flex-grow to evenly distribute space -->
-          <back-link class="flex-grow" />
-          <random-link class="flex-grow" />
-          <home-link class="flex-grow" />
-          <forward-link class="flex-grow" />
-          <butterfly-toggle class="flex-grow" />
-          <theme-toggle class="flex-grow" />
-          <login-button class="flex-grow" />
-          <nav-toggle class="flex-grow" @click="toggleNav" />
+          <back-link v-show="toggleSidebar" class="flex-grow" />
+          <random-link v-show="toggleSidebar" class="flex-grow" />
+          <home-link v-show="toggleSidebar" class="flex-grow" />
+          <forward-link v-show="toggleSidebar" class="flex-grow" />
+          <butterfly-toggle v-show="toggleSidebar" class="flex-grow" />
+          <theme-toggle v-show="toggleSidebar" class="flex-grow" />
+          <login-button v-show="toggleSidebar" class="flex-grow" />
+          <nav-toggle
+            v-show="toggleSidebar"
+            class="flex-grow"
+            @click="toggleNav"
+          />
           <button class="ml-auto z-50" @click="toggleSidebarFunction">
             <icon
               :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"

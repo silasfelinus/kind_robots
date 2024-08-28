@@ -1,9 +1,7 @@
 <template>
   <div class="flex flex-col h-screen bg-primary">
     <!-- Header with embedded toggle button -->
-    <header-upgrade
-      class="w-full bg-base-200 rounded-xl p-2 m-2 border relative z-50"
-    >
+    <header-upgrade>
       <button
         class="absolute p-2 text-left text-accent top-2 left-2"
         title="Toggle Sidebar"

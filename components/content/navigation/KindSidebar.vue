@@ -1,9 +1,9 @@
 <template>
   <div class="relative">
-    <button class="absolute -top-6 left-3 z-50" @click="toggleSidebar">
+    <button class="absolute top-6 left-3 z-50" @click="toggleSidebar">
       <icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
-        class="h-6 w-6"
+        class="h-6 w-6 text-gray-500"
       ></icon>
     </button>
     <!-- Collapsible Sidebar -->

@@ -17,7 +17,7 @@
     >
       <icon
         name="line-md:home-md-twotone"
-        class="icon-effect w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
+        class="icon-effect w-16 h-16 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
       />
     </NuxtLink>
   </div>

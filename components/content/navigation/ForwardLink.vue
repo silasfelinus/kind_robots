@@ -43,7 +43,7 @@ onUnmounted(() => {
 
 <style scoped>
 .icon-effect {
-  @apply w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow;
+  @apply cursor-pointer transition-shadow;
 }
 
 /* Glow animation */

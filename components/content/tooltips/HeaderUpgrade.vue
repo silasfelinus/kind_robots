@@ -9,19 +9,19 @@
         v-show="!toggleSidebar"
         class="flex items-center space-x-2 flex-grow"
       >
-        <avatar-image class="h-8 w-8" alt="User Avatar" />
+        <avatar-image alt="User Avatar" />
         <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
       </div>
       <div v-show="toggleSidebar" class="flex items-center space-x-2 flex-grow">
-        <avatar-image class="h-16 w-16" alt="User Avatar" />
+        <avatar-image alt="User Avatar" />
         <div class="flex flex-col">
           <room-title class="flex text-sm font-semibold p-1" />
           <h2 class="text-xs text-gray-500 italic">{{ pageSubtitle }}</h2>
         </div>
         <div class="flex space-x-1">
           <smart-links />
-          <butterfly-toggle class="hidden sm:flex" />
-          <theme-toggle class="hidden sm:flex" />
+          <butterfly-toggle />
+          <theme-toggle />
           <login-button />
           <nav-toggle class="text-lg" @click="toggleNav" />
           <jellybean-count />

@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <button class="absolute top-6 left-3 z-50" @click="toggleSidebar">
+    <button class="absolute top-3 left-3 z-50" @click="toggleSidebar">
       <icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
         class="h-6 w-6 text-gray-500"
@@ -8,7 +8,7 @@
     </button>
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`sidebar flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-auto m-1 p-1 border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-24'}`"
+      :class="`sidebar flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-scroll m-1 p-1 border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-24'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
       <!-- Sidebar Links with Icons and Titles -->

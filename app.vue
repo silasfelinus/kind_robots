@@ -28,7 +28,7 @@
           title="Home"
           @click="toggleSidebar"
         >
-          <home-link class="text-xl" />
+          <home-link class="text-xl w-6 h-6 md:w-16 md:h-16" />
           <router-link
             v-show="isSidebarOpen"
             to="/home"
@@ -115,12 +115,12 @@
           >
         </div>
         <div
-          v-if="showMature"
+          v-if="userStore.showMature"
           class="p-4 flex items-center justify-start"
           title="Mature Content"
           @click="toggleSidebar"
         >
-          <icon name="fxemoji:lips" class="text-xl" />
+          <icon name="fxemoji:lips" class="text-xl w-6 h-6 md:w-16 md:h-16" />
           <router-link
             v-show="isSidebarOpen"
             to="/mature"
@@ -139,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useErrorStore } from '@/stores/errorStore'
 import { useTagStore } from '@/stores/tagStore'
@@ -174,7 +174,6 @@ const isSidebarOpen = ref(true)
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
 }
-const showMature = computed(() => userStore.user?.showMature || false)
 
 useHead({
   title: 'Kind Robots',

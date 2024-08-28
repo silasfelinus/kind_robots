@@ -122,10 +122,10 @@
           title="Mature Content"
           @click="toggleSidebar"
         >
-          <icon name="eye" class="text-xl" />
+          <icon name="fxemoji:lips" class="text-xl" />
           <router-link
             v-show="isSidebarOpen"
-            to="/mature-content"
+            to="/mature"
             class="ml-2 text-lg font-semibold"
             >Mature Content</router-link
           >

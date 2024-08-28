@@ -443,6 +443,7 @@ model User {
   Slogan              Slogan[]
   Todo                Todo[]
   milestones  MilestoneRecord[]
+  showMature          Boolean @default(false)
 }
 
 model ArtReactionToTag {

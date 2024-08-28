@@ -117,6 +117,7 @@
           >Mature Content</router-link
         >
       </div>
+      <smart-links />
     </aside>
   </div>
 </template>

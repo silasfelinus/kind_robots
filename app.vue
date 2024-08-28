@@ -1,7 +1,7 @@
 <template>
-  <div class="main-container bg-primary">
+  <div class="main-container flex flex-col bg-primary h-screen">
     <!-- Header with embedded toggle button -->
-    <header-upgrade>
+    <header-upgrade class="rounded-2xl border p-1 m-1">
       <button class="header-button" @click="toggleSidebar">
         <icon
           :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
@@ -14,7 +14,7 @@
     <div class="flex flex-grow">
       <!-- Collapsible Sidebar -->
       <aside
-        :class="`sidebar flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-auto border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-24'}`"
+        :class="`sidebar flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-auto m-1 p-1 border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-24'}`"
         :aria-hidden="isSidebarOpen ? 'false' : 'true'"
       >
         <!-- Sidebar Links with Icons and Titles -->
@@ -126,7 +126,7 @@
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-grow overflow-y-auto m-2">
+      <main class="main-content flex-grow overflow-y-auto rounded-2xl p-1 m-1">
         <NuxtPage />
       </main>
     </div>

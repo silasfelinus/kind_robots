@@ -35,7 +35,7 @@
             v-show="isSidebarOpen"
             to="/home"
             class="ml-2 text-lg font-semibold"
-            >Home/Navigation</router-link
+            >Home</router-link
           >
         </div>
         <div
@@ -177,6 +177,7 @@ function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
 }
 const showMature = computed(() => userStore.showMature)
+
 useHead({
   title: 'Kind Robots',
   meta: [

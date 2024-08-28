@@ -1,28 +1,28 @@
 <template>
-  <div class="relative">
-    <header class="flex items-center justify-between flex-row">
-      <div
-        class="flex items-center space-x-1 flex-grow rounded-2xl w-full h-auto border p-1 m-1 bg-base-200"
-      >
-        <avatar-image alt="User Avatar" />
-        <div class="flex flex-col">
+  <div class="relative w-full" style="height: 12vw; max-height: 12vh">
+    <header
+      class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full h-full"
+    >
+      <div class="flex items-center space-x-1">
+        <avatar-image alt="User Avatar" class="h-full aspect-square m-1" />
+        <div class="flex flex-col justify-between" style="max-width: 20vw">
           <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
           <h2 class="text-md text-accent italic text-center">
-            {{ page.subtitle }}
+            {{ page.subtitle || 'Welcome to Kind Robots' }}
           </h2>
         </div>
-        <div class="flex flex-grow">
-          <butterfly-toggle class="flex-grow" />
-          <theme-toggle class="flex-grow" />
-          <login-button />
-          <nav-toggle class="flex-grow" @click="toggleNav" />
-        </div>
+      </div>
+      <div class="flex items-center justify-end space-x-1" style="flex-grow: 1">
+        <theme-toggle class="flex-1" style="max-width: 29vw" />
+        <login-button class="flex-1" style="max-width: 29vw" />
+        <butterfly-toggle class="w-1/6" style="max-width: 5vw" />
+        <nav-toggle class="w-1/6" style="max-width: 5vw" @click="toggleNav" />
       </div>
     </header>
     <navigation-trimmed
       v-if="showNav"
-      class="absolute bottom-0 w-full bg-secondary shadow-lg transition-transform duration-300"
-      :class="showNav ? 'translate-y-0' : 'translate-y-full'"
+      class="absolute bottom-0 left-0 w-full bg-secondary shadow-lg transition-transform duration-300"
+      :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
     />
   </div>
 </template>

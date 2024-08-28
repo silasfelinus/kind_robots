@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container flex flex-col bg-primary h-screen">
+  <div class="main-container bg-primary">
     <!-- Header with embedded toggle button -->
     <header-upgrade class="rounded-2xl border p-1 m-1">
       <button class="absolute bottom-0 right-3 z-50" @click="toggleSidebar">
@@ -10,8 +10,7 @@
       </button>
     </header-upgrade>
 
-    <!-- Main Container for Sidebar and Content -->
-    <div class="flex flex-grow">
+    <div class="flex-grow">
       <!-- Collapsible Sidebar -->
       <aside
         :class="`sidebar flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-auto m-1 p-1 border rounded-2xl bg-secondary ${isSidebarOpen ? 'w-64' : 'w-24'}`"
@@ -126,7 +125,7 @@
       </aside>
 
       <!-- Main Content -->
-      <main class="main-content flex-grow overflow-y-auto rounded-2xl p-1 m-1">
+      <main class="main-content rounded-2xl p-1 m-1">
         <NuxtPage />
       </main>
     </div>
@@ -213,15 +212,33 @@ onMounted(async () => {
 </script>
 
 <style>
-/* Adding responsive constraints to the main container */
 .main-container {
-  max-width: 100vw; /* Ensures that the main container does not exceed the viewport width */
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Use vh to fill the screen vertically */
+  overflow: hidden; /* Prevents any spillover from internal elements */
+}
+.main-content {
+  flex-grow: 1;
+  overflow-y: auto; /* Enables scrolling for main content */
 }
 
-/* Responsive adjustments for the sidebar */
+.header-upgrade {
+  flex-shrink: 0; /* Ensures the header does not shrink */
+}
+
 .sidebar {
-  min-width: 200px;
-  max-width: 300px; /* Adjust these values based on your design needs */
+  flex-shrink: 0;
+  transition: width 0.3s ease-in-out;
+  overflow-y: auto; /* Allows scrolling within the sidebar */
+}
+
+/* Flex-grow on main ensures it takes up remaining space */
+.flex-grow {
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 50px); /* Adjust based on your header's height */
+  overflow: hidden; /* Containing internal overflows */
 }
 
 @media (max-width: 768px) {

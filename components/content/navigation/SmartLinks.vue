@@ -8,11 +8,8 @@
         :to="prev._path"
         class="group nav-icon flex flex-col items-center justify-center"
       >
-        <icon
-          name="typcn:arrow-back-outline"
-          class="w-8 h-8 md:w-20 md:h-20 hover:scale-125"
-        />
-        <div class="nav-text group-hover:show-text">
+        <icon name="typcn:arrow-back-outline" class="hover:scale-125" />
+        <div class="nav-text absolute group-hover:show-text">
           {{ prev.title }}
         </div>
       </NuxtLink>
@@ -21,11 +18,8 @@
         :to="randomHighlightPage._path"
         class="group nav-icon flex flex-col items-center justify-center"
       >
-        <icon
-          name="game-icons:galaxy"
-          class="w-8 h-8 md:w-20 md:h-20 hover:scale-125"
-        />
-        <div class="nav-text group-hover:show-text">
+        <icon name="game-icons:galaxy" class="hover:scale-125" />
+        <div class="nav-text absolute group-hover:show-text">
           {{ randomLinkText }}
         </div>
       </NuxtLink>
@@ -35,11 +29,8 @@
         to="/"
         class="group nav-icon flex flex-col items-center justify-center"
       >
-        <icon
-          name="line-md:home-md-twotone"
-          class="w-8 h-8 md:w-20 md:h-20 hover:scale-125"
-        />
-        <div class="nav-text group-hover:show-text">
+        <icon name="line-md:home-md-twotone" class="hover:scale-125" />
+        <div class="nav-text absolute group-hover:show-text">
           {{ homeLinkText }}
         </div>
       </NuxtLink>
@@ -49,11 +40,8 @@
         :to="next._path"
         class="group nav-icon flex flex-col items-center justify-center"
       >
-        <icon
-          name="typcn:arrow-forward-outline"
-          class="w-8 h-8 md:w-20 md:h-20 hover:scale-125"
-        />
-        <div class="nav-text group-hover:show-text">
+        <icon name="typcn:arrow-forward-outline" class="hover:scale-125" />
+        <div class="nav-text absolute group-hover:show-text">
           {{ next.title }}
         </div>
       </NuxtLink>
@@ -106,9 +94,13 @@ onMounted(() => {
   @apply flex text-center transition-all ease-in-out;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 .nav-text {
-  @apply text-lg opacity-0 group-hover:opacity-100 transition-opacity;
+  @apply text-lg opacity-0 absolute bottom-full mb-2 group-hover:opacity-100 transition-opacity;
+  white-space: nowrap; /* Prevents the text from wrapping */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Adjust horizontal centering */
 }
 </style>

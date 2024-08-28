@@ -176,7 +176,7 @@ const isSidebarOpen = ref(true)
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
 }
-const showMature = computed(() => userStore.showMature)
+const showMature = computed(() => userStore.user?.showMature || false)
 
 useHead({
   title: 'Kind Robots',

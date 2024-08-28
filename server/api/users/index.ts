@@ -96,6 +96,7 @@ export async function fetchUsers(): Promise<{
         country: true,
         timezone: true,
         avatarImage: true,
+        showMature: true,
       },
     })
     return { success: true, users }
@@ -126,6 +127,7 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         country: true,
         timezone: true,
         avatarImage: true,
+        showMature: true,
       },
     })
   } catch (error) {

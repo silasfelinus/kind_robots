@@ -13,5 +13,5 @@ dottitip: "Everyone needs a personal space all to their own."
 amitip: "Even I've got a bungalo in the cloud where I unwind."
 sort: highlight
 ---
-:test-page-mature
 :user-dashboard
+:jellybean-counter

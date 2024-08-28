@@ -163,6 +163,8 @@ function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
 }
 
+const canSeeMatureContent = computed(() => userStore.showMature)
+
 useHead({
   title: 'Kind Robots',
   meta: [

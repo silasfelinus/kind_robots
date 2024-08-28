@@ -2,10 +2,10 @@
   <div class="main-container flex flex-col bg-primary h-screen">
     <!-- Header with embedded toggle button -->
     <header-upgrade class="rounded-2xl border p-1 m-1">
-      <button class="header-button" @click="toggleSidebar">
+      <button class="absolute bottom-0 right-3 z-50" @click="toggleSidebar">
         <icon
           :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
-          class="icon-size"
+          class="h-6 w-6 md:h-12 md:w-12"
         ></icon>
       </button>
     </header-upgrade>
@@ -216,7 +216,6 @@ onMounted(async () => {
 /* Adding responsive constraints to the main container */
 .main-container {
   max-width: 100vw; /* Ensures that the main container does not exceed the viewport width */
-  overflow-x: hidden; /* Prevents horizontal scrolling */
 }
 
 /* Responsive adjustments for the sidebar */

@@ -86,11 +86,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100vh; /* Use vh to fill the screen vertically */
-  overflow: hidden; /* Prevents any spillover from internal elements */
-}
-.main-content {
-  flex-grow: 1;
-  overflow-y: auto; /* Enables scrolling for main content */
+  overflow: hidden; /* Prevents spillover from internal elements */
 }
 
 .header-upgrade {

@@ -1,6 +1,6 @@
 <template>
   <header
-    class="bg-base-200 p-2 m-1 border flex items-center w-screen justify-between rounded-2xl"
+    class="bg-base-200 flex items-center justify-between rounded-2xl"
     :class="toggleSidebar ? 'flex-col' : 'flex-row'"
   >
     <div v-show="!toggleSidebar" class="flex items-center space-x-2 flex-grow">
@@ -24,7 +24,6 @@
         <theme-toggle />
         <login-button />
         <nav-toggle @click="toggleNav" />
-        <jellybean-count />
       </div>
     </div>
     <button class="ml-auto z-50" @click="toggleSidebarFunction">
@@ -42,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 
 const { page } = useContent()
 const showNav = ref(false)
@@ -51,23 +50,6 @@ const toggleSidebar = ref(true)
 const toggleSidebarFunction = () => {
   toggleSidebar.value = !toggleSidebar.value
 }
-
-function handleResize() {
-  if (window.innerWidth < 768) {
-    toggleSidebar.value = true
-  } else {
-    toggleSidebar.value = false
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('resize', handleResize)
-  handleResize() // Initial check
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-})
 
 const toggleNav = () => {
   showNav.value = !showNav.value

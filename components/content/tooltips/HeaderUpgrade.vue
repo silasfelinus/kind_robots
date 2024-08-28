@@ -19,12 +19,6 @@
           <theme-toggle v-show="toggleSidebar" class="flex-grow" />
           <login-button v-show="toggleSidebar" class="flex-grow" />
           <nav-toggle class="flex-grow" @click="toggleNav" />
-          <button class="ml-auto z-50" @click="toggleSidebarFunction">
-            <icon
-              :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
-              class="text-lg text-accent"
-            />
-          </button>
         </div>
       </div>
     </header>
@@ -42,10 +36,6 @@ import { ref } from 'vue'
 const { page } = useContent()
 const showNav = ref(false)
 const toggleSidebar = ref(true)
-
-const toggleSidebarFunction = () => {
-  toggleSidebar.value = !toggleSidebar.value
-}
 
 const toggleNav = () => {
   showNav.value = !showNav.value

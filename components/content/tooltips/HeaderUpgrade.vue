@@ -15,9 +15,7 @@
       <div v-show="toggleSidebar" class="flex items-center space-x-2 flex-grow">
         <avatar-image class="h-16 w-16" alt="User Avatar" />
         <div class="flex flex-col">
-          <room-title
-            class="flex text-sm font-semibold bg-primary rounded-2xl p-1"
-          />
+          <room-title class="flex text-sm font-semibold p-1" />
           <h2 class="text-xs text-gray-500 italic">{{ pageSubtitle }}</h2>
         </div>
         <div class="flex space-x-1">
@@ -46,7 +44,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useContentStore } from '@/stores/contentStore'
+import { useContentStore } from './../../../stores/contentStore'
 
 const contentStore = useContentStore()
 const pageSubtitle = computed(

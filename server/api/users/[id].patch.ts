@@ -110,6 +110,7 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         avatarImage: true,
         karma: true,
         mana: true,
+        showMature: true,
       },
     })
   } catch (error) {

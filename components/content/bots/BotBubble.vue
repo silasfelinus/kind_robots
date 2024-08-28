@@ -28,27 +28,6 @@ const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
 const scrollContainer = ref(null)
 
-let isDragging = false
-let startPos = 0
-let scrollLeftStart = 0
-
-function startDrag(e) {
-  isDragging = true
-  startPos = e.pageX || e.touches[0].pageX
-  scrollLeftStart = scrollContainer.value.scrollLeft
-}
-
-function stopDrag() {
-  isDragging = false
-}
-
-function doDrag(e) {
-  if (!isDragging) return
-  const x = e.pageX || e.touches[0].pageX
-  const walk = (x - startPos) * 2 // Increase or decrease multiplier to adjust scroll sensitivity
-  scrollContainer.value.scrollLeft = scrollLeftStart - walk
-}
-
 // Function to handle bot selection
 function selectBot(botId) {
   botStore.selectBot(botId)
@@ -59,13 +38,6 @@ onMounted(() => {
   if (bots.value.length > 0) {
     selectBot(bots.value[0].id) // Select the first bot
   }
-  scrollContainer.value.addEventListener('mousedown', startDrag)
-  scrollContainer.value.addEventListener('mouseleave', stopDrag)
-  scrollContainer.value.addEventListener('mouseup', stopDrag)
-  scrollContainer.value.addEventListener('mousemove', doDrag)
-  scrollContainer.value.addEventListener('touchstart', startDrag)
-  scrollContainer.value.addEventListener('touchend', stopDrag)
-  scrollContainer.value.addEventListener('touchmove', doDrag)
 })
 </script>
 <style>

@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex flex-col items-stretch w-full h-full overflow-y-auto border-2 rounded-2xl p-2 bg-base-200 m-2"
-  >
+  <div class="border rounded-2xl bg-base-200 m-1 p-1">
     <!-- Check if showMature is true and display the website, otherwise display the rebel-button -->
     <iframe
       v-if="showMature"

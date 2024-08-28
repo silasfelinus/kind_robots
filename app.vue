@@ -115,7 +115,7 @@
           >
         </div>
         <div
-          v-if="userStore.showMature"
+          v-if="showMature"
           class="p-4 flex items-center justify-start"
           title="Mature Content"
           @click="toggleSidebar"
@@ -139,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useErrorStore } from '@/stores/errorStore'
 import { useTagStore } from '@/stores/tagStore'
@@ -170,6 +170,7 @@ const milestoneStore = useMilestoneStore()
 const layoutStore = useLayoutStore()
 
 const isSidebarOpen = ref(true)
+const showMature = computed(() => userStore.showMature)
 
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value

@@ -98,7 +98,7 @@ onMounted(() => {
 }
 
 .nav-text {
-  @apply text-lg opacity-0 absolute bottom-full mb-2 group-hover:opacity-100 transition-opacity;
+  @apply text-lg opacity-0 absolute bottom-full group-hover:opacity-100 transition-opacity;
   white-space: nowrap; /* Prevents the text from wrapping */
   left: 50%; /* Center horizontally */
   transform: translateX(-50%); /* Adjust horizontal centering */

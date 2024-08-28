@@ -117,7 +117,9 @@
           >Mature Content</router-link
         >
       </div>
-      <smart-links class="text-xl w-6 h-6 md:w-16 md:h-16" />
+      <smart-links
+        class="text-center flex-grow justify text-xl w-6 h-6 md:w-16 md:h-16"
+      />
     </aside>
   </div>
 </template>

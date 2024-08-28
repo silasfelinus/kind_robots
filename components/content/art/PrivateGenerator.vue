@@ -1,5 +1,5 @@
 <template>
-  <div class="border rounded-2xl bg-base-200 m-1 p-1">
+  <div class="border rounded-2xl bg-base-200 w-full h-full m-1 p-1">
     <!-- Check if showMature is true and display the website, otherwise display the rebel-button -->
     <iframe
       v-if="showMature"

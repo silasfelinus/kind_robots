@@ -3,7 +3,7 @@ title: 'Add Bot'
 subtitle: "Create a new kind robot"
 description: "Create a new bot and share it with the community"
 gallery: 'botfactory'
-image: 'botcat.webp'
+image: 'wonderbot/wonderbot-1448.webp'
 tags: ['home']
 layout: 'vertical-scroll'
 icon: fa-solid:robot

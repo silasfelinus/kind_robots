@@ -19,15 +19,18 @@
           <h2 class="text-xs text-gray-500 italic">{{ page.subtitle }}</h2>
         </div>
         <div class="flex space-x-1">
-          <smart-links />
+          <back-link />
+          <random-link />
+          <home-link />
+          <forward-link />
           <butterfly-toggle />
           <theme-toggle />
           <login-button />
-          <nav-toggle class="text-lg" @click="toggleNav" />
+          <nav-toggle @click="toggleNav" />
           <jellybean-count />
         </div>
       </div>
-      <button class="ml-auto p-2" @click="toggleSidebarFunction">
+      <button class="ml-auto absolute" @click="toggleSidebarFunction">
         <icon
           :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'"
           class="text-lg text-accent"

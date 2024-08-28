@@ -11,33 +11,28 @@
         v-show="!toggleSidebar"
         class="flex items-center justify-start space-x-2 flex-grow"
       >
-        <avatar-image class="h-16 w-16" alt="User Avatar" />
+        <avatar-image class="h-8 w-8" alt="User Avatar" />
         <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
       </div>
       <div
         v-show="toggleSidebar"
         class="flex items-center justify-start space-x-2 flex-grow"
       >
-        <avatar-image class="h-8 w-8" alt="User Avatar" />
-        <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
-        <h2 class="text-xs text-gray-500 overflow-hidden italic pl-2">
-          {{ pageSubtitle }}
-        </h2>
-      </div>
-
-      <!-- Center Section: Smart Links floating at the bottom center -->
-      <smart-links
-        v-show="toggleSidebar"
-        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center text-xs"
-      />
-
-      <!-- Right Section with dynamic visibility -->
-      <div class="flex items-center gap-2 justify-end">
-        <butterfly-toggle class="text-sm hidden sm:block" />
-        <theme-toggle class="text-sm hidden sm:block" />
-        <login-button />
-        <nav-toggle class="text-md" @click="toggleNav" />
-        <jellybean-count />
+        <avatar-image class="h-16 w-16" alt="User Avatar" />
+        <div class="flex-col">
+          <room-title
+            class="flex-2 text-sm font-semibold bg-primary rounded-2xl p-1"
+          />
+          <h2 class="flex-1 text-xs text-gray-500 overflow-scroll italic">
+            {{ pageSubtitle }}
+          </h2>
+        </div>
+        <smart-links class="flex" />
+        <butterfly-toggle class="flex text-sm sm:block" />
+        <theme-toggle class="flex text-sm sm:block" />
+        <login-button class="flex" />
+        <nav-toggle class="flex text-md" @click="toggleNav" />
+        <jellybean-count class="flex" />
       </div>
 
       <!-- Toggle Button integrated within the header -->

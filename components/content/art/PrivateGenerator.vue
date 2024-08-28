@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col items-stretch w-full h-full overflow-hidden border-2 rounded-2xl p-2 bg-base-200"
+    class="flex flex-col items-stretch w-full h-full overflow-hidden border-2 rounded-2xl p-2 bg-base-200 mx-2 my-2"
   >
     <!-- Check if showMature is true and display the website, otherwise display the rebel-button -->
     <iframe

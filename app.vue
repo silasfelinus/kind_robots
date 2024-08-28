@@ -117,7 +117,7 @@
           >
         </div>
         <div
-          v-if="userStore.showMature"
+          v-if="showMature"
           class="p-4 flex items-center justify-start"
           title="Mature Content"
           @click="toggleSidebar"
@@ -176,7 +176,7 @@ const isSidebarOpen = ref(true)
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
 }
-
+const showMature = computed (() => userstore.showMature)
 useHead({
   title: 'Kind Robots',
   meta: [

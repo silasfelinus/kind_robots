@@ -1,15 +1,15 @@
 <template>
   <div
-    class="flex flex-col items-stretch w-full max-h-full overflow-y-auto border-2 rounded-2xl p-2 bg-base-200 mx-2 my-2"
+    class="flex flex-col items-stretch w-full h-full overflow-y-auto border-2 rounded-2xl p-2 bg-base-200 m-2"
   >
     <!-- Check if showMature is true and display the website, otherwise display the rebel-button -->
     <iframe
       v-if="showMature"
       :src="siteUrl"
       frameborder="0"
-      class="w-full h-auto min-h-full"
+      class="w-full h-full"
     ></iframe>
-    <rebel-button v-else class="w-full h-auto min-h-full" />
+    <rebel-button v-else class="w-full h-full" />
   </div>
 </template>
 

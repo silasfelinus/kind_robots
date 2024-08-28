@@ -4,9 +4,21 @@
     <NuxtLink
       v-if="!isHomePage"
       to="/"
-      class="md:w-16 md:h-16 flex items-center justify-center rounded-2xl text-center hover:scale-110 hover:glow-animation"
+      :class="[
+        'flex',
+        'items-center',
+        'justify-center',
+        'rounded-2xl',
+        'text-center',
+        'hover:scale-110',
+        'hover:glow-animation',
+        isHomePage ? 'text-gray-400' : '',
+      ]"
     >
-      <icon name="line-md:home-md-twotone" class="icon-effect" />
+      <icon
+        name="line-md:home-md-twotone"
+        class="icon-effect w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
+      />
     </NuxtLink>
   </div>
 </template>

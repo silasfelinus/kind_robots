@@ -1,9 +1,7 @@
 <template>
-  <main>
-    <NuxtLayout :class="layoutName">
-      <ContentDoc />
-    </NuxtLayout>
-  </main>
+  <NuxtLayout :class="layoutName">
+    <ContentDoc />
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">

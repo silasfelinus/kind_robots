@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <button class="flex items-start" @click="toggleSidebar">
+    <button class="absolute top-2 left-2 z-50" @click="toggleSidebar">
       <Icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
         class="icon-base text-gray-500"
@@ -86,6 +86,15 @@ const links = [
 
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
+
+  // Safely accessing the sidebar element with type assertion and null check
+  const sidebarElement = document.querySelector(
+    '.sidebar',
+  ) as HTMLElement | null
+
+  if (sidebarElement) {
+    sidebarElement.style.overflowY = isSidebarOpen.value ? 'auto' : 'hidden'
+  }
 }
 
 const filteredLinks = computed(() => {
@@ -128,6 +137,13 @@ const isCurrentPage = (path: string) => {
   transition:
     width 0.3s ease-in-out,
     padding 0.3s ease-in-out;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: overflow;
+  transition: width 0.3s ease-in-out;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto; /* Ensures scroll */
+  max-height: calc(100vh - 4rem);
 }
 
 .nuxt-link {
@@ -140,10 +156,6 @@ const isCurrentPage = (path: string) => {
 
 .nuxt-link:hover {
   text-decoration: none;
-}
-
-.sidebar {
-  transition: width 0.3s ease-in-out;
 }
 
 /* Small devices */

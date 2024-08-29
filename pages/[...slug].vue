@@ -6,12 +6,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { LayoutKey } from './../stores/layoutStore'
+import { LayoutKey, useLayoutStore } from './../stores/layoutStore'
 
 const breakpoints = { mobile: 640, tablet: 1024 }
 
 // Initialize deviceType with 'Desktop' corrected to match a value from LayoutKey
 const deviceType = ref<LayoutKey | false>(LayoutKey.Desktop) // assuming LayoutKey is an enum
+
+const layoutStore = useLayoutStore()
 
 // Compute the layout name based directly on the device type or default to 'Desktop'
 const layoutName = computed(() => deviceType.value || LayoutKey.Desktop)
@@ -28,12 +30,15 @@ function checkSize() {
   }
 }
 
-// Setup event listeners for resizing
 onMounted(() => {
   window.addEventListener('resize', checkSize)
   checkSize() // Initial check to set the correct layout on load
-})
 
+  // Check if the layout key is defined and then update it in the store
+  if (deviceType.value !== false) {
+    layoutStore.setLayout(deviceType.value)
+  }
+})
 onUnmounted(() => {
   window.removeEventListener('resize', checkSize)
 })

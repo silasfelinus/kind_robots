@@ -15,7 +15,7 @@
       <div
         v-for="link in filteredLinks"
         :key="link.title"
-        class="Icon-link-container mt-5"
+        class="Icon-link-container"
         @click="toggleSidebar"
       >
         <NuxtLink
@@ -34,7 +34,7 @@
         >
           <Icon
             :name="link.icon"
-            class="icon-base mr-2 cursor-pointer transition-shadow"
+            class="icon-base mr-1 cursor-pointer transition-shadow"
           ></Icon>
           <span v-show="isSidebarOpen" class="text-lg font-semibold">{{
             link.title

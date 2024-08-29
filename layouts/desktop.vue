@@ -1,12 +1,11 @@
 <template>
-  <div>
+  <main class="flex-grow rounded-2xl p-1 m-1">
     <header-upgrade />
     <kind-sidebar />
     <div class="absolute bottom-0 center z-50 text-gray-200">Desktop</div>
-    <main class="flex-grow rounded-2xl p-1 m-1">
-      <slot />
-    </main>
-  </div>
+
+    <slot />
+  </main>
 </template>
 
 <script setup lang="ts">

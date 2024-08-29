@@ -31,7 +31,7 @@
 
     <!-- Icon to Toggle Login -->
     <div class="ml-4">
-      <icon
+      <Icon
         name="tabler:user"
         class="text-base-200 text-2xl cursor-pointer"
         @click="toggleVisibility"
@@ -45,7 +45,7 @@
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
-        <icon name="tabler:loader" class="animate-spin text-lg mb-2" />
+        <Icon name="tabler:loader" class="animate-spin text-lg mb-2" />
         <div>Loading, please wait...</div>
       </div>
 

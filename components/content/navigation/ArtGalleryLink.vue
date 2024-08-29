@@ -1,5 +1,5 @@
 <template>
-  <div class="icon-link-container">
+  <div class="Icon-link-container">
     <NuxtLink
       to="/artgallery"
       :class="[
@@ -13,7 +13,7 @@
         isCurrentPage ? 'text-gray-400' : '',
       ]"
     >
-      <icon
+      <Icon
         name="mdi:palette-outline"
         class="w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
       />

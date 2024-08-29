@@ -1,7 +1,7 @@
 <!-- RotatingIcon.vue -->
 <template>
   <div ref="pedestal" class="pedestal">
-    <icon ref="rotatingIcon" :name="icon" class="rotating-icon" />
+    <Icon ref="rotatingIcon" :name="Icon" class="rotating-Icon" />
     <div ref="glitter" class="glitter" />
   </div>
 </template>
@@ -11,10 +11,10 @@ import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
 
 const props = defineProps<{
-  icon?: string
+  Icon?: string
 }>()
 
-const icon = props.icon || 'mdi:default-icon' // Replace 'mdi:default-icon' with your actual default icon
+const Icon = props.Icon || 'mdi:default-Icon' // Replace 'mdi:default-Icon' with your actual default Icon
 
 const pedestal = ref(null)
 const rotatingIcon = ref(null)
@@ -46,7 +46,7 @@ onMounted(() => {
   position: relative;
 }
 
-.rotating-icon {
+.rotating-Icon {
   transform-style: preserve-3d;
 }
 

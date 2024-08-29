@@ -1,13 +1,13 @@
 <template>
   <div
-    class="icon-container flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent-100"
+    class="Icon-container flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent-100"
   >
     <butterfly-toggle />
     <div
-      class="icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
+      class="Icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
       @click="toggleRainEffect"
     >
-      <icon
+      <Icon
         name="twemoji:cloud-with-rain"
         title="Kind Weather"
         :active="fxStore.showRainEffect"
@@ -16,11 +16,11 @@
       />
     </div>
     <div
-      class="icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
+      class="Icon-box transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent-200"
       @click="toggleSoapBubbles"
     >
-      <icon
-        name="icon-park:soap-bubble"
+      <Icon
+        name="Icon-park:soap-bubble"
         title="Kind Bubbles"
         :active="fxStore.showSoapBubbles"
         :class="{ glow: fxStore.showSoapBubbles }"
@@ -40,7 +40,7 @@ const toggleSoapBubbles = () => fxStore.toggleSoapBubbles()
 </script>
 
 <style scoped>
-.icon-box {
+.Icon-box {
   /* existing styles... */
   border-radius: 50%;
 }

@@ -2,8 +2,8 @@
   <div class="fixed bottom-4 right-4 p-4 m-2">
     <!-- Chat Icon -->
     <div v-if="!chatOpen" class="cursor-pointer" @click="toggleChat">
-      <icon
-        :name="page.icon || 'icon-park-twotone:butterfly'"
+      <Icon
+        :name="page.Icon || 'Icon-park-twotone:butterfly'"
         class="animate-pulse"
       />
     </div>

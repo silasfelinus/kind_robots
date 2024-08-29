@@ -5,10 +5,10 @@
       :to="randomHighlightPage._path"
       class="group flex flex-col items-center justify-center rounded-2xl text-center hover:scale-110 transition-all ease-in-out"
     >
-      <icon
-        name="game-icons:galaxy"
+      <Icon
+        name="game-Icons:galaxy"
         :title="'Go to Random Highlight Page'"
-        class="icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+        class="Icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
       />
       <div
         class="m-1 text-lg opacity-0 group-hover:opacity-100 transition-opacity"

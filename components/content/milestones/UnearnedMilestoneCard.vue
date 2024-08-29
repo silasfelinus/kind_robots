@@ -5,7 +5,7 @@
   >
     <div class="text-center flex flex-col items-center">
       <!-- Milestone Icon -->
-      <icon :name="milestone.icon" class="icon-extra-large mb-2" />
+      <Icon :name="milestone.Icon" class="Icon-extra-large mb-2" />
       <!-- Milestone Label -->
       <div class="text-xl font-bold text-gray-700">
         {{ milestone.label }}
@@ -17,7 +17,7 @@
       <!-- Tooltip -->
       <div class="mt-4">
         <div @click="toggleTooltip">
-          <icon
+          <Icon
             v-if="!revealTooltip"
             name="ph:question-bold"
             class="text-accent text-2xl"

@@ -10,7 +10,7 @@
       @click="toggleChat"
     >
       <!-- Chat Icon -->
-      <icon
+      <Icon
         :name="isChatVisible ? 'mdi:chat' : 'mdi:chat-off'"
         :title="isChatVisible ? 'Hide Chat' : 'Show Chat'"
         class="w-full h-full"

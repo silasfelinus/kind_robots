@@ -1,5 +1,5 @@
 <template>
-  <div class="icon-link-container">
+  <div class="Icon-link-container">
     <NuxtLink
       v-if="!isHomePage"
       to="/"
@@ -14,9 +14,9 @@
         isHomePage ? 'text-gray-400' : '',
       ]"
     >
-      <icon
+      <Icon
         name="line-md:home-md-twotone"
-        class="icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+        class="Icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
       />
     </NuxtLink>
   </div>
@@ -36,7 +36,7 @@ const isHomePage = computed(() => {
 </script>
 
 <style scoped>
-.icon-effect {
+.Icon-effect {
   @apply cursor-pointer transition-shadow;
 }
 

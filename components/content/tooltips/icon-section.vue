@@ -1,12 +1,12 @@
 <template>
   <div :class="sectionClass">
     <div
-      v-for="(icon, index) in icons"
+      v-for="(Icon, index) in Icons"
       :key="index"
       class="flex-shrink-0 flex items-center justify-center"
-      :class="iconSize"
+      :class="IconSize"
     >
-      <component :is="icon.component" v-bind="icon.props" />
+      <component :is="Icon.component" v-bind="Icon.props" />
     </div>
   </div>
 </template>
@@ -20,8 +20,8 @@ interface Icon {
 }
 
 // Define props with type annotation
-const { icons } = defineProps({
-  icons: {
+const { Icons } = defineProps({
+  Icons: {
     type: Array as PropType<Icon[]>,
     default: () => [],
   },
@@ -32,7 +32,7 @@ const sectionClass = computed(() => ({
     true,
 }))
 
-const iconSize = computed(() => ({
+const IconSize = computed(() => ({
   'min-w-[100px] md:min-w-[50px]': true,
 }))
 </script>

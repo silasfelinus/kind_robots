@@ -1,10 +1,10 @@
 <template>
   <div class="relative">
     <button class="flex items-start" @click="toggleSidebar">
-      <icon
+      <Icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
-        class="icon-base text-gray-500"
-      ></icon>
+        class="Icon-base text-gray-500"
+      ></Icon>
     </button>
     <!-- Collapsible Sidebar -->
     <aside
@@ -15,7 +15,7 @@
       <div
         v-for="link in filteredLinks"
         :key="link.title"
-        class="icon-link-container mt-5"
+        class="Icon-link-container mt-5"
         @click="toggleSidebar"
       >
         <NuxtLink
@@ -32,10 +32,10 @@
             'w-full',
           ]"
         >
-          <icon
-            :name="link.icon"
-            class="icon-base mr-2 cursor-pointer transition-shadow"
-          ></icon>
+          <Icon
+            :name="link.Icon"
+            class="Icon-base mr-2 cursor-pointer transition-shadow"
+          ></Icon>
           <span v-show="isSidebarOpen" class="text-lg font-semibold">{{
             link.title
           }}</span>
@@ -57,25 +57,25 @@ const showMature = computed(() => userStore.showMatureContent)
 const isSidebarOpen = ref(true)
 
 const links = [
-  { title: 'Home', path: '/home', icon: 'heroicons-outline:home' },
-  { title: 'Add Bot', path: '/addbot', icon: 'fluent:bot-add-20-regular' },
-  { title: 'Chat with Bots', path: '/botcafe', icon: 'mdi:chat-processing' },
+  { title: 'Home', path: '/home', Icon: 'heroIcons-outline:home' },
+  { title: 'Add Bot', path: '/addbot', Icon: 'fluent:bot-add-20-regular' },
+  { title: 'Chat with Bots', path: '/botcafe', Icon: 'mdi:chat-processing' },
   {
     title: 'Bot Messages',
     path: '/botmessages',
-    icon: 'fluent:chat-multiple-24-regular',
+    Icon: 'fluent:chat-multiple-24-regular',
   },
-  { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
-  { title: 'Art Gallery', path: '/artgallery', icon: 'mdi:palette' },
+  { title: 'Hot or Not?', path: '/hotornot', Icon: 'emojione-monotone:fire' },
+  { title: 'Art Gallery', path: '/artgallery', Icon: 'mdi:palette' },
   {
     title: 'Dashboard',
     path: '/dashboard',
-    icon: 'ant-design:dashboard-outline',
+    Icon: 'ant-design:dashboard-outline',
   },
   {
     title: 'Mature Content',
     path: '/mature',
-    icon: 'fxemoji:lips',
+    Icon: 'fxemoji:lips',
     condition: 'showMature',
   },
 ]
@@ -97,14 +97,14 @@ const isCurrentPage = (path: string) => {
 </script>
 
 <style>
-.icon-link-container {
+.Icon-link-container {
   /* Ensuring that each link container uses full width for alignment and spacing */
   width: 100%;
   padding: 0.5rem;
 }
 
-.icon-link-container .hover:glow-animation:hover {
-  /* Glow effect when hovering over the icons */
+.Icon-link-container .hover:glow-animation:hover {
+  /* Glow effect when hovering over the Icons */
   animation: glow 1.5s infinite;
 }
 

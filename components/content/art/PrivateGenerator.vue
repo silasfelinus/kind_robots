@@ -35,7 +35,7 @@ body,
   border-radius: 1rem;
   background-color: #f9f9f9;
   width: 100%;
-  min-height: 100%;
+  min-height: 86vh;
   padding: 1rem;
   box-sizing: border-box;
   display: flex; /* Ensures child elements are full height */
@@ -44,6 +44,7 @@ body,
 .website-iframe,
 .full-size-btn {
   width: 100%;
+  height: 86vh;
   flex-grow: 1;
   border-radius: 1rem; /* Match parent border-radius */
 }

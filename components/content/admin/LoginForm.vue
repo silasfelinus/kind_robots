@@ -1,7 +1,7 @@
 <template>
   <div class="login-form-container" @click.self="closeForm">
     <div
-      class="login-form p-4 rounded-2xl shadow-lg transition-all duration-300 w-full max-w-md"
+      class="login-form p-2 m-1 rounded-2xl bg-base-200 border shadow-lg transition-all duration-300 w-full max-w-md"
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
@@ -16,7 +16,7 @@
         @submit.prevent="handleLogin"
       >
         <div class="mb-2 relative group">
-          <label for="login" class="block text-sm z-50 mb-1">Login:</label>
+          <label for="login" class="block text-sm z-30 mb-1">Login:</label>
           <input
             id="login"
             v-model="login"
@@ -32,7 +32,7 @@
           </div>
         </div>
         <div class="mb-2 relative group">
-          <label for="password" class="block z-50 text-sm mb-1"
+          <label for="password" class="block z-30 text-sm mb-1"
             >Password (optional):</label
           >
           <input
@@ -151,7 +151,6 @@ const handleRetryLogin = () => {
   width: 100%; /* Full width to cover the area but max width restricts the form size */
   display: flex;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5); /* Optional: darkened background */
 }
 
 .login-form {
@@ -161,15 +160,6 @@ const handleRetryLogin = () => {
 .group:hover .float-tooltip {
   visibility: visible;
   opacity: 1;
-}
-
-/* Adding some stylish upgrades */
-.bg-base-200 {
-  transition: background-color 0.3s ease;
-}
-
-.bg-base-200:hover {
-  background-color: var(--bg-base-300);
 }
 
 .text-accent {

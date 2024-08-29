@@ -8,7 +8,7 @@
   >
     <!-- Toggle Button -->
     <div
-      class="transition duration-600 ease-in-out absolute bottom-0 right-0 transform -translate-x-1/3 rounded-2xl cursor-pointer shadow-lg p-2 z-50 m-4"
+      class="transition duration-600 ease-in-out absolute bottom-0 right-0 transform -translate-x-1/3 rounded-2xl cursor-pointer shadow-lg p-2 z-40 m-4"
       @click.stop="toggleExtend"
     >
       <Icon
@@ -23,7 +23,7 @@
 
     <!-- Highlight Pages -->
     <div
-      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-secondary border rounded-2xl flex flex-col z-50 pointer-events-none"
+      class="text-center text-2xl font-extrabold tracking-wider shadow-lg bg-secondary border rounded-2xl flex flex-col z-40 pointer-events-none"
     >
       Highlight Gallery
     </div>

@@ -1,7 +1,7 @@
 <template>
   <div class="relative bg-base-200 rounded-2xl m-4 p-4">
     <!-- View Toggle -->
-    <div class="absolute top-4 right-4 flex space-x-2 z-50">
+    <div class="absolute top-4 right-4 flex space-x-2 z-40">
       <Icon
         name="grommet-Icons:grid"
         class="text-2xl cursor-pointer"

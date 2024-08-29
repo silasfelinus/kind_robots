@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/html-self-closing -->
 <template>
-  <div class="flex items-center h-36 w-36 z-50">
+  <div class="flex items-center h-36 w-36 z-30">
     <!-- Welcome Message -->
     <div class="flex items-center cursor-pointer" @click="toggleVisibility">
       <img
@@ -53,7 +53,7 @@
       <!-- Login Form -->
       <form
         v-else
-        class="space-y-4 z-50"
+        class="space-y-4 z-40"
         :autocomplete="stayLoggedIn ? 'on' : 'off'"
         @submit.prevent="handleLogin"
       >

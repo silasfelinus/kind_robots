@@ -9,7 +9,7 @@
         <slot />
       </main>
     </div>
-    <div class="absolute bottom-0 center z-50 text-gray-200">Tablet</div>
+    <div class="absolute bottom-0 center z-40 text-gray-200">Tablet</div>
   </div>
 </template>
 

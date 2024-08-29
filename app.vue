@@ -1,14 +1,6 @@
 <template>
-  <div class="main-container bg-primary m-1 p-1">
-    <header-upgrade />
-
-    <!-- Flex container for sidebar and main content -->
-    <div class="content-container flex">
-      <kind-sidebar />
-      <main class="main-content flex-grow rounded-2xl p-1 m-1 h-full w-full">
-        <NuxtPage />
-      </main>
-    </div>
+  <div class="main-container">
+    <NuxtPage />
   </div>
 </template>
 
@@ -25,7 +17,6 @@ import { usePitchStore } from '@/stores/pitchStore'
 import { useChannelStore } from '@/stores/channelStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useLayoutStore } from '@/stores/layoutStore'
-import KindSidebar from '@/components/content/navigation/KindSidebar.vue'
 
 const errorStore = useErrorStore()
 const tagStore = useTagStore()
@@ -85,26 +76,5 @@ onMounted(async () => {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-}
-
-.content-container {
-  display: flex;
-  flex-direction: row;
-  flex-grow: 1;
-  overflow: hidden;
-}
-
-.header-upgrade {
-  flex-shrink: 0;
-}
-
-.kind-sidebar {
-  flex-shrink: 0;
-  overflow-y: scroll;
-}
-
-.main-content {
-  flex-grow: 1;
-  overflow-y: scroll;
 }
 </style>

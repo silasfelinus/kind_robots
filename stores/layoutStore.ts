@@ -1,68 +1,65 @@
 import { defineStore } from 'pinia'
 
-// Define the possible layout keys
-export type LayoutKey =
-  | 'default'
-  | 'default-old'
-  | 'single-page'
-  | 'dashboard'
-  | 'smart'
-  | 'vertical-scroll'
+// Using enum for layout keys
+export enum LayoutKey {
+  Default = 'default',
+  DefaultOld = 'default-old',
+  SinglePage = 'single-page',
+  Dashboard = 'dashboard',
+  Smart = 'smart',
+  VerticalScroll = 'vertical-scroll',
+  Mobile = 'mobile',
+  Tablet = 'tablet',
+  Desktop = 'desktop',
+}
 
-// Array of allowed layout keys for validation
-export const allowedLayouts: LayoutKey[] = [
-  'default',
-  'default-old',
-  'single-page',
-  'dashboard',
-  'smart',
-  'vertical-scroll',
-]
+const LOCAL_STORAGE_KEY = 'currentLayout';
 
-// Function to get the layout from local storage and validate it
-const getStoredLayout = (key: string, defaultValue: LayoutKey): LayoutKey => {
+function getStoredLayout(defaultValue: LayoutKey): LayoutKey {
   if (import.meta.client) {
-    const storedValue = localStorage.getItem(key)
-    // Ensure that the value is either a valid layout key or the default value
-    return allowedLayouts.includes(storedValue as LayoutKey)
-      ? (storedValue as LayoutKey)
-      : defaultValue
+    try {
+      const storedValue = localStorage.getItem(LOCAL_STORAGE_KEY);
+      return Object.values(LayoutKey).includes(storedValue as LayoutKey)
+        ? (storedValue as LayoutKey)
+        : defaultValue;
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+      return defaultValue;
+    }
   }
-  return defaultValue
+  return defaultValue;
 }
 
 interface LayoutState {
   currentLayout: LayoutKey
 }
 
-export const useLayoutStore = defineStore({
-  id: 'layoutStore',
+export const useLayoutStore = defineStore('layoutStore', {
   state: (): LayoutState => ({
-    currentLayout: getStoredLayout('currentLayout', 'dashboard'),
+    currentLayout: getStoredLayout(LayoutKey.Dashboard),
   }),
 
   actions: {
     setLayout(newLayout: LayoutKey) {
-      if (allowedLayouts.includes(newLayout)) {
-        this.currentLayout = newLayout
+      if (Object.values(LayoutKey).includes(newLayout)) {
+        this.currentLayout = newLayout;
         if (import.meta.client) {
-          localStorage.setItem('currentLayout', newLayout)
-          console.log('current layout is  ' + this.currentLayout)
+          try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, newLayout);
+          } catch (error) {
+            console.error('Failed to save layout to localStorage:', error);
+          }
         }
       } else {
-        console.warn(`Invalid layout option: ${newLayout}`)
+        console.warn(`Invalid layout option: ${newLayout}`);
       }
     },
     initializeStore() {
-      return (this.currentLayout = getStoredLayout(
-        'currentLayout',
-        'dashboard',
-      ))
+      this.currentLayout = getStoredLayout(LayoutKey.Dashboard);
     },
   },
 
   getters: {
-    // Optional getter to access the current layout
     getCurrentLayout: (state) => state.currentLayout,
   },
-})
+});

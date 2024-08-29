@@ -1,14 +1,10 @@
 <template>
-  <div class="main-container bg-primary m-1 p-1">
+  <div>
     <header-upgrade />
-
-    <!-- Flex container for sidebar and main content -->
-    <div class="content-container flex">
-      <kind-sidebar />
-      <main class="main-content flex-grow rounded-2xl p-1 m-1 h-full w-full">
-        <slot />
-      </main>
-    </div>
+    <kind-sidebar />
+    <main class="flex-grow rounded-2xl p-1 m-1">
+      <slot />
+    </main>
     <div class="absolute bottom-0 center z-50 text-gray-200">Desktop</div>
   </div>
 </template>

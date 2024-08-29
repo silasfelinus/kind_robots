@@ -19,7 +19,7 @@
         v-show="open"
         :style="modalPosition"
         class="theme-menu flex flex-wrap justify-center bg-base-200 border p-2 m-1 rounded-2xl z-50 absolute transition-opacity duration-200"
-        style="max-height: 90vh; max-width: 95vw; overflow: auto"
+        style="max-height: 50vh; max-width: 50vw; overflow: auto"
       >
         <button
           v-for="(theme, index) in themeStore.themes"
@@ -46,38 +46,36 @@ const buttonRef = ref(null)
 const open = ref(false)
 
 const modalPosition = computed(() => {
-  if (!buttonRef.value)
+  if (!buttonRef.value) {
     return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
+  }
 
   const rect = buttonRef.value.getBoundingClientRect()
-  const windowHeight = window.innerHeight
+  const menuWidth = 300 // assumed width of the menu
+  const menuHeight = 200 // assumed height of the menu
   const windowWidth = window.innerWidth
+  const windowHeight = window.innerHeight
 
-  let top, bottom, left, right
+  let left = rect.left + rect.width / 2 - menuWidth / 2 // center horizontally
+  let top = rect.bottom + 5 // position below the button
 
-  if (rect.bottom + 200 <= windowHeight) {
-    top = `${rect.bottom}px`
-    bottom = 'auto'
-  } else if (rect.top >= 200) {
-    top = 'auto'
-    bottom = `${windowHeight - rect.top}px`
-  } else {
-    top = '50%'
-    transform = 'translateY(-50%)'
+  // Adjust horizontal position to keep menu within viewport
+  if (left + menuWidth > windowWidth) {
+    left = windowWidth - menuWidth - 5 // move left if overflowing right
+  } else if (left < 0) {
+    left = 5 // move right if overflowing left
   }
 
-  if (rect.left + 300 <= windowWidth) {
-    left = `${rect.left}px`
-    right = 'auto'
-  } else if (rect.right >= 300) {
-    left = 'auto'
-    right = `${windowWidth - rect.right}px`
-  } else {
-    left = '50%'
-    transform = 'translateX(-50%)'
+  // Adjust vertical position to keep menu within viewport
+  if (top + menuHeight > windowHeight) {
+    top = rect.top - menuHeight - 5 // place above the button if overflowing bottom
   }
 
-  return { top, bottom, left, right, position: 'absolute' }
+  return {
+    top: `${top}px`,
+    left: `${left}px`,
+    position: 'absolute',
+  }
 })
 
 const toggleMenu = () => {

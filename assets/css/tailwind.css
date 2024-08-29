@@ -2,3 +2,38 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @import 'daisyui/dist/full.css';
+
+@layer utilities {
+  /* Base icon size, applies to all unless overridden by media queries */
+  .icon-base { width: 1em; height: 1em; }
+  .icon-sm { width: 0.75em; height: 0.75em; }
+  .icon-lg { width: 1.25em; height: 1.25em; }
+
+  /* Small devices (mobile) */
+  @media (min-width: 640px) {
+    .icon-sm { width: 1em; height: 1em; }
+    .icon-base { width: 1.25em; height: 1.25em; }
+    .icon-lg { width: 1.5em; height: 1.5em; }
+  }
+
+  /* Medium devices (tablets) */
+  @media (min-width: 768px) {
+    .icon-sm { width: 1.25em; height: 1.25em; }
+    .icon-base { width: 1.5em; height: 1.5em; }
+    .icon-lg { width: 1.75em; height: 1.75em; }
+  }
+
+  /* Large devices (desktops) */
+  @media (min-width: 1024px) {
+    .icon-sm { width: 1.5em; height: 1.5em; }
+    .icon-base { width: 1.75em; height: 1.75em; }
+    .icon-lg { width: 2em; height: 2em; }
+  }
+
+  /* Extra large devices (large desktops) */
+  @media (min-width: 1280px) {
+    .icon-sm { width: 1.75em; height: 1.75em; }
+    .icon-base { width: 2em; height: 2em; }
+    .icon-lg { width: 2.25em; height: 2.25em; }
+  }
+}

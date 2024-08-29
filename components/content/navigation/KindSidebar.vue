@@ -1,7 +1,10 @@
 <template>
   <div class="relative">
     <button class="absolute top-3 left-3 z-50" @click="toggleSidebar">
-      <icon :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'" class="icon-base text-gray-500"></icon>
+      <icon
+        :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
+        class="icon-base text-gray-500"
+      ></icon>
     </button>
     <!-- Collapsible Sidebar -->
     <aside
@@ -9,7 +12,12 @@
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
       <!-- Sidebar Links with Icons and Titles -->
-      <div v-for="link in filteredLinks" :key="link.title" @click="toggleSidebar" class="icon-link-container mt-5">
+      <div
+        v-for="link in filteredLinks"
+        :key="link.title"
+        class="icon-link-container mt-5"
+        @click="toggleSidebar"
+      >
         <NuxtLink
           :to="link.path"
           :class="[
@@ -21,11 +29,16 @@
             'hover:scale-110',
             'hover:glow-animation',
             isCurrentPage(link.path) ? 'text-gray-400' : 'text-gray-900',
-            'w-full'
+            'w-full',
           ]"
         >
-          <icon :name="link.icon" class="icon-base mr-2 cursor-pointer transition-shadow"></icon>
-          <span v-show="isSidebarOpen" class="text-lg font-semibold">{{ link.title }}</span>
+          <icon
+            :name="link.icon"
+            class="icon-base mr-2 cursor-pointer transition-shadow"
+          ></icon>
+          <span v-show="isSidebarOpen" class="text-lg font-semibold">{{
+            link.title
+          }}</span>
         </NuxtLink>
       </div>
       <smart-links class="text-center flex-grow justify text-xl" />
@@ -35,36 +48,52 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useUserStore } from '@/stores/userStore' // Update the path as necessary
+import { useUserStore } from './../../../stores/userStore' // Update the path as necessary
 import { useContentStore } from './../../../stores/contentStore'
 
-const userStore = useUserStore();
-const contentStore = useContentStore();
-const showMature = computed(() => userStore.showMatureContent);
-const isSidebarOpen = ref(true);
+const userStore = useUserStore()
+const contentStore = useContentStore()
+const showMature = computed(() => userStore.showMatureContent)
+const isSidebarOpen = ref(true)
 
 const links = [
   { title: 'Home', path: '/home', icon: 'heroicons-outline:home' },
   { title: 'Add Bot', path: '/addbot', icon: 'fluent:bot-add-20-regular' },
   { title: 'Chat with Bots', path: '/botcafe', icon: 'mdi:chat-processing' },
-  { title: 'Bot Messages', path: '/botmessages', icon: 'fluent:chat-multiple-24-regular' },
+  {
+    title: 'Bot Messages',
+    path: '/botmessages',
+    icon: 'fluent:chat-multiple-24-regular',
+  },
   { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
   { title: 'Art Gallery', path: '/artgallery', icon: 'mdi:palette' },
-  { title: 'Dashboard', path: '/dashboard', icon: 'ant-design:dashboard-outline' },
-  { title: 'Mature Content', path: '/mature', icon: 'fxemoji:lips', condition: 'showMature' }
-];
+  {
+    title: 'Dashboard',
+    path: '/dashboard',
+    icon: 'ant-design:dashboard-outline',
+  },
+  {
+    title: 'Mature Content',
+    path: '/mature',
+    icon: 'fxemoji:lips',
+    condition: 'showMature',
+  },
+]
 
 function toggleSidebar() {
-  isSidebarOpen.value = !isSidebarOpen.value;
+  isSidebarOpen.value = !isSidebarOpen.value
 }
 
 const filteredLinks = computed(() => {
-  return links.filter(link => !link.condition || (link.condition === 'showMature' && showMature.value));
-});
+  return links.filter(
+    (link) =>
+      !link.condition || (link.condition === 'showMature' && showMature.value),
+  )
+})
 
-const isCurrentPage = (path) => {
-  return contentStore.currentPage?._path === path;
-};
+const isCurrentPage = (path: string) => {
+  return contentStore.currentPage?._path === path
+}
 </script>
 
 <style>
@@ -80,7 +109,8 @@ const isCurrentPage = (path) => {
 }
 
 @keyframes glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 5px rgba(255, 255, 255, 0.75);
   }
   50% {
@@ -89,9 +119,6 @@ const isCurrentPage = (path) => {
       0 0 30px rgba(255, 115, 253, 0.75);
   }
 }
-
-
-
 
 /* Text styling and layout adjustments for when the sidebar is open */
 .nuxt-link {

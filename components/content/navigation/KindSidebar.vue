@@ -3,7 +3,7 @@
     <button class="flex items-start" @click="toggleSidebar">
       <Icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
-        class="Icon-base text-gray-500"
+        class="icon-base text-gray-500"
       ></Icon>
     </button>
     <!-- Collapsible Sidebar -->
@@ -41,10 +41,6 @@
           }}</span>
         </NuxtLink>
       </div>
-      <smart-links
-        v-show="isSidebarOpen"
-        class="text-center flex-grow justify text-xl"
-      />
     </aside>
   </div>
 </template>
@@ -159,22 +155,22 @@ const isCurrentPage = (path: string) => {
     width: 50vw;
   }
   .icon-base {
-    width: 16px;
-    height: 16px;
+    width: 32px;
+    height: 32px;
   }
 }
 
 /* Medium devices */
 @media (min-width: 769px) {
   .w-24 {
-    width: 5vw;
+    width: 10vw;
   }
   .w-64 {
     width: 20vw;
   }
   .icon-base {
-    width: 20px;
-    height: 20px;
+    width: 40px;
+    height: 40px;
   }
 }
 

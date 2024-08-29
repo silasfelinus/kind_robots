@@ -5,14 +5,14 @@
     >
       <div class="flex items-center space-x-1">
         <avatar-image alt="User Avatar" class="h-full aspect-square m-1" />
-        <div class="flex flex-col justify-between m-1" style="max-width: 40vw">
-          <room-title class="text-sm font-semibold bg-primary rounded-2xl" />
+        <div class="flex flex-col justify-between m-1">
+          <room-title class="text-sm font-semibold rounded-2xl" />
           <h2 class="text-md text-accent italic text-center">
             {{ page.subtitle || 'Welcome to Kind Robots' }}
           </h2>
         </div>
       </div>
-      <div class="flex items-center justify-end space-x-1" style="flex-grow: 1">
+      <div class="flex items-center flex-grow justify-end space-x-1">
         <login-button class="flex-1" style="max-width: 22vw" />
         <theme-toggle class="flex-1" style="max-width: 15vw" />
         <butterfly-toggle class="w-1/6" style="max-width: 5vw" />

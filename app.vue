@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container">
+  <div class="main-container h-full w-full">
     <NuxtPage />
   </div>
 </template>
@@ -74,7 +74,6 @@ onMounted(async () => {
 .main-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
   overflow: hidden;
 }
 </style>

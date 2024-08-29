@@ -34,14 +34,17 @@
         >
           <Icon
             :name="link.icon"
-            class="mr-2 cursor-pointer transition-shadow"
+            class="icon-base mr-2 cursor-pointer transition-shadow"
           ></Icon>
           <span v-show="isSidebarOpen" class="text-lg font-semibold">{{
             link.title
           }}</span>
         </NuxtLink>
       </div>
-      <smart-links class="text-center flex-grow justify text-xl" />
+      <smart-links
+        v-show="isSidebarOpen"
+        class="text-center flex-grow justify text-xl"
+      />
     </aside>
   </div>
 </template>
@@ -179,8 +182,8 @@ const isCurrentPage = (path: string) => {
     width: 25vw;
   }
   .icon-base {
-    width: 24px;
-    height: 24px;
+    width: 48px;
+    height: 48px;
   }
 }
 
@@ -193,8 +196,8 @@ const isCurrentPage = (path: string) => {
     width: 20vw;
   }
   .icon-base {
-    width: 28px;
-    height: 28px;
+    width: 56px;
+    height: 56px;
   }
 }
 </style>

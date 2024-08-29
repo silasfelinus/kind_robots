@@ -1,20 +1,19 @@
-
 <template>
-  <main class="flex-grow rounded-2xl p-1 m-1">
-    <header-upgrade />
+<div class="main-container">
+  <header-upgrade />
+  <div class="content-container">
     <kind-sidebar />
-    <div class="absolute bottom-0 center z-50 text-gray-200">Desktop</div>
-<NuxtPage />
+    <main class="main-content">
+      <NuxtPage />
     </main>
+  </div>
+</div>
 </template>
-
-
-
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useHead } from '@vueuse/head'
-import { useErrorStore } from '@/stores/errorStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useTagStore } from '@/stores/tagStore'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
@@ -24,7 +23,7 @@ import { usePitchStore } from '@/stores/pitchStore'
 import { useChannelStore } from '@/stores/channelStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useLayoutStore } from '@/stores/layoutStore'
-import KindSidebar from './../components/content/navigation/KindSidebar.vue'
+import KindSidebar from '@/components/content/navigation/KindSidebar.vue'
 
 const errorStore = useErrorStore()
 const tagStore = useTagStore()
@@ -41,15 +40,8 @@ useHead({
   title: 'Kind Robots',
   meta: [
     { name: 'og:title', content: 'Welcome to the Kind Robots' },
-    {
-      name: 'description',
-      content: 'OpenAI-supported Promptbots here to assist humanity.',
-    },
-    {
-      name: 'og:description',
-      content:
-        'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans',
-    },
+    { name: 'description', content: 'OpenAI-supported Promptbots here to assist humanity.' },
+    { name: 'og:description', content: 'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans' },
     { name: 'og:image', content: '/images/kindtitle.webp' },
     { name: 'twitter:card', content: 'summary_large_image' },
   ],
@@ -77,29 +69,31 @@ onMounted(async () => {
   }
 })
 </script>
-<style>
+
+<style scoped>
 .main-container {
   display: flex;
   flex-direction: column;
+  width: 100vw;
   height: 100vh;
   overflow: hidden;
 }
 
 .content-container {
   display: flex;
-  flex-direction: row;
   flex-grow: 1;
   overflow: hidden;
 }
 
 .kind-sidebar {
+  width: 240px; /* Default width, can be adjusted or made responsive */
   flex-shrink: 0;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .main-content {
   flex-grow: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
+  padding: 1rem;
 }
 </style>
-

@@ -16,9 +16,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useLayoutStore, allowedLayouts } from './../../../stores/layoutStore'
+import { useLayoutStore, LayoutKey } from './../../../stores/layoutStore'
 
 const layoutStore = useLayoutStore()
+
+const allowedLayouts = Object.values(LayoutKey)
 
 const selectedLayout = computed({
   get: () => layoutStore.currentLayout,

@@ -5,22 +5,27 @@
     >
       <div class="flex items-center space-x-1">
         <avatar-image alt="User Avatar" class="h-full aspect-square m-1" />
-        <div class="flex flex-col justify-between m-1">
-          <room-title class="text-sm font-semibold rounded-2xl" />
-          <h2 class="text-md text-accent italic text-center">
+        <!-- Dynamic flex container for title and subtitle -->
+        <div
+          class="flex flex-col sm:flex-row justify-between m-1 w-full max-w-xs sm:max-w-md md:max-w-lg"
+        >
+          <room-title
+            class="text-xs sm:text-sm md:text-base lg:text-lg font-semibold rounded-2xl"
+          />
+          <h2
+            class="text-xs sm:text-md md:text-lg lg:text-xl text-accent italic text-center"
+          >
             {{ page.subtitle || 'Welcome to Kind Robots' }}
           </h2>
         </div>
       </div>
       <div class="flex items-center flex-grow justify-end space-x-1">
-        <login-button class="flex-1" style="max-width: 22vw" />
-        <theme-toggle class="flex-1" style="max-width: 15vw" />
-        <butterfly-toggle class="w-1/6" style="max-width: 5vw" />
-        <nav-toggle
-          class="w-1/6 m-1"
-          style="max-width: 5vw"
-          @click="toggleNav"
+        <login-button
+          class="flex-1 min-w-0 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
         />
+        <theme-toggle class="flex-1 min-w-0 max-w-xs sm:max-w-sm md:max-w-md" />
+        <butterfly-toggle class="w-1/6 min-w-0 max-w-xs" />
+        <nav-toggle class="w-1/6 m-1 min-w-0 max-w-xs" @click="toggleNav" />
       </div>
     </header>
     <navigation-trimmed

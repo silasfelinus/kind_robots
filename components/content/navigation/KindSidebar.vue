@@ -9,7 +9,7 @@
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
       <!-- Sidebar Links with Icons and Titles -->
-      <div v-for="link in filteredLinks" :key="link.title" @click="toggleSidebar" class="icon-link-container">
+      <div v-for="link in filteredLinks" :key="link.title" @click="toggleSidebar" class="icon-link-container mt-5">
         <NuxtLink
           :to="link.path"
           :class="[

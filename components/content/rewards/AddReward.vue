@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRewardStore } from './../../../stores/rewardStore'
-import IconMap from './../../../training/IconMap'
+import IconMap from './../../../training/iconMap'
 
 const rewardStore = useRewardStore()
 const newReward = ref({

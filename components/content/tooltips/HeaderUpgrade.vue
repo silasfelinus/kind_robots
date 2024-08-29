@@ -6,7 +6,7 @@
       <div class="flex items-center space-x-1">
         <avatar-image alt="User Avatar" class="h-full aspect-square m-1" />
         <div class="flex flex-col justify-between" style="max-width: 20vw">
-          <room-title class="text-sm font-semibold bg-base-200 rounded-2xl" />
+          <room-title class="text-sm font-semibold bg-primary rounded-2xl" />
           <h2 class="text-md text-accent italic text-center">
             {{ page.subtitle || 'Welcome to Kind Robots' }}
           </h2>

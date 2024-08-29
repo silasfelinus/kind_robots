@@ -5,15 +5,13 @@
     >
       <div class="flex items-center space-x-1">
         <avatar-image alt="User Avatar" class="h-full aspect-square m-1" />
-        <!-- Dynamic flex container for title and subtitle -->
-        <div
-          class="flex flex-col sm:flex-row justify-between m-1 w-full max-w-xs sm:max-w-md md:max-w-lg"
-        >
+        <!-- Adjusting layout and wrapping -->
+        <div class="flex flex-col sm:flex-row justify-between m-1 flex-grow">
           <room-title
-            class="text-xs sm:text-sm md:text-base lg:text-lg font-semibold rounded-2xl"
+            class="text-xs sm:text-sm md:text-base lg:text-lg font-semibold rounded-2xl truncate max-w-full sm:max-w-xs md:max-w-sm lg:max-w-md"
           />
           <h2
-            class="text-xs sm:text-md md:text-lg lg:text-xl text-accent italic text-center"
+            class="text-xs sm:text-md md:text-lg lg:text-xl text-accent italic text-center truncate"
           >
             {{ page.subtitle || 'Welcome to Kind Robots' }}
           </h2>
@@ -46,3 +44,24 @@ const toggleNav = () => {
   showNav.value = !showNav.value
 }
 </script>
+<style>
+.room-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* Ensures the text doesn't wrap and stays in a single line */
+}
+
+@media (max-width: 640px) {
+  .room-title {
+    max-width: 100px; /* Limit the maximum width on smaller screens */
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .room-title {
+    max-width: 150px; /* Slightly larger max width for slightly larger screens */
+  }
+}
+
+/* Adjustments for larger devices remain as they were */
+</style>

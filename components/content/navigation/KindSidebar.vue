@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <button class="absolute top-3 left-3 z-50" @click="toggleSidebar">
+    <button class="flex items-start" @click="toggleSidebar">
       <icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
         class="icon-base text-gray-500"

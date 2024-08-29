@@ -1,11 +1,11 @@
 <template>
-  <div class="app-container">
+  <div class="app-container bg-primary flex p-1">
     <!-- Check if showMature is true and display the website, otherwise display the rebel-button -->
     <iframe
       v-if="showMature"
       :src="siteUrl"
       frameborder="0"
-      class="website-iframe"
+      class="website-iframe bg-base-200 rounded-2xl border"
     ></iframe>
     <rebel-button v-else class="full-size-btn" />
   </div>
@@ -31,20 +31,16 @@ body,
 }
 
 .app-container {
-  border: 1px solid #ccc;
-  border-radius: 1rem;
-  background-color: #f9f9f9;
   width: 100%;
-  min-height: 86vh;
+  min-height: 83vh;
   padding: 1rem;
   box-sizing: border-box;
-  display: flex; /* Ensures child elements are full height */
 }
 
 .website-iframe,
 .full-size-btn {
   width: 100%;
-  height: 86vh;
+  height: 83vh;
   flex-grow: 1;
   border-radius: 1rem; /* Match parent border-radius */
 }

@@ -71,6 +71,11 @@ const links = [
   { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
   { title: 'Art Gallery', path: '/artgallery', icon: 'mdi:palette' },
   {
+    title: 'Memory Match',
+    path: '/memory',
+    icon: 'material-symbols:art-track-outline-rounded',
+  },
+  {
     title: 'Dashboard',
     path: '/dashboard',
     icon: 'mingcute:settings-6-fill',

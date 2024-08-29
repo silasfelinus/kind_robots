@@ -33,8 +33,8 @@
           ]"
         >
           <Icon
-            :name="link.Icon"
-            class="Icon-lg mr-2 cursor-pointer transition-shadow"
+            :name="link.icon"
+            class="mr-2 cursor-pointer transition-shadow"
           ></Icon>
           <span v-show="isSidebarOpen" class="text-lg font-semibold">{{
             link.title
@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useUserStore } from './../../../stores/userStore' // Update the path as necessary
+import { useUserStore } from './../../../stores/userStore'
 import { useContentStore } from './../../../stores/contentStore'
 
 const userStore = useUserStore()
@@ -57,25 +57,25 @@ const showMature = computed(() => userStore.showMatureContent)
 const isSidebarOpen = ref(true)
 
 const links = [
-  { title: 'Home', path: '/home', Icon: 'heroIcons-outline:home' },
-  { title: 'Add Bot', path: '/addbot', Icon: 'fluent:bot-add-20-regular' },
-  { title: 'Chat with Bots', path: '/botcafe', Icon: 'mdi:chat-processing' },
+  { title: 'Home', path: '/home', icon: 'heroIcons-outline:home' },
+  { title: 'Add Bot', path: '/addbot', icon: 'fluent:bot-add-20-regular' },
+  { title: 'Chat with Bots', path: '/botcafe', icon: 'mdi:chat-processing' },
   {
     title: 'Bot Messages',
     path: '/botmessages',
-    Icon: 'fluent:chat-multiple-24-regular',
+    icon: 'fluent:chat-multiple-24-regular',
   },
-  { title: 'Hot or Not?', path: '/hotornot', Icon: 'emojione-monotone:fire' },
-  { title: 'Art Gallery', path: '/artgallery', Icon: 'mdi:palette' },
+  { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
+  { title: 'Art Gallery', path: '/artgallery', icon: 'mdi:palette' },
   {
     title: 'Dashboard',
     path: '/dashboard',
-    Icon: 'ant-design:dashboard-outline',
+    icon: 'mingcute:settings-6-fill',
   },
   {
     title: 'Mature Content',
     path: '/mature',
-    Icon: 'fxemoji:lips',
+    icon: 'fxemoji:lips',
     condition: 'showMature',
   },
 ]
@@ -97,14 +97,13 @@ const isCurrentPage = (path: string) => {
 </script>
 
 <style>
+/* Basic styles for icon containers and hover effects */
 .Icon-link-container {
-  /* Ensuring that each link container uses full width for alignment and spacing */
   width: 100%;
   padding: 0.5rem;
 }
 
 .Icon-link-container .hover:glow-animation:hover {
-  /* Glow effect when hovering over the Icons */
   animation: glow 1.5s infinite;
 }
 
@@ -120,16 +119,82 @@ const isCurrentPage = (path: string) => {
   }
 }
 
-/* Text styling and layout adjustments for when the sidebar is open */
+/* Adjusting sidebar and text styles */
+.sidebar {
+  transition:
+    width 0.3s ease-in-out,
+    padding 0.3s ease-in-out;
+}
+
 .nuxt-link {
   display: flex;
   align-items: center;
   width: 100%;
-  color: inherit; /* Ensure text color is inherited for consistency */
-  text-decoration: none; /* Remove underline from links */
+  color: inherit;
+  text-decoration: none;
 }
 
 .nuxt-link:hover {
-  text-decoration: none; /* Ensure no underline appears on hover */
+  text-decoration: none;
+}
+
+.sidebar {
+  transition: width 0.3s ease-in-out;
+}
+
+/* Small devices */
+@media (max-width: 768px) {
+  .w-24 {
+    width: 15vw;
+  }
+  .w-64 {
+    width: 50vw;
+  }
+  .icon-base {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Medium devices */
+@media (min-width: 769px) {
+  .w-24 {
+    width: 5vw;
+  }
+  .w-64 {
+    width: 20vw;
+  }
+  .icon-base {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Large devices */
+@media (min-width: 1025px) {
+  .w-24 {
+    width: 8vw;
+  }
+  .w-64 {
+    width: 25vw;
+  }
+  .icon-base {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Extra large devices */
+@media (min-width: 1441px) {
+  .w-24 {
+    width: 5vw;
+  }
+  .w-64 {
+    width: 20vw;
+  }
+  .icon-base {
+    width: 28px;
+    height: 28px;
+  }
 }
 </style>

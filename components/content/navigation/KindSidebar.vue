@@ -57,7 +57,7 @@ const showMature = computed(() => userStore.showMatureContent)
 const isSidebarOpen = ref(true)
 
 const links = [
-  { title: 'Home', path: '/home', icon: 'heroIcons-outline:home' },
+  { title: 'Home', path: '/home', icon: 'line-md:home-md-twotone' },
   { title: 'Add Bot', path: '/addbot', icon: 'fluent:bot-add-20-regular' },
   { title: 'Chat with Bots', path: '/botcafe', icon: 'mdi:chat-processing' },
   {

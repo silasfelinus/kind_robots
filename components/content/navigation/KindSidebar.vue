@@ -1,4 +1,4 @@
-<template>
+<<template>
   <div class="relative">
     <button class="absolute top-3 left-3 z-50" @click="toggleSidebar">
       <icon :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'" class="icon-base text-gray-500"></icon>
@@ -15,15 +15,17 @@
           :class="[
             'flex',
             'items-center',
-            'justify-center',
+            'justify-start',
             'rounded-2xl',
             'text-center',
             'hover:scale-110',
             'hover:glow-animation',
-            isCurrentPage(link.path) ? 'text-gray-400' : '',
+            isCurrentPage(link.path) ? 'text-gray-400' : 'text-gray-900',
+            'w-full'
           ]"
         >
-          <icon :name="link.icon" class="icon-base cursor-pointer transition-shadow"></icon>
+          <icon :name="link.icon" class="icon-base mr-2 cursor-pointer transition-shadow"></icon>
+          <span v-show="isSidebarOpen" class="text-lg font-semibold">{{ link.title }}</span>
         </NuxtLink>
       </div>
       <smart-links class="text-center flex-grow justify text-xl" />
@@ -65,8 +67,15 @@ const isCurrentPage = (path) => {
 };
 </script>
 
-<style scoped>
+<style>
+.icon-link-container {
+  /* Ensuring that each link container uses full width for alignment and spacing */
+  width: 100%;
+  padding: 0.5rem;
+}
+
 .icon-link-container .hover:glow-animation:hover {
+  /* Glow effect when hovering over the icons */
   animation: glow 1.5s infinite;
 }
 
@@ -79,5 +88,21 @@ const isCurrentPage = (path) => {
       0 0 20px rgba(255, 115, 253, 0.75),
       0 0 30px rgba(255, 115, 253, 0.75);
   }
+}
+
+
+
+
+/* Text styling and layout adjustments for when the sidebar is open */
+.nuxt-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  color: inherit; /* Ensure text color is inherited for consistency */
+  text-decoration: none; /* Remove underline from links */
+}
+
+.nuxt-link:hover {
+  text-decoration: none; /* Ensure no underline appears on hover */
 }
 </style>

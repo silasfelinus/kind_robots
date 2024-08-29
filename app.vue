@@ -1,6 +1,11 @@
 <template>
-  <div class="main-container h-full w-full">
-    <NuxtPage />
+  <div class="h-full w-full">
+    <NuxtLayout>
+      <header />
+      <div>
+        <NuxtPage />
+      </div>
+    </NuxtLayout>
   </div>
 </template>
 
@@ -69,11 +74,3 @@ onMounted(async () => {
   }
 })
 </script>
-
-<style>
-.main-container {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-</style>

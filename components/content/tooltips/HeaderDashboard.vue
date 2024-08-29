@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Header -->
     <header
-      class="z-50 flex flex-col md:flex-row items-center overflow-x-hidden"
+      class="z-40 flex flex-col md:flex-row items-center overflow-x-hidden"
     >
       <!-- Left Section -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
@@ -28,7 +28,7 @@
         class="flex items-center justify-end gap-2 overflow-x-hidden w-full md:w-auto"
       >
         <butterfly-toggle class="text-sm z-40" />
-        <theme-toggle class="text-sm z-50" />
+        <theme-toggle class="text-sm z-40" />
         <login-button class="text-sm z-40" />
         <nav-toggle class="text-sm z-40" @toggle-nav="toggleNav" />
       </div>

@@ -3,7 +3,7 @@
     <div
       class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-1 shadow-lg"
     >
-      <div class="flex space-x-2 z-50">
+      <div class="flex space-x-2 z-40">
         <!-- New Icon for showing the Site Map -->
         <Icon
           name="bi:map"

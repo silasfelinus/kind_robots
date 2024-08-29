@@ -12,7 +12,7 @@
     <!-- Popup Content -->
     <div
       v-if="showPopup"
-      class="flex justify-center rounded-2xl items-center z-50 bg-base-200 p-2 m-2 border"
+      class="flex justify-center rounded-2xl items-center z-40 bg-base-200 p-2 m-2 border"
     >
       <div class="bg-base-400 rounded-2xl p-6 m-6 text-center relative">
         <h2 class="text-2xl font-semibold mb-4">

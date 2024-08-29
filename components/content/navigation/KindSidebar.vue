@@ -1,9 +1,9 @@
 <template>
   <div class="relative">
-    <button class="absolute top-2 left-2 z-50" @click="toggleSidebar">
+    <button class="absolute top-8 left-4 z-40" @click="toggleSidebar">
       <Icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
-        class="icon-base text-gray-500"
+        class="h-4 w-4 text-gray-500"
       ></Icon>
     </button>
     <!-- Collapsible Sidebar -->
@@ -56,7 +56,7 @@ const showMature = computed(() => userStore.showMatureContent)
 const isSidebarOpen = ref(true)
 
 const links = [
-  { title: 'Home', path: '/home', icon: 'line-md:home-md-twotone' },
+  { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
   { title: 'Add Bot', path: '/addbot', icon: 'fluent:bot-add-20-regular' },
   { title: 'Chat with Bots', path: '/botcafe', icon: 'mdi:chat-processing' },
   {
@@ -143,7 +143,7 @@ const isCurrentPage = (path: string) => {
   transition: width 0.3s ease-in-out;
   -webkit-overflow-scrolling: touch;
   overflow-y: auto; /* Ensures scroll */
-  max-height: calc(100vh - 4rem);
+  max-height: 83vh;
 }
 
 .nuxt-link {
@@ -192,7 +192,7 @@ const isCurrentPage = (path: string) => {
     width: 8vw;
   }
   .w-64 {
-    width: 20vw;
+    width: 15vw;
   }
   .icon-base {
     width: 48px;

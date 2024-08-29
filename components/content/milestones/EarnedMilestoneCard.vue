@@ -5,11 +5,11 @@
   >
     <!-- Star Icon for Achieved Milestones -->
     <div class="absolute top-2 right-2 z-6">
-      <icon name="ph:star-bold" class="text-yellow-400 text-4xl" />
+      <Icon name="ph:star-bold" class="text-yellow-400 text-4xl" />
     </div>
     <div class="text-center">
       <!-- Milestone Icon -->
-      <icon :name="milestone.icon" class="text-9xl mb-2 md:w-16 md:h-16" />
+      <Icon :name="milestone.Icon" class="text-9xl mb-2 md:w-16 md:h-16" />
       <!-- Milestone Label -->
       <div class="text-2xl font-bold">
         <a
@@ -49,7 +49,7 @@
       <!-- Jellybean Award -->
       <div>
         <div class="text-lg">You discovered 1 Jellybean!</div>
-        <icon name="tdesign:bean" class="text-9xl" />
+        <Icon name="tdesign:bean" class="text-9xl" />
       </div>
     </div>
   </div>

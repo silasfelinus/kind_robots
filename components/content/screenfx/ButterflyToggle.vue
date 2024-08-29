@@ -1,12 +1,12 @@
 <template>
   <div
-    class="icon-container flex items-center justify-center space-x-1 rounded-lg bg-accent-100 flex-col"
+    class="Icon-container flex items-center justify-center space-x-1 rounded-lg bg-accent-100 flex-col"
   >
     <div
-      class="icon-box transition-transform transform hover:scale-125 cursor-pointer rounded-full hover:bg-accent-200"
+      class="Icon-box transition-transform transform hover:scale-125 cursor-pointer rounded-full hover:bg-accent-200"
       @click="toggleAmiSwarm"
     >
-      <icon
+      <Icon
         name="emojione:butterfly"
         title="Kind Butterflies"
         :active="fxStore.showAmiSwarm"
@@ -22,7 +22,7 @@
       />
     </div>
 
-    <!-- Moved the label below the icon -->
+    <!-- Moved the label below the Icon -->
     <div
       v-if="!fxStore.showAmiSwarm"
       class="label-container mt-1 text-xl text-default font-bold"
@@ -44,7 +44,7 @@ const butterflyCount = 15
 </script>
 
 <style>
-.icon-box {
+.Icon-box {
   border-radius: 50%;
 }
 

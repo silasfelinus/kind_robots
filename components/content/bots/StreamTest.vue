@@ -68,7 +68,7 @@
             v-if="showPopup[index]?.liked"
             class="popup bg-info text-lg rounded-2xl"
           >
-            Response Liked <icon name="like" class="icon-class" />
+            Response Liked <Icon name="like" class="Icon-class" />
           </div>
 
           <button
@@ -82,7 +82,7 @@
             v-if="showPopup[index]?.hated"
             class="popup bg-info text-lg rounded-2xl"
           >
-            Response hated <icon name="hate" class="icon-class" />
+            Response hated <Icon name="hate" class="Icon-class" />
           </div>
           <button
             class="hover:bg-gray-200"
@@ -95,7 +95,7 @@
             v-if="showPopup[index]?.loved"
             class="popup bg-info text-lg rounded-2xl"
           >
-            Favorited <icon name="❤️" class="icon-class" />
+            Favorited <Icon name="❤️" class="Icon-class" />
           </div>
           <button
             class="hover:bg-gray-200"
@@ -108,7 +108,7 @@
             v-if="showPopup[index]?.flagged"
             class="popup bg-info text-lg rounded-2xl"
           >
-            Flagged <icon name="🚩" class="icon-class" />
+            Flagged <Icon name="🚩" class="Icon-class" />
           </div>
         </div>
         <div

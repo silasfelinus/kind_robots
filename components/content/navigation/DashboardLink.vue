@@ -1,5 +1,5 @@
 <template>
-  <div class="icon-link-container">
+  <div class="Icon-link-container">
     <NuxtLink
       to="/dashboard"
       :class="[
@@ -13,8 +13,8 @@
         isCurrentPage ? 'text-gray-400' : '',
       ]"
     >
-      <icon
-        name="rivet-icons:settings"
+      <Icon
+        name="rivet-Icons:settings"
         class="w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
       />
     </NuxtLink>

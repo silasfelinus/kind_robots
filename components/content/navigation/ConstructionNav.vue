@@ -5,7 +5,7 @@
       class="flex items-center justify-center text-2xl font-extrabold border shadow-lg bg-secondary rounded-2xl mb-2 px-1"
     >
       Under Construction
-      <icon name="line-md:construction" class="text-2xl ml-2" />
+      <Icon name="line-md:construction" class="text-2xl ml-2" />
     </div>
 
     <!-- Links -->
@@ -34,7 +34,7 @@
         class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary"
       >
         You are here
-        <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
+        <Icon name="line-md:download-outline-loop" class="text-lg mr-2" />
       </div>
       <!-- Page Title and Popup -->
       <div class="flex flex-col items-start">
@@ -43,7 +43,7 @@
         </div>
         <popup-description
           v-if="isHovered === page._id"
-          :icon="page.icon"
+          :Icon="page.Icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />

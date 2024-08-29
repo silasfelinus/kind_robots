@@ -14,7 +14,7 @@
       }"
       class="text-bubble"
     >
-      <icon name="mdi:butterfly" class="inline-block mr-2" />
+      <Icon name="mdi:butterfly" class="inline-block mr-2" />
       {{ butterfly.text }}
     </div>
   </div>

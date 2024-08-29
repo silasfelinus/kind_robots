@@ -165,7 +165,7 @@ function toggleEurope3Image() {
   @apply bg-yellow-500 hover:bg-yellow-600;
 }
 
-.icon-effect {
+.Icon-effect {
   @apply w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow;
 }
 

@@ -21,8 +21,8 @@
       <div
         class="flex items-center space-x-2 border border-solid rounded-2xl p-2 bg-secondary group-hover:bg-accent transition-colors"
       >
-        <div v-if="page.icon" class="text-3xl group-hover:text-4xl">
-          <icon :name="page.icon" />
+        <div v-if="page.Icon" class="text-3xl group-hover:text-4xl">
+          <Icon :name="page.Icon" />
         </div>
         <div class="text-lg">
           {{ page.title }}
@@ -32,7 +32,7 @@
         v-if="page._path === currentPath"
         class="mt-1 text-xl rounded-2xl border bg-accent p-1"
       >
-        <icon name="line-md:download-outline-loop" class="text-lg" />
+        <Icon name="line-md:download-outline-loop" class="text-lg" />
         You are here
       </div>
     </div>
@@ -61,7 +61,7 @@ const { page, currentPath, isHighlight, isExtended } = defineProps<{
   page: {
     _path: string
     title: string
-    icon?: string
+    Icon?: string
     image?: string
     underConstruction?: boolean
     description?: string

@@ -11,7 +11,7 @@
       >
         Highlight Rooms
       </div>
-      <icon name="line-md:highlight" class="text-info text-2xl" />
+      <Icon name="line-md:highlight" class="text-info text-2xl" />
     </div>
     <NuxtLink
       v-for="page in highlightPages"
@@ -42,7 +42,7 @@
         />
       </div>
       <div v-if="page._path === $route.path" class="absolute top-2 right-2">
-        <icon name="line-md:location" class="text-info" />
+        <Icon name="line-md:location" class="text-info" />
       </div>
     </NuxtLink>
   </div>

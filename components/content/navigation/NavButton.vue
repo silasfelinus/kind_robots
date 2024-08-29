@@ -8,17 +8,17 @@
       :class="underConstruction ? 'bg-warning' : 'bg-secondary'"
     >
       <div
-        v-if="icon && !underConstruction"
+        v-if="Icon && !underConstruction"
         class="text-3xl group-hover:text-4xl"
       >
-        <icon :name="icon" />
+        <Icon :name="Icon" />
       </div>
       <div class="text-lg">
         {{ title }}
       </div>
     </div>
     <div v-if="isCurrentPage" class="ml-2 text-md text-info">
-      <icon name="line-md:download-outline-loop" class="text-lg" />
+      <Icon name="line-md:download-outline-loop" class="text-lg" />
       You are here
     </div>
   </div>
@@ -27,13 +27,13 @@
 <script setup lang="ts">
 const {
   title = 'Mysterious Portal',
-  icon = 'line-md:magic-stick',
+  Icon = 'line-md:magic-stick',
   isCurrentPage = false,
   underConstruction = false,
   isExtended = false,
 } = defineProps<{
   title?: string
-  icon?: string
+  Icon?: string
   isCurrentPage?: boolean
   underConstruction?: boolean
   isExtended?: boolean

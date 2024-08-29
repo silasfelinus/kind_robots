@@ -11,10 +11,10 @@
     ]"
     @click="goBack"
   >
-    <icon
+    <Icon
       :name="'typcn:arrow-back-outline'"
       :title="'Back'"
-      class="icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+      class="Icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
     />
   </div>
 </template>
@@ -34,7 +34,7 @@ const goBack = () => {
 </script>
 
 <style scoped>
-.icon-effect {
+.Icon-effect {
   @apply cursor-pointer transition-shadow;
 }
 

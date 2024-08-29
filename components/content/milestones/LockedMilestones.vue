@@ -9,7 +9,7 @@
       >
         <div class="text-center">
           <!-- Milestone Icon -->
-          <icon :name="milestone.icon" class="text-6xl mb-2" />
+          <Icon :name="milestone.Icon" class="text-6xl mb-2" />
           <!-- Milestone Label -->
           <div class="text-xl font-bold text-gray-700">
             {{ milestone.label }}
@@ -21,7 +21,7 @@
           <!-- Question Mark Icon for Directions -->
           <div class="absolute top-2 right-2 z-6">
             <nuxt-link :to="milestone.pageHint || '#'">
-              <icon name="ph:question-bold" class="text-blue-500 text-2xl" />
+              <Icon name="ph:question-bold" class="text-blue-500 text-2xl" />
             </nuxt-link>
           </div>
         </div>

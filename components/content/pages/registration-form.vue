@@ -67,7 +67,7 @@
             @input="validatePassword"
           />
           <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-            <icon
+            <Icon
               name="tabler:eye"
               :class="
                 showPassword
@@ -96,7 +96,7 @@
             @input="validateConfirmPassword"
           />
           <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-            <icon
+            <Icon
               :name="showConfirmPassword ? 'tabler:eye-off' : 'tabler:eye'"
               :class="
                 showConfirmPassword
@@ -112,14 +112,14 @@
           v-if="status"
           class="my-2 px-4 py-2 text-lg text-info bg-info-light rounded"
         >
-          <icon name="tabler:info-circle" class="mr-2" />
+          <Icon name="tabler:info-circle" class="mr-2" />
           {{ status }}
         </div>
         <div
           v-if="error"
           class="my-2 px-4 py-2 text-lg text-warning bg-warning-light rounded"
         >
-          <icon name="tabler:alert-triangle" class="mr-2" />
+          <Icon name="tabler:alert-triangle" class="mr-2" />
           {{ error }}
         </div>
         <button

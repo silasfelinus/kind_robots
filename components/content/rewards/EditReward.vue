@@ -33,7 +33,7 @@ const editedReward = ref<Partial<Reward>>({}) // Define the type for editedRewar
 
 // Form fields definition for better reusability and maintainability
 const formFields = [
-  { id: 'icon', label: 'Icon', required: true },
+  { id: 'Icon', label: 'Icon', required: true },
   { id: 'text', label: 'Text', required: true },
   { id: 'power', label: 'Power', required: true },
   { id: 'rarity', label: 'Rarity', type: 'number' },

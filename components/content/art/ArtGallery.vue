@@ -4,22 +4,22 @@
       class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-lg"
     >
       <div class="flex space-x-2">
-        <icon
-          name="grommet-icons:grid"
+        <Icon
+          name="grommet-Icons:grid"
           class="text-2xl cursor-pointer"
           @click="setView('fourRow')"
         />
-        <icon
+        <Icon
           name="mdi:view-dashboard-outline"
           class="text-2xl cursor-pointer"
           @click="setView('threeRow')"
         />
-        <icon
+        <Icon
           name="ion:grid-outline"
           class="text-2xl cursor-pointer"
           @click="setView('twoRow')"
         />
-        <icon
+        <Icon
           name="bi:fullscreen"
           class="text-2xl cursor-pointer"
           @click="setView('single')"

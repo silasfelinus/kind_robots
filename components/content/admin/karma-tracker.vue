@@ -1,7 +1,7 @@
 <!-- Karma Tracker Component -->
 <template>
   <div class="flex items-center space-x-2">
-    <icon name="game-icons:health-potion" class="text-lg" />
+    <Icon name="game-icons:health-potion" class="text-lg" />
     <span>{{ karma }}</span>
   </div>
 </template>

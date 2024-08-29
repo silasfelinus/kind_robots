@@ -9,7 +9,7 @@
         <div
           class="silas-chat bubble bg-primary text-white p-4 rounded-2xl shadow-lg mb-2"
         >
-          <icon name="mdi:chat" class="text-white mr-2 text-2xl" />Silas Says:
+          <Icon name="mdi:chat" class="text-white mr-2 text-2xl" />Silas Says:
           <span class="text-xl block">{{ streamedText }}</span>
         </div>
       </div>
@@ -21,7 +21,7 @@
         <div
           class="ami-chat bubble bg-secondary text-white p-4 rounded-2xl shadow-lg mb-2 flash-animation"
         >
-          <icon name="ph:butterfly" class="text-white mr-2 text-2xl" />
+          <Icon name="ph:butterfly" class="text-white mr-2 text-2xl" />
           <div :class="{ 'opacity-50': isGreyedOut }">
             Ami is {{ randomAction }}
           </div>
@@ -32,7 +32,7 @@
         <div
           class="ami-chat bubble bg-secondary text-white p-4 rounded-2xl shadow-lg mb-2"
         >
-          <icon name="ph:butterfly" class="text-white mr-2 text-2xl" />Ami Says:
+          <Icon name="ph:butterfly" class="text-white mr-2 text-2xl" />Ami Says:
           <span class="text-xl block">{{ amiStream }}</span>
         </div>
       </div>

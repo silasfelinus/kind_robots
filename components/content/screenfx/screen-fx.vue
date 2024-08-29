@@ -45,8 +45,8 @@
             @mouseover="hoveredEffect = effect.id"
             @mouseout="hoveredEffect = null"
           >
-            <icon
-              :name="effect.icon"
+            <Icon
+              :name="effect.Icon"
               :title="effect.label"
               :active="effect.isActive"
               :class="{ glow: effect.isActive }"
@@ -82,7 +82,7 @@ const effects = ref([
   {
     id: 'fizzy-bubbles',
     label: 'Fizzy Lifting',
-    icon: 'mdi:bottle-soda-classic-outline',
+    Icon: 'mdi:bottle-soda-classic-outline',
     tooltip: 'Float away with fizzy bubbles 🍾',
     reveal: 'Carbonation!',
     isActive: false,
@@ -90,7 +90,7 @@ const effects = ref([
   {
     id: 'bubble-effect',
     label: 'Bubble Fiesta',
-    icon: 'game-icons:bubbles',
+    Icon: 'game-Icons:bubbles',
     tooltip: 'rainbow clown bubbles 🌈',
     reveal: 'Bubble Overload!',
     isActive: false,
@@ -98,7 +98,7 @@ const effects = ref([
   {
     id: 'rain-effect',
     label: 'Rainmaker',
-    icon: 'line-md:paint-drop-twotone',
+    Icon: 'line-md:paint-drop-twotone',
     tooltip: `Rain doesn't have to be sad`,
     route: 'Summon a rainstorm 🌧️',
     reveal: 'Just a drizzle',
@@ -107,7 +107,7 @@ const effects = ref([
   {
     id: 'talking-butterflies',
     label: 'Butterfly Scouts',
-    icon: 'ph:butterfly-light',
+    Icon: 'ph:butterfly-light',
     tooltip: 'Release AMI 🦋',
     reveal: 'Happy butterflies',
     route: '/fundraiser',

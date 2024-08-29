@@ -8,7 +8,7 @@
       class="focus:outline-none transition-transform duration-200 transform hover:scale-110"
       @click="toggleInfo"
     >
-      <icon :name="toggleIcon" class="w-16 h-16 text-6xl opacity-80" />
+      <Icon :name="toggleIcon" class="w-16 h-16 text-6xl opacity-80" />
     </button>
     <p
       v-if="showText"

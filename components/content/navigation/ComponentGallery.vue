@@ -15,7 +15,7 @@
 
     <!-- Loading State -->
     <div v-if="isLoading">
-      <icon name="mdi:loading" class="animate-spin text-4xl" />
+      <Icon name="mdi:loading" class="animate-spin text-4xl" />
       Loading...
     </div>
 
@@ -31,7 +31,7 @@
         @click="fetchComponents(folder)"
       >
         <div class="text-center">
-          <icon name="bi:folder-fill" class="text-4xl" />
+          <Icon name="bi:folder-fill" class="text-4xl" />
           <p class="mt-2">
             {{ folder }}
           </p>
@@ -43,8 +43,8 @@
     <div v-else class="grid grid-cols-3 gap-4">
       <!-- Back Button -->
       <div class="col-span-full text-right mb-4">
-        <icon
-          name="game-icons:fast-backward-button"
+        <Icon
+          name="game-Icons:fast-backward-button"
           class="text-4xl cursor-pointer"
           @click="clearSelectedComponents"
         />
@@ -52,8 +52,8 @@
       <!-- Components -->
       <!-- Cube Icon to End Component -->
       <div v-if="selectedComponent" class="absolute top-0 left-0 mt-4 ml-4">
-        <icon
-          name="game-icons:companion-cube"
+        <Icon
+          name="game-Icons:companion-cube"
           class="text-4xl cursor-pointer"
           @click="endComponent"
         />
@@ -65,7 +65,7 @@
         @click="openModal(component)"
       >
         <div class="text-center">
-          <icon name="game-icons:companion-cube" class="text-4xl mb-2" />
+          <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
           <p>{{ component }}</p>
         </div>
       </div>

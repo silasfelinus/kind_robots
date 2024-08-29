@@ -3,7 +3,7 @@
     <!-- Spotify Login -->
     <div v-if="!token" class="mb-8">
       <button class="btn btn-primary" @click="fetchSpotifyToken">
-        Login with Spotify <icon name="mdi:spotify" class="text-lg" />
+        Login with Spotify <Icon name="mdi:spotify" class="text-lg" />
       </button>
     </div>
 
@@ -35,22 +35,22 @@
       <!-- Playback Controls -->
       <div class="flex justify-center space-x-4 mt-4">
         <button class="btn btn-accent" @click="previousTrack">
-          <icon name="mdi:skip-previous" class="icon-size" />
+          <Icon name="mdi:skip-previous" class="Icon-size" />
         </button>
         <button class="btn btn-accent" @click="togglePlay">
-          <icon
+          <Icon
             :name="isPlaying ? 'mdi:pause' : 'mdi:play'"
-            class="icon-size"
+            class="Icon-size"
           />
         </button>
         <button class="btn btn-accent" @click="nextTrack">
-          <icon name="mdi:skip-next" class="icon-size" />
+          <Icon name="mdi:skip-next" class="Icon-size" />
         </button>
       </div>
 
       <!-- Volume Control -->
       <div class="mt-4 flex items-center justify-center">
-        <icon name="mdi:volume-high" class="text-lg mr-2" />
+        <Icon name="mdi:volume-high" class="text-lg mr-2" />
         <input v-model="volume" type="range" class="w-full" min="0" max="100" />
       </div>
 
@@ -125,7 +125,7 @@ const { fetchSpotifyToken, togglePlay, nextTrack, previousTrack } = spotifyStore
 </script>
 
 <style>
-.icon-size {
+.Icon-size {
   font-size: 2rem;
 }
 

@@ -11,7 +11,7 @@
       @mouseover="showMatureTooltip = true"
       @mouseleave="showMatureTooltip = false"
     >
-      <icon
+      <Icon
         :name="'emojione-monotone:lipstick'"
         :title="'Toggle Mature Content'"
         class="w-full h-full"

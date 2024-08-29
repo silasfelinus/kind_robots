@@ -11,8 +11,8 @@
             :to="item.link"
             class="block text-center text-2xl font-semibold leading-tight text-black overflow-hidden overflow-ellipsis mb-4"
           >
-            <template v-if="item.state === 'icon'">
-              <icon :icon="item.icon" />
+            <template v-if="item.state === 'Icon'">
+              <Icon :Icon="item.Icon" />
             </template>
             {{ item.title }}
           </NuxtLink>
@@ -61,7 +61,7 @@ const cardClass = (state) => {
     'transform transition-all duration-200 hover:scale-105 bg-primary rounded-lg shadow-lg overflow-hidden grid grid-cols-4 gap-4'
   if (state === 'collapsed') {
     return `${baseClass} hidden`
-  } else if (state === 'icon') {
+  } else if (state === 'Icon') {
     return `${baseClass} grid-cols-1`
   } else if (state === 'image') {
     return `${baseClass} grid-cols-2`

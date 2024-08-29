@@ -9,7 +9,7 @@
         v-if="page.tooltip && !tipStatus.Silas.seen"
         @click="toggleTip('Silas')"
       >
-        <icon
+        <Icon
           name="solar:cat-bold"
           class="text-3xl"
           :class="tipStatus.Silas.show ? 'text-accent flash' : 'text-default'"
@@ -19,7 +19,7 @@
         v-if="page.amitip && !tipStatus.Ami.seen"
         @click="toggleTip('Ami')"
       >
-        <icon
+        <Icon
           name="ph:butterfly-duotone"
           class="text-3xl"
           :class="tipStatus.Ami.show ? 'text-accent flash' : 'text-default'"

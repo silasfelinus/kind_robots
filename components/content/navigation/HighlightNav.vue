@@ -8,7 +8,7 @@
       class="transition duration-600 ease-in-out absolute top-4 left-1/2 transform -translate-x-1/2 bg-base-400 border rounded-2xl p-2 cursor-pointer shadow-lg"
       @click.stop="toggleExtend"
     >
-      <icon
+      <Icon
         :name="
           isExtended
             ? 'line-md:chevron-small-double-down'
@@ -30,7 +30,7 @@
       >
         <!-- Compact View -->
         <div v-if="!isExtended" class="flex flex-row items-center space-x-2">
-          <icon :name="page.icon" class="text-3xl" />
+          <Icon :name="page.Icon" class="text-3xl" />
           <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
             {{ page.title }}
           </div>

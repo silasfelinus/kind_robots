@@ -34,7 +34,7 @@
                 v-if="page._path === $route.path"
                 class="m-1 text-md bg-secondary rounded-2xl border p-1"
               >
-                <icon name="line-md:download-outline-loop" class="text-lg" />
+                <Icon name="line-md:download-outline-loop" class="text-lg" />
                 You are here
               </div>
             </div>
@@ -46,7 +46,7 @@
       <div v-if="isExtended" class="order-last mt-4 p-2 rounded-2xl">
         <div class="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-6">
           <div
-            v-for="page in iconAndTextPages"
+            v-for="page in IconAndTextPages"
             :key="page._id"
             class="m-2 relative group"
           >
@@ -54,8 +54,8 @@
               :to="page._path"
               class="p-2 text-center bg-secondary rounded-2xl flex items-center justify-center space-x-2 group hover:bg-accent transition-colors duration-300"
             >
-              <div v-if="page.icon" class="text-3xl">
-                <icon :name="page.icon" />
+              <div v-if="page.Icon" class="text-3xl">
+                <Icon :name="page.Icon" />
               </div>
               <div class="text-lg p-1">
                 {{ page.title }}
@@ -63,7 +63,7 @@
                   v-if="page._path === $route.path"
                   class="mt-1 text-md text-secondary rounded-full border p-1"
                 >
-                  <icon name="line-md:download-outline-loop" class="text-lg" />
+                  <Icon name="line-md:download-outline-loop" class="text-lg" />
                   You are here
                 </div>
               </div>
@@ -82,7 +82,7 @@
       class="transition duration-600 ease-in-out absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-base-400 border rounded-2xl p-2 cursor-pointer shadow-lg"
       @click.stop="toggleExtend"
     >
-      <icon
+      <Icon
         :name="
           isExtended
             ? 'line-md:chevron-small-double-down'
@@ -108,8 +108,8 @@ const toggleExtend = () => {
 const highlightPages = computed(() =>
   contentStore.pagesByTagAndSort('home', 'highlight'),
 )
-const iconAndTextPages = computed(() => [
-  ...contentStore.pagesByTagAndSort('home', 'icon'),
+const IconAndTextPages = computed(() => [
+  ...contentStore.pagesByTagAndSort('home', 'Icon'),
   ...contentStore.pagesByTagAndSort('home', 'text'),
 ])
 </script>

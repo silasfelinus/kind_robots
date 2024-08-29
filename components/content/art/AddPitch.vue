@@ -9,7 +9,7 @@
       class="p-4 rounded-2xl border m-2 bg-primary text-white"
       @click="showForm = !showForm"
     >
-      <icon name="typcn:plus" class="text-4xl" />
+      <Icon name="typcn:plus" class="text-4xl" />
     </button>
     <p class="text-lg font-semibold m-4">Click to Add a New Pitch</p>
 

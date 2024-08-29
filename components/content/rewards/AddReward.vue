@@ -4,34 +4,34 @@
     <form @submit.prevent="addReward">
       <!-- Icon Selection -->
       <div class="mb-2">
-        <label for="icon" class="block text-sm font-medium text-gray-600"
+        <label for="Icon" class="block text-sm font-medium text-gray-600"
           >Icon</label
         >
         <select
-          v-model="newReward.icon"
+          v-model="newReward.Icon"
           required
           class="p-2 rounded bg-base-200"
         >
-          <option v-for="(name, label) in iconMap" :key="label" :value="name">
+          <option v-for="(name, label) in IconMap" :key="label" :value="name">
             {{ label }} - {{ name }}
           </option>
         </select>
       </div>
       <!-- Link to Game Icons set -->
       <a
-        href="https://icon-sets.iconify.design/game-icons/"
+        href="https://Icon-sets.Iconify.design/game-Icons/"
         target="_blank"
         rel="noopener noreferrer"
       >
-        Explore more icons
+        Explore more Icons
       </a>
       <div class="mb-2">
-        <label for="icon" class="block text-sm font-medium text-gray-600"
+        <label for="Icon" class="block text-sm font-medium text-gray-600"
           >Icon</label
         >
         <input
-          id="icon"
-          v-model="newReward.icon"
+          id="Icon"
+          v-model="newReward.Icon"
           placeholder="🌟"
           required
           class="p-2 rounded bg-base-200"
@@ -83,11 +83,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRewardStore } from './../../../stores/rewardStore'
-import iconMap from './../../../training/iconMap'
+import IconMap from './../../../training/IconMap'
 
 const rewardStore = useRewardStore()
 const newReward = ref({
-  icon: '',
+  Icon: '',
   text: '',
   power: '',
   rarity: 50,
@@ -96,7 +96,7 @@ const newReward = ref({
 const addReward = async () => {
   await rewardStore.createReward(newReward.value)
   newReward.value = {
-    icon: '',
+    Icon: '',
     text: '',
     power: '',
     rarity: 50,

@@ -166,7 +166,7 @@ const isCurrentPage = (path: string) => {
     width: 10vw;
   }
   .w-64 {
-    width: 20vw;
+    width: 25vw;
   }
   .icon-base {
     width: 48px;
@@ -180,7 +180,7 @@ const isCurrentPage = (path: string) => {
     width: 8vw;
   }
   .w-64 {
-    width: 25vw;
+    width: 20vw;
   }
   .icon-base {
     width: 48px;
@@ -194,7 +194,7 @@ const isCurrentPage = (path: string) => {
     width: 5vw;
   }
   .w-64 {
-    width: 20vw;
+    width: 10vw;
   }
   .icon-base {
     width: 56px;

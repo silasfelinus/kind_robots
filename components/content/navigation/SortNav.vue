@@ -31,27 +31,27 @@
         </NuxtLink>
         <popup-description
           v-if="isHovered === page._id"
-          :icon="page.icon"
+          :Icon="page.Icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />
       </div>
     </div>
     <div class="flex flex-wrap justify-center mt-2 space-x-2">
-      <div v-for="page in iconPages" :key="page._id" class="m-2 relative group">
+      <div v-for="page in IconPages" :key="page._id" class="m-2 relative group">
         <NuxtLink
           :to="page._path"
           class="btn btn-accent rounded-full p-2 transform transition-transform hover:scale-110 flex items-center space-x-2"
         >
-          <icon
-            :name="page.icon"
+          <Icon
+            :name="page.Icon"
             class="w-6 h-6 group-hover:text-accent transition-colors duration-300"
           />
           {{ page.title }}
         </NuxtLink>
         <popup-description
           v-if="isHovered === page._id"
-          :icon="page.icon"
+          :Icon="page.Icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />
@@ -73,7 +73,7 @@
         </NuxtLink>
         <popup-description
           v-if="isHovered === page._id"
-          :icon="page.icon"
+          :Icon="page.Icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />
@@ -99,6 +99,6 @@ const contentStore = useContentStore()
 const highlightPages = computed(() =>
   contentStore.pagesByTagAndSort('home', 'highlight'),
 )
-const iconPages = computed(() => contentStore.pagesByTagAndSort('home', 'icon'))
+const IconPages = computed(() => contentStore.pagesByTagAndSort('home', 'Icon'))
 const textPages = computed(() => contentStore.pagesByTagAndSort('home', 'text'))
 </script>

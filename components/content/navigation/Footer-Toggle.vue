@@ -11,7 +11,7 @@
       class="transition duration-600 ease-in-out absolute bottom-0 right-0 transform -translate-x-1/3 rounded-2xl cursor-pointer shadow-lg p-2 z-50 m-4"
       @click.stop="toggleExtend"
     >
-      <icon
+      <Icon
         :name="
           isExtended
             ? 'line-md:chevron-small-double-down'
@@ -40,13 +40,13 @@
         <!-- Tooltip -->
         <popup-description
           v-if="isHovered === page._id"
-          :icon="page.icon"
+          :Icon="page.Icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />
         <!-- Compact View -->
         <div v-if="!isExtended" class="flex flex-row items-center space-x-2">
-          <icon :name="page.icon" class="text-3xl" />
+          <Icon :name="page.Icon" class="text-3xl" />
           <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
             {{ page.title }}
           </div>
@@ -67,7 +67,7 @@
             class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary"
           >
             You are here
-            <icon name="line-md:download-outline-loop" class="text-lg mr-2" />
+            <Icon name="line-md:download-outline-loop" class="text-lg mr-2" />
           </div>
           <div class="flex flex-col items-start">
             <div
@@ -77,7 +77,7 @@
             </div>
             <popup-description
               v-if="isHovered === page._id"
-              :icon="page.icon"
+              :Icon="page.Icon"
               :description="page.description"
               :is-hovered="isHovered === page._id"
             />

@@ -2,17 +2,17 @@
   <div class="relative bg-base-200 rounded-2xl m-4 p-4">
     <!-- View Toggle -->
     <div class="absolute top-4 right-4 flex space-x-2 z-50">
-      <icon
-        name="grommet-icons:grid"
+      <Icon
+        name="grommet-Icons:grid"
         class="text-2xl cursor-pointer"
         @click="setView('fourRow')"
       />
-      <icon
+      <Icon
         name="ion:grid-outline"
         class="text-2xl cursor-pointer"
         @click="setView('twoRow')"
       />
-      <icon
+      <Icon
         name="bi:fullscreen"
         class="text-2xl cursor-pointer"
         @click="setView('single')"
@@ -101,7 +101,7 @@ watch(view, (newView) => {
 </script>
 
 <style scoped>
-.icon {
+.Icon {
   width: 24px;
   height: 24px;
 }

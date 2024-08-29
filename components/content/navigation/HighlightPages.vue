@@ -25,11 +25,11 @@
           class="flex items-center m-1 text-xl rounded-2xl border bg-accent p-1"
         >
           You are here
-          <icon name="line-md:download-outline-loop" class="text-lg m-1" />
+          <Icon name="line-md:download-outline-loop" class="text-lg m-1" />
         </div>
         <popup-description
           v-if="isHovered === page._id"
-          :icon="page.icon"
+          :Icon="page.Icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />

@@ -7,9 +7,9 @@
 
     <!-- Detailed Reward View -->
     <div v-else-if="rewardStore.currentReward" :class="{ pixelate: pixelate }">
-      <icon
-        v-if="rewardStore.currentReward && rewardStore.currentReward.icon"
-        :name="rewardStore.currentReward.icon"
+      <Icon
+        v-if="rewardStore.currentReward && rewardStore.currentReward.Icon"
+        :name="rewardStore.currentReward.Icon"
         class="text-12xl mb-2 transition-all duration-500 ease-in-out"
       />
       <h1 class="text-4xl">
@@ -21,7 +21,7 @@
       </p>
       <p class="text-xl">🌟 Rarity: {{ rewardStore.currentReward.rarity }}</p>
       <button class="bg-primary p-2 rounded" @click="endReward">
-        <icon name="game-icons:fast-backward-button" class="text-6xl" />
+        <Icon name="game-Icons:fast-backward-button" class="text-6xl" />
       </button>
       <button class="bg-accent p-2 rounded" @click="showEditReward = true">
         ✏️ Edit
@@ -44,7 +44,7 @@
         @click="selectReward(reward)"
       >
         <div class="text-center">
-          <icon name="game-icons:open-treasure-chest" class="text-6xl" />
+          <Icon name="game-Icons:open-treasure-chest" class="text-6xl" />
           <p class="mt-2 text-lg">
             {{ reward.text }}
           </p>

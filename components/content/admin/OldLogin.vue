@@ -2,7 +2,7 @@
   <div class="relative flex items-center h-36 w-36">
     <!-- Login Icon and Label -->
     <div class="flex items-center cursor-pointer" @click="toggleVisibility">
-      <icon
+      <Icon
         name="tabler:login"
         class="text-base-200 text-2xl"
         title="Toggle Login"
@@ -17,7 +17,7 @@
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
-        <icon name="tabler:loader" class="animate-spin text-lg mb-2" />
+        <Icon name="tabler:loader" class="animate-spin text-lg mb-2" />
         <div>Loading, please wait...</div>
       </div>
 

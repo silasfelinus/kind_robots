@@ -35,7 +35,7 @@
       </div>
     </transition-group>
     <div v-if="errorMessage" class="bg-warning text-white p-4 rounded-full">
-      <icon name="error" class="text-lg" /> {{ errorMessage }}
+      <Icon name="error" class="text-lg" /> {{ errorMessage }}
     </div>
   </div>
 </template>

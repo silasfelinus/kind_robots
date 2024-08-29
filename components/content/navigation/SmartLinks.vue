@@ -2,16 +2,16 @@
   <div class="smart-links-container flex justify-between items-center w-full">
     <!-- Navigation Links with Icons and Labels -->
     <NuxtLink v-if="prev" :to="prev._path" class="nav-link">
-      <icon name="typcn:arrow-back-outline" class="hover:scale-125" />
+      <Icon name="typcn:arrow-back-outline" class="hover:scale-125" />
       <span class="nav-text">{{ prev.title }}</span>
     </NuxtLink>
     <!-- Other Links... -->
     <NuxtLink :to="randomHighlightPage._path" class="nav-link">
-      <icon name="game-icons:galaxy" class="hover:scale-125" />
+      <Icon name="game-Icons:galaxy" class="hover:scale-125" />
       <span class="nav-text">{{ randomLinkText }}</span>
     </NuxtLink>
     <NuxtLink v-if="next" :to="next._path" class="nav-link">
-      <icon name="typcn:arrow-forward-outline" class="hover:scale-125" />
+      <Icon name="typcn:arrow-forward-outline" class="hover:scale-125" />
       <span class="nav-text">{{ next.title }}</span>
     </NuxtLink>
   </div>
@@ -59,7 +59,7 @@ onMounted(() => {
 .nav-text {
   @apply text-sm md:text-base opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100;
   position: absolute; /* Positioning the label */
-  bottom: -20px; /* Positioning below the icon */
+  bottom: -20px; /* Positioning below the Icon */
   white-space: nowrap;
 }
 

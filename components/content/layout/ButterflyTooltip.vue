@@ -2,7 +2,7 @@
   <div class="fixed bottom-4 right-4" @click="toggleTooltip">
     <!-- Pulsing Butterfly Icon -->
     <div v-if="!tooltipOpen && page.tooltip" class="cursor-pointer">
-      <icon name="ph:butterfly-duotone" class="text-3xl animate-pulse" />
+      <Icon name="ph:butterfly-duotone" class="text-3xl animate-pulse" />
     </div>
 
     <!-- Tooltip Popup -->
@@ -13,7 +13,7 @@
       <div v-if="page.tooltip">
         <span class="font-semibold">
           <butterfly-loader />
-          <icon name="mdi:chat" class="text-default mr-2 text-2xl" />AMI Says:
+          <Icon name="mdi:chat" class="text-default mr-2 text-2xl" />AMI Says:
           <!-- Display tooltip text -->
           <span class="text-default text-xl">{{ page.tooltip }}</span>
         </span>

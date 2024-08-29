@@ -1,11 +1,11 @@
 <template>
   <div>
-    <!-- Forward arrow icon: Shown only if canGoForward is true -->
+    <!-- Forward arrow Icon: Shown only if canGoForward is true -->
     <div v-if="canGoForward" @click="goForward">
-      <icon
+      <Icon
         :name="'typcn:arrow-forward-outline'"
         :title="'Forward'"
-        class="icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+        class="Icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
       />
     </div>
   </div>
@@ -42,7 +42,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.icon-effect {
+.Icon-effect {
   @apply cursor-pointer transition-shadow;
 }
 

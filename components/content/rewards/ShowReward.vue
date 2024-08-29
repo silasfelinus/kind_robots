@@ -1,7 +1,7 @@
 <template>
   <div class="bg-base-200 p-4 rounded shadow-lg modal">
     <!-- Reward Details -->
-    <icon :name="props.reward.icon" class="text-6xl mb-2" />
+    <Icon :name="props.reward.Icon" class="text-6xl mb-2" />
     <h2 class="text-xl mb-2">
       {{ props.reward.text }}
     </h2>
@@ -30,7 +30,7 @@ import { ref } from 'vue'
 
 const props = defineProps<{
   reward: {
-    icon: string
+    Icon: string
     text: string
     power: string
     rarity: number

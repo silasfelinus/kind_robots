@@ -22,7 +22,7 @@
         class="flex items-center m-2 p-1 text-xl rounded-2xl border bg-secondary"
       >
         You are here
-        <icon name="line-md:download-outline-loop" class="text-lg m-2" />
+        <Icon name="line-md:download-outline-loop" class="text-lg m-2" />
       </div>
       <div class="flex flex-col items-start">
         <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
@@ -30,7 +30,7 @@
         </div>
         <popup-description
           v-if="isHovered === page._id"
-          :icon="page.icon"
+          :Icon="page.Icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />
@@ -49,7 +49,7 @@ const footerStore = useFooterStore()
 
 const isHovered = ref<string | undefined>(undefined)
 const supportPages = computed(() => {
-  return contentStore.pagesByTagAndSort('home', 'icon')
+  return contentStore.pagesByTagAndSort('home', 'Icon')
 })
 
 const handleLinkClick = () => {

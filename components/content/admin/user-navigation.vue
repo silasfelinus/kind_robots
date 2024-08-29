@@ -5,28 +5,28 @@
     >
       <div class="flex space-x-2 z-50">
         <!-- New Icon for showing the Site Map -->
-        <icon
+        <Icon
           name="bi:map"
           class="text-2xl cursor-pointer"
           @click="toggleSiteMap"
         />
-        <!-- Existing icons -->
-        <icon
-          name="grommet-icons:grid"
+        <!-- Existing Icons -->
+        <Icon
+          name="grommet-Icons:grid"
           class="text-2xl cursor-pointer"
           @click="setView('fourRow')"
         />
-        <icon
+        <Icon
           name="mdi:view-dashboard-outline"
           class="text-2xl cursor-pointer"
           @click="setView('threeRow')"
         />
-        <icon
+        <Icon
           name="ion:grid-outline"
           class="text-2xl cursor-pointer"
           @click="setView('twoRow')"
         />
-        <icon
+        <Icon
           name="bi:fullscreen"
           class="text-2xl cursor-pointer"
           @click="setView('single')"
@@ -109,7 +109,7 @@ watch(view, (newView) => {
 </script>
 
 <style scoped>
-.icon {
+.Icon {
   width: 24px;
   height: 24px;
 }

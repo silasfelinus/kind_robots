@@ -5,7 +5,7 @@
     <div :class="baseCardClasses">
       <!-- Card Header -->
       <div class="flex items-center justify-center mb-4">
-        <icon :name="props.iconName" class="mr-2 text-3xl" />
+        <Icon :name="props.IconName" class="mr-2 text-3xl" />
         <h3 class="text-3xl font-semibold">
           {{ props.title }}
         </h3>
@@ -31,7 +31,7 @@ const props = defineProps({
     type: String,
     default: 'Kind Robots 🤖',
   },
-  iconName: {
+  IconName: {
     type: String,
     default: 'mdi:robot',
   },

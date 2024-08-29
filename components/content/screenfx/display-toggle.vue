@@ -2,7 +2,7 @@
   <div :class="layoutClass">
     <nav v-if="isSimpleLayout" class="simple-nav">
       <a href="/" class="home-link">
-        <icon name="mdi:home" class="home-icon" />
+        <Icon name="mdi:home" class="home-Icon" />
         Home
       </a>
     </nav>
@@ -12,7 +12,7 @@
     </div>
     <div class="toggle-layout">
       <button class="toggle-button" @click="toggleLayout">
-        <icon :name="toggleIcon" class="toggle-icon" />
+        <Icon :name="toggleIcon" class="toggle-Icon" />
       </button>
     </div>
   </div>
@@ -68,7 +68,7 @@ const toggleIcon = computed(() =>
   align-items: center;
 }
 
-.home-icon {
+.home-Icon {
   font-size: 3rem;
   margin-right: 1rem;
 }
@@ -92,7 +92,7 @@ const toggleIcon = computed(() =>
   background-color: var(--bg-primary);
 }
 
-.toggle-icon {
+.toggle-Icon {
   font-size: 2rem;
   color: var(--bg-base-200);
 }

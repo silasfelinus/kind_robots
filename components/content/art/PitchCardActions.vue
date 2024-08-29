@@ -6,7 +6,7 @@
       aria-label="Toggle Mature Content"
       @click="toggleMature"
     >
-      <icon :name="matureIcon" class="w-6 h-6" />
+      <Icon :name="matureIcon" class="w-6 h-6" />
     </button>
     <!-- Public Toggle -->
     <button
@@ -14,7 +14,7 @@
       aria-label="Toggle Public Visibility"
       @click="togglePublic"
     >
-      <icon :name="publicIcon" class="w-6 h-6" />
+      <Icon :name="publicIcon" class="w-6 h-6" />
     </button>
     <!-- Clap Button -->
     <button
@@ -22,7 +22,7 @@
       aria-label="Add Clap"
       @click="addClap"
     >
-      <icon name="mdi:hand" class="w-6 h-6" />
+      <Icon name="mdi:hand" class="w-6 h-6" />
     </button>
   </div>
   <div v-else>

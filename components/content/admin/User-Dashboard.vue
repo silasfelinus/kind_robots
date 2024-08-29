@@ -7,7 +7,7 @@
       class="absolute top-1 left-1 z-10"
       @click.stop="toggleMinimize"
     >
-      <icon name="game-icons:expand" class="text-lg" />
+      <Icon name="game-Icons:expand" class="text-lg" />
     </button>
     <span class="absolute top-2 right-2"
       >Role: {{ user?.Role || 'Guest' }}</span
@@ -37,7 +37,7 @@
           </p>
           <div class="flex space-x-4 mt-2">
             <div class="flex items-center space-x-2">
-              <icon name="tdesign:bean" class="text-lg" />
+              <Icon name="tdesign:bean" class="text-lg" />
               <span>Jellybeans: {{ user?.mana || 0 }}</span>
             </div>
           </div>
@@ -75,7 +75,7 @@
       </div>
       <div class="flex flex-row items-center space-x-4">
         <div class="flex items-center space-x-2">
-          <icon name="tdesign:bean" class="text-2xl" />
+          <Icon name="tdesign:bean" class="text-2xl" />
           <span>{{ user?.mana || 0 }}</span>
         </div>
         <button

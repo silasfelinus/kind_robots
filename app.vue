@@ -1,13 +1,15 @@
+
 <template>
-  <div class="h-full w-full">
-    <NuxtLayout>
-      <header />
-      <div>
-        <NuxtPage />
-      </div>
-    </NuxtLayout>
-  </div>
+  <main class="flex-grow rounded-2xl p-1 m-1">
+    <header-upgrade />
+    <kind-sidebar />
+    <div class="absolute bottom-0 center z-50 text-gray-200">Desktop</div>
+<NuxtPage />
+    </main>
 </template>
+
+
+
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
@@ -22,6 +24,7 @@ import { usePitchStore } from '@/stores/pitchStore'
 import { useChannelStore } from '@/stores/channelStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useLayoutStore } from '@/stores/layoutStore'
+import KindSidebar from './../components/content/navigation/KindSidebar.vue'
 
 const errorStore = useErrorStore()
 const tagStore = useTagStore()
@@ -74,3 +77,29 @@ onMounted(async () => {
   }
 })
 </script>
+<style>
+.main-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.kind-sidebar {
+  flex-shrink: 0;
+  overflow-y: scroll;
+}
+
+.main-content {
+  flex-grow: 1;
+  overflow-y: scroll;
+}
+</style>
+

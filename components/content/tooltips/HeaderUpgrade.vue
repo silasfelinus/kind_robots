@@ -1,10 +1,13 @@
 <template>
-  <div class="relative w-full" style="height: 12vh; max-height: 12vh">
+  <div class="relative w-full" style="max-height: 12vh">
     <header
       class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full h-full"
     >
       <div class="flex items-center space-x-1">
-        <avatar-image alt="User Avatar" class="h-full aspect-square m-1" />
+        <avatar-image
+          alt="User Avatar"
+          class="flex max-h-full flex-grow min-h-8 aspect-square m-1"
+        />
         <!-- Adjusting layout and wrapping -->
         <div class="flex flex-col sm:flex-row justify-between m-1 flex-grow">
           <room-title

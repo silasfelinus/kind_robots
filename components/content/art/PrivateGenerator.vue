@@ -5,7 +5,7 @@
       v-if="showMature"
       :src="siteUrl"
       frameborder="0"
-      class="w-full h-full"
+      class="w-full h-full min-h-screen"
     ></iframe>
     <rebel-button v-else class="w-full h-full" />
   </div>

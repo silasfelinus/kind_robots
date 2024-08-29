@@ -34,7 +34,7 @@
         >
           <Icon
             :name="link.Icon"
-            class="Icon-base mr-2 cursor-pointer transition-shadow"
+            class="Icon-lg mr-2 cursor-pointer transition-shadow"
           ></Icon>
           <span v-show="isSidebarOpen" class="text-lg font-semibold">{{
             link.title

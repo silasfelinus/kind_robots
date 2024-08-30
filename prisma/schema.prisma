@@ -32,19 +32,22 @@ model Art {
   designer    String?       @db.VarChar(764)
   ArtReaction ArtReaction[]
   Game  Game[]
+  Player    Player[]
 }
 
 model ArtPrompt {
   id            Int       @id @default(autoincrement())
   createdAt     DateTime  @default(now())
   updatedAt     DateTime? @updatedAt @default(now())
-  userId        Int       @default(0)
+  userId        Int?       @default(0)
   prompt        String    @db.VarChar(8000)
   galleryId     Int?      @default(0)
   pitch         String?   @db.VarChar(764)
   pitchId       Int?      @default(0)
   DB_ROW_HASH_1 BigInt
   Game  Game[]
+  playerId      Int?
+  Player  Player?  @relation(fields: [playerId], references: [id])
 }
 
 model ArtReaction {
@@ -204,11 +207,15 @@ model Player {
   id       Int    @id @default(autoincrement())
   name     String
   points   Int    @default(0)
-  gameId   Int   
-  Game     Game   @relation(fields: [gameId], references: [id])
+  gameId   Int?   
+  Game     Game?   @relation(fields: [gameId], references: [id])
   User      User? @relation(fields: [userId], references: [id])
   userId    Int?
   status    PlayerStatus  @default(WAITING)
+  avatarImage String?
+  artId     Int?
+  Art       Art[]
+  ArtPrompt ArtPrompt[]
 }
 
 model Log {

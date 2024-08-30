@@ -13,21 +13,21 @@ export enum LayoutKey {
   Desktop = 'desktop',
 }
 
-const LOCAL_STORAGE_KEY = 'currentLayout';
+const LOCAL_STORAGE_KEY = 'currentLayout'
 
 function getStoredLayout(defaultValue: LayoutKey): LayoutKey {
   if (import.meta.client) {
     try {
-      const storedValue = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const storedValue = localStorage.getItem(LOCAL_STORAGE_KEY)
       return Object.values(LayoutKey).includes(storedValue as LayoutKey)
         ? (storedValue as LayoutKey)
-        : defaultValue;
+        : defaultValue
     } catch (error) {
-      console.error('Error accessing localStorage:', error);
-      return defaultValue;
+      console.error('Error accessing localStorage:', error)
+      return defaultValue
     }
   }
-  return defaultValue;
+  return defaultValue
 }
 
 interface LayoutState {
@@ -38,33 +38,33 @@ interface LayoutState {
 export const useLayoutStore = defineStore('layoutStore', {
   state: (): LayoutState => ({
     currentLayout: getStoredLayout(LayoutKey.Dashboard),
-    isSidebarOpen: true
+    isSidebarOpen: true,
   }),
 
   actions: {
     toggleSidebar() {
-      this.isSidebarOpen = !this.isSidebarOpen;
+      this.isSidebarOpen = !this.isSidebarOpen
     },
     setLayout(newLayout: LayoutKey) {
       if (Object.values(LayoutKey).includes(newLayout)) {
-        this.currentLayout = newLayout;
+        this.currentLayout = newLayout
         if (import.meta.client) {
           try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, newLayout);
+            localStorage.setItem(LOCAL_STORAGE_KEY, newLayout)
           } catch (error) {
-            console.error('Failed to save layout to localStorage:', error);
+            console.error('Failed to save layout to localStorage:', error)
           }
         }
       } else {
-        console.warn(`Invalid layout option: ${newLayout}`);
+        console.warn(`Invalid layout option: ${newLayout}`)
       }
     },
     initializeStore() {
-      this.currentLayout = getStoredLayout(LayoutKey.Dashboard);
+      this.currentLayout = getStoredLayout(LayoutKey.Dashboard)
     },
   },
 
   getters: {
     getCurrentLayout: (state) => state.currentLayout,
   },
-});
+})

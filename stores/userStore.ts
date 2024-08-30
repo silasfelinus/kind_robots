@@ -39,14 +39,14 @@ export const useUserStore = defineStore({
     highMatchScores: [],
     stayLoggedIn: true,
     milestones: [],
-    showMatureContent: false
+    showMatureContent: false,
   }),
   getters: {
     karma(state): number {
       return state.user ? state.user.karma : 1000
     },
     showMature(state): boolean {
-      return state.showMatureContent; // Updated getter to reflect the renamed state property
+      return state.showMatureContent // Updated getter to reflect the renamed state property
     },
     mana(state): number {
       const manaValue = state.user?.mana || state.milestones.length
@@ -112,7 +112,10 @@ export const useUserStore = defineStore({
         })
 
         if (response.success && response.user) {
-          console.log('fetched user by token, now setting user', response.user.showMature)
+          console.log(
+            'fetched user by token, now setting user',
+            response.user.showMature,
+          )
           this.setUser(response.user)
         }
       } catch (error: unknown) {
@@ -134,13 +137,17 @@ export const useUserStore = defineStore({
       }
     },
     setUser(userData: User): void {
-      this.user = userData;
+      this.user = userData
       // Ensure showMature is being updated
-      this.showMatureContent = userData.showMature;
-      console.log('User set. showmature is now ', this.showMatureContent, this.user)
+      this.showMatureContent = userData.showMature
+      console.log(
+        'User set. showmature is now ',
+        this.showMatureContent,
+        this.user,
+      )
       this.updateKarmaAndMana().catch((error) => {
-        this.setError(error);
-      });
+        this.setError(error)
+      })
     },
     setStayLoggedIn(value: boolean) {
       try {

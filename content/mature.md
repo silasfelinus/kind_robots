@@ -8,9 +8,9 @@ tags: ['home']
 layout: 'vertical-scroll'
 category: user
 icon: game-icons:all-seeing-eye
-tooltip: This is the private art page. 
+tooltip: This is the private art page.
 dottitip: this is our private art generator.
-amitip: "Some of these pictures make me blush!"
+amitip: 'Some of these pictures make me blush!'
 sort: private
 ---
 

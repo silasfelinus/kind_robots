@@ -1,7 +1,7 @@
-//server/api/games/index.get.ts 
-import { defineEventHandler } from 'h3';
-import prisma from '../utils/prisma';
-import { errorHandler } from '../utils/error';
+//server/api/games/index.get.ts
+import { defineEventHandler } from 'h3'
+import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async () => {
   try {
@@ -11,10 +11,10 @@ export default defineEventHandler(async () => {
         Art: true, // Include related Art
         ArtPrompt: true, // Include related Art Prompts
       },
-    });
+    })
 
-    return { success: true, games };
+    return { success: true, games }
   } catch (error: unknown) {
-    return errorHandler(error);
+    return errorHandler(error)
   }
-});
+})

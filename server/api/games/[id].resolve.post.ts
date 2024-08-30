@@ -1,14 +1,14 @@
-//server/api/games/[id].resolve.post.ts 
-import { defineEventHandler } from 'h3';
-import prisma from '../utils/prisma';
-import { errorHandler } from '../utils/error';
+//server/api/games/[id].resolve.post.ts
+import { defineEventHandler } from 'h3'
+import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
-    const id = Number(event.context.params?.id);
+    const id = Number(event.context.params?.id)
 
     if (isNaN(id)) {
-      return { success: false, message: 'Invalid Game ID', statusCode: 400 };
+      return { success: false, message: 'Invalid Game ID', statusCode: 400 }
     }
 
     const resolvedGame = await prisma.game.update({
@@ -16,10 +16,10 @@ export default defineEventHandler(async (event) => {
       data: {
         isFinished: true,
       },
-    });
+    })
 
-    return { success: true, game: resolvedGame };
+    return { success: true, game: resolvedGame }
   } catch (error: unknown) {
-    return errorHandler(error);
+    return errorHandler(error)
   }
-});
+})

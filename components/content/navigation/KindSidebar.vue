@@ -65,6 +65,11 @@ const links = [
     path: '/botmessages',
     icon: 'fluent:chat-multiple-24-regular',
   },
+  {
+    title: 'Pitch Manager',
+    path: '/pitch',
+    icon: 'fluent:chat-bubbles-question-16-regular',
+  },
   { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
   { title: 'Art Gallery', path: '/artgallery', icon: 'mdi:palette' },
   {

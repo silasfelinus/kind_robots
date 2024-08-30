@@ -7,39 +7,47 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, watchEffect } from 'vue'
+import { computed, onMounted, onUnmounted, watchEffect, ref } from 'vue'
 import { useLayoutStore } from './../stores/layoutStore'
 
 const layoutStore = useLayoutStore()
 const isSidebarOpen = computed(() => layoutStore.isSidebarOpen)
-
-// Reactive sidebar margin calculation using watchEffect
 const sidebarMargin = ref('0vw') // Initial value as a ref
 
 watchEffect(() => {
-  const width = window.innerWidth // Dynamically get window width
+  // Check if window is defined to ensure compatibility with SSR
+  if (typeof window !== 'undefined') {
+    const width = window.innerWidth // Dynamically get window width
 
-  if (width < 768) {
-    sidebarMargin.value = isSidebarOpen.value ? '30vw' : '15vw'
-  } else if (width >= 768 && width < 1025) {
-    sidebarMargin.value = isSidebarOpen.value ? '23vw' : '8vw'
-  } else if (width >= 1025 && width < 1441) {
-    sidebarMargin.value = isSidebarOpen.value ? '15vw' : '8vw'
+    if (width < 768) {
+      sidebarMargin.value = isSidebarOpen.value ? '30vw' : '15vw'
+    } else if (width >= 768 && width < 1025) {
+      sidebarMargin.value = isSidebarOpen.value ? '23vw' : '8vw'
+    } else if (width >= 1025 && width < 1441) {
+      sidebarMargin.value = isSidebarOpen.value ? '15vw' : '8vw'
+    } else {
+      sidebarMargin.value = isSidebarOpen.value ? '8vw' : '5vw'
+    }
   } else {
-    sidebarMargin.value = isSidebarOpen.value ? '8vw' : '5vw'
+    // Default value or server-side logic if necessary
+    sidebarMargin.value = '5vw' // Default to a minimal sidebar width
   }
 })
 
 // Setup event listener for window resize
 let resizeListener
 onMounted(() => {
-  resizeListener = () => {
-    // No need to manually update sidebarMargin here, watchEffect will handle it
+  if (typeof window !== 'undefined') {
+    resizeListener = () => {
+      // No need to manually update sidebarMargin here, watchEffect will handle it
+    }
+    window.addEventListener('resize', resizeListener)
   }
-  window.addEventListener('resize', resizeListener)
 })
 onUnmounted(() => {
-  window.removeEventListener('resize', resizeListener)
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', resizeListener)
+  }
 })
 </script>
 

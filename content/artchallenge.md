@@ -6,7 +6,7 @@ gallery: 'cafepurr'
 image: 'botcat.webp'
 tags: ['home']
 layout: 'vertical-scroll'
-icon: game-icons:easel
+icon: game-icons:tabletop-players
 category: user
 tooltip: Challenge other players to create AI art based on your prompt. 
 dottitip: "It's like Apples to Apples meets Dixit!"

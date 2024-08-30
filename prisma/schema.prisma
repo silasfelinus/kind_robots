@@ -31,6 +31,7 @@ model Art {
   isMature    Boolean?          @default(false)
   designer    String?       @db.VarChar(764)
   ArtReaction ArtReaction[]
+  Game  Game[]
 }
 
 model ArtPrompt {
@@ -43,6 +44,7 @@ model ArtPrompt {
   pitch         String?   @db.VarChar(764)
   pitchId       Int?      @default(0)
   DB_ROW_HASH_1 BigInt
+  Game  Game[]
 }
 
 model ArtReaction {
@@ -179,17 +181,15 @@ model Game {
   id         Int       @id @unique @default(autoincrement())
   createdAt  DateTime  @default(now())
   updatedAt  DateTime? @updatedAt @default(now())
-  content    String    @db.Text
+  descriptor String?   @db.Text
   category   String    @default("Blue Sky Tasks")
   isFinished Boolean   @default(false)
-  userId     Int
-  reward     String    @default("A Magic Reward")
-  icon       String?
-  points     Int       @default(10)
+  creator    String?
   isPrivate  Boolean   @default(false)
-  User       User      @relation(fields: [userId], references: [id])
-
-  @@index([userId], map: "Game_userId_fkey")
+  Users    User[]
+  Art      Art[]
+  ArtPrompt ArtPrompt[]
+  winner    String?
 }
 
 model Log {

@@ -8,7 +8,7 @@ export * from './screenStore'
 export * from './statusStore'
 export * from './themeStore'
 export * from './userStore'
-export * from './gameStore'
+export * from './choiceStore'
 export * from './dreamStore'
 
 export interface Store<T = unknown> {

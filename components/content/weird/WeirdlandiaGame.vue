@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { useGameStore } from '../../../stores/gameStore'
+import { useGameStore } from '../../../stores/choiceStore'
 
 const gameStore = useGameStore()
 const bgImage = ref('')

@@ -13,7 +13,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useGameStore } from './../../stores/gameStore'
+import { useGameStore } from './../../../stores/gameStore'
 
 const gameStore = useGameStore()
 const username = ref(gameStore.user?.username || '')

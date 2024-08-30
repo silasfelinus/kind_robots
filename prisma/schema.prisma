@@ -186,12 +186,22 @@ model Game {
   isFinished Boolean   @default(false)
   creator    String?
   isPrivate  Boolean   @default(false)
-  players    String  @default(" ")
   points    String @default(" ")
   Users    User[]
   Art      Art[]
   ArtPrompt ArtPrompt[]
   winner    String?
+  Players   Player[]
+}
+
+model Player {
+  id       Int    @id @default(autoincrement())
+  name     String
+  points   Int    @default(0)
+  gameId   Int   
+  Game     Game   @relation(fields: [gameId], references: [id])
+  User      User? @relation(fields: [userId], references: [id])
+  userId    Int?
 }
 
 model Log {
@@ -446,6 +456,7 @@ model User {
   Todo                Todo[]
   milestones  MilestoneRecord[]
   showMature          Boolean @default(false)
+  Players             Player[]
 }
 
 model ArtReactionToTag {

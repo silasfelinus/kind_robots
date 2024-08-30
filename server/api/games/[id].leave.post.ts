@@ -1,4 +1,4 @@
-//server/api/games/[id].leave.post.ts
+// server/api/games/[id]/leave.post.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -12,15 +12,8 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: 'Invalid Game ID', statusCode: 400 }
     }
 
-    const game = await prisma.game.findUnique({
-      where: { id },
-    })
-
-    if (!game) {
-      return { success: false, message: 'Game not found', statusCode: 404 }
-    }
-
     const playerName = body.playerName
+
     if (!playerName) {
       return {
         success: false,
@@ -29,28 +22,21 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Remove the player's name from the players string
-    const playerList = game.players
-      .split(',')
-      .filter((name) => name !== playerName)
-    const updatedPlayers = playerList.join(',')
-
-    // Remove the player's score from the points string
-    const pointsList = game.points
-      .split(',')
-      .filter((point) => !point.startsWith(`${playerName}:`))
-    const updatedPoints = pointsList.join(',')
-
-    const updatedGame = await prisma.game.update({
-      where: { id },
-      data: {
-        players: updatedPlayers,
-        points: updatedPoints,
+    // Find and delete the player from the game
+    const player = await prisma.player.deleteMany({
+      where: {
+        gameId: id,
+        name: playerName,
       },
     })
 
-    return { success: true, game: updatedGame }
+    if (player.count === 0) {
+      return { success: false, message: 'Player not found in the game', statusCode: 404 }
+    }
+
+    return { success: true, message: 'Player removed from the game' }
   } catch (error: unknown) {
+    console.error('Leave Game Error:', error)
     return errorHandler(error)
   }
 })

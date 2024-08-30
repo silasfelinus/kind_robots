@@ -1,4 +1,4 @@
-//server/api/games/[id].join.post.ts
+// server/api/games/[id]/join.post.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -14,6 +14,9 @@ export default defineEventHandler(async (event) => {
 
     const game = await prisma.game.findUnique({
       where: { id },
+      include: {
+        Players: true, // Include related players to check if the player is already in the game
+      },
     })
 
     if (!game) {
@@ -30,20 +33,29 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Append the player's name to the players string
-    const updatedPlayers = game.players
-      ? `${game.players},${playerName}`
-      : playerName
+    // Check if the player already exists in the game
+    const existingPlayer = game.Players.find(player => player.name === playerName)
 
-    const updatedGame = await prisma.game.update({
-      where: { id },
+    if (existingPlayer) {
+      return {
+        success: false,
+        message: 'Player already in the game',
+        statusCode: 400,
+      }
+    }
+
+    // Create a new player entry and associate with the game
+    const newPlayer = await prisma.player.create({
       data: {
-        players: updatedPlayers,
+        name: playerName,
+        points: 0,
+        gameId: id,
       },
     })
 
-    return { success: true, game: updatedGame }
+    return { success: true, player: newPlayer }
   } catch (error: unknown) {
+    console.error('Join Game Error:', error)
     return errorHandler(error)
   }
 })

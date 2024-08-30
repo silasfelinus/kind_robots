@@ -130,8 +130,8 @@ model Channel {
   tagId       Int?      @default(0)
   title       String?   @db.VarChar(764)
   pitchId     Int?      @default(0)
-
-  messages    Message[] // Add this line to establish the relationship
+  messages    Message[]
+  Player      Player[]
 }
 
 model ChatExchange {
@@ -216,6 +216,7 @@ model Player {
   artId     Int?
   Art       Art[]
   ArtPrompt ArtPrompt[]
+  Channel     Channel[]
 }
 
 model Log {

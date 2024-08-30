@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     const game = await prisma.game.findUnique({
       where: { id },
       include: {
-        Players: true, // Include related players to check if the player is already in the game
+        Players: true,
       },
     })
 

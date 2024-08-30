@@ -13,6 +13,8 @@ export const usePitchStore = defineStore({
     pitches: [] as Pitch[],
     isInitialized: false,
     selectedPitch: null as Pitch | null,
+    selectedPitches: [] as Pitch[],
+    galleryArt: [] as Art[],
   }),
 
   getters: {
@@ -60,6 +62,18 @@ export const usePitchStore = defineStore({
         console.warn(`Pitch with id ${pitchId} not found.`)
       }
     },
+    async fetchArtForPitch(pitchId: number) {
+      try {
+        const response = await fetch(`/api/pitches/${pitchId}/art`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch art for pitch')
+        }
+        this.galleryArt = await response.json()
+      } catch (error) {
+        console.error('Error fetching art for pitch:', error)
+      }
+    },
+
 
     initializePitches() {
       if (!this.isInitialized) {
@@ -97,6 +111,15 @@ export const usePitchStore = defineStore({
           errorStore.getErrors().slice(-1)[0]?.message,
         )
       }
+    },
+    fetchRandomPitches(count: number) {
+      // Ensure that the selected pitches are unique
+      const uniquePitches = new Set<Pitch>() // Specify the type of items in the Set
+      while (uniquePitches.size < count && uniquePitches.size < this.pitches.length) {
+        const randomIndex = Math.floor(Math.random() * this.pitches.length)
+        uniquePitches.add(this.pitches[randomIndex])
+      }
+      this.selectedPitches = Array.from(uniquePitches)
     },
 
     async createPitch(newPitch: Partial<Pitch>) {

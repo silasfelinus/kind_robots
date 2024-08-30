@@ -6,7 +6,7 @@ import { errorHandler } from '../utils/error';
 export default defineEventHandler(async (event) => {
   try {
     const id = Number(event.context.params?.id);
-    const body = await readBody(event); // Assuming the player's name is sent in the request body
+    const body = await readBody(event);
 
     if (isNaN(id)) {
       return { success: false, message: 'Invalid Game ID', statusCode: 400 };
@@ -29,10 +29,15 @@ export default defineEventHandler(async (event) => {
     const playerList = game.players.split(',').filter(name => name !== playerName);
     const updatedPlayers = playerList.join(',');
 
+    // Remove the player's score from the points string
+    const pointsList = game.points.split(',').filter(point => !point.startsWith(`${playerName}:`));
+    const updatedPoints = pointsList.join(',');
+
     const updatedGame = await prisma.game.update({
       where: { id },
       data: {
         players: updatedPlayers,
+        points: updatedPoints,
       },
     });
 

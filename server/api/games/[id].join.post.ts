@@ -34,7 +34,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Check if the player already exists in the game
-    const existingPlayer = game.Players.find(player => player.name === playerName)
+    const existingPlayer = game.Players.find(
+      (player) => player.name === playerName,
+    )
 
     if (existingPlayer) {
       return {

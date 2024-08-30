@@ -31,7 +31,11 @@ export default defineEventHandler(async (event) => {
     })
 
     if (player.count === 0) {
-      return { success: false, message: 'Player not found in the game', statusCode: 404 }
+      return {
+        success: false,
+        message: 'Player not found in the game',
+        statusCode: 404,
+      }
     }
 
     return { success: true, message: 'Player removed from the game' }

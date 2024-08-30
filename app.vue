@@ -1,13 +1,13 @@
 <template>
-<div class="main-container">
-  <header-upgrade />
-  <div class="content-container">
-    <kind-sidebar />
-    <main class="main-content">
-      <NuxtPage />
-    </main>
+  <div class="main-container">
+    <header-upgrade />
+    <div class="content-container">
+      <kind-sidebar />
+      <main class="main-content">
+        <NuxtPage />
+      </main>
+    </div>
   </div>
-</div>
 </template>
 
 <script setup lang="ts">
@@ -40,8 +40,15 @@ useHead({
   title: 'Kind Robots',
   meta: [
     { name: 'og:title', content: 'Welcome to the Kind Robots' },
-    { name: 'description', content: 'OpenAI-supported Promptbots here to assist humanity.' },
-    { name: 'og:description', content: 'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans' },
+    {
+      name: 'description',
+      content: 'OpenAI-supported Promptbots here to assist humanity.',
+    },
+    {
+      name: 'og:description',
+      content:
+        'Make and Share OpenAI prompts, AI-assisted art, and find the secret jellybeans',
+    },
     { name: 'og:image', content: '/images/kindtitle.webp' },
     { name: 'twitter:card', content: 'summary_large_image' },
   ],
@@ -74,19 +81,16 @@ onMounted(async () => {
 .main-container {
   display: flex;
   flex-direction: column;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
-  overflow: hidden;
 }
 
 .content-container {
   display: flex;
   flex-grow: 1;
-  overflow: hidden;
 }
 
 .kind-sidebar {
-  width: 240px; /* Default width, can be adjusted or made responsive */
   flex-shrink: 0;
   overflow-y: auto;
 }

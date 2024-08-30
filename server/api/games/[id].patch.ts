@@ -26,6 +26,37 @@ export default defineEventHandler(async (event) => {
 
     let updateData = {};
 
+    // Handle updating player points
+    if (body.action === 'updatePoints' && body.playerName && typeof body.points === 'number') {
+      let existingPlayer = game.Players.find(
+        (player) => player.name === body.playerName,
+      );
+
+      if (!existingPlayer) {
+        // If the player doesn't exist, decide whether to add them or reject the request
+        if (body.allowAddPlayer) {
+          // Add the player if the option to add is provided
+          existingPlayer = await prisma.player.create({
+            data: {
+              name: body.playerName,
+              gameId: id,
+              points: body.points,
+            },
+          });
+        } else {
+          return { success: false, message: 'Player not found in the game', statusCode: 404 };
+        }
+      } else {
+        // Update the player's points if they exist
+        await prisma.player.update({
+          where: { id: existingPlayer.id },
+          data: { points: existingPlayer.points + body.points },
+        });
+      }
+
+      return { success: true, message: `Player ${body.playerName} points updated`, game: await prisma.game.findUnique({ where: { id }, include: { Players: true } }) };
+    }
+
     // Handle joining the game
     if (body.action === 'join' && body.playerName) {
       const existingPlayer = game.Players.find(
@@ -100,8 +131,8 @@ export default defineEventHandler(async (event) => {
       };
     }
 
-    // Handle updating game details
-    if (body.descriptor || body.category || body.isFinished !== undefined) {
+     // Handle updating game details
+     if (body.descriptor || body.category || body.isFinished !== undefined) {
       updateData = {
         ...updateData,
         descriptor: body.descriptor || game.descriptor,

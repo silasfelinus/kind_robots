@@ -1,30 +1,26 @@
 <template>
-  <div class="flex flex-col bg-base-200 h-full w-full rounded-2xl m-1 p-1">
-    <!-- Unified Top Half with image and info/stream side by side -->
-    <div class="flex flex-row w-full">
-      <!-- Allocate more space to the top half -->
-      <!-- Bot's Image with oval aspect -->
-      <div class="flex justify-center items-center">
+  <div class="container">
+    <div class="top-half">
+      <div class="bot-image">
         <img
-          :src="currentBot?.avatarImage"
+          :src="currentBot?.avatarImage || 'bot.webp'"
           alt="Bot's Avatar"
-          class="rounded-sm object-cover"
+          class="avatar-img"
         />
       </div>
-      <!-- Info and Stream in the same column -->
-      <div class="overflow-y-auto flex flex-col justify-between p-2">
-        <div class="text-left border rounded-2xl m-2 p-1 bg-base-200">
-          <h2 class="text-xl font-bold">{{ currentBot?.name }}</h2>
-          <p class="text-md">{{ currentBot?.description }}</p>
+      <div class="info-stream">
+        <div class="bot-info">
+          <h2 class="title">{{ currentBot?.name }}</h2>
+          <p class="description">{{ currentBot?.description }}</p>
         </div>
-        <!-- Bot Stream placed directly under the info -->
-        <bot-stream class="flex-grow" />
+        <bot-stream class="stream-section" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed, onMounted } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import BotStream from './BotStream.vue'
 
@@ -34,35 +30,72 @@ const currentBot = computed(() => botStore.currentBot)
 onMounted(() => {
   if (!botStore.currentBot) {
     botStore.selectBot(1)
+    console.log('loaded bot: ', currentBot)
   }
 })
 </script>
-
 <style scoped>
-@media (max-width: 640px) {
-  .text-xl {
-    font-size: 1rem;
-  }
-  .text-md {
-    font-size: 0.875rem;
-  }
-  .text-sm {
-    font-size: 0.75rem;
-  }
+.container {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-base-200);
+  height: 100%;
+  width: 100%;
+  border-radius: 1rem;
+  margin: 0.25rem;
+  padding: 0.25rem;
 }
-</style>
 
-<style scoped>
-/* Ensure visual consistency and responsiveness */
+.top-half {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+.bot-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.avatar-img {
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+
+.info-stream {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 0.5rem;
+  flex: 2;
+}
+
+.bot-info {
+  text-align: left;
+  border: 1px solid var(--bg-base-200);
+  border-radius: 1rem;
+  margin: 0.5rem;
+  padding: 0.5rem;
+}
+
+.stream-section {
+  flex-grow: 1;
+}
+
+.title,
+.description {
+  margin-bottom: 0.5rem;
+}
+
 @media (max-width: 640px) {
-  .text-xl {
+  .title {
     font-size: 1rem;
-  } /* Adjust font sizes for mobile */
-  .text-md {
-    font-size: 0.875rem;
   }
-  .text-sm {
-    font-size: 0.75rem;
+  .description {
+    font-size: 0.875rem;
   }
 }
 </style>

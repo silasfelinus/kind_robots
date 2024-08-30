@@ -1,8 +1,8 @@
+// ./stores/gameStore.ts
 import { defineStore } from 'pinia'
 import { useErrorStore, ErrorType } from './errorStore'
-import type { Channel, User } from '@prisma/client'
+import type { Game, Player, User } from '@prisma/client'
 
-// Define the GameStatus enum to represent different states of the game
 export enum GameStatus {
   Loading = 'Loading',
   Inactive = 'Inactive',
@@ -11,7 +11,6 @@ export enum GameStatus {
   InProgress = 'InProgress',
 }
 
-// Define the UserStatus enum to represent different states of the user in the game
 export enum UserStatus {
   Inactive = 'Inactive',
   Searching = 'Searching',
@@ -26,8 +25,11 @@ export const useGameStore = defineStore('gameStore', {
     gameStatus: GameStatus.Inactive as GameStatus,
     userStatus: UserStatus.Inactive as UserStatus,
     user: null as User | null,
-    games: [] as Channel[], // Array to store game rooms
-    currentGame: null as Channel | null, // Currently joined game
+    games: [] as Game[], // Array to store games
+    currentGame: null as Game | null, // Currently joined game
+    players: [] as Player[], // Array to store players in the current game
+    currentPlayer: null as Player | null,
+    showDashboard: false
   }),
 
   actions: {
@@ -35,32 +37,33 @@ export const useGameStore = defineStore('gameStore', {
       const errorStore = useErrorStore()
       this.gameStatus = GameStatus.Loading
       try {
-        // Replace this with your actual API call logic
         const response = await fetch('/api/games')
         if (!response.ok) {
           throw new Error('Failed to fetch games')
         }
         const gamesData = await response.json()
         this.games = gamesData
-        this.gameStatus = GameStatus.Inactive // Return to Inactive after loading
+        this.gameStatus = GameStatus.Inactive
       } catch (error) {
         await errorStore.handleError(
           () => Promise.reject(error),
           ErrorType.NETWORK_ERROR,
-          'Failed to load game rooms',
+          'Failed to load games',
         )
-        this.gameStatus = GameStatus.Inactive // Reset to Inactive on error
+        this.gameStatus = GameStatus.Inactive
       }
     },
+    toggleDashboard() {
+      this.showDashboard = !this.showDashboard
+    },
 
-    async createGame(gameData: Partial<Channel>) {
+    async createGame(gameData: Partial<Game>, playerData?: Partial<Player>) {
       const errorStore = useErrorStore()
       try {
-        // Replace this with your actual API call logic
         const response = await fetch('/api/games', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(gameData),
+          body: JSON.stringify(playerData ? { ...gameData, firstPlayer: playerData } : gameData),
         })
 
         if (!response.ok) {
@@ -78,18 +81,18 @@ export const useGameStore = defineStore('gameStore', {
           ErrorType.GENERAL_ERROR,
           'Error creating game',
         )
-        this.gameStatus = GameStatus.Inactive // Reset to Inactive on error
-        this.userStatus = UserStatus.Inactive // Reset user status on error
+        this.gameStatus = GameStatus.Inactive
+        this.userStatus = UserStatus.Inactive
       }
     },
 
-    async joinGame(gameId: number) {
+    async joinGame(gameId: number, playerName: string) {
       const errorStore = useErrorStore()
       try {
-        // Replace this with your actual API call logic
-        const response = await fetch(`/api/games/${gameId}/join`, {
-          method: 'POST',
+        const response = await fetch(`/api/games/${gameId}`, {
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'join', playerName }),
         })
 
         if (!response.ok) {
@@ -106,8 +109,8 @@ export const useGameStore = defineStore('gameStore', {
           ErrorType.GENERAL_ERROR,
           `Error joining game with ID ${gameId}`,
         )
-        this.gameStatus = GameStatus.Inactive // Reset to Inactive on error
-        this.userStatus = UserStatus.Inactive // Reset user status on error
+        this.gameStatus = GameStatus.Inactive
+        this.userStatus = UserStatus.Inactive
       }
     },
 
@@ -118,14 +121,11 @@ export const useGameStore = defineStore('gameStore', {
           throw new Error('No game to leave')
         }
 
-        // Replace this with your actual API call logic
-        const response = await fetch(
-          `/api/games/${this.currentGame.id}/leave`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-          },
-        )
+        const response = await fetch(`/api/games/${this.currentGame.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'leave', playerName: this.user?.name }),
+        })
 
         if (!response.ok) {
           throw new Error('Failed to leave game')
@@ -140,18 +140,42 @@ export const useGameStore = defineStore('gameStore', {
           ErrorType.GENERAL_ERROR,
           'Error leaving game',
         )
-        this.gameStatus = GameStatus.Inactive // Reset to Inactive on error
-        this.userStatus = UserStatus.Inactive // Reset user status on error
+        this.gameStatus = GameStatus.Inactive
+        this.userStatus = UserStatus.Inactive
       }
     },
 
-    async resolveGame(gameId: number) {
+    async updateGame(gameId: number, updateData: Partial<Game>) {
       const errorStore = useErrorStore()
       try {
-        // Replace this with your actual API call logic
-        const response = await fetch(`/api/games/${gameId}/resolve`, {
-          method: 'POST',
+        const response = await fetch(`/api/games/${gameId}`, {
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to update game')
+        }
+
+        const updatedGame = await response.json()
+        this.currentGame = updatedGame
+      } catch (error) {
+        await errorStore.handleError(
+          () => Promise.reject(error),
+          ErrorType.GENERAL_ERROR,
+          `Error updating game with ID ${gameId}`,
+        )
+      }
+    },
+
+    async resolveGame(gameId: number, winnerName: string) {
+      const errorStore = useErrorStore()
+      try {
+        const response = await fetch(`/api/games/${gameId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'resolve', winnerName }),
         })
 
         if (!response.ok) {
@@ -160,7 +184,6 @@ export const useGameStore = defineStore('gameStore', {
 
         this.gameStatus = GameStatus.Finished
         this.userStatus = UserStatus.Inactive
-        // Optionally update the currentGame or games array if needed
         this.currentGame = null
       } catch (error) {
         await errorStore.handleError(
@@ -168,8 +191,71 @@ export const useGameStore = defineStore('gameStore', {
           ErrorType.GENERAL_ERROR,
           `Error resolving game with ID ${gameId}`,
         )
-        this.gameStatus = GameStatus.Inactive // Reset to Inactive on error
-        this.userStatus = UserStatus.Inactive // Reset user status on error
+        this.gameStatus = GameStatus.Inactive
+        this.userStatus = UserStatus.Inactive
+      }
+    },
+
+    async loadPlayers() {
+      const errorStore = useErrorStore()
+      try {
+        const response = await fetch('/api/games/players')
+        if (!response.ok) {
+          throw new Error('Failed to fetch players')
+        }
+        const playersData = await response.json()
+        this.players = playersData
+      } catch (error) {
+        await errorStore.handleError(
+          () => Promise.reject(error),
+          ErrorType.NETWORK_ERROR,
+          'Failed to load players',
+        )
+      }
+    },
+
+    async updatePlayer(playerId: number, updateData: Partial<Player>) {
+      const errorStore = useErrorStore()
+      try {
+        const response = await fetch(`/api/games/players/${playerId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to update player')
+        }
+
+        const updatedPlayer = await response.json()
+        const index = this.players.findIndex(player => player.id === playerId)
+        if (index !== -1) {
+          this.players[index] = updatedPlayer
+        }
+      } catch (error) {
+        await errorStore.handleError(
+          () => Promise.reject(error),
+          ErrorType.GENERAL_ERROR,
+          `Error updating player with ID ${playerId}`,
+        )
+      }
+    },
+
+    async getPlayer(playerId: number) {
+      const errorStore = useErrorStore()
+      try {
+        const response = await fetch(`/api/games/players/${playerId}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch player')
+        }
+        return await response.json()
+      } catch (error) {
+        await errorStore.handleError(
+          () => Promise.reject(error),
+          ErrorType.NETWORK_ERROR,
+          `Failed to fetch player with ID ${playerId}`,
+        )
+        return null
       }
     },
   },

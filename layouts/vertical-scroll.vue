@@ -8,7 +8,7 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, watchEffect } from 'vue'
-import { useLayoutStore } from './../../../stores/layoutStore'
+import { useLayoutStore } from './../stores/layoutStore'
 
 const layoutStore = useLayoutStore()
 const isSidebarOpen = computed(() => layoutStore.isSidebarOpen)

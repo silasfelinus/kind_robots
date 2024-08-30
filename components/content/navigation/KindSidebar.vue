@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <button class="absolute top-8 left-4 z-40" @click="toggleSidebar">
+    <button class="absolute -top-4 left-3 z-40" @click="toggleSidebar">
       <Icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
         class="h-4 w-4 text-gray-500"
@@ -8,7 +8,7 @@
     </button>
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`sidebar flex-col flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-scroll m-1 p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'w-64' : 'w-24'}`"
+      :class="`sidebar flex-col flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-scroll mt-2 p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -46,15 +46,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useUserStore } from './../../../stores/userStore'
 import { useContentStore } from './../../../stores/contentStore'
+import { useLayoutStore } from './../../../stores/layoutStore'
 
+const layoutStore = useLayoutStore()
+const isSidebarOpen = computed(() => layoutStore.isSidebarOpen)
 const userStore = useUserStore()
 const contentStore = useContentStore()
 const showMature = computed(() => userStore.showMatureContent)
-const isSidebarOpen = ref(true)
-
 const links = [
   { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
   { title: 'Add Bot', path: '/addbot', icon: 'fluent:bot-add-20-regular' },
@@ -85,16 +86,7 @@ const links = [
 ]
 
 function toggleSidebar() {
-  isSidebarOpen.value = !isSidebarOpen.value
-
-  // Safely accessing the sidebar element with type assertion and null check
-  const sidebarElement = document.querySelector(
-    '.sidebar',
-  ) as HTMLElement | null
-
-  if (sidebarElement) {
-    sidebarElement.style.overflowY = isSidebarOpen.value ? 'auto' : 'hidden'
-  }
+  layoutStore.toggleSidebar()
 }
 
 const filteredLinks = computed(() => {
@@ -160,10 +152,10 @@ const isCurrentPage = (path: string) => {
 
 /* Small devices */
 @media (max-width: 768px) {
-  .w-24 {
+  .sidebarClosed {
     width: 15vw;
   }
-  .w-64 {
+  .sidebarOpen {
     width: 30vw;
   }
   .icon-base {
@@ -174,11 +166,11 @@ const isCurrentPage = (path: string) => {
 
 /* Medium devices */
 @media (min-width: 769px) {
-  .w-24 {
-    width: 10vw;
+  .sidebarClosed {
+    width: 8vw;
   }
-  .w-64 {
-    width: 25vw;
+  .sidebarOpen {
+    width: 23vw;
   }
   .icon-base {
     width: 48px;
@@ -188,10 +180,10 @@ const isCurrentPage = (path: string) => {
 
 /* Large devices */
 @media (min-width: 1025px) {
-  .w-24 {
+  .sidebarClosed {
     width: 8vw;
   }
-  .w-64 {
+  .sidebarOpen {
     width: 15vw;
   }
   .icon-base {
@@ -202,15 +194,15 @@ const isCurrentPage = (path: string) => {
 
 /* Extra large devices */
 @media (min-width: 1441px) {
-  .w-24 {
+  .sidebarClosed {
     width: 5vw;
   }
-  .w-64 {
-    width: 10vw;
+  .sidebarOpen {
+    width: 8vw;
   }
   .icon-base {
-    width: 56px;
-    height: 56px;
+    width: 64px;
+    height: 64px;
   }
 }
 </style>

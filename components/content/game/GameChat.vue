@@ -20,7 +20,7 @@ const messages = ref([])
 const newMessage = ref('')
 
 const sendMessage = () => {
-  // Send message logic
+  // Logic to send the message
   messages.value.push({ user: 'You', text: newMessage.value })
   newMessage.value = '' // Clear input after sending
 }

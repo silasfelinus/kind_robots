@@ -24,7 +24,7 @@
 
 <script setup>
 import { onMounted, computed } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
+import { usePitchStore } from './../../../stores/pitchStore'
 import { useRoute } from 'vue-router'
 
 const pitchStore = usePitchStore()

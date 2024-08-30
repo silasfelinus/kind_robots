@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
       where: { id },
       include: {
         Game: true,  // Include related game information
+        User: true,
       },
     });
 

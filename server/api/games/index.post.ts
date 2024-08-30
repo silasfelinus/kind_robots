@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const newGame = await prisma.game.create({
       data: {
         descriptor: body.descriptor,
-        category: body.category || "Blue Sky Tasks",
+        category: body.category || 'Blue Sky Tasks',
         creator: body.creator,
         isPrivate: body.isPrivate || false,
       },

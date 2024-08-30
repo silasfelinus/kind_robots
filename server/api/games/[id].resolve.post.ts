@@ -26,7 +26,12 @@ export default defineEventHandler(async (event) => {
     const winnerName = body.winnerName
 
     // Optionally find the player with the most points
-    const winner = winnerName || game.Players.reduce((prev, curr) => (curr.points > prev.points ? curr : prev), game.Players[0]).name
+    const winner =
+      winnerName ||
+      game.Players.reduce(
+        (prev, curr) => (curr.points > prev.points ? curr : prev),
+        game.Players[0],
+      ).name
 
     const updatedGame = await prisma.game.update({
       where: { id },

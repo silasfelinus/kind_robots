@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const filteredData = Object.fromEntries(
-      Object.entries(allowedFields).filter(([_, v]) => v !== undefined)
+      Object.entries(allowedFields).filter(([_, v]) => v !== undefined),
     )
 
     const updatedGame = await prisma.game.update({

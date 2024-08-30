@@ -36,7 +36,7 @@
 <script setup>
 import GameChat from './GameChat.vue'
 import ChatControl from './ChatControl.vue'
-import { useGameStore } from '@/stores/gameStore'
+import { useGameStore } from './../../../stores/gameStore'
 
 const gameStore = useGameStore()
 

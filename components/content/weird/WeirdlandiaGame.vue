@@ -40,9 +40,9 @@
 </template>
 
 <script setup lang="ts">
-import { useGameStore } from '../../../stores/choiceStore'
+import { useChoiceStore } from '../../../stores/choiceStore'
 
-const gameStore = useGameStore()
+const gameStore = useChoiceStore()
 const bgImage = ref('')
 
 const fetchBackgroundImage = async () => {

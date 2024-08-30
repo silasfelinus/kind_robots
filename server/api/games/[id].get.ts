@@ -1,4 +1,4 @@
-//server/api/games/[id].get.ts
+// server/api/games/[id].get.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -14,9 +14,10 @@ export default defineEventHandler(async (event) => {
     const game = await prisma.game.findUnique({
       where: { id },
       include: {
-        Users: true, // Include related Users
-        Art: true, // Include related Art
-        ArtPrompt: true, // Include related Art Prompts
+        Users: true,
+        Art: true,     
+        ArtPrompt: true,  
+        Players: true,   
       },
     })
 

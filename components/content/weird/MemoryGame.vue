@@ -103,12 +103,13 @@ const difficulties = [
 ]
 const selectedDifficulty = ref(difficulties[0])
 
-// Compute card size based on the difficulty and screen width
+// reduce last two numbes for baseSize and minSize to reduce cards
 const cardSize = computed(() => {
   const numPairs = selectedDifficulty.value.value
-  const baseSize = width.value > 768 ? 200 : 100 // Larger base size for wider screens
-  const minSize = width.value > 768 ? 100 : 80 // Minimum size for cards
-  const sizeReduction = (numPairs / 8) * 5 // Reduce size as the number of pairs increases
+  const baseSize = width.value > 768 ? 160 : 80 // Larger base size for wider screens
+  const minSize = width.value > 768 ? 100 : 60 // Minimum size for cards
+  const sizeReduction = (numPairs / 8) * (width.value > 768 ? 8 : 4) // Larger reduction on wider screens
+
   return Math.max(minSize, baseSize - sizeReduction)
 })
 

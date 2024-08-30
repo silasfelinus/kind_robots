@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full" style="max-height: 12vh">
+  <div class="relative w-full m-1 p-1" style="max-height: 12vh">
     <header
       class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full h-full"
     >

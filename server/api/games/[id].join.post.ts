@@ -6,7 +6,7 @@ import { errorHandler } from '../utils/error';
 export default defineEventHandler(async (event) => {
   try {
     const id = Number(event.context.params?.id);
-    const body = await readBody(event); // Assuming the player's name is sent in the request body
+    const body = await readBody(event);
 
     if (isNaN(id)) {
       return { success: false, message: 'Invalid Game ID', statusCode: 400 };
@@ -21,6 +21,8 @@ export default defineEventHandler(async (event) => {
     }
 
     const playerName = body.playerName;
+    const score = body.score ?? 0;
+
     if (!playerName) {
       return { success: false, message: 'Player name is required', statusCode: 400 };
     }
@@ -28,10 +30,14 @@ export default defineEventHandler(async (event) => {
     // Append the player's name to the players string
     const updatedPlayers = game.players ? `${game.players},${playerName}` : playerName;
 
+    // Append the player's name and score to the points string
+    const updatedPoints = game.points ? `${game.points},${playerName}:${score}` : `${playerName}:${score}`;
+
     const updatedGame = await prisma.game.update({
       where: { id },
       data: {
         players: updatedPlayers,
+        points: updatedPoints,
       },
     });
 

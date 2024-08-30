@@ -32,14 +32,19 @@ function getStoredLayout(defaultValue: LayoutKey): LayoutKey {
 
 interface LayoutState {
   currentLayout: LayoutKey
+  isSidebarOpen: boolean
 }
 
 export const useLayoutStore = defineStore('layoutStore', {
   state: (): LayoutState => ({
     currentLayout: getStoredLayout(LayoutKey.Dashboard),
+    isSidebarOpen: true
   }),
 
   actions: {
+    toggleSidebar() {
+      this.isSidebarOpen = !this.isSidebarOpen;
+    },
     setLayout(newLayout: LayoutKey) {
       if (Object.values(LayoutKey).includes(newLayout)) {
         this.currentLayout = newLayout;

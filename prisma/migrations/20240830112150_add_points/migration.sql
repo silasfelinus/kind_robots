@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `Game` ADD COLUMN `points` VARCHAR(191) NOT NULL DEFAULT ' ',
+    MODIFY `players` VARCHAR(191) NOT NULL DEFAULT ' ';

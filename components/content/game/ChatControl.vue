@@ -4,7 +4,7 @@
 </template>
 
 <script setup>
-import { useChannelStore } from './../../../stores/channelStore.js'
+import { useChannelStore } from './../../../stores/channelStore'
 
 const channelStore = useChannelStore()
 const channels = computed(() => channelStore.channels)

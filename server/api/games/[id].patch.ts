@@ -1,15 +1,15 @@
 // server/api/games/[id].patch.ts
-import { defineEventHandler } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import { defineEventHandler } from 'h3';
+import prisma from '../utils/prisma';
+import { errorHandler } from '../utils/error';
 
 export default defineEventHandler(async (event) => {
   try {
-    const id = Number(event.context.params?.id)
-    const body = await readBody(event)
+    const id = Number(event.context.params?.id);
+    const body = await readBody(event);
 
     if (isNaN(id)) {
-      return { success: false, message: 'Invalid Game ID', statusCode: 400 }
+      return { success: false, message: 'Invalid Game ID', statusCode: 400 };
     }
 
     // Fetch the existing game
@@ -18,38 +18,64 @@ export default defineEventHandler(async (event) => {
       include: {
         Players: true,
       },
-    })
+    });
 
     if (!game) {
-      return { success: false, message: 'Game not found', statusCode: 404 }
+      return { success: false, message: 'Game not found', statusCode: 404 };
     }
 
-    let updateData = {}
+    let updateData = {};
+
+    // Handle joining the game
+    if (body.action === 'join' && body.playerName) {
+      const existingPlayer = game.Players.find(
+        (player) => player.name === body.playerName,
+      );
+
+      if (existingPlayer) {
+        return { success: false, message: 'Player already in the game', statusCode: 400 };
+      }
+
+      // Create new player and associate with the game
+      const newPlayer = await prisma.player.create({
+        data: {
+          name: body.playerName,
+          gameId: id,
+        },
+      });
+
+      game.Players.push(newPlayer);
+      updateData = {
+        Players: {
+          connect: { id: newPlayer.id },
+        },
+      };
+    }
 
     // Handle leaving the game
     if (body.action === 'leave' && body.playerName) {
       const existingPlayer = game.Players.find(
         (player) => player.name === body.playerName,
-      )
+      );
 
       if (!existingPlayer) {
-        return { success: false, message: 'Player not found in the game', statusCode: 404 }
+        return { success: false, message: 'Player not found in the game', statusCode: 404 };
       }
 
       await prisma.player.delete({
         where: {
           id: existingPlayer.id,
         },
-      })
+      });
 
-      return { success: true, message: `${body.playerName} has left the game` }
+      return { success: true, message: `${body.playerName} has left the game` };
     }
 
     // Handle resolving the game
     if (body.action === 'resolve') {
-      const winnerName = body.winnerName
+      const winnerName = body.winnerName;
 
-      let winner = winnerName
+      let winner = winnerName;
 
       if (!winnerName) {
         if (game.Players.length === 0) {
@@ -57,20 +83,21 @@ export default defineEventHandler(async (event) => {
             success: false,
             message: 'Cannot resolve game with no players',
             statusCode: 400,
-          }
+          };
         }
 
         // Find the player with the most points
         winner = game.Players.reduce(
           (prev, curr) => (curr.points > prev.points ? curr : prev),
           game.Players[0],
-        ).name
+        ).name;
       }
 
       updateData = {
+        ...updateData,
         isFinished: true,
         winner,
-      }
+      };
     }
 
     // Handle updating game details
@@ -80,18 +107,18 @@ export default defineEventHandler(async (event) => {
         descriptor: body.descriptor || game.descriptor,
         category: body.category || game.category,
         isFinished: body.isFinished !== undefined ? body.isFinished : game.isFinished,
-      }
+      };
     }
 
     // Update the game with the accumulated updateData
     const updatedGame = await prisma.game.update({
       where: { id },
       data: updateData,
-    })
+    });
 
-    return { success: true, game: updatedGame }
+    return { success: true, game: updatedGame };
   } catch (error: unknown) {
-    console.error('Update Game Error:', error)
-    return errorHandler(error)
+    console.error('Update Game Error:', error);
+    return errorHandler(error);
   }
-})
+});

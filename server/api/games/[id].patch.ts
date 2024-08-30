@@ -12,21 +12,81 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: 'Invalid Game ID', statusCode: 400 }
     }
 
-    // Only allow specific fields to be updated
-    const allowedFields = {
-      descriptor: body.descriptor,
-      category: body.category,
-      isFinished: body.isFinished,
-      winner: body.winner,
+    // Fetch the existing game
+    const game = await prisma.game.findUnique({
+      where: { id },
+      include: {
+        Players: true,
+      },
+    })
+
+    if (!game) {
+      return { success: false, message: 'Game not found', statusCode: 404 }
     }
 
-    const filteredData = Object.fromEntries(
-      Object.entries(allowedFields).filter(([_, v]) => v !== undefined),
-    )
+    let updateData = {}
 
+    // Handle leaving the game
+    if (body.action === 'leave' && body.playerName) {
+      const existingPlayer = game.Players.find(
+        (player) => player.name === body.playerName,
+      )
+
+      if (!existingPlayer) {
+        return { success: false, message: 'Player not found in the game', statusCode: 404 }
+      }
+
+      await prisma.player.delete({
+        where: {
+          id: existingPlayer.id,
+        },
+      })
+
+      return { success: true, message: `${body.playerName} has left the game` }
+    }
+
+    // Handle resolving the game
+    if (body.action === 'resolve') {
+      const winnerName = body.winnerName
+
+      let winner = winnerName
+
+      if (!winnerName) {
+        if (game.Players.length === 0) {
+          return {
+            success: false,
+            message: 'Cannot resolve game with no players',
+            statusCode: 400,
+          }
+        }
+
+        // Find the player with the most points
+        winner = game.Players.reduce(
+          (prev, curr) => (curr.points > prev.points ? curr : prev),
+          game.Players[0],
+        ).name
+      }
+
+      updateData = {
+        isFinished: true,
+        winner,
+      }
+    }
+
+    // Handle updating game details
+    if (body.descriptor || body.category || body.isFinished !== undefined) {
+      updateData = {
+        ...updateData,
+        descriptor: body.descriptor || game.descriptor,
+        category: body.category || game.category,
+        isFinished: body.isFinished !== undefined ? body.isFinished : game.isFinished,
+      }
+    }
+
+    // Update the game with the accumulated updateData
     const updatedGame = await prisma.game.update({
       where: { id },
-      data: filteredData,
+      data: updateData,
     })
 
     return { success: true, game: updatedGame }

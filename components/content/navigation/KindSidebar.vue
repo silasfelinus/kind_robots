@@ -1,6 +1,6 @@
 <template>
-  <div class="relative">
-    <button class="absolute -top-4 left-3 z-40" @click="toggleSidebar">
+  <div class="relative m-1 p-1">
+    <button class="absolute top-0 left-3 z-40" @click="toggleSidebar">
       <Icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
         class="h-4 w-4 text-gray-500"

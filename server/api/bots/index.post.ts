@@ -2,7 +2,6 @@
 import { defineEventHandler, readBody } from 'h3'
 import { updateBots } from '../bots'
 import { errorHandler } from '../utils/error'
-import { createError } from '#imports'
 
 export default defineEventHandler(async (event) => {
   try {

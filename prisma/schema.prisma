@@ -186,7 +186,6 @@ model Game {
   isFinished Boolean   @default(false)
   creator    String?
   isPrivate  Boolean   @default(false)
-  points    String @default(" ")
   Users    User[]
   Art      Art[]
   ArtPrompt ArtPrompt[]

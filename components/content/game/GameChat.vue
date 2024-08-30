@@ -5,20 +5,24 @@
         <span>{{ message.user }}: </span>{{ message.text }}
       </li>
     </ul>
-    <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Type a message...">
+    <input
+      v-model="newMessage"
+      placeholder="Type a message..."
+      @keyup.enter="sendMessage"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-const messages = ref([]);
-const newMessage = ref('');
+const messages = ref([])
+const newMessage = ref('')
 
 const sendMessage = () => {
   // Send message logic
-  messages.value.push({ user: 'You', text: newMessage.value });
-  newMessage.value = ''; // Clear input after sending
+  messages.value.push({ user: 'You', text: newMessage.value })
+  newMessage.value = '' // Clear input after sending
 }
 </script>
 

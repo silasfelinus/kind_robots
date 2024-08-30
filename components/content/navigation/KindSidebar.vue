@@ -67,6 +67,7 @@ const links = [
   },
   { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
   { title: 'Art Gallery', path: '/artgallery', icon: 'mdi:palette' },
+  { title: 'Art Challenge', path: '/artchallenge', icon: 'game-icons:tabletop-players' },
   {
     title: 'Memory Match',
     path: '/memory',

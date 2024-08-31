@@ -78,6 +78,13 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
 .main-container {
   display: flex;
   flex-direction: column;
@@ -88,15 +95,17 @@ onMounted(async () => {
 .content-container {
   display: flex;
   flex-grow: 1;
+  overflow: hidden;
 }
 
 .kind-sidebar {
   flex-shrink: 0;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .main-content {
   flex-grow: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
+  height: 100%;
 }
 </style>

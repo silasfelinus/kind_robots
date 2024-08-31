@@ -105,7 +105,7 @@ const links = [
   },
   {
     title: 'About',
-    path: '/aboute',
+    path: '/about',
     icon: 'game-icons:abstract-037',
   },
 ]

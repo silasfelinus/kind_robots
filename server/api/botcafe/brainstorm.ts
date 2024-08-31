@@ -24,7 +24,10 @@ const initialConversation = [
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
-    const { OPENAI_API_KEY } = useRuntimeConfig(); // Assume API key is properly configured in your runtime config
+    const apiKey = event.node.req.headers['authorization']?.split(' ')[1];
+
+    // Debug: log the API key
+    console.log('API Key from headers:', apiKey);
 
     // Append new messages to the initial conversation
     const fullConversation = [...initialConversation, ...body.messages];
@@ -40,19 +43,19 @@ export default defineEventHandler(async (event) => {
 
     const post = body.post || 'https://api.openai.com/v1/chat/completions';
 
-    console.log('Sending request to OpenAI with API Key:', OPENAI_API_KEY); // Debugging line
+    console.log('Sending request to OpenAI with API Key:', apiKey);
     const response = await fetch(post, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Failed API Call with error:', errorData); // Debugging line
+      console.error('Failed API Call with error:', errorData);
       throw new Error(`Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`);
     }
 
@@ -60,7 +63,7 @@ export default defineEventHandler(async (event) => {
     return responseData;
   } catch (error) {
     const { message, statusCode } = errorHandler(error);
-    console.error('Error processing request:', message); // Debugging line
+    console.error('Error processing request:', message);
     throw createError({
       statusCode: statusCode || 500,
       statusMessage: message,

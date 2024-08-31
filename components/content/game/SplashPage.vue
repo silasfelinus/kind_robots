@@ -1,27 +1,27 @@
 <template>
   <div class="splash-container" :class="{ 'is-hidden': !showSplash }">
-    <img src="/images/artsplash.webp" alt="Welcome" class="splash-image">
+    <img src="/images/artsplash3.webp" alt="Welcome" class="splash-image" />
     <div class="button-container">
       <button @click="handleAction('join')">Join Game</button>
       <button @click="handleAction('create')">Create Game</button>
     </div>
   </div>
-  <div class="content" v-show="!showSplash">
+  <div v-show="!showSplash" class="content">
     <!-- Your app's content goes here -->
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-const showSplash = ref(true);
+const showSplash = ref(true)
 
 const handleAction = (action) => {
   // Animation logic before changing the state
-  showSplash.value = false;
+  showSplash.value = false
   // Here you can emit an event or route to different pages based on the action
-  console.log(action + ' game');
-};
+  console.log(action + ' game')
+}
 </script>
 
 <style scoped>

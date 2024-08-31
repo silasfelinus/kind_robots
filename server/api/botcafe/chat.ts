@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const data = {
-      model: body.model || 'gpt-3.5-turbo',
+      model: body.model || 'gpt-4o-mini',
       messages: body.messages || [
         {
           role: 'user',

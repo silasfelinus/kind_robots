@@ -15,3 +15,4 @@ sort: highlight
 ---
 
 :about-page
+:sponsor-page

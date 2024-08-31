@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center space-y-6"
-  >
+  <div class="container mx-auto px-4 py-4 flex flex-col items-center space-y-6">
     <div
       class="w-full flex flex-col md:flex-row justify-between space-y-6 md:space-y-0 md:space-x-6"
     >
@@ -42,12 +40,14 @@
     </div>
 
     <!-- Game Board Section -->
-    <div class="game-board flex flex-wrap justify-center gap-4">
+    <div
+      class="game-board flex flex-wrap justify-center gap-4 overflow-y-auto max-h-[calc(100vh-250px)]"
+    >
       <div v-if="isLoading" class="loader"></div>
       <div
         v-for="galleryImage in galleryImages"
         :key="galleryImage.id"
-        class="gallery-display m-2 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden w-screen cursor-pointer"
+        class="gallery-display m-2 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
         :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
         @click="handleGalleryClick(galleryImage)"
       >
@@ -93,7 +93,7 @@ import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
 import { useWindowSize } from '@vueuse/core'
 
-const { width } = useWindowSize()
+const { width, height } = useWindowSize()
 
 const difficulties = [
   { label: 'Easy', value: 8 },
@@ -109,8 +109,9 @@ const cardSize = computed(() => {
   const baseSize = width.value > 768 ? 160 : 80 // Larger base size for wider screens
   const minSize = width.value > 768 ? 100 : 60 // Minimum size for cards
   const sizeReduction = (numPairs / 8) * (width.value > 768 ? 8 : 4) // Larger reduction on wider screens
+  const heightReduction = height.value < 600 ? 10 : 0 // Reduce further if height is constrained
 
-  return Math.max(minSize, baseSize - sizeReduction)
+  return Math.max(minSize, baseSize - sizeReduction - heightReduction)
 })
 
 interface GalleryImage {
@@ -281,17 +282,12 @@ function resetGame() {
 onMounted(generateMemoryGameImages)
 watch(selectedDifficulty, resetGame)
 </script>
-<style scoped>
-img {
-  backface-visibility: hidden;
-  transition: transform 0.3s;
-}
 
+<style scoped>
 .container {
   display: grid;
   gap: 20px;
   width: 100%;
-  height: 100%;
 }
 
 .card-front,

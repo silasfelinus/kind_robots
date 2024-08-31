@@ -2,7 +2,6 @@
 import { defineEventHandler } from 'h3'
 import { fetchBots } from '.'
 import { errorHandler } from '../utils/error'
-import { createError } from '#imports'
 
 export default defineEventHandler(async (event) => {
   try {

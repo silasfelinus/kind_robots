@@ -1,6 +1,6 @@
 <template>
   <div class="splash-container" :class="{ 'is-hidden': !showSplash }">
-    <img src="artsplash.jpg" alt="Welcome" class="splash-image">
+    <img src="artsplash.webp" alt="Welcome" class="splash-image">
     <div class="button-container">
       <button @click="handleAction('join')">Join Game</button>
       <button @click="handleAction('create')">Create Game</button>

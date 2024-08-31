@@ -1,7 +1,6 @@
 // /server/api/botcafe/brainstorm.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
-import { useRuntimeConfig, createError } from '#imports'
 
 const initialConversation = [
   {

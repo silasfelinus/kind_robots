@@ -269,7 +269,7 @@ const sendMessage = async () => {
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: fullMessage }],
         stream: false,
         user_openai_key: userKey,
@@ -325,7 +325,7 @@ const continueConversation = async (index: number) => {
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: sanitizedMessages,
         stream: false,
       }),

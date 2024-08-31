@@ -3,14 +3,14 @@
     <div class="top-half">
       <div class="bot-image">
         <img
-          :src="currentBot?.avatarImage || 'bot.webp'"
+          :src="currentBot?.avatarImage || '/images/amibot6.webp'"
           alt="Bot's Avatar"
           class="avatar-img"
         />
       </div>
       <div class="info-stream">
         <div class="bot-info">
-          <h2 class="title">{{ currentBot?.name }}</h2>
+          <h2 class="title">{{ currentBot?.name }} || 'AMIbot'</h2>
           <p class="description">{{ currentBot?.description }}</p>
         </div>
         <bot-stream class="stream-section" />

@@ -37,7 +37,7 @@ const sendMessage = async () => {
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: messages.value,
         userKey,
       }),

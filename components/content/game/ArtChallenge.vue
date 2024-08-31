@@ -10,7 +10,11 @@
           Join Room
         </button>
       </div>
-      <div class="flex space-x-2">
+      <div class="flex flex-wrap space-x-2">
+        <button class="px-4 py-2 bg-gray-600 rounded" @click="toggleGameChat">
+          {{ gameStore.showGameChat ? 'Hide Game Chat' : 'Show Game Chat' }}
+        </button>
+
         <button
           class="px-4 py-2 bg-gray-600 rounded"
           @click="toggleChatControl"
@@ -19,17 +23,6 @@
             gameStore.showChatControl
               ? 'Hide Chat Control'
               : 'Show Chat Control'
-          }}
-        </button>
-
-        <button
-          class="px-4 py-2 bg-gray-600 rounded"
-          @click="toggleUserControl"
-        >
-          {{
-            gameStore.showUserControl
-              ? 'Hide User Control'
-              : 'Show User Control'
           }}
         </button>
 
@@ -44,15 +37,15 @@
           }}
         </button>
 
-        <button class="px-4 py-2 bg-gray-600 rounded" @click="toggleGameChat">
-          {{ gameStore.showGameChat ? 'Hide Game Chat' : 'Show Game Chat' }}
-        </button>
-
         <button
           class="px-4 py-2 bg-gray-600 rounded"
           @click="toggleUserControl"
         >
-          {{ gameStore.showGameChat ? 'Hide Game Chat' : 'Show Game Chat' }}
+          {{
+            gameStore.showUserControl
+              ? 'Hide User Control'
+              : 'Show User Control'
+          }}
         </button>
 
         <button class="px-4 py-2 bg-gray-600 rounded" @click="toggleArtChooser">
@@ -77,6 +70,7 @@
               : 'Show Pitch Screen'
           }}
         </button>
+
         <button class="px-4 py-2 bg-gray-600 rounded" @click="toggleGameOver">
           {{ gameStore.showGameOver ? 'Hide Game Over' : 'Show Game Over' }}
         </button>
@@ -84,69 +78,61 @@
     </div>
 
     <!-- Main Game Area -->
-    <div class="flex flex-grow">
+    <div class="flex flex-grow flex-wrap">
       <!-- Chat Window -->
       <div
         v-if="gameStore.showGameChat"
-        class="flex-grow bg-gray-100 p-4 overflow-y-auto"
-      >
-        <GameChat />
-      </div>
-
-      <!-- Chat Window -->
-      <div
-        v-if="gameStore.showGameChat"
-        class="flex-grow bg-gray-100 p-4 overflow-y-auto"
+        class="flex-grow bg-gray-100 p-4 overflow-y-auto w-full md:w-1/2"
       >
         <GameChat />
       </div>
 
       <!-- Conditional Panels -->
       <div
-        v-if="gameStore.showGameControl"
-        class="w-1/3 bg-white p-4 border-l border-gray-300"
-      >
-        <GameControl />
-      </div>
-
-      <div
         v-if="gameStore.showChatControl"
-        class="w-1/3 bg-white p-4 border-l border-gray-300"
+        class="w-full md:w-1/3 bg-white p-4 border-l border-gray-300"
       >
         <ChatControl />
       </div>
 
       <div
+        v-if="gameStore.showGameControl"
+        class="w-full md:w-1/3 bg-white p-4 border-l border-gray-300"
+      >
+        <GameControl />
+      </div>
+
+      <div
         v-if="gameStore.showUserControl"
-        class="w-1/3 bg-white p-4 border-l border-gray-300"
+        class="w-full md:w-1/3 bg-white p-4 border-l border-gray-300"
       >
         <UserControl />
       </div>
 
       <div
         v-if="gameStore.showArtChooser"
-        class="w-1/3 bg-white p-4 border-l border-gray-300"
+        class="w-full md:w-1/3 bg-white p-4 border-l border-gray-300"
       >
         <ArtChooser />
       </div>
 
       <div
         v-if="gameStore.showArtCreator"
-        class="w-1/3 bg-white p-4 border-l border-gray-300"
+        class="w-full md:w-1/3 bg-white p-4 border-l border-gray-300"
       >
         <ArtCreator />
       </div>
 
       <div
         v-if="gameStore.showPitchScreen"
-        class="w-1/3 bg-white p-4 border-l border-gray-300"
+        class="w-full md:w-1/3 bg-white p-4 border-l border-gray-300"
       >
         <PitchScreen />
       </div>
 
       <div
         v-if="gameStore.showGameOver"
-        class="w-1/3 bg-white p-4 border-l border-gray-300"
+        class="w-full md:w-1/3 bg-white p-4 border-l border-gray-300"
       >
         <GameOver />
       </div>

@@ -284,6 +284,14 @@ model Pitch {
   highlightImage String        @db.VarChar(256)
   isMature       Boolean           @default(false)
   ArtReaction    ArtReaction[]
+  PitchType     PitchType   @default(ARTPITCH)
+}
+
+enum PitchType {
+  ARTPITCH
+  BRAINSTORM
+  BOT
+  ARTGALLERY
 }
 
 

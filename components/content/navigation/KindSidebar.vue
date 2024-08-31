@@ -28,6 +28,7 @@
             'text-center',
             'hover:scale-110',
             'hover:glow-animation',
+            'm-1',
             isCurrentPage(link.path) ? 'text-gray-400' : 'text-gray-900',
             'w-full',
           ]"

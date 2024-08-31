@@ -16,7 +16,7 @@
         v-for="link in filteredLinks"
         :key="link.title"
         class="Icon-link-container"
-        @click="toggleSidebar"
+        @click="handleLinkClick"
       >
         <NuxtLink
           :to="link.path"
@@ -99,6 +99,12 @@ function toggleSidebar() {
   layoutStore.toggleSidebar()
 }
 
+function handleLinkClick() {
+  if (isSidebarOpen.value) {
+    toggleSidebar()
+  }
+}
+
 const filteredLinks = computed(() => {
   return links.filter(
     (link) =>
@@ -110,109 +116,3 @@ const isCurrentPage = (path: string) => {
   return contentStore.currentPage?._path === path
 }
 </script>
-
-<style>
-/* Basic styles for icon containers and hover effects */
-.Icon-link-container {
-  width: 100%;
-  padding: 0.5rem;
-}
-
-.Icon-link-container .hover:glow-animation:hover {
-  animation: glow 1.5s infinite;
-}
-
-@keyframes glow {
-  0%,
-  100% {
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.75);
-  }
-  50% {
-    box-shadow:
-      0 0 20px rgba(255, 115, 253, 0.75),
-      0 0 30px rgba(255, 115, 253, 0.75);
-  }
-}
-
-/* Adjusting sidebar and text styles */
-.sidebar {
-  transition:
-    width 0.3s ease-in-out,
-    padding 0.3s ease-in-out;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-  will-change: overflow;
-  transition: width 0.3s ease-in-out;
-  -webkit-overflow-scrolling: touch;
-  overflow-y: auto; /* Ensures scroll */
-  max-height: 83vh;
-}
-
-.nuxt-link {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  color: inherit;
-  text-decoration: none;
-}
-
-.nuxt-link:hover {
-  text-decoration: none;
-}
-
-/* Small devices */
-@media (max-width: 768px) {
-  .sidebarClosed {
-    width: 15vw;
-  }
-  .sidebarOpen {
-    width: 30vw;
-  }
-  .icon-base {
-    width: 48px;
-    height: 48px;
-  }
-}
-
-/* Medium devices */
-@media (min-width: 769px) {
-  .sidebarClosed {
-    width: 8vw;
-  }
-  .sidebarOpen {
-    width: 23vw;
-  }
-  .icon-base {
-    width: 48px;
-    height: 48px;
-  }
-}
-
-/* Large devices */
-@media (min-width: 1025px) {
-  .sidebarClosed {
-    width: 8vw;
-  }
-  .sidebarOpen {
-    width: 15vw;
-  }
-  .icon-base {
-    width: 48px;
-    height: 48px;
-  }
-}
-
-/* Extra large devices */
-@media (min-width: 1441px) {
-  .sidebarClosed {
-    width: 5vw;
-  }
-  .sidebarOpen {
-    width: 8vw;
-  }
-  .icon-base {
-    width: 64px;
-    height: 64px;
-  }
-}
-</style>

@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     const fullConversation = [...initialConversation, ...body.messages]
 
     const data = {
-      model: body.model || 'gpt-3.5-turbo',
+      model: body.model || 'gpt-4o-mini',
       messages: fullConversation,
       temperature: body.temperature,
       max_tokens: body.maxTokens,

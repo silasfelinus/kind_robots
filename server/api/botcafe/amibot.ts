@@ -2,7 +2,7 @@ import { defineEventHandler } from 'h3'
 
 export default defineEventHandler(() => ({
   name: 'AMIbot',
-  model: 'gpt-3.5-turbo',
+  model: 'gpt-4o-mini',
   completion: 'https://api.openai.com/v1/completions',
   temperature: 1,
   max_tokens: 4096,

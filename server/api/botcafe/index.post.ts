@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: body.model || 'gpt-3.5-turbo',
+        model: body.model || 'gpt-4o-mini',
         messages: body.messages,
         temperature: body.temperature || 1,
         n: body.n || 1,

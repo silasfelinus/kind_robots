@@ -29,7 +29,14 @@ export const useGameStore = defineStore('gameStore', {
     currentGame: null as Game | null, // Currently joined game
     players: [] as Player[], // Array to store players in the current game
     currentPlayer: null as Player | null,
-    showDashboard: false
+    showChatControl: false,
+    showGameControl: false,
+    showGameChat: false,
+    showUserControl: false,
+    showArtChooser: false,
+    showArtCreator: false,
+    showPitchScreen: false,
+    showGameOver: false,
   }),
 
   actions: {
@@ -53,8 +60,32 @@ export const useGameStore = defineStore('gameStore', {
         this.gameStatus = GameStatus.Inactive
       }
     },
-    toggleDashboard() {
-      this.showDashboard = !this.showDashboard
+    toggleChatControl() {
+      this.showChatControl = !this.showChatControl
+    },
+    toggleGameControl() {
+      this.showChatControl = !this.showChatControl
+    },
+    toggleGameChat() {
+      this.showChatControl = !this.showChatControl
+    },
+    toggleUserControl() {
+      this.showUserControl = !this.showUserControl
+    },
+    toggleArtChooser() {
+      this.showArtChooser = !this.showArtChooser
+    },
+
+    toggleArtCreator() {
+      this.showArtCreator = !this.showArtCreator
+    },
+
+    togglePitchScreen() {
+      this.showPitchScreen = !this.showPitchScreen
+    },
+
+    toggleGameOver() {
+      this.showGameOver = !this.showGameOver
     },
 
     async createGame(gameData: Partial<Game>, playerData?: Partial<Player>) {

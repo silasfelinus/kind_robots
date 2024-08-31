@@ -1,5 +1,5 @@
 <template>
-  <div class="game-navigator">
+  <div class="game-control">
     <ul>
       <li v-for="game in games" :key="game.id" @click="joinGame(game.id)">
         {{ game.descriptor }} - {{ game.category }}

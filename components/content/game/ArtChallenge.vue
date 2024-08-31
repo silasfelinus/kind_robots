@@ -10,24 +10,145 @@
           Join Room
         </button>
       </div>
-      <button class="px-4 py-2 bg-gray-600 rounded" @click="toggleDashboard">
-        {{ gameStore.showDashboard ? 'Hide Dashboard' : 'Show Dashboard' }}
-      </button>
+      <div class="flex space-x-2">
+        <button
+          class="px-4 py-2 bg-gray-600 rounded"
+          @click="toggleChatControl"
+        >
+          {{
+            gameStore.showChatControl
+              ? 'Hide Chat Control'
+              : 'Show Chat Control'
+          }}
+        </button>
+
+        <button
+          class="px-4 py-2 bg-gray-600 rounded"
+          @click="toggleUserControl"
+        >
+          {{
+            gameStore.showUserControl
+              ? 'Hide User Control'
+              : 'Show User Control'
+          }}
+        </button>
+
+        <button
+          class="px-4 py-2 bg-gray-600 rounded"
+          @click="toggleGameControl"
+        >
+          {{
+            gameStore.showGameControl
+              ? 'Hide Game Control'
+              : 'Show Game Control'
+          }}
+        </button>
+
+        <button class="px-4 py-2 bg-gray-600 rounded" @click="toggleGameChat">
+          {{ gameStore.showGameChat ? 'Hide Game Chat' : 'Show Game Chat' }}
+        </button>
+
+        <button
+          class="px-4 py-2 bg-gray-600 rounded"
+          @click="toggleUserControl"
+        >
+          {{ gameStore.showGameChat ? 'Hide Game Chat' : 'Show Game Chat' }}
+        </button>
+
+        <button class="px-4 py-2 bg-gray-600 rounded" @click="toggleArtChooser">
+          {{
+            gameStore.showArtChooser ? 'Hide Art Chooser' : 'Show Art Chooser'
+          }}
+        </button>
+
+        <button class="px-4 py-2 bg-gray-600 rounded" @click="toggleArtCreator">
+          {{
+            gameStore.showArtCreator ? 'Hide Art Creator' : 'Show Art Creator'
+          }}
+        </button>
+
+        <button
+          class="px-4 py-2 bg-gray-600 rounded"
+          @click="togglePitchScreen"
+        >
+          {{
+            gameStore.showPitchScreen
+              ? 'Hide Pitch Screen'
+              : 'Show Pitch Screen'
+          }}
+        </button>
+        <button class="px-4 py-2 bg-gray-600 rounded" @click="toggleGameOver">
+          {{ gameStore.showGameOver ? 'Hide Game Over' : 'Show Game Over' }}
+        </button>
+      </div>
     </div>
 
     <!-- Main Game Area -->
     <div class="flex flex-grow">
       <!-- Chat Window -->
-      <div class="flex-grow bg-gray-100 p-4 overflow-y-auto">
+      <div
+        v-if="gameStore.showGameChat"
+        class="flex-grow bg-gray-100 p-4 overflow-y-auto"
+      >
         <GameChat />
       </div>
 
-      <!-- Control Panel with Art and Prompts Interaction -->
+      <!-- Chat Window -->
       <div
-        v-if="gameStore.showDashboard"
+        v-if="gameStore.showGameChat"
+        class="flex-grow bg-gray-100 p-4 overflow-y-auto"
+      >
+        <GameChat />
+      </div>
+
+      <!-- Conditional Panels -->
+      <div
+        v-if="gameStore.showGameControl"
+        class="w-1/3 bg-white p-4 border-l border-gray-300"
+      >
+        <GameControl />
+      </div>
+
+      <div
+        v-if="gameStore.showChatControl"
         class="w-1/3 bg-white p-4 border-l border-gray-300"
       >
         <ChatControl />
+      </div>
+
+      <div
+        v-if="gameStore.showUserControl"
+        class="w-1/3 bg-white p-4 border-l border-gray-300"
+      >
+        <UserControl />
+      </div>
+
+      <div
+        v-if="gameStore.showArtChooser"
+        class="w-1/3 bg-white p-4 border-l border-gray-300"
+      >
+        <ArtChooser />
+      </div>
+
+      <div
+        v-if="gameStore.showArtCreator"
+        class="w-1/3 bg-white p-4 border-l border-gray-300"
+      >
+        <ArtCreator />
+      </div>
+
+      <div
+        v-if="gameStore.showPitchScreen"
+        class="w-1/3 bg-white p-4 border-l border-gray-300"
+      >
+        <PitchScreen />
+      </div>
+
+      <div
+        v-if="gameStore.showGameOver"
+        class="w-1/3 bg-white p-4 border-l border-gray-300"
+      >
+        <GameOver />
       </div>
     </div>
   </div>
@@ -36,6 +157,12 @@
 <script setup>
 import GameChat from './GameChat.vue'
 import ChatControl from './ChatControl.vue'
+import GameControl from './GameControl.vue'
+import UserControl from './UserControl.vue'
+import ArtChooser from './ArtChooser.vue'
+import ArtCreator from './ArtCreator.vue'
+import PitchScreen from './PitchScreen.vue'
+import GameOver from './GameOver.vue'
 import { useGameStore } from './../../../stores/gameStore'
 
 const gameStore = useGameStore()
@@ -48,12 +175,37 @@ const createRoom = async () => {
 }
 
 const joinRoom = async () => {
-  // Replace with logic to join a specific room
   await gameStore.joinGame(1, 'PlayerOne')
 }
 
-const toggleDashboard = () => {
-  gameStore.toggleDashboard()
+const toggleChatControl = () => {
+  gameStore.toggleChatControl()
+}
+const toggleGameChat = () => {
+  gameStore.toggleGameChat()
+}
+const toggleGameControl = () => {
+  gameStore.toggleGameControl()
+}
+
+const toggleUserControl = () => {
+  gameStore.toggleUserControl()
+}
+
+const toggleArtChooser = () => {
+  gameStore.toggleArtChooser()
+}
+
+const toggleArtCreator = () => {
+  gameStore.toggleArtCreator()
+}
+
+const togglePitchScreen = () => {
+  gameStore.togglePitchScreen()
+}
+
+const toggleGameOver = () => {
+  gameStore.toggleGameOver()
 }
 </script>
 

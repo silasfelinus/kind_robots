@@ -59,7 +59,7 @@ const showMature = computed(() => userStore.showMatureContent)
 const links = [
   { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
   { title: 'Add Bot', path: '/addbot', icon: 'fluent:bot-add-20-regular' },
-  { title: 'Chat with Bots', path: '/botcafe', icon: 'mdi:chat-processing' },
+  { title: 'Bot Cafe', path: '/botcafe', icon: 'mdi:chat-processing' },
   {
     title: 'Bot Messages',
     path: '/botmessages',
@@ -70,12 +70,22 @@ const links = [
     path: '/pitch',
     icon: 'fluent:chat-bubbles-question-16-regular',
   },
+  {
+    title: 'Art Maker',
+    path: '/artmaker',
+    icon: 'game-icons:easel',
+  },
   { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
   { title: 'Art Gallery', path: '/artgallery', icon: 'mdi:palette' },
   {
     title: 'Art Challenge',
     path: '/artchallenge',
     icon: 'game-icons:tabletop-players',
+  },
+  {
+    title: 'Brainstorm',
+    path: '/brainstorm',
+    icon: 'game-icons:robot-antennas',
   },
   {
     title: 'Memory Match',
@@ -92,6 +102,11 @@ const links = [
     path: '/mature',
     icon: 'fxemoji:lips',
     condition: 'showMature',
+  },
+  {
+    title: 'About',
+    path: '/aboute',
+    icon: 'game-icons:abstract-037',
   },
 ]
 

@@ -92,12 +92,11 @@ onMounted(async () => {
 
 .kind-sidebar {
   flex-shrink: 0;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .main-content {
   flex-grow: 1;
-  overflow-y: auto;
-  padding: 1rem;
+  overflow-y: scroll;
 }
 </style>

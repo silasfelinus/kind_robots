@@ -271,7 +271,7 @@ model Pitch {
   id             Int           @id @default(autoincrement())
   createdAt      DateTime      @default(now())
   updatedAt      DateTime?     @updatedAt @default(now())
-  title          String?        @unique @db.VarChar(256)
+  title          String?       @db.VarChar(256)
   pitch          String        @db.VarChar(764)
   userId         Int?           @default(0)
   User           User? @relation(fields: [userId], references: [id])

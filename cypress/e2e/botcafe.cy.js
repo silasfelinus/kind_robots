@@ -8,6 +8,8 @@ describe('BotCafe API Tests', () => {
   const openaiApiKey = Cypress.env('OPENAI_API_KEY') // OpenAI API key for GPT models
 
   context('BotCafe Chat and Brainstorm Tests', () => {
+ 
+
     it('Chat - Generate Haiku', () => {
       cy.request({
         method: 'POST',

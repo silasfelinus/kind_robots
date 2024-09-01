@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   try {
     // Ensure that userId is correctly retrieved and converted to a number
     const userId = Number(event.context.params?.id)
-    
+
     // Check if userId is a valid number
     if (isNaN(userId)) {
       throw new Error('Invalid user ID')

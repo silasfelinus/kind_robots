@@ -9,12 +9,12 @@ datasource db {
 
 model Art {
   id          Int           @id @default(autoincrement())
-  galleryId   Int?          @default(0)
+  galleryId   Int?          @default(1)
   path        String        @db.VarChar(764)
   prompt      String?       @db.Text
-  artPromptId Int?          @default(0)
-  userId      Int?          @default(0)
-  pitchId     Int?          @default(0)
+  artPromptId Int?
+  userId      Int?
+  pitchId     Int?
   createdAt   DateTime?     @default(now())
   updatedAt   DateTime?     @updatedAt @default(now())
   boos        Int?          @default(0)
@@ -25,14 +25,14 @@ model Art {
   seed        Int?          @default(0)
   steps       Int?          @default(0)
   pitch       String?       @db.VarChar(764)
-  channelId   Int?          @default(0)
-  isOrphan    Boolean?          @default(false)
+  channelId   Int?          @default(1)
   isPublic    Boolean?          @default(false)
   isMature    Boolean?          @default(false)
   designer    String?       @db.VarChar(764)
   ArtReaction ArtReaction[]
   Game  Game[]
   Player    Player[]
+  User        User[]
 }
 
 model ArtPrompt {
@@ -273,14 +273,14 @@ model Pitch {
   updatedAt      DateTime?     @updatedAt @default(now())
   title          String?       @db.VarChar(256)
   pitch          String        @db.VarChar(764)
-  userId         Int?           @default(0)
+  userId         Int?           @default(1)
   User           User? @relation(fields: [userId], references: [id])
-  playerId         Int?           @default(0)
+  playerId         Int?         
   Player           Player? @relation(fields: [playerId], references: [id])
   isPublic       Boolean       @default(true)
   claps          Int           @default(0)
   boos           Int           @default(0)
-  channelId      Int?          @unique @default(0)
+  channelId      Int?          @unique @default(1)
   creator        String?        @db.VarChar(256)
   flavorText     String?       @db.VarChar(512)
   highlightImage String?        @db.VarChar(256)
@@ -415,7 +415,7 @@ model Tag {
   title      String    @db.VarChar(256)
   userId     Int       @default(0)
   isPublic   Boolean?  @default(false)
-  channelId  Int?      @unique @default(0)
+  channelId  Int?      @unique @default(1)
   flavorText String?   @db.VarChar(764)
   pitch      String?   @db.VarChar(764)
   isMature   Boolean   @default(false)
@@ -475,6 +475,7 @@ model User {
   mana                Int           @default(0)
   clickRecord         Int?          @default(0)
   matchRecord         Int?          @default(0)
+  Art                 Art[]
   ArtReaction         ArtReaction[]
   Customer            Customer?
   Game                Game[]

@@ -23,14 +23,14 @@ const initialConversation = [
 ]
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event);
-    const apiKey = event.node.req.headers['authorization']?.split(' ')[1];
+    const body = await readBody(event)
+    const apiKey = event.node.req.headers['authorization']?.split(' ')[1]
 
     // Debug: log the API key
-    console.log('API Key from headers:', apiKey);
+    console.log('API Key from headers:', apiKey)
 
     // Append new messages to the initial conversation
-    const fullConversation = [...initialConversation, ...body.messages];
+    const fullConversation = [...initialConversation, ...body.messages]
 
     const data = {
       model: body.model || 'gpt-4o-mini',
@@ -39,34 +39,36 @@ export default defineEventHandler(async (event) => {
       max_tokens: body.maxTokens,
       n: body.n,
       stream: body.stream || false,
-    };
+    }
 
-    const post = body.post || 'https://api.openai.com/v1/chat/completions';
+    const post = body.post || 'https://api.openai.com/v1/chat/completions'
 
-    console.log('Sending request to OpenAI with API Key:', apiKey);
+    console.log('Sending request to OpenAI with API Key:', apiKey)
     const response = await fetch(post, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify(data),
-    });
+    })
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Failed API Call with error:', errorData);
-      throw new Error(`Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`);
+      const errorData = await response.json()
+      console.error('Failed API Call with error:', errorData)
+      throw new Error(
+        `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
+      )
     }
 
-    const responseData = await response.json();
-    return responseData;
+    const responseData = await response.json()
+    return responseData
   } catch (error) {
-    const { message, statusCode } = errorHandler(error);
-    console.error('Error processing request:', message);
+    const { message, statusCode } = errorHandler(error)
+    console.error('Error processing request:', message)
     throw createError({
       statusCode: statusCode || 500,
       statusMessage: message,
-    });
+    })
   }
-});
+})

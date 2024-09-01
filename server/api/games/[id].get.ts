@@ -15,9 +15,9 @@ export default defineEventHandler(async (event) => {
       where: { id },
       include: {
         Users: true,
-        Art: true,     
-        ArtPrompt: true,  
-        Players: true,   
+        Art: true,
+        ArtPrompt: true,
+        Players: true,
       },
     })
 

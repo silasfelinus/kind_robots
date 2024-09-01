@@ -31,10 +31,10 @@ async function logRequest(username: string | null, requestUrl: string) {
         },
       })
       break; // Exit the loop on successful logging
-    } catch  {
-      console.error(`Attempt ${attempt}: Failed to create log`);
+    } catch (error)  {
+      console.error(`Attempt ${attempt}: Failed to create log`, error);
       if (attempt === 3) {
-        console.error(`Final attempt failed, logging to alternate service`);
+        console.error(`Final attempt failed, logging to alternate service [todo: setup alt logging service]`, error);
         // Implement alternative logging mechanism here
       }
       await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retrying

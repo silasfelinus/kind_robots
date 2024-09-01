@@ -1,30 +1,26 @@
 // /server/api/pitches/index.post.ts
-import { defineEventHandler, readBody } from 'h3'
-import type { Pitch } from '@prisma/client'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
-import { generateSillyName } from '../../../utils/useRandomName' // Adjusted import if needed
-
-// Assuming imports are set correctly and Prisma model is confirmed.
+import { defineEventHandler, readBody } from 'h3';
+import type { Pitch } from '@prisma/client';
+import { errorHandler } from '../utils/error';
+import prisma from '../utils/prisma';
+import { generateSillyName } from '../../../utils/useRandomName';
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<Pitch>(event);
 
-    // Validation
-    const validationError = validatePitchData(body);
-    if (validationError) {
-      return errorHandler({ message: validationError, statusCode: 400 });
+    // Basic validation
+    if (!body.pitch) {
+      return errorHandler({ message: "Pitch content is required.", statusCode: 400 });
     }
 
-    // Ensure creator is set either from body or generated
     const creatorName = body.creator || generateSillyName() || 'Anonymous';
 
-    // Pitch creation with checks for each property
+    
     const pitch = await prisma.pitch.create({
       data: {
         title: body.title || 'Untitled',
-        pitch: body.pitch || 'No details provided.',
+        pitch: body.pitch,
         creator: creatorName,
         userId: body.userId,
         channelId: body.channelId,
@@ -40,15 +36,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, pitch };
   } catch (error) {
-    return errorHandler(error);
+    console.error("Error creating pitch:", error);
+    return errorHandler({ error, statusCode: 500 });
   }
 });
-
-function validatePitchData(data: Partial<Pitch>): string | null {
-  // Validation logic here
-  if (!data.title || !data.pitch) {
-    return 'Title and pitch content are required.';
-  }
-  // Additional validations can be added here
-  return null;
-}

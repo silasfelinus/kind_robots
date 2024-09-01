@@ -3,6 +3,7 @@ import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { generateSillyName } from './../../../utils/useRandomName'
 import { saveImage } from './../../../server/api/utils/saveImage'
+import type { EnumType } from 'typescript'
 
 console.log(
   "🚀 Starting up the art generation engine! Let's create something amazing!",
@@ -19,18 +20,24 @@ type RequestData = {
   flavorText?: string
   userId?: number // 0 if username is not given.
   promptId?: number // may have already been made, otherwise, we make one using "prompt"
+  pitch?: string
   pitchId?: number // if doesn't exist, make if given "pitchName"
   channelId?: number // make if not existing using channelLabel
   galleryId?: number // if not given, make with galleryName (or use 21)
-  designerName?: string // same as username if not given, or generate a random name
+  creator?: string // same as username if not given, or generate a random name
   channelName?: string // to make channel if channel is not given
   userName?: string // to make a user if userId is not given
+  playerName?: string
   pitchName?: string // to make pitch if pitchId is not given
   galleryName?: string // to make gallery if no galleryId
   isMature?: boolean // for entry in multiple models
   isPublic?: boolean // for entry in multiple models
   isOrphan?: boolean // for entry in Art
   highlightImage?: string
+  playerId?: string
+  claps?: number
+  boos?: number
+  PitchType: EnumType
 }
 
 type validatedData = {
@@ -40,12 +47,14 @@ type validatedData = {
   flavorText: string
   userId: number
   promptId: number
+  pitch: string
   pitchId: number
   channelId: number
   galleryId: number
-  designerName: string
+  creator: string
   channelName: string
   userName: string
+  playerName: string
   pitchName: string
   galleryName: string
   isMature: boolean
@@ -149,23 +158,24 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
 
       const newPitch = await prisma.pitch.create({
         data: {
-          title: data.title ?? 'Untitled', // Provide a default title if none is provided
-          pitch: data.pitchName || 'masterpiece', // Provide a default pitch name
-          designer: data.designerName ?? 'Anonymous', // Provide a default designer name
-          channelId: data.channelId ?? 0, // Use default value from schema if not provided
-          userId: data.userId ?? 0, // Use default value from schema if not provided
-          isOrphan: data.isOrphan ?? false, // Use default value from schema
-          isPublic: data.isPublic ?? false, // Use default value from schema
-          creatorId: data.userId ?? 0, // Use default value from schema
-          isMature: data.isMature ?? false, // Use default value from schema
-          flavorText: data.flavorText ?? '', // Optional, but providing an empty string as default
-          createdAt: new Date(), // Set to current timestamp
-          highlightImage: data.highlightImage ?? '', // Provide a default or an empty string
+          title: data.title || 'Untitled', // Provide a default title if none is provided
+          pitch: data.pitch || 'No details provided.', // Provide a default pitch content
+          creator: data.creator || 'Anonymous', // Provide a default creator name
+          channelId: data.channelId || 0, // Default to 0 if not provided
+          userId: data.userId || 0, // Default to 0 if not provided
+          playerId: data.playerId || 0, // Default to 0 if not provided
+          isPublic: data.isPublic || true, // Default to true if not provided
+          claps: data.claps || 0, // Default to 0 if not provided
+          boos: data.boos || 0, // Default to 0 if not provided
+          isMature: data.isMature || false, // Default to false if not provided
+          flavorText: data.flavorText || '', // Optional, empty string as default
+          highlightImage: data.highlightImage || '', // Optional, empty string as default
+          PitchType: data.PitchType || 'ARTPITCH', // Default to 'ARTPITCH' if not provided
         },
-      })
-
-      return newPitch.id
-    }
+      });
+      
+      return newPitch.id;
+    }      
 
     return data.pitchId ?? 0
   } catch (error) {
@@ -272,12 +282,12 @@ export default defineEventHandler(async (event) => {
     validatedData.pitchId = await validateAndLoadPitchId(requestData)
     validatedData.channelId = await validateAndLoadChannelId(requestData)
     validatedData.galleryId = await validateAndLoadGalleryId(requestData)
-    validatedData.designerName = await validateAndLoadDesignerName(requestData)
+    validatedData.creator = await validateAndLoadDesignerName(requestData)
 
     console.log('🎉 All validations passed! Generating image...')
     const response: GenerateImageResponse = await generateImage(
       requestData.prompt,
-      validatedData.designerName!,
+      validatedData.creator!,
     )
     console.log('🖼 Image generated! Response:', response)
 

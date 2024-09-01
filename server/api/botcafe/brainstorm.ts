@@ -2,42 +2,46 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 
-const initialConversation = [
-  {
-    role: 'user',
-    content: `You're a creative copywriter. ***Give a numbered list of 5 darkly funny ideas - Include an amusing example*** Intro and outro outside the asterisks.`,
-  },
-  {
-    role: 'assistant',
-    content: `You Betcha! ***1. Dark Nursery Rhymes - Jack and Jill went up the hill to fetch some existential dread. 2. Unexpected problems with superpowers - Superman keeps breaking his razors. 3. Pick-up lines at a funeral - So, now that you're single... 4. Terrible advice for new cat owners - Cats are a lot of work, but they make up for it by chipping in with rent. 5. Rejected comic books - Casper the Friendly Ghost Meets Cthulhu*** Hope these work!`,
-  },
-  {
-    role: 'user',
-    content: `Great, now five more like that!`,
-  },
-  {
-    role: 'assistant',
-    content:
-      'Absolutely! ***1. Unfortunate superheroes and their useless powers - The Incredible Wallflower, who has the incredible ability to blend into wallpaper... but only in seedy motels. 2. Dark spin-off movies based on children\'s classics - "Alice in Wonderland: Through the Rabbit Hole of Existential Crisis." 3. Absurd product ideas for vampires - "Sunscreen for Vampires: Because even eternal beings need protection (and a bit of irony)." 4. Awkward situations with time travel - Going back in time to give yourself advice, only to realize that your younger self never pays attention... or listens. 5. Mischievous fortune cookies - "Your fortune: \'Bad luck and terrible puns will follow you for the rest of your days.*** Enjoy!',
-  },
+// Array of darkly funny creative prompts
+const creativePrompts = [
+  "Haunted Fitness Tracker: Counts steps... to your grave.",
+  "Reverse Life Insurance: Pays out when you unexpectedly come back to life. Policy benefits include a complimentary zombie survival kit.",
+  "Misfortune Cookies: Crack one open to ruin your day with prophecies like 'Your socks will always be slightly damp.'",
+  "The Procrastinator’s Alarm Clock: Always runs a few minutes late, just like you.",
+  "Invisible Ink Tattoos: For when you want a tattoo but can't commit. Visible only under the scrutiny of disappointed parents.",
+  "Eau de Despair Perfume: The scent of looming deadlines mixed with broken dreams. Perfect for office wear.",
+  "Self-Help Books by Villains: Learn confidence from Darth Vader: 'Choke Your Way to the Top!'",
+  "Diet Water: Now with 30% less water!",
+  "Gluten-Full Bread: Twice the gluten, double the regret.",
+  "Anti-Social Media App: Connects you with people you’ll definitely dislike. Blocking feature only enhances their resolve.",
+  "Midlife Crisis Action Figures: Comes with a convertible and questionable life choices. Optional accessories include a boat and a guitar you'll never learn to play.",
+  "Doomsday Clock: It’s always almost midnight. Brighten up your desk with the constant reminder of impending global catastrophe.",
+  "Solar-Powered Flashlight: Only works when you don't need it.",
+  "Portable Potholes: Bring traffic chaos wherever you go. City council not included.",
+  "Unsolicited Advice Generator: Perfect for family gatherings. Watch the sparks fly as it dispenses advice nobody asked for."
 ]
+
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     const apiKey = event.node.req.headers['authorization']?.split(' ')[1]
+    const { n = 5 } = body;  // Default n to 5 if not provided
 
     // Debug: log the API key
     console.log('API Key from headers:', apiKey)
 
-    // Append new messages to the initial conversation
-    const fullConversation = [...initialConversation, ...body.messages]
+    // Generate a list of prompts based on the provided 'n'
+    const selectedPrompts = creativePrompts.slice(0, n).map((content, index) => ({
+      role: 'assistant',
+      content: `${index + 1}. ${content}`
+    }));
 
     const data = {
       model: body.model || 'gpt-4o-mini',
-      messages: fullConversation,
+      messages: selectedPrompts,
       temperature: body.temperature,
       max_tokens: body.maxTokens,
-      n: body.n,
+      n,  // Using the dynamic 'n' from the request
       stream: body.stream || false,
     }
 

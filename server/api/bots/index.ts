@@ -22,6 +22,25 @@ export async function fetchBotByName(name: string): Promise<Bot | null> {
   })
 }
 
+export async function addBot(
+  botData: Partial<Bot>,
+): Promise<{ bot: Bot | null; error: string | null }> {
+  if (!botData.name) {
+    return { bot: null, error: 'Bot name is required.' }
+  }
+
+  try {
+    const bot = await prisma.bot.create({
+      data: botData as Prisma.BotCreateInput,
+    })
+    return { bot, error: null }
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return { bot: null, error: errorMessage }
+  }
+}
+
 export async function addBots(
   botsData: Partial<Bot>[],
 ): Promise<{ count: number; bots: Bot[]; errors: string[] }> {

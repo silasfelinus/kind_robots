@@ -1,20 +1,23 @@
 // /server/api/bots/index.post.ts
-import { updateBots } from './index'
-import { errorHandler } from '../utils/error'
+import { defineEventHandler, readBody } from 'h3'
+import { addBot } from '.'
+import { errorHandler } from '../utils/error' // Import the error handler
 
 export default defineEventHandler(async (event) => {
   try {
     const botsData = await readBody(event)
-    if (!Array.isArray(botsData)) {
-      throw new Error('botsData must be an array');
-    }
-    const result = await updateBots(botsData)
+    const result = await addBot(botsData)
     return { success: true, ...result }
-  } catch (error: unknown) {
+  } catch (error) {
+    // Use the error handler to process the error
     const { message, statusCode } = errorHandler(error)
-    throw createError({
-      statusCode: statusCode || 500,
-      statusMessage: message || 'Internal Server Error',
-    })
+
+    // Return the error response with the processed message and status code
+    return {
+      success: false,
+      message: 'Failed to create a new bot',
+      error: message,
+      statusCode: statusCode || 500, // Default to 500 if no status code is provided
+    }
   }
 })

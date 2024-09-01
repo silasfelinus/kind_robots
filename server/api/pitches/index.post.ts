@@ -26,15 +26,14 @@ export default defineEventHandler(async (event) => {
         title: body.title || 'Untitled',
         pitch: body.pitch || 'No details provided.',
         creator: creatorName,
-        userId: body.userId || 0,
-        channelId: body.channelId || 0,
+        userId: body.userId,
+        channelId: body.channelId,
         isPublic: body.isPublic !== undefined ? body.isPublic : true,
         isMature: body.isMature || false,
         flavorText: body.flavorText || '',
         highlightImage: body.highlightImage || '',
         claps: body.claps || 0,
         boos: body.boos || 0,
-        // Assuming PitchType is an actual enum in your Prisma model
         PitchType: body.PitchType || 'ARTPITCH',
       }
     });

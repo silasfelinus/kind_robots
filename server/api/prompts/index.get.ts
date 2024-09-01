@@ -7,11 +7,14 @@ export default defineEventHandler(async () => {
   try {
     const artPrompts = await fetchAllArtPrompts()
 
-    // Fetch related Art for each ArtPrompt
+    // Fetch related Art for each ArtPrompt and convert BigInts to Strings
     const artPromptDetails = await Promise.all(
       artPrompts.map(async (artPrompt) => {
         const art = await fetchArtByPromptId(artPrompt.id)
-        return { ...artPrompt, Art: art }
+        // Assuming 'art' and 'artPrompt' might have BigInt properties
+        const artProcessed = JSON.parse(JSON.stringify(art, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+        const artPromptProcessed = JSON.parse(JSON.stringify(artPrompt, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+        return { ...artPromptProcessed, Art: artProcessed }
       }),
     )
 

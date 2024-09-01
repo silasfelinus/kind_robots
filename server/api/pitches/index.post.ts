@@ -1,13 +1,12 @@
 // /server/api/pitches/index.post.ts
 import { defineEventHandler, readBody } from 'h3';
-import type { Pitch } from '@prisma/client';
 import { errorHandler } from '../utils/error';
 import prisma from '../utils/prisma';
 import { generateSillyName } from '../../../utils/useRandomName';
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<Pitch>(event);
+    const body = await readBody(event);
 
     // Basic validation
     if (!body.pitch) {
@@ -16,10 +15,10 @@ export default defineEventHandler(async (event) => {
 
     const creatorName = body.creator || generateSillyName() || 'Anonymous';
 
-    
+
     const pitch = await prisma.pitch.create({
       data: {
-        title: body.title || 'Untitled',
+        title: body.title || body.pitch,
         pitch: body.pitch,
         creator: creatorName,
         userId: body.userId,

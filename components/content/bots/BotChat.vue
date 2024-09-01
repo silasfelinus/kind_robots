@@ -20,19 +20,12 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import BotStream from './BotStream.vue'
 
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)
-
-onMounted(() => {
-  if (!botStore.currentBot) {
-    botStore.selectBot(1)
-    console.log('loaded bot: ', currentBot)
-  }
-})
 </script>
 <style scoped>
 .container {

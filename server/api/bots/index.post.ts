@@ -1,7 +1,8 @@
 // /server/api/bots/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { addBot } from '.'
 import { errorHandler } from '../utils/error' // Import the error handler
+import prisma from './../utils/prisma'
+import type { Prisma, Bot } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -21,3 +22,22 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
+
+export async function addBot(
+  botData: Partial<Bot>,
+): Promise<{ bot: Bot | null; error: string | null }> {
+  if (!botData.name) {
+    return { bot: null, error: 'Bot name is required.' }
+  }
+
+  try {
+    const bot = await prisma.bot.create({
+      data: botData as Prisma.BotCreateInput,
+    })
+    return { bot, error: null }
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return { bot: null, error: errorMessage }
+  }
+}

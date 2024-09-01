@@ -294,6 +294,7 @@ enum PitchType {
   BRAINSTORM
   BOT
   ARTGALLERY
+  INSPIRATION
 }
 
 

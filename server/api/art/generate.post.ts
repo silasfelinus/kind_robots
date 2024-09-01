@@ -3,7 +3,7 @@ import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { generateSillyName } from './../../../utils/useRandomName'
 import { saveImage } from './../../../server/api/utils/saveImage'
-import type { EnumType } from 'typescript'
+import type { PitchType} from '@prisma/client'
 
 console.log(
   "🚀 Starting up the art generation engine! Let's create something amazing!",
@@ -34,32 +34,32 @@ type RequestData = {
   isPublic?: boolean // for entry in multiple models
   isOrphan?: boolean // for entry in Art
   highlightImage?: string
-  playerId?: string
+  playerId?: number
   claps?: number
   boos?: number
-  PitchType: EnumType
+  PitchType: PitchType
 }
 
 type validatedData = {
-  title: string
+  title?: string
   prompt: string
-  description: string
-  flavorText: string
-  userId: number
-  promptId: number
-  pitch: string
-  pitchId: number
-  channelId: number
-  galleryId: number
-  creator: string
-  channelName: string
-  userName: string
-  playerName: string
-  pitchName: string
-  galleryName: string
-  isMature: boolean
-  isPublic: boolean
-  isOrphan: boolean
+  description?: string
+  flavorText?: string
+  userId?: number
+  promptId?: number
+  pitch?: string
+  pitchId?: number
+  channelId?: number
+  galleryId?: number
+  creator?: string
+  channelName?: string
+  userName?: string
+  playerName?: string
+  pitchName?: string
+  galleryName?: string
+  isMature?: boolean
+  isPublic?: boolean
+  isOrphan?: boolean
   highlightImage?: string
 }
 
@@ -161,9 +161,9 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
           title: data.title || 'Untitled', // Provide a default title if none is provided
           pitch: data.pitch || 'No details provided.', // Provide a default pitch content
           creator: data.creator || 'Anonymous', // Provide a default creator name
-          channelId: data.channelId || 0, // Default to 0 if not provided
+          channelId: data.channelId,
           userId: data.userId || 0, // Default to 0 if not provided
-          playerId: data.playerId || 0, // Default to 0 if not provided
+          playerId: data.playerId || null, // Default to 0 if not provided
           isPublic: data.isPublic || true, // Default to true if not provided
           claps: data.claps || 0, // Default to 0 if not provided
           boos: data.boos || 0, // Default to 0 if not provided
@@ -260,7 +260,7 @@ function validateAndLoadDesignerName(data: RequestData): string {
   console.log('🔍 Validating and loading designer name...')
 
   return (
-    data.designerName ?? data.userName ?? generateSillyName() ?? 'Kind Guest'
+    data.creator ?? data.userName ?? generateSillyName() ?? 'Kind Guest'
   )
 }
 
@@ -337,7 +337,7 @@ export default defineEventHandler(async (event) => {
         isOrphan: requestData.isOrphan,
         isPublic: requestData.isPublic,
         channelId: validatedData.channelId,
-        designer: validatedData.designerName,
+        designer: validatedData.creator,
       },
     })
 

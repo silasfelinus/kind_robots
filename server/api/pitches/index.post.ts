@@ -1,28 +1,31 @@
 // /server/api/pitches/index.post.ts
 import { defineEventHandler, readBody } from 'h3';
+import type { Pitch } from '@prisma/client';
 import { errorHandler } from '../utils/error';
 import prisma from '../utils/prisma';
 import { generateSillyName } from '../../../utils/useRandomName';
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event);
+    // Attempt to read and parse the body of the request
+    const body = await readBody<Pitch>(event);
+    console.log('Received body:', body); // Log the received body for debugging
 
-    // Basic validation
-    if (!body.pitch) {
+    // Ensure pitch content is provided and not empty
+    if (!body.pitch || body.pitch.trim() === '') {
       return errorHandler({ message: "Pitch content is required.", statusCode: 400 });
     }
 
     const creatorName = body.creator || generateSillyName() || 'Anonymous';
 
-
+    // Process the creation of a new pitch
     const pitch = await prisma.pitch.create({
       data: {
-        title: body.title || body.pitch,
+        title: body.title || null,
         pitch: body.pitch,
         creator: creatorName,
-        userId: body.userId,
-        channelId: body.channelId,
+        userId: body.userId || 0,
+        channelId: body.channelId || 0,
         isPublic: body.isPublic !== undefined ? body.isPublic : true,
         isMature: body.isMature || false,
         flavorText: body.flavorText || '',

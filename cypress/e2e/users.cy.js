@@ -67,7 +67,7 @@ describe('User Management API Tests', () => {
         expect(response.body)
           .to.have.property('usernames')
           .that.is.an('array')
-          .that.includes('Kind Guest')
+          .that.includes('kindguest')
       })
     })
   })

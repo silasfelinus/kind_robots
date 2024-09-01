@@ -217,6 +217,7 @@ model Player {
   Art       Art[]
   ArtPrompt ArtPrompt[]
   Channel     Channel[]
+  Pitches Pitch[]
 }
 
 model Log {
@@ -270,18 +271,19 @@ model Pitch {
   id             Int           @id @default(autoincrement())
   createdAt      DateTime      @default(now())
   updatedAt      DateTime?     @updatedAt @default(now())
-  title          String        @unique @db.VarChar(764)
+  title          String        @unique @db.VarChar(256)
   pitch          String        @db.VarChar(764)
-  userId         Int           @default(0)
+  userId         Int?           @default(0)
+  User           User? @relation(fields: [userId], references: [id])
+  playerId         Int?           @default(0)
+  Player           Player? @relation(fields: [playerId], references: [id])
   isPublic       Boolean       @default(false)
   claps          Int           @default(0)
   boos           Int           @default(0)
   channelId      Int?          @unique @default(0)
-  designer       String        @db.VarChar(256)
+  creator        String?        @db.VarChar(256)
   flavorText     String?       @db.VarChar(512)
-  isOrphan       Boolean           @default(false)
-  creatorId      Int?          @default(0)
-  highlightImage String        @db.VarChar(256)
+  highlightImage String?        @db.VarChar(256)
   isMature       Boolean           @default(false)
   ArtReaction    ArtReaction[]
   PitchType     PitchType   @default(ARTPITCH)
@@ -480,6 +482,7 @@ model User {
   milestones  MilestoneRecord[]
   showMature          Boolean @default(false)
   Players             Player[]
+  Pitches             Pitch[]
 }
 
 model ArtReactionToTag {

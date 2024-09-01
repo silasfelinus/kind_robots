@@ -27,8 +27,7 @@ export default defineEventHandler(async (event) => {
     const apiKey = event.node.req.headers['authorization']?.split(' ')[1]
     const { n = 5 } = body;  // Default n to 5 if not provided
 
-    // Debug: log the API key
-    console.log('API Key from headers:', apiKey)
+    console.log('Received body:', body); // Log the entire body to check what's received
 
     // Generate a list of prompts based on the provided 'n'
     const selectedPrompts = creativePrompts.slice(0, n).map((content, index) => ({
@@ -41,13 +40,13 @@ export default defineEventHandler(async (event) => {
       messages: selectedPrompts,
       temperature: body.temperature,
       max_tokens: body.maxTokens,
-      n,  // Using the dynamic 'n' from the request
+      n,
       stream: body.stream || false,
     }
 
     const post = body.post || 'https://api.openai.com/v1/chat/completions'
 
-    console.log('Sending request to OpenAI with API Key:', apiKey)
+    console.log('Data to OpenAI:', data);
     const response = await fetch(post, {
       method: 'POST',
       headers: {

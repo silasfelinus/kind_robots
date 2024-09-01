@@ -94,7 +94,9 @@ export const useGameStore = defineStore('gameStore', {
         const response = await fetch('/api/games', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(playerData ? { ...gameData, firstPlayer: playerData } : gameData),
+          body: JSON.stringify(
+            playerData ? { ...gameData, firstPlayer: playerData } : gameData,
+          ),
         })
 
         if (!response.ok) {
@@ -155,7 +157,10 @@ export const useGameStore = defineStore('gameStore', {
         const response = await fetch(`/api/games/${this.currentGame.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'leave', playerName: this.user?.name }),
+          body: JSON.stringify({
+            action: 'leave',
+            playerName: this.user?.name,
+          }),
         })
 
         if (!response.ok) {
@@ -259,7 +264,7 @@ export const useGameStore = defineStore('gameStore', {
         }
 
         const updatedPlayer = await response.json()
-        const index = this.players.findIndex(player => player.id === playerId)
+        const index = this.players.findIndex((player) => player.id === playerId)
         if (index !== -1) {
           this.players[index] = updatedPlayer
         }

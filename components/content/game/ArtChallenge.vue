@@ -2,7 +2,7 @@
   <div class="flex flex-col h-screen">
     <!-- Game Navigation Bar -->
     <div class="bg-gray-800 text-white p-4 flex justify-between items-center">
-<splash-page />
+      <splash-page />
       <div>
         <button class="px-4 py-2 bg-blue-500 rounded" @click="createRoom">
           Create Room

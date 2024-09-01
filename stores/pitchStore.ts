@@ -74,7 +74,6 @@ export const usePitchStore = defineStore({
       }
     },
 
-
     initializePitches() {
       if (!this.isInitialized) {
         this.fetchPitches()
@@ -115,7 +114,10 @@ export const usePitchStore = defineStore({
     fetchRandomPitches(count: number) {
       // Ensure that the selected pitches are unique
       const uniquePitches = new Set<Pitch>() // Specify the type of items in the Set
-      while (uniquePitches.size < count && uniquePitches.size < this.pitches.length) {
+      while (
+        uniquePitches.size < count &&
+        uniquePitches.size < this.pitches.length
+      ) {
         const randomIndex = Math.floor(Math.random() * this.pitches.length)
         uniquePitches.add(this.pitches[randomIndex])
       }

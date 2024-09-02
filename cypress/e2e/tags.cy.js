@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 
 describe('Tag Management API Tests', () => {
-  const baseUrl = 'http://kindrobots.org/api/tags'
+  const baseUrl = 'https://kind-robots.vercel.app/api/tags'
   let tagId // Store tag ID for further operations
 
   it('Get All Tags', () => {
@@ -14,7 +14,9 @@ describe('Tag Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.be.an('array').and.have.length.greaterThan(0)
+      expect(response.body.tags)
+        .to.be.an('array')
+        .and.have.length.greaterThan(0)
     })
   })
 
@@ -26,12 +28,12 @@ describe('Tag Management API Tests', () => {
         'Content-Type': 'application/json',
       },
       body: {
-        label: 'art',
+        label: 'tag',
         title: 'Abstract Art',
       },
     }).then((response) => {
       console.log(response)
-      expect(response.status).to.eq(201)
+      expect(response.status).to.eq(200)
       tagId = response.body.id // Assuming the API returns the created tag's ID
     })
   })

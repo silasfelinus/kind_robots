@@ -2,6 +2,7 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import type { Prisma, Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -15,7 +16,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Transform to Title Case and validate
-    const transformedTags = tagsData.map((tag) => {
+    const transformedTags: Prisma.TagCreateManyInput[] = tagsData.map((tag) => {
       if (typeof tag === 'string') {
         return {
           label: 'Default', // Default label
@@ -25,6 +26,7 @@ export default defineEventHandler(async (event) => {
           ),
         }
       }
+
       return {
         label:
           tag.label.charAt(0).toUpperCase() + tag.label.slice(1).toLowerCase(),
@@ -37,13 +39,34 @@ export default defineEventHandler(async (event) => {
     })
 
     // Create tags in a batch and skip duplicates
-    const result = await prisma.tag.createMany({
-      data: transformedTags,
-      skipDuplicates: true,
-    })
+    const result = await addTags(transformedTags)
 
     return { success: true, count: result.count }
-  } catch (error: unknown) {
-    return errorHandler(error)
+  } catch (error) {
+    // Use the error handler to process the error
+    const { message, statusCode } = errorHandler(error)
+
+    return {
+      success: false,
+      message: 'Failed to create new tags',
+      error: message,
+      statusCode: statusCode || 500, // Default to 500 if no status code is provided
+    }
   }
 })
+
+async function addTags(
+  tagsData: Prisma.TagCreateManyInput[],
+): Promise<{ count: number }> {
+  try {
+    const result = await prisma.tag.createMany({
+      data: tagsData,
+      skipDuplicates: true,
+    })
+    return { count: result.count }
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    throw new Error(errorMessage)
+  }
+}

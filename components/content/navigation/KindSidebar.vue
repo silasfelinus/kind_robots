@@ -107,7 +107,7 @@ const links = [
 {
     title: 'Wonderlab',
     path: '/wonderlab',
-    icon: 'fxemoji:lips',
+    icon: 'game-icons:gear-hammer',
     condition: 'showMature',
   },
   {

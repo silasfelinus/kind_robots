@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import type { Prisma, Tag } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {

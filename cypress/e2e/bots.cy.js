@@ -20,7 +20,7 @@ describe('Bot Management API Tests', () => {
         name: botName,
         subtitle: 'An innovative bot',
         description: 'A bot created for testing purposes',
-        avatarImage: 'http://example.com/avatar.png',
+        avatarImage: '/images/bot.webp',
         botIntro: 'Welcome to testbot!',
         userIntro: 'How can I assist you today?',
         prompt: 'Tell me about your day.',

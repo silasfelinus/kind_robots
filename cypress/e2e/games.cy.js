@@ -89,9 +89,21 @@ describe('Game Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      playerId = response.body.players.find(
-        (player) => player.name === 'PlayerTwo',
-      ).id
+      expect(response.body.success).to.be.true // Verify the operation was successful
+
+      // Make an additional request to verify the player has been added
+      cy.request({
+        method: 'GET',
+        url: `${baseUrl}/${gameId}`,
+        headers: {
+          Accept: 'application/json',
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body.game.Players).to.deep.include({
+          name: 'PlayerTwo',
+        }) // Verify the player is now part of the game
+      })
     })
   })
 

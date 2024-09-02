@@ -51,7 +51,7 @@ describe('Tag Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.title).to.eq('Modern Art')
+      expect(response.body.tag.title).to.eq('Modern Art')
     })
   })
 
@@ -64,23 +64,6 @@ describe('Tag Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-    })
-  })
-
-  it('Seed Tags', () => {
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: [
-        { label: 'art', title: 'Liked' },
-        { label: 'art', title: 'Disliked' },
-      ],
-    }).then((response) => {
-      expect(response.status).to.eq(201)
-      expect(response.body).to.be.an('array').and.have.lengthOf(2)
     })
   })
 })

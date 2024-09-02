@@ -63,7 +63,7 @@
     "@nuxt/image": "^1.7.0",
     "@nuxtjs/color-mode": "^3.4.2",
     "@pinia/nuxt": "^0.5.3",
-    "@prisma/client": "^5.18.0",
+    "@prisma/client": "^5.19.1",
     "@stripe/stripe-js": "^4.2.0",
     "bcrypt": "^5.1.1",
     "canvas-confetti": "^1.9.3",

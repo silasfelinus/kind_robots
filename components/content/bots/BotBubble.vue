@@ -16,6 +16,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
@@ -32,41 +33,49 @@ onMounted(() => {
   if (bots.value.length > 0) {
     selectBot(bots.value[0].id)
   }
+  // Handle scrolling using CSS scroll snapping
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollLeft = 0 // Reset scroll to the start
+  }
 })
 </script>
-<style>
+
+<style scoped>
 .scroll-container {
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
   cursor: grab; /* Cursor indicates draggable area */
+  padding: 0 10px; /* Add padding inside the container for visual spacing */
 }
 
 .bot-bubble {
+  flex: 0 0 auto; /* Don't grow, don't shrink, basis is auto */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 20vw; /* Adjust as necessary to ensure circular appearance */
+  width: 20vw;
   min-width: 180px;
-  max-width: 200px; /* Ensure this is square */
-  height: 200px; /* New height to match max-width for circular image */
+  height: 200px;
   margin: 0 8px;
   padding: 10px;
   scroll-snap-align: start;
   text-align: center;
+  border-radius: 50%; /* Ensures that the bot-bubble appears circular */
 }
 
 .bot-img {
-  width: 80%; /* Adjust based on design preference */
-  height: 80%; /* Make the image take up a fixed percentage of the bubble */
+  width: 100px; /* Set fixed width */
+  height: 100px; /* Set fixed height, keep aspect ratio */
   border-radius: 50%;
-  object-fit: cover; /* Ensure images don't get distorted */
+  object-fit: cover;
 }
 
 .bot-name {
-  margin-top: 7px;
+  margin-top: 10px;
+  font-size: 14px; /* Adjust font size */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

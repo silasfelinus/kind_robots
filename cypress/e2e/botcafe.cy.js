@@ -1,7 +1,16 @@
 // cypress/e2e/api/botcafe.cy.js
 /* eslint-disable no-undef */
 
-describe('BotCafe API Tests', () => {
+describe('BotCafe API Tests', function () {
+  // Changed to a function declaration
+  before(function () {
+    // Changed to a function declaration
+    // Skip all tests in this describe block if DISABLE_EXTERNAL_TESTS is set
+    if (Cypress.env('DISABLE_EXTERNAL_TESTS')) {
+      this.skip()
+    }
+  })
+
   const chatUrl = 'https://kind-robots.vercel.app/api/botcafe/chat'
   const brainstormUrl = 'https://kind-robots.vercel.app/api/botcafe/brainstorm'
   const apiKey = Cypress.env('API_KEY') // General API key for your app

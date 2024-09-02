@@ -1,3 +1,8 @@
+import { exec } from 'child_process'
+
+// Define a type for exec's callback
+type ExecCallback = (error: Error | null, stdout: string, stderr: string) => void
+
 export default defineNuxtConfig({
   // Including the necessary modules/plugins
   modules: [
@@ -61,4 +66,21 @@ export default defineNuxtConfig({
   devtools: {
     enabled: false, // Disable devtools in production
   },
+
+  // Adding the build hook to run the script
+  hooks: {
+    'build:before': async () => {
+      const command = 'node utils/scripts/create-component-json.ts'
+
+      const callback: ExecCallback = (error, stdout) => {
+        if (error) {
+          console.error('Failed to generate components JSON:', error)
+          return
+        }
+        console.log(stdout)
+      }
+
+      exec(command, callback)
+    }
+  }
 })

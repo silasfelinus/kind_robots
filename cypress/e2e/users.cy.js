@@ -363,7 +363,7 @@ describe('User Management API Tests - Authentication and Error Handling', () => 
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('token') // Assuming the response contains an auth token
+        expect(response.body).to.have.property('user')
       })
     })
 

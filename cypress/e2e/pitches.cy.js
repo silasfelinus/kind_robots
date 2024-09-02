@@ -14,33 +14,35 @@ describe('Pitch Management API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      body: [
-        {
-          title: 'Slothcore',
-          pitch: 'Slothcore',
-          creator: 'silasfelinus',
-          userId: 1,
-          isMature: false,
-          isPublic: true,
-        },
-      ],
+      body: {
+        title: 'Slothcore',
+        pitch: 'Slothcore',
+        creator: 'silasfelinus',
+        playerId: 1,
+        isMature: false,
+        isPublic: true,
+        PitchType: 'INSPIRATION',
+      },
     }).then((response) => {
+      console.log(response)
       expect(response.status).to.eq(200)
-      pitchId = response.body[0].id // Assuming the API returns the created pitches
+      pitchId = response.body.pitch.id // Assuming the API returns the created pitches
     })
   })
 
   it('Get All Pitches', () => {
     cy.request({
       method: 'GET',
-      url: baseUrl,
+      url: baseUrl + '/batch',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.length.greaterThan(0)
+      expect(response.body.pitches)
+        .to.be.an('array')
+        .and.have.length.greaterThan(0)
     })
   })
 
@@ -58,7 +60,7 @@ describe('Pitch Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.title).to.eq('Updated Slothcore')
+      expect(response.body.pitch.title).to.eq('Updated Slothcore')
     })
   })
 

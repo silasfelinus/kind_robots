@@ -58,7 +58,7 @@ import { useUserStore } from './../../../stores/useUserStore';
 
 const pitchStore = usePitchStore()
 const { createPitch, updatePitch, deletePitch } = pitchStore;
-const computed =(()=> pitchStore.pitches)
+const pitches = computed(()=> pitchStore.pitches)
 const { user } = useUserStore();
 
 const showForm = ref(false);

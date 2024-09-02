@@ -5,6 +5,8 @@ describe('Game Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/games'
   let gameId // Store game ID for further operations
   let playerId // Store player ID for further operations
+  const uniqueGameName = `Epic Battle ${Date.now()}` // Unique name for each test run
+  const uniquePlayerName = `testuser${Date.now()}` // Unique player name for each test run
 
   it('Create New Game', () => {
     cy.request({
@@ -15,14 +17,14 @@ describe('Game Management API Tests', () => {
         'Content-Type': 'application/json',
       },
       body: {
-        descriptor: 'Epic Battle',
+        descriptor: uniqueGameName, // Use the unique game name
         category: 'Battle Royale',
-        creator: 'PlayerOne',
+        creator: uniquePlayerName, // Corrected to use the variable
         isPrivate: false,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      gameId = response.body.game.id
+      gameId = response.body.game.id // Save the game ID for use in later tests
     })
   })
 
@@ -35,10 +37,10 @@ describe('Game Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true // Check if the success flag is true
+      expect(response.body.success).to.be.true
       expect(response.body.games)
-        .to.be.an('array') // Now checking the games array inside the response body
-        .and.have.length.greaterThan(0) // Ensuring there's at least one game object in the array
+        .to.be.an('array')
+        .and.have.length.greaterThan(0)
     })
   })
 
@@ -51,27 +53,17 @@ describe('Game Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true // Ensure the success flag is true
-      expect(response.body.game).to.exist // Check that the game object exists
+      expect(response.body.success).to.be.true
+      expect(response.body.game).to.exist
 
-      // Check properties of the game object
       const game = response.body.game
       expect(game.id).to.eq(gameId)
-      expect(game.descriptor).to.eq('Epic Battle')
+      expect(game.descriptor).to.eq(uniqueGameName)
       expect(game.category).to.eq('Battle Royale')
       expect(game.isFinished).to.be.false
-      expect(game.creator).to.eq('PlayerOne')
+      expect(game.creator).to.eq(uniquePlayerName)
       expect(game.isPrivate).to.be.false
       expect(game.winner).to.be.null
-
-      // Check the Players array
-      expect(game.Players).to.be.an('array').with.lengthOf(2) // Expecting two players in the array
-      expect(game.Players[0].name).to.eq('PlayerOne')
-      expect(game.Players[1].name).to.eq('PlayerTwo')
-      expect(game.Players[0].status).to.eq('WAITING')
-      expect(game.Players[1].status).to.eq('WAITING')
-      expect(game.Players[0].points).to.eq(0)
-      expect(game.Players[1].points).to.eq(0)
     })
   })
 
@@ -85,42 +77,34 @@ describe('Game Management API Tests', () => {
       },
       body: {
         action: 'join',
-        playerName: 'PlayerTwo',
+        playerName: `${uniquePlayerName}2`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true // Verify the operation was successful
+      expect(response.body.success).to.be.true
+      expect(response.body.player.name).to.eq(`${uniquePlayerName}2`)
 
-      // Make an additional request to verify the player has been added
-      cy.request({
-        method: 'GET',
-        url: `${baseUrl}/${gameId}`,
-        headers: {
-          Accept: 'application/json',
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body.game.Players).to.deep.include({
-          name: 'PlayerTwo',
-        }) // Verify the player is now part of the game
-      })
+      playerId = response.body.player.id // Save playerId for use in subsequent tests
     })
   })
 
   it('Update Player Points in an Active Game', () => {
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/players/${playerId}`,
+      url: `${baseUrl}/${gameId}`,
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: {
+        action: 'updatePoints',
+        playerName: `${uniquePlayerName}2`,
         points: 10,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.points).to.eq(10)
+      expect(response.body.success).to.be.true
+      expect(response.body.message).to.eq('Player points updated')
     })
   })
 
@@ -134,7 +118,7 @@ describe('Game Management API Tests', () => {
       },
       body: {
         action: 'leave',
-        playerName: 'PlayerTwo',
+        playerName: `${uniquePlayerName}2`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -151,11 +135,11 @@ describe('Game Management API Tests', () => {
       },
       body: {
         action: 'resolve',
-        winnerName: 'PlayerOne',
+        winnerName: uniquePlayerName,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.winner).to.eq('PlayerOne')
+      expect(response.body.game.winner).to.eq(uniquePlayerName)
     })
   })
 
@@ -172,7 +156,8 @@ describe('Game Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.status).to.eq('PLAYING')
+      expect(response.body.success).to.be.true
+      expect(response.body.player.status).to.eq('PLAYING')
     })
   })
 
@@ -189,9 +174,10 @@ describe('Game Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.avatarImage).to.eq('https://example.com/avatar.png')
+      expect(response.body.success).to.be.true
+      expect(response.body.player.avatarImage).to.eq(
+        'https://example.com/avatar.png',
+      )
     })
   })
-
-  // Add additional tests for updating player points, status, or multiple fields as needed.
 })

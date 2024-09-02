@@ -61,15 +61,18 @@ async function handleUpdatePlayerPoints(playerId: number, points: number): Promi
 
 async function handleLeaveGame(playerId: number): Promise<ExtendedErrorHandlerOutput> {
   try {
-    await prisma.player.delete({
+    // Update the player's status to 'LEFT' instead of deleting the record
+    const updatedPlayer = await prisma.player.update({
       where: { id: playerId },
+      data: { status: 'LEFT' }
     });
 
-    return { success: true, message: 'Player has left the game' };
+    return { success: true, message: 'Player status updated to LEFT', player: updatedPlayer };
   } catch (error) {
     return errorHandler(error);
   }
 }
+
 
 async function handleResolveGame(gameId: number, winnerName: string): Promise<ExtendedErrorHandlerOutput> {
   try {

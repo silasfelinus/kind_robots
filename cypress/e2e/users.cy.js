@@ -105,6 +105,9 @@ describe('User Management API Tests - User Creation', () => {
   const apiKey = Cypress.env('API_KEY')
 
   it('Add and Delete User with Full Details', () => {
+    const uniqueUsername = `testtesterton${Date.now()}` // Generates a unique username with a timestamp
+    const userEmail = `${uniqueUsername}@kindrobots.org` // You can also make the email unique
+
     // Creating the user
     cy.request({
       method: 'POST',
@@ -115,22 +118,20 @@ describe('User Management API Tests - User Creation', () => {
         'x-api-key': apiKey,
       },
       body: {
-        username: 'testtesterton144',
-        email: 'test144@kindrobots.org',
+        username: uniqueUsername,
+        email: userEmail,
         password: 'testtest12',
       },
     }).then((response) => {
+      console.log('Create User Response:', response.body)
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success').to.be.true
-      if (response.body.success !== true) {
-        console.log('Response body:', response.body)
-      }
+      expect(response.body).to.have.property('success', true).and.to.be.true
       expect(response.body)
         .to.have.property('message')
         .contains('Your account has been created.')
       expect(response.body).to.have.nested.property(
         'user.username',
-        'testtesterton144',
+        uniqueUsername,
       )
 
       // Extracting the userId from the response
@@ -381,6 +382,7 @@ describe('User Management API Tests - Authentication and Error Handling', () => 
         failOnStatusCode: false,
       }).then((response) => {
         expect(response.body).to.have.property('success', false)
+        expect(response.body).to.have.property('message', 'Invalid credentials')
       })
     })
   })

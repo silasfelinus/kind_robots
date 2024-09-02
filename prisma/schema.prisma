@@ -287,6 +287,7 @@ model Pitch {
   isMature       Boolean           @default(false)
   ArtReaction    ArtReaction[]
   PitchType     PitchType   @default(ARTPITCH)
+  tags        Tag[]
 }
 
 enum PitchType {
@@ -330,6 +331,7 @@ model Post {
   loves          Int       @default(0)
   jellybeanClaps Int       @default(0)
   isFavorite     Boolean   @default(false)
+  tags      Tag[]
 }
 
 model Product {
@@ -402,6 +404,7 @@ model Slogan {
   updatedAt      DateTime @updatedAt @default(now())
   Bot            Bot?     @relation(fields: [botId], references: [id])
   User           User     @relation(fields: [userId], references: [id])
+  tags  Tag[]
 
   @@index([botId], map: "Slogan_botId_fkey")
   @@index([userId], map: "Slogan_userId_fkey")
@@ -415,12 +418,13 @@ model Tag {
   title      String    @db.VarChar(256)
   userId     Int       @default(0)
   isPublic   Boolean?  @default(false)
-  channelId  Int?      @unique @default(1)
+  channelId  Int?      @default(1)
   flavorText String?   @db.VarChar(764)
   pitch      String?   @db.VarChar(764)
   isMature   Boolean   @default(false)
-  sloganId   Int?      @default(0)
-  postId     Int?      @default(0)
+  slogans    Slogan[]
+  posts     Post[]
+  pitches     Pitch[]
 }
 
 

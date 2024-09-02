@@ -104,6 +104,12 @@ const links = [
     icon: 'fxemoji:lips',
     condition: 'showMature',
   },
+{
+    title: 'Wonderlab',
+    path: '/wonderlab',
+    icon: 'fxemoji:lips',
+    condition: 'showMature',
+  },
   {
     title: 'About',
     path: '/about',

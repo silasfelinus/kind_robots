@@ -1,44 +1,43 @@
 // /server/api/pitches/index.post.ts
 import { defineEventHandler, readBody } from 'h3';
-import type { Pitch } from '@prisma/client';
-import { errorHandler } from '../utils/error';
-import prisma from '../utils/prisma';
-import { generateSillyName } from '../../../utils/useRandomName';
+import { errorHandler } from '../utils/error'; // Import the error handler
+import prisma from './../utils/prisma';
+import type { Prisma, Pitch } from '@prisma/client';
 
 export default defineEventHandler(async (event) => {
   try {
-    // Attempt to read and parse the body of the request
-    const body = await readBody<Pitch>(event);
-    console.log('Received body:', body); // Log the received body for debugging
-
-    // Ensure pitch content is provided and not empty
-    if (!body.pitch || body.pitch.trim() === '') {
-      return errorHandler({ message: "Pitch content is required.", statusCode: 400 });
-    }
-
-    const creatorName = body.creator || generateSillyName() || 'Anonymous';
-
-    // Process the creation of a new pitch
-    const pitch = await prisma.pitch.create({
-      data: {
-        title: body.title || null,
-        pitch: body.pitch,
-        creator: creatorName,
-        userId: body.userId || 0,
-        channelId: body.channelId || 0,
-        isPublic: body.isPublic !== undefined ? body.isPublic : true,
-        isMature: body.isMature || false,
-        flavorText: body.flavorText || '',
-        highlightImage: body.highlightImage || '',
-        claps: body.claps || 0,
-        boos: body.boos || 0,
-        PitchType: body.PitchType || 'ARTPITCH',
-      }
-    });
-
-    return { success: true, pitch };
+    const pitchData = await readBody(event);
+    const result = await addPitch(pitchData);
+    return { success: true, ...result };
   } catch (error) {
-    console.error("Error creating pitch:", error);
-    return errorHandler({ error, statusCode: 500 });
+    // Use the error handler to process the error
+    const { message, statusCode } = errorHandler(error);
+
+    // Return the error response with the processed message and status code
+    return {
+      success: false,
+      message: 'Failed to create a new pitch',
+      error: message,
+      statusCode: statusCode || 500, // Default to 500 if no status code is provided
+    };
   }
 });
+
+export async function addPitch(
+  pitchData: Partial<Pitch>,
+): Promise<{ pitch: Pitch | null; error: string | null }> {
+  if (!pitchData.pitch) {
+    return { pitch: null, error: 'Pitch content is required.' };
+  }
+
+  try {
+    const pitch = await prisma.pitch.create({
+      data: pitchData as Prisma.PitchCreateInput,
+    });
+    return { pitch, error: null };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    return { pitch: null, error: errorMessage };
+  }
+}

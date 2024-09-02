@@ -275,7 +275,7 @@ model Pitch {
   pitch          String        @db.VarChar(764)
   userId         Int?           @default(1)
   User           User? @relation(fields: [userId], references: [id])
-  playerId         Int?         
+  playerId         Int?      
   Player           Player? @relation(fields: [playerId], references: [id])
   isPublic       Boolean       @default(true)
   claps          Int           @default(0)

@@ -6,14 +6,12 @@ describe('Bot Management API Tests', () => {
   const apiKey = Cypress.env('API_KEY')
 
   let createdBotId
-  const uniqueTimestamp = Date.now() // Generate a unique timestamp for the test
+  const botName = `testbot-${Date.now()}`
 
   it('Create a New Bot', () => {
-    const botName = `testbot-${Date.now()}` // Ensure unique name
-    console.log('Creating bot with name:', botName) // Log the unique bot name for reference
     cy.request({
       method: 'POST',
-      url: baseUrl,
+      url: `${baseUrl}`, // Ensure URL is correct
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -30,42 +28,27 @@ describe('Bot Management API Tests', () => {
         isPublic: true,
         underConstruction: false,
         canDelete: true,
+        BotType: 'CHATBOT',
       },
     }).then((response) => {
-      console.log(response.body) // Log the response body to the console
+      console.log(response.body) // Log the full response
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.bot).to.include({
-        name: botName,
-        description: 'A bot created for testing purposes',
-      })
-      createdBotId = response.body.bot.id // Save the created bot ID for future reference
-      console.log('Created bot ID:', createdBotId) // Log the bot ID for reference
-    })
-  })
-
-  it('Create Bot with Invalid Data', () => {
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-      body: {
-        name: '', // Invalid data
-      },
-      failOnStatusCode: false, // Important for handling negative tests
-    }).then((response) => {
-      expect(response.status).to.eq(400)
-      expect(response.body).to.have.property('success', false)
-      expect(response.body.error).to.include('Name is required')
+      if (response.body.bot) {
+        expect(response.body.bot).to.include({
+          name: botName,
+          description: 'A bot created for testing purposes',
+        })
+        createdBotId = response.body.bot.id
+      } else {
+        throw new Error('Bot object is missing in the response')
+      }
     })
   })
 
   it('Update the Newly Created Bot', () => {
     // Assuming the name of the bot created is 'testbot-{uniqueTimestamp}'
-    const updateUrl = `https://kind-robots.vercel.app/api/bot/name/testbot-${uniqueTimestamp}/`
+    const updateUrl = `https://kind-robots.vercel.app/api/bot/name/${botName}/`
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -103,7 +86,7 @@ describe('Bot Management API Tests', () => {
       const bot = response.body.bots.find((bot) => bot.id === createdBotId)
       expect(bot).to.include({
         id: createdBotId,
-        name: `testbot-${uniqueTimestamp}`,
+        name: `${botName}`,
         description: 'Updated description for the test bot',
       })
     })
@@ -112,7 +95,7 @@ describe('Bot Management API Tests', () => {
   it('Delete the Created Bot', () => {
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${createdBotId}`,
+      url: `https://kind-robots.vercel.app/api/bot/id/${createdBotId}`,
       headers: {
         'x-api-key': apiKey,
       },

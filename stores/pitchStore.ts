@@ -1,14 +1,14 @@
+//stores/pitchStore
 import { defineStore } from 'pinia';
+import { useUserStore } from './userStore';
+import { useErrorStore, ErrorType } from './errorStore';
 import type { Pitch } from '@prisma/client';
-import { useUserStore } from './../stores/userStore';
-import type { Art } from './../stores/artStore';
-import { useErrorStore, ErrorType } from './../stores/errorStore'; // Import useErrorStore and ErrorType
 
 const isClient = typeof window !== 'undefined';
 
 interface FetchResponse {
   pitch?: Pitch;
-  pitches?: Pitch[]; // Added if your API returns an array of pitches.
+  pitches?: Pitch[];
   message?: string;
   success: boolean;
 }
@@ -21,21 +21,17 @@ function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
   return (error as ErrorWithMessage).message !== undefined;
 }
 
-
 export const usePitchStore = defineStore('pitch', {
   state: () => ({
     pitches: [] as Pitch[],
     isInitialized: false,
-    selectedPitch: null as Pitch | null,
-    selectedPitches: [] as Pitch[],
-    galleryArt: [] as Art[],
   }),
 
   getters: {
-    publicPitches(state): Pitch[] {
+    publicPitches: (state) => {
       const userStore = useUserStore();
       return state.pitches.filter(
-        (pitch) => pitch.isPublic || pitch.userId === userStore.userId || pitch.userId === 0,
+        (pitch) => pitch.isPublic || pitch.userId === userStore.userId || pitch.userId === 0
       );
     },
   },
@@ -50,7 +46,7 @@ export const usePitchStore = defineStore('pitch', {
           throw new Error(errorData.message || 'Failed to perform fetch operation');
         }
         return await response.json() as FetchResponse;
-      } catch (error: unknown) {
+      } catch (error) {
         if (isErrorWithMessage(error)) {
           errorStore.setError(ErrorType.NETWORK_ERROR, error.message);
           console.error('Network error:', error.message);
@@ -61,7 +57,6 @@ export const usePitchStore = defineStore('pitch', {
         throw error;
       }
     },
-    
 
     async initializePitches() {
       if (!this.isInitialized) {
@@ -69,10 +64,11 @@ export const usePitchStore = defineStore('pitch', {
         this.isInitialized = true;
       }
     },
+
     async fetchPitches() {
       try {
-        const data = await this.performFetch('/api/pitches/batch');
-        this.pitches = data.pitches || []; // Ensure we default to an empty array if undefined
+        const data = await this.performFetch('/api/pitches');
+        this.pitches = data.pitches || [];
         if (isClient) {
           localStorage.setItem('pitches', JSON.stringify(this.pitches));
         }
@@ -80,7 +76,6 @@ export const usePitchStore = defineStore('pitch', {
         console.error('Failed to fetch pitches:', error);
       }
     },
-    
 
     async createPitch(newPitch: Partial<Pitch>) {
       try {
@@ -98,7 +93,7 @@ export const usePitchStore = defineStore('pitch', {
         } else {
           throw new Error('Pitch creation failed: No pitch returned');
         }
-      } catch (error: unknown) {
+      } catch (error) {
         if (isErrorWithMessage(error)) {
           console.error('Error creating pitch:', error.message);
           return { success: false, message: error.message };
@@ -108,43 +103,57 @@ export const usePitchStore = defineStore('pitch', {
         }
       }
     },
-    
-    
 
-    async updatePitch(id: number, updates: Partial<Pitch>) {
+    async updatePitch(pitchId: number, updates: Partial<Pitch>) {
       try {
-        const updatedData = await this.performFetch(`/api/pitches/${id}`, {
+        const data = await this.performFetch(`/api/pitches/${pitchId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updates),
         });
-        const index = this.pitches.findIndex((pitch) => pitch.id === id);
-        if (index !== -1 && updatedData.pitch) {
-          this.pitches[index] = { ...this.pitches[index], ...updatedData.pitch };
+        const index = this.pitches.findIndex((pitch) => pitch.id === pitchId);
+        if (index !== -1 && data.pitch) {
+          this.pitches[index] = { ...this.pitches[index], ...data.pitch };
           if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches));
           }
+          return { success: true, message: 'Pitch updated successfully' };
+        } else {
+          throw new Error('Pitch update failed: No pitch returned');
         }
-      } catch (error: unknown) {
-        console.error('Error updating pitch:', error);
+      } catch (error) {
+        if (isErrorWithMessage(error)) {
+          console.error('Error updating pitch:', error.message);
+          return { success: false, message: error.message };
+        } else {
+          console.error('Error updating pitch: Unknown error');
+          return { success: false, message: 'Unknown error during pitch update' };
+        }
       }
     },
 
-    async deletePitch(id: number) {
+    async deletePitch(pitchId: number) {
       try {
-        await this.performFetch(`/api/pitches/${id}`, { method: 'DELETE' });
-        const index = this.pitches.findIndex((pitch) => pitch.id === id);
+        await this.performFetch(`/api/pitches/${pitchId}`, { method: 'DELETE' });
+        const index = this.pitches.findIndex((pitch) => pitch.id === pitchId);
         if (index !== -1) {
           this.pitches.splice(index, 1);
           if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches));
           }
+          return { success: true, message: 'Pitch deleted successfully' };
+        } else {
+          throw new Error('Pitch delete failed: Pitch not found');
         }
       } catch (error) {
-        console.error('Error deleting pitch:', error);
+        if (isErrorWithMessage(error)) {
+          console.error('Error deleting pitch:', error.message);
+          return { success: false, message: error.message };
+        } else {
+          console.error('Error deleting pitch: Unknown error');
+          return { success: false, message: 'Unknown error during pitch deletion' };
+        }
       }
     },
   },
 });
-
-export { type Pitch };

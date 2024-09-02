@@ -280,7 +280,7 @@ model Pitch {
   isPublic       Boolean       @default(true)
   claps          Int           @default(0)
   boos           Int           @default(0)
-  channelId      Int?          @unique @default(1)
+  channelId      Int?          @default(1)
   creator        String?        @db.VarChar(256)
   flavorText     String?       @db.VarChar(512)
   highlightImage String?        @db.VarChar(256)

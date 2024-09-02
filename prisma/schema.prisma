@@ -201,6 +201,7 @@ enum PlayerStatus {
   CHOOSING
   FINISHED
   PLAYING
+  LEFT
 }
 
 model Player {

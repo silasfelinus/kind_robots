@@ -75,7 +75,7 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchPitches() {
       try {
-        const data = await this.performFetch('/api/pitches')
+        const data = await this.performFetch('/api/pitches/batch')
         this.pitches = data.pitches || []
         if (isClient) {
           localStorage.setItem('pitches', JSON.stringify(this.pitches))

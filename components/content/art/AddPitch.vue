@@ -96,8 +96,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { usePitchStore } from './../../../stores/usePitchStore'
-import { useUserStore } from './../../../stores/useUserStore'
+import { usePitchStore } from './../../../stores/pitchStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const pitchStore = usePitchStore()
 const { createPitch, updatePitch, deletePitch } = pitchStore

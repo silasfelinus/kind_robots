@@ -12,8 +12,16 @@ export default defineEventHandler(async () => {
       artPrompts.map(async (artPrompt) => {
         const art = await fetchArtByPromptId(artPrompt.id)
         // Assuming 'art' and 'artPrompt' might have BigInt properties
-        const artProcessed = JSON.parse(JSON.stringify(art, (_, v) => typeof v === 'bigint' ? v.toString() : v));
-        const artPromptProcessed = JSON.parse(JSON.stringify(artPrompt, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+        const artProcessed = JSON.parse(
+          JSON.stringify(art, (_, v) =>
+            typeof v === 'bigint' ? v.toString() : v,
+          ),
+        )
+        const artPromptProcessed = JSON.parse(
+          JSON.stringify(artPrompt, (_, v) =>
+            typeof v === 'bigint' ? v.toString() : v,
+          ),
+        )
         return { ...artPromptProcessed, Art: artProcessed }
       }),
     )

@@ -3,7 +3,7 @@ import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { generateSillyName } from './../../../utils/useRandomName'
 import { saveImage } from './../../../server/api/utils/saveImage'
-import type { PitchType} from '@prisma/client'
+import type { PitchType } from '@prisma/client'
 
 console.log(
   "🚀 Starting up the art generation engine! Let's create something amazing!",
@@ -172,10 +172,10 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
           highlightImage: data.highlightImage || '', // Optional, empty string as default
           PitchType: data.PitchType || 'ARTPITCH', // Default to 'ARTPITCH' if not provided
         },
-      });
-      
-      return newPitch.id;
-    }      
+      })
+
+      return newPitch.id
+    }
 
     return data.pitchId ?? 0
   } catch (error) {
@@ -259,9 +259,7 @@ async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
 function validateAndLoadDesignerName(data: RequestData): string {
   console.log('🔍 Validating and loading designer name...')
 
-  return (
-    data.creator ?? data.userName ?? generateSillyName() ?? 'Kind Guest'
-  )
+  return data.creator ?? data.userName ?? generateSillyName() ?? 'Kind Guest'
 }
 
 export default defineEventHandler(async (event) => {

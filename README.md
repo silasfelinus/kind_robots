@@ -118,7 +118,7 @@ wonderforge - github code showcase and projects in development
 
 [SCHEMA]
 Art: [id, galleryId, path, prompt, promptId, userId, pitchId, createdAt, updatedAt, boos, claps, cfg, checkpoint, sampler, seed, steps, pitch, channelId, isOrphan, isPublic, isMature, designer, Reaction]
-ArtPrompt: [id, createdAt, updatedAt, userId, prompt, galleryId, pitch, pitchId, DB_ROW_HASH_1]
+Prompt: [id, createdAt, updatedAt, userId, prompt, galleryId, pitch, pitchId, DB_ROW_HASH_1]
 Reaction: [id, createdAt, updatedAt, userId, artId, claps, boos, title, comment, reaction, pitchId, Art, Pitch, User]
 Bot: [id, createdAt, updatedAt, BotType, name, isPublic, underConstruction, canDelete, subtitle, description, avatarImage, botIntro, userIntro, prompt, trainingPath, theme, personality, modules, userId, sampleResponse, tagline, Slogan]
 Channel: [id, createdAt, updatedAt, userId, label, description, tagId, title, pitchId]

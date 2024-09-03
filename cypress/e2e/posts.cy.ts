@@ -2,7 +2,7 @@
  
 
 describe('Post Management API Tests', () => {
-    const baseUrl = 'https://kindrobots.org/api/posts';
+    const baseUrl = 'https://kind-robots.vercel.org/api/posts';
     const apiKey = Cypress.env('API_KEY');
     let postId: number; // Explicitly define the type as number
     const userId: number = 1; // Example user ID (assuming 1 is valid)

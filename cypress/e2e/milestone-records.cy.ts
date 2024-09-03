@@ -2,7 +2,7 @@
  
 
 describe('Milestone Record Management API Tests', () => {
-    const baseUrl = 'https://kindrobots.org/api/milestones/records';
+    const baseUrl = 'https://kind-robots.vercel.org/api/milestones/records';
     const apiKey = Cypress.env('API_KEY');
     let milestoneRecordId: number; // Explicitly define the type as number
     const milestoneId: number = 1; // Example milestone ID (assuming 1 is valid)
@@ -27,7 +27,7 @@ describe('Milestone Record Management API Tests', () => {
     it('Get Milestone Records for User', () => {
       cy.request({
         method: 'GET',
-        url: `https://kindrobots.org/api/users/milestones/${userId}`,
+        url: `https://kind-robots.vercel.org/api/users/milestones/${userId}`,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,

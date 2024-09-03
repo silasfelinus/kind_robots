@@ -8,7 +8,7 @@
     </button>
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`sidebar flex-col flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-scroll mt-2 p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'}`"
+      :class="`sidebar flex-col flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-scroll mb-4 p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -104,7 +104,7 @@ const links = [
     icon: 'fxemoji:lips',
     condition: 'showMature',
   },
-{
+  {
     title: 'Wonderlab',
     path: '/wonderlab',
     icon: 'game-icons:gear-hammer',

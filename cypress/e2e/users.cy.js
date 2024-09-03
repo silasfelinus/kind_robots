@@ -151,6 +151,8 @@ describe('User Management API Tests - User Creation', () => {
   })
 
   it('Add User with Username Only', () => {
+    const uniqueUsername = `openaccount${Date.now()}`
+
     cy.request({
       method: 'POST',
       url: `${baseUrl}/register`,
@@ -160,27 +162,70 @@ describe('User Management API Tests - User Creation', () => {
         'x-api-key': apiKey,
       },
       body: {
-        username: 'openaccount',
+        username: uniqueUsername,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.body).to.have.nested.property(
         'user.username',
-        'openaccount',
+        uniqueUsername,
       )
 
-      const userId = response.body.user.id
+      const userId = response.body.user?.id
 
-      // Deleting the user using the userId
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${userId}`,
-        headers: {
-          'x-api-key': apiKey,
-        },
-      }).then((deleteResponse) => {
-        expect(deleteResponse.status).to.eq(200)
-      })
+      // Ensure the user was actually created and userId is available
+      if (userId) {
+        // Deleting the user using the userId
+        cy.request({
+          method: 'DELETE',
+          url: `${baseUrl}/${userId}`,
+          headers: {
+            'x-api-key': apiKey,
+          },
+        }).then((deleteResponse) => {
+          expect(deleteResponse.status).to.eq(200)
+        })
+      } else {
+        throw new Error('User ID not found, deletion could not proceed.')
+      }
+    })
+  })
+
+  // Similarly, update the other test cases as needed
+  it('Add User with Email Only', () => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/register`,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        email: 'emailt4tHere@example.com',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.body).to.have.nested.property(
+        'user.email',
+        'emailt4tHere@example.com',
+      )
+
+      const userId = response.body.user?.id
+
+      if (userId) {
+        cy.request({
+          method: 'DELETE',
+          url: `${baseUrl}/${userId}`,
+          headers: {
+            'x-api-key': apiKey,
+          },
+        }).then((deleteResponse) => {
+          expect(deleteResponse.status).to.eq(200)
+        })
+      } else {
+        throw new Error('User ID not found, deletion could not proceed.')
+      }
     })
 
     it('Add User with Email Only', () => {

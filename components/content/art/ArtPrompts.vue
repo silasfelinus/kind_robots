@@ -101,11 +101,6 @@ const addNewPrompt = () => {
     newPrompt.value = ''
   }
 }
-
-// Delete a prompt
-const deletePrompt = (id: number) => {
-  deletePrompt(id)
-}
 </script>
 
 <style scoped>

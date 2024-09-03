@@ -7,7 +7,7 @@ interface PromptResponse {
 interface AdventureScenario {
   genre: string
   setting: string
-  startPrompt: string
+  stprompt: string
   scenarios: PromptResponse[]
 }
 interface Message {
@@ -54,7 +54,7 @@ const trainingData: AdventureScenario[] = [
   {
     genre: 'Fantasy',
     setting: 'Medieval',
-    startPrompt:
+    stprompt:
       'You find yourself in a bustling medieval town square, surrounded by merchants peddling their wares.',
     scenarios: [
       {

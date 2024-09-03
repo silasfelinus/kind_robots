@@ -17,9 +17,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch Prompt by ID
-    const artPrompt = await fetchPromptById(id)
+    const prompt = await fetchPromptById(id)
 
-    if (!artPrompt) {
+    if (!prompt) {
       return errorHandler({
         success: false,
         message: 'Prompt not found',
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     // Extract Art IDs
     const artIds = art.map((a) => a.id)
 
-    return { success: true, prompt: artPrompt.prompt, artIds }
+    return { success: true, prompt: prompt.prompt, artIds }
   } catch (error: unknown) {
     // Use the errorHandler to process the error
     return errorHandler(error)

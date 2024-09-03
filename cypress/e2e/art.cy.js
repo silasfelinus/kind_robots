@@ -6,7 +6,42 @@ describe('Art Management API Tests', () => {
   const apiKey = Cypress.env('API_KEY')
   let artId // Store art ID for further operations
 
-  it('Create New Art', () => {
+  // Test the basic POST route to register a new Art without generating it
+  it('Register New Art', () => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        galleryId: 21,
+        path: '/images/cafefred/cafefred-1695613612690.webp',
+        userId: 1,
+        promptString: 'A beautiful sunrise over the mountains',
+        designer: 'kinddesigner',
+        isPublic: true,
+        isMature: false,
+        promptId: 1,
+        pitchId: 1,
+        channelId: 3,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(200, 'Expected status code to be 200')
+      expect(response.body.newArt).to.be.an('object').that.is.not.empty
+      artId = response.body.newArt.id // Ensure the correct ID is captured
+      console.log('Registered Art ID:', artId) // Log for debugging
+
+      if (!artId) {
+        throw new Error('Failed to capture art ID from response')
+      }
+    })
+  })
+
+  // Test the generate route to create a new Art including generating it
+  it('Create New Art with Generation', () => {
     cy.request({
       method: 'POST',
       url: `${baseUrl}/generate`,
@@ -17,25 +52,26 @@ describe('Art Management API Tests', () => {
       body: {
         galleryId: 21,
         path: '/images/cafefred/cafefred-1695613612690.webp',
-        promptId: 1, // Assuming promptId is already available
         userId: 1,
-        pitchId: 1, // Assuming pitchId is already available
         cfg: '7.5',
         checkpoint: 'model-checkpoint-001',
         sampler: 'Euler',
         seed: 12345,
         steps: 50,
         designer: 'kinddesigner',
+        promptString: 'A beautiful sunrise over the mountains',
         isPublic: true,
         isMature: false,
-        channelId: 3, // Assuming channelId is already available
+        promptId: 1,
+        pitchId: 1,
+        channelId: 3,
       },
-      failOnStatusCode: false, // Prevents Cypress from failing on non-2xx status
+      failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(200, 'Expected status code to be 200')
       expect(response.body.newArt).to.be.an('object').that.is.not.empty
       artId = response.body.newArt.id // Ensure the correct ID is captured
-      console.log('Created Art ID:', artId) // Log for debugging
+      console.log('Generated Art ID:', artId) // Log for debugging
 
       if (!artId) {
         throw new Error('Failed to capture art ID from response')

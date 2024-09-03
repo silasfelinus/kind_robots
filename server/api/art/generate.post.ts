@@ -14,60 +14,110 @@ type GenerateImageResponse = {
   error?: string
 }
 type RequestData = {
-  galleryId?: number 
   path?: string
+  cfg?: string
+  checkpoint?: string
+  sampler?: string
+  seed?: number
+  steps?: number
+  designer?: string
+  title?: string 
+  description?: string
+  flavorText?: string
+  highlightImage?: string
+  PitchType: PitchType
+  isMature?: boolean 
+  isPublic?: boolean 
   prompt: string 
   promptId?: number
   userId?: number 
   username: string
   pitchId?: number 
-  title?: string 
-  description?: string
   pitch?: string
-  isMature?: boolean 
-  isPublic?: boolean 
-  designer?: string
-  flavorText?: string
-  highlightImage?: string
-  PitchType: PitchType
-
-  playerName?: string
-  galleryName?: string // to make gallery if no galleryId
-
-
   playerId?: number
-
-}
-
-type validatedData = {
-  title?: string
-  prompt: string
-  description?: string
-  flavorText?: string
-  userId?: number
-  promptId?: number
-  pitch?: string
-  pitchId?: number
-  channelId?: number
-  galleryId?: number
-  designer?: string
-  channelName?: string
-  userName?: string
   playerName?: string
-  pitchName?: string
+  galleryId?: number
   galleryName?: string
-  isMature?: boolean
-  isPublic?: boolean
-  highlightImage?: string
+  channelId?: number
+  channelName?: string
 }
+
+export default defineEventHandler(async (event) => {
+  try {
+    console.log('🌟 Event triggered! Reading request body...');
+    const requestData: RequestData = await readBody(event);
+    console.log('📬 Request data received:', requestData);
+
+    console.log('🔐 Initializing validated data object...');
+    const validatedData: Partial<RequestData> = {};
+
+    // 1. Validate and Load Related Entities
+    validatedData.userId = await validateAndLoadUserId(requestData, validatedData);
+    validatedData.promptId = await validateAndLoadPromptId(requestData);
+    validatedData.pitchId = await validateAndLoadPitchId(requestData);
+    validatedData.galleryId = await validateAndLoadGalleryId(requestData);
+    validatedData.designer = validateAndLoadDesignerName(requestData);
+
+    // 2. Generate Image Using Modeler
+    console.log('🎉 All validations passed! Generating image...');
+    const response: GenerateImageResponse = await generateImage(requestData.prompt, validatedData.designer!);
+    console.log('🖼 Image generated! Response:', response);
+
+    // 3. Validate Image Generation
+    if (!response || !response.images?.length) {
+      throw new Error(`Image generation failed: ${response?.error || 'No images generated.'}`);
+    }
+
+    // 4. Save Generated Image
+    const base64Image = response.images[0];
+    let imagePath = await saveImage(base64Image, 'cafefred');
+
+    if (imagePath.startsWith('/public') || imagePath.startsWith('public')) {
+      imagePath = imagePath.replace(/^\/?public/, '');
+    }
+
+    // 5. Create Art Entry in Database
+    console.log('🎨 Creating new Art entry...');
+    const newArt = await prisma.art.create({
+      data: {
+        path: imagePath,
+        cfg: requestData.cfg,
+        checkpoint: requestData.checkpoint,
+        sampler: requestData.sampler,
+        seed: requestData.seed,
+        steps: requestData.steps,
+        designer: validatedData.designer,
+        promptString: requestData.prompt, // Using the promptString from requestData
+        isPublic: requestData.isPublic,
+        isMature: requestData.isMature,
+        promptId: validatedData.promptId,
+        userId: validatedData.userId,
+        pitchId: validatedData.pitchId,
+        galleryId: validatedData.galleryId || 21,
+        channelId: requestData.channelId,
+      },
+    });
+
+    // 6. Return Success Response
+    console.log('🎉 Art entry created successfully:', newArt);
+    return { success: true, newArt };
+  } catch (error: unknown) {
+    console.error('Art Generation Error:', error);
+    return errorHandler({
+      error,
+      context: `Art Generation - Prompt: ${event.req.url}`,
+    });
+  }
+});
+
 
 async function validateAndLoadUserId(
   data: RequestData,
-  validatedData: Partial<validatedData>,
+  validatedData: Partial<RequestData>,
 ): Promise<number> {
   console.log('🔍 Validating and loading User ID...')
 
-  // If neither userName nor userId is provided, return 0
+  // If neither username nor userId is provided, return 0
   if (!data.username && !data.userId) {
     console.warn('No userName or userId provided.')
     return 0
@@ -84,7 +134,7 @@ async function validateAndLoadUserId(
         Role: 'USER', // Assuming 'USER' is a default role, replace with appropriate enum or value
       },
     })
-    validatedData.userName = user.username
+    validatedData.username = user.username
     return user.id
   }
 
@@ -120,7 +170,6 @@ async function validateAndLoadPromptId(data: RequestData): Promise<number> {
         prompt: data.prompt,
         userId: data.userId ?? 0, // Default to 0 if not provided
         galleryId: data.galleryId ?? 0, // Default to 0 if not provided
-        pitch: data.title,
         pitchId: data.pitchId ?? 0, // Default to 0 if not provided
         createdAt: new Date(), // Add a creation timestamp
         updatedAt: new Date(), // Add an updated timestamp
@@ -212,64 +261,6 @@ function validateAndLoadDesignerName(data: RequestData): string {
 
   return data.designer ?? data.username ?? generateSillyName() ?? 'Kind Guest'
 }
-
-export default defineEventHandler(async (event) => {
-  try {
-    console.log('🌟 Event triggered! Reading request body...')
-    const requestData: RequestData = await readBody(event)
-    console.log('📬 Request data received:', requestData)
-
-    console.log('🔐 Initializing validated data object...')
-    const validatedData: Partial<validatedData> = {}
-
-    // Validate and load each field, updating the validatedData object
-    validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
-    validatedData.promptId = await validateAndLoadPromptId(requestData)
-    validatedData.pitchId = await validateAndLoadPitchId(requestData)
-    validatedData.galleryId = await validateAndLoadGalleryId(requestData)
-    validatedData.designer = validateAndLoadDesignerName(requestData)
-
-    console.log('🎉 All validations passed! Generating image...')
-    const response: GenerateImageResponse = await generateImage(requestData.prompt, validatedData.designer!)
-    console.log('🖼 Image generated! Response:', response)
-
-    if (!response || !response.images?.length) {
-      throw new Error(`Image generation failed: ${response?.error || 'No images generated.'}`)
-    }
-
-    const base64Image = response.images[0]
-    let imagePath = await saveImage(base64Image, 'cafefred')
-
-    if (imagePath.startsWith('/public') || imagePath.startsWith('public')) {
-      imagePath = imagePath.replace(/^\/?public/, '')
-    }
-
-    console.log('🎨 Creating new Art entry...')
-    const newArt = await prisma.art.create({
-      data: {
-        path: imagePath,
-        prompt: requestData.prompt,
-        pitchId: validatedData.pitchId,
-        userId: validatedData.userId,
-        galleryId: validatedData.galleryId || 21,
-        promptId: validatedData.promptId,
-        pitch: requestData.pitch,
-        isMature: requestData.isMature,
-        isPublic: requestData.isPublic,
-        channelId: validatedData.channelId,
-        designer: validatedData.designer,
-      },
-    })
-
-    return { success: true, newArt }
-  } catch (error: unknown) {
-    console.error('Art Generation Error:', error)
-    return errorHandler({
-      error,
-      context: `Art Generation - Prompt: ${event.req.url}`,
-    })
-  }
-})
 
 export async function generateImage(
   prompt: string,

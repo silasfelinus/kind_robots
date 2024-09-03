@@ -241,7 +241,7 @@ model Message {
   botId     Int?      @default(0)
   userId    Int?      @default(0)
 
-  channel   Channel   @relation(fields: [channelId], references: [id]) // Add this line to establish the relationship
+  channel   Channel   @relation(fields: [channelId], references: [id]) 
 }
 
 model Milestone {

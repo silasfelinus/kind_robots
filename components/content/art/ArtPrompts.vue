@@ -5,7 +5,7 @@
     <h1>Art Prompts</h1>
 
     <!-- Fetch Button -->
-    <button @click="fetchArtPrompts">Fetch Art Prompts</button>
+    <button @click="fetchPrompts">Fetch Art Prompts</button>
 
     <!-- Add New Prompt (Visible to Admins) -->
     <div v-if="userRole === 'admin'" class="input-section">
@@ -56,17 +56,17 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { usePromptStore, type ArtPrompt } from './../../../stores/promptStore'
+import { usePromptStore, type Prompt } from './../../../stores/promptStore'
 import { useUserStore } from './../../../stores/userStore'
 
 const promptStore = usePromptStore()
 const {
-  fetchArtPrompts,
+  fetchPrompts,
   selectPrompt,
   artPrompts,
   activePrompt,
-  createArtPrompt,
-  deleteArtPrompt,
+  createPrompt,
+  deletePrompt,
 } = promptStore
 
 const userStore = useUserStore()
@@ -76,17 +76,17 @@ const userRole = userStore.role
 // New prompt input
 const newPrompt = ref('')
 
-const editingPrompt = ref<ArtPrompt | null>(null)
+const editingPrompt = ref<Prompt | null>(null)
 
 // Start editing a prompt
-const startEditingPrompt = (prompt: ArtPrompt) => {
+const startEditingPrompt = (prompt: Prompt) => {
   editingPrompt.value = prompt
   newPrompt.value = prompt.prompt
 }
 
 // Fetch art prompts when the component is mounted
 onMounted(() => {
-  fetchArtPrompts()
+  fetchPrompts()
 })
 
 // Validation for new prompt
@@ -97,14 +97,14 @@ const isValidPrompt = computed(() => {
 // Add a new prompt
 const addNewPrompt = () => {
   if (isValidPrompt.value) {
-    createArtPrompt(newPrompt.value.trim())
+    createPrompt(newPrompt.value.trim())
     newPrompt.value = ''
   }
 }
 
 // Delete a prompt
 const deletePrompt = (id: number) => {
-  deleteArtPrompt(id)
+  deletePrompt(id)
 }
 </script>
 

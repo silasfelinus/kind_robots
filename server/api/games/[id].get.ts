@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
       include: {
         Users: true,
         Art: true,
-        ArtPrompt: true,
+        Prompt: true,
         Players: true,
       },
     })

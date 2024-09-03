@@ -1,11 +1,11 @@
 // cypress/e2e/api/prompt.cy.ts
 
-describe('ArtPrompt Management API Tests', () => {
+describe('Prompt Management API Tests', () => {
     const baseUrl = 'https://kind-robots.vercel.app/api/prompts';
     const apiKey = Cypress.env('API_KEY');
     let artPromptId: number; // Explicitly define the type as number
   
-    it('Create New ArtPrompt', () => {
+    it('Create New Prompt', () => {
       cy.request({
         method: 'POST',
         url: baseUrl,
@@ -21,14 +21,14 @@ describe('ArtPrompt Management API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(200);
       /* eslint-disable @typescript-eslint/no-unused-expressions */
-      expect(response.body.newArtPrompt).to.be.an('object').that.is.not.empty;
+      expect(response.body.newPrompt).to.be.an('object').that.is.not.empty;
       /* eslint-enable @typescript-eslint/no-unused-expressions */
-        artPromptId = response.body.newArtPrompt.id; // Ensure the correct ID is captured
-        console.log('Created ArtPrompt ID:', artPromptId); // Log for debugging
+        artPromptId = response.body.newPrompt.id; // Ensure the correct ID is captured
+        console.log('Created Prompt ID:', artPromptId); // Log for debugging
       });
     });
   
-    it('Get ArtPrompt by ID', () => {
+    it('Get Prompt by ID', () => {
       cy.request({
         method: 'GET',
         url: `${baseUrl}/id/${artPromptId}`,
@@ -42,7 +42,7 @@ describe('ArtPrompt Management API Tests', () => {
       });
     });
   
-    it('Get All ArtPrompts', () => {
+    it('Get All Prompts', () => {
       cy.request({
         method: 'GET',
         url: baseUrl,
@@ -58,7 +58,7 @@ describe('ArtPrompt Management API Tests', () => {
       });
     });
   
-    it('Update an ArtPrompt', () => {
+    it('Update an Prompt', () => {
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${artPromptId}`,
@@ -74,7 +74,7 @@ describe('ArtPrompt Management API Tests', () => {
       });
     });
   
-    it('Delete an ArtPrompt', () => {
+    it('Delete an Prompt', () => {
       cy.request({
         method: 'DELETE',
         url: `${baseUrl}/${artPromptId}`,

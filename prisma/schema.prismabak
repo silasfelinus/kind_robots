@@ -33,7 +33,7 @@ model Art {
   ArtReaction ArtReaction[]
 }
 
-model ArtPrompt {
+model Prompt {
   id            Int       @id @default(autoincrement())
   createdAt     DateTime  @db.DateTime(0)
   updatedAt     DateTime? @db.DateTime(0)

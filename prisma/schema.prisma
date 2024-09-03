@@ -12,7 +12,7 @@ model Art {
   galleryId   Int?          @default(1)
   path        String        @db.VarChar(764)
   prompt      String?       @db.Text
-  artPromptId Int?
+  promptId Int?
   userId      Int?
   pitchId     Int?
   createdAt   DateTime?     @default(now())
@@ -36,7 +36,7 @@ model Art {
   Gallery Gallery[]
 }
 
-model ArtPrompt {
+model Prompt {
   id            Int       @id @default(autoincrement())
   createdAt     DateTime  @default(now())
   updatedAt     DateTime? @updatedAt @default(now())
@@ -45,7 +45,6 @@ model ArtPrompt {
   galleryId     Int?      @default(0)
   pitch         String?   @db.VarChar(764)
   pitchId       Int?      @default(0)
-  DB_ROW_HASH_1 BigInt
   Game  Game[]
   playerId      Int?
   Player  Player?  @relation(fields: [playerId], references: [id])
@@ -192,7 +191,7 @@ model Game {
   isPrivate  Boolean   @default(false)
   Users    User[]
   Art      Art[]
-  ArtPrompt ArtPrompt[]
+  Prompt Prompt[]
   winner    String?
   Players   Player[]
 }
@@ -217,7 +216,7 @@ model Player {
   avatarImage String?
   artId     Int?
   Art       Art[]
-  ArtPrompt ArtPrompt[]
+  Prompt Prompt[]
   Channel     Channel[]
   Pitches Pitch[]
 }

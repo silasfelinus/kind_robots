@@ -1,13 +1,13 @@
 // /server/api/art/prompts/index.get.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import { fetchAllArtPrompts, fetchArtByPromptId } from './artQueries'
+import { fetchAllPrompts, fetchArtByPromptId } from './artQueries'
 
 export default defineEventHandler(async () => {
   try {
-    const artPrompts = await fetchAllArtPrompts()
+    const artPrompts = await fetchAllPrompts()
 
-    // Fetch related Art for each ArtPrompt and convert BigInts to Strings
+    // Fetch related Art for each Prompt and convert BigInts to Strings
     const artPromptDetails = await Promise.all(
       artPrompts.map(async (artPrompt) => {
         const art = await fetchArtByPromptId(artPrompt.id)

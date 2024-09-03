@@ -1,11 +1,11 @@
 // /server/api/artPrompts/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import type { ArtPrompt } from '@prisma/client'
+import type { Prompt } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
-// Define a TypeScript interface for the expected ArtPrompt data
-interface ArtPromptData {
+// Define a TypeScript interface for the expected Prompt data
+interface PromptData {
   userId?: number
   prompt: string
   galleryId?: number
@@ -16,19 +16,19 @@ interface ArtPromptData {
 
 export default defineEventHandler(async (event) => {
   try {
-    const artPromptData: ArtPromptData = await readBody(event)
+    const artPromptData: PromptData = await readBody(event)
 
-    const newArtPrompt = await createArtPrompt(artPromptData)
-    return { success: true, newArtPrompt }
+    const newPrompt = await createPrompt(artPromptData)
+    return { success: true, newPrompt }
   } catch (error: unknown) {
     return errorHandler(error)
   }
 })
 
-// Function to create a new ArtPrompt
-export async function createArtPrompt(
-  artPrompt: ArtPromptData,
-): Promise<ArtPrompt> {
+// Function to create a new Prompt
+export async function createPrompt(
+  artPrompt: PromptData,
+): Promise<Prompt> {
   try {
     // Validate required fields
     if (!artPrompt.prompt) {

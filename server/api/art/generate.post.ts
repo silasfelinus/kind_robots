@@ -108,7 +108,7 @@ async function validateAndLoadPromptId(data: RequestData): Promise<number> {
     throw new Error('Something went wrong')
   }
 
-  // Check if an ArtPrompt with the given prompt already exists
+  // Check if an Prompt with the given prompt already exists
   const existingPrompt = await prisma.artPrompt.findFirst({
     where: { prompt: data.prompt },
   })
@@ -116,7 +116,7 @@ async function validateAndLoadPromptId(data: RequestData): Promise<number> {
   if (existingPrompt) {
     return existingPrompt.id // Return the existing promptId
   } else {
-    // Create a new ArtPrompt using "prompt"
+    // Create a new Prompt using "prompt"
     const newPrompt = await prisma.artPrompt.create({
       data: {
         prompt: data.prompt,

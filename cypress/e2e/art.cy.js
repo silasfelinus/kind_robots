@@ -7,6 +7,7 @@ describe('Art Management API Tests', () => {
   let artId // Store art ID for further operations
 
   // Test the basic POST route to register a new Art without generating it
+  // Test the basic POST route to register a new Art without generating it
   it('Register New Art', () => {
     cy.request({
       method: 'POST',
@@ -31,7 +32,7 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200, 'Expected status code to be 200')
       expect(response.body.newArt).to.be.an('object').that.is.not.empty
-      artId = response.body.newArt.id // Ensure the correct ID is captured
+      artId = response.body.newArt?.id // Ensure the correct ID is captured
       console.log('Registered Art ID:', artId) // Log for debugging
 
       if (!artId) {

@@ -30,7 +30,7 @@ model Art {
   isPublic    Int?          @default(0) @db.TinyInt
   isMature    Int?          @default(0) @db.TinyInt
   designer    String?       @db.VarChar(764)
-  ArtReaction ArtReaction[]
+  Reaction Reaction[]
 }
 
 model Prompt {
@@ -45,7 +45,7 @@ model Prompt {
   DB_ROW_HASH_1 BigInt
 }
 
-model ArtReaction {
+model Reaction {
   id        Int       @id @unique @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime?
@@ -61,9 +61,9 @@ model ArtReaction {
   Pitch     Pitch?    @relation(fields: [pitchId], references: [id])
   User      User      @relation(fields: [userId], references: [id])
 
-  @@index([artId], map: "ArtReaction_artId_fkey")
-  @@index([pitchId], map: "ArtReaction_pitchId_fkey")
-  @@index([userId], map: "ArtReaction_userId_fkey")
+  @@index([artId], map: "Reaction_artId_fkey")
+  @@index([pitchId], map: "Reaction_pitchId_fkey")
+  @@index([userId], map: "Reaction_userId_fkey")
 }
 
 model Bot {
@@ -216,7 +216,7 @@ model Pitch {
   creatorId      Int?          @default(0)
   highlightImage String        @db.VarChar(764)
   isMature       Int           @default(0) @db.TinyInt
-  ArtReaction    ArtReaction[]
+  Reaction    Reaction[]
 
   @@index([userId], map: "Pitch_channelId_key")
 }
@@ -430,19 +430,19 @@ model User {
   mana                Int           @default(0)
   clickRecord         Int?          @default(0)
   matchRecord         Int?          @default(0)
-  ArtReaction         ArtReaction[]
+  Reaction         Reaction[]
   Customer            Customer?
   Game                Game[]
   Slogan              Slogan[]
   Todo                Todo[]
 }
 
-model ArtReactionToTag {
+model ReactionToTag {
   A Int
   B Int
 
   @@id([A, B])
-  @@map("_ArtReactionToTag")
+  @@map("_ReactionToTag")
 }
 
 model ArtToProduct {

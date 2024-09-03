@@ -109,7 +109,7 @@ async function validateAndLoadPromptId(data: RequestData): Promise<number> {
   }
 
   // Check if an Prompt with the given prompt already exists
-  const existingPrompt = await prisma.artPrompt.findFirst({
+  const existingPrompt = await prisma.prompt.findFirst({
     where: { prompt: data.prompt },
   })
 
@@ -117,7 +117,7 @@ async function validateAndLoadPromptId(data: RequestData): Promise<number> {
     return existingPrompt.id // Return the existing promptId
   } else {
     // Create a new Prompt using "prompt"
-    const newPrompt = await prisma.artPrompt.create({
+    const newPrompt = await prisma.prompt.create({
       data: {
         prompt: data.prompt,
         userId: data.userId ?? 0, // Default to 0 if not provided
@@ -126,7 +126,6 @@ async function validateAndLoadPromptId(data: RequestData): Promise<number> {
         pitchId: data.pitchId ?? 0, // Default to 0 if not provided
         createdAt: new Date(), // Add a creation timestamp
         updatedAt: new Date(), // Add an updated timestamp
-        DB_ROW_HASH_1: BigInt(0), // This would typically be generated, but defaulting for example
       },
     })
     return newPrompt.id // Return the new promptId
@@ -142,14 +141,14 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
   }
 
   try {
-    if (!data.title && !data.pitchId) {
+    if (!data.pitch && !data.pitchId) {
       console.warn('No pitch title or pitchId provided.')
       return 0
     }
 
-    if (data.title) {
+    if (data.pitch) {
       const existingPitch = await prisma.pitch.findUnique({
-        where: { title: data.title },
+        where: { pitch: data.pitch },
       })
 
       if (existingPitch) {
@@ -329,10 +328,9 @@ export default defineEventHandler(async (event) => {
         pitchId: validatedData.pitchId,
         userId: validatedData.userId,
         galleryId: validatedData.galleryId || 21,
-        artPromptId: validatedData.promptId,
+        promptId: validatedData.promptId,
         pitch: requestData.pitchName,
         isMature: requestData.isMature,
-        isOrphan: requestData.isOrphan,
         isPublic: requestData.isPublic,
         channelId: validatedData.channelId,
         designer: validatedData.creator,

@@ -273,7 +273,7 @@ model Pitch {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime?     @updatedAt @default(now())
   title          String?       @db.VarChar(256)
-  pitch          String        @db.VarChar(764)
+  pitch          String        @unique @db.VarChar(764)
   userId         Int?           @default(1)
   User           User? @relation(fields: [userId], references: [id])
   playerId         Int?      

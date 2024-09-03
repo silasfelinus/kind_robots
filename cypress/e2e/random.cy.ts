@@ -20,8 +20,8 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.randomList).to.be.an('object');
-      randomListId = response.body.randomList.id;
+      expect(response.body.newList).to.be.an('object'); // Adjusted the key to match the response
+      randomListId = response.body.newList.id;
       cy.log('Created RandomList ID:', randomListId); // Use cy.log for consistency
     });
   });

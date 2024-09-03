@@ -1,31 +1,30 @@
 // /server/api/rewards/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { createReward } from './'
+import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
     const rewardData = await readBody(event)
 
-    // Validate incoming data
-    if (
-      !rewardData ||
-      !rewardData.text ||
-      !rewardData.power ||
-      !rewardData.icon
-    ) {
-      return {
-        success: false,
-        message:
-          'Invalid JSON body. "text", "power", and "icon" fields are required.',
-      }
+    // Validate required fields
+    if (!rewardData.text || !rewardData.power || !rewardData.icon) {
+      throw new Error('Text, power, and icon must be provided')
     }
 
-    // Create a new reward
-    const newReward = await createReward(rewardData)
+    const newReward = await prisma.reward.create({
+      data: {
+        icon: rewardData.icon,
+        text: rewardData.text,
+        power: rewardData.power,
+        collection: rewardData.collection || 'genesis',
+        rarity: rewardData.rarity || 50,
+        label: rewardData.label || null, // Ensure the label is saved correctly
+      },
+    })
+
     return { success: true, reward: newReward }
   } catch (error: unknown) {
-    const { success, message, statusCode } = errorHandler(error)
-    return { success, message, statusCode }
+    return errorHandler(error)
   }
 })

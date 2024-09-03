@@ -10,7 +10,7 @@ datasource db {
 model Art {
   id          Int           @id @default(autoincrement())
   galleryId   Int?          @default(1)
-  path        String        @db.VarChar(764)
+  path        String?        @db.VarChar(764)
   prompt      String?       @db.Text
   promptId Int?
   userId      Int?
@@ -24,16 +24,17 @@ model Art {
   sampler     String?       @db.VarChar(764)
   seed        Int?          @default(0)
   steps       Int?          @default(0)
-  pitch       String?       @db.VarChar(764)
+  pitch       Pitch?       @relation(fields: [pitchId], references: [id])
   channelId   Int?          @default(1)
   isPublic    Boolean?          @default(false)
   isMature    Boolean?          @default(false)
   designer    String?       @db.VarChar(764)
+  Prompt  Prompt?  @relation(fields: [promptId], references: [id])
   Reaction Reaction[]
   Game  Game[]
   Player    Player[]
-  User        User[]
-  Gallery Gallery[]
+  User        User? @relation(fields: [userId], references: [id])
+  Gallery Gallery?  @relation(fields: [galleryId], references: [id])
 }
 
 model Prompt {
@@ -41,13 +42,16 @@ model Prompt {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime? @updatedAt @default(now())
   userId        Int?       @default(0)
-  prompt        String    @db.VarChar(8000)
+  User        User? @relation(fields: [userId], references: [id])
+  prompt        String    @db.VarChar(764)
   galleryId     Int?      @default(0)
-  pitch         String?   @db.VarChar(764)
+  Gallery Gallery?  @relation(fields: [galleryId], references: [id])
+  pitch         Pitch?   @relation(fields: [pitchId], references: [id])
   pitchId       Int?      @default(0)
   Game  Game[]
   playerId      Int?
   Player  Player?  @relation(fields: [playerId], references: [id])
+  Art     Art[]
 }
 
 model Reaction {
@@ -178,6 +182,7 @@ model Gallery {
   isMature       Boolean       @default(false)
   User          User?       @relation(fields: [userId], references: [id])
   Art             Art[]
+  Prompts Prompt[]
 }
 
 model Game {
@@ -187,7 +192,7 @@ model Game {
   descriptor String?   @db.Text
   category   String    @default("Blue Sky Tasks")
   isFinished Boolean   @default(false)
-  creator    String?
+  designer    String?
   isPrivate  Boolean   @default(false)
   Users    User[]
   Art      Art[]
@@ -282,13 +287,15 @@ model Pitch {
   claps          Int           @default(0)
   boos           Int           @default(0)
   channelId      Int?          @default(1)
-  creator        String?        @db.VarChar(256)
+  designer        String?        @db.VarChar(256)
   flavorText     String?       @db.VarChar(512)
   highlightImage String?        @db.VarChar(256)
   isMature       Boolean           @default(false)
   Reaction    Reaction[]
   PitchType     PitchType   @default(ARTPITCH)
   tags        Tag[]
+  Art     Art[]
+  Prompts Prompt[]
 }
 
 enum PitchType {
@@ -444,6 +451,7 @@ model User {
   Players             Player[]
   Pitches             Pitch[]
   galleries     Gallery[]
+  Prompts Prompt[]
 }
 
 model ReactionToTag {

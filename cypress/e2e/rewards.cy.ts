@@ -24,13 +24,14 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       assert.isObject(response.body.reward, 'reward is an object');
-      expect(response.body.reward.label).to.eq('Test Label'); // Check that the label is correct
+      expect(response.body.reward.label).to.eq('Test Label');
       rewardId = response.body.reward.id; // Ensure the correct ID is captured
       console.log('Created Reward ID:', rewardId); // Log for debugging
     });
   });
 
   it('Get Reward by ID', () => {
+    cy.log('Checking reward ID:', rewardId); // Debugging: Log the reward ID
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${rewardId}`,
@@ -38,9 +39,14 @@ describe('Reward Management API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
+      failOnStatusCode: false, // Do not fail immediately on status code error
     }).then((response) => {
+      cy.log('Response status:', response.status); // Log response status for debugging
+      cy.log('Response body:', response.body); // Log response body for debugging
+
       expect(response.status).to.eq(200);
-      expect(response.body.reward.text).to.eq('Test Reward Text'); // Expect the correct text
+      expect(response.body.reward).to.be.an('object');
+      expect(response.body.reward.text).to.eq('Test Reward Text');
     });
   });
 

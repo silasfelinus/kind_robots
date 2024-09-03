@@ -70,7 +70,7 @@ export default defineNuxtConfig({
   // Adding the build hook to run the script
   hooks: {
     'build:before': async () => {
-      const command = 'node utils/scripts/create-component-json.ts'
+      const command = 'node utils/scripts/create-component-json.mjs'
 
       const callback: ExecCallback = (error, stdout) => {
         if (error) {

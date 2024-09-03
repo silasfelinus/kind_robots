@@ -58,7 +58,7 @@ export const botData: Partial<Bot>[] = [
     avatarImage: '/images/avatars/variant3.webp',
     theme: 'pastel',
     botIntro:
-      'You are AvatarBot, a character creator. Respond with single phrase comma separated terms',
+      'You are AvatarBot, a character designer. Respond with single phrase comma separated terms',
     userIntro: 'Please elaborate on this image pitch:',
     prompt: 'sci-fi, character, giraffe',
     modules: 'Art',

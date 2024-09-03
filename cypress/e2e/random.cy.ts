@@ -17,14 +17,12 @@ describe('RandomList Management API Tests', () => {
       },
       body: {
         title: uniqueTitle,
-        items: ['Dream1', 'Dream2', 'Dream3'],
+        items: [`Dream-${Date.now()}-1`, `Dream-${Date.now()}-2`, `Dream-${Date.now()}-3`],
         userId: userId,
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      /* eslint-disable @typescript-eslint/no-unused-expressions */
-      expect(response.body.randomList).to.be.an('object').that.is.not.empty;
-      /* eslint-enable @typescript-eslint/no-unused-expressions */
+      assert.isObject(response.body.randomList, 'randomList is an object');
       randomListId = response.body.randomList.id; // Ensure the correct ID is captured
       console.log('Created RandomList ID:', randomListId); // Log for debugging
     });
@@ -70,7 +68,7 @@ describe('RandomList Management API Tests', () => {
       expect(response.status).to.eq(200);
       expect(response.body.randomLists)
         .to.be.an('array')
-        .and.have.length.greaterThan(0); // Corrected line
+        .and.have.length.greaterThan(0); // Verify it returns an array with elements
     });
   });
 
@@ -86,7 +84,7 @@ describe('RandomList Management API Tests', () => {
       expect(response.status).to.eq(200);
       expect(response.body.randomLists)
         .to.be.an('array')
-        .and.have.length.greaterThan(0); // Corrected line
+        .and.have.length.greaterThan(0); // Verify it returns an array with elements
     });
   });
 
@@ -100,7 +98,7 @@ describe('RandomList Management API Tests', () => {
       },
       body: {
         title: `Updated-${uniqueTitle}`,
-        items: ['Updated Dream1', 'Updated Dream2'],
+        items: [`Updated-Dream-${Date.now()}-1`, `Updated-Dream-${Date.now()}-2`],
         userId: userId,
       },
     }).then((response) => {

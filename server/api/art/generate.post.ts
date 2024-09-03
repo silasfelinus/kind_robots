@@ -157,7 +157,6 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
         data: {
           title: data.title || 'Untitled', // Provide a default title if none is provided
           pitch: data.pitch || 'No details provided.', // Provide a default pitch content
-          designer: data.designer || 'Anonymous', // Provide a default designer name
           userId: data.userId || 0, // Default to 0 if not provided
           playerId: data.playerId || null, // Default to 0 if not provided
           isPublic: data.isPublic || true, // Default to true if not provided

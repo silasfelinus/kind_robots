@@ -1,40 +1,35 @@
-// /server/api/posts/index.post.ts
-import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error' // Import the error handler
-import prisma from './../utils/prisma'
-import type { Prisma, Post } from '@prisma/client'
+import { defineEventHandler, readBody } from 'h3';
+import prisma from '../utils/prisma';
+import { errorHandler } from '../utils/error';
 
 export default defineEventHandler(async (event) => {
   try {
-    const postData = await readBody(event)
-    const result = await addPost(postData)
-    return { success: true, ...result }
-  } catch (error) {
-    const { message, statusCode } = errorHandler(error)
-    return {
-      success: false,
-      message: 'Failed to create a new post',
-      error: message,
-      statusCode: statusCode || 500,
-    }
-  }
-})
+    const body = await readBody(event);
 
-export async function addPost(
-  postData: Partial<Post>,
-): Promise<{ post: Post | null; error: string | null }> {
-  if (!postData.content || !postData.username) {
-    return { post: null, error: 'Content and username are required.' }
-  }
+    const newPost = await prisma.post.create({
+      data: {
+        username: body.username,
+        content: body.content,
+        title: body.title,
+        label: body.label,
+        imagePath: body.imagePath,
+        isFavorite: body.isFavorite,
+        tags: {
+          connect: body.tags.map((tag: string) => ({ name: tag })), // Assuming your Tag model uses a 'name' field
+        },
+        User: {
+          connect: { id: body.userId }, // Use the correct relation
+        },
+        Bot: body.botId ? { connect: { id: body.botId } } : undefined, // Optional relation
+        Channel: body.channelId ? { connect: { id: body.channelId } } : undefined, // Optional relation
+      },
+    });
 
-  try {
-    const post = await prisma.post.create({
-      data: postData as Prisma.PostCreateInput,
-    })
-    return { post, error: null }
+    return { success: true, newPost };
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
-    return { post: null, error: errorMessage }
+    return errorHandler({
+      error,
+      context: 'Creating a new post',
+    });
   }
-}
+});

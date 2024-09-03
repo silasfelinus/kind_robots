@@ -2,8 +2,8 @@
 describe('Post Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/posts'; // Correct base URL
   const apiKey = Cypress.env('API_KEY');
-  let postId: number; // Explicitly define the type as number
-  const userId: number = 1; // Example user ID (assuming 1 is valid)
+  let postId: number;
+  const userId: number = 1;
 
   it('Create a New Post', () => {
     cy.request({
@@ -20,6 +20,10 @@ describe('Post Management API Tests', () => {
         title: 'Test Post Title',
         label: 'General',
         imagePath: '/images/test-post.jpg',
+        tags: ['art', 'creative', 'fun'],
+        botId: 1, // Optional, can be removed if not needed
+        channelId: 4, // Optional, can be removed if not needed
+        isFavorite: true,
       },
     }).then((response) => {
       expect(response.status).to.eq(200);

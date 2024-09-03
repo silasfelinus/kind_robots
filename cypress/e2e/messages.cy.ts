@@ -2,7 +2,7 @@
  
 
 describe('Message Management API Tests', () => {
-    const baseUrl = 'https://kindrobots.org/api/messages';
+    const baseUrl = 'https://kind-robots.vercel.org/api/messages';
     const apiKey = Cypress.env('API_KEY');
     let messageId: number; // Explicitly define the type as number
     const channelId: number = 2; // Example channel ID (assuming 2 is for livechat)

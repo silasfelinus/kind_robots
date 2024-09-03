@@ -61,7 +61,7 @@ describe('Prompt Management API Tests', () => {
       expect(response.status).to.eq(200);
       expect(response.body).to.have.property('prompt');
       expect(response.body.prompt).to.be.an('string');
-      expect(response.body.prompt.prompt).to.eq('devil bunny');
+      expect(response.body.prompt).to.eq('devil bunny');
     });
   });
 

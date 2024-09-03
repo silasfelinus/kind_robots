@@ -15,10 +15,13 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    console.log(`Fetching Prompt with ID: ${id}`)
+    
     // Fetch Prompt by ID
     const prompt = await fetchPromptById(id)
 
     if (!prompt) {
+      console.warn(`Prompt with ID ${id} not found`)
       return {
         success: false,
         message: 'Prompt not found',
@@ -26,8 +29,11 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    console.log(`Fetched Prompt: ${JSON.stringify(prompt)}`)
+
     // Fetch related Art by Prompt ID
     const art = await fetchArtByPromptId(id)
+    console.log(`Fetched related Art: ${JSON.stringify(art)}`)
 
     // Extract Art IDs
     const artIds = art.map((a) => a.id)

@@ -14,30 +14,29 @@ type GenerateImageResponse = {
   error?: string
 }
 type RequestData = {
-  title?: string // if we need to make a pitch
-  prompt: string // the art prompt, very important
+  galleryId?: number 
+  path?: string
+  prompt: string 
+  promptId?: number
+  userId?: number 
+  username: string
+  pitchId?: number 
+  title?: string 
   description?: string
-  flavorText?: string
-  userId?: number // 0 if username is not given.
-  promptId?: number // may have already been made, otherwise, we make one using "prompt"
   pitch?: string
-  pitchId?: number // if doesn't exist, make if given "pitchName"
-  channelId?: number // make if not existing using channelLabel
-  galleryId?: number // if not given, make with galleryName (or use 21)
-  creator?: string // same as username if not given, or generate a random name
-  channelName?: string // to make channel if channel is not given
-  userName?: string // to make a user if userId is not given
-  playerName?: string
-  pitchName?: string // to make pitch if pitchId is not given
-  galleryName?: string // to make gallery if no galleryId
-  isMature?: boolean // for entry in multiple models
-  isPublic?: boolean // for entry in multiple models
-  isOrphan?: boolean // for entry in Art
+  isMature?: boolean 
+  isPublic?: boolean 
+  designer?: string
+  flavorText?: string
   highlightImage?: string
-  playerId?: number
-  claps?: number
-  boos?: number
   PitchType: PitchType
+
+  playerName?: string
+  galleryName?: string // to make gallery if no galleryId
+
+
+  playerId?: number
+
 }
 
 type validatedData = {
@@ -51,7 +50,7 @@ type validatedData = {
   pitchId?: number
   channelId?: number
   galleryId?: number
-  creator?: string
+  designer?: string
   channelName?: string
   userName?: string
   playerName?: string
@@ -59,7 +58,6 @@ type validatedData = {
   galleryName?: string
   isMature?: boolean
   isPublic?: boolean
-  isOrphan?: boolean
   highlightImage?: string
 }
 
@@ -70,18 +68,18 @@ async function validateAndLoadUserId(
   console.log('🔍 Validating and loading User ID...')
 
   // If neither userName nor userId is provided, return 0
-  if (!data.userName && !data.userId) {
+  if (!data.username && !data.userId) {
     console.warn('No userName or userId provided.')
     return 0
   }
 
   // If userName is provided, upsert the user using userName as a unique identifier
-  if (data.userName) {
+  if (data.username) {
     const user = await prisma.user.upsert({
-      where: { username: data.userName }, // Ensure 'username' is marked as unique in your Prisma schema
+      where: { username: data.username }, // Ensure 'username' is marked as unique in your Prisma schema
       update: {},
       create: {
-        username: data.userName,
+        username: data.username,
         createdAt: new Date(), // Set the creation timestamp
         Role: 'USER', // Assuming 'USER' is a default role, replace with appropriate enum or value
       },
@@ -159,13 +157,10 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
         data: {
           title: data.title || 'Untitled', // Provide a default title if none is provided
           pitch: data.pitch || 'No details provided.', // Provide a default pitch content
-          creator: data.creator || 'Anonymous', // Provide a default creator name
-          channelId: data.channelId,
+          designer: data.designer || 'Anonymous', // Provide a default designer name
           userId: data.userId || 0, // Default to 0 if not provided
           playerId: data.playerId || null, // Default to 0 if not provided
           isPublic: data.isPublic || true, // Default to true if not provided
-          claps: data.claps || 0, // Default to 0 if not provided
-          boos: data.boos || 0, // Default to 0 if not provided
           isMature: data.isMature || false, // Default to false if not provided
           flavorText: data.flavorText || '', // Optional, empty string as default
           highlightImage: data.highlightImage || '', // Optional, empty string as default
@@ -183,48 +178,6 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
   }
 }
 
-async function validateAndLoadChannelId(data: RequestData): Promise<number> {
-  console.log('🔍 Validating and loading channel ID...')
-
-  // If channelId is provided, return it as the source of truth
-  if (data.channelId) {
-    return data.channelId
-  }
-
-  try {
-    const labelToSearch = data.channelName ?? data.pitchName
-
-    if (!labelToSearch) {
-      console.warn('No channelName or pitchName provided.')
-      return 1 // Default channel ID
-    }
-
-    const existingChannel = await prisma.channel.findUnique({
-      where: { label: labelToSearch },
-    })
-
-    if (existingChannel) {
-      return existingChannel.id // Return the existing channelId
-    }
-
-    // Create a new Channel
-    const newChannel = await prisma.channel.create({
-      data: {
-        label: labelToSearch, // This should be defined earlier in your code
-        title: data.title ?? undefined,
-        pitchId: data.pitchId ?? undefined,
-        description: data.description ?? undefined,
-        userId: data.userId ?? undefined,
-        createdAt: new Date(), // Set to the current timestamp
-      },
-    })
-
-    return newChannel.id
-  } catch (error) {
-    console.error('Error validating and loading channel ID:', error)
-    return 1
-  }
-}
 
 async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
   console.log('🔍 Validating and loading gallery ID...')
@@ -258,7 +211,7 @@ async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
 function validateAndLoadDesignerName(data: RequestData): string {
   console.log('🔍 Validating and loading designer name...')
 
-  return data.creator ?? data.userName ?? generateSillyName() ?? 'Kind Guest'
+  return data.designer ?? data.username ?? generateSillyName() ?? 'Kind Guest'
 }
 
 export default defineEventHandler(async (event) => {
@@ -274,12 +227,11 @@ export default defineEventHandler(async (event) => {
     validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
     validatedData.promptId = await validateAndLoadPromptId(requestData)
     validatedData.pitchId = await validateAndLoadPitchId(requestData)
-    validatedData.channelId = await validateAndLoadChannelId(requestData)
     validatedData.galleryId = await validateAndLoadGalleryId(requestData)
-    validatedData.creator = validateAndLoadDesignerName(requestData)
+    validatedData.designer = validateAndLoadDesignerName(requestData)
 
     console.log('🎉 All validations passed! Generating image...')
-    const response: GenerateImageResponse = await generateImage(requestData.prompt, validatedData.creator!)
+    const response: GenerateImageResponse = await generateImage(requestData.prompt, validatedData.designer!)
     console.log('🖼 Image generated! Response:', response)
 
     if (!response || !response.images?.length) {
@@ -302,11 +254,11 @@ export default defineEventHandler(async (event) => {
         userId: validatedData.userId,
         galleryId: validatedData.galleryId || 21,
         promptId: validatedData.promptId,
-        pitch: requestData.pitchName,
+        pitch: requestData.pitch,
         isMature: requestData.isMature,
         isPublic: requestData.isPublic,
         channelId: validatedData.channelId,
-        designer: validatedData.creator,
+        designer: validatedData.designer,
       },
     })
 

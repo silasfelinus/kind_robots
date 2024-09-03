@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       data: {
         descriptor: body.descriptor,
         category: body.category,
-        creator: body.creator,
+        designer: body.designer,
         isPrivate: body.isPrivate,
       },
     })

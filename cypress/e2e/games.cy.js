@@ -19,7 +19,7 @@ describe('Game Management API Tests', () => {
       body: {
         descriptor: uniqueGameName, // Use the unique game name
         category: 'Battle Royale',
-        creator: uniquePlayerName, // Corrected to use the variable
+        designer: uniquePlayerName, // Corrected to use the variable
         isPrivate: false,
       },
     }).then((response) => {
@@ -61,7 +61,7 @@ describe('Game Management API Tests', () => {
       expect(game.descriptor).to.eq(uniqueGameName)
       expect(game.category).to.eq('Battle Royale')
       expect(game.isFinished).to.be.false
-      expect(game.creator).to.eq(uniquePlayerName)
+      expect(game.designer).to.eq(uniquePlayerName)
       expect(game.isPrivate).to.be.false
       expect(game.winner).to.be.null
     })

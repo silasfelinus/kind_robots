@@ -213,7 +213,7 @@ model Pitch {
   designer       String        @db.VarChar(764)
   flavorText     String?       @db.VarChar(764)
   isOrphan       Int           @default(0) @db.TinyInt
-  creatorId      Int?          @default(0)
+  designerId      Int?          @default(0)
   highlightImage String        @db.VarChar(764)
   isMature       Int           @default(0) @db.TinyInt
   Reaction    Reaction[]

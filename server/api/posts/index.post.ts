@@ -14,14 +14,14 @@ export default defineEventHandler(async (event) => {
         label: body.label,
         imagePath: body.imagePath,
         isFavorite: body.isFavorite,
-        tags: {
-          connect: body.tags.map((tag: string) => ({ name: tag })), // Assuming your Tag model uses a 'name' field
-        },
-        User: {
-          connect: { id: body.userId }, // Use the correct relation
-        },
-        Bot: body.botId ? { connect: { id: body.botId } } : undefined, // Optional relation
-        Channel: body.channelId ? { connect: { id: body.channelId } } : undefined, // Optional relation
+        User: body.userId ? { connect: { id: body.userId } } : undefined,  // Connecting the user
+        Bot: body.botId ? { connect: { id: body.botId } } : undefined,      // Connecting the bot
+        Channel: body.channelId ? { connect: { id: body.channelId } } : undefined, // Connecting the channel
+        tags: body.tags?.length > 0 
+          ? {
+              connect: body.tags.map((tag: string) => ({ name: tag })), // Assuming `name` is the identifier for tags
+            }
+          : undefined,
       },
     });
 

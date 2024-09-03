@@ -3,7 +3,7 @@
 describe('Prompt Management API Tests', () => {
     const baseUrl = 'https://kind-robots.vercel.app/api/prompts';
     const apiKey = Cypress.env('API_KEY');
-    let artPromptId: number; // Explicitly define the type as number
+    let promptId: number; // Explicitly define the type as number
   
     it('Create New Prompt', () => {
       cy.request({
@@ -23,22 +23,22 @@ describe('Prompt Management API Tests', () => {
       /* eslint-disable @typescript-eslint/no-unused-expressions */
       expect(response.body.newPrompt).to.be.an('object').that.is.not.empty;
       /* eslint-enable @typescript-eslint/no-unused-expressions */
-        artPromptId = response.body.newPrompt.id; // Ensure the correct ID is captured
-        console.log('Created Prompt ID:', artPromptId); // Log for debugging
+        promptId = response.body.newPrompt.id; // Ensure the correct ID is captured
+        console.log('Created Prompt ID:', promptId); // Log for debugging
       });
     });
   
     it('Get Prompt by ID', () => {
       cy.request({
         method: 'GET',
-        url: `${baseUrl}/id/${artPromptId}`,
+        url: `${baseUrl}/id/${promptId}`,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body.artPrompt.prompt).to.eq('devil bunny'); // Expect the correct prompt
+        expect(response.body.prompt.prompt).to.eq('devil bunny'); // Expect the correct prompt
       });
     });
   
@@ -52,7 +52,7 @@ describe('Prompt Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body.artPrompts)
+        expect(response.body.prompts)
           .to.be.an('array')
           .and.have.length.greaterThan(0);
       });
@@ -61,7 +61,7 @@ describe('Prompt Management API Tests', () => {
     it('Update an Prompt', () => {
       cy.request({
         method: 'PATCH',
-        url: `${baseUrl}/${artPromptId}`,
+        url: `${baseUrl}/${promptId}`,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
@@ -77,7 +77,7 @@ describe('Prompt Management API Tests', () => {
     it('Delete an Prompt', () => {
       cy.request({
         method: 'DELETE',
-        url: `${baseUrl}/${artPromptId}`,
+        url: `${baseUrl}/${promptId}`,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,

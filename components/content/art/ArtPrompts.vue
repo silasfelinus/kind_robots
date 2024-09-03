@@ -25,7 +25,7 @@
 
     <!-- List of Prompts -->
     <ul>
-      <li v-for="prompt in artPrompts" :key="prompt.id">
+      <li v-for="prompt in prompts" :key="prompt.id">
         {{ prompt.prompt }}
         <button @click="selectPrompt(prompt)">Select</button>
 
@@ -63,7 +63,7 @@ const promptStore = usePromptStore()
 const {
   fetchPrompts,
   selectPrompt,
-  artPrompts,
+  prompts,
   activePrompt,
   createPrompt,
   deletePrompt,

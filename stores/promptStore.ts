@@ -3,7 +3,7 @@ import type { Prompt, Art } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore' // Import useErrorStore and ErrorType
 
 interface State {
-  artPrompts: Prompt[]
+  prompts: Prompt[]
   artByPromptId: Art[]
   activePrompt: Prompt | null
 }
@@ -11,7 +11,7 @@ interface State {
 export const usePromptStore = defineStore('promptStore', {
   // State
   state: (): State => ({
-    artPrompts: [],
+    prompts: [],
     artByPromptId: [],
     activePrompt: null,
   }),
@@ -28,7 +28,7 @@ export const usePromptStore = defineStore('promptStore', {
         console.log('Fetched data:', response) // Debugging line
         if (response.ok) {
           const data = await response.json()
-          this.artPrompts = data.artPrompts
+          this.prompts = data.prompts
         } else {
           const errorText = await response.text()
           errorStore.setError(
@@ -64,9 +64,9 @@ export const usePromptStore = defineStore('promptStore', {
 
         if (data.success) {
           // Update the local store
-          const index = this.artPrompts.findIndex((prompt) => prompt.id === id)
+          const index = this.prompts.findIndex((prompt) => prompt.id === id)
           if (index !== -1) {
-            this.artPrompts[index].prompt = newPrompt
+            this.prompts[index].prompt = newPrompt
           }
         } else {
           throw new Error(data.message)
@@ -133,7 +133,7 @@ export const usePromptStore = defineStore('promptStore', {
         })
         if (response.ok) {
           const createdPrompt = await response.json()
-          this.artPrompts.push(createdPrompt)
+          this.prompts.push(createdPrompt)
         } else {
           const errorText = await response.text()
           errorStore.setError(
@@ -163,7 +163,7 @@ export const usePromptStore = defineStore('promptStore', {
           method: 'DELETE',
         })
         if (response.ok) {
-          this.artPrompts = this.artPrompts.filter(
+          this.prompts = this.prompts.filter(
             (prompt) => prompt.id !== promptId,
           )
         } else {

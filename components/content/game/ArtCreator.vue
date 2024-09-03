@@ -6,7 +6,7 @@
       <p>{{ activePitch.description }}</p>
     </div>
     <textarea
-      v-model="artPrompt"
+      v-model="prompt"
       placeholder="Enter your art prompt here..."
       class="w-full p-2 border rounded mt-2"
     ></textarea>
@@ -28,12 +28,12 @@ const pitchStore = usePitchStore()
 const artStore = useArtStore()
 
 const activePitch = computed(() => pitchStore.selectedPitch)
-const artPrompt = ref('')
+const prompt = ref('')
 
 const createArt = async () => {
   if (activePitch.value) {
     const artData = {
-      prompt: artPrompt.value,
+      prompt: prompt.value,
       pitchId: activePitch.value.id,
       title: `Art for ${activePitch.value.title}`,
     }

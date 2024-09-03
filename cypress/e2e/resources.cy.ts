@@ -3,7 +3,7 @@
 describe('Resource Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/resources';
   const apiKey = Cypress.env('API_KEY');
-  let resourceId: number; // Explicitly define the type as number
+  let resourceId: number | undefined; // Updated to include undefined type
   const uniqueResourceName = `Resource-${Date.now()}`; // Generate a unique resource name using Date.now()
 
   it('Create a New Resource', () => {
@@ -30,10 +30,14 @@ describe('Resource Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      assert.isObject(response.body.newResource, 'newResource is an object');
-      assert.isNotEmpty(response.body.newResource, 'newResource is not empty');
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      expect(response.body.newResource).to.be.an('object').that.is.not.empty;
       resourceId = response.body.newResource.id; // Ensure the correct ID is captured
       console.log('Created Resource ID:', resourceId); // Log for debugging
+    }).then(() => {
+      if (!resourceId) {
+        throw new Error('Resource ID was not set');
+      }
     });
   });
 
@@ -124,6 +128,8 @@ describe('Resource Management API Tests', () => {
         expect(response.status).to.eq(200);
         console.log('Reverted Resource ID:', resourceId);
       });
+    } else {
+      console.log('No resourceId to delete.');
     }
   });
 });

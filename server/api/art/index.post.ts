@@ -102,7 +102,11 @@ export default defineEventHandler(async (event) => {
     console.log('🎉 Art entry created successfully:', newArt);
     return { success: true, newArt };
   } catch (error: unknown) {
-    console.error('Art Registration Error:', error);
+    if (error instanceof Error) {
+      console.error('Art Registration Error:', error.message, error.stack);
+    } else {
+      console.error('Art Registration Unknown Error:', error);
+    }
     return errorHandler({
       error,
       context: `Art Registration - Path: ${event.req.url}`,

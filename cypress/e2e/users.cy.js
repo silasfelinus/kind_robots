@@ -293,7 +293,7 @@ describe('User Management API Tests - User Update', () => {
 
   context('User Update Tests', () => {
     it('Update User by ID with New Username', () => {
-      const userId = 22 // Specify the user ID to update
+      const userId = 0 // Specify the user ID to update
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${userId}`,
@@ -315,7 +315,7 @@ describe('User Management API Tests - User Update', () => {
     })
 
     it('Update User by ID with Password', () => {
-      const userId = 22
+      const userId = 0
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${userId}`,
@@ -334,7 +334,7 @@ describe('User Management API Tests - User Update', () => {
     })
 
     it('Update User by ID with Email', () => {
-      const userId = 22
+      const userId = 0
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${userId}`,

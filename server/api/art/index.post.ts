@@ -39,6 +39,14 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    if (!requestData.path || requestData.path.trim() === '') {
+      return errorHandler({
+        error: new Error('Path is a required field'),
+        context: `Art Registration - Path: ${event.req.url}`,
+        statusCode: 400,
+      });
+    }
+
     // Fetch or create user based on username
     let userId = requestData.userId;
     if (!userId && requestData.username) {

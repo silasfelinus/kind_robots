@@ -36,12 +36,26 @@ describe('Prompt Management API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
+      failOnStatusCode: false, // Allows the test to proceed even if the status code isn't 200
     }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.prompt).to.be.an('object'); // Check that the prompt object exists
-      expect(response.body.prompt.prompt).to.eq('devil bunny'); // Expect the correct prompt text
+      // Log the entire response for debugging purposes
+      cy.log('Response:', JSON.stringify(response, null, 2));
+  
+      // Assert that the status code is 200
+      expect(response.status).to.eq(200, 'Expected status code to be 200');
+  
+      // Assert that the body has the prompt object
+      expect(response.body).to.have.property('prompt');
+      
+      // Log the prompt object for debugging
+      cy.log('Prompt Object:', JSON.stringify(response.body.prompt, null, 2));
+  
+      // Assert that the prompt property is an object and contains the expected prompt text
+      expect(response.body.prompt).to.be.an('object');
+      expect(response.body.prompt.prompt).to.eq('devil bunny');
     });
   });
+  
 
   it('Get All Prompts', () => {
     cy.request({

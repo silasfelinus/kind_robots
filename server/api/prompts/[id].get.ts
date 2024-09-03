@@ -1,4 +1,3 @@
-// server/api/art/prompts/[id].get.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
 import { fetchArtByPromptId, fetchPromptById } from './artQueries'
@@ -9,22 +8,22 @@ export default defineEventHandler(async (event) => {
     const id = Number(event.context.params?.id)
 
     if (isNaN(id)) {
-      return errorHandler({
+      return {
         success: false,
         message: 'Invalid ID format.',
         statusCode: 400, // Bad Request
-      })
+      }
     }
 
     // Fetch Prompt by ID
     const prompt = await fetchPromptById(id)
 
     if (!prompt) {
-      return errorHandler({
+      return {
         success: false,
         message: 'Prompt not found',
         statusCode: 404, // Not Found
-      })
+      }
     }
 
     // Fetch related Art by Prompt ID
@@ -35,7 +34,11 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, prompt: prompt.prompt, artIds }
   } catch (error: unknown) {
+    console.error('Error fetching prompt or related art:', error)
     // Use the errorHandler to process the error
-    return errorHandler(error)
+    return errorHandler({
+      error,
+      context: 'Fetching Prompt and related Art by ID',
+    })
   }
 })

@@ -1,3 +1,4 @@
+//server/api/rewards/index.ts
 import type { Prisma, Reward } from '@prisma/client'
 import prisma from '../utils/prisma'
 

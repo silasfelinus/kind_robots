@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import type { Prisma } from '@prisma/client'
+import type { Prisma, Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -20,30 +20,21 @@ export default defineEventHandler(async (event) => {
       if (typeof tag === 'string') {
         return {
           label: 'Default', // Default label
-          title: tag.replace(
-            /\w\S*/g,
-            (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
-          ),
+          title: toTitleCase(tag),
         }
       }
 
       return {
-        label:
-          tag.label.charAt(0).toUpperCase() + tag.label.slice(1).toLowerCase(),
-        title: tag.title.replace(
-          /\w\S*/g,
-          (txt: string) =>
-            txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
-        ),
+        label: toTitleCase(tag.label),
+        title: toTitleCase(tag.title),
       }
     })
 
     // Create tags in a batch and skip duplicates
-    const result = await addTags(transformedTags)
+    const newTags = await addTags(transformedTags)
 
-    return { success: true, count: result.count }
+    return { success: true, newTags }
   } catch (error) {
-    // Use the error handler to process the error
     const { message, statusCode } = errorHandler(error)
 
     return {
@@ -55,15 +46,32 @@ export default defineEventHandler(async (event) => {
   }
 })
 
+function toTitleCase(str: string): string {
+  return str.replace(/\w\S*/g, (txt) =>
+    txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+  )
+}
+
 async function addTags(
   tagsData: Prisma.TagCreateManyInput[],
-): Promise<{ count: number }> {
+): Promise<Tag[]> {
   try {
-    const result = await prisma.tag.createMany({
+    await prisma.tag.createMany({
       data: tagsData,
       skipDuplicates: true,
     })
-    return { count: result.count }
+
+    // Retrieve the created tags
+    const newTags = await prisma.tag.findMany({
+      where: {
+        OR: tagsData.map((tag) => ({
+          title: tag.title,
+          label: tag.label,
+        })),
+      },
+    })
+
+    return newTags
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'

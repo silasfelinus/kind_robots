@@ -24,15 +24,14 @@ describe('Resource Management API Tests', () => {
         huggingUrl: 'https://huggingface-url.com',
         localPath: '/local/test-resource',
         description: 'This is a test resource description.',
-        resourceType: 'IMAGE', // Assuming 'IMAGE' is a valid resource type
+        resourceType: 'URL', // Assuming 'IMAGE' is a valid resource type
         isMature: false,
-        galleryCount: 5,
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(response.body.newResource).to.be.an('object').that.is.not.empty;
-      resourceId = response.body.newResource.id; // Ensure the correct ID is captured
+      expect(response.body.resource).to.be.an('object').that.is.not.empty;
+      resourceId = response.body.resource.id; // Ensure the correct ID is captured
       console.log('Created Resource ID:', resourceId); // Log for debugging
     }).then(() => {
       if (!resourceId) {
@@ -90,11 +89,11 @@ describe('Resource Management API Tests', () => {
       body: {
         name: updatedResourceName,
         description: 'This is an updated test resource description.',
-        galleryCount: 10,
+        userId: 10,
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.updatedResource.name).to.eq(updatedResourceName); // Verify name is updated
+      expect(response.body.resource.name).to.eq(updatedResourceName); // Verify name is updated
     });
   });
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Post Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/posts'; // Correct base URL
+  const baseUrl = 'https://kind-robots.vercel.app/api/posts';
   const apiKey = Cypress.env('API_KEY');
   let postId: number;
   const userId: number = 1;
@@ -21,15 +21,15 @@ describe('Post Management API Tests', () => {
         label: 'General',
         imagePath: '/images/test-post.jpg',
         tags: ['art', 'creative', 'fun'],
-        botId: 1, // Optional, can be removed if not needed
-        channelId: 4, // Optional, can be removed if not needed
+        botId: 1, // Optional: Provide if needed
+        channelId: 4, // Optional: Provide if needed
         isFavorite: true,
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body.newPost).to.be.an('object').that.is.not.empty;
-      postId = response.body.newPost.id; // Ensure the correct ID is captured
-      console.log('Created Post ID:', postId); // Log for debugging
+      postId = response.body.newPost.id;
+      console.log('Created Post ID:', postId);
     });
   });
 

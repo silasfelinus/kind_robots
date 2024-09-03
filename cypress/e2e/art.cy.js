@@ -17,9 +17,18 @@ describe('Art Management API Tests', () => {
       body: {
         galleryId: 21,
         path: '/images/cafefred/cafefred-1695613612690.webp',
-        prompt: 'zebra accountant',
+        promptId: 1, // Assuming promptId is already available
         userId: 1,
-        pitch: 'zebracore',
+        pitchId: 1, // Assuming pitchId is already available
+        cfg: '7.5',
+        checkpoint: 'model-checkpoint-001',
+        sampler: 'Euler',
+        seed: 12345,
+        steps: 50,
+        designer: 'kinddesigner',
+        isPublic: true,
+        isMature: false,
+        channelId: 3, // Assuming channelId is already available
       },
       failOnStatusCode: false, // Prevents Cypress from failing on non-2xx status
     }).then((response) => {
@@ -47,9 +56,22 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.art.path).to.eq(
-        '/images/cafefred/cafefred-1695613612690.webp',
-      ) // Expect the correct path
+      expect(response.body.art).to.include({
+        id: artId,
+        path: '/images/cafefred/cafefred-1695613612690.webp',
+        userId: 1,
+        promptId: 1,
+        pitchId: 1,
+        cfg: '7.5',
+        checkpoint: 'model-checkpoint-001',
+        sampler: 'Euler',
+        seed: 12345,
+        steps: 50,
+        designer: 'kinddesigner',
+        isPublic: true,
+        isMature: false,
+        channelId: 3,
+      })
     })
   })
 
@@ -82,9 +104,17 @@ describe('Art Management API Tests', () => {
       },
       body: {
         path: '/images/cafefred/cafefred-1695613612691.webp',
+        designer: 'newdesigner',
+        isPublic: false,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.updatedArt).to.include({
+        id: artId,
+        path: '/images/cafefred/cafefred-1695613612691.webp',
+        designer: 'newdesigner',
+        isPublic: false,
+      })
     })
   })
 

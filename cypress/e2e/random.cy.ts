@@ -1,5 +1,3 @@
-// cypress/e2e/api/random-list.cy.ts
-
 describe('RandomList Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/random';
   const apiKey = Cypress.env('API_KEY');
@@ -22,24 +20,28 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      assert.isObject(response.body.randomList, 'randomList is an object');
-      randomListId = response.body.randomList.id; // Ensure the correct ID is captured
-      console.log('Created RandomList ID:', randomListId); // Log for debugging
+      expect(response.body.randomList).to.be.an('object');
+      randomListId = response.body.randomList.id;
+      cy.log('Created RandomList ID:', randomListId); // Use cy.log for consistency
     });
   });
 
   it('Get RandomList by ID', () => {
-    cy.request({
-      method: 'GET',
-      url: `${baseUrl}/${randomListId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.randomList.title).to.eq(uniqueTitle); // Expect the correct title
-    });
+    if (randomListId) {
+      cy.request({
+        method: 'GET',
+        url: `${baseUrl}/${randomListId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200);
+        expect(response.body.randomList.title).to.eq(uniqueTitle);
+      });
+    } else {
+      throw new Error('randomListId is not defined');
+    }
   });
 
   it('Get RandomList by Title', () => {
@@ -52,7 +54,7 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.randomList.title).to.eq(uniqueTitle); // Expect the correct title
+      expect(response.body.randomList.title).to.eq(uniqueTitle);
     });
   });
 
@@ -68,7 +70,7 @@ describe('RandomList Management API Tests', () => {
       expect(response.status).to.eq(200);
       expect(response.body.randomLists)
         .to.be.an('array')
-        .and.have.length.greaterThan(0); // Verify it returns an array with elements
+        .and.have.length.greaterThan(0);
     });
   });
 
@@ -84,42 +86,49 @@ describe('RandomList Management API Tests', () => {
       expect(response.status).to.eq(200);
       expect(response.body.randomLists)
         .to.be.an('array')
-        .and.have.length.greaterThan(0); // Verify it returns an array with elements
+        .and.have.length.greaterThan(0);
     });
   });
 
   it('Update a RandomList by ID', () => {
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${randomListId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-      body: {
-        title: `Updated-${uniqueTitle}`,
-        items: [`Updated-Dream-${Date.now()}-1`, `Updated-Dream-${Date.now()}-2`],
-        userId: userId,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-    });
+    if (randomListId) {
+      cy.request({
+        method: 'PATCH',
+        url: `${baseUrl}/${randomListId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+        body: {
+          title: `Updated-${uniqueTitle}`,
+          items: [`Updated-Dream-${Date.now()}-1`, `Updated-Dream-${Date.now()}-2`],
+          userId: userId,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200);
+      });
+    } else {
+      throw new Error('randomListId is not defined');
+    }
   });
 
   it('Delete a RandomList by ID', () => {
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${randomListId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-    });
+    if (randomListId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${randomListId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200);
+      });
+    } else {
+      throw new Error('randomListId is not defined');
+    }
   });
 
-  // Ensure all changes are reverted by deleting the RandomList created during the test
   after(() => {
     if (randomListId) {
       cy.request({
@@ -131,7 +140,7 @@ describe('RandomList Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        console.log('Reverted RandomList ID:', randomListId);
+        cy.log('Reverted RandomList ID:', randomListId);
       });
     }
   });

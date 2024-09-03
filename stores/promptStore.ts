@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import type { ArtPrompt, Art } from '@prisma/client'
+import type { Prompt, Art } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore' // Import useErrorStore and ErrorType
 
 interface State {
-  artPrompts: ArtPrompt[]
+  artPrompts: Prompt[]
   artByPromptId: Art[]
-  activePrompt: ArtPrompt | null
+  activePrompt: Prompt | null
 }
 
 export const usePromptStore = defineStore('promptStore', {
@@ -19,7 +19,7 @@ export const usePromptStore = defineStore('promptStore', {
   // Actions
   actions: {
     // Fetch all art prompts
-    async fetchArtPrompts() {
+    async fetchPrompts() {
       const errorStore = useErrorStore() // Use errorStore
 
       try {
@@ -41,16 +41,16 @@ export const usePromptStore = defineStore('promptStore', {
           )
         }
       } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in fetchArtPrompts')
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in fetchPrompts')
         console.error(
-          'Error in fetchArtPrompts:',
+          'Error in fetchPrompts:',
           errorStore.getErrors().slice(-1)[0]?.message,
         )
       }
     },
 
     // Edit an art prompt
-    async editArtPrompt(id: number, newPrompt: string) {
+    async editPrompt(id: number, newPrompt: string) {
       const errorStore = useErrorStore() // Use errorStore
 
       try {
@@ -72,9 +72,9 @@ export const usePromptStore = defineStore('promptStore', {
           throw new Error(data.message)
         }
       } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in editArtPrompt')
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in editPrompt')
         console.error(
-          'Error in editArtPrompt:',
+          'Error in editPrompt:',
           errorStore.getErrors().slice(-1)[0]?.message,
         )
       }
@@ -111,7 +111,7 @@ export const usePromptStore = defineStore('promptStore', {
       }
     },
 
-    selectPrompt(prompt: ArtPrompt) {
+    selectPrompt(prompt: Prompt) {
       this.activePrompt = prompt // Update the ref value directly
     },
 
@@ -120,7 +120,7 @@ export const usePromptStore = defineStore('promptStore', {
     },
 
     // Create a new art prompt
-    async createArtPrompt(newPrompt: string) {
+    async createPrompt(newPrompt: string) {
       const errorStore = useErrorStore() // Use errorStore
 
       try {
@@ -146,16 +146,16 @@ export const usePromptStore = defineStore('promptStore', {
           )
         }
       } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in createArtPrompt')
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in createPrompt')
         console.error(
-          'Error in createArtPrompt:',
+          'Error in createPrompt:',
           errorStore.getErrors().slice(-1)[0]?.message,
         )
       }
     },
 
     // Delete an art prompt by ID
-    async deleteArtPrompt(promptId: number) {
+    async deletePrompt(promptId: number) {
       const errorStore = useErrorStore() // Use errorStore
 
       try {
@@ -178,9 +178,9 @@ export const usePromptStore = defineStore('promptStore', {
           )
         }
       } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in deleteArtPrompt')
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in deletePrompt')
         console.error(
-          'Error in deleteArtPrompt:',
+          'Error in deletePrompt:',
           errorStore.getErrors().slice(-1)[0]?.message,
         )
       }
@@ -188,4 +188,4 @@ export const usePromptStore = defineStore('promptStore', {
   },
 })
 
-export type { ArtPrompt }
+export type { Prompt }

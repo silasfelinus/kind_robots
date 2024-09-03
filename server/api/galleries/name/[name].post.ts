@@ -7,7 +7,6 @@ type GalleryItem = {
   name: string
   content: string
   description?: string // Optional
-  mediaId?: string | null // Optional, based on your database schema
   url?: string | null // Optional
   isMature?: boolean
   custodian?: string | null

@@ -33,6 +33,7 @@ model Art {
   Game  Game[]
   Player    Player[]
   User        User[]
+  Gallery Gallery[]
 }
 
 model ArtPrompt {
@@ -170,7 +171,6 @@ model Gallery {
   updatedAt      DateTime? @updatedAt @default(now())
   name           String    @unique(map: "Gallery_id_key", length: 200) @db.VarChar(764)
   description    String?   @db.Text
-  mediaId        String?   @db.VarChar(764)
   url            String?   @db.VarChar(764)
   custodian      String?   @db.VarChar(764)
   userId         Int?      @default(0)
@@ -179,6 +179,7 @@ model Gallery {
   imagePaths     String?   @db.Text
   isMature       Boolean       @default(false)
   User          User?       @relation(fields: [userId], references: [id])
+  Art             Art[]
 }
 
 model Game {

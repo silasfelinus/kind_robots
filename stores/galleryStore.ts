@@ -47,9 +47,6 @@ export const useGalleryStore = defineStore({
       return this.currentGallery?.description || null
     },
 
-    currentGalleryMediaId(): string | null {
-      return this.currentGallery?.mediaId || null
-    },
 
     currentGalleryURL(): string | null {
       return this.currentGallery?.url || null

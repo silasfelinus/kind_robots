@@ -8,7 +8,7 @@ export async function updatePrompt(
   updatedData: Partial<Prompt>,
 ): Promise<Prompt | null> {
   try {
-    return await prisma.artPrompt.update({
+    return await prisma.prompt.update({
       where: { id },
       data: updatedData,
     })
@@ -23,7 +23,7 @@ export async function updatePrompt(
 
 export async function fetchAllPrompts(): Promise<Prompt[]> {
   try {
-    return await prisma.artPrompt.findMany()
+    return await prisma.prompt.findMany()
   } catch (error: unknown) {
     throw errorHandler(error)
   }
@@ -32,7 +32,7 @@ export async function fetchAllPrompts(): Promise<Prompt[]> {
 export async function fetchArtByPromptId(promptId: number): Promise<Art[]> {
   try {
     return await prisma.art.findMany({
-      where: { artPromptId: promptId },
+      where: { promptId: promptId },
     })
   } catch (error: unknown) {
     throw errorHandler(error)
@@ -43,7 +43,7 @@ export async function fetchPromptById(
   id: number,
 ): Promise<Prompt | null> {
   try {
-    return await prisma.artPrompt.findUnique({
+    return await prisma.prompt.findUnique({
       where: { id },
     })
   } catch (error: unknown) {

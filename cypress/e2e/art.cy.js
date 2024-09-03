@@ -18,7 +18,7 @@ describe('Art Management API Tests', () => {
         galleryId: 21,
         path: '/images/cafefred/cafefred-1695613612690.webp',
         prompt: 'zebra accountant',
-        artPromptId: 23,
+        promptId: 23,
         userId: 0,
         pitch: 'zebrapunk',
         pitchId: 2,

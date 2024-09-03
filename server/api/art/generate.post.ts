@@ -271,56 +271,29 @@ export default defineEventHandler(async (event) => {
     const validatedData: Partial<validatedData> = {}
 
     // Validate and load each field, updating the validatedData object
-    validatedData.userId = await validateAndLoadUserId(
-      requestData,
-      validatedData,
-    )
+    validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
     validatedData.promptId = await validateAndLoadPromptId(requestData)
     validatedData.pitchId = await validateAndLoadPitchId(requestData)
     validatedData.channelId = await validateAndLoadChannelId(requestData)
     validatedData.galleryId = await validateAndLoadGalleryId(requestData)
-    validatedData.creator = await validateAndLoadDesignerName(requestData)
+    validatedData.creator = validateAndLoadDesignerName(requestData)
 
     console.log('🎉 All validations passed! Generating image...')
-    const response: GenerateImageResponse = await generateImage(
-      requestData.prompt,
-      validatedData.creator!,
-    )
+    const response: GenerateImageResponse = await generateImage(requestData.prompt, validatedData.creator!)
     console.log('🖼 Image generated! Response:', response)
 
-    // Declare base64Image variable here
-    let base64Image: string
-
-    // Validate the image generation response
-    if (Array.isArray(response)) {
-      if (!response.length) {
-        throw new Error(
-          'No images were generated. Please validate the prompt and user.',
-        )
-      }
-      base64Image = response[0] // Directly assign the first element if response is an array
-    } else {
-      if (!response.images || !response.images.length) {
-        if (response.error) {
-          throw new Error(`Image generation failed due to: ${response.error}`)
-        }
-        throw new Error(
-          'No images were generated. Please validate the prompt and user.',
-        )
-      }
-      base64Image = response.images[0] // Use the first image from the images array if response is an object
+    if (!response || !response.images?.length) {
+      throw new Error(`Image generation failed: ${response?.error || 'No images generated.'}`)
     }
-    // Save the image and get its path
+
+    const base64Image = response.images[0]
     let imagePath = await saveImage(base64Image, 'cafefred')
 
-    // Remove '/public' or 'public' prefix from imagePath
     if (imagePath.startsWith('/public') || imagePath.startsWith('public')) {
       imagePath = imagePath.replace(/^\/?public/, '')
     }
 
     console.log('🎨 Creating new Art entry...')
-
-    // Create the new Art entry using Prisma
     const newArt = await prisma.art.create({
       data: {
         path: imagePath,
@@ -337,12 +310,12 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    return { success: true, newArt } // Return the result
+    return { success: true, newArt }
   } catch (error: unknown) {
     console.error('Art Generation Error:', error)
     return errorHandler({
       error,
-      context: `Art Generation - Prompt`,
+      context: `Art Generation - Prompt: ${event.req.url}`,
     })
   }
 })

@@ -5,28 +5,28 @@ import { fetchAllPrompts, fetchArtByPromptId } from './artQueries'
 
 export default defineEventHandler(async () => {
   try {
-    const artPrompts = await fetchAllPrompts()
+    const prompts = await fetchAllPrompts()
 
     // Fetch related Art for each Prompt and convert BigInts to Strings
-    const artPromptDetails = await Promise.all(
-      artPrompts.map(async (artPrompt) => {
-        const art = await fetchArtByPromptId(artPrompt.id)
-        // Assuming 'art' and 'artPrompt' might have BigInt properties
+    const promptDetails = await Promise.all(
+      prompts.map(async (prompt) => {
+        const art = await fetchArtByPromptId(prompt.id)
+        // Assuming 'art' and 'prompt' might have BigInt properties
         const artProcessed = JSON.parse(
           JSON.stringify(art, (_, v) =>
             typeof v === 'bigint' ? v.toString() : v,
           ),
         )
-        const artPromptProcessed = JSON.parse(
-          JSON.stringify(artPrompt, (_, v) =>
+        const promptProcessed = JSON.parse(
+          JSON.stringify(prompt, (_, v) =>
             typeof v === 'bigint' ? v.toString() : v,
           ),
         )
-        return { ...artPromptProcessed, Art: artProcessed }
+        return { ...promptProcessed, Art: artProcessed }
       }),
     )
 
-    return { success: true, artPrompts: artPromptDetails }
+    return { success: true, prompts: promptDetails }
   } catch (error: unknown) {
     return errorHandler(error)
   }

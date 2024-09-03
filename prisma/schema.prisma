@@ -18,6 +18,7 @@ model Art {
   seed              Int?
   steps             Int?
   designer          String?       @db.VarChar(764)
+  promptString      String        @default(" ")
   isPublic          Boolean?      @default(false)
   isMature          Boolean?      @default(false)
   promptId          Int?
@@ -232,7 +233,7 @@ model Pitch {
   playerId          Int?      
   Player            Player?       @relation(fields: [playerId], references: [id])
   channelId         Int?
-  Channels          Channel?      @relation(fields: [channelId], references: [id])
+  Channel           Channel?      @relation(fields: [channelId], references: [id])
   Reactions         Reaction[]
   Tags              Tag[]
   Art               Art[]

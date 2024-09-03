@@ -368,7 +368,7 @@ model Resource {
   localPath         String?       @db.VarChar(764)
   description       String?       @db.Text
   isMature          Boolean       @default(false)
-  resourceType      ResourceType
+  resourceType      ResourceType @default(EMBEDDING)
   userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
 }

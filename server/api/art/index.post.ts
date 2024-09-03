@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
       const user = await prisma.user.upsert({
         where: { username: requestData.username },
         update: {},
-        create: { username: requestData.username },
+        create: { username: requestData.username, Role: Role.USER },
       });
       userId = user.id;
     }

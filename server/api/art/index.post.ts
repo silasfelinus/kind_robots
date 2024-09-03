@@ -32,7 +32,11 @@ export default defineEventHandler(async (event) => {
 
     // Validation: Ensure mandatory fields are present
     if (!requestData.promptString) {
-      throw new Error('Prompt String is a required field');
+      return errorHandler({
+        error: new Error('Prompt String is a required field'),
+        context: `Art Registration - Path: ${event.req.url}`,
+        statusCode: 400,
+      });
     }
 
     // Fetch or create user based on username
@@ -41,7 +45,7 @@ export default defineEventHandler(async (event) => {
       const user = await prisma.user.upsert({
         where: { username: requestData.username },
         update: {},
-        create: { username: requestData.username, Role: Role.USER },
+        create: { username: requestData.username, Role: 'USER' }, // Ensure Role is correctly handled
       });
       userId = user.id;
     }

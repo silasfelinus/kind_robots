@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/api/users.cy.js
-/* eslint-disable no-undef */
+ 
 
 // User Authentication and Retrieval Tests
 describe('User Management API Tests', () => {
@@ -293,7 +294,7 @@ describe('User Management API Tests - User Update', () => {
 
   context('User Update Tests', () => {
     it('Update User by ID with New Username', () => {
-      const userId = 0 // Specify the user ID to update
+      const userId = 35 // Specify the user ID to update
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${userId}`,
@@ -315,7 +316,7 @@ describe('User Management API Tests - User Update', () => {
     })
 
     it('Update User by ID with Password', () => {
-      const userId = 0
+      const userId = 35
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${userId}`,
@@ -334,7 +335,7 @@ describe('User Management API Tests - User Update', () => {
     })
 
     it('Update User by ID with Email', () => {
-      const userId = 0
+      const userId = 35
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${userId}`,

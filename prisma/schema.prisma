@@ -178,6 +178,7 @@ model Gallery {
   highlightImage String?   @db.VarChar(764)
   imagePaths     String?   @db.Text
   isMature       Boolean       @default(false)
+  User          User?       @relation(fields: [userId], references: [id])
 }
 
 model Game {
@@ -490,6 +491,7 @@ model User {
   showMature          Boolean @default(false)
   Players             Player[]
   Pitches             Pitch[]
+  galleries     Gallery[]
 }
 
 model ArtReactionToTag {

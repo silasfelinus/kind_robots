@@ -9,7 +9,7 @@ describe('Art Management API Tests', () => {
   it('Create New Art', () => {
     cy.request({
       method: 'POST',
-      url: baseUrl + '/generate',
+      url: `${baseUrl}/generate`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -18,20 +18,26 @@ describe('Art Management API Tests', () => {
         galleryId: 21,
         path: '/images/cafefred/cafefred-1695613612690.webp',
         prompt: 'zebra accountant',
-        promptId: 23,
-        userId: 0,
-        pitch: 'zebrapunk',
-        pitchId: 2,
+        userId: 1,
+        pitch: 'zebracore',
       },
+      failOnStatusCode: false, // Prevents Cypress from failing on non-2xx status
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(200, 'Expected status code to be 200')
       expect(response.body.newArt).to.be.an('object').that.is.not.empty
       artId = response.body.newArt.id // Ensure the correct ID is captured
       console.log('Created Art ID:', artId) // Log for debugging
+
+      if (!artId) {
+        throw new Error('Failed to capture art ID from response')
+      }
     })
   })
 
   it('Get Art by ID', () => {
+    if (!artId) {
+      throw new Error('artId is undefined, cannot fetch art by ID')
+    }
     cy.request({
       method: 'GET',
       url: `${baseUrl}/id/${artId}`,
@@ -57,13 +63,16 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.arts)
+      expect(response.body.artEntries)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
   })
 
   it('Update an Art', () => {
+    if (!artId) {
+      throw new Error('artId is undefined, cannot update art by ID')
+    }
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${artId}`,
@@ -80,6 +89,9 @@ describe('Art Management API Tests', () => {
   })
 
   it('Delete an Art', () => {
+    if (!artId) {
+      throw new Error('artId is undefined, cannot delete art by ID')
+    }
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${artId}`,

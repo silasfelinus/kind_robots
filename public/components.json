@@ -1,0 +1,343 @@
+[
+  {
+    "folderName": "admin",
+    "components": [
+      "AdminPage",
+      "Authelia-Login",
+      "Authelia-Register",
+      "GithubButton",
+      "KindPrompts",
+      "LoginButton",
+      "LoginForm",
+      "LoginIcon",
+      "LoginToggle",
+      "LoginWindow",
+      "Mana-Counter",
+      "NewDashboard",
+      "OldLogin",
+      "OpenAiKey",
+      "PrivacyPolicy",
+      "SeoLoader",
+      "User-Dashboard",
+      "UserAvatar",
+      "WelcomeMessage",
+      "avatar-banner",
+      "avatar-header",
+      "coming-soon",
+      "karma-tracker",
+      "navigation-trimmed",
+      "user-navigation"
+    ]
+  },
+  {
+    "folderName": "art",
+    "components": [
+      "AddPitch",
+      "Art-Generator",
+      "ArtCard",
+      "ArtGallery",
+      "ArtMaker",
+      "ArtPrompts",
+      "ChatfilterToggle",
+      "DreamGenerator",
+      "DreamMaker",
+      "EditableText",
+      "HotOrNot",
+      "PitchCard",
+      "PitchCardActions",
+      "PitchCardFront",
+      "PitchChat",
+      "PitchGallery",
+      "PitchGenerator",
+      "PitchManager",
+      "PitchSelector",
+      "PitchTagSelector",
+      "PitchTags",
+      "PitchViewer",
+      "PrivateGenerator",
+      "mature-toggle"
+    ]
+  },
+  {
+    "folderName": "bots",
+    "components": [
+      "AddBot",
+      "AmiCard",
+      "BotBubble",
+      "BotCafe",
+      "BotCard",
+      "BotChat",
+      "BotCollectible",
+      "BotMessages",
+      "BotMobile",
+      "BotSample",
+      "BotScreen",
+      "BotSelector",
+      "BotStream",
+      "BotViewer",
+      "KindRobot",
+      "PublicWall",
+      "ResponseEntry",
+      "ShareButtons",
+      "StreamTest",
+      "TemperatureSlider",
+      "avatar-image",
+      "bot-carousel",
+      "bot-carousel2",
+      "bot-details",
+      "bot-gallery",
+      "bot-prompt",
+      "bot-spinner",
+      "bot-updater",
+      "card-back",
+      "card-front",
+      "carousel-working",
+      "response-card"
+    ]
+  },
+  {
+    "folderName": "butterfly",
+    "components": [
+      "AmiButterfly",
+      "AmiLink",
+      "AmiLinkButterflies",
+      "AmiLinkIframe",
+      "AmiLoader",
+      "BaseButterfly",
+      "ButterflyLoader",
+      "ButterflyMascot",
+      "ButterflySwarm",
+      "sponsor-page"
+    ]
+  },
+  {
+    "folderName": "gallery",
+    "components": [
+      "Gallery-Manager",
+      "GalleryManager2",
+      "MakeArt",
+      "OldGallery",
+      "RandomGallery",
+      "TeleportWindow",
+      "UserGalleries",
+      "gallery-viewer"
+    ]
+  },
+  {
+    "folderName": "game",
+    "components": [
+      "ArtChallenge",
+      "ArtChooser",
+      "ArtCreator",
+      "ChatControl",
+      "GameChat",
+      "GameControl",
+      "GameOver",
+      "PitchScreen",
+      "SplashPage",
+      "UserControl"
+    ]
+  },
+  {
+    "folderName": "jellybeans",
+    "components": [
+      "JellybeanBag",
+      "JellybeanCount"
+    ]
+  },
+  {
+    "folderName": "layout",
+    "components": [
+      "AmiTooltip",
+      "BaseCard",
+      "BaseCardOld",
+      "ButterflyTooltip",
+      "ButtonCard",
+      "ChatToggle",
+      "ContainerManager",
+      "Drag-Card",
+      "FlipCard",
+      "LayoutSelector",
+      "LoadMessages",
+      "LoadingBar",
+      "Magic-Window",
+      "MagicContainer",
+      "NotificationCard",
+      "StatusNotifier",
+      "TextBubble",
+      "ThickHeader",
+      "ThinHeader",
+      "ToolTip",
+      "TooltipPopup",
+      "info-block",
+      "new-header",
+      "title-image"
+    ]
+  },
+  {
+    "folderName": "milestones",
+    "components": [
+      "EarnedMilestoneCard",
+      "JellybeanCounter",
+      "LockedMilestones",
+      "MilestoneLeaderboard",
+      "UnearnedMilestoneCard",
+      "milestone-reward"
+    ]
+  },
+  {
+    "folderName": "navigation",
+    "components": [
+      "AddBotLink",
+      "AppNavigation",
+      "AppSidebar",
+      "ArtGalleryLink",
+      "BackLink",
+      "BotChatLink",
+      "BotMessagesLink",
+      "CardNavigation",
+      "ComponentGallery",
+      "ConstructionNav",
+      "DashboardLink",
+      "FetchNav",
+      "Footer-Toggle",
+      "ForwardLink",
+      "HighlightNav",
+      "HighlightPages",
+      "HomeLink",
+      "HotLink",
+      "IconNav",
+      "KindSidebar",
+      "LatestNav",
+      "MainContent",
+      "MainLinks",
+      "MainNav",
+      "NavButton",
+      "NavFooter",
+      "OldPage",
+      "PageLink",
+      "PageList",
+      "PopupDescription",
+      "PublicWallLink",
+      "RandomLink",
+      "RoomTitle",
+      "SiteLogo",
+      "SiteMap",
+      "SiteNavigation",
+      "SmartLinks",
+      "SortNav",
+      "SupportNav",
+      "TestPageMature",
+      "ToggleSwitch",
+      "VerticalNav",
+      "button-nav",
+      "deluxe-nav",
+      "nav-working",
+      "navigation-row",
+      "site-footer",
+      "site-header"
+    ]
+  },
+  {
+    "folderName": "pages",
+    "components": [
+      "AboutPage",
+      "HeadContent",
+      "MermaidsOld",
+      "MermaidsPage",
+      "SocialPage",
+      "SuperForm",
+      "registration-form",
+      "welcome-page"
+    ]
+  },
+  {
+    "folderName": "products",
+    "components": [
+      "CartItem",
+      "GiftShop",
+      "ProductCard",
+      "ProductGallery",
+      "ShoppingCart"
+    ]
+  },
+  {
+    "folderName": "prompts",
+    "components": [
+      "BrainstormCard",
+      "BrainstormGame",
+      "BubblePrompt",
+      "BubbleTest",
+      "TodoManager"
+    ]
+  },
+  {
+    "folderName": "rewards",
+    "components": [
+      "AddReward",
+      "EditReward",
+      "RewardPortal",
+      "RewardsGallery",
+      "RewardsStore",
+      "RotatingIcon",
+      "ShowReward"
+    ]
+  },
+  {
+    "folderName": "screenfx",
+    "components": [
+      "BubbleEffect",
+      "ButterflyToggle",
+      "DreamStatus",
+      "FizzyBubbles",
+      "MusicToggle",
+      "RainEffect",
+      "TalkingButterflies",
+      "display-toggle",
+      "kind-playlist",
+      "kofi-link",
+      "screen-fx",
+      "theme-menu",
+      "theme-toggle"
+    ]
+  },
+  {
+    "folderName": "tooltips",
+    "components": [
+      "ChatBubble",
+      "DottiCards",
+      "HeaderDashboard",
+      "HeaderUpgrade",
+      "MessageCard",
+      "Meta-Tips",
+      "NavToggle",
+      "RoomDashboard",
+      "RoomMeta",
+      "StreamingTooltip",
+      "TutorialCards",
+      "chat-tips",
+      "icon-section",
+      "new-tooltip",
+      "tooltip-toggle",
+      "tutorial-chat"
+    ]
+  },
+  {
+    "folderName": "weird",
+    "components": [
+      "ClickLeaderboard",
+      "CreepyEyeball",
+      "FreeEyeball",
+      "GameScreen",
+      "MatchLeaderboard",
+      "MemoryGame",
+      "NewEyeball",
+      "WeirdWindow",
+      "WeirdlandiaGame",
+      "game-screen-old",
+      "rebel-button",
+      "weird-banner",
+      "weird-footer"
+    ]
+  }
+]

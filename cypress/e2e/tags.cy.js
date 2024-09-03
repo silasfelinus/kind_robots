@@ -27,14 +27,16 @@ describe('Tag Management API Tests', () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: {
-        label: 'tag',
-        title: 'Abstract Art',
-      },
+      body: [
+        {
+          label: 'tag',
+          title: 'Abstract Art',
+        },
+      ],
     }).then((response) => {
       console.log(response)
       expect(response.status).to.eq(200)
-      tagId = response.body.id // Assuming the API returns the created tag's ID
+      tagId = response.body.tag.id // Assuming the API returns the created tag's ID
     })
   })
 

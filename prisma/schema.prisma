@@ -380,7 +380,6 @@ model Reward {
   collection String    @db.VarChar(764)
   rarity     Int       @default(0)
   label      String?   @db.VarChar(764)
-  Todo       Todo[]
 }
 
 model Slogan {
@@ -431,21 +430,6 @@ model Tag {
 }
 
 
-model Todo {
-  id        Int       @id @default(autoincrement())
-  task      String
-  category  String
-  completed Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  userId    Int
-  rewardId  Int?
-  updatedAt DateTime? @updatedAt @default(now())
-  Reward    Reward?   @relation(fields: [rewardId], references: [id])
-  User      User      @relation(fields: [userId], references: [id])
-
-  @@index([rewardId], map: "Todo_rewardId_fkey")
-  @@index([userId], map: "Todo_userId_fkey")
-}
 
 model User {
   id                  Int           @id @default(autoincrement())
@@ -487,7 +471,6 @@ model User {
   Customer            Customer?
   Game                Game[]
   Slogan              Slogan[]
-  Todo                Todo[]
   milestones  MilestoneRecord[]
   showMature          Boolean @default(false)
   Players             Player[]

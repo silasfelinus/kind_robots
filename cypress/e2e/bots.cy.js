@@ -29,6 +29,9 @@ describe('Bot Management API Tests', () => {
         underConstruction: false,
         canDelete: true,
         BotType: 'CHATBOT',
+        tagline: 'Your friendly AI companion', // New field
+        sampleResponse: 'I am here to help you!', // New field
+        modules: 'core, analytics', // New field
       },
     }).then((response) => {
       console.log(response.body) // Log the full response
@@ -38,6 +41,8 @@ describe('Bot Management API Tests', () => {
         expect(response.body.bot).to.include({
           name: botName,
           description: 'A bot created for testing purposes',
+          tagline: 'Your friendly AI companion', // Check new field
+          sampleResponse: 'I am here to help you!', // Check new field
         })
         createdBotId = response.body.bot.id
       } else {
@@ -47,7 +52,6 @@ describe('Bot Management API Tests', () => {
   })
 
   it('Update the Newly Created Bot', () => {
-    // Assuming the name of the bot created is 'testbot-{uniqueTimestamp}'
     const updateUrl = `https://kind-robots.vercel.app/api/bot/name/${botName}/`
     cy.request({
       method: 'PATCH',
@@ -61,6 +65,8 @@ describe('Bot Management API Tests', () => {
         botIntro: 'Welcome to the updated Test Bot!',
         userIntro: 'I am here to help you better.',
         theme: 'Tech-savvy',
+        modules: 'core, analytics, chat', // Update field
+        tagline: 'Now with advanced features', // Update field
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -68,6 +74,8 @@ describe('Bot Management API Tests', () => {
       expect(response.body.bot).to.include({
         description: 'Updated description for the test bot',
         botIntro: 'Welcome to the updated Test Bot!',
+        tagline: 'Now with advanced features', // Check updated field
+        modules: 'core, analytics, chat', // Check updated field
       })
     })
   })
@@ -88,6 +96,7 @@ describe('Bot Management API Tests', () => {
         id: createdBotId,
         name: `${botName}`,
         description: 'Updated description for the test bot',
+        tagline: 'Now with advanced features', // Check new field
       })
     })
   })

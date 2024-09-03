@@ -8,8 +8,7 @@ import prisma from '../utils/prisma'
 interface PromptData {
   userId?: number
   prompt: string
-  galleryId?: number
-  pitch?: string
+  galleryId?: number 
   pitchId?: number
   playerId?: number
 }
@@ -37,8 +36,7 @@ export async function createPrompt(
       data: {
         userId: prompt.userId || 0,
         prompt: prompt.prompt,
-        galleryId: prompt.galleryId || 0, // Set default value as 0
-        pitch: prompt.pitch || null,
+        galleryId: prompt.galleryId || null,
         pitchId: prompt.pitchId || null,
         playerId: prompt.playerId || null,
       },

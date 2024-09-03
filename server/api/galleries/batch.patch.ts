@@ -9,7 +9,6 @@ type GalleryUpdateData = Partial<{
   name: string
   content: string
   description: string | null
-  mediaId: string | null
   url: string | null
   isMature: boolean
   custodian: string | null

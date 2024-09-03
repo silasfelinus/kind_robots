@@ -10,7 +10,6 @@ type GalleryItem = {
   name: string
   content?: string
   description?: string
-  mediaId?: string | null
   url?: string | null
   isMature?: boolean
   custodian?: string | null
@@ -39,7 +38,6 @@ export default defineEventHandler(async (event) => {
         name: item.name,
         content: item.content || '',
         description: item.description || null,
-        mediaId: item.mediaId || null,
         url: item.url || null,
         isMature: item.isMature || false,
         custodian: item.custodian || null,

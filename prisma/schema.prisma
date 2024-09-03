@@ -94,7 +94,6 @@ model Bot {
   userId            Int?      @default(0)
   sampleResponse    String?   @db.VarChar(764)
   tagline           String?   @db.VarChar(764)
-  Slogan            Slogan[]
 }
 
 model Cart {
@@ -382,35 +381,7 @@ model Reward {
   label      String?   @db.VarChar(764)
 }
 
-model Slogan {
-  id             Int      @id @default(autoincrement())
-  contentType    String   @default("slogan")
-  purpose        String   @default("Anti-Malaria Fundraiser")
-  url            String?  @default("https://www.againstmalaria.org/amibot")
-  characterLimit Int      @default(300)
-  content        String   @db.VarChar(2000)
-  likes          Int      @default(0)
-  dislikes       Int      @default(0)
-  hates          Int      @default(0)
-  loves          Int      @default(0)
-  isLiked        Boolean  @default(false)
-  isLoved        Boolean  @default(false)
-  wasKept        Boolean?
-  wasDiscarded   Boolean?
-  username       String   @default("Kind Guest")
-  userId         Int      @default(0)
-  model          String   @default("3.5")
-  kindRobot      String   @default("amibot")
-  botId          Int?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt @default(now())
-  Bot            Bot?     @relation(fields: [botId], references: [id])
-  User           User     @relation(fields: [userId], references: [id])
-  tags  Tag[]
 
-  @@index([botId], map: "Slogan_botId_fkey")
-  @@index([userId], map: "Slogan_userId_fkey")
-}
 
 model Tag {
   id         Int       @id @default(autoincrement())
@@ -424,7 +395,6 @@ model Tag {
   flavorText String?   @db.VarChar(764)
   pitch      String?   @db.VarChar(764)
   isMature   Boolean   @default(false)
-  slogans    Slogan[]
   posts     Post[]
   pitches     Pitch[]
 }
@@ -470,7 +440,6 @@ model User {
   ArtReaction         ArtReaction[]
   Customer            Customer?
   Game                Game[]
-  Slogan              Slogan[]
   milestones  MilestoneRecord[]
   showMature          Boolean @default(false)
   Players             Player[]

@@ -2,7 +2,7 @@
  
 
 describe('RandomList Management API Tests', () => {
-    const baseUrl = 'https://kindrobots.org/api/random';
+    const baseUrl = 'https://kind-robots.vercel.app/api/random';
     const apiKey = Cypress.env('API_KEY');
     let randomListId: number; // Explicitly define the type as number
     const title = 'Dreams'; // Title to be used for filtering

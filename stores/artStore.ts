@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Art, ArtReaction } from '@prisma/client'
+import type { Art, Reaction } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 
 const isClient = import.meta.client // Update to use Nuxt's process.client
@@ -28,7 +28,7 @@ export const useArtStore = defineStore({
   id: 'artStore',
   state: () => ({
     artAssets: [] as Art[],
-    artReactions: [] as ArtReaction[],
+    Reactions: [] as Reaction[],
     tags: [] as Tag[],
     selectedArt: null as Art | null,
   }),
@@ -91,9 +91,9 @@ export const useArtStore = defineStore({
     getArtById(id: number): Art | undefined {
       return this.artAssets.find((art: Art) => art.id === id)
     },
-    getArtReactionsById(id: number): ArtReaction[] {
-      return this.artReactions.filter(
-        (reaction: ArtReaction) => reaction.artId === id,
+    getReactionsById(id: number): Reaction[] {
+      return this.Reactions.filter(
+        (reaction: Reaction) => reaction.artId === id,
       )
     },
     getTagsById(id: number): Tag | undefined {
@@ -123,9 +123,9 @@ export const useArtStore = defineStore({
     getArtByPitchId(pitchId: number): Art[] {
       return this.artAssets.filter((art: Art) => art.pitchId === pitchId)
     },
-    async createArtReaction(
-      reactionData: ArtReaction,
-    ): Promise<ArtReaction | null> {
+    async createReaction(
+      reactionData: Reaction,
+    ): Promise<Reaction | null> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
@@ -149,10 +149,10 @@ export const useArtStore = defineStore({
         'Failed to create reaction.',
       )
     },
-    async editArtReaction(
+    async editReaction(
       id: number,
-      reactionData: ArtReaction,
-    ): Promise<ArtReaction | null> {
+      reactionData: Reaction,
+    ): Promise<Reaction | null> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
@@ -176,7 +176,7 @@ export const useArtStore = defineStore({
         'Failed to update reaction.',
       )
     },
-    async deleteArtReaction(id: number): Promise<boolean> {
+    async deleteReaction(id: number): Promise<boolean> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
@@ -239,4 +239,4 @@ export const useArtStore = defineStore({
   },
 })
 
-export type { Art, ArtReaction }
+export type { Art, Reaction }

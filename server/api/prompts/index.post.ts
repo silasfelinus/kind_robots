@@ -11,7 +11,6 @@ interface PromptData {
   galleryId?: number
   pitch?: string
   pitchId?: number
-  DB_ROW_HASH_1: bigint
 }
 
 export default defineEventHandler(async (event) => {
@@ -35,14 +34,13 @@ export async function createPrompt(
       throw new Error('We need a prompt to make an art prompt.')
     }
 
-    return await prisma.artPrompt.create({
+    return await prisma.prompt.create({
       data: {
         userId: artPrompt.userId || 0,
         prompt: artPrompt.prompt,
         galleryId: artPrompt.galleryId || 0, // Set default value as 0
         pitch: artPrompt.pitch || null,
-        pitchId: artPrompt.pitchId || null,
-        DB_ROW_HASH_1: artPrompt.DB_ROW_HASH_1, // Ensure DB_ROW_HASH_1 is included
+        pitchId: artPrompt.pitchId || null
       },
     })
   } catch (error: unknown) {

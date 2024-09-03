@@ -36,7 +36,7 @@ function rateArt(isHot) {
     isHot,
     userId: 1, // Assuming you have user authentication and can get the current user's ID
   }
-  artStore.createArtReaction(reaction).then(() => {
+  artStore.createReaction(reaction).then(() => {
     selectRandomArt() // Move to next art piece after rating
   })
 }

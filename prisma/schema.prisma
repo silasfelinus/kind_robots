@@ -29,7 +29,7 @@ model Art {
   isPublic    Boolean?          @default(false)
   isMature    Boolean?          @default(false)
   designer    String?       @db.VarChar(764)
-  ArtReaction ArtReaction[]
+  Reaction Reaction[]
   Game  Game[]
   Player    Player[]
   User        User[]
@@ -50,7 +50,7 @@ model Prompt {
   Player  Player?  @relation(fields: [playerId], references: [id])
 }
 
-model ArtReaction {
+model Reaction {
   id        Int       @id @unique @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt @default(now())
@@ -66,9 +66,9 @@ model ArtReaction {
   Pitch     Pitch?    @relation(fields: [pitchId], references: [id])
   User      User      @relation(fields: [userId], references: [id])
 
-  @@index([artId], map: "ArtReaction_artId_fkey")
-  @@index([pitchId], map: "ArtReaction_pitchId_fkey")
-  @@index([userId], map: "ArtReaction_userId_fkey")
+  @@index([artId], map: "Reaction_artId_fkey")
+  @@index([pitchId], map: "Reaction_pitchId_fkey")
+  @@index([userId], map: "Reaction_userId_fkey")
 }
 
 model Bot {
@@ -286,7 +286,7 @@ model Pitch {
   flavorText     String?       @db.VarChar(512)
   highlightImage String?        @db.VarChar(256)
   isMature       Boolean           @default(false)
-  ArtReaction    ArtReaction[]
+  Reaction    Reaction[]
   PitchType     PitchType   @default(ARTPITCH)
   tags        Tag[]
 }
@@ -436,7 +436,7 @@ model User {
   clickRecord         Int?          @default(0)
   matchRecord         Int?          @default(0)
   Art                 Art[]
-  ArtReaction         ArtReaction[]
+  Reaction         Reaction[]
   Customer            Customer?
   Game                Game[]
   milestones  MilestoneRecord[]
@@ -446,13 +446,13 @@ model User {
   galleries     Gallery[]
 }
 
-model ArtReactionToTag {
+model ReactionToTag {
   A Int
   B Int
 
   @@id([A, B])
-  @@index([B], map: "_ArtReactionToTag_B_index")
-  @@map("_ArtReactionToTag")
+  @@index([B], map: "_ReactionToTag_B_index")
+  @@map("_ReactionToTag")
 }
 
 model ArtToProduct {

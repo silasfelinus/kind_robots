@@ -1,17 +1,17 @@
-import type { ArtReaction } from '@prisma/client'
+import type { Reaction } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
-// Function to create a new ArtReaction
-export async function createArtReaction(reaction: Partial<ArtReaction>) {
+// Function to create a new Reaction
+export async function createReaction(reaction: Partial<Reaction>) {
   try {
     // Validate required fields
     if (!reaction.userId || !reaction.artId) {
       throw new Error('UserId and ArtId must be provided')
     }
 
-    // Create the new ArtReaction
-    return await prisma.artReaction.create({
+    // Create the new Reaction
+    return await prisma.Reaction.create({
       data: {
         userId: reaction.userId,
         artId: reaction.artId,
@@ -27,18 +27,18 @@ export async function createArtReaction(reaction: Partial<ArtReaction>) {
   }
 }
 
-export async function updateArtReaction(
+export async function updateReaction(
   id: number,
-  updatedReaction: Partial<ArtReaction>,
-): Promise<ArtReaction | null> {
+  updatedReaction: Partial<Reaction>,
+): Promise<Reaction | null> {
   try {
-    const existingRecord = await prisma.artReaction.findUnique({
+    const existingRecord = await prisma.Reaction.findUnique({
       where: { id },
     })
     if (!existingRecord) {
       throw new Error('Record to update not found.')
     }
-    return await prisma.artReaction.update({
+    return await prisma.Reaction.update({
       where: { id },
       data: updatedReaction,
     })
@@ -47,10 +47,10 @@ export async function updateArtReaction(
   }
 }
 
-// Function to delete an ArtReaction by ID
-export async function deleteArtReaction(id: number): Promise<boolean> {
+// Function to delete an Reaction by ID
+export async function deleteReaction(id: number): Promise<boolean> {
   try {
-    const reactionExists = await prisma.artReaction.findUnique({
+    const reactionExists = await prisma.Reaction.findUnique({
       where: { id },
     })
 
@@ -58,33 +58,33 @@ export async function deleteArtReaction(id: number): Promise<boolean> {
       return false
     }
 
-    await prisma.$transaction([prisma.artReaction.delete({ where: { id } })])
+    await prisma.$transaction([prisma.Reaction.delete({ where: { id } })])
     return true
   } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
-// Function to fetch all ArtReactions
-export async function fetchAllArtReactions(): Promise<ArtReaction[]> {
-  return await prisma.artReaction.findMany()
+// Function to fetch all Reactions
+export async function fetchAllReactions(): Promise<Reaction[]> {
+  return await prisma.Reaction.findMany()
 }
 
-// Function to fetch a single ArtReaction by ID
-export async function fetchArtReactionById(
+// Function to fetch a single Reaction by ID
+export async function fetchReactionById(
   id: number,
-): Promise<ArtReaction | null> {
-  return await prisma.artReaction.findUnique({
+): Promise<Reaction | null> {
+  return await prisma.Reaction.findUnique({
     where: { id },
   })
 }
 
-// Function to fetch ArtReactions by Art ID
-export async function fetchArtReactionsByArtId(
+// Function to fetch Reactions by Art ID
+export async function fetchReactionsByArtId(
   artId: number,
-): Promise<ArtReaction[]> {
-  return await prisma.artReaction.findMany({
+): Promise<Reaction[]> {
+  return await prisma.Reaction.findMany({
     where: { artId },
   })
 }
 
-export type { ArtReaction }
+export type { Reaction }

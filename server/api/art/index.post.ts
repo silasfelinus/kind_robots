@@ -17,7 +17,9 @@ type RequestData = {
   isPublic?: boolean;
   promptId?: number;
   userId?: number;
+  username?: string;  // Added for user lookup
   pitchId?: number;
+  pitch?: string;     // Added for pitch lookup
   galleryId?: number;
   channelId?: number;
 };
@@ -30,7 +32,29 @@ export default defineEventHandler(async (event) => {
 
     // Validation: Ensure mandatory fields are present
     if (!requestData.promptString) {
-      throw new Error('Prompt String are required fields');
+      throw new Error('Prompt String is a required field');
+    }
+
+    // Fetch or create user based on username
+    let userId = requestData.userId;
+    if (!userId && requestData.username) {
+      const user = await prisma.user.upsert({
+        where: { username: requestData.username },
+        update: {},
+        create: { username: requestData.username },
+      });
+      userId = user.id;
+    }
+
+    // Fetch or create pitch based on pitch string
+    let pitchId = requestData.pitchId;
+    if (!pitchId && requestData.pitch) {
+      const pitch = await prisma.pitch.upsert({
+        where: { pitch: requestData.pitch },
+        update: {},
+        create: { pitch: requestData.pitch },
+      });
+      pitchId = pitch.id;
     }
 
     // Default values if not provided
@@ -38,11 +62,14 @@ export default defineEventHandler(async (event) => {
     const isMature = requestData.isMature ?? false;
     const isPublic = requestData.isPublic ?? true;
 
+    // Ensure a valid path is provided or use a default path
+    const validPath = requestData.path?.trim() || '/default/path';
+
     // Create the art object directly in the database
     console.log('🎨 Creating new Art entry...');
     const newArt = await prisma.art.create({
       data: {
-        path: requestData.path,
+        path: validPath,
         cfg: requestData.cfg,
         checkpoint: requestData.checkpoint,
         sampler: requestData.sampler,
@@ -53,8 +80,8 @@ export default defineEventHandler(async (event) => {
         isPublic: isPublic,
         isMature: isMature,
         promptId: requestData.promptId,
-        userId: requestData.userId,
-        pitchId: requestData.pitchId,
+        userId: userId,
+        pitchId: pitchId,
         galleryId: galleryId,
         channelId: requestData.channelId,
       },

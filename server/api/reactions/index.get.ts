@@ -1,10 +1,10 @@
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import { fetchAllArtReactions } from '.'
+import { fetchAllReactions } from '.'
 
 export default defineEventHandler(async () => {
   try {
-    const reactions = await fetchAllArtReactions()
+    const reactions = await fetchAllReactions()
     return { success: true, reactions }
   } catch (error: unknown) {
     return errorHandler(error)

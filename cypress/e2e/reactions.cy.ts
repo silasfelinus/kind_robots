@@ -1,7 +1,7 @@
 // cypress/e2e/api/art-reaction.cy.ts
  
 
-describe('ArtReaction Management API Tests', () => {
+describe('Reaction Management API Tests', () => {
     const baseUrl = 'https://kind-robots.vercel.app/api/reactions';
     const apiKey = Cypress.env('API_KEY');
     let reactionId: number; // Explicitly define the type as number

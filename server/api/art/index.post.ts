@@ -29,8 +29,8 @@ export default defineEventHandler(async (event) => {
     console.log('📬 Request data received:', requestData);
 
     // Validation: Ensure mandatory fields are present
-    if (!requestData.path || !requestData.userId || !requestData.promptString) {
-      throw new Error('Path, User ID, and Prompt String are required fields');
+    if (!requestData.promptString) {
+      throw new Error('Prompt String are required fields');
     }
 
     // Default values if not provided

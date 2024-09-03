@@ -34,9 +34,22 @@ describe('Tag Management API Tests', () => {
         },
       ],
     }).then((response) => {
-      console.log(response)
       expect(response.status).to.eq(200)
-      tagId = response.body.tag.id // Assuming the API returns the created tag's ID
+      expect(response.body).to.have.property('success', true)
+      expect(response.body).to.have.property('newTags').that.is.an('array').that
+        .is.not.empty
+
+      // Store the created tag's ID in the outer scope variable
+      const createdTag = response.body.newTags[0]
+      tagId = createdTag.id
+
+      // Additional assertions
+      expect(createdTag).to.have.property('label', 'Tag')
+      expect(createdTag).to.have.property('title', 'Abstract Art')
+      expect(tagId).to.be.a('number')
+
+      // Log the created tag ID for debugging
+      console.log('Created Tag ID:', tagId)
     })
   })
 
@@ -53,7 +66,16 @@ describe('Tag Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.tag.title).to.eq('Modern Art')
+      expect(response.body).to.have.property('success', true)
+      expect(response.body).to.have.property('tag')
+
+      const updatedTag = response.body.tag
+
+      // Check that the tag was updated correctly
+      expect(updatedTag).to.have.property('id', tagId)
+      expect(updatedTag).to.have.property('label', 'art')
+      expect(updatedTag).to.have.property('title', 'Modern Art')
+      expect(updatedTag).to.have.property('updatedAt').that.is.a('string') // Ensure updatedAt is a string (datetime)
     })
   })
 

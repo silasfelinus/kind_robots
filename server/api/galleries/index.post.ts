@@ -1,63 +1,70 @@
 // /server/api/galleries/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { addGalleries } from '.'
+import { PrismaClient } from '@prisma/client'
 import { errorHandler } from '../utils/error'
-import type { Prisma } from '@prisma/client'
+import type { Prisma , Gallery } from '@prisma/client'
 
-// Define the type for gallery items according to Prisma.GalleryCreateManyInput
+const prisma = new PrismaClient()
+
 type GalleryItem = {
-  name: string // Required
-  content?: string // Optional
-  description?: string // Optional
-  mediaId?: string | null // Optional
-  url?: string | null // Optional
-  isMature?: boolean // Optional
-  custodian?: string | null // Optional
-  userId?: number | null // Ensure this matches Prisma type
-  highlightImage?: string | null // Optional
-  imagePaths?: string | null // Optional
+  name: string
+  content?: string
+  description?: string
+  mediaId?: string | null
+  url?: string | null
+  isMature?: boolean
+  custodian?: string | null
+  userId?: number | null
+  highlightImage?: string | null
+  imagePaths?: string | null
 }
 
-// Define GalleryData as an array of GalleryItem
 type GalleryData = GalleryItem[]
 
 export default defineEventHandler(async (event) => {
   try {
-    // Read and parse gallery data from the request body
     const galleryData: GalleryData = await readBody(event)
 
-    // Validate the format of galleryData
     if (!Array.isArray(galleryData)) {
       return {
         success: false,
         message: 'Expected the gallery data to be an array.',
         error: 'Invalid data format',
-        statusCode: 400, // Bad Request
+        statusCode: 400,
       }
     }
 
-    // Transform galleryData to match Prisma.GalleryCreateManyInput
     const formattedData: Prisma.GalleryCreateManyInput[] = galleryData.map(
       (item) => ({
         name: item.name,
         content: item.content || '',
         description: item.description || null,
-        mediaId: item.mediaId || null, // Ensure this is a string or null
+        mediaId: item.mediaId || null,
         url: item.url || null,
         isMature: item.isMature || false,
         custodian: item.custodian || null,
-        userId: item.userId !== undefined ? item.userId : null, // Ensure this is a number or null
+        userId: item.userId !== undefined ? item.userId : null,
         highlightImage: item.highlightImage || null,
         imagePaths: item.imagePaths || null,
       }),
     )
 
-    // Add galleries and handle the result
-    const result = await addGalleries(formattedData)
+    // Prefix unused variable to comply with ESLint rules
+    const _createdGalleries = await prisma.gallery.createMany({
+      data: formattedData,
+      skipDuplicates: true,
+    })
 
-    return { success: true, ...result }
+    const newGalleries: Gallery[] = await prisma.gallery.findMany({
+      where: {
+        name: {
+          in: galleryData.map((g) => g.name),
+        },
+      },
+    })
+
+    return { success: true, newGalleries }
   } catch (error: unknown) {
-    // Use the errorHandler for consistent error handling
     const handledError = errorHandler(error)
     return {
       success: false,

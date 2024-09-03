@@ -11,7 +11,7 @@ model Art {
   id                Int           @id @default(autoincrement())
   createdAt         DateTime?     @default(now())
   updatedAt         DateTime?     @updatedAt @default(now())
-  path              String?       @db.VarChar(764)
+  path              String?       @db.VarChar(764) @default(" ")
   cfg               String?       @db.VarChar(764)
   checkpoint        String?       @db.VarChar(256)
   sampler           String?       @db.VarChar(764)

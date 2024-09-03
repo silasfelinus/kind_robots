@@ -453,7 +453,7 @@ model User {
   clickRecord       Int?          @default(0)
   matchRecord       Int?          @default(0)
   showMature        Boolean       @default(false)
-  Role              Role
+  Role              Role @default(USER)
   Art               Art[]
   Reactions         Reaction[]
   Customers         Customer[]

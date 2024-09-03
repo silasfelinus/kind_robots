@@ -25,7 +25,23 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       console.log(response)
       expect(response.status).to.eq(200)
-      galleryId = response.body.galleries[0].id // Assuming the API returns the created galleries
+      expect(response.body.newGalleries).to.be.an('array').that.is.not.empty
+      galleryId = response.body.newGalleries[0].id // Ensure the correct ID is captured
+      console.log('Created Gallery ID:', galleryId) // Log for debugging
+    })
+  })
+
+  it('Get Gallery by ID', () => {
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/id/${galleryId}`, // Ensure galleryId is not undefined
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.gallery.name).to.eq('Test Gallery') // Expect the correct name
     })
   })
 
@@ -42,20 +58,6 @@ describe('Gallery Management API Tests', () => {
       expect(response.body.galleries)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
-    })
-  })
-
-  it('Get Gallery by ID', () => {
-    cy.request({
-      method: 'GET',
-      url: `${baseUrl}/id/${galleryId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body.gallery.name).to.eq('Test Gallery')
     })
   })
 

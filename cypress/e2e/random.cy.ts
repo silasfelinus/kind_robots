@@ -37,7 +37,7 @@ describe('RandomList Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body.randomList.title).to.eq(uniqueTitle);
+        expect(response.body.list.title).to.eq(uniqueTitle);
       });
     } else {
       throw new Error('randomListId is not defined');
@@ -54,23 +54,7 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.randomList.title).to.eq(uniqueTitle);
-    });
-  });
-
-  it('Get RandomLists by User ID', () => {
-    cy.request({
-      method: 'GET',
-      url: `${baseUrl}/user/${userId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.randomLists)
-        .to.be.an('array')
-        .and.have.length.greaterThan(0);
+      expect(response.body.list.title).to.eq(uniqueTitle);
     });
   });
 

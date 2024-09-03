@@ -7,116 +7,82 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model Art {
-  id          Int           @id @default(autoincrement())
-  galleryId   Int?          @default(1)
-  path        String?        @db.VarChar(764)
-  prompt      String?       @db.Text
-  promptId Int?
-  userId      Int?
-  pitchId     Int?
-  createdAt   DateTime?     @default(now())
-  updatedAt   DateTime?     @updatedAt @default(now())
-  boos        Int?          @default(0)
-  claps       Int?          @default(0)
-  cfg         String?       @db.VarChar(764)
-  checkpoint  String?       @db.VarChar(256)
-  sampler     String?       @db.VarChar(764)
-  seed        Int?          @default(0)
-  steps       Int?          @default(0)
-  pitch       Pitch?       @relation(fields: [pitchId], references: [id])
-  channelId   Int?          @default(1)
-  isPublic    Boolean?          @default(false)
-  isMature    Boolean?          @default(false)
-  designer    String?       @db.VarChar(764)
-  Prompt  Prompt?  @relation(fields: [promptId], references: [id])
-  Reaction Reaction[]
-  Game  Game[]
-  Player    Player[]
-  User        User? @relation(fields: [userId], references: [id])
-  Gallery Gallery?  @relation(fields: [galleryId], references: [id])
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime?     @default(now())
+  updatedAt         DateTime?     @updatedAt @default(now())
+  path              String?       @db.VarChar(764)
+  cfg               String?       @db.VarChar(764)
+  checkpoint        String?       @db.VarChar(256)
+  sampler           String?       @db.VarChar(764)
+  seed              Int?          @default(0)
+  steps             Int?          @default(0)
+  designer          String?       @db.VarChar(764)
+  isPublic          Boolean?      @default(false)
+  isMature          Boolean?      @default(false)
+  promptId          Int?
+  Prompt            Prompt?       @relation(fields: [promptId], references: [id])
+  userId            Int?
+  User              User?         @relation(fields: [userId], references: [id])
+  pitchId           Int?
+  Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
+  galleryId         Int?          @default(1)
+  Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
+  channelId         Int?          @default(1)
+  Channel           Channel?      @relation(fields: [channelId], references: [id]) 
+  Reaction          Reaction[]
+  Game              Game[]
+  Player            Player[]
 }
 
-model Prompt {
-  id            Int       @id @default(autoincrement())
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime? @updatedAt @default(now())
-  userId        Int?       @default(0)
-  User        User? @relation(fields: [userId], references: [id])
-  prompt        String    @db.VarChar(764)
-  galleryId     Int?      @default(0)
-  Gallery Gallery?  @relation(fields: [galleryId], references: [id])
-  pitch         Pitch?   @relation(fields: [pitchId], references: [id])
-  pitchId       Int?      @default(0)
-  Game  Game[]
-  playerId      Int?
-  Player  Player?  @relation(fields: [playerId], references: [id])
-  Art     Art[]
-}
-
-model Reaction {
-  id        Int       @id @unique @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt @default(now())
-  userId    Int
-  artId     Int?
-  claps     Int       @default(0)
-  boos      Int       @default(0)
-  title     String?
-  comment   String?   @db.Text
-  reaction  String?
-  pitchId   Int?
-  Art       Art?      @relation(fields: [artId], references: [id])
-  Pitch     Pitch?    @relation(fields: [pitchId], references: [id])
-  User      User      @relation(fields: [userId], references: [id])
-
-  @@index([artId], map: "Reaction_artId_fkey")
-  @@index([pitchId], map: "Reaction_pitchId_fkey")
-  @@index([userId], map: "Reaction_userId_fkey")
-}
 
 model Bot {
-  id                Int       @id @default(autoincrement())
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime? @updatedAt @default(now())
-  BotType           String    @db.VarChar(764)
-  name              String    @unique(map: "Bot_id_key", length: 200) @db.VarChar(764)
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime?     @updatedAt @default(now())
+  BotType           String        @db.VarChar(764)
+  name              String        @unique(map: "Bot_id_key", length: 200) @db.VarChar(256)
+  subtitle          String?       @db.VarChar(764)
+  description       String?       @db.VarChar(764)
+  avatarImage       String?       @db.VarChar(764)
+  botIntro          String        @db.VarChar(764)
+  userIntro         String        @db.VarChar(764)
+  prompt            String        @db.VarChar(764)
+  trainingPath      String?       @db.VarChar(764)
+  theme             String?       @db.VarChar(764)
+  personality       String?       @db.VarChar(764)
+  modules           String?       @db.VarChar(764)
+  sampleResponse    String?       @db.VarChar(764)
+  tagline           String?       @db.VarChar(764)
   isPublic          Boolean       @default(false)
   underConstruction Boolean       @default(false)
   canDelete         Boolean       @default(false)
-  subtitle          String    @db.VarChar(764)
-  description       String    @db.VarChar(764)
-  avatarImage       String    @db.VarChar(764)
-  botIntro          String    @db.VarChar(764)
-  userIntro         String    @db.VarChar(764)
-  prompt            String    @db.VarChar(764)
-  trainingPath      String?   @db.VarChar(764)
-  theme             String?   @db.VarChar(764)
-  personality       String    @db.VarChar(764)
-  modules           String?   @db.VarChar(764)
-  userId            Int?      @default(0)
-  sampleResponse    String?   @db.VarChar(764)
-  tagline           String?   @db.VarChar(764)
+  userId            Int?          @default(0)
+  User              User?         @relation(fields: [userId], references: [id])
+  ChatExhanges      ChatExchange[]
 }
 
+
 model Cart {
-  id         Int        @id @unique @default(autoincrement())
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime?  @updatedAt @default(now())
-  customerId Int
-  Customer   Customer   @relation(fields: [customerId], references: [id])
-  items      CartItem[]
+  id                Int           @id @unique @default(autoincrement())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime?     @updatedAt @default(now())
+  customerId        Int
+  Customer          Customer      @relation(fields: [customerId], references: [id])
+  items             CartItem[]
 
   @@index([customerId], map: "Cart_customerId_fkey")
 }
 
+
 model CartItem {
-  id        Int     @id @unique @default(autoincrement())
-  cartId    Int
-  productId Int
-  quantity  Int     @default(1)
-  Cart      Cart    @relation(fields: [cartId], references: [id])
-  Product   Product @relation(fields: [productId], references: [id])
+  id                Int           @id @unique @default(autoincrement())
+  quantity          Int           @default(1)
+  cartId            Int
+  Cart              Cart          @relation(fields: [cartId], references: [id])
+  productId         Int
+  Product           Product       @relation(fields: [productId], references: [id])
 
   @@index([cartId], map: "CartItem_cartId_fkey")
   @@index([productId], map: "CartItem_productId_fkey")
@@ -124,47 +90,48 @@ model CartItem {
 
 
 model Channel {
-  id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @updatedAt @default(now())
-  userId      Int?      @default(16580608)
-  label       String    @unique(map: "Channel_id_key", length: 200) @db.VarChar(764)
-  description String?   @db.VarChar(8000)
-  tagId       Int?      @default(0)
-  title       String?   @db.VarChar(764)
-  pitchId     Int?      @default(0)
-  messages    Message[]
-  Player      Player[]
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime?     @updatedAt @default(now())
+  userId            Int?          @default(1)
+  User              User?         @relation(fields: [userId], references: [id])
+  label             String        @unique(map: "Channel_id_key", length: 200) @db.VarChar(764)
+  description       String?       @db.VarChar(8000)
+  tagId             Int?          @default(0)
+  title             String?       @db.VarChar(256)
+  pitchId           Int?          @default(0)
+  messages          Message[]
+  Player            Player[]
+  Pitches           Pitch[]
+  Art               Art[]
 }
 
 model ChatExchange {
-  id              Int      @id @default(autoincrement())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt @default(now())
-  botId           Int?     @default(57088)
-  botName         String   @db.VarChar(255)
-  userId          Int
-  username        String   @db.VarChar(255)
-  userPrompt      String   @db.Text
-  botResponse     String   @db.Text
-  liked           Boolean?     @default(false)
-  hated           Boolean?     @default(false)
-  loved           Boolean?     @default(false)
-  flagged         Boolean?     @default(false)
-  previousEntryId Int?     @default(0)
-  isPublic        Boolean @default(false)
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt @default(now())
+  username          String        @db.VarChar(255)
+  isPublic          Boolean       @default(false)
+  previousEntryId   Int?          @default(0)
+  botName           String        @db.VarChar(255)
+  userPrompt        String        @db.Text
+  botResponse       String        @db.Text
+  botId             Int?
+  Bot               Bot?          @relation(fields: [botId], references: [id])
+  userId            Int?
+  User              User?         @relation(fields: [userId], references: [id])
 }
 
 
 model Customer {
-  id        Int       @id @unique @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt @default(now())
-  email     String    @unique
-  name      String?
-  userId    Int?      @unique
-  Carts     Cart[]
-  User      User?     @relation(fields: [userId], references: [id])
+  id                Int           @id @unique @default(autoincrement())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime?     @updatedAt @default(now())
+  email             String        @unique
+  name              String?
+  userId            Int?          @unique
+  User              User?         @relation(fields: [userId], references: [id])
+  Carts             Cart[]
 }
 
 model Gallery {
@@ -175,56 +142,33 @@ model Gallery {
   description    String?   @db.Text
   url            String?   @db.VarChar(764)
   custodian      String?   @db.VarChar(764)
-  userId         Int?      @default(0)
   content        String    @db.VarChar(764)
   highlightImage String?   @db.VarChar(764)
   imagePaths     String?   @db.Text
-  isMature       Boolean       @default(false)
-  User          User?       @relation(fields: [userId], references: [id])
-  Art             Art[]
-  Prompts Prompt[]
+  isMature       Boolean   @default(false)
+  userId         Int?
+  User           User?     @relation(fields: [userId], references: [id])
+  Art            Art[]
+  Prompts        Prompt[]
 }
 
 model Game {
   id         Int       @id @unique @default(autoincrement())
   createdAt  DateTime  @default(now())
   updatedAt  DateTime? @updatedAt @default(now())
-  descriptor String?   @db.Text
   category   String    @default("Blue Sky Tasks")
+  descriptor String?   @db.Text
+  designer   String?
+    winner   String?
   isFinished Boolean   @default(false)
-  designer    String?
   isPrivate  Boolean   @default(false)
-  Users    User[]
-  Art      Art[]
-  Prompt Prompt[]
-  winner    String?
-  Players   Player[]
+  Users      User[]
+  Art        Art[]
+  Prompt     Prompt[]
+  Players    Player[]
 }
 
-enum PlayerStatus {
-  WAITING
-  CHOOSING
-  FINISHED
-  PLAYING
-  LEFT
-}
 
-model Player {
-  id       Int    @id @default(autoincrement())
-  name     String
-  points   Int    @default(0)
-  gameId   Int?   
-  Game     Game?   @relation(fields: [gameId], references: [id])
-  User      User? @relation(fields: [userId], references: [id])
-  userId    Int?
-  status    PlayerStatus  @default(WAITING)
-  avatarImage String?
-  artId     Int?
-  Art       Art[]
-  Prompt Prompt[]
-  Channel     Channel[]
-  Pitches Pitch[]
-}
 
 model Log {
   id        Int      @id @default(autoincrement())
@@ -284,9 +228,8 @@ model Pitch {
   playerId         Int?      
   Player           Player? @relation(fields: [playerId], references: [id])
   isPublic       Boolean       @default(true)
-  claps          Int           @default(0)
-  boos           Int           @default(0)
-  channelId      Int?          @default(1)
+  channelId     Int?
+  Channel      Channel?          @relation(fields: [channelId], references: [id])
   designer        String?        @db.VarChar(256)
   flavorText     String?       @db.VarChar(512)
   highlightImage String?        @db.VarChar(256)
@@ -306,13 +249,29 @@ enum PitchType {
   INSPIRATION
 }
 
+model Player {
+  id       Int    @id @default(autoincrement())
+  name     String
+  points   Int    @default(0)
+  gameId   Int?   
+  Game     Game?   @relation(fields: [gameId], references: [id])
+  User      User? @relation(fields: [userId], references: [id])
+  userId    Int?
+  status    PlayerStatus  @default(WAITING)
+  avatarImage String?
+  artId     Int?
+  Art       Art[]
+  Prompt Prompt[]
+  Channel     Channel[]
+  Pitches Pitch[]
+}
 
-
-model RandomList {
-  id     Int    @id @default(autoincrement())
-  title  String @db.VarChar(764) @unique
-  items  String @db.LongText
-  userId Int?   @default(0)
+enum PlayerStatus {
+  WAITING
+  CHOOSING
+  FINISHED
+  PLAYING
+  LEFT
 }
 
 model Post {
@@ -342,6 +301,8 @@ model Post {
   tags      Tag[]
 }
 
+
+
 model Product {
   id            Int        @id @default(autoincrement())
   createdAt     DateTime   @default(now())
@@ -356,6 +317,58 @@ model Product {
   imagePath     String?    @db.VarChar(764)
   CartItem      CartItem[]
 }
+
+model Prompt {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt @default(now())
+  prompt        String    @db.VarChar(764)
+  userId        Int?      @default(0)
+  User          User?     @relation(fields: [userId], references: [id])
+  galleryId     Int?      @default(0)
+  Gallery       Gallery?  @relation(fields: [galleryId], references: [id])
+  pitchId       Int?      @default(0)
+  pitch         Pitch?    @relation(fields: [pitchId], references: [id])
+  playerId      Int?
+  Player        Player?   @relation(fields: [playerId], references: [id])
+  Game          Game[]
+  Art           Art[]
+}
+
+
+model RandomList {
+  id     Int    @id @default(autoincrement())
+  title  String @db.VarChar(764) @unique
+  items  String @db.LongText
+  userId Int?   @default(0)
+}
+
+model Reaction {
+  id        Int       @id @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt @default(now())
+  claps     Int       @default(0)
+  boos      Int       @default(0)
+  loves     Int       @default(0)
+  hates     Int       @default(0)
+  title     String?
+  comment   String?   @db.Text
+  reaction  String?
+
+  userId    Int
+  User      User      @relation(fields: [userId], references: [id])
+  artId     Int?
+  Art       Art?      @relation(fields: [artId], references: [id])
+  pitchId   Int?
+  Pitch     Pitch?    @relation(fields: [pitchId], references: [id])
+
+
+  @@index([artId], map: "Reaction_artId_fkey")
+  @@index([pitchId], map: "Reaction_pitchId_fkey")
+  @@index([userId], map: "Reaction_userId_fkey")
+}
+
+
 
 model Resource {
   id           Int          @id @default(autoincrement())
@@ -443,15 +456,18 @@ model User {
   clickRecord         Int?          @default(0)
   matchRecord         Int?          @default(0)
   Art                 Art[]
-  Reaction         Reaction[]
-  Customer            Customer?
-  Game                Game[]
-  milestones  MilestoneRecord[]
+  Reactions           Reaction[]
+  Customers           Customer?
+  Games               Game[]
+  Milestones          MilestoneRecord[]
   showMature          Boolean @default(false)
   Players             Player[]
   Pitches             Pitch[]
-  galleries     Gallery[]
-  Prompts Prompt[]
+  Galleries           Gallery[]
+  Prompts             Prompt[]
+  Bots                Bot[]
+  Channels            Channel[]
+  ChatExchanges       ChatExchange[]
 }
 
 model ReactionToTag {

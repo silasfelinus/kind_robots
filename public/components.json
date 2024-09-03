@@ -37,7 +37,7 @@
       "ArtCard",
       "ArtGallery",
       "ArtMaker",
-      "ArtPrompts",
+      "Prompts",
       "ChatfilterToggle",
       "DreamGenerator",
       "DreamMaker",
@@ -140,10 +140,7 @@
   },
   {
     "folderName": "jellybeans",
-    "components": [
-      "JellybeanBag",
-      "JellybeanCount"
-    ]
+    "components": ["JellybeanBag", "JellybeanCount"]
   },
   {
     "folderName": "layout",

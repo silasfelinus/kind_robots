@@ -11,6 +11,7 @@ interface PromptData {
   galleryId?: number
   pitch?: string
   pitchId?: number
+  playerId?: number
 }
 
 export default defineEventHandler(async (event) => {
@@ -23,15 +24,13 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
-
-// Function to create a new Prompt
 export async function createPrompt(
   prompt: PromptData,
 ): Promise<Prompt> {
   try {
     // Validate required fields
     if (!prompt.prompt) {
-      throw new Error('We need a prompt to make an art prompt.')
+      throw new Error('The "prompt" field is required.')
     }
 
     return await prisma.prompt.create({
@@ -40,10 +39,12 @@ export async function createPrompt(
         prompt: prompt.prompt,
         galleryId: prompt.galleryId || 0, // Set default value as 0
         pitch: prompt.pitch || null,
-        pitchId: prompt.pitchId || null
+        pitchId: prompt.pitchId || null,
+        playerId: prompt.playerId || null,
       },
     })
   } catch (error: unknown) {
+    console.error('Error occurred while creating prompt:', error)
     throw errorHandler(error)
   }
 }

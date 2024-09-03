@@ -412,9 +412,9 @@ model Tag {
   pitch             String?       @db.VarChar(764)
   isPublic          Boolean?      @default(false)
   isMature          Boolean       @default(false)
-  userId            Int           @default(1)
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
-  channelId         Int?          @default(1)
+  channelId         Int?
   Channel           Channel?      @relation(fields: [channelId], references: [id])
   Posts             Post[]
   Pitches           Pitch[]

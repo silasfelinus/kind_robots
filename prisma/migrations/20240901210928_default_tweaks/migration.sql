@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Tag` MODIFY `channelId` INTEGER NULL DEFAULT 1;

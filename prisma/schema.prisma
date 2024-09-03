@@ -289,7 +289,7 @@ model Post {
   Bot               Bot?          @relation(fields: [botId], references: [id])
   channelId         Int?
   Channel           Channel?      @relation(fields: [channelId], references: [id])
-  tags              Tag[]
+  Tags              Tag[]
 }
 
 model Product {

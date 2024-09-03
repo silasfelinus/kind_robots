@@ -15,8 +15,8 @@ model Art {
   cfg               String?       @db.VarChar(764)
   checkpoint        String?       @db.VarChar(256)
   sampler           String?       @db.VarChar(764)
-  seed              Int?          @default(0)
-  steps             Int?          @default(0)
+  seed              Int?
+  steps             Int?
   designer          String?       @db.VarChar(764)
   isPublic          Boolean?      @default(false)
   isMature          Boolean?      @default(false)
@@ -26,9 +26,9 @@ model Art {
   User              User?         @relation(fields: [userId], references: [id])
   pitchId           Int?
   Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
-  galleryId         Int?          @default(1)
+  galleryId         Int?
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
-  channelId         Int?          @default(1)
+  channelId         Int?
   Channel           Channel?      @relation(fields: [channelId], references: [id]) 
   Reaction          Reaction[]
   Game              Game[]
@@ -56,7 +56,7 @@ model Bot {
   isPublic          Boolean       @default(false)
   underConstruction Boolean       @default(false)
   canDelete         Boolean       @default(false)
-  userId            Int?          @default(0)
+  userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
   ChatExhanges      ChatExchange[]
   Messages          Message[]
@@ -90,13 +90,11 @@ model Channel {
   id                Int           @id @default(autoincrement())
   createdAt         DateTime      @default(now())
   updatedAt         DateTime?     @updatedAt @default(now())
-  userId            Int?          @default(1)
-  User              User?         @relation(fields: [userId], references: [id])
   label             String        @unique(map: "Channel_id_key", length: 200) @db.VarChar(764)
-  description       String?       @db.VarChar(8000)
-  tagId             Int?          @default(0)
+  description       String?       @db.VarChar(2000)
   title             String?       @db.VarChar(256)
-  pitchId           Int?          @default(0)
+  userId            Int?
+  User              User?         @relation(fields: [userId], references: [id])
   messages          Message[]
   Player            Player[]
   Pitches           Pitch[]
@@ -127,7 +125,7 @@ model Customer {
   updatedAt         DateTime?     @updatedAt @default(now())
   email             String        @unique
   name              String?
-  userId            Int?          @unique
+  userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
   Carts             Cart[]
 }
@@ -182,9 +180,9 @@ model Message {
   content           String        @db.Text
   channelId         Int
   channel           Channel       @relation(fields: [channelId], references: [id])
-  botId             Int?          @default(0)
+  botId             Int?
   Bot               Bot?          @relation(fields: [botId], references: [id])
-  userId            Int?          @default(0)
+  userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
 }
 
@@ -284,11 +282,11 @@ model Post {
   label             String        @db.VarChar(764)
   imagePath         String?       @db.VarChar(764)
   isFavorite        Boolean       @default(false)
-  userId            Int?          @default(0)
+  userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
-  botId             Int?          @default(0)
+  botId             Int?
   Bot               Bot?          @relation(fields: [botId], references: [id])
-  channelId         Int?          @default(0)
+  channelId         Int?
   Channel           Channel?      @relation(fields: [channelId], references: [id])
   tags              Tag[]
 }
@@ -304,7 +302,7 @@ model Product {
   costInPennies     Int           @default(0)
   passcode          String?       @db.VarChar(764)
   imagePath         String?       @db.VarChar(764)
-  userId            Int           @default(1)
+  userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
   CartItem          CartItem[]
 }
@@ -314,12 +312,12 @@ model Prompt {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime?     @updatedAt @default(now())
   prompt            String        @db.VarChar(764)
-  userId            Int?          @default(0)
+  userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
-  galleryId         Int?          @default(0)
+  galleryId         Int?
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
-  pitchId           Int?          @default(0)
-  pitch             Pitch?        @relation(fields: [pitchId], references: [id])
+  pitchId           Int?
+  Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
   playerId          Int?
   Player            Player?       @relation(fields: [playerId], references: [id])
   Game              Game[]
@@ -412,7 +410,7 @@ model Tag {
   pitch             String?       @db.VarChar(764)
   isPublic          Boolean?      @default(false)
   isMature          Boolean       @default(false)
-  userId            Int?          @default(1)
+  userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
   channelId         Int?
   Channel           Channel?      @relation(fields: [channelId], references: [id])

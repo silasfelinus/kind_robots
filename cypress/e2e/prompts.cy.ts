@@ -5,6 +5,28 @@ describe('Prompt Management API Tests', () => {
   const apiKey = Cypress.env('API_KEY');
   let promptId: number; // Explicitly define the type as number
 
+  before(() => {
+    // Create a prompt before running tests to ensure data exists
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        galleryId: 21,
+        userId: 1,
+        prompt: 'devil bunny',
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200);
+      expect(response.body.newPrompt).to.be.an('object');
+      expect(Object.keys(response.body.newPrompt)).to.have.length.greaterThan(0);
+      promptId = response.body.newPrompt.id; // Ensure the correct ID is captured
+    });
+  });
+
   it('Create New Prompt', () => {
     cy.request({
       method: 'POST',
@@ -26,36 +48,22 @@ describe('Prompt Management API Tests', () => {
       console.log('Created Prompt ID:', promptId); // Log for debugging
     });
   });
-  
 
   it('Get Prompt by ID', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/id/${promptId}`,
+      url: `${baseUrl}/${promptId}`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      failOnStatusCode: false, // Allows the test to proceed even if the status code isn't 200
     }).then((response) => {
-      // Log the entire response for debugging purposes
-      cy.log('Response:', JSON.stringify(response, null, 2));
-  
-      // Assert that the status code is 200
-      expect(response.status).to.eq(200, 'Expected status code to be 200');
-  
-      // Assert that the body has the prompt object
+      expect(response.status).to.eq(200);
       expect(response.body).to.have.property('prompt');
-      
-      // Log the prompt object for debugging
-      cy.log('Prompt Object:', JSON.stringify(response.body.prompt, null, 2));
-  
-      // Assert that the prompt property is an object and contains the expected prompt text
       expect(response.body.prompt).to.be.an('object');
       expect(response.body.prompt.prompt).to.eq('devil bunny');
     });
   });
-  
 
   it('Get All Prompts', () => {
     cy.request({
@@ -100,5 +108,22 @@ describe('Prompt Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
     });
+  });
+
+  after(() => {
+    // Cleanup: Delete the prompt created for the tests
+    if (promptId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${promptId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200);
+        console.log('Reverted Prompt ID:', promptId);
+      });
+    }
   });
 });

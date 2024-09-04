@@ -60,6 +60,7 @@ describe('Channel Management API Tests', () => {
   });
 
   it('Update a Channel', () => {
+    const updatedLabel = `botcafe-${Date.now()}`; // Store timestamp in a variable
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${channelId}`,
@@ -68,19 +69,20 @@ describe('Channel Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        label: `botcafe-${Date.now()}`, // Updated with a unique timestamp
+        label: updatedLabel, // Use the stored variable
         description: 'global botchat',
         title: 'Bot Cafe', // Update title as well
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body.updatedChannel).to.include({
-        label: `botcafe-${Date.now()}`, // Match the unique label
+        label: updatedLabel, // Match the label using the stored variable
         description: 'global botchat',
         title: 'Bot Cafe',
       });
     });
   });
+  
 
   it('Delete a Channel', () => {
     cy.request({

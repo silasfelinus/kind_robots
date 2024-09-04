@@ -28,26 +28,26 @@ describe('Post Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body.post).to.be.an('object').that.is.not.empty;
-      postId = response.body.post.id;
+      postId = response.body.post.id; // Assign the postId here
+      cy.wrap(postId).as('postId'); // Wrap it for future use in other tests
       console.log('Created Post ID:', postId);
     });
   });
 
-  it('Get Post by ID', () => {
-    if (!postId) {
-      throw new Error('postId is undefined, cannot fetch post by ID');
-    }
-    cy.request({
-      method: 'GET',
-      url: `${baseUrl}/${postId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.post).to.be.an('object').that.is.not.empty;
-      expect(response.body.post.title).to.eq('Test Post Title'); // Expect the correct title
+  it('Get Post by ID', function () {
+    cy.get('@postId').then((postId) => {
+      cy.request({
+        method: 'GET',
+        url: `${baseUrl}/${postId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200);
+        expect(response.body.post).to.be.an('object').that.is.not.empty;
+        expect(response.body.post.title).to.eq('Test Post Title'); // Expect the correct title
+      });
     });
   });
 
@@ -67,49 +67,32 @@ describe('Post Management API Tests', () => {
     });
   });
 
-  it('Update a Post', () => {
-    if (!postId) {
-      throw new Error('postId is undefined, cannot update post by ID');
-    }
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${postId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-      body: {
-        title: 'Updated Test Post Title',
-        content: 'This is updated test post content.',
-        likes: 10,
-        dislikes: 2,
-        loves: 5,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.post.title).to.eq('Updated Test Post Title'); // Verify title is updated
-      expect(response.body.post.content).to.eq('This is updated test post content.'); // Verify content is updated
+  it('Update a Post', function () {
+    cy.get('@postId').then((postId) => {
+      cy.request({
+        method: 'PATCH',
+        url: `${baseUrl}/${postId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+        body: {
+          title: 'Updated Test Post Title',
+          content: 'This is updated test post content.',
+          likes: 10,
+          dislikes: 2,
+          loves: 5,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200);
+        expect(response.body.post.title).to.eq('Updated Test Post Title'); // Verify title is updated
+        expect(response.body.post.content).to.eq('This is updated test post content.'); // Verify content is updated
+      });
     });
   });
 
-  it('Delete a Post', () => {
-    if (!postId) {
-      throw new Error('postId is undefined, cannot delete post by ID');
-    }
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${postId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-    });
-  });
-
-  after(() => {
-    if (postId) {
+  it('Delete a Post', function () {
+    cy.get('@postId').then((postId) => {
       cy.request({
         method: 'DELETE',
         url: `${baseUrl}/${postId}`,
@@ -119,8 +102,25 @@ describe('Post Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        console.log('Reverted Post ID:', postId);
       });
-    }
+    });
+  });
+
+  after(() => {
+    cy.get('@postId').then((postId) => {
+      if (postId) {
+        cy.request({
+          method: 'DELETE',
+          url: `${baseUrl}/${postId}`,
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+          },
+        }).then((response) => {
+          expect(response.status).to.eq(200);
+          console.log('Reverted Post ID:', postId);
+        });
+      }
+    });
   });
 });

@@ -12,12 +12,12 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch the pitch by ID and its related data
-    const pitch = await fetchPitchById(id)
-    if (!pitch) {
+    const pitchDetails = await fetchPitchById(id)
+    if (!pitchDetails) {
       return { success: false, message: 'Pitch not found', statusCode: 404 }
     }
 
-    return { success: true, pitch }
+    return { success: true, ...pitchDetails } // Spread pitchDetails directly in the response
   } catch (error: unknown) {
     return errorHandler(error)
   }

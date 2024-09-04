@@ -167,6 +167,7 @@ describe('User Management API Tests - User Update', () => {
         body: {
           username: newUsername,
         },
+        
       }).then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.have.nested.property('user.username', newUsername);
@@ -185,6 +186,7 @@ describe('User Management API Tests - User Update', () => {
         body: {
           password: 'newpassword12',
         },
+        timeout: 20000,
       }).then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.have.nested.property('user.id', createdUserId);

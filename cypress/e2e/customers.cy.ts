@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/api/customer.cy.ts
 
 describe('Customer Management API Tests', () => {
@@ -6,6 +7,7 @@ describe('Customer Management API Tests', () => {
   let customerId: number; // Explicitly define the type as number
 
   it('Create a New Customer', () => {
+    const uniqueEmail = `john.doe${Date.now()}@example.com`; // Generate a unique email using Date.now
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -14,15 +16,13 @@ describe('Customer Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        email: 'john.doe@example.com', // Ensure uniqueness in the database
+        email: uniqueEmail, // Use the unique email
         name: 'John Doe',
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      /* eslint-disable @typescript-eslint/no-unused-expressions */
       expect(response.body.newCustomer).to.be.an('object').that.is.not.empty;
-      /* eslint-enable @typescript-eslint/no-unused-expressions */
-      customerId = response.body.newCustomer.id; // Ensure the correct ID is captured
+      customerId = response.body.newCustomer.id; // Capture the customer ID
       console.log('Created Customer ID:', customerId); // Log for debugging
     });
   });
@@ -39,7 +39,7 @@ describe('Customer Management API Tests', () => {
       expect(response.status).to.eq(200);
       expect(response.body.customers)
         .to.be.an('array')
-        .and.have.length.greaterThan(0);
+        .and.have.length.greaterThan(0); // Ensure the customers array is not empty
     });
   });
 
@@ -53,11 +53,12 @@ describe('Customer Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.customer.email).to.eq('john.doe@example.com'); // Expect the correct email
+      expect(response.body.customer.email).to.match(/john.doe\d+@example.com/); // Check if the correct email format is returned
     });
   });
 
   it('Update a Customer by ID', () => {
+    const updatedName = 'Johnathan Doe';
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${customerId}`,
@@ -66,7 +67,7 @@ describe('Customer Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        name: 'Johnathan Doe',
+        name: updatedName,
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
@@ -80,7 +81,7 @@ describe('Customer Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body.customer.name).to.eq('Johnathan Doe'); // Check updated name
+        expect(response.body.customer.name).to.eq(updatedName); // Check updated name
       });
     });
   });
@@ -110,7 +111,7 @@ describe('Customer Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        console.log('Reverted Customer ID:', customerId);
+        console.log('Reverted Customer ID:', customerId); // Log for debugging
       });
     }
   });

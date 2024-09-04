@@ -28,15 +28,14 @@ describe('Post Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body.post).to.be.an('object').that.is.not.empty;
-      postId = response.body.post.id; // Assign the postId here
-      cy.wrap(postId).as('postId'); // Alias postId for future use
-      cy.log('Created Post ID:', postId); // Log the post ID
+      postId = response.body.post.id;
+      cy.wrap(postId).as('postId');
+      cy.log('Created Post ID:', postId);
     });
   });
 
-  // Ensure the postId alias is available before each test
   beforeEach(() => {
-    cy.get('@postId').should('exist'); // Ensure postId alias exists before each test
+    cy.get('@postId').should('exist');
   });
 
   it('Get Post by ID', () => {
@@ -51,7 +50,7 @@ describe('Post Management API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body.post).to.be.an('object').that.is.not.empty;
-        expect(response.body.post.title).to.eq('Test Post Title'); // Expect the correct title
+        expect(response.body.post.title).to.eq('Test Post Title');
       });
     });
   });
@@ -72,8 +71,7 @@ describe('Post Management API Tests', () => {
     });
   });
 
-  it('Update a Post', function () {
-    // Ensure postId alias is set before this test
+  it('Update a Post', () => {
     cy.get('@postId').then((postId) => {
       cy.request({
         method: 'PATCH',
@@ -90,14 +88,13 @@ describe('Post Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body.post.title).to.eq('Updated Test Post Title'); // Verify title is updated
-        expect(response.body.post.content).to.eq('This is updated test post content.'); // Verify content is updated
+        expect(response.body.post.title).to.eq('Updated Test Post Title');
+        expect(response.body.post.content).to.eq('This is updated test post content.');
       });
     });
   });
 
-  it('Delete a Post', function () {
-    // Ensure postId alias is set before this test
+  it('Delete a Post', () => {
     cy.get('@postId').then((postId) => {
       cy.request({
         method: 'DELETE',
@@ -108,13 +105,12 @@ describe('Post Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        cy.log('Deleted Post ID:', postId); // Log the deleted post ID
+        cy.log('Deleted Post ID:', postId);
       });
     });
   });
 
   after(() => {
-    // Clean up if postId still exists after tests
     cy.get('@postId').then((postId) => {
       if (postId) {
         cy.request({
@@ -126,7 +122,7 @@ describe('Post Management API Tests', () => {
           },
         }).then((response) => {
           expect(response.status).to.eq(200);
-          cy.log('Reverted Post ID:', postId); // Log the reverted post ID
+          cy.log('Reverted Post ID:', postId);
         });
       }
     });

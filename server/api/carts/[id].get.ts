@@ -10,13 +10,23 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: 'Invalid cart ID.', statusCode: 400 }
     }
 
-    const items = await fetchCartItems(cartId)
-    
-    if (!items.length) {
-      return { success: false, message: 'No items found in the cart.', statusCode: 404 }
+    // Fetch the cart to ensure it exists
+    const cart = await prisma.cart.findUnique({
+      where: { id: cartId },
+    })
+
+    if (!cart) {
+      return { success: false, message: 'Cart not found.', statusCode: 404 }
     }
 
-    return { success: true, items }
+    // Fetch cart items
+    const items = await fetchCartItems(cartId)
+
+    return { 
+      success: true, 
+      cart, 
+      items 
+    }
   } catch (error: unknown) {
     return errorHandler(error)
   }

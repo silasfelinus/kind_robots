@@ -21,8 +21,8 @@ describe('Customer Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.customer).to.be.an('object').that.is.not.empty;
-      customerId = response.body.customer.id; // Capture the customer ID
+      expect(response.body.newCustomer).to.be.an('object').that.is.not.empty;
+      customerId = response.body.newCustomer.id; // Capture the customer ID
       console.log('Created Customer ID:', customerId); // Log for debugging
     });
   });

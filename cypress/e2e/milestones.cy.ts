@@ -1,5 +1,4 @@
-// cypress/e2e/api/milestone.cy.ts
-
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Milestone Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/milestones';
   const apiKey = Cypress.env('API_KEY');
@@ -43,10 +42,8 @@ describe('Milestone Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      /* eslint-disable @typescript-eslint/no-unused-expressions */
-      expect(response.body.milestone).to.be.an('array').that.is.not.empty;
-      /* eslint-enable @typescript-eslint/no-unused-expressions */
-      milestoneId = response.body.newMilestones[0].id; // Ensure the correct ID is captured
+      expect(response.body.milestones).to.be.an('array').that.is.not.empty;
+      milestoneId = response.body.milestones[0].id; // Capture correct ID
       console.log('Created Milestone ID:', milestoneId); // Log for debugging
     });
   });
@@ -61,7 +58,7 @@ describe('Milestone Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.milestone.label).to.eq('Artist!'); // Expect the correct label
+      expect(response.body.milestones[0].label).to.eq('Artist!'); // Correct structure access
     });
   });
 
@@ -90,9 +87,9 @@ describe('Milestone Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body.milestone.label).to.eq('Master Artist!');
-        expect(response.body.milestone.message).to.eq('You created a masterpiece!');
-        expect(response.body.milestone.karma).to.eq(20);
+        expect(response.body.milestones[0].label).to.eq('Master Artist!'); // Correct structure access
+        expect(response.body.milestones[0].message).to.eq('You created a masterpiece!');
+        expect(response.body.milestones[0].karma).to.eq(20);
       });
     });
   });
@@ -110,7 +107,6 @@ describe('Milestone Management API Tests', () => {
     });
   });
 
-  // Ensure all changes are reverted by deleting the milestone created during the test
   after(() => {
     if (milestoneId) {
       cy.request({

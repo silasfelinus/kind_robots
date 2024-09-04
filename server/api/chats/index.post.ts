@@ -11,6 +11,7 @@ interface ExchangeData {
   username: string
   userPrompt: string
   botResponse: string
+  previousEntryId: number
 }
 
 export default defineEventHandler(async (event) => {
@@ -53,6 +54,7 @@ export default defineEventHandler(async (event) => {
         username: exchangeData.username,
         userPrompt: exchangeData.userPrompt,
         botResponse: exchangeData.botResponse,
+        previousEntryId: exchangeData.previousEntryId
       },
     })
 

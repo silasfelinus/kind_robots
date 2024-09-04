@@ -172,6 +172,8 @@ model Log {
   message           String        @db.Text
   timestamp         DateTime      @db.DateTime(0)
   username          String?       @db.VarChar(764)
+  userId            Int?
+  User              User?   @relation(fields: [userId], references: [id])
 }
 
 model Message {
@@ -475,6 +477,7 @@ model User {
   Resources         Resource[]
   Rewards           Reward[]
   Tags              Tag[]
+  Logs              Log[]
 }
 
 model ReactionToTag {

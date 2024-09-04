@@ -74,7 +74,7 @@ describe('Channel Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.channel).to.include({
+      expect(response.body.updatedChannel).to.include({
         label: `botcafe-${Date.now()}`, // Match the unique label
         description: 'global botchat',
         title: 'Bot Cafe',

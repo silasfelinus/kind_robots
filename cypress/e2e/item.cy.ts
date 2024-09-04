@@ -23,9 +23,9 @@ describe('CartItem Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       /* eslint-disable @typescript-eslint/no-unused-expressions */
-      expect(response.body.newCartItem).to.be.an('object').that.is.not.empty;
+      expect(response.body.cartItem).to.be.an('object').that.is.not.empty;
       /* eslint-enable @typescript-eslint/no-unused-expressions */
-      cartItemId = response.body.newCartItem.id; // Ensure the correct ID is captured
+      cartItemId = response.body.cartItem.id; // Ensure the correct ID is captured
       console.log('Created CartItem ID:', cartItemId); // Log for debugging
     });
   });
@@ -74,7 +74,7 @@ describe('CartItem Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.updatedCartItem.quantity).to.eq(3); // Confirm the update was successful
+      expect(response.body.cartItem.quantity).to.eq(3); // Confirm the update was successful
     });
   });
 

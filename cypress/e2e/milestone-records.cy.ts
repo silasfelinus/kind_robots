@@ -62,7 +62,11 @@ describe('Milestone Record Management API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
+      failOnStatusCode: false, // Allow Cypress to log the response even if it fails
     }).then((response) => {
+      if (response.status !== 200) {
+        console.error('Failed to delete milestone record:', response.body); // Log error details
+      }
       expect(response.status).to.eq(200);
     });
   });

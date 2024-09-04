@@ -28,21 +28,30 @@ export async function createMessage(
   message: Partial<Message>,
 ): Promise<Message> {
   try {
+    // Validation checks
     if (!message.content) {
       throw new Error('No content, no message. Sorry McLuhan.')
-    } else if (!message.sender || !message.recipient) {
-      throw new Error('No sender or recipient. What am I supposed to do?')
-    } else {
-      return await prisma.message.create({
-        data: {
-          sender: message.sender,
-          recipient: message.recipient,
-          content: message.content,
-          channelId: message.channelId || 1,
-        },
-      })
     }
+
+    if (!message.sender || !message.recipient) {
+      throw new Error('No sender or recipient. What am I supposed to do?')
+    }
+
+    // Prepare message data for creation
+    const newMessageData = {
+      sender: message.sender,
+      recipient: message.recipient,
+      content: message.content,
+      channelId: message.channelId || 1,  // Default to channel 1 if not provided
+      botId: message.botId || null,  // Set botId if available, otherwise null
+      userId: message.userId || null  // Set userId if available, otherwise null
+    }
+
+    // Create and return the new message
+    return await prisma.message.create({
+      data: newMessageData,
+    })
   } catch (error: unknown) {
-    throw errorHandler(error)
+    throw errorHandler(error)  // Pass the error through error handler
   }
 }

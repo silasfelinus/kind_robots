@@ -32,6 +32,7 @@ describe('Bot Management API Tests', () => {
         tagline: 'Your friendly AI companion', // New field
         sampleResponse: 'I am here to help you!', // New field
         modules: 'core, analytics', // New field
+        userId: 1,
       },
     }).then((response) => {
       console.log(response.body) // Log the full response

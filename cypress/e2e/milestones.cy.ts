@@ -90,9 +90,9 @@ describe('Milestone Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body.milestones[0].label).to.eq('Master Artist!'); // Correct structure access
-        expect(response.body.milestones[0].message).to.eq('You created a masterpiece!');
-        expect(response.body.milestones[0].karma).to.eq(20);
+        expect(response.body.milestone.label).to.eq('Master Artist!'); // Correct structure access
+        expect(response.body.milestone.message).to.eq('You created a masterpiece!');
+        expect(response.body.milestone.karma).to.eq(20);
       });
     });
   });

@@ -25,6 +25,7 @@ export const usePitchStore = defineStore('pitch', {
   state: () => ({
     pitches: [] as Pitch[],
     isInitialized: false,
+    selectedPitchId: null as number | null,
   }),
 
   getters: {
@@ -37,9 +38,18 @@ export const usePitchStore = defineStore('pitch', {
           pitch.userId === 0,
       )
     },
+    selectedPitch: (state) => {
+      // Return the selected pitch based on selectedPitchId
+      return state.pitches.find((pitch) => pitch.id === state.selectedPitchId) || null
+    },
   },
 
   actions: {
+    setSelectedPitch(pitchId: number | null) {
+      // Action to set the selected pitch by ID
+      this.selectedPitchId = pitchId
+    },
+
     async performFetch(
       url: string,
       options: RequestInit = {},

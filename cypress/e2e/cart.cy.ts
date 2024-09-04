@@ -19,9 +19,9 @@ describe('Cart Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       /* eslint-disable @typescript-eslint/no-unused-expressions */
-      expect(response.body.cart).to.be.an('object').that.is.not.empty;
+      expect(response.body.newCart).to.be.an('object').that.is.not.empty;
       /* eslint-enable @typescript-eslint/no-unused-expressions */
-      cartId = response.body.cart.id; // Ensure the correct ID is captured
+      cartId = response.body.newCart.id; // Ensure the correct ID is captured
       console.log('Created Cart ID:', cartId); // Log for debugging
     });
   });

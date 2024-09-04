@@ -4,6 +4,7 @@ describe('Channel Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/channels';
   const apiKey = Cypress.env('API_KEY');
   let channelId: number; // Explicitly define the type as number
+  const uniqueLabel = `feed-${Date.now()}`; // Create a unique label with Date.now()
 
   it('Create New Channel', () => {
     cy.request({
@@ -14,8 +15,8 @@ describe('Channel Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        userId: 0,
-        label: 'feed',
+        userId: 1,
+        label: uniqueLabel, // Use the unique label here
         description: 'global feed',
         title: 'Global Feed',
       },
@@ -27,7 +28,6 @@ describe('Channel Management API Tests', () => {
     });
   });
   
-  
   it('Get Channel by ID with Messages', () => {
     cy.request({
       method: 'GET',
@@ -38,7 +38,7 @@ describe('Channel Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.channel.label).to.eq('feed'); // Expect the correct label
+      expect(response.body.channel.label).to.eq(uniqueLabel); // Expect the correct label
       expect(response.body.channel.messages).to.be.an('array'); // Expect an array of messages
     });
   });
@@ -68,14 +68,14 @@ describe('Channel Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        label: 'botcafe',
+        label: `botcafe-${Date.now()}`, // Updated with a unique timestamp
         description: 'global botchat',
         title: 'Bot Cafe', // Update title as well
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body.channel).to.include({
-        label: 'botcafe',
+        label: `botcafe-${Date.now()}`, // Match the unique label
         description: 'global botchat',
         title: 'Bot Cafe',
       });

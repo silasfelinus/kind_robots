@@ -5,15 +5,24 @@ import type { Prisma, Art } from '@prisma/client';
 
 export default defineEventHandler(async (event) => {
   try {
-    const artData = await readBody(event);
+    const artData = await readBody<Partial<Art>>(event);
 
-    // Set a default value for the 'path' if it's not provided
-    if (!artData.path) {
-      artData.path = generateDefaultPath();
+    // Validate required fields
+    if (!artData.promptString) {
+      return {
+        success: false,
+        message: '"promptString" is a required field.',
+        statusCode: 400, // Bad Request
+      };
     }
 
     const result = await addArt(artData);
-    return { success: true, ...result };
+
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    return { success: true, art: result.art };
   } catch (error) {
     // Use the error handler to process the error
     const { message, statusCode } = errorHandler(error);
@@ -22,7 +31,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: 'Failed to create a new art object',
-      error: message,
+      error: message || 'An unknown error occurred',
       statusCode: statusCode || 500, // Default to 500 if no status code is provided
     };
   }
@@ -31,27 +40,14 @@ export default defineEventHandler(async (event) => {
 export async function addArt(
   artData: Partial<Art>,
 ): Promise<{ art: Art | null; error: string | null }> {
-  // Validate required fields
-  if (!artData.promptString || !artData.path) {
-    return {
-      art: null,
-      error: 'Both "promptString" and "path" are required fields.',
-    };
-  }
-
   try {
     const art = await prisma.art.create({
       data: artData as Prisma.ArtCreateInput,
     });
     return { art, error: null };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return { art: null, error: errorMessage };
+    // Enhanced error messaging, sending along the specific error
+    const errorMessage = error instanceof Error ? error.message : 'Unknown database error';
+    return { art: null, error: `Failed to create art: ${errorMessage}` };
   }
-}
-
-// Helper function to generate a default path
-function generateDefaultPath(): string {
-  // Generate a placeholder path for testing purposes, this can be modified
-  return ` `;
 }

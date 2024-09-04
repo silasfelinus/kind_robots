@@ -29,12 +29,12 @@ describe('Post Management API Tests', () => {
       expect(response.status).to.eq(200);
       expect(response.body.post).to.be.an('object').that.is.not.empty;
       postId = response.body.post.id; // Assign the postId here
-      cy.wrap(postId).as('postId'); // Wrap it for future use in other tests
-      console.log('Created Post ID:', postId);
+      cy.wrap(postId).as('postId'); // Alias postId for future use
+      cy.log('Created Post ID:', postId); // Log the post ID
     });
   });
 
-  it('Get Post by ID', function () {
+  it('Get Post by ID', () => {
     cy.get('@postId').then((postId) => {
       cy.request({
         method: 'GET',
@@ -68,6 +68,7 @@ describe('Post Management API Tests', () => {
   });
 
   it('Update a Post', function () {
+    // Ensure postId alias is set before this test
     cy.get('@postId').then((postId) => {
       cy.request({
         method: 'PATCH',
@@ -92,6 +93,7 @@ describe('Post Management API Tests', () => {
   });
 
   it('Delete a Post', function () {
+    // Ensure postId alias is set before this test
     cy.get('@postId').then((postId) => {
       cy.request({
         method: 'DELETE',
@@ -102,11 +104,13 @@ describe('Post Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
+        cy.log('Deleted Post ID:', postId); // Log the deleted post ID
       });
     });
   });
 
   after(() => {
+    // Clean up if postId still exists after tests
     cy.get('@postId').then((postId) => {
       if (postId) {
         cy.request({
@@ -118,7 +122,7 @@ describe('Post Management API Tests', () => {
           },
         }).then((response) => {
           expect(response.status).to.eq(200);
-          console.log('Reverted Post ID:', postId);
+          cy.log('Reverted Post ID:', postId); // Log the reverted post ID
         });
       }
     });

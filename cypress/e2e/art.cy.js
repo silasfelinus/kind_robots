@@ -6,9 +6,8 @@ describe('Art Management API Tests', () => {
   const apiKey = Cypress.env('API_KEY')
   let artId // Store art ID for further operations
 
-  // Test the basic POST route to register a new Art without generating it
-  // Test the basic POST route to register a new Art without generating it
-  it('Register New Art', () => {
+  // Create a new Art before running tests
+  before(() => {
     cy.request({
       method: 'POST',
       url: `${baseUrl}`,
@@ -17,25 +16,18 @@ describe('Art Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        galleryId: 21,
-        path: ' ',
-        userId: 1,
         promptString: 'A beautiful sunrise over the mountains',
-        designer: 'kinddesigner',
+        path: ' ',
         seed: null,
         steps: null,
-        isPublic: true,
-        isMature: false,
-        promptId: null,
-        pitchId: null,
         channelId: null,
+        galleryId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(200, 'Expected status code to be 200')
-      expect(response.body.newArt).to.be.an('object').that.is.not.empty
-      artId = response.body.newArt?.id // Ensure the correct ID is captured
-      console.log('Registered Art ID:', artId) // Log for debugging
+      expect(response.body.art).to.be.an('object').that.is.not.empty
+      artId = response.body.art?.id // Ensure the correct ID is captured
 
       if (!artId) {
         throw new Error('Failed to capture art ID from response')
@@ -72,20 +64,12 @@ describe('Art Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(200, 'Expected status code to be 200')
-      expect(response.body.newArt).to.be.an('object').that.is.not.empty
-      artId = response.body.newArt.id // Ensure the correct ID is captured
-      console.log('Generated Art ID:', artId) // Log for debugging
-
-      if (!artId) {
-        throw new Error('Failed to capture art ID from response')
-      }
+      expect(response.body.art).to.be.an('object').that.is.not.empty
+      artId = response.body.art.id // Ensure the correct ID is captured
     })
   })
 
   it('Get Art by ID', () => {
-    if (!artId) {
-      throw new Error('artId is undefined, cannot fetch art by ID')
-    }
     cy.request({
       method: 'GET',
       url: `${baseUrl}/id/${artId}`,
@@ -111,6 +95,7 @@ describe('Art Management API Tests', () => {
         isMature: false,
         channelId: 3,
       })
+      expect(response.body.art).to.include.keys(['createdAt', 'updatedAt'])
     })
   })
 
@@ -124,16 +109,11 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.artEntries)
-        .to.be.an('array')
-        .and.have.length.greaterThan(0)
+      expect(response.body.art).to.be.an('array').and.have.length.greaterThan(0)
     })
   })
 
   it('Update an Art', () => {
-    if (!artId) {
-      throw new Error('artId is undefined, cannot update art by ID')
-    }
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${artId}`,
@@ -148,7 +128,7 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.updatedArt).to.include({
+      expect(response.body.art).to.include({
         id: artId,
         path: '/images/cafefred/cafefred-1695613612691.webp',
         designer: 'newdesigner',
@@ -158,9 +138,6 @@ describe('Art Management API Tests', () => {
   })
 
   it('Delete an Art', () => {
-    if (!artId) {
-      throw new Error('artId is undefined, cannot delete art by ID')
-    }
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${artId}`,
@@ -170,6 +147,39 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+
+      // Try to get the deleted Art to ensure it has been deleted
+      cy.request({
+        method: 'GET',
+        url: `${baseUrl}/id/${artId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+        failOnStatusCode: false,
+      }).then((getResponse) => {
+        expect(getResponse.status).to.eq(404, 'Expected 404 after deletion')
+      })
+    })
+  })
+
+  // Test invalid data for creation
+  it('Handle invalid art creation', () => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/generate`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        galleryId: 'invalid', // Invalid galleryId
+        promptString: '',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.error).to.exist
     })
   })
 })

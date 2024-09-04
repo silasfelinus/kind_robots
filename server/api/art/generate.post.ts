@@ -17,7 +17,7 @@ type GenerateImageResponse = {
 type RequestData = {
   path?: string | null
   cfg?: number | null
-  cfgHalf?: boolean | false
+  cfgHalf?: boolean
   checkpoint?: string
   sampler?: string | null
   seed?: number | undefined

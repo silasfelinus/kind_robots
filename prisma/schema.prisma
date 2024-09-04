@@ -15,7 +15,7 @@ model Art {
   cfg               String?       @db.VarChar(764)
   checkpoint        String?       @db.VarChar(256)
   sampler           String?       @db.VarChar(764)
-  seed              Int?
+  seed              Int?          @default(-1)
   steps             Int?
   designer          String?       @db.VarChar(764)
   promptString      String        @default(" ")

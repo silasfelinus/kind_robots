@@ -22,8 +22,8 @@ describe('Channel Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.channel).to.be.an('object')
-      channelId = response.body.channel.id;
+      expect(response.body.newChannel).to.be.an('object')
+      channelId = response.body.newChannel.id;
       console.log('Created Channel ID:', channelId);
     });
   });

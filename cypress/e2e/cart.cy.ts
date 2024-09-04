@@ -1,7 +1,7 @@
 // cypress/e2e/api/cart.cy.ts
 
 describe('Cart Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/cart';
+  const baseUrl = 'https://kind-robots.vercel.app/api/carts';
   const apiKey = Cypress.env('API_KEY');
   let cartId: number; // Explicitly define the type as number
 

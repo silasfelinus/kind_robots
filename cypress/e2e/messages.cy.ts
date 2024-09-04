@@ -23,9 +23,9 @@ describe('Message Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       /* eslint-disable @typescript-eslint/no-unused-expressions */
-      expect(response.body.message).to.be.an('object').that.is.not.empty;
+      expect(response.body.newMessage).to.be.an('object').that.is.not.empty;
       /* eslint-enable @typescript-eslint/no-unused-expressions */
-      messageId = response.body.message.id; // Ensure the correct ID is captured
+      messageId = response.body.newMessage.id; // Ensure the correct ID is captured
       console.log('Created Message ID:', messageId); // Log for debugging
     });
   });

@@ -1,19 +1,19 @@
-import { defineEventHandler, readBody } from 'h3'
-import type { Prisma, Milestone } from '@prisma/client'
-import { errorHandler } from '../utils/error' // Import centralized error handler
-import prisma from '../utils/prisma'
+import { defineEventHandler, readBody } from 'h3';
+import type { Prisma, Milestone } from '@prisma/client';
+import { errorHandler } from '../utils/error'; 
+import prisma from '../utils/prisma';
 
 export default defineEventHandler(async (event) => {
   try {
     // Read and parse JSON body from the event
-    const milestonesData = await readBody(event)
+    const milestonesData = await readBody(event);
 
     // Validate if the data received is an array
     if (!Array.isArray(milestonesData)) {
       return {
         success: false,
         message: 'Invalid JSON body. Expected an array of milestones.',
-      }
+      };
     }
 
     // Validate each milestoneData object in the array
@@ -26,14 +26,13 @@ export default defineEventHandler(async (event) => {
       ) {
         return {
           success: false,
-          message:
-            'Each milestone must have a label, message, triggerCode, and an icon.',
-        }
+          message: 'Each milestone must have a label, message, triggerCode, and an icon.',
+        };
       }
     }
 
     // Call the batch creation function and unpack the results
-    const { count, errors } = await createMilestonesBatch(milestonesData)
+    const { createdMilestones, errors } = await createMilestonesBatch(milestonesData);
 
     // Check if any errors occurred during the batch creation
     if (errors.length > 0) {
@@ -41,24 +40,25 @@ export default defineEventHandler(async (event) => {
         success: false,
         message: 'Some milestones could not be created.',
         errors,
-      }
+      };
     }
 
-    return { success: true, count }
+    return { success: true, milestones: createdMilestones }; // Return the newly created milestones
   } catch (error: unknown) {
     // Use centralized error handling
-    return errorHandler(error)
+    return errorHandler(error);
   }
-})
+});
 
-// Function to create Milestones in batch
+// Function to create Milestones in batch and return the created records
 export async function createMilestonesBatch(
   milestonesData: Partial<Milestone>[],
-): Promise<{ count: number; errors: string[] }> {
-  const errors: string[] = []
+): Promise<{ createdMilestones: Milestone[]; errors: string[] }> {
+  const errors: string[] = [];
+  const createdMilestones: Milestone[] = [];
 
   // Validate and filter the milestones
-  const data: Prisma.MilestoneCreateManyInput[] = milestonesData
+  const validMilestonesData: Prisma.MilestoneCreateInput[] = milestonesData
     .filter((milestoneData) => {
       if (
         !milestoneData.label ||
@@ -66,19 +66,25 @@ export async function createMilestonesBatch(
         !milestoneData.triggerCode ||
         !milestoneData.icon
       ) {
-        errors.push(`Milestone with label ${milestoneData.label} is incomplete.`)
-        return false
+        errors.push(`Milestone with label ${milestoneData.label || 'undefined'} is incomplete.`);
+        return false;
       }
-      return true
+      return true;
     })
-    .map((milestoneData) => milestoneData as Prisma.MilestoneCreateManyInput)
+    .map((milestoneData) => milestoneData as Prisma.MilestoneCreateInput);
 
-  // Create the milestones in a batch
-  const result = await prisma.milestone.createMany({
-    data,
-    skipDuplicates: true, // Skip duplicate records based on constraints
-  })
+  // Create the milestones one by one and collect the created records
+  for (const data of validMilestonesData) {
+    try {
+      const milestone = await prisma.milestone.create({
+        data,
+      });
+      createdMilestones.push(milestone);
+    } catch (error) {
+      errors.push(`Failed to create milestone with label ${data.label}. Error: ${(error as Error).message}`);
+    }
+  }
 
-  // We return the count of milestones created and any errors encountered
-  return { count: result.count, errors }
+  // Return the created milestones and any errors encountered
+  return { createdMilestones, errors };
 }

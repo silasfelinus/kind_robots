@@ -1,4 +1,3 @@
-// /server/api/milestones/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import type { Prisma, Milestone } from '@prisma/client'
 import { errorHandler } from '../utils/error' // Import centralized error handler
@@ -34,8 +33,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Call the batch creation function and unpack the results
-    const { count, milestones, errors } =
-      await createMilestonesBatch(milestonesData)
+    const { count, errors } = await createMilestonesBatch(milestonesData)
 
     // Check if any errors occurred during the batch creation
     if (errors.length > 0) {
@@ -46,7 +44,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    return { success: true, count, milestones }
+    return { success: true, count }
   } catch (error: unknown) {
     // Use centralized error handling
     return errorHandler(error)
@@ -56,7 +54,7 @@ export default defineEventHandler(async (event) => {
 // Function to create Milestones in batch
 export async function createMilestonesBatch(
   milestonesData: Partial<Milestone>[],
-): Promise<{ count: number; milestones: Milestone[]; errors: string[] }> {
+): Promise<{ count: number; errors: string[] }> {
   const errors: string[] = []
 
   // Validate and filter the milestones
@@ -68,9 +66,7 @@ export async function createMilestonesBatch(
         !milestoneData.triggerCode ||
         !milestoneData.icon
       ) {
-        errors.push(
-          `Milestone with label ${milestoneData.label} is incomplete.`,
-        )
+        errors.push(`Milestone with label ${milestoneData.label} is incomplete.`)
         return false
       }
       return true
@@ -83,8 +79,6 @@ export async function createMilestonesBatch(
     skipDuplicates: true, // Skip duplicate records based on constraints
   })
 
-  // Fetch the newly created milestones
-  const milestones = await prisma.milestone.findMany()
-
-  return { count: result.count, milestones, errors }
+  // We return the count of milestones created and any errors encountered
+  return { count: result.count, errors }
 }

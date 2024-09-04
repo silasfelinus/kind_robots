@@ -42,6 +42,7 @@
       "DreamGenerator",
       "DreamMaker",
       "EditableText",
+      "GeneratorTest",
       "HotOrNot",
       "PitchCard",
       "PitchCardActions",

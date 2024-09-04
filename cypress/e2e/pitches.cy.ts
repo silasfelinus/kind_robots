@@ -20,9 +20,9 @@ describe('Pitch Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200, 'Response status should be 200');
-      expect(response.body.newPitch).to.be.an('object', 'New pitch should be an object');
-      expect(Object.keys(response.body.newPitch)).to.have.length.greaterThan(0, 'New pitch object should not be empty');
-      pitchId = response.body.newPitch.id;
+      expect(response.body.pitch).to.be.an('object', 'New pitch should be an object');
+      expect(Object.keys(response.body.pitch)).to.have.length.greaterThan(0, 'New pitch object should not be empty');
+      pitchId = response.body.pitch.id;
       console.log('Created Pitch ID:', pitchId); // Log for debugging
     });
   });
@@ -78,7 +78,7 @@ describe('Pitch Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200, 'Response status should be 200');
-      expect(response.body.updatedPitch.pitch).to.eq(updatedPitchName, 'Pitch name should be updated');
+      expect(response.body.pitch).to.eq(updatedPitchName, 'Pitch name should be updated');
     });
   });
 

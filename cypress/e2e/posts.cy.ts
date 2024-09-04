@@ -34,6 +34,11 @@ describe('Post Management API Tests', () => {
     });
   });
 
+  // Ensure the postId alias is available before each test
+  beforeEach(() => {
+    cy.get('@postId').should('exist'); // Ensure postId alias exists before each test
+  });
+
   it('Get Post by ID', () => {
     cy.get('@postId').then((postId) => {
       cy.request({
@@ -80,9 +85,8 @@ describe('Post Management API Tests', () => {
         body: {
           title: 'Updated Test Post Title',
           content: 'This is updated test post content.',
-          likes: 10,
-          dislikes: 2,
-          loves: 5,
+          label: 'Updated Label',
+          isFavorite: false,
         },
       }).then((response) => {
         expect(response.status).to.eq(200);

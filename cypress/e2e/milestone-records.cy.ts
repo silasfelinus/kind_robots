@@ -54,9 +54,9 @@ describe('Milestone Record Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       /* eslint-disable @typescript-eslint/no-unused-expressions */
-      expect(response.body.newRecord).to.be.an('object').that.is.not.empty;
+      expect(response.body.record).to.be.an('object').that.is.not.empty;
       /* eslint-enable @typescript-eslint/no-unused-expressions */
-      milestoneRecordId = response.body.newRecord.id; // Ensure the correct ID is captured
+      milestoneRecordId = response.body.record.id; // Ensure the correct ID is captured
       console.log('Created Milestone Record ID:', milestoneRecordId); // Log for debugging
     });
   });

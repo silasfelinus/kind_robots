@@ -28,7 +28,7 @@ describe('Milestone Management API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      body: {
+      body: [{
         label: 'Artist!',
         message: 'You made Art!',
         triggerCode: 'Artist',
@@ -39,7 +39,7 @@ describe('Milestone Management API Tests', () => {
         isActive: true,
         pageHint: '/artmaker',
         subtleHint: 'Go press some buttons in the art room',
-      },
+      }],
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body.milestones).to.be.an('array').that.is.not.empty;
@@ -58,9 +58,12 @@ describe('Milestone Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.milestones[0].label).to.eq('Artist!'); // Correct structure access
+      expect(response.body).to.have.property('milestone'); // Check if 'milestone' exists
+      expect(response.body.milestone.label).to.eq('Artist!'); // Correct structure access
+      expect(response.body.milestone).to.have.property('isActive');
     });
   });
+  
 
   it('Update a Milestone', () => {
     cy.request({

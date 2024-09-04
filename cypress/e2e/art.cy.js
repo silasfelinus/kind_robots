@@ -22,6 +22,8 @@ describe('Art Management API Tests', () => {
         userId: 1,
         promptString: 'A beautiful sunrise over the mountains',
         designer: 'kinddesigner',
+        seed: null,
+        steps: null,
         isPublic: true,
         isMature: false,
         promptId: null,

@@ -44,7 +44,7 @@ describe('Milestone Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       /* eslint-disable @typescript-eslint/no-unused-expressions */
-      expect(response.body.newMilestones).to.be.an('array').that.is.not.empty;
+      expect(response.body.milestone).to.be.an('array').that.is.not.empty;
       /* eslint-enable @typescript-eslint/no-unused-expressions */
       milestoneId = response.body.newMilestones[0].id; // Ensure the correct ID is captured
       console.log('Created Milestone ID:', milestoneId); // Log for debugging

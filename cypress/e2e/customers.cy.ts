@@ -71,6 +71,9 @@ describe('Customer Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
+      // Log the entire response body for debugging
+      cy.log(JSON.stringify(response.body));
+  
       // Verify the update
       cy.request({
         method: 'GET',
@@ -79,12 +82,17 @@ describe('Customer Management API Tests', () => {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body.updatedCustomer.name).to.eq(updatedName); // Check updated name
+      }).then((getResponse) => {
+        expect(getResponse.status).to.eq(200);
+        cy.log(JSON.stringify(getResponse.body)); // Log the GET response body
+  
+        // Check if `updatedCustomer` exists and contains the `name`
+        expect(getResponse.body).to.have.property('updatedCustomer');
+        expect(getResponse.body.updatedCustomer).to.have.property('name', updatedName); // Check updated name
       });
     });
   });
+  
 
   it('Delete a Customer by ID', () => {
     cy.request({

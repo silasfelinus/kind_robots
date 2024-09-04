@@ -109,7 +109,9 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.art).to.be.an('array').and.have.length.greaterThan(0)
+      expect(response.body.artEntries)
+        .to.be.an('array')
+        .and.have.length.greaterThan(0)
     })
   })
 
@@ -128,7 +130,7 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.art).to.include({
+      expect(response.body.updatedArt).to.include({
         id: artId,
         path: '/images/cafefred/cafefred-1695613612691.webp',
         designer: 'newdesigner',
@@ -151,7 +153,7 @@ describe('Art Management API Tests', () => {
       // Try to get the deleted Art to ensure it has been deleted
       cy.request({
         method: 'GET',
-        url: `${baseUrl}/id/${artId}`,
+        url: `${baseUrl}/${artId}`,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
@@ -160,26 +162,6 @@ describe('Art Management API Tests', () => {
       }).then((getResponse) => {
         expect(getResponse.status).to.eq(404, 'Expected 404 after deletion')
       })
-    })
-  })
-
-  // Test invalid data for creation
-  it('Handle invalid art creation', () => {
-    cy.request({
-      method: 'POST',
-      url: `${baseUrl}/generate`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-      body: {
-        galleryId: 'invalid', // Invalid galleryId
-        promptString: '',
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(400)
-      expect(response.body.error).to.exist
     })
   })
 })

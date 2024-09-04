@@ -74,7 +74,7 @@ describe('CartItem Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.cartItem.quantity).to.eq(3); // Confirm the update was successful
+      expect(response.body.updatedItem.quantity).to.eq(3); // Confirm the update was successful
     });
   });
 

@@ -14,16 +14,16 @@ describe('Pitch Management API Tests', () => {
       },
       body: {
         pitch: uniquePitchName,
-        description: 'This is a procedurally generated pitch description',
-        PitchType: "INSPIRATION",
+        PitchType: "INSPIRATION", // Align with your schema's `PitchType`
         userId: 1,
-        playerId: 1,
+        playerId: 1,  // Ensure playerId is correctly passed as per your schema
       },
     }).then((response) => {
+      console.log(response.body); // Log response for debugging
       expect(response.status).to.eq(200, 'Response status should be 200');
       expect(response.body.pitch).to.be.an('object', 'New pitch should be an object');
       expect(Object.keys(response.body.pitch)).to.have.length.greaterThan(0, 'New pitch object should not be empty');
-      pitchId = response.body.pitch.id;
+      pitchId = response.body.pitch.id; // Capture pitchId for use in subsequent tests
       console.log('Created Pitch ID:', pitchId); // Log for debugging
     });
   });
@@ -34,7 +34,7 @@ describe('Pitch Management API Tests', () => {
     }
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/id/${pitchId}`, // Adjust URL path to match your API
+      url: `${baseUrl}/${pitchId}`, // Adjust URL path to match your API
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -79,7 +79,8 @@ describe('Pitch Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200, 'Response status should be 200');
-      expect(response.body.pitch).to.eq(updatedPitchName, 'Pitch name should be updated');
+      expect(response.body.pitch).to.be.an('object', 'Pitch object should be returned');
+      expect(response.body.pitch.pitch).to.eq(updatedPitchName, 'Pitch name should be updated');
     });
   });
 

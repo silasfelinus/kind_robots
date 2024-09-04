@@ -80,7 +80,7 @@ const formData = ref({
   designer: '',
   galleryName: '',
   cfg: 'default_cfg',
-  steps: 50,
+  steps: 20,
 })
 
 const steps = ref([])

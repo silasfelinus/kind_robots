@@ -15,32 +15,32 @@ type GenerateImageResponse = {
 }
 
 type RequestData = {
-  path?: string
-  cfg?: string
+  path?: string | null
+  cfg?: string | null
   checkpoint?: string
-  sampler?: string
-  seed?: number
-  steps?: number
-  designer?: string
-  title?: string 
-  description?: string
-  flavorText?: string
-  highlightImage?: string
-  PitchType: PitchType
+  sampler?: string | null
+  seed?: number | null
+  steps?: number | null
+  designer?: string | null
+  title?: string  | null
+  description?: string | null
+  flavorText?: string | null
+  highlightImage?: string | null
+  PitchType: PitchType | null
   isMature?: boolean 
   isPublic?: boolean 
-  prompt: string 
-  promptId?: number
-  userId?: number 
-  username: string
-  pitchId?: number 
-  pitch?: string
-  playerId?: number
-  playerName?: string
-  galleryId?: number
-  galleryName?: string
-  channelId?: number
-  channelName?: string
+  promptString: string 
+  promptId?: number | null
+  userId?: number  | null
+  username?: string | null
+  pitchId?: number  | null
+  pitch?: string | null
+  playerId?: number | null
+  playerName?: string | null
+  galleryId?: number | null
+  galleryName?: string | null
+  channelId?: number | null
+  channelName?: string | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     console.log('🌟 Event triggered! Reading request body...');
     const requestData: RequestData = await readBody(event);
 
-    if (!requestData.prompt) {
+    if (!requestData.promptString) {
       throw new Error('Missing prompt in request data.');
     }
 
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
     console.log('🎉 All validations passed! Generating image...');
     
     // 2. Generate Image Using Modeler
-    const response: GenerateImageResponse = await generateImage(requestData.prompt, validatedData.designer!);
+    const response: GenerateImageResponse = await generateImage(requestData.promptString, validatedData.designer!);
 
     if (!response || !response.images?.length) {
       console.error('Image generation failed:', response?.error);
@@ -113,7 +113,7 @@ export default defineEventHandler(async (event) => {
         seed: requestData.seed,
         steps: requestData.steps,
         designer: validatedData.designer,
-        promptString: requestData.prompt,
+        promptString: requestData.promptString,
         isPublic: requestData.isPublic,
         isMature: requestData.isMature,
         promptId: validatedData.promptId,
@@ -177,14 +177,14 @@ async function validateAndLoadUserId(
 async function validateAndLoadPromptId(data: RequestData): Promise<number> {
   console.log('🔍 Validating and loading Prompt ID...');
 
-  if (!data.prompt) {
+  if (!data.promptString) {
     console.warn('No prompt provided.');
     throw new Error('Prompt validation failed.');
   }
 
   try {
     const existingPrompt = await prisma.prompt.findFirst({
-      where: { prompt: data.prompt },
+      where: { prompt: data.promptString },
     });
 
     if (existingPrompt) {
@@ -192,7 +192,7 @@ async function validateAndLoadPromptId(data: RequestData): Promise<number> {
     } else {
       const newPrompt = await prisma.prompt.create({
         data: {
-          prompt: data.prompt,
+          prompt: data.promptString,
           userId: data.userId ?? 0,
           galleryId: data.galleryId ?? 0,
           pitchId: data.pitchId ?? 0,

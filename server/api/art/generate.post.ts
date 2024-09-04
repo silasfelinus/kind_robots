@@ -86,9 +86,9 @@ export default defineEventHandler(async (event) => {
     // 2. Generate Image Using Modeler
     const response: GenerateImageResponse = await generateImage(
       requestData.promptString,
-      validatedData.designer!,
-      cfgValue,
-      requestData.seed,
+      validatedData.designer || "kindguest",
+      cfgValue || 3,
+      requestData.seed || -1,
       requestData.steps || 20 
     )
     

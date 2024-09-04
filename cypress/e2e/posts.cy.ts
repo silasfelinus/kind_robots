@@ -5,7 +5,8 @@ describe('Post Management API Tests', () => {
   let postId: number;
   const userId: number = 1;
 
-  it('Create a New Post', () => {
+  before(() => {
+    // Create a post before all tests
     cy.request({
       method: 'POST',
       url: baseUrl,

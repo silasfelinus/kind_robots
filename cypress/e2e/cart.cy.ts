@@ -69,7 +69,7 @@ describe('Cart Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.cart.customerId).to.eq(2); // Confirm the update was successful
+      expect(response.body.updatedCart.customerId).to.eq(2); // Confirm the update was successful
     });
   });
 

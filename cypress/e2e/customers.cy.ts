@@ -81,7 +81,7 @@ describe('Customer Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body.customer.name).to.eq(updatedName); // Check updated name
+        expect(response.body.updatedCustomer.name).to.eq(updatedName); // Check updated name
       });
     });
   });

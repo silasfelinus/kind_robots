@@ -5,7 +5,7 @@ describe('CartItem Management API Tests', () => {
   const apiKey = Cypress.env('API_KEY');
   let cartItemId: number; // Explicitly define the type as number
   const cartId: number = 1; // Example cart ID (ensure this exists in your database)
-  const productId: number = 1; // Example product ID (ensure this exists in your database)
+  const productId: number = 31; // Example product ID (ensure this exists in your database)
 
   it('Create New CartItem', () => {
     cy.request({
@@ -23,9 +23,9 @@ describe('CartItem Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       /* eslint-disable @typescript-eslint/no-unused-expressions */
-      expect(response.body.cartItem).to.be.an('object').that.is.not.empty;
+      expect(response.body.newCartItem).to.be.an('object').that.is.not.empty;
       /* eslint-enable @typescript-eslint/no-unused-expressions */
-      cartItemId = response.body.cartItem.id; // Ensure the correct ID is captured
+      cartItemId = response.body.newCartItem.id; // Ensure the correct ID is captured
       console.log('Created CartItem ID:', cartItemId); // Log for debugging
     });
   });

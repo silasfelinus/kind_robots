@@ -20,7 +20,7 @@ describe('Post Management API Tests', () => {
         title: 'Test Post Title',
         label: 'General',
         imagePath: '/images/test-post.jpg',
-        tags: ['art', 'creative', 'fun'],
+        tags: null,
         botId: null,
         channelId: null,
         isFavorite: true,

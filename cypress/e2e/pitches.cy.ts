@@ -15,8 +15,9 @@ describe('Pitch Management API Tests', () => {
       body: {
         pitch: uniquePitchName,
         description: 'This is a procedurally generated pitch description',
+        PitchType: "INSPIRATION",
         userId: 1,
-        isPublic: true,
+        playerId: 1,
       },
     }).then((response) => {
       expect(response.status).to.eq(200, 'Response status should be 200');
@@ -49,7 +50,7 @@ describe('Pitch Management API Tests', () => {
   it('Should retrieve all pitches', () => {
     cy.request({
       method: 'GET',
-      url: baseUrl,
+      url: `${baseUrl}/batch`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,

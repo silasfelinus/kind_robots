@@ -2,65 +2,65 @@
   <div class="art-generator">
     <h1>Complete Art Generation Options</h1>
     <form @submit.prevent="generateArt">
-      <!-- Prompt String -->
+      <!-- Prompt String (required) -->
       <div>
-        <label for="promptString">Prompt:</label>
+        <label for="promptString">Prompt (Required):</label>
         <input
           id="promptString"
           v-model="formData.promptString"
           type="text"
-          placeholder="Enter prompt..."
+          placeholder="Enter the prompt (e.g., 'a cyberpunk city at night')"
           required
         />
       </div>
 
-      <!-- Title -->
+      <!-- Title (optional) -->
       <div>
-        <label for="title">Title:</label>
+        <label for="title">Title (Optional):</label>
         <input
           id="title"
           v-model="formData.title"
           type="text"
-          placeholder="Enter title..."
+          placeholder="Enter title (e.g., 'Night City')"
         />
       </div>
 
-      <!-- Description -->
+      <!-- Description (optional) -->
       <div>
-        <label for="description">Description:</label>
+        <label for="description">Description (Optional):</label>
         <input
           id="description"
           v-model="formData.description"
           type="text"
-          placeholder="Enter description..."
+          placeholder="Enter description (e.g., 'A futuristic city filled with neon lights')"
         />
       </div>
 
-      <!-- Flavor Text -->
+      <!-- Flavor Text (optional) -->
       <div>
-        <label for="flavorText">Flavor Text:</label>
+        <label for="flavorText">Flavor Text (Optional):</label>
         <input
           id="flavorText"
           v-model="formData.flavorText"
           type="text"
-          placeholder="Enter flavor text..."
+          placeholder="Add extra context (e.g., 'Gothic theme with dark tones')"
         />
       </div>
 
-      <!-- Highlight Image -->
+      <!-- Highlight Image (optional) -->
       <div>
-        <label for="highlightImage">Highlight Image:</label>
+        <label for="highlightImage">Highlight Image URL (Optional):</label>
         <input
           id="highlightImage"
           v-model="formData.highlightImage"
           type="text"
-          placeholder="Enter highlight image URL..."
+          placeholder="Enter a URL for the highlight image"
         />
       </div>
 
-      <!-- CFG Value -->
+      <!-- CFG Value (required) -->
       <div>
-        <label for="cfg">CFG:</label>
+        <label for="cfg">CFG Value (Required):</label>
         <select id="cfg" v-model="formData.cfg">
           <option v-for="value in cfgOptions" :key="value" :value="value">
             {{ value }}
@@ -74,101 +74,101 @@
         </div>
       </div>
 
-      <!-- Steps -->
+      <!-- Steps (required) -->
       <div>
-        <label for="steps">Steps:</label>
+        <label for="steps">Steps (Required, default 20):</label>
         <input
           id="steps"
           v-model="formData.steps"
           type="number"
-          placeholder="Enter steps..."
+          placeholder="Enter number of steps (e.g., 50)"
         />
       </div>
 
-      <!-- Checkpoint -->
+      <!-- Checkpoint (optional) -->
       <div>
-        <label for="checkpoint">Checkpoint:</label>
+        <label for="checkpoint">Checkpoint (Optional):</label>
         <input
           id="checkpoint"
           v-model="formData.checkpoint"
           type="text"
-          placeholder="Enter checkpoint..."
+          placeholder="Enter the checkpoint (e.g., 'v1.2')"
         />
       </div>
 
-      <!-- Sampler -->
+      <!-- Sampler (optional) -->
       <div>
-        <label for="sampler">Sampler:</label>
+        <label for="sampler">Sampler (Optional):</label>
         <input
           id="sampler"
           v-model="formData.sampler"
           type="text"
-          placeholder="Enter sampler..."
+          placeholder="Enter sampler (e.g., 'Euler')"
         />
       </div>
 
-      <!-- Seed -->
+      <!-- Seed (optional) -->
       <div>
-        <label for="seed">Seed (optional):</label>
+        <label for="seed">Seed (Optional):</label>
         <input
           id="seed"
           v-model="formData.seed"
           type="number"
-          placeholder="Enter seed..."
+          placeholder="Enter a seed value for randomization"
         />
       </div>
 
-      <!-- Designer -->
+      <!-- Designer (optional) -->
       <div>
-        <label for="designer">Designer:</label>
+        <label for="designer">Designer (Optional):</label>
         <input
           id="designer"
           v-model="formData.designer"
           type="text"
-          placeholder="Enter designer name..."
+          placeholder="Enter designer's name"
         />
       </div>
 
-      <!-- Gallery Name -->
+      <!-- Gallery Name (optional) -->
       <div>
-        <label for="galleryName">Gallery Name:</label>
+        <label for="galleryName">Gallery Name (Optional):</label>
         <input
           id="galleryName"
           v-model="formData.galleryName"
           type="text"
-          placeholder="Enter gallery name..."
+          placeholder="Enter gallery name"
         />
       </div>
 
-      <!-- Channel Name -->
+      <!-- Channel Name (optional) -->
       <div>
-        <label for="channelName">Channel Name:</label>
+        <label for="channelName">Channel Name (Optional):</label>
         <input
           id="channelName"
           v-model="formData.channelName"
           type="text"
-          placeholder="Enter channel name..."
+          placeholder="Enter channel name (optional)"
         />
       </div>
 
-      <!-- Pitch Name -->
+      <!-- Pitch Name (optional) -->
       <div>
-        <label for="pitch">Pitch Name:</label>
+        <label for="pitch">Pitch Name (Optional):</label>
         <input
           id="pitch"
           v-model="formData.pitch"
           type="text"
-          placeholder="Enter pitch name..."
+          placeholder="Enter pitch name (e.g., 'Gothcore')"
         />
       </div>
 
-      <!-- Public/Private Option -->
+      <!-- Is Public (checkbox) -->
       <div>
         <label for="isPublic">Is Public?</label>
         <input id="isPublic" v-model="formData.isPublic" type="checkbox" />
       </div>
 
-      <!-- Mature Content -->
+      <!-- Is Mature Content (checkbox) -->
       <div>
         <label for="isMature">Is Mature Content?</label>
         <input id="isMature" v-model="formData.isMature" type="checkbox" />

@@ -223,52 +223,54 @@ async function validateAndLoadPromptId(
 async function validateAndLoadPitchId(data: RequestData): Promise<number> {
   console.log('🔍 Validating and loading pitch ID...');
 
-  // If neither pitch name nor pitchId is provided, return 0
-  if (!data.pitch && !data.pitchId) {
-    console.warn('No pitch name or pitchId provided.');
-    return 0;
+  // If pitchId is provided, use it
+  if (data.pitchId) {
+    console.log(`✅ Pitch ID provided: ${data.pitchId}`);
+    return data.pitchId;
   }
 
-  try {
-    // If pitchName is provided, try to find an existing pitch or create one
-    if (data.pitch) {
+  // If pitchName is provided, try to find it or create a new one
+  if (data.pitch) {
+    try {
+      // Check if the pitch already exists by name
       const existingPitch = await prisma.pitch.findUnique({
-        where: { pitch: data.pitch }, // Check if the pitch exists by name
+        where: { pitch: data.pitch },
       });
 
       if (existingPitch) {
         console.log(`✅ Existing pitch found: ${existingPitch.id}`);
         return existingPitch.id;
-      } else {
-        // Create a new pitch if not found
-        console.log('🔨 Creating a new pitch...');
-        const newPitch = await prisma.pitch.create({
-          data: {
-            title: data.title || 'Untitled', // Use the provided title or fallback to 'Untitled'
-            pitch: data.pitch || 'No details provided.', // Use pitchName or fallback
-            designer: data.designer,
-            flavorText: data.flavorText || '',
-            highlightImage: data.highlightImage || '',
-            PitchType: data.PitchType || 'ARTPITCH',
-            isMature: data.isMature || false,
-            isPublic: data.isPublic || true,
-            userId: data.userId || null,
-            playerId: data.playerId || null,
-            channelId: data.channelId || null,
-          },
-        });
-        console.log(`✅ New pitch created: ${newPitch.id}`);
-        return newPitch.id;
       }
+
+      // If no existing pitch is found, create a new one
+      console.log('🔨 Creating a new pitch...');
+      const newPitch = await prisma.pitch.create({
+        data: {
+          title: data.title || 'Untitled', // Fallback to 'Untitled' if no title is provided
+          pitch: data.pitch, // Use provided pitchName
+          designer: data.designer,
+          flavorText: data.flavorText || '',
+          highlightImage: data.highlightImage || '',
+          PitchType: data.PitchType || 'ARTPITCH',
+          isMature: data.isMature || false,
+          isPublic: data.isPublic || true,
+          userId: data.userId || null,
+          playerId: data.playerId || null,
+          channelId: data.channelId || null,
+        },
+      });
+
+      console.log(`✅ New pitch created: ${newPitch.id}`);
+      return newPitch.id;
+    } catch (error) {
+      console.error('Error loading or creating pitch:', error);
+      throw new Error('Pitch validation failed.');
     }
-
-    // If pitchId is provided, return it
-    return data.pitchId ?? 0;
-
-  } catch (error) {
-    console.error('Error loading pitch:', error);
-    throw new Error('Pitch validation failed.');
   }
+
+  // If neither pitchId nor pitchName is provided, return 0
+  console.warn('No pitchId or pitchName provided.');
+  return 0;
 }
 
 async function validateAndLoadGalleryId(data: RequestData): Promise<number> {

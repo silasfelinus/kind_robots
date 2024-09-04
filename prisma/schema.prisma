@@ -30,7 +30,7 @@ model Art {
   Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
   galleryId         Int?
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
-  channelId         Int?
+    channelId         Int?
   Channel           Channel?      @relation(fields: [channelId], references: [id]) 
   Reaction          Reaction[]
   Game              Game[]
@@ -100,9 +100,9 @@ model Channel {
   messages          Message[]
   Player            Player[]
   Pitches           Pitch[]
-  Art               Art[]
   Posts             Post[]
   Tags              Tag[]
+  Art               Art[]
 }
 
 model ChatExchange {

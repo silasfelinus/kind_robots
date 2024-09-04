@@ -132,7 +132,7 @@ export default defineEventHandler(async (event) => {
         userId: validatedData.userId,
         pitchId: validatedData.pitchId,
         galleryId: validatedData.galleryId || 21,
-        channelId: requestData.channelId,
+        channelId: 1,
       },
     })
 

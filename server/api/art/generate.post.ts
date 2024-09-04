@@ -16,10 +16,11 @@ type GenerateImageResponse = {
 
 type RequestData = {
   path?: string | null
-  cfg?: string | null
+  cfg?: number | null
+  cfgHalf?: boolean | false
   checkpoint?: string
   sampler?: string | null
-  seed?: number | null
+  seed?: number | undefined
   steps?: number | null
   designer?: string | null
   title?: string  | null
@@ -55,6 +56,8 @@ export default defineEventHandler(async (event) => {
     console.log('📬 Request data received:', requestData);
 
     console.log('🔐 Initializing validated data object...');
+
+
     const validatedData: Partial<RequestData> = {};
 
     // 1. Validate and Load Related Entities
@@ -76,10 +79,14 @@ export default defineEventHandler(async (event) => {
     validatedData.galleryId = await validateAndLoadGalleryId(requestData);
     validatedData.designer = validateAndLoadDesignerName(requestData);
 
+    
+    // Calculate the final cfg value programmatically
+    const cfgValue = calculateCfg(requestData.cfg ?? 3, requestData.cfgHalf ?? false);
+
     console.log('🎉 All validations passed! Generating image...');
     
     // 2. Generate Image Using Modeler
-    const response: GenerateImageResponse = await generateImage(requestData.promptString, validatedData.designer!);
+    const response: GenerateImageResponse = await generateImage(requestData.promptString, validatedData.designer!, cfgValue,  requestData.seed);
 
     if (!response || !response.images?.length) {
       console.error('Image generation failed:', response?.error);
@@ -108,6 +115,7 @@ export default defineEventHandler(async (event) => {
       data: {
         path: imagePath,
         cfg: requestData.cfg,
+        cfgHalf: requestData.cfgHalf,
         checkpoint: requestData.checkpoint,
         sampler: requestData.sampler,
         seed: requestData.seed,
@@ -292,6 +300,8 @@ function validateAndLoadDesignerName(data: RequestData): string {
 export async function generateImage(
   prompt: string,
   user: string,
+  cfgValue: number,
+  seed?: number
 ): Promise<{ images: string[] }> {
   console.log('📸 Starting image generation...');
   const config = {
@@ -306,6 +316,8 @@ export async function generateImage(
     size: '256x256',
     response_format: 'url',
     user,
+    cfg: cfgValue,
+    seed: seed || -1
   };
 
   try {
@@ -331,4 +343,8 @@ export async function generateImage(
     console.error('Error during image generation:', error);
     throw new Error('Image generation failed.');
   }
+}
+
+function calculateCfg(cfg: number, cfgHalf: boolean): number {
+  return cfgHalf ? cfg + 0.5 : cfg;
 }

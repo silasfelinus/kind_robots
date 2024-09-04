@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('ChatExchange Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/chats';
   const apiKey = Cypress.env('API_KEY');
@@ -23,12 +24,12 @@ describe('ChatExchange Management API Tests', () => {
         previousEntryId: null
       },
     }).then((response) => {
+      console.log(response); // Add this to inspect the response
       expect(response.status).to.eq(200);
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       expect(response.body.newExchange).to.be.an('object').that.is.not.empty;
       chatExchangeId = response.body.newExchange.id;
-      console.log('Created ChatExchange ID:', chatExchangeId);
     });
+    
   });
 
   it('Get Chat Exchange by ID', () => {

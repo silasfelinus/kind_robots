@@ -12,10 +12,11 @@ model Art {
   createdAt         DateTime?     @default(now())
   updatedAt         DateTime?     @updatedAt @default(now())
   path              String?       @db.VarChar(764) @default("UNDEFINED")
-  cfg               String?       @db.VarChar(764)
   checkpoint        String?       @db.VarChar(256)
   sampler           String?       @db.VarChar(764)
   seed              Int?          @default(-1)
+  cfg               Int?          @default(3)
+  cfgHalf           Boolean?      @default(false)
   steps             Int?
   designer          String?       @db.VarChar(764)
   promptString      String        @default(" ")

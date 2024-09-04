@@ -15,12 +15,11 @@ describe('Post Management API Tests', () => {
       },
       body: {
         userId: userId,
-        username: 'testuser',
+        username: 'silasfelinus',
         content: 'This is a test post content.',
         title: 'Test Post Title',
         label: 'General',
         imagePath: '/images/test-post.jpg',
-        tags: null,
         botId: null,
         channelId: null,
         isFavorite: true,

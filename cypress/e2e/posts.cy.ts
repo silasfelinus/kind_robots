@@ -21,8 +21,8 @@ describe('Post Management API Tests', () => {
         label: 'General',
         imagePath: '/images/test-post.jpg',
         tags: ['art', 'creative', 'fun'],
-        botId: 1, // Optional: Provide if needed
-        channelId: 4, // Optional: Provide if needed
+        botId: null,
+        channelId: null,
         isFavorite: true,
       },
     }).then((response) => {

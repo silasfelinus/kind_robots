@@ -6,10 +6,11 @@
     <div class="font-bold">
       {{ pitch }}
     </div>
+
     <!-- Prompt Input -->
     <div class="mt-4">
       <input
-        v-model="prompt"
+        v-model="promptString"
         placeholder="Enter your art prompt"
         class="rounded-2xl p-2 w-full text-lg"
       />
@@ -24,6 +25,9 @@
       Generate Art for Pitch
     </button>
 
+    Active Prompt
+    <h1>{{ activePrompt }}</h1>
+
     <!-- Loading State -->
     <div v-if="isLoading" class="mt-4 flex flex-col items-center">
       <p>{{ loadingMessage }}</p>
@@ -31,6 +35,7 @@
         <ami-butterfly />
       </div>
     </div>
+
     <!-- Add this line where you want to display the milestone-check -->
     <milestone-reward v-if="shouldShowMilestoneCheck" :id="11" />
 
@@ -48,6 +53,8 @@ import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useLoadStore } from './../../../stores/loadStore'
 import { usePitchStore } from './../../../stores/pitchStore'
+import { useGalleryStore } from './../../../stores/galleryStore'
+import { usePromptStore } from './../../../stores/promptStore'
 import type { Art } from './../../../stores/artStore'
 
 // Load stores
@@ -55,14 +62,22 @@ const dreamStore = useDreamStore()
 const userStore = useUserStore()
 const loadStore = useLoadStore()
 const pitchStore = usePitchStore()
+const galleryStore = useGalleryStore()
+const promptStore = usePromptStore()
 const errorStore = useErrorStore()
 
+// Computed properties from stores
 const currentPitch = computed(() => pitchStore.selectedPitch)
 const pitch = computed(() => pitchStore.selectedPitch?.pitch || '')
-const prompt = ref('')
+const galleryName = computed(
+  () => galleryStore.currentGallery?.name || 'cafefred',
+)
+const galleryId = computed(() => galleryStore.currentGallery?.id || 21)
+const activePrompt = computed(() => promptStore.activePrompt?.prompt)
 const flavorText = ref('')
 const username = computed(() => userStore.username)
 const userId = computed(() => userStore.userId)
+const promptString = ref('')
 
 const isLoading = ref(false)
 const createdArts = ref<Art[]>([]) // Array to store created art
@@ -78,11 +93,11 @@ const getLoadingMessage = () => {
 const setRandomPrompt = () => {
   const random = dreamStore.randomDream()
   if (random) {
-    prompt.value = random
+    promptString.value = random
   }
 }
 
-// Call `setRandomPrompt` to initialize prompt or on some action
+// Initialize prompt with random value
 setRandomPrompt()
 
 const generateArt = async () => {
@@ -95,17 +110,16 @@ const generateArt = async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        prompt: `${pitch.value}, ${prompt.value}, ${flavorText.value}`,
-        userName: username.value,
-        galleryName: 'cafefred',
+        promptString: `${pitch.value}, ${promptString.value}, ${flavorText.value}`,
+        username: username.value,
+        galleryName: galleryName.value,
+        galleryId: galleryId.value,
         pitchId: currentPitch.value?.id,
         title: currentPitch.value?.title,
-        isMature: false,
-        isPublic: true,
-        isOrphan: true,
+        isMature: false, // Assume default, can be set if required
+        isPublic: true, // Assume default, can be set if required
         flavorText: flavorText.value,
         userId: userId.value,
-        galleryId: 21,
       }),
     })
 

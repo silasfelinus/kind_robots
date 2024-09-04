@@ -46,36 +46,36 @@ type RequestData = {
 
 export default defineEventHandler(async (event) => {
   try {
-    console.log('🌟 Event triggered! Reading request body...')
-    const requestData: RequestData = await readBody(event)
+    console.log('🌟 Event triggered! Reading request body...');
+    const requestData: RequestData = await readBody(event);
 
+    // Debugging: Print out request data to verify pitchName
+    console.log('📬 Request data received:', requestData);
+    
     if (!requestData.promptString) {
-      throw new Error('Missing prompt in request data.')
+      throw new Error('Missing prompt in request data.');
     }
 
-    console.log('📬 Request data received:', requestData)
-    console.log('🔐 Initializing validated data object...')
+    // Validate user, prompt, and pitch
+    const validatedData: Partial<RequestData> = {};
 
-    const validatedData: Partial<RequestData> = {}
-
-    // 1. Validate and Load Related Entities
-    validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
+    validatedData.userId = await validateAndLoadUserId(requestData, validatedData);
     if (!validatedData.userId) {
-      throw new Error('User validation failed.')
+      throw new Error('User validation failed.');
     }
 
-    validatedData.promptId = await validateAndLoadPromptId(requestData, validatedData)
+    validatedData.promptId = await validateAndLoadPromptId(requestData, validatedData);
     if (!validatedData.promptId) {
-      throw new Error('Prompt validation failed.')
+      throw new Error('Prompt validation failed.');
     }
 
-    validatedData.pitchId = await validateAndLoadPitchId(requestData)
+    validatedData.pitchId = await validateAndLoadPitchId(requestData);
     if (!validatedData.pitchId) {
-      throw new Error('Pitch validation failed.')
+      throw new Error('Pitch validation failed.');
     }
 
-    validatedData.galleryId = await validateAndLoadGalleryId(requestData)
-    validatedData.designer = validateAndLoadDesignerName(requestData)
+    validatedData.galleryId = await validateAndLoadGalleryId(requestData);
+    validatedData.designer = validateAndLoadDesignerName(requestData);
 
     // Calculate the final cfg value programmatically
     const cfgValue = calculateCfg(requestData.cfg ?? 3, requestData.cfgHalf ?? false)
@@ -137,15 +137,14 @@ export default defineEventHandler(async (event) => {
     })
 
     console.log('🎉 Art entry created successfully:', newArt)
-    return { success: true, newArt }
   } catch (error: unknown) {
-    console.error('Art Generation Error:', error)
+    console.error('Art Generation Error:', error);
     return errorHandler({
       error,
       context: `Art Generation - Prompt: ${event.req.url}`,
-    })
+    });
   }
-})
+});
 
 async function validateAndLoadUserId(
   data: RequestData,

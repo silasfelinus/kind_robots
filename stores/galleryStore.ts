@@ -2,40 +2,18 @@ import { defineStore } from 'pinia'
 import type { Gallery } from '@prisma/client'
 
 interface GalleryState {
-  galleries: Gallery[]
-  currentGallery: Gallery | null
-  currentImage: string
-}
-
-interface GalleryStore extends GalleryState {
-  // Getters
-  currentGalleryContent: () => string | null
-  currentGalleryDescription: () => string | null
-  currentGalleryMediaId: () => string | null
-  currentGalleryURL: () => string | null
-  currentGalleryIsMature: () => boolean
-  currentGalleryCustodian: () => string | null
-  currentGalleryUserId: () => number | null
-  currentGalleryHighlightImage: () => string | null
-  allGalleryNames: () => string[]
-  randomImage: () => string | null
-  randomGallery: () => string | null
-  imagePathsByGalleryName: (galleryName: string) => string[]
-
-  // Actions
-  fetchGalleries: () => Promise<void>
-  setGalleryByName: (name: string) => void
+  galleries: Gallery[] // List of galleries
+  currentGallery: Gallery | null // Currently selected gallery
+  currentImage: string // Current image in the gallery
 }
 
 export const useGalleryStore = defineStore({
   id: 'gallery',
 
   state: (): GalleryState => ({
-    galleries: JSON.parse(localStorage.getItem('galleries') || '[]'),
-    currentGallery: JSON.parse(
-      localStorage.getItem('currentGallery') || 'null',
-    ),
-    currentImage: localStorage.getItem('currentImage') || '',
+    galleries: [], // Start with an empty list
+    currentGallery: null, // No gallery selected by default
+    currentImage: '', // No current image
   }),
 
   getters: {
@@ -43,40 +21,15 @@ export const useGalleryStore = defineStore({
       return state.currentGallery?.content || null
     },
 
-    currentGalleryDescription(): string | null {
-      return this.currentGallery?.description || null
+    allGalleryNames(state: GalleryState): string[] {
+      return state.galleries.map((gallery) => gallery.name)
     },
 
-
-    currentGalleryURL(): string | null {
-      return this.currentGallery?.url || null
-    },
-
-    currentGalleryIsMature(): boolean {
-      return this.currentGallery?.isMature || false
-    },
-
-    currentGalleryCustodian(): string | null {
-      return this.currentGallery?.custodian || null
-    },
-
-    currentGalleryUserId(): number | null {
-      return this.currentGallery?.userId || null
-    },
-
-    currentGalleryHighlightImage(): string | null {
-      return this.currentGallery?.highlightImage || null
-    },
-
-    allGalleryNames(): string[] {
-      return this.galleries.map((gallery) => gallery.name)
-    },
-
-    randomImage(): string | null {
-      if (this.currentGallery && this.currentGallery.imagePaths) {
-        const images = this.currentGallery.imagePaths.split(',')
+    randomImage(state: GalleryState): string | null {
+      if (state.currentGallery && state.currentGallery.imagePaths) {
+        const images = state.currentGallery.imagePaths.split(',')
         const randomIndex = Math.floor(Math.random() * images.length)
-        return `/images/${this.currentGallery.name}/${images[randomIndex]}`
+        return `/images/${state.currentGallery.name}/${images[randomIndex]}`
       }
       return null
     },
@@ -85,34 +38,72 @@ export const useGalleryStore = defineStore({
       const otherGalleries = state.galleries.filter(
         (g) => g.name !== state.currentGallery?.name,
       )
+      if (otherGalleries.length === 0 && state.currentGallery) {
+        return state.currentGallery
+      }
       return (
         otherGalleries[Math.floor(Math.random() * otherGalleries.length)] ||
         null
       )
     },
 
-    imagePathsByGalleryName(
-      state: GalleryState,
-    ): (galleryName: string) => string[] {
+    imagePathsByGalleryName(state: GalleryState): (galleryName: string) => string[] {
       return (galleryName: string) => {
         const gallery = state.galleries.find((g) => g.name === galleryName)
-        return gallery && gallery.imagePaths
-          ? gallery.imagePaths.split(',')
-          : []
+        return gallery && gallery.imagePaths ? gallery.imagePaths.split(',') : []
       }
     },
   },
 
   actions: {
-    async fetchGalleries(this: GalleryStore) {
-      const response = await fetch('/api/galleries')
-      if (response.ok) {
-        this.galleries = await response.json()
-        localStorage.setItem('galleries', JSON.stringify(this.galleries))
+    // Initialize store by loading from localStorage or API
+    async initializeStore() {
+      // Try loading from localStorage first
+      const storedGalleries = localStorage.getItem('galleries')
+      const storedCurrentGallery = localStorage.getItem('currentGallery')
+      const storedCurrentImage = localStorage.getItem('currentImage')
+
+      if (storedGalleries) {
+        this.galleries = JSON.parse(storedGalleries)
+      }
+
+      if (storedCurrentGallery) {
+        this.currentGallery = JSON.parse(storedCurrentGallery)
+      }
+
+      if (storedCurrentImage) {
+        this.currentImage = storedCurrentImage
+      }
+
+      // If no galleries in localStorage, fetch from API
+      if (!this.galleries.length) {
+        await this.fetchGalleries() // Use the action here
       }
     },
 
-    setGalleryByName(this: GalleryStore, name: string) {
+    // Fetch galleries from API and save to state and localStorage
+    async fetchGalleries() {
+      try {
+        const response = await fetch('/api/galleries')
+        if (response.ok) {
+          const data = await response.json()
+          this.galleries = data || []
+          localStorage.setItem('galleries', JSON.stringify(this.galleries))
+
+          // Set a default gallery if none is selected
+          if (!this.currentGallery && this.galleries.length > 0) {
+            this.setGalleryByName(this.galleries[0].name)
+          }
+        } else {
+          console.error('Failed to fetch galleries')
+        }
+      } catch (error) {
+        console.error('Error fetching galleries:', error)
+      }
+    },
+
+    // Set the current gallery by name and update localStorage
+    setGalleryByName(name: string) {
       const selectedGallery = this.galleries.find(
         (gallery: Gallery) => gallery.name === name,
       )
@@ -124,10 +115,21 @@ export const useGalleryStore = defineStore({
           JSON.stringify(this.currentGallery),
         )
         localStorage.setItem('currentImage', this.currentImage)
+      } else {
+        console.warn(`Gallery with name ${name} not found`)
       }
     },
 
-    changeToRandomImage(this: GalleryStore) {
+    // Set a random gallery and update state and localStorage
+    setRandomGallery() {
+      const randomGallery = this.randomGallery // Use getter, not state property
+      if (randomGallery) {
+        this.setGalleryByName(randomGallery.name)
+      }
+    },
+
+    // Change to a random image within the current gallery
+    changeToRandomImage() {
       if (this.currentGallery && this.currentGallery.imagePaths) {
         const images = this.currentGallery.imagePaths.split(',')
         let newImage = this.currentImage
@@ -138,13 +140,7 @@ export const useGalleryStore = defineStore({
         }
 
         this.currentImage = newImage
-      }
-    },
-
-    setRandomGallery(this: GalleryStore) {
-      const randomGallery = this.randomGallery
-      if (randomGallery) {
-        this.setGalleryByName(randomGallery.name)
+        localStorage.setItem('currentImage', this.currentImage)
       }
     },
   },

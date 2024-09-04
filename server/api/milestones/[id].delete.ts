@@ -1,18 +1,26 @@
+// /server/api/milestones/[id].delete.ts
+import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
-// Function to delete a Milestone by ID
-export async function deleteMilestone(id: number): Promise<boolean> {
+export default defineEventHandler(async (event) => {
   try {
-    const milestoneExists = await prisma.milestone.findUnique({ where: { id } })
+    const milestoneId = Number(event.context.params?.id)
 
-    if (!milestoneExists) {
-      return false
+    if (!milestoneId) {
+      throw new Error('Milestone ID is required.')
     }
 
-    await prisma.milestone.delete({ where: { id } })
-    return true
+    // Delete the milestone with the given ID
+    const deletedMilestone = await prisma.milestone.delete({
+      where: {
+        id: milestoneId,
+      },
+    })
+
+    // Return success response
+    return { success: true, deletedMilestone }
   } catch (error: unknown) {
-    throw errorHandler(error)
+    return errorHandler(error)
   }
-}
+})

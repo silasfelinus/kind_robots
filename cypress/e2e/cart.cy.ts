@@ -29,7 +29,7 @@ describe('Cart Management API Tests', () => {
   it('Get Cart by ID', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/id/${cartId}`,
+      url: `${baseUrl}/${cartId}`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,

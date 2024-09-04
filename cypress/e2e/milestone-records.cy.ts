@@ -4,8 +4,9 @@
 
 describe('Milestone Record Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/milestones/records';
-  const usersUrl = 'https://kind-robots.vercel.app/api/users/register';
-  const deleteUrl = 'https://kind-robots.vercel.app/api/users/milestones/records'; // Updated delete URL
+  const registerUrl = 'https://kind-robots.vercel.app/api/users/register';
+  const userUrl = 'https://kind-robots.vercel.app/api/users/';
+  const deleteUrl = 'https://kind-robots.vercel.app/api/users/milestones/records';
   const apiKey = Cypress.env('API_KEY');
   
   let milestoneRecordId: number;
@@ -16,7 +17,7 @@ describe('Milestone Record Management API Tests', () => {
   it('Create a New User', () => {
     cy.request({
       method: 'POST',
-      url: usersUrl,
+      url: registerUrl,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -76,7 +77,7 @@ describe('Milestone Record Management API Tests', () => {
     if (userId) {
       cy.request({
         method: 'DELETE',
-        url: `${usersUrl}/${userId}`,
+        url: `${userUrl}/${userId}`,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,

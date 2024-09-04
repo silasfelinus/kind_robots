@@ -20,12 +20,13 @@ describe('ChatExchange Management API Tests', () => {
         username: 'silasfelinus',
         userPrompt: 'How are you?',
         botResponse: "I'm fine, thank you!",
+        previousEntryId: null
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(response.body.chatExchange).to.be.an('object').that.is.not.empty;
-      chatExchangeId = response.body.chatExchange.id;
+      expect(response.body.newExchange).to.be.an('object').that.is.not.empty;
+      chatExchangeId = response.body.newExchange.id;
       console.log('Created ChatExchange ID:', chatExchangeId);
     });
   });
@@ -40,7 +41,7 @@ describe('ChatExchange Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.chatExchange.botName).to.eq('AMI');
+      expect(response.body.chatExchanges.botName).to.eq('AMI');
     });
   });
 
@@ -70,7 +71,7 @@ describe('ChatExchange Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.chatExchanges)
+      expect(response.body.userChats)
         .to.be.an('array')
         .and.have.length.greaterThan(0);
     });
@@ -86,7 +87,7 @@ describe('ChatExchange Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.chatExchanges)
+      expect(response.body.botChats)
         .to.be.an('array')
         .and.have.length.greaterThan(0);
     });

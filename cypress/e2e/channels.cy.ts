@@ -39,7 +39,7 @@ describe('Channel Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body.channel.label).to.eq(uniqueLabel); // Expect the correct label
-      expect(response.body.channel.messages).to.be.an('array'); // Expect an array of messages
+      expect(response.body.messages).to.be.an('array'); // Expect an array of messages
     });
   });
 

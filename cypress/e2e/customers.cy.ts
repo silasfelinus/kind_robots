@@ -87,8 +87,8 @@ describe('Customer Management API Tests', () => {
         cy.log(JSON.stringify(getResponse.body)); // Log the GET response body
   
         // Check if `updatedCustomer` exists and contains the `name`
-        expect(getResponse.body).to.have.property('updatedCustomer');
-        expect(getResponse.body.updatedCustomer).to.have.property('name', updatedName); // Check updated name
+        expect(getResponse.body).to.have.property('customer');
+        expect(getResponse.body.customer).to.have.property('name', updatedName); // Check updated name
       });
     });
   });

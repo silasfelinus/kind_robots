@@ -2,7 +2,7 @@
 // cypress/e2e/api/customer.cy.ts
 
 describe('Customer Management API Tests', () => {
-  const baseUrl = 'http://kind-robots.vercel.app/api/customers';
+  const baseUrl = 'https://kind-robots.vercel.app/api/customers';
   const apiKey = Cypress.env('API_KEY');
   let customerId: number; // Explicitly define the type as number
 

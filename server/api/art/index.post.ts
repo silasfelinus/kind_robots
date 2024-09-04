@@ -1,4 +1,3 @@
-// /server/api/art/index.post.ts
 import { defineEventHandler, readBody } from 'h3';
 import { errorHandler } from '../utils/error'; // Import the error handler
 import prisma from './../utils/prisma';
@@ -7,6 +6,12 @@ import type { Prisma, Art } from '@prisma/client';
 export default defineEventHandler(async (event) => {
   try {
     const artData = await readBody(event);
+
+    // Set a default value for the 'path' if it's not provided
+    if (!artData.path) {
+      artData.path = generateDefaultPath();
+    }
+
     const result = await addArt(artData);
     return { success: true, ...result };
   } catch (error) {
@@ -43,4 +48,10 @@ export async function addArt(
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return { art: null, error: errorMessage };
   }
+}
+
+// Helper function to generate a default path
+function generateDefaultPath(): string {
+  // Generate a placeholder path for testing purposes, this can be modified
+  return ` `;
 }

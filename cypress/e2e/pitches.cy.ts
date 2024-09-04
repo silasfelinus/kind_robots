@@ -75,7 +75,6 @@ describe('Pitch Management API Tests', () => {
       },
       body: {
         pitch: updatedPitchName,
-        flavorText: 'This is an updated pitch description',
       },
     }).then((response) => {
       expect(response.status).to.eq(200, 'Response status should be 200');

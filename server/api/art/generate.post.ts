@@ -155,7 +155,6 @@ async function validateAndLoadUserId(
         update: {},
         create: {
           username: data.username,
-          createdAt: new Date(),
           Role: 'USER', 
         },
       });
@@ -193,11 +192,10 @@ async function validateAndLoadPromptId(data: RequestData): Promise<number> {
       const newPrompt = await prisma.prompt.create({
         data: {
           prompt: data.promptString,
-          userId: data.userId ?? 0,
-          galleryId: data.galleryId ?? 0,
-          pitchId: data.pitchId ?? 0,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          userId: data.userId,
+          galleryId: data.galleryId ?? 21,
+          pitchId: data.pitchId ?? null,
+          playerId: data.playerId || null,
         },
       });
       return newPrompt.id;
@@ -230,13 +228,15 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
         data: {
           title: data.title || 'Untitled',
           pitch: data.pitch || 'No details provided.',
-          userId: data.userId || 0,
-          playerId: data.playerId || null,
-          isPublic: data.isPublic || true,
-          isMature: data.isMature || false,
+          designer: data.designer,
           flavorText: data.flavorText || '',
           highlightImage: data.highlightImage || '',
           PitchType: data.PitchType || 'ARTPITCH',
+          isMature: data.isMature || false,
+          isPublic: data.isPublic || true,
+          userId: data.userId ||  null,
+          playerId: data.playerId || null,
+          channelId: data.channelId || null
         },
       });
 
@@ -257,7 +257,7 @@ async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
     if (data.galleryId === undefined) {
       const galleryName = data.galleryName ?? 'cafefred';
 
-      const existingGallery = await prisma.gallery.findFirst({
+      const existingGallery = await prisma.gallery.findUnique({
         where: { name: galleryName },
       });
 
@@ -267,8 +267,10 @@ async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
         const newGallery = await prisma.gallery.create({
           data: {
             name: galleryName,
-            createdAt: new Date(),
             content: '',
+            userId: data.userId ||  null,
+            isMature: data.isMature || false,
+            isPublic: data.isPublic || true,
           },
         });
         return newGallery.id;

@@ -143,6 +143,7 @@ model Gallery {
   highlightImage    String?       @db.VarChar(764)
   imagePaths        String?       @db.Text
   isMature          Boolean       @default(false)
+  isPublic          Boolean       @default(true)
   userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
   Art               Art[]

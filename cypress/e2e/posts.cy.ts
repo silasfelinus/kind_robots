@@ -29,29 +29,27 @@ describe('Post Management API Tests', () => {
       expect(response.status).to.eq(200);
       expect(response.body.post).to.be.an('object').that.is.not.empty;
       postId = response.body.post.id;
-      cy.wrap(postId).as('postId');
       cy.log('Created Post ID:', postId);
     });
   });
 
   beforeEach(() => {
-    cy.get('@postId').should('exist');
+    // Ensure postId is available before running each test
+    expect(postId).to.exist;
   });
 
   it('Get Post by ID', () => {
-    cy.get('@postId').then((postId) => {
-      cy.request({
-        method: 'GET',
-        url: `${baseUrl}/${postId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body.post).to.be.an('object').that.is.not.empty;
-        expect(response.body.post.title).to.eq('Test Post Title');
-      });
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/${postId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200);
+      expect(response.body.post).to.be.an('object').that.is.not.empty;
+      expect(response.body.post.title).to.eq('Test Post Title');
     });
   });
 
@@ -72,30 +70,42 @@ describe('Post Management API Tests', () => {
   });
 
   it('Update a Post', () => {
-    cy.get('@postId').then((postId) => {
-      cy.request({
-        method: 'PATCH',
-        url: `${baseUrl}/${postId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        body: {
-          title: 'Updated Test Post Title',
-          content: 'This is updated test post content.',
-          label: 'Updated Label',
-          isFavorite: false,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body.post.title).to.eq('Updated Test Post Title');
-        expect(response.body.post.content).to.eq('This is updated test post content.');
-      });
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${postId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        title: 'Updated Test Post Title',
+        content: 'This is updated test post content.',
+        label: 'Updated Label',
+        isFavorite: false,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200);
+      expect(response.body.post.title).to.eq('Updated Test Post Title');
+      expect(response.body.post.content).to.eq('This is updated test post content.');
     });
   });
 
   it('Delete a Post', () => {
-    cy.get('@postId').then((postId) => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${postId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200);
+      cy.log('Deleted Post ID:', postId);
+    });
+  });
+
+  after(() => {
+    if (postId) {
       cy.request({
         method: 'DELETE',
         url: `${baseUrl}/${postId}`,
@@ -105,26 +115,8 @@ describe('Post Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200);
-        cy.log('Deleted Post ID:', postId);
+        cy.log('Reverted Post ID:', postId);
       });
-    });
-  });
-
-  after(() => {
-    cy.get('@postId').then((postId) => {
-      if (postId) {
-        cy.request({
-          method: 'DELETE',
-          url: `${baseUrl}/${postId}`,
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-          },
-        }).then((response) => {
-          expect(response.status).to.eq(200);
-          cy.log('Reverted Post ID:', postId);
-        });
-      }
-    });
+    }
   });
 });

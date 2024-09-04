@@ -27,8 +27,8 @@ describe('Post Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.newPost).to.be.an('object').that.is.not.empty;
-      postId = response.body.newPost.id;
+      expect(response.body.post).to.be.an('object').that.is.not.empty;
+      postId = response.body.post.id;
       console.log('Created Post ID:', postId);
     });
   });
@@ -87,8 +87,8 @@ describe('Post Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.updatedPost.title).to.eq('Updated Test Post Title'); // Verify title is updated
-      expect(response.body.updatedPost.content).to.eq('This is updated test post content.'); // Verify content is updated
+      expect(response.body.post.title).to.eq('Updated Test Post Title'); // Verify title is updated
+      expect(response.body.post.content).to.eq('This is updated test post content.'); // Verify content is updated
     });
   });
 

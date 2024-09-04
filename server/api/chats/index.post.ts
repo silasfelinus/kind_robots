@@ -11,10 +11,6 @@ interface ExchangeData {
   username: string
   userPrompt: string
   botResponse: string
-  liked?: boolean
-  hated?: boolean
-  loved?: boolean
-  flagged?: boolean
 }
 
 export default defineEventHandler(async (event) => {
@@ -24,7 +20,6 @@ export default defineEventHandler(async (event) => {
 
     // Validate required fields
     if (
-      !exchangeData.userId ||
       !exchangeData.botId ||
       !exchangeData.botName ||
       !exchangeData.username ||
@@ -32,6 +27,21 @@ export default defineEventHandler(async (event) => {
       !exchangeData.botResponse
     ) {
       throw new Error('Invalid exchange data. Missing required fields.')
+    }
+
+    // Optional: Check if the user and bot exist in the database
+    const user = exchangeData.userId
+      ? await prisma.user.findUnique({ where: { id: exchangeData.userId } })
+      : null
+
+    const bot = await prisma.bot.findUnique({ where: { id: exchangeData.botId } })
+
+    if (exchangeData.userId && !user) {
+      throw new Error(`User with id ${exchangeData.userId} does not exist.`)
+    }
+
+    if (!bot) {
+      throw new Error(`Bot with id ${exchangeData.botId} does not exist.`)
     }
 
     // Create the new chat exchange
@@ -43,10 +53,6 @@ export default defineEventHandler(async (event) => {
         username: exchangeData.username,
         userPrompt: exchangeData.userPrompt,
         botResponse: exchangeData.botResponse,
-        liked: exchangeData.liked ?? false, // Default to false if not provided
-        hated: exchangeData.hated ?? false, // Default to false if not provided
-        loved: exchangeData.loved ?? false, // Default to false if not provided
-        flagged: exchangeData.flagged ?? false, // Default to false if not provided
       },
     })
 

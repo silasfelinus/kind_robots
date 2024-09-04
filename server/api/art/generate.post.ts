@@ -81,6 +81,7 @@ export default defineEventHandler(async (event) => {
     const cfgValue = calculateCfg(requestData.cfg ?? 3, requestData.cfgHalf ?? false)
 
     console.log('🎉 All validations passed! Generating image...')
+    console.log('Sending steps:', requestData.steps); // Add this line to check the value
 
     // 2. Generate Image Using Modeler
     const response: GenerateImageResponse = await generateImage(
@@ -88,7 +89,9 @@ export default defineEventHandler(async (event) => {
       validatedData.designer!,
       cfgValue,
       requestData.seed,
+      requestData.steps || 20 
     )
+    
 
     if (!response || !response.images?.length) {
       console.error('Image generation failed:', response?.error)
@@ -315,7 +318,8 @@ export async function generateImage(
   prompt: string,
   user: string,
   cfgValue: number,
-  seed?: number
+  seed?: number,
+  steps?: number
 ): Promise<{ images: string[] }> {
   console.log('📸 Starting image generation...');
   const config = {
@@ -330,9 +334,12 @@ export async function generateImage(
     size: '256x256',
     response_format: 'url',
     user,
-    cfg: cfgValue,
-    seed: seed || -1
+    cfg_scale: cfgValue,
+    seed: seed || -1,
+    steps: steps || 20
   };
+  console.log('Using steps for image generation:', steps); // Inside generateImage function
+  console.log('🚀 Image generation payload:', requestBody);
 
   try {
     const response = await fetch(

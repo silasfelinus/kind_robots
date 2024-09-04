@@ -24,8 +24,8 @@ describe('ChatExchange Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200);
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(response.body.newChatExchange).to.be.an('object').that.is.not.empty;
-      chatExchangeId = response.body.newChatExchange.id;
+      expect(response.body.chatExchange).to.be.an('object').that.is.not.empty;
+      chatExchangeId = response.body.chatExchange.id;
       console.log('Created ChatExchange ID:', chatExchangeId);
     });
   });

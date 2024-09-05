@@ -46,7 +46,7 @@ model ArtImage {
   fileName          String?       @db.VarChar(764)
   galleryId         Int?          @default(21)          
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
   artId             Int?
   Art               Art?          @relation(fields: [artId], references: [id])
@@ -74,7 +74,7 @@ model Bot {
   isPublic          Boolean       @default(false)
   underConstruction Boolean       @default(false)
   canDelete         Boolean       @default(false)
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
   ChatExhanges      ChatExchange[]
   Messages          Message[]
@@ -111,7 +111,7 @@ model Channel {
   label             String        @unique(map: "Channel_id_key", length: 200) @db.VarChar(764)
   description       String?       @db.VarChar(2000)
   title             String?       @db.VarChar(256)
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
   messages          Message[]
   Player            Player[]
@@ -149,6 +149,7 @@ model Component {
   title             String?       // Optional title derived from componentName if not provided
   notes             String?       //optional notes for development wonderlab
   Tags              Tag[]
+  Reactions         Reaction[]
 }
 
 
@@ -158,7 +159,7 @@ model Customer {
   updatedAt         DateTime?     @updatedAt @default(now())
   email             String        @unique
   name              String?
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
   Carts             Cart[]
 }
@@ -176,7 +177,7 @@ model Gallery {
   imagePaths        String?       @db.Text
   isMature          Boolean       @default(false)
   isPublic          Boolean       @default(true)
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
   Art               Art[]
   Prompts           Prompt[]
@@ -339,7 +340,7 @@ model Product {
   costInPennies     Int           @default(0)
   passcode          String?       @db.VarChar(764)
   imagePath         String?       @db.VarChar(764)
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
   CartItem          CartItem[]
 }
@@ -349,7 +350,7 @@ model Prompt {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime?     @updatedAt @default(now())
   prompt            String        @db.VarChar(764)
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
   galleryId         Int?          @default(21)
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
@@ -380,12 +381,18 @@ model Reaction {
   title             String?
   comment           String?       @db.Text
   reaction          String?
+  isLoved           Boolean?      @default(false)
+  isClapped         Boolean?      @default(false)
+  isBooed           Boolean?      @default(false)
+  IsHated           Boolean?      @default(false)
   userId            Int
   User              User          @relation(fields: [userId], references: [id])
   artId             Int?
   Art               Art?          @relation(fields: [artId], references: [id])
   pitchId           Int?
   Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
+  componentId       Int?
+  Component         Component?    @relation(fields: [componentId], references: [id])
 
   @@index([artId], map: "Reaction_artId_fkey")
   @@index([pitchId], map: "Reaction_pitchId_fkey")
@@ -406,7 +413,7 @@ model Resource {
   description       String?       @db.Text
   isMature          Boolean       @default(false)
   resourceType      ResourceType @default(EMBEDDING)
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
 }
 

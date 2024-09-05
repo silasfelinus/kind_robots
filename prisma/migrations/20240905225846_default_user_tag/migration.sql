@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `Component` ADD COLUMN `notes` VARCHAR(191) NULL;
+
+-- AlterTable
+ALTER TABLE `Tag` MODIFY `userId` INTEGER NULL DEFAULT 1;

@@ -22,15 +22,15 @@ model Art {
   promptString      String        @default(" ")
   isPublic          Boolean?      @default(false)
   isMature          Boolean?      @default(false)
-  promptId          Int?
+  promptId          Int?          @default(1)
   Prompt            Prompt?       @relation(fields: [promptId], references: [id])
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
-  pitchId           Int?
+  pitchId           Int?          @default(1)
   Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
-  galleryId         Int?
+  galleryId         Int?          @default(21)
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
-    channelId         Int?
+  channelId         Int?          @default(1)
   Channel           Channel?      @relation(fields: [channelId], references: [id]) 
   Reaction          Reaction[]
   Game              Game[]
@@ -431,8 +431,8 @@ model Reward {
   collection        String         @db.VarChar(764)
   rarity            Int            @default(0)
   label             String?        @db.VarChar(764)
-  userId            Int?
-  User              User?         @relation(fields: [userId], references: [id])
+  userId            Int?           @default(1)
+  User              User?          @relation(fields: [userId], references: [id])
 }
 
 
@@ -447,9 +447,9 @@ model Tag {
   pitch             String?       @db.VarChar(764)
   isPublic          Boolean?      @default(false)
   isMature          Boolean       @default(false)
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
-  channelId         Int?
+  channelId         Int?          @default(1)
   Channel           Channel?      @relation(fields: [channelId], references: [id])
   Posts             Post[]
   Pitches           Pitch[]

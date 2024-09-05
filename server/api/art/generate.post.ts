@@ -353,7 +353,6 @@ export async function generateImage(
     seed: seed || -1,
     steps: steps || 20
   };
-  console.log('Using steps for image generation:', steps); // Inside generateImage function
   console.log('🚀 Image generation payload:', requestBody);
 
   try {

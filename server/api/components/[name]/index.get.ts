@@ -1,8 +1,8 @@
 // server/api/components/[name]/index.get.ts
 
-import { promises as fs } from 'fs'
-import path from 'path'
 import { defineEventHandler } from 'h3'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,29 +12,29 @@ export default defineEventHandler(async (event) => {
       throw new Error('Invalid folder name.')
     }
 
-    // Resolve the path to the folder
-    const componentPath = path.resolve(
-      process.cwd(),
-      `components/content/${folderName}`,
-    )
+    // Fetch components from the database where the folderName matches
+    const components = await prisma.component.findMany({
+      where: { folderName },
+      select: {
+        componentName: true, // Only select component names
+      },
+    })
 
-    // Read the component files in the folder
-    const componentFiles = await fs.readdir(componentPath)
-    const components = []
-
-    for (const componentFile of componentFiles) {
-      if (componentFile.endsWith('.vue')) {
-        const componentName = componentFile.replace('.vue', '')
-        components.push(componentName)
-      }
+    if (!components.length) {
+      throw new Error(`No components found for folder: ${folderName}`)
     }
 
-    console.log('Components found:', components) // Debugging line
+    // Extract component names from the result
+    const componentList = components.map(component => component.componentName)
 
-    // Return the list of components
-    return { response: components }
-  } catch (error) {
+    // Return the list of component names
+    return { success: true, components: componentList }
+  } catch (error: unknown) {
     console.error('Failed to fetch component list:', error)
-    return { response: 'Failed to fetch component list', statusCode: 500 }
+    return errorHandler({
+      success: false,
+      message: 'Failed to fetch component list.',
+      statusCode: 500,
+    })
   }
 })

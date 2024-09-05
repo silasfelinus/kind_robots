@@ -147,6 +147,7 @@ model Component {
   underConstruction Boolean       @default(false)
   isBroken          Boolean       @default(false)
   title             String?       // Optional title derived from componentName if not provided
+  notes             String?       //optional notes for development wonderlab
   Tags              Tag[]
 }
 

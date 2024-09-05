@@ -14,11 +14,30 @@ export const useComponentStore = defineStore('componentStore', {
     folderNames: [] as string[],
     lastFetched: null as string | null, // ISO format date of the last fetch
     currentComponent: null as Component | null, // Default current component
+    components: [] as Component[] // Flat list of components
   }),
 
   getters: {
     // Getter to return the current component (if selected)
     getCurrentComponent: (state) => state.currentComponent,
+
+    // Dynamically calculate folder names from the components array
+    folderNames(state) {
+      return [...new Set(state.components.map(component => component.folderName))]
+    },
+
+    // Get folders by grouping components by folderName
+    groupedFolders(state) {
+      return state.components.reduce((folders: Folder[], component) => {
+        let folder = folders.find(f => f.folderName === component.folderName)
+        if (!folder) {
+          folder = { folderName: component.folderName, components: [] }
+          folders.push(folder)
+        }
+        folder.components.push(component)
+        return folders
+      }, [])
+    }
   },
 
   actions: {
@@ -31,14 +50,16 @@ export const useComponentStore = defineStore('componentStore', {
         const dbComponents: Component[] = await dbResponse.json()
 
         // 2. Try to fetch components.json (bible)
-        let jsonComponents: Folder[]
+        let jsonComponents: Component[] = []
         try {
           const jsonResponse = await fetch('/components.json')
           if (!jsonResponse.ok) throw new Error('components.json not found')
           jsonComponents = await jsonResponse.json()
+
         } catch (error) {
           console.warn('components.json not found, generating it now...', error)
           await this.generateComponentJSON()
+
           const jsonResponse = await fetch('/components.json')
           if (!jsonResponse.ok) throw new Error('Failed to fetch newly generated components.json')
           jsonComponents = await jsonResponse.json()
@@ -47,9 +68,9 @@ export const useComponentStore = defineStore('componentStore', {
         // 3. Sync database with components.json
         await this.syncDatabaseWithJSON(dbComponents, jsonComponents)
 
-        // 4. Update localStorage
-        localStorage.setItem('components', JSON.stringify(jsonComponents))
-        this.folders = jsonComponents // Update store state
+        // 4. Update store with components and folders
+        this.components = jsonComponents
+        this.folders = this.groupedFolders // Derived from components
 
         console.log('ComponentStore initialized successfully')
       } catch (error) {
@@ -72,34 +93,31 @@ export const useComponentStore = defineStore('componentStore', {
     },
 
     // Function to sync the database with components.json
-    async syncDatabaseWithJSON(dbComponents: Component[], jsonComponents: Folder[]) {
+    async syncDatabaseWithJSON(dbComponents: Component[], jsonComponents: Component[]) {
       try {
         // Compare and update the database based on the components.json (bible)
-        for (const jsonFolder of jsonComponents) {
-          for (const jsonComponent of jsonFolder.components) {
-            const dbComponent = dbComponents.find(
-              component =>
-                component.componentName === jsonComponent.componentName &&
-                jsonFolder.folderName === component.folderName
-            )
+        for (const jsonComponent of jsonComponents) {
+          const dbComponent = dbComponents.find(
+            component =>
+              component.componentName === jsonComponent.componentName &&
+              jsonComponent.folderName === component.folderName
+          )
 
-            // If component doesn't exist in the database, create it
-            if (!dbComponent) {
-              await this.createOrUpdateComponent(jsonComponent)
-            } else {
-              // Update component if it exists but is different
-              await this.updateComponent(dbComponent, jsonComponent)
-            }
+          // If component doesn't exist in the database, create it
+          if (!dbComponent) {
+            await this.createOrUpdateComponent(jsonComponent)
+          } else {
+            // Update component if it exists but is different
+            await this.updateComponent(jsonComponent)
           }
         }
 
         // Remove components in the database that are no longer in components.json
         for (const dbComponent of dbComponents) {
-          const jsonFolder = jsonComponents.find(folder =>
-            folder.components.some(component => component.componentName === dbComponent.componentName)
+          const jsonComponentExists = jsonComponents.some(
+            jsonComponent => jsonComponent.componentName === dbComponent.componentName
           )
-
-          if (!jsonFolder) {
+          if (!jsonComponentExists) {
             await this.deleteComponent(dbComponent.id) // Delete by id
           }
         }
@@ -107,13 +125,35 @@ export const useComponentStore = defineStore('componentStore', {
         console.error('Error syncing database with components.json:', error)
       }
     },
+     // Fetch components for a specific folder
+     async fetchComponentList(folderName: string) {
+      try {
+        const response = await fetch(`/api/components/folder/${folderName}`)
+        if (!response.ok) throw new Error('Failed to fetch components for the folder')
+        const folderComponents: Component[] = await response.json()
+
+        // Filter the existing components to remove any from this folder
+        this.components = this.components.filter(
+          (component) => component.folderName !== folderName
+        )
+
+        // Add new components from the fetched folder
+        this.components = [...this.components, ...folderComponents]
+
+        // Update folders dynamically
+        this.folders = this.groupedFolders
+      } catch (error) {
+        console.error('Error fetching component list:', error)
+      }
+    },
+
 
     // Function to generate the components.json file if it doesn't exist
     async generateComponentJSON() {
       try {
         const componentPath = path.resolve(process.cwd(), 'components/content')
         const folderNames = await fs.readdir(componentPath)
-        const folders = []
+        const components: Component[] = []
 
         for (const folderName of folderNames) {
           const folderPath = path.join(componentPath, folderName)
@@ -121,15 +161,25 @@ export const useComponentStore = defineStore('componentStore', {
 
           if (stat.isDirectory()) {
             const componentFiles = await fs.readdir(folderPath)
-            const components = componentFiles
-              .filter((file) => file.endsWith('.vue'))
-              .map((file) => file.replace('.vue', ''))
-            folders.push({ folderName, components })
+            for (const file of componentFiles) {
+              if (file.endsWith('.vue')) {
+                components.push({
+                  folderName,
+                  componentName: file.replace('.vue', ''),
+                  isWorking: true, // Default values for new components
+                  underConstruction: false,
+                  isBroken: false,
+                  title: null,
+                  createdAt: new Date(),
+                  updatedAt: new Date()
+                } as Component)
+              }
+            }
           }
         }
 
         const outputPath = path.resolve(process.cwd(), 'public/components.json')
-        await fs.writeFile(outputPath, JSON.stringify(folders, null, 2))
+        await fs.writeFile(outputPath, JSON.stringify(components, null, 2))
         console.log('Component JSON generated successfully:', outputPath)
       } catch (error) {
         console.error('Failed to generate component JSON:', error)
@@ -146,8 +196,7 @@ export const useComponentStore = defineStore('componentStore', {
         })
 
         if (response.status === 409) { // Conflict, update the existing component
-          const existingComponent = await response.json()
-          await this.updateComponent(existingComponent, component)
+          await this.updateComponent(component)
         } else if (!response.ok) {
           throw new Error(`Failed to create component: ${response.statusText}`)
         }
@@ -159,19 +208,26 @@ export const useComponentStore = defineStore('componentStore', {
     },
 
     // API call to update a component in the database (by ID)
-    async updateComponent(dbComponent: Component, jsonComponent: Component) {
+    async updateComponent(updatedComponent: Component) {
       try {
-        if (JSON.stringify(dbComponent) !== JSON.stringify(jsonComponent)) {
-          const response = await fetch(`/api/components/${dbComponent.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(jsonComponent),
-          })
-          if (!response.ok) {
-            throw new Error(`Failed to update component: ${response.statusText}`)
-          }
-          console.log(`Component ${dbComponent.componentName} updated successfully`)
+        const response = await fetch(`/api/components/${updatedComponent.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedComponent),
+        })
+
+        if (!response.ok) {
+          throw new Error(`Failed to update component: ${response.statusText}`)
         }
+
+        // Update the component in the store
+        const componentIndex = this.components.findIndex(c => c.id === updatedComponent.id)
+        if (componentIndex > -1) {
+          this.components[componentIndex] = updatedComponent
+        }
+
+        this.folders = this.groupedFolders // Recalculate folders
+        console.log(`Component ${updatedComponent.componentName} updated successfully`)
       } catch (error) {
         console.error('Error updating component in the database:', error)
       }
@@ -186,6 +242,11 @@ export const useComponentStore = defineStore('componentStore', {
         if (!response.ok) {
           throw new Error(`Failed to delete component: ${response.statusText}`)
         }
+
+        // Remove the component from store
+        this.components = this.components.filter(c => c.id !== componentId)
+        this.folders = this.groupedFolders // Recalculate folders
+
         console.log(`Component with ID ${componentId} deleted successfully`)
       } catch (error) {
         console.error('Error deleting component from the database:', error)

@@ -6,7 +6,7 @@
       class="art-frame"
       @click="selectAndShowArt(art.id)"
     >
-      <img :src="art.imageUrl" alt="Artwork thumbnail" />
+      <img :src="art.path" alt="Artwork thumbnail" />
       <div class="art-title">{{ art.title }}</div>
     </div>
   </div>

@@ -129,16 +129,7 @@
         />
       </div>
 
-      <!-- Gallery Name (optional) -->
-      <div>
-        <label for="galleryName">Gallery Name (Optional):</label>
-        <input
-          id="galleryName"
-          v-model="formData.galleryName"
-          type="text"
-          placeholder="Enter gallery name"
-        />
-      </div>
+      <gallery-selector />
 
       <!-- Channel Name (optional) -->
       <div>
@@ -205,13 +196,17 @@
 <script setup>
 import { ref } from 'vue'
 import {useUserStore} from './../../../stores/userStore'
+import {useGalleryStore} from './../../../stores/galleryStore'
 
 // CFG options from 1 to 36
 const cfgOptions = Array.from({ length: 36 }, (_, i) => i + 1)
 
 const userStore = useUserStore()
+const galleryStore = useGalleryStore()
 
 const user= computed(()=> userStore.currentUser)
+const gallery= computed(()=> galleryStore.currentGallery)
+
 const formData = ref({
   promptString: '',
   title: '',
@@ -225,7 +220,8 @@ const formData = ref({
   sampler: '',
   seed: undefined,
   designer: '',
-  galleryName: '',
+  galleryName: gallery.name,
+  galleryId: gallery.id
   channelName: '',
   pitch: '',
   isPublic: true,
@@ -239,33 +235,22 @@ const imageUrl = ref('')
 const errorMessage = ref('')
 
 const generateArt = async () => {
-  steps.value = []
   imageUrl.value = ''
   errorMessage.value = ''
 
-  // Calculate CFG value with optional half step
-  const cfgValue = formData.value.cfgHalf
-    ? formData.value.cfg + 0.5
-    : formData.value.cfg
-
-  const payload = { ...formData.value, cfg: cfgValue }
-
   try {
-    steps.value.push('🚀 Sending request to generate art...')
     const res = await fetch('/api/art/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(formData.value),
     })
 
     const data = await res.json()
 
     if (data.success) {
-      steps.value.push('🎨 Art entry created successfully!')
-      steps.value.push(`🖼 Path: ${data.newArt.path}`)
-      steps.value.push('🎉 Art generation complete!')
+      console.log('🎨 Art generation complete!')
 
       imageUrl.value = `/public/${data.newArt.path}`
     } else {

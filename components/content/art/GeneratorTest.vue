@@ -195,8 +195,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import {useUserStore} from './../../../stores/userStore'
-import {useGalleryStore} from './../../../stores/galleryStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useGalleryStore } from './../../../stores/galleryStore'
 
 // CFG options from 1 to 36
 const cfgOptions = Array.from({ length: 36 }, (_, i) => i + 1)
@@ -204,8 +204,8 @@ const cfgOptions = Array.from({ length: 36 }, (_, i) => i + 1)
 const userStore = useUserStore()
 const galleryStore = useGalleryStore()
 
-const user= computed(()=> userStore.currentUser)
-const gallery= computed(()=> galleryStore.currentGallery)
+const user = computed(() => userStore.currentUser)
+const gallery = computed(() => galleryStore.currentGallery)
 
 const formData = ref({
   promptString: '',
@@ -220,14 +220,14 @@ const formData = ref({
   sampler: '',
   seed: undefined,
   designer: '',
-  galleryName: gallery.name,
-  galleryId: gallery.id
+  galleryName: gallery.value.name,
+  galleryId: gallery.value.id,
   channelName: '',
   pitch: '',
   isPublic: true,
   isMature: false,
-  userId: user.userId || 1,
-  username: user.username
+  userId: user.value.userId || 1,
+  username: user.value.username,
 })
 
 const steps = ref([])

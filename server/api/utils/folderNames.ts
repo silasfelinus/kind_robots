@@ -30,7 +30,7 @@ export default defineEventHandler(async () => {
 
     try {
       // Fallback to the JSON file
-      const jsonPath = path.resolve(process.cwd(), 'public/components.json')
+      const jsonPath = path.resolve(process.cwd(), 'components.json')
       const jsonData = await fs.readFile(jsonPath, 'utf-8')
       const folders = (JSON.parse(jsonData) as Folder[]).map(folder => folder.folderName)
       return { response: folders }

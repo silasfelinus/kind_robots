@@ -47,10 +47,14 @@ export const useGalleryStore = defineStore({
       )
     },
 
-    imagePathsByGalleryName(state: GalleryState): (galleryName: string) => string[] {
+    imagePathsByGalleryName(
+      state: GalleryState,
+    ): (galleryName: string) => string[] {
       return (galleryName: string) => {
         const gallery = state.galleries.find((g) => g.name === galleryName)
-        return gallery && gallery.imagePaths ? gallery.imagePaths.split(',') : []
+        return gallery && gallery.imagePaths
+          ? gallery.imagePaths.split(',')
+          : []
       }
     },
   },

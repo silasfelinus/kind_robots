@@ -46,52 +46,60 @@ type RequestData = {
 
 export default defineEventHandler(async (event) => {
   try {
-    console.log('🌟 Event triggered! Reading request body...');
-    const requestData: RequestData = await readBody(event);
+    console.log('🌟 Event triggered! Reading request body...')
+    const requestData: RequestData = await readBody(event)
 
     // Debugging: Print out request data to verify pitchName
-    console.log('📬 Request data received:', requestData);
-    
+    console.log('📬 Request data received:', requestData)
+
     if (!requestData.promptString) {
-      throw new Error('Missing prompt in request data.');
+      throw new Error('Missing prompt in request data.')
     }
 
     // Validate user, prompt, and pitch
-    const validatedData: Partial<RequestData> = {};
+    const validatedData: Partial<RequestData> = {}
 
-    validatedData.userId = await validateAndLoadUserId(requestData, validatedData);
+    validatedData.userId = await validateAndLoadUserId(
+      requestData,
+      validatedData,
+    )
     if (!validatedData.userId) {
-      throw new Error('User validation failed.');
+      throw new Error('User validation failed.')
     }
 
-    validatedData.promptId = await validateAndLoadPromptId(requestData, validatedData);
+    validatedData.promptId = await validateAndLoadPromptId(
+      requestData,
+      validatedData,
+    )
     if (!validatedData.promptId) {
-      throw new Error('Prompt validation failed.');
+      throw new Error('Prompt validation failed.')
     }
 
-    validatedData.pitchId = await validateAndLoadPitchId(requestData);
+    validatedData.pitchId = await validateAndLoadPitchId(requestData)
     if (!validatedData.pitchId) {
-      throw new Error('Pitch validation failed.');
+      throw new Error('Pitch validation failed.')
     }
 
-    validatedData.galleryId = await validateAndLoadGalleryId(requestData);
-    validatedData.designer = validateAndLoadDesignerName(requestData);
+    validatedData.galleryId = await validateAndLoadGalleryId(requestData)
+    validatedData.designer = validateAndLoadDesignerName(requestData)
 
     // Calculate the final cfg value programmatically
-    const cfgValue = calculateCfg(requestData.cfg ?? 3, requestData.cfgHalf ?? false)
+    const cfgValue = calculateCfg(
+      requestData.cfg ?? 3,
+      requestData.cfgHalf ?? false,
+    )
 
     console.log('🎉 All validations passed! Generating image...')
-    console.log('Sending steps:', requestData.steps); // Add this line to check the value
+    console.log('Sending steps:', requestData.steps) // Add this line to check the value
 
     // 2. Generate Image Using Modeler
     const response: GenerateImageResponse = await generateImage(
       requestData.promptString,
-      validatedData.designer || "kindguest",
+      validatedData.designer || 'kindguest',
       cfgValue || 3,
       requestData.seed || -1,
-      requestData.steps || 20 
+      requestData.steps || 20,
     )
-    
 
     if (!response || !response.images?.length) {
       console.error('Image generation failed:', response?.error)
@@ -104,7 +112,12 @@ export default defineEventHandler(async (event) => {
 
     // 3. Save Generated Image to the database
     const base64Image = response.images[0]
-    const { id: imageId, fileName: imagePath } = await saveImage(base64Image, requestData.galleryName || 'cafefred', validatedData.userId, validatedData.galleryId)
+    const { id: imageId, fileName: imagePath } = await saveImage(
+      base64Image,
+      requestData.galleryName || 'cafefred',
+      validatedData.userId,
+      validatedData.galleryId,
+    )
 
     if (!imageId) {
       throw new Error('Failed to save generated image.')
@@ -140,32 +153,34 @@ export default defineEventHandler(async (event) => {
       // Check if imageId exists before proceeding
       const existingArtImage = await prisma.artImage.findUnique({
         where: { id: imageId },
-      });
-    
+      })
+
       if (!existingArtImage) {
-        throw new Error(`ArtImage with ID ${imageId} not found`);
+        throw new Error(`ArtImage with ID ${imageId} not found`)
       }
-    
+
       // Check if newArt exists before proceeding
       if (!newArt?.id) {
-        throw new Error(`newArt ID is invalid or not found`);
+        throw new Error(`newArt ID is invalid or not found`)
       }
-    
+
       // Proceed to link the artId back to artImage
-      console.log('🔗 Linking artId back to artImage...');
+      console.log('🔗 Linking artId back to artImage...')
       const updatedArtImage = await prisma.artImage.update({
         where: { id: imageId },
         data: { artId: newArt.id },
-      });
-    
-      console.log(`🔗 Successfully linked artId ${newArt.id} to artImage ${updatedArtImage.id}`);
+      })
+
+      console.log(
+        `🔗 Successfully linked artId ${newArt.id} to artImage ${updatedArtImage.id}`,
+      )
     } catch (error) {
       if (error instanceof Error) {
-        console.error('❌ Error linking artId back to artImage:', error.message);
+        console.error('❌ Error linking artId back to artImage:', error.message)
       } else {
-        console.error('❌ Unknown error occurred:', error);
+        console.error('❌ Unknown error occurred:', error)
       }
-      throw new Error(`Failed to link artId back to artImage: ${error}`);
+      throw new Error(`Failed to link artId back to artImage: ${error}`)
     }
 
     // Return success response
@@ -175,16 +190,14 @@ export default defineEventHandler(async (event) => {
       artId: newArt.id,
       imageId: imageId,
     }
-
   } catch (error: unknown) {
-    console.error('Art Generation Error:', error);
+    console.error('Art Generation Error:', error)
     return errorHandler({
       error,
       context: `Art Generation - Prompt: ${event.req.url}`,
-    });
+    })
   }
-});
-
+})
 
 async function validateAndLoadUserId(
   data: RequestData,
@@ -258,14 +271,13 @@ async function validateAndLoadPromptId(
   }
 }
 
-
 async function validateAndLoadPitchId(data: RequestData): Promise<number> {
-  console.log('🔍 Validating and loading pitch ID...');
+  console.log('🔍 Validating and loading pitch ID...')
 
   // If pitchId is provided, use it
   if (data.pitchId) {
-    console.log(`✅ Pitch ID provided: ${data.pitchId}`);
-    return data.pitchId;
+    console.log(`✅ Pitch ID provided: ${data.pitchId}`)
+    return data.pitchId
   }
 
   // If pitchName is provided, try to find it or create a new one
@@ -274,15 +286,15 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
       // Check if the pitch already exists by name
       const existingPitch = await prisma.pitch.findUnique({
         where: { pitch: data.pitch },
-      });
+      })
 
       if (existingPitch) {
-        console.log(`✅ Existing pitch found: ${existingPitch.id}`);
-        return existingPitch.id;
+        console.log(`✅ Existing pitch found: ${existingPitch.id}`)
+        return existingPitch.id
       }
 
       // If no existing pitch is found, create a new one
-      console.log('🔨 Creating a new pitch...');
+      console.log('🔨 Creating a new pitch...')
       const newPitch = await prisma.pitch.create({
         data: {
           title: data.title || 'Untitled', // Fallback to 'Untitled' if no title is provided
@@ -297,58 +309,58 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
           playerId: data.playerId || null,
           channelId: data.channelId || null,
         },
-      });
+      })
 
-      console.log(`✅ New pitch created: ${newPitch.id}`);
-      return newPitch.id;
+      console.log(`✅ New pitch created: ${newPitch.id}`)
+      return newPitch.id
     } catch (error) {
-      console.error('Error loading or creating pitch:', error);
-      throw new Error('Pitch validation failed.');
+      console.error('Error loading or creating pitch:', error)
+      throw new Error('Pitch validation failed.')
     }
   }
 
   // If neither pitchId nor pitchName is provided, return 0
-  console.warn('No pitchId or pitchName provided.');
-  return 0;
+  console.warn('No pitchId or pitchName provided.')
+  return 0
 }
 
 async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
-  console.log('🔍 Validating and loading gallery ID...');
+  console.log('🔍 Validating and loading gallery ID...')
 
   try {
     if (data.galleryId === undefined) {
-      const galleryName = data.galleryName ?? 'cafefred';
+      const galleryName = data.galleryName ?? 'cafefred'
 
       const existingGallery = await prisma.gallery.findUnique({
         where: { name: galleryName },
-      });
+      })
 
       if (existingGallery) {
-        return existingGallery.id;
+        return existingGallery.id
       } else {
         const newGallery = await prisma.gallery.create({
           data: {
             name: galleryName,
             content: '',
-            userId: data.userId ||  null,
+            userId: data.userId || null,
             isMature: data.isMature || false,
             isPublic: data.isPublic || true,
           },
-        });
-        return newGallery.id;
+        })
+        return newGallery.id
       }
     }
 
-    return data.galleryId ?? 21;
+    return data.galleryId ?? 21
   } catch (error) {
-    console.error('Error loading gallery:', error);
-    throw new Error('Gallery validation failed.');
+    console.error('Error loading gallery:', error)
+    throw new Error('Gallery validation failed.')
   }
 }
 
 function validateAndLoadDesignerName(data: RequestData): string {
-  console.log('🔍 Validating and loading designer name...');
-  return data.designer ?? data.username ?? generateSillyName() ?? 'Kind Guest';
+  console.log('🔍 Validating and loading designer name...')
+  return data.designer ?? data.username ?? generateSillyName() ?? 'Kind Guest'
 }
 
 export async function generateImage(
@@ -356,14 +368,14 @@ export async function generateImage(
   user: string,
   cfgValue: number,
   seed?: number,
-  steps?: number
+  steps?: number,
 ): Promise<{ images: string[] }> {
-  console.log('📸 Starting image generation...');
+  console.log('📸 Starting image generation...')
   const config = {
     headers: {
       'Content-Type': 'application/json',
     },
-  };
+  }
 
   const requestBody = {
     prompt,
@@ -373,9 +385,9 @@ export async function generateImage(
     user,
     cfg_scale: cfgValue,
     seed: seed || -1,
-    steps: steps || 20
-  };
-  console.log('🚀 Image generation payload:', requestBody);
+    steps: steps || 20,
+  }
+  console.log('🚀 Image generation payload:', requestBody)
 
   try {
     const response = await fetch(
@@ -385,23 +397,25 @@ export async function generateImage(
         headers: config.headers,
         body: JSON.stringify(requestBody),
       },
-    );
+    )
 
     if (!response.ok) {
-      console.error(`Image generation failed: ${response.statusText}`);
-      throw new Error(`Image generation failed: ${response.status} ${response.statusText}`);
+      console.error(`Image generation failed: ${response.statusText}`)
+      throw new Error(
+        `Image generation failed: ${response.status} ${response.statusText}`,
+      )
     }
 
-    const responseData = await response.json();
-    console.log('📷 Image generation complete:', responseData);
+    const responseData = await response.json()
+    console.log('📷 Image generation complete:', responseData)
 
-    return { images: responseData.images };
+    return { images: responseData.images }
   } catch (error) {
-    console.error('Error during image generation:', error);
-    throw new Error('Image generation failed.');
+    console.error('Error during image generation:', error)
+    throw new Error('Image generation failed.')
   }
 }
 
 function calculateCfg(cfg: number, cfgHalf: boolean): number {
-  return cfgHalf ? cfg + 0.5 : cfg;
+  return cfgHalf ? cfg + 0.5 : cfg
 }

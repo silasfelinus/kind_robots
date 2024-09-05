@@ -1,10 +1,10 @@
 // cypress/e2e/api/message.cy.ts
 
 describe('Message Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/messages';
-  const apiKey = Cypress.env('API_KEY');
-  let messageId: number; // Explicitly define the type as number
-  const channelId: number = 2; // Example channel ID (assuming 2 is for livechat)
+  const baseUrl = 'https://kind-robots.vercel.app/api/messages'
+  const apiKey = Cypress.env('API_KEY')
+  let messageId: number // Explicitly define the type as number
+  const channelId: number = 2 // Example channel ID (assuming 2 is for livechat)
 
   it('Create New Message', () => {
     cy.request({
@@ -21,14 +21,14 @@ describe('Message Management API Tests', () => {
         channelId: channelId,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
+      expect(response.status).to.eq(200)
       /* eslint-disable @typescript-eslint/no-unused-expressions */
-      expect(response.body.newMessage).to.be.an('object').that.is.not.empty;
+      expect(response.body.newMessage).to.be.an('object').that.is.not.empty
       /* eslint-enable @typescript-eslint/no-unused-expressions */
-      messageId = response.body.newMessage.id; // Ensure the correct ID is captured
-      console.log('Created Message ID:', messageId); // Log for debugging
-    });
-  });
+      messageId = response.body.newMessage.id // Ensure the correct ID is captured
+      console.log('Created Message ID:', messageId) // Log for debugging
+    })
+  })
 
   it('Get All Messages', () => {
     cy.request({
@@ -39,12 +39,12 @@ describe('Message Management API Tests', () => {
         'x-api-key': apiKey,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
+      expect(response.status).to.eq(200)
       expect(response.body.messages)
         .to.be.an('array')
-        .and.have.length.greaterThan(0);
-    });
-  });
+        .and.have.length.greaterThan(0)
+    })
+  })
 
   it('Get Message by ID', () => {
     cy.request({
@@ -55,10 +55,10 @@ describe('Message Management API Tests', () => {
         'x-api-key': apiKey,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.message.sender).to.eq('WELCOMEBOT'); // Expect the correct sender
-    });
-  });
+      expect(response.status).to.eq(200)
+      expect(response.body.message.sender).to.eq('WELCOMEBOT') // Expect the correct sender
+    })
+  })
 
   it('Update a Message', () => {
     cy.request({
@@ -72,7 +72,7 @@ describe('Message Management API Tests', () => {
         content: 'Hello! Welcome to our updated Livechat!',
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
+      expect(response.status).to.eq(200)
       // Verify the update
       cy.request({
         method: 'GET',
@@ -82,11 +82,13 @@ describe('Message Management API Tests', () => {
           'x-api-key': apiKey,
         },
       }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body.message.content).to.eq('Hello! Welcome to our updated Livechat!'); // Check updated content
-      });
-    });
-  });
+        expect(response.status).to.eq(200)
+        expect(response.body.message.content).to.eq(
+          'Hello! Welcome to our updated Livechat!',
+        ) // Check updated content
+      })
+    })
+  })
 
   it('Delete a Message', () => {
     cy.request({
@@ -97,9 +99,9 @@ describe('Message Management API Tests', () => {
         'x-api-key': apiKey,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
-    });
-  });
+      expect(response.status).to.eq(200)
+    })
+  })
 
   // Ensure all changes are reverted by deleting the message created during the test
   after(() => {
@@ -112,9 +114,9 @@ describe('Message Management API Tests', () => {
           'x-api-key': apiKey,
         },
       }).then((response) => {
-        expect(response.status).to.eq(200);
-        console.log('Reverted Message ID:', messageId);
-      });
+        expect(response.status).to.eq(200)
+        console.log('Reverted Message ID:', messageId)
+      })
     }
-  });
-});
+  })
+})

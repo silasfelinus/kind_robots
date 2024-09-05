@@ -3,7 +3,7 @@ import { errorHandler } from './../api/utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
-    const userId = event.context.user?.id || 'Anonymous' // Fallback if no userId
+    const userId = event.context.user?.id || null // Assume the userId can be null if not logged in
     const requestUrl = event.node.req?.url ?? 'Unknown URL'
 
     // Attempt to log request asynchronously (don't block the response)
@@ -19,11 +19,17 @@ export default defineEventHandler(async (event) => {
 
 async function logRequest(userId: string | null, requestUrl: string) {
   try {
+    const parsedUserId = userId ? parseInt(userId, 10) : null
+
+    if (parsedUserId && isNaN(parsedUserId)) {
+      throw new Error("Invalid userId, expected a number")
+    }
+
     // Attempt to log to the database
     await prisma.log.create({
       data: {
         message: `New request: ${requestUrl}`,
-        userId,
+        userId: parsedUserId, // Ensure this is a number or null
         timestamp: new Date(),
       },
     })

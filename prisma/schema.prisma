@@ -137,6 +137,20 @@ model ChatExchange {
   User              User?         @relation(fields: [userId], references: [id])
 }
 
+model Component {
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime?     @updatedAt @default(now())
+  folderName        String
+  componentName     String        // Individual component name
+  isWorking         Boolean       @default(true)
+  underConstruction Boolean       @default(false)
+  isBroken          Boolean       @default(false)
+  title             String?       // Optional title derived from componentName if not provided
+  Tags              Tag[]
+}
+
+
 model Customer {
   id                Int           @id @unique @default(autoincrement())
   createdAt         DateTime      @default(now())
@@ -438,6 +452,7 @@ model Tag {
   Channel           Channel?      @relation(fields: [channelId], references: [id])
   Posts             Post[]
   Pitches           Pitch[]
+  Components        Component[]
 }
 
 

@@ -82,6 +82,9 @@ export const useUserStore = defineStore({
     matchRecord(state): number {
       return state.user?.matchRecord || 0
     },
+    isAdmin(state): boolean {
+      return state.user?.Role === Role.ADMIN
+    },
   },
 
   actions: {

@@ -19,7 +19,7 @@
       Loading...
     </div>
 
-    <!--  Folder View -->
+    <!-- Folder View -->
     <div
       v-else-if="selectedComponents.length === 0"
       class="grid grid-cols-3 gap-4"
@@ -32,9 +32,7 @@
       >
         <div class="text-center">
           <Icon name="bi:folder-fill" class="text-4xl" />
-          <p class="mt-2">
-            {{ folder }}
-          </p>
+          <p class="mt-2">{{ folder }}</p>
         </div>
       </div>
     </div>
@@ -49,24 +47,39 @@
           @click="clearSelectedComponents"
         />
       </div>
-      <!-- Components -->
-      <!-- Cube Icon to End Component -->
-      <div v-if="selectedComponent" class="absolute top-0 left-0 mt-4 ml-4">
-        <Icon
-          name="game-Icons:companion-cube"
-          class="text-4xl cursor-pointer"
-          @click="endComponent"
-        />
-      </div>
+
+      <!-- Components List -->
       <div
         v-for="component in selectedComponents"
-        :key="component"
+        :key="component.id"
         class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition duration-300 ease-in-out"
-        @click="openModal(component)"
+        @click="openComponent(component)"
       >
         <div class="text-center">
           <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
-          <p>{{ component }}</p>
+          <p>{{ component.componentName }}</p>
+
+          <!-- Show component editing options only if the user is an ADMIN -->
+          <div v-if="isAdmin">
+            <div class="mt-2">
+              <label>
+                <input v-model="component.isWorking" type="checkbox" />
+                Is Working
+              </label>
+            </div>
+            <div class="mt-2">
+              <label>
+                <input v-model="component.underConstruction" type="checkbox" />
+                Under Construction
+              </label>
+            </div>
+            <div class="mt-2">
+              <label>
+                <input v-model="component.isBroken" type="checkbox" />
+                Is Broken
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -79,35 +92,34 @@
 </template>
 
 <script setup lang="ts">
-// Importing required modules and Pinia store
 import { ref, computed, onErrorCaptured } from 'vue'
 import { useComponentStore } from './../../../stores/componentStore'
+import { useUserStore } from './../../../stores/userStore'
+import type { Component } from '@prisma/client' // Import the correct type for Component
 
-// Initialize Pinia store
+// Initialize Pinia stores
 const componentStore = useComponentStore()
+const userStore = useUserStore()
 
 // State variables
 const isLoading = ref(false)
-const selectedFolder = ref('')
-const selectedComponent = ref('')
+const selectedFolder = ref<string>('')
+const selectedComponents = ref<Component[]>([])
+const selectedComponent = ref<Component | null>(null) // Ensure it's either null or a valid Component
+
 const errorComponents = ref<string[]>([])
 const errorLoadingComponent = ref<string | null>(null)
 
-// Function to end the component and go back to the component view
-const endComponent = () => {
-  selectedComponent.value = ''
-}
+// Computed properties
+const isAdmin = computed(() => userStore.isAdmin)
+
+const folderNames = computed(() => componentStore.folderNames)
 
 // Function to clear selected components and go back to folder selection
 const clearSelectedComponents = () => {
   selectedComponents.value = []
+  selectedComponent.value = null
 }
-
-// Fetch folder names when the component is mounted
-componentStore.fetchFolderNames()
-
-// Local state for selected components
-const selectedComponents = ref<string[]>([])
 
 // Function to fetch components based on the selected folder
 const fetchComponents = async (folder: string) => {
@@ -120,11 +132,8 @@ const fetchComponents = async (folder: string) => {
   isLoading.value = false
 }
 
-// Computed property to get folder names from the store
-const folderNames = computed(() => componentStore.folderNames)
-
 // Function to open the component modal
-const openModal = (component: string) => {
+const openComponent = (component: Component) => {
   selectedComponent.value = component
 }
 
@@ -138,9 +147,12 @@ onErrorCaptured((error) => {
   console.error('An error occurred:', error)
   return false
 })
+
+// Fetch folder names when the component is mounted
+componentStore.initializeComponentStore()
 </script>
 
-<style>
+<style scoped>
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -149,9 +161,7 @@ onErrorCaptured((error) => {
     transform: rotate(360deg);
   }
 }
-</style>
 
-<style>
 .loader {
   border: 4px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
@@ -159,14 +169,5 @@ onErrorCaptured((error) => {
   width: 24px;
   height: 24px;
   animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
 </style>

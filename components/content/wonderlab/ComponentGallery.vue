@@ -6,10 +6,32 @@
         🚨 Error loading component: {{ errorLoadingComponent }}
       </div>
       <div v-else>
-        <component
-          :is="selectedComponent"
-          @hook:error-captured="handleComponentError"
-        />
+        <div>
+          <!-- Editable Title and Notes for Admins -->
+          <div>
+            <label>Title:</label>
+            <input
+              v-if="isAdmin"
+              v-model="selectedComponent.title"
+              type="text"
+              class="input input-bordered w-full"
+            />
+            <p v-else>{{ selectedComponent.title }}</p>
+          </div>
+
+          <div class="mt-4">
+            <label>Notes:</label>
+            <textarea
+              v-if="isAdmin"
+              v-model="selectedComponent.notes"
+              class="textarea textarea-bordered w-full"
+            ></textarea>
+            <p v-else>{{ selectedComponent.notes }}</p>
+          </div>
+        </div>
+
+        <!-- Include the component reaction bar -->
+        <ComponentReaction :component-id="selectedComponent.id" />
       </div>
     </div>
 
@@ -58,28 +80,6 @@
         <div class="text-center">
           <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
           <p>{{ component.componentName }}</p>
-
-          <!-- Show component editing options only if the user is an ADMIN -->
-          <div v-if="isAdmin">
-            <div class="mt-2">
-              <label>
-                <input v-model="component.isWorking" type="checkbox" />
-                Is Working
-              </label>
-            </div>
-            <div class="mt-2">
-              <label>
-                <input v-model="component.underConstruction" type="checkbox" />
-                Under Construction
-              </label>
-            </div>
-            <div class="mt-2">
-              <label>
-                <input v-model="component.isBroken" type="checkbox" />
-                Is Broken
-              </label>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -95,6 +95,7 @@
 import { ref, computed, onErrorCaptured } from 'vue'
 import { useComponentStore } from './../../../stores/componentStore'
 import { useUserStore } from './../../../stores/userStore'
+import ComponentReaction from './ComponentReactions.vue'
 import type { Component } from '@prisma/client' // Import the correct type for Component
 
 // Initialize Pinia stores
@@ -135,11 +136,6 @@ const fetchComponents = async (folder: string) => {
 // Function to open the component modal
 const openComponent = (component: Component) => {
   selectedComponent.value = component
-}
-
-// Function to handle component errors
-const handleComponentError = (error: Error) => {
-  errorLoadingComponent.value = error.message
 }
 
 // Global error handler

@@ -384,8 +384,8 @@ model Reaction {
   isLoved           Boolean?      @default(false)
   isClapped         Boolean?      @default(false)
   isBooed           Boolean?      @default(false)
-  IsHated           Boolean?      @default(false)
-  userId            Int
+  isHated           Boolean?      @default(false)
+  userId            Int           @default(10)
   User              User          @relation(fields: [userId], references: [id])
   artId             Int?
   Art               Art?          @relation(fields: [artId], references: [id])

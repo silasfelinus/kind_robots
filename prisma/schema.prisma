@@ -42,7 +42,7 @@ model ArtImage {
   id                Int           @id @default(autoincrement())
   createdAt         DateTime      @default(now())
   updatedAt         DateTime?     @updatedAt @default(now())
-  imageData         String        @db.Text 
+  imageData         String        @db.LongText 
   fileName          String?       @db.VarChar(764)
   galleryId         Int?
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])

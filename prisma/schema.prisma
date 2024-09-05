@@ -44,7 +44,7 @@ model ArtImage {
   updatedAt         DateTime?     @updatedAt @default(now())
   imageData         String        @db.LongText 
   fileName          String?       @db.VarChar(764)
-  galleryId         Int?
+  galleryId         Int?          @default(21)          
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
   userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
@@ -351,7 +351,7 @@ model Prompt {
   prompt            String        @db.VarChar(764)
   userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
-  galleryId         Int?
+  galleryId         Int?          @default(21)
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
   pitchId           Int?
   Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
@@ -365,7 +365,7 @@ model RandomList {
   id                Int           @id @default(autoincrement())
   title             String        @db.VarChar(764) @unique
   items             String        @db.LongText
-  userId            Int?
+  userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
 }
 

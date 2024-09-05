@@ -13,7 +13,7 @@
       />
     </div>
     <div class="text-3xl">
-      <Icon :name="Icon" />
+      <Icon :name="icon" />
     </div>
     <div class="text-sm rounded-2xl border p-2">
       {{ description }}
@@ -24,13 +24,13 @@
 <script setup lang="ts">
 const {
   image = '',
-  Icon = 'line-md:information',
+  icon = 'line-md:information',
   description = 'A New Page from Kind Robots',
   streaming = false,
   isHovered,
 } = defineProps<{
   image?: string
-  Icon?: string
+  icon?: string
   description?: string
   streaming?: boolean
   isHovered: boolean

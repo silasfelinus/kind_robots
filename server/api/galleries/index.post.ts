@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody } from 'h3'
 import { PrismaClient } from '@prisma/client'
 import { errorHandler } from '../utils/error'
-import type { Prisma , Gallery } from '@prisma/client'
+import type { Prisma, Gallery } from '@prisma/client'
 
 const prisma = new PrismaClient()
 

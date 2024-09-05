@@ -163,9 +163,7 @@ export const usePromptStore = defineStore('promptStore', {
           method: 'DELETE',
         })
         if (response.ok) {
-          this.prompts = this.prompts.filter(
-            (prompt) => prompt.id !== promptId,
-          )
+          this.prompts = this.prompts.filter((prompt) => prompt.id !== promptId)
         } else {
           const errorText = await response.text()
           errorStore.setError(

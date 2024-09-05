@@ -35,7 +35,9 @@ export default defineEventHandler(async (event) => {
       ? await prisma.user.findUnique({ where: { id: exchangeData.userId } })
       : null
 
-    const bot = await prisma.bot.findUnique({ where: { id: exchangeData.botId } })
+    const bot = await prisma.bot.findUnique({
+      where: { id: exchangeData.botId },
+    })
 
     if (exchangeData.userId && !user) {
       throw new Error(`User with id ${exchangeData.userId} does not exist.`)
@@ -54,7 +56,7 @@ export default defineEventHandler(async (event) => {
         username: exchangeData.username,
         userPrompt: exchangeData.userPrompt,
         botResponse: exchangeData.botResponse,
-        previousEntryId: exchangeData.previousEntryId
+        previousEntryId: exchangeData.previousEntryId,
       },
     })
 

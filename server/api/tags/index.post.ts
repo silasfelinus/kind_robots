@@ -47,14 +47,13 @@ export default defineEventHandler(async (event) => {
 })
 
 function toTitleCase(str: string): string {
-  return str.replace(/\w\S*/g, (txt) =>
-    txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+  return str.replace(
+    /\w\S*/g,
+    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
   )
 }
 
-async function addTags(
-  tagsData: Prisma.TagCreateManyInput[],
-): Promise<Tag[]> {
+async function addTags(tagsData: Prisma.TagCreateManyInput[]): Promise<Tag[]> {
   try {
     await prisma.tag.createMany({
       data: tagsData,

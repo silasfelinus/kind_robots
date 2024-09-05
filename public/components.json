@@ -141,10 +141,7 @@
   },
   {
     "folderName": "jellybeans",
-    "components": [
-      "JellybeanBag",
-      "JellybeanCount"
-    ]
+    "components": ["JellybeanBag", "JellybeanCount"]
   },
   {
     "folderName": "layout",

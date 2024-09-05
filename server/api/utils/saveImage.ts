@@ -9,8 +9,8 @@ export async function saveImage(
   base64Image: string,
   galleryName: string,
   userId: number,
-  galleryId: number
-): Promise<{ id: number, fileName: string }> {
+  galleryId: number,
+): Promise<{ id: number; fileName: string }> {
   try {
     const timestamp = Date.now()
     const fileName = `${galleryName}-${timestamp}.webp`
@@ -20,8 +20,8 @@ export async function saveImage(
       data: {
         galleryId,
         imageData: base64Image, // store base64 image
-        fileName: fileName ?? 'default-filename.webp',  // Ensure fileName is never null
-        userId
+        fileName: fileName ?? 'default-filename.webp', // Ensure fileName is never null
+        userId,
       },
     })
 
@@ -48,8 +48,10 @@ export async function saveImage(
     }
 
     // Return the saved image ID and fileName from the database (just the file name, not a path)
-    return { id: savedImage.id, fileName: savedImage.fileName ?? 'default-filename.webp' } // Fallback value
-
+    return {
+      id: savedImage.id,
+      fileName: savedImage.fileName ?? 'default-filename.webp',
+    } // Fallback value
   } catch (error: unknown) {
     throw errorHandler(error)
   }

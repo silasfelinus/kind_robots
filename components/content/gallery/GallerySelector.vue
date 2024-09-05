@@ -1,7 +1,11 @@
 <template>
   <div>
     <label for="gallery-select">Select Gallery:</label>
-    <select id="gallery-select" v-model="selectedGallery" @change="updateGallery">
+    <select
+      id="gallery-select"
+      v-model="selectedGallery"
+      @change="updateGallery"
+    >
       <option v-for="gallery in galleryNames" :key="gallery" :value="gallery">
         {{ gallery }}
       </option>

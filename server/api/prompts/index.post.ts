@@ -8,7 +8,7 @@ import prisma from '../utils/prisma'
 interface PromptData {
   userId?: number
   prompt: string
-  galleryId?: number 
+  galleryId?: number
   pitchId?: number
   playerId?: number
 }
@@ -23,9 +23,7 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
-export async function createPrompt(
-  prompt: PromptData,
-): Promise<Prompt> {
+export async function createPrompt(prompt: PromptData): Promise<Prompt> {
   try {
     // Validate required fields
     if (!prompt.prompt) {

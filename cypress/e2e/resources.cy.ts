@@ -1,10 +1,10 @@
 // cypress/e2e/api/resource.cy.ts
 
 describe('Resource Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/resources';
-  const apiKey = Cypress.env('API_KEY');
-  let resourceId: number | undefined; // Updated to include undefined type
-  const uniqueResourceName = `Resource-${Date.now()}`; // Generate a unique resource name using Date.now()
+  const baseUrl = 'https://kind-robots.vercel.app/api/resources'
+  const apiKey = Cypress.env('API_KEY')
+  let resourceId: number | undefined // Updated to include undefined type
+  const uniqueResourceName = `Resource-${Date.now()}` // Generate a unique resource name using Date.now()
 
   it('Create a New Resource', () => {
     cy.request({
@@ -27,22 +27,24 @@ describe('Resource Management API Tests', () => {
         resourceType: 'URL', // Assuming 'IMAGE' is a valid resource type
         isMature: false,
       },
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(response.body.resource).to.be.an('object').that.is.not.empty;
-      resourceId = response.body.resource.id; // Ensure the correct ID is captured
-      console.log('Created Resource ID:', resourceId); // Log for debugging
-    }).then(() => {
-      if (!resourceId) {
-        throw new Error('Resource ID was not set');
-      }
-    });
-  });
+    })
+      .then((response) => {
+        expect(response.status).to.eq(200)
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        expect(response.body.resource).to.be.an('object').that.is.not.empty
+        resourceId = response.body.resource.id // Ensure the correct ID is captured
+        console.log('Created Resource ID:', resourceId) // Log for debugging
+      })
+      .then(() => {
+        if (!resourceId) {
+          throw new Error('Resource ID was not set')
+        }
+      })
+  })
 
   it('Get Resource by ID', () => {
     if (!resourceId) {
-      throw new Error('resourceId is undefined, cannot fetch resource by ID');
+      throw new Error('resourceId is undefined, cannot fetch resource by ID')
     }
     cy.request({
       method: 'GET',
@@ -53,10 +55,10 @@ describe('Resource Management API Tests', () => {
       },
       failOnStatusCode: false, // This prevents Cypress from failing the test immediately on a 500 error
     }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.resource.name).to.eq(uniqueResourceName); // Expect the correct name
-    });
-  });
+      expect(response.status).to.eq(200)
+      expect(response.body.resource.name).to.eq(uniqueResourceName) // Expect the correct name
+    })
+  })
 
   it('Get All Resources', () => {
     cy.request({
@@ -67,18 +69,18 @@ describe('Resource Management API Tests', () => {
         'x-api-key': apiKey,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
+      expect(response.status).to.eq(200)
       expect(response.body.resources)
         .to.be.an('array')
-        .and.have.length.greaterThan(0);
-    });
-  });
+        .and.have.length.greaterThan(0)
+    })
+  })
 
   it('Update a Resource', () => {
     if (!resourceId) {
-      throw new Error('resourceId is undefined, cannot update resource by ID');
+      throw new Error('resourceId is undefined, cannot update resource by ID')
     }
-    const updatedResourceName = `Updated-${uniqueResourceName}`;
+    const updatedResourceName = `Updated-${uniqueResourceName}`
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${resourceId}`,
@@ -92,14 +94,14 @@ describe('Resource Management API Tests', () => {
         userId: 10,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.resource.name).to.eq(updatedResourceName); // Verify name is updated
-    });
-  });
+      expect(response.status).to.eq(200)
+      expect(response.body.resource.name).to.eq(updatedResourceName) // Verify name is updated
+    })
+  })
 
   it('Delete a Resource', () => {
     if (!resourceId) {
-      throw new Error('resourceId is undefined, cannot delete resource by ID');
+      throw new Error('resourceId is undefined, cannot delete resource by ID')
     }
     cy.request({
       method: 'DELETE',
@@ -109,9 +111,9 @@ describe('Resource Management API Tests', () => {
         'x-api-key': apiKey,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
-    });
-  });
+      expect(response.status).to.eq(200)
+    })
+  })
 
   // Ensure all changes are reverted by deleting the resource created during the test
   after(() => {
@@ -124,11 +126,11 @@ describe('Resource Management API Tests', () => {
           'x-api-key': apiKey,
         },
       }).then((response) => {
-        expect(response.status).to.eq(200);
-        console.log('Reverted Resource ID:', resourceId);
-      });
+        expect(response.status).to.eq(200)
+        console.log('Reverted Resource ID:', resourceId)
+      })
     } else {
-      console.log('No resourceId to delete.');
+      console.log('No resourceId to delete.')
     }
-  });
-});
+  })
+})

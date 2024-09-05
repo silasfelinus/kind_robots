@@ -15,8 +15,8 @@ async function generateComponentJSON() {
       if (stat.isDirectory()) {
         const componentFiles = await fs.readdir(folderPath)
         const components = componentFiles
-          .filter(file => file.endsWith('.vue'))
-          .map(file => file.replace('.vue', ''))
+          .filter((file) => file.endsWith('.vue'))
+          .map((file) => file.replace('.vue', ''))
         folders.push({ folderName, components })
       }
     }

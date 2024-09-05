@@ -123,9 +123,7 @@ export const useArtStore = defineStore({
     getArtByPitchId(pitchId: number): Art[] {
       return this.artAssets.filter((art: Art) => art.pitchId === pitchId)
     },
-    async createReaction(
-      reactionData: Reaction,
-    ): Promise<Reaction | null> {
+    async createReaction(reactionData: Reaction): Promise<Reaction | null> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {

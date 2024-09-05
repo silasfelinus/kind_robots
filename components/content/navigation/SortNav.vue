@@ -31,7 +31,7 @@
         </NuxtLink>
         <popup-description
           v-if="isHovered === page._id"
-          :Icon="page.Icon"
+          :icon="page.icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />
@@ -44,14 +44,14 @@
           class="btn btn-accent rounded-full p-2 transform transition-transform hover:scale-110 flex items-center space-x-2"
         >
           <Icon
-            :name="page.Icon"
+            name="{{page.icon}}"
             class="w-6 h-6 group-hover:text-accent transition-colors duration-300"
           />
           {{ page.title }}
         </NuxtLink>
         <popup-description
           v-if="isHovered === page._id"
-          :Icon="page.Icon"
+          :icon="page.icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />
@@ -73,7 +73,7 @@
         </NuxtLink>
         <popup-description
           v-if="isHovered === page._id"
-          :Icon="page.Icon"
+          :icon="page.icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />

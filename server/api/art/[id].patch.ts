@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const updatedArtData: Partial<Art> = await readBody(event)
-    
+
     if (!updatedArtData) {
       return { success: false, message: 'No data provided for update' }
     }

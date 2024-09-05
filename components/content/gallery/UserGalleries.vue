@@ -1,6 +1,6 @@
 <template>
   <div class="user-galleries">
-<gallery-selector />
+    <gallery-selector />
     <div
       v-for="art in artAssets"
       :key="art.id"

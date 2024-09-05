@@ -22,7 +22,7 @@ async function logRequest(userId: string | null, requestUrl: string) {
     const parsedUserId = userId ? parseInt(userId, 10) : null
 
     if (parsedUserId && isNaN(parsedUserId)) {
-      throw new Error("Invalid userId, expected a number")
+      throw new Error('Invalid userId, expected a number')
     }
 
     // Attempt to log to the database
@@ -36,7 +36,12 @@ async function logRequest(userId: string | null, requestUrl: string) {
     console.log('Request successfully logged to the database')
   } catch (error) {
     // Log failure to the console if database logging fails
-    console.error(`Failed to create log in the database, logging to console`, error)
-    console.log(`Log data: userId: ${userId}, requestUrl: ${requestUrl}, timestamp: ${new Date().toISOString()}`)
+    console.error(
+      `Failed to create log in the database, logging to console`,
+      error,
+    )
+    console.log(
+      `Log data: userId: ${userId}, requestUrl: ${requestUrl}, timestamp: ${new Date().toISOString()}`,
+    )
   }
 }

@@ -70,9 +70,7 @@ export async function fetchAllReactions(): Promise<Reaction[]> {
 }
 
 // Function to fetch a single Reaction by ID
-export async function fetchReactionById(
-  id: number,
-): Promise<Reaction | null> {
+export async function fetchReactionById(id: number): Promise<Reaction | null> {
   return await prisma.Reaction.findUnique({
     where: { id },
   })

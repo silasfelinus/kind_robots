@@ -11,10 +11,10 @@ import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
 
 const props = defineProps<{
-  Icon?: string
+  icon?: string
 }>()
 
-const Icon = props.Icon || 'mdi:default-Icon' // Replace 'mdi:default-Icon' with your actual default Icon
+const Icon = props.icon || 'mdi:default-Icon' // Replace 'mdi:default-Icon' with your actual default Icon
 
 const pedestal = ref(null)
 const rotatingIcon = ref(null)

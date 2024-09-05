@@ -30,7 +30,7 @@
         </div>
         <popup-description
           v-if="isHovered === page._id"
-          :Icon="page.Icon"
+          :icon="page.icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />

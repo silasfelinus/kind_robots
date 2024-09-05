@@ -1,6 +1,6 @@
-import { defineEventHandler } from 'h3';
-import { errorHandler } from '../utils/error';
-import prisma from '../utils/prisma';
+import { defineEventHandler } from 'h3'
+import { errorHandler } from '../utils/error'
+import prisma from '../utils/prisma'
 
 // Fetch all random lists
 export const fetchAllRandomLists = async () => {
@@ -8,36 +8,36 @@ export const fetchAllRandomLists = async () => {
     include: {
       User: true, // Include user information if needed
     },
-  });
-};
+  })
+}
 
 export default defineEventHandler(async () => {
   try {
-    const randomLists = await fetchAllRandomLists();
+    const randomLists = await fetchAllRandomLists()
 
     // Process each RandomList
     const randomListDetails = randomLists.map((randomList) => {
       // Convert items (string) into an array or desired structure
-      let processedItems;
+      let processedItems
       try {
-        processedItems = JSON.parse(randomList.items);
+        processedItems = JSON.parse(randomList.items)
       } catch (error) {
-        console.error('Error parsing items:', error);
-        processedItems = randomList.items.split(','); // Fallback to splitting by comma
+        console.error('Error parsing items:', error)
+        processedItems = randomList.items.split(',') // Fallback to splitting by comma
       }
 
       return {
         ...randomList,
         items: processedItems,
         user: randomList.User ? randomList.User.username : null, // Optional: Add user information
-      };
-    });
+      }
+    })
 
-    return { success: true, randomLists: randomListDetails };
+    return { success: true, randomLists: randomListDetails }
   } catch (error: unknown) {
     return errorHandler({
       error,
       context: 'Fetching Random Lists',
-    });
+    })
   }
-});
+})

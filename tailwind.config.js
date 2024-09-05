@@ -1,8 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-      safelist: [
+  safelist: [
     {
-      pattern: /(icon|text-gray|cursor-pointer|transition-shadow|line-md|fluent|mdi|game-icons|emojione-monotone|material-symbols|mingcute|fxemoji)/,
+      pattern:
+        /(icon|text-gray|cursor-pointer|transition-shadow|line-md|fluent|mdi|game-icons|emojione-monotone|material-symbols|mingcute|fxemoji)/,
     },
   ],
   jit: true,

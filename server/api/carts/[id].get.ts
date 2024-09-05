@@ -22,10 +22,10 @@ export default defineEventHandler(async (event) => {
     // Fetch cart items
     const items = await fetchCartItems(cartId)
 
-    return { 
-      success: true, 
-      cart, 
-      items 
+    return {
+      success: true,
+      cart,
+      items,
     }
   } catch (error: unknown) {
     return errorHandler(error)

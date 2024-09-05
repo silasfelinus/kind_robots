@@ -40,7 +40,10 @@ export const usePitchStore = defineStore('pitch', {
     },
     selectedPitch: (state) => {
       // Return the selected pitch based on selectedPitchId
-      return state.pitches.find((pitch) => pitch.id === state.selectedPitchId) || null
+      return (
+        state.pitches.find((pitch) => pitch.id === state.selectedPitchId) ||
+        null
+      )
     },
   },
 

@@ -23,11 +23,16 @@ export const useComponentStore = defineStore('componentStore', {
         console.error('Failed to fetch component list from API:', error)
         // Fallback to local JSON file if API fails
         await this.loadFallbackData()
-        const folder = this.folders.find(folder => folder.folderName === folderName)
+        const folder = this.folders.find(
+          (folder) => folder.folderName === folderName,
+        )
         if (folder) {
           console.log('Loaded component list from fallback')
         } else {
-          console.warn('No component list found in fallback data for folder:', folderName)
+          console.warn(
+            'No component list found in fallback data for folder:',
+            folderName,
+          )
         }
       }
     },
@@ -43,7 +48,7 @@ export const useComponentStore = defineStore('componentStore', {
         console.error('Failed to fetch folder names from API:', error)
         // Fallback to local JSON file if API fails
         await this.loadFallbackData()
-        this.folderNames = this.folders.map(folder => folder.folderName)
+        this.folderNames = this.folders.map((folder) => folder.folderName)
         if (this.folderNames.length > 0) {
           console.log('Loaded folder names from fallback')
         } else {

@@ -79,9 +79,9 @@ const modalPosition = computed(() => {
 })
 
 const toggleMenu = () => {
-  console.log('Toggling menu. Current state:', open.value);
-  open.value = !open.value;
-  console.log('New state:', open.value);
+  console.log('Toggling menu. Current state:', open.value)
+  open.value = !open.value
+  console.log('New state:', open.value)
 }
 
 const changeTheme = (theme) => {

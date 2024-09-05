@@ -8,10 +8,10 @@
       :class="underConstruction ? 'bg-warning' : 'bg-secondary'"
     >
       <div
-        v-if="Icon && !underConstruction"
+        v-if="icon && !underConstruction"
         class="text-3xl group-hover:text-4xl"
       >
-        <Icon :name="Icon" />
+        <Icon :name="icon" />
       </div>
       <div class="text-lg">
         {{ title }}
@@ -27,13 +27,13 @@
 <script setup lang="ts">
 const {
   title = 'Mysterious Portal',
-  Icon = 'line-md:magic-stick',
+  icon = 'line-md:magic-stick',
   isCurrentPage = false,
   underConstruction = false,
   isExtended = false,
 } = defineProps<{
   title?: string
-  Icon?: string
+  icon?: string
   isCurrentPage?: boolean
   underConstruction?: boolean
   isExtended?: boolean

@@ -40,13 +40,13 @@
         <!-- Tooltip -->
         <popup-description
           v-if="isHovered === page._id"
-          :Icon="page.Icon"
+          :icon="page.icon"
           :description="page.description"
           :is-hovered="isHovered === page._id"
         />
         <!-- Compact View -->
         <div v-if="!isExtended" class="flex flex-row items-center space-x-2">
-          <Icon :name="page.Icon" class="text-3xl" />
+          <Icon name="{{page.Icon}}" class="text-3xl" />
           <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
             {{ page.title }}
           </div>
@@ -77,7 +77,7 @@
             </div>
             <popup-description
               v-if="isHovered === page._id"
-              :Icon="page.Icon"
+              :icon="page.icon"
               :description="page.description"
               :is-hovered="isHovered === page._id"
             />

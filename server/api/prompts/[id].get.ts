@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     }
 
     console.log(`Fetching Prompt with ID: ${id}`)
-    
+
     // Fetch Prompt by ID
     const prompt = await fetchPromptById(id)
 

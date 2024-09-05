@@ -12,7 +12,7 @@
             class="block text-center text-2xl font-semibold leading-tight text-black overflow-hidden overflow-ellipsis mb-4"
           >
             <template v-if="item.state === 'Icon'">
-              <Icon :Icon="item.Icon" />
+              <Icon :name="item.Icon" />
             </template>
             {{ item.title }}
           </NuxtLink>

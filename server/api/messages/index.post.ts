@@ -42,9 +42,9 @@ export async function createMessage(
       sender: message.sender,
       recipient: message.recipient,
       content: message.content,
-      channelId: message.channelId || 1,  // Default to channel 1 if not provided
-      botId: message.botId || null,  // Set botId if available, otherwise null
-      userId: message.userId || null  // Set userId if available, otherwise null
+      channelId: message.channelId || 1, // Default to channel 1 if not provided
+      botId: message.botId || null, // Set botId if available, otherwise null
+      userId: message.userId || null, // Set userId if available, otherwise null
     }
 
     // Create and return the new message
@@ -52,6 +52,6 @@ export async function createMessage(
       data: newMessageData,
     })
   } catch (error: unknown) {
-    throw errorHandler(error)  // Pass the error through error handler
+    throw errorHandler(error) // Pass the error through error handler
   }
 }

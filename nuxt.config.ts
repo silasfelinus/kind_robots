@@ -1,7 +1,11 @@
 import { exec } from 'child_process'
 
 // Define a type for exec's callback
-type ExecCallback = (error: Error | null, stdout: string, stderr: string) => void
+type ExecCallback = (
+  error: Error | null,
+  stdout: string,
+  stderr: string,
+) => void
 
 export default defineNuxtConfig({
   // Including the necessary modules/plugins
@@ -81,6 +85,6 @@ export default defineNuxtConfig({
       }
 
       exec(command, callback)
-    }
-  }
+    },
+  },
 })

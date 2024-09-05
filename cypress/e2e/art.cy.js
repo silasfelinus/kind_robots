@@ -16,12 +16,10 @@ describe('Art Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        promptString: 'A beautiful sunrise over the mountains',
-        path: ' ',
-        seed: null,
-        steps: null,
-        channelId: null,
-        galleryId: null,
+        promptString: 'surreal, A beautiful pancake sunrise over the mountains',
+        steps: 10,
+        userId: 1,
+        pitch: 'surreal',
       },
       failOnStatusCode: false,
     }).then((response) => {

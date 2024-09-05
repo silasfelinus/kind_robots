@@ -34,8 +34,7 @@ describe('Reaction Management API Tests', () => {
       body: {
         userId: userId,
         artId: artId,
-        claps: 0,
-        boos: 5,
+        isBooed: true,
         title: 'hmmm!',
         reaction: 'skeptical',
         comment: 'not sure here',

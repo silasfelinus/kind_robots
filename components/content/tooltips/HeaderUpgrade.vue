@@ -16,7 +16,7 @@
           <h2
             class="text-xs sm:text-md md:text-lg lg:text-xl text-accent italic text-center truncate"
           >
-            {{ page.subtitle || 'Welcome to Kind Robots' }}
+            {{ subtitle}}
           </h2>
         </div>
       </div>
@@ -42,7 +42,7 @@ import { ref } from 'vue'
 
 const { page } = useContent()
 const showNav = ref(false)
-
+const subtitle = computed(()=> page.subtitle || "Welcome to Kind Robots")
 const toggleNav = () => {
   showNav.value = !showNav.value
 }

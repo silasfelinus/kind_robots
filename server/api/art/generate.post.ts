@@ -136,15 +136,37 @@ export default defineEventHandler(async (event) => {
     })
 
     console.log('🎉 Art entry created successfully:', newArt)
-
-    // 5. Link the created artId back to the artImage
-    console.log('🔗 Linking artId back to artImage...')
-    await prisma.artImage.update({
-      where: { id: imageId },
-      data: { artId: newArt.id },
-    })
-
-    console.log(`🔗 Linked artId ${newArt.id} to artImage ${imageId}`)
+    try {
+      // Check if imageId exists before proceeding
+      const existingArtImage = await prisma.artImage.findUnique({
+        where: { id: imageId },
+      });
+    
+      if (!existingArtImage) {
+        throw new Error(`ArtImage with ID ${imageId} not found`);
+      }
+    
+      // Check if newArt exists before proceeding
+      if (!newArt?.id) {
+        throw new Error(`newArt ID is invalid or not found`);
+      }
+    
+      // Proceed to link the artId back to artImage
+      console.log('🔗 Linking artId back to artImage...');
+      const updatedArtImage = await prisma.artImage.update({
+        where: { id: imageId },
+        data: { artId: newArt.id },
+      });
+    
+      console.log(`🔗 Successfully linked artId ${newArt.id} to artImage ${updatedArtImage.id}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('❌ Error linking artId back to artImage:', error.message);
+      } else {
+        console.error('❌ Unknown error occurred:', error);
+      }
+      throw new Error(`Failed to link artId back to artImage: ${error}`);
+    }
 
     // Return success response
     return {

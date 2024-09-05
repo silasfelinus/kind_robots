@@ -35,7 +35,23 @@ model Art {
   Reaction          Reaction[]
   Game              Game[]
   Player            Player[]
+  ArtImage          ArtImage[]
 }
+
+model ArtImage {
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime?     @updatedAt @default(now())
+  imageData         String        @db.Text 
+  fileName          String?       @db.VarChar(764)
+  galleryId         Int?
+  Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
+  userId            Int?
+  User              User?         @relation(fields: [userId], references: [id])
+  artId             Int?
+  Art               Art?          @relation(fields: [artId], references: [id])
+}
+
 
 model Bot {
   id                Int           @id @default(autoincrement())
@@ -149,6 +165,7 @@ model Gallery {
   User              User?         @relation(fields: [userId], references: [id])
   Art               Art[]
   Prompts           Prompt[]
+  ArtImage         ArtImage[]
 }
 
 model Game {
@@ -478,6 +495,7 @@ model User {
   Rewards           Reward[]
   Tags              Tag[]
   Logs              Log[]
+  ArtImage          ArtImage[]
 }
 
 model ReactionToTag {

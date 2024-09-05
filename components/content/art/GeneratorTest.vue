@@ -204,10 +204,14 @@
 
 <script setup>
 import { ref } from 'vue'
+import {useUserStore} from './../../../stores/userStore'
 
 // CFG options from 1 to 36
 const cfgOptions = Array.from({ length: 36 }, (_, i) => i + 1)
 
+const userStore = useUserStore()
+
+const user= computed(()=> userStore.currentUser)
 const formData = ref({
   promptString: '',
   title: '',
@@ -226,6 +230,8 @@ const formData = ref({
   pitch: '',
   isPublic: true,
   isMature: false,
+  userId: user.userId || 1,
+  username: user.username
 })
 
 const steps = ref([])

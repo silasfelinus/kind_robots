@@ -102,21 +102,17 @@ export default defineEventHandler(async (event) => {
 
     console.log('🖼 Image generated! Response:', response)
 
-    // 3. Save Generated Image
+    // 3. Save Generated Image to the database
     const base64Image = response.images[0]
-    let imagePath = await saveImage(base64Image, 'cafefred')
+    const { id: imageId, fileName: imagePath } = await saveImage(base64Image, requestData.galleryName || 'cafefred', validatedData.userId, validatedData.galleryId)
 
-    if (!imagePath) {
+    if (!imageId) {
       throw new Error('Failed to save generated image.')
     }
 
-    if (imagePath.startsWith('/public') || imagePath.startsWith('public')) {
-      imagePath = imagePath.replace(/^\/?public/, '')
-    }
+    console.log('📁 Image saved successfully with imageId:', imageId)
 
-    console.log('📁 Image path adjusted:', imagePath)
-
-    // 4. Create Art Entry in Database
+    // 4. Create Art Entry in Database and link the imageId
     console.log('🎨 Creating new Art entry...')
     const newArt = await prisma.art.create({
       data: {
@@ -140,6 +136,24 @@ export default defineEventHandler(async (event) => {
     })
 
     console.log('🎉 Art entry created successfully:', newArt)
+
+    // 5. Link the created artId back to the artImage
+    console.log('🔗 Linking artId back to artImage...')
+    await prisma.artImage.update({
+      where: { id: imageId },
+      data: { artId: newArt.id },
+    })
+
+    console.log(`🔗 Linked artId ${newArt.id} to artImage ${imageId}`)
+
+    // Return success response
+    return {
+      success: true,
+      message: 'Art and image saved successfully!',
+      artId: newArt.id,
+      imageId: imageId,
+    }
+
   } catch (error: unknown) {
     console.error('Art Generation Error:', error);
     return errorHandler({
@@ -148,6 +162,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 });
+
 
 async function validateAndLoadUserId(
   data: RequestData,

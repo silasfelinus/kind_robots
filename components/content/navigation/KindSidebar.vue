@@ -45,7 +45,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from './../../../stores/userStore'
 import { useContentStore } from './../../../stores/contentStore'
 import { useLayoutStore } from './../../../stores/layoutStore'
-import { sidebarLinks } from '../../../../assets/sidebarData' // Import the sidebar data
+import { sidebarLinks } from './../../../assets/sidebarData' // Import the sidebar data
 
 const layoutStore = useLayoutStore()
 const isSidebarOpen = computed(() => layoutStore.isSidebarOpen)

@@ -119,6 +119,7 @@ model Channel {
   Posts             Post[]
   Tags              Tag[]
   Art               Art[]
+  Reactions         Reaction[]
 }
 
 model ChatExchange {
@@ -374,10 +375,6 @@ model Reaction {
   id                Int           @id @unique @default(autoincrement())
   createdAt         DateTime      @default(now())
   updatedAt         DateTime?     @updatedAt @default(now())
-  claps             Int           @default(0)
-  boos              Int           @default(0)
-  loves             Int           @default(0)
-  hates             Int           @default(0)
   title             String?
   comment           String?       @db.Text
   reaction          String?
@@ -393,6 +390,8 @@ model Reaction {
   Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
   componentId       Int?
   Component         Component?    @relation(fields: [componentId], references: [id])
+  channelId         Int?          @default(1)
+  Channel           Channel?      @relation(fields: [channelId], references: [id])
 
   @@index([artId], map: "Reaction_artId_fkey")
   @@index([pitchId], map: "Reaction_pitchId_fkey")

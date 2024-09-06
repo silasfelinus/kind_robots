@@ -20,18 +20,18 @@
       <div
         v-for="link in filteredLinks"
         :key="link.title"
-        class="Icon-link-container flex flex-col items-center m-2"
+        class="Icon-link-container flex items-center justify-center space-x-2 m-2"
       >
         <NuxtLink
           :to="link.path"
-          class="flex flex-col items-center justify-center rounded-2xl text-center hover:scale-110 transition-transform"
+          class="flex items-center justify-center rounded-2xl text-center hover:scale-110 transition-transform"
         >
           <Icon
             :name="link.icon"
             :class="isSidebarOpen ? 'h-16 w-16' : 'h-12 w-12'"
             class="transition-all"
           ></Icon>
-          <span v-show="isSidebarOpen" class="text-sm font-semibold mt-1">
+          <span v-show="isSidebarOpen" class="text-sm font-semibold ml-2">
             {{ link.title }}
           </span>
         </NuxtLink>
@@ -81,54 +81,34 @@ function toggleSidebar() {
 }
 </script>
 
+
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
-  width: 100vw;
-  max-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  overflow-y: auto;
-  transition: all 0.3s ease;
+  @apply w-full max-h-screen flex justify-center items-start overflow-y-auto transition-all ease-in-out;
 }
 
 .sidebarClosed.horizontalSidebar {
-  width: 5rem;
-  height: 100vh;
-  visibility: visible;
-  overflow-y: auto;
+  @apply w-20 h-screen overflow-y-auto;
 }
 
 .sidebarOpen.horizontalSidebar {
-  width: 16rem;
-  max-height: 100vh;
-  visibility: visible;
-  overflow-y: auto;
+  @apply w-64 max-h-screen overflow-y-auto;
 }
 
 .sidebarClosed.verticalSidebar {
-  width: 0;
-  height: 0;
-  visibility: hidden;
-  overflow: hidden;
+  @apply w-0 h-0 overflow-hidden;
 }
 
 .sidebarOpen.verticalSidebar {
-  width: 100vw;
-  height: auto;
-  visibility: visible;
-  max-height: 100vh;
+  @apply w-full max-h-screen;
 }
 
 .verticalSidebar .Icon-link-container {
-  display: flex;
-  justify-content: center;
-  flex-direction: row;
-  margin-bottom: 0.5rem;
+  @apply flex justify-around items-center w-full space-x-2;
 }
 
 button {
-  left: 0;
+  @apply absolute top-0 left-0 z-40;
 }
 </style>

@@ -13,7 +13,7 @@
 
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`sidebar flex flex-wrap justify-center items-start transition-all duration-300 ease-in-out overflow-y-hidden p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'fromTop' : 'fromSide'}`"
+      :class="`sidebar flex flex-wrap justify-center items-start transition-all duration-300 ease-in-out overflow-y-hidden p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'verticalSidebar' : 'horizontalSidebar'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -145,14 +145,12 @@ onBeforeUnmount(() => {
 })
 </script>
 
-#### Updated CSS:
 
-```css
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
-  position: relative; /* Relative positioning for proper flow below header */
-  width: 100vw; /* Respect viewport width */
+  position: relative; /* Sidebar now flows properly with page content */
+  width: 100vw;
   height: auto;
   min-height: 20vh;
   display: flex;
@@ -163,20 +161,36 @@ onBeforeUnmount(() => {
   transition: all 0.3s ease;
 }
 
-.sidebarClosed {
-  width: 100%; /* When closed, sidebar will be fully hidden on vertical screens */
-  height: 0;
-  visibility: hidden;
-  transition: height 0.3s ease, visibility 0.3s ease;
-}
-
-.sidebarOpen {
-  width: 100vw; /* Take up full width on wider screens */
-  height: auto; /* Expand based on content */
+/* Closed sidebar on wide screens (icons still visible) */
+.sidebarClosed.horizontalSidebar {
+  width: 5rem; /* Only show icons when collapsed on widescreens */
+  height: auto;
   visibility: visible;
 }
 
-/* Icons always visible when open */
+/* Open sidebar on wide screens (full content visible) */
+.sidebarOpen.horizontalSidebar {
+  width: 100vw;
+  height: auto;
+  visibility: visible;
+}
+
+/* Fully hidden sidebar on vertical screens */
+.sidebarClosed.verticalSidebar {
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  overflow: hidden;
+}
+
+/* Open sidebar on vertical screens */
+.sidebarOpen.verticalSidebar {
+  width: 100vw;
+  height: auto;
+  visibility: visible;
+}
+
+/* Icons size based on sidebar state */
 .icon-small {
   width: 3rem;
   height: 3rem;
@@ -187,12 +201,12 @@ onBeforeUnmount(() => {
   height: 4rem;
 }
 
-/* Toggle button should always remain visible */
+/* Ensure toggle button remains visible */
 button {
   visibility: visible;
 }
 
-/* For vertical screens, completely collapse the sidebar */
+/* For vertical screens, fully collapse the sidebar when closed */
 @media (max-width: 768px) {
   .sidebarClosed {
     width: 0;

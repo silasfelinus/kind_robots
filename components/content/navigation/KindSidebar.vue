@@ -1,7 +1,10 @@
 <template>
   <div class="relative m-1 p-1">
-    <!-- Toggle Button - Always at the top-center on small/vertical screens -->
-    <button class="absolute top-0 left-1/2 transform -translate-x-1/2 z-40" @click="toggleSidebar">
+    <!-- Toggle Button - Positioned at the top-center -->
+    <button
+      class="absolute top-0 left-1/2 transform -translate-x-1/2 z-40"
+      @click="toggleSidebar"
+    >
       <Icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
         class="h-4 w-4 text-gray-500"
@@ -13,33 +16,26 @@
       :class="`sidebar flex-col transition-all duration-300 ease-in-out overflow-y-scroll p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'fromTop' : 'fromSide'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
-      <!-- Sidebar Links with Icons and Titles -->
+      <!-- Sidebar Links with Icons and Titles in a Row with Titles Below -->
       <div
         v-for="link in filteredLinks"
         :key="link.title"
-        class="Icon-link-container"
+        class="Icon-link-container flex flex-col items-center m-2 space-y-1"
         @click="handleLinkClick"
       >
         <NuxtLink
-          :to="link.path"
           :class="[
-            'flex',
-            'items-center',
-            'justify-start',
-            'rounded-2xl',
-            'text-center',
-            'hover:scale-110',
-            'hover:glow-animation',
-            'm-1',
-            isCurrentPage(link.path) ? 'text-gray-400' : 'text-gray-900',
-            'w-full',
+            'flex flex-col items-center justify-center',
+            'rounded-2xl text-center',
+            'hover:scale-110 hover:glow-animation',
+            isCurrentPage(link.path) ? 'text-gray-400' : 'text-accent',
           ]"
         >
           <Icon
             :name="link.icon"
-            class="icon-base mr-1 cursor-pointer transition-shadow"
+            class="icon-base h-8 w-8 mb-1 transition-shadow"
           ></Icon>
-          <span v-show="isSidebarOpen" class="text-lg font-semibold">
+          <span v-show="isSidebarOpen" class="text-sm font-semibold">
             {{ link.title }}
           </span>
         </NuxtLink>
@@ -60,6 +56,11 @@ const userStore = useUserStore()
 const contentStore = useContentStore()
 const showMature = computed(() => userStore.showMatureContent)
 const isVertical = ref(false)
+
+// Remove this line if isCurrentPage is not needed:
+const isCurrentPage = (path: string) => {
+  return contentStore.currentPage?._path === path
+}
 
 const links = [
   { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
@@ -138,10 +139,6 @@ const filteredLinks = computed(() => {
   )
 })
 
-const isCurrentPage = (path: string) => {
-  return contentStore.currentPage?._path === path
-}
-
 // Function to check if layout is vertical
 const checkVertical = () => {
   isVertical.value = window.innerHeight > window.innerWidth
@@ -160,9 +157,11 @@ onBeforeUnmount(() => {
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
-  position: fixed;
+  position: absolute;
+  top: 10vh; /* Adjust to place below the header */
+  left: 0;
   z-index: 30;
-  height: 100vh;
+  height: calc(100vh - 10vh); /* Sidebar fills the remaining height */
   width: 16rem; /* Default width when open */
 }
 
@@ -176,23 +175,19 @@ onBeforeUnmount(() => {
 
 .fromSide {
   left: 0; /* Default position when from the side */
-  top: 0;
 }
 
 .fromTop {
-  top: 0;
-  left: 0;
   width: 100vw;
-  height: 10rem; /* Adjusted height when open from top */
+  height: 10rem; /* Adjusted height when open from the top */
 }
 
 @media (max-width: 768px) {
   /* On small screens or when vertical */
   .sidebar {
-    top: 0;
-    left: 0;
+    top: 10vh; /* Sidebar still starts below the header */
     width: 100vw;
-    height: 10rem;
+    height: auto;
     transition: height 0.3s ease-in-out;
   }
 }

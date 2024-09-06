@@ -9,8 +9,8 @@
         aria-haspopup="true"
         aria-label="Change theme"
         class="theme-btn p-2 focus:outline-none focus:ring focus:ring-accent bg-secondary transform hover:scale-105 transition-all ease-in-out duration-200 text-lg"
+        style="width: 100%; max-width: 100%; height: auto"
         @click="toggleMenu"
-        style="width: 100%; max-width: 100%; height: auto;" 
       >
         theme: {{ themeStore.currentTheme }}
       </button>
@@ -77,7 +77,7 @@ const modalPosition = computed(() => {
     left: `${left}px`,
     position: 'absolute',
     width: `${menuWidth}px`,
-    height: `${menuHeight}px`
+    height: `${menuHeight}px`,
   }
 })
 
@@ -108,20 +108,20 @@ onUnmounted(() => {
 
 <style scoped>
 .theme-btn {
-  width: 100%; 
-  max-width: 100%; 
-  height: auto; 
+  width: 100%;
+  max-width: 100%;
+  height: auto;
   text-align: center;
 }
 
 .theme-button-container {
-  width: 100%; 
+  width: 100%;
   height: auto;
   max-width: 100%;
 }
 
 .theme-selector {
-  width: 100%; 
+  width: 100%;
   max-width: 100%;
   height: 100%;
 }

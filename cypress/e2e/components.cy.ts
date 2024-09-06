@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
- 
 
 describe('Component Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/components'
@@ -17,7 +16,9 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.folderNames).to.be.an('array').and.have.length.greaterThan(0)
+      expect(response.body.folderNames)
+        .to.be.an('array')
+        .and.have.length.greaterThan(0)
     })
   })
 
@@ -71,7 +72,9 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.components).to.be.an('array').and.include(uniqueComponentName)
+      expect(response.body.components)
+        .to.be.an('array')
+        .and.include(uniqueComponentName)
     })
   })
 
@@ -114,7 +117,9 @@ describe('Component Management API Tests', () => {
       expect(response.body.success).to.be.true
       expect(response.body.updatedComponent.isWorking).to.be.false
       expect(response.body.updatedComponent.underConstruction).to.be.true
-      expect(response.body.updatedComponent.title).to.eq('Updated Test Component')
+      expect(response.body.updatedComponent.title).to.eq(
+        'Updated Test Component',
+      )
     })
   })
 

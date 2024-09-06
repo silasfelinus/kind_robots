@@ -1,7 +1,5 @@
 import { defineStore } from 'pinia'
 import type { Component } from '@prisma/client'
-import { promises as fs } from 'fs'
-import path from 'path'
 
 interface Folder {
   folderName: string
@@ -55,21 +53,15 @@ export const useComponentStore = defineStore('componentStore', {
           const jsonResponse = await fetch('/components.json')
           if (!jsonResponse.ok) throw new Error('components.json not found')
           jsonComponents = await jsonResponse.json()
-
-        } catch (error) {
-          console.warn('components.json not found, generating it now...', error)
-          await this.generateComponentJSON()
-
-          const jsonResponse = await fetch('/components.json')
-          if (!jsonResponse.ok) throw new Error('Failed to fetch newly generated components.json')
-          jsonComponents = await jsonResponse.json()
+        } catch {
+          console.warn('components.json not found')
         }
 
         // 3. Sync database with components.json
         await this.syncDatabaseWithJSON(dbComponents, jsonComponents)
 
         // 4. Update store with components and folders
-        this.components = jsonComponents
+        this.components = dbComponents
         this.folders = this.groupedFolders // Derived from components
 
         console.log('ComponentStore initialized successfully')
@@ -125,8 +117,9 @@ export const useComponentStore = defineStore('componentStore', {
         console.error('Error syncing database with components.json:', error)
       }
     },
-     // Fetch components for a specific folder
-     async fetchComponentList(folderName: string) {
+
+    // Fetch components for a specific folder
+    async fetchComponentList(folderName: string) {
       try {
         const response = await fetch(`/api/components/folder/${folderName}`)
         if (!response.ok) throw new Error('Failed to fetch components for the folder')
@@ -144,45 +137,6 @@ export const useComponentStore = defineStore('componentStore', {
         this.folders = this.groupedFolders
       } catch (error) {
         console.error('Error fetching component list:', error)
-      }
-    },
-
-
-    // Function to generate the components.json file if it doesn't exist
-    async generateComponentJSON() {
-      try {
-        const componentPath = path.resolve(process.cwd(), 'components/content')
-        const folderNames = await fs.readdir(componentPath)
-        const components: Component[] = []
-
-        for (const folderName of folderNames) {
-          const folderPath = path.join(componentPath, folderName)
-          const stat = await fs.stat(folderPath)
-
-          if (stat.isDirectory()) {
-            const componentFiles = await fs.readdir(folderPath)
-            for (const file of componentFiles) {
-              if (file.endsWith('.vue')) {
-                components.push({
-                  folderName,
-                  componentName: file.replace('.vue', ''),
-                  isWorking: true, // Default values for new components
-                  underConstruction: false,
-                  isBroken: false,
-                  title: null,
-                  createdAt: new Date(),
-                  updatedAt: new Date()
-                } as Component)
-              }
-            }
-          }
-        }
-
-        const outputPath = path.resolve(process.cwd(), 'public/components.json')
-        await fs.writeFile(outputPath, JSON.stringify(components, null, 2))
-        console.log('Component JSON generated successfully:', outputPath)
-      } catch (error) {
-        console.error('Failed to generate component JSON:', error)
       }
     },
 

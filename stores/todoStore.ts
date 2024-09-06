@@ -98,5 +98,10 @@ export const useTodoStore = defineStore({
         }
       }
     },
+
+    selectTodo(todoId: number) {
+      const selectedTodo = this.todos.find((t) => t.id === todoId) || null
+      this.currentTodo = selectedTodo
+    },
   },
 })

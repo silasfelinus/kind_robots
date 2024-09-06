@@ -145,33 +145,38 @@ onBeforeUnmount(() => {
 })
 </script>
 
+#### Updated CSS:
+
+```css
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
-  position: absolute;
-  top: calc(10vh + 1rem); /* Below the header with margin */
-  left: 0;
-  z-index: 30;
+  position: relative; /* Relative positioning for proper flow below header */
   width: 100vw; /* Respect viewport width */
-  height: auto; /* Minimal height for slimmer screens */
-  min-height: 20vh; /* Minimal reasonable height for icons */
+  height: auto;
+  min-height: 20vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   flex-wrap: wrap;
   overflow-y: auto;
+  transition: all 0.3s ease;
 }
 
 .sidebarClosed {
-  height: auto;
+  width: 100%; /* When closed, sidebar will be fully hidden on vertical screens */
+  height: 0;
+  visibility: hidden;
+  transition: height 0.3s ease, visibility 0.3s ease;
 }
 
 .sidebarOpen {
-  flex-wrap: wrap;
-  align-items: flex-start;
+  width: 100vw; /* Take up full width on wider screens */
+  height: auto; /* Expand based on content */
+  visibility: visible;
 }
 
-/* Icons always visible */
+/* Icons always visible when open */
 .icon-small {
   width: 3rem;
   height: 3rem;
@@ -182,12 +187,24 @@ onBeforeUnmount(() => {
   height: 4rem;
 }
 
+/* Toggle button should always remain visible */
+button {
+  visibility: visible;
+}
+
+/* For vertical screens, completely collapse the sidebar */
 @media (max-width: 768px) {
-  .sidebar {
-    min-height: 15vh; /* Minimized height on smaller screens */
-    height: auto; /* Sidebar expands as needed */
+  .sidebarClosed {
+    width: 0;
+    height: 0;
+    visibility: hidden;
+  }
+
+  .sidebarOpen {
+    min-height: 15vh;
+    height: auto;
     flex-wrap: wrap;
-    transition: height 0.3s ease-in-out;
+    transition: height 0.3s ease;
   }
 }
 </style>

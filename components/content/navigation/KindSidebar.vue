@@ -1,8 +1,8 @@
 <template>
   <div class="relative m-1 p-1">
-    <!-- Toggle Button - Positioned at the top-center -->
+    <!-- Toggle Button - Positioned on the left side -->
     <button
-      class="absolute top-0 left-1/2 transform -translate-x-1/2 z-40"
+      class="absolute top-0 left-0 transform z-40"
       @click="toggleSidebar"
     >
       <Icon
@@ -13,7 +13,7 @@
 
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`sidebar flex flex-wrap justify-center items-start transition-all duration-300 ease-in-out overflow-y-hidden p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'verticalSidebar' : 'horizontalSidebar'}`"
+      :class="`sidebar flex flex-wrap justify-center items-start transition-all duration-300 ease-in-out p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'verticalSidebar' : 'horizontalSidebar'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -149,7 +149,7 @@ onBeforeUnmount(() => {
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
-  position: relative; /* Sidebar now flows properly with page content */
+  position: relative;
   width: 100vw;
   height: auto;
   min-height: 20vh;
@@ -157,22 +157,23 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: flex-start;
   flex-wrap: wrap;
-  overflow-y: auto;
+  overflow-y: auto; /* Make sidebar scrollable */
   transition: all 0.3s ease;
 }
 
 /* Closed sidebar on wide screens (icons still visible) */
 .sidebarClosed.horizontalSidebar {
-  width: 5rem; /* Only show icons when collapsed on widescreens */
+  width: 5rem; /* Show only icons when collapsed */
   height: auto;
   visibility: visible;
 }
 
-/* Open sidebar on wide screens (full content visible) */
+/* Open sidebar on wide screens (full content visible, behaves like a sidebar) */
 .sidebarOpen.horizontalSidebar {
-  width: 100vw;
+  width: 16rem; /* Typical sidebar width */
   height: auto;
   visibility: visible;
+  overflow-y: auto;
 }
 
 /* Fully hidden sidebar on vertical screens */
@@ -201,9 +202,10 @@ onBeforeUnmount(() => {
   height: 4rem;
 }
 
-/* Ensure toggle button remains visible */
+/* Ensure toggle button remains on the left side and visible */
 button {
   visibility: visible;
+  left: 0; /* Always on the left */
 }
 
 /* For vertical screens, fully collapse the sidebar when closed */

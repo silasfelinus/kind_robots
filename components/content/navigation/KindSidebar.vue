@@ -1,14 +1,16 @@
 <template>
   <div class="relative m-1 p-1">
-    <button class="absolute top-0 left-3 z-40" @click="toggleSidebar">
+    <!-- Toggle Button - Always at the top-center on small/vertical screens -->
+    <button class="absolute top-0 left-1/2 transform -translate-x-1/2 z-40" @click="toggleSidebar">
       <Icon
         :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
         class="h-4 w-4 text-gray-500"
       ></Icon>
     </button>
+
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`sidebar flex-col flex-shrink-0 transition-width duration-300 ease-in-out overflow-y-scroll mb-4 p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'}`"
+      :class="`sidebar flex-col transition-all duration-300 ease-in-out overflow-y-scroll p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'fromTop' : 'fromSide'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -37,9 +39,9 @@
             :name="link.icon"
             class="icon-base mr-1 cursor-pointer transition-shadow"
           ></Icon>
-          <span v-show="isSidebarOpen" class="text-lg font-semibold">{{
-            link.title
-          }}</span>
+          <span v-show="isSidebarOpen" class="text-lg font-semibold">
+            {{ link.title }}
+          </span>
         </NuxtLink>
       </div>
     </aside>
@@ -57,6 +59,9 @@ const isSidebarOpen = computed(() => layoutStore.isSidebarOpen)
 const userStore = useUserStore()
 const contentStore = useContentStore()
 const showMature = computed(() => userStore.showMatureContent)
+
+const isVertical = computed(() => window.innerHeight > window.innerWidth)
+
 const links = [
   { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
   { title: 'Add Bot', path: '/addbot', icon: 'fluent:bot-add-20-regular' },
@@ -138,3 +143,44 @@ const isCurrentPage = (path: string) => {
   return contentStore.currentPage?._path === path
 }
 </script>
+
+<style scoped>
+/* Sidebar Styles */
+.sidebar {
+  position: fixed;
+  z-index: 30;
+  height: 100vh;
+  width: 16rem; /* Default width when open */
+}
+
+.sidebarClosed {
+  width: 0; /* Hidden when closed */
+}
+
+.sidebarOpen {
+  width: 16rem;
+}
+
+.fromSide {
+  left: 0; /* Default position when from the side */
+  top: 0;
+}
+
+.fromTop {
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 10rem; /* Adjusted height when open from top */
+}
+
+@media (max-width: 768px) {
+  /* On small screens or when vertical */
+  .sidebar {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 10rem;
+    transition: height 0.3s ease-in-out;
+  }
+}
+</style>

@@ -23,7 +23,7 @@ import { usePitchStore } from '@/stores/pitchStore'
 import { useChannelStore } from '@/stores/channelStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useLayoutStore } from '@/stores/layoutStore'
-import KindSidebar from '@/components/content/navigation/KindSidebar.vue'
+import KindSidebar from '@/components/content/layout/KindSidebar.vue'
 
 const errorStore = useErrorStore()
 const tagStore = useTagStore()

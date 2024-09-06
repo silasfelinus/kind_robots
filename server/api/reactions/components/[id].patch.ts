@@ -34,7 +34,9 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!updatedReaction) {
-      throw new Error(`Failed to update reaction for component with ID ${componentId}.`)
+      throw new Error(
+        `Failed to update reaction for component with ID ${componentId}.`,
+      )
     }
 
     return {

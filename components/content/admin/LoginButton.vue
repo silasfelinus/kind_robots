@@ -3,7 +3,6 @@
     <!-- Button column -->
     <div class="ml-4">
       <div v-if="isLoggedIn">
-        <div class="hidden lg:inline">Salutations,</div>
         {{ username }}!
         <jellybean-count />
         <button class="b p-2 rounded-lg text-white text-sm" @click="logout">

@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import KindSidebar from './../components/content/navigation/KindSidebar.vue'
+import KindSidebar from './../components/content/layout/KindSidebar.vue'
 </script>
 
 <style>

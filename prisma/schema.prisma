@@ -462,6 +462,17 @@ model Tag {
   Components        Component[]
 }
 
+model Todo {
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime?     @updatedAt @default(now())
+  content           String
+  notes             String?       @default(" ")
+  isCompleted       Boolean       @default(false)
+  task              String?       @default("todo")
+  userId            Int
+  User              User          @relation(fields: [userId], references: [id])
+}
 
 
 model User {
@@ -518,6 +529,7 @@ model User {
   Tags              Tag[]
   Logs              Log[]
   ArtImage          ArtImage[]
+  Todos             Todo[]
 }
 
 model ReactionToTag {

@@ -108,20 +108,20 @@ onUnmounted(() => {
 
 <style scoped>
 .theme-btn {
-  width: 100%; /* Ensure it takes up the full width of its parent */
-  max-width: 100%; /* Prevents overflow */
-  height: auto; /* Allows height to adjust based on content */
+  width: 100%; 
+  max-width: 100%; 
+  height: auto; 
   text-align: center;
 }
 
 .theme-button-container {
-  width: 100%; /* Ensure the container takes up the full width available */
+  width: 100%; 
   height: auto;
   max-width: 100%;
 }
 
 .theme-selector {
-  width: 100%; /* Make sure the entire component takes up the available width */
+  width: 100%; 
   max-width: 100%;
   height: 100%;
 }

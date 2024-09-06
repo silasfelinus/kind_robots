@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from './../../../stores/userStore'
 import { useContentStore } from './../../../stores/contentStore'
 import { useLayoutStore } from './../../../stores/layoutStore'
@@ -59,8 +59,7 @@ const isSidebarOpen = computed(() => layoutStore.isSidebarOpen)
 const userStore = useUserStore()
 const contentStore = useContentStore()
 const showMature = computed(() => userStore.showMatureContent)
-
-const isVertical = computed(() => window.innerHeight > window.innerWidth)
+const isVertical = ref(false)
 
 const links = [
   { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
@@ -142,6 +141,20 @@ const filteredLinks = computed(() => {
 const isCurrentPage = (path: string) => {
   return contentStore.currentPage?._path === path
 }
+
+// Function to check if layout is vertical
+const checkVertical = () => {
+  isVertical.value = window.innerHeight > window.innerWidth
+}
+
+onMounted(() => {
+  checkVertical() // Initial check when component is mounted
+  window.addEventListener('resize', checkVertical) // Update on window resize
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkVertical) // Cleanup event listener
+})
 </script>
 
 <style scoped>

@@ -6,24 +6,24 @@
       @click="toggleSidebar"
     >
       <Icon
-        :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
-        class="h-4 w-4 text-gray-500"
+        :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
+        class="h-6 w-6 text-gray-500"
       ></Icon>
     </button>
 
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`sidebar flex-col transition-all duration-300 ease-in-out overflow-y-scroll p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'fromTop' : 'fromSide'}`"
+      :class="`sidebar flex flex-wrap justify-center items-start transition-all duration-300 ease-in-out overflow-y-hidden p-1 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'fromTop' : 'fromSide'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
-      <!-- Sidebar Links with Icons and Titles in a Row with Titles Below -->
+      <!-- Sidebar Links with Icons and Titles -->
       <div
         v-for="link in filteredLinks"
         :key="link.title"
-        class="Icon-link-container flex flex-col items-center m-2 space-y-1"
-        @click="handleLinkClick"
+        class="Icon-link-container flex flex-col items-center m-2"
       >
         <NuxtLink
+          :to="link.path"
           :class="[
             'flex flex-col items-center justify-center',
             'rounded-2xl text-center',
@@ -33,9 +33,10 @@
         >
           <Icon
             :name="link.icon"
-            class="icon-base h-8 w-8 mb-1 transition-shadow"
+            :class="isSidebarOpen ? 'icon-large' : 'icon-small'"
+            class="transition-all"
           ></Icon>
-          <span v-show="isSidebarOpen" class="text-sm font-semibold">
+          <span v-show="isSidebarOpen" class="text-sm font-semibold mt-1">
             {{ link.title }}
           </span>
         </NuxtLink>
@@ -57,10 +58,7 @@ const contentStore = useContentStore()
 const showMature = computed(() => userStore.showMatureContent)
 const isVertical = ref(false)
 
-// Remove this line if isCurrentPage is not needed:
-const isCurrentPage = (path: string) => {
-  return contentStore.currentPage?._path === path
-}
+const isCurrentPage = (path: string) => contentStore.currentPage?._path === path
 
 const links = [
   { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
@@ -126,12 +124,6 @@ function toggleSidebar() {
   layoutStore.toggleSidebar()
 }
 
-function handleLinkClick() {
-  if (isSidebarOpen.value) {
-    toggleSidebar()
-  }
-}
-
 const filteredLinks = computed(() => {
   return links.filter(
     (link) =>
@@ -139,18 +131,17 @@ const filteredLinks = computed(() => {
   )
 })
 
-// Function to check if layout is vertical
 const checkVertical = () => {
   isVertical.value = window.innerHeight > window.innerWidth
 }
 
 onMounted(() => {
-  checkVertical() // Initial check when component is mounted
-  window.addEventListener('resize', checkVertical) // Update on window resize
+  checkVertical()
+  window.addEventListener('resize', checkVertical)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', checkVertical) // Cleanup event listener
+  window.removeEventListener('resize', checkVertical)
 })
 </script>
 
@@ -158,34 +149,41 @@ onBeforeUnmount(() => {
 /* Sidebar Styles */
 .sidebar {
   position: absolute;
-  top: 10vh; /* Adjust to place below the header */
+  top: calc(10vh + 1rem); /* Adjust to place below the header with padding */
   left: 0;
   z-index: 30;
-  height: calc(100vh - 10vh); /* Sidebar fills the remaining height */
-  width: 16rem; /* Default width when open */
+  width: 100vw; /* Always respect viewport width */
+  height: calc(100vh - 10vh - 2rem); /* Sidebar fills remaining space below the header */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 .sidebarClosed {
-  width: 0; /* Hidden when closed */
+  height: auto;
 }
 
 .sidebarOpen {
-  width: 16rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 
-.fromSide {
-  left: 0; /* Default position when from the side */
+/* Icons are always visible */
+.icon-small {
+  width: 3rem;
+  height: 3rem;
 }
 
-.fromTop {
-  width: 100vw;
-  height: 10rem; /* Adjusted height when open from the top */
+.icon-large {
+  width: 4rem;
+  height: 4rem;
 }
 
+/* When the sidebar is open, text shows below the icons */
 @media (max-width: 768px) {
-  /* On small screens or when vertical */
   .sidebar {
-    top: 10vh; /* Sidebar still starts below the header */
+    top: 10vh; /* Still start below the header */
     width: 100vw;
     height: auto;
     transition: height 0.3s ease-in-out;

@@ -5,8 +5,8 @@ export enum ErrorType {
   VALIDATION_ERROR = 'Validation Error',
   AUTH_ERROR = 'Authentication Error',
   UNKNOWN_ERROR = 'Unknown Error',
-  GENERAL_ERROR = 'GENERAL_ERROR',
-  REGISTRATION_ERROR = 'Registration_ERROR',
+  GENERAL_ERROR = 'General Error',
+  REGISTRATION_ERROR = 'Registration Error',
 }
 
 export interface ErrorHistoryEntry {
@@ -21,14 +21,18 @@ interface ErrorState {
   history: ErrorHistoryEntry[]
 }
 
+const MAX_HISTORY = 100 // Limit the history to 100 errors for better memory management
+
 export const useErrorStore = defineStore('error', {
   state: (): ErrorState => ({
     message: null,
     type: null,
     history: [],
   }),
+
   actions: {
     getError: (state: ErrorState) => state.message,
+
     setError(type: ErrorType, message: unknown) {
       let errorMessage: string
 
@@ -49,11 +53,20 @@ export const useErrorStore = defineStore('error', {
       this.message = errorMessage
       this.type = type
       this.history.push(errorEntry)
+
+      // Trim history if it exceeds the maximum allowed size
+      if (this.history.length > MAX_HISTORY) {
+        this.history.shift()
+      }
     },
 
     clearError() {
       this.message = null
       this.type = null
+    },
+
+    clearErrorHistory() {
+      this.history = []
     },
 
     async handleError<T>(

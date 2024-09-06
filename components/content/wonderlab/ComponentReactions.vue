@@ -1,47 +1,55 @@
 <template>
-  <div
-    class="fixed bottom-0 left-0 right-0 p-4 bg-gray-800 flex justify-around"
-  >
-    <!-- Display Reaction Totals -->
-    <div class="text-center">
+  <div class="relative">
+    <!-- Existing reaction buttons -->
+    <div
+      class="fixed bottom-0 left-0 right-0 p-4 bg-gray-800 flex justify-around"
+    >
       <Icon
         name="mdi:thumb-up-outline"
         class="text-6xl cursor-pointer"
         :class="{ 'text-green-500': reaction.isClapped }"
         @click="toggleReaction('isClapped')"
       />
-      <p class="text-white">{{ totalClaps }} Claps</p>
-      <!-- Show total claps -->
-    </div>
-    <div class="text-center">
       <Icon
         name="mdi:thumb-down-outline"
         class="text-6xl cursor-pointer"
         :class="{ 'text-red-500': reaction.isBooed }"
         @click="toggleReaction('isBooed')"
       />
-      <p class="text-white">{{ totalBoos }} Boos</p>
-      <!-- Show total boos -->
-    </div>
-    <div class="text-center">
       <Icon
         name="mdi:heart-outline"
         class="text-6xl cursor-pointer"
         :class="{ 'text-pink-500': reaction.isLoved }"
         @click="toggleReaction('isLoved')"
       />
-      <p class="text-white">{{ totalLoves }} Loves</p>
-      <!-- Show total loves -->
-    </div>
-    <div class="text-center">
       <Icon
         name="mdi:emoticon-angry-outline"
         class="text-6xl cursor-pointer"
         :class="{ 'text-yellow-500': reaction.isHated }"
         @click="toggleReaction('isHated')"
       />
-      <p class="text-white">{{ totalHates }} Hates</p>
-      <!-- Show total hates -->
+    </div>
+
+    <!-- Comment Section -->
+    <div class="mt-4 p-4 bg-gray-100">
+      <textarea
+        v-model="commentTitle"
+        placeholder="Title"
+        class="w-full mb-2 p-2 border border-gray-300 rounded"
+      ></textarea>
+      <textarea
+        v-model="commentDescription"
+        placeholder="Add your comment..."
+        class="w-full p-2 border border-gray-300 rounded"
+      ></textarea>
+      <button class="btn btn-primary mt-2 w-full" @click="submitComment">
+        Submit Comment
+      </button>
+    </div>
+
+    <!-- Comment Display Section -->
+    <div class="mt-6">
+      <CommentDisplay :component-id="props.componentId" />
     </div>
   </div>
 </template>
@@ -50,6 +58,7 @@
 import { ref, watch, computed } from 'vue'
 import { useReactionStore } from '../../../stores/reactionStore'
 import { useUserStore } from '@/stores/userStore'
+import CommentDisplay from './CommentDisplay.vue'
 
 // Props
 const props = defineProps({
@@ -71,27 +80,15 @@ const reaction = ref({
   isLoved: false,
   isHated: false,
 })
-
-// Computed properties for total reactions
-const totalClaps = computed(() =>
-  reactionStore.getTotalReactionsForComponent(props.componentId, 'isClapped'),
-)
-const totalBoos = computed(() =>
-  reactionStore.getTotalReactionsForComponent(props.componentId, 'isBooed'),
-)
-const totalLoves = computed(() =>
-  reactionStore.getTotalReactionsForComponent(props.componentId, 'isLoved'),
-)
-const totalHates = computed(() =>
-  reactionStore.getTotalReactionsForComponent(props.componentId, 'isHated'),
-)
+const commentTitle = ref('')
+const commentDescription = ref('')
 
 // Fetch the reaction when componentId changes
 watch(
   () => props.componentId,
   async (newId) => {
     if (newId) {
-      await reactionStore.fetchReactionsByComponentId(newId) // Fetch all reactions for the component
+      await reactionStore.fetchReactionsByComponentId(newId)
       const userReaction = reactionStore.getUserReactionForComponent(
         newId,
         userId.value,
@@ -110,13 +107,11 @@ watch(
 
 // Function to toggle reactions
 const toggleReaction = async (reactionType: keyof typeof reaction.value) => {
-  // Toggle the selected reaction and turn off others
   Object.keys(reaction.value).forEach((key) => {
     reaction.value[key as keyof typeof reaction.value] = false
   })
   reaction.value[reactionType] = true
 
-  // Check if there is an existing reaction and update it
   const existingReaction = reactionStore.getUserReactionForComponent(
     props.componentId,
     userId.value,
@@ -126,12 +121,32 @@ const toggleReaction = async (reactionType: keyof typeof reaction.value) => {
       ...reaction.value,
     })
   } else {
-    // Create a new reaction if no previous reaction exists
     await reactionStore.createReaction({
       userId: userId.value,
       componentId: props.componentId,
       ...reaction.value,
     })
+  }
+}
+
+// Submit comment and create channel
+const submitComment = async () => {
+  if (commentTitle.value && commentDescription.value) {
+    await reactionStore.createReactionWithChannel(
+      {
+        userId: userId.value,
+        componentId: props.componentId,
+        ...reaction.value,
+      },
+      {
+        title: commentTitle.value,
+        description: commentDescription.value,
+      },
+    )
+    commentTitle.value = ''
+    commentDescription.value = ''
+  } else {
+    alert('Please add both a title and a comment.')
   }
 }
 </script>

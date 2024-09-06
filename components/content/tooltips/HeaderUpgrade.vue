@@ -38,12 +38,6 @@
       </div>
     </header>
 
-    <!-- Navigation Section -->
-    <navigation-trimmed
-      v-if="showNav"
-      class="absolute bottom-0 left-0 w-full bg-secondary shadow-lg transition-transform duration-300"
-      :class="{ 'translate-y-0': showNav, 'translate-y-full': !showNav }"
-    />
   </div>
 </template>
 

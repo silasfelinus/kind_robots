@@ -18,8 +18,12 @@ export const useChannelStore = defineStore({
   actions: {
     // Method to get channels associated with a component via its reactions
     getChannelsForComponent(componentId: number) {
-      const reactionsForComponent = this.reactions.filter((reaction) => reaction.componentId === componentId)
-      const channelIds = new Set(reactionsForComponent.map((reaction) => reaction.channelId))
+      const reactionsForComponent = this.reactions.filter(
+        (reaction) => reaction.componentId === componentId,
+      )
+      const channelIds = new Set(
+        reactionsForComponent.map((reaction) => reaction.channelId),
+      )
       return this.channels.filter((channel) => channelIds.has(channel.id))
     },
 
@@ -33,16 +37,20 @@ export const useChannelStore = defineStore({
       const errorStore = useErrorStore()
       this.loading = true
       return errorStore
-        .handleError(async () => {
-          const res = await fetch(`/api/components/${componentId}/channels`)
-          const data = await res.json()
+        .handleError(
+          async () => {
+            const res = await fetch(`/api/components/${componentId}/channels`)
+            const data = await res.json()
 
-          if (data.success) {
-            this.channels = data.channels
-          } else {
-            throw new Error(data.message || 'Failed to fetch channels')
-          }
-        }, ErrorType.NETWORK_ERROR, 'Error fetching channels')
+            if (data.success) {
+              this.channels = data.channels
+            } else {
+              throw new Error(data.message || 'Failed to fetch channels')
+            }
+          },
+          ErrorType.NETWORK_ERROR,
+          'Error fetching channels',
+        )
         .finally(() => {
           this.loading = false
         })
@@ -53,16 +61,20 @@ export const useChannelStore = defineStore({
       const errorStore = useErrorStore()
       this.loading = true
       return errorStore
-        .handleError(async () => {
-          const res = await fetch(`/api/channels/${channelId}/messages`)
-          const data = await res.json()
+        .handleError(
+          async () => {
+            const res = await fetch(`/api/channels/${channelId}/messages`)
+            const data = await res.json()
 
-          if (data.success) {
-            this.messages.push(...data.messages)
-          } else {
-            throw new Error(data.message || 'Failed to fetch messages')
-          }
-        }, ErrorType.NETWORK_ERROR, 'Error fetching messages')
+            if (data.success) {
+              this.messages.push(...data.messages)
+            } else {
+              throw new Error(data.message || 'Failed to fetch messages')
+            }
+          },
+          ErrorType.NETWORK_ERROR,
+          'Error fetching messages',
+        )
         .finally(() => {
           this.loading = false
         })
@@ -73,16 +85,20 @@ export const useChannelStore = defineStore({
       const errorStore = useErrorStore()
       this.loading = true
       return errorStore
-        .handleError(async () => {
-          const res = await fetch(`/api/components/${componentId}/reactions`)
-          const data = await res.json()
+        .handleError(
+          async () => {
+            const res = await fetch(`/api/components/${componentId}/reactions`)
+            const data = await res.json()
 
-          if (data.success) {
-            this.reactions = data.reactions
-          } else {
-            throw new Error(data.message || 'Failed to fetch reactions')
-          }
-        }, ErrorType.NETWORK_ERROR, 'Error fetching reactions')
+            if (data.success) {
+              this.reactions = data.reactions
+            } else {
+              throw new Error(data.message || 'Failed to fetch reactions')
+            }
+          },
+          ErrorType.NETWORK_ERROR,
+          'Error fetching reactions',
+        )
         .finally(() => {
           this.loading = false
         })
@@ -92,10 +108,14 @@ export const useChannelStore = defineStore({
     async initializeChannels() {
       if (this.isInitialized) return
       const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        await this.fetchChannels()
-        this.isInitialized = true
-      }, ErrorType.UNKNOWN_ERROR, 'Error initializing channels')
+      return errorStore.handleError(
+        async () => {
+          await this.fetchChannels()
+          this.isInitialized = true
+        },
+        ErrorType.UNKNOWN_ERROR,
+        'Error initializing channels',
+      )
     },
 
     // Set the current active channel by ID
@@ -110,23 +130,29 @@ export const useChannelStore = defineStore({
       const userId = userStore.userId
       const errorStore = useErrorStore()
 
-      return errorStore.handleError(async () => {
-        const method = channel.id ? 'PATCH' : 'POST'
-        const url = channel.id ? `/api/channels/${channel.id}` : '/api/channels'
-        const res = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...channel, userId }),
-        })
-        const updatedChannel = await res.json()
+      return errorStore.handleError(
+        async () => {
+          const method = channel.id ? 'PATCH' : 'POST'
+          const url = channel.id
+            ? `/api/channels/${channel.id}`
+            : '/api/channels'
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...channel, userId }),
+          })
+          const updatedChannel = await res.json()
 
-        if (channel.id) {
-          const index = this.channels.findIndex((ch) => ch.id === channel.id)
-          if (index !== -1) this.channels[index] = updatedChannel
-        } else {
-          this.channels.push(updatedChannel)
-        }
-      }, ErrorType.UNKNOWN_ERROR, 'Error creating or updating channel')
+          if (channel.id) {
+            const index = this.channels.findIndex((ch) => ch.id === channel.id)
+            if (index !== -1) this.channels[index] = updatedChannel
+          } else {
+            this.channels.push(updatedChannel)
+          }
+        },
+        ErrorType.UNKNOWN_ERROR,
+        'Error creating or updating channel',
+      )
     },
 
     clearCurrentChannel() {
@@ -136,96 +162,126 @@ export const useChannelStore = defineStore({
     // Fetch the current channel along with its messages
     async fetchCurrentChannelWithMessages(channelId: number) {
       const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const res = await fetch(`/api/channels/${channelId}`)
-        const data = await res.json()
-        if (data.success) {
-          this.currentChannel = data.channel
-        }
-      }, ErrorType.UNKNOWN_ERROR, 'Error fetching current channel with messages')
+      return errorStore.handleError(
+        async () => {
+          const res = await fetch(`/api/channels/${channelId}`)
+          const data = await res.json()
+          if (data.success) {
+            this.currentChannel = data.channel
+          }
+        },
+        ErrorType.UNKNOWN_ERROR,
+        'Error fetching current channel with messages',
+      )
     },
 
     // Fetch all available channels
     async fetchChannels() {
       const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const res = await fetch('/api/channels')
-        const data = await res.json()
+      return errorStore.handleError(
+        async () => {
+          const res = await fetch('/api/channels')
+          const data = await res.json()
 
-        if (data.success) {
-          this.channels = data.channels
-        }
-      }, ErrorType.NETWORK_ERROR, 'Error fetching channels')
+          if (data.success) {
+            this.channels = data.channels
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Error fetching channels',
+      )
     },
 
     // Remove a channel by its ID
     async removeChannel(id: number) {
       const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const res = await fetch(`/api/channels/${id}`, { method: 'DELETE' })
-        if (res.ok) {
-          this.channels = this.channels.filter((channel) => channel.id !== id)
-        }
-      }, ErrorType.UNKNOWN_ERROR, 'Error removing channel')
+      return errorStore.handleError(
+        async () => {
+          const res = await fetch(`/api/channels/${id}`, { method: 'DELETE' })
+          if (res.ok) {
+            this.channels = this.channels.filter((channel) => channel.id !== id)
+          }
+        },
+        ErrorType.UNKNOWN_ERROR,
+        'Error removing channel',
+      )
     },
 
     // Fetch all messages
     async fetchMessages() {
       const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const res = await fetch('/api/messages')
-        const data = await res.json()
+      return errorStore.handleError(
+        async () => {
+          const res = await fetch('/api/messages')
+          const data = await res.json()
 
-        if (data.success) {
-          this.messages = data.messages
-        }
-      }, ErrorType.NETWORK_ERROR, 'Error fetching messages')
+          if (data.success) {
+            this.messages = data.messages
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Error fetching messages',
+      )
     },
 
     // Create a new message
     async createMessage(message: Partial<Message>) {
       const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const res = await fetch('/api/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(message),
-        })
-        const data = await res.json()
+      return errorStore.handleError(
+        async () => {
+          const res = await fetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(message),
+          })
+          const data = await res.json()
 
-        if (data.success) {
-          this.messages.push(data.message)
-        }
-      }, ErrorType.UNKNOWN_ERROR, 'Error creating message')
+          if (data.success) {
+            this.messages.push(data.message)
+          }
+        },
+        ErrorType.UNKNOWN_ERROR,
+        'Error creating message',
+      )
     },
 
     // Update an existing message
     async updateMessage(message: Message) {
       const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const res = await fetch(`/api/messages/${message.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(message),
-        })
-        const data = await res.json()
+      return errorStore.handleError(
+        async () => {
+          const res = await fetch(`/api/messages/${message.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(message),
+          })
+          const data = await res.json()
 
-        if (data.success) {
-          const index = this.messages.findIndex((msg) => msg.id === message.id)
-          if (index !== -1) this.messages[index] = data.message
-        }
-      }, ErrorType.UNKNOWN_ERROR, 'Error updating message')
+          if (data.success) {
+            const index = this.messages.findIndex(
+              (msg) => msg.id === message.id,
+            )
+            if (index !== -1) this.messages[index] = data.message
+          }
+        },
+        ErrorType.UNKNOWN_ERROR,
+        'Error updating message',
+      )
     },
 
     // Remove a message by its ID
     async removeMessage(id: number) {
       const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const res = await fetch(`/api/messages/${id}`, { method: 'DELETE' })
-        if (res.ok) {
-          this.messages = this.messages.filter((message) => message.id !== id)
-        }
-      }, ErrorType.UNKNOWN_ERROR, 'Error removing message')
+      return errorStore.handleError(
+        async () => {
+          const res = await fetch(`/api/messages/${id}`, { method: 'DELETE' })
+          if (res.ok) {
+            this.messages = this.messages.filter((message) => message.id !== id)
+          }
+        },
+        ErrorType.UNKNOWN_ERROR,
+        'Error removing message',
+      )
     },
   },
 })

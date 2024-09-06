@@ -13,7 +13,7 @@ export default defineEventHandler(async () => {
       distinct: ['folderName'], // Ensure unique folder names
     })
 
-    const folderNames = folders.map(folder => folder.folderName)
+    const folderNames = folders.map((folder) => folder.folderName)
 
     return {
       success: true,

@@ -19,7 +19,9 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!reactions) {
-      throw new Error(`No reactions found for component with ID ${componentId}.`)
+      throw new Error(
+        `No reactions found for component with ID ${componentId}.`,
+      )
     }
 
     return {

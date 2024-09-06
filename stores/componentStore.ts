@@ -11,7 +11,7 @@ export const useComponentStore = defineStore('componentStore', {
     folderNames: [] as string[], // Dynamic list of folder names
     lastFetched: null as string | null, // ISO format date of last fetch
     currentComponent: null as string | null, // Default current component (name)
-    components: [] as string[] // Flat list of component names for ease of lookup
+    components: [] as string[], // Flat list of component names for ease of lookup
   }),
 
   getters: {
@@ -20,7 +20,7 @@ export const useComponentStore = defineStore('componentStore', {
 
     // Dynamically calculate folder names from the folders array
     folderNames(state) {
-      return state.folders.map(folder => folder.folderName)
+      return state.folders.map((folder) => folder.folderName)
     },
 
     // Get folders as an array of objects with folderName and component names
@@ -33,7 +33,7 @@ export const useComponentStore = defineStore('componentStore', {
       return state.folders.reduce((acc, folder) => {
         return acc.concat(folder.components)
       }, [] as string[])
-    }
+    },
   },
 
   actions: {
@@ -42,7 +42,8 @@ export const useComponentStore = defineStore('componentStore', {
       try {
         // Fetch existing components from the database (as strings)
         const dbResponse = await fetch('/api/components')
-        if (!dbResponse.ok) throw new Error('Failed to fetch components from the database')
+        if (!dbResponse.ok)
+          throw new Error('Failed to fetch components from the database')
         const dbComponents: string[] = await dbResponse.json()
 
         // Fetch components.json
@@ -86,7 +87,9 @@ export const useComponentStore = defineStore('componentStore', {
     async syncDatabaseWithJSON(dbComponents: string[], jsonFolders: Folder[]) {
       try {
         // Flatten the JSON components into a single array
-        const jsonComponents = jsonFolders.flatMap(folder => folder.components)
+        const jsonComponents = jsonFolders.flatMap(
+          (folder) => folder.components,
+        )
 
         // Compare and update the database based on the components.json
         for (const jsonComponent of jsonComponents) {
@@ -116,7 +119,8 @@ export const useComponentStore = defineStore('componentStore', {
           body: JSON.stringify({ componentName }),
         })
 
-        if (response.status === 409) { // Conflict, update existing component
+        if (response.status === 409) {
+          // Conflict, update existing component
           await this.updateComponent(componentName)
         } else if (!response.ok) {
           throw new Error(`Failed to create component: ${response.statusText}`)
@@ -158,7 +162,7 @@ export const useComponentStore = defineStore('componentStore', {
         }
 
         // Remove the component from the store
-        this.components = this.components.filter(c => c !== componentName)
+        this.components = this.components.filter((c) => c !== componentName)
         this.folders = this.groupedFolders // Recalculate folders
 
         console.log(`Component ${componentName} deleted successfully`)

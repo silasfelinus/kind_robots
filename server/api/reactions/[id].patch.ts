@@ -32,7 +32,6 @@ export default defineEventHandler(async (event) => {
 
     // Return the updated reaction
     return { success: true, reaction: updatedReaction }
-
   } catch (error: unknown) {
     // Handle errors consistently
     return errorHandler(error)

@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Reaction } from '@prisma/client'
 
-
 export const useReactionStore = defineStore('reactionStore', {
   state: () => ({
     reactions: [] as Reaction[],
@@ -12,17 +11,24 @@ export const useReactionStore = defineStore('reactionStore', {
 
   getters: {
     getReactionsByComponentId: (state) => (componentId: number) =>
-      state.reactions.filter((reaction) => reaction.componentId === componentId),
+      state.reactions.filter(
+        (reaction) => reaction.componentId === componentId,
+      ),
 
-    getUserReactionForComponent: (state) => (componentId: number, userId: number) =>
-      state.reactions.find((reaction) => reaction.componentId === componentId && reaction.userId === userId),
+    getUserReactionForComponent:
+      (state) => (componentId: number, userId: number) =>
+        state.reactions.find(
+          (reaction) =>
+            reaction.componentId === componentId && reaction.userId === userId,
+        ),
 
     // Fetch channels with comments for the specific component
     getChannelsForComponent: (state) => (componentId: number) =>
       state.channels.filter((channel) =>
         state.reactions.some(
           (reaction) =>
-            reaction.componentId === componentId && reaction.channelId === channel.id,
+            reaction.componentId === componentId &&
+            reaction.channelId === channel.id,
         ),
       ),
   },
@@ -35,14 +41,18 @@ export const useReactionStore = defineStore('reactionStore', {
         const data = await response.json()
         this.reactions = data.reactions
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Failed to fetch reactions'
+        this.error =
+          error instanceof Error ? error.message : 'Failed to fetch reactions'
       } finally {
         this.loading = false
       }
     },
 
     // Create a comment channel when a user adds a comment to a reaction
-    async createReactionWithChannel(reactionData: Partial<Reaction>, comment: { title: string; description: string }) {
+    async createReactionWithChannel(
+      reactionData: Partial<Reaction>,
+      comment: { title: string; description: string },
+    ) {
       try {
         // Create the channel first
         const channelResponse = await fetch('/api/channels', {
@@ -75,7 +85,10 @@ export const useReactionStore = defineStore('reactionStore', {
         this.reactions.push(newReaction)
         this.channels.push(newChannel)
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Failed to create reaction with channel'
+        this.error =
+          error instanceof Error
+            ? error.message
+            : 'Failed to create reaction with channel'
       }
     },
 
@@ -86,7 +99,8 @@ export const useReactionStore = defineStore('reactionStore', {
         const data = await response.json()
         this.channels = data.channels
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Failed to fetch channels'
+        this.error =
+          error instanceof Error ? error.message : 'Failed to fetch channels'
       }
     },
 
@@ -128,7 +142,7 @@ export const useReactionStore = defineStore('reactionStore', {
           throw new Error('Failed to update reaction')
         }
         const updatedReaction = await response.json()
-        const index = this.reactions.findIndex(r => r.id === reactionId)
+        const index = this.reactions.findIndex((r) => r.id === reactionId)
         if (index !== -1) {
           this.reactions[index] = updatedReaction
         }
@@ -149,7 +163,9 @@ export const useReactionStore = defineStore('reactionStore', {
         if (!response.ok) {
           throw new Error('Failed to delete reaction')
         }
-        this.reactions = this.reactions.filter(reaction => reaction.id !== reactionId)
+        this.reactions = this.reactions.filter(
+          (reaction) => reaction.id !== reactionId,
+        )
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Unknown error'
       } finally {

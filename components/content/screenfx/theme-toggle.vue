@@ -1,15 +1,16 @@
 <template>
-  <div class="theme-selector flex flex-col items-center relative">
+  <div class="theme-selector flex flex-col items-center relative w-full h-full">
     <div
-      class="flex flex-row items-center justify-center rounded-2xl border bg-secondary m-1 p-1 w-full z-50"
+      class="theme-button-container flex items-center justify-center rounded-2xl border bg-secondary m-1 p-1 w-full h-full"
     >
       <button
         ref="buttonRef"
         tabindex="0"
         aria-haspopup="true"
         aria-label="Change theme"
-        class="theme-btn p-2 focus:outline-none focus:ring focus:ring-accent bg-secondary transform hover:scale-110 transition-all ease-in-out duration-200 text-lg"
+        class="theme-btn p-2 focus:outline-none focus:ring focus:ring-accent bg-secondary transform hover:scale-105 transition-all ease-in-out duration-200 text-lg"
         @click="toggleMenu"
+        style="width: 100%; max-width: 100%; height: auto;" <!-- Ensures the button respects parent width and doesn't overflow -->
       >
         theme: {{ themeStore.currentTheme }}
       </button>
@@ -18,8 +19,8 @@
       <div
         v-show="open"
         :style="modalPosition"
-        class="theme-menu flex flex-wrap justify-center bg-base-200 border p-2 m-1 rounded-2xl z-50 absolute transition-opacity duration-200"
-        style="max-height: 50vh; max-width: 50vw; overflow: auto"
+        class="theme-menu flex flex-wrap justify-center bg-base-200 border p-2 m-1 rounded-2xl z-50 absolute transition-opacity duration-200 overflow-auto"
+        style="max-height: 50vh; max-width: 90vw; overflow: auto"
       >
         <button
           v-for="(theme, index) in themeStore.themes"
@@ -51,8 +52,8 @@ const modalPosition = computed(() => {
   }
 
   const rect = buttonRef.value.getBoundingClientRect()
-  const menuWidth = 300 // assumed width of the menu
-  const menuHeight = 200 // assumed height of the menu
+  const menuWidth = Math.min(window.innerWidth * 0.9, 300) // 90vw max width
+  const menuHeight = Math.min(window.innerHeight * 0.5, 200) // 50vh max height
   const windowWidth = window.innerWidth
   const windowHeight = window.innerHeight
 
@@ -75,13 +76,13 @@ const modalPosition = computed(() => {
     top: `${top}px`,
     left: `${left}px`,
     position: 'absolute',
+    width: `${menuWidth}px`,
+    height: `${menuHeight}px`
   }
 })
 
 const toggleMenu = () => {
-  console.log('Toggling menu. Current state:', open.value)
   open.value = !open.value
-  console.log('New state:', open.value)
 }
 
 const changeTheme = (theme) => {
@@ -104,3 +105,34 @@ onUnmounted(() => {
   document.removeEventListener('click', closeMenu)
 })
 </script>
+
+<style scoped>
+.theme-btn {
+  width: 100%; /* Ensure it takes up the full width of its parent */
+  max-width: 100%; /* Prevents overflow */
+  height: auto; /* Allows height to adjust based on content */
+  text-align: center;
+}
+
+.theme-button-container {
+  width: 100%; /* Ensure the container takes up the full width available */
+  height: auto;
+  max-width: 100%;
+}
+
+.theme-selector {
+  width: 100%; /* Make sure the entire component takes up the available width */
+  max-width: 100%;
+  height: 100%;
+}
+
+.theme-menu-fade-enter-active,
+.theme-menu-fade-leave-active {
+  transition: opacity 0.2s;
+}
+
+.theme-menu-fade-enter,
+.theme-menu-fade-leave-to {
+  opacity: 0;
+}
+</style>

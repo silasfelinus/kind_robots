@@ -31,10 +31,6 @@
           class="flex-1 min-w-0 max-w-xs sm:max-w-sm md:max-w-md"
         />
         <butterfly-toggle class="w-1/6 min-w-0 max-w-xs" />
-        <nav-toggle
-          class="w-1/6 m-1 min-w-0 max-w-xs"
-          @click="toggleNav"
-        />
       </div>
     </header>
 

@@ -149,15 +149,17 @@ onBeforeUnmount(() => {
 /* Sidebar Styles */
 .sidebar {
   position: absolute;
-  top: calc(10vh + 1rem); /* Adjust to place below the header with padding */
+  top: calc(10vh + 1rem); /* Below the header with margin */
   left: 0;
   z-index: 30;
-  width: 100vw; /* Always respect viewport width */
-  height: calc(100vh - 10vh - 2rem); /* Sidebar fills remaining space below the header */
+  width: 100vw; /* Respect viewport width */
+  height: auto; /* Minimal height for slimmer screens */
+  min-height: 20vh; /* Minimal reasonable height for icons */
   display: flex;
   justify-content: center;
   align-items: flex-start;
   flex-wrap: wrap;
+  overflow-y: auto;
 }
 
 .sidebarClosed {
@@ -169,7 +171,7 @@ onBeforeUnmount(() => {
   align-items: flex-start;
 }
 
-/* Icons are always visible */
+/* Icons always visible */
 .icon-small {
   width: 3rem;
   height: 3rem;
@@ -180,12 +182,11 @@ onBeforeUnmount(() => {
   height: 4rem;
 }
 
-/* When the sidebar is open, text shows below the icons */
 @media (max-width: 768px) {
   .sidebar {
-    top: 10vh; /* Still start below the header */
-    width: 100vw;
-    height: auto;
+    min-height: 15vh; /* Minimized height on smaller screens */
+    height: auto; /* Sidebar expands as needed */
+    flex-wrap: wrap;
     transition: height 0.3s ease-in-out;
   }
 }

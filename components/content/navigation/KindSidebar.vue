@@ -145,6 +145,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
+
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
@@ -163,17 +164,19 @@ onBeforeUnmount(() => {
 /* Closed sidebar on wide screens (icons still visible) */
 .sidebarClosed.horizontalSidebar {
   width: 5rem; /* Show only icons when collapsed */
-  height: 100vh; /* Ensure it takes up full vertical space */
+  max-height: 100vh; /* Prevent overflow beyond 100vh */
   visibility: visible;
   overflow-y: auto; /* Enable scrolling when collapsed */
+  padding-bottom: 2rem; /* Add margin to prevent scrolling issues */
 }
 
 /* Open sidebar on wide screens (full content visible, behaves like a sidebar) */
 .sidebarOpen.horizontalSidebar {
   width: 16rem; /* Typical sidebar width */
-  height: 100vh;
+  max-height: 100vh;
   visibility: visible;
   overflow-y: auto;
+  padding-bottom: 2rem; /* Add margin to prevent scrolling issues */
 }
 
 /* Fully hidden sidebar on vertical screens */
@@ -191,11 +194,12 @@ onBeforeUnmount(() => {
   visibility: visible;
 }
 
-/* Stack content in column on vertical screens */
+/* Stack content in row on smaller screens */
 .verticalSidebar .Icon-link-container {
   width: 100%; /* Stack full width in vertical mode */
   display: flex;
   justify-content: center;
+  flex-direction: row; /* Stack in row for small screens */
   margin-bottom: 0.5rem;
 }
 
@@ -231,10 +235,10 @@ button {
     transition: height 0.3s ease;
   }
 
-  /* Stack content in column layout on vertical screens */
+  /* Stack content in row layout on smaller vertical screens */
   .verticalSidebar .Icon-link-container {
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
+    justify-content: space-around;
     align-items: center;
   }
 }

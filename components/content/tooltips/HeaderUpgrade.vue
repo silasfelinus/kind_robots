@@ -3,13 +3,14 @@
     <header
       class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full h-full"
     >
+      <!-- Avatar and Title Section -->
       <div class="flex items-center space-x-1">
         <avatar-image
           alt="User Avatar"
           class="flex max-h-full flex-grow min-h-8 aspect-square m-1"
         />
-        <!-- Adjusting layout and wrapping -->
-        <div class="flex flex-col sm:flex-col md:flex-row justify-between m-1 flex-grow min-w-0">
+        <!-- Title and Subtitle Column -->
+        <div class="flex flex-col sm:flex-row justify-between m-1 flex-grow min-w-0">
           <room-title
             class="text-xs sm:text-sm md:text-base lg:text-lg font-semibold truncate max-w-full sm:max-w-xs md:max-w-sm lg:max-w-md"
           />
@@ -20,6 +21,8 @@
           </h2>
         </div>
       </div>
+
+      <!-- Buttons Section -->
       <div class="flex items-center justify-end space-x-1 flex-shrink-0 min-w-0">
         <login-button
           class="flex-1 min-w-0 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
@@ -34,6 +37,8 @@
         />
       </div>
     </header>
+
+    <!-- Navigation Section -->
     <navigation-trimmed
       v-if="showNav"
       class="absolute bottom-0 left-0 w-full bg-secondary shadow-lg transition-transform duration-300"
@@ -53,23 +58,35 @@ const toggleNav = () => {
 }
 </script>
 
+### Updated CSS:
+
+```css
 <style scoped>
+/* Ensure the header content is in a single row */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+/* Title and subtitle stack vertically on smaller screens */
+@media (max-width: 640px) {
+  header .flex-col {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+/* Room Title */
 .room-title {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap; /* Ensures the text doesn't wrap */
-}
-
-@media (max-width: 640px) {
-  .room-title {
-    max-width: 100px; /* Limit the maximum width on smaller screens */
-  }
-}
-
-@media (min-width: 641px) and (max-width: 768px) {
-  .room-title {
-    max-width: 150px; /* Slightly larger max width for medium screens */
-  }
+  white-space: nowrap;
 }
 
 h2 {
@@ -78,9 +95,17 @@ h2 {
   white-space: nowrap;
 }
 
-header {
-  display: flex;
-  flex-wrap: wrap;
+/* Adjust maximum width for smaller screens */
+@media (max-width: 640px) {
+  .room-title {
+    max-width: 100px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .room-title {
+    max-width: 150px;
+  }
 }
 
 .flex-grow {
@@ -89,11 +114,5 @@ header {
 
 .flex-shrink-0 {
   flex-shrink: 0;
-}
-
-@media (max-width: 640px) {
-  header .flex-col {
-    flex-direction: column; /* Stack title and subtitle on smaller screens */
-  }
 }
 </style>

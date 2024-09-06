@@ -46,6 +46,7 @@
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@types/bcrypt": "^5.0.2",
     "@unlok-co/nuxt-stripe": "^3.0.0",
+    "@vitejs/plugin-vue": "^5.1.3",
     "cypress": "^13.13.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -78,5 +79,6 @@
   },
   "overrides": {
     "vue": "latest"
-  }
+  },
+  "type": "module"
 }

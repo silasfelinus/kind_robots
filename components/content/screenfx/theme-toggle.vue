@@ -10,7 +10,7 @@
         aria-label="Change theme"
         class="theme-btn p-2 focus:outline-none focus:ring focus:ring-accent bg-secondary transform hover:scale-105 transition-all ease-in-out duration-200 text-lg"
         @click="toggleMenu"
-        style="width: 100%; max-width: 100%; height: auto;" <!-- Ensures the button respects parent width and doesn't overflow -->
+        style="width: 100%; max-width: 100%; height: auto;" 
       >
         theme: {{ themeStore.currentTheme }}
       </button>

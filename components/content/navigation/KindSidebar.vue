@@ -1,10 +1,7 @@
 <template>
   <div class="relative m-1 p-1">
     <!-- Toggle Button - Positioned on the left side -->
-    <button
-      class="absolute top-0 left-0 z-40"
-      @click="toggleSidebar"
-    >
+    <button class="absolute top-0 left-0 z-40" @click="toggleSidebar">
       <Icon
         :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
         class="h-6 w-6 text-gray-500"
@@ -28,10 +25,17 @@
         >
           <Icon
             :name="link.icon"
-            :class="isSidebarOpen ? 'h-16 w-16' : 'h-12 w-12'"
+            :class="[
+              isSidebarOpen ? 'h-16 w-16' : 'h-12 w-12',
+              isCurrentPage(link.path) ? 'text-accent' : 'text-gray-500',
+            ]"
             class="transition-all"
           ></Icon>
-          <span v-show="isSidebarOpen" class="text-sm font-semibold ml-2">
+          <span
+            v-show="isSidebarOpen"
+            :class="isCurrentPage(link.path) ? 'text-accent' : 'text-gray-500'"
+            class="text-sm font-semibold ml-2"
+          >
             {{ link.title }}
           </span>
         </NuxtLink>
@@ -80,7 +84,6 @@ function toggleSidebar() {
   layoutStore.toggleSidebar()
 }
 </script>
-
 
 <style scoped>
 /* Sidebar Styles */

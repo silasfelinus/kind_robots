@@ -187,6 +187,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Art and image saved successfully!',
+      art: newArt,
       artId: newArt.id,
       imageId: imageId,
     }

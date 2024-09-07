@@ -1,4 +1,3 @@
-//server/api/rewards/index.ts
 import type { Prisma, Reward } from '@prisma/client'
 import prisma from '../utils/prisma'
 
@@ -22,10 +21,23 @@ export function createReward(reward: Partial<Reward>): Promise<Reward> {
   })
 }
 
+// Function to update a Reward by its ID using Prisma's built-in types
+export const updateRewardById = async (id: number, data: Prisma.RewardUpdateInput) => {
+  try {
+    const reward = await prisma.reward.update({
+      where: { id },
+      data,
+    })
+    return reward
+  } catch (error) {
+    throw new Error(`Error updating Reward with ID ${id}: ${(error as Error).message}`)
+  }
+}
+
 // Function to update an existing Reward by ID
 export function updateReward(
   id: number,
-  updatedReward: Partial<Reward>,
+  updatedReward: Prisma.RewardUpdateInput,
 ): Promise<Reward | null> {
   return prisma.reward.update({
     where: { id },
@@ -57,6 +69,7 @@ export function fetchRewardById(id: number): Promise<Reward | null> {
   })
 }
 
+// Function to create multiple Rewards in a batch
 export async function createRewardsBatch(
   rewardsData: Partial<Reward>[],
 ): Promise<{ count: number; rewards: Reward[]; errors: string[] }> {

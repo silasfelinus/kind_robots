@@ -87,7 +87,7 @@ export default defineEventHandler(async (event) => {
         data: {
           userId,
           ReactionType: reactionType,
-          [reactionIdField]: reactionMatchCondition[reactionIdField], // Dynamic key access
+          [reactionIdField]: reactionMatchCondition[reactionIdField], // Dynamic key assignment
           reaction,
           title,
           comment,
@@ -97,6 +97,7 @@ export default defineEventHandler(async (event) => {
           isHated: requestData.isHated || false,
         },
       })
+      
 
       return {
         success: true,

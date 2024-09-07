@@ -34,13 +34,18 @@ interface ContentState {
 export const useContentStore = defineStore({
   id: 'content',
   state: (): ContentState => ({
-    page: {} as Page,  // Ensure page is typed correctly as Page
+    page: {} as Page,
     pages: [] as Page[],
     showTooltip: true,
     showAmitip: false,
     showInfo: true,
-    sidebarStatus: localStorage.getItem('sidebarStatus') as 'open' | 'close' | 'icon' || 'open',
-    sidebarOrientation: localStorage.getItem('sidebarOrientation') as 'vertical' | 'horizontal' || 'vertical',
+    // Only access localStorage in the browser
+    sidebarStatus: typeof window !== 'undefined' && localStorage.getItem('sidebarStatus')
+      ? (localStorage.getItem('sidebarStatus') as 'open' | 'close' | 'icon')
+      : 'open',
+    sidebarOrientation: typeof window !== 'undefined' && localStorage.getItem('sidebarOrientation')
+      ? (localStorage.getItem('sidebarOrientation') as 'vertical' | 'horizontal')
+      : 'vertical',
   }),
   getters: {
     currentPage: (state) => state.page,
@@ -57,7 +62,9 @@ export const useContentStore = defineStore({
     
     setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
       this.sidebarOrientation = orientation
-      localStorage.setItem('sidebarOrientation', orientation)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarOrientation', orientation)
+      }
     },
   },
 })

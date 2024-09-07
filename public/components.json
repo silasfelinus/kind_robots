@@ -116,6 +116,7 @@
     "components": [
       "Gallery-Manager",
       "GalleryManager2",
+      "GallerySelector",
       "MakeArt",
       "OldGallery",
       "RandomGallery",
@@ -140,10 +141,6 @@
     ]
   },
   {
-    "folderName": "jellybeans",
-    "components": ["JellybeanBag", "JellybeanCount"]
-  },
-  {
     "folderName": "layout",
     "components": [
       "AmiTooltip",
@@ -155,6 +152,8 @@
       "ContainerManager",
       "Drag-Card",
       "FlipCard",
+      "HeaderUpgrade",
+      "KindSidebar",
       "LayoutSelector",
       "LoadMessages",
       "LoadingBar",
@@ -169,6 +168,8 @@
       "TooltipPopup",
       "info-block",
       "new-header",
+      "theme-menu",
+      "theme-toggle",
       "title-image"
     ]
   },
@@ -176,6 +177,8 @@
     "folderName": "milestones",
     "components": [
       "EarnedMilestoneCard",
+      "JellybeanBag",
+      "JellybeanCount",
       "JellybeanCounter",
       "LockedMilestones",
       "MilestoneLeaderboard",
@@ -194,7 +197,6 @@
       "BotChatLink",
       "BotMessagesLink",
       "CardNavigation",
-      "ComponentGallery",
       "ConstructionNav",
       "DashboardLink",
       "FetchNav",
@@ -205,7 +207,6 @@
       "HomeLink",
       "HotLink",
       "IconNav",
-      "KindSidebar",
       "LatestNav",
       "MainContent",
       "MainLinks",
@@ -294,9 +295,7 @@
       "display-toggle",
       "kind-playlist",
       "kofi-link",
-      "screen-fx",
-      "theme-menu",
-      "theme-toggle"
+      "screen-fx"
     ]
   },
   {
@@ -305,7 +304,6 @@
       "ChatBubble",
       "DottiCards",
       "HeaderDashboard",
-      "HeaderUpgrade",
       "MessageCard",
       "Meta-Tips",
       "NavToggle",
@@ -336,6 +334,14 @@
       "rebel-button",
       "weird-banner",
       "weird-footer"
+    ]
+  },
+  {
+    "folderName": "wonderlab",
+    "components": [
+      "CommentDisplay",
+      "ComponentGallery",
+      "ComponentReactions"
     ]
   }
 ]

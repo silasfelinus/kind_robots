@@ -1,4 +1,3 @@
-// ~/stores/contentStore.ts
 import { defineStore } from 'pinia'
 import { useErrorStore, ErrorType } from '../stores/errorStore'
 import { useStatusStore, StatusType } from '../stores/statusStore'
@@ -30,6 +29,8 @@ interface ContentState {
   showTooltip: boolean
   showAmitip: boolean
   showInfo: boolean
+  sidebarStatus: 'open' | 'close' | 'icon'
+  sidebarOrientation: 'vertical' | 'horizontal'
 }
 
 export const useContentStore = defineStore({
@@ -40,55 +41,22 @@ export const useContentStore = defineStore({
     showTooltip: true,
     showAmitip: false,
     showInfo: true,
+    sidebarStatus: localStorage.getItem('sidebarStatus') as 'open' | 'close' | 'icon' || 'open',
+    sidebarOrientation: localStorage.getItem('sidebarOrientation') as 'vertical' | 'horizontal' || 'vertical',
   }),
   getters: {
     currentPage: (state) => state.page,
-    tooltip: (state) => state.page.tooltip ?? null,
-    amitip: (state) => state.page.amitip ?? null,
-    pagesByTagAndSort: (state) => (tag: string, sort: string) =>
-      state.pages.filter(
-        (page) => page.tags?.includes(tag) && page.sort === sort,
-      ),
-    pagesUnderConstruction: (state) =>
-      state.pages.filter((page) => page.underConstruction),
-    highlightPages: (state) =>
-      state.pages.filter((page) => page.sort === 'highlight'),
+    isSidebarOpen: (state) => state.sidebarStatus === 'open',
+    isSidebarClosed: (state) => state.sidebarStatus === 'close',
   },
   actions: {
-    async loadStore() {
-      const errorStore = useErrorStore()
-      const statusStore = useStatusStore()
-      statusStore.setStatus(StatusType.INFO, 'Initializing content store...')
-
-      await errorStore.handleError(
-        async () => {
-          this.page = this.currentPage
-          this.pages = (await queryContent().find()) as Page[]
-
-          statusStore.setStatus(
-            StatusType.SUCCESS,
-            'Content store initialized successfully',
-          )
-          statusStore.clearStatus()
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to initialize content store',
-      )
+    toggleSidebar() {
+      this.sidebarStatus = this.sidebarStatus === 'open' ? 'close' : 'open'
+      localStorage.setItem('sidebarStatus', this.sidebarStatus)
     },
-    getPages() {
-      return this.pages // Add this method if it's supposed to be used
-    },
-    async refreshContent() {
-      await this.loadStore()
-    },
-    toggleTooltip() {
-      this.showTooltip = !this.showTooltip
-    },
-    toggleInfo() {
-      this.showInfo = !this.showInfo
-    },
-    toggleAmitip() {
-      this.showAmitip = !this.showAmitip
+    setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
+      this.sidebarOrientation = orientation
+      localStorage.setItem('sidebarOrientation', orientation)
     },
   },
 })

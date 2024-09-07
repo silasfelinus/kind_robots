@@ -1,7 +1,7 @@
 <template>
   <div class="relative w-full m-1 p-1" style="max-height: 12vh">
     <header
-      class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full h-full space-x-2"
+      class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full max-w-[95vw] space-x-2"
     >
       <!-- Avatar and Title Section -->
       <div class="flex items-center rounded-2xl space-x-3 flex-grow">
@@ -56,6 +56,8 @@ header {
   align-items: center;
   justify-content: space-between;
   flex-wrap: nowrap;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 h1 {
@@ -99,5 +101,18 @@ h2 {
   h2 {
     max-width: 300px;
   }
+}
+
+/* Add some padding and margins to prevent stretching to full width */
+div[style] {
+  max-width: 95vw;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+header {
+  max-width: 95vw;
 }
 </style>

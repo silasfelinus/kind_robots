@@ -42,9 +42,9 @@ export const useContentStore = defineStore({
     showTooltip: true,
     showAmitip: false,
     showInfo: true,
-    sidebarOrientation: localStorage.getItem('sidebarOrientation') as 'vertical' | 'horizontal' || 'vertical',
-    sidebarStatus: localStorage.getItem('sidebarStatus') as 'open' | 'close' | 'icon' || 'open',
-    sidebarSize: parseInt(localStorage.getItem('sidebarSize') ?? '250', 10), // Default to 250px if not set
+    sidebarOrientation: 'vertical', // Default until loaded from localStorage
+    sidebarStatus: 'open', // Default until loaded from localStorage
+    sidebarSize: 250, // Default to 250px if not set
   }),
   getters: {
     currentPage: (state) => state.page,
@@ -100,24 +100,32 @@ export const useContentStore = defineStore({
     },
     setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
       this.sidebarOrientation = orientation
-      localStorage.setItem('sidebarOrientation', orientation)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarOrientation', orientation)
+      }
     },
     setSidebarStatus(status: 'open' | 'close' | 'icon') {
       this.sidebarStatus = status
-      localStorage.setItem('sidebarStatus', status)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarStatus', status)
+      }
     },
     setSidebarSize(size: number) {
       this.sidebarSize = size
-      localStorage.setItem('sidebarSize', size.toString())
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarSize', size.toString())
+      }
     },
     initializeSidebarDefaults() {
-      const savedOrientation = localStorage.getItem('sidebarOrientation')
-      const savedStatus = localStorage.getItem('sidebarStatus')
-      const savedSize = localStorage.getItem('sidebarSize')
+      if (typeof window !== 'undefined') {
+        const savedOrientation = localStorage.getItem('sidebarOrientation')
+        const savedStatus = localStorage.getItem('sidebarStatus')
+        const savedSize = localStorage.getItem('sidebarSize')
 
-      if (savedOrientation) this.sidebarOrientation = savedOrientation as 'vertical' | 'horizontal'
-      if (savedStatus) this.sidebarStatus = savedStatus as 'open' | 'close' | 'icon'
-      if (savedSize) this.sidebarSize = parseInt(savedSize, 10)
+        if (savedOrientation) this.sidebarOrientation = savedOrientation as 'vertical' | 'horizontal'
+        if (savedStatus) this.sidebarStatus = savedStatus as 'open' | 'close' | 'icon'
+        if (savedSize) this.sidebarSize = parseInt(savedSize, 10)
+      }
     }
   },
 })

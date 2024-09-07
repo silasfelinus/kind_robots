@@ -1,11 +1,12 @@
-o  <template>
+o
+<template>
   <div class="relative h-screen flex flex-col">
     <!-- Header (of undetermined height) -->
     <header class="relative">
       <!-- Your header content goes here -->
       <button class="absolute top-0 left-0 z-40" @click="toggleSidebar">
         <Icon
-          :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
+          :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
           class="h-6 w-6 text-gray-500"
         />
       </button>

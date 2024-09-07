@@ -54,16 +54,30 @@ export const useContentStore = defineStore({
   },
   actions: {
     toggleSidebar() {
-      this.sidebarStatus = this.sidebarStatus === 'open' ? 'close' : 'open'
+      // Toggle between open and close, respecting localStorage
+      if (this.sidebarStatus === 'open') {
+        this.sidebarStatus = 'close'
+      } else {
+        this.sidebarStatus = 'open'
+      }
       if (typeof window !== 'undefined') {
         localStorage.setItem('sidebarStatus', this.sidebarStatus)
       }
     },
     
     setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
+      // Update the orientation and save to localStorage
       this.sidebarOrientation = orientation
       if (typeof window !== 'undefined') {
         localStorage.setItem('sidebarOrientation', orientation)
+      }
+    },
+
+    // Optionally allow direct setting of the sidebar status for flexibility
+    setSidebarStatus(status: 'open' | 'close' | 'icon') {
+      this.sidebarStatus = status
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarStatus', status)
       }
     },
   },

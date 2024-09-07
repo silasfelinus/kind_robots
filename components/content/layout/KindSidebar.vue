@@ -1,4 +1,3 @@
-o
 <template>
   <div class="relative h-screen flex flex-col">
     <!-- Header (of undetermined height) -->
@@ -6,7 +5,7 @@ o
       <!-- Your header content goes here -->
       <button class="absolute top-0 left-0 z-40" @click="toggleSidebar">
         <Icon
-          :name="isSidebarOpen ? 'lucide:sidebar' : 'lucide:sidebar-open'"
+          :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
           class="h-6 w-6 text-gray-500"
         />
       </button>
@@ -14,8 +13,12 @@ o
 
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`flex flex-col justify-start transition-all duration-300 ease-in-out border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'verticalSidebar' : 'horizontalSidebar'}`"
-      :aria-hidden="isSidebarOpen ? 'false' : 'true'"
+      :class="[
+        'flex flex-col justify-start transition-all duration-300 ease-in-out border rounded-2xl bg-base-200',
+        isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed',
+        isVertical ? 'verticalSidebar' : 'horizontalSidebar',
+      ]"
+      :aria-hidden="!isSidebarOpen"
       class="flex-grow overflow-y-auto"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -51,7 +54,6 @@ o
     </aside>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from './../../../stores/userStore'
@@ -60,14 +62,18 @@ import { useLayoutStore } from './../../../stores/layoutStore'
 import { sidebarLinks } from './../../../assets/sidebar' // Import the sidebar data
 
 const layoutStore = useLayoutStore()
-const isSidebarOpen = computed(() => layoutStore.isSidebarOpen)
+const isSidebarOpen = computed(() => layoutStore.isSidebarOpen) // Using layoutStore for sidebar status
+const toggleSidebar = () => layoutStore.toggleSidebar() // Define the toggle function for the sidebar
+
 const userStore = useUserStore()
 const contentStore = useContentStore()
 const showMature = computed(() => userStore.showMatureContent)
 const isVertical = ref(false)
 
+// Check if the current page matches the given path
 const isCurrentPage = (path: string) => contentStore.currentPage?._path === path
 
+// Filter links based on conditions (e.g., mature content)
 const filteredLinks = computed(() => {
   return sidebarLinks.filter(
     (link) =>
@@ -75,24 +81,22 @@ const filteredLinks = computed(() => {
   )
 })
 
+// Handle sidebar orientation based on screen size
 const checkVertical = () => {
   isVertical.value = window.innerHeight > window.innerWidth
 }
 
+// Add event listeners for screen resizing
 onMounted(() => {
   checkVertical()
   window.addEventListener('resize', checkVertical)
 })
 
+// Cleanup event listeners when the component is destroyed
 onBeforeUnmount(() => {
   window.removeEventListener('resize', checkVertical)
 })
-
-function toggleSidebar() {
-  layoutStore.toggleSidebar()
-}
 </script>
-
 <style scoped>
 /* Collapsed sidebar - horizontal */
 .sidebarClosed.horizontalSidebar {

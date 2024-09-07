@@ -1,6 +1,5 @@
-// /server/api/rewards/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
-import { updateRewardById } from './index'
+import { updateTodoById } from './index' // Import update function from a shared module
 import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
@@ -16,19 +15,19 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event)
-    const updatedReward = await updateRewardById(id, body)
+    const updatedTodo = await updateTodoById(id, body)
 
-    if (!updatedReward) {
+    if (!updatedTodo) {
       return {
         success: false,
-        message: 'Reward not found or could not be updated.',
+        message: 'Todo not found or could not be updated.',
         statusCode: 404, // Not Found
       }
     }
 
-    return { success: true, reward: updatedReward }
+    return { success: true, todo: updatedTodo }
   } catch (error: unknown) {
-    // Type assertion to handle 'error' as Error
-    return errorHandler(error as Error)
+    // Use the errorHandler to process the error
+    return errorHandler(error)
   }
 })

@@ -1,4 +1,3 @@
-// ~/stores/contentStore.ts
 import { defineStore } from 'pinia'
 import { useErrorStore, ErrorType } from '../stores/errorStore'
 import { useStatusStore, StatusType } from '../stores/statusStore'
@@ -30,6 +29,9 @@ interface ContentState {
   showTooltip: boolean
   showAmitip: boolean
   showInfo: boolean
+  sidebarOrientation: 'vertical' | 'horizontal'
+  sidebarStatus: 'open' | 'close' | 'icon'
+  sidebarSize: number
 }
 
 export const useContentStore = defineStore({
@@ -40,6 +42,9 @@ export const useContentStore = defineStore({
     showTooltip: true,
     showAmitip: false,
     showInfo: true,
+    sidebarOrientation: localStorage.getItem('sidebarOrientation') as 'vertical' | 'horizontal' || 'vertical',
+    sidebarStatus: localStorage.getItem('sidebarStatus') as 'open' | 'close' | 'icon' || 'open',
+    sidebarSize: parseInt(localStorage.getItem('sidebarSize') ?? '250', 10), // Default to 250px if not set
   }),
   getters: {
     currentPage: (state) => state.page,
@@ -53,6 +58,9 @@ export const useContentStore = defineStore({
       state.pages.filter((page) => page.underConstruction),
     highlightPages: (state) =>
       state.pages.filter((page) => page.sort === 'highlight'),
+    sidebarIsVertical: (state) => state.sidebarOrientation === 'vertical',
+    sidebarIsOpen: (state) => state.sidebarStatus === 'open',
+    sidebarIsIcon: (state) => state.sidebarStatus === 'icon',
   },
   actions: {
     async loadStore() {
@@ -90,5 +98,26 @@ export const useContentStore = defineStore({
     toggleAmitip() {
       this.showAmitip = !this.showAmitip
     },
+    setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
+      this.sidebarOrientation = orientation
+      localStorage.setItem('sidebarOrientation', orientation)
+    },
+    setSidebarStatus(status: 'open' | 'close' | 'icon') {
+      this.sidebarStatus = status
+      localStorage.setItem('sidebarStatus', status)
+    },
+    setSidebarSize(size: number) {
+      this.sidebarSize = size
+      localStorage.setItem('sidebarSize', size.toString())
+    },
+    initializeSidebarDefaults() {
+      const savedOrientation = localStorage.getItem('sidebarOrientation')
+      const savedStatus = localStorage.getItem('sidebarStatus')
+      const savedSize = localStorage.getItem('sidebarSize')
+
+      if (savedOrientation) this.sidebarOrientation = savedOrientation as 'vertical' | 'horizontal'
+      if (savedStatus) this.sidebarStatus = savedStatus as 'open' | 'close' | 'icon'
+      if (savedSize) this.sidebarSize = parseInt(savedSize, 10)
+    }
   },
 })

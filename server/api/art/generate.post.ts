@@ -140,26 +140,13 @@ export default defineEventHandler(async (event) => {
         promptString: requestData.promptString,
         isPublic: requestData.isPublic,
         isMature: requestData.isMature,
+        userId: requestData.userId,
+        promptId: requestData.promptId,
+        pitchId: requestData.pitchId,
+        galleryId: requestData.galleryId,
     
-        // Use the "connect" syntax to associate with existing User, Prompt, and other related entities
-        User: {
-          connect: { id: validatedData.userId }, // Connect to the existing User
-        },
-        Prompt: {
-          connect: { id: validatedData.promptId }, // Connect to the existing Prompt
-        },
-        Pitch: validatedData.pitchId
-          ? {
-              connect: { id: validatedData.pitchId }, // Connect to the existing Pitch (if available)
-            }
-          : undefined,
-        Gallery: validatedData.galleryId
-          ? {
-              connect: { id: validatedData.galleryId }, // Connect to the existing Gallery (if available)
-            }
-          : undefined,
-      },
-    })
+
+    }})
 
     console.log('🎉 Art entry created successfully:', newArt)
     try {

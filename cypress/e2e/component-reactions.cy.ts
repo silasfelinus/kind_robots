@@ -38,7 +38,7 @@ describe('Component Reactions API Tests', () => {
         title: 'Great Component!',
         reaction: 'Love it',
         comment: 'This component is awesome!',
-        reactionType: "Component"
+        reactionType: "COMPONENT"
       }],
     }).then((response) => {
       expect(response.status).to.eq(200)

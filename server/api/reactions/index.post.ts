@@ -3,9 +3,33 @@ import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { ReactionType } from '@prisma/client'
 
+// Define the type for requestData
+interface RequestData {
+  userId: number
+  reactionType: ReactionType
+  artId?: number
+  componentId?: number
+  pitchId?: number
+  channelId?: number
+  reaction?: string
+  title?: string
+  comment?: string
+  isLoved?: boolean
+  isClapped?: boolean
+  isBooed?: boolean
+  isHated?: boolean
+}
+
 export default defineEventHandler(async (event) => {
+  let requestData: RequestData | undefined
+
   try {
-    const requestData = await readBody(event)
+    requestData = await readBody(event)
+
+    // Ensure requestData is defined
+    if (!requestData) {
+      throw new Error('Invalid request data.')
+    }
 
     const {
       userId,
@@ -34,22 +58,22 @@ export default defineEventHandler(async (event) => {
 
     // Determine which field to use based on the reactionType
     switch (reactionType) {
-      case ReactionType.Art:
+      case ReactionType.ART:
         reactionIdField = 'artId'
         if (!artId) throw new Error('artId is required for Art reactions.')
         reactionMatchCondition = { artId }
         break
-      case ReactionType.Component:
+      case ReactionType.COMPONENT:
         reactionIdField = 'componentId'
         if (!componentId) throw new Error('componentId is required for Component reactions.')
         reactionMatchCondition = { componentId }
         break
-      case ReactionType.Pitch:
+      case ReactionType.PITCH:
         reactionIdField = 'pitchId'
         if (!pitchId) throw new Error('pitchId is required for Pitch reactions.')
         reactionMatchCondition = { pitchId }
         break
-      case ReactionType.Channel:
+      case ReactionType.CHANNEL:
         reactionIdField = 'channelId'
         if (!channelId) throw new Error('channelId is required for Channel reactions.')
         reactionMatchCondition = { channelId }
@@ -75,10 +99,10 @@ export default defineEventHandler(async (event) => {
           reaction,
           title,
           comment,
-          isLoved: !!requestData.isLoved,  // Convert to boolean
-          isClapped: !!requestData.isClapped,
-          isBooed: !!requestData.isBooed,
-          isHated: !!requestData.isHated,
+          isLoved: requestData.isLoved ?? false,  // Fallback to `false`
+          isClapped: requestData.isClapped ?? false,
+          isBooed: requestData.isBooed ?? false,
+          isHated: requestData.isHated ?? false,
         },
       })
 
@@ -90,7 +114,7 @@ export default defineEventHandler(async (event) => {
     } else {
       // Validate reactionIdField is properly assigned
       if (!reactionIdField || !reactionMatchCondition[reactionIdField]) {
-        throw new Error(`${reactionIdField} is required for this reaction type.`);
+        throw new Error(`${reactionIdField} is required for this reaction type.`)
       }
 
       // Create a new reaction
@@ -102,25 +126,27 @@ export default defineEventHandler(async (event) => {
           reaction,
           title,
           comment,
-          isLoved: !!requestData.isLoved,
-          isClapped: !!requestData.isClapped,
-          isBooed: !!requestData.isBooed,
-          isHated: !!requestData.isHated,
+          isLoved: requestData.isLoved ?? false,
+          isClapped: requestData.isClapped ?? false,
+          isBooed: requestData.isBooed ?? false,
+          isHated: requestData.isHated ?? false,
         },
       })
 
       return {
         success: true,
         reaction: newReaction,
+        reactionId: newReaction.id,  // Return reaction ID
         message: 'Reaction created successfully',
       }
     }
   } catch (error) {
-    console.error('Error in Reaction Management:', error)
+    // Ensure error is cast to the appropriate type
+    const err = error as Error
+    console.error('Error in Reaction Management:', { error: err.message, requestData })
     return errorHandler({
-      error,
+      error: err,
       context: 'Reaction Management - POST',
     })
-  
   }
 })

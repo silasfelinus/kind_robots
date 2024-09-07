@@ -1,4 +1,4 @@
-  <template>
+o  <template>
   <div class="relative h-screen flex flex-col">
     <!-- Header (of undetermined height) -->
     <header class="relative">
@@ -46,7 +46,7 @@
       </div>
 
       <!-- Optional margin at the bottom with responsive handling -->
-      <div class="w-full mt-auto mb-4 lg:mb-48"></div>
+      <div class="w-full mt-auto mb-48"></div>
     </aside>
   </div>
 </template>

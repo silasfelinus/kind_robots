@@ -17,7 +17,7 @@
             class="text-xs sm:text-sm md:text-base lg:text-lg font-semibold max-w-full sm:max-w-xs md:max-w-sm lg:max-w-md"
           />
           <h2
-            class="text-xs sm:text-sm md:text-base lg:text-lg text-accent italic text-center"
+            class="text-xs sm:text-sm md:text-base lg:text-lg text-accent italic text-center truncate"
           >
             {{ subtitle }}
           </h2>
@@ -29,10 +29,12 @@
         class="flex items-center justify-end space-x-1 flex-shrink-0 min-w-0"
       >
         <login-button
-          class="flex-1 min-w-0 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
+          class="flex-1 min-w-0 max-w-[80px] sm:max-w-[100px] md:max-w-[120px] lg:max-w-[150px]"
         />
-        <theme-toggle class="flex-1 min-w-0 max-w-xs sm:max-w-sm md:max-w-md" />
-        <butterfly-toggle class="w-1/6 min-w-0 max-w-xs" />
+        <theme-toggle
+          class="flex-1 min-w-0 max-w-[80px] sm:max-w-[100px] md:max-w-[120px] lg:max-w-[150px]"
+        />
+        <butterfly-toggle class="w-1/6 min-w-0 max-w-[60px] md:max-w-[80px]" />
       </div>
     </header>
   </div>
@@ -66,29 +68,51 @@ header {
   }
 }
 
-/* Adjust maximum width for smaller screens */
-@media (max-width: 640px) {
-  .room-title {
-    max-width: 100px;
-  }
+/* Room title width for various screen sizes */
+.room-title {
+  max-width: 100px;
 }
 
 @media (min-width: 641px) and (max-width: 768px) {
   .room-title {
+    max-width: 120px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .room-title {
     max-width: 150px;
   }
 }
 
-/* Title and subtitle stack vertically on screens below 768px */
-@media (max-width: 768px) {
-  header .flex-col {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
+@media (min-width: 1025px) {
   .room-title {
-    max-width: 150px;
+    max-width: 200px;
+  }
+}
+
+/* Adjust subtitle for better text handling */
+h2 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Make button sections responsive with smaller max widths */
+.login-button,
+.theme-toggle,
+.butterfly-toggle {
+  max-width: 100px;
+}
+
+@media (min-width: 768px) {
+  .login-button,
+  .theme-toggle {
+    max-width: 120px;
+  }
+
+  .butterfly-toggle {
+    max-width: 80px;
   }
 }
 </style>

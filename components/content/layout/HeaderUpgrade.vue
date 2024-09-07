@@ -1,5 +1,4 @@
 <template>
-  <div<template>
   <div class="relative w-full m-1 p-1" style="max-height: 12vh">
     <header
       class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full h-full"
@@ -26,7 +25,9 @@
       </div>
 
       <!-- Buttons Section -->
-      <div class="flex items-center justify-end space-x-1 flex-shrink-0 min-w-0">
+      <div
+        class="flex items-center justify-end space-x-1 flex-shrink-0 min-w-0"
+      >
         <login-button
           class="flex-1 min-w-0 max-w-[80px] sm:max-w-[100px] md:max-w-[120px] lg:max-w-[150px]"
         />

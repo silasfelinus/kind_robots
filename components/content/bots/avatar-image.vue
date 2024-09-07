@@ -50,15 +50,18 @@ const selectImage = computed(() => {
     : '/images/botcafe.webp'
 })
 
-// Handle avatar click to toggle the sidebar and flip the avatar
 const handleAvatarClick = () => {
   try {
+    // Flip the avatar image
     flipped.value = !flipped.value
+
+    // Toggle the sidebar state
     contentStore.toggleSidebar()
   } catch (error) {
+    // Improved error handling
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to toggle sidebar'
-    errorStore.setError(ErrorType.INTERACTION_ERROR, errorMessage) // Pass only two arguments if necessary
+    errorStore.setError(ErrorType.INTERACTION_ERROR, errorMessage)
   }
 }
 </script>

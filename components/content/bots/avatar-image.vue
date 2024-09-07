@@ -21,19 +21,19 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
-import { useContentStore } from '@/stores/contentStore'
+import { useLayoutStore } from '@/stores/layoutStore'
 import { useErrorStore } from '@/stores/errorStore'
-import type { Page } from '@/stores/contentStore' // Import the Page type
 
 // Content and Bot stores
-const contentStore = useContentStore()
+const layoutStore = useLayoutStore()
 const errorStore = useErrorStore()
-const page = computed<Page>(() => contentStore.page) // Type the page as Page
+const flipped = ref(false)
+
+// Bot store
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)
 
-// Manage flipping state
-const flipped = ref(false)
+// Watch for bot changes and flip the card if necessary
 watch(currentBot, (newBot, oldBot) => {
   if (newBot && newBot !== oldBot) {
     flipped.value = !flipped.value
@@ -42,12 +42,7 @@ watch(currentBot, (newBot, oldBot) => {
 
 // Select the appropriate image
 const selectImage = computed(() => {
-  if (page.value?.title === 'Bot Cafe' && currentBot.value?.avatarImage) {
-    return currentBot.value.avatarImage
-  }
-  return page.value?.image
-    ? `/images/${page.value.image}`
-    : '/images/botcafe.webp'
+  return currentBot.value?.avatarImage || '/images/botcafe.webp'
 })
 
 const handleAvatarClick = () => {
@@ -55,13 +50,12 @@ const handleAvatarClick = () => {
     // Flip the avatar image
     flipped.value = !flipped.value
 
-    // Toggle the sidebar state
-    contentStore.toggleSidebar()
+    // Toggle the sidebar state using layoutStore
+    layoutStore.toggleSidebar()
   } catch (error) {
-    // Improved error handling
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to toggle sidebar'
-    errorStore.setError(ErrorType.INTERACTION_ERROR, errorMessage)
+    errorStore.setError('INTERACTION_ERROR', errorMessage)
   }
 }
 </script>

@@ -23,8 +23,14 @@ export default defineEventHandler(async (event) => {
       throw new Error('Missing required fields: userId or reactionType.')
     }
 
-    let reactionIdField: 'artId' | 'componentId' | 'pitchId' | 'channelId' | undefined // Allow undefined initially
-    let reactionMatchCondition: { [key: string]: number } = {} // Declare as an object with string keys and number values
+    // Ensure reactionType is valid
+    const validReactionTypes = Object.values(ReactionType)
+    if (!validReactionTypes.includes(reactionType)) {
+      throw new Error('Invalid reaction type.')
+    }
+
+    let reactionIdField: 'artId' | 'componentId' | 'pitchId' | 'channelId' | undefined
+    let reactionMatchCondition: { [key: string]: number } = {}
 
     // Determine which field to use based on the reactionType
     switch (reactionType) {
@@ -69,10 +75,10 @@ export default defineEventHandler(async (event) => {
           reaction,
           title,
           comment,
-          isLoved: requestData.isLoved,
-          isClapped: requestData.isClapped,
-          isBooed: requestData.isBooed,
-          isHated: requestData.isHated,
+          isLoved: !!requestData.isLoved,  // Convert to boolean
+          isClapped: !!requestData.isClapped,
+          isBooed: !!requestData.isBooed,
+          isHated: !!requestData.isHated,
         },
       })
 
@@ -82,22 +88,26 @@ export default defineEventHandler(async (event) => {
         message: 'Reaction updated successfully',
       }
     } else {
+      // Validate reactionIdField is properly assigned
+      if (!reactionIdField || !reactionMatchCondition[reactionIdField]) {
+        throw new Error(`${reactionIdField} is required for this reaction type.`);
+      }
+
       // Create a new reaction
       const newReaction = await prisma.reaction.create({
         data: {
           userId,
           ReactionType: reactionType,
-          [reactionIdField]: reactionMatchCondition[reactionIdField], // Dynamic key assignment
+          [reactionIdField]: reactionMatchCondition[reactionIdField],
           reaction,
           title,
           comment,
-          isLoved: requestData.isLoved || false,
-          isClapped: requestData.isClapped || false,
-          isBooed: requestData.isBooed || false,
-          isHated: requestData.isHated || false,
+          isLoved: !!requestData.isLoved,
+          isClapped: !!requestData.isClapped,
+          isBooed: !!requestData.isBooed,
+          isHated: !!requestData.isHated,
         },
       })
-      
 
       return {
         success: true,
@@ -106,9 +116,11 @@ export default defineEventHandler(async (event) => {
       }
     }
   } catch (error) {
+    console.error('Error in Reaction Management:', error)
     return errorHandler({
       error,
       context: 'Reaction Management - POST',
     })
+  
   }
 })

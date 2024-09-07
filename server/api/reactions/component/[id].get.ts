@@ -1,5 +1,3 @@
-//server/api/reactions/component/[id].get.ts
-
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
@@ -18,14 +16,16 @@ export default defineEventHandler(async (event) => {
     const reactions = await prisma.reaction.findMany({
       where: { componentId },
       include: {
-        User: true, // Use 'User' as defined in the Prisma schema
+        User: true, // Use 'User' here to match your schema
       },
     })
 
     if (!reactions || reactions.length === 0) {
-      throw new Error(
-        `No reactions found for component with ID ${componentId}.`,
-      )
+      return {
+        success: false,
+        message: `No reactions found for component with ID ${componentId}.`,
+        statusCode: 404,
+      }
     }
 
     // Return the reactions
@@ -33,8 +33,11 @@ export default defineEventHandler(async (event) => {
       success: true,
       reactions,
     }
-  } catch (error: unknown) {
-    console.error(`Error fetching reactions for component ID ${event.context.params?.id}:`, error)
+  } catch (error) {
+    console.error(
+      `Error fetching reactions for component ID ${event.context.params?.id}:`,
+      error
+    )
     // Use the errorHandler for consistent error handling
     return errorHandler({
       error,

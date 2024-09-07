@@ -7,6 +7,7 @@ export enum ErrorType {
   UNKNOWN_ERROR = 'Unknown Error',
   GENERAL_ERROR = 'General Error',
   REGISTRATION_ERROR = 'Registration Error',
+  INTERACTION_ERROR = 'Interaction Error',
 }
 
 export interface ErrorHistoryEntry {
@@ -30,9 +31,17 @@ export const useErrorStore = defineStore('error', {
     history: [],
   }),
 
-  actions: {
-    getError: (state: ErrorState) => state.message,
+  getters: {
+    getError: (state) => state.message,
+    getErrors: (state) => state.history,
+  },
 
+  actions: {
+    /**
+     * Sets the current error and adds it to the error history.
+     * @param {ErrorType} type - The type of the error.
+     * @param {unknown} message - The error message or error object.
+     */
     setError(type: ErrorType, message: unknown) {
       let errorMessage: string
 
@@ -60,15 +69,29 @@ export const useErrorStore = defineStore('error', {
       }
     },
 
+    /**
+     * Clears the current error state.
+     */
     clearError() {
       this.message = null
       this.type = null
     },
 
+    /**
+     * Clears the error history.
+     */
     clearErrorHistory() {
       this.history = []
     },
 
+    /**
+     * Handles any promise-based operation and catches any errors thrown.
+     * @param {() => Promise<T>} handler - The async operation to handle.
+     * @param {ErrorType} [type=ErrorType.UNKNOWN_ERROR] - The type of error.
+     * @param {string} [errorMessage='An error occurred'] - Custom error message.
+     * @returns {Promise<T>} The result of the async operation.
+     * @throws Will throw a new Error with the custom error message if the handler fails.
+     */
     async handleError<T>(
       handler: () => Promise<T>,
       type: ErrorType = ErrorType.UNKNOWN_ERROR,
@@ -77,21 +100,18 @@ export const useErrorStore = defineStore('error', {
       try {
         return await handler()
       } catch (error) {
-        if (error instanceof Error) {
-          errorMessage += ` Details: ${error.message}`
-        }
-        this.setError(type, errorMessage)
-        throw new Error(errorMessage)
+        const detailedErrorMessage = `${errorMessage} Details: ${error instanceof Error ? error.message : ''}`
+        this.setError(type, detailedErrorMessage)
+        throw new Error(detailedErrorMessage)
       }
     },
 
-    getErrors(): ErrorHistoryEntry[] {
-      return this.history
-    },
-
+    /**
+     * Simulates a connection check by verifying error history existence.
+     * @returns {Promise<boolean>} Resolves if errors exist, rejects otherwise.
+     */
     async checkConnection(): Promise<boolean> {
       return new Promise((resolve, reject) => {
-        // Example condition for successful connection
         if (this.history.length > 0) {
           resolve(true)
         } else {
@@ -100,9 +120,13 @@ export const useErrorStore = defineStore('error', {
       })
     },
 
+    /**
+     * Loads the error store and returns the number of errors loaded.
+     * @returns {Promise<string>} The status of the load operation.
+     */
     async loadStore(): Promise<string> {
       try {
-        const errors = this.getErrors()
+        const errors = this.getErrors
         return `Loaded ${errors.length} errors. Hopefully, there were no issues.`
       } catch (error) {
         console.error('Error loading store:', error)

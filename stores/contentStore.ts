@@ -1,6 +1,4 @@
 import { defineStore } from 'pinia'
-import { useErrorStore, ErrorType } from '../stores/errorStore'
-import { useStatusStore, StatusType } from '../stores/statusStore'
 
 export interface Page {
   _id?: string
@@ -36,8 +34,8 @@ interface ContentState {
 export const useContentStore = defineStore({
   id: 'content',
   state: (): ContentState => ({
-    page: {},
-    pages: [],
+    page: {} as Page,  // Ensure page is typed correctly as Page
+    pages: [] as Page[],
     showTooltip: true,
     showAmitip: false,
     showInfo: true,

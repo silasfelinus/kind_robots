@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/api/todos.cy.ts
- 
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Todo Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/todos'
@@ -16,16 +15,17 @@ describe('Todo Management API Tests', () => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: {
+      body: [{
         content: uniqueTodoTask,
         notes: 'This is a test todo',
         isCompleted: false,
         task: 'Test Category',
         userId: uniqueUserId,
-      },
+      }],
     }).then((response) => {
       expect(response.status).to.eq(200)
-      todoId = response.body.todo.id // Save the todo ID for use in later tests
+      // Access the first item in the `todos` array
+      todoId = response.body.todos[0].id // Save the todo ID for use in later tests
     })
   })
 
@@ -41,7 +41,7 @@ describe('Todo Management API Tests', () => {
       expect(response.body.success).to.be.true
       expect(response.body.todos)
         .to.be.an('array')
-        .and.have.length.greaterThan(0) // Correct no-unused-expressions
+        .and.have.length.greaterThan(0) // Ensure there is at least 1 todo
     })
   })
 

@@ -1,13 +1,13 @@
 <template>
   <div class="relative w-full m-1 p-1" style="max-height: 12vh">
     <header
-      class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full h-full"
+      class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full h-full space-x-2"
     >
       <!-- Avatar and Title Section -->
-      <div class="flex items-center space-x-1 flex-grow">
+      <div class="flex items-center rounded-2xl space-x-3 flex-grow">
         <avatar-image
           alt="User Avatar"
-          class="flex max-h-full flex-grow min-h-4 aspect-square m-1 rounded-2xl"
+          class="max-h-full flex-grow min-h-4 aspect-square m-1 rounded-2xl"
         />
         <!-- Title and Subtitle Column -->
         <div class="flex flex-col items-center justify-center m-1 flex-grow">
@@ -17,7 +17,7 @@
             The {{ page.title || 'Room' }}
           </h1>
           <h2
-            class="text-xs sm:text-sm md:text-base text-accent italic text-center truncate max-w-full"
+            class="text-xs sm:text-sm md:text-base text-accent italic text-center max-w-full"
           >
             {{ subtitle }}
           </h2>
@@ -25,16 +25,16 @@
       </div>
 
       <!-- Buttons Section -->
-      <div
-        class="flex items-center justify-end space-x-1 flex-shrink-0 min-w-0"
-      >
+      <div class="flex items-center justify-end space-x-2 flex-shrink-0">
         <login-button
-          class="flex-1 min-w-0 max-w-[80px] sm:max-w-[100px] md:max-w-[120px] lg:max-w-[150px]"
+          class="flex-1 max-w-[90px] sm:max-w-[110px] md:max-w-[130px] lg:max-w-[150px]"
         />
         <theme-toggle
-          class="flex-1 min-w-0 max-w-[80px] sm:max-w-[100px] md:max-w-[120px] lg:max-w-[150px]"
+          class="flex-1 max-w-[90px] sm:max-w-[110px] md:max-w-[130px] lg:max-w-[150px]"
         />
-        <butterfly-toggle class="w-1/6 min-w-0 max-w-[60px] md:max-w-[80px]" />
+        <butterfly-toggle
+          class="flex-1 w-[50px] sm:w-[60px] md:w-[70px] lg:w-[80px]"
+        />
       </div>
     </header>
   </div>
@@ -73,31 +73,31 @@ h2 {
 /* Ensure that room title and subtitle stay within max width */
 @media (max-width: 768px) {
   h1 {
-    max-width: 120px;
+    max-width: 140px;
   }
 
   h2 {
-    max-width: 120px;
+    max-width: 140px;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
   h1 {
-    max-width: 180px;
+    max-width: 200px;
   }
 
   h2 {
-    max-width: 180px;
+    max-width: 200px;
   }
 }
 
 @media (min-width: 1025px) {
   h1 {
-    max-width: 250px;
+    max-width: 300px;
   }
 
   h2 {
-    max-width: 250px;
+    max-width: 300px;
   }
 }
 </style>

@@ -5,14 +5,14 @@
         <img
           :src="selectImage"
           alt="Avatar"
-          class="avatar-img rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+          class="avatar-img rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
         />
       </div>
       <div class="flip-card-back">
         <img
           :src="currentBot?.avatarImage || selectImage"
           alt="New Avatar"
-          class="avatar-img rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+          class="avatar-img rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
         />
       </div>
     </div>

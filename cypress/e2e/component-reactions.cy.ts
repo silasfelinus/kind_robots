@@ -38,12 +38,12 @@ describe('Component Reactions API Tests', () => {
         title: 'Great Component!',
         reaction: 'Love it',
         comment: 'This component is awesome!',
-        ReactionType: "Component"
+        reactionType: "Component"
       }],
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      reactionId = response.body.newReaction.id // Save reaction ID for later tests
+      reactionId = response.body.reaction.id // Save reaction ID for later tests
     })
   })
 
@@ -84,8 +84,8 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.updatedReaction.isBooed).to.be.true
-      expect(response.body.updatedReaction.comment).to.eq('Actually, not so sure about this component!')
+      expect(response.body.reaction.isBooed).to.be.true
+      expect(response.body.reaction.comment).to.eq('Actually, not so sure about this component!')
     })
   })
 

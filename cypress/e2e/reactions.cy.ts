@@ -31,14 +31,14 @@ describe('Reaction Management API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      body: {
+      body: [{
         userId: userId,
         artId: artId,
         isBooed: true,
         title: 'hmmm!',
         reaction: 'skeptical',
         comment: 'not sure here',
-      },
+      }],
     }).then((response) => {
       expect(response.status).to.eq(200)
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions

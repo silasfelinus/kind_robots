@@ -1,14 +1,20 @@
 import { defineEventHandler, readBody } from 'h3'
 import prisma from '../utils/prisma' // Assuming you're using Prisma for database interaction
 import { errorHandler } from '../utils/error'
-import type { Todo} from '@prisma/client'
+import type { Todo } from '@prisma/client'
 
 // Update function using Prisma, or keep your existing updateTodoById function
 async function updateTodoById(id: number, data: Partial<Todo>) {
-  return await prisma.todo.update({
-    where: { id },
-    data,
-  })
+  try {
+    const updatedTodo = await prisma.todo.update({
+      where: { id },
+      data,
+    })
+    return updatedTodo
+  } catch (error) {
+    console.error(`Error updating Todo with ID ${id}:`, error)
+    throw new Error('Failed to update Todo.')
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -56,6 +62,9 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     // Use the errorHandler to process and log the error
-    return errorHandler(error)
+    return errorHandler({
+      error,
+      context: `Update Todo - ID: ${event.context.params?.id}`
+    })
   }
 })

@@ -78,7 +78,7 @@ describe('Component Management API Tests', () => {
   it('Get Components from Specific Folder', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/${uniqueFolderName}`,
+      url: `${baseUrl}/folder/${uniqueFolderName}`,
       headers: {
         Accept: 'application/json',
       },

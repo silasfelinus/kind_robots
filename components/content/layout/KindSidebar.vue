@@ -96,12 +96,12 @@ function toggleSidebar() {
 
 /* Collapsed sidebar - horizontal */
 .sidebarClosed.horizontalSidebar {
-  @apply w-20 md:w-16 sm:w-14 h-screen overflow-y-auto;
+  @apply w-20 md:w-16 sm:w-14 h-screen overflow-y-auto mb-10;
 }
 
 /* Opened sidebar - horizontal */
 .sidebarOpen.horizontalSidebar {
-  @apply w-64 md:w-48 sm:w-36 max-h-screen overflow-y-auto;
+  @apply w-64 md:w-48 sm:w-36 max-h-screen overflow-y-auto mb-10;
 }
 
 /* Collapsed sidebar - vertical */

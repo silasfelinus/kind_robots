@@ -31,19 +31,28 @@ describe('Reaction Management API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      body: [{
+      body: {
         userId: userId,
         artId: artId,
         isBooed: true,
         title: 'hmmm!',
         reaction: 'skeptical',
         comment: 'not sure here',
-      }],
+      },
     }).then((response) => {
-      expect(response.status).to.eq(200)
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(response.body.reaction).to.be.an('object').that.is.not.empty
-      reactionId = response.body.reaction.id // Ensure the correct ID is captured
+      // Log the entire response to debug structure
+      cy.log('API Response:', JSON.stringify(response.body))
+
+      // Check the response status
+      expect(response.status).to.eq(201)
+
+      // Validate that the response contains a reaction object
+      expect(response.body).to.have.property('reaction')
+
+      // Capture the reaction ID for later use
+      reactionId = response.body.reaction.id
+      expect(reactionId).to.be.a('number')
+
       console.log('Created Art Reaction ID:', reactionId) // Log for debugging
     })
   })
@@ -90,7 +99,6 @@ describe('Reaction Management API Tests', () => {
     }
   })
 
-  // Ensure all changes are reverted by deleting all reactions made during the test
   after(() => {
     if (reactionId) {
       cy.request({
@@ -104,13 +112,6 @@ describe('Reaction Management API Tests', () => {
         .then((response) => {
           expect(response.status).to.eq(200)
           console.log('Reverted Art Reaction ID:', reactionId)
-        })
-        .then((response) => {
-          if (response.status !== 200) {
-            console.log('Failed to delete Art Reaction with ID:', reactionId)
-          } else {
-            console.log('Reverted Art Reaction ID:', reactionId)
-          }
         })
     } else {
       console.log('No reactionId to delete.')

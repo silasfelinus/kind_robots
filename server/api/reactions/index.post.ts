@@ -1,12 +1,12 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import type { ReactionType } from '@prisma/client'
+import { ReactionType } from '@prisma/client' // No more "import type"
 
 // Define the type for requestData
 interface RequestData {
   userId: number
-  ReactionType: ReactionType
+  reactionType: ReactionType // The property name can still be reactionType, but it's referencing the enum
   artId?: number
   componentId?: number
   pitchId?: number
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
     const {
       userId,
-      ReactionType,
+      reactionType, // reactionType is a property, but its value is of enum ReactionType
       artId,
       componentId,
       pitchId,
@@ -43,13 +43,13 @@ export default defineEventHandler(async (event) => {
       comment,
     } = requestData
 
-    if (!userId || !ReactionType) {
+    if (!userId || !reactionType) {
       throw new Error('Missing required fields: userId or reactionType.')
     }
 
     // Ensure reactionType is valid
     const validReactionTypes = Object.values(ReactionType)
-    if (!validReactionTypes.includes(ReactionType)) {
+    if (!validReactionTypes.includes(reactionType)) {
       throw new Error('Invalid reaction type.')
     }
 
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
     let reactionMatchCondition: { [key: string]: number } = {}
 
     // Determine which field to use based on the reactionType
-    switch (ReactionType) {
+    switch (reactionType) {
       case ReactionType.ART:
         reactionIdField = 'artId'
         if (!artId) throw new Error('artId is required for Art reactions.')
@@ -81,12 +81,12 @@ export default defineEventHandler(async (event) => {
       default:
         throw new Error('Unsupported ReactionType.')
     }
-
+    
     // Check if the user already reacted to the same item (art, component, pitch, or channel)
     const existingReaction = await prisma.reaction.findFirst({
       where: {
         userId,
-        ReactionType: ReactionType,
+        ReactionType: reactionType, // Use the correct field name "ReactionType"
         ...reactionMatchCondition,
       },
     })
@@ -121,7 +121,7 @@ export default defineEventHandler(async (event) => {
       const newReaction = await prisma.reaction.create({
         data: {
           userId,
-          ReactionType: ReactionType,
+          ReactionType: reactionType, // Use the correct field name "ReactionType"
           [reactionIdField]: reactionMatchCondition[reactionIdField],
           reaction,
           title,

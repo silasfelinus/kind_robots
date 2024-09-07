@@ -44,7 +44,7 @@ describe('Reaction Management API Tests', () => {
       cy.log('API Response:', JSON.stringify(response.body))
 
       // Check the response status
-      expect(response.status).to.eq(201)
+      expect(response.status).to.eq(200)
 
       // Validate that the response contains a reaction object
       expect(response.body).to.have.property('reaction')

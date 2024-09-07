@@ -21,13 +21,20 @@ describe('Art Management API Tests', () => {
         userId: 1,
         pitch: 'surreal',
       },
-      failOnStatusCode: false,
+      failOnStatusCode: false, // Prevent Cypress from failing immediately if the status is not 200
     }).then((response) => {
       // Log response for debugging purposes
       cy.log('API Response:', JSON.stringify(response.body))
 
       // Check if response status is 200
       expect(response.status).to.eq(200, 'Expected status code to be 200')
+
+      // Check if the response contains an error message
+      if (!response.body.success) {
+        throw new Error(
+          `API error occurred: ${response.body.message || 'Unknown error'}`,
+        )
+      }
 
       // Validate if the response contains an art object
       expect(response.body).to.have.property(

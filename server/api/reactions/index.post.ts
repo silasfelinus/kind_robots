@@ -1,4 +1,3 @@
-// server/api/reactions/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
@@ -18,20 +17,32 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Validate required fields (userId, artId, reaction)
-    const { userId, reaction } = reactionData
+    // Destructure fields from reactionData
+    const { userId, artId, reaction, isLoved, isClapped, isBooed, isHated, title, comment } = reactionData
+
+    // Validate required fields (userId and reaction are required)
     if (!userId || !reaction) {
       return {
         success: false,
-        message: 'Missing required fields: userId, or reaction.',
+        message: 'Missing required fields: userId or reaction.',
         statusCode: 400, // Bad Request
       }
     }
 
-    // Create the new reaction in the database
+    // Create the new reaction in the database with relation handling
     const newReaction = await prisma.reaction.create({
       data: {
-        ...reactionData,
+        reaction,
+        isLoved: isLoved ?? false,
+        isClapped: isClapped ?? false,
+        isBooed: isBooed ?? false,
+        isHated: isHated ?? false,
+        title,
+        comment,
+        User: {
+          connect: { id: userId }, // Connect to the existing user by userId
+        },
+        Art: artId ? { connect: { id: artId } } : undefined, // Optionally connect to an Art entity if artId is provided
       },
     })
 

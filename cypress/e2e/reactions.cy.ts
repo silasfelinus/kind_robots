@@ -42,8 +42,8 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(response.body.newReaction).to.be.an('object').that.is.not.empty
-      reactionId = response.body.newReaction.id // Ensure the correct ID is captured
+      expect(response.body.reaction).to.be.an('object').that.is.not.empty
+      reactionId = response.body.reaction.id // Ensure the correct ID is captured
       console.log('Created Art Reaction ID:', reactionId) // Log for debugging
     })
   })

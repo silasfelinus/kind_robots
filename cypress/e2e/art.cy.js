@@ -23,10 +23,25 @@ describe('Art Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200, 'Expected status code to be 200')
-      expect(response.body.art).to.be.an('object').that.is.not.empty
-      artId = response.body.art?.id // Ensure the correct ID is captured
+      // Log response for debugging purposes
+      cy.log('API Response:', JSON.stringify(response.body))
 
+      // Check if response status is 200
+      expect(response.status).to.eq(200, 'Expected status code to be 200')
+
+      // Validate if the response contains an art object
+      expect(response.body).to.have.property(
+        'art',
+        'Expected response to contain art object',
+      )
+
+      // Capture the artId
+      artId = response.body.art?.id
+
+      // Log the captured artId for debugging
+      cy.log('Captured artId:', artId)
+
+      // Fail the test if artId is undefined
       if (!artId) {
         throw new Error('Failed to capture art ID from response')
       }

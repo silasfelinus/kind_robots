@@ -34,8 +34,7 @@ export async function addTodos(
       const newTodo = await createTodo(todoData)
       todos.push(newTodo)
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       errors.push(`Failed to create todo: ${errorMessage}`)
     }
   }
@@ -43,15 +42,35 @@ export async function addTodos(
   return { count: todos.length, todos, errors }
 }
 
+// Function to fetch a Todo by its ID
+export const fetchTodoById = async (id: number) => {
+  try {
+    const todo = await prisma.todo.findUnique({
+      where: { id },
+    })
+    return todo
+  } catch (error: unknown) {
+    throw new Error(`Error fetching Todo with ID ${id}: ${(error as Error).message}`)
+  }
+}
+
+// Function to update a Todo by its ID
+export const updateTodoById = async (id: number, data: Prisma.TodoUpdateInput) => {
+  try {
+    const todo = await prisma.todo.update({
+      where: { id },
+      data,
+    })
+    return todo
+  } catch (error: unknown) {
+    throw new Error(`Error updating Todo with ID ${id}: ${(error as Error).message}`)
+  }
+}
+
 // Fetch all Todos with pagination
 export function fetchTodos(page = 1, pageSize = 100): Promise<Todo[]> {
   const skip = (page - 1) * pageSize
   return prisma.todo.findMany({ skip, take: pageSize })
-}
-
-// Fetch a Todo by its ID
-export function fetchTodoById(id: number): Promise<Todo | null> {
-  return prisma.todo.findUnique({ where: { id } })
 }
 
 // Update an existing Todo

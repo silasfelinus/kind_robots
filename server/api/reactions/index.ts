@@ -11,15 +11,20 @@ export async function createReaction(reaction: Partial<Reaction>) {
     }
 
     // Create the new Reaction
-    return await prisma.Reaction.create({
+    return await prisma.reaction.create({
       data: {
         userId: reaction.userId,
         artId: reaction.artId,
-        claps: reaction.claps || 0,
-        boos: reaction.boos || 0,
         title: reaction.title || null,
-        reaction: reaction.reaction || null,
         comment: reaction.comment || null,
+        reaction: reaction.reaction || null,
+        isLoved: reaction.isLoved || false,
+        isClapped: reaction.isClapped || false,
+        isBooed: reaction.isBooed || false,
+        isHated: reaction.isHated || false,
+        pitchId: reaction.pitchId || null,
+        componentId: reaction.componentId || null,
+        channelId: reaction.channelId || 1,
       },
     })
   } catch (error: unknown) {
@@ -27,30 +32,45 @@ export async function createReaction(reaction: Partial<Reaction>) {
   }
 }
 
+// Function to update a Reaction
 export async function updateReaction(
   id: number,
   updatedReaction: Partial<Reaction>,
 ): Promise<Reaction | null> {
   try {
-    const existingRecord = await prisma.Reaction.findUnique({
+    const existingRecord = await prisma.reaction.findUnique({
       where: { id },
     })
     if (!existingRecord) {
       throw new Error('Record to update not found.')
     }
-    return await prisma.Reaction.update({
+
+    return await prisma.reaction.update({
       where: { id },
-      data: updatedReaction,
+      data: {
+        title: updatedReaction.title || existingRecord.title,
+        comment: updatedReaction.comment || existingRecord.comment,
+        reaction: updatedReaction.reaction || existingRecord.reaction,
+        isLoved: updatedReaction.isLoved !== undefined ? updatedReaction.isLoved : existingRecord.isLoved,
+        isClapped: updatedReaction.isClapped !== undefined ? updatedReaction.isClapped : existingRecord.isClapped,
+        isBooed: updatedReaction.isBooed !== undefined ? updatedReaction.isBooed : existingRecord.isBooed,
+        isHated: updatedReaction.isHated !== undefined ? updatedReaction.isHated : existingRecord.isHated,
+        userId: updatedReaction.userId || existingRecord.userId,
+        artId: updatedReaction.artId || existingRecord.artId,
+        pitchId: updatedReaction.pitchId || existingRecord.pitchId,
+        componentId: updatedReaction.componentId || existingRecord.componentId,
+        channelId: updatedReaction.channelId || existingRecord.channelId,
+      },
     })
   } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
 
-// Function to delete an Reaction by ID
+// Function to delete a Reaction by ID
 export async function deleteReaction(id: number): Promise<boolean> {
   try {
-    const reactionExists = await prisma.Reaction.findUnique({
+    const reactionExists = await prisma.reaction.findUnique({
       where: { id },
     })
 
@@ -58,31 +78,44 @@ export async function deleteReaction(id: number): Promise<boolean> {
       return false
     }
 
-    await prisma.$transaction([prisma.Reaction.delete({ where: { id } })])
+    await prisma.reaction.delete({ where: { id } })
     return true
   } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
+
 // Function to fetch all Reactions
 export async function fetchAllReactions(): Promise<Reaction[]> {
-  return await prisma.Reaction.findMany()
+  try {
+    return await prisma.reaction.findMany()
+  } catch (error: unknown) {
+    throw errorHandler(error)
+  }
 }
 
 // Function to fetch a single Reaction by ID
 export async function fetchReactionById(id: number): Promise<Reaction | null> {
-  return await prisma.Reaction.findUnique({
-    where: { id },
-  })
+  try {
+    return await prisma.reaction.findUnique({
+      where: { id },
+    })
+  } catch (error: unknown) {
+    throw errorHandler(error)
+  }
 }
 
 // Function to fetch Reactions by Art ID
 export async function fetchReactionsByArtId(
   artId: number,
 ): Promise<Reaction[]> {
-  return await prisma.Reaction.findMany({
-    where: { artId },
-  })
+  try {
+    return await prisma.reaction.findMany({
+      where: { artId },
+    })
+  } catch (error: unknown) {
+    throw errorHandler(error)
+  }
 }
 
 export type { Reaction }

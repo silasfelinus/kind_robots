@@ -1,108 +1,104 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-describe('Todo Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/todos'
-  let todoId: number | undefined // To store the created Todo ID
+describe('Component Reactions API Tests', () => {
+  const baseUrl = 'https://kind-robots.vercel.app/api/reactions'
+  const apiKey = 'your-api-key' // Replace with your actual API key
+  let reactionId: number // Store reaction ID for later operations
+  const componentId = 10 // Example component ID
+  const userId = 1 // Example user ID
 
-  it('Create New Todo', () => {
+  it('Get All Component Reactions', () => {
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/component/${componentId}`,
+      headers: {
+        Accept: 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.reactions)
+        .to.be.an('array')
+        .and.have.length.greaterThan(0)
+    })
+  })
+
+  it('Create a New Component Reaction', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': apiKey,
       },
-      body: [{
-        content: "Create admin page",
-        notes: "Focus on permissions and roles",
-        isCompleted: false,
-        task: "Admin and Members Pages",
-        userId: 1
-      }],
+      body: {
+        userId: userId,
+        componentId: componentId,
+        isClapped: true,
+        title: 'Great Component!',
+        reaction: 'Love it',
+        comment: 'This component is awesome!',
+      },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body[0]).to.be.an('object').that.is.not.empty
-      todoId = response.body[0].id // Assuming response contains the created Todo
-      cy.log('Created Todo ID:', todoId)
+      expect(response.body.success).to.be.true
+      reactionId = response.body.newReaction.id // Save reaction ID for later tests
     })
   })
 
-  it('Get All Todos', () => {
+  it('Get Reaction by ID', () => {
     cy.request({
       method: 'GET',
-      url: baseUrl,
+      url: `${baseUrl}/${reactionId}`,
       headers: {
-        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'x-api-key': apiKey,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.be.an('array').that.is.not.empty
+      expect(response.body.success).to.be.true
+      expect(response.body.reaction).to.exist
+
+      const reaction = response.body.reaction
+      expect(reaction.id).to.eq(reactionId)
+      expect(reaction.componentId).to.eq(componentId)
+      expect(reaction.userId).to.eq(userId)
+      expect(reaction.isClapped).to.be.true
+      expect(reaction.comment).to.eq('This component is awesome!')
     })
   })
 
-  it('Get Specific Todo by ID', () => {
-    if (todoId) {
-      cy.request({
-        method: 'GET',
-        url: `${baseUrl}/${todoId}`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body).to.be.an('object').that.includes({
-          id: todoId,
-          content: "Create admin page",
-        })
-      })
-    } else {
-      throw new Error('todoId is not defined. Cannot perform GET by ID request.')
-    }
+  it('Update an Existing Component Reaction', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${reactionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        isBooed: true,
+        comment: 'Actually, not so sure about this component!',
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.updatedReaction.isBooed).to.be.true
+      expect(response.body.updatedReaction.comment).to.eq('Actually, not so sure about this component!')
+    })
   })
 
-  it('Update a Todo', () => {
-    if (todoId) {
-      cy.request({
-        method: 'PUT',
-        url: baseUrl,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: {
-          id: todoId,
-          content: "Create admin page with advanced roles",
-          notes: "Adjust for super admin permissions",
-          isCompleted: true,
-          task: "Admin and Members Pages",
-          userId: 1
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body).to.be.an('object').that.includes({
-          id: todoId,
-          content: "Create admin page with advanced roles",
-          isCompleted: true,
-        })
-      })
-    } else {
-      throw new Error('todoId is not defined. Cannot perform PUT request.')
-    }
-  })
-
-  it('Delete a Todo', () => {
-    if (todoId) {
-      cy.request({
-        method: 'DELETE',
-        url: baseUrl,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: {
-          id: todoId,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    } else {
-      throw new Error('todoId is not defined. Cannot perform DELETE request.')
-    }
+  it('Delete a Component Reaction', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${reactionId}`,
+      headers: {
+        Accept: 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+    })
   })
 })

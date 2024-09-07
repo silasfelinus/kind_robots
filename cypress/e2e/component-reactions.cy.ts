@@ -6,7 +6,7 @@ describe('Component Reactions API Tests', () => {
   const componentId = 10 // Example component ID
   const userId = 1 // Example user ID
 
-  it('Get All Component Reactions', () => {
+  it('Get Components Reactions', () => {
     cy.request({
       method: 'GET',
       url: `${baseUrl}/component/${componentId}`,
@@ -31,14 +31,14 @@ describe('Component Reactions API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      body: {
+      body: [{
         userId: userId,
         componentId: componentId,
         isClapped: true,
         title: 'Great Component!',
         reaction: 'Love it',
         comment: 'This component is awesome!',
-      },
+      }],
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true

@@ -33,7 +33,7 @@ async function logRequest(userId: string | null, requestUrl: string) {
         timestamp: new Date(),
       },
     })
-    console.log('Request successfully logged to the database')
+    console.log('Request successfully logged to the database:', requestUrl)
   } catch (error) {
     // Log failure to the console if database logging fails
     console.error(

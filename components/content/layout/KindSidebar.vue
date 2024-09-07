@@ -1,19 +1,18 @@
 <template>
-  <div class="relative m-1 p-1">
-    <!-- Toggle Button - Positioned on the left side -->
+  <div class="relative h-screen">
+    <!-- Toggle Button -->
     <button class="absolute top-0 left-0 z-40" @click="toggleSidebar">
       <Icon
         :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
         class="h-6 w-6 text-gray-500"
-      ></Icon>
+      />
     </button>
 
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`sidebar flex flex-wrap justify-center items-start transition-all duration-300 ease-in-out p-2 border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'verticalSidebar' : 'horizontalSidebar'}`"
+      :class="`sidebar flex flex-wrap justify-center items-start transition-all duration-300 ease-in-out border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'verticalSidebar' : 'horizontalSidebar'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
-      <!-- Sidebar Links with Icons and Titles -->
       <div
         v-for="link in filteredLinks"
         :key="link.title"
@@ -30,7 +29,7 @@
               isCurrentPage(link.path) ? 'text-accent' : 'text-gray-500',
             ]"
             class="transition-all"
-          ></Icon>
+          />
           <span
             v-show="isSidebarOpen"
             :class="isCurrentPage(link.path) ? 'text-accent' : 'text-gray-500'"
@@ -88,25 +87,30 @@ function toggleSidebar() {
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
-  @apply w-full max-h-screen flex justify-center items-start overflow-y-auto transition-all ease-in-out;
+  @apply w-full max-h-screen flex justify-center items-start overflow-y-auto;
 }
 
+/* Collapsed sidebar - horizontal */
 .sidebarClosed.horizontalSidebar {
   @apply w-20 h-screen overflow-y-auto;
 }
 
+/* Opened sidebar - horizontal */
 .sidebarOpen.horizontalSidebar {
   @apply w-64 max-h-screen overflow-y-auto;
 }
 
+/* Collapsed sidebar - vertical */
 .sidebarClosed.verticalSidebar {
   @apply w-0 h-0 overflow-hidden;
 }
 
+/* Opened sidebar - vertical */
 .sidebarOpen.verticalSidebar {
   @apply w-full max-h-screen;
 }
 
+/* Sidebar items container */
 .verticalSidebar .Icon-link-container {
   @apply flex justify-around items-center w-full space-x-2;
 }

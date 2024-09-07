@@ -2,7 +2,11 @@
   <div class="flip-card" @click="handleAvatarClick">
     <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
       <div class="flip-card-front">
-        <img :src="selectImage" alt="Avatar" class="avatar-img rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300" />
+        <img
+          :src="selectImage"
+          alt="Avatar"
+          class="avatar-img rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+        />
       </div>
       <div class="flip-card-back">
         <img
@@ -14,22 +18,26 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 import { useContentStore } from '@/stores/contentStore'
+import { useErrorStore } from '@/stores/errorStore'
+import type { Page } from '@/stores/contentStore' // Import the Page type
 
 // Content and Bot stores
 const contentStore = useContentStore()
-const { page } = useContent()
+const errorStore = useErrorStore()
+const page = computed<Page>(() => contentStore.page) // Type the page as Page
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)
 
 // Manage flipping state
 const flipped = ref(false)
-watch(currentBot, () => {
-  flipped.value = !flipped.value
+watch(currentBot, (newBot, oldBot) => {
+  if (newBot && newBot !== oldBot) {
+    flipped.value = !flipped.value
+  }
 })
 
 // Select the appropriate image
@@ -37,28 +45,31 @@ const selectImage = computed(() => {
   if (page.value?.title === 'Bot Cafe' && currentBot.value?.avatarImage) {
     return currentBot.value.avatarImage
   }
-
-  if (page.value?.image) {
-    return `/images/${page.value.image}`
-  }
-
-  return '/images/botcafe.webp'
+  return page.value?.image
+    ? `/images/${page.value.image}`
+    : '/images/botcafe.webp'
 })
 
 // Handle avatar click to toggle the sidebar and flip the avatar
 const handleAvatarClick = () => {
-  flipped.value = !flipped.value
-  contentStore.toggleSidebar()  // Toggling sidebar when avatar is clicked
+  try {
+    flipped.value = !flipped.value
+    contentStore.toggleSidebar()
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to toggle sidebar'
+    errorStore.setError(ErrorType.INTERACTION_ERROR, errorMessage) // Pass only two arguments if necessary
+  }
 }
 </script>
 
 <style scoped>
 .flip-card {
   perspective: 1000px;
-  width: 100%; /* Use 100% to fill the container or set to a responsive width */
-  max-width: 100px; /* Maximum width can be set to limit size */
-  aspect-ratio: 1; /* Maintains square aspect ratio */
-  cursor: pointer; /* Add a pointer cursor to indicate it's clickable */
+  width: 100%;
+  max-width: 100px;
+  aspect-ratio: 1;
+  cursor: pointer;
 }
 
 .flip-card-inner {
@@ -81,24 +92,22 @@ const handleAvatarClick = () => {
   backface-visibility: hidden;
 }
 
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Ensures image covers the area without distortion */
-  object-position: center;
-  border-radius: 1rem; /* Rounded corners */
+:root {
+  --rounded-size: 1rem;
+  --shadow-hover: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-.flip-card-back {
-  transform: rotateY(180deg);
-}
-
-/* Add transition and shadow for hover effect */
 .avatar-img {
+  border-radius: var(--rounded-size);
   transition: all 0.3s ease-in-out;
 }
 
 .avatar-img:hover {
-  transform: scale(1.05); /* Slightly scale the image when hovered */
+  box-shadow: var(--shadow-hover);
+  transform: scale(1.05);
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
 }
 </style>

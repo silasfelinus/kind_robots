@@ -29,6 +29,8 @@ const layoutStore = useLayoutStore()
 const errorStore = useErrorStore()
 const flipped = ref(false)
 
+const { page } = useContent()
+
 // Bot store
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)
@@ -42,7 +44,7 @@ watch(currentBot, (newBot, oldBot) => {
 
 // Select the appropriate image
 const selectImage = computed(() => {
-  return currentBot.value?.avatarImage || '/images/botcafe.webp'
+  return currentBot.value?.avatarImage || page?.image || '/images/botcafe.webp'
 })
 
 const handleAvatarClick = () => {

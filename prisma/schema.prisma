@@ -392,7 +392,7 @@ model Reaction {
   Component         Component?    @relation(fields: [componentId], references: [id])
   channelId         Int?          @default(1)
   Channel           Channel?      @relation(fields: [channelId], references: [id])
-  ReactionType      ReactionType  @default(Channel)
+  ReactionType      ReactionType  @default(CHANNEL)
 
   @@index([artId], map: "Reaction_artId_fkey")
   @@index([pitchId], map: "Reaction_pitchId_fkey")
@@ -400,11 +400,11 @@ model Reaction {
 }
 
 enum ReactionType {
-  Component
-  Art
-  Channel
-  User
-  Pitch
+  COMPONENT
+  ART
+  CHANNEL
+  USER
+  PITCH
 }
 
 model Resource {

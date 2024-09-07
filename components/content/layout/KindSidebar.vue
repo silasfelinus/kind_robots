@@ -42,7 +42,7 @@
       </div>
 
       <!-- Artificial margin at the bottom -->
-      <div class="w-full mb-96"></div>
+      <div class="w-full mb-48"></div>
     </aside>
   </div>
 </template>

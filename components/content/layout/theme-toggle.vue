@@ -17,6 +17,7 @@
         v-show="open"
         :style="modalPosition"
         class="theme-menu grid grid-cols-2 md:grid-cols-3 gap-2 bg-base-200 border p-4 rounded-2xl z-10 transition-opacity duration-200"
+        style="min-width: 200px"
       >
         <button
           v-for="(theme, index) in themeStore.themes"
@@ -35,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useThemeStore } from '../../../stores/themeStore'
 
 const themeStore = useThemeStore()

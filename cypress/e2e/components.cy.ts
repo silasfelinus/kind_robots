@@ -85,11 +85,22 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.components)
-        .to.be.an('array')
-        .and.include(uniqueComponentName)
+  
+      // Define the expected type of the component
+      const components = response.body.components as Array<{
+        componentName: string;
+        // Other properties of the component can be added here if needed
+      }>;
+  
+      // Extract the component names from the array of components
+      const componentNames = components.map((component) => component.componentName);
+  
+      // Ensure the array includes the expected component name
+      expect(componentNames).to.include(uniqueComponentName);
     })
   })
+  
+  
 
   it('Get Specific Component by ID', () => {
     cy.request({
@@ -126,15 +137,22 @@ describe('Component Management API Tests', () => {
         title: 'Updated Test Component',
       },
     }).then((response) => {
+      // Debug the response body to ensure the structure is correct
+      cy.log(JSON.stringify(response.body)) // Log the response for debugging
+  
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.updatedComponent.isWorking).to.be.false
-      expect(response.body.updatedComponent.underConstruction).to.be.true
-      expect(response.body.updatedComponent.title).to.eq(
-        'Updated Test Component',
-      )
+  
+      // Check if 'component' exists before accessing its properties
+      expect(response.body).to.have.property('component')
+      const updatedComponent = response.body.component
+  
+      expect(updatedComponent.isWorking).to.be.false
+      expect(updatedComponent.underConstruction).to.be.true
+      expect(updatedComponent.title).to.eq('Updated Test Component')
     })
   })
+  
 
   it('Delete Specific Component by ID', () => {
     cy.request({

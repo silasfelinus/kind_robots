@@ -6,7 +6,7 @@ describe('Component Reactions API Tests', () => {
   const componentId = 10 // Example component ID
   const userId = 1 // Example user ID
 
-  it('Get Components Reactions', () => {
+  it('Get a Components Reactions', () => {
     cy.request({
       method: 'GET',
       url: `${baseUrl}/component/${componentId}`,

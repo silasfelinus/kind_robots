@@ -16,12 +16,12 @@
       <div
         v-show="open"
         :style="modalPosition"
-        class="theme-menu flex flex-wrap justify-center bg-base-200 border p-2 m-1 rounded-2xl z-10 transition-opacity duration-200 w-full"
+        class="theme-menu grid grid-cols-2 md:grid-cols-3 gap-2 bg-base-200 border p-4 rounded-2xl z-10 transition-opacity duration-200"
       >
         <button
           v-for="(theme, index) in themeStore.themes"
           :key="index"
-          class="theme-item flex items-center justify-center cursor-pointer p-2 rounded-lg flex-grow"
+          class="theme-item flex items-center justify-center cursor-pointer p-2 rounded-lg"
           :class="theme === themeStore.currentTheme ? 'ring-2 ring-accent' : ''"
           role="menuitem"
           tabindex="0"

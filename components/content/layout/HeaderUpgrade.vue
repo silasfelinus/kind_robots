@@ -12,9 +12,9 @@
         <!-- Title and Subtitle Column -->
         <div class="flex flex-col items-center justify-center m-1 flex-grow">
           <h1
-            class="text-base sm:text-lg md:text-xl font-semibold text-center truncate max-w-full"
+            class="text-base sm:text-lg md:text-xl font-semibold text-center max-w-full"
           >
-            The {{ page.title || 'Room' }}
+            The {{ page.title || 'Room' }} Room
           </h1>
           <h2
             class="text-xs sm:text-sm md:text-base text-accent italic text-center max-w-full"

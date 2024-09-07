@@ -3,7 +3,7 @@ describe('Component Reactions API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/reactions'
   const apiKey = 'your-api-key' // Replace with your actual API key
   let reactionId: number // Store reaction ID for later operations
-  const componentId = 10 // Example component ID
+  const componentId = 3 // Example component ID
   const userId = 1 // Example user ID
 
   it('Get a Components Reactions', () => {

@@ -1,17 +1,21 @@
 <template>
-  <div class="relative h-screen">
-    <!-- Toggle Button -->
-    <button class="absolute top-0 left-0 z-40" @click="toggleSidebar">
-      <Icon
-        :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
-        class="h-6 w-6 text-gray-500"
-      />
-    </button>
+  <div class="relative h-screen flex flex-col">
+    <!-- Header (of undetermined height) -->
+    <header class="relative">
+      <!-- Your header content goes here -->
+      <button class="absolute top-0 left-0 z-40" @click="toggleSidebar">
+        <Icon
+          :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
+          class="h-6 w-6 text-gray-500"
+        />
+      </button>
+    </header>
 
     <!-- Collapsible Sidebar -->
     <aside
-      :class="`sidebar flex flex-wrap justify-center items-start transition-all duration-300 ease-in-out border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'verticalSidebar' : 'horizontalSidebar'}`"
+      :class="`flex flex-col justify-start transition-all duration-300 ease-in-out border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'verticalSidebar' : 'horizontalSidebar'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
+      class="flex-grow overflow-y-auto"
     >
       <!-- Sidebar Links with Icons and Titles -->
       <div
@@ -41,8 +45,8 @@
         </NuxtLink>
       </div>
 
-      <!-- Artificial margin at the bottom -->
-      <div class="w-full mb-48"></div>
+      <!-- Optional margin at the bottom -->
+      <div class="w-full mb-4"></div>
     </aside>
   </div>
 </template>
@@ -89,19 +93,14 @@ function toggleSidebar() {
 </script>
 
 <style scoped>
-/* Sidebar Styles */
-.sidebar {
-  @apply w-full max-h-screen flex justify-center items-start overflow-y-auto;
-}
-
 /* Collapsed sidebar - horizontal */
 .sidebarClosed.horizontalSidebar {
-  @apply w-20 md:w-16 sm:w-14 h-screen overflow-y-auto mb-10;
+  @apply w-20 md:w-16 sm:w-14;
 }
 
 /* Opened sidebar - horizontal */
 .sidebarOpen.horizontalSidebar {
-  @apply w-64 md:w-48 sm:w-36 max-h-screen overflow-y-auto mb-10;
+  @apply w-64 md:w-48 sm:w-36;
 }
 
 /* Collapsed sidebar - vertical */
@@ -111,14 +110,10 @@ function toggleSidebar() {
 
 /* Opened sidebar - vertical */
 .sidebarOpen.verticalSidebar {
-  @apply w-full max-h-screen;
+  @apply w-full;
 }
 
-/* Sidebar items container */
-.verticalSidebar .Icon-link-container {
-  @apply flex justify-around items-center w-full space-x-2;
-}
-
+/* Additional button styling */
 button {
   @apply absolute top-0 left-0 z-40;
 }

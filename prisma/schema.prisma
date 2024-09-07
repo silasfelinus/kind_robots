@@ -397,6 +397,8 @@ model Reaction {
   @@index([artId], map: "Reaction_artId_fkey")
   @@index([pitchId], map: "Reaction_pitchId_fkey")
   @@index([userId], map: "Reaction_userId_fkey")
+  @@index([channelId], map: "Reaction_channelId_fkey")
+  @@index([componentId], map: "Reaction_componentId_fkey")
 }
 
 enum ReactionType {

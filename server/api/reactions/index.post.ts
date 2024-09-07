@@ -1,12 +1,12 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import { ReactionType } from '@prisma/client' // No more "import type"
+import { ReactionType } from '@prisma/client' // Proper import for ReactionType enum
 
 // Define the type for requestData
 interface RequestData {
   userId: number
-  reactionType: string // Changed to string to handle normalization
+  reactionType: string // Allow string input from client
   artId?: number
   componentId?: number
   pitchId?: number
@@ -18,6 +18,13 @@ interface RequestData {
   isClapped?: boolean
   isBooed?: boolean
   isHated?: boolean
+}
+
+// Function to map string input to the ReactionType enum
+function mapReactionType(type: string): ReactionType | undefined {
+  // Convert the string to uppercase and match it to the enum value
+  const normalizedType = type.toUpperCase() as keyof typeof ReactionType;
+  return ReactionType[normalizedType]; // Map to ReactionType enum
 }
 
 export default defineEventHandler(async (event) => {
@@ -33,7 +40,7 @@ export default defineEventHandler(async (event) => {
 
     const {
       userId,
-      reactionType, // reactionType is a property, but its value is of enum ReactionType
+      reactionType, // reactionType is a string to be normalized
       artId,
       componentId,
       pitchId,
@@ -47,20 +54,17 @@ export default defineEventHandler(async (event) => {
       throw new Error('Missing required fields: userId or reactionType.')
     }
 
-    // Normalize reactionType to uppercase before comparison
-    const normalizedReactionType = reactionType.toUpperCase() as ReactionType
-
-    // Ensure reactionType is valid
-    const validReactionTypes = Object.values(ReactionType)
-    if (!validReactionTypes.includes(normalizedReactionType)) {
-      throw new Error('Invalid reaction type.')
+    // Map reactionType string to the enum value
+    const mappedReactionType = mapReactionType(reactionType)
+    if (!mappedReactionType) {
+      throw new Error('Invalid reactionType provided.')
     }
 
     let reactionIdField: 'artId' | 'componentId' | 'pitchId' | 'channelId' | undefined
     let reactionMatchCondition: { [key: string]: number } = {}
 
-    // Determine which field to use based on the normalized reactionType
-    switch (normalizedReactionType) {
+    // Determine which field to use based on the mapped ReactionType
+    switch (mappedReactionType) {
       case ReactionType.ART:
         reactionIdField = 'artId'
         if (!artId) throw new Error('artId is required for Art reactions.')
@@ -89,7 +93,7 @@ export default defineEventHandler(async (event) => {
     const existingReaction = await prisma.reaction.findFirst({
       where: {
         userId,
-        ReactionType: normalizedReactionType, // Use the normalized reaction type
+        ReactionType: mappedReactionType, // Use the mapped ReactionType enum value
         ...reactionMatchCondition,
       },
     })
@@ -124,7 +128,7 @@ export default defineEventHandler(async (event) => {
       const newReaction = await prisma.reaction.create({
         data: {
           userId,
-          ReactionType: normalizedReactionType, // Use the normalized reaction type
+          ReactionType: mappedReactionType, // Use the mapped ReactionType enum value
           [reactionIdField]: reactionMatchCondition[reactionIdField],
           reaction,
           title,

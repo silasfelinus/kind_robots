@@ -106,11 +106,11 @@ watch(
 )
 
 // Function to toggle reactions
-const toggleReaction = async (reactionType: keyof typeof reaction.value) => {
+const toggleReaction = async (ReactionType: keyof typeof reaction.value) => {
   Object.keys(reaction.value).forEach((key) => {
     reaction.value[key as keyof typeof reaction.value] = false
   })
-  reaction.value[reactionType] = true
+  reaction.value[ReactionType] = true
 
   const existingReaction = reactionStore.getUserReactionForComponent(
     props.componentId,

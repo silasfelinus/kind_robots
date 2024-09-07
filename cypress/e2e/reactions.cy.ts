@@ -38,6 +38,7 @@ describe('Reaction Management API Tests', () => {
         title: 'hmmm!',
         reaction: 'skeptical',
         comment: 'not sure here',
+        ReactionType: "ART"
       },
     }).then((response) => {
       // Log the entire response to debug structure
@@ -67,7 +68,7 @@ describe('Reaction Management API Tests', () => {
           'x-api-key': apiKey,
         },
         body: {
-          claps: 10,
+          isClapped: true,
           comment: 'Still loving this art!',
         },
       }).then((response) => {
@@ -96,25 +97,6 @@ describe('Reaction Management API Tests', () => {
       throw new Error(
         'reactionId is not defined. Cannot perform DELETE request.',
       )
-    }
-  })
-
-  after(() => {
-    if (reactionId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${reactionId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-      })
-        .then((response) => {
-          expect(response.status).to.eq(200)
-          console.log('Reverted Art Reaction ID:', reactionId)
-        })
-    } else {
-      console.log('No reactionId to delete.')
     }
   })
 })

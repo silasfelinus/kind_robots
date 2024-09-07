@@ -67,7 +67,7 @@ describe('Todo Management API Tests', () => {
 
   it('Update a Todo', () => {
     cy.request({
-      method: 'PUT',
+      method: 'PATCH',
       url: baseUrl,
       headers: {
         Accept: 'application/json',

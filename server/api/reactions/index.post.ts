@@ -19,11 +19,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Validate required fields (userId, artId, reaction)
-    const { userId, artId, reaction } = reactionData
-    if (!userId || !artId || !reaction) {
+    const { userId, reaction } = reactionData
+    if (!userId || !reaction) {
       return {
         success: false,
-        message: 'Missing required fields: userId, artId, or reaction.',
+        message: 'Missing required fields: userId, or reaction.',
         statusCode: 400, // Bad Request
       }
     }

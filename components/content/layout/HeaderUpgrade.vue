@@ -1,4 +1,5 @@
 <template>
+  <div<template>
   <div class="relative w-full m-1 p-1" style="max-height: 12vh">
     <header
       class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full h-full"
@@ -10,14 +11,14 @@
           class="flex max-h-full flex-grow min-h-4 aspect-square m-1"
         />
         <!-- Title and Subtitle Column -->
-        <div
-          class="flex flex-col md:flex-row justify-between m-1 flex-shrink min-w-0"
-        >
-          <room-title
-            class="text-xs sm:text-sm md:text-base lg:text-lg font-semibold max-w-full sm:max-w-xs md:max-w-sm lg:max-w-md"
-          />
+        <div class="flex flex-col items-center justify-center m-1 flex-grow">
+          <h1
+            class="text-base sm:text-lg md:text-xl font-semibold text-center truncate max-w-full"
+          >
+            The {{ page.title || 'Room' }}
+          </h1>
           <h2
-            class="text-xs sm:text-sm md:text-base lg:text-lg text-accent italic text-center truncate"
+            class="text-xs sm:text-sm md:text-base text-accent italic text-center truncate max-w-full"
           >
             {{ subtitle }}
           </h2>
@@ -25,9 +26,7 @@
       </div>
 
       <!-- Buttons Section -->
-      <div
-        class="flex items-center justify-end space-x-1 flex-shrink-0 min-w-0"
-      >
+      <div class="flex items-center justify-end space-x-1 flex-shrink-0 min-w-0">
         <login-button
           class="flex-1 min-w-0 max-w-[80px] sm:max-w-[100px] md:max-w-[120px] lg:max-w-[150px]"
         />
@@ -40,7 +39,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 
 const { page } = useContent()
@@ -58,61 +57,46 @@ header {
   flex-wrap: nowrap;
 }
 
-/* Title and subtitle stack vertically on smaller screens */
-@media (max-width: 640px) {
-  header .flex-col {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
+h1 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Room title width for various screen sizes */
-.room-title {
-  max-width: 100px;
-}
-
-@media (min-width: 641px) and (max-width: 768px) {
-  .room-title {
-    max-width: 120px;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .room-title {
-    max-width: 150px;
-  }
-}
-
-@media (min-width: 1025px) {
-  .room-title {
-    max-width: 200px;
-  }
-}
-
-/* Adjust subtitle for better text handling */
 h2 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Make button sections responsive with smaller max widths */
-.login-button,
-.theme-toggle,
-.butterfly-toggle {
-  max-width: 100px;
-}
-
-@media (min-width: 768px) {
-  .login-button,
-  .theme-toggle {
+/* Ensure that room title and subtitle stay within max width */
+@media (max-width: 768px) {
+  h1 {
     max-width: 120px;
   }
 
-  .butterfly-toggle {
-    max-width: 80px;
+  h2 {
+    max-width: 120px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  h1 {
+    max-width: 180px;
+  }
+
+  h2 {
+    max-width: 180px;
+  }
+}
+
+@media (min-width: 1025px) {
+  h1 {
+    max-width: 250px;
+  }
+
+  h2 {
+    max-width: 250px;
   }
 }
 </style>

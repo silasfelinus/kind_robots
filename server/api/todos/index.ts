@@ -1,36 +1,21 @@
 import type { Prisma, Todo } from '@prisma/client'
 import prisma from '../utils/prisma'
 
-// Function to fetch a random reward ID
-async function fetchRandomRewardId(): Promise<number> {
-  const response = await fetch('/api/rewards/random')
-  if (!response.ok) {
-    throw new Error('Failed to fetch random reward')
-  }
-  const randomReward = await response.json()
-  return randomReward.reward.id
-}
-
 // Function to create a new Todo
 export async function createTodo(data: Partial<Todo>): Promise<Todo> {
   // Validate required fields
-  if (!data.task) {
-    throw new Error('Task must be provided')
+  if (!data.task || !data.content || !data.userId) {
+    throw new Error('Task, content, and userId must be provided')
   }
 
-  // Fetch random reward ID if not provided
-  const rewardId = data.rewardId ?? (await fetchRandomRewardId())
-
-  // Create the new Todo with the associated rewardId and userId
+  // Create the new Todo with the provided fields
   const todoCreateInput: Prisma.TodoCreateInput = {
     task: data.task,
-    category: data.category ?? 'default',
-    completed: data.completed ?? false,
-    Reward: {
-      connect: { id: rewardId },
-    },
+    content: data.content,
+    notes: data.notes ?? '',
+    isCompleted: data.isCompleted ?? false,
     User: {
-      connect: { id: data.userId ?? 1 }, // Default to 1 if userId is not provided
+      connect: { id: data.userId }, // userId is required
     },
   }
 

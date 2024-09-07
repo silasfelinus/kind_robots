@@ -5,19 +5,20 @@
         <img
           :src="selectImage"
           alt="Avatar"
-          class="avatar-img rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+          class="avatar-img rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105"
         />
       </div>
       <div class="flip-card-back">
         <img
           :src="currentBot?.avatarImage || selectImage"
           alt="New Avatar"
-          class="avatar-img rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+          class="avatar-img rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105"
         />
       </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
@@ -61,7 +62,6 @@ const handleAvatarClick = () => {
   }
 }
 </script>
-
 <style scoped>
 .flip-card {
   perspective: 1000px;
@@ -89,21 +89,6 @@ const handleAvatarClick = () => {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-}
-
-:root {
-  --rounded-size: 1rem;
-  --shadow-hover: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.avatar-img {
-  border-radius: var(--rounded-size);
-  transition: all 0.3s ease-in-out;
-}
-
-.avatar-img:hover {
-  box-shadow: var(--shadow-hover);
-  transform: scale(1.05);
 }
 
 .flip-card-back {

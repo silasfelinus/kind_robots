@@ -13,6 +13,7 @@
       :class="`sidebar flex flex-wrap justify-center items-start transition-all duration-300 ease-in-out border rounded-2xl bg-base-200 ${isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed'} ${isVertical ? 'verticalSidebar' : 'horizontalSidebar'}`"
       :aria-hidden="isSidebarOpen ? 'false' : 'true'"
     >
+      <!-- Sidebar Links with Icons and Titles -->
       <div
         v-for="link in filteredLinks"
         :key="link.title"
@@ -39,6 +40,9 @@
           </span>
         </NuxtLink>
       </div>
+
+      <!-- Artificial margin at the bottom -->
+      <div class="w-full mb-8"></div>
     </aside>
   </div>
 </template>

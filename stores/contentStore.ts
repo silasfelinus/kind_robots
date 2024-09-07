@@ -50,8 +50,11 @@ export const useContentStore = defineStore({
   actions: {
     toggleSidebar() {
       this.sidebarStatus = this.sidebarStatus === 'open' ? 'close' : 'open'
-      localStorage.setItem('sidebarStatus', this.sidebarStatus)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarStatus', this.sidebarStatus)
+      }
     },
+    
     setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
       this.sidebarOrientation = orientation
       localStorage.setItem('sidebarOrientation', orientation)

@@ -29,9 +29,8 @@ interface ContentState {
   showTooltip: boolean
   showAmitip: boolean
   showInfo: boolean
-  sidebarOrientation: 'vertical' | 'horizontal'
   sidebarStatus: 'open' | 'close' | 'icon'
-  sidebarSize: number
+  sidebarOrientation: 'vertical' | 'horizontal'
 }
 
 export const useContentStore = defineStore({
@@ -42,90 +41,22 @@ export const useContentStore = defineStore({
     showTooltip: true,
     showAmitip: false,
     showInfo: true,
-    sidebarOrientation: 'vertical', // Default until loaded from localStorage
-    sidebarStatus: 'open', // Default until loaded from localStorage
-    sidebarSize: 250, // Default to 250px if not set
+    sidebarStatus: localStorage.getItem('sidebarStatus') as 'open' | 'close' | 'icon' || 'open',
+    sidebarOrientation: localStorage.getItem('sidebarOrientation') as 'vertical' | 'horizontal' || 'vertical',
   }),
   getters: {
     currentPage: (state) => state.page,
-    tooltip: (state) => state.page.tooltip ?? null,
-    amitip: (state) => state.page.amitip ?? null,
-    pagesByTagAndSort: (state) => (tag: string, sort: string) =>
-      state.pages.filter(
-        (page) => page.tags?.includes(tag) && page.sort === sort,
-      ),
-    pagesUnderConstruction: (state) =>
-      state.pages.filter((page) => page.underConstruction),
-    highlightPages: (state) =>
-      state.pages.filter((page) => page.sort === 'highlight'),
-    sidebarIsVertical: (state) => state.sidebarOrientation === 'vertical',
-    sidebarIsOpen: (state) => state.sidebarStatus === 'open',
-    sidebarIsIcon: (state) => state.sidebarStatus === 'icon',
+    isSidebarOpen: (state) => state.sidebarStatus === 'open',
+    isSidebarClosed: (state) => state.sidebarStatus === 'close',
   },
   actions: {
-    async loadStore() {
-      const errorStore = useErrorStore()
-      const statusStore = useStatusStore()
-      statusStore.setStatus(StatusType.INFO, 'Initializing content store...')
-
-      await errorStore.handleError(
-        async () => {
-          this.page = this.currentPage
-          this.pages = (await queryContent().find()) as Page[]
-
-          statusStore.setStatus(
-            StatusType.SUCCESS,
-            'Content store initialized successfully',
-          )
-          statusStore.clearStatus()
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to initialize content store',
-      )
-    },
-    getPages() {
-      return this.pages // Add this method if it's supposed to be used
-    },
-    async refreshContent() {
-      await this.loadStore()
-    },
-    toggleTooltip() {
-      this.showTooltip = !this.showTooltip
-    },
-    toggleInfo() {
-      this.showInfo = !this.showInfo
-    },
-    toggleAmitip() {
-      this.showAmitip = !this.showAmitip
+    toggleSidebar() {
+      this.sidebarStatus = this.sidebarStatus === 'open' ? 'close' : 'open'
+      localStorage.setItem('sidebarStatus', this.sidebarStatus)
     },
     setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
       this.sidebarOrientation = orientation
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('sidebarOrientation', orientation)
-      }
+      localStorage.setItem('sidebarOrientation', orientation)
     },
-    setSidebarStatus(status: 'open' | 'close' | 'icon') {
-      this.sidebarStatus = status
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('sidebarStatus', status)
-      }
-    },
-    setSidebarSize(size: number) {
-      this.sidebarSize = size
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('sidebarSize', size.toString())
-      }
-    },
-    initializeSidebarDefaults() {
-      if (typeof window !== 'undefined') {
-        const savedOrientation = localStorage.getItem('sidebarOrientation')
-        const savedStatus = localStorage.getItem('sidebarStatus')
-        const savedSize = localStorage.getItem('sidebarSize')
-
-        if (savedOrientation) this.sidebarOrientation = savedOrientation as 'vertical' | 'horizontal'
-        if (savedStatus) this.sidebarStatus = savedStatus as 'open' | 'close' | 'icon'
-        if (savedSize) this.sidebarSize = parseInt(savedSize, 10)
-      }
-    }
   },
 })

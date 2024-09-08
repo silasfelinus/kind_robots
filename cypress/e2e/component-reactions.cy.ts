@@ -40,12 +40,15 @@ describe('Component Reactions API Tests', () => {
         comment: 'This component is awesome!',
         reactionType: "COMPONENT"
       }],
+      failOnStatusCode: false, // Prevent the test from failing immediately to inspect the response
     }).then((response) => {
+      cy.log(response.body) // Log the full response for debugging
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
       reactionId = response.body.reaction.id // Save reaction ID for later tests
     })
   })
+  
 
   it('Get Reaction by ID', () => {
     cy.request({

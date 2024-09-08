@@ -1,4 +1,3 @@
-//server/api/users/index.ts
 import type { Prisma, User } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -34,7 +33,7 @@ export async function createUser(data: {
     // Validate email uniqueness if email is provided
     if (data.email) {
       const existingUserWithEmail = await prisma.user.findUnique({
-        where: { email: data.email }, // Correct way to query by email
+        where: { email: data.email },
       })
       if (existingUserWithEmail) {
         return { success: false, message: 'Email already exists.' }
@@ -56,11 +55,11 @@ export async function createUser(data: {
     // Create a new user
     const user = await prisma.user.create({
       data: {
-        username: username || '', // Ensure username is not null
+        username: username || '',
         email: data.email ?? null,
         password: data.password ?? null,
         apiKey,
-        Role: 'USER', // Default role
+        Role: 'USER',
         createdAt: new Date(),
       },
     })
@@ -97,6 +96,11 @@ export async function fetchUsers(): Promise<{
         timezone: true,
         avatarImage: true,
         showMature: true,
+        karma: true,
+        mana: true,
+        clickRecord: true,
+        matchRecord: true,
+        // Other fields can be added here if needed
       },
     })
     return { success: true, users }
@@ -110,24 +114,9 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
   try {
     return await prisma.user.findUnique({
       where: { id },
-      select: {
-        id: true,
-        createdAt: true,
-        updatedAt: true,
-        Role: true,
-        username: true,
-        emailVerified: true,
-        clickRecord: true,
-        matchRecord: true,
-        name: true,
-        bio: true,
-        birthday: true,
-        city: true,
-        state: true,
-        country: true,
-        timezone: true,
-        avatarImage: true,
-        showMature: true,
+      include: {
+        Channels: true, // Include Channels relation
+        Players: true,  // Include Players relation
       },
     })
   } catch (error) {
@@ -135,6 +124,7 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
     throw new Error(errorHandler(error).message)
   }
 }
+
 
 export async function fetchIdByUsername(username: string): Promise<number> {
   try {
@@ -158,18 +148,19 @@ export async function fetchIdByUsername(username: string): Promise<number> {
 
 export async function userExists(
   identifier: string | number,
-  field: 'id' | 'username' = 'id', // Removed 'email' from the options
+  field: 'id' | 'username' = 'id',
 ): Promise<boolean> {
   try {
-    let where: Prisma.UserWhereUniqueInput
+    let where: Prisma.UserWhereUniqueInput | null = null; // Initialize as null
 
-    // Only allow checks by 'id' or 'username'
     if (field === 'id') {
       where = { id: identifier as number }
     } else if (field === 'username') {
       where = { username: identifier as string }
-    } else {
-      throw new Error(`Invalid field: ${field}`)
+    }
+
+    if (!where) {
+      throw new Error('Invalid field or identifier provided')
     }
 
     const user = await prisma.user.findUnique({ where })
@@ -181,5 +172,6 @@ export async function userExists(
     throw new Error(errorHandler(error).message)
   }
 }
+
 
 export type { User }

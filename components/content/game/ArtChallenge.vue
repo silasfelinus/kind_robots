@@ -3,7 +3,7 @@
     <!-- Game Navigation Bar with Header Image -->
     <div class="bg-gray-800 text-white p-4 flex justify-between items-center">
       <!-- Header Image -->
-      <img src="/artsplash3.webp" alt="Header" class="w-32 h-auto" />
+      <img src="/artsplash.webp" alt="Header" class="w-32 h-auto" />
       <div>
         <button class="px-4 py-2 bg-blue-500 rounded" @click="createRoom">
           Create Room

@@ -5,12 +5,18 @@ interface Folder {
   components: string[] // Array of component names
 }
 
+interface Component {
+  componentName: string
+  channelId?: number // Add channelId field to your component model
+  // other fields as needed
+}
+
 export const useComponentStore = defineStore('componentStore', {
   state: () => ({
     folders: [] as Folder[], // Folder structure from JSON
     folderNames: [] as string[], // Dynamic list of folder names
     lastFetched: null as string | null, // ISO format date of last fetch
-    selectedComponent: null as string | null, // Default current component (name)
+    selectedComponent: null as Component | null, // Update to Component type
     components: [] as string[], // Flat list of component names for ease of lookup
   }),
 
@@ -69,17 +75,21 @@ export const useComponentStore = defineStore('componentStore', {
       }
     },
 
-    // Select a default component for syntactic sugar
-    setSelectedComponent(componentName: string) {
-      this.selectedComponent = componentName
-      localStorage.setItem('selectedComponent', componentName) // Persist to localStorage
+    // Select a component (now expecting a Component object)
+    setSelectedComponent(component: Component) {
+      this.selectedComponent = component // Now setting the full Component object
+      localStorage.setItem('selectedComponent', JSON.stringify(component)) // Persist full component to localStorage
     },
 
     // Function to retrieve the default component from localStorage
     loadDefaultComponent() {
       const storedComponent = localStorage.getItem('selectedComponent')
       if (storedComponent) {
-        this.selectedComponent = storedComponent
+        try {
+          this.selectedComponent = JSON.parse(storedComponent) // Parse the stored JSON back into a Component object
+        } catch (error) {
+          console.error('Failed to load selected component from localStorage:', error)
+        }
       }
     },
 

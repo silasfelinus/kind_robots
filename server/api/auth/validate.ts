@@ -14,24 +14,12 @@ export default defineEventHandler(async (event) => {
       case 'credentials': {
         const { username, password } = data
         if (!username || !password) {
-          throw new Error(
-            'Both username and password must be provided for credentials validation.',
-          )
+          throw new Error('Both username and password must be provided for credentials validation.')
         }
-        const validationResponse = await validateUserCredentials(
-          username,
-          password,
-        )
+        const validationResponse = await validateUserCredentials(username, password)
         return validationResponse
-          ? {
-              success: true,
-              message: '🚀 Credentials are valid. You are good to go!',
-              data: validationResponse,
-            }
-          : {
-              success: false,
-              message: '🚀 Mission abort! Invalid username or password.',
-            }
+          ? { success: true, message: 'Credentials are valid.', data: validationResponse }
+          : { success: false, message: 'Invalid username or password.' }
       }
 
       case 'token': {
@@ -44,35 +32,29 @@ export default defineEventHandler(async (event) => {
           const userData = await fetchUserById(verificationResult.userId)
           return {
             success: true,
-            message: '🚀 Token is valid. You are good to go!',
-            user: userData,
+            message: 'Token is valid.',
+            user: userData,  // No Channels or Players here
           }
         }
-        return { success: false, message: '🚀 Mission abort! Invalid token.' }
+        return { success: false, message: 'Invalid token.' }
       }
 
       case 'apiKey': {
         const { apiKey } = data
         if (!apiKey) {
-          throw new Error('API key is required for API key validation.')
+          throw new Error('API key is required for validation.')
         }
         const isApiKeyValid = await validateApiKey(apiKey)
         return isApiKeyValid
-          ? {
-              success: true,
-              message: '🚀 API key is valid. You are good to go!',
-            }
-          : { success: false, message: '🚀 Mission abort! Invalid API key.' }
+          ? { success: true, message: 'API key is valid.' }
+          : { success: false, message: 'Invalid API key.' }
       }
 
       default:
-        return {
-          success: false,
-          message: '🚀 Mission abort! Invalid validation type provided.',
-        }
+        return { success: false, message: 'Invalid validation type provided.' }
     }
   } catch (error) {
     const { message } = errorHandler(error)
-    return { success: false, message: `🚀 Mission abort! ${message}` }
+    return { success: false, message: `Error: ${message}` }
   }
 })

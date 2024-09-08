@@ -10,7 +10,7 @@ describe('Art Management API Tests', () => {
   before(() => {
     cy.request({
       method: 'POST',
-      url: `${baseUrl}`,
+      url: `${baseUrl}/generate`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -37,10 +37,8 @@ describe('Art Management API Tests', () => {
       }
 
       // Validate if the response contains an art object
-      expect(response.body).to.have.property(
-        'art',
-        'Expected response to contain art object',
-      )
+      expect(response.body).to.have.property('art') // Check that 'art' property exists
+      expect(response.body.art).to.be.an('object') // Check that 'art' is indeed an object
 
       // Capture the artId
       artId = response.body.art?.id

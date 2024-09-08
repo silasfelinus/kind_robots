@@ -53,6 +53,10 @@ export const getUserDataByToken = async (token: string) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      include: {
+        Channels: true, // Include Channels relation
+        Players: true,  // Include Players relation
+      },
     })
 
     console.log('Fetched User:', user) // Debug log
@@ -71,6 +75,7 @@ export const getUserDataByToken = async (token: string) => {
     }
   }
 }
+
 
 export function generateApiKey(): string {
   try {

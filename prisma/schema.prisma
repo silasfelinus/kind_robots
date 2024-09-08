@@ -111,15 +111,18 @@ model Channel {
   label             String        @unique(map: "Channel_id_key", length: 200) @db.VarChar(764)
   description       String?       @db.VarChar(2000)
   title             String?       @db.VarChar(256)
-  userId            Int?          @default(1)
+  userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
-  messages          Message[]
-  Player            Player[]
+  Components        Component[]
+  Messages          Message[]
+  Players           Player[]
   Pitches           Pitch[]
+  Prompts           Prompt[]
   Posts             Post[]
   Tags              Tag[]
   Art               Art[]
   Reactions         Reaction[]
+  Galleries         Gallery[]
 }
 
 model ChatExchange {
@@ -149,6 +152,8 @@ model Component {
   isBroken          Boolean       @default(false)
   title             String?       // Optional title derived from componentName if not provided
   notes             String?       //optional notes for development wonderlab
+  channelId         Int?
+  Channel           Channel?      @relation(fields: [channelId], references: [id])
   Tags              Tag[]
   Reactions         Reaction[]
 }
@@ -180,9 +185,11 @@ model Gallery {
   isPublic          Boolean       @default(true)
   userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
+  channelId         Int?          @default(1)
+  Channel           Channel?      @relation(fields: [channelId], references: [id])
   Art               Art[]
   Prompts           Prompt[]
-  ArtImage         ArtImage[]
+  ArtImage          ArtImage[]
 }
 
 model Game {
@@ -299,7 +306,8 @@ model Player {
   User              User?         @relation(fields: [userId], references: [id])
   Art               Art[]
   Prompt            Prompt[]
-  Channel           Channel[]
+  channelId         Int?
+  Channel           Channel?         @relation(fields: [channelId], references: [id])
   Pitches           Pitch[]
 }
 
@@ -353,6 +361,8 @@ model Prompt {
   prompt            String        @db.VarChar(764)
   userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
+  channelId         Int?          @default(1)
+  Channel           Channel?      @relation(fields: [channelId], references: [id])
   galleryId         Int?          @default(21)
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
   pitchId           Int?
@@ -518,6 +528,7 @@ model User {
   clickRecord       Int?          @default(0)
   matchRecord       Int?          @default(0)
   showMature        Boolean       @default(false)
+  Channels          Channel[]
   Role              Role @default(USER)
   Art               Art[]
   Reactions         Reaction[]
@@ -529,7 +540,6 @@ model User {
   Galleries         Gallery[]
   Prompts           Prompt[]
   Bots              Bot[]
-  Channels          Channel[]
   ChatExchanges     ChatExchange[]
   Messages          Message[]
   Posts             Post[]

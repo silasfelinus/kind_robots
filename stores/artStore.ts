@@ -21,7 +21,6 @@ export interface GenerateArtData {
   galleryName?: string
   isMature?: boolean
   isPublic?: boolean
-  isOrphan?: boolean
 }
 
 export const useArtStore = defineStore({

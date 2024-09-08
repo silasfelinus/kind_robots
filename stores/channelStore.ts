@@ -1,7 +1,13 @@
 import { defineStore } from 'pinia'
 import type { Channel, Message, Reaction } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
+import { useArtStore } from './../stores/artStore'
+import { useGalleryStore } from './../stores/galleryStore'
 import { useUserStore } from './../stores/userStore'
+import { usePromptStore } from './../stores/promptStore'
+import { usePitchStore } from './../stores/pitchStore'
+import { useComponentStore } from './../stores/componentStore'
+import { useTagStore } from './../stores/tagStore'
 
 export const useChannelStore = defineStore({
   id: 'channel',
@@ -9,27 +15,120 @@ export const useChannelStore = defineStore({
   state: () => ({
     channels: [] as Channel[],
     messages: [] as Message[],
-    reactions: [] as Reaction[], // Add reactions to handle multiple reactions
+    reactions: [] as Reaction[],
     isInitialized: false as boolean,
     currentChannel: null as Channel | null,
     loading: false,
+    defaultChannels: {
+      general: 1, // Hardset channel "general" as ID 1
+      user: null,
+      gallery: null,
+      art: null,
+      prompt: null,
+      pitch: null,
+      component: null,
+      tag: null,
+    },
   }),
 
-  actions: {
-    // Method to get channels associated with a component via its reactions
-    getChannelsForComponent(componentId: number) {
-      const reactionsForComponent = this.reactions.filter(
-        (reaction) => reaction.componentId === componentId,
-      )
-      const channelIds = new Set(
-        reactionsForComponent.map((reaction) => reaction.channelId),
-      )
-      return this.channels.filter((channel) => channelIds.has(channel.id))
+  getters: {
+    // Computed channel for the Art Store
+    artChannel: (state) => {
+      const artStore = useArtStore()
+      const artChannelId = artStore.selectedArt?.channelId
+      return state.channels.find(channel => channel.id === artChannelId) || null
     },
 
-    // Method to get messages associated with a channel
-    getMessagesForChannel(channelId: number) {
-      return this.messages.filter((message) => message.channelId === channelId)
+    // Computed channel for the Gallery Store
+    galleryChannel: (state) => {
+      const galleryStore = useGalleryStore()
+      const galleryChannelId = galleryStore.currentGallery?.channelId
+      return state.channels.find(channel => channel.id === galleryChannelId) || null
+    },
+
+    userChannel: (state) => {
+      const userStore = useUserStore()
+      const user = userStore.user
+      const userChannelId = user?.Channels?.[0]?.id // Assuming the first channel is the user's private channel
+      return state.channels.find(channel => channel.id === userChannelId) || null
+    },
+    
+
+    // Computed channel for the Prompt Store
+    promptChannel: (state) => {
+      const promptStore = usePromptStore()
+      const promptChannelId = promptStore.selectedPrompt?.channelId
+      return state.channels.find(channel => channel.id === promptChannelId) || null
+    },
+
+    // Computed channel for the Pitch Store
+    pitchChannel: (state) => {
+      const pitchStore = usePitchStore()
+      const pitchChannelId = pitchStore.selectedPitch?.channelId
+      return state.channels.find(channel => channel.id === pitchChannelId) || null
+    },
+
+    // Computed channel for the Component Store
+    componentChannel: (state) => {
+      const componentStore = useComponentStore()
+      const componentChannelId = componentStore.selectedComponent?.channelId
+      return state.channels.find(channel => channel.id === componentChannelId) || null
+    },
+
+    // Computed channel for the Tag Store
+    tagChannel: (state) => {
+      const tagStore = useTagStore()
+      const tagChannelId = tagStore.selectedTag?.channelId
+      return state.channels.find(channel => channel.id === tagChannelId) || null
+    },
+  },
+
+  actions: {
+    // Set the default channels by their ID (removed `playerId`)
+    setDefaultChannels({
+      generalId = 1,
+      userId = null,
+      galleryId = null,
+      artId = null,
+      promptId = null,
+      pitchId = null,
+      componentId = null,
+      tagId = null,
+    }) {
+      this.defaultChannels = {
+        general: generalId,
+        user: userId,
+        gallery: galleryId,
+        art: artId,
+        prompt: promptId,
+        pitch: pitchId,
+        component: componentId,
+        tag: tagId,
+      }
+    },
+
+    // Initialize channels and set the default ones
+    async initializeChannels() {
+      if (this.isInitialized) return
+      const errorStore = useErrorStore()
+
+      await errorStore.handleError(
+        async () => {
+          await this.fetchChannels()
+          this.currentChannel = this.channels.find(
+            (channel) => channel.id === this.defaultChannels.general,
+          ) || null
+          this.isInitialized = true
+        },
+        ErrorType.UNKNOWN_ERROR,
+        'Error initializing channels',
+      )
+    },
+
+    // Method to set the current active channel by ID
+    setCurrentChannel(channelId: number) {
+      const channel = this.channels.find((ch) => ch.id === channelId)
+      if (channel) this.currentChannel = channel
     },
 
     // Fetch channels associated with a specific component
@@ -80,101 +179,6 @@ export const useChannelStore = defineStore({
         })
     },
 
-    // Fetch reactions for a specific component
-    async fetchReactionsByComponentId(componentId: number) {
-      const errorStore = useErrorStore()
-      this.loading = true
-      return errorStore
-        .handleError(
-          async () => {
-            const res = await fetch(`/api/components/${componentId}/reactions`)
-            const data = await res.json()
-
-            if (data.success) {
-              this.reactions = data.reactions
-            } else {
-              throw new Error(data.message || 'Failed to fetch reactions')
-            }
-          },
-          ErrorType.NETWORK_ERROR,
-          'Error fetching reactions',
-        )
-        .finally(() => {
-          this.loading = false
-        })
-    },
-
-    // Initialize channels if not already done
-    async initializeChannels() {
-      if (this.isInitialized) return
-      const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          await this.fetchChannels()
-          this.isInitialized = true
-        },
-        ErrorType.UNKNOWN_ERROR,
-        'Error initializing channels',
-      )
-    },
-
-    // Set the current active channel by ID
-    setCurrentChannel(channelId: number) {
-      const channel = this.channels.find((ch) => ch.id === channelId)
-      if (channel) this.currentChannel = channel
-    },
-
-    // Create or update a channel
-    async createOrUpdateChannel(channel: Partial<Channel>) {
-      const userStore = useUserStore()
-      const userId = userStore.userId
-      const errorStore = useErrorStore()
-
-      return errorStore.handleError(
-        async () => {
-          const method = channel.id ? 'PATCH' : 'POST'
-          const url = channel.id
-            ? `/api/channels/${channel.id}`
-            : '/api/channels'
-          const res = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...channel, userId }),
-          })
-          const updatedChannel = await res.json()
-
-          if (channel.id) {
-            const index = this.channels.findIndex((ch) => ch.id === channel.id)
-            if (index !== -1) this.channels[index] = updatedChannel
-          } else {
-            this.channels.push(updatedChannel)
-          }
-        },
-        ErrorType.UNKNOWN_ERROR,
-        'Error creating or updating channel',
-      )
-    },
-
-    clearCurrentChannel() {
-      this.currentChannel = null
-    },
-
-    // Fetch the current channel along with its messages
-    async fetchCurrentChannelWithMessages(channelId: number) {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const res = await fetch(`/api/channels/${channelId}`)
-          const data = await res.json()
-          if (data.success) {
-            this.currentChannel = data.channel
-          }
-        },
-        ErrorType.UNKNOWN_ERROR,
-        'Error fetching current channel with messages',
-      )
-    },
-
     // Fetch all available channels
     async fetchChannels() {
       const errorStore = useErrorStore()
@@ -204,83 +208,6 @@ export const useChannelStore = defineStore({
         },
         ErrorType.UNKNOWN_ERROR,
         'Error removing channel',
-      )
-    },
-
-    // Fetch all messages
-    async fetchMessages() {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const res = await fetch('/api/messages')
-          const data = await res.json()
-
-          if (data.success) {
-            this.messages = data.messages
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Error fetching messages',
-      )
-    },
-
-    // Create a new message
-    async createMessage(message: Partial<Message>) {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const res = await fetch('/api/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(message),
-          })
-          const data = await res.json()
-
-          if (data.success) {
-            this.messages.push(data.message)
-          }
-        },
-        ErrorType.UNKNOWN_ERROR,
-        'Error creating message',
-      )
-    },
-
-    // Update an existing message
-    async updateMessage(message: Message) {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const res = await fetch(`/api/messages/${message.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(message),
-          })
-          const data = await res.json()
-
-          if (data.success) {
-            const index = this.messages.findIndex(
-              (msg) => msg.id === message.id,
-            )
-            if (index !== -1) this.messages[index] = data.message
-          }
-        },
-        ErrorType.UNKNOWN_ERROR,
-        'Error updating message',
-      )
-    },
-
-    // Remove a message by its ID
-    async removeMessage(id: number) {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const res = await fetch(`/api/messages/${id}`, { method: 'DELETE' })
-          if (res.ok) {
-            this.messages = this.messages.filter((message) => message.id !== id)
-          }
-        },
-        ErrorType.UNKNOWN_ERROR,
-        'Error removing message',
       )
     },
   },

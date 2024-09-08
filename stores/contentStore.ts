@@ -39,7 +39,6 @@ export const useContentStore = defineStore({
     showTooltip: true,
     showAmitip: false,
     showInfo: true,
-    // Only access localStorage in the browser
     sidebarStatus: typeof window !== 'undefined' && localStorage.getItem('sidebarStatus')
       ? (localStorage.getItem('sidebarStatus') as 'open' | 'close' | 'icon')
       : 'open',
@@ -51,6 +50,8 @@ export const useContentStore = defineStore({
     currentPage: (state) => state.page,
     isSidebarOpen: (state) => state.sidebarStatus === 'open',
     isSidebarClosed: (state) => state.sidebarStatus === 'close',
+    // New getter for highlightPages
+    highlightPages: (state) => state.pages.filter((page) => page.sort === 'highlight'),
   },
   actions: {
     toggleSidebar() {
@@ -64,7 +65,7 @@ export const useContentStore = defineStore({
         localStorage.setItem('sidebarStatus', this.sidebarStatus)
       }
     },
-    
+
     setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
       // Update the orientation and save to localStorage
       this.sidebarOrientation = orientation

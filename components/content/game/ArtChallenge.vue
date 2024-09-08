@@ -13,9 +13,7 @@
         </button>
       </div>
       <div class="flex space-x-2 flex-wrap">
-        <button class="px-3 py-2 bg-gray-600 rounded" @click="toggleGameChat">
-          {{ gameStore.showGameChat ? 'Hide Game Chat' : 'Show Game Chat' }}
-        </button>
+
         <button
           class="px-3 py-2 bg-gray-600 rounded"
           @click="toggleChatControl"
@@ -75,12 +73,7 @@
     <!-- Main Game Area -->
     <div class="flex-grow flex flex-wrap">
       <!-- Chat Window -->
-      <div
-        v-if="gameStore.showGameChat"
-        class="flex-grow bg-gray-100 p-4 overflow-y-auto w-full md:w-1/2"
-      >
-        <GameChat />
-      </div>
+    
 
       <!-- Conditional Panels -->
       <div

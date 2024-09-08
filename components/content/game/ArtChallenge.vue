@@ -1,8 +1,9 @@
 <template>
   <div class="flex flex-col h-screen">
-    <!-- Game Navigation Bar -->
+    <!-- Game Navigation Bar with Header Image -->
     <div class="bg-gray-800 text-white p-4 flex justify-between items-center">
-      <splash-page />
+      <!-- Header Image -->
+      <img src="/artsplash3.webp" alt="Header" class="w-32 h-auto" />
       <div>
         <button class="px-4 py-2 bg-blue-500 rounded" @click="createRoom">
           Create Room
@@ -149,7 +150,6 @@ import UserControl from './UserControl.vue'
 import ArtChooser from './ArtChooser.vue'
 import ArtCreator from './ArtCreator.vue'
 import PitchScreen from './PitchScreen.vue'
-import SplashPage from './SplashPage.vue'
 import GameOver from './GameOver.vue'
 import { useGameStore } from './../../../stores/gameStore'
 

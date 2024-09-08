@@ -10,13 +10,13 @@ export const useComponentStore = defineStore('componentStore', {
     folders: [] as Folder[], // Folder structure from JSON
     folderNames: [] as string[], // Dynamic list of folder names
     lastFetched: null as string | null, // ISO format date of last fetch
-    currentComponent: null as string | null, // Default current component (name)
+    selectedComponent: null as string | null, // Default current component (name)
     components: [] as string[], // Flat list of component names for ease of lookup
   }),
 
   getters: {
     // Get the current component (by name)
-    getCurrentComponent: (state) => state.currentComponent,
+    getSelectedComponent: (state) => state.selectedComponent,
 
     // Dynamically calculate folder names from the folders array
     folderNames(state) {
@@ -70,16 +70,16 @@ export const useComponentStore = defineStore('componentStore', {
     },
 
     // Select a default component for syntactic sugar
-    setCurrentComponent(componentName: string) {
-      this.currentComponent = componentName
-      localStorage.setItem('currentComponent', componentName) // Persist to localStorage
+    setSelectedComponent(componentName: string) {
+      this.selectedComponent = componentName
+      localStorage.setItem('selectedComponent', componentName) // Persist to localStorage
     },
 
     // Function to retrieve the default component from localStorage
     loadDefaultComponent() {
-      const storedComponent = localStorage.getItem('currentComponent')
+      const storedComponent = localStorage.getItem('selectedComponent')
       if (storedComponent) {
-        this.currentComponent = storedComponent
+        this.selectedComponent = storedComponent
       }
     },
 

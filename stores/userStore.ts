@@ -4,7 +4,7 @@ import { useErrorStore } from './errorStore'
 import { useMilestoneStore } from './milestoneStore'
 
 interface UserState {
-  user: User | null
+  user: (User & { Channels: Channel[], Players: Player[] }) | null;
   token?: string
   apiKey: string | null
   loading: boolean
@@ -44,6 +44,9 @@ export const useUserStore = defineStore({
   getters: {
     karma(state): number {
       return state.user ? state.user.karma : 1000
+    },
+    userChannels(state): Channel[] {
+      return state.user?.Channels ?? [];  // Safely access Channels
     },
     showMature(state): boolean {
       return state.showMatureContent // Updated getter to reflect the renamed state property
@@ -139,18 +142,17 @@ export const useUserStore = defineStore({
         this.setError(error)
       }
     },
-    setUser(userData: User): void {
-      this.user = userData
-      // Ensure showMature is being updated
-      this.showMatureContent = userData.showMature
+    setUser(userData: User & { Channels: Channel[], Players: Player[] }): void {
+      this.user = userData;
+      this.showMatureContent = userData.showMature;
       console.log(
         'User set. showmature is now ',
         this.showMatureContent,
         this.user,
-      )
+      );
       this.updateKarmaAndMana().catch((error) => {
-        this.setError(error)
-      })
+        this.setError(error);
+      });
     },
     setStayLoggedIn(value: boolean) {
       try {

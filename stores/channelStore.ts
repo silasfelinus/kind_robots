@@ -9,6 +9,7 @@ import { usePitchStore } from './../stores/pitchStore'
 import { useComponentStore } from './../stores/componentStore'
 import { useTagStore } from './../stores/tagStore'
 
+
 export const useChannelStore = defineStore({
   id: 'channel',
 
@@ -46,13 +47,12 @@ export const useChannelStore = defineStore({
       return state.channels.find(channel => channel.id === galleryChannelId) || null
     },
 
+    // Fetch user channel by userId (no longer stored in the user object)
     userChannel: (state) => {
       const userStore = useUserStore()
-      const user = userStore.user
-      const userChannelId = user?.Channels?.[0]?.id // Assuming the first channel is the user's private channel
-      return state.channels.find(channel => channel.id === userChannelId) || null
+      const userId = userStore.userId
+      return state.channels.find(channel => channel.userId === userId) || null
     },
-    
 
     // Computed channel for the Prompt Store
     promptChannel: (state) => {
@@ -84,7 +84,7 @@ export const useChannelStore = defineStore({
   },
 
   actions: {
-    // Set the default channels by their ID (removed `playerId`)
+    // Set the default channels by their ID
     setDefaultChannels({
       generalId = 1,
       userId = null,
@@ -131,24 +131,24 @@ export const useChannelStore = defineStore({
       if (channel) this.currentChannel = channel
     },
 
-    // Fetch channels associated with a specific component
-    async fetchChannelsByComponentId(componentId: number) {
+    // Fetch channels associated with the user by userId
+    async fetchChannelsByUserId(userId: number) {
       const errorStore = useErrorStore()
       this.loading = true
       return errorStore
         .handleError(
           async () => {
-            const res = await fetch(`/api/components/${componentId}/channels`)
+            const res = await fetch(`/api/users/${userId}/channels`)
             const data = await res.json()
 
             if (data.success) {
               this.channels = data.channels
             } else {
-              throw new Error(data.message || 'Failed to fetch channels')
+              throw new Error(data.message || 'Failed to fetch user channels')
             }
           },
           ErrorType.NETWORK_ERROR,
-          'Error fetching channels',
+          'Error fetching channels by userId',
         )
         .finally(() => {
           this.loading = false

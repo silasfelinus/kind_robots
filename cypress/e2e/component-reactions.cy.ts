@@ -6,24 +6,8 @@ describe('Component Reactions API Tests', () => {
   const componentId = 3; // Example component ID
   const userId = 1; // Example user ID
 
-  it('Get a Components Reactions', () => {
-    cy.request({
-      method: 'GET',
-      url: `${baseUrl}/component/${componentId}`,
-      headers: {
-        Accept: 'application/json',
-        'x-api-key': apiKey,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.success).to.be.true;
-      expect(response.body.reactions)
-        .to.be.an('array')
-        .and.have.length.greaterThan(0);
-    });
-  });
-
-  it('Create a New Component Reaction', () => {
+  // Ensure the reaction is created before any tests that depend on it
+  before(() => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -43,13 +27,30 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       cy.log(JSON.stringify(response.body)); // Log response body for debugging
       reactionId = response.body.reaction.id; // Assign the reactionId
-      cy.wrap(reactionId).should('exist'); // Ensure reactionId exists for chaining
       expect(response.status).to.eq(200);
       expect(response.body.success).to.be.true;
+      expect(reactionId).to.exist; // Ensure reactionId exists for subsequent tests
     });
   });
 
-  // Ensure that tests dependent on reactionId are run after it's set
+  it('Get a Components Reactions', () => {
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/component/${componentId}`,
+      headers: {
+        Accept: 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200);
+      expect(response.body.success).to.be.true;
+      expect(response.body.reactions)
+        .to.be.an('array')
+        .and.have.length.greaterThan(0); // Check that reactions are returned
+    });
+  });
+
+  // Tests for reaction operations
   describe('Reaction Operations', () => {
     beforeEach(() => {
       // Ensure reactionId exists before each test in this block

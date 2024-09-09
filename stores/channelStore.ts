@@ -9,7 +9,6 @@ import { usePitchStore } from './../stores/pitchStore'
 import { useComponentStore } from './../stores/componentStore'
 import { useTagStore } from './../stores/tagStore'
 
-
 export const useChannelStore = defineStore({
   id: 'channel',
 
@@ -135,80 +134,122 @@ export const useChannelStore = defineStore({
     async fetchChannelsByUserId(userId: number) {
       const errorStore = useErrorStore()
       this.loading = true
-      return errorStore
-        .handleError(
-          async () => {
-            const res = await fetch(`/api/users/${userId}/channels`)
-            const data = await res.json()
+      try {
+        const res = await fetch(`/api/users/${userId}/channels`)
+        const data = await res.json()
 
-            if (data.success) {
-              this.channels = data.channels
-            } else {
-              throw new Error(data.message || 'Failed to fetch user channels')
-            }
-          },
+        if (data.success) {
+          this.channels = data.channels
+        } else {
+          throw new Error(data.message || 'Failed to fetch user channels')
+        }
+      } catch (error) {
+        errorStore.setError(
           ErrorType.NETWORK_ERROR,
-          'Error fetching channels by userId',
+          error instanceof Error ? error.message : 'Failed to fetch channels by userId'
         )
-        .finally(() => {
-          this.loading = false
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // Create a new message in a specific channel
+    async createMessage(messageData: Partial<Message>) {
+      const errorStore = useErrorStore()
+      try {
+        const response = await fetch(`/api/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(messageData),
         })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.message || 'Failed to create message')
+        }
+
+        const newMessage = await response.json()
+        this.messages.push(newMessage) // Add the new message to the messages array
+      } catch (error) {
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          error instanceof Error ? error.message : 'Failed to create message',
+        )
+      }
     },
 
     // Fetch messages for a specific channel
     async fetchMessagesByChannelId(channelId: number) {
       const errorStore = useErrorStore()
       this.loading = true
-      return errorStore
-        .handleError(
-          async () => {
-            const res = await fetch(`/api/channels/${channelId}/messages`)
-            const data = await res.json()
 
-            if (data.success) {
-              this.messages.push(...data.messages)
-            } else {
-              throw new Error(data.message || 'Failed to fetch messages')
-            }
-          },
+      try {
+        const res = await fetch(`/api/channels/${channelId}/messages`)
+        const data = await res.json()
+
+        if (data.success) {
+          this.messages = [...data.messages] // Reset messages to avoid duplication
+        } else {
+          throw new Error(data.message || 'Failed to fetch messages')
+        }
+      } catch (error) {
+        errorStore.setError(
           ErrorType.NETWORK_ERROR,
-          'Error fetching messages',
+          error instanceof Error ? error.message : 'Error fetching messages',
         )
-        .finally(() => {
-          this.loading = false
-        })
+      } finally {
+        this.loading = false
+      }
     },
 
     // Fetch all available channels
     async fetchChannels() {
       const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const res = await fetch('/api/channels')
-          const data = await res.json()
+      this.loading = true
+      try {
+        const res = await fetch('/api/channels')
+        const data = await res.json()
 
-          if (data.success) {
-            this.channels = data.channels
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Error fetching channels',
-      )
+        if (data.success) {
+          this.channels = data.channels
+        } else {
+          throw new Error('Failed to fetch channels')
+        }
+      } catch (error) {
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          error instanceof Error ? error.message : 'Error fetching channels',
+        )
+      } finally {
+        this.loading = false
+      }
     },
 
     // Remove a channel by its ID
     async removeChannel(id: number) {
       const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const res = await fetch(`/api/channels/${id}`, { method: 'DELETE' })
-          if (res.ok) {
-            this.channels = this.channels.filter((channel) => channel.id !== id)
+      this.loading = true
+      try {
+        const res = await fetch(`/api/channels/${id}`, { method: 'DELETE' })
+        if (res.ok) {
+          this.channels = this.channels.filter((channel) => channel.id !== id)
+          // Ensure currentChannel is not the deleted one
+          if (this.currentChannel?.id === id) {
+            this.currentChannel = null
           }
-        },
-        ErrorType.UNKNOWN_ERROR,
-        'Error removing channel',
-      )
+        } else {
+          throw new Error('Failed to remove channel')
+        }
+      } catch (error) {
+        errorStore.setError(
+          ErrorType.UNKNOWN_ERROR,
+          error instanceof Error ? error.message : 'Error removing channel',
+        )
+      } finally {
+        this.loading = false
+      }
     },
   },
 })

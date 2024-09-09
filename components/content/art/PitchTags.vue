@@ -61,12 +61,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useTagStore } from './../../../stores/tagStore'
+import { usePitchStore } from './../../../stores/pitchStore'
 import { useUserStore } from './../../../stores/userStore'
 
-const tagStore = useTagStore()
+const pitchStore = usePitchStore()
 const userStore = useUserStore()
-const newPitchTitle = ref('')
+
 const editPitchId = ref<number | null>(null)
 const userId = computed(() => userStore.userId)
 
@@ -76,37 +76,45 @@ const showAllPitches = ref(false)
 // Computed property to decide which pitches to display
 const pitchTitles = computed(() => {
   if (isAdmin.value && showAllPitches.value) {
-    return tagStore.pitches // All pitches
+    return pitchStore.pitches // All pitches
   }
-  return tagStore.activeAndPublicTags // User-specific and public pitches
+  return pitchStore.publicPitches // Public pitches
 })
 
 // Check if the user is an ADMIN
 const isAdmin = computed(() => userStore.role === 'ADMIN')
 
+// Set the default as an empty string, ensuring it's always a string
+const newPitchTitle = ref<string>('')
 const addNewPitch = () => {
-  if (userId.value !== null) {
-    tagStore.addPitch(newPitchTitle.value, userId.value)
-    newPitchTitle.value = ''
+  if (userId.value !== null && newPitchTitle.value.trim()) {
+    // Ensure that `newPitchTitle.value` is a valid non-null string
+    pitchStore.createPitch({
+      title: newPitchTitle.value.trim(),
+      userId: userId.value,
+    })
+    newPitchTitle.value = '' // Reset the input field after adding
   } else {
-    console.error('User ID is null, cannot add new pitch.')
+    console.error('User ID is null or title is empty, cannot add new pitch.')
   }
 }
-
-const editPitch = (id: number, title: string) => {
+const editPitch = (id: number, title: string | null) => {
   editPitchId.value = id
-  newPitchTitle.value = title
+  // Ensure `title` is not null by providing a default empty string
+  newPitchTitle.value = title || ''
 }
 
 const saveEdit = () => {
-  if (editPitchId.value !== null) {
-    tagStore.editPitchTitle(editPitchId.value, newPitchTitle.value)
+  if (editPitchId.value !== null && newPitchTitle.value.trim()) {
+    pitchStore.updatePitch(editPitchId.value, {
+      title: newPitchTitle.value.trim(),
+    })
     newPitchTitle.value = ''
     editPitchId.value = null
   }
 }
 
 const deletePitch = (id: number) => {
-  tagStore.deletePitch(id)
+  pitchStore.deletePitch(id)
 }
 </script>

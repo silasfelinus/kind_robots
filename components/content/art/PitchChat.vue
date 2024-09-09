@@ -39,60 +39,52 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { usePitchStore } from './../../../stores/pitchStore'
-import {
-  useChannelStore,
-  type Channel as BaseChannel,
-  type Message,
-} from './../../../stores/channelStore'
-
-interface Channel extends BaseChannel {
-  messages?: Message[]
-}
+import { useChannelStore, type Message } from './../../../stores/channelStore'
 
 const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
 
+// Get the channelId from the selected pitch
 const channelId = computed(() => pitchStore.selectedPitch?.channelId || 0)
-const channels = computed<Channel[]>(() => channelStore.channels)
-const newMessage = ref('') // Holds the new message to be sent
-const selectedChannelId = ref(channelId.value) // Initially set to the channelId of the selected pitch
 
+// Fetch the list of available channels from the store
+const channels = computed(() => channelStore.channels)
+
+// State to hold the new message input
+const newMessage = ref('')
+
+// Initially set to the channelId of the selected pitch
+const selectedChannelId = ref(channelId.value)
+
+// Computed property to get messages for the current channel
 const currentChannelMessages = computed<Message[]>(() => {
-  console.log('Type:', typeof channels.value, 'Value:', channels.value) // Debugging line
   const channel = channels.value.find((ch) => ch.id === selectedChannelId.value)
-  return channel?.messages || []
+  return channelStore.messages.filter((msg) => msg.channelId === channel?.id)
 })
 
 // Function to send a new message
 const sendMessage = () => {
   if (newMessage.value.trim() !== '') {
-    const channel = Array.isArray(channels.value)
-      ? channels.value.find((ch) => ch.id === selectedChannelId.value)
-      : null
-
-    if (channel) {
-      channelStore.createMessage({
-        sender: 'user',
-        recipient: 'recipient',
-        channelId: selectedChannelId.value,
-        content: newMessage.value,
-        userId: 0,
-      })
-      newMessage.value = ''
-    }
+    channelStore.createMessage({
+      sender: 'user',
+      recipient: 'recipient',
+      channelId: selectedChannelId.value,
+      content: newMessage.value,
+      userId: 0, // Assuming userId 0 for demo, replace with actual userId
+    })
+    newMessage.value = '' // Clear the input field after sending
   }
 }
 
-// Function to change the channel
+// Function to handle channel change
 const changeChannel = () => {
   channelStore.setCurrentChannel(selectedChannelId.value)
-  channelStore.fetchCurrentChannelWithMessages(selectedChannelId.value)
+  channelStore.fetchMessagesByChannelId(selectedChannelId.value) // Fetch messages for the new channel
 }
 
+// Watch the channelId from the pitch store and update accordingly
 watch(channelId, (newChannelId) => {
   selectedChannelId.value = newChannelId
-  channelStore.fetchCurrentChannelWithMessages(newChannelId)
-
-  console.log('Type:', typeof channels.value, 'Value:', channels.value)
+  channelStore.fetchMessagesByChannelId(newChannelId)
 })
 </script>

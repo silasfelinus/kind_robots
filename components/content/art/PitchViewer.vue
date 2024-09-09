@@ -12,12 +12,12 @@
 import { usePitchStore, type Pitch } from './../../../stores/pitchStore'
 
 const props = defineProps<{
-  pitch: Pitch
+  pitch: Pitch // Make sure Pitch type matches your schema in the store
 }>()
 
 const pitchStore = usePitchStore()
 
 const selectPitch = () => {
-  pitchStore.selectPitch(props.pitch.id)
+  pitchStore.setSelectedPitch(props.pitch.id) // Using setSelectedPitch as per standard practice
 }
 </script>

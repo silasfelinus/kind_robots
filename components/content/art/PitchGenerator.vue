@@ -34,16 +34,18 @@ const publicPitches = computed(() => pitchStore.publicPitches)
 const errorMessage = ref<string | null>(null)
 
 const onPitchChange = () => {
-  pitchStore.selectPitch(selectedPitchId.value || 1)
+  if (selectedPitchId.value) {
+    pitchStore.setSelectedPitch(selectedPitchId.value) // Corrected method name
+  }
 }
 
 const generateArtBasedOnPitch = async () => {
   if (pitchStore.selectedPitch) {
     const pitch = pitchStore.selectedPitch
     const data = {
-      prompt: pitch.title,
+      prompt: pitch.title || '', // Ensure prompt is a string
       galleryName: 'cafefred',
-      pitchName: pitch.title,
+      pitchName: pitch.title || '', // Ensure pitchName is a string
       // Add other fields as needed
     }
     try {
@@ -60,6 +62,7 @@ const generateArtBasedOnPitch = async () => {
     }
   } else {
     console.warn('No pitch selected.')
+    errorMessage.value = 'Please select a pitch before generating art.'
   }
 }
 </script>

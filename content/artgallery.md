@@ -13,5 +13,5 @@ dottitip: "There is a lot of talk about whether what we do is making 'art'."
 amitip: I just like looking at the pictures.
 sort: highlight
 ---
-
+:photo-gallery
 :user-galleries

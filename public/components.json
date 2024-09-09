@@ -249,6 +249,13 @@
     ]
   },
   {
+    "folderName": "photoprism",
+    "components": [
+      "ImageUpload",
+      "PhotoGallery"
+    ]
+  },
+  {
     "folderName": "products",
     "components": [
       "CartItem",

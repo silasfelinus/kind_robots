@@ -51,7 +51,7 @@ const hideTooltip = (pitchId: number) => {
 }
 
 const updateSelectedPitch = (pitchId: number) => {
-  pitchStore.selectPitch(pitchId)
+  pitchStore.setSelectedPitch(pitchId) // Corrected method name
 }
 
 const enrichedPitches = computed<Pitch[]>(() => {

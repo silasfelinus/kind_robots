@@ -34,14 +34,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePitchStore, type Pitch } from './../../../stores/pitchStore'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore' // Import your error store
+import { useReactionStore } from './../../../stores/reactionStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
 const props = defineProps<{
   pitch?: Pitch // Make it optional
 }>()
 
 const pitchStore = usePitchStore()
-const errorStore = useErrorStore() // Initialize error store
+const reactionStore = useReactionStore()
+const errorStore = useErrorStore()
 
 const matureButtonClass = computed(() => {
   if (!props.pitch) return 'rounded-full p-2 bg-accent'
@@ -69,7 +71,7 @@ const publicIcon = computed(() =>
 )
 
 const toggleMature = async () => {
-  errorStore.clearError() // Clear previous errors
+  errorStore.clearError()
   try {
     if (!props.pitch) throw new Error('Pitch data is not available.')
     await pitchStore.updatePitch(props.pitch.id, {
@@ -82,7 +84,7 @@ const toggleMature = async () => {
 }
 
 const togglePublic = async () => {
-  errorStore.clearError() // Clear previous errors
+  errorStore.clearError()
   try {
     if (!props.pitch) throw new Error('Pitch data is not available.')
     await pitchStore.updatePitch(props.pitch.id, {
@@ -95,15 +97,16 @@ const togglePublic = async () => {
 }
 
 const addClap = async () => {
-  errorStore.clearError() // Clear previous errors
+  errorStore.clearError()
   try {
     if (!props.pitch) throw new Error('Pitch data is not available.')
-    await pitchStore.updatePitch(props.pitch.id, {
-      claps: props.pitch.claps + 1,
+    await reactionStore.createReaction({
+      pitchId: props.pitch.id,
+      isClapped: true, // Assuming a "clap" is marked by this flag
     })
   } catch (error) {
     errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)
-    console.error('Error updating pitch:', error)
+    console.error('Error adding clap reaction:', error)
   }
 }
 </script>

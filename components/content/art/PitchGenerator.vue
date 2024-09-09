@@ -35,7 +35,7 @@ const errorMessage = ref<string | null>(null)
 
 const onPitchChange = () => {
   if (selectedPitchId.value) {
-    pitchStore.setSelectedPitch(selectedPitchId.value) // Corrected method name
+    pitchStore.setSelectedPitch(selectedPitchId.value)
   }
 }
 
@@ -43,10 +43,10 @@ const generateArtBasedOnPitch = async () => {
   if (pitchStore.selectedPitch) {
     const pitch = pitchStore.selectedPitch
     const data = {
-      prompt: pitch.title || '', // Ensure prompt is a string
+      promptString: pitch.title || '', // Correct field: promptString
       galleryName: 'cafefred',
       pitchName: pitch.title || '', // Ensure pitchName is a string
-      // Add other fields as needed
+      // Add other fields if needed based on your schema
     }
     try {
       const result = await artStore.generateArt(data)

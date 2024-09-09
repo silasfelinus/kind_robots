@@ -18,7 +18,7 @@ export interface Page {
   dottitip?: string
   amitip?: string
   underConstruction?: boolean
-  [key: string]: unknown // Use unknown for more type safety
+  [key: string]: unknown // For type safety
 }
 
 interface ContentState {
@@ -47,43 +47,54 @@ export const useContentStore = defineStore({
       : 'vertical',
   }),
   getters: {
-    currentPage: (state) => state.page,
-    isSidebarOpen: (state) => state.sidebarStatus === 'open',
-    isSidebarClosed: (state) => state.sidebarStatus === 'close',
+    highlightPages(state): Page[] {
+      return state.pages.filter(page => page.sort === 'highlight');
+    },
+    underConstructionPages(state): Page[] {
+      return state.pages.filter(page => page.sort === 'underConstruction');
+    },
+    currentPage: (state): Page => state.page,
+    isSidebarOpen: (state): boolean => state.sidebarStatus === 'open',
+    isSidebarClosed: (state): boolean => state.sidebarStatus === 'close',
 
     // Getter for filtering pages by tag and sort
-    pagesByTagAndSort: (state) => (tag: string, sort: string) => {
+    pagesByTagAndSort: (state) => (tag: string, sort: string): Page[] => {
       return state.pages.filter((page) => page.tags?.includes(tag) && page.sort === sort)
     },
   },
   actions: {
     toggleSidebar() {
-      if (this.sidebarStatus === 'open') {
-        this.sidebarStatus = 'close'
-      } else {
-        this.sidebarStatus = 'open'
-      }
+      this.sidebarStatus = this.sidebarStatus === 'open' ? 'close' : 'open';
       if (typeof window !== 'undefined') {
-        localStorage.setItem('sidebarStatus', this.sidebarStatus)
+        localStorage.setItem('sidebarStatus', this.sidebarStatus);
       }
     },
 
     setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
-      this.sidebarOrientation = orientation
+      this.sidebarOrientation = orientation;
       if (typeof window !== 'undefined') {
-        localStorage.setItem('sidebarOrientation', orientation)
+        localStorage.setItem('sidebarOrientation', orientation);
       }
     },
 
     setSidebarStatus(status: 'open' | 'close' | 'icon') {
-      this.sidebarStatus = status
+      this.sidebarStatus = status;
       if (typeof window !== 'undefined') {
-        localStorage.setItem('sidebarStatus', status)
+        localStorage.setItem('sidebarStatus', status);
       }
     },
 
     toggleInfo() {
-      this.showInfo = !this.showInfo
+      this.showInfo = !this.showInfo;
+    },
+    async getPages() {
+      try {
+        const response = await fetch('/api/pages') // Adjust your API endpoint as needed
+        const data = await response.json()
+        this.pages = data // Assume the API returns an array of Page objects
+      } catch (error) {
+        console.error('Failed to fetch pages:', error)
+      }
     },
   },
 })

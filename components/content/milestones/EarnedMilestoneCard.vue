@@ -9,7 +9,7 @@
     </div>
     <div class="text-center">
       <!-- Milestone Icon -->
-      <Icon :name="milestone.Icon" class="text-9xl mb-2 md:w-16 md:h-16" />
+      <Icon name="milestone.icon" class="text-9xl mb-2 md:w-16 md:h-16" />
       <!-- Milestone Label -->
       <div class="text-2xl font-bold">
         <a

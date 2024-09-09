@@ -7,7 +7,7 @@
           class="btn btn-accent rounded-full py-1 px-3 text-default shadow-lg transform transition-transform hover:scale-110"
         >
           <Icon
-            :name="page.Icon"
+            name="page.Icon"
             class="Icon-effect transform transition-transform ease-in-out hover:scale-110 hover:shadow-lg"
           />
           {{ page.title }}

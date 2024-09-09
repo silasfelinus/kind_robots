@@ -23,7 +23,7 @@
         class="w-20 h-20 min-w-20 rounded-lg overflow-hidden border bg-secondary"
       >
         <img
-          :src="`/images/${page.image}`"
+          :src="page.image ? `/images/${page.image}` : '/images/default.jpg'"
           alt="Page Image"
           class="object-cover w-full h-full"
         />
@@ -55,6 +55,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useFooterStore } from './../../../stores/footerStore'
+import { useContentStore } from '../../../stores/contentStore'
 
 const footerStore = useFooterStore()
 const contentStore = useContentStore()
@@ -68,6 +69,6 @@ const handleLinkClick = () => {
 }
 
 const underConstructionPages = computed(
-  () => contentStore.pagesUnderConstruction,
+  () => contentStore.underConstructionPages,
 )
 </script>

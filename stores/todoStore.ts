@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import type { Todo } from '@prisma/client'
 
+
 interface TodoState {
   todos: Todo[]
   currentTodo: Todo | null
@@ -70,21 +71,26 @@ export const useTodoStore = defineStore({
         }
       }
     },
-
     async addTodo(newTodoData: Partial<Todo>) {
       const response = await fetch('/api/todos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newTodoData),
+        body: JSON.stringify({
+          task: newTodoData.task,
+          content: newTodoData.content,
+          notes: newTodoData.notes,
+          userId: newTodoData.userId,
+        }),
       })
-
+    
       if (response.ok) {
         const newTodo = await response.json()
         this.todos.push(newTodo)
       }
     },
+    
 
     async deleteTodo(todoId: number) {
       const response = await fetch(`/api/todos/${todoId}`, {
@@ -105,3 +111,5 @@ export const useTodoStore = defineStore({
     },
   },
 })
+
+export type { Todo }

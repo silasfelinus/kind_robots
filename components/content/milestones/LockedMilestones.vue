@@ -9,7 +9,7 @@
       >
         <div class="text-center">
           <!-- Milestone Icon -->
-          <Icon :name="milestone.Icon" class="text-6xl mb-2" />
+          <Icon name="milestone.Icon" class="text-6xl mb-2" />
           <!-- Milestone Label -->
           <div class="text-xl font-bold text-gray-700">
             {{ milestone.label }}

@@ -46,9 +46,9 @@
             v-if="conversation && msg"
             :role="msg.role"
             :content="msg.content ?? ''"
-            :avatar-image="msg.avatarImage ?? '/images/kindtitle.webp'"
+            :avatar-image="msg.avatarImage ?? '/default-image.png'"
             :bot-name="msg.botName ?? 'Kind Robot'"
-            :subtitle="msg.subtitle ?? 'Your friendly neighborhood AI'"
+            :subtitle="msg.subtitle ?? 'No subtitle'"
           />
         </div>
 
@@ -157,6 +157,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
@@ -239,12 +240,12 @@ function convertToChatExchange(
 
 type ReactionType = 'isLoved' | 'isClapped' | 'isBooed' | 'isHated'
 
-// Assuming the `Reaction` model is fetched separately
+// Fetch the reaction by chat exchange ID and check if a reaction is active
 const isReactionActive = (index: number, reactionType: ReactionType) => {
-  const reaction = reactionStore.getReactionByChatExchangeId(
-    chatStore.getExchangeById(index)?.id,
-  )
+  const exchangeId = chatStore.getExchangeById(index)?.id
+  if (!exchangeId) return false // Safely handle undefined exchange ID
 
+  const reaction = reactionStore.getReactionByChatExchangeId(exchangeId)
   return reaction ? reaction[reactionType] : false
 }
 
@@ -284,9 +285,7 @@ const sendMessage = async () => {
       }),
     })
 
-    if (!res.ok) {
-      throw new Error('Failed to send message')
-    }
+    if (!res.ok) throw new Error('Failed to send message')
 
     const data = await res.json()
 
@@ -294,16 +293,17 @@ const sendMessage = async () => {
       {
         role: 'user',
         content: message.value,
-        avatarImage: userStore.user?.avatarImage ?? undefined,
+        avatarImage: userStore.user?.avatarImage ?? undefined, // Ensure it's string or undefined
       },
       {
         role: 'assistant',
         content: data.choices[0].message.content,
-        avatarImage: currentBot.value?.avatarImage,
-        botName: currentBot.value?.name,
-        subtitle: currentBot.value?.subtitle,
+        avatarImage: currentBot.value?.avatarImage ?? undefined, // Ensure it's string or undefined
+        botName: currentBot.value?.name ?? 'Kind Robot',
+        subtitle: currentBot.value?.subtitle ?? undefined, // Ensure it's string or undefined
       },
     ])
+
     message.value = ''
   } catch (err) {
     console.error(err)
@@ -367,9 +367,9 @@ const deleteConversation = (index: number) => {
 }
 
 const toggleReaction = async (index: number, reactionType: ReactionType) => {
-  const conversation = conversations.value[index]
+  const exchangeId = chatStore.getExchangeById(index)?.id
+  if (!exchangeId) return
 
-  // Assuming you have a separate API/store to handle reactions
   const res = await fetch('/api/reactions/toggle', {
     method: 'POST',
     headers: {
@@ -377,13 +377,12 @@ const toggleReaction = async (index: number, reactionType: ReactionType) => {
       Accept: 'application/json',
     },
     body: JSON.stringify({
-      chatExchangeId: chatStore.getExchangeById(index)?.id,
+      chatExchangeId: exchangeId,
       reactionType,
     }),
   })
 
   if (res.ok) {
-    const reactionState = await res.json()
     showPopup.value[index] = { [reactionType]: true }
 
     // Hide popup after 2 seconds

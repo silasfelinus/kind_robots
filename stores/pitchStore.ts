@@ -1,4 +1,3 @@
-//stores/pitchStore
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { useErrorStore, ErrorType } from './errorStore'
@@ -39,17 +38,14 @@ export const usePitchStore = defineStore('pitch', {
       )
     },
     selectedPitch: (state) => {
-      // Return the selected pitch based on selectedPitchId
       return (
-        state.pitches.find((pitch) => pitch.id === state.selectedPitchId) ||
-        null
+        state.pitches.find((pitch) => pitch.id === state.selectedPitchId) || null
       )
     },
   },
 
   actions: {
     setSelectedPitch(pitchId: number | null) {
-      // Action to set the selected pitch by ID
       this.selectedPitchId = pitchId
     },
 
@@ -95,6 +91,25 @@ export const usePitchStore = defineStore('pitch', {
         }
       } catch (error) {
         console.error('Failed to fetch pitches:', error)
+      }
+    },
+
+    async fetchPitchById(pitchId: number) {
+      // Check if pitch already exists in state
+      const existingPitch = this.pitches.find(pitch => pitch.id === pitchId)
+      if (existingPitch) return existingPitch
+
+      try {
+        const data = await this.performFetch(`/api/pitches/${pitchId}`)
+        if (data.pitch) {
+          this.pitches.push(data.pitch)
+          if (isClient) {
+            localStorage.setItem('pitches', JSON.stringify(this.pitches))
+          }
+          return data.pitch
+        }
+      } catch (error) {
+        console.error('Failed to fetch pitch by ID:', error)
       }
     },
 
@@ -187,3 +202,5 @@ export const usePitchStore = defineStore('pitch', {
     },
   },
 })
+
+export type { Pitch }

@@ -81,5 +81,10 @@ export const useContentStore = defineStore({
         localStorage.setItem('sidebarStatus', status)
       }
     },
+
+    // Add the missing toggleInfo method
+    toggleInfo() {
+      this.showInfo = !this.showInfo;
+    },
   },
 })

@@ -32,58 +32,53 @@ export const useChannelStore = defineStore({
   }),
 
   getters: {
-    // Computed channel for the Art Store
+    // Getters for related stores' channels
     artChannel: (state) => {
       const artStore = useArtStore()
-      const artChannelId = artStore.selectedArt?.channelId
-      return state.channels.find(channel => channel.id === artChannelId) || null
+      return state.channels.find(channel => channel.id === artStore.selectedArt?.channelId) || null
     },
-
-    // Computed channel for the Gallery Store
     galleryChannel: (state) => {
       const galleryStore = useGalleryStore()
-      const galleryChannelId = galleryStore.currentGallery?.channelId
-      return state.channels.find(channel => channel.id === galleryChannelId) || null
+      return state.channels.find(channel => channel.id === galleryStore.currentGallery?.channelId) || null
     },
-
-    // Fetch user channel by userId (no longer stored in the user object)
     userChannel: (state) => {
       const userStore = useUserStore()
-      const userId = userStore.userId
-      return state.channels.find(channel => channel.userId === userId) || null
+      return state.channels.find(channel => channel.userId === userStore.userId) || null
     },
-
-    // Computed channel for the Prompt Store
     promptChannel: (state) => {
       const promptStore = usePromptStore()
-      const promptChannelId = promptStore.selectedPrompt?.channelId
-      return state.channels.find(channel => channel.id === promptChannelId) || null
+      return state.channels.find(channel => channel.id === promptStore.selectedPrompt?.channelId) || null
     },
-
-    // Computed channel for the Pitch Store
     pitchChannel: (state) => {
       const pitchStore = usePitchStore()
-      const pitchChannelId = pitchStore.selectedPitch?.channelId
-      return state.channels.find(channel => channel.id === pitchChannelId) || null
+      return state.channels.find(channel => channel.id === pitchStore.selectedPitch?.channelId) || null
     },
-
-    // Computed channel for the Component Store
     componentChannel: (state) => {
       const componentStore = useComponentStore()
-      const componentChannelId = componentStore.selectedComponent?.channelId
-      return state.channels.find(channel => channel.id === componentChannelId) || null
+      return state.channels.find(channel => channel.id === componentStore.selectedComponent?.channelId) || null
     },
-
-    // Computed channel for the Tag Store
     tagChannel: (state) => {
       const tagStore = useTagStore()
-      const tagChannelId = tagStore.selectedTag?.channelId
-      return state.channels.find(channel => channel.id === tagChannelId) || null
+      return state.channels.find(channel => channel.id === tagStore.selectedTag?.channelId) || null
     },
   },
 
   actions: {
-    // Set the default channels by their ID
+    // Initialize channels and set the default ones
+    async initializeChannels() {
+      if (this.isInitialized) return;
+      try {
+        await this.fetchChannels();  // Fetch the channels from the API
+        this.currentChannel = this.channels.find(
+          (channel) => channel.id === this.defaultChannels.general
+        ) || null;
+        this.isInitialized = true;
+      } catch (error) {
+        console.error('Error initializing channels:', error);
+      }
+    },
+
+    // Set the default channels by their IDs
     setDefaultChannels({
       generalId = 1,
       userId = null,
@@ -106,78 +101,32 @@ export const useChannelStore = defineStore({
       }
     },
 
-    // Initialize channels and set the default ones
-    async initializeChannels() {
-      if (this.isInitialized) return
-      const errorStore = useErrorStore()
-
-      await errorStore.handleError(
-        async () => {
-          await this.fetchChannels()
-          this.currentChannel = this.channels.find(
-            (channel) => channel.id === this.defaultChannels.general,
-          ) || null
-          this.isInitialized = true
-        },
-        ErrorType.UNKNOWN_ERROR,
-        'Error initializing channels',
-      )
-    },
-
-    // Method to set the current active channel by ID
-    setCurrentChannel(channelId: number) {
-      const channel = this.channels.find((ch) => ch.id === channelId)
-      if (channel) this.currentChannel = channel
-    },
-
-    // Fetch channels associated with the user by userId
-    async fetchChannelsByUserId(userId: number) {
+    // Fetch channels from the database or API
+    async fetchChannels() {
       const errorStore = useErrorStore()
       this.loading = true
       try {
-        const res = await fetch(`/api/users/${userId}/channels`)
+        const res = await fetch('/api/channels') // Fetch from your API
         const data = await res.json()
 
         if (data.success) {
-          this.channels = data.channels
+          this.channels = data.channels // Load channels from the API response
         } else {
-          throw new Error(data.message || 'Failed to fetch user channels')
+          throw new Error('Failed to fetch channels')
         }
       } catch (error) {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
-          error instanceof Error ? error.message : 'Failed to fetch channels by userId'
+          error instanceof Error ? error.message : 'Error fetching channels',
         )
       } finally {
         this.loading = false
       }
     },
 
-    // Create a new message in a specific channel
-    async createMessage(messageData: Partial<Message>) {
-      const errorStore = useErrorStore()
-      try {
-        const response = await fetch(`/api/messages`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(messageData),
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.message || 'Failed to create message')
-        }
-
-        const newMessage = await response.json()
-        this.messages.push(newMessage) // Add the new message to the messages array
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          error instanceof Error ? error.message : 'Failed to create message',
-        )
-      }
+    // Set the current active channel
+    setCurrentChannel(channelId: number) {
+      this.currentChannel = this.channels.find((ch) => ch.id === channelId) || null
     },
 
     // Fetch messages for a specific channel
@@ -190,7 +139,7 @@ export const useChannelStore = defineStore({
         const data = await res.json()
 
         if (data.success) {
-          this.messages = [...data.messages] // Reset messages to avoid duplication
+          this.messages = [...data.messages] // Reset and load messages
         } else {
           throw new Error(data.message || 'Failed to fetch messages')
         }
@@ -198,29 +147,6 @@ export const useChannelStore = defineStore({
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
           error instanceof Error ? error.message : 'Error fetching messages',
-        )
-      } finally {
-        this.loading = false
-      }
-    },
-
-    // Fetch all available channels
-    async fetchChannels() {
-      const errorStore = useErrorStore()
-      this.loading = true
-      try {
-        const res = await fetch('/api/channels')
-        const data = await res.json()
-
-        if (data.success) {
-          this.channels = data.channels
-        } else {
-          throw new Error('Failed to fetch channels')
-        }
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          error instanceof Error ? error.message : 'Error fetching channels',
         )
       } finally {
         this.loading = false
@@ -235,7 +161,6 @@ export const useChannelStore = defineStore({
         const res = await fetch(`/api/channels/${id}`, { method: 'DELETE' })
         if (res.ok) {
           this.channels = this.channels.filter((channel) => channel.id !== id)
-          // Ensure currentChannel is not the deleted one
           if (this.currentChannel?.id === id) {
             this.currentChannel = null
           }

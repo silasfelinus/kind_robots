@@ -12,8 +12,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import type { CSSProperties } from 'vue' // Import CSSProperties for type casting
 
-const bubbles = ref<Array<{ id: number; style: Record<string, unknown> }>>([])
+const bubbles = ref<Array<{ id: number; style: CSSProperties }>>([])
 
 let intervalId: number
 
@@ -40,7 +41,7 @@ function createBubble() {
       height: size,
       opacity: opacity.toString(),
       '--path-change': `${path}vw`,
-    },
+    } as CSSProperties, // Cast the style object to CSSProperties
   }
   bubbles.value.push(bubble)
 }

@@ -32,10 +32,11 @@
               class="mt-4 p-4 bg-gray-100 rounded-lg shadow-md"
             >
               <img
-                :src="currentBot.avatarImage"
+                :src="currentBot?.avatarImage || '/images/default-avatar.png'"
                 alt="Bot Avatar"
                 class="w-24 h-24 rounded-full mx-auto"
               />
+
               <h3 class="text-2xl mt-4 text-center">
                 {{ currentBot.name }}
               </h3>

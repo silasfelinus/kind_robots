@@ -50,12 +50,14 @@ export const useContentStore = defineStore({
     currentPage: (state) => state.page,
     isSidebarOpen: (state) => state.sidebarStatus === 'open',
     isSidebarClosed: (state) => state.sidebarStatus === 'close',
-    // New getter for highlightPages
-    highlightPages: (state) => state.pages.filter((page) => page.sort === 'highlight'),
+
+    // Getter for filtering pages by tag and sort
+    pagesByTagAndSort: (state) => (tag: string, sort: string) => {
+      return state.pages.filter((page) => page.tags?.includes(tag) && page.sort === sort)
+    },
   },
   actions: {
     toggleSidebar() {
-      // Toggle between open and close, respecting localStorage
       if (this.sidebarStatus === 'open') {
         this.sidebarStatus = 'close'
       } else {
@@ -67,14 +69,12 @@ export const useContentStore = defineStore({
     },
 
     setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
-      // Update the orientation and save to localStorage
       this.sidebarOrientation = orientation
       if (typeof window !== 'undefined') {
         localStorage.setItem('sidebarOrientation', orientation)
       }
     },
 
-    // Optionally allow direct setting of the sidebar status for flexibility
     setSidebarStatus(status: 'open' | 'close' | 'icon') {
       this.sidebarStatus = status
       if (typeof window !== 'undefined') {
@@ -82,9 +82,8 @@ export const useContentStore = defineStore({
       }
     },
 
-    // Add the missing toggleInfo method
     toggleInfo() {
-      this.showInfo = !this.showInfo;
+      this.showInfo = !this.showInfo
     },
   },
 })

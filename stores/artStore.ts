@@ -1,24 +1,22 @@
 import { defineStore } from 'pinia'
-import type { Art, Reaction } from '@prisma/client'
+import type { Art, Reaction, ArtImage } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 
-const isClient = import.meta.client // Update to use Nuxt's process.client
+const isClient = import.meta.client
 
 export interface GenerateArtData {
   title?: string
-  prompt: string
-  description?: string
-  flavorText?: string
+  promptString: string
   userId?: number
   pitchId?: number
-  channelId?: number
-  promptId?: number
   galleryId?: number
-  designerName?: string
-  channelName?: string
-  userName?: string
-  pitchName?: string
-  galleryName?: string
+  channelId?: number
+  checkpoint?: string
+  sampler?: string
+  steps?: number
+  designer?: string
+  cfg?: number
+  cfgHalf?: boolean
   isMature?: boolean
   isPublic?: boolean
 }
@@ -30,6 +28,7 @@ export const useArtStore = defineStore({
     Reactions: [] as Reaction[],
     tags: [] as Tag[],
     selectedArt: null as Art | null,
+    artImages: [] as ArtImage[],
   }),
   actions: {
     init() {
@@ -55,15 +54,10 @@ export const useArtStore = defineStore({
         const data = await response.json()
         this.artAssets = data.art
       } catch (error: unknown) {
-        // Type checking to safely handle the error object
         if (error instanceof Error) {
           errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
         } else {
-          // Handle cases where the error is not an instance of Error
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            'An unexpected error occurred',
-          )
+          errorStore.setError(ErrorType.NETWORK_ERROR, 'An unexpected error occurred')
         }
       }
     },
@@ -84,19 +78,20 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to fetch art.',
+        'Failed to fetch art.'
       )
     },
     getArtById(id: number): Art | undefined {
       return this.artAssets.find((art: Art) => art.id === id)
     },
     getReactionsById(id: number): Reaction[] {
-      return this.Reactions.filter(
-        (reaction: Reaction) => reaction.artId === id,
-      )
+      return this.Reactions.filter((reaction: Reaction) => reaction.artId === id)
     },
     getTagsById(id: number): Tag | undefined {
       return this.tags.find((tag: Tag) => tag.id === id)
+    },
+    getArtImagesById(artId: number): ArtImage[] {
+      return this.artImages.filter((image: ArtImage) => image.artId === artId)
     },
     async deleteArt(id: number) {
       const errorStore = useErrorStore()
@@ -116,7 +111,7 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to delete art.',
+        'Failed to delete art.'
       )
     },
     getArtByPitchId(pitchId: number): Art[] {
@@ -135,7 +130,6 @@ export const useArtStore = defineStore({
           })
           if (response.ok) {
             const { newReaction } = await response.json()
-            console.log('New reaction created:', newReaction)
             return newReaction
           } else {
             const errorResponse = await response.json()
@@ -143,13 +137,10 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to create reaction.',
+        'Failed to create reaction.'
       )
     },
-    async editReaction(
-      id: number,
-      reactionData: Reaction,
-    ): Promise<Reaction | null> {
+    async editReaction(id: number, reactionData: Reaction): Promise<Reaction | null> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
@@ -161,16 +152,14 @@ export const useArtStore = defineStore({
             body: JSON.stringify(reactionData),
           })
           if (response.ok) {
-            const updatedReaction = await response.json()
-            console.log('Reaction updated successfully:', updatedReaction)
-            return updatedReaction
+            return await response.json()
           } else {
             const errorResponse = await response.json()
             throw new Error(errorResponse.message)
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to update reaction.',
+        'Failed to update reaction.'
       )
     },
     async deleteReaction(id: number): Promise<boolean> {
@@ -181,7 +170,6 @@ export const useArtStore = defineStore({
             method: 'DELETE',
           })
           if (response.ok) {
-            console.log(`Reaction with ID ${id} deleted successfully.`)
             return true
           } else {
             const errorResponse = await response.json()
@@ -189,7 +177,7 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to delete reaction.',
+        'Failed to delete reaction.'
       )
     },
     async fetchArtById(id: number): Promise<Art | null> {
@@ -200,17 +188,14 @@ export const useArtStore = defineStore({
           if (response.ok) {
             return await response.json()
           } else {
-            console.error(`Failed to fetch art with ID ${id}`)
             return null
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to fetch art by ID.',
+        'Failed to fetch art by ID.'
       )
     },
-    async generateArt(
-      data: GenerateArtData,
-    ): Promise<{ success: boolean; message?: string; newArt?: Art }> {
+    async generateArt(data: GenerateArtData): Promise<{ success: boolean; message?: string; newArt?: Art }> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
@@ -230,10 +215,10 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to generate art.',
+        'Failed to generate art.'
       )
     },
   },
 })
 
-export type { Art }
+export type { Art, ArtImage, Reaction }

@@ -7,7 +7,7 @@ enum ReactionType {
   ART = 'ART',
   COMPONENT = 'COMPONENT',
   PITCH = 'PITCH',
-  CHANNEL = 'CHANNEL'
+  CHANNEL = 'CHANNEL',
 }
 
 // Define the type for requestData
@@ -88,17 +88,20 @@ export default defineEventHandler(async (event) => {
         break
       case ReactionType.COMPONENT:
         reactionIdField = 'componentId'
-        if (!componentId) throw new Error('componentId is required for Component reactions.')
+        if (!componentId)
+          throw new Error('componentId is required for Component reactions.')
         reactionMatchCondition = { componentId }
         break
       case ReactionType.PITCH:
         reactionIdField = 'pitchId'
-        if (!pitchId) throw new Error('pitchId is required for Pitch reactions.')
+        if (!pitchId)
+          throw new Error('pitchId is required for Pitch reactions.')
         reactionMatchCondition = { pitchId }
         break
       case ReactionType.CHANNEL:
         reactionIdField = 'channelId'
-        if (!channelId) throw new Error('channelId is required for Channel reactions.')
+        if (!channelId)
+          throw new Error('channelId is required for Channel reactions.')
         reactionMatchCondition = { channelId }
         break
       default:
@@ -137,7 +140,9 @@ export default defineEventHandler(async (event) => {
     } else {
       // Validate reactionIdField is properly assigned
       if (!reactionIdField || !reactionMatchCondition[reactionIdField]) {
-        throw new Error(`${reactionIdField} is required for this reaction type.`)
+        throw new Error(
+          `${reactionIdField} is required for this reaction type.`,
+        )
       }
 
       // Create a new reaction

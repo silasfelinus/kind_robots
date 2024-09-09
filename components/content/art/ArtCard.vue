@@ -16,7 +16,7 @@
     </div>
     <div class="art-details mt-2">
       <p class="text-base truncate" title="Pitch">
-        {{ pitch?.pitch || 'No pitch available' }}
+        {{ selectedPitch?.pitch || 'No pitch available' }}
       </p>
       <div class="flex justify-between items-center mt-2">
         <p class="text-base">Claps: {{ reactions.length || 0 }}</p>
@@ -31,40 +31,44 @@
 
 <script setup lang="ts">
 import { useArtStore, type Art } from './../../../stores/artStore'
-import { usePromptStore } from './../../../stores/promptStore'
+import { usePromptStore, type Prompt } from './../../../stores/promptStore'
 import { usePitchStore } from './../../../stores/pitchStore'
 import { useReactionStore } from './../../../stores/reactionStore'
 import { computed, onMounted } from 'vue'
 
+// Define props with type Art
+const props = defineProps<{
+  art: Art
+}>()
+
+// Initialize stores
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const pitchStore = usePitchStore()
 const reactionStore = useReactionStore()
 
-const props = defineProps<{
-  art: Art
-}>()
-
-// Ensure promptId and pitchId are non-null before accessing
-const prompt = computed(() =>
+// Compute prompt based on art ID
+const prompt = computed<Prompt | null>(() =>
   props.art.promptId ? promptStore.fetchedPrompts[props.art.promptId] : null,
 )
-const pitch = computed(() =>
-  props.art.pitchId
-    ? pitchStore.pitches.find((p) => p.id === props.art.pitchId)
-    : null,
-)
+
+// Use the selected pitch from the pitch store
+const selectedPitch = computed(() => pitchStore.selectedPitch)
+
+// Filter reactions for the current art
 const reactions = computed(() =>
-  reactionStore.reactions.filter((r) => r.artId === props.art.id),
+  reactionStore.reactions.filter(
+    (r: { artId: number }) => r.artId === props.art.id,
+  ),
 )
 
-// Fetch data for prompt, pitch, and reactions on mount
+// Fetch prompt and reactions on mount
 onMounted(() => {
   if (props.art.promptId) promptStore.fetchPromptById(props.art.promptId)
-  if (props.art.pitchId) pitchStore.fetchPitchById(props.art.pitchId)
   reactionStore.fetchReactionsByArtId(props.art.id)
 })
 
+// Handle art selection
 const selectArt = () => {
   artStore.selectArt(props.art.id)
 }

@@ -37,22 +37,29 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 
+// Define Page interface to include the expected properties like tooltip and image
+interface Page {
+  tooltip?: string | null
+  image?: string | null
+}
+
+// Get the page content and ensure it has the correct typing
+const { page } = useContent() as { page: Page }
+
 // Initialize reactive variables
 const streamingText = ref('')
 const minimized = ref(false)
-
-// Get the page content
-const { page } = useContent()
 
 // Function to toggle minimize state
 const toggleMinimize = () => {
   minimized.value = !minimized.value
   localStorage.setItem('tooltipMinimized', minimized.value.toString())
 }
+
 let interval: NodeJS.Timeout | null = null
+
 // Function to stream text
 const streamText = (text: string) => {
-  // Clear any existing interval
   if (interval) {
     clearTimeout(interval)
   }
@@ -78,6 +85,7 @@ const streamText = (text: string) => {
 
   appendChar()
 }
+
 // Lifecycle hooks and watchers
 onMounted(() => {
   minimized.value = localStorage.getItem('tooltipMinimized') === 'true'

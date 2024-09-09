@@ -30,7 +30,7 @@
       >
         <!-- Compact View -->
         <div v-if="!isExtended" class="flex flex-row items-center space-x-2">
-          <Icon :name="page.Icon" class="text-3xl" />
+          <Icon name="page.Icon" class="text-3xl" />
           <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
             {{ page.title }}
           </div>

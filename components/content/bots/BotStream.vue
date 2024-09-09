@@ -1,7 +1,5 @@
 <template>
   <div class="container rounded-2xl mx-auto p-2">
-    <!-- Bot Avatar and Details -->
-
     <!-- Message Interaction Area -->
     <div class="message-container bg-primary p-1 border rounded-2xl">
       <!-- New Message Prompt -->
@@ -26,7 +24,6 @@
         >
           Send Message
         </button>
-        <milestone-reward v-if="shouldShowMilestoneCheck" :id="4" />
       </div>
 
       <!-- Loading Indicator -->
@@ -54,110 +51,50 @@
             :subtitle="msg.subtitle ?? 'Your friendly neighborhood AI'"
           />
         </div>
+
         <!-- Reaction Buttons -->
         <div class="reaction-buttons mt-2 flex space-x-2">
           <button
             class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'liked') }"
-            @click="toggleReaction(index, 'liked')"
-          >
-            👍
-          </button>
-          <div
-            v-if="showPopup[index]?.liked"
-            class="popup bg-info text-lg rounded-2xl"
-          >
-            Response Liked <Icon name="like" class="Icon-class" />
-          </div>
-
-          <button
-            class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'hated') }"
-            @click="toggleReaction(index, 'hated')"
-          >
-            👎
-          </button>
-          <div
-            v-if="showPopup[index]?.hated"
-            class="popup bg-info text-lg rounded-2xl"
-          >
-            Response hated <Icon name="hate" class="Icon-class" />
-          </div>
-          <button
-            class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'loved') }"
-            @click="toggleReaction(index, 'loved')"
+            :class="{ 'bg-primary': isReactionActive(index, 'isLoved') }"
+            @click="toggleReaction(index, 'isLoved')"
           >
             ❤️
           </button>
           <div
-            v-if="showPopup[index]?.loved"
+            v-if="showPopup[index]?.isLoved"
             class="popup bg-info text-lg rounded-2xl"
           >
-            Favorited <Icon name="❤️" class="Icon-class" />
+            Favorited <Icon name="heart" />
           </div>
+
           <button
             class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'flagged') }"
-            @click="toggleReaction(index, 'flagged')"
+            :class="{ 'bg-primary': isReactionActive(index, 'isHated') }"
+            @click="toggleReaction(index, 'isHated')"
           >
-            🚩
+            👎
           </button>
           <div
-            v-if="showPopup[index]?.flagged"
+            v-if="showPopup[index]?.isHated"
             class="popup bg-info text-lg rounded-2xl"
           >
-            Flagged <Icon name="🚩" class="Icon-class" />
+            Disliked <Icon name="thumb-down" />
           </div>
         </div>
-        <div
-          v-if="
-            activeConversationIndex !== null &&
-            activeConversationIndex === index
-          "
-          class="mt-2 flex items-center"
-        >
-          <textarea
-            v-model="replyMessage"
-            type="text"
-            rows="3"
-            placeholder="Continue conversation..."
-            class="flex-grow p-2 rounded-md border-2 text-lg resize-y"
-            @keyup.enter="continueConversation(index)"
-          />
-          <button
-            class="btn btn-primary ml-2"
-            :disabled="isReplyLoading"
-            @click="continueConversation(index)"
-          >
-            Reply
-          </button>
-          <div
-            v-if="isReplyLoading"
-            class="loader flex justify-center mt-2 ml-2"
-          >
-            <ami-butterfly />
-          </div>
-        </div>
-        <button
-          class="absolute top-2 right-2 text-red-500 hover:text-red-700"
-          @click.stop="deleteConversation(index)"
-        >
-          ×
-        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watchEffect } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
-import { useChatStore, type ChatExchange } from '../../../stores/chatStore'
 import { useReactionStore } from '../../../stores/reactionStore'
 
-const shouldShowMilestoneCheck = ref(false)
+type ReactionType = 'isLoved' | 'isHated' | 'isBooed' | 'isClapped'
+
 let userKey: string | null = null
 
 onMounted(() => {
@@ -165,7 +102,7 @@ onMounted(() => {
 })
 
 interface Message {
-  id?: number // Add an optional id property for each message
+  id?: number
   role: 'user' | 'assistant'
   content: string
   avatarImage?: string | null
@@ -173,44 +110,11 @@ interface Message {
   subtitle?: string | null
 }
 
-function convertToChatExchange(
-  conversation: Message[],
-  userId: number,
-  botId: number,
-  botName: string,
-  username: string,
-): ChatExchange {
-  const userPrompt =
-    conversation.find((msg) => msg.role === 'user')?.content ?? ''
-  const botResponse =
-    conversation.find((msg) => msg.role === 'assistant')?.content ?? ''
-
-  return {
-    id: Date.now(), // Generate unique id using timestamp or unique identifier
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    botId,
-    botName,
-    userId,
-    username,
-    userPrompt,
-    botResponse,
-    liked: null,
-    hated: null,
-    loved: null,
-    flagged: null,
-    previousEntryId: 0,
-    isPublic: false,
-  }
-}
-
-const conversations = ref<Message[][]>([]) // Ensure each message has a unique id
-
-const activeConversationIndex = ref<number | null>(null)
+const conversations = ref<Message[][]>([])
 const botStore = useBotStore()
 const userStore = useUserStore()
-const chatStore = useChatStore()
 const reactionStore = useReactionStore()
+
 const currentBot = computed(() => {
   return (
     botStore.currentBot ?? {
@@ -225,48 +129,56 @@ const currentBot = computed(() => {
 })
 
 const message = ref('')
-const replyMessage = ref('')
 const isLoading = ref(false)
 const error = ref<string | null>(null)
-const isReplyLoading = ref(false)
 
 const userId = computed(() => userStore.userId || 0)
-const botId = computed(() => botStore.currentBot?.id || 0)
-const botName = computed(() => botStore.currentBot?.name || '')
-const username = computed(() => userStore.username)
 const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
 
-type ReactionType = 'isLoved' | 'isHated' | 'isClapped' | 'isBooed' | 'isPublic'
-
-const reactionTypeMap: { [key: string]: ReactionType } = {
-  liked: 'isLoved',
-  hated: 'isHated',
-  loved: 'isLoved',
-  flagged: 'isBooed',
-}
-
+// Helper to check reaction status using reactionStore
 const isReactionActive = (index: number, reactionType: ReactionType) => {
-  const currentExchange = chatStore.getExchangeById(index) as ChatExchange
-  return currentExchange?.[reactionType]
+  const conversationId = conversations.value[index]?.[0]?.id ?? 0
+
+  return (
+    reactionStore.getUserReactionForComponent(conversationId, userId.value)?.[
+      reactionType
+    ] || false
+  )
 }
 
-watchEffect(() => {
-  if (conversations.value.length > 0) {
-    const lastConversation = conversations.value[conversations.value.length - 1]
-    const lastExchange = convertToChatExchange(
-      lastConversation,
-      userId.value,
-      botId.value,
-      botName.value,
-      username.value,
-    )
-    chatStore.addOrUpdateExchange(lastExchange)
+// Toggle reaction state
+const toggleReaction = async (index: number, reactionType: ReactionType) => {
+  const conversationId = conversations.value[index]?.[0]?.id
+
+  if (!conversationId) return
+
+  const existingReaction = reactionStore.getUserReactionForComponent(
+    conversationId,
+    userId.value,
+  )
+
+  const reactionData: Partial<Reaction> = {
+    userId: userId.value,
+    componentId: conversationId,
+    [reactionType]: true,
   }
-})
+
+  if (existingReaction) {
+    reactionData[reactionType] = !existingReaction[reactionType]
+    await reactionStore.updateReaction(existingReaction.id, reactionData)
+  } else {
+    await reactionStore.createReaction(reactionData)
+  }
+
+  showPopup.value[index] = { ...showPopup.value[index], [reactionType]: true }
+  setTimeout(() => {
+    showPopup.value[index][reactionType] = false
+  }, 2000)
+}
 
 const sendMessage = async () => {
   isLoading.value = true
-  error.value = null // Reset error before each attempt
+  error.value = null
 
   try {
     const fullMessage = currentBot.value?.userIntro
@@ -287,13 +199,10 @@ const sendMessage = async () => {
       }),
     })
 
-    if (!res.ok) {
-      throw new Error(`Error: ${res.statusText}`) // Capture and display the error message
-    }
+    if (!res.ok) throw new Error(`Error: ${res.statusText}`)
 
     const data = await res.json()
 
-    // Push both user message and bot response to the conversation
     conversations.value.push([
       {
         role: 'user',
@@ -309,127 +218,26 @@ const sendMessage = async () => {
       },
     ])
     message.value = '' // Clear message input
-  } catch (err) {
-    console.error(err)
+  } catch {
     error.value = 'Failed to send the message. Please try again.'
   } finally {
     isLoading.value = false
   }
 }
-
-const continueConversation = async (index: number) => {
-  isReplyLoading.value = true
-  try {
-    const sanitizedMessages = conversations.value[index].map((msg) => ({
-      ...msg,
-    }))
-
-    const fullMessage = currentBot.value?.userIntro
-      ? `${currentBot.value.userIntro} ${replyMessage.value}`
-      : replyMessage.value
-
-    sanitizedMessages.push({ role: 'user', content: fullMessage })
-
-    const res = await fetch('/api/botcafe/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: sanitizedMessages,
-        stream: false,
-      }),
-    })
-
-    if (!res.ok) {
-      throw new Error('Failed to continue conversation')
-    }
-
-    const data = await res.json()
-
-    conversations.value[index].push({
-      role: 'user',
-      content: replyMessage.value,
-    })
-    conversations.value[index].push({
-      role: 'assistant',
-      content: data.choices[0].message.content,
-    })
-    replyMessage.value = ''
-  } catch (err) {
-    console.error(err)
-  } finally {
-    isReplyLoading.value = false
-  }
-}
-
-watchEffect(() => {
-  if (currentBot.value && currentBot.value.prompt) {
-    message.value = currentBot.value.prompt
-  }
-})
-
-const deleteConversation = (index: number) => {
-  conversations.value.splice(index, 1)
-  activeConversationIndex.value = null
-}
-
-const toggleReaction = async (
-  index: number,
-  reactionType: 'liked' | 'hated' | 'loved' | 'flagged',
-) => {
-  const chatExchangeId = conversations.value[index]?.id
-
-  if (!chatExchangeId) return
-
-  const existingReaction = reactionStore.getUserReactionForComponent(
-    chatExchangeId,
-    userId.value,
-  )
-
-  const mappedReactionType = reactionTypeMap[reactionType] // Maps to 'isLoved', 'isHated', etc.
-
-  if (existingReaction) {
-    // Update existing reaction, toggle its value
-    const updatedReactionData = {
-      ...existingReaction,
-      [mappedReactionType]: !existingReaction[mappedReactionType],
-    }
-    await reactionStore.updateReaction(existingReaction.id, updatedReactionData)
-  } else {
-    // Create new reaction entry if it doesn't exist
-    const newReactionData = {
-      ReactionCategory: 'CHANNEL', // Adjust based on your current context
-      userId: userId.value,
-      channelId: currentBot.value?.id,
-      componentId: chatExchangeId, // Use appropriate field (artId, pitchId, etc.)
-      [mappedReactionType]: true, // Set the initial reaction
-    }
-    await reactionStore.createReaction(newReactionData)
-  }
-
-  // Handle showing reaction feedback popup
-  showPopup.value[index] = { ...showPopup.value[index], [reactionType]: true }
-  setTimeout(() => {
-    showPopup.value[index][reactionType] = false
-  }, 2000)
-}
 </script>
 
-<style>
+<style scoped>
 .popup {
   position: absolute;
   top: 0;
   right: 0;
-  background-color: #3b82f6; /* Adjusted for Tailwind class bg-info */
+  background-color: #3b82f6;
   padding: 4px;
-  border-radius: 1rem; /* Adjusted for Tailwind class rounded-2xl */
-  font-size: 1rem; /* Adjusted for Tailwind class text-lg */
+  border-radius: 1rem;
+  font-size: 1rem;
 }
 
 .message-content {
-  white-space: pre-wrap; /* This will preserve newlines and spaces */
+  white-space: pre-wrap;
 }
 </style>

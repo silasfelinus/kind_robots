@@ -5,7 +5,7 @@
   >
     <div class="text-center flex flex-col items-center">
       <!-- Milestone Icon -->
-      <Icon :name="milestone.Icon" class="Icon-extra-large mb-2" />
+      <Icon name="milestone.icon" class="Icon-extra-large mb-2" />
       <!-- Milestone Label -->
       <div class="text-xl font-bold text-gray-700">
         {{ milestone.label }}

@@ -1,27 +1,38 @@
 import { defineStore } from 'pinia'
 
+// Updated Folder interface to use Component[]
 interface Folder {
   folderName: string
-  components: string[] // Array of component names
+  components: Component[] // Array of Component objects instead of strings
 }
 
 interface Component {
+  id: number
   componentName: string
-  channelId?: number // Add channelId field to your component model
-  // other fields as needed
+  folderName: string
+  channelId: number | null
+  createdAt: Date
+  updatedAt: Date | null
+  isWorking: boolean
+  underConstruction: boolean
+  isBroken: boolean
+  title: string | null
+  notes: string | null
 }
+
+
 
 export const useComponentStore = defineStore('componentStore', {
   state: () => ({
-    folders: [] as Folder[], // Folder structure from JSON
+    folders: [] as Folder[], // Folder structure from JSON with components as objects
     folderNames: [] as string[], // Dynamic list of folder names
     lastFetched: null as string | null, // ISO format date of last fetch
-    selectedComponent: null as Component | null, // Update to Component type
-    components: [] as string[], // Flat list of component names for ease of lookup
+    selectedComponent: null as Component | null, // Full Component object for the selected component
+    components: [] as Component[], // Flat list of all Component objects for ease of lookup
   }),
 
   getters: {
-    // Get the current component (by name)
+    // Get the current selected component
     getSelectedComponent: (state) => state.selectedComponent,
 
     // Dynamically calculate folder names from the folders array
@@ -29,16 +40,14 @@ export const useComponentStore = defineStore('componentStore', {
       return state.folders.map((folder) => folder.folderName)
     },
 
-    // Get folders as an array of objects with folderName and component names
+    // Get folders as an array of objects with folderName and Component objects
     groupedFolders(state) {
       return state.folders
     },
 
     // Get all components in a flat array
     allComponents(state) {
-      return state.folders.reduce((acc, folder) => {
-        return acc.concat(folder.components)
-      }, [] as string[])
+      return state.folders.flatMap((folder) => folder.components)
     },
   },
 
@@ -46,11 +55,10 @@ export const useComponentStore = defineStore('componentStore', {
     // Initialization function that syncs with the database and components.json
     async initializeComponentStore() {
       try {
-        // Fetch existing components from the database (as strings)
+        // Fetch existing components from the database
         const dbResponse = await fetch('/api/components')
-        if (!dbResponse.ok)
-          throw new Error('Failed to fetch components from the database')
-        const dbComponents: string[] = await dbResponse.json()
+        if (!dbResponse.ok) throw new Error('Failed to fetch components from the database')
+        const dbComponents: Component[] = await dbResponse.json()
 
         // Fetch components.json
         let jsonFolders: Folder[] = []
@@ -75,10 +83,10 @@ export const useComponentStore = defineStore('componentStore', {
       }
     },
 
-    // Select a component (now expecting a Component object)
+    // Select a component
     setSelectedComponent(component: Component) {
-      this.selectedComponent = component // Now setting the full Component object
-      localStorage.setItem('selectedComponent', JSON.stringify(component)) // Persist full component to localStorage
+      this.selectedComponent = component
+      localStorage.setItem('selectedComponent', JSON.stringify(component)) // Persist to localStorage
     },
 
     // Function to retrieve the default component from localStorage
@@ -86,33 +94,47 @@ export const useComponentStore = defineStore('componentStore', {
       const storedComponent = localStorage.getItem('selectedComponent')
       if (storedComponent) {
         try {
-          this.selectedComponent = JSON.parse(storedComponent) // Parse the stored JSON back into a Component object
+          this.selectedComponent = JSON.parse(storedComponent) as Component
         } catch (error) {
           console.error('Failed to load selected component from localStorage:', error)
         }
       }
     },
 
-    // Sync the database with components.json
-    async syncDatabaseWithJSON(dbComponents: string[], jsonFolders: Folder[]) {
+    // Fetch components for a specific folder
+    async fetchComponentList(folderName: string) {
       try {
-        // Flatten the JSON components into a single array
-        const jsonComponents = jsonFolders.flatMap(
-          (folder) => folder.components,
-        )
+        const response = await fetch(`/api/folders/${folderName}/components`)
+        const data = await response.json()
 
-        // Compare and update the database based on the components.json
+        if (data.success) {
+          // Push folder data with full Component objects
+          const folderData = { folderName, components: data.components as Component[] }
+          this.folders.push(folderData)
+        } else {
+          throw new Error('Failed to fetch components')
+        }
+      } catch (error) {
+        console.error('Error fetching components:', error)
+      }
+    },
+
+    // Sync the database with components.json
+    async syncDatabaseWithJSON(dbComponents: Component[], jsonFolders: Folder[]) {
+      try {
+        const jsonComponents = jsonFolders.flatMap((folder) => folder.components)
+
+        // Add missing components
         for (const jsonComponent of jsonComponents) {
-          if (!dbComponents.includes(jsonComponent)) {
-            // Create component in the database if it doesn't exist
+          if (!dbComponents.some((dbComp) => dbComp.componentName === jsonComponent.componentName)) {
             await this.createOrUpdateComponent(jsonComponent)
           }
         }
 
-        // Remove components in the database that are no longer in components.json
+        // Remove components no longer in JSON
         for (const dbComponent of dbComponents) {
-          if (!jsonComponents.includes(dbComponent)) {
-            await this.deleteComponent(dbComponent) // Delete by component name
+          if (!jsonComponents.some((jsonComp) => jsonComp.componentName === dbComponent.componentName)) {
+            await this.deleteComponent(dbComponent.componentName)
           }
         }
       } catch (error) {
@@ -120,48 +142,48 @@ export const useComponentStore = defineStore('componentStore', {
       }
     },
 
-    // Create or update a component in the database (by name)
-    async createOrUpdateComponent(componentName: string) {
+    // Create or update a component in the database
+    async createOrUpdateComponent(component: Component) {
       try {
         const response = await fetch('/api/components', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ componentName }),
+          body: JSON.stringify(component),
         })
 
         if (response.status === 409) {
           // Conflict, update existing component
-          await this.updateComponent(componentName)
+          await this.updateComponent(component)
         } else if (!response.ok) {
           throw new Error(`Failed to create component: ${response.statusText}`)
         }
 
-        console.log(`Component ${componentName} processed successfully`)
+        console.log(`Component ${component.componentName} processed successfully`)
       } catch (error) {
         console.error('Error creating or updating component:', error)
       }
     },
 
-    // API call to update a component in the database (by name)
-    async updateComponent(componentName: string) {
+    // API call to update a component in the database
+    async updateComponent(component: Component) {
       try {
-        const response = await fetch(`/api/components/${componentName}`, {
+        const response = await fetch(`/api/components/${component.componentName}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ componentName }),
+          body: JSON.stringify(component),
         })
 
         if (!response.ok) {
           throw new Error(`Failed to update component: ${response.statusText}`)
         }
 
-        console.log(`Component ${componentName} updated successfully`)
+        console.log(`Component ${component.componentName} updated successfully`)
       } catch (error) {
         console.error('Error updating component in the database:', error)
       }
     },
 
-    // API call to delete a component from the database (by name)
+    // API call to delete a component from the database
     async deleteComponent(componentName: string) {
       try {
         const response = await fetch(`/api/components/${componentName}`, {
@@ -172,8 +194,11 @@ export const useComponentStore = defineStore('componentStore', {
         }
 
         // Remove the component from the store
-        this.components = this.components.filter((c) => c !== componentName)
-        this.folders = this.groupedFolders // Recalculate folders
+        this.components = this.components.filter((c) => c.componentName !== componentName)
+        this.folders = this.folders.map((folder) => ({
+          ...folder,
+          components: folder.components.filter((c) => c.componentName !== componentName),
+        }))
 
         console.log(`Component ${componentName} deleted successfully`)
       } catch (error) {

@@ -7,7 +7,7 @@
       <div v-for="reward in rewardStore.rewards" :key="reward.id">
         <!-- Display all relevant reward info -->
         <div class="reward-info">
-          {{ reward.Icon }} - {{ reward.text }} - {{ reward.power }} -
+          {{ reward.icon }} - {{ reward.text }} - {{ reward.power }} -
           {{ reward.collection }} -
           {{ reward.rarity }}
         </div>

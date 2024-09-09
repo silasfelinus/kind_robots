@@ -266,11 +266,12 @@ watchEffect(() => {
 
 const sendMessage = async () => {
   isLoading.value = true
+  error.value = null // Reset error before each attempt
+
   try {
     const fullMessage = currentBot.value?.userIntro
       ? `${currentBot.value.userIntro} ${message.value}`
       : message.value
-    shouldShowMilestoneCheck.value = true
 
     const res = await fetch('/api/botcafe/chat', {
       method: 'POST',
@@ -287,11 +288,12 @@ const sendMessage = async () => {
     })
 
     if (!res.ok) {
-      throw new Error('Failed to send message')
+      throw new Error(`Error: ${res.statusText}`) // Capture and display the error message
     }
 
     const data = await res.json()
 
+    // Push both user message and bot response to the conversation
     conversations.value.push([
       {
         role: 'user',
@@ -306,7 +308,7 @@ const sendMessage = async () => {
         subtitle: currentBot.value?.subtitle,
       },
     ])
-    message.value = ''
+    message.value = '' // Clear message input
   } catch (err) {
     console.error(err)
     error.value = 'Failed to send the message. Please try again.'
@@ -387,25 +389,28 @@ const toggleReaction = async (
     userId.value,
   )
 
-  const mappedReactionType = reactionTypeMap[reactionType]
+  const mappedReactionType = reactionTypeMap[reactionType] // Maps to 'isLoved', 'isHated', etc.
 
   if (existingReaction) {
+    // Update existing reaction, toggle its value
     const updatedReactionData = {
       ...existingReaction,
       [mappedReactionType]: !existingReaction[mappedReactionType],
     }
     await reactionStore.updateReaction(existingReaction.id, updatedReactionData)
   } else {
+    // Create new reaction entry if it doesn't exist
     const newReactionData = {
-      reactionType: 'CHANNEL',
+      ReactionCategory: 'CHANNEL', // Adjust based on your current context
       userId: userId.value,
       channelId: currentBot.value?.id,
-      componentId: chatExchangeId,
-      [mappedReactionType]: true,
+      componentId: chatExchangeId, // Use appropriate field (artId, pitchId, etc.)
+      [mappedReactionType]: true, // Set the initial reaction
     }
     await reactionStore.createReaction(newReactionData)
   }
 
+  // Handle showing reaction feedback popup
   showPopup.value[index] = { ...showPopup.value[index], [reactionType]: true }
   setTimeout(() => {
     showPopup.value[index][reactionType] = false

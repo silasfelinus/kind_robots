@@ -382,27 +382,27 @@ model RandomList {
 }
 
 model Reaction {
-  id                Int           @id @unique @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
+  id                Int               @id @unique @default(autoincrement())
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime?         @updatedAt @default(now())
   title             String?
-  comment           String?       @db.Text
+  comment           String?           @db.Text
   reaction          String?
-  isLoved           Boolean?      @default(false)
-  isClapped         Boolean?      @default(false)
-  isBooed           Boolean?      @default(false)
-  isHated           Boolean?      @default(false)
-  userId            Int           @default(10)
-  User              User          @relation(fields: [userId], references: [id])
+  isLoved           Boolean?          @default(false)
+  isClapped         Boolean?          @default(false)
+  isBooed           Boolean?          @default(false)
+  isHated           Boolean?          @default(false)
+  userId            Int               @default(10)
+  User              User              @relation(fields: [userId], references: [id])
   artId             Int?
-  Art               Art?          @relation(fields: [artId], references: [id])
+  Art               Art?              @relation(fields: [artId], references: [id])
   pitchId           Int?
-  Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
+  Pitch             Pitch?            @relation(fields: [pitchId], references: [id])
   componentId       Int?
-  Component         Component?    @relation(fields: [componentId], references: [id])
-  channelId         Int?          @default(1)
-  Channel           Channel?      @relation(fields: [channelId], references: [id])
-  ReactionType      ReactionType  @default(CHANNEL)
+  Component         Component?        @relation(fields: [componentId], references: [id])
+  channelId         Int?              @default(1)
+  Channel           Channel?          @relation(fields: [channelId], references: [id])
+  ReactionCategory  ReactionCategory  @default(CHANNEL)
 
   @@index([artId], map: "Reaction_artId_fkey")
   @@index([pitchId], map: "Reaction_pitchId_fkey")
@@ -411,7 +411,15 @@ model Reaction {
   @@index([componentId], map: "Reaction_componentId_fkey")
 }
 
-enum ReactionType {
+enum ReactionStatus {
+  Liked
+  Loved
+  Hated
+  Flagged
+  Neutral
+}
+
+enum ReactionCategory {
   COMPONENT
   ART
   CHANNEL

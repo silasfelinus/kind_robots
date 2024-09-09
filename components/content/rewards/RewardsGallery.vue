@@ -8,8 +8,8 @@
     <!-- Detailed Reward View -->
     <div v-else-if="rewardStore.currentReward" :class="{ pixelate: pixelate }">
       <Icon
-        v-if="rewardStore.currentReward && rewardStore.currentReward.Icon"
-        :name="rewardStore.currentReward.Icon"
+        v-if="rewardStore.currentReward && rewardStore.currentReward.icon"
+        :name="rewardStore.currentReward.icon"
         class="text-12xl mb-2 transition-all duration-500 ease-in-out"
       />
       <h1 class="text-4xl">

@@ -73,7 +73,7 @@ const galleryName = computed(
   () => galleryStore.currentGallery?.name || 'cafefred',
 )
 const galleryId = computed(() => galleryStore.currentGallery?.id || 21)
-const activePrompt = computed(() => promptStore.activePrompt?.prompt)
+const activePrompt = computed(() => promptStore.selectedPrompt?.prompt)
 const flavorText = ref('')
 const username = computed(() => userStore.username)
 const userId = computed(() => userStore.userId)

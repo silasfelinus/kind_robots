@@ -1,6 +1,3 @@
-import { defineStore } from 'pinia'
-import type { Reaction } from '@prisma/client'
-
 export const useReactionStore = defineStore('reactionStore', {
   state: () => ({
     reactions: [] as Reaction[],
@@ -11,22 +8,19 @@ export const useReactionStore = defineStore('reactionStore', {
 
   getters: {
     getReactionsByComponentId: (state) => (componentId: number) =>
-      state.reactions.filter(
-        (reaction) => reaction.componentId === componentId,
-      ),
+      state.reactions.filter((reaction: Reaction) => reaction.componentId === componentId),
 
     getUserReactionForComponent:
       (state) => (componentId: number, userId: number) =>
         state.reactions.find(
-          (reaction) =>
+          (reaction: Reaction) =>
             reaction.componentId === componentId && reaction.userId === userId,
         ),
 
-    // Fetch channels with comments for the specific component
     getChannelsForComponent: (state) => (componentId: number) =>
-      state.channels.filter((channel) =>
+      state.channels.filter((channel: Channel) =>
         state.reactions.some(
-          (reaction) =>
+          (reaction: Reaction) =>
             reaction.componentId === componentId &&
             reaction.channelId === channel.id,
         ),
@@ -34,6 +28,24 @@ export const useReactionStore = defineStore('reactionStore', {
   },
 
   actions: {
+    async fetchReactionsByComponentId(componentId: number) {
+      this.loading = true
+      try {
+        const res = await fetch(`/api/components/${componentId}/reactions`)
+        const data = await res.json()
+
+        if (data.success) {
+          this.reactions = data.reactions
+        } else {
+          throw new Error('Failed to fetch reactions')
+        }
+      } catch (error: unknown) {
+        this.error = error instanceof Error ? error.message : 'Failed to fetch reactions'
+      } finally {
+        this.loading = false
+      }
+    },
+
     async fetchReactionsByArtId(artId: number) {
       this.loading = true
       try {
@@ -49,13 +61,11 @@ export const useReactionStore = defineStore('reactionStore', {
       }
     },
 
-    // Create a comment channel when a user adds a comment to a reaction
     async createReactionWithChannel(
       reactionData: Partial<Reaction>,
       comment: { title: string; description: string },
     ) {
       try {
-        // Create the channel first
         const channelResponse = await fetch('/api/channels', {
           method: 'POST',
           headers: {
@@ -70,7 +80,6 @@ export const useReactionStore = defineStore('reactionStore', {
 
         const newChannel = await channelResponse.json()
 
-        // Create the reaction with the new channelId
         const reactionResponse = await fetch('/api/reactions', {
           method: 'POST',
           headers: {
@@ -93,7 +102,6 @@ export const useReactionStore = defineStore('reactionStore', {
       }
     },
 
-    // Fetch the channels for a specific component
     async fetchChannelsByComponentId(componentId: number) {
       try {
         const response = await fetch(`/api/channels/component/${componentId}`)
@@ -105,7 +113,6 @@ export const useReactionStore = defineStore('reactionStore', {
       }
     },
 
-    // Create a new reaction for a component
     async createReaction(reactionData: Partial<Reaction>) {
       this.loading = true
       try {
@@ -128,7 +135,6 @@ export const useReactionStore = defineStore('reactionStore', {
       }
     },
 
-    // Update an existing reaction
     async updateReaction(reactionId: number, reactionData: Partial<Reaction>) {
       this.loading = true
       try {
@@ -143,7 +149,7 @@ export const useReactionStore = defineStore('reactionStore', {
           throw new Error('Failed to update reaction')
         }
         const updatedReaction = await response.json()
-        const index = this.reactions.findIndex((r) => r.id === reactionId)
+        const index = this.reactions.findIndex((r: Reaction) => r.id === reactionId)
         if (index !== -1) {
           this.reactions[index] = updatedReaction
         }
@@ -154,7 +160,6 @@ export const useReactionStore = defineStore('reactionStore', {
       }
     },
 
-    // Delete a reaction
     async deleteReaction(reactionId: number) {
       this.loading = true
       try {
@@ -165,7 +170,7 @@ export const useReactionStore = defineStore('reactionStore', {
           throw new Error('Failed to delete reaction')
         }
         this.reactions = this.reactions.filter(
-          (reaction) => reaction.id !== reactionId,
+          (reaction: Reaction) => reaction.id !== reactionId,
         )
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Unknown error'

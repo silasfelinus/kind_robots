@@ -96,7 +96,7 @@ import { ref, computed, onErrorCaptured } from 'vue'
 import { useComponentStore } from './../../../stores/componentStore'
 import { useUserStore } from './../../../stores/userStore'
 import ComponentReaction from './ComponentReactions.vue'
-import type { Component } from '@prisma/client' // Import the correct type for Component
+import type { Component } from '@prisma/client'
 
 // Initialize Pinia stores
 const componentStore = useComponentStore()
@@ -113,7 +113,6 @@ const errorLoadingComponent = ref<string | null>(null)
 
 // Computed properties
 const isAdmin = computed(() => userStore.isAdmin)
-
 const folderNames = computed(() => componentStore.folderNames)
 
 // Function to clear selected components and go back to folder selection
@@ -122,27 +121,52 @@ const clearSelectedComponents = () => {
   selectedComponent.value = null
 }
 
-// Function to fetch components based on the selected folder
-const fetchComponents = async (folder: string) => {
-  isLoading.value = true
-  selectedFolder.value = folder
-  await componentStore.fetchComponentList(folder)
-  selectedComponents.value =
-    componentStore.folders.find((f) => f.folderName === folder)?.components ||
-    []
-  isLoading.value = false
-}
-
 // Function to open the component modal
 const openComponent = (component: Component) => {
   selectedComponent.value = component
 }
 
-// Global error handler
+// Global error handler for unexpected errors
 onErrorCaptured((error) => {
   console.error('An error occurred:', error)
   return false
 })
+
+// Function to fetch components based on the selected folder
+const fetchComponents = async (folder: string) => {
+  isLoading.value = true
+  selectedFolder.value = folder
+
+  try {
+    // Fetch the components for the folder
+    await componentStore.fetchComponentList(folder)
+
+    // Retrieve components for the selected folder
+    const folderData = componentStore.folders.find(
+      (f) => f.folderName === folder,
+    )
+
+    if (folderData) {
+      // Ensure selectedComponents is an array of Component objects, not strings
+      // Also, ensure that the component includes all required fields like `id`, `folderName`, etc.
+      selectedComponents.value = folderData.components.map((component) => ({
+        ...component,
+        id: component.id ?? generateUniqueId(), // Ensure id exists
+        folderName: folder, // Set the folder name to match
+      }))
+    } else {
+      selectedComponents.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching components:', error)
+    errorComponents.value.push(`Error loading folder: ${folder}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Helper function to generate unique IDs if they are missing (you can replace this with your own logic)
+const generateUniqueId = () => Math.floor(Math.random() * 1000000)
 
 // Fetch folder names when the component is mounted
 componentStore.initializeComponentStore()

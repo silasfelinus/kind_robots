@@ -44,6 +44,11 @@
           </li>
         </ul>
 
+        <!-- Empty State for Channels -->
+        <div v-if="channels.length === 0" class="text-white text-center p-4">
+          No channels available. Please create a new channel.
+        </div>
+
         <!-- Create Channel Section -->
         <div class="mt-auto">
           <input
@@ -54,10 +59,11 @@
           />
           <button
             class="btn btn-success w-full"
-            :disabled="!newChannelName"
+            :disabled="!newChannelName || isLoading"
             @click="createChannel"
           >
-            Create Channel
+            <span v-if="isLoading">Creating...</span>
+            <span v-else>Create Channel</span>
           </button>
         </div>
       </div>
@@ -113,10 +119,11 @@
           />
           <button
             class="btn btn-accent mt-2 w-full"
-            :disabled="!newMessage"
+            :disabled="!newMessage || isLoading"
             @click="sendMessage"
           >
-            Send Message
+            <span v-if="isLoading">Sending...</span>
+            <span v-else>Send Message</span>
           </button>
         </div>
       </div>
@@ -124,79 +131,88 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue'
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
 import { useChannelStore } from './../../../stores/channelStore'
 
-export default defineComponent({
-  setup() {
-    const channelStore = useChannelStore()
-    const newChannelName = ref('')
-    const newMessage = ref('')
+const channelStore = useChannelStore()
+const newChannelName = ref('')
+const newMessage = ref('')
+const isLoading = ref(false) // Loading state
 
-    // Initialize channels when the component is mounted
-    onMounted(() => {
-      channelStore.initializeChannels()
-    })
-
-    // Computed properties to get data from the store
-    const channels = computed(() => channelStore.channels)
-    const currentChannel = computed(() => channelStore.currentChannel)
-    const messages = computed(() => channelStore.messages)
-
-    // Create a new channel
-    const createChannel = () => {
-      if (newChannelName.value) {
-        channelStore.createChannel({
-          title: newChannelName.value,
-          label: newChannelName.value.toLowerCase(),
-        })
-        newChannelName.value = ''
-      }
-    }
-
-    // Set the current active channel
-    const setCurrentChannel = (channelId: number) => {
-      channelStore.setCurrentChannel(channelId)
-    }
-
-    // Check if the channel is the current one
-    const isCurrentChannel = (channelId: number) => {
-      return currentChannel.value?.id === channelId
-    }
-
-    // Remove a channel
-    const removeChannel = (channelId: number) => {
-      if (confirm('Are you sure you want to remove this channel?')) {
-        channelStore.removeChannel(channelId)
-      }
-    }
-
-    // Send a message
-    const sendMessage = () => {
-      if (newMessage.value && currentChannel.value) {
-        channelStore.sendMessage({
-          content: newMessage.value,
-          channelId: currentChannel.value.id,
-        })
-        newMessage.value = ''
-      }
-    }
-
-    return {
-      channels,
-      currentChannel,
-      messages,
-      newChannelName,
-      newMessage,
-      createChannel,
-      setCurrentChannel,
-      isCurrentChannel,
-      removeChannel,
-      sendMessage,
-    }
-  },
+// Initialize channels when the component is mounted
+onMounted(() => {
+  channelStore.initializeChannels()
 })
+
+// Computed properties to get data from the store
+const channels = computed(() => channelStore.channels)
+const currentChannel = computed(() => channelStore.currentChannel)
+const messages = computed(() => channelStore.messages)
+
+// Create a new channel
+const createChannel = async () => {
+  isLoading.value = true
+  try {
+    if (newChannelName.value) {
+      await channelStore.createChannel({
+        title: newChannelName.value,
+        label: newChannelName.value.toLowerCase(),
+      })
+      newChannelName.value = ''
+    }
+  } catch (error) {
+    console.error('Error creating channel:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Set the current active channel
+const setCurrentChannel = (channelId: number) => {
+  channelStore.setCurrentChannel(channelId)
+}
+
+// Set the current active channel
+const initializeChannels = () => {
+  channelStore.initializeChannels()
+}
+// Check if the channel is the current one
+const isCurrentChannel = (channelId: number) => {
+  return currentChannel.value?.id === channelId
+}
+
+// Remove a channel
+const removeChannel = async (channelId: number) => {
+  if (confirm('Are you sure you want to remove this channel?')) {
+    isLoading.value = true
+    try {
+      await channelStore.removeChannel(channelId)
+    } catch (error) {
+      console.error('Error removing channel:', error)
+    } finally {
+      isLoading.value = false
+    }
+  }
+}
+
+// Send a message
+const sendMessage = async () => {
+  if (newMessage.value && currentChannel.value) {
+    isLoading.value = true
+    try {
+      await channelStore.sendMessage({
+        content: newMessage.value,
+        channelId: currentChannel.value.id,
+      })
+      newMessage.value = ''
+    } catch (error) {
+      console.error('Error sending message:', error)
+    } finally {
+      isLoading.value = false
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -205,5 +221,9 @@ export default defineComponent({
   max-height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.text-white {
+  color: white;
 }
 </style>

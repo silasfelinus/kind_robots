@@ -113,7 +113,8 @@ model Channel {
   title             String?       @db.VarChar(256)
   userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
-  Components        Component[]
+  componentId       Int?
+  Component         Component?    @relation(fields: [componentId], references: [id])
   Messages          Message[]
   Players           Player[]
   Pitches           Pitch[]
@@ -152,8 +153,7 @@ model Component {
   isBroken          Boolean       @default(false)
   title             String?       // Optional title derived from componentName if not provided
   notes             String?       //optional notes for development wonderlab
-  channelId         Int?
-  Channel           Channel?      @relation(fields: [channelId], references: [id])
+  Channels          Channel[]
   Tags              Tag[]
   Reactions         Reaction[]
 }

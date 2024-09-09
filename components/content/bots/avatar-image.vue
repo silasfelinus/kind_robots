@@ -43,9 +43,11 @@ watch(currentBot, (newBot, oldBot) => {
   }
 })
 
-// Select the appropriate image
 const selectImage = computed(() => {
-  return currentBot.value?.avatarImage || page?.image || '/images/botcafe.webp'
+  if (page && (page as unknown as { image?: string }).image) {
+    return (page as unknown as { image: string }).image
+  }
+  return currentBot.value?.avatarImage || '/images/botcafe.webp'
 })
 
 const handleAvatarClick = () => {
@@ -58,7 +60,7 @@ const handleAvatarClick = () => {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to toggle sidebar'
-    errorStore.setError('INTERACTION_ERROR', errorMessage)
+    errorStore.setError(ErrorType.INTERACTION_ERROR, errorMessage)
   }
 }
 </script>

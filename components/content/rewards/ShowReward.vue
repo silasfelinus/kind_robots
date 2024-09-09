@@ -1,14 +1,14 @@
 <template>
   <div class="bg-base-200 p-4 rounded shadow-lg modal">
     <!-- Reward Details -->
-    <Icon :name="props.reward.Icon" class="text-6xl mb-2" />
+    <Icon :name="reward.icon" class="text-6xl mb-2" />
     <h2 class="text-xl mb-2">
-      {{ props.reward.text }}
+      {{ reward.text }}
     </h2>
     <p class="text-lg text-gray-600">
-      {{ props.reward.power }}
+      {{ reward.power }}
     </p>
-    <p class="text-sm text-gray-400">Rarity: {{ props.reward.rarity }}</p>
+    <p class="text-sm text-gray-400">Rarity: {{ reward.rarity }}</p>
 
     <!-- Edit Button -->
     <button
@@ -25,22 +25,19 @@
   </div>
 </template>
 
-<template>
-  <div>
-    <!-- Display the icon here -->
-    <div>{{ reward.icon }} - {{ reward.text }}</div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { ref, defineProps } from 'vue'
 
-const props = defineProps<{
+// Destructure reward directly from props
+const { reward } = defineProps<{
   reward: {
-    icon: string // Changed from Icon to icon
+    icon: string
     text: string
     power: string
     rarity: number
   }
 }>()
+
+// Define showEditReward as a reactive boolean state
+const showEditReward = ref(false)
 </script>

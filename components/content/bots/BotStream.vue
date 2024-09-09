@@ -92,6 +92,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
 import { useReactionStore } from '../../../stores/reactionStore'
+import type { Reaction } from '@prisma/client'
 
 type ReactionType = 'isLoved' | 'isHated' | 'isBooed' | 'isClapped'
 
@@ -146,31 +147,38 @@ const isReactionActive = (index: number, reactionType: ReactionType) => {
   )
 }
 
-// Toggle reaction state
 const toggleReaction = async (index: number, reactionType: ReactionType) => {
-  const conversationId = conversations.value[index]?.[0]?.id
+  const conversation = conversations.value[index]
+  const conversationId = conversation?.[0]?.id
 
+  // Exit early if no conversationId is found
   if (!conversationId) return
 
+  // Retrieve the existing reaction for the current conversation and user
   const existingReaction = reactionStore.getUserReactionForComponent(
     conversationId,
     userId.value,
   )
 
+  // Prepare reaction data
   const reactionData: Partial<Reaction> = {
     userId: userId.value,
     componentId: conversationId,
-    [reactionType]: true,
+    [reactionType]: true, // Set the reaction type (e.g., isLoved, isHated)
   }
 
+  // Toggle the existing reaction or create a new one
   if (existingReaction) {
-    reactionData[reactionType] = !existingReaction[reactionType]
-    await reactionStore.updateReaction(existingReaction.id, reactionData)
+    reactionData[reactionType] = !existingReaction[reactionType] // Toggle the existing value
+    await reactionStore.updateReaction(existingReaction.id, reactionData) // Update reaction in the store
   } else {
-    await reactionStore.createReaction(reactionData)
+    await reactionStore.createReaction(reactionData) // Create new reaction
   }
 
+  // Show popup for the reaction
   showPopup.value[index] = { ...showPopup.value[index], [reactionType]: true }
+
+  // Hide the popup after 2 seconds
   setTimeout(() => {
     showPopup.value[index][reactionType] = false
   }, 2000)

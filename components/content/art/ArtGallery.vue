@@ -36,27 +36,24 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
 import { useArtStore } from './../../../stores/artStore'
-import { useTagStore } from './../../../stores/tagStore'
+import { usePitchStore } from './../../../stores/pitchStore'
 
 const artStore = useArtStore()
-const tagStore = useTagStore()
+const pitchStore = usePitchStore()
 
+// Convert the artAssets Map to an array
 const artAssetsArray = computed(() => Array.from(artStore.artAssets.values()))
 
+// Filter art assets based on the selected pitch
 const filteredArtAssets = computed(() => {
-  if (tagStore.selectedPitch) {
-    const selectedPitchTitle = tagStore.selectedPitch.title
-    if (typeof selectedPitchTitle === 'string') {
-      return artAssetsArray.value.filter(
-        (art) => art.pitch === selectedPitchTitle,
-      )
-    }
+  if (pitchStore.selectedPitch) {
+    const selectedPitchId = pitchStore.selectedPitch.id
+    return artAssetsArray.value.filter((art) => art.pitchId === selectedPitchId)
   }
-  return []
+  return artAssetsArray.value // If no pitch is selected, return all art
 })
 
 const view = ref('twoRow')
@@ -73,6 +70,7 @@ const setView = (newView: string) => {
   window.localStorage.setItem('view', newView)
 }
 
+// Adjust item class based on the current view
 const itemClass = ref('w-1/2 p-4')
 
 watch(view, (newView) => {

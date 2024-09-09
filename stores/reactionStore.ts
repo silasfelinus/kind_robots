@@ -34,10 +34,11 @@ export const useReactionStore = defineStore('reactionStore', {
   },
 
   actions: {
-    async fetchReactionsByComponentId(componentId: number) {
+    async fetchReactionsByArtId(artId: number) {
       this.loading = true
       try {
-        const response = await fetch(`/api/reactions/component/${componentId}`)
+        const response = await fetch(`/api/reactions/art/${artId}`)
+        if (!response.ok) throw new Error('Failed to fetch reactions')
         const data = await response.json()
         this.reactions = data.reactions
       } catch (error) {

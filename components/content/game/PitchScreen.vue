@@ -1,10 +1,19 @@
 <template>
-  <div class="pitch-manager bg-base-200 rounded-2xl p-6 border max-w-full flex flex-col space-y-6 mb-48">
+  <div
+    class="pitch-manager bg-base-200 rounded-2xl p-6 border max-w-full flex flex-col space-y-6 mb-48"
+  >
     <!-- Pitch Selection Mode -->
     <div v-if="isSelectionMode" class="selection-mode">
       <h2 class="text-xl font-semibold text-primary mb-4">Select a Pitch</h2>
-      <div v-if="selectedPitches.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="pitch in selectedPitches" :key="pitch.id" class="pitch-item bg-base-100 p-4 rounded-xl border shadow">
+      <div
+        v-if="selectedPitches.length > 0"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <div
+          v-for="pitch in selectedPitches"
+          :key="pitch.id"
+          class="pitch-item bg-base-100 p-4 rounded-xl border shadow"
+        >
           <h3 class="text-lg font-bold">{{ pitch.title }}</h3>
           <p class="text-sm text-gray-600 mb-2">{{ pitch.description }}</p>
           <button class="btn btn-accent w-full" @click="selectPitch(pitch.id)">
@@ -18,14 +27,27 @@
     <!-- Gallery Mode -->
     <div v-else class="gallery-mode">
       <h2 class="text-xl font-semibold text-primary mb-4">Pitch Gallery</h2>
-      <div v-if="galleryArt.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="art in galleryArt" :key="art.id" class="art-item bg-base-100 p-4 rounded-xl border shadow">
+      <div
+        v-if="galleryArt.length > 0"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <div
+          v-for="art in galleryArt"
+          :key="art.id"
+          class="art-item bg-base-100 p-4 rounded-xl border shadow"
+        >
           <h3 class="text-lg font-bold">{{ art.title }}</h3>
-          <img :src="art.url" alt="Art" class="art-image my-2 rounded-lg shadow-lg"/>
+          <img
+            :src="art.url"
+            alt="Art"
+            class="art-image my-2 rounded-lg shadow-lg"
+          />
           <p class="text-sm text-gray-600">{{ art.description }}</p>
         </div>
       </div>
-      <div v-else class="text-center text-gray-500">No art available for this pitch.</div>
+      <div v-else class="text-center text-gray-500">
+        No art available for this pitch.
+      </div>
     </div>
   </div>
 </template>

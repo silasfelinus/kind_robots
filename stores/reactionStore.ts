@@ -11,28 +11,35 @@ export const useReactionStore = defineStore('reactionStore', {
   getters: {
     // Get reactions filtered by the componentId
     getReactionsByComponentId: (state) => (componentId: number) =>
-      state.reactions.filter((reaction: Reaction) => reaction.componentId === componentId),
+      state.reactions.filter(
+        (reaction: Reaction) => reaction.componentId === componentId,
+      ),
 
     // Find a user reaction for a specific component
-    getUserReactionForComponent: (state) => (componentId: number, userId: number) =>
-      state.reactions.find(
-        (reaction: Reaction) => reaction.componentId === componentId && reaction.userId === userId,
-      ),
+    getUserReactionForComponent:
+      (state) => (componentId: number, userId: number) =>
+        state.reactions.find(
+          (reaction: Reaction) =>
+            reaction.componentId === componentId && reaction.userId === userId,
+        ),
 
     // Fetch the channels related to a component's reactions
     getChannelsForComponent: (state) => (componentId: number) =>
       state.channels.filter((channel: Channel) =>
         state.reactions.some(
-          (reaction: Reaction) => reaction.componentId === componentId && reaction.channelId === channel.id,
+          (reaction: Reaction) =>
+            reaction.componentId === componentId &&
+            reaction.channelId === channel.id,
         ),
       ),
   },
 
   actions: {
     getReactionByChatExchangeId(chatExchangeId: number) {
-      return this.reactions.find((reaction: Reaction) => reaction.chatExchangeId === chatExchangeId)
-    }
-    ,
+      return this.reactions.find(
+        (reaction: Reaction) => reaction.chatExchangeId === chatExchangeId,
+      )
+    },
     // Fetch reactions by componentId
     async fetchReactionsByComponentId(componentId: number) {
       this.loading = true
@@ -46,7 +53,8 @@ export const useReactionStore = defineStore('reactionStore', {
           throw new Error('Failed to fetch reactions')
         }
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Failed to fetch reactions'
+        this.error =
+          error instanceof Error ? error.message : 'Failed to fetch reactions'
       } finally {
         this.loading = false
       }
@@ -62,14 +70,18 @@ export const useReactionStore = defineStore('reactionStore', {
         if (!response.ok) throw new Error('Failed to fetch reactions')
         this.reactions = data.reactions
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Failed to fetch reactions'
+        this.error =
+          error instanceof Error ? error.message : 'Failed to fetch reactions'
       } finally {
         this.loading = false
       }
     },
 
     // Create reaction and associate it with a new channel
-    async createReactionWithChannel(reactionData: Partial<Reaction>, comment: { title: string; description: string }) {
+    async createReactionWithChannel(
+      reactionData: Partial<Reaction>,
+      comment: { title: string; description: string },
+    ) {
       this.loading = true
       this.error = null
       try {
@@ -97,7 +109,10 @@ export const useReactionStore = defineStore('reactionStore', {
         this.reactions.push(newReaction)
         this.channels.push(newChannel)
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Failed to create reaction with channel'
+        this.error =
+          error instanceof Error
+            ? error.message
+            : 'Failed to create reaction with channel'
       } finally {
         this.loading = false
       }
@@ -116,7 +131,8 @@ export const useReactionStore = defineStore('reactionStore', {
           throw new Error('Failed to fetch channels')
         }
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Failed to fetch channels'
+        this.error =
+          error instanceof Error ? error.message : 'Failed to fetch channels'
       } finally {
         this.loading = false
       }
@@ -136,7 +152,8 @@ export const useReactionStore = defineStore('reactionStore', {
         const newReaction = await response.json()
         this.reactions.push(newReaction)
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Unknown error occurred'
+        this.error =
+          error instanceof Error ? error.message : 'Unknown error occurred'
       } finally {
         this.loading = false
       }
@@ -155,10 +172,13 @@ export const useReactionStore = defineStore('reactionStore', {
         if (!response.ok) throw new Error('Failed to update reaction')
         const updatedReaction = await response.json()
 
-        const index = this.reactions.findIndex((r: Reaction) => r.id === reactionId)
+        const index = this.reactions.findIndex(
+          (r: Reaction) => r.id === reactionId,
+        )
         if (index !== -1) this.reactions[index] = updatedReaction
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Unknown error occurred'
+        this.error =
+          error instanceof Error ? error.message : 'Unknown error occurred'
       } finally {
         this.loading = false
       }
@@ -173,9 +193,12 @@ export const useReactionStore = defineStore('reactionStore', {
           method: 'DELETE',
         })
         if (!response.ok) throw new Error('Failed to delete reaction')
-        this.reactions = this.reactions.filter((reaction: Reaction) => reaction.id !== reactionId)
+        this.reactions = this.reactions.filter(
+          (reaction: Reaction) => reaction.id !== reactionId,
+        )
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Unknown error occurred'
+        this.error =
+          error instanceof Error ? error.message : 'Unknown error occurred'
       } finally {
         this.loading = false
       }

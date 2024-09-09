@@ -116,7 +116,7 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
       where: { id },
       include: {
         Channels: true, // Include Channels relation
-        Players: true,  // Include Players relation
+        Players: true, // Include Players relation
       },
     })
   } catch (error) {
@@ -124,7 +124,6 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
     throw new Error(errorHandler(error).message)
   }
 }
-
 
 export async function fetchIdByUsername(username: string): Promise<number> {
   try {
@@ -151,7 +150,7 @@ export async function userExists(
   field: 'id' | 'username' = 'id',
 ): Promise<boolean> {
   try {
-    let where: Prisma.UserWhereUniqueInput | null = null; // Initialize as null
+    let where: Prisma.UserWhereUniqueInput | null = null // Initialize as null
 
     if (field === 'id') {
       where = { id: identifier as number }
@@ -172,6 +171,5 @@ export async function userExists(
     throw new Error(errorHandler(error).message)
   }
 }
-
 
 export type { User }

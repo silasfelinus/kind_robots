@@ -2,7 +2,6 @@
 import { defineStore } from 'pinia'
 import type { Todo } from '@prisma/client'
 
-
 interface TodoState {
   todos: Todo[]
   currentTodo: Todo | null
@@ -84,13 +83,12 @@ export const useTodoStore = defineStore({
           userId: newTodoData.userId,
         }),
       })
-    
+
       if (response.ok) {
         const newTodo = await response.json()
         this.todos.push(newTodo)
       }
     },
-    
 
     async deleteTodo(todoId: number) {
       const response = await fetch(`/api/todos/${todoId}`, {

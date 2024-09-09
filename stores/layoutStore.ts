@@ -14,7 +14,6 @@ export enum LayoutKey {
   Desktop = 'desktop',
 }
 
-
 const LOCAL_STORAGE_KEY = 'currentLayout'
 
 function getStoredLayout(defaultValue: LayoutKey): LayoutKey {

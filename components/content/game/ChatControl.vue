@@ -1,60 +1,65 @@
 <template>
-  <div class="chat-control bg-base-200 rounded-2xl p-4 border max-w-full flex flex-col space-y-4">
-    <!-- Channel Tabs -->
-    <div class="font-semibold mb-2 text-lg text-primary">Channels:</div>
-    <div class="flex flex-wrap gap-2 mb-4">
-      <div 
-        v-for="channel in nonNullChannels" 
-        :key="channel.label" 
-        @click="selectChannel(channel)"
-        :class="['cursor-pointer px-4 py-2 rounded-full text-sm transition-colors',
-                  selectedChannel?.label === channel.label 
-                  ? 'bg-primary text-white shadow' 
-                  : 'bg-accent text-base-content hover:bg-primary hover:text-white']"
+  <div class="chat-control bg-base-200 rounded-2xl p-4 border max-w-full flex flex-col space-y-4 mb-48">
+    <!-- Channel Selection Dropdown -->
+    <div class="font-semibold mb-2 text-lg text-primary">Select a Channel:</div>
+    <div class="mb-4">
+      <select
+        v-model="selectedChannel"
+        @change="handleChannelChange"
+        class="select select-bordered w-full bg-accent text-base-content rounded-lg"
       >
-        {{ channel.label }}
-      </div>
+        <option disabled value="">Choose a channel</option>
+        <option
+          v-for="channel in nonNullChannels"
+          :key="channel.id"
+          :value="channel"
+        >
+          {{ channel.label }}
+        </option>
+      </select>
     </div>
 
-    <!-- Chat Window -->
-    <div v-if="selectedChannel" class="chat-window bg-base-100 rounded-2xl p-4 max-h-96 overflow-y-auto border border-accent flex-1">
-      <div v-if="selectedChannelMessages.length === 0" class="text-gray-500 text-center">
-        No messages yet for this channel.
+    <div class="flex flex-col md:flex-row gap-4 flex-1">
+      <!-- Chat Window Column -->
+      <div v-if="selectedChannel" class="chat-window bg-base-100 rounded-2xl p-4 max-h-96 overflow-y-auto border border-accent flex-1">
+        <div v-if="selectedChannelMessages.length === 0" class="text-gray-500 text-center">
+          No messages yet for this channel.
+        </div>
+
+        <div v-for="message in selectedChannelMessages" :key="message.id" 
+             :class="[
+               'p-3 mb-2 rounded-lg text-sm shadow',
+               message.userId === currentUser.id 
+               ? 'bg-primary-light text-white self-end' 
+               : 'bg-secondary text-secondary-content'
+             ]"
+             :style="message.userId === currentUser.id ? 'align-self: flex-end;' : ''">
+          <strong>{{ message.userName }}:</strong> {{ message.text }}
+        </div>
       </div>
 
-      <div v-for="message in selectedChannelMessages" :key="message.id" 
-           :class="[
-             'p-3 mb-2 rounded-lg text-sm shadow',
-             message.userId === currentUser.id 
-             ? 'bg-primary-light text-white self-end' 
-             : 'bg-secondary text-secondary-content'
-           ]"
-           :style="message.userId === currentUser.id ? 'align-self: flex-end;' : ''">
-        <strong>{{ message.userName }}:</strong> {{ message.text }}
+      <!-- Send Message Column -->
+      <div v-if="selectedChannel" class="flex flex-col items-center gap-2 mt-4 w-full md:w-1/3">
+        <input
+          v-model="newMessage"
+          type="text"
+          placeholder="Type your message..."
+          class="input input-bordered w-full flex-1 rounded-lg"
+        />
+        <button 
+          class="btn btn-accent w-full"
+          @click="sendMessage"
+          :disabled="!newMessage"
+        >
+          Send
+        </button>
       </div>
-    </div>
-
-    <!-- Send Message Section -->
-    <div v-if="selectedChannel" class="flex items-center gap-2 mt-4">
-      <input
-        v-model="newMessage"
-        type="text"
-        placeholder="Type your message..."
-        class="input input-bordered flex-1"
-      />
-      <button 
-        class="btn btn-accent"
-        @click="sendMessage"
-        :disabled="!newMessage"
-      >
-        Send
-      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useChannelStore } from '@/stores/channelStore'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore } from '@/stores/errorStore'
@@ -76,14 +81,15 @@ const selectedChannelMessages = computed(() => {
   return selectedChannel.value ? channelStore.messages.filter(message => message.channelId === selectedChannel.value.id) : []
 })
 
-// Select a channel and load its messages from the store
-const selectChannel = async (channel) => {
-  selectedChannel.value = channel
-  try {
-    // Fetch the messages for the selected channel from the backend if necessary
-    await channelStore.fetchMessagesByChannelId(channel.id)
-  } catch (error) {
-    errorStore.setError('Failed to load messages for the channel.')
+// Handle the change event from the dropdown
+const handleChannelChange = async () => {
+  if (selectedChannel.value) {
+    try {
+      // Fetch the messages for the selected channel from the backend if necessary
+      await channelStore.fetchMessagesByChannelId(selectedChannel.value.id)
+    } catch (error) {
+      errorStore.setError('Failed to load messages for the channel.')
+    }
   }
 }
 
@@ -121,6 +127,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  margin-bottom: 12rem; /* mb-48 */
 }
 
 .chat-window {

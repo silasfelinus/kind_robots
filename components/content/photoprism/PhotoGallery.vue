@@ -16,26 +16,33 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 
 const folders = ref([])
 const selectedFolder = ref('')
 const images = ref([])
 
 onMounted(async () => {
-  // Fetch the folders from PhotoPrism API
-  const response = await axios.get(
-    'https://photos.acrocatranch.com/api/v1/albums',
-  )
-  folders.value = response.data
+  // Fetch the folders from PhotoPrism API using fetch
+  const response = await fetch('https://photos.acrocatranch.com/api/v1/albums')
+  if (response.ok) {
+    const data = await response.json()
+    folders.value = data
+  } else {
+    console.error('Failed to fetch folders')
+  }
 })
 
 const fetchImages = async () => {
   if (!selectedFolder.value) return
-  const response = await axios.get(
+  const response = await fetch(
     `https://photos.acrocatranch.com/api/v1/photos?album=${selectedFolder.value}`,
   )
-  images.value = response.data
+  if (response.ok) {
+    const data = await response.json()
+    images.value = data
+  } else {
+    console.error('Failed to fetch images')
+  }
 }
 
 const imageUrl = (image) => {

@@ -6,7 +6,10 @@
 
     <!-- Fetch Button -->
     <div class="flex justify-center">
-      <button class="btn btn-primary" @click="fetchPrompts">
+      <button
+        class="bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-dark"
+        @click="fetchPrompts"
+      >
         Fetch Art Prompts
       </button>
     </div>
@@ -19,11 +22,11 @@
       <input
         v-model="newPrompt"
         placeholder="New Prompt"
-        class="input input-bordered w-full max-w-md"
+        class="border border-gray-300 rounded-lg p-2 w-full max-w-md"
       />
       <button
         :disabled="!isValidPrompt"
-        class="btn btn-accent"
+        class="bg-accent text-white py-2 px-4 rounded-lg hover:bg-accent-dark"
         @click="addNewPrompt"
       >
         Add Prompt
@@ -39,7 +42,10 @@
       >
         <span>{{ prompt.prompt }}</span>
         <div class="flex space-x-2">
-          <button class="btn btn-sm btn-info" @click="selectPrompt(prompt)">
+          <button
+            class="bg-info text-white py-1 px-3 rounded-lg hover:bg-info-dark"
+            @click="selectPrompt(prompt)"
+          >
             Select
           </button>
 
@@ -49,13 +55,13 @@
             class="flex space-x-2"
           >
             <button
-              class="btn btn-sm btn-warning"
+              class="bg-warning text-white py-1 px-3 rounded-lg hover:bg-warning-dark"
               @click="startEditingPrompt(prompt)"
             >
               Edit
             </button>
             <button
-              class="btn btn-sm btn-error"
+              class="bg-error text-white py-1 px-3 rounded-lg hover:bg-error-dark"
               @click="deletePrompt(prompt.id)"
             >
               Delete
@@ -73,6 +79,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { usePromptStore, type Prompt } from './../../../stores/promptStore'
@@ -83,7 +90,7 @@ const {
   fetchPrompts,
   selectPrompt,
   prompts,
-  selectedPrompt, // Use selectedPrompt instead of activePrompt
+  selectedPrompt,
   createPrompt,
   deletePrompt,
 } = promptStore
@@ -122,28 +129,7 @@ const addNewPrompt = () => {
   }
 }
 </script>
+
 <style scoped>
-.btn-primary {
-  @apply bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-dark;
-}
-
-.btn-accent {
-  @apply bg-accent text-white py-2 px-4 rounded-lg hover:bg-accent-dark;
-}
-
-.btn-info {
-  @apply bg-info text-white py-1 px-3 rounded-lg hover:bg-info-dark;
-}
-
-.btn-warning {
-  @apply bg-warning text-white py-1 px-3 rounded-lg hover:bg-warning-dark;
-}
-
-.btn-error {
-  @apply bg-error text-white py-1 px-3 rounded-lg hover:bg-error-dark;
-}
-
-.input-bordered {
-  @apply border-gray-300 rounded-lg p-2;
-}
+/* You can add custom styles here if needed */
 </style>

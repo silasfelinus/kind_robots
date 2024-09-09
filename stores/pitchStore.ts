@@ -39,7 +39,8 @@ export const usePitchStore = defineStore('pitch', {
     },
     selectedPitch: (state) => {
       return (
-        state.pitches.find((pitch) => pitch.id === state.selectedPitchId) || null
+        state.pitches.find((pitch) => pitch.id === state.selectedPitchId) ||
+        null
       )
     },
   },
@@ -96,7 +97,7 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchPitchById(pitchId: number) {
       // Check if pitch already exists in state
-      const existingPitch = this.pitches.find(pitch => pitch.id === pitchId)
+      const existingPitch = this.pitches.find((pitch) => pitch.id === pitchId)
       if (existingPitch) return existingPitch
 
       try {

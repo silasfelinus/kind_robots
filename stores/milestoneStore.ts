@@ -12,7 +12,7 @@ export const useMilestoneStore = defineStore({
     isInitialized: false,
     currentMilestone: null as Milestone | null,
   }),
-  
+
   actions: {
     async initializeMilestones() {
       const errorStore = useErrorStore()

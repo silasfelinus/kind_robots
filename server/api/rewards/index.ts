@@ -22,7 +22,10 @@ export function createReward(reward: Partial<Reward>): Promise<Reward> {
 }
 
 // Function to update a Reward by its ID using Prisma's built-in types
-export const updateRewardById = async (id: number, data: Prisma.RewardUpdateInput) => {
+export const updateRewardById = async (
+  id: number,
+  data: Prisma.RewardUpdateInput,
+) => {
   try {
     const reward = await prisma.reward.update({
       where: { id },
@@ -30,7 +33,9 @@ export const updateRewardById = async (id: number, data: Prisma.RewardUpdateInpu
     })
     return reward
   } catch (error) {
-    throw new Error(`Error updating Reward with ID ${id}: ${(error as Error).message}`)
+    throw new Error(
+      `Error updating Reward with ID ${id}: ${(error as Error).message}`,
+    )
   }
 }
 

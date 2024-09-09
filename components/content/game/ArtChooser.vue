@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 class="text-xl font-bold mb-4">Choose Art for Selected Pitch</h2>
-    
+
     <!-- If no pitch is selected, show a message -->
     <div v-if="!selectedPitch" class="text-gray-500">
       No pitch selected. Please select a pitch to view the art.
@@ -10,9 +10,13 @@
     <!-- Display art matching the selected pitch -->
     <div v-else>
       <p class="text-gray-700 mb-4">Selected Pitch: {{ selectedPitch.name }}</p>
-      
+
       <div v-if="filteredArtIds.length > 0" class="grid grid-cols-2 gap-4">
-        <div v-for="artId in filteredArtIds" :key="artId" class="p-2 border rounded shadow-sm">
+        <div
+          v-for="artId in filteredArtIds"
+          :key="artId"
+          class="p-2 border rounded shadow-sm"
+        >
           <p>Art ID: {{ artId }}</p>
           <!-- You can enhance this by adding art previews if you have URLs/images -->
         </div>
@@ -40,11 +44,11 @@ const selectedPitch = computed(() => gameStore.selectedPitch)
 // Filter the art by matching pitchId
 const filteredArtIds = computed(() => {
   if (!selectedPitch.value) return []
-  
+
   // Assuming artStore has an array of art objects, each containing artId and pitchId
   return artStore.artList
-    .filter(art => art.pitchId === selectedPitch.value.id)
-    .map(art => art.id) // Return just the artIds
+    .filter((art) => art.pitchId === selectedPitch.value.id)
+    .map((art) => art.id) // Return just the artIds
 })
 </script>
 

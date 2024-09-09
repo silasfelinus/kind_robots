@@ -15,13 +15,15 @@ describe('Todo Management API Tests', () => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: [{
-        content: uniqueTodoTask,
-        notes: 'This is a test todo',
-        isCompleted: false,
-        task: 'Test Category',
-        userId: uniqueUserId,
-      }],
+      body: [
+        {
+          content: uniqueTodoTask,
+          notes: 'This is a test todo',
+          isCompleted: false,
+          task: 'Test Category',
+          userId: uniqueUserId,
+        },
+      ],
     }).then((response) => {
       expect(response.status).to.eq(200)
       // Access the first item in the `todos` array

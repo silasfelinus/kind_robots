@@ -144,9 +144,8 @@ export default defineEventHandler(async (event) => {
         promptId: requestData.promptId,
         pitchId: requestData.pitchId,
         galleryId: requestData.galleryId,
-    
-
-    }})
+      },
+    })
 
     console.log('🎉 Art entry created successfully:', newArt)
     try {

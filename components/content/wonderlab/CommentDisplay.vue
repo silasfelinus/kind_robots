@@ -59,7 +59,7 @@ watch(
   async (newId) => {
     if (newId) {
       // Fetch channels for the component
-      await channelStore.fetchChannelsByComponentId(newId)
+      await channelStore.fetchChannelByComponentId(newId)
       channels.value = channelStore.getChannelsForComponent(newId)
 
       // Fetch messages for each channel

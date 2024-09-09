@@ -49,23 +49,34 @@ import { useChatStore } from './../../../stores/chatStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useBotStore } from './../../../stores/botStore'
 
+// Getting userId, selectedBotId, and methods from respective stores
 const { userId } = useUserStore()
 const { selectedBotId } = useBotStore()
 const { fetchChatExchangesByUserId, chatExchanges, togglePublic } =
   useChatStore()
 
 onMounted(async () => {
-  try {
-    await fetchChatExchangesByUserId(userId.value)
-  } catch (error) {
-    console.error('Failed to fetch chat exchanges:', error)
+  if (userId.value) {
+    // Ensure userId is present before fetching
+    try {
+      await fetchChatExchangesByUserId(userId.value)
+    } catch (error) {
+      console.error('Failed to fetch chat exchanges:', error)
+    }
+  } else {
+    console.error('userId is not available.')
   }
 })
 
+// Filter messages based on selectedBotId
 const filteredMessages = computed(() => {
+  if (!chatExchanges.value || chatExchanges.value.length === 0) return []
+
   return selectedBotId.value
-    ? chatExchanges.filter((exchange) => exchange.botId === selectedBotId.value)
-    : chatExchanges
+    ? chatExchanges.value.filter(
+        (exchange) => exchange.botId === selectedBotId.value,
+      )
+    : chatExchanges.value
 })
 </script>
 

@@ -47,10 +47,9 @@
           class="flex items-center message-content"
         >
           <ResponseEntry
-            v-if="conversation && msg"
             :role="msg.role"
             :content="msg.content ?? ''"
-            :avatar-image="msg.avatarImage ?? '/images/kindtitle.webp'"
+            :avatar-image="msg.avatarImage ?? '/images/default-avatar.webp'"
             :bot-name="msg.botName ?? 'Kind Robot'"
             :subtitle="msg.subtitle ?? 'Your friendly neighborhood AI'"
           />
@@ -156,6 +155,7 @@ import { ref, computed, onMounted, watchEffect } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
 import { useChatStore, type ChatExchange } from '../../../stores/chatStore'
+import { useReactionStore } from '../../../stores/reactionStore'
 
 const shouldShowMilestoneCheck = ref(false)
 let userKey: string | null = null
@@ -165,43 +165,14 @@ onMounted(() => {
 })
 
 interface Message {
+  id?: number // Add an optional id property for each message
   role: 'user' | 'assistant'
   content: string
-  avatarImage?: string
-  botName?: string
-  subtitle?: string
+  avatarImage?: string | null
+  botName?: string | null
+  subtitle?: string | null
 }
 
-const conversations = ref<Message[][]>([]) // Correct type here
-const activeConversationIndex = ref<number | null>(null)
-const botStore = useBotStore()
-const userStore = useUserStore()
-const chatStore = useChatStore()
-const currentBot = computed(() => {
-  return (
-    botStore.currentBot ?? {
-      name: 'Unknown Bot',
-      subtitle: 'No subtitle available',
-      description: 'No description available',
-      userIntro: 'Hi Bot',
-      prompt: 'I am a kind robot',
-      avatarImage: '/images/amibotsquare1.webp',
-    }
-  )
-})
-const message = ref('')
-const replyMessage = ref('')
-const isLoading = ref(false)
-const error = ref<string | null>(null)
-const isReplyLoading = ref(false)
-
-const userId = computed(() => userStore.userId || 0)
-const botId = computed(() => botStore.currentBot?.id || 0)
-const botName = computed(() => botStore.currentBot?.name || '')
-const username = computed(() => userStore.username)
-const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
-
-// Function to convert a conversation to ChatExchange
 function convertToChatExchange(
   conversation: Message[],
   userId: number,
@@ -215,7 +186,7 @@ function convertToChatExchange(
     conversation.find((msg) => msg.role === 'assistant')?.content ?? ''
 
   return {
-    id: 0,
+    id: Date.now(), // Generate unique id using timestamp or unique identifier
     createdAt: new Date(),
     updatedAt: new Date(),
     botId,
@@ -233,7 +204,46 @@ function convertToChatExchange(
   }
 }
 
-type ReactionType = 'liked' | 'hated' | 'loved' | 'flagged' | 'isPublic'
+const conversations = ref<Message[][]>([]) // Ensure each message has a unique id
+
+const activeConversationIndex = ref<number | null>(null)
+const botStore = useBotStore()
+const userStore = useUserStore()
+const chatStore = useChatStore()
+const reactionStore = useReactionStore()
+const currentBot = computed(() => {
+  return (
+    botStore.currentBot ?? {
+      name: 'Unknown Bot',
+      subtitle: 'No subtitle available',
+      description: 'No description available',
+      userIntro: 'Hi Bot',
+      prompt: 'I am a kind robot',
+      avatarImage: '/images/amibotsquare1.webp',
+    }
+  )
+})
+
+const message = ref('')
+const replyMessage = ref('')
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+const isReplyLoading = ref(false)
+
+const userId = computed(() => userStore.userId || 0)
+const botId = computed(() => botStore.currentBot?.id || 0)
+const botName = computed(() => botStore.currentBot?.name || '')
+const username = computed(() => userStore.username)
+const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
+
+type ReactionType = 'isLoved' | 'isHated' | 'isClapped' | 'isBooed' | 'isPublic'
+
+const reactionTypeMap: { [key: string]: ReactionType } = {
+  liked: 'isLoved',
+  hated: 'isHated',
+  loved: 'isLoved',
+  flagged: 'isBooed',
+}
 
 const isReactionActive = (index: number, reactionType: ReactionType) => {
   const currentExchange = chatStore.getExchangeById(index) as ChatExchange
@@ -364,36 +374,41 @@ const deleteConversation = (index: number) => {
   activeConversationIndex.value = null
 }
 
-const toggleReaction = (
+const toggleReaction = async (
   index: number,
   reactionType: 'liked' | 'hated' | 'loved' | 'flagged',
 ) => {
-  const currentExchange = convertToChatExchange(
-    conversations.value[index],
+  const chatExchangeId = conversations.value[index]?.id
+
+  if (!chatExchangeId) return
+
+  const existingReaction = reactionStore.getUserReactionForComponent(
+    chatExchangeId,
     userId.value,
-    botId.value,
-    botName.value,
-    username.value,
   )
 
-  if (currentExchange && currentExchange.id) {
-    const currentReactionState = currentExchange[reactionType] ?? false
-    chatStore.addReaction(currentExchange.id, {
-      [reactionType]: !currentReactionState,
-    })
-  }
+  const mappedReactionType = reactionTypeMap[reactionType]
 
-  // Show popup
-  if (!showPopup.value[index]) {
-    showPopup.value[index] = {}
-  }
-  showPopup.value[index][reactionType] = true
-
-  // Hide popup after 2 seconds
-  setTimeout(() => {
-    if (showPopup.value[index]) {
-      showPopup.value[index][reactionType] = false
+  if (existingReaction) {
+    const updatedReactionData = {
+      ...existingReaction,
+      [mappedReactionType]: !existingReaction[mappedReactionType],
     }
+    await reactionStore.updateReaction(existingReaction.id, updatedReactionData)
+  } else {
+    const newReactionData = {
+      reactionType: 'CHANNEL',
+      userId: userId.value,
+      channelId: currentBot.value?.id,
+      componentId: chatExchangeId,
+      [mappedReactionType]: true,
+    }
+    await reactionStore.createReaction(newReactionData)
+  }
+
+  showPopup.value[index] = { ...showPopup.value[index], [reactionType]: true }
+  setTimeout(() => {
+    showPopup.value[index][reactionType] = false
   }, 2000)
 }
 </script>

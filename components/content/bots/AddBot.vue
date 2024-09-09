@@ -48,14 +48,18 @@
               class="flex flex-col items-center"
             >
               <img
-                :src="art.path"
+                :src="art.path || '/images/default-avatar.png'"
                 alt="Generated Avatar"
                 class="w-32 h-32 object-cover mb-2"
               />
+
               <button type="button" @click="generateOrFetchAvatar(index)">
                 Generate Another
               </button>
-              <button type="button" @click="selectAvatar(art.path)">
+              <button
+                type="button"
+                @click="selectAvatar(art.path || '/images/default-avatar.png')"
+              >
                 Select
               </button>
             </div>

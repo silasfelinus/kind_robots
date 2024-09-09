@@ -25,17 +25,22 @@
   </div>
 </template>
 
+<template>
+  <div>
+    <!-- Display the icon here -->
+    <div>{{ reward.icon }} - {{ reward.text }}</div>
+  </div>
+</template>
+
 <script setup lang="ts">
-import { ref } from 'vue'
+import { defineProps } from 'vue'
 
 const props = defineProps<{
   reward: {
-    Icon: string
+    icon: string // Changed from Icon to icon
     text: string
     power: string
     rarity: number
   }
 }>()
-
-const showEditReward = ref(false)
 </script>

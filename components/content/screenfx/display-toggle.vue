@@ -17,24 +17,31 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useLayoutStore } from './../../../stores/layoutStore'
+import { useLayoutStore, LayoutKey } from './../../../stores/layoutStore'
 
 const layoutStore = useLayoutStore()
 
-const isSimpleLayout = computed(() => layoutStore.currentLayout === 'simple')
+// Update the comparison to use the enum
+const isSimpleLayout = computed(
+  () => layoutStore.currentLayout === LayoutKey.Simple,
+)
 
+// Update the layoutClass based on the enum value
 const layoutClass = computed(() => ({
   'layout-simple': isSimpleLayout.value,
   'layout-default': !isSimpleLayout.value,
 }))
 
+// Update the toggle logic to use the enum values
 const toggleLayout = () => {
-  layoutStore.setLayout(isSimpleLayout.value ? 'default' : 'simple')
+  layoutStore.setLayout(
+    isSimpleLayout.value ? LayoutKey.Default : LayoutKey.Simple,
+  )
 }
 
+// Icon based on the layout
 const toggleIcon = computed(() =>
   isSimpleLayout.value ? 'mdi:view-grid' : 'mdi:fullscreen',
 )

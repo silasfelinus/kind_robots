@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 // Using enum for layout keys
 export enum LayoutKey {
   Default = 'default',
+  Simple = 'simple', // Add this to the enum
   DefaultOld = 'default-old',
   SinglePage = 'single-page',
   Dashboard = 'dashboard',
@@ -12,6 +13,7 @@ export enum LayoutKey {
   Tablet = 'tablet',
   Desktop = 'desktop',
 }
+
 
 const LOCAL_STORAGE_KEY = 'currentLayout'
 

@@ -1,10 +1,7 @@
 <template>
   <div class="container rounded-2xl mx-auto p-2 bg-base-200">
-    <!-- Bot Avatar and Details -->
-
     <!-- Message Interaction Area -->
     <div class="message-container bg-base-200 p-1 rounded-2xl">
-      <!-- New Message Prompt -->
       <div class="prompt-area p-2 rounded-2xl">
         <label for="newMessage" class="block mb-2 font-bold">
           <div v-if="currentBot" class="user-intro p-2 rounded-2xl m-2">
@@ -26,7 +23,6 @@
         >
           Send Message
         </button>
-        <milestone-reward v-if="shouldShowMilestoneCheck" :id="4" />
       </div>
 
       <!-- Loading Indicator -->
@@ -55,62 +51,71 @@
             :subtitle="msg.subtitle ?? 'Your friendly neighborhood AI'"
           />
         </div>
+
         <!-- Reaction Buttons -->
         <div class="reaction-buttons mt-2 flex space-x-2">
+          <!-- Love -->
           <button
             class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'liked') }"
-            @click="toggleReaction(index, 'liked')"
-          >
-            👍
-          </button>
-          <div
-            v-if="showPopup[index]?.liked"
-            class="popup bg-info text-lg rounded-2xl"
-          >
-            Response Liked <Icon name="like" class="Icon-class" />
-          </div>
-
-          <button
-            class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'hated') }"
-            @click="toggleReaction(index, 'hated')"
-          >
-            👎
-          </button>
-          <div
-            v-if="showPopup[index]?.hated"
-            class="popup bg-info text-lg rounded-2xl"
-          >
-            Response hated <Icon name="hate" class="Icon-class" />
-          </div>
-          <button
-            class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'loved') }"
-            @click="toggleReaction(index, 'loved')"
+            :class="{ 'bg-primary': isReactionActive(index, 'isLoved') }"
+            @click="toggleReaction(index, 'isLoved')"
           >
             ❤️
           </button>
           <div
-            v-if="showPopup[index]?.loved"
+            v-if="showPopup[index]?.isLoved"
             class="popup bg-info text-lg rounded-2xl"
           >
-            Favorited <Icon name="❤️" class="Icon-class" />
+            Favorited <Icon name="heart" />
           </div>
+
+          <!-- Clap -->
           <button
             class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'flagged') }"
-            @click="toggleReaction(index, 'flagged')"
+            :class="{ 'bg-primary': isReactionActive(index, 'isClapped') }"
+            @click="toggleReaction(index, 'isClapped')"
           >
-            🚩
+            👏
           </button>
           <div
-            v-if="showPopup[index]?.flagged"
+            v-if="showPopup[index]?.isClapped"
             class="popup bg-info text-lg rounded-2xl"
           >
-            Flagged <Icon name="🚩" class="Icon-class" />
+            Clapped <Icon name="clap" />
+          </div>
+
+          <!-- Boo -->
+          <button
+            class="hover:bg-gray-200"
+            :class="{ 'bg-primary': isReactionActive(index, 'isBooed') }"
+            @click="toggleReaction(index, 'isBooed')"
+          >
+            👎
+          </button>
+          <div
+            v-if="showPopup[index]?.isBooed"
+            class="popup bg-info text-lg rounded-2xl"
+          >
+            Booed <Icon name="boo" />
+          </div>
+
+          <!-- Hate -->
+          <button
+            class="hover:bg-gray-200"
+            :class="{ 'bg-primary': isReactionActive(index, 'isHated') }"
+            @click="toggleReaction(index, 'isHated')"
+          >
+            🚫
+          </button>
+          <div
+            v-if="showPopup[index]?.isHated"
+            class="popup bg-info text-lg rounded-2xl"
+          >
+            Hated <Icon name="hate" />
           </div>
         </div>
+
+        <!-- Reply Section -->
         <div
           v-if="
             activeConversationIndex !== null &&
@@ -140,6 +145,8 @@
             <ami-butterfly />
           </div>
         </div>
+
+        <!-- Delete Conversation Button -->
         <button
           class="absolute top-2 right-2 text-red-500 hover:text-red-700"
           @click.stop="deleteConversation(index)"
@@ -150,15 +157,16 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
-import { useUserStore } from './../../../stores/userStore'
-import { useChatStore, type ChatExchange } from './../../../stores/chatStore'
+import { useUserStore } from '../../../stores/userStore'
+import { useReactionStore } from '../../../stores/reactionStore'
+import { useChatStore, type ChatExchange } from '../../../stores/chatStore'
 
 const shouldShowMilestoneCheck = ref(false)
 let userKey: string | null = null
+const reactionStore = useReactionStore()
 
 onMounted(() => {
   userKey = localStorage.getItem('user_openai_key')
@@ -172,7 +180,7 @@ interface Message {
   subtitle?: string
 }
 
-const conversations = ref<Message[][]>([]) // Correct type here
+const conversations = ref<Message[][]>([])
 const activeConversationIndex = ref<number | null>(null)
 const botStore = useBotStore()
 const userStore = useUserStore()
@@ -224,19 +232,20 @@ function convertToChatExchange(
     username,
     userPrompt,
     botResponse,
-    liked: null,
-    hated: null,
-    loved: null,
-    flagged: null,
+    isPublic: false,
     previousEntryId: 0,
   }
 }
 
-type ReactionType = 'liked' | 'hated' | 'loved' | 'flagged'
+type ReactionType = 'isLoved' | 'isClapped' | 'isBooed' | 'isHated'
 
+// Assuming the `Reaction` model is fetched separately
 const isReactionActive = (index: number, reactionType: ReactionType) => {
-  const currentExchange = chatStore.getExchangeById(index) as ChatExchange
-  return currentExchange?.[reactionType]
+  const reaction = reactionStore.getReactionByChatExchangeId(
+    chatStore.getExchangeById(index)?.id,
+  )
+
+  return reaction ? reaction[reactionType] : false
 }
 
 watchEffect(() => {
@@ -352,63 +361,35 @@ const continueConversation = async (index: number) => {
   }
 }
 
-watchEffect(() => {
-  if (currentBot.value && currentBot.value.prompt) {
-    message.value = currentBot.value.prompt
-  }
-})
-
 const deleteConversation = (index: number) => {
   conversations.value.splice(index, 1)
   activeConversationIndex.value = null
 }
 
-const toggleReaction = (
-  index: number,
-  reactionType: 'liked' | 'hated' | 'loved' | 'flagged',
-) => {
-  const currentExchange = convertToChatExchange(
-    conversations.value[index],
-    userId.value,
-    botId.value,
-    botName.value,
-    username.value,
-  )
+const toggleReaction = async (index: number, reactionType: ReactionType) => {
+  const conversation = conversations.value[index]
 
-  if (currentExchange && currentExchange.id) {
-    const currentReactionState = currentExchange[reactionType] ?? false
-    chatStore.addReaction(currentExchange.id, {
-      [reactionType]: !currentReactionState,
-    })
-  }
+  // Assuming you have a separate API/store to handle reactions
+  const res = await fetch('/api/reactions/toggle', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({
+      chatExchangeId: chatStore.getExchangeById(index)?.id,
+      reactionType,
+    }),
+  })
 
-  // Show popup
-  if (!showPopup.value[index]) {
-    showPopup.value[index] = {}
-  }
-  showPopup.value[index][reactionType] = true
+  if (res.ok) {
+    const reactionState = await res.json()
+    showPopup.value[index] = { [reactionType]: true }
 
-  // Hide popup after 2 seconds
-  setTimeout(() => {
-    if (showPopup.value[index]) {
+    // Hide popup after 2 seconds
+    setTimeout(() => {
       showPopup.value[index][reactionType] = false
-    }
-  }, 2000)
+    }, 2000)
+  }
 }
 </script>
-
-<style>
-.popup {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background-color: #3b82f6; /* Adjusted for Tailwind class bg-info */
-  padding: 4px;
-  border-radius: 1rem; /* Adjusted for Tailwind class rounded-2xl */
-  font-size: 1rem; /* Adjusted for Tailwind class text-lg */
-}
-
-.message-content {
-  white-space: pre-wrap; /* This will preserve newlines and spaces */
-}
-</style>

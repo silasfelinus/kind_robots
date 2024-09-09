@@ -1,5 +1,6 @@
 <template>
   <nav class="w-full bg-base p-4 transition-all duration-500 ease-in-out">
+    <!-- Tags Section -->
     <div class="flex justify-center mb-2 flex-wrap space-x-2">
       <button
         v-for="tag in allTags"
@@ -7,7 +8,7 @@
         :class="`btn ${
           activeSection === tag ? 'bg-primary' : 'bg-accent'
         } my-2 mx-1 flex-1 text-center transition-all duration-300 ease-in-out`"
-        @click="changeSection(tag)"
+        @click="setActiveSection(tag)"
       >
         {{ tag ? tag.charAt(0).toUpperCase() + tag.slice(1) : '' }}
       </button>
@@ -65,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import type { Page } from './../../../stores/contentStore'
 import { useContentStore } from './../../../stores/contentStore'
 import { useScreenStore } from './../../../stores/screenStore'
@@ -75,12 +76,10 @@ const contentStore = useContentStore()
 const screenStore = useScreenStore()
 const botStore = useBotStore()
 
-// Fetch pages from content store
-const fetchPages = async () => {
+// Fetch pages from content store when the component is mounted
+onMounted(async () => {
   await contentStore.getPages()
-}
-
-fetchPages()
+})
 
 // Ensure that contentStore.pages matches the Page interface
 const pages = computed<Page[]>(() => {
@@ -94,6 +93,7 @@ const pages = computed<Page[]>(() => {
   })
 })
 
+// Extract unique tags from pages and filter out the "home" tag
 const uniqueTags = computed(() => {
   const tags: string[] = pages.value
     .map((page) => page.tags || [])
@@ -102,21 +102,24 @@ const uniqueTags = computed(() => {
   return Array.from(new Set(tags)).filter((tag) => tag !== 'home')
 })
 
+// Include "home" tag with other unique tags
 const allTags = computed(() => ['home', ...uniqueTags.value])
 
-const changeSection = (section: string) => {
-  setActiveSection(section)
-}
-
+// Filter pages based on tags
 const pagesByTag = (tag: string) => {
   return pages.value.filter((page) => page.tags?.includes(tag))
 }
 
-const setActiveSection = screenStore.setActiveSection
+// Directly use setActiveSection from screenStore
+const setActiveSection = (section: string) => {
+  screenStore.setActiveSection(section)
+}
 
+// Computed properties to track active section and carousel visibility
 const activeSection = computed(() => screenStore.activeSection)
 const showModelCarousel = computed(() => screenStore.showModelCarousel)
 
+// Get the current bot's name from botStore
 const currentBotName = computed(() => botStore.currentBot?.name || '')
 </script>
 

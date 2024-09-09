@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { usePitchStore } from './../../../stores/pitchStore'
-import { useChannelStore, type Message } from './../../../stores/channelStore'
+import { useChannelStore } from './../../../stores/channelStore'
 
 const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
@@ -57,20 +57,17 @@ const newMessage = ref('')
 const selectedChannelId = ref(channelId.value)
 
 // Computed property to get messages for the current channel
-const currentChannelMessages = computed<Message[]>(() => {
+const currentChannelMessages = computed(() => {
   const channel = channels.value.find((ch) => ch.id === selectedChannelId.value)
   return channelStore.messages.filter((msg) => msg.channelId === channel?.id)
 })
 
 // Function to send a new message
-const sendMessage = () => {
+const sendMessage = async () => {
   if (newMessage.value.trim() !== '') {
-    channelStore.createMessage({
-      sender: 'user',
-      recipient: 'recipient',
-      channelId: selectedChannelId.value,
+    await channelStore.sendMessage({
       content: newMessage.value,
-      userId: 0, // Assuming userId 0 for demo, replace with actual userId
+      channelId: selectedChannelId.value,
     })
     newMessage.value = '' // Clear the input field after sending
   }

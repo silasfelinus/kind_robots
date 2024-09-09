@@ -55,7 +55,7 @@
               class="p-2 text-center bg-secondary rounded-2xl flex items-center justify-center space-x-2 group hover:bg-accent transition-colors duration-300"
             >
               <div v-if="page.Icon" class="text-3xl">
-                <Icon :name="page.Icon" />
+                <Icon name="page.Icon" />
               </div>
               <div class="text-lg p-1">
                 {{ page.title }}

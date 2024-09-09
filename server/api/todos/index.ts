@@ -34,7 +34,8 @@ export async function addTodos(
       const newTodo = await createTodo(todoData)
       todos.push(newTodo)
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error'
       errors.push(`Failed to create todo: ${errorMessage}`)
     }
   }
@@ -50,12 +51,17 @@ export const fetchTodoById = async (id: number) => {
     })
     return todo
   } catch (error: unknown) {
-    throw new Error(`Error fetching Todo with ID ${id}: ${(error as Error).message}`)
+    throw new Error(
+      `Error fetching Todo with ID ${id}: ${(error as Error).message}`,
+    )
   }
 }
 
 // Function to update a Todo by its ID
-export const updateTodoById = async (id: number, data: Prisma.TodoUpdateInput) => {
+export const updateTodoById = async (
+  id: number,
+  data: Prisma.TodoUpdateInput,
+) => {
   try {
     const todo = await prisma.todo.update({
       where: { id },
@@ -63,7 +69,9 @@ export const updateTodoById = async (id: number, data: Prisma.TodoUpdateInput) =
     })
     return todo
   } catch (error: unknown) {
-    throw new Error(`Error updating Todo with ID ${id}: ${(error as Error).message}`)
+    throw new Error(
+      `Error updating Todo with ID ${id}: ${(error as Error).message}`,
+    )
   }
 }
 

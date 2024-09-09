@@ -28,7 +28,10 @@ export const usePromptStore = defineStore('promptStore', {
         const data = await response.json()
         this.prompts = data.prompts
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, `Error fetching art prompts: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `Error fetching art prompts: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
       }
     },
 
@@ -43,7 +46,10 @@ export const usePromptStore = defineStore('promptStore', {
         const fetchedPrompt = await response.json()
         this.fetchedPrompts[promptId] = fetchedPrompt
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, `Error fetching prompt by ID: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `Error fetching prompt by ID: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
         this.fetchedPrompts[promptId] = null
       }
     },
@@ -57,7 +63,10 @@ export const usePromptStore = defineStore('promptStore', {
         if (!response.ok) throw new Error(await response.text())
         this.artByPromptId = await response.json()
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, `Error fetching art by prompt ID: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `Error fetching art by prompt ID: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
       }
     },
 
@@ -75,7 +84,10 @@ export const usePromptStore = defineStore('promptStore', {
         const createdPrompt = await response.json()
         this.prompts.push(createdPrompt)
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, `Error creating art prompt: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `Error creating art prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
       }
     },
 
@@ -98,7 +110,10 @@ export const usePromptStore = defineStore('promptStore', {
           throw new Error(data.message)
         }
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, `Error editing art prompt: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `Error editing art prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
       }
     },
 
@@ -107,11 +122,16 @@ export const usePromptStore = defineStore('promptStore', {
       const errorStore = useErrorStore()
 
       try {
-        const response = await fetch(`/api/art/prompts/${promptId}`, { method: 'DELETE' })
+        const response = await fetch(`/api/art/prompts/${promptId}`, {
+          method: 'DELETE',
+        })
         if (!response.ok) throw new Error(await response.text())
         this.prompts = this.prompts.filter((prompt) => prompt.id !== promptId)
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, `Error deleting art prompt: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `Error deleting art prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
       }
     },
 

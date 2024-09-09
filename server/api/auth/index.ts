@@ -55,7 +55,7 @@ export const getUserDataByToken = async (token: string) => {
       where: { id: userId },
       include: {
         Channels: true, // Include Channels relation
-        Players: true,  // Include Players relation
+        Players: true, // Include Players relation
       },
     })
 
@@ -75,7 +75,6 @@ export const getUserDataByToken = async (token: string) => {
     }
   }
 }
-
 
 export function generateApiKey(): string {
   try {

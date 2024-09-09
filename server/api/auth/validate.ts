@@ -14,11 +14,20 @@ export default defineEventHandler(async (event) => {
       case 'credentials': {
         const { username, password } = data
         if (!username || !password) {
-          throw new Error('Both username and password must be provided for credentials validation.')
+          throw new Error(
+            'Both username and password must be provided for credentials validation.',
+          )
         }
-        const validationResponse = await validateUserCredentials(username, password)
+        const validationResponse = await validateUserCredentials(
+          username,
+          password,
+        )
         return validationResponse
-          ? { success: true, message: 'Credentials are valid.', data: validationResponse }
+          ? {
+              success: true,
+              message: 'Credentials are valid.',
+              data: validationResponse,
+            }
           : { success: false, message: 'Invalid username or password.' }
       }
 
@@ -33,7 +42,7 @@ export default defineEventHandler(async (event) => {
           return {
             success: true,
             message: 'Token is valid.',
-            user: userData,  // No Channels or Players here
+            user: userData, // No Channels or Players here
           }
         }
         return { success: false, message: 'Invalid token.' }

@@ -38,7 +38,7 @@ describe('Reaction Management API Tests', () => {
         title: 'hmmm!',
         reaction: 'skeptical',
         comment: 'not sure here',
-        reactionType: "ART"
+        reactionType: 'ART',
       },
     }).then((response) => {
       // Log the entire response to debug structure

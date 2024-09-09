@@ -12,15 +12,8 @@ export default defineEventHandler(async (event) => {
 
     const requestData = await readBody(event)
 
-    const {
-      reaction,
-      title,
-      comment,
-      isLoved,
-      isClapped,
-      isBooed,
-      isHated,
-    } = requestData
+    const { reaction, title, comment, isLoved, isClapped, isBooed, isHated } =
+      requestData
 
     // Fetch the existing reaction to ensure it exists
     const existingReaction = await prisma.reaction.findUnique({

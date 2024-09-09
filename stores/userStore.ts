@@ -72,7 +72,8 @@ export const useUserStore = defineStore({
     },
     bio(state): string {
       return (
-        state.user?.bio || 'I was born and then things happened and now I am here.'
+        state.user?.bio ||
+        'I was born and then things happened and now I am here.'
       )
     },
     clickRecord(state): number {
@@ -226,7 +227,10 @@ export const useUserStore = defineStore({
             this.user.karma = updatedKarma
             this.user.mana = updatedMana
           }
-          return { success: true, message: 'Successfully updated karma and mana.' }
+          return {
+            success: true,
+            message: 'Successfully updated karma and mana.',
+          }
         } else {
           return {
             success: false,
@@ -246,9 +250,15 @@ export const useUserStore = defineStore({
         return []
       }
     },
-    async updateUserInfo(updatedUserInfo: Partial<User>): Promise<{ success: boolean; message?: string }> {
+    async updateUserInfo(
+      updatedUserInfo: Partial<User>,
+    ): Promise<{ success: boolean; message?: string }> {
       try {
-        const response = await this.apiCall('/api/users', 'PATCH', updatedUserInfo)
+        const response = await this.apiCall(
+          '/api/users',
+          'PATCH',
+          updatedUserInfo,
+        )
         if (response.success && response.user) {
           this.setUser(response.user)
           return { success: true, message: 'User info updated successfully' }
@@ -257,13 +267,23 @@ export const useUserStore = defineStore({
         }
       } catch (error: unknown) {
         this.setError(error)
-        return { success: false, message: this.lastError || 'An unknown error occurred' }
+        return {
+          success: false,
+          message: this.lastError || 'An unknown error occurred',
+        }
       }
     },
-    async login(credentials: { username: string; password?: string }): Promise<{ success: boolean; message?: string }> {
+    async login(credentials: {
+      username: string
+      password?: string
+    }): Promise<{ success: boolean; message?: string }> {
       this.startLoading()
       try {
-        const response = await this.apiCall('/api/auth/login', 'POST', credentials)
+        const response = await this.apiCall(
+          '/api/auth/login',
+          'POST',
+          credentials,
+        )
         if (response.success && response.user && response.token) {
           this.setUser(response.user)
           this.setToken(response.token)
@@ -279,12 +299,17 @@ export const useUserStore = defineStore({
       } catch (error: unknown) {
         this.stopLoading()
         this.setError(error)
-        return { success: false, message: this.lastError || 'An unknown error occurred' }
+        return {
+          success: false,
+          message: this.lastError || 'An unknown error occurred',
+        }
       }
     },
     async validate(): Promise<boolean> {
       try {
-        const credentials = this.token ? { token: this.token } : { apiKey: this.apiKey }
+        const credentials = this.token
+          ? { token: this.token }
+          : { apiKey: this.apiKey }
         const response = await fetch('/api/auth/validate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -303,9 +328,22 @@ export const useUserStore = defineStore({
         return false
       }
     },
-    async register(userData: { username: string; email?: string; password?: string }): Promise<{ success: boolean; user?: User; token?: string; message?: string }> {
+    async register(userData: {
+      username: string
+      email?: string
+      password?: string
+    }): Promise<{
+      success: boolean
+      user?: User
+      token?: string
+      message?: string
+    }> {
       try {
-        const response = await this.apiCall('/api/users/register', 'POST', userData)
+        const response = await this.apiCall(
+          '/api/users/register',
+          'POST',
+          userData,
+        )
         if (response.success) {
           if (response.user) {
             this.setUser(response.user)
@@ -318,11 +356,18 @@ export const useUserStore = defineStore({
           }
           return { success: true, user: response.user, token: response.token }
         } else {
-          return { success: false, message: response.message || 'An error occurred during registration.' }
+          return {
+            success: false,
+            message:
+              response.message || 'An error occurred during registration.',
+          }
         }
       } catch (error: unknown) {
         this.setError(error)
-        return { success: false, message: this.lastError || 'An unknown error occurred.' }
+        return {
+          success: false,
+          message: this.lastError || 'An unknown error occurred.',
+        }
       }
     },
     logout(): void {
@@ -363,28 +408,39 @@ export const useUserStore = defineStore({
       return typeof window !== 'undefined' ? localStorage.getItem(key) : null
     },
     setError(error: unknown): string {
-      const message = typeof error === 'object' && error !== null && 'message' in error ? (error as { message: string }).message : 'An unknown error occurred.'
+      const message =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message: string }).message
+          : 'An unknown error occurred.'
       const errorStore = useErrorStore()
       errorStore.setError(ErrorType.UNKNOWN_ERROR, message)
       return message
     },
-    async apiCall(endpoint: string, method: string = 'GET', body?: unknown): Promise<ApiResponse> {
+    async apiCall(
+      endpoint: string,
+      method: string = 'GET',
+      body?: unknown,
+    ): Promise<ApiResponse> {
       const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const response = await fetch(endpoint, {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.token}`,
-          },
-          body: body ? JSON.stringify(body) : undefined,
-        })
-        if (response.ok) {
-          return await response.json()
-        } else {
-          throw new Error(`API call failed with status ${response.status}`)
-        }
-      }, ErrorType.NETWORK_ERROR, 'API request failed')
+      return errorStore.handleError(
+        async () => {
+          const response = await fetch(endpoint, {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${this.token}`,
+            },
+            body: body ? JSON.stringify(body) : undefined,
+          })
+          if (response.ok) {
+            return await response.json()
+          } else {
+            throw new Error(`API call failed with status ${response.status}`)
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'API request failed',
+      )
     },
   },
 })

@@ -20,7 +20,7 @@ async function updateTodoById(id: number, data: Partial<Todo>) {
 export default defineEventHandler(async (event) => {
   try {
     const id = Number(event.context.params?.id)
-    
+
     // Validate ID input
     if (isNaN(id) || id <= 0) {
       return {
@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
     // Use the errorHandler to process and log the error
     return errorHandler({
       error,
-      context: `Update Todo - ID: ${event.context.params?.id}`
+      context: `Update Todo - ID: ${event.context.params?.id}`,
     })
   }
 })

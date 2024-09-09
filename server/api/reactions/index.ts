@@ -51,10 +51,22 @@ export async function updateReaction(
         title: updatedReaction.title || existingRecord.title,
         comment: updatedReaction.comment || existingRecord.comment,
         reaction: updatedReaction.reaction || existingRecord.reaction,
-        isLoved: updatedReaction.isLoved !== undefined ? updatedReaction.isLoved : existingRecord.isLoved,
-        isClapped: updatedReaction.isClapped !== undefined ? updatedReaction.isClapped : existingRecord.isClapped,
-        isBooed: updatedReaction.isBooed !== undefined ? updatedReaction.isBooed : existingRecord.isBooed,
-        isHated: updatedReaction.isHated !== undefined ? updatedReaction.isHated : existingRecord.isHated,
+        isLoved:
+          updatedReaction.isLoved !== undefined
+            ? updatedReaction.isLoved
+            : existingRecord.isLoved,
+        isClapped:
+          updatedReaction.isClapped !== undefined
+            ? updatedReaction.isClapped
+            : existingRecord.isClapped,
+        isBooed:
+          updatedReaction.isBooed !== undefined
+            ? updatedReaction.isBooed
+            : existingRecord.isBooed,
+        isHated:
+          updatedReaction.isHated !== undefined
+            ? updatedReaction.isHated
+            : existingRecord.isHated,
         userId: updatedReaction.userId || existingRecord.userId,
         artId: updatedReaction.artId || existingRecord.artId,
         pitchId: updatedReaction.pitchId || existingRecord.pitchId,

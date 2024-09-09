@@ -19,7 +19,10 @@ export default defineEventHandler(async (event) => {
     const updatedComponentData: Partial<Component> = await readBody(event)
 
     // Ensure that the request body contains valid fields
-    if (!updatedComponentData || Object.keys(updatedComponentData).length === 0) {
+    if (
+      !updatedComponentData ||
+      Object.keys(updatedComponentData).length === 0
+    ) {
       return {
         success: false,
         message: 'No valid component data provided.',

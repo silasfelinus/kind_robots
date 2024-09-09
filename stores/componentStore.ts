@@ -20,8 +20,6 @@ interface Component {
   notes: string | null
 }
 
-
-
 export const useComponentStore = defineStore('componentStore', {
   state: () => ({
     folders: [] as Folder[], // Folder structure from JSON with components as objects
@@ -57,7 +55,8 @@ export const useComponentStore = defineStore('componentStore', {
       try {
         // Fetch existing components from the database
         const dbResponse = await fetch('/api/components')
-        if (!dbResponse.ok) throw new Error('Failed to fetch components from the database')
+        if (!dbResponse.ok)
+          throw new Error('Failed to fetch components from the database')
         const dbComponents: Component[] = await dbResponse.json()
 
         // Fetch components.json
@@ -96,7 +95,10 @@ export const useComponentStore = defineStore('componentStore', {
         try {
           this.selectedComponent = JSON.parse(storedComponent) as Component
         } catch (error) {
-          console.error('Failed to load selected component from localStorage:', error)
+          console.error(
+            'Failed to load selected component from localStorage:',
+            error,
+          )
         }
       }
     },
@@ -109,7 +111,10 @@ export const useComponentStore = defineStore('componentStore', {
 
         if (data.success) {
           // Push folder data with full Component objects
-          const folderData = { folderName, components: data.components as Component[] }
+          const folderData = {
+            folderName,
+            components: data.components as Component[],
+          }
           this.folders.push(folderData)
         } else {
           throw new Error('Failed to fetch components')
@@ -120,20 +125,34 @@ export const useComponentStore = defineStore('componentStore', {
     },
 
     // Sync the database with components.json
-    async syncDatabaseWithJSON(dbComponents: Component[], jsonFolders: Folder[]) {
+    async syncDatabaseWithJSON(
+      dbComponents: Component[],
+      jsonFolders: Folder[],
+    ) {
       try {
-        const jsonComponents = jsonFolders.flatMap((folder) => folder.components)
+        const jsonComponents = jsonFolders.flatMap(
+          (folder) => folder.components,
+        )
 
         // Add missing components
         for (const jsonComponent of jsonComponents) {
-          if (!dbComponents.some((dbComp) => dbComp.componentName === jsonComponent.componentName)) {
+          if (
+            !dbComponents.some(
+              (dbComp) => dbComp.componentName === jsonComponent.componentName,
+            )
+          ) {
             await this.createOrUpdateComponent(jsonComponent)
           }
         }
 
         // Remove components no longer in JSON
         for (const dbComponent of dbComponents) {
-          if (!jsonComponents.some((jsonComp) => jsonComp.componentName === dbComponent.componentName)) {
+          if (
+            !jsonComponents.some(
+              (jsonComp) =>
+                jsonComp.componentName === dbComponent.componentName,
+            )
+          ) {
             await this.deleteComponent(dbComponent.componentName)
           }
         }
@@ -158,7 +177,9 @@ export const useComponentStore = defineStore('componentStore', {
           throw new Error(`Failed to create component: ${response.statusText}`)
         }
 
-        console.log(`Component ${component.componentName} processed successfully`)
+        console.log(
+          `Component ${component.componentName} processed successfully`,
+        )
       } catch (error) {
         console.error('Error creating or updating component:', error)
       }
@@ -167,11 +188,14 @@ export const useComponentStore = defineStore('componentStore', {
     // API call to update a component in the database
     async updateComponent(component: Component) {
       try {
-        const response = await fetch(`/api/components/${component.componentName}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(component),
-        })
+        const response = await fetch(
+          `/api/components/${component.componentName}`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(component),
+          },
+        )
 
         if (!response.ok) {
           throw new Error(`Failed to update component: ${response.statusText}`)
@@ -194,10 +218,14 @@ export const useComponentStore = defineStore('componentStore', {
         }
 
         // Remove the component from the store
-        this.components = this.components.filter((c) => c.componentName !== componentName)
+        this.components = this.components.filter(
+          (c) => c.componentName !== componentName,
+        )
         this.folders = this.folders.map((folder) => ({
           ...folder,
-          components: folder.components.filter((c) => c.componentName !== componentName),
+          components: folder.components.filter(
+            (c) => c.componentName !== componentName,
+          ),
         }))
 
         console.log(`Component ${componentName} deleted successfully`)

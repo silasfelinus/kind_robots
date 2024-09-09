@@ -1,16 +1,16 @@
-import { defineConfig } from "cypress";
+import { defineConfig } from 'cypress'
 
 export default defineConfig({
   e2e: {
-    baseUrl: "https://kind-robots.vercel.app",
+    baseUrl: 'https://kind-robots.vercel.app',
   },
 
-  projectId: "m98sgq",
+  projectId: 'm98sgq',
 
   component: {
     devServer: {
-      framework: "vue",
-      bundler: "vite",
+      framework: 'vue',
+      bundler: 'vite',
     },
   },
-});
+})

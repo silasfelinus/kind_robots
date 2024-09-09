@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     console.error(
       `Error fetching reactions for component ID ${event.context.params?.id}:`,
-      error
+      error,
     )
     // Use the errorHandler for consistent error handling
     return errorHandler({

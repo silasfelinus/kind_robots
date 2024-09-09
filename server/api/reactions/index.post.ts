@@ -23,8 +23,8 @@ interface RequestData {
 // Function to map string input to the ReactionType enum
 function mapReactionType(type: string): ReactionType | undefined {
   // Convert the string to uppercase and match it to the enum value
-  const normalizedType = type.toUpperCase() as keyof typeof ReactionType;
-  return ReactionType[normalizedType]; // Map to ReactionType enum
+  const normalizedType = type.toUpperCase() as keyof typeof ReactionType
+  return ReactionType[normalizedType] // Map to ReactionType enum
 }
 
 export default defineEventHandler(async (event) => {
@@ -60,7 +60,12 @@ export default defineEventHandler(async (event) => {
       throw new Error('Invalid reactionType provided.')
     }
 
-    let reactionIdField: 'artId' | 'componentId' | 'pitchId' | 'channelId' | undefined
+    let reactionIdField:
+      | 'artId'
+      | 'componentId'
+      | 'pitchId'
+      | 'channelId'
+      | undefined
     let reactionMatchCondition: { [key: string]: number } = {}
 
     // Determine which field to use based on the mapped ReactionType
@@ -72,17 +77,20 @@ export default defineEventHandler(async (event) => {
         break
       case ReactionType.COMPONENT:
         reactionIdField = 'componentId'
-        if (!componentId) throw new Error('componentId is required for Component reactions.')
+        if (!componentId)
+          throw new Error('componentId is required for Component reactions.')
         reactionMatchCondition = { componentId }
         break
       case ReactionType.PITCH:
         reactionIdField = 'pitchId'
-        if (!pitchId) throw new Error('pitchId is required for Pitch reactions.')
+        if (!pitchId)
+          throw new Error('pitchId is required for Pitch reactions.')
         reactionMatchCondition = { pitchId }
         break
       case ReactionType.CHANNEL:
         reactionIdField = 'channelId'
-        if (!channelId) throw new Error('channelId is required for Channel reactions.')
+        if (!channelId)
+          throw new Error('channelId is required for Channel reactions.')
         reactionMatchCondition = { channelId }
         break
       default:
@@ -106,7 +114,7 @@ export default defineEventHandler(async (event) => {
           reaction,
           title,
           comment,
-          isLoved: requestData.isLoved ?? false,  // Fallback to `false`
+          isLoved: requestData.isLoved ?? false, // Fallback to `false`
           isClapped: requestData.isClapped ?? false,
           isBooed: requestData.isBooed ?? false,
           isHated: requestData.isHated ?? false,
@@ -121,7 +129,9 @@ export default defineEventHandler(async (event) => {
     } else {
       // Validate reactionIdField is properly assigned
       if (!reactionIdField || !reactionMatchCondition[reactionIdField]) {
-        throw new Error(`${reactionIdField} is required for this reaction type.`)
+        throw new Error(
+          `${reactionIdField} is required for this reaction type.`,
+        )
       }
 
       // Create a new reaction
@@ -143,14 +153,17 @@ export default defineEventHandler(async (event) => {
       return {
         success: true,
         reaction: newReaction,
-        reactionId: newReaction.id,  // Return reaction ID
+        reactionId: newReaction.id, // Return reaction ID
         message: 'Reaction created successfully',
       }
     }
   } catch (error) {
     // Ensure error is cast to the appropriate type
     const err = error as Error
-    console.error('Error in Reaction Management:', { error: err.message, requestData })
+    console.error('Error in Reaction Management:', {
+      error: err.message,
+      requestData,
+    })
     return errorHandler({
       error: err,
       context: 'Reaction Management - POST',

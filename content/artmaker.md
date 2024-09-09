@@ -17,3 +17,4 @@ sort: highlight
 :generator-test
 :dream-generator
 :pitch-manager
+:image-upload

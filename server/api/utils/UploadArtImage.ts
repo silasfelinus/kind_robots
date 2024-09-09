@@ -6,10 +6,10 @@ import fs from 'fs/promises'
 const prisma = new PrismaClient()
 
 export async function uploadArtImage(
-  uploadedFile: { data: Buffer, filename: string }, // Adjusted for Nuxt's file handling
+  uploadedFile: { data: Buffer; filename: string }, // Adjusted for Nuxt's file handling
   galleryName: string,
   userId: number,
-  galleryId: number
+  galleryId: number,
 ): Promise<{ id: number; fileName: string }> {
   try {
     const timestamp = Date.now()
@@ -50,10 +50,9 @@ export async function uploadArtImage(
 
     // Return the image ID and file name from the database
     return {
-        id: savedImage.id,
-        fileName: savedImage.fileName ?? 'default-filename.webp', // Use a fallback if fileName is null
-      }
-      
+      id: savedImage.id,
+      fileName: savedImage.fileName ?? 'default-filename.webp', // Use a fallback if fileName is null
+    }
   } catch (error: unknown) {
     throw errorHandler(error)
   }

@@ -57,7 +57,10 @@ export const useArtStore = defineStore({
         if (error instanceof Error) {
           errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
         } else {
-          errorStore.setError(ErrorType.NETWORK_ERROR, 'An unexpected error occurred')
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            'An unexpected error occurred',
+          )
         }
       }
     },
@@ -78,14 +81,16 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to fetch art.'
+        'Failed to fetch art.',
       )
     },
     getArtById(id: number): Art | undefined {
       return this.artAssets.find((art: Art) => art.id === id)
     },
     getReactionsById(id: number): Reaction[] {
-      return this.Reactions.filter((reaction: Reaction) => reaction.artId === id)
+      return this.Reactions.filter(
+        (reaction: Reaction) => reaction.artId === id,
+      )
     },
     getTagsById(id: number): Tag | undefined {
       return this.tags.find((tag: Tag) => tag.id === id)
@@ -111,7 +116,7 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to delete art.'
+        'Failed to delete art.',
       )
     },
     getArtByPitchId(pitchId: number): Art[] {
@@ -137,10 +142,13 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to create reaction.'
+        'Failed to create reaction.',
       )
     },
-    async editReaction(id: number, reactionData: Reaction): Promise<Reaction | null> {
+    async editReaction(
+      id: number,
+      reactionData: Reaction,
+    ): Promise<Reaction | null> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
@@ -159,7 +167,7 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to update reaction.'
+        'Failed to update reaction.',
       )
     },
     async deleteReaction(id: number): Promise<boolean> {
@@ -177,7 +185,7 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to delete reaction.'
+        'Failed to delete reaction.',
       )
     },
     async fetchArtById(id: number): Promise<Art | null> {
@@ -192,10 +200,12 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to fetch art by ID.'
+        'Failed to fetch art by ID.',
       )
     },
-    async generateArt(data: GenerateArtData): Promise<{ success: boolean; message?: string; newArt?: Art }> {
+    async generateArt(
+      data: GenerateArtData,
+    ): Promise<{ success: boolean; message?: string; newArt?: Art }> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
@@ -215,7 +225,7 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to generate art.'
+        'Failed to generate art.',
       )
     },
   },

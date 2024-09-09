@@ -13,7 +13,6 @@
         </button>
       </div>
       <div class="flex space-x-2 flex-wrap">
-
         <button
           class="px-3 py-2 bg-gray-600 rounded"
           @click="toggleChatControl"
@@ -73,7 +72,6 @@
     <!-- Main Game Area -->
     <div class="flex-grow flex flex-wrap">
       <!-- Chat Window -->
-    
 
       <!-- Conditional Panels -->
       <div
@@ -129,7 +127,6 @@
 </template>
 
 <script setup>
-import GameChat from './GameChat.vue'
 import ChatControl from './ChatControl.vue'
 import GameControl from './GameControl.vue'
 import UserControl from './UserControl.vue'
@@ -155,9 +152,7 @@ const joinRoom = async () => {
 const toggleChatControl = () => {
   gameStore.toggleChatControl()
 }
-const toggleGameChat = () => {
-  gameStore.toggleGameChat()
-}
+
 const toggleGameControl = () => {
   gameStore.toggleGameControl()
 }

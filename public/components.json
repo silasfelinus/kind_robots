@@ -132,11 +132,9 @@
       "ArtChooser",
       "ArtCreator",
       "ChatControl",
-      "GameChat",
       "GameControl",
       "GameOver",
       "PitchScreen",
-      "SplashPage",
       "UserControl"
     ]
   },
@@ -339,6 +337,7 @@
   {
     "folderName": "wonderlab",
     "components": [
+      "ChannelManager",
       "CommentDisplay",
       "ComponentGallery",
       "ComponentReactions"

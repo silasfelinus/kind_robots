@@ -1,7 +1,14 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import { ReactionType } from '@prisma/client' // Proper import for ReactionType enum
+
+// Define your enums directly in the code
+enum ReactionType {
+  ART = 'ART',
+  COMPONENT = 'COMPONENT',
+  PITCH = 'PITCH',
+  CHANNEL = 'CHANNEL'
+}
 
 // Define the type for requestData
 interface RequestData {
@@ -48,6 +55,10 @@ export default defineEventHandler(async (event) => {
       reaction,
       title,
       comment,
+      isLoved,
+      isClapped,
+      isBooed,
+      isHated,
     } = requestData
 
     if (!userId || !reactionType) {
@@ -77,20 +88,17 @@ export default defineEventHandler(async (event) => {
         break
       case ReactionType.COMPONENT:
         reactionIdField = 'componentId'
-        if (!componentId)
-          throw new Error('componentId is required for Component reactions.')
+        if (!componentId) throw new Error('componentId is required for Component reactions.')
         reactionMatchCondition = { componentId }
         break
       case ReactionType.PITCH:
         reactionIdField = 'pitchId'
-        if (!pitchId)
-          throw new Error('pitchId is required for Pitch reactions.')
+        if (!pitchId) throw new Error('pitchId is required for Pitch reactions.')
         reactionMatchCondition = { pitchId }
         break
       case ReactionType.CHANNEL:
         reactionIdField = 'channelId'
-        if (!channelId)
-          throw new Error('channelId is required for Channel reactions.')
+        if (!channelId) throw new Error('channelId is required for Channel reactions.')
         reactionMatchCondition = { channelId }
         break
       default:
@@ -101,7 +109,7 @@ export default defineEventHandler(async (event) => {
     const existingReaction = await prisma.reaction.findFirst({
       where: {
         userId,
-        ReactionType: mappedReactionType, // Use the mapped ReactionType enum value
+        ReactionCategory: mappedReactionType, // Use the mapped ReactionType enum value
         ...reactionMatchCondition,
       },
     })
@@ -114,10 +122,10 @@ export default defineEventHandler(async (event) => {
           reaction,
           title,
           comment,
-          isLoved: requestData.isLoved ?? false, // Fallback to `false`
-          isClapped: requestData.isClapped ?? false,
-          isBooed: requestData.isBooed ?? false,
-          isHated: requestData.isHated ?? false,
+          isLoved: isLoved ?? false, // Fallback to `false`
+          isClapped: isClapped ?? false,
+          isBooed: isBooed ?? false,
+          isHated: isHated ?? false,
         },
       })
 
@@ -129,24 +137,22 @@ export default defineEventHandler(async (event) => {
     } else {
       // Validate reactionIdField is properly assigned
       if (!reactionIdField || !reactionMatchCondition[reactionIdField]) {
-        throw new Error(
-          `${reactionIdField} is required for this reaction type.`,
-        )
+        throw new Error(`${reactionIdField} is required for this reaction type.`)
       }
 
       // Create a new reaction
       const newReaction = await prisma.reaction.create({
         data: {
           userId,
-          ReactionType: mappedReactionType, // Use the mapped ReactionType enum value
+          ReactionCategory: mappedReactionType, // Use the mapped ReactionType enum value
           [reactionIdField]: reactionMatchCondition[reactionIdField],
           reaction,
           title,
           comment,
-          isLoved: requestData.isLoved ?? false,
-          isClapped: requestData.isClapped ?? false,
-          isBooed: requestData.isBooed ?? false,
-          isHated: requestData.isHated ?? false,
+          isLoved: isLoved ?? false,
+          isClapped: isClapped ?? false,
+          isBooed: isBooed ?? false,
+          isHated: isHated ?? false,
         },
       })
 

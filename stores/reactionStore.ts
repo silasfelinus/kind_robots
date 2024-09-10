@@ -47,12 +47,18 @@ export const useReactionStore = defineStore('reactionStore', {
           },
         })
         if (!response.ok) throw new Error('Failed to fetch reactions')
-        return await response.json()
+        const data = await response.json()
+        
+        // Log the data to see if it's an array
+        console.log('Fetched reactions:', data)
+    
+        return data.reactions // Ensure this returns the correct format
       } catch (error) {
         console.error('Error fetching reactions:', error)
         throw error
       }
-    },
+    }
+,    
 
     // Find the user's reaction to a specific pitch through the API
     async findUserReactionForPitch(pitchId: number, userId: number) {

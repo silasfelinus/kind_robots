@@ -37,6 +37,7 @@
 import { ref } from 'vue'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import { samplePitches } from './../../../training/samplePitches'
+import { PitchType } from '@prisma/client' // Importing PitchType as a value
 
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
@@ -51,7 +52,7 @@ const allIdeas = ref(
     updatedAt: pitch.updatedAt || new Date(),
     userId: pitch.userId ?? 1, // Use nullish coalescing to ensure `userId` is always a number
     playerId: null, // Ensure this is always null
-    PitchType: 'BRAINSTORM',
+    PitchType: PitchType.BRAINSTORM, // Use PitchType correctly
     isMature: false,
     isPublic: true,
   })),
@@ -98,6 +99,7 @@ const fetchBrainstorm = async () => {
         updatedAt: pitch.updatedAt || new Date(), // Ensure `updatedAt` is always a Date
         userId: pitch.userId ?? 1, // Ensure `userId` is always a number
         playerId: null, // Ensure this is always null
+        PitchType: 'BRAINSTORM' as const,
       })),
       ...allIdeas.value,
     ]
@@ -109,7 +111,6 @@ const parsePitchesFromAPI = (
   choices: Array<{ message: { content: string } }>,
 ) => {
   return choices.map((choice, _index: number) => {
-    // Rename `index` to `_index`
     const content = choice.message.content
     const cleanContent = content.replace(/^\d+\.\s/, '')
     const [title, example] = cleanContent.split(' - ')
@@ -123,12 +124,12 @@ const parsePitchesFromAPI = (
       channelId: null,
       isMature: false,
       isPublic: true,
-      userId: 1, // Ensure `userId` is always a number
+      userId: 1,
       playerId: null,
       designer: 'Brainstorm',
       flavorText: '',
       highlightImage: '',
-      PitchType: 'BRAINSTORM',
+      PitchType: PitchType.BRAINSTORM, // Use PitchType as an enum value
     }
   })
 }

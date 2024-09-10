@@ -21,7 +21,7 @@
     ></div>
 
     <div v-for="pitch in allIdeas" :key="pitch.id">
-      <PitchDisplay :pitch="pitch" @react="reactToPitch" />
+      <PitchDisplay :pitch="pitch" />
     </div>
 
     <div
@@ -35,9 +35,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useErrorStore } from './../../../stores/errorStore'
-import { usePitchStore, PitchType } from './../../../stores/pitchStore'
-import { useReactionStore } from './../../../stores/reactionStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import { samplePitches } from './../../../training/samplePitches'
 
 const isLoading = ref(false)
@@ -45,26 +43,17 @@ const errorMessage = ref<string | null>(null)
 const shouldShowMilestoneCheck = ref(false)
 
 const errorStore = useErrorStore()
-const pitchStore = usePitchStore()
-const reactionStore = useReactionStore()
-
-// Ensure all required fields are set in the initialization
 const allIdeas = ref(
   samplePitches.map((pitch, index) => ({
     ...pitch,
     id: index,
     createdAt: new Date(),
-    updatedAt: null,
-    lovedCount: 0,
-    clappedCount: 0,
-    booedCount: 0,
-    userId: 1,
-    playerId: null,
-    channelId: null,
-    designer: 'Brainstorm', // Set a default designer
-    flavorText: null, // Set a default value for flavorText
-    highlightImage: null, // Set a default value for highlightImage
-    PitchType: PitchType.BRAINSTORM, // Use the PitchType enum
+    updatedAt: pitch.updatedAt || new Date(),
+    userId: pitch.userId ?? 1, // Use nullish coalescing to ensure `userId` is always a number
+    playerId: null, // Ensure this is always null
+    PitchType: 'BRAINSTORM',
+    isMature: false,
+    isPublic: true,
   })),
 )
 
@@ -88,79 +77,58 @@ const fetchBrainstorm = async () => {
             ],
           }),
         })
-
-        shouldShowMilestoneCheck.value = true
         const data = await response.json()
-        if (data.choices && data.choices.length > 0) {
+
+        if (Array.isArray(data.choices)) {
           const newPitches = parsePitchesFromAPI(data.choices)
-          if (newPitches.length > 0) {
-            pitchStore.addPitches(newPitches)
-            allIdeas.value = [...newPitches, ...allIdeas.value]
-          } else {
-            allIdeas.value = [...samplePitches, ...allIdeas.value]
-          }
+          allIdeas.value = [...newPitches, ...allIdeas.value]
         } else {
-          throw new Error('No ideas generated from the API')
+          throw new Error('Unexpected API response structure.')
         }
       },
-      'GENERAL_ERROR',
+      ErrorType.UNKNOWN_ERROR,
       'Failed to fetch new brainstorming ideas. Please try again.',
     )
   } catch (error) {
     console.error('Error fetching brainstorm:', error)
     errorMessage.value = 'Could not retrieve new ideas. Using cached ideas.'
-    allIdeas.value = [...samplePitches, ...allIdeas.value]
+    allIdeas.value = [
+      ...samplePitches.map((pitch) => ({
+        ...pitch,
+        updatedAt: pitch.updatedAt || new Date(), // Ensure `updatedAt` is always a Date
+        userId: pitch.userId ?? 1, // Ensure `userId` is always a number
+        playerId: null, // Ensure this is always null
+      })),
+      ...allIdeas.value,
+    ]
   } finally {
     isLoading.value = false
   }
 }
-
-const reactToPitch = async (pitchId: number, reactionType: string) => {
-  try {
-    await reactionStore.createReaction({
-      componentId: pitchId,
-      reaction: reactionType,
-    })
-    const pitch = allIdeas.value.find((p) => p.id === pitchId)
-    if (pitch) {
-      switch (reactionType) {
-        case 'Loved':
-          pitch.lovedCount += 1
-          break
-        case 'Clapped':
-          pitch.clappedCount += 1
-          break
-        case 'Booed':
-          pitch.booedCount += 1
-          break
-      }
-    }
-  } catch (error) {
-    console.error('Error reacting to pitch:', error)
-  }
-}
-
 const parsePitchesFromAPI = (
   choices: Array<{ message: { content: string } }>,
 ) => {
-  return choices.map((choice, index: number) => {
+  return choices.map((choice, _index: number) => {
+    // Rename `index` to `_index`
     const content = choice.message.content
     const cleanContent = content.replace(/^\d+\.\s/, '')
     const [title, example] = cleanContent.split(' - ')
+
     return {
-      id: index + allIdeas.value.length,
+      id: _index + allIdeas.value.length,
       createdAt: new Date(),
-      updatedAt: null,
-      title: title || `Idea ${index + 1}`,
+      updatedAt: new Date(),
+      title: title || `Idea ${_index + 1}`,
       pitch: example || content,
-      lovedCount: 0,
-      clappedCount: 0,
-      booedCount: 0,
       channelId: null,
       isMature: false,
       isPublic: true,
-      userId: 1,
+      userId: 1, // Ensure `userId` is always a number
       playerId: null,
+      designer: 'Brainstorm',
+      flavorText: '',
+      highlightImage: '',
+      PitchType: 'BRAINSTORM',
     }
   })
 }

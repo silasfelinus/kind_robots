@@ -3,11 +3,6 @@
     class="flex flex-col items-center bg-base-200 rounded-2xl p-4 m-4 border border-primary shadow-lg"
   >
     <h1 class="text-3xl font-bold mb-4 text-primary">Brainstorm Café</h1>
-    <img
-      :src="pageImage"
-      alt="Brainstorming"
-      class="rounded-full h-40 w-40 mb-4 border-4 border-primary shadow"
-    />
     <p class="text-lg text-secondary mb-6">
       Welcome to the Brainstorm Café! Click the button below to get some fresh,
       creative ideas.
@@ -25,19 +20,9 @@
       class="loader border-4 border-t-4 border-gray-200 h-12 w-12 rounded-full animate-spin mb-4"
     ></div>
 
-    <transition-group
-      name="list"
-      tag="div"
-      class="flex flex-wrap justify-center gap-4"
-    >
-      <div
-        v-for="idea in allIdeas"
-        :key="idea.id"
-        class="bg-base-100 shadow-md rounded-lg p-4 w-64"
-      >
-        <BrainstormCard :idea="idea" @click="handleCardClick(idea)" />
-      </div>
-    </transition-group>
+    <div v-for="pitch in allIdeas" :key="pitch.id">
+      <PitchDisplay :pitch="pitch" @react="reactToPitch" />
+    </div>
 
     <div
       v-if="errorMessage"
@@ -51,43 +36,35 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useErrorStore } from './../../../stores/errorStore'
-import type { Pitch } from './../../../stores/pitchStore'
-import { usePitchStore } from './../../../stores/pitchStore'
+import { usePitchStore, PitchType } from './../../../stores/pitchStore'
+import { useReactionStore } from './../../../stores/reactionStore'
 import { samplePitches } from './../../../training/samplePitches'
-
-enum PitchType {
-  ARTPITCH = 'ARTPITCH',
-  BRAINSTORM = 'BRAINSTORM',
-  BOT = 'BOT',
-  ARTGALLERY = 'ARTGALLERY',
-  INSPIRATION = 'INSPIRATION',
-}
 
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
-const pageImage = '/images/avatars/brain1.webp'
 const shouldShowMilestoneCheck = ref(false)
 
 const errorStore = useErrorStore()
 const pitchStore = usePitchStore()
+const reactionStore = useReactionStore()
 
-// Initialize allIdeas with samplePitches
-const allIdeas = ref<Pitch[]>(
+// Ensure all required fields are set in the initialization
+const allIdeas = ref(
   samplePitches.map((pitch, index) => ({
+    ...pitch,
     id: index,
     createdAt: new Date(),
     updatedAt: null,
-    title: pitch.title,
-    pitch: pitch.pitch,
-    designer: 'BRAINSTORM',
-    flavorText: null,
-    highlightImage: null,
-    channelId: null,
-    PitchType: PitchType.BRAINSTORM,
-    isMature: false,
-    isPublic: true,
+    lovedCount: 0,
+    clappedCount: 0,
+    booedCount: 0,
     userId: 1,
     playerId: null,
+    channelId: null,
+    designer: 'Brainstorm', // Set a default designer
+    flavorText: null, // Set a default value for flavorText
+    highlightImage: null, // Set a default value for highlightImage
+    PitchType: PitchType.BRAINSTORM, // Use the PitchType enum
   })),
 )
 
@@ -113,7 +90,6 @@ const fetchBrainstorm = async () => {
         })
 
         shouldShowMilestoneCheck.value = true
-
         const data = await response.json()
         if (data.choices && data.choices.length > 0) {
           const newPitches = parsePitchesFromAPI(data.choices)
@@ -127,7 +103,7 @@ const fetchBrainstorm = async () => {
           throw new Error('No ideas generated from the API')
         }
       },
-      'GENERAL_ERROR' as ErrorType,
+      'GENERAL_ERROR',
       'Failed to fetch new brainstorming ideas. Please try again.',
     )
   } catch (error) {
@@ -139,8 +115,29 @@ const fetchBrainstorm = async () => {
   }
 }
 
-const handleCardClick = (pitch: Pitch) => {
-  console.log('Card clicked:', pitch)
+const reactToPitch = async (pitchId: number, reactionType: string) => {
+  try {
+    await reactionStore.createReaction({
+      componentId: pitchId,
+      reaction: reactionType,
+    })
+    const pitch = allIdeas.value.find((p) => p.id === pitchId)
+    if (pitch) {
+      switch (reactionType) {
+        case 'Loved':
+          pitch.lovedCount += 1
+          break
+        case 'Clapped':
+          pitch.clappedCount += 1
+          break
+        case 'Booed':
+          pitch.booedCount += 1
+          break
+      }
+    }
+  } catch (error) {
+    console.error('Error reacting to pitch:', error)
+  }
 }
 
 const parsePitchesFromAPI = (
@@ -156,20 +153,30 @@ const parsePitchesFromAPI = (
       updatedAt: null,
       title: title || `Idea ${index + 1}`,
       pitch: example || content,
-      designer: null,
-      flavorText: null,
-      highlightImage: null,
+      lovedCount: 0,
+      clappedCount: 0,
+      booedCount: 0,
       channelId: null,
-      PitchType: PitchType.BRAINSTORM,
       isMature: false,
       isPublic: true,
       userId: 1,
       playerId: null,
-    } as Pitch
+    }
   })
 }
 </script>
 
 <style scoped>
-/* Tailwind utility classes used for styling */
+.loader {
+  border-top-color: #3498db;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 </style>

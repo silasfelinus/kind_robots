@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
-import prisma from '../../utils/prisma'
+import prisma from '../../utils/prisma' // No need to import ReactionType as it's not a separate enum in Prisma's client
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,30 +12,45 @@ export default defineEventHandler(async (event) => {
 
     // Parse the request body to get the reaction updates
     const body = await readBody(event)
-    const { isLoved, isBooed, isClapped, isHated, userId } = body
+    const { reaction, userId } = body // Ensure 'reaction' is used, not 'reactionType'
 
-    // Ensure that userId is provided
-    if (!userId) {
-      throw new Error('User ID is required to update the reaction.')
+    // Ensure that both reaction and userId are provided
+    if (!reaction || !userId) {
+      throw new Error('Reaction and User ID are required.')
     }
 
-    // Update the reaction record in the database for the given component and user
-    const updatedReaction = await prisma.reaction.updateMany({
+    // Check if the reaction already exists for this user and component
+    const existingReaction = await prisma.reaction.findFirst({
       where: {
         componentId,
         userId,
       },
-      data: {
-        isLoved,
-        isBooed,
-        isClapped,
-        IsHated: isHated,
-      },
     })
+
+    let updatedReaction
+
+    if (existingReaction) {
+      // If reaction exists, update it
+      updatedReaction = await prisma.reaction.update({
+        where: { id: existingReaction.id },
+        data: {
+          reaction, // Use 'reaction' here, not 'reactionType'
+        },
+      })
+    } else {
+      // If no reaction exists, create a new one
+      updatedReaction = await prisma.reaction.create({
+        data: {
+          componentId,
+          userId,
+          reaction, // Use 'reaction' here, not 'reactionType'
+        },
+      })
+    }
 
     if (!updatedReaction) {
       throw new Error(
-        `Failed to update reaction for component with ID ${componentId}.`,
+        `Failed to update/create reaction for component with ID ${componentId}.`,
       )
     }
 

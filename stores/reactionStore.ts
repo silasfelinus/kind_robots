@@ -36,6 +36,77 @@ export const useReactionStore = defineStore('reactionStore', {
   },
 
   actions: {
+
+    // Fetch all reactions for a specific pitch through the API
+    async fetchReactionsForPitch(pitchId: number) {
+      try {
+        const response = await fetch(`/api/reactions/pitch/${pitchId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        if (!response.ok) throw new Error('Failed to fetch reactions')
+        return await response.json()
+      } catch (error) {
+        console.error('Error fetching reactions:', error)
+        throw error
+      }
+    },
+
+    // Find the user's reaction to a specific pitch through the API
+    async findUserReactionForPitch(pitchId: number, userId: number) {
+      try {
+        const response = await fetch(`/api/reactions/user/${userId}/pitch/${pitchId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        if (!response.ok) throw new Error('Failed to find user reaction')
+        return await response.json()
+      } catch (error) {
+        console.error('Error finding user reaction:', error)
+        throw error
+      }
+    },
+
+    // Create a new reaction for a pitch through the API
+    async createReaction(reactionData: { pitchId: number; userId: number; reactionType: string }) {
+      try {
+        const response = await fetch('/api/reactions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(reactionData),
+        })
+        if (!response.ok) throw new Error('Failed to create reaction')
+        return await response.json()
+      } catch (error) {
+        console.error('Error creating reaction:', error)
+        throw error
+      }
+    },
+
+    // Update an existing reaction through the API
+    async updateReaction(reactionId: number, updates: { reactionType: string }) {
+      try {
+        const response = await fetch(`/api/reactions/${reactionId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updates),
+        })
+        if (!response.ok) throw new Error('Failed to update reaction')
+        return await response.json()
+      } catch (error) {
+        console.error('Error updating reaction:', error)
+        throw error
+      }
+    },
+
     getReactionByChatExchangeId(chatExchangeId: number) {
       return this.reactions.find(
         (reaction: Reaction) => reaction.chatExchangeId === chatExchangeId,
@@ -138,53 +209,6 @@ export const useReactionStore = defineStore('reactionStore', {
         this.loading = false
       }
     },
-
-    // Create a reaction
-    async createReaction(reactionData: Partial<Reaction>) {
-      this.loading = true
-      this.error = null
-      try {
-        const response = await fetch('/api/reactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(reactionData),
-        })
-        if (!response.ok) throw new Error('Failed to create reaction')
-        const newReaction = await response.json()
-        this.reactions.push(newReaction)
-      } catch (error) {
-        this.error =
-          error instanceof Error ? error.message : 'Unknown error occurred'
-      } finally {
-        this.loading = false
-      }
-    },
-
-    // Update an existing reaction
-    async updateReaction(reactionId: number, reactionData: Partial<Reaction>) {
-      this.loading = true
-      this.error = null
-      try {
-        const response = await fetch(`/api/reactions/${reactionId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(reactionData),
-        })
-        if (!response.ok) throw new Error('Failed to update reaction')
-        const updatedReaction = await response.json()
-
-        const index = this.reactions.findIndex(
-          (r: Reaction) => r.id === reactionId,
-        )
-        if (index !== -1) this.reactions[index] = updatedReaction
-      } catch (error) {
-        this.error =
-          error instanceof Error ? error.message : 'Unknown error occurred'
-      } finally {
-        this.loading = false
-      }
-    },
-
     // Delete a reaction
     async deleteReaction(reactionId: number) {
       this.loading = true

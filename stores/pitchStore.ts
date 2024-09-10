@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { useErrorStore, ErrorType } from './errorStore'
-import type { Pitch } from '@prisma/client'
+import type { Pitch, PitchType } from '@prisma/client'
 
 const isClient = typeof window !== 'undefined'
 
@@ -201,7 +201,21 @@ export const usePitchStore = defineStore('pitch', {
         }
       }
     },
+    // New addPitches method
+    addPitches(newPitches: Pitch[]) {
+      newPitches.forEach((newPitch) => {
+        const existingPitch = this.pitches.find(
+          (pitch) => pitch.id === newPitch.id,
+        )
+        if (!existingPitch) {
+          this.pitches.push(newPitch)
+        }
+      })
+      if (isClient) {
+        localStorage.setItem('pitches', JSON.stringify(this.pitches))
+      }
+    },
   },
 })
 
-export type { Pitch }
+export type { Pitch, PitchType }

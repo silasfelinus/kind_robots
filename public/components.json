@@ -250,7 +250,10 @@
   },
   {
     "folderName": "photoprism",
-    "components": ["ImageUpload", "PhotoGallery"]
+    "components": [
+      "ImageUpload",
+      "PhotoGallery"
+    ]
   },
   {
     "folderName": "products",
@@ -269,6 +272,7 @@
       "BrainstormGame",
       "BubblePrompt",
       "BubbleTest",
+      "PitchDisplay",
       "TodoManager"
     ]
   },

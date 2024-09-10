@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { useErrorStore, ErrorType } from './errorStore'
-import type { Pitch, PitchType } from '@prisma/client'
+import type { Pitch, PitchType } from '@prisma/client' // Import both Pitch and PitchType from Prisma
 
 const isClient = typeof window !== 'undefined'
 
@@ -50,31 +50,26 @@ export const usePitchStore = defineStore('pitch', {
       this.selectedPitchId = pitchId
     },
 
-    async performFetch(
-      url: string,
-      options: RequestInit = {},
-    ): Promise<FetchResponse> {
+    async performFetch(url: string, options: RequestInit = {}): Promise<FetchResponse> {
       const errorStore = useErrorStore()
       try {
         const response = await fetch(url, options)
+        const data = await response.json()
+    
         if (!response.ok) {
-          const errorData: FetchResponse = await response.json()
-          throw new Error(
-            errorData.message || 'Failed to perform fetch operation',
-          )
+          errorStore.setError(ErrorType.NETWORK_ERROR, data.message || 'Failed to perform fetch operation')
+          return { success: false, message: data.message }
         }
-        return (await response.json()) as FetchResponse
+    
+        return { ...data, success: true }
       } catch (error) {
-        if (isErrorWithMessage(error)) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
-          console.error('Network error:', error.message)
-        } else {
-          errorStore.setError(ErrorType.NETWORK_ERROR, 'Unknown network error')
-          console.error('Network error: Unknown error')
-        }
-        throw error
+        const errorMessage = isErrorWithMessage(error) ? error.message : 'Unknown network error'
+        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+        console.error('Network error:', errorMessage)
+        return { success: false, message: errorMessage }
       }
     },
+    
 
     async initializePitches() {
       if (!this.isInitialized) {

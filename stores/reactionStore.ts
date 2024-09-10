@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import type {Reaction, Channel} from '@prisma/client'
 
 export const useReactionStore = defineStore('reactionStore', {
   state: () => ({

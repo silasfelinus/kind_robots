@@ -1,20 +1,19 @@
-<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div
-    class="flex flex-col items-center bg-base-200 rounded-2xl p-2 m-2 border"
+    class="flex flex-col items-center bg-base-200 rounded-2xl p-4 m-4 border border-primary shadow-lg"
   >
-    <h1 class="text-3xl font-bold mb-4">Brainstorm Café</h1>
+    <h1 class="text-3xl font-bold mb-4 text-primary">Brainstorm Café</h1>
     <img
       :src="pageImage"
       alt="Brainstorming"
-      class="rounded-full h-40 w-40 mb-4"
+      class="rounded-full h-40 w-40 mb-4 border-4 border-primary shadow"
     />
-    <p class="text-lg mb-4">
+    <p class="text-lg text-secondary mb-6">
       Welcome to the Brainstorm Café! Click the button below to get some fresh,
       creative ideas.
     </p>
     <button
-      class="bg-primary text-white p-4 rounded-full text-lg m-4"
+      class="bg-primary hover:bg-primary-focus text-white font-semibold py-2 px-6 rounded-full transition-all duration-200 ease-in-out mb-4"
       :disabled="isLoading"
       @click="fetchBrainstorm"
     >
@@ -23,19 +22,28 @@
     <milestone-reward v-if="shouldShowMilestoneCheck" :id="2" />
     <div
       v-if="isLoading"
-      class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 mb-4"
-    />
+      class="loader border-4 border-t-4 border-gray-200 h-12 w-12 rounded-full animate-spin mb-4"
+    ></div>
+
     <transition-group
       name="list"
       tag="div"
-      class="flex flex-wrap justify-center"
+      class="flex flex-wrap justify-center gap-4"
     >
-      <div v-for="idea in allIdeas" :key="idea.title" class="m-2">
+      <div
+        v-for="idea in allIdeas"
+        :key="idea.id"
+        class="bg-base-100 shadow-md rounded-lg p-4 w-64"
+      >
         <BrainstormCard :idea="idea" @click="handleCardClick(idea)" />
       </div>
     </transition-group>
-    <div v-if="errorMessage" class="bg-warning text-white p-4 rounded-full">
-      <Icon name="error" class="text-lg" /> {{ errorMessage }}
+
+    <div
+      v-if="errorMessage"
+      class="bg-warning text-white py-2 px-4 rounded-lg mt-4"
+    >
+      <Icon name="error" class="text-lg mr-2" /> {{ errorMessage }}
     </div>
   </div>
 </template>
@@ -43,11 +51,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useErrorStore } from './../../../stores/errorStore'
-import { sampleIdeas } from './../../../training/sampleIdeas'
+import type { Pitch } from './../../../stores/pitchStore'
+import { usePitchStore } from './../../../stores/pitchStore'
+import { samplePitches } from './../../../training/samplePitches'
 
-interface Idea {
-  title: string
-  example: string
+enum PitchType {
+  ARTPITCH = 'ARTPITCH',
+  BRAINSTORM = 'BRAINSTORM',
+  BOT = 'BOT',
+  ARTGALLERY = 'ARTGALLERY',
+  INSPIRATION = 'INSPIRATION',
 }
 
 const isLoading = ref(false)
@@ -55,21 +68,34 @@ const errorMessage = ref<string | null>(null)
 const pageImage = '/images/avatars/brain1.webp'
 const shouldShowMilestoneCheck = ref(false)
 
-const getRandomIdeas = (count: number) => {
-  const shuffled = [...sampleIdeas].sort(() => 0.5 - Math.random())
-  return shuffled.slice(0, count)
-}
-// Initialize allIdeas with 5 random pre-generated ideas
-const allIdeas = ref<Idea[]>(getRandomIdeas(5))
-
 const errorStore = useErrorStore()
+const pitchStore = usePitchStore()
+
+// Initialize allIdeas with samplePitches
+const allIdeas = ref<Pitch[]>(
+  samplePitches.map((pitch, index) => ({
+    id: index,
+    createdAt: new Date(),
+    updatedAt: null,
+    title: pitch.title,
+    pitch: pitch.pitch,
+    designer: 'BRAINSTORM',
+    flavorText: null,
+    highlightImage: null,
+    channelId: null,
+    PitchType: PitchType.BRAINSTORM,
+    isMature: false,
+    isPublic: true,
+    userId: 1,
+    playerId: null,
+  })),
+)
 
 const fetchBrainstorm = async () => {
   isLoading.value = true
   errorMessage.value = null
 
   try {
-    // Use handleError to manage errors centrally
     await errorStore.handleError(
       async () => {
         const response = await fetch('/api/botcafe/brainstorm', {
@@ -79,8 +105,9 @@ const fetchBrainstorm = async () => {
           },
           body: JSON.stringify({
             model: 'gpt-4o-mini',
+            n: 5,
             messages: [
-              { role: 'user', content: 'five more original brainstorms' },
+              { role: 'user', content: 'another humorous original brainstorm' },
             ],
           }),
         })
@@ -88,17 +115,16 @@ const fetchBrainstorm = async () => {
         shouldShowMilestoneCheck.value = true
 
         const data = await response.json()
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-          const newIdeas: Idea[] = parseIdeasFromAPI(
-            data.choices[0].message.content,
-          )
-          if (newIdeas.length > 0) {
-            allIdeas.value = [...newIdeas, ...allIdeas.value]
+        if (data.choices && data.choices.length > 0) {
+          const newPitches = parsePitchesFromAPI(data.choices)
+          if (newPitches.length > 0) {
+            pitchStore.addPitches(newPitches)
+            allIdeas.value = [...newPitches, ...allIdeas.value]
           } else {
-            throw new Error('No new ideas generated')
+            allIdeas.value = [...samplePitches, ...allIdeas.value]
           }
         } else {
-          throw new Error('Invalid API response')
+          throw new Error('No ideas generated from the API')
         }
       },
       'GENERAL_ERROR' as ErrorType,
@@ -106,60 +132,44 @@ const fetchBrainstorm = async () => {
     )
   } catch (error) {
     console.error('Error fetching brainstorm:', error)
+    errorMessage.value = 'Could not retrieve new ideas. Using cached ideas.'
+    allIdeas.value = [...samplePitches, ...allIdeas.value]
   } finally {
     isLoading.value = false
   }
 }
 
-const handleCardClick = (idea: Idea) => {
-  console.log('Card clicked:', idea)
+const handleCardClick = (pitch: Pitch) => {
+  console.log('Card clicked:', pitch)
 }
 
-const parseIdeasFromAPI = (rawContent: string) => {
-  const lines = rawContent.split('\n')
-  const ideasList = lines.filter((line: string) => /^\d+\./.test(line))
-  return ideasList.map((item: string) => {
-    const cleanItem = item.replace(/^\d+\.\s/, '')
-    const [title, example] = cleanItem.split(' - ')
-    return { title, example } as Idea
+const parsePitchesFromAPI = (
+  choices: Array<{ message: { content: string } }>,
+) => {
+  return choices.map((choice, index: number) => {
+    const content = choice.message.content
+    const cleanContent = content.replace(/^\d+\.\s/, '')
+    const [title, example] = cleanContent.split(' - ')
+    return {
+      id: index + allIdeas.value.length,
+      createdAt: new Date(),
+      updatedAt: null,
+      title: title || `Idea ${index + 1}`,
+      pitch: example || content,
+      designer: null,
+      flavorText: null,
+      highlightImage: null,
+      channelId: null,
+      PitchType: PitchType.BRAINSTORM,
+      isMature: false,
+      isPublic: true,
+      userId: 1,
+      playerId: null,
+    } as Pitch
   })
 }
 </script>
 
 <style scoped>
-.loader {
-  border-top-color: #3498db;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-.list-enter-active,
-.list-leave-active {
-  transition: all 1s;
-}
-.list-enter,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(-30px);
-}
-
-.card-style {
-  background-color: var(--bg-secondary);
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.3s ease-in-out,
-    box-shadow 0.3s ease-in-out;
-}
-
-.card-style:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
+/* Tailwind utility classes used for styling */
 </style>

@@ -140,6 +140,7 @@ model ChatExchange {
   Bot               Bot?          @relation(fields: [botId], references: [id])
   userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
+  Reactions         Reaction[]
 }
 
 model Component {
@@ -402,6 +403,8 @@ model Reaction {
   Component         Component?        @relation(fields: [componentId], references: [id])
   channelId         Int?              @default(1)
   Channel           Channel?          @relation(fields: [channelId], references: [id])
+  chatExchangeId    Int?              @default(1)
+  ChatExchange      ChatExchange?     @relation(fields: [chatExchangeId], references: [id])
   ReactionCategory  ReactionCategory  @default(CHANNEL)
 
   @@index([artId], map: "Reaction_artId_fkey")

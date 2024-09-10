@@ -83,6 +83,7 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
+
     async fetchPitches() {
       try {
         const data = await this.performFetch('/api/pitches/batch')

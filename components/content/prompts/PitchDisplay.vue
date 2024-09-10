@@ -53,24 +53,32 @@ const userStore = useUserStore()
 
 // Fetch reactions and count them
 const fetchReactions = async () => {
-  const reactions = await reactionStore.fetchReactionsForPitch(props.pitch.id)
+  try {
+    const reactions = await reactionStore.fetchReactionsForPitch(props.pitch.id)
 
-  lovedCount.value = reactions.filter(
-    (r: Reaction) => r.reactionType === 'LOVED',
-  ).length
-  clappedCount.value = reactions.filter(
-    (r: Reaction) => r.reactionType === 'CLAPPED',
-  ).length
-  booedCount.value = reactions.filter(
-    (r: Reaction) => r.reactionType === 'BOOED',
-  ).length
+    if (Array.isArray(reactions)) {
+      lovedCount.value = reactions.filter(
+        (r: Reaction) => r.reactionType === 'LOVED',
+      ).length
+      clappedCount.value = reactions.filter(
+        (r: Reaction) => r.reactionType === 'CLAPPED',
+      ).length
+      booedCount.value = reactions.filter(
+        (r: Reaction) => r.reactionType === 'BOOED',
+      ).length
 
-  // Find the current user's reaction if any
-  const userReactionData = reactions.find(
-    (r: Reaction) => r.userId === userStore.userId,
-  )
-  if (userReactionData) {
-    userReaction.value = userReactionData.reactionType
+      // Find the current user's reaction if any
+      const userReactionData = reactions.find(
+        (r: Reaction) => r.userId === userStore.userId,
+      )
+      if (userReactionData) {
+        userReaction.value = userReactionData.reactionType
+      }
+    } else {
+      console.error('Reactions are not an array:', reactions)
+    }
+  } catch (error) {
+    console.error('Failed to fetch reactions:', error)
   }
 }
 

@@ -386,13 +386,8 @@ model Reaction {
   id                Int               @id @unique @default(autoincrement())
   createdAt         DateTime          @default(now())
   updatedAt         DateTime?         @updatedAt @default(now())
-  title             String?
+  reactionType      ReactionType      
   comment           String?           @db.Text
-  reaction          String?
-  isLoved           Boolean?          @default(false)
-  isClapped         Boolean?          @default(false)
-  isBooed           Boolean?          @default(false)
-  isHated           Boolean?          @default(false)
   userId            Int               @default(10)
   User              User              @relation(fields: [userId], references: [id])
   artId             Int?
@@ -414,21 +409,23 @@ model Reaction {
   @@index([componentId], map: "Reaction_componentId_fkey")
 }
 
-enum ReactionStatus {
-  Liked
-  Loved
-  Hated
-  Flagged
-  Neutral
+
+enum ReactionType {
+  LOVED
+  CLAPPED
+  BOOED
+  HATED
+  NEUTRAL
+  FLAGGED
 }
 
 enum ReactionCategory {
-  COMPONENT
   ART
-  CHANNEL
-  USER
   PITCH
+  COMPONENT
+  CHANNEL
 }
+
 
 model Resource {
   id                Int           @id @default(autoincrement())

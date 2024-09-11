@@ -23,12 +23,6 @@
       Get New Ideas
     </button>
 
-    <!-- Milestone Reward -->
-    <milestone-reward
-      v-if="shouldShowMilestoneCheck"
-      :id="2"
-    ></milestone-reward>
-
     <!-- Loader when Fetching -->
     <div
       v-if="isLoading"
@@ -41,7 +35,7 @@
       tag="div"
       class="flex flex-wrap justify-center w-full"
     >
-      <div v-for="idea in allIdeas" :key="idea.id" class="m-2 w-72">
+      <div v-for="idea in brainstormPitches" :key="idea.id" class="m-2 w-72">
         <BrainstormCard
           :idea="idea"
           class="card-style"
@@ -61,66 +55,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useErrorStore, ErrorType } from '../../../stores/errorStore'
-import { samplePitches } from './../../../training/samplePitches'
-import { usePitchStore } from './../../../stores/pitchStore'
-import type { Pitch } from './../../../stores/pitchStore'
+import { ref } from 'vue'
+import { usePitchStore } from '../../../stores/pitchStore'
+import { useErrorStore } from '../../../stores/errorStore'
+
+// Initialize the pitch store
+const pitchStore = usePitchStore()
+const errorStore = useErrorStore()
+
+// Use brainstormPitches from the store
+const brainstormPitches = computed(() => pitchStore.brainstormPitches)
 
 const isLoading = ref(false)
 const pageImage = '/images/avatars/brain1.webp'
-const shouldShowMilestoneCheck = ref(false)
 
-// Access the stores
-const errorStore = useErrorStore()
-const pitchStore = usePitchStore()
-
-// Initialize the list of ideas with samplePitches
-const allIdeas = ref<Pitch[]>([...samplePitches])
-
-// Fetch new brainstorm ideas from the API
+// Fetch brainstorm ideas from pitchStore
 const fetchBrainstorm = async () => {
   isLoading.value = true
   errorStore.clearError() // Clear any previous errors
 
   try {
-    await errorStore.handleError(
-      async () => {
-        const response = await fetch('/api/botcafe/brainstorm', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            n: 5,
-            messages: [
-              { role: 'user', content: 'one more original brainstorms' },
-            ],
-            max_tokens: 500,
-          }),
-        })
-
-        shouldShowMilestoneCheck.value = true
-
-        const data = await response.json()
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-          const newIdeas: Pitch[] = parseIdeasFromAPI(
-            data.choices[0].message.content,
-          )
-          if (newIdeas.length > 0) {
-            // Add the new pitches to the store and UI
-            allIdeas.value = [...newIdeas, ...allIdeas.value]
-            pitchStore.addPitches(newIdeas) // Assuming pitchStore handles adding pitches
-          } else {
-            throw new Error('No new ideas generated')
-          }
-        } else {
-          throw new Error('Invalid API response')
-        }
-      },
-      ErrorType.NETWORK_ERROR,
-      'Failed to fetch new brainstorming ideas.',
-    )
+    await pitchStore.fetchBrainstormPitches()
+  } catch {
+    errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch new ideas')
   } finally {
     isLoading.value = false
   }
@@ -130,37 +87,6 @@ const fetchBrainstorm = async () => {
 const handleCardClick = (idea: Pitch) => {
   console.log('Card clicked:', idea)
 }
-
-// Parse ideas from API response
-const parseIdeasFromAPI = (rawContent: string): Pitch[] => {
-  const lines = rawContent.split('\n')
-  const ideasList = lines.filter((line: string) => /^\d+\./.test(line))
-  return ideasList.map((item: string, index: number) => {
-    const cleanItem = item.replace(/^\d+\.\s/, '')
-    const [title, pitch] = cleanItem.split(' - ')
-    return {
-      id: allIdeas.value.length + index + 1, // Creating a new unique id
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      title: title || `Idea ${index + 1}`,
-      pitch: pitch || cleanItem,
-      designer: null,
-      flavorText: null,
-      highlightImage: null,
-      PitchType: 'BRAINSTORM',
-      isMature: false,
-      isPublic: true,
-      userId: 1,
-      playerId: null,
-      channelId: null,
-    } as Pitch
-  })
-}
-
-// Fetch the initial set of sample pitches on mount
-onMounted(() => {
-  allIdeas.value = [...samplePitches]
-})
 </script>
 
 <style scoped>

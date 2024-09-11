@@ -1,4 +1,3 @@
-// /server/api/botcafe/brainstorm.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 
@@ -24,7 +23,12 @@ const creativePrompts = [
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const apiKey = event.node.req.headers['authorization']?.split(' ')[1]
+    const apiKey = process.env.OPENAI_API_KEY;
+
+    if (!apiKey) {
+      throw new Error('API key is missing. Please provide a valid OpenAI API key.')
+    }
+
     const { n = 5 } = body // Default n to 5 if not provided
 
     console.log('Received body:', body) // Log the entire body to check what's received
@@ -40,8 +44,8 @@ export default defineEventHandler(async (event) => {
     const data = {
       model: body.model || 'gpt-4o-mini',
       messages: selectedPrompts,
-      temperature: body.temperature,
-      max_tokens: body.maxTokens,
+      temperature: body.temperature || 0.7,
+      max_tokens: body.maxTokens || 150,
       n,
       stream: body.stream || false,
     }

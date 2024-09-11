@@ -1,138 +1,160 @@
 <template>
   <div
-    class="flex flex-col items-center bg-base-200 rounded-2xl p-4 m-4 border border-primary shadow-lg"
+    class="flex flex-col items-center bg-base-200 rounded-2xl p-6 m-6 border border-primary shadow-xl"
   >
-    <h1 class="text-3xl font-bold mb-4 text-primary">Brainstorm Café</h1>
-    <p class="text-lg text-secondary mb-6">
+    <!-- Title and Info -->
+    <h1 class="text-4xl font-bold mb-6 text-primary">Brainstorm Café</h1>
+    <img
+      :src="pageImage"
+      alt="Brainstorming"
+      class="rounded-full h-40 w-40 mb-6"
+    />
+    <p class="text-lg mb-6 text-secondary text-center">
       Welcome to the Brainstorm Café! Click the button below to get some fresh,
       creative ideas.
     </p>
+
+    <!-- Button to Fetch New Ideas -->
     <button
-      class="bg-primary hover:bg-primary-focus text-white font-semibold py-2 px-6 rounded-full transition-all duration-200 ease-in-out mb-4"
+      class="bg-primary hover:bg-primary-focus text-white py-3 px-6 rounded-full text-lg mb-6 transition-all duration-300"
       :disabled="isLoading"
       @click="fetchBrainstorm"
     >
       Get New Ideas
     </button>
-    <milestone-reward v-if="shouldShowMilestoneCheck" :id="2" />
+
+    <!-- Milestone Reward -->
+    <milestone-reward
+      v-if="shouldShowMilestoneCheck"
+      :id="2"
+    ></milestone-reward>
+
+    <!-- Loader when Fetching -->
     <div
       v-if="isLoading"
-      class="loader border-4 border-t-4 border-gray-200 h-12 w-12 rounded-full animate-spin mb-4"
+      class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 mb-6"
     ></div>
 
-    <div v-for="pitch in allIdeas" :key="pitch.id">
-      <PitchDisplay :pitch="pitch" />
-    </div>
+    <!-- Display All Brainstorm Ideas -->
+    <transition-group
+      name="list"
+      tag="div"
+      class="flex flex-wrap justify-center w-full"
+    >
+      <div v-for="idea in allIdeas" :key="idea.id" class="m-2 w-72">
+        <BrainstormCard
+          :idea="idea"
+          class="card-style"
+          @click="handleCardClick(idea)"
+        />
+      </div>
+    </transition-group>
 
+    <!-- Error Message if Any -->
     <div
       v-if="errorMessage"
-      class="bg-warning text-white py-2 px-4 rounded-lg mt-4"
+      class="bg-warning text-white py-4 px-6 rounded-full mt-6 text-center"
     >
-      <Icon name="error" class="text-lg mr-2" /> {{ errorMessage }}
+      <icon name="error" class="text-lg" /> {{ errorMessage }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { ref, onMounted } from 'vue'
+import { errorHandler } from '../../../server/api/utils/error'
 import { samplePitches } from './../../../training/samplePitches'
-import { PitchType } from '@prisma/client' // Importing PitchType as a value
+import { usePitchStore } from './../../../stores/pitchStore'
+import type { Pitch } from './../../../stores/pitchStore'
 
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
+const pageImage = '/images/avatars/brain1.webp'
 const shouldShowMilestoneCheck = ref(false)
 
-const errorStore = useErrorStore()
-const allIdeas = ref(
-  samplePitches.map((pitch, index) => ({
-    ...pitch,
-    id: index,
-    createdAt: new Date(),
-    updatedAt: pitch.updatedAt || new Date(),
-    userId: pitch.userId ?? 1, // Use nullish coalescing to ensure `userId` is always a number
-    playerId: null, // Ensure this is always null
-    PitchType: PitchType.BRAINSTORM, // Use PitchType correctly
-    isMature: false,
-    isPublic: true,
-  })),
-)
+// Access the pitch store
+const pitchStore = usePitchStore()
 
+// Initialize the list of ideas with samplePitches
+const allIdeas = ref<Pitch[]>([...samplePitches])
+
+// Fetch new brainstorm ideas from the API
 const fetchBrainstorm = async () => {
   isLoading.value = true
   errorMessage.value = null
-
   try {
-    await errorStore.handleError(
-      async () => {
-        const response = await fetch('/api/botcafe/brainstorm', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            n: 5,
-            messages: [
-              { role: 'user', content: 'another humorous original brainstorm' },
-            ],
-          }),
-        })
-        const data = await response.json()
-
-        if (Array.isArray(data.choices)) {
-          const newPitches = parsePitchesFromAPI(data.choices)
-          allIdeas.value = [...newPitches, ...allIdeas.value]
-        } else {
-          throw new Error('Unexpected API response structure.')
-        }
+    const response = await fetch('/api/botcafe/brainstorm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      ErrorType.UNKNOWN_ERROR,
-      'Failed to fetch new brainstorming ideas. Please try again.',
-    )
-  } catch (error) {
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: 'five more original brainstorms' }],
+      }),
+    })
+
+    shouldShowMilestoneCheck.value = true
+
+    const data = await response.json()
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      const newIdeas: Pitch[] = parseIdeasFromAPI(
+        data.choices[0].message.content,
+      )
+      if (newIdeas.length > 0) {
+        // Add the new pitches to the store and UI
+        allIdeas.value = [...newIdeas, ...allIdeas.value]
+        pitchStore.addPitches(newIdeas) // Assuming pitchStore handles adding pitches
+      } else {
+        throw new Error('No new ideas generated')
+      }
+    } else {
+      throw new Error('Invalid API response')
+    }
+  } catch (error: unknown) {
+    const { message } = errorHandler(error)
+    errorMessage.value = message
     console.error('Error fetching brainstorm:', error)
-    errorMessage.value = 'Could not retrieve new ideas. Using cached ideas.'
-    allIdeas.value = [
-      ...samplePitches.map((pitch) => ({
-        ...pitch,
-        updatedAt: pitch.updatedAt || new Date(), // Ensure `updatedAt` is always a Date
-        userId: pitch.userId ?? 1, // Ensure `userId` is always a number
-        playerId: null, // Ensure this is always null
-        PitchType: 'BRAINSTORM' as const,
-      })),
-      ...allIdeas.value,
-    ]
   } finally {
     isLoading.value = false
   }
 }
-const parsePitchesFromAPI = (
-  choices: Array<{ message: { content: string } }>,
-) => {
-  return choices.map((choice, _index: number) => {
-    const content = choice.message.content
-    const cleanContent = content.replace(/^\d+\.\s/, '')
-    const [title, example] = cleanContent.split(' - ')
 
+// Handle card click event
+const handleCardClick = (idea: Pitch) => {
+  console.log('Card clicked:', idea)
+}
+
+// Parse ideas from API response
+const parseIdeasFromAPI = (rawContent: string): Pitch[] => {
+  const lines = rawContent.split('\n')
+  const ideasList = lines.filter((line: string) => /^\d+\./.test(line))
+  return ideasList.map((item: string, index: number) => {
+    const cleanItem = item.replace(/^\d+\.\s/, '')
+    const [title, pitch] = cleanItem.split(' - ')
     return {
-      id: _index + allIdeas.value.length,
+      id: allIdeas.value.length + index + 1, // Creating a new unique id
       createdAt: new Date(),
       updatedAt: new Date(),
-      title: title || `Idea ${_index + 1}`,
-      pitch: example || content,
-      channelId: null,
+      title: title || `Idea ${index + 1}`,
+      pitch: pitch || cleanItem,
+      designer: null,
+      flavorText: null,
+      highlightImage: null,
+      PitchType: 'BRAINSTORM',
       isMature: false,
       isPublic: true,
       userId: 1,
       playerId: null,
-      designer: 'Brainstorm',
-      flavorText: '',
-      highlightImage: '',
-      PitchType: PitchType.BRAINSTORM, // Use PitchType as an enum value
-    }
+      channelId: null,
+    } as Pitch
   })
 }
+
+// Fetch the initial set of sample pitches on mount
+onMounted(() => {
+  allIdeas.value = [...samplePitches]
+})
 </script>
 
 <style scoped>
@@ -140,6 +162,7 @@ const parsePitchesFromAPI = (
   border-top-color: #3498db;
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -147,5 +170,34 @@ const parsePitchesFromAPI = (
   100% {
     transform: rotate(360deg);
   }
+}
+
+.card-style {
+  background-color: var(--bg-secondary);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.3s ease-in-out,
+    box-shadow 0.3s ease-in-out;
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.card-style:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s;
+}
+
+.list-enter,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
 }
 </style>

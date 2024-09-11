@@ -30,7 +30,8 @@ function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
 
 export const usePitchStore = defineStore('pitch', {
   state: () => ({
-    pitches: [] as Pitch[],
+    pitches: [] as Pitch[],        // All pitches
+    selectedPitches: [] as Pitch[], // Top 5 selected pitches
     isInitialized: false,
     selectedPitchId: null as number | null,
   }),
@@ -38,13 +39,13 @@ export const usePitchStore = defineStore('pitch', {
   getters: {
     brainstormPitches: (state) => {
       return state.pitches.filter(
-        (pitch: Pitch) => pitch.PitchType === 'BRAINSTORM',
+        (pitch: Pitch) => pitch.PitchType === PitchType.BRAINSTORM,
       )
     },
 
     pitchesByTitle: (state) => {
       return state.pitches
-        .filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM')
+        .filter((pitch: Pitch) => pitch.PitchType === PitchType.BRAINSTORM)
         .reduce((grouped: Record<string, Pitch[]>, pitch: Pitch) => {
           const title = pitch.title || 'Untitled'
           if (!grouped[title]) {
@@ -54,15 +55,15 @@ export const usePitchStore = defineStore('pitch', {
           return grouped
         }, {})
     },
+
     publicPitches: (state) => {
       const userStore = useUserStore()
       return state.pitches.filter(
         (pitch) =>
-          pitch.isPublic ||
-          pitch.userId === userStore.userId ||
-          pitch.userId === 0,
+          pitch.isPublic || pitch.userId === userStore.userId || pitch.userId === 0,
       )
     },
+
     selectedPitch: (state) => {
       return (
         state.pitches.find((pitch) => pitch.id === state.selectedPitchId) ||
@@ -72,6 +73,7 @@ export const usePitchStore = defineStore('pitch', {
   },
 
   actions: {
+    // Fetch brainstorm pitches
     async fetchBrainstormPitches() {
       try {
         const response = await fetch('/api/botcafe/brainstorm', {
@@ -81,9 +83,7 @@ export const usePitchStore = defineStore('pitch', {
           },
           body: JSON.stringify({
             n: 5,
-            messages: [
-              { role: 'user', content: '1 more original brainstorm.' },
-            ],
+            messages: [{ role: 'user', content: '1 more original brainstorm.' }],
             max_tokens: 500,
           }),
         })
@@ -101,6 +101,7 @@ export const usePitchStore = defineStore('pitch', {
         console.error('Failed to fetch brainstorm pitches:', error)
       }
     },
+
     // Helper function to parse API ideas into Pitch format
     parseIdeasFromAPI(rawContent: string): Pitch[] {
       const lines = rawContent.split('\n')
@@ -117,7 +118,7 @@ export const usePitchStore = defineStore('pitch', {
           designer: null,
           flavorText: null,
           highlightImage: null,
-          PitchType: 'BRAINSTORM',
+          PitchType: PitchType.BRAINSTORM,
           isMature: false,
           isPublic: true,
           userId: 1,
@@ -127,56 +128,32 @@ export const usePitchStore = defineStore('pitch', {
       })
     },
 
-    // Load more pitches by title
-    async fetchMorePitchesByTitle(title: string) {
-      try {
-        const data = await this.performFetch(
-          `/api/pitches/title/${encodeURIComponent(title)}`,
+    // Add new pitches and select the newest five brainstorm pitches
+    addPitches(newPitches: Pitch[]) {
+      newPitches.forEach((newPitch) => {
+        const existingPitch = this.pitches.find(
+          (pitch) => pitch.id === newPitch.id,
         )
-        this.addPitches(data.pitches || [])
-      } catch (error) {
-        console.error(`Failed to fetch more pitches for title: ${title}`, error)
-      }
-    },
-    setSelectedPitch(pitchId: number | null) {
-      this.selectedPitchId = pitchId
-    },
-
-    async performFetch(
-      url: string,
-      options: RequestInit = {},
-    ): Promise<FetchResponse> {
-      const errorStore = useErrorStore()
-      try {
-        const response = await fetch(url, options)
-        const data = await response.json()
-
-        if (!response.ok) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            data.message || 'Failed to perform fetch operation',
-          )
-          return { success: false, message: data.message }
+        if (!existingPitch) {
+          this.pitches.push(newPitch)
         }
+      })
 
-        return { ...data, success: true }
-      } catch (error) {
-        const errorMessage = isErrorWithMessage(error)
-          ? error.message
-          : 'Unknown network error'
-        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
-        console.error('Network error:', errorMessage)
-        return { success: false, message: errorMessage }
+      // Automatically select the newest five brainstorm pitches
+      const brainstormPitches = this.pitches
+        .filter((pitch) => pitch.PitchType === PitchType.BRAINSTORM)
+        .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)) // Sort by most recent
+
+      // Update the selected pitches to be the newest five
+      this.selectedPitches = brainstormPitches.slice(0, 5)
+
+      if (isClient) {
+        localStorage.setItem('pitches', JSON.stringify(this.pitches))
+        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
       }
     },
 
-    async initializePitches() {
-      if (!this.isInitialized) {
-        await this.fetchPitches()
-        this.isInitialized = true
-      }
-    },
-
+    // Fetch existing pitches from API or storage
     async fetchPitches() {
       try {
         const data = await this.performFetch('/api/pitches/batch')
@@ -189,8 +166,8 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
+    // Fetch a pitch by ID
     async fetchPitchById(pitchId: number) {
-      // Check if pitch already exists in state
       const existingPitch = this.pitches.find((pitch) => pitch.id === pitchId)
       if (existingPitch) return existingPitch
 
@@ -208,6 +185,7 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
+    // Create a new pitch
     async createPitch(newPitch: Partial<Pitch>) {
       try {
         const data = await this.performFetch('/api/pitches', {
@@ -238,6 +216,7 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
+    // Update a pitch
     async updatePitch(pitchId: number, updates: Partial<Pitch>) {
       try {
         const data = await this.performFetch(`/api/pitches/${pitchId}`, {
@@ -269,6 +248,7 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
+    // Delete a pitch
     async deletePitch(pitchId: number) {
       try {
         await this.performFetch(`/api/pitches/${pitchId}`, { method: 'DELETE' })
@@ -295,26 +275,48 @@ export const usePitchStore = defineStore('pitch', {
         }
       }
     },
-    addPitches(newPitches: Pitch[]) {
-  newPitches.forEach((newPitch) => {
-    const existingPitch = this.pitches.find(
-      (pitch) => pitch.id === newPitch.id,
-    )
-    if (!existingPitch) {
-      this.pitches.push(newPitch)
-    }
-  })
-  
-  // Automatically select the newest five brainstorm pitches
-  const brainstormPitches = this.pitches
-    .filter((pitch) => pitch.PitchType === 'BRAINSTORM')
-    .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)) // Sort by most recent
-  
-  // Update the selected pitches to be the newest five
-  this.selectedPitches = brainstormPitches.slice(0, 5)
 
-  if (isClient) {
-    localStorage.setItem('pitches', JSON.stringify(this.pitches))
-  }
-}
+    // Fetch more pitches by title
+    async fetchMorePitchesByTitle(title: string) {
+      try {
+        const data = await this.performFetch(
+          `/api/pitches/title/${encodeURIComponent(title)}`,
+        )
+        this.addPitches(data.pitches || [])
+      } catch (error) {
+        console.error(`Failed to fetch more pitches for title: ${title}`, error)
+      }
+    },
+
+    // Utility function to perform fetch with error handling
+    async performFetch(
+      url: string,
+      options: RequestInit = {},
+    ): Promise<FetchResponse> {
+      const errorStore = useErrorStore()
+      try {
+        const response = await fetch(url, options)
+        const data = await response.json()
+
+        if (!response.ok) {
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            data.message || 'Failed to perform fetch operation',
+          )
+          return { success: false, message: data.message }
+        }
+
+        return { ...data, success: true }
+      } catch (error) {
+        const errorMessage = isErrorWithMessage(error)
+          ? error.message
+          : 'Unknown network error'
+        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+        console.error('Network error:', errorMessage)
+        return { success: false, message: errorMessage }
+      }
+    },
+  },
+})
+
 export type { Pitch }

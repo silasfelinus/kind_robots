@@ -262,6 +262,7 @@ const expandedPitchId = ref<number | null>(null)
 
 // Fetch brainstorm ideas on mount
 onMounted(() => {
+  pitchStore.initializePitches()
   pitchStore.fetchBrainstormPitches()
 })
 

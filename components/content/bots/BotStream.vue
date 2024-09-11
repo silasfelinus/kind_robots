@@ -164,12 +164,16 @@ const toggleReaction = async (index: number, reactionType: ReactionType) => {
   const reactionData: Partial<Reaction> = {
     userId: userId.value,
     componentId: conversationId,
-    [reactionType]: true, // Set the reaction type (e.g., isLoved, isHated)
+    reactionType, // Set the reaction type (e.g., 'Loved', 'Hated')
   }
 
   // Toggle the existing reaction or create a new one
   if (existingReaction) {
-    reactionData[reactionType] = !existingReaction[reactionType] // Toggle the existing value
+    // If the reaction already exists, update its type (if necessary)
+    reactionData.reactionType =
+      existingReaction.reactionType === reactionType
+        ? '' // Remove the reaction if it’s the same type (unlike)
+        : reactionType // Change to the new reaction type
     await reactionStore.updateReaction(existingReaction.id, reactionData) // Update reaction in the store
   } else {
     await reactionStore.createReaction(reactionData) // Create new reaction

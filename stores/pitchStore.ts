@@ -37,6 +37,13 @@ export const usePitchStore = defineStore('pitch', {
   }),
 
   getters: {
+    async initializePitches() {
+      if (!this.isInitialized) {
+        await this.fetchPitches()  // Assume fetchPitches is already defined
+        this.isInitialized = true
+      }
+    },
+
     brainstormPitches: (state) => {
       return state.pitches.filter(
         (pitch: Pitch) => pitch.PitchType === PitchType.BRAINSTORM,

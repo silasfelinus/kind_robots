@@ -28,6 +28,20 @@ export const usePitchStore = defineStore('pitch', {
   }),
 
   getters: {
+    brainstormPitches: (state) => {
+      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM');
+    },
+
+    pitchesByTitle: (state) => {
+      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM').reduce((grouped: Record<string, Pitch[]>, pitch: Pitch) => {
+        const title = pitch.title || 'Untitled';
+        if (!grouped[title]) {
+          grouped[title] = [];
+        }
+        grouped[title].push(pitch);
+        return grouped;
+      }, {});
+    },
     publicPitches: (state) => {
       const userStore = useUserStore()
       return state.pitches.filter(
@@ -46,6 +60,24 @@ export const usePitchStore = defineStore('pitch', {
   },
 
   actions: {
+    async fetchBrainstormPitches() {
+      try {
+        const data = await this.performFetch('/api/pitches/brainstorm');
+        this.addPitches(data.pitches || []);
+      } catch (error) {
+        console.error('Failed to fetch brainstorm pitches:', error);
+      }
+    },
+
+    // Load more pitches by title
+    async fetchMorePitchesByTitle(title: string) {
+      try {
+        const data = await this.performFetch(`/api/pitches/title/${encodeURIComponent(title)}`);
+        this.addPitches(data.pitches || []);
+      } catch (error) {
+        console.error(`Failed to fetch more pitches for title: ${title}`, error);
+      }
+    },
     setSelectedPitch(pitchId: number | null) {
       this.selectedPitchId = pitchId
     },

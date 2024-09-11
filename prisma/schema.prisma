@@ -424,6 +424,7 @@ enum ReactionCategory {
   PITCH
   COMPONENT
   CHANNEL
+  TITLE
 }
 
 

@@ -1,118 +1,93 @@
 <template>
-  <div class="bg-base-100 shadow-md rounded-lg p-4 w-64">
-    <h2 class="text-xl font-semibold">{{ pitch.title }}</h2>
-    <p class="text-sm text-secondary">{{ pitch.pitch }}</p>
+  <div>
+    <!-- Iterate over the grouped pitches by title -->
+    <div v-for="(pitches, title) in pitchesByTitle" :key="title" class="mb-6">
+      <!-- Display Title -->
+      <h3 class="text-lg font-bold mb-2">{{ title }}</h3>
 
-    <div class="flex items-center justify-between mt-4">
-      <button
-        class="text-red-500 hover:text-red-600 flex items-center"
-        @click="reactToPitch('LOVED')"
+      <!-- Iterate over each pitch within the title group -->
+      <div
+        v-for="pitch in pitches"
+        :key="pitch.id"
+        class="bg-base-100 shadow-md rounded-lg p-4 mb-4"
       >
-        <Icon name="love" class="text-lg mr-1" />
-        {{ lovedCount }}
-      </button>
+        <p class="text-sm text-secondary">{{ pitch.pitch }}</p>
+
+        <!-- Reaction Buttons -->
+        <div class="flex items-center justify-between mt-4">
+          <button
+            class="text-red-500 hover:text-red-600 flex items-center"
+            @click="reactToPitch(pitch, 'LOVED')"
+          >
+            <icon name="love" class="text-lg mr-1" />
+            Love
+          </button>
+          <button
+            class="text-yellow-500 hover:text-yellow-600 flex items-center"
+            @click="reactToPitch(pitch, 'CLAPPED')"
+          >
+            <icon name="clap" class="text-lg mr-1" />
+            Clap
+          </button>
+          <button
+            class="text-blue-500 hover:text-blue-600 flex items-center"
+            @click="reactToPitch(pitch, 'BOOED')"
+          >
+            <icon name="boo" class="text-lg mr-1" />
+            Boo
+          </button>
+        </div>
+      </div>
+
+      <!-- Button to load more pitches with the same title -->
       <button
-        class="text-yellow-500 hover:text-yellow-600 flex items-center"
-        @click="reactToPitch('CLAPPED')"
+        class="text-blue-500 mt-4 underline"
+        @click="loadMorePitches(title)"
       >
-        <Icon name="clap" class="text-lg mr-1" />
-        {{ clappedCount }}
-      </button>
-      <button
-        class="text-blue-500 hover:text-blue-600 flex items-center"
-        @click="reactToPitch('BOOED')"
-      >
-        <Icon name="boo" class="text-lg mr-1" />
-        {{ booedCount }}
+        Load more pitches for {{ title }}
       </button>
     </div>
-    <p v-if="userReaction" class="mt-2 text-sm">
-      You {{ userReaction }} this pitch.
-    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useReactionStore } from './../../../stores/reactionStore'
-import { useUserStore } from './../../../stores/userStore'
-import type { Pitch } from './../../../stores/pitchStore'
-import type { Reaction } from '@prisma/client'
+import { onMounted } from 'vue'
+import { usePitchStore } from '@/stores/pitchStore'
+import { useUserStore } from '@/stores/userStore'
+import { useReactionStore } from '@/stores/reactionStore'
 
-// Props
-const props = defineProps<{ pitch: Pitch }>()
-
-// State
-const lovedCount = ref(0)
-const clappedCount = ref(0)
-const booedCount = ref(0)
-const userReaction = ref<string | null>(null)
-
+// Initialize pitch and reaction stores
+const pitchStore = usePitchStore()
 const reactionStore = useReactionStore()
 const userStore = useUserStore()
 
-// Fetch reactions and count them
-const fetchReactions = async () => {
-  try {
-    const reactions = await reactionStore.fetchReactionsForPitch(props.pitch.id)
+// Fetch brainstorm pitches on component mount
+onMounted(() => {
+  pitchStore.fetchBrainstormPitches()
+})
 
-    if (Array.isArray(reactions)) {
-      lovedCount.value = reactions.filter(
-        (r: Reaction) => r.reactionType === 'LOVED',
-      ).length
-      clappedCount.value = reactions.filter(
-        (r: Reaction) => r.reactionType === 'CLAPPED',
-      ).length
-      booedCount.value = reactions.filter(
-        (r: Reaction) => r.reactionType === 'BOOED',
-      ).length
+// Access pitches by title from the store
+const pitchesByTitle = computed(() => pitchStore.pitchesByTitle)
 
-      // Find the current user's reaction if any
-      const userReactionData = reactions.find(
-        (r: Reaction) => r.userId === userStore.userId,
-      )
-      if (userReactionData) {
-        userReaction.value = userReactionData.reactionType
-      }
-    } else {
-      console.error('Reactions are not an array:', reactions)
-    }
-  } catch (error) {
-    console.error('Failed to fetch reactions:', error)
-  }
+// Load more pitches by title
+const loadMorePitches = (title: string) => {
+  pitchStore.fetchMorePitchesByTitle(title)
 }
 
-// React to a pitch
-const reactToPitch = async (reactionType: string) => {
+// Handle pitch reactions
+const reactToPitch = async (pitch: Pitch, reactionType: string) => {
   try {
-    const existingReaction = await reactionStore.findUserReactionForPitch(
-      props.pitch.id,
-      userStore.userId,
-    )
-
-    if (existingReaction) {
-      // Update the existing reaction with reactionType
-      await reactionStore.updateReaction(existingReaction.id, { reactionType })
-    } else {
-      // Create a new reaction with reactionType
-      await reactionStore.createReaction({
-        pitchId: props.pitch.id,
-        userId: userStore.userId,
-        reactionType, // Ensure this is reactionType, not reaction
-      })
-    }
-
-    // Update the local state
-    userReaction.value = reactionType
-    await fetchReactions()
+    await reactionStore.createReaction({
+      pitchId: pitch.id,
+      userId: userStore.userId,
+      reactionType,
+    })
   } catch (error) {
-    console.error('Failed to react:', error)
+    console.error('Failed to react to pitch:', error)
   }
 }
-
-onMounted(fetchReactions)
 </script>
 
 <style scoped>
-/* Add styling here */
+/* Add any custom styles you need here */
 </style>

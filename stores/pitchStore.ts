@@ -295,21 +295,26 @@ export const usePitchStore = defineStore('pitch', {
         }
       }
     },
-    // New addPitches method
     addPitches(newPitches: Pitch[]) {
-      newPitches.forEach((newPitch) => {
-        const existingPitch = this.pitches.find(
-          (pitch) => pitch.id === newPitch.id,
-        )
-        if (!existingPitch) {
-          this.pitches.push(newPitch)
-        }
-      })
-      if (isClient) {
-        localStorage.setItem('pitches', JSON.stringify(this.pitches))
-      }
-    },
-  },
-})
+  newPitches.forEach((newPitch) => {
+    const existingPitch = this.pitches.find(
+      (pitch) => pitch.id === newPitch.id,
+    )
+    if (!existingPitch) {
+      this.pitches.push(newPitch)
+    }
+  })
+  
+  // Automatically select the newest five brainstorm pitches
+  const brainstormPitches = this.pitches
+    .filter((pitch) => pitch.PitchType === 'BRAINSTORM')
+    .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)) // Sort by most recent
+  
+  // Update the selected pitches to be the newest five
+  this.selectedPitches = brainstormPitches.slice(0, 5)
 
+  if (isClient) {
+    localStorage.setItem('pitches', JSON.stringify(this.pitches))
+  }
+}
 export type { Pitch }

@@ -91,6 +91,7 @@ const fetchBrainstorm = async () => {
       body: JSON.stringify({
         n: 5,
         messages: [{ role: 'user', content: 'one more original brainstorms' }],
+        max_tokens: 500,
       }),
     })
 

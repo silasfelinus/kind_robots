@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col items-center bg-base-200 rounded-2xl p-4 sm:p-6 md:p-8 m-4 md:m-6 border border-primary shadow-xl w-full"
+    class="flex flex-col items-center bg-base-200 rounded-2xl p-4 sm:p-6 md:p-8 m-4 md:m-6 border border-primary shadow-xl w-full max-w-full overflow-hidden"
   >
     <!-- Title and Info -->
     <h1
@@ -14,11 +14,13 @@
     </p>
 
     <!-- Top 5 Selected Pitches (Responsive) -->
-    <div class="flex flex-wrap justify-center sm:justify-around mb-6 w-full">
+    <div
+      class="flex flex-wrap justify-center sm:justify-around mb-6 w-full max-w-full overflow-hidden"
+    >
       <div
         v-for="(pitch, index) in selectedPitches"
         :key="index"
-        class="bg-accent text-white rounded-lg p-4 m-2 sm:m-0 w-full sm:w-1/3 md:w-1/5 flex items-center justify-center text-center h-28 sm:h-20"
+        class="bg-accent text-white rounded-lg p-4 m-2 sm:m-0 w-full sm:w-1/3 md:w-1/5 flex flex-col items-center justify-center text-center h-28 sm:h-20 hover:shadow-lg transition duration-300"
       >
         <div v-if="pitch">
           <h4 class="text-md md:text-lg font-semibold">{{ pitch.title }}</h4>
@@ -28,19 +30,111 @@
       </div>
     </div>
 
-    <!-- Display All Brainstorm Ideas (Responsive Grid) -->
+    <!-- Display All Brainstorm Ideas (Responsive Grid with Editing) -->
     <transition-group
       name="list"
       tag="div"
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 justify-center w-full"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 justify-center w-full max-w-full"
     >
       <div
         v-for="idea in brainstormPitches"
         :key="idea.id"
-        class="bg-base-100 shadow-md rounded-lg p-4 cursor-pointer"
+        class="bg-base-100 shadow-md rounded-lg p-4 cursor-pointer hover:bg-base-300 transition duration-300"
         @click="selectPitch(idea)"
       >
-        <BrainstormCard :idea="idea" class="card-style" />
+        <!-- Basic Pitch Display -->
+        <div>
+          <h4 class="text-md md:text-lg font-semibold">{{ idea.title }}</h4>
+          <p class="text-xs md:text-sm">{{ idea.pitch }}</p>
+          <button
+            class="text-blue-500 mt-2 underline hover:text-blue-700"
+            @click.stop="toggleExpand(idea.id)"
+          >
+            {{ expandedPitchId === idea.id ? 'Collapse' : 'Expand' }} Details
+          </button>
+
+          <!-- Expanded Pitch Editing Section -->
+          <div v-if="expandedPitchId === idea.id" class="mt-4 space-y-4">
+            <div>
+              <label for="title" class="block text-sm font-medium text-gray-700"
+                >Title</label
+              >
+              <input
+                v-model="idea.title"
+                type="text"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label
+                for="designer"
+                class="block text-sm font-medium text-gray-700"
+                >Designer</label
+              >
+              <input
+                v-model="idea.designer"
+                type="text"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label
+                for="flavorText"
+                class="block text-sm font-medium text-gray-700"
+                >Flavor Text</label
+              >
+              <textarea
+                v-model="idea.flavorText"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div>
+              <label
+                for="highlightImage"
+                class="block text-sm font-medium text-gray-700"
+                >Highlight Image URL</label
+              >
+              <input
+                v-model="idea.highlightImage"
+                type="text"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+
+            <button
+              class="bg-primary hover:bg-primary-focus text-white py-2 px-4 rounded-full transition duration-300"
+              @click.stop="saveChanges(idea)"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+
+        <!-- Reaction Buttons -->
+        <div class="flex items-center justify-between mt-4 space-x-2">
+          <button
+            class="text-red-500 hover:text-red-600 flex items-center"
+            @click.stop="reactToPitch(idea, 'LOVED')"
+          >
+            <icon name="love" class="text-lg mr-1" /> Love
+          </button>
+          <button
+            class="text-yellow-500 hover:text-yellow-600 flex items-center"
+            @click.stop="reactToPitch(idea, 'CLAPPED')"
+          >
+            <icon name="clap" class="text-lg mr-1" /> Clap
+          </button>
+          <button
+            class="text-blue-500 hover:text-blue-600 flex items-center"
+            @click.stop="reactToPitch(idea, 'BOOED')"
+          >
+            <icon name="boo" class="text-lg mr-1" /> Boo
+          </button>
+        </div>
       </div>
     </transition-group>
 
@@ -66,14 +160,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { usePitchStore } from '../../../stores/pitchStore'
+import { useReactionStore } from '../../../stores/reactionStore'
 import { useErrorStore, ErrorType } from '../../../stores/errorStore'
-import type { Pitch } from '../../../stores/pitchStore' // Import the Pitch type
+import type { Pitch } from '../../../stores/pitchStore'
 
-// Initialize the pitch store
+// Initialize stores
 const pitchStore = usePitchStore()
-
-// Error handling
 const errorStore = useErrorStore()
+const reactionStore = useReactionStore()
 
 // Selected pitches - explicitly define it as an array of Pitch or null for unselected slots
 const selectedPitches = ref<(Pitch | null)[]>([null, null, null, null, null])
@@ -81,19 +175,21 @@ const selectedPitches = ref<(Pitch | null)[]>([null, null, null, null, null])
 // Access brainstorm pitches
 const brainstormPitches = computed(() => pitchStore.brainstormPitches)
 
-// Fetch brainstorm ideas from pitchStore on mount
+// Track expanded pitch
+const expandedPitchId = ref<number | null>(null)
+
+// Fetch brainstorm ideas on mount
 onMounted(() => {
   pitchStore.fetchBrainstormPitches()
 })
 
-// Select a pitch to add to the top 5
+// Select a pitch for the top 5
 const selectPitch = (pitch: Pitch) => {
   const existingIndex = selectedPitches.value.findIndex(
     (p) => p && p.id === pitch.id,
   )
 
   if (existingIndex === -1) {
-    // Add the pitch if there is space, otherwise replace the last one
     if (selectedPitches.value.filter((p) => p !== null).length < 5) {
       const firstEmptyIndex = selectedPitches.value.indexOf(null)
       selectedPitches.value[firstEmptyIndex] = pitch
@@ -103,7 +199,22 @@ const selectPitch = (pitch: Pitch) => {
   }
 }
 
-// Submit the selected top 5 pitches
+// Toggle pitch details expansion
+const toggleExpand = (pitchId: number) => {
+  expandedPitchId.value = expandedPitchId.value === pitchId ? null : pitchId
+}
+
+// Save edited changes to a pitch
+const saveChanges = (pitch: Pitch) => {
+  pitchStore.updatePitch(pitch.id, {
+    title: pitch.title,
+    designer: pitch.designer,
+    flavorText: pitch.flavorText,
+    highlightImage: pitch.highlightImage,
+  })
+}
+
+// Submit the top 5 selected pitches
 const submitTopPitches = async () => {
   try {
     if (selectedPitches.value.filter((p) => p !== null).length !== 5) {
@@ -136,10 +247,22 @@ const submitTopPitches = async () => {
     )
   }
 }
+
+// Handle pitch reactions
+const reactToPitch = async (pitch: Pitch, reactionType: string) => {
+  try {
+    await reactionStore.createReaction({
+      pitchId: pitch.id,
+      userId: useUserStore().userId,
+      reactionType,
+    })
+  } catch (error) {
+    console.error('Failed to react to pitch:', error)
+  }
+}
 </script>
 
 <style scoped>
-/* Custom styles */
 .card-style {
   background-color: var(--bg-secondary);
   border-radius: 1rem;

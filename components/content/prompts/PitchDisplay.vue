@@ -52,9 +52,9 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
-import { useUserStore } from '@/stores/userStore'
-import { useReactionStore } from '@/stores/reactionStore'
+import { usePitchStore } from './../../../stores/pitchStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useReactionStore } from './../../../stores/reactionStore'
 
 // Initialize pitch and reaction stores
 const pitchStore = usePitchStore()

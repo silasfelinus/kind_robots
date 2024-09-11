@@ -18,7 +18,6 @@ export enum ReactionCategory {
   TITLE = 'TITLE',
 }
 
-
 export const useReactionStore = defineStore('reactionStore', {
   state: () => ({
     reactions: [] as Reaction[],
@@ -54,7 +53,6 @@ export const useReactionStore = defineStore('reactionStore', {
   },
 
   actions: {
-
     // Fetch all reactions for a specific pitch through the API
     async fetchReactionsForPitch(pitchId: number) {
       this.loading = true
@@ -82,12 +80,15 @@ export const useReactionStore = defineStore('reactionStore', {
     // Find the user's reaction to a specific pitch through the API
     async findUserReactionForPitch(pitchId: number, userId: number) {
       try {
-        const response = await fetch(`/api/reactions/user/${userId}/pitch/${pitchId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `/api/reactions/user/${userId}/pitch/${pitchId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
           },
-        })
+        )
         if (!response.ok) throw new Error('Failed to find user reaction')
         const reaction: Reaction = await response.json()
         return reaction
@@ -126,7 +127,10 @@ export const useReactionStore = defineStore('reactionStore', {
     },
 
     // Update an existing reaction
-    async updateReaction(reactionId: number, updates: { reactionType?: ReactionType }) {
+    async updateReaction(
+      reactionId: number,
+      updates: { reactionType?: ReactionType },
+    ) {
       try {
         const response = await fetch(`/api/reactions/${reactionId}`, {
           method: 'PUT',
@@ -137,7 +141,7 @@ export const useReactionStore = defineStore('reactionStore', {
         })
         if (!response.ok) throw new Error('Failed to update reaction')
         const updatedReaction: Reaction = await response.json()
-        const index = this.reactions.findIndex(r => r.id === reactionId)
+        const index = this.reactions.findIndex((r) => r.id === reactionId)
         if (index !== -1) {
           this.reactions[index] = updatedReaction
         }

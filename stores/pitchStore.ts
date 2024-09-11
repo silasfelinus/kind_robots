@@ -17,9 +17,8 @@ export enum PitchType {
   ARTPITCH = 'ARTPITCH',
   BOT = 'BOT',
   ARTGALLERY = 'ARTGALLERY',
-  INSPIRATION = 'INSPIRATION'
+  INSPIRATION = 'INSPIRATION',
 }
-
 
 interface ErrorWithMessage {
   message: string
@@ -38,18 +37,22 @@ export const usePitchStore = defineStore('pitch', {
 
   getters: {
     brainstormPitches: (state) => {
-      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM');
+      return state.pitches.filter(
+        (pitch: Pitch) => pitch.PitchType === 'BRAINSTORM',
+      )
     },
 
     pitchesByTitle: (state) => {
-      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM').reduce((grouped: Record<string, Pitch[]>, pitch: Pitch) => {
-        const title = pitch.title || 'Untitled';
-        if (!grouped[title]) {
-          grouped[title] = [];
-        }
-        grouped[title].push(pitch);
-        return grouped;
-      }, {});
+      return state.pitches
+        .filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM')
+        .reduce((grouped: Record<string, Pitch[]>, pitch: Pitch) => {
+          const title = pitch.title || 'Untitled'
+          if (!grouped[title]) {
+            grouped[title] = []
+          }
+          grouped[title].push(pitch)
+          return grouped
+        }, {})
     },
     publicPitches: (state) => {
       const userStore = useUserStore()
@@ -78,7 +81,9 @@ export const usePitchStore = defineStore('pitch', {
           },
           body: JSON.stringify({
             n: 5,
-            messages: [{ role: 'user', content: '1 more original brainstorm.' }],
+            messages: [
+              { role: 'user', content: '1 more original brainstorm.' },
+            ],
             max_tokens: 500,
           }),
         })
@@ -96,65 +101,74 @@ export const usePitchStore = defineStore('pitch', {
         console.error('Failed to fetch brainstorm pitches:', error)
       }
     },
-        // Helper function to parse API ideas into Pitch format
-        parseIdeasFromAPI(rawContent: string): Pitch[] {
-          const lines = rawContent.split('\n')
-          const ideasList = lines.filter((line: string) => /^\d+\./.test(line))
-          return ideasList.map((item: string, index: number) => {
-            const cleanItem = item.replace(/^\d+\.\s/, '')
-            const [title, pitch] = cleanItem.split(' - ')
-            return {
-              id: this.pitches.length + index + 1, // Creating a new unique id
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              title: title || `Idea ${index + 1}`,
-              pitch: pitch || cleanItem,
-              designer: null,
-              flavorText: null,
-              highlightImage: null,
-              PitchType: 'BRAINSTORM',
-              isMature: false,
-              isPublic: true,
-              userId: 1,
-              playerId: null,
-              channelId: null,
-            } as Pitch
-          })
-        },
+    // Helper function to parse API ideas into Pitch format
+    parseIdeasFromAPI(rawContent: string): Pitch[] {
+      const lines = rawContent.split('\n')
+      const ideasList = lines.filter((line: string) => /^\d+\./.test(line))
+      return ideasList.map((item: string, index: number) => {
+        const cleanItem = item.replace(/^\d+\.\s/, '')
+        const [title, pitch] = cleanItem.split(' - ')
+        return {
+          id: this.pitches.length + index + 1, // Creating a new unique id
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          title: title || `Idea ${index + 1}`,
+          pitch: pitch || cleanItem,
+          designer: null,
+          flavorText: null,
+          highlightImage: null,
+          PitchType: 'BRAINSTORM',
+          isMature: false,
+          isPublic: true,
+          userId: 1,
+          playerId: null,
+          channelId: null,
+        } as Pitch
+      })
+    },
 
     // Load more pitches by title
     async fetchMorePitchesByTitle(title: string) {
       try {
-        const data = await this.performFetch(`/api/pitches/title/${encodeURIComponent(title)}`);
-        this.addPitches(data.pitches || []);
+        const data = await this.performFetch(
+          `/api/pitches/title/${encodeURIComponent(title)}`,
+        )
+        this.addPitches(data.pitches || [])
       } catch (error) {
-        console.error(`Failed to fetch more pitches for title: ${title}`, error);
+        console.error(`Failed to fetch more pitches for title: ${title}`, error)
       }
     },
     setSelectedPitch(pitchId: number | null) {
       this.selectedPitchId = pitchId
     },
 
-    async performFetch(url: string, options: RequestInit = {}): Promise<FetchResponse> {
+    async performFetch(
+      url: string,
+      options: RequestInit = {},
+    ): Promise<FetchResponse> {
       const errorStore = useErrorStore()
       try {
         const response = await fetch(url, options)
         const data = await response.json()
-    
+
         if (!response.ok) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, data.message || 'Failed to perform fetch operation')
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            data.message || 'Failed to perform fetch operation',
+          )
           return { success: false, message: data.message }
         }
-    
+
         return { ...data, success: true }
       } catch (error) {
-        const errorMessage = isErrorWithMessage(error) ? error.message : 'Unknown network error'
+        const errorMessage = isErrorWithMessage(error)
+          ? error.message
+          : 'Unknown network error'
         errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
         console.error('Network error:', errorMessage)
         return { success: false, message: errorMessage }
       }
     },
-    
 
     async initializePitches() {
       if (!this.isInitialized) {
@@ -162,7 +176,6 @@ export const usePitchStore = defineStore('pitch', {
         this.isInitialized = true
       }
     },
-
 
     async fetchPitches() {
       try {

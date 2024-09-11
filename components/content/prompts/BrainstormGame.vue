@@ -190,14 +190,13 @@
     </transition-group>
 
     <!-- Button to Submit the Top 5 Selected Pitches -->
-    <button
-      class="bg-primary hover:bg-primary-focus text-white py-2 sm:py-3 px-6 rounded-full text-base sm:text-lg mt-6 transition-all duration-300"
-      :disabled="selectedPitches.filter((p) => p !== null).length < 5"
-      @click="submitTopPitches"
-    >
-      Submit Top 5 Pitches
-    </button>
-
+ <button
+  class="bg-primary hover:bg-primary-focus text-white py-2 sm:py-3 px-6 rounded-full text-base sm:text-lg mt-6 transition-all duration-300"
+  :disabled="selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting"
+  @click="submitTopPitches"
+>
+  {{ isSubmitting ? 'Submitting...' : 'Submit Top 5 Pitches' }}
+</button>
     <!-- Error Message if Any -->
     <div
       v-if="errorStore.message"
@@ -285,22 +284,22 @@ const generateImage = async (imagePrompt: string) => {
 
 const createCustomPitch = () => {
   const pitch = {
-    id: Date.now(), // Temporary ID for the pitch
+    id: Date.now(),
     createdAt: new Date(),
     updatedAt: null,
-    title: newPitch.value.title || '', // Provide default value if empty
+    title: newPitch.value.title || '',
     pitch: newPitch.value.pitch || '',
-    designer: userStore.user?.username || 'Anonymous', // Set the designer as the current user
+    designer: userStore.user?.username || 'Anonymous',
     flavorText: null,
     description: null,
     highlightImage: null,
     imagePrompt: null,
     channelId: null,
-    PitchType: PitchType.BRAINSTORM, // Set the PitchType using the imported enum
-    isMature: false, // Default value for isMature
-    isPublic: true, // Default value for isPublic
-    userId: userStore.user?.id || 1, // Assign a userId, use a default value if not available
-    playerId: null, // Default value, adjust as needed
+    PitchType: PitchType.BRAINSTORM,
+    isMature: false,
+    isPublic: true,
+    userId: userStore.user?.id || 1,
+    playerId: null,
   }
 
   // Add the new pitch to the selectedPitches array
@@ -311,13 +310,15 @@ const createCustomPitch = () => {
 }
 
 const selectPitch = (pitch: Pitch) => {
-  if (!selectedPitches.value.some((p) => p?.id === pitch.id)) {
-    const firstEmptyIndex = selectedPitches.value.indexOf(null)
-    if (firstEmptyIndex !== -1) {
-      selectedPitches.value[firstEmptyIndex] = pitch
-    } else {
-      selectedPitches.value.splice(4, 1, pitch) // Replace the last one
-    }
+  // Remove the pitch if it's already in the list to avoid duplicates
+  selectedPitches.value = selectedPitches.value.filter((p) => p?.id !== pitch.id)
+  
+  // Add the new pitch to the beginning of the array
+  selectedPitches.value.unshift(pitch)
+
+  // Ensure the list contains only 5 pitches by removing the last one if necessary
+  if (selectedPitches.value.length > 5) {
+    selectedPitches.value.pop()
   }
 }
 
@@ -337,11 +338,15 @@ const saveChanges = (pitch: Pitch) => {
   })
 }
 
+const isSubmitting = ref(false)
+
 const submitTopPitches = async () => {
   try {
     if (selectedPitches.value.filter((p) => p !== null).length !== 5) {
       throw new Error('Please select exactly 5 pitches.')
     }
+
+    isSubmitting.value = true
 
     const topFive = selectedPitches.value.map((pitch) => ({
       title: pitch?.title || '',
@@ -370,8 +375,11 @@ const submitTopPitches = async () => {
       ErrorType.NETWORK_ERROR,
       err.message || 'Failed to submit top 5 pitches',
     )
+  } finally {
+    isSubmitting.value = false
   }
 }
+
 
 const reactToPitch = async (pitch: Pitch, reactionType: ReactionType) => {
   try {

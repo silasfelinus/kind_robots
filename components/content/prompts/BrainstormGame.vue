@@ -52,27 +52,27 @@
 
     <!-- Error Message if Any -->
     <div
-      v-if="errorMessage"
+      v-if="errorStore.message"
       class="bg-warning text-white py-4 px-6 rounded-full mt-6 text-center"
     >
-      <icon name="error" class="text-lg" /> {{ errorMessage }}
+      <icon name="error" class="text-lg" /> {{ errorStore.message }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { errorHandler } from '../../../server/api/utils/error'
+import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 import { samplePitches } from './../../../training/samplePitches'
 import { usePitchStore } from './../../../stores/pitchStore'
 import type { Pitch } from './../../../stores/pitchStore'
 
 const isLoading = ref(false)
-const errorMessage = ref<string | null>(null)
 const pageImage = '/images/avatars/brain1.webp'
 const shouldShowMilestoneCheck = ref(false)
 
-// Access the pitch store
+// Access the stores
+const errorStore = useErrorStore()
 const pitchStore = usePitchStore()
 
 // Initialize the list of ideas with samplePitches
@@ -81,41 +81,46 @@ const allIdeas = ref<Pitch[]>([...samplePitches])
 // Fetch new brainstorm ideas from the API
 const fetchBrainstorm = async () => {
   isLoading.value = true
-  errorMessage.value = null
+  errorStore.clearError() // Clear any previous errors
+
   try {
-    const response = await fetch('/api/botcafe/brainstorm', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    await errorStore.handleError(
+      async () => {
+        const response = await fetch('/api/botcafe/brainstorm', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            n: 5,
+            messages: [
+              { role: 'user', content: 'one more original brainstorms' },
+            ],
+            max_tokens: 500,
+          }),
+        })
+
+        shouldShowMilestoneCheck.value = true
+
+        const data = await response.json()
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          const newIdeas: Pitch[] = parseIdeasFromAPI(
+            data.choices[0].message.content,
+          )
+          if (newIdeas.length > 0) {
+            // Add the new pitches to the store and UI
+            allIdeas.value = [...newIdeas, ...allIdeas.value]
+            pitchStore.addPitches(newIdeas) // Assuming pitchStore handles adding pitches
+          } else {
+            throw new Error('No new ideas generated')
+          }
+        } else {
+          throw new Error('Invalid API response')
+        }
       },
-      body: JSON.stringify({
-        n: 5,
-        messages: [{ role: 'user', content: 'one more original brainstorms' }],
-        max_tokens: 500,
-      }),
-    })
-
-    shouldShowMilestoneCheck.value = true
-
-    const data = await response.json()
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      const newIdeas: Pitch[] = parseIdeasFromAPI(
-        data.choices[0].message.content,
-      )
-      if (newIdeas.length > 0) {
-        // Add the new pitches to the store and UI
-        allIdeas.value = [...newIdeas, ...allIdeas.value]
-        pitchStore.addPitches(newIdeas) // Assuming pitchStore handles adding pitches
-      } else {
-        throw new Error('No new ideas generated')
-      }
-    } else {
-      throw new Error('Invalid API response')
-    }
-  } catch (error: unknown) {
-    const { message } = errorHandler(error)
-    errorMessage.value = message
-    console.error('Error fetching brainstorm:', error)
+      ErrorType.NETWORK_ERROR,
+      'Failed to fetch new brainstorming ideas.',
+    )
   } finally {
     isLoading.value = false
   }

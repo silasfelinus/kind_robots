@@ -233,7 +233,6 @@ const newPitch = ref<{ title: string; pitch: string }>({
   pitch: '',
 })
 
-// Request AI Embellishment
 const requestEmbellishment = async (pitch: Pitch) => {
   try {
     const response = await fetch('/api/botcafe/embellish', {
@@ -246,12 +245,6 @@ const requestEmbellishment = async (pitch: Pitch) => {
 
     const data = await response.json()
 
-    // Update the pitch with embellishments
-    pitch.flavorText = data.flavorText
-    pitch.description = data.description
-    pitch.imagePrompt = data.imagePrompt
-
-    // Update the store
     pitchStore.updatePitch(pitch.id, {
       flavorText: data.flavorText,
       description: data.description,
@@ -317,15 +310,10 @@ const createCustomPitch = () => {
   newPitch.value = { title: '', pitch: '' }
 }
 
-// Select a pitch for the top 5
 const selectPitch = (pitch: Pitch) => {
-  const existingIndex = selectedPitches.value.findIndex(
-    (p) => p && p.id === pitch.id,
-  )
-
-  if (existingIndex === -1) {
-    if (selectedPitches.value.filter((p) => p !== null).length < 5) {
-      const firstEmptyIndex = selectedPitches.value.indexOf(null)
+  if (!selectedPitches.value.some((p) => p?.id === pitch.id)) {
+    const firstEmptyIndex = selectedPitches.value.indexOf(null)
+    if (firstEmptyIndex !== -1) {
       selectedPitches.value[firstEmptyIndex] = pitch
     } else {
       selectedPitches.value.splice(4, 1, pitch) // Replace the last one
@@ -349,7 +337,6 @@ const saveChanges = (pitch: Pitch) => {
   })
 }
 
-// Submit the top 5 selected pitches
 const submitTopPitches = async () => {
   try {
     if (selectedPitches.value.filter((p) => p !== null).length !== 5) {
@@ -374,6 +361,9 @@ const submitTopPitches = async () => {
     }
 
     alert('Top 5 pitches submitted successfully!')
+
+    // Optional: Clear selected pitches after successful submission
+    selectedPitches.value = [null, null, null, null, null]
   } catch (error) {
     const err = error as Error
     errorStore.setError(

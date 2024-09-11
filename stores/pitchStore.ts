@@ -62,12 +62,56 @@ export const usePitchStore = defineStore('pitch', {
   actions: {
     async fetchBrainstormPitches() {
       try {
-        const data = await this.performFetch('/api/pitches/brainstorm');
-        this.addPitches(data.pitches || []);
+        const response = await fetch('/api/botcafe/brainstorm', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            n: 5,
+            messages: [{ role: 'user', content: '1 more original brainstorm.' }],
+            max_tokens: 500,
+          }),
+        })
+
+        const data = await response.json()
+
+        // Parse the brainstorm pitches from the response
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          const newIdeas: Pitch[] = this.parseIdeasFromAPI(
+            data.choices[0].message.content,
+          )
+          this.addPitches(newIdeas)
+        }
       } catch (error) {
-        console.error('Failed to fetch brainstorm pitches:', error);
+        console.error('Failed to fetch brainstorm pitches:', error)
       }
     },
+        // Helper function to parse API ideas into Pitch format
+        parseIdeasFromAPI(rawContent: string): Pitch[] {
+          const lines = rawContent.split('\n')
+          const ideasList = lines.filter((line: string) => /^\d+\./.test(line))
+          return ideasList.map((item: string, index: number) => {
+            const cleanItem = item.replace(/^\d+\.\s/, '')
+            const [title, pitch] = cleanItem.split(' - ')
+            return {
+              id: this.pitches.length + index + 1, // Creating a new unique id
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              title: title || `Idea ${index + 1}`,
+              pitch: pitch || cleanItem,
+              designer: null,
+              flavorText: null,
+              highlightImage: null,
+              PitchType: 'BRAINSTORM',
+              isMature: false,
+              isPublic: true,
+              userId: 1,
+              playerId: null,
+              channelId: null,
+            } as Pitch
+          })
+        },
 
     // Load more pitches by title
     async fetchMorePitchesByTitle(title: string) {

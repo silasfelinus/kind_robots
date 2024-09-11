@@ -3,20 +3,64 @@ import { errorHandler } from '../utils/error'
 
 const creativePrompts = [
   { title: 'Haunted Fitness Tracker', pitch: 'Counts steps... to your grave.' },
-  { title: 'Reverse Life Insurance', pitch: 'Pays out when you unexpectedly come back to life. Policy benefits include a complimentary zombie survival kit.' },
-  { title: 'Misfortune Cookies', pitch: "Crack one open to ruin your day with prophecies like 'Your socks will always be slightly damp.'" },
-  { title: 'The Procrastinator’s Alarm Clock', pitch: 'Always runs a few minutes late, just like you.' },
-  { title: 'Invisible Ink Tattoos', pitch: "For when you want a tattoo but can't commit. Visible only under the scrutiny of disappointed parents." },
-  { title: 'Eau de Despair Perfume', pitch: 'The scent of looming deadlines mixed with broken dreams. Perfect for office wear.' },
-  { title: "Self-Help Books by Villains", pitch: "Learn confidence from Darth Vader: 'Choke Your Way to the Top!'" },
+  {
+    title: 'Reverse Life Insurance',
+    pitch:
+      'Pays out when you unexpectedly come back to life. Policy benefits include a complimentary zombie survival kit.',
+  },
+  {
+    title: 'Misfortune Cookies',
+    pitch:
+      "Crack one open to ruin your day with prophecies like 'Your socks will always be slightly damp.'",
+  },
+  {
+    title: 'The Procrastinator’s Alarm Clock',
+    pitch: 'Always runs a few minutes late, just like you.',
+  },
+  {
+    title: 'Invisible Ink Tattoos',
+    pitch:
+      "For when you want a tattoo but can't commit. Visible only under the scrutiny of disappointed parents.",
+  },
+  {
+    title: 'Eau de Despair Perfume',
+    pitch:
+      'The scent of looming deadlines mixed with broken dreams. Perfect for office wear.',
+  },
+  {
+    title: 'Self-Help Books by Villains',
+    pitch: "Learn confidence from Darth Vader: 'Choke Your Way to the Top!'",
+  },
   { title: 'Diet Water', pitch: 'Now with 30% less water!' },
   { title: 'Gluten-Full Bread', pitch: 'Twice the gluten, double the regret.' },
-  { title: 'Anti-Social Media App', pitch: 'Connects you with people you’ll definitely dislike. Blocking feature only enhances their resolve.' },
-  { title: 'Midlife Crisis Action Figures', pitch: "Comes with a convertible and questionable life choices. Optional accessories include a boat and a guitar you'll never learn to play." },
-  { title: 'Doomsday Clock', pitch: 'It’s always almost midnight. Brighten up your desk with the constant reminder of impending global catastrophe.' },
-  { title: 'Solar-Powered Flashlight', pitch: "Only works when you don't need it." },
-  { title: 'Portable Potholes', pitch: 'Bring traffic chaos wherever you go. City council not included.' },
-  { title: 'Unsolicited Advice Generator', pitch: 'Perfect for family gatherings. Watch the sparks fly as it dispenses advice nobody asked for.' },
+  {
+    title: 'Anti-Social Media App',
+    pitch:
+      'Connects you with people you’ll definitely dislike. Blocking feature only enhances their resolve.',
+  },
+  {
+    title: 'Midlife Crisis Action Figures',
+    pitch:
+      "Comes with a convertible and questionable life choices. Optional accessories include a boat and a guitar you'll never learn to play.",
+  },
+  {
+    title: 'Doomsday Clock',
+    pitch:
+      'It’s always almost midnight. Brighten up your desk with the constant reminder of impending global catastrophe.',
+  },
+  {
+    title: 'Solar-Powered Flashlight',
+    pitch: "Only works when you don't need it.",
+  },
+  {
+    title: 'Portable Potholes',
+    pitch: 'Bring traffic chaos wherever you go. City council not included.',
+  },
+  {
+    title: 'Unsolicited Advice Generator',
+    pitch:
+      'Perfect for family gatherings. Watch the sparks fly as it dispenses advice nobody asked for.',
+  },
 ]
 
 export default defineEventHandler(async (event) => {
@@ -25,16 +69,20 @@ export default defineEventHandler(async (event) => {
     const apiKey = process.env.OPENAI_API_KEY
 
     if (!apiKey) {
-      throw new Error('API key is missing. Please provide a valid OpenAI API key.')
+      throw new Error(
+        'API key is missing. Please provide a valid OpenAI API key.',
+      )
     }
 
     const { n = 5 } = body // Default n to 5 if not provided
 
     // Generate a list of prompts based on the provided 'n'
-    const selectedPrompts = creativePrompts.slice(0, n).map(({ title, pitch }) => ({
-      role: 'assistant',
-      content: `title: ${title}, pitch: ${pitch}`,
-    }))
+    const selectedPrompts = creativePrompts
+      .slice(0, n)
+      .map(({ title, pitch }) => ({
+        role: 'assistant',
+        content: `title: ${title}, pitch: ${pitch}`,
+      }))
 
     const data = {
       model: body.model || 'gpt-4o-mini',

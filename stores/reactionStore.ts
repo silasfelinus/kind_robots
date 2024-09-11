@@ -1,5 +1,23 @@
 import { defineStore } from 'pinia'
-import type {Reaction, Channel} from '@prisma/client'
+import type { Reaction, Channel } from '@prisma/client'
+
+export enum ReactionType {
+  LOVED = 'LOVED',
+  CLAPPED = 'CLAPPED',
+  BOOED = 'BOOED',
+  HATED = 'HATED',
+  NEUTRAL = 'NEUTRAL',
+  FLAGGED = 'FLAGGED',
+}
+
+export enum ReactionCategory {
+  ART = 'ART',
+  PITCH = 'PITCH',
+  COMPONENT = 'COMPONENT',
+  CHANNEL = 'CHANNEL',
+  TITLE = 'TITLE',
+}
+
 
 export const useReactionStore = defineStore('reactionStore', {
   state: () => ({
@@ -39,6 +57,8 @@ export const useReactionStore = defineStore('reactionStore', {
 
     // Fetch all reactions for a specific pitch through the API
     async fetchReactionsForPitch(pitchId: number) {
+      this.loading = true
+      this.error = null
       try {
         const response = await fetch(`/api/reactions/pitch/${pitchId}`, {
           method: 'GET',
@@ -48,17 +68,16 @@ export const useReactionStore = defineStore('reactionStore', {
         })
         if (!response.ok) throw new Error('Failed to fetch reactions')
         const data = await response.json()
-        
-        // Log the data to see if it's an array
-        console.log('Fetched reactions:', data)
-    
-        return data.reactions // Ensure this returns the correct format
+
+        // Assuming data.reactions is an array of Reaction
+        this.reactions = data.reactions
       } catch (error) {
-        console.error('Error fetching reactions:', error)
-        throw error
+        this.error =
+          error instanceof Error ? error.message : 'Failed to fetch reactions'
+      } finally {
+        this.loading = false
       }
-    }
-,    
+    },
 
     // Find the user's reaction to a specific pitch through the API
     async findUserReactionForPitch(pitchId: number, userId: number) {
@@ -70,33 +89,44 @@ export const useReactionStore = defineStore('reactionStore', {
           },
         })
         if (!response.ok) throw new Error('Failed to find user reaction')
-        return await response.json()
+        const reaction: Reaction = await response.json()
+        return reaction
       } catch (error) {
         console.error('Error finding user reaction:', error)
         throw error
       }
     },
 
-    // Create a new reaction for a pitch through the API
-    async createReaction(reactionData: { pitchId: number; userId: number; reactionType: string }) {
+    // Create a new reaction
+    async createReaction(reactionData: {
+      pitchId?: number
+      userId: number
+      reactionType: ReactionType
+      artId?: number
+      componentId?: number
+      channelId?: number
+      chatExchangeId?: number
+      comment?: string
+      ReactionCategory?: ReactionCategory
+    }) {
       try {
         const response = await fetch('/api/reactions', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(reactionData),
         })
         if (!response.ok) throw new Error('Failed to create reaction')
-        return await response.json()
+        const newReaction: Reaction = await response.json()
+        this.reactions.push(newReaction)
+        return newReaction
       } catch (error) {
         console.error('Error creating reaction:', error)
         throw error
       }
     },
 
-    // Update an existing reaction through the API
-    async updateReaction(reactionId: number, updates: { reactionType: string }) {
+    // Update an existing reaction
+    async updateReaction(reactionId: number, updates: { reactionType?: ReactionType }) {
       try {
         const response = await fetch(`/api/reactions/${reactionId}`, {
           method: 'PUT',
@@ -106,18 +136,25 @@ export const useReactionStore = defineStore('reactionStore', {
           body: JSON.stringify(updates),
         })
         if (!response.ok) throw new Error('Failed to update reaction')
-        return await response.json()
+        const updatedReaction: Reaction = await response.json()
+        const index = this.reactions.findIndex(r => r.id === reactionId)
+        if (index !== -1) {
+          this.reactions[index] = updatedReaction
+        }
+        return updatedReaction
       } catch (error) {
         console.error('Error updating reaction:', error)
         throw error
       }
     },
 
+    // Get reaction by chatExchangeId
     getReactionByChatExchangeId(chatExchangeId: number) {
       return this.reactions.find(
         (reaction: Reaction) => reaction.chatExchangeId === chatExchangeId,
       )
     },
+
     // Fetch reactions by componentId
     async fetchReactionsByComponentId(componentId: number) {
       this.loading = true
@@ -157,7 +194,17 @@ export const useReactionStore = defineStore('reactionStore', {
 
     // Create reaction and associate it with a new channel
     async createReactionWithChannel(
-      reactionData: Partial<Reaction>,
+      reactionData: {
+        userId: number
+        reactionType: ReactionType
+        pitchId?: number
+        artId?: number
+        componentId?: number
+        channelId?: number
+        chatExchangeId?: number
+        comment?: string
+        ReactionCategory?: ReactionCategory
+      },
       comment: { title: string; description: string },
     ) {
       this.loading = true
@@ -173,7 +220,8 @@ export const useReactionStore = defineStore('reactionStore', {
             description: comment.description,
           }),
         })
-        const newChannel = await channelResponse.json()
+        if (!channelResponse.ok) throw new Error('Failed to create channel')
+        const newChannel: Channel = await channelResponse.json()
 
         // Create the reaction and link it to the new channel
         const reactionResponse = await fetch('/api/reactions', {
@@ -181,7 +229,8 @@ export const useReactionStore = defineStore('reactionStore', {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...reactionData, channelId: newChannel.id }),
         })
-        const newReaction = await reactionResponse.json()
+        if (!reactionResponse.ok) throw new Error('Failed to create reaction')
+        const newReaction: Reaction = await reactionResponse.json()
 
         // Update the store with the new reaction and channel
         this.reactions.push(newReaction)
@@ -215,6 +264,7 @@ export const useReactionStore = defineStore('reactionStore', {
         this.loading = false
       }
     },
+
     // Delete a reaction
     async deleteReaction(reactionId: number) {
       this.loading = true

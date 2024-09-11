@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { useErrorStore, ErrorType } from './errorStore'
-import type { Pitch, PitchType } from '@prisma/client' // Import both Pitch and PitchType from Prisma
+import type { Pitch } from '@prisma/client' // Import both Pitch and PitchType from Prisma
 
 const isClient = typeof window !== 'undefined'
 
@@ -11,6 +11,15 @@ interface FetchResponse {
   message?: string
   success: boolean
 }
+
+export enum PitchType {
+  BRAINSTORM = 'BRAINSTORM',
+  ARTPITCH = 'ARTPITCH',
+  BOT = 'BOT',
+  ARTGALLERY = 'ARTGALLERY',
+  INSPIRATION = 'INSPIRATION'
+}
+
 
 interface ErrorWithMessage {
   message: string
@@ -290,4 +299,4 @@ export const usePitchStore = defineStore('pitch', {
   },
 })
 
-export type { Pitch, PitchType }
+export type { Pitch }

@@ -37,17 +37,8 @@ export const usePitchStore = defineStore('pitch', {
   }),
 
   getters: {
-    async initializePitches() {
-      if (!this.isInitialized) {
-        await this.fetchPitches()  // Assume fetchPitches is already defined
-        this.isInitialized = true
-      }
-    },
-
     brainstormPitches: (state) => {
-      return state.pitches.filter(
-        (pitch: Pitch) => pitch.PitchType === PitchType.BRAINSTORM,
-      )
+      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM')
     },
 
     pitchesByTitle: (state) => {
@@ -80,6 +71,13 @@ export const usePitchStore = defineStore('pitch', {
   },
 
   actions: {
+    async initializePitches() {
+      // Make sure fetchPitches is called correctly
+      if (!this.isInitialized) {
+        await this.fetchPitches()  // Calls the action to fetch pitches
+        this.isInitialized = true
+      }
+    },
     // Fetch brainstorm pitches
     async fetchBrainstormPitches() {
       try {
@@ -172,7 +170,6 @@ export const usePitchStore = defineStore('pitch', {
         console.error('Failed to fetch pitches:', error)
       }
     },
-
     // Fetch a pitch by ID
     async fetchPitchById(pitchId: number) {
       const existingPitch = this.pitches.find((pitch) => pitch.id === pitchId)

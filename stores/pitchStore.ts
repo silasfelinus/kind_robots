@@ -188,37 +188,39 @@ export const usePitchStore = defineStore('pitch', {
         console.error('Failed to fetch pitch by ID:', error)
       }
     },
+// Create a new pitch
+async createPitch(newPitch: Partial<Pitch>) {
+  const errorStore = useErrorStore() // make sure the errorStore is included
+  try {
+    const response = await fetch('/api/pitches', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPitch),
+    })
 
-    // Create a new pitch
-    async createPitch(newPitch: Partial<Pitch>) {
-      try {
-        const data = await this.performFetch('/api/pitches', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newPitch),
-        })
-        if (data.pitch) {
-          this.pitches.push(data.pitch)
-          if (isClient) {
-            localStorage.setItem('pitches', JSON.stringify(this.pitches))
-          }
-          return { success: true, message: 'Pitch created successfully' }
-        } else {
-          throw new Error('Pitch creation failed: No pitch returned')
-        }
-      } catch (error) {
-        if (isErrorWithMessage(error)) {
-          console.error('Error creating pitch:', error.message)
-          return { success: false, message: error.message }
-        } else {
-          console.error('Error creating pitch: Unknown error')
-          return {
-            success: false,
-            message: 'Unknown error during pitch creation',
-          }
-        }
+    const data = await response.json()
+
+    if (response.ok && data.pitch) {
+      // Push the new pitch into the store state
+      this.pitches.push(data.pitch)
+      if (isClient) {
+        localStorage.setItem('pitches', JSON.stringify(this.pitches))
       }
-    },
+      return { success: true, message: 'Pitch created successfully' }
+    } else {
+      throw new Error(data.message || 'Pitch creation failed')
+    }
+  } catch (error) {
+    if (isErrorWithMessage(error)) {
+      errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
+      return { success: false, message: error.message }
+    } else {
+      errorStore.setError(ErrorType.NETWORK_ERROR, 'Unknown error')
+      return { success: false, message: 'Unknown error during pitch creation' }
+    }
+  }
+},
+
 
     // Update a pitch
     async updatePitch(pitchId: number, updates: Partial<Pitch>) {

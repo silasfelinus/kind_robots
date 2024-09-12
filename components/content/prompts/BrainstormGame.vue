@@ -190,13 +190,15 @@
     </transition-group>
 
     <!-- Button to Submit the Top 5 Selected Pitches -->
- <button
-  class="bg-primary hover:bg-primary-focus text-white py-2 sm:py-3 px-6 rounded-full text-base sm:text-lg mt-6 transition-all duration-300"
-  :disabled="selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting"
-  @click="submitTopPitches"
->
-  {{ isSubmitting ? 'Submitting...' : 'Submit Top 5 Pitches' }}
-</button>
+    <button
+      class="bg-primary hover:bg-primary-focus text-white py-2 sm:py-3 px-6 rounded-full text-base sm:text-lg mt-6 transition-all duration-300"
+      :disabled="
+        selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting
+      "
+      @click="submitTopPitches"
+    >
+      {{ isSubmitting ? 'Submitting...' : 'Submit Top 5 Pitches' }}
+    </button>
     <!-- Error Message if Any -->
     <div
       v-if="errorStore.message"
@@ -283,37 +285,49 @@ const generateImage = async (imagePrompt: string) => {
   }
 }
 
-const createCustomPitch = () => {
+const createCustomPitch = async () => {
   const pitch = {
-    id: Date.now(),
-    createdAt: new Date(),
-    updatedAt: null,
+    id: Date.now(), // Temporary id, backend will replace this
+    createdAt: new Date(), // Use current date
+    updatedAt: null, // Initially null, backend should handle this
     title: newPitch.value.title || '',
     pitch: newPitch.value.pitch || '',
-    designer: userStore.user?.username || 'Anonymous',
-    flavorText: null,
-    description: null,
-    highlightImage: null,
-    imagePrompt: null,
-    channelId: null,
+    designer: userStore.user?.username || 'kindguest',
+    flavorText: null, // Optional field, set to null
+    description: null, // Optional field, set to null
+    highlightImage: null, // Optional field, set to null
+    imagePrompt: null, // Optional field, set to null
+    channelId: null, // Optional field, set to null
     PitchType: PitchType.BRAINSTORM,
     isMature: false,
     isPublic: true,
-    userId: userStore.user?.id || 1,
-    playerId: null,
+    userId: userStore.user?.id || 10, // Fallback userId
+    playerId: 1, // Provide a default playerId
   }
 
-  // Add the new pitch to the selectedPitches array
-  selectedPitches.value.unshift(pitch)
-
-  // Clear the input fields for the next pitch creation
-  newPitch.value = { title: '', pitch: '' }
+  try {
+    const result = await pitchStore.createPitch(pitch)
+    if (result.success) {
+      selectedPitches.value.unshift(pitch)
+      newPitch.value = { title: '', pitch: '' } // Clear form after success
+    } else {
+      throw new Error(result.message)
+    }
+  } catch (error) {
+    console.error('Error creating pitch:', error)
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      'Failed to create pitch' + error,
+    )
+  }
 }
 
 const selectPitch = (pitch: Pitch) => {
   // Remove the pitch if it's already in the list to avoid duplicates
-  selectedPitches.value = selectedPitches.value.filter((p) => p?.id !== pitch.id)
-  
+  selectedPitches.value = selectedPitches.value.filter(
+    (p) => p?.id !== pitch.id,
+  )
+
   // Add the new pitch to the beginning of the array
   selectedPitches.value.unshift(pitch)
 
@@ -380,7 +394,6 @@ const submitTopPitches = async () => {
     isSubmitting.value = false
   }
 }
-
 
 const reactToPitch = async (pitch: Pitch, reactionType: ReactionType) => {
   try {

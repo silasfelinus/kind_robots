@@ -14,12 +14,11 @@
     <!-- Collapsible Sidebar -->
     <aside
       :class="[
-        'flex flex-col justify-start transition-all duration-300 ease-in-out border rounded-2xl bg-base-200',
         isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed',
         isVertical ? 'verticalSidebar' : 'horizontalSidebar',
       ]"
+      class="transition-all duration-300 ease-in-out border rounded-2xl bg-base-200"
       :aria-hidden="!isSidebarOpen"
-      class="flex-grow overflow-y-auto"
     >
       <!-- Sidebar Links with Icons and Titles -->
       <div
@@ -54,6 +53,7 @@
     </aside>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from './../../../stores/userStore'
@@ -97,24 +97,25 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', checkVertical)
 })
 </script>
+
 <style scoped>
 /* Collapsed sidebar - horizontal */
 .sidebarClosed.horizontalSidebar {
-  @apply w-20 md:w-16 sm:w-14;
+  @apply w-16; /* Adjust the width as needed for the collapsed state */
 }
 
 /* Opened sidebar - horizontal */
 .sidebarOpen.horizontalSidebar {
-  @apply w-64 md:w-48 sm:w-36;
+  @apply w-64; /* Adjust the width for the open state */
 }
 
 /* Collapsed sidebar - vertical */
 .sidebarClosed.verticalSidebar {
-  @apply w-0 h-0 overflow-hidden;
+  @apply h-0 overflow-hidden; /* Hide completely in the vertical mode */
 }
 
 /* Opened sidebar - vertical */
 .sidebarOpen.verticalSidebar {
-  @apply w-full;
+  @apply w-full h-screen; /* Ensure full-screen height for vertical mode */
 }
 </style>

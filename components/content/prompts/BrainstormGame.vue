@@ -156,7 +156,7 @@ const submitTopPitches = async () => {
       pitch: pitch?.pitch || '',
     }))
 
-    const response = await fetch('/api/botcafe/submit-pitches', {
+    const response = await fetch('/api/botcafe/brainstorm', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

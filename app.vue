@@ -1,14 +1,36 @@
 <template>
-  <div class="main-container">
-    <header-upgrade />
-    <ami-loader />
+  <!-- ami-loader initially visible and fades out -->
+  <ami-loader v-if="isLoading" />
 
-    <div class="content-container">
-      <kind-sidebar />
-      <main class="main-content">
-        <NuxtPage />
-      </main>
+  <!-- Main Layout -->
+  <div
+    v-else
+    class="flex flex-col h-screen w-screen p-1 m-1 border rounded-2xl"
+  >
+    <!-- Header with controlled sizing and visibility -->
+    <header-upgrade class="flex-shrink-0 border rounded-2xl p-1 m-1" />
+
+    <div class="flex flex-grow overflow-hidden">
+      <!-- Left Sidebar -->
+      <kind-sidebar
+        class="border rounded-2xl flex-shrink-0 p-1 m-1"
+        :class="isLeftSidebarCollapsed ? 'w-16' : 'w-64'"
+        @toggle="toggleLeftSidebar"
+      />
+
+      <!-- Main Content -->
+      <nuxt-page class="flex-grow p-1 m-1 border rounded-2xl overflow-auto" />
+
+      <!-- Right Sidebar -->
+      <kind-sidebar
+        class="border rounded-2xl flex-shrink-0 p-1 m-1"
+        :class="isRightSidebarCollapsed ? 'w-16' : 'w-64'"
+        @toggle="toggleRightSidebar"
+      />
     </div>
+
+    <!-- Lower Navigation -->
+    <trimmed-nav class="flex-shrink-0 border rounded-2xl p-1 m-1" />
   </div>
 </template>
 
@@ -37,6 +59,18 @@ const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
 const layoutStore = useLayoutStore()
+
+const isLoading = ref(true)
+const isLeftSidebarCollapsed = ref(false)
+const isRightSidebarCollapsed = ref(false)
+
+// Toggle logic for sidebars
+const toggleLeftSidebar = () => {
+  isLeftSidebarCollapsed.value = !isLeftSidebarCollapsed.value
+}
+const toggleRightSidebar = () => {
+  isRightSidebarCollapsed.value = !isRightSidebarCollapsed.value
+}
 
 useHead({
   title: 'Kind Robots',
@@ -78,38 +112,21 @@ onMounted(async () => {
   }
 })
 </script>
-
 <style scoped>
+/* Ensure no content exceeds screen boundaries */
 html,
 body {
-  height: 100%;
   margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
   overflow: hidden;
 }
 
-.main-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+h-screen {
   height: 100vh;
 }
-
-.content-container {
-  display: flex;
-  flex-grow: 1;
-  width: 100%;
-}
-
-.kind-sidebar {
-  flex-shrink: 0;
-  overflow-y: auto;
-  height: 100%;
-  flex-basis: 20%;
-}
-
-.main-content {
-  flex-grow: 1;
-  overflow-y: auto;
-  height: 100%;
+w-screen {
+  width: 100vw;
 }
 </style>

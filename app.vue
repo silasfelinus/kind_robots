@@ -42,17 +42,16 @@ import { useArtStore } from '@/stores/artStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useBotStore } from '@/stores/botStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-
+import { useDisplayStore } from '@/stores/displayStore'
 import KindSidebar from '@/components/content/layout/KindSidebar.vue'
 
 const errorStore = useErrorStore()
-
 const userStore = useUserStore()
 const artStore = useArtStore()
 const themeStore = useThemeStore()
 const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
-
+const displayStore = useDisplayStore()
 
 const isLoading = ref(true)
 const isLeftSidebarCollapsed = ref(false)
@@ -75,12 +74,8 @@ onMounted(async () => {
     await userStore.initializeUser()
     console.log('user loaded')
     await artStore.init()
-    await tagStore.initializeTags()
     await themeStore.initTheme()
-    await pitchStore.initializePitches()
-    await channelStore.initializeChannels()
     await milestoneStore.initializeMilestones()
-    await layoutStore.initializeStore()
     console.log('Initialization complete.')
   } catch (error) {
     errorStore.setError(

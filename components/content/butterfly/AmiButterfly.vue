@@ -4,6 +4,9 @@ import { makeNoise2D } from 'open-simplex-noise'
 
 const initialized = ref(false)
 
+// Define the butterfly size constant here
+const BUTTERFLY_SIZE = 1 // You can change this number to adjust the butterfly size.
+
 onMounted(() => {
   initialized.value = true
 })
@@ -159,7 +162,7 @@ onUnmounted(() => {
         'rotate3d(1, 0.5, 0, ' +
         butterfly.rotation +
         'deg) scale(' +
-        butterfly.scale +
+        butterfly.scale * BUTTERFLY_SIZE + // Apply size scaling here
         ')',
     }"
   >
@@ -205,8 +208,8 @@ body {
 }
 
 .butterfly {
-  width: 100px;
-  height: 100px;
+  width: calc(100px * var(--size));
+  height: calc(100px * var(--size));
   position: absolute;
   transform-style: preserve-3d;
   transform: rotate3d(1, 0.5, 0, 110deg);
@@ -215,24 +218,24 @@ body {
 
 .left-wing,
 .right-wing {
-  width: 24px;
-  height: 42px;
+  width: calc(24px * var(--size));
+  height: calc(42px * var(--size));
   position: absolute;
-  top: 10px;
+  top: calc(10px * var(--size));
   pointer-events: none;
 }
 
 .left-wing {
-  left: 10px;
-  top: 10px;
-  transform-origin: 24px 50%;
+  left: calc(10px * var(--size));
+  top: calc(10px * var(--size));
+  transform-origin: calc(24px * var(--size)) 50%;
   transform: rotate3d(0, 1, 0, 20deg);
   animation: flutter-left 0.3s infinite;
   pointer-events: none;
 }
 
 .right-wing {
-  left: 34px;
+  left: calc(34px * var(--size));
   transform: rotate3d(0, 1, 0, -20deg);
   transform-origin: 0px 50%;
   animation: flutter-right 0.3s infinite;
@@ -250,17 +253,18 @@ body {
   position: absolute;
   pointer-events: none;
 }
+
 .top {
-  width: 20px;
-  height: 20px;
+  width: calc(20px * var(--size));
+  height: calc(20px * var(--size));
   border-radius: 10px;
   pointer-events: none;
 }
 
 .bottom {
-  top: 18px;
-  width: 24px;
-  height: 24px;
+  top: calc(18px * var(--size));
+  width: calc(24px * var(--size));
+  height: calc(24px * var(--size));
   border-radius: 12px;
   pointer-events: none;
 }

@@ -104,7 +104,7 @@ body {
   flex-shrink: 0;
   overflow-y: auto;
   height: 100%;
-  flex-basis: 250px;
+  flex-basis: 20%;
 }
 
 .main-content {

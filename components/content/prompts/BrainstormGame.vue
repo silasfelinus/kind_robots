@@ -13,8 +13,7 @@
       to your top five, or create your own!
     </p>
 
-    
-    <AddPitch @pitchCreated="handlePitchCreated" />
+    <AddPitch @pitch-created="handlePitchCreated" />
 
     <!-- Top 5 Selected Pitches (Responsive) -->
     <div
@@ -74,7 +73,9 @@
     <!-- Button to Submit the Top 5 Selected Pitches -->
     <button
       class="bg-primary hover:bg-primary-focus text-white py-2 sm:py-3 px-6 rounded-full text-base sm:text-lg mt-6 transition-all duration-300"
-      :disabled="selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting"
+      :disabled="
+        selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting
+      "
       @click="submitTopPitches"
     >
       {{ isSubmitting ? 'Submitting...' : 'Submit Top 5 Pitches' }}
@@ -92,14 +93,16 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePitchStore, PitchType } from '@/stores/pitchStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import AddPitch from '@/components/AddPitch.vue'
-import type { Pitch } from '@/stores/pitchStore'
+import { usePitchStore } from './../../../stores/pitchStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import AddPitch from './AddPitch.vue'
+import type { Pitch } from './../../../stores/pitchStore'
+import { useReactionStore, ReactionType } from '../../../stores/reactionStore'
 
 // Stores and States
 const pitchStore = usePitchStore()
 const errorStore = useErrorStore()
+const reactionStore = useReactionStore()
 const selectedPitches = ref<(Pitch | null)[]>([null, null, null, null, null])
 
 // Computed brainstorm pitches
@@ -113,8 +116,25 @@ const handlePitchCreated = (pitch: Pitch) => {
   }
 }
 
+const reactToPitch = async (pitch: Pitch, reactionType: ReactionType) => {
+  try {
+    const userStore = useUserStore()
+    await reactionStore.createReaction({
+      pitchId: pitch.id,
+      userId: userStore.userId,
+      reactionType, // Use ReactionType enum directly
+    })
+  } catch (error: unknown) {
+    const err = error as Error
+    errorStore.setError(ErrorType.NETWORK_ERROR, err)
+    console.error('Failed to react to pitch:', err.message)
+  }
+}
+
 const selectPitch = (pitch: Pitch) => {
-  selectedPitches.value = selectedPitches.value.filter((p) => p?.id !== pitch.id)
+  selectedPitches.value = selectedPitches.value.filter(
+    (p) => p?.id !== pitch.id,
+  )
   selectedPitches.value.unshift(pitch)
   if (selectedPitches.value.length > 5) {
     selectedPitches.value.pop()
@@ -150,15 +170,18 @@ const submitTopPitches = async () => {
 
     alert('Top 5 pitches submitted successfully!')
     selectedPitches.value = [null, null, null, null, null]
-  } catch (error) {
-    errorStore.setError(ErrorType.NETWORK_ERROR, error.message || 'Failed to submit top 5 pitches')
+  } catch (error: unknown) {
+    const err = error as Error
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+
+      err || 'Failed to submit top 5 pitches',
+    )
   } finally {
     isSubmitting.value = false
   }
 }
 </script>
-
-
 
 <style scoped>
 .card-style {

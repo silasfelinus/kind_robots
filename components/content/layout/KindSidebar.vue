@@ -117,9 +117,4 @@ onBeforeUnmount(() => {
 .sidebarOpen.verticalSidebar {
   @apply w-full;
 }
-
-/* Additional button styling */
-button {
-  @apply absolute top-0 left-0 z-40;
-}
 </style>

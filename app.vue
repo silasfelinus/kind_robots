@@ -97,12 +97,14 @@ body {
 .content-container {
   display: flex;
   flex-grow: 1;
-  overflow: hidden;
+  width: 100%;
 }
 
 .kind-sidebar {
   flex-shrink: 0;
   overflow-y: auto;
+  height: 100%;
+  flex-basis: 250px;
 }
 
 .main-content {

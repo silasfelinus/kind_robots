@@ -1,6 +1,9 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 
+
+const savedPitches = [] // This will store the submitted pitches for demonstration
+
 const creativePrompts = [
   { title: 'Haunted Fitness Tracker', pitch: 'Counts steps... to your grave.' },
   {
@@ -63,20 +66,44 @@ const creativePrompts = [
   },
 ]
 
+
+
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     const apiKey = process.env.OPENAI_API_KEY
 
     if (!apiKey) {
-      throw new Error(
-        'API key is missing. Please provide a valid OpenAI API key.',
-      )
+      throw new Error('API key is missing. Please provide a valid OpenAI API key.')
     }
 
-    const { n = 5 } = body // Default n to 5 if not provided
+    const { n = 5, newPitches = [] } = body // Expecting an array of new pitches if provided
 
-    // Generate a list of prompts based on the provided 'n'
+    // If new pitches are provided, validate and store them
+    if (Array.isArray(newPitches) && newPitches.length > 0) {
+      // Validate each pitch
+      const validPitches = newPitches.filter(
+        (pitch) => pitch.title && pitch.pitch // Ensure both title and pitch are present
+      )
+
+      if (validPitches.length > 0) {
+        // Add the valid pitches to our saved pitches (you can replace this with DB logic)
+        savedPitches.push(...validPitches)
+
+        return {
+          success: true,
+          message: `${validPitches.length} new pitches added successfully.`,
+          pitches: validPitches,
+        }
+      } else {
+        return {
+          success: false,
+          message: 'No valid pitches provided. Please ensure title and pitch are present in each entry.',
+        }
+      }
+    }
+
+    // Generate a list of existing prompts based on 'n'
     const selectedPrompts = creativePrompts
       .slice(0, n)
       .map(({ title, pitch }) => ({
@@ -108,13 +135,12 @@ export default defineEventHandler(async (event) => {
     if (!response.ok) {
       const errorData = await response.json()
       console.error('Failed API Call with error:', errorData)
-      throw new Error(
-        `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
-      )
+      throw new Error(`Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`)
     }
 
     const responseData = await response.json()
     return responseData
+
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     console.error('Error processing request:', message)

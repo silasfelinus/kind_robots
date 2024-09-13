@@ -6,37 +6,15 @@
     <h1
       class="text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-primary text-center"
     >
-      Brainstorm Café
+      Brainstorm Cafe
     </h1>
     <p class="text-sm sm:text-lg mb-4 sm:mb-6 text-secondary text-center">
       Select your top five ideas for brainstorming. Click on a pitch to add it
       to your top five, or create your own!
     </p>
 
-    <!-- Custom Pitch Creation Section -->
-    <div class="bg-base-100 shadow-md rounded-lg p-4 w-full mb-6">
-      <h3 class="text-md md:text-lg font-semibold mb-4 text-primary">
-        Create a Custom Pitch
-      </h3>
-      <input
-        v-model="newPitch.title"
-        type="text"
-        placeholder="Pitch Title"
-        class="w-full border border-gray-300 rounded-md p-2 mb-4"
-      />
-      <textarea
-        v-model="newPitch.pitch"
-        placeholder="Pitch Description"
-        class="w-full border border-gray-300 rounded-md p-2 mb-4"
-        rows="3"
-      ></textarea>
-      <button
-        class="bg-primary hover:bg-primary-focus text-white py-2 px-4 rounded-full transition duration-300"
-        @click="createCustomPitch"
-      >
-        Save Custom Pitch
-      </button>
-    </div>
+    
+    <AddPitch @pitchCreated="handlePitchCreated" />
 
     <!-- Top 5 Selected Pitches (Responsive) -->
     <div
@@ -89,102 +67,6 @@
           >
             Hate Reaction
           </button>
-
-          <button
-            class="text-blue-500 mt-2 underline hover:text-blue-700"
-            @click.stop="toggleExpand(idea.id)"
-          >
-            {{ expandedPitchId === idea.id ? 'Collapse' : 'Expand' }} Details
-          </button>
-
-          <!-- Expanded Pitch Editing Section -->
-          <div v-if="expandedPitchId === idea.id" class="mt-4 space-y-4">
-            <div>
-              <label for="title" class="block text-sm font-medium text-gray-700"
-                >Title</label
-              >
-              <input
-                v-model="idea.title"
-                type="text"
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <label
-                for="designer"
-                class="block text-sm font-medium text-gray-700"
-                >Designer</label
-              >
-
-              <input
-                v-model="idea.designer"
-                type="text"
-                class="mt-1 block w-full"
-              />
-            </div>
-
-            <div>
-              <label
-                for="flavorText"
-                class="block text-sm font-medium text-gray-700"
-                >Flavor Text</label
-              >
-              <textarea
-                v-model="idea.flavorText"
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <div>
-              <label
-                for="highlightImage"
-                class="block text-sm font-medium text-gray-700"
-                >Highlight Image URL</label
-              >
-              <input
-                v-model="idea.highlightImage"
-                type="text"
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <label
-                for="imagePrompt"
-                class="block text-sm font-medium text-gray-700"
-                >Image Prompt</label
-              >
-              <textarea
-                v-model="idea.imagePrompt"
-                placeholder="Enter a few phrases for the AI to generate an image."
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                rows="2"
-              ></textarea>
-            </div>
-
-            <button
-              class="bg-primary hover:bg-primary-focus text-white py-2 px-4 rounded-full transition duration-300"
-              @click.stop="saveChanges(idea)"
-            >
-              Save Changes
-            </button>
-
-            <button
-              class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-full transition duration-300 ml-2"
-              @click.stop="requestEmbellishment(idea)"
-            >
-              Embellish with AI
-            </button>
-
-            <button
-              class="bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded-full transition duration-300 ml-2"
-              @click.stop="generateImage(idea.imagePrompt || '')"
-            >
-              Generate Image
-            </button>
-          </div>
         </div>
       </div>
     </transition-group>
@@ -192,13 +74,12 @@
     <!-- Button to Submit the Top 5 Selected Pitches -->
     <button
       class="bg-primary hover:bg-primary-focus text-white py-2 sm:py-3 px-6 rounded-full text-base sm:text-lg mt-6 transition-all duration-300"
-      :disabled="
-        selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting
-      "
+      :disabled="selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting"
       @click="submitTopPitches"
     >
       {{ isSubmitting ? 'Submitting...' : 'Submit Top 5 Pitches' }}
     </button>
+
     <!-- Error Message if Any -->
     <div
       v-if="errorStore.message"
@@ -210,147 +91,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { usePitchStore, PitchType } from '../../../stores/pitchStore' // Ensure you import PitchType
-import { useReactionStore, ReactionType } from '../../../stores/reactionStore'
-import { useErrorStore, ErrorType } from '../../../stores/errorStore'
-import { useArtStore } from '../../../stores/artStore'
-import { useUserStore } from '../../../stores/userStore'
-import type { Pitch } from '../../../stores/pitchStore'
+import { ref, computed } from 'vue'
+import { usePitchStore, PitchType } from '@/stores/pitchStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import AddPitch from '@/components/AddPitch.vue'
+import type { Pitch } from '@/stores/pitchStore'
 
-// Initialize stores
+// Stores and States
 const pitchStore = usePitchStore()
 const errorStore = useErrorStore()
-const reactionStore = useReactionStore()
-const artStore = useArtStore()
-const userStore = useUserStore()
-
-// Selected pitches - explicitly define it as an array of Pitch or null for unselected slots
 const selectedPitches = ref<(Pitch | null)[]>([null, null, null, null, null])
 
-// New pitch model for custom input
-const newPitch = ref<{ title: string; pitch: string }>({
-  title: '',
-  pitch: '',
-})
-
-const requestEmbellishment = async (pitch: Pitch) => {
-  try {
-    const response = await fetch('/api/botcafe/embellish', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ title: pitch.title, pitch: pitch.pitch }),
-    })
-
-    const data = await response.json()
-
-    pitchStore.updatePitch(pitch.id, {
-      flavorText: data.flavorText,
-      description: data.description,
-      imagePrompt: data.imagePrompt,
-    })
-  } catch (error) {
-    console.error('Failed to request embellishment:', error)
-  }
-}
-
-// Access brainstorm pitches
+// Computed brainstorm pitches
 const brainstormPitches = computed(() => pitchStore.brainstormPitches)
 
-// Track expanded pitch
-const expandedPitchId = ref<number | null>(null)
-
-// Fetch brainstorm ideas on mount
-onMounted(() => {
-  pitchStore.initializePitches()
-  pitchStore.fetchBrainstormPitches()
-})
-
-const generateImage = async (imagePrompt: string) => {
-  try {
-    const response = await artStore.generateArt({
-      promptString: imagePrompt,
-      userId: userStore.user?.id,
-      steps: 10, // or whatever value for steps
-    })
-    if (response.success) {
-      alert('Image generated successfully!')
-    } else {
-      alert('Failed to generate image: ' + response.message)
-    }
-  } catch (error) {
-    console.error('Error generating image:', error)
-  }
-}
-
-const createCustomPitch = async () => {
-  const pitch = {
-    id: Date.now(), // Temporary id, backend will replace this
-    createdAt: new Date(), // Use current date
-    updatedAt: null, // Initially null, backend should handle this
-    title: newPitch.value.title || '',
-    pitch: newPitch.value.pitch || '',
-    designer: userStore.user?.username || 'kindguest',
-    flavorText: null, // Optional field, set to null
-    description: null, // Optional field, set to null
-    highlightImage: null, // Optional field, set to null
-    imagePrompt: null, // Optional field, set to null
-    channelId: null, // Optional field, set to null
-    PitchType: PitchType.BRAINSTORM,
-    isMature: false,
-    isPublic: true,
-    userId: userStore.user?.id || 10, // Fallback userId
-    playerId: 1, // Provide a default playerId
-  }
-
-  try {
-    const result = await pitchStore.createPitch(pitch)
-    if (result.success) {
-      selectedPitches.value.unshift(pitch)
-      newPitch.value = { title: '', pitch: '' } // Clear form after success
-    } else {
-      throw new Error(result.message)
-    }
-  } catch (error) {
-    console.error('Error creating pitch:', error)
-    errorStore.setError(
-      ErrorType.NETWORK_ERROR,
-      'Failed to create pitch' + error,
-    )
-  }
-}
-
-const selectPitch = (pitch: Pitch) => {
-  // Remove the pitch if it's already in the list to avoid duplicates
-  selectedPitches.value = selectedPitches.value.filter(
-    (p) => p?.id !== pitch.id,
-  )
-
-  // Add the new pitch to the beginning of the array
+// Event handler for when a custom pitch is created
+const handlePitchCreated = (pitch: Pitch) => {
   selectedPitches.value.unshift(pitch)
-
-  // Ensure the list contains only 5 pitches by removing the last one if necessary
   if (selectedPitches.value.length > 5) {
     selectedPitches.value.pop()
   }
 }
 
-// Toggle pitch details expansion
-const toggleExpand = (pitchId: number) => {
-  expandedPitchId.value = expandedPitchId.value === pitchId ? null : pitchId
-}
-
-// Save edited changes to a pitch
-const saveChanges = (pitch: Pitch) => {
-  pitchStore.updatePitch(pitch.id, {
-    title: pitch.title,
-    designer: pitch.designer,
-    flavorText: pitch.flavorText,
-    highlightImage: pitch.highlightImage,
-    imagePrompt: pitch.imagePrompt,
-  })
+const selectPitch = (pitch: Pitch) => {
+  selectedPitches.value = selectedPitches.value.filter((p) => p?.id !== pitch.id)
+  selectedPitches.value.unshift(pitch)
+  if (selectedPitches.value.length > 5) {
+    selectedPitches.value.pop()
+  }
 }
 
 const isSubmitting = ref(false)
@@ -381,32 +149,16 @@ const submitTopPitches = async () => {
     }
 
     alert('Top 5 pitches submitted successfully!')
-
-    // Optional: Clear selected pitches after successful submission
     selectedPitches.value = [null, null, null, null, null]
   } catch (error) {
-    const err = error as Error
-    errorStore.setError(
-      ErrorType.NETWORK_ERROR,
-      err.message || 'Failed to submit top 5 pitches',
-    )
+    errorStore.setError(ErrorType.NETWORK_ERROR, error.message || 'Failed to submit top 5 pitches')
   } finally {
     isSubmitting.value = false
   }
 }
-
-const reactToPitch = async (pitch: Pitch, reactionType: ReactionType) => {
-  try {
-    await reactionStore.createReaction({
-      pitchId: pitch.id,
-      userId: userStore.userId,
-      reactionType, // Use the ReactionType enum directly
-    })
-  } catch (error) {
-    console.error('Failed to react to pitch:', error)
-  }
-}
 </script>
+
+
 
 <style scoped>
 .card-style {

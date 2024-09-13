@@ -70,7 +70,7 @@ const handleTransitionEnd = () => {
   background: #111;
   z-index: 9999;
   transition: opacity 1s;
-  pointer-events: auto;
+  pointer-events: none;
 }
 .loading-overlay.fade-out {
   opacity: 0;

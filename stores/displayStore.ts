@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { useErrorStore, ErrorType } from '@/stores/error'
 
 type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 
@@ -8,132 +7,91 @@ interface DisplayStoreState {
   sidebarLeft: DisplayState
   sidebarRight: DisplayState
   bottomDrawer: DisplayState
-  focusedContainer: keyof DisplayStoreState | null // Track which container has focus
+  focusedContainer: keyof DisplayStoreState | null // Track the currently focused container
 }
 
 export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
-    headerState: 'open',     // Default state
-    sidebarLeft: 'open',     // Default state
-    sidebarRight: 'hidden',  // Default state
-    bottomDrawer: 'hidden',  // Default state
-    focusedContainer: null,  // No container is focused initially
+    headerState: 'open',     // Default states
+    sidebarLeft: 'hidden',
+    sidebarRight: 'hidden',
+    bottomDrawer: 'hidden',
+    focusedContainer: null,  // No container focused initially
   }),
 
   getters: {
-    isHeaderOpen: (state) => state.headerState === 'open',
-    isSidebarLeftOpen: (state) => state.sidebarLeft === 'open',
-    isSidebarRightOpen: (state) => state.sidebarRight === 'open',
-    isBottomDrawerOpen: (state) => state.bottomDrawer === 'open',
+    // Getters to check if each element is visible
+    isHeaderVisible: (state) => state.headerState !== 'hidden',
+    isSidebarLeftVisible: (state) => state.sidebarLeft !== 'hidden',
+    isSidebarRightVisible: (state) => state.sidebarRight !== 'hidden',
+    isBottomDrawerVisible: (state) => state.bottomDrawer !== 'hidden',
   },
 
   actions: {
     /**
-     * Changes the state of the specified container.
-     * @param {keyof DisplayStoreState} container - The container to update ('headerState', 'sidebarLeft', etc.).
-     * @param {DisplayState} state - The new state for the container ('open', 'compact', 'hidden', 'disabled').
-     */
-    async changeState(container: keyof DisplayStoreState, state: DisplayState) {
-      const errorStore = useErrorStore()
-
-      try {
-        if (!['open', 'compact', 'hidden', 'disabled'].includes(state)) {
-          throw new Error('Invalid state provided')
-        }
-
-        if (!this.$state.hasOwnProperty(container)) {
-          throw new Error(`Invalid container: ${container}`)
-        }
-
-        this[container] = state
-      } catch (error) {
-        await errorStore.handleError(
-          () => Promise.reject(error), // Simulating async error handling
-          ErrorType.INTERACTION_ERROR,
-          `Failed to change state for ${container}`
-        )
-      }
-    },
-
-    /**
-     * Sets focus to the specified container and updates the states of the other containers.
-     * The focused container will be open, while others will be compact or disabled.
+     * Set focus to a specific container.
+     * The focused container will open, and the other containers will be set to compact or hidden.
      * @param {keyof DisplayStoreState} container - The container to focus ('headerState', 'sidebarLeft', etc.).
      */
-    async setFocus(container: keyof DisplayStoreState) {
-      const errorStore = useErrorStore()
+    setFocus(container: keyof DisplayStoreState) {
+      this.focusedContainer = container
 
-      try {
-        if (!this.$state.hasOwnProperty(container)) {
-          throw new Error(`Invalid container: ${container}`)
-        }
+      // Set the focused container to open and others to compact or hidden
+      this[container] = 'open'
 
-        // Set focus to the specified container and update the states accordingly
-        this.focusedContainer = container
-        this[container] = 'open'
+      if (container !== 'headerState') {
+        this.headerState = this.headerState !== 'disabled' ? 'compact' : this.headerState
+      }
 
-        // Make other containers compact or disabled
-        for (const key in this.$state) {
-          if (key !== container && key !== 'focusedContainer') {
-            this[key as keyof DisplayStoreState] = 'compact'
-          }
-        }
-      } catch (error) {
-        await errorStore.handleError(
-          () => Promise.reject(error),
-          ErrorType.INTERACTION_ERROR,
-          `Failed to set focus on ${container}`
-        )
+      if (container !== 'sidebarLeft') {
+        this.sidebarLeft = this.sidebarLeft !== 'disabled' ? 'compact' : this.sidebarLeft
+      }
+
+      if (container !== 'sidebarRight') {
+        this.sidebarRight = this.sidebarRight !== 'disabled' ? 'compact' : this.sidebarRight
+      }
+
+      if (container !== 'bottomDrawer') {
+        this.bottomDrawer = this.bottomDrawer !== 'disabled' ? 'hidden' : this.bottomDrawer
       }
     },
 
     /**
-     * Resets all containers to their default states.
+     * Clears focus and returns all containers to their default states.
      */
-    async resetStates() {
-      const errorStore = useErrorStore()
+    clearFocus() {
+      this.focusedContainer = null
+    },
 
-      try {
-        this.headerState = 'open'
-        this.sidebarLeft = 'open'
-        this.sidebarRight = 'hidden'
-        this.bottomDrawer = 'hidden'
-        this.focusedContainer = null // Clear focus
-      } catch (error) {
-        await errorStore.handleError(
-          () => Promise.reject(error),
-          ErrorType.GENERAL_ERROR,
-          'Failed to reset display states'
-        )
+    /**
+     * Change the state of a specific container to the desired state.
+     * @param {keyof DisplayStoreState} container - The container to change ('headerState', 'sidebarLeft', etc.).
+     * @param {DisplayState} state - The new state for the container ('open', 'compact', 'hidden', 'disabled').
+     */
+    changeState(container: keyof DisplayStoreState, state: DisplayState) {
+      if (['open', 'compact', 'hidden', 'disabled'].includes(state)) {
+        this[container] = state
       }
     },
 
     /**
-     * Switches focus between containers in a simple round-robin style.
-     * When focus is called again, it moves to the next container in a pre-defined order.
+     * Reset all containers to their default states.
      */
-    async cycleFocus() {
-      const errorStore = useErrorStore()
+    resetStates() {
+      this.headerState = 'open'
+      this.sidebarLeft = 'hidden'
+      this.sidebarRight = 'hidden'
+      this.bottomDrawer = 'hidden'
+      this.focusedContainer = null
+    },
 
-      try {
-        const containers: (keyof DisplayStoreState)[] = ['headerState', 'sidebarLeft', 'sidebarRight', 'bottomDrawer']
-
-        // Get the index of the current focused container or start from -1
-        let currentIndex = this.focusedContainer ? containers.indexOf(this.focusedContainer) : -1
-
-        // Calculate the next container to focus
-        const nextIndex = (currentIndex + 1) % containers.length
-        const nextContainer = containers[nextIndex]
-
-        // Set focus to the next container
-        await this.setFocus(nextContainer)
-      } catch (error) {
-        await errorStore.handleError(
-          () => Promise.reject(error),
-          ErrorType.INTERACTION_ERROR,
-          'Failed to cycle focus'
-        )
-      }
-    }
-  }
+    /**
+     * Checks if a container is focused.
+     * @param {keyof DisplayStoreState} container - The container to check focus on.
+     * @returns {boolean} True if the container is focused.
+     */
+    isFocused(container: keyof DisplayStoreState): boolean {
+      return this.focusedContainer === container
+    },
+  },
 })

@@ -1,7 +1,7 @@
 <template>
-  <ami-loader />
   <div class="main-container">
     <header-upgrade />
+    <ami-loader />
     <div class="content-container">
       <kind-sidebar />
       <main class="main-content">

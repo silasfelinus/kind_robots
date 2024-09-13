@@ -36,29 +36,23 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useHead } from '@vueuse/head'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { useTagStore } from '@/stores/tagStore'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useBotStore } from '@/stores/botStore'
-import { usePitchStore } from '@/stores/pitchStore'
-import { useChannelStore } from '@/stores/channelStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useLayoutStore } from '@/stores/layoutStore'
+
 import KindSidebar from '@/components/content/layout/KindSidebar.vue'
 
 const errorStore = useErrorStore()
-const tagStore = useTagStore()
+
 const userStore = useUserStore()
 const artStore = useArtStore()
 const themeStore = useThemeStore()
 const botStore = useBotStore()
-const pitchStore = usePitchStore()
-const channelStore = useChannelStore()
 const milestoneStore = useMilestoneStore()
-const layoutStore = useLayoutStore()
+
 
 const isLoading = ref(true)
 const isLeftSidebarCollapsed = ref(false)

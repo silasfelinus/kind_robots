@@ -13,7 +13,7 @@
       v-if="showIntro"
       class="absolute top-0 left-0 w-full h-full z-40 bg-accent flex flex-col justify-center items-center p-4"
     >
-      <img src="/images/welcome.webp" alt="Intro Image" class="mb-4" />
+      <img src="/images/intro/welcome.webp" alt="Intro Image" class="mb-4" />
       <h1 class="text-xl font-bold mb-2">Welcome to Kind Robots</h1>
       <p class="text-center">Click anywhere to start the experience.</p>
       <button class="bg-primary p-2 rounded-xl mt-4" @click="handleIntroClick">
@@ -36,7 +36,7 @@
       <div class="bg-primary p-2 w-full text-center rounded-xl relative">
         <h1 class="text-lg font-bold">Header Content</h1>
         <img
-          src="/images/welcome.webp"
+          src="/images/intro/welcome.webp"
           alt="Header Image"
           class="absolute top-0 left-0 w-full h-full object-cover opacity-50"
         />
@@ -61,7 +61,7 @@
         <div class="p-2 text-center text-secondary rounded-2xl relative">
           <p class="font-bold">Sidebar Left Content</p>
           <img
-            src="/images/words.webp"
+            src="/images/intro/words.webp"
             alt="Sidebar Left Image"
             class="absolute top-0 left-0 w-full h-full object-cover opacity-50"
           />
@@ -103,7 +103,7 @@
         <div class="bg-secondary p-2 text-center rounded-xl relative">
           <p class="font-bold">Sidebar Right Content</p>
           <img
-            src="/images/art1.webp"
+            src="/images/intro/art1.webp"
             alt="Sidebar Right Image"
             class="absolute top-0 left-0 w-full h-full object-cover opacity-50"
           />
@@ -129,7 +129,7 @@
       <div class="bg-secondary p-4 text-center rounded-xl relative">
         <p class="font-bold">Footer Content</p>
         <img
-          src="/images/footer.webp"
+          src="/images/intro/footer.webp"
           alt="Footer Image"
           class="absolute top-0 left-0 w-full h-full object-cover opacity-50"
         />

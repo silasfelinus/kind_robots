@@ -16,25 +16,18 @@
       <img src="/images/intro/welcome.webp" alt="Intro Image" class="mb-4" />
       <h1 class="text-xl font-bold mb-2">Welcome to Kind Robots</h1>
       <p class="text-center mb-4">
-        At Kind Robots, we believe that humans and AI can be best friends—like
-        peanut butter and jelly, but cooler. 🌐🤖
+        At Kind Robots, we bring people and AI together to do amazing things.
       </p>
       <p class="text-center mb-4">
-        Our mission? To create a social space where you can unleash your
-        creativity with a little help from our robot friends. Whether it's
-        crafting stories that tug at the heartstrings or generating epic
-        artwork, our AI-powered tools are here to assist you in making something
-        awesome.
+        Create art with AI. Let your mind explore and see what our tools can do
+        for you.
       </p>
       <p class="text-center mb-4">
-        We're all about human-AI positivity. Because why shouldn't robots help
-        us make the world a better place? Together, we're shaping a community
-        where every interaction leads to new ideas, more art, and a lot of
-        fun—no evil robot overlords here! (We promise. 😎)
+        Bring your ideas to life. Our AI helps shape your thoughts into action.
       </p>
       <p class="text-center">
-        So click that button and let’s start creating! You bring the ideas, and
-        our AI will sprinkle in a little magic. Let’s go! 🚀
+        Let’s work together to make the world better. Every idea can help shape
+        the future.
       </p>
       <button
         class="bg-primary p-2 rounded-xl mt-4"
@@ -57,12 +50,7 @@
       @blur="clearFocus"
     >
       <div class="bg-primary p-2 w-full text-center rounded-xl relative">
-        <h1 class="text-lg font-bold">Header Content</h1>
-        <img
-          src="/images/intro/welcome.webp"
-          alt="Header Image"
-          class="absolute top-0 left-0 w-full h-full object-cover opacity-50"
-        />
+        <h1 class="text-lg font-bold">Kind Robots</h1>
       </div>
     </header>
 
@@ -81,7 +69,8 @@
         @blur="clearFocus"
       >
         <div class="p-2 text-center text-secondary rounded-2xl relative">
-          <p class="font-bold">Sidebar Left Content</p>
+          <p class="font-bold">Create Art</p>
+          <p class="text-sm">Use AI to make stunning art.</p>
         </div>
       </aside>
 
@@ -93,7 +82,8 @@
         @blur="clearFocus"
       >
         <div class="flex-grow text-secondary p-2 m-2 text-center rounded-2xl">
-          <p class="font-bold">Main Content Area</p>
+          <p class="font-bold">Develop Ideas</p>
+          <p class="text-sm">Use AI to explore new ideas.</p>
           <nuxt-page />
         </div>
       </main>
@@ -108,7 +98,8 @@
         @blur="clearFocus"
       >
         <div class="bg-secondary p-2 text-center rounded-xl relative">
-          <p class="font-bold">Sidebar Right Content</p>
+          <p class="font-bold">Make the World Better</p>
+          <p class="text-sm">Work with us to build a brighter future.</p>
         </div>
       </aside>
     </div>
@@ -122,7 +113,8 @@
       @blur="clearFocus"
     >
       <div class="bg-secondary p-4 text-center rounded-xl relative">
-        <p class="font-bold">Footer Content</p>
+        <p class="font-bold">Join the Community</p>
+        <p class="text-sm">Connect with others and grow with us.</p>
       </div>
     </footer>
 
@@ -187,3 +179,11 @@ const mainContentClass = computed(() => ({
   'mr-[20vw]': displayStore.sidebarRight === 'open',
 }))
 </script>
+
+<style>
+.transition-all {
+  transition:
+    width 0.3s ease,
+    height 0.3s ease;
+}
+</style>

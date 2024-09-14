@@ -19,16 +19,16 @@ interface DisplayStoreState {
 
 export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
-    headerState: 'open',     // Default states
-    sidebarLeft: 'hidden',
-    sidebarRight: 'hidden',
-    footer: 'hidden',
-    focusedContainer: null,  // No container focused initially
+    headerState: (localStorage.getItem('headerState') as DisplayState) || 'open',  // Retrieve initial state from localStorage or default to 'open'
+    sidebarLeft: (localStorage.getItem('sidebarLeft') as DisplayState) || 'hidden',
+    sidebarRight: (localStorage.getItem('sidebarRight') as DisplayState) || 'hidden',
+    footer: (localStorage.getItem('footer') as DisplayState) || 'hidden',
+    focusedContainer: null,
     headerFocused: false,
     sidebarLeftFocused: false,
     sidebarRightFocused: false,
     footerFocused: false,
-    showIntro: localStorage.getItem('showIntro') === 'false' ? false : true // Show intro by default
+    showIntro: localStorage.getItem('showIntro') === 'false' ? false : true // Show intro by default unless previously dismissed
   }),
 
   getters: {
@@ -40,6 +40,11 @@ export const useDisplayStore = defineStore('display', {
   },
 
   actions: {
+    /**
+     * Set focus to a specific container and mark it as focused.
+     * The focused container will open, and the other containers will be set to compact or hidden.
+     * @param {'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer'} container - The container to focus.
+     */
     setFocus(container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer') {
       this.focusedContainer = container
       if (container === 'headerState') this.headerFocused = true
@@ -48,34 +53,56 @@ export const useDisplayStore = defineStore('display', {
       if (container === 'footer') this.footerFocused = true
 
       this[container] = 'open'
+      localStorage.setItem(container, 'open')  // Persist the open state
 
       const containers: Array<'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer'> = ['headerState', 'sidebarLeft', 'sidebarRight', 'footer']
       containers.forEach((key) => {
         if (key !== container) {
-          this[key] = this[key] !== 'disabled' ? (key === 'footer' ? 'hidden' : 'compact') : this[key]
+          const newState = this[key] !== 'disabled' ? (key === 'footer' ? 'hidden' : 'compact') : this[key]
+          this[key] = newState
+          localStorage.setItem(key, newState)  // Persist the new state
         }
       })
     },
 
+    /**
+     * Clears focus and returns all containers to their default states.
+     */
     clearFocus() {
       this.focusedContainer = null
       this.resetStates()
     },
 
+    /**
+     * Change the state of a specific container to the desired state.
+     * @param {'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer'} container - The container to change.
+     * @param {DisplayState} state - The new state for the container.
+     */
     changeState(container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer', state: DisplayState) {
       if (['open', 'compact', 'hidden', 'disabled'].includes(state)) {
         this[container] = state
+        localStorage.setItem(container, state)  // Persist the state change
       }
     },
 
+    /**
+     * Reset all containers to their default states.
+     */
     resetStates() {
       this.headerState = 'open'
       this.sidebarLeft = 'hidden'
       this.sidebarRight = 'hidden'
       this.footer = 'hidden'
       this.focusedContainer = null
+      localStorage.setItem('headerState', 'open')
+      localStorage.setItem('sidebarLeft', 'hidden')
+      localStorage.setItem('sidebarRight', 'hidden')
+      localStorage.setItem('footer', 'hidden')
     },
 
+    /**
+     * Toggle the intro state and save it to localStorage.
+     */
     toggleIntroState() {
       this.showIntro = !this.showIntro
       localStorage.setItem('showIntro', JSON.stringify(this.showIntro))

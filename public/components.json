@@ -148,6 +148,7 @@
       "ButtonCard",
       "ChatToggle",
       "ContainerManager",
+      "DisplayToggler",
       "Drag-Card",
       "FlipCard",
       "HeaderUpgrade",
@@ -250,7 +251,10 @@
   },
   {
     "folderName": "photoprism",
-    "components": ["ImageUpload", "PhotoGallery"]
+    "components": [
+      "ImageUpload",
+      "PhotoGallery"
+    ]
   },
   {
     "folderName": "products",
@@ -265,11 +269,11 @@
   {
     "folderName": "prompts",
     "components": [
+      "AddPitch",
       "BrainstormCard",
       "BrainstormGame",
       "BubblePrompt",
       "BubbleTest",
-      "PitchDisplay",
       "TodoManager"
     ]
   },

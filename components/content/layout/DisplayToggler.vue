@@ -7,29 +7,29 @@
       <div class="bg-primary p-4 border border-accent rounded-2xl text-center">
         <h3 class="font-bold mb-2">Header</h3>
         <button
-          class="bg-accent p-2 rounded-lg mb-2"
+          class="bg-accent p-2 rounded-lg mb-2 flex items-center justify-center"
           @click="toggle('headerState')"
         >
-          Toggle Header
+          <Icon name="eye" class="mr-2" /> Toggle Header
         </button>
-        <div class="flex justify-around">
+        <div class="flex justify-around mt-2">
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('headerState', 'open') ? 'bg-success' : 'bg-accent']"
             @click="changeState('headerState', 'open')"
           >
-            Open
+            <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('headerState', 'compact') ? 'bg-warning' : 'bg-accent']"
             @click="changeState('headerState', 'compact')"
           >
-            Compact
+            <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('headerState', 'hidden') ? 'bg-error' : 'bg-accent']"
             @click="changeState('headerState', 'hidden')"
           >
-            Hidden
+            <Icon name="eye-off" class="mr-2" /> Hidden
           </button>
         </div>
       </div>
@@ -38,29 +38,29 @@
       <div class="bg-primary p-4 border border-accent rounded-2xl text-center">
         <h3 class="font-bold mb-2">Sidebar Left</h3>
         <button
-          class="bg-accent p-2 rounded-lg mb-2"
+          class="bg-accent p-2 rounded-lg mb-2 flex items-center justify-center"
           @click="toggle('sidebarLeft')"
         >
-          Toggle Sidebar Left
+          <Icon name="eye" class="mr-2" /> Toggle Sidebar Left
         </button>
-        <div class="flex justify-around">
+        <div class="flex justify-around mt-2">
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('sidebarLeft', 'open') ? 'bg-success' : 'bg-accent']"
             @click="changeState('sidebarLeft', 'open')"
           >
-            Open
+            <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('sidebarLeft', 'compact') ? 'bg-warning' : 'bg-accent']"
             @click="changeState('sidebarLeft', 'compact')"
           >
-            Compact
+            <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('sidebarLeft', 'hidden') ? 'bg-error' : 'bg-accent']"
             @click="changeState('sidebarLeft', 'hidden')"
           >
-            Hidden
+            <Icon name="eye-off" class="mr-2" /> Hidden
           </button>
         </div>
       </div>
@@ -69,29 +69,29 @@
       <div class="bg-primary p-4 border border-accent rounded-2xl text-center">
         <h3 class="font-bold mb-2">Sidebar Right</h3>
         <button
-          class="bg-accent p-2 rounded-lg mb-2"
+          class="bg-accent p-2 rounded-lg mb-2 flex items-center justify-center"
           @click="toggle('sidebarRight')"
         >
-          Toggle Sidebar Right
+          <Icon name="eye" class="mr-2" /> Toggle Sidebar Right
         </button>
-        <div class="flex justify-around">
+        <div class="flex justify-around mt-2">
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('sidebarRight', 'open') ? 'bg-success' : 'bg-accent']"
             @click="changeState('sidebarRight', 'open')"
           >
-            Open
+            <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('sidebarRight', 'compact') ? 'bg-warning' : 'bg-accent']"
             @click="changeState('sidebarRight', 'compact')"
           >
-            Compact
+            <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('sidebarRight', 'hidden') ? 'bg-error' : 'bg-accent']"
             @click="changeState('sidebarRight', 'hidden')"
           >
-            Hidden
+            <Icon name="eye-off" class="mr-2" /> Hidden
           </button>
         </div>
       </div>
@@ -100,29 +100,29 @@
       <div class="bg-primary p-4 border border-accent rounded-2xl text-center">
         <h3 class="font-bold mb-2">Bottom Drawer</h3>
         <button
-          class="bg-accent p-2 rounded-lg mb-2"
+          class="bg-accent p-2 rounded-lg mb-2 flex items-center justify-center"
           @click="toggle('bottomDrawer')"
         >
-          Toggle Bottom Drawer
+          <Icon name="eye" class="mr-2" /> Toggle Bottom Drawer
         </button>
-        <div class="flex justify-around">
+        <div class="flex justify-around mt-2">
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('bottomDrawer', 'open') ? 'bg-success' : 'bg-accent']"
             @click="changeState('bottomDrawer', 'open')"
           >
-            Open
+            <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('bottomDrawer', 'compact') ? 'bg-warning' : 'bg-accent']"
             @click="changeState('bottomDrawer', 'compact')"
           >
-            Compact
+            <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
-            class="bg-accent p-2 rounded-lg"
+            :class="['p-2 rounded-lg flex items-center', isActive('bottomDrawer', 'hidden') ? 'bg-error' : 'bg-accent']"
             @click="changeState('bottomDrawer', 'hidden')"
           >
-            Hidden
+            <Icon name="eye-off" class="mr-2" /> Hidden
           </button>
         </div>
       </div>
@@ -145,8 +145,16 @@ const toggle = (container) => {
 const changeState = (container, state) => {
   displayStore.changeState(container, state)
 }
+
+// Check if the current state is active
+const isActive = (container, state) => {
+  return displayStore[container] === state
+}
 </script>
 
 <style scoped>
-/* Custom styling for DisplayTester */
+/* Custom styling for DisplayToggler */
+button:focus {
+  outline: none;
+}
 </style>

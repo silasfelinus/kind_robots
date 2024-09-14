@@ -26,10 +26,10 @@
         @blur="clearFocus"
         tabindex="0"
       >
-        <div class="bg-secondary p-2 m-1 text-center rounded-2xl">
+        <div class="p-2 m-1 text-center text-secondary rounded-2xl">
           <p class="font-bold">Sidebar Left Content</p>
         </div>
-        <button @click="toggle('sidebarLeft')" class="bg-accent p-2 rounded-lg mt-4">
+        <button @click="toggle('sidebarLeft')" class="bg-accent p-2 rounded-2xl mt-4">
           Toggle Sidebar Left
         </button>
       </aside>
@@ -42,7 +42,7 @@
         tabindex="0"
         style="min-width: 50%;" 
       >
-        <div class="flex-grow bg-secondary p-2 m-2 text-center rounded-xl">
+        <div class="flex-grow text-secondary p-2 m-2 text-center rounded-2xl">
           <p class="font-bold">Main Content Area</p>
           <display-toggler />
         </div>
@@ -51,7 +51,7 @@
       <!-- Sidebar Right -->
       <aside
         v-if="isSidebarRightVisible"
-        :class="['p-2 m-1 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarRightClass]"
+        :class="['p-2 m-1 border border-accent rounded-2xl transition-all duration-300', sidebarRightClass]"
         :style="{ width: sidebarRightWidth }"
         @focus="setFocus('sidebarRight')"
         @blur="clearFocus"

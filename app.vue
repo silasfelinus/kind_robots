@@ -1,35 +1,32 @@
 <template>
-  <div id="app" class="flex flex-col h-screen w-screen overflow-hidden bg-base-200">
+  <div id="app" class="flex flex-col h-screen w-screen overflow-hidden bg-base-400">
     <!-- Header -->
     <header
       v-if="isHeaderVisible"
-      :class="['p-4 border border-accent bg-primary rounded-2xl', headerClass]"
-      class="transition-all duration-300 flex justify-between items-center mx-6"
+      :class="['p-2 border border-accent bg-base-200 rounded-2xl', headerClass]"
+      class="transition-all duration-300 flex justify-between items-center my-1 mx-6"
       @focus="setFocus('headerState')"
       @blur="clearFocus"
       tabindex="0"
-      style="height: 10vh;" <!-- Ensure header takes up a portion of the height -->
+      style="height: 10vh;" 
     >
-      <div class="bg-secondary p-4 w-full text-center rounded-xl">
+      <div class="bg-primary p-2 w-full text-center rounded-xl">
         <h1 class="text-lg font-bold">Header Content</h1>
       </div>
-      <button @click="toggle('headerState')" class="bg-accent p-2 rounded-lg ml-4">
-        Toggle Header
-      </button>
     </header>
 
     <!-- Main container with sidebars and content -->
-    <div class="flex flex-grow overflow-hidden mx-6 gap-2" style="height: 80vh;"> <!-- Take 80% of the height -->
+    <div class="flex flex-grow overflow-hidden mx-6 gap-2" style="height: 70vh;">
       <!-- Sidebar Left -->
       <aside
         v-if="isSidebarLeftVisible"
-        :class="['p-4 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarLeftClass]"
+        :class="['p-2 m-1 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarLeftClass]"
         :style="{ width: sidebarLeftWidth }"
         @focus="setFocus('sidebarLeft')"
         @blur="clearFocus"
         tabindex="0"
       >
-        <div class="bg-secondary p-4 text-center rounded-xl">
+        <div class="bg-secondary p-2 m-1 text-center rounded-2xl">
           <p class="font-bold">Sidebar Left Content</p>
         </div>
         <button @click="toggle('sidebarLeft')" class="bg-accent p-2 rounded-lg mt-4">
@@ -39,12 +36,12 @@
 
       <!-- Main content area -->
       <main
-        :class="['flex-grow flex flex-col overflow-y-auto transition-all duration-300 p-4 border border-accent bg-primary rounded-2xl', mainContentClass]"
+        :class="['flex-grow flex flex-col overflow-y-auto transition-all duration-300 p-2 border border-accent bg-primary rounded-2xl', mainContentClass]"
         @focus="setFocus('mainContent')"
         @blur="clearFocus"
         tabindex="0"
       >
-        <div class="flex-grow bg-secondary p-6 text-center rounded-xl">
+        <div class="flex-grow bg-secondary p-2 m-2 text-center rounded-xl">
           <p class="font-bold">Main Content Area</p>
           <display-toggler />
         </div>
@@ -53,13 +50,13 @@
       <!-- Sidebar Right -->
       <aside
         v-if="isSidebarRightVisible"
-        :class="['p-4 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarRightClass]"
+        :class="['p-2 m-1 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarRightClass]"
         :style="{ width: sidebarRightWidth }"
         @focus="setFocus('sidebarRight')"
         @blur="clearFocus"
         tabindex="0"
       >
-        <div class="bg-secondary p-4 text-center rounded-xl">
+        <div class="bg-secondary p-2 m-1 text-center rounded-xl">
           <p class="font-bold">Sidebar Right Content</p>
         </div>
         <button @click="toggle('sidebarRight')" class="bg-accent p-2 rounded-lg mt-4">
@@ -71,11 +68,11 @@
     <!-- Bottom Drawer -->
     <div
       v-if="isBottomDrawerVisible"
-      :class="['p-4 border border-accent bg-primary rounded-2xl transition-all duration-300 mx-6', bottomDrawerClass]"
+      :class="['p-2 border border-accent bg-primary rounded-2xl transition-all duration-300 mx-6', bottomDrawerClass]"
       @focus="setFocus('bottomDrawer')"
       @blur="clearFocus"
       tabindex="0"
-      style="height: 10vh;" <!-- Fixed height for the bottom drawer -->
+      style="height: 10vh;" 
     >
       <div class="bg-secondary p-4 text-center rounded-xl">
         <p class="font-bold">Bottom Drawer Content</p>

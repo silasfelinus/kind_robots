@@ -1,5 +1,6 @@
 <template>
   <div id="app" class="flex flex-col h-screen w-screen overflow-hidden bg-base-400">
+<ami-loader />
     <!-- Header -->
     <header
       v-if="isHeaderVisible"
@@ -44,7 +45,7 @@
       >
         <div class="flex-grow text-secondary p-2 m-2 text-center rounded-2xl">
           <p class="font-bold">Main Content Area</p>
-          <display-toggler />
+          <nuxt-page />
         </div>
       </main>
 

@@ -3,11 +3,12 @@
     <!-- Header -->
     <header
       v-if="isHeaderVisible"
-      :class="['p-4 mb-4 border border-accent bg-primary rounded-2xl', headerClass]"
+      :class="['p-4 border border-accent bg-primary rounded-2xl', headerClass]"
       class="transition-all duration-300 flex justify-between items-center mx-6"
       @focus="setFocus('headerState')"
       @blur="clearFocus"
       tabindex="0"
+      style="height: 10vh;" <!-- Ensure header takes up a portion of the height -->
     >
       <div class="bg-secondary p-4 w-full text-center rounded-xl">
         <h1 class="text-lg font-bold">Header Content</h1>
@@ -18,7 +19,7 @@
     </header>
 
     <!-- Main container with sidebars and content -->
-    <div class="flex flex-grow overflow-hidden mx-6 gap-2">
+    <div class="flex flex-grow overflow-hidden mx-6 gap-2" style="height: 80vh;"> <!-- Take 80% of the height -->
       <!-- Sidebar Left -->
       <aside
         v-if="isSidebarLeftVisible"
@@ -74,6 +75,7 @@
       @focus="setFocus('bottomDrawer')"
       @blur="clearFocus"
       tabindex="0"
+      style="height: 10vh;" <!-- Fixed height for the bottom drawer -->
     >
       <div class="bg-secondary p-4 text-center rounded-xl">
         <p class="font-bold">Bottom Drawer Content</p>

@@ -1,22 +1,34 @@
 <template>
   <div class="bg-base-200 p-4 border rounded-2xl shadow-md">
     <h2 class="text-lg font-bold text-center mb-4">Display Tester</h2>
-    
+
     <div class="flex flex-wrap justify-around gap-4">
       <!-- Header State Control -->
       <div class="bg-primary p-4 border border-accent rounded-2xl text-center">
         <h3 class="font-bold mb-2">Header</h3>
-        <button class="bg-accent p-2 rounded-lg mb-2" @click="toggle('headerState')">
+        <button
+          class="bg-accent p-2 rounded-lg mb-2"
+          @click="toggle('headerState')"
+        >
           Toggle Header
         </button>
         <div class="flex justify-around">
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('headerState', 'open')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('headerState', 'open')"
+          >
             Open
           </button>
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('headerState', 'compact')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('headerState', 'compact')"
+          >
             Compact
           </button>
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('headerState', 'hidden')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('headerState', 'hidden')"
+          >
             Hidden
           </button>
         </div>
@@ -25,17 +37,29 @@
       <!-- Sidebar Left State Control -->
       <div class="bg-primary p-4 border border-accent rounded-2xl text-center">
         <h3 class="font-bold mb-2">Sidebar Left</h3>
-        <button class="bg-accent p-2 rounded-lg mb-2" @click="toggle('sidebarLeft')">
+        <button
+          class="bg-accent p-2 rounded-lg mb-2"
+          @click="toggle('sidebarLeft')"
+        >
           Toggle Sidebar Left
         </button>
         <div class="flex justify-around">
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('sidebarLeft', 'open')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('sidebarLeft', 'open')"
+          >
             Open
           </button>
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('sidebarLeft', 'compact')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('sidebarLeft', 'compact')"
+          >
             Compact
           </button>
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('sidebarLeft', 'hidden')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('sidebarLeft', 'hidden')"
+          >
             Hidden
           </button>
         </div>
@@ -44,17 +68,29 @@
       <!-- Sidebar Right State Control -->
       <div class="bg-primary p-4 border border-accent rounded-2xl text-center">
         <h3 class="font-bold mb-2">Sidebar Right</h3>
-        <button class="bg-accent p-2 rounded-lg mb-2" @click="toggle('sidebarRight')">
+        <button
+          class="bg-accent p-2 rounded-lg mb-2"
+          @click="toggle('sidebarRight')"
+        >
           Toggle Sidebar Right
         </button>
         <div class="flex justify-around">
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('sidebarRight', 'open')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('sidebarRight', 'open')"
+          >
             Open
           </button>
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('sidebarRight', 'compact')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('sidebarRight', 'compact')"
+          >
             Compact
           </button>
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('sidebarRight', 'hidden')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('sidebarRight', 'hidden')"
+          >
             Hidden
           </button>
         </div>
@@ -63,17 +99,29 @@
       <!-- Bottom Drawer State Control -->
       <div class="bg-primary p-4 border border-accent rounded-2xl text-center">
         <h3 class="font-bold mb-2">Bottom Drawer</h3>
-        <button class="bg-accent p-2 rounded-lg mb-2" @click="toggle('bottomDrawer')">
+        <button
+          class="bg-accent p-2 rounded-lg mb-2"
+          @click="toggle('bottomDrawer')"
+        >
           Toggle Bottom Drawer
         </button>
         <div class="flex justify-around">
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('bottomDrawer', 'open')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('bottomDrawer', 'open')"
+          >
             Open
           </button>
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('bottomDrawer', 'compact')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('bottomDrawer', 'compact')"
+          >
             Compact
           </button>
-          <button class="bg-accent p-2 rounded-lg" @click="changeState('bottomDrawer', 'hidden')">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="changeState('bottomDrawer', 'hidden')"
+          >
             Hidden
           </button>
         </div>
@@ -83,7 +131,7 @@
 </template>
 
 <script setup>
-import { useDisplayStore } from '@/stores/display'
+import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 

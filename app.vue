@@ -45,6 +45,7 @@
       >
         <div class="flex-grow bg-secondary p-4 text-center">
           <p class="font-bold">Main Content Area</p>
+<display-toggler.vue />
         </div>
       </main>
 

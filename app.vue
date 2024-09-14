@@ -15,7 +15,27 @@
     >
       <img src="/images/intro/welcome.webp" alt="Intro Image" class="mb-4" />
       <h1 class="text-xl font-bold mb-2">Welcome to Kind Robots</h1>
-      <p class="text-center">Click anywhere to start the experience.</p>
+      <p class="text-center mb-4">
+        At Kind Robots, we believe that humans and AI can be best friends—like
+        peanut butter and jelly, but cooler. 🌐🤖
+      </p>
+      <p class="text-center mb-4">
+        Our mission? To create a social space where you can unleash your
+        creativity with a little help from our robot friends. Whether it's
+        crafting stories that tug at the heartstrings or generating epic
+        artwork, our AI-powered tools are here to assist you in making something
+        awesome.
+      </p>
+      <p class="text-center mb-4">
+        We're all about human-AI positivity. Because why shouldn't robots help
+        us make the world a better place? Together, we're shaping a community
+        where every interaction leads to new ideas, more art, and a lot of
+        fun—no evil robot overlords here! (We promise. 😎)
+      </p>
+      <p class="text-center">
+        So click that button and let’s start creating! You bring the ideas, and
+        our AI will sprinkle in a little magic. Let’s go! 🚀
+      </p>
       <button class="bg-primary p-2 rounded-xl mt-4" @click="handleIntroClick">
         Let's Begin
       </button>
@@ -29,7 +49,6 @@
         'transition-all duration-300 flex justify-between items-center',
       ]"
       tabindex="0"
-      style="height: calc(10vh)"
       @focus="setFocus('headerState')"
       @blur="clearFocus"
     >
@@ -46,7 +65,7 @@
     <!-- Main container with sidebars and content -->
     <div
       class="flex flex-grow overflow-hidden gap-2"
-      style="height: calc(80vh)"
+      :style="{ height: mainContentHeight }"
     >
       <!-- Sidebar Left -->
       <aside
@@ -54,32 +73,17 @@
         :class="['transition-all duration-300', sidebarLeftClass]"
         :style="{ width: sidebarLeftWidth }"
         tabindex="0"
-        style="height: 100%"
         @focus="setFocus('sidebarLeft')"
         @blur="clearFocus"
       >
         <div class="p-2 text-center text-secondary rounded-2xl relative">
           <p class="font-bold">Sidebar Left Content</p>
-          <img
-            src="/images/intro/words.webp"
-            alt="Sidebar Left Image"
-            class="absolute top-0 left-0 w-full h-full object-cover opacity-50"
-          />
         </div>
-        <button
-          class="bg-accent p-2 rounded-2xl mt-4"
-          @click="toggle('sidebarLeft')"
-        >
-          Toggle Sidebar Left
-        </button>
       </aside>
 
       <!-- Main content area -->
       <main
-        :class="[
-          'flex-grow flex flex-col overflow-y-auto transition-all duration-300 p-2 bg-primary rounded-2xl',
-          mainContentClass,
-        ]"
+        :class="[mainContentClass]"
         tabindex="0"
         @focus="setFocus('mainContent')"
         @blur="clearFocus"
@@ -96,24 +100,12 @@
         :class="['transition-all duration-300', sidebarRightClass]"
         :style="{ width: sidebarRightWidth }"
         tabindex="0"
-        style="height: 100%"
         @focus="setFocus('sidebarRight')"
         @blur="clearFocus"
       >
         <div class="bg-secondary p-2 text-center rounded-xl relative">
           <p class="font-bold">Sidebar Right Content</p>
-          <img
-            src="/images/intro/art1.webp"
-            alt="Sidebar Right Image"
-            class="absolute top-0 left-0 w-full h-full object-cover opacity-50"
-          />
         </div>
-        <button
-          class="bg-accent p-2 rounded-lg mt-4"
-          @click="toggle('sidebarRight')"
-        >
-          Toggle Sidebar Right
-        </button>
       </aside>
     </div>
 
@@ -122,21 +114,12 @@
       v-if="isFooterVisible"
       :class="['transition-all duration-300', footerClass]"
       tabindex="0"
-      style="height: calc(10vh)"
       @focus="setFocus('footer')"
       @blur="clearFocus"
     >
       <div class="bg-secondary p-4 text-center rounded-xl relative">
         <p class="font-bold">Footer Content</p>
-        <img
-          src="/images/intro/footer.webp"
-          alt="Footer Image"
-          class="absolute top-0 left-0 w-full h-full object-cover opacity-50"
-        />
       </div>
-      <button class="bg-accent p-2 rounded-lg mt-4" @click="toggle('footer')">
-        Toggle Footer
-      </button>
     </footer>
 
     <!-- Intro Toggle Icon -->
@@ -172,80 +155,34 @@ const clearFocus = () => {
   displayStore.clearFocus()
 }
 
-// Toggle function for each container
-const toggle = (container) => {
-  const state = displayStore[container] === 'open' ? 'hidden' : 'open'
-  displayStore.changeState(container, state)
-}
-
-// Sidebar widths dynamically calculated based on state and orientation
+// Sidebar widths dynamically calculated based on state and focus
 const sidebarLeftWidth = computed(() => {
-  return displayStore.sidebarLeft === 'open'
-    ? '20vw'
-    : displayStore.sidebarLeft === 'compact'
-      ? '10vw'
-      : '0'
+  return displayStore.sidebarLeft === 'open' ? '20vw' : '5vw'
 })
 
 const sidebarRightWidth = computed(() => {
-  return displayStore.sidebarRight === 'open'
-    ? '20vw'
-    : displayStore.sidebarRight === 'compact'
-      ? '10vw'
-      : '0'
+  return displayStore.sidebarRight === 'open' ? '20vw' : '5vw'
 })
-
-// Computed properties for dynamic classes and visibility
-const isHeaderVisible = computed(() => displayStore.headerState !== 'hidden')
-const isSidebarLeftVisible = computed(
-  () => displayStore.sidebarLeft !== 'hidden',
-)
-const isSidebarRightVisible = computed(
-  () => displayStore.sidebarRight !== 'hidden',
-)
-const isFooterVisible = computed(() => displayStore.footer !== 'hidden')
 
 // Dynamic classes based on display state
-const headerClass = computed(() => {
-  return {
-    'h-20': displayStore.headerState === 'open',
-    'h-10': displayStore.headerState === 'compact',
-    hidden: displayStore.headerState === 'hidden',
-  }
+const headerClass = computed(() => ({
+  'h-20': displayStore.headerState === 'open',
+  'h-10': displayStore.headerState === 'compact',
+}))
+
+const footerClass = computed(() => ({
+  'h-20': displayStore.footer === 'open',
+  'h-10': displayStore.footer === 'compact',
+}))
+
+const mainContentHeight = computed(() => {
+  return displayStore.mainContentFocused ? '75vh' : 'calc(80vh - 10vh)'
 })
 
-const sidebarLeftClass = computed(() => {
-  return {
-    hidden: displayStore.sidebarLeft === 'hidden',
-    'w-20vw': displayStore.sidebarLeft === 'open',
-    'w-10vw': displayStore.sidebarLeft === 'compact',
-  }
-})
-
-const sidebarRightClass = computed(() => {
-  return {
-    hidden: displayStore.sidebarRight === 'hidden',
-    'w-20vw': displayStore.sidebarRight === 'open',
-    'w-10vw': displayStore.sidebarRight === 'compact',
-  }
-})
-
-const footerClass = computed(() => {
-  return {
-    'h-20': displayStore.footer === 'open',
-    'h-10': displayStore.footer === 'compact',
-    hidden: displayStore.footer === 'hidden',
-  }
-})
-
-const mainContentClass = computed(() => {
-  return {
-    'ml-0': displayStore.sidebarLeft === 'hidden',
-    'mr-0': displayStore.sidebarRight === 'hidden',
-    'ml-[20vw]': displayStore.sidebarLeft === 'open',
-    'mr-[20vw]': displayStore.sidebarRight === 'open',
-    'ml-[10vw]': displayStore.sidebarLeft === 'compact',
-    'mr-[10vw]': displayStore.sidebarRight === 'compact',
-  }
-})
+const mainContentClass = computed(() => ({
+  'ml-0': displayStore.sidebarLeft === 'hidden',
+  'mr-0': displayStore.sidebarRight === 'hidden',
+  'ml-[20vw]': displayStore.sidebarLeft === 'open',
+  'mr-[20vw]': displayStore.sidebarRight === 'open',
+}))
 </script>

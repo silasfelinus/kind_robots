@@ -40,6 +40,7 @@
         @focus="setFocus('mainContent')"
         @blur="clearFocus"
         tabindex="0"
+        style="min-width: 50%;" <!-- Ensure the main content doesn't get too small -->
       >
         <div class="flex-grow bg-secondary p-2 m-2 text-center rounded-xl">
           <p class="font-bold">Main Content Area</p>
@@ -107,11 +108,11 @@ const toggle = (container) => {
 
 // Sidebar widths dynamically calculated based on state and orientation
 const sidebarLeftWidth = computed(() => {
-  return displayStore.sidebarLeft === 'open' ? '15vw' : '0'
+  return displayStore.sidebarLeft === 'open' ? '20%' : '0'
 })
 
 const sidebarRightWidth = computed(() => {
-  return displayStore.sidebarRight === 'open' ? '15vw' : '0'
+  return displayStore.sidebarRight === 'open' ? '20%' : '0'
 })
 
 // Computed properties for dynamic classes and visibility
@@ -131,17 +132,15 @@ const headerClass = computed(() => {
 
 const sidebarLeftClass = computed(() => {
   return {
-    'w-64': displayStore.sidebarLeft === 'open',
-    'w-24': displayStore.sidebarLeft === 'compact',
     'hidden': displayStore.sidebarLeft === 'hidden',
+    'w-full': displayStore.sidebarLeft === 'open' || displayStore.sidebarLeft === 'compact',
   }
 })
 
 const sidebarRightClass = computed(() => {
   return {
-    'w-64': displayStore.sidebarRight === 'open',
-    'w-24': displayStore.sidebarRight === 'compact',
     'hidden': displayStore.sidebarRight === 'hidden',
+    'w-full': displayStore.sidebarRight === 'open' || displayStore.sidebarRight === 'compact',
   }
 })
 
@@ -153,13 +152,12 @@ const bottomDrawerClass = computed(() => {
   }
 })
 
-// Main content adapts based on sidebar visibility
 const mainContentClass = computed(() => {
   return {
     'ml-0': displayStore.sidebarLeft === 'hidden',
     'mr-0': displayStore.sidebarRight === 'hidden',
-    'ml-64': displayStore.sidebarLeft === 'open',
-    'mr-64': displayStore.sidebarRight === 'open',
+    'ml-20': displayStore.sidebarLeft === 'open',
+    'mr-20': displayStore.sidebarRight === 'open',
   }
 })
 </script>

@@ -3,8 +3,8 @@
     id="app"
     class="flex flex-col h-screen w-screen overflow-hidden bg-base-400 relative"
   >
-    <!-- Ami-loader as an overlay -->
-    <div class="absolute top-0 left-0 w-full h-full z-50">
+    <!-- Ami-loader as an overlay, hidden once intro starts -->
+    <div v-if="!showIntro" class="absolute top-0 left-0 w-full h-full z-50">
       <ami-loader />
     </div>
 
@@ -36,7 +36,11 @@
         So click that button and let’s start creating! You bring the ideas, and
         our AI will sprinkle in a little magic. Let’s go! 🚀
       </p>
-      <button class="bg-primary p-2 rounded-xl mt-4" @click="handleIntroClick">
+      <button
+        class="bg-primary p-2 rounded-xl mt-4"
+        aria-label="Start the Experience"
+        @click="handleIntroClick"
+      >
         Let's Begin
       </button>
     </div>
@@ -71,7 +75,7 @@
       <aside
         v-if="isSidebarLeftVisible"
         :class="['transition-all duration-300', sidebarLeftClass]"
-        :style="{ width: sidebarLeftWidth }"
+        :style="{ width: sidebarWidth(displayStore.sidebarLeft) }"
         tabindex="0"
         @focus="setFocus('sidebarLeft')"
         @blur="clearFocus"
@@ -98,7 +102,7 @@
       <aside
         v-if="isSidebarRightVisible"
         :class="['transition-all duration-300', sidebarRightClass]"
-        :style="{ width: sidebarRightWidth }"
+        :style="{ width: sidebarWidth(displayStore.sidebarRight) }"
         tabindex="0"
         @focus="setFocus('sidebarRight')"
         @blur="clearFocus"
@@ -126,6 +130,7 @@
     <div
       v-if="!showIntro && allSectionsFocused"
       class="absolute bottom-0 right-0 p-2 m-4 bg-accent text-white rounded-full cursor-pointer"
+      aria-label="Toggle Intro"
       @click="toggleIntroState"
     >
       <icon name="toggle_intro" class="text-2xl" />
@@ -155,14 +160,10 @@ const clearFocus = () => {
   displayStore.clearFocus()
 }
 
-// Sidebar widths dynamically calculated based on state and focus
-const sidebarLeftWidth = computed(() => {
-  return displayStore.sidebarLeft === 'open' ? '20vw' : '5vw'
-})
-
-const sidebarRightWidth = computed(() => {
-  return displayStore.sidebarRight === 'open' ? '20vw' : '5vw'
-})
+// Dynamic sidebar width based on state
+const sidebarWidth = (state) => {
+  return state === 'open' ? '20vw' : '5vw'
+}
 
 // Dynamic classes based on display state
 const headerClass = computed(() => ({

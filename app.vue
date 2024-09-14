@@ -45,6 +45,26 @@
       </button>
     </div>
 
+    <!-- Navigation Icons for Back/Next always visible -->
+    <div class="fixed bottom-0 w-full flex justify-between p-4 z-50">
+      <button
+        v-if="showSecondaryIntro || showFinalIntro"
+        class="bg-primary p-2 rounded-xl"
+        aria-label="Previous Section"
+        @click="navigatePreviousSection"
+      >
+        Back <icon name="arrow_left" class="ml-2" />
+      </button>
+      <button
+        v-if="!showIntro && !showFinalIntro"
+        class="bg-primary p-2 rounded-xl"
+        aria-label="Next Section"
+        @click="navigateNextSection"
+      >
+        Next <icon :name="nextIcon" class="ml-2" />
+      </button>
+    </div>
+
     <!-- Main Layout -->
     <div
       v-if="!showIntro && !showSecondaryIntro"
@@ -84,6 +104,7 @@
     </footer>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -97,6 +118,7 @@ onMounted(() => {
 // Manage the visibility of the intro and sections
 const showIntro = ref(true)
 const showSecondaryIntro = ref(false)
+const showFinalIntro = ref(false) // Track final intro section
 
 // Navigation icon dynamic handling
 const nextIcon = ref('arrow_right') // Dynamic icon for navigation
@@ -116,11 +138,11 @@ const revealNextSection = () => {
 
 const revealFinalSection = () => {
   showSecondaryIntro.value = false
+  showFinalIntro.value = true
 }
 
 // Handle dynamic movement between sections with icons
 const navigateNextSection = () => {
-  // Update the next icon based on the next section
   nextIcon.value = nextIcon.value === 'arrow_right' ? 'check' : 'arrow_right'
 
   // Example navigation logic: move from sidebar to main to footer
@@ -135,6 +157,17 @@ const navigateNextSection = () => {
     displayStore.changeState('footer', 'open')
   }
 }
+
+const navigatePreviousSection = () => {
+  // Logic to handle going to the previous section
+  if (showFinalIntro.value) {
+    showFinalIntro.value = false
+    showSecondaryIntro.value = true
+  } else if (showSecondaryIntro.value) {
+    showSecondaryIntro.value = false
+    showIntro.value = true
+  }
+}
 </script>
 
 <style>
@@ -142,5 +175,17 @@ const navigateNextSection = () => {
   transition:
     width 0.3s ease,
     height 0.3s ease;
+}
+
+.fixed {
+  position: fixed;
+}
+
+.bottom-0 {
+  bottom: 0;
+}
+
+.w-full {
+  width: 100%;
 }
 </style>

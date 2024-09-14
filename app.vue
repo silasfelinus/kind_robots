@@ -1,18 +1,24 @@
 <template>
-  <div id="app" class="flex flex-col h-screen w-screen overflow-hidden bg-base-200">
+  <div
+    id="app"
+    class="flex flex-col h-screen w-screen overflow-hidden bg-base-200"
+  >
     <!-- Header -->
     <header
       v-if="isHeaderVisible"
-      :class="['p-1 m-1 border border-accent bg-primary rounded-2xl', headerClass]"
+      :class="[
+        'p-1 m-1 border border-accent bg-primary rounded-2xl',
+        headerClass,
+      ]"
       class="transition-all duration-300 flex justify-between items-center"
+      tabindex="0"
       @focus="setFocus('headerState')"
       @blur="clearFocus"
-      tabindex="0"
     >
       <div class="bg-secondary p-4 w-full text-center">
         <h1 class="text-lg font-bold">Header Content</h1>
       </div>
-      <button @click="toggle('headerState')" class="bg-accent p-2 rounded-lg">
+      <button class="bg-accent p-2 rounded-lg" @click="toggle('headerState')">
         Toggle Header
       </button>
     </header>
@@ -22,46 +28,58 @@
       <!-- Sidebar Left -->
       <aside
         v-if="isSidebarLeftVisible"
-        :class="['p-1 m-1 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarLeftClass]"
+        :class="[
+          'p-1 m-1 border border-accent bg-primary rounded-2xl transition-all duration-300',
+          sidebarLeftClass,
+        ]"
         :style="{ width: sidebarLeftWidth }"
+        tabindex="0"
         @focus="setFocus('sidebarLeft')"
         @blur="clearFocus"
-        tabindex="0"
       >
         <div class="bg-secondary p-4 text-center">
           <p class="font-bold">Sidebar Left Content</p>
         </div>
-        <button @click="toggle('sidebarLeft')" class="bg-accent p-2 rounded-lg">
+        <button class="bg-accent p-2 rounded-lg" @click="toggle('sidebarLeft')">
           Toggle Sidebar Left
         </button>
       </aside>
 
       <!-- Main content area -->
       <main
-        :class="['flex-grow flex flex-col overflow-y-auto transition-all duration-300 p-1 m-1 border border-accent bg-primary rounded-2xl', mainContentClass]"
+        :class="[
+          'flex-grow flex flex-col overflow-y-auto transition-all duration-300 p-1 m-1 border border-accent bg-primary rounded-2xl',
+          mainContentClass,
+        ]"
+        tabindex="0"
         @focus="setFocus('mainContent')"
         @blur="clearFocus"
-        tabindex="0"
       >
         <div class="flex-grow bg-secondary p-4 text-center">
           <p class="font-bold">Main Content Area</p>
-<display-toggler.vue />
+          <display-toggler.vue />
         </div>
       </main>
 
       <!-- Sidebar Right -->
       <aside
         v-if="isSidebarRightVisible"
-        :class="['p-1 m-1 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarRightClass]"
+        :class="[
+          'p-1 m-1 border border-accent bg-primary rounded-2xl transition-all duration-300',
+          sidebarRightClass,
+        ]"
         :style="{ width: sidebarRightWidth }"
+        tabindex="0"
         @focus="setFocus('sidebarRight')"
         @blur="clearFocus"
-        tabindex="0"
       >
         <div class="bg-secondary p-4 text-center">
           <p class="font-bold">Sidebar Right Content</p>
         </div>
-        <button @click="toggle('sidebarRight')" class="bg-accent p-2 rounded-lg">
+        <button
+          class="bg-accent p-2 rounded-lg"
+          @click="toggle('sidebarRight')"
+        >
           Toggle Sidebar Right
         </button>
       </aside>
@@ -70,15 +88,18 @@
     <!-- Bottom Drawer -->
     <div
       v-if="isBottomDrawerVisible"
-      :class="['p-1 m-1 border border-accent bg-primary rounded-2xl transition-all duration-300', bottomDrawerClass]"
+      :class="[
+        'p-1 m-1 border border-accent bg-primary rounded-2xl transition-all duration-300',
+        bottomDrawerClass,
+      ]"
+      tabindex="0"
       @focus="setFocus('bottomDrawer')"
       @blur="clearFocus"
-      tabindex="0"
     >
       <div class="bg-secondary p-4 text-center">
         <p class="font-bold">Bottom Drawer Content</p>
       </div>
-      <button @click="toggle('bottomDrawer')" class="bg-accent p-2 rounded-lg">
+      <button class="bg-accent p-2 rounded-lg" @click="toggle('bottomDrawer')">
         Toggle Bottom Drawer
       </button>
     </div>
@@ -117,16 +138,22 @@ const sidebarRightWidth = computed(() => {
 
 // Computed properties for dynamic classes and visibility
 const isHeaderVisible = computed(() => displayStore.headerState !== 'hidden')
-const isSidebarLeftVisible = computed(() => displayStore.sidebarLeft !== 'hidden')
-const isSidebarRightVisible = computed(() => displayStore.sidebarRight !== 'hidden')
-const isBottomDrawerVisible = computed(() => displayStore.bottomDrawer !== 'hidden')
+const isSidebarLeftVisible = computed(
+  () => displayStore.sidebarLeft !== 'hidden',
+)
+const isSidebarRightVisible = computed(
+  () => displayStore.sidebarRight !== 'hidden',
+)
+const isBottomDrawerVisible = computed(
+  () => displayStore.bottomDrawer !== 'hidden',
+)
 
 // Dynamic classes based on display state
 const headerClass = computed(() => {
   return {
     'h-16': displayStore.headerState === 'open',
     'h-8': displayStore.headerState === 'compact',
-    'hidden': displayStore.headerState === 'hidden',
+    hidden: displayStore.headerState === 'hidden',
   }
 })
 
@@ -134,7 +161,7 @@ const sidebarLeftClass = computed(() => {
   return {
     'w-64': displayStore.sidebarLeft === 'open',
     'w-24': displayStore.sidebarLeft === 'compact',
-    'hidden': displayStore.sidebarLeft === 'hidden',
+    hidden: displayStore.sidebarLeft === 'hidden',
   }
 })
 
@@ -142,7 +169,7 @@ const sidebarRightClass = computed(() => {
   return {
     'w-64': displayStore.sidebarRight === 'open',
     'w-24': displayStore.sidebarRight === 'compact',
-    'hidden': displayStore.sidebarRight === 'hidden',
+    hidden: displayStore.sidebarRight === 'hidden',
   }
 })
 
@@ -150,7 +177,7 @@ const bottomDrawerClass = computed(() => {
   return {
     'h-16': displayStore.bottomDrawer === 'open',
     'h-8': displayStore.bottomDrawer === 'compact',
-    'hidden': displayStore.bottomDrawer === 'hidden',
+    hidden: displayStore.bottomDrawer === 'hidden',
   }
 })
 

@@ -25,8 +25,8 @@
     <header
       v-if="isHeaderVisible"
       :class="[
-        'transition-all duration-300 flex justify-between items-center',
         headerClass,
+        'transition-all duration-300 flex justify-between items-center',
       ]"
       tabindex="0"
       style="height: calc(10vh)"
@@ -102,24 +102,30 @@
       </aside>
     </div>
 
-    <!-- Bottom Drawer -->
-    <div
-      v-if="isBottomDrawerVisible"
-      :class="['transition-all duration-300', bottomDrawerClass]"
+    <!-- Footer -->
+    <footer
+      v-if="isFooterVisible"
+      :class="['transition-all duration-300', footerClass]"
       tabindex="0"
       style="height: calc(10vh)"
-      @focus="setFocus('bottomDrawer')"
+      @focus="setFocus('footer')"
       @blur="clearFocus"
     >
       <div class="bg-secondary p-4 text-center rounded-xl">
-        <p class="font-bold">Bottom Drawer Content</p>
+        <p class="font-bold">Footer Content</p>
       </div>
-      <button
-        class="bg-accent p-2 rounded-lg mt-4"
-        @click="toggle('bottomDrawer')"
-      >
-        Toggle Bottom Drawer
+      <button class="bg-accent p-2 rounded-lg mt-4" @click="toggle('footer')">
+        Toggle Footer
       </button>
+    </footer>
+
+    <!-- Intro Toggle Icon -->
+    <div
+      v-if="!showIntro && allSectionsFocused"
+      class="absolute bottom-0 right-0 p-2 m-4 bg-accent text-white rounded-full cursor-pointer"
+      @click="toggleIntroState"
+    >
+      <icon name="toggle_intro" class="text-2xl" />
     </div>
   </div>
 </template>
@@ -131,9 +137,10 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 
 const showIntro = computed(() => displayStore.showIntro)
+const allSectionsFocused = computed(() => displayStore.allSectionsFocused)
 
 const handleIntroClick = () => {
-  displayStore.toggleIntro()
+  displayStore.toggleIntroState()
 }
 
 // Handle focus state to dynamically control which container has priority
@@ -176,9 +183,7 @@ const isSidebarLeftVisible = computed(
 const isSidebarRightVisible = computed(
   () => displayStore.sidebarRight !== 'hidden',
 )
-const isBottomDrawerVisible = computed(
-  () => displayStore.bottomDrawer !== 'hidden',
-)
+const isFooterVisible = computed(() => displayStore.footer !== 'hidden')
 
 // Dynamic classes based on display state
 const headerClass = computed(() => {
@@ -205,11 +210,11 @@ const sidebarRightClass = computed(() => {
   }
 })
 
-const bottomDrawerClass = computed(() => {
+const footerClass = computed(() => {
   return {
-    'h-20': displayStore.bottomDrawer === 'open',
-    'h-10': displayStore.bottomDrawer === 'compact',
-    hidden: displayStore.bottomDrawer === 'hidden',
+    'h-20': displayStore.footer === 'open',
+    'h-10': displayStore.footer === 'compact',
+    hidden: displayStore.footer === 'hidden',
   }
 })
 

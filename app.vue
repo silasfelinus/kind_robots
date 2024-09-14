@@ -21,7 +21,7 @@
 
         <!-- Overlay for text and buttons -->
         <div
-          class="absolute inset-0 flex flex-col justify-center items-center text-center p-8 z-50"
+          class="absolute inset-0 flex flex-col justify-center items-center text-center p-8 z-50 bg-black bg-opacity-40 rounded-xl"
         >
           <h1 class="text-3xl font-bold mb-4 text-white">
             {{ steps[currentStep].title }}
@@ -50,11 +50,31 @@
       </div>
     </transition>
 
+    <!-- Header (Transparent Overlay) -->
+    <header class="fixed top-0 left-0 w-full p-4 bg-black bg-opacity-60 z-50">
+      <div class="flex justify-between items-center">
+        <h2 class="text-white">Kind Robots</h2>
+        <div class="flex items-center gap-4">
+          <icon name="bell" class="text-white" />
+          <icon name="user" class="text-white" />
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar (Transparent Overlay) -->
+    <aside
+      class="fixed top-0 left-0 h-full w-16 p-4 bg-black bg-opacity-50 z-40 flex flex-col items-center gap-4"
+    >
+      <icon name="home" class="text-white" />
+      <icon name="brush" class="text-white" />
+      <icon name="chat" class="text-white" />
+    </aside>
+
     <!-- Final Footer Section with Restart and Explore -->
     <transition name="fade">
       <div
         v-if="!loading && currentStep === steps.length"
-        class="absolute top-0 left-0 w-full h-full z-40 flex flex-col justify-center items-center p-8 bg-accent"
+        class="absolute top-0 left-0 w-full h-full z-40 flex flex-col justify-center items-center p-8 bg-accent bg-opacity-70"
       >
         <img
           src="/images/intro/footer.webp"

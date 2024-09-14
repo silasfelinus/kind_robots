@@ -1,10 +1,10 @@
-o<template>
+<template>
   <div id="app" class="flex flex-col h-screen w-screen overflow-hidden bg-base-200">
     <!-- Header -->
     <header
       v-if="isHeaderVisible"
-      :class="['p-4 m-4 border border-accent bg-primary rounded-2xl', headerClass]"
-      class="transition-all duration-300 flex justify-between items-center"
+      :class="['p-4 mb-4 border border-accent bg-primary rounded-2xl', headerClass]"
+      class="transition-all duration-300 flex justify-between items-center mx-6"
       @focus="setFocus('headerState')"
       @blur="clearFocus"
       tabindex="0"
@@ -18,11 +18,11 @@ o<template>
     </header>
 
     <!-- Main container with sidebars and content -->
-    <div class="flex flex-grow overflow-hidden gap-4 p-4">
+    <div class="flex flex-grow overflow-hidden mx-6 gap-2">
       <!-- Sidebar Left -->
       <aside
         v-if="isSidebarLeftVisible"
-        :class="['p-4 m-4 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarLeftClass]"
+        :class="['p-4 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarLeftClass]"
         :style="{ width: sidebarLeftWidth }"
         @focus="setFocus('sidebarLeft')"
         @blur="clearFocus"
@@ -38,7 +38,7 @@ o<template>
 
       <!-- Main content area -->
       <main
-        :class="['flex-grow flex flex-col overflow-y-auto transition-all duration-300 p-4 m-4 border border-accent bg-primary rounded-2xl', mainContentClass]"
+        :class="['flex-grow flex flex-col overflow-y-auto transition-all duration-300 p-4 border border-accent bg-primary rounded-2xl', mainContentClass]"
         @focus="setFocus('mainContent')"
         @blur="clearFocus"
         tabindex="0"
@@ -52,7 +52,7 @@ o<template>
       <!-- Sidebar Right -->
       <aside
         v-if="isSidebarRightVisible"
-        :class="['p-4 m-4 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarRightClass]"
+        :class="['p-4 border border-accent bg-primary rounded-2xl transition-all duration-300', sidebarRightClass]"
         :style="{ width: sidebarRightWidth }"
         @focus="setFocus('sidebarRight')"
         @blur="clearFocus"
@@ -70,7 +70,7 @@ o<template>
     <!-- Bottom Drawer -->
     <div
       v-if="isBottomDrawerVisible"
-      :class="['p-4 m-4 border border-accent bg-primary rounded-2xl transition-all duration-300', bottomDrawerClass]"
+      :class="['p-4 border border-accent bg-primary rounded-2xl transition-all duration-300 mx-6', bottomDrawerClass]"
       @focus="setFocus('bottomDrawer')"
       @blur="clearFocus"
       tabindex="0"
@@ -108,11 +108,11 @@ const toggle = (container) => {
 
 // Sidebar widths dynamically calculated based on state and orientation
 const sidebarLeftWidth = computed(() => {
-  return displayStore.sidebarLeft === 'open' ? '20vw' : '0'
+  return displayStore.sidebarLeft === 'open' ? '15vw' : '0'
 })
 
 const sidebarRightWidth = computed(() => {
-  return displayStore.sidebarRight === 'open' ? '20vw' : '0'
+  return displayStore.sidebarRight === 'open' ? '15vw' : '0'
 })
 
 // Computed properties for dynamic classes and visibility

@@ -1,5 +1,10 @@
 <template>
-  <div id="app" class="flex flex-col h-screen w-screen overflow-hidden bg-base-400">
+  <div id="app" class="flex flex-col h-screen w-screen overflow-hidden bg-base-400 relative">
+    <!-- Ami-loader as an overlay -->
+    <div class="absolute top-0 left-0 w-full h-full z-50">
+      <ami-loader />
+    </div>
+
     <!-- Header -->
     <header
       v-if="isHeaderVisible"
@@ -13,7 +18,6 @@
         <h1 class="text-lg font-bold">Header Content</h1>
       </div>
     </header>
-<ami-loader />
 
     <!-- Main container with sidebars and content -->
     <div class="flex flex-grow overflow-hidden gap-2" style="height: calc(80vh);">
@@ -41,7 +45,6 @@
         @focus="setFocus('mainContent')"
         @blur="clearFocus"
         tabindex="0"
-        style="min-width: 50%;" 
       >
         <div class="flex-grow text-secondary p-2 m-2 text-center rounded-2xl">
           <p class="font-bold">Main Content Area</p>
@@ -86,6 +89,7 @@
     </div>
   </div>
 </template>
+
 
 
 

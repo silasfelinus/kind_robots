@@ -1,6 +1,5 @@
 <template>
   <div id="app" class="flex flex-col h-screen w-screen overflow-hidden bg-base-400">
-<ami-loader />
     <!-- Header -->
     <header
       v-if="isHeaderVisible"
@@ -14,6 +13,7 @@
         <h1 class="text-lg font-bold">Header Content</h1>
       </div>
     </header>
+<ami-loader />
 
     <!-- Main container with sidebars and content -->
     <div class="flex flex-grow overflow-hidden gap-2" style="height: calc(80vh);">

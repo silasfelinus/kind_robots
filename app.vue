@@ -108,7 +108,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useDisplayStore } from '@/stores/display'
+import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 

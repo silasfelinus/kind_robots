@@ -131,10 +131,14 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+
+onMounted(() => {
+  displayStore.loadState() // Load the state from localStorage when the component is mounted
+})
 
 const showIntro = computed(() => displayStore.showIntro)
 const allSectionsFocused = computed(() => displayStore.allSectionsFocused)

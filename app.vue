@@ -4,104 +4,94 @@
     class="flex flex-col h-screen w-screen overflow-hidden bg-base-400 relative"
   >
     <!-- Ami-loader as an overlay, hidden once intro starts -->
-    <div v-if="!showIntro" class="absolute top-0 left-0 w-full h-full z-50">
+    <div
+      v-if="!showIntro && !showOutro"
+      class="absolute top-0 left-0 w-full h-full z-50"
+    >
       <ami-loader />
     </div>
 
-    <!-- Main Intro Section with click-outside handler -->
-    <div
-      v-if="showIntro"
-      class="absolute top-0 left-0 w-full h-full z-40 bg-accent flex flex-col justify-center items-center p-4"
-      @click.self="revealNextSection"
-    >
-      <img src="/images/intro/welcome.webp" alt="Intro Image" class="mb-4" />
-      <h1 class="text-xl font-bold mb-2">Welcome to Kind Robots</h1>
-      <p class="text-center mb-4">
-        We bring people and AI together to do amazing things.
-      </p>
-      <button
-        class="bg-primary p-2 rounded-xl mt-4"
-        aria-label="Start the Experience"
-        @click.stop="handleIntroClick"
+    <!-- Main Intro Section -->
+    <transition name="fade">
+      <div
+        v-if="showIntro"
+        class="absolute top-0 left-0 w-full h-full z-40 bg-accent flex flex-col justify-center items-center p-4"
+        @click.self="revealNextSection"
       >
-        Let’s Begin
-      </button>
-    </div>
-
-    <!-- Secondary Intro after clicking outside -->
-    <div
-      v-if="showSecondaryIntro"
-      class="absolute top-0 left-0 w-full h-full z-40 bg-base-100 flex flex-col justify-center items-center p-4"
-      @click.self="revealFinalSection"
-    >
-      <h2 class="text-lg font-bold mb-4">Discover More</h2>
-      <p class="text-center mb-4">Explore our sections and learn more.</p>
-      <button
-        class="bg-secondary p-2 rounded-xl mt-4"
-        aria-label="Next Section"
-        @click.stop="revealFinalSection"
-      >
-        Next <icon name="arrow_right" class="ml-2" />
-      </button>
-    </div>
-
-    <!-- Navigation Icons for Back/Next always visible -->
-    <div class="fixed bottom-0 w-full flex justify-between p-4 z-50">
-      <button
-        v-if="showSecondaryIntro || showFinalIntro"
-        class="bg-primary p-2 rounded-xl"
-        aria-label="Previous Section"
-        @click="navigatePreviousSection"
-      >
-        Back <icon name="arrow_left" class="ml-2" />
-      </button>
-      <button
-        v-if="!showIntro && !showFinalIntro"
-        class="bg-primary p-2 rounded-xl"
-        aria-label="Next Section"
-        @click="navigateNextSection"
-      >
-        Next <icon :name="nextIcon" class="ml-2" />
-      </button>
-    </div>
-
-    <!-- Main Layout -->
-    <div
-      v-if="!showIntro && !showSecondaryIntro"
-      class="flex flex-grow overflow-hidden gap-2"
-    >
-      <!-- Sidebar Left -->
-      <aside
-        v-if="isSidebarLeftVisible"
-        class="transition-all duration-300"
-        :style="{ width: sidebarWidth(displayStore.sidebarLeft) }"
-      >
-        <!-- Content of sidebar left -->
-      </aside>
-
-      <!-- Main content area -->
-      <main :class="[mainContentClass]">
-        <nuxt-page />
-      </main>
-
-      <!-- Sidebar Right -->
-      <aside
-        v-if="isSidebarRightVisible"
-        class="transition-all duration-300"
-        :style="{ width: sidebarWidth(displayStore.sidebarRight) }"
-      >
-        <!-- Content of sidebar right -->
-      </aside>
-    </div>
-
-    <!-- Footer Navigation with dynamic icons -->
-    <footer v-if="isFooterVisible" class="transition-all duration-300">
-      <div class="p-4 text-center">
-        <button class="bg-primary p-2 rounded-xl" @click="navigateNextSection">
-          Next <icon :name="nextIcon" class="ml-2" />
+        <img
+          src="/images/intro/welcome.webp"
+          alt="Intro Image"
+          class="intro-img mb-4 w-auto h-auto max-w-full max-h-96 object-cover"
+        />
+        <h1 class="text-xl font-bold mb-2 fade-in">Welcome to Kind Robots</h1>
+        <p class="text-center mb-4 fade-in">
+          We bring people and AI together to do amazing things.
+        </p>
+        <button
+          class="bg-primary p-2 rounded-xl mt-4 fade-in"
+          aria-label="Start the Experience"
+          @click.stop="handleIntroClick"
+        >
+          Let’s Begin
         </button>
       </div>
-    </footer>
+    </transition>
+
+    <!-- Secondary Intro -->
+    <transition name="fade">
+      <div
+        v-if="showSecondaryIntro"
+        class="absolute top-0 left-0 w-full h-full z-40 bg-base-100 flex flex-col justify-center items-center p-4"
+        @click.self="revealFinalSection"
+      >
+        <h2 class="text-lg font-bold mb-4">Discover More</h2>
+        <p class="text-center mb-4">Explore our sections and learn more.</p>
+        <button
+          class="bg-secondary p-2 rounded-xl mt-4"
+          aria-label="Next Section"
+          @click.stop="revealFinalSection"
+        >
+          Next <icon name="arrow_right" class="ml-2" />
+        </button>
+      </div>
+    </transition>
+
+    <!-- Outro Section -->
+    <transition name="fade">
+      <div
+        v-if="showOutro"
+        class="absolute top-0 left-0 w-full h-full z-40 bg-accent flex flex-col justify-center items-center p-4"
+      >
+        <img
+          src="/images/outro/thank_you.webp"
+          alt="Outro Image"
+          class="outro-img mb-4 animate-image-fade w-auto h-auto max-w-full max-h-96 object-cover"
+        />
+        <h1 class="text-2xl font-bold mb-2 animate-text-fade">
+          Thank You for Joining Us!
+        </h1>
+        <p class="text-center mb-4 animate-text-fade">
+          We’re so grateful for your support and hope you enjoyed the
+          experience!
+        </p>
+        <div class="flex gap-4">
+          <button
+            class="bg-primary p-2 rounded-xl mt-4 animate-button-fade"
+            aria-label="Restart"
+            @click="restartExperience"
+          >
+            Restart Experience
+          </button>
+          <button
+            class="bg-secondary p-2 rounded-xl mt-4 animate-button-fade"
+            aria-label="Explore More"
+            @click="navigateToMoreFeatures"
+          >
+            Explore More Features <icon name="arrow_right" class="ml-2" />
+          </button>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -115,77 +105,108 @@ onMounted(() => {
   displayStore.loadState()
 })
 
-// Manage the visibility of the intro and sections
+// Manage the visibility of the intro, sections, and outro
 const showIntro = ref(true)
 const showSecondaryIntro = ref(false)
-const showFinalIntro = ref(false) // Track final intro section
+const showOutro = ref(false)
+const currentStep = ref(0)
 
-// Navigation icon dynamic handling
-const nextIcon = ref('arrow_right') // Dynamic icon for navigation
+// Define the sequence of steps
+const sections = [
+  { id: 'intro', component: showIntro },
+  { id: 'secondary', component: showSecondaryIntro },
+  { id: 'final', component: displayStore },
+  { id: 'outro', component: showOutro },
+]
 
 // Handle intro click to transition from the first section
 const handleIntroClick = () => {
-  showIntro.value = false
-  showSecondaryIntro.value = true
+  revealNextSection()
 }
 
-// Handle focus transitions for the intro sections
+// Reveal next section based on current step
 const revealNextSection = () => {
-  if (showSecondaryIntro.value) return
-  showIntro.value = false
-  showSecondaryIntro.value = true
-}
-
-const revealFinalSection = () => {
-  showSecondaryIntro.value = false
-  showFinalIntro.value = true
-}
-
-// Handle dynamic movement between sections with icons
-const navigateNextSection = () => {
-  nextIcon.value = nextIcon.value === 'arrow_right' ? 'check' : 'arrow_right'
-
-  // Example navigation logic: move from sidebar to main to footer
-  if (displayStore.sidebarLeft === 'hidden') {
-    displayStore.changeState('sidebarLeft', 'open')
-    displayStore.changeState('mainContent', 'compact')
-  } else if (displayStore.sidebarRight === 'hidden') {
-    displayStore.changeState('sidebarLeft', 'compact')
-    displayStore.changeState('sidebarRight', 'open')
+  if (currentStep.value < sections.length - 1) {
+    sections[currentStep.value].component.value = false
+    currentStep.value++
+    sections[currentStep.value].component.value = true
   } else {
-    displayStore.changeState('sidebarRight', 'compact')
-    displayStore.changeState('footer', 'open')
+    showOutro.value = true // Reveal outro when all sections are complete
   }
 }
 
-const navigatePreviousSection = () => {
-  // Logic to handle going to the previous section
-  if (showFinalIntro.value) {
-    showFinalIntro.value = false
-    showSecondaryIntro.value = true
-  } else if (showSecondaryIntro.value) {
-    showSecondaryIntro.value = false
-    showIntro.value = true
-  }
+// Handle restart experience
+const restartExperience = () => {
+  showOutro.value = false
+  currentStep.value = 0
+  sections[currentStep.value].component.value = true
+}
+
+// Navigate to more features
+const navigateToMoreFeatures = () => {
+  // Logic to direct the user to other features or pages
 }
 </script>
 
-<style>
+<style scoped>
 .transition-all {
   transition:
     width 0.3s ease,
     height 0.3s ease;
 }
 
-.fixed {
-  position: fixed;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 
-.bottom-0 {
-  bottom: 0;
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.w-full {
-  width: 100%;
+@keyframes fade-image {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fade-button {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-text-fade {
+  animation: fade-in 0.8s ease-in-out forwards;
+}
+
+.animate-image-fade {
+  animation: fade-image 1.5s ease-in-out forwards;
+}
+
+.animate-button-fade {
+  animation: fade-button 0.6s ease-in-out forwards;
+  animation-delay: 0.5s;
 }
 </style>

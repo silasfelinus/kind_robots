@@ -166,8 +166,11 @@ const mainContentClass = computed(() => {
   return {
     'ml-0': displayStore.sidebarLeft === 'hidden',
     'mr-0': displayStore.sidebarRight === 'hidden',
-    'ml-20vw': displayStore.sidebarLeft === 'open',
-    'mr-20vw': displayStore.sidebarRight === 'open',
+    'ml-[20vw]': displayStore.sidebarLeft === 'open',
+    'mr-[20vw]': displayStore.sidebarRight === 'open',
+    'ml-[10vw]': displayStore.sidebarLeft === 'compact',
+    'mr-[10vw]': displayStore.sidebarRight === 'compact',
   }
 })
+
 </script>

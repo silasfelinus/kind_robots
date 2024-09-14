@@ -51,7 +51,7 @@
         class="absolute top-0 left-0 w-full h-full z-40 flex flex-col justify-center items-center p-4 bg-accent"
       >
         <img
-          src="/images/outro/thank_you.webp"
+          src="/images/intro/welcome.webp"
           alt="Thank You Image"
           class="outro-img mb-4 animate-image-fade w-auto h-auto max-w-full max-h-96 object-cover"
         />

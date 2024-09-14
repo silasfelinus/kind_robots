@@ -1,87 +1,94 @@
 <template>
-  <div
-    id="app"
-    class="flex flex-col h-screen w-screen overflow-hidden bg-base-400 relative"
-    @click="nextStep"
-  >
+  <div id="app" class="relative h-screen w-screen">
+    <!-- Loader -->
     <div v-if="loading" class="absolute top-0 left-0 w-full h-full z-50">
       <ami-loader />
     </div>
 
-    <!-- Dynamic Section -->
+    <!-- Dynamic Full-Screen Section -->
     <transition name="fade">
       <div
         v-if="!loading && currentStep < steps.length"
-        class="absolute top-0 left-0 w-full h-full z-40 flex flex-col justify-center items-center p-4"
+        class="absolute top-0 left-0 w-full h-full z-40"
         :class="steps[currentStep].bgClass"
       >
+        <!-- Full-screen image -->
         <img
           :src="steps[currentStep].image"
           :alt="steps[currentStep].altText"
-          class="step-img mb-4 w-auto h-auto max-w-full max-h-96 object-cover"
+          class="absolute top-0 left-0 w-full h-full object-cover"
         />
-        <h1 class="text-xl font-bold mb-2 animate-text-fade">
-          {{ steps[currentStep].title }}
-        </h1>
-        <p class="text-center mb-4 animate-text-fade">
-          {{ steps[currentStep].description }}
-        </p>
-        <div class="flex gap-4">
-          <button
-            v-if="currentStep > 0"
-            class="bg-secondary p-2 rounded-xl animate-button-fade"
-            @click.stop="previousStep"
-          >
-            Back
-          </button>
-          <button
-            class="bg-primary p-2 rounded-xl animate-button-fade"
-            @click.stop="nextStep"
-          >
-            {{ steps[currentStep].buttonText }}
-          </button>
+
+        <!-- Overlay for text and buttons -->
+        <div
+          class="absolute inset-0 flex flex-col justify-center items-center text-center p-8 z-50"
+        >
+          <h1 class="text-3xl font-bold mb-4 text-white">
+            {{ steps[currentStep].title }}
+          </h1>
+          <p class="text-lg mb-6 text-white">
+            {{ steps[currentStep].description }}
+          </p>
+          <div class="flex gap-4">
+            <!-- Back button only appears after the first step -->
+            <button
+              v-if="currentStep > 0"
+              class="bg-secondary p-3 rounded-lg text-white"
+              @click.stop="previousStep"
+            >
+              Back
+            </button>
+            <!-- Next or Finish button -->
+            <button
+              class="bg-primary p-3 rounded-lg text-white"
+              @click.stop="nextStep"
+            >
+              {{ steps[currentStep].buttonText }}
+            </button>
+          </div>
         </div>
       </div>
     </transition>
 
-    <!-- Final Section with Footer -->
+    <!-- Final Footer Section with Restart and Explore -->
     <transition name="fade">
       <div
         v-if="!loading && currentStep === steps.length"
-        class="absolute top-0 left-0 w-full h-full z-40 flex flex-col justify-center items-center p-4 bg-accent"
+        class="absolute top-0 left-0 w-full h-full z-40 flex flex-col justify-center items-center p-8 bg-accent"
       >
         <img
           src="/images/intro/footer.webp"
           alt="Thank You Image"
-          class="outro-img mb-4 animate-image-fade w-auto h-auto max-w-full max-h-96 object-cover"
+          class="absolute top-0 left-0 w-full h-full object-cover"
         />
-        <h1 class="text-2xl font-bold mb-2 animate-text-fade">
-          Singular Philanthropy
-        </h1>
-        <p class="text-center mb-4 animate-text-fade">
-          Kind Robots was created by Silas Knight. It is intended primarily as a
-          fundraiser for malaria nets.
-          <a
-            href="https://againstmalaria.com/amibot"
-            class="text-primary underline"
-            target="_blank"
-          >
-            https://againstmalaria.com/amibot
-          </a>
-        </p>
-        <div class="flex gap-4">
-          <button
-            class="bg-primary p-2 rounded-xl animate-button-fade"
-            @click="restartExperience"
-          >
-            Restart Experience
-          </button>
-          <button
-            class="bg-secondary p-2 rounded-xl animate-button-fade"
-            @click="navigateToMoreFeatures"
-          >
-            Explore More Features
-          </button>
+        <div
+          class="absolute inset-0 flex flex-col justify-center items-center text-center text-white z-50"
+        >
+          <h1 class="text-3xl font-bold mb-4">Singular Philanthropy</h1>
+          <p class="mb-4">
+            Kind Robots was created by Silas Knight. It is intended primarily as
+            a fundraiser for malaria nets.
+            <a
+              href="https://againstmalaria.com/amibot"
+              class="text-white underline"
+            >
+              https://againstmalaria.com/amibot
+            </a>
+          </p>
+          <div class="flex gap-4">
+            <button
+              class="bg-primary p-3 rounded-lg text-white"
+              @click="restartExperience"
+            >
+              Restart Experience
+            </button>
+            <button
+              class="bg-secondary p-3 rounded-lg text-white"
+              @click="navigateToMoreFeatures"
+            >
+              Explore More Features
+            </button>
+          </div>
         </div>
       </div>
     </transition>
@@ -96,37 +103,32 @@ import { steps } from '@/training/steps.js'
 const displayStore = useDisplayStore()
 
 onMounted(() => {
-  if (!displayStore.introSeen) {
-    loading.value = false
-  } else {
-    currentStep.value = steps.length // Skip intro if it's already seen
-  }
   displayStore.loadState()
+  loading.value = false
 })
 
 const loading = ref(true)
 const currentStep = ref(0)
 
-// Next Step
+// Move to next step
 const nextStep = () => {
   if (currentStep.value < steps.length) {
     currentStep.value++
   }
   if (currentStep.value === steps.length) {
-    // Update store after user completes the walkthrough
     displayStore.introSeen = true
     displayStore.saveState()
   }
 }
 
-// Previous Step
+// Go to previous step
 const previousStep = () => {
   if (currentStep.value > 0) {
     currentStep.value--
   }
 }
 
-// Handle restart experience
+// Restart the experience
 const restartExperience = () => {
   currentStep.value = 0
   displayStore.introSeen = false
@@ -135,69 +137,44 @@ const restartExperience = () => {
 
 // Navigate to more features
 const navigateToMoreFeatures = () => {
-  // Logic to direct the user to other features or pages
+  // Logic to navigate to other features or pages
 }
 </script>
 
 <style scoped>
-.transition-all {
-  transition:
-    width 0.3s ease,
-    height 0.3s ease;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.object-cover {
+  object-fit: cover;
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s;
+  transition: opacity 0.5s ease;
 }
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
 }
 
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.bg-primary {
+  background-color: #3498db; /* Example primary color */
 }
 
-@keyframes fade-image {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+.bg-secondary {
+  background-color: #e74c3c; /* Example secondary color */
 }
 
-@keyframes fade-button {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-text-fade {
-  animation: fade-in 0.8s ease-in-out forwards;
-}
-
-.animate-image-fade {
-  animation: fade-image 1.5s ease-in-out forwards;
-}
-
-.animate-button-fade {
-  animation: fade-button 0.6s ease-in-out forwards;
-  animation-delay: 0.5s;
+.bg-accent {
+  background-color: #f39c12; /* Example accent color */
 }
 </style>

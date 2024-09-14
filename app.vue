@@ -1,4 +1,4 @@
-<template>
+o<template>
   <div id="app" class="flex flex-col h-screen w-screen overflow-hidden bg-base-200">
     <!-- Header -->
     <header
@@ -87,7 +87,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useDisplayStore } from '@/stores/display'
+import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 

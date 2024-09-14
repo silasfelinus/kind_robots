@@ -40,7 +40,7 @@
         @focus="setFocus('mainContent')"
         @blur="clearFocus"
         tabindex="0"
-        style="min-width: 50%;" <!-- Ensure the main content doesn't get too small -->
+        style="min-width: 50%;" 
       >
         <div class="flex-grow bg-secondary p-2 m-2 text-center rounded-xl">
           <p class="font-bold">Main Content Area</p>

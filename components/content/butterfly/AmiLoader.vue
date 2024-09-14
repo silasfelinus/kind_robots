@@ -67,20 +67,22 @@ const handleTransitionEnd = () => {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #111;
+  background: rgba(0, 0, 0, 0.8); /* Slight transparency for a more polished look */
   z-index: 9999;
+  display: flex; /* Use flex to center the loading message */
+  justify-content: center;
+  align-items: center;
   transition: opacity 1s;
-  pointer-events: none;
+  opacity: 1; /* Initial state should be fully visible */
+  pointer-events: all; /* Allow clicks to be captured while loading */
 }
+
 .loading-overlay.fade-out {
   opacity: 0;
-  pointer-events: none;
+  pointer-events: none; /* Disable interactions when faded out */
 }
+
 .loading-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   color: white;
   font-size: 24px;
   font-weight: bold;
@@ -88,11 +90,13 @@ const handleTransitionEnd = () => {
 }
 
 .nuxt-wrapper {
-  opacity: 0;
-  transition: opacity 1s;
+  opacity: 0; /* Start hidden */
+  transition: opacity 1s ease-in-out; 
+  position: relative; 
 }
 
 .nuxt-wrapper.fade-in {
-  opacity: 1;
+  opacity: 1; 
 }
+
 </style>

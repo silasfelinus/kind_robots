@@ -2,61 +2,57 @@
   <div
     id="app"
     class="flex flex-col h-screen w-screen overflow-hidden bg-base-400 relative"
+    @click="nextStep"
   >
-    <div
-      v-if="!showIntro && !showOutro"
-      class="absolute top-0 left-0 w-full h-full z-50"
-    >
+    <div v-if="loading" class="absolute top-0 left-0 w-full h-full z-50">
       <ami-loader />
     </div>
 
+    <!-- Dynamic Section -->
     <transition name="fade">
       <div
-        v-if="showIntro"
-        class="absolute top-0 left-0 w-full h-full z-40 bg-accent flex flex-col justify-center items-center p-4"
+        v-if="!loading && currentStep < steps.length"
+        class="absolute top-0 left-0 w-full h-full z-40 flex flex-col justify-center items-center p-4"
+        :class="steps[currentStep].bgClass"
       >
         <img
-          src="/images/intro/welcome.webp"
-          alt="Intro Image"
-          class="intro-img mb-4 w-auto h-auto max-w-full max-h-96 object-cover"
+          :src="steps[currentStep].image"
+          :alt="steps[currentStep].altText"
+          class="step-img mb-4 w-auto h-auto max-w-full max-h-96 object-cover"
         />
-        <h1 class="text-xl font-bold mb-2 fade-in">Welcome to Kind Robots</h1>
-        <p class="text-center mb-4 fade-in">
-          We bring people and AI together to do amazing things.
+        <h1 class="text-xl font-bold mb-2 animate-text-fade">
+          {{ steps[currentStep].title }}
+        </h1>
+        <p class="text-center mb-4 animate-text-fade">
+          {{ steps[currentStep].description }}
         </p>
-        <button
-          class="bg-primary p-2 rounded-xl mt-4 fade-in"
-          aria-label="Start the Experience"
-        >
-          Let’s Begin
-        </button>
+        <div class="flex gap-4">
+          <button
+            v-if="currentStep > 0"
+            class="bg-secondary p-2 rounded-xl animate-button-fade"
+            @click.stop="previousStep"
+          >
+            Back
+          </button>
+          <button
+            class="bg-primary p-2 rounded-xl animate-button-fade"
+            @click.stop="nextStep"
+          >
+            {{ steps[currentStep].buttonText }}
+          </button>
+        </div>
       </div>
     </transition>
 
+    <!-- Outro Section -->
     <transition name="fade">
       <div
-        v-if="showSecondaryIntro"
-        class="absolute top-0 left-0 w-full h-full z-40 bg-base-100 flex flex-col justify-center items-center p-4"
-      >
-        <h2 class="text-lg font-bold mb-4">Discover More</h2>
-        <p class="text-center mb-4">Explore our sections and learn more.</p>
-        <button
-          class="bg-secondary p-2 rounded-xl mt-4"
-          aria-label="Next Section"
-        >
-          Next <icon name="arrow_right" class="ml-2" />
-        </button>
-      </div>
-    </transition>
-
-    <transition name="fade">
-      <div
-        v-if="showOutro"
-        class="absolute top-0 left-0 w-full h-full z-40 bg-accent flex flex-col justify-center items-center p-4"
+        v-if="!loading && currentStep === steps.length"
+        class="absolute top-0 left-0 w-full h-full z-40 flex flex-col justify-center items-center p-4 bg-accent"
       >
         <img
           src="/images/outro/thank_you.webp"
-          alt="Outro Image"
+          alt="Thank You Image"
           class="outro-img mb-4 animate-image-fade w-auto h-auto max-w-full max-h-96 object-cover"
         />
         <h1 class="text-2xl font-bold mb-2 animate-text-fade">
@@ -68,18 +64,16 @@
         </p>
         <div class="flex gap-4">
           <button
-            class="bg-primary p-2 rounded-xl mt-4 animate-button-fade"
-            aria-label="Restart"
+            class="bg-primary p-2 rounded-xl animate-button-fade"
             @click="restartExperience"
           >
             Restart Experience
           </button>
           <button
-            class="bg-secondary p-2 rounded-xl mt-4 animate-button-fade"
-            aria-label="Explore More"
+            class="bg-secondary p-2 rounded-xl animate-button-fade"
             @click="navigateToMoreFeatures"
           >
-            Explore More Features <icon name="arrow_right" class="ml-2" />
+            Explore More Features
           </button>
         </div>
       </div>
@@ -90,30 +84,38 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
+import { steps } from '@/training/steps.js'
 
 const displayStore = useDisplayStore()
 
 onMounted(() => {
   displayStore.loadState()
+  loading.value = false
 })
 
-const showIntro = ref(true)
-const showSecondaryIntro = ref(false)
-const showOutro = ref(false)
+const loading = ref(true)
 const currentStep = ref(0)
 
-const sections = [
-  { id: 'intro', component: showIntro },
-  { id: 'secondary', component: showSecondaryIntro },
-  { id: 'outro', component: showOutro },
-]
-
-const restartExperience = () => {
-  showOutro.value = false
-  currentStep.value = 0
-  sections[currentStep.value].component.value = true
+// Next Step
+const nextStep = () => {
+  if (currentStep.value < steps.length) {
+    currentStep.value++
+  }
 }
 
+// Previous Step
+const previousStep = () => {
+  if (currentStep.value > 0) {
+    currentStep.value--
+  }
+}
+
+// Handle restart experience
+const restartExperience = () => {
+  currentStep.value = 0
+}
+
+// Navigate to more features
 const navigateToMoreFeatures = () => {
   // Logic to direct the user to other features or pages
 }

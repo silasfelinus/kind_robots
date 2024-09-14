@@ -50,27 +50,37 @@
       </div>
     </transition>
 
-    <!-- Display Icons for Section Toggles after the slideshow ends -->
+    <!-- Display Nuxt-Links with Icons for Section Toggles after the slideshow ends -->
     <transition name="fade">
       <div
         v-if="!loading && currentStep === steps.length"
         class="absolute top-0 left-0 w-full h-full z-40 flex flex-col justify-center items-center p-8 bg-black bg-opacity-60"
       >
         <div
-          class="absolute inset-0 flex justify-center items-center gap-8 text-center text-white z-50"
+          class="absolute inset-0 flex flex-col justify-center items-center gap-8 text-center text-white z-50"
         >
           <h1 class="text-3xl font-bold mb-4">
             Welcome to the Main Experience
           </h1>
-          <p class="mb-6">
-            Explore different sections using the toggles below:
-          </p>
+          <p class="mb-6">Explore different sections using the links below:</p>
           <div class="flex gap-4">
-            <!-- Icons for the respective sections -->
-            <icon name="home" class="text-white" @click="toggleHome" />
-            <icon name="brush" class="text-white" @click="toggleArt" />
-            <icon name="chat" class="text-white" @click="toggleChat" />
-            <icon name="settings" class="text-white" @click="toggleSettings" />
+            <!-- Nuxt-Links for the respective sections with appropriate icons -->
+            <nuxt-link to="/home" class="text-white">
+              <icon name="house" class="text-white" />
+              Home
+            </nuxt-link>
+            <nuxt-link to="/artgallery" class="text-white">
+              <icon name="brush" class="text-white" />
+              Art Gallery
+            </nuxt-link>
+            <nuxt-link to="/botcafe" class="text-white">
+              <icon name="message" class="text-white" />
+              Bot Cafe
+            </nuxt-link>
+            <nuxt-link to="/amibot" class="text-white">
+              <icon name="charity" class="text-white" />
+              AMIBot
+            </nuxt-link>
           </div>
         </div>
       </div>
@@ -80,9 +90,15 @@
     <aside
       class="fixed top-0 left-0 h-full w-16 p-4 bg-black bg-opacity-50 z-40 flex flex-col items-center gap-4"
     >
-      <icon name="home" class="text-white" />
-      <icon name="brush" class="text-white" />
-      <icon name="chat" class="text-white" />
+      <nuxt-link to="/home" class="text-white">
+        <icon name="house" class="text-white" />
+      </nuxt-link>
+      <nuxt-link to="/artgallery" class="text-white">
+        <icon name="brush" class="text-white" />
+      </nuxt-link>
+      <nuxt-link to="/botcafe" class="text-white">
+        <icon name="message" class="text-white" />
+      </nuxt-link>
     </aside>
 
     <!-- Header (Transparent Overlay) -->
@@ -90,8 +106,12 @@
       <div class="flex justify-between items-center">
         <h2 class="text-white">Kind Robots</h2>
         <div class="flex items-center gap-4">
-          <icon name="bell" class="text-white" />
-          <icon name="user" class="text-white" />
+          <nuxt-link to="/notifications" class="text-white">
+            <icon name="bell" class="text-white" />
+          </nuxt-link>
+          <nuxt-link to="/profile" class="text-white">
+            <icon name="user" class="text-white" />
+          </nuxt-link>
         </div>
       </div>
     </header>
@@ -129,20 +149,6 @@ const previousStep = () => {
   if (currentStep.value > 0) {
     currentStep.value--
   }
-}
-
-// Navigate to more features (replace with actual logic)
-const toggleHome = () => {
-  // Logic for navigating to the Home section
-}
-const toggleArt = () => {
-  // Logic for navigating to the Art section
-}
-const toggleChat = () => {
-  // Logic for navigating to the Chat section
-}
-const toggleSettings = () => {
-  // Logic for navigating to the Settings section
 }
 </script>
 

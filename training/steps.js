@@ -4,8 +4,9 @@ export const steps = [
     title: 'Welcome to Kind Robots',
     description:
       "We're here to enrich your experience on planet earth, and nourish the earth in the process",
-    image: 'w/intro/welcome.webp',
+    image: '/images/intro/welcome.webp',
     altText: 'Welcome to Kind Robots',
+    focus: 'header',
     buttonText: 'Let’s Begin',
     bgClass: 'bg-accent',
   },
@@ -17,6 +18,7 @@ export const steps = [
     image: '/images/intro/art1.webp',
     altText: 'Create Art',
     buttonText: 'Next',
+    focus: 'leftSide',
     bgClass: 'bg-base-100',
   },
   {
@@ -27,6 +29,7 @@ export const steps = [
     image: '/images/intro/words.webp',
     altText: 'Features Image',
     buttonText: 'Next',
+    focus: 'rightSide',
     bgClass: 'bg-base-200',
   },
   {
@@ -36,6 +39,7 @@ export const steps = [
       'Kind Robots was created by Silas Knight. It is intended primarily as a fundraiser for malaria nets. https://againstmalaria.com/amibot',
     image: '/images/intro/footer.webp',
     altText: 'Thank You Image',
+    focus: 'footer',
     buttonText: 'Finish',
     bgClass: 'bg-accent',
   },

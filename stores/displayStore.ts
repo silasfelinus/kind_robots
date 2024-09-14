@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia'
 
+// Define the type for possible display states
 type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 
+// Define the interface for the store state
 interface DisplayStoreState {
   headerState: DisplayState
   sidebarLeft: DisplayState
   sidebarRight: DisplayState
   bottomDrawer: DisplayState
-  focusedContainer: keyof DisplayStoreState | null // Track the currently focused container
+  focusedContainer: keyof Omit<DisplayStoreState, 'focusedContainer'> | null // Track the currently focused container
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -31,29 +33,31 @@ export const useDisplayStore = defineStore('display', {
     /**
      * Set focus to a specific container.
      * The focused container will open, and the other containers will be set to compact or hidden.
-     * @param {keyof DisplayStoreState} container - The container to focus ('headerState', 'sidebarLeft', etc.).
+     * @param {keyof Omit<DisplayStoreState, 'focusedContainer'>} container - The container to focus ('headerState', 'sidebarLeft', etc.).
      */
-    setFocus(container: keyof DisplayStoreState) {
+    setFocus(container: keyof Omit<DisplayStoreState, 'focusedContainer'>) {
       this.focusedContainer = container
 
       // Set the focused container to open and others to compact or hidden
       this[container] = 'open'
 
-      if (container !== 'headerState') {
-        this.headerState = this.headerState !== 'disabled' ? 'compact' : this.headerState
-      }
+      const containers: Array<keyof Omit<DisplayStoreState, 'focusedContainer'>> = [
+        'headerState', 
+        'sidebarLeft', 
+        'sidebarRight', 
+        'bottomDrawer'
+      ]
 
-      if (container !== 'sidebarLeft') {
-        this.sidebarLeft = this.sidebarLeft !== 'disabled' ? 'compact' : this.sidebarLeft
-      }
-
-      if (container !== 'sidebarRight') {
-        this.sidebarRight = this.sidebarRight !== 'disabled' ? 'compact' : this.sidebarRight
-      }
-
-      if (container !== 'bottomDrawer') {
-        this.bottomDrawer = this.bottomDrawer !== 'disabled' ? 'hidden' : this.bottomDrawer
-      }
+      // Adjust the states of other containers
+      containers.forEach((key) => {
+        if (key !== container) {
+          if (key === 'bottomDrawer') {
+            this[key] = this[key] !== 'disabled' ? 'hidden' : this[key]
+          } else {
+            this[key] = this[key] !== 'disabled' ? 'compact' : this[key]
+          }
+        }
+      })
     },
 
     /**
@@ -61,14 +65,15 @@ export const useDisplayStore = defineStore('display', {
      */
     clearFocus() {
       this.focusedContainer = null
+      this.resetStates()
     },
 
     /**
      * Change the state of a specific container to the desired state.
-     * @param {keyof DisplayStoreState} container - The container to change ('headerState', 'sidebarLeft', etc.).
+     * @param {keyof Omit<DisplayStoreState, 'focusedContainer'>} container - The container to change ('headerState', 'sidebarLeft', etc.).
      * @param {DisplayState} state - The new state for the container ('open', 'compact', 'hidden', 'disabled').
      */
-    changeState(container: keyof DisplayStoreState, state: DisplayState) {
+    changeState(container: keyof Omit<DisplayStoreState, 'focusedContainer'>, state: DisplayState) {
       if (['open', 'compact', 'hidden', 'disabled'].includes(state)) {
         this[container] = state
       }
@@ -87,10 +92,10 @@ export const useDisplayStore = defineStore('display', {
 
     /**
      * Checks if a container is focused.
-     * @param {keyof DisplayStoreState} container - The container to check focus on.
+     * @param {keyof Omit<DisplayStoreState, 'focusedContainer'>} container - The container to check focus on.
      * @returns {boolean} True if the container is focused.
      */
-    isFocused(container: keyof DisplayStoreState): boolean {
+    isFocused(container: keyof Omit<DisplayStoreState, 'focusedContainer'>): boolean {
       return this.focusedContainer === container
     },
   },

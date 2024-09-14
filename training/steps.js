@@ -24,7 +24,7 @@ export const steps = [
   {
     id: 'botcafe',
     title:
-      'Share words with our resident AI chat experts. Manage writing prompts, create and bots, and possibly interact with other humans!',
+      'Share words with our resident AI chat experts. Manage writing prompts, create and bots (and possibly interact with other humans)',
     description: 'Check out all the amazing things we can do together.',
     image: '/images/intro/words.webp',
     altText: 'Features Image',
@@ -36,7 +36,7 @@ export const steps = [
     id: 'outro',
     title: 'Singular Philanthropy',
     description:
-      'Kind Robots was created by Silas Knight. It is intended primarily as a fundraiser for malaria nets. https://againstmalaria.com/amibot',
+      "Kind Robots was created by Silas Knight. It is offered as a community service for personal (non-commercial) entertainment. It's primary function is to raise funds for malaria nets. https://againstmalaria.com/amibot.",
     image: '/images/intro/footer.webp',
     altText: 'Thank You Image',
     focus: 'footer',

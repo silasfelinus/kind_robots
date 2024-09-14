@@ -5,6 +5,14 @@
       <ami-loader />
     </div>
 
+    <!-- Special Intro Section -->
+    <div v-if="showIntro" class="absolute top-0 left-0 w-full h-full z-40 bg-accent flex flex-col justify-center items-center p-4">
+      <img src="/path-to-intro-image.jpg" alt="Intro Image" class="mb-4" />
+      <h1 class="text-xl font-bold mb-2">Welcome to Kind Robots</h1>
+      <p class="text-center">Click anywhere to start the experience.</p>
+      <button @click="handleIntroClick" class="bg-primary p-2 rounded-xl mt-4">Let's Begin</button>
+    </div>
+
     <!-- Header -->
     <header
       v-if="isHeaderVisible"
@@ -90,14 +98,19 @@
   </div>
 </template>
 
-
-
-
 <script setup>
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+
+const showIntro = computed(() => displayStore.showIntro)
+
+const handleIntroClick = () => {
+  displayStore.toggleIntro()
+}
+
+
 
 // Handle focus state to dynamically control which container has priority
 const setFocus = (container) => {

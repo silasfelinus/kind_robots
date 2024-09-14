@@ -44,23 +44,30 @@
       </div>
     </transition>
 
-    <!-- Outro Section -->
+    <!-- Final Section with Footer -->
     <transition name="fade">
       <div
         v-if="!loading && currentStep === steps.length"
         class="absolute top-0 left-0 w-full h-full z-40 flex flex-col justify-center items-center p-4 bg-accent"
       >
         <img
-          src="/images/botcafe.webp"
+          src="/images/intro/footer.webp"
           alt="Thank You Image"
           class="outro-img mb-4 animate-image-fade w-auto h-auto max-w-full max-h-96 object-cover"
         />
         <h1 class="text-2xl font-bold mb-2 animate-text-fade">
-          Thank You for Joining Us!
+          Singular Philanthropy
         </h1>
         <p class="text-center mb-4 animate-text-fade">
-          We’re so grateful for your support and hope you enjoyed the
-          experience!
+          Kind Robots was created by Silas Knight. It is intended primarily as a
+          fundraiser for malaria nets.
+          <a
+            href="https://againstmalaria.com/amibot"
+            class="text-primary underline"
+            target="_blank"
+          >
+            https://againstmalaria.com/amibot
+          </a>
         </p>
         <div class="flex gap-4">
           <button
@@ -89,8 +96,12 @@ import { steps } from '@/training/steps.js'
 const displayStore = useDisplayStore()
 
 onMounted(() => {
+  if (!displayStore.introSeen) {
+    loading.value = false
+  } else {
+    currentStep.value = steps.length // Skip intro if it's already seen
+  }
   displayStore.loadState()
-  loading.value = false
 })
 
 const loading = ref(true)
@@ -100,6 +111,11 @@ const currentStep = ref(0)
 const nextStep = () => {
   if (currentStep.value < steps.length) {
     currentStep.value++
+  }
+  if (currentStep.value === steps.length) {
+    // Update store after user completes the walkthrough
+    displayStore.introSeen = true
+    displayStore.saveState()
   }
 }
 
@@ -113,6 +129,8 @@ const previousStep = () => {
 // Handle restart experience
 const restartExperience = () => {
   currentStep.value = 0
+  displayStore.introSeen = false
+  displayStore.saveState()
 }
 
 // Navigate to more features

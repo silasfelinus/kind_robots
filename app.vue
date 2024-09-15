@@ -5,12 +5,14 @@
       <ami-loader />
     </div>
 
-    <!-- Intro Component -->
-    <Intro v-if="!loading && displayStore.showIntro" @finished="onIntroFinished" />
+    <!-- Intro Component (higher z-index to override sidebar and content) -->
+    <div v-if="!loading && displayStore.showIntro" class="absolute top-0 left-0 w-full h-full z-40 flex justify-center items-center bg-black bg-opacity-50">
+      <IntroPage @finished="onIntroFinished" />
+    </div>
 
     <!-- Header -->
     <header
-      class="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-60 flex justify-between items-center"
+      class="fixed top-0 left-0 w-full z-30 bg-black bg-opacity-60 flex justify-between items-center"
       :style="{ height: headerHeight }"
     >
       <!-- Sidebar Toggle -->
@@ -18,8 +20,8 @@
         <SidebarToggle />
       </div>
 
-      <!-- Navigation Links -->
-      <nav class="flex gap-8 items-center">
+      <!-- Navigation Links (centered) -->
+      <nav class="flex-1 flex justify-center gap-8 items-center">
         <nuxt-link to="/home" class="text-white text-lg hover:underline" @click="onIntroFinished">Home</nuxt-link>
         <nuxt-link to="/artgallery" class="text-white text-lg hover:underline" @click="onIntroFinished">Art Gallery</nuxt-link>
         <nuxt-link to="/botcafe" class="text-white text-lg hover:underline" @click="onIntroFinished">Bot Cafe</nuxt-link>
@@ -36,13 +38,13 @@
 
     <!-- Main Layout -->
     <div class="flex flex-row relative" :style="{ top: headerHeight }">
-      <!-- Sidebar (left) -->
-      <aside v-if="displayStore.sidebarLeft !== 'hidden'" class="w-1/4 p-4 bg-gray-100 shadow-lg">
+      <!-- Sidebar (conditionally rendered after intro is finished) -->
+      <aside v-if="!displayStore.showIntro && displayStore.sidebarLeft !== 'hidden'" class="w-1/4 p-4 bg-gray-100 shadow-lg">
         <kind-sidebar />
       </aside>
 
       <!-- Main Content -->
-      <main :class="[displayStore.sidebarLeft !== 'hidden' ? 'w-3/4' : 'w-full']" class="p-8">
+      <main :class="[!displayStore.showIntro && displayStore.sidebarLeft !== 'hidden' ? 'w-3/4' : 'w-full']" class="p-8">
         <transition name="fade">
           <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
             <div class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg">
@@ -54,6 +56,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'

@@ -11,10 +11,10 @@
     <!-- Header (Minimal Text Navigation) -->
     <header class="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-60 flex justify-center" :style="{ height: headerHeight }">
       <nav class="flex gap-8 items-center">
-        <nuxt-link to="/home" class="text-white text-lg hover:underline">Home</nuxt-link>
-        <nuxt-link to="/artgallery" class="text-white text-lg hover:underline">Art Gallery</nuxt-link>
-        <nuxt-link to="/botcafe" class="text-white text-lg hover:underline">Bot Cafe</nuxt-link>
-        <nuxt-link to="/amibot" class="text-white text-lg hover:underline">AMIBot</nuxt-link>
+        <nuxt-link to="/home" class="text-white text-lg hover:underline" @click="onIntroFinished">Home</nuxt-link>
+        <nuxt-link to="/artgallery" class="text-white text-lg hover:underline" @click="onIntroFinished">Art Gallery</nuxt-link>
+        <nuxt-link to="/botcafe" class="text-white text-lg hover:underline" @click="onIntroFinished">Bot Cafe</nuxt-link>
+        <nuxt-link to="/amibot" class="text-white text-lg hover:underline" @click="onIntroFinished">AMIBot</nuxt-link>
       </nav>
 
       <!-- Hide Intro Toggle -->

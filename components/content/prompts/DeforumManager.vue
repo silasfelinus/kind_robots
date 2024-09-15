@@ -7,7 +7,9 @@
       <h3 class="text-xl font-semibold mb-2">Generate New Video</h3>
       <form @submit.prevent="generateNewVideo">
         <div class="mb-4">
-          <label class="block text-sm font-medium mb-1" for="prompt">Prompt</label>
+          <label class="block text-sm font-medium mb-1" for="prompt"
+            >Prompt</label
+          >
           <textarea
             id="prompt"
             v-model="newVideo.promptString"
@@ -17,41 +19,49 @@
           ></textarea>
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium mb-1" for="frames">Frames</label>
+          <label class="block text-sm font-medium mb-1" for="frames"
+            >Frames</label
+          >
           <input
-            type="number"
             id="frames"
             v-model.number="newVideo.frames"
+            type="number"
             class="w-full p-2 border rounded"
             placeholder="Number of frames (e.g. 240)"
           />
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium mb-1" for="translation2D">2D Translation</label>
+          <label class="block text-sm font-medium mb-1" for="translation2D"
+            >2D Translation</label
+          >
           <input
-            type="text"
             id="translation2D"
             v-model="newVideo.translation2D"
+            type="text"
             class="w-full p-2 border rounded"
             placeholder="2D Translation (e.g. '0:(0)')"
           />
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium mb-1" for="translation3D">3D Translation</label>
+          <label class="block text-sm font-medium mb-1" for="translation3D"
+            >3D Translation</label
+          >
           <input
-            type="text"
             id="translation3D"
             v-model="newVideo.translation3D"
+            type="text"
             class="w-full p-2 border rounded"
             placeholder="3D Translation (e.g. '0:(0.5)')"
           />
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium mb-1" for="checkpoint">Checkpoint</label>
+          <label class="block text-sm font-medium mb-1" for="checkpoint"
+            >Checkpoint</label
+          >
           <input
-            type="text"
             id="checkpoint"
             v-model="newVideo.checkpoint"
+            type="text"
             class="w-full p-2 border rounded"
             placeholder="Checkpoint (e.g. 'default')"
           />
@@ -70,7 +80,9 @@
     <!-- Generated Videos List -->
     <div class="p-4 bg-white shadow-lg rounded-lg">
       <h3 class="text-xl font-semibold mb-4">Generated Videos</h3>
-      <div v-if="videos.length === 0" class="text-gray-500">No videos generated yet.</div>
+      <div v-if="videos.length === 0" class="text-gray-500">
+        No videos generated yet.
+      </div>
       <ul>
         <li v-for="video in videos" :key="video" class="mb-4">
           <div class="flex justify-between items-center">
@@ -117,9 +129,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { GenerateDeforumData } from '@/stores/deforumStore'
 import { useDeforumStore } from '@/stores/deforumStore'
-import { GenerateDeforumData } from '@/stores/deforumStore'
-
 const deforumStore = useDeforumStore()
 
 // New video form data

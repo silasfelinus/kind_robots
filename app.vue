@@ -5,15 +5,15 @@
       <ami-loader />
     </div>
 
-    <!-- Intro Component (with lower z-index to keep header visible) -->
+    <!-- Intro Component -->
     <div v-if="!loading && displayStore.showIntro" class="absolute inset-0 z-20 flex justify-center items-center bg-black bg-opacity-70">
       <IntroPage @finished="onIntroFinished" />
     </div>
 
-    <!-- Header (higher z-index to be always visible) -->
+    <!-- Header (Visibility and Dynamic Height) -->
     <header
       class="fixed top-0 left-0 w-full z-40 bg-black bg-opacity-60 flex justify-between items-center"
-      :style="{ height: headerHeight }"
+      :style="{ height: `${displayStore.headerVh}vh`, visibility: displayStore.headerState !== 'hidden' ? 'visible' : 'hidden' }"
     >
       <!-- Sidebar Toggle -->
       <div class="p-4">
@@ -28,16 +28,16 @@
         <nuxt-link to="/amibot" class="text-white text-lg hover:underline" @click="onIntroFinished">AMIBot</nuxt-link>
       </nav>
 
-      <!-- Intro Toggle Component (Skip Intro button visible during intro) -->
+      <!-- Intro Toggle Component -->
       <div class="absolute right-8 top-1/2 transform -translate-y-1/2">
         <IntroToggle />
       </div>
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-row relative" :style="{ top: headerHeight }">
-      <!-- Sidebar (left) -->
-      <aside v-if="displayStore.sidebarLeft !== 'hidden'" class="w-1/4 p-4 bg-gray-100 shadow-lg">
+    <div class="flex flex-row relative" :style="{ top: `${displayStore.headerVh}vh` }">
+      <!-- Sidebar (Left) -->
+      <aside v-if="displayStore.sidebarLeft !== 'hidden'" :style="{ width: `${displayStore.sidebarVw}vw` }" class="p-4 bg-gray-100 shadow-lg">
         <kind-sidebar />
       </aside>
 
@@ -52,8 +52,14 @@
         </transition>
       </main>
     </div>
+
+    <!-- Footer -->
+    <footer v-if="displayStore.footer !== 'hidden'" :style="{ height: `${displayStore.footerVh}vh` }" class="fixed bottom-0 w-full bg-gray-800 text-white">
+      <!-- Footer content goes here -->
+    </footer>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
@@ -61,7 +67,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 const loading = ref(true)
-const headerHeight = ref('7vh')
 
 // Add a flag to prevent double triggers of onIntroFinished
 const isProcessing = ref(false)
@@ -90,6 +95,7 @@ const onIntroFinished = () => {
   }, 300) // Adjust the time as per the animation length
 }
 </script>
+
 
 
 <style scoped>

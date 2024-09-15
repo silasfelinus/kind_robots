@@ -30,8 +30,8 @@ export const useDisplayStore = defineStore('display', {
     sidebarRightFocused: false,
     footerFocused: false,
     showIntro: true,
-    vh: window.innerHeight, // Set initial value
-    vw: window.innerWidth,
+    vh: 0, // Initialize with a default value that will be updated in onMounted
+    vw: 0,
   }),
 
   actions: {
@@ -46,21 +46,27 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    // Store the viewport height and width
+    // Update the viewport height and width only in client-side runtime
     updateViewport() {
-      this.vh = window.innerHeight
-      this.vw = window.innerWidth
+      if (typeof window !== 'undefined') {
+        this.vh = window.innerHeight
+        this.vw = window.innerWidth
+      }
     },
 
     toggleSidebar(container: 'sidebarLeft' | 'sidebarRight') {
       const currentState = this[container]
       this[container] = currentState === 'hidden' ? 'open' : 'hidden'
-      if (typeof window !== 'undefined') localStorage.setItem(container, this[container])
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(container, this[container])
+      }
     },
 
     toggleIntroState() {
       this.showIntro = !this.showIntro
-      if (typeof window !== 'undefined') localStorage.setItem('showIntro', JSON.stringify(this.showIntro))
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('showIntro', JSON.stringify(this.showIntro))
+      }
     }
   },
 })

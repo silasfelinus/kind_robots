@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="relative h-screen w-screen">
     <!-- Loader -->
-    <div v-if="loading" class="absolute top-0 left-0 w-full h-full z-50">
+    <div v-if="loading" class="absolute inset-0 z-50">
       <ami-loader />
     </div>
 
@@ -12,7 +12,7 @@
 
     <!-- Header (Visibility and Dynamic Height) -->
     <header
-      class="fixed top-0 left-0 w-full z-40 bg-black bg-opacity-60 flex justify-between items-center"
+      class="fixed top-0 left-0 w-full z-40 bg-black bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
       :style="{ height: `${displayStore.headerVh}vh`, visibility: displayStore.headerState !== 'hidden' ? 'visible' : 'hidden' }"
     >
       <!-- Sidebar Toggle -->
@@ -29,7 +29,7 @@
       </nav>
 
       <!-- Intro Toggle Component -->
-      <div class="absolute right-8 top-1/2 transform -translate-y-1/2">
+      <div class="absolute right-8 top-1/2 -translate-y-1/2">
         <IntroToggle />
       </div>
     </header>
@@ -42,8 +42,8 @@
       </aside>
 
       <!-- Main Content -->
-      <main :class="[displayStore.sidebarLeft !== 'hidden' ? 'w-3/4' : 'w-full']" class="p-8">
-        <transition name="fade">
+      <main :class="[displayStore.sidebarLeft !== 'hidden' ? 'w-3/4' : 'w-full']" class="p-8 transition-all duration-500 ease-in-out">
+        <transition name="fade" mode="out-in">
           <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
             <div class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg">
               <nuxt-page />
@@ -59,7 +59,6 @@
     </footer>
   </div>
 </template>
-
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
@@ -96,47 +95,11 @@ const onIntroFinished = () => {
 }
 </script>
 
-
-
-<style scoped>
-html,
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  height: 100vh;
+<style>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease-in-out;
 }
-
-.object-cover {
-  object-fit: cover;
-}
-
-.object-contain {
-  object-fit: contain;
-}
-
-.border-2xl {
-  border-radius: 1rem;
-}
-
-.hover\:underline:hover {
-  text-decoration: underline;
-}
-
-.text-lg {
-  font-size: 1.125rem;
-}
-
-.text-sm {
-  font-size: 0.875rem;
-}
-
-.rounded-2xl {
-  border-radius: 1rem;
-}
-
-.flex-row {
-  display: flex;
-  flex-direction: row;
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
 }
 </style>

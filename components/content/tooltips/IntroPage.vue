@@ -36,7 +36,7 @@
             class="bg-primary p-3 rounded-lg text-white"
             @click.stop="nextStep"
           >
-            {{ steps[currentStep].buttonText }}
+            {{ currentStep === steps.length - 1 ? 'Finish' : steps[currentStep].buttonText }}
           </button>
         </div>
       </div>
@@ -45,16 +45,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, emit } from 'vue'
 import { steps } from '@/training/steps.js'
 
 const currentStep = ref(0)
 
 const nextStep = () => {
-  if (currentStep.value < steps.length) {
+  // Check if we are on the last step
+  if (currentStep.value < steps.length - 1) {
     currentStep.value++
-  }
-  if (currentStep.value === steps.length) {
+  } else {
+    // If on the last step, emit the 'finished' event to end the intro
     emit('finished')
   }
 }

@@ -1,6 +1,6 @@
 <template>
-  <button @click="toggleSidebarLeft" class="flex items-center justify-center p-2 hover:bg-primary rounded-lg">
-    <icon name="menu" class="toggle-icon" />
+  <button @click="toggleSidebarLeft" class="flex items-center justify-center p-1 hover:bg-secondary rounded-lg">
+    <icon name="menu" class="toggle-icon text-primary" />
   </button>
 </template>
 

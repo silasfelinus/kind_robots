@@ -5,7 +5,6 @@
       class="absolute top-0 left-0 w-full h-full z-40"
       :class="steps[currentStep].bgClass"
     >
-      
       <img
         :src="steps[currentStep].image"
         :alt="steps[currentStep].altText"
@@ -23,7 +22,6 @@
           {{ steps[currentStep].description }}
         </p>
         <div class="flex gap-4">
-          
           <button
             v-if="currentStep > 0"
             class="bg-secondary p-3 rounded-lg text-white"
@@ -45,8 +43,11 @@
 </template>
 
 <script setup>
-import { ref, emit } from 'vue'
+import { ref } from 'vue'
 import { steps } from '@/training/steps.js'
+
+// Declare the emit function for 'finished' event
+const emit = defineEmits(['finished'])
 
 const currentStep = ref(0)
 

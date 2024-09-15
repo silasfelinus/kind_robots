@@ -58,7 +58,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import IntroToggle from '@/components/IntroToggle.vue' // Import the IntroToggle component
+
 
 const displayStore = useDisplayStore()
 

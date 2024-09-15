@@ -29,7 +29,7 @@
     </header>
 
     <!-- Center Content Container with rounded-2xl border to display Nuxt Page, positioned below header -->
-    <div class="relative" :style="{ top: headerHeight }">
+    <div class="relative" :style="{ top: `calc(${headerHeight} + 1rem)` }"> <!-- Offset by headerHeight + optional margin -->
       <transition name="fade">
         <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
           <div class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg">

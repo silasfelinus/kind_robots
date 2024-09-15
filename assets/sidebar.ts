@@ -3,11 +3,6 @@ export const sidebarLinks = [
   { title: 'Add Bot', path: '/addbot', icon: 'fluent:bot-add-20-regular' },
   { title: 'Bot Cafe', path: '/botcafe', icon: 'mdi:chat-processing' },
   {
-    title: 'Bot Messages',
-    path: '/botmessages',
-    icon: 'fluent:chat-multiple-24-regular',
-  },
-  {
     title: 'Pitch Manager',
     path: '/pitch',
     icon: 'fluent:chat-bubbles-question-16-regular',

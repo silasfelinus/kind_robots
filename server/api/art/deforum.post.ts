@@ -1,6 +1,5 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
 
 console.log("🚀 Starting up the video generation engine with Deforum!")
 
@@ -49,28 +48,14 @@ export default defineEventHandler(async (event) => {
 
     console.log('🎥 Video generated successfully!')
 
-    // 3. Save Prompt to Database
-    const newPrompt = await prisma.prompt.create({
-      data: {
-        prompt: requestData.promptString,
-        userId: requestData.userId,
-        designer: requestData.designer || 'Anonymous',
-        frames: requestData.frames || 200,
-        translation2D: requestData.translation2D || '0:(0)',
-        translation3D: requestData.translation3D || '0:(0)',
-        checkpoint: requestData.checkpoint || 'default',
-        seed: requestData.seed || -1
-      }
-    })
 
-    console.log('💾 Prompt saved successfully:', newPrompt)
+
 
     // Return success response
     return {
       success: true,
       message: 'Video generated and prompt saved successfully!',
-      videoUrl: response.video_url,
-      promptId: newPrompt.id
+      videoUrl: response.video_url
     }
   } catch (error: unknown) {
     console.error('Video Generation Error:', error)
@@ -123,6 +108,6 @@ async function generateVideo(
     const responseData = await response.json()
     return { video_url: responseData.video_url }
   } catch (error) {
-    throw new Error('Video generation failed.')
+    throw new Error('Video generation failed.'+ error)
   }
 }

@@ -71,14 +71,6 @@
             >
               <nuxt-page />
             </div>
-
-            <button
-              v-if="!displayStore.showIntro"
-              class="absolute bottom-8 right-8 bg-gray-200 text-gray-800 p-2 rounded-lg text-sm hover:bg-gray-300"
-              @click="restartExperience"
-            >
-              Repeat Intro?
-            </button>
           </div>
         </transition>
       </main>
@@ -102,11 +94,6 @@ onMounted(() => {
 
 const onIntroFinished = () => {
   displayStore.showIntro = false
-  displayStore.saveState()
-}
-
-const restartExperience = () => {
-  displayStore.showIntro = true
   displayStore.saveState()
 }
 

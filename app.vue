@@ -12,7 +12,7 @@
 
     <!-- Header (Visibility and Dynamic Height) -->
     <header
-      class="fixed top-0 left-0 w-full z-40 bg-black bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
+      class="fixed top-0 left-0 w-full z-40 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
       :style="{ height: `${displayStore.headerVh}vh`, visibility: displayStore.headerState !== 'hidden' ? 'visible' : 'hidden' }"
     >
       <!-- Sidebar Toggle -->
@@ -22,10 +22,10 @@
 
       <!-- Navigation Links (Centered) -->
       <nav class="flex gap-8 items-center mx-auto">
-        <nuxt-link to="/home" class="text-white text-lg hover:underline" @click="onIntroFinished">Home</nuxt-link>
-        <nuxt-link to="/artgallery" class="text-white text-lg hover:underline" @click="onIntroFinished">Art Gallery</nuxt-link>
-        <nuxt-link to="/botcafe" class="text-white text-lg hover:underline" @click="onIntroFinished">Bot Cafe</nuxt-link>
-        <nuxt-link to="/amibot" class="text-white text-lg hover:underline" @click="onIntroFinished">AMIBot</nuxt-link>
+        <nuxt-link to="/home" class="text-accent text-lg hover:underline" @click="onIntroFinished">Home</nuxt-link>
+        <nuxt-link to="/artgallery" class="text-accent text-lg hover:underline" @click="onIntroFinished">Art Gallery</nuxt-link>
+        <nuxt-link to="/botcafe" class="text-accent text-lg hover:underline" @click="onIntroFinished">Bot Cafe</nuxt-link>
+        <nuxt-link to="/amibot" class="text-accent text-lg hover:underline" @click="onIntroFinished">AMIBot</nuxt-link>
       </nav>
 
       <!-- Intro Toggle Component -->

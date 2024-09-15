@@ -67,17 +67,13 @@ const headerHeight = ref('7vh')
 onMounted(() => {
   displayStore.loadState()
   loading.value = false
-  updateViewport()
-  window.addEventListener('resize', updateViewport)
+  displayStore.updateViewport() // Call to update viewport dimensions
+  window.addEventListener('resize', displayStore.updateViewport)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateViewport)
+  window.removeEventListener('resize', displayStore.updateViewport)
 })
-
-const updateViewport = () => {
-  displayStore.updateViewport()
-}
 
 const onIntroFinished = () => {
   displayStore.showIntro = false

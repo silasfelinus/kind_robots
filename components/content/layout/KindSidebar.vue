@@ -1,8 +1,7 @@
 <template>
   <div class="relative h-screen flex flex-col">
-    <!-- Header (of undetermined height) -->
+    <!-- Header with sidebar toggle -->
     <header class="relative">
-      <!-- Your header content goes here -->
       <button class="absolute top-0 left-0 z-40" @click="toggleSidebar">
         <Icon
           :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
@@ -56,30 +55,23 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
-import { useContentStore } from './../../../stores/contentStore'
-import { useLayoutStore } from './../../../stores/layoutStore'
-import { sidebarLinks } from './../../../assets/sidebar' // Import the sidebar data
+import { useDisplayStore } from '@/stores/displayStore'
+import { sidebarLinks } from '@/assets/sidebar' // Import the sidebar data
 
-const layoutStore = useLayoutStore()
-const isSidebarOpen = computed(() => layoutStore.isSidebarOpen) // Using layoutStore for sidebar status
-const toggleSidebar = () => layoutStore.toggleSidebar() // Define the toggle function for the sidebar
+const displayStore = useDisplayStore()
+const isSidebarOpen = computed(() => displayStore.sidebarLeft === 'open') // Use displayStore for sidebar status
+const toggleSidebar = () => displayStore.toggleSidebar('sidebarLeft') // Define the toggle function for the sidebar
 
-const userStore = useUserStore()
-const contentStore = useContentStore()
-const showMature = computed(() => userStore.showMatureContent)
 const isVertical = ref(false)
 
 // Check if the current page matches the given path
-const isCurrentPage = (path: string) => contentStore.currentPage?._path === path
+const isCurrentPage = (path: string) => {
+  const currentPath = window.location.pathname
+  return currentPath === path
+}
 
-// Filter links based on conditions (e.g., mature content)
-const filteredLinks = computed(() => {
-  return sidebarLinks.filter(
-    (link) =>
-      !link.condition || (link.condition === 'showMature' && showMature.value),
-  )
-})
+// Filter links (you can add conditions if needed, like mature content)
+const filteredLinks = computed(() => sidebarLinks)
 
 // Handle sidebar orientation based on screen size
 const checkVertical = () => {
@@ -101,21 +93,23 @@ onBeforeUnmount(() => {
 <style scoped>
 /* Collapsed sidebar - horizontal */
 .sidebarClosed.horizontalSidebar {
-  @apply w-16; /* Adjust the width as needed for the collapsed state */
+  width: 4rem; /* Adjust the width as needed for the collapsed state */
 }
 
 /* Opened sidebar - horizontal */
 .sidebarOpen.horizontalSidebar {
-  @apply w-64; /* Adjust the width for the open state */
+  width: 16rem; /* Adjust the width for the open state */
 }
 
 /* Collapsed sidebar - vertical */
 .sidebarClosed.verticalSidebar {
-  @apply h-0 overflow-hidden; /* Hide completely in the vertical mode */
+  height: 0; /* Hide completely in the vertical mode */
+  overflow: hidden;
 }
 
 /* Opened sidebar - vertical */
 .sidebarOpen.verticalSidebar {
-  @apply w-full h-screen; /* Ensure full-screen height for vertical mode */
+  width: 100%; /* Full width in vertical mode */
+  height: 100vh; /* Full height for vertical mode */
 }
 </style>

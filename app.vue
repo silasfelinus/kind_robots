@@ -94,7 +94,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  height: 100vh; /* Ensure body takes the full height of the viewport */
+  height: 100vh; 
 }
 
 .object-cover {
@@ -102,7 +102,7 @@ body {
 }
 
 .object-contain {
-  object-fit: contain; /* Ensures the image is fully visible */
+  object-fit: contain; 
 }
 
 .border-2xl {
@@ -140,10 +140,10 @@ body {
 
 @media (max-width: 768px) {
   .w-1/4 {
-    width: 100%; /* Sidebar full width on small screens */
+    width: 100%; 
   }
   .w-3/4 {
-    width: 100%; /* Main content full width on small screens */
+    width: 100%; 
   }
 }
 </style>

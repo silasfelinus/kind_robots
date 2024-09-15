@@ -14,8 +14,9 @@ interface DisplayStoreState {
   sidebarRightFocused: boolean
   footerFocused: boolean
   showIntro: boolean
-  vh: number
-  vw: number
+  headerVh: number
+  sidebarVw: number
+  footerVh: number
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -30,12 +31,12 @@ export const useDisplayStore = defineStore('display', {
     sidebarRightFocused: false,
     footerFocused: false,
     showIntro: true,
-    vh: 0, // Initialize with a default value that will be updated in onMounted
-    vw: 0,
+    headerVh: 7
+    sidebarVw: 0
+    footerVh: 5
   }),
 
   actions: {
-    // Load the initial state from localStorage
     loadState() {
       if (typeof window !== 'undefined') {
         this.headerState = (localStorage.getItem('headerState') as DisplayState) || 'open'
@@ -45,6 +46,12 @@ export const useDisplayStore = defineStore('display', {
         this.showIntro = localStorage.getItem('showIntro') === 'false' ? false : true
       }
     },
+
+    toggleIntroState() {
+      this.showIntro = !this.showIntro
+      localStorage.setItem('showIntro', JSON.stringify(this.showIntro))
+    },
+  },
 
     // Update the viewport height and width only in client-side runtime
     updateViewport() {
@@ -62,11 +69,5 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    toggleIntroState() {
-      this.showIntro = !this.showIntro
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('showIntro', JSON.stringify(this.showIntro))
-      }
-    }
-  },
+    
 })

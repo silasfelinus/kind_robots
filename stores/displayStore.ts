@@ -31,9 +31,9 @@ export const useDisplayStore = defineStore('display', {
     sidebarRightFocused: false,
     footerFocused: false,
     showIntro: true,
-    headerVh: 7
-    sidebarVw: 0
-    footerVh: 5
+    headerVh: 7,
+    sidebarVw: 0,
+    footerVh: 5,
   }),
 
   actions: {

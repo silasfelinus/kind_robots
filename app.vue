@@ -1,17 +1,16 @@
 <template>
-  <div class="relative h-screen flex flex-col">
-    <!-- Header (of undetermined height) -->
-    <header class="relative w-full h-[7vh] flex items-center justify-between bg-black bg-opacity-60 z-50">
-      <!-- Sidebar Toggle Button -->
-      <button class="ml-4" @click="toggleSidebar">
-        <Icon
-          :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
-          class="h-6 w-6 text-gray-500"
-        />
-      </button>
+  <div id="app" class="relative h-screen w-screen">
+    <!-- Loader -->
+    <div v-if="loading" class="absolute top-0 left-0 w-full h-full z-50">
+      <ami-loader />
+    </div>
 
-      <!-- Navigation Links in Header -->
-      <nav class="flex gap-8 mr-4">
+    <!-- Intro Component -->
+    <Intro v-if="!loading && !displayStore.introSeen" @finished="onIntroFinished" />
+
+    <!-- Header (Minimal Text Navigation) -->
+    <header class="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-60 flex justify-center" :style="{ height: headerHeight }">
+      <nav class="flex gap-8 items-center">
         <nuxt-link to="/home" class="text-white text-lg hover:underline">Home</nuxt-link>
         <nuxt-link to="/artgallery" class="text-white text-lg hover:underline">Art Gallery</nuxt-link>
         <nuxt-link to="/botcafe" class="text-white text-lg hover:underline">Bot Cafe</nuxt-link>
@@ -19,118 +18,86 @@
       </nav>
     </header>
 
-    <div class="flex flex-1">
-      <!-- Collapsible Sidebar -->
-      <aside
-        :class="[
-          isSidebarOpen ? 'sidebarOpen' : 'sidebarClosed',
-          isVertical ? 'verticalSidebar' : 'horizontalSidebar',
-        ]"
-        class="transition-all duration-300 ease-in-out border rounded-2xl bg-base-200 h-full"
-        :aria-hidden="!isSidebarOpen"
-      >
-        <!-- Sidebar Links with Icons and Titles -->
-        <div
-          v-for="link in filteredLinks"
-          :key="link.title"
-          class="Icon-link-container flex items-center justify-center space-x-2 m-2"
-        >
-          <NuxtLink
-            :to="link.path"
-            class="flex items-center justify-center rounded-2xl text-center hover:scale-110 transition-transform"
-          >
-            <Icon
-              :name="link.icon"
-              :class="[
-                isSidebarOpen ? 'h-16 w-16' : 'h-12 w-12',
-                isCurrentPage(link.path) ? 'text-accent' : 'text-gray-500',
-              ]"
-              class="transition-all"
-            />
-            <span
-              v-show="isSidebarOpen"
-              :class="isCurrentPage(link.path) ? 'text-accent' : 'text-gray-500'"
-              class="text-sm font-semibold ml-2"
-            >
-              {{ link.title }}
-            </span>
-          </NuxtLink>
+<kind-sidebar />
+
+    <!-- Center Content Container with rounded-2xl border to display Nuxt Page, positioned below header -->
+    <div class="relative" :style="{ top: headerHeight }">
+      <transition name="fade">
+        <div v-if="displayStore.introSeen" class="flex justify-center items-center">
+          <div class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg">
+            <nuxt-page />
+          </div>
+
+          <!-- Subtle Toggle in the corner to repeat intro -->
+          <button class="absolute bottom-8 right-8 bg-gray-200 text-gray-800 p-2 rounded-lg text-sm hover:bg-gray-300" @click="restartExperience">
+            Repeat Intro?
+          </button>
         </div>
-
-        <!-- Optional margin at the bottom with responsive handling -->
-        <div class="w-full mt-auto mb-48"></div>
-      </aside>
-
-      <!-- Main Content Area -->
-      <main class="flex-1 p-8">
-        <nuxt-page />
-      </main>
+      </transition>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
-import { useContentStore } from './../../../stores/contentStore'
-import { useLayoutStore } from './../../../stores/layoutStore'
-import { sidebarLinks } from './../../../assets/sidebar' // Import the sidebar data
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
+import Intro from '@/components/content/tooltips/IntroPage.vue'
 
-const layoutStore = useLayoutStore()
-const isSidebarOpen = computed(() => layoutStore.isSidebarOpen) // Using layoutStore for sidebar status
-const toggleSidebar = () => layoutStore.toggleSidebar() // Define the toggle function for the sidebar
+const displayStore = useDisplayStore()
 
-const userStore = useUserStore()
-const contentStore = useContentStore()
-const showMature = computed(() => userStore.showMatureContent)
-const isVertical = ref(false)
+const loading = ref(true)
+const headerHeight = ref('7vh') // Set header height as a percentage of the viewport height
 
-// Check if the current page matches the given path
-const isCurrentPage = (path: string) => contentStore.currentPage?._path === path
-
-// Filter links based on conditions (e.g., mature content)
-const filteredLinks = computed(() => {
-  return sidebarLinks.filter(
-    (link) =>
-      !link.condition || (link.condition === 'showMature' && showMature.value),
-  )
+onMounted(() => {
+  displayStore.loadState()
+  loading.value = false
 })
 
-// Handle sidebar orientation based on screen size
-const checkVertical = () => {
-  isVertical.value = window.innerHeight > window.innerWidth
+const onIntroFinished = () => {
+  displayStore.introSeen = true
+  displayStore.saveState()
 }
 
-// Add event listeners for screen resizing
-onMounted(() => {
-  checkVertical()
-  window.addEventListener('resize', checkVertical)
-})
-
-// Cleanup event listeners when the component is destroyed
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', checkVertical)
-})
+const restartExperience = () => {
+  displayStore.introSeen = false
+  displayStore.saveState()
+}
 </script>
 
 <style scoped>
-/* Collapsed sidebar - horizontal */
-.sidebarClosed.horizontalSidebar {
-  @apply w-16 h-full; /* Adjust the width for the collapsed state */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh; /* Ensure body takes the full height of the viewport */
 }
 
-/* Opened sidebar - horizontal */
-.sidebarOpen.horizontalSidebar {
-  @apply w-64 h-full; /* Adjust the width for the open state */
+.object-cover {
+  object-fit: cover;
 }
 
-/* Collapsed sidebar - vertical */
-.sidebarClosed.verticalSidebar {
-  @apply h-0 overflow-hidden; /* Hide completely in the vertical mode */
+.object-contain {
+  object-fit: contain; /* Ensures the image is fully visible */
 }
 
-/* Opened sidebar - vertical */
-.sidebarOpen.verticalSidebar {
-  @apply w-full h-full; /* Ensure full-screen height for vertical mode */
+.border-2xl {
+  border-radius: 1rem;
+}
+
+.hover\:underline:hover {
+  text-decoration: underline;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.rounded-2xl {
+  border-radius: 1rem;
 }
 </style>

@@ -8,29 +8,31 @@
     <!-- Intro Component -->
     <Intro v-if="!loading && !displayStore.introSeen" @finished="onIntroFinished" />
 
-    <!-- Center Content Container with rounded-2xl border to display Nuxt Page -->
-    <transition name="fade">
-      <div v-if="displayStore.introSeen" class="absolute inset-0 flex justify-center items-center z-40">
-        <div class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg">
-          <nuxt-page />
-        </div>
-
-        <!-- Subtle Toggle in the corner to repeat intro -->
-        <button class="absolute bottom-8 right-8 bg-gray-200 text-gray-800 p-2 rounded-lg text-sm hover:bg-gray-300" @click="restartExperience">
-          Repeat Intro?
-        </button>
-      </div>
-    </transition>
-
     <!-- Header (Minimal Text Navigation) -->
-    <header class="fixed top-0 left-0 w-full p-4 bg-black bg-opacity-60 z-50 flex justify-center">
-      <nav class="flex gap-8">
+    <header class="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-60 flex justify-center" :style="{ height: headerHeight }">
+      <nav class="flex gap-8 items-center">
         <nuxt-link to="/home" class="text-white text-lg hover:underline">Home</nuxt-link>
         <nuxt-link to="/artgallery" class="text-white text-lg hover:underline">Art Gallery</nuxt-link>
         <nuxt-link to="/botcafe" class="text-white text-lg hover:underline">Bot Cafe</nuxt-link>
         <nuxt-link to="/amibot" class="text-white text-lg hover:underline">AMIBot</nuxt-link>
       </nav>
     </header>
+
+    <!-- Center Content Container with rounded-2xl border to display Nuxt Page, positioned below header -->
+    <div class="relative" :style="{ top: headerHeight }">
+      <transition name="fade">
+        <div v-if="displayStore.introSeen" class="flex justify-center items-center">
+          <div class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg">
+            <nuxt-page />
+          </div>
+
+          <!-- Subtle Toggle in the corner to repeat intro -->
+          <button class="absolute bottom-8 right-8 bg-gray-200 text-gray-800 p-2 rounded-lg text-sm hover:bg-gray-300" @click="restartExperience">
+            Repeat Intro?
+          </button>
+        </div>
+      </transition>
+    </div>
   </div>
 </template>
 
@@ -42,6 +44,7 @@ import Intro from '@/components/tooltips/IntroPage.vue'
 const displayStore = useDisplayStore()
 
 const loading = ref(true)
+const headerHeight = ref('7vh') // Set header height as a percentage of the viewport height
 
 onMounted(() => {
   displayStore.loadState()
@@ -65,6 +68,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  height: 100vh; 
 }
 
 .object-cover {
@@ -72,7 +76,7 @@ body {
 }
 
 .object-contain {
-  object-fit: contain; /* Ensures the image is fully visible */
+  object-fit: contain; 
 }
 
 .border-2xl {

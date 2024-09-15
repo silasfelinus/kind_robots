@@ -6,10 +6,10 @@
     </div>
 
     <!-- Intro Component -->
-    <Intro v-if="!loading && !displayStore.introSeen" @finished="onIntroFinished" />
+    <Intro v-if="!loading && displayStore.showIntro" @finished="onIntroFinished" />
 
     <!-- Header (Minimal Text Navigation) -->
-    <header class="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-60 flex justify-center">
+    <header class="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-60 flex justify-center" :style="{ height: headerHeight }">
       <nav class="flex gap-8 items-center">
         <nuxt-link to="/home" class="text-white text-lg hover:underline">Home</nuxt-link>
         <nuxt-link to="/artgallery" class="text-white text-lg hover:underline">Art Gallery</nuxt-link>
@@ -21,9 +21,9 @@
       <div class="absolute right-8 top-1/2 transform -translate-y-1/2">
         <button
           class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm hover:bg-gray-300"
-          @click="toggleIntroVisibility"
+          @click="toggleIntro"
         >
-          {{ displayStore.introSeen ? 'Show Intro' : 'Hide Intro' }}
+          {{ displayStore.showIntro ? 'Hide Intro' : 'Show Intro' }}
         </button>
       </div>
     </header>
@@ -31,14 +31,14 @@
     <!-- Center Content Container with rounded-2xl border to display Nuxt Page, positioned below header -->
     <div class="relative" :style="{ top: headerHeight }">
       <transition name="fade">
-        <div v-if="displayStore.introSeen" class="flex justify-center items-center">
+        <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
           <div class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg">
             <nuxt-page />
           </div>
 
           <!-- Subtle Toggle in the corner to repeat intro -->
           <button
-            v-if="displayStore.introSeen"
+            v-if="!displayStore.showIntro"
             class="absolute bottom-8 right-8 bg-gray-200 text-gray-800 p-2 rounded-lg text-sm hover:bg-gray-300"
             @click="restartExperience"
           >
@@ -66,18 +66,17 @@ onMounted(() => {
 })
 
 const onIntroFinished = () => {
-  displayStore.introSeen = true
+  displayStore.showIntro = false
   displayStore.saveState()
 }
 
 const restartExperience = () => {
-  displayStore.introSeen = false
+  displayStore.showIntro = true
   displayStore.saveState()
 }
 
-const toggleIntroVisibility = () => {
-  displayStore.introSeen = !displayStore.introSeen
-  displayStore.saveState()
+const toggleIntro = () => {
+  displayStore.toggleIntroState()
 }
 </script>
 

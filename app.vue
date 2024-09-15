@@ -7,7 +7,7 @@
 
     <!-- Intro Component -->
     <div v-if="!loading && displayStore.showIntro" class="absolute inset-0 z-40 flex justify-center items-center bg-black bg-opacity-70">
-      <Intro @finished="onIntroFinished" />
+      <IntroPage @finished="onIntroFinished" />
     </div>
 
     <!-- Header -->

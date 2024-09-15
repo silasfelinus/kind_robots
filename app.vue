@@ -59,11 +59,12 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-
 const displayStore = useDisplayStore()
-
 const loading = ref(true)
 const headerHeight = ref('7vh')
+
+// Add a flag to prevent double triggers of onIntroFinished
+const isProcessing = ref(false)
 
 onMounted(() => {
   displayStore.loadState()
@@ -76,11 +77,20 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', displayStore.updateViewport)
 })
 
+// Ensure onIntroFinished is only processed once
 const onIntroFinished = () => {
+  if (isProcessing.value) return
+
+  isProcessing.value = true
   displayStore.showIntro = false
   displayStore.saveState()
+
+  setTimeout(() => {
+    isProcessing.value = false // Reset after processing is done
+  }, 300) // Adjust the time as per the animation length
 }
 </script>
+
 
 <style scoped>
 html,

@@ -1,4 +1,3 @@
-// displayStore.ts
 import { defineStore } from 'pinia'
 
 // Define the type for possible display states
@@ -31,30 +30,32 @@ export const useDisplayStore = defineStore('display', {
     sidebarRightFocused: false,
     footerFocused: false,
     showIntro: true,
-    vh: window.innerHeight,  // Store initial vh
-    vw: window.innerWidth,   // Store initial vw
+    vh: window.innerHeight, // Set initial value
+    vw: window.innerWidth,
   }),
 
   actions: {
+    // Load the initial state from localStorage
     loadState() {
       if (typeof window !== 'undefined') {
+        this.headerState = (localStorage.getItem('headerState') as DisplayState) || 'open'
         this.sidebarLeft = (localStorage.getItem('sidebarLeft') as DisplayState) || 'hidden'
+        this.sidebarRight = (localStorage.getItem('sidebarRight') as DisplayState) || 'hidden'
+        this.footer = (localStorage.getItem('footer') as DisplayState) || 'hidden'
         this.showIntro = localStorage.getItem('showIntro') === 'false' ? false : true
       }
     },
 
-    toggleSidebar(side: 'sidebarLeft' | 'sidebarRight') {
-      if (this[side] === 'hidden') {
-        this[side] = 'open'
-      } else {
-        this[side] = 'hidden'
-      }
-      if (typeof window !== 'undefined') localStorage.setItem(side, this[side])
-    },
-
+    // Store the viewport height and width
     updateViewport() {
       this.vh = window.innerHeight
       this.vw = window.innerWidth
+    },
+
+    toggleSidebar(container: 'sidebarLeft' | 'sidebarRight') {
+      const currentState = this[container]
+      this[container] = currentState === 'hidden' ? 'open' : 'hidden'
+      if (typeof window !== 'undefined') localStorage.setItem(container, this[container])
     },
 
     toggleIntroState() {

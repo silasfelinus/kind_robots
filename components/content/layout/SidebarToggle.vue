@@ -5,11 +5,11 @@
 </template>
 
 <script setup>
-import { useDisplayStore } from '@/stores/displayStore' // Adjust the path as necessary
+import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Toggle the sidebar (left by default)
+// Toggle the left sidebar
 const toggleSidebarLeft = () => {
   displayStore.toggleSidebar('sidebarLeft')
 }
@@ -19,18 +19,14 @@ const toggleSidebarLeft = () => {
 .toggle-icon {
   width: 100%;
   height: 100%;
-  max-width: 40px; /* This controls the max size of the icon */
-  max-height: 40px;
-  min-width: 20px; /* Set min sizes to avoid shrinking too small */
-  min-height: 20px;
-  object-fit: contain; /* Ensures the icon scales properly */
+  max-width: 30px;
+  max-height: 30px;
+  object-fit: contain;
 }
 
 button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
 }
 </style>

@@ -5,9 +5,9 @@
       <ami-loader />
     </div>
 
-    <!-- Intro Component (higher z-index to override sidebar and content) -->
-    <div v-if="!loading && displayStore.showIntro" class="absolute top-0 left-0 w-full h-full z-40 flex justify-center items-center bg-black bg-opacity-50">
-      <IntroPage @finished="onIntroFinished" />
+    <!-- Intro Component -->
+    <div v-if="!loading && displayStore.showIntro" class="absolute inset-0 z-40 flex justify-center items-center bg-black bg-opacity-70">
+      <Intro @finished="onIntroFinished" />
     </div>
 
     <!-- Header -->
@@ -20,31 +20,36 @@
         <SidebarToggle />
       </div>
 
-      <!-- Navigation Links (centered) -->
-      <nav class="flex-1 flex justify-center gap-8 items-center">
+      <!-- Navigation Links (Centered) -->
+      <nav class="flex gap-8 items-center mx-auto">
         <nuxt-link to="/home" class="text-white text-lg hover:underline" @click="onIntroFinished">Home</nuxt-link>
         <nuxt-link to="/artgallery" class="text-white text-lg hover:underline" @click="onIntroFinished">Art Gallery</nuxt-link>
         <nuxt-link to="/botcafe" class="text-white text-lg hover:underline" @click="onIntroFinished">Bot Cafe</nuxt-link>
         <nuxt-link to="/amibot" class="text-white text-lg hover:underline" @click="onIntroFinished">AMIBot</nuxt-link>
       </nav>
 
-      <!-- Hide Intro Toggle -->
-      <div class="absolute right-8 top-1/2 transform -translate-y-1/2">
-        <button class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm hover:bg-gray-300" @click="toggleIntro">
-          {{ displayStore.showIntro ? 'Hide Intro' : 'Show Intro' }}
+      <!-- Hide/Show Intro Toggle -->
+      <div class="absolute right-8 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+        <!-- Conditional Icon and Text based on whether intro is running or not -->
+        <button class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm hover:bg-gray-300 flex items-center" @click="toggleIntro">
+          <icon 
+            :name="displayStore.showIntro ? 'fast-forward' : 'video-camera'" 
+            class="mr-2" 
+          />
+          {{ displayStore.showIntro ? 'Skip Intro' : 'Show Intro' }}
         </button>
       </div>
     </header>
 
     <!-- Main Layout -->
     <div class="flex flex-row relative" :style="{ top: headerHeight }">
-      <!-- Sidebar (conditionally rendered after intro is finished) -->
-      <aside v-if="!displayStore.showIntro && displayStore.sidebarLeft !== 'hidden'" class="w-1/4 p-4 bg-gray-100 shadow-lg">
+      <!-- Sidebar (left) -->
+      <aside v-if="displayStore.sidebarLeft !== 'hidden'" class="w-1/4 p-4 bg-gray-100 shadow-lg">
         <kind-sidebar />
       </aside>
 
       <!-- Main Content -->
-      <main :class="[!displayStore.showIntro && displayStore.sidebarLeft !== 'hidden' ? 'w-3/4' : 'w-full']" class="p-8">
+      <main :class="[displayStore.sidebarLeft !== 'hidden' ? 'w-3/4' : 'w-full']" class="p-8">
         <transition name="fade">
           <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
             <div class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg">
@@ -56,7 +61,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'

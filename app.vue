@@ -9,16 +9,24 @@
     <Intro v-if="!loading && !displayStore.introSeen" @finished="onIntroFinished" />
 
     <!-- Header (Minimal Text Navigation) -->
-    <header class="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-60 flex justify-center" :style="{ height: headerHeight }">
+    <header class="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-60 flex justify-center">
       <nav class="flex gap-8 items-center">
         <nuxt-link to="/home" class="text-white text-lg hover:underline">Home</nuxt-link>
         <nuxt-link to="/artgallery" class="text-white text-lg hover:underline">Art Gallery</nuxt-link>
         <nuxt-link to="/botcafe" class="text-white text-lg hover:underline">Bot Cafe</nuxt-link>
         <nuxt-link to="/amibot" class="text-white text-lg hover:underline">AMIBot</nuxt-link>
       </nav>
-    </header>
 
-<kind-sidebar />
+      <!-- Hide Intro Toggle -->
+      <div class="absolute right-8 top-1/2 transform -translate-y-1/2">
+        <button
+          class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm hover:bg-gray-300"
+          @click="toggleIntroVisibility"
+        >
+          {{ displayStore.introSeen ? 'Show Intro' : 'Hide Intro' }}
+        </button>
+      </div>
+    </header>
 
     <!-- Center Content Container with rounded-2xl border to display Nuxt Page, positioned below header -->
     <div class="relative" :style="{ top: headerHeight }">
@@ -29,7 +37,11 @@
           </div>
 
           <!-- Subtle Toggle in the corner to repeat intro -->
-          <button class="absolute bottom-8 right-8 bg-gray-200 text-gray-800 p-2 rounded-lg text-sm hover:bg-gray-300" @click="restartExperience">
+          <button
+            v-if="displayStore.introSeen"
+            class="absolute bottom-8 right-8 bg-gray-200 text-gray-800 p-2 rounded-lg text-sm hover:bg-gray-300"
+            @click="restartExperience"
+          >
             Repeat Intro?
           </button>
         </div>
@@ -41,7 +53,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import Intro from '@/components/content/tooltips/IntroPage.vue'
+import Intro from '@/components/tooltips/IntroPage.vue'
 
 const displayStore = useDisplayStore()
 
@@ -60,6 +72,11 @@ const onIntroFinished = () => {
 
 const restartExperience = () => {
   displayStore.introSeen = false
+  displayStore.saveState()
+}
+
+const toggleIntroVisibility = () => {
+  displayStore.introSeen = !displayStore.introSeen
   displayStore.saveState()
 }
 </script>

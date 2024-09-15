@@ -5,14 +5,14 @@
       <ami-loader />
     </div>
 
-    <!-- Intro Component -->
-    <div v-if="!loading && displayStore.showIntro" class="absolute inset-0 z-40 flex justify-center items-center bg-black bg-opacity-70">
+    <!-- Intro Component (with lower z-index to keep header visible) -->
+    <div v-if="!loading && displayStore.showIntro" class="absolute inset-0 z-20 flex justify-center items-center bg-black bg-opacity-70">
       <IntroPage @finished="onIntroFinished" />
     </div>
 
-    <!-- Header -->
+    <!-- Header (higher z-index to be always visible) -->
     <header
-      class="fixed top-0 left-0 w-full z-30 bg-black bg-opacity-60 flex justify-between items-center"
+      class="fixed top-0 left-0 w-full z-40 bg-black bg-opacity-60 flex justify-between items-center"
       :style="{ height: headerHeight }"
     >
       <!-- Sidebar Toggle -->
@@ -28,7 +28,7 @@
         <nuxt-link to="/amibot" class="text-white text-lg hover:underline" @click="onIntroFinished">AMIBot</nuxt-link>
       </nav>
 
-      <!-- Intro Toggle Component -->
+      <!-- Intro Toggle Component (Skip Intro button visible during intro) -->
       <div class="absolute right-8 top-1/2 transform -translate-y-1/2">
         <IntroToggle />
       </div>

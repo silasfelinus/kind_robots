@@ -1,9 +1,9 @@
+// displayStore.ts
 import { defineStore } from 'pinia'
 
 // Define the type for possible display states
 type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 
-// Define the interface for the store state
 interface DisplayStoreState {
   headerState: DisplayState
   sidebarLeft: DisplayState
@@ -15,6 +15,8 @@ interface DisplayStoreState {
   sidebarRightFocused: boolean
   footerFocused: boolean
   showIntro: boolean
+  vh: number
+  vw: number
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -28,82 +30,36 @@ export const useDisplayStore = defineStore('display', {
     sidebarLeftFocused: false,
     sidebarRightFocused: false,
     footerFocused: false,
-    showIntro: true, // default to true initially
+    showIntro: true,
+    vh: window.innerHeight,  // Store initial vh
+    vw: window.innerWidth,   // Store initial vw
   }),
 
   actions: {
     loadState() {
       if (typeof window !== 'undefined') {
-        this.headerState = (localStorage.getItem('headerState') as DisplayState) || 'open';
-        this.sidebarLeft = (localStorage.getItem('sidebarLeft') as DisplayState) || 'hidden';
-        this.sidebarRight = (localStorage.getItem('sidebarRight') as DisplayState) || 'hidden';
-        this.footer = (localStorage.getItem('footer') as DisplayState) || 'hidden';
-        this.showIntro = localStorage.getItem('showIntro') === 'false' ? false : true;
+        this.sidebarLeft = (localStorage.getItem('sidebarLeft') as DisplayState) || 'hidden'
+        this.showIntro = localStorage.getItem('showIntro') === 'false' ? false : true
       }
     },
 
-    setFocus(container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer') {
-      this.focusedContainer = container;
-      if (container === 'headerState') this.headerFocused = true;
-      if (container === 'sidebarLeft') this.sidebarLeftFocused = true;
-      if (container === 'sidebarRight') this.sidebarRightFocused = true;
-      if (container === 'footer') this.footerFocused = true;
-
-      this[container] = 'open';
-      if (typeof window !== 'undefined') localStorage.setItem(container, 'open');
-
-      const containers: Array<'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer'> = ['headerState', 'sidebarLeft', 'sidebarRight', 'footer'];
-      containers.forEach((key) => {
-        if (key !== container) {
-          const newState = this[key] !== 'disabled' ? (key === 'footer' ? 'hidden' : 'compact') : this[key];
-          this[key] = newState;
-          if (typeof window !== 'undefined') localStorage.setItem(key, newState);
-        }
-      });
-    },
-
-    clearFocus() {
-      this.focusedContainer = null;
-      this.resetStates();
-    },
-
-    changeState(container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer', state: DisplayState) {
-      if (['open', 'compact', 'hidden', 'disabled'].includes(state)) {
-        this[container] = state;
-        if (typeof window !== 'undefined') localStorage.setItem(container, state);
+    toggleSidebar(side: 'sidebarLeft' | 'sidebarRight') {
+      if (this[side] === 'hidden') {
+        this[side] = 'open'
+      } else {
+        this[side] = 'hidden'
       }
+      if (typeof window !== 'undefined') localStorage.setItem(side, this[side])
     },
 
-    toggleSidebar(sidebar: 'sidebarLeft' | 'sidebarRight') {
-      const currentState = this[sidebar];
-
-      // Toggle between 'open', 'compact', and 'hidden' states for sidebars
-      if (currentState === 'hidden') {
-        this.changeState(sidebar, 'open');
-      } else if (currentState === 'open') {
-        this.changeState(sidebar, 'compact');
-      } else if (currentState === 'compact') {
-        this.changeState(sidebar, 'hidden');
-      }
-    },
-
-    resetStates() {
-      this.headerState = 'open';
-      this.sidebarLeft = 'hidden';
-      this.sidebarRight = 'hidden';
-      this.footer = 'hidden';
-      this.focusedContainer = null;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('headerState', 'open');
-        localStorage.setItem('sidebarLeft', 'hidden');
-        localStorage.setItem('sidebarRight', 'hidden');
-        localStorage.setItem('footer', 'hidden');
-      }
+    updateViewport() {
+      this.vh = window.innerHeight
+      this.vw = window.innerWidth
     },
 
     toggleIntroState() {
-      this.showIntro = !this.showIntro;
-      if (typeof window !== 'undefined') localStorage.setItem('showIntro', JSON.stringify(this.showIntro));
+      this.showIntro = !this.showIntro
+      if (typeof window !== 'undefined') localStorage.setItem('showIntro', JSON.stringify(this.showIntro))
     }
   },
-});
+})

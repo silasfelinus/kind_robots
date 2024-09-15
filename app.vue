@@ -28,14 +28,14 @@
       </div>
     </header>
 
-    <!-- Main Content with Sidebar Layout -->
+    
     <div class="flex flex-row relative" :style="{ top: headerHeight }">
       <!-- Sidebar (aside) -->
       <aside class="w-1/4 p-4 bg-gray-100 shadow-lg">
         <kind-sidebar />
       </aside>
 
-      <!-- Main Content Container with rounded-2xl border to display Nuxt Page -->
+      
       <main class="w-3/4 p-8">
         <transition name="fade">
           <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
@@ -43,7 +43,7 @@
               <nuxt-page />
             </div>
 
-            <!-- Subtle Toggle in the corner to repeat intro -->
+            
             <button
               v-if="!displayStore.showIntro"
               class="absolute bottom-8 right-8 bg-gray-200 text-gray-800 p-2 rounded-lg text-sm hover:bg-gray-300"

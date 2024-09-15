@@ -20,13 +20,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 
 const toggleIntro = () => {
+  console.log('Intro toggle button clicked') // Add logging to debug
   displayStore.toggleIntroState()
 }
 </script>
-
-<style scoped>
-.intro-toggle {
-  display: flex;
-  align-items: center;
-}
-</style>

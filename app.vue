@@ -53,7 +53,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import Intro from '@/components/tooltips/IntroPage.vue'
+import Intro from '@/components/content/tooltips/IntroPage.vue'
 
 const displayStore = useDisplayStore()
 

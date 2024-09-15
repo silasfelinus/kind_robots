@@ -6,15 +6,41 @@
     </div>
 
     <!-- Intro Component -->
-    <Intro v-if="!loading && displayStore.showIntro" @finished="onIntroFinished" />
+    <Intro
+      v-if="!loading && displayStore.showIntro"
+      @finished="onIntroFinished"
+    />
 
     <!-- Header (Minimal Text Navigation) -->
-    <header class="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-60 flex justify-center" :style="{ height: headerHeight }">
+    <header
+      class="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-60 flex justify-center"
+      :style="{ height: headerHeight }"
+    >
       <nav class="flex gap-8 items-center">
-        <nuxt-link to="/home" class="text-white text-lg hover:underline" @click="onIntroFinished">Home</nuxt-link>
-        <nuxt-link to="/artgallery" class="text-white text-lg hover:underline" @click="onIntroFinished">Art Gallery</nuxt-link>
-        <nuxt-link to="/botcafe" class="text-white text-lg hover:underline" @click="onIntroFinished">Bot Cafe</nuxt-link>
-        <nuxt-link to="/amibot" class="text-white text-lg hover:underline" @click="onIntroFinished">AMIBot</nuxt-link>
+        <nuxt-link
+          to="/home"
+          class="text-white text-lg hover:underline"
+          @click="onIntroFinished"
+          >Home</nuxt-link
+        >
+        <nuxt-link
+          to="/artgallery"
+          class="text-white text-lg hover:underline"
+          @click="onIntroFinished"
+          >Art Gallery</nuxt-link
+        >
+        <nuxt-link
+          to="/botcafe"
+          class="text-white text-lg hover:underline"
+          @click="onIntroFinished"
+          >Bot Cafe</nuxt-link
+        >
+        <nuxt-link
+          to="/amibot"
+          class="text-white text-lg hover:underline"
+          @click="onIntroFinished"
+          >AMIBot</nuxt-link
+        >
       </nav>
 
       <!-- Hide Intro Toggle -->
@@ -28,22 +54,24 @@
       </div>
     </header>
 
-    
     <div class="flex flex-row relative" :style="{ top: headerHeight }">
       <!-- Sidebar (aside) -->
       <aside class="w-1/4 p-4 bg-gray-100 shadow-lg">
         <kind-sidebar />
       </aside>
 
-      
       <main class="w-3/4 p-8">
         <transition name="fade">
-          <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
-            <div class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg">
+          <div
+            v-if="!displayStore.showIntro"
+            class="flex justify-center items-center"
+          >
+            <div
+              class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg"
+            >
               <nuxt-page />
             </div>
 
-            
             <button
               v-if="!displayStore.showIntro"
               class="absolute bottom-8 right-8 bg-gray-200 text-gray-800 p-2 rounded-lg text-sm hover:bg-gray-300"
@@ -93,7 +121,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  height: 100vh; 
+  height: 100vh;
 }
 
 .object-cover {
@@ -101,7 +129,7 @@ body {
 }
 
 .object-contain {
-  object-fit: contain; 
+  object-fit: contain;
 }
 
 .border-2xl {
@@ -127,22 +155,5 @@ body {
 .flex-row {
   display: flex;
   flex-direction: row;
-}
-
-.w-1/4 {
-  width: 25%;
-}
-
-.w-3/4 {
-  width: 75%;
-}
-
-@media (max-width: 768px) {
-  .w-1/4 {
-    width: 100%; 
-  }
-  .w-3/4 {
-    width: 100%; 
-  }
 }
 </style>

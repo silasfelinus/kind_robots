@@ -13,9 +13,7 @@
     <!-- Multiple Butterflies with Animation Delay -->
     <ami-butterfly v-for="i in butterflyCount" :key="i" />
   </div>
-  <div class="nuxt-wrapper" :class="{ 'fade-in': pageReady }">
-    <nuxt-page />
-  </div>
+ 
 </template>
 
 <script setup lang="ts">
@@ -89,14 +87,6 @@ const handleTransitionEnd = () => {
   text-align: center;
 }
 
-.nuxt-wrapper {
-  opacity: 0; /* Start hidden */
-  transition: opacity 1s ease-in-out; 
-  position: relative; 
-}
 
-.nuxt-wrapper.fade-in {
-  opacity: 1; 
-}
 
 </style>

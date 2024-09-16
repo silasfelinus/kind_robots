@@ -1,13 +1,13 @@
 <template>
   <div id="app" class="relative h-screen w-screen">
     <!-- Loader -->
-    <div v-if="loading" class="absolute inset-0 z-50">
+    <div class="absolute inset-0 z-50">
       <ami-loader />
     </div>
 
     <!-- Intro Component -->
     <div
-      v-if="!loading && displayStore.showIntro"
+      v-if="displayStore.showIntro"
       class="absolute inset-0 z-20 flex justify-center items-center bg-base-200 bg-opacity-70"
     >
       <IntroPage @finished="onIntroFinished" />
@@ -22,31 +22,31 @@
       }"
     >
       <!-- Sidebar Toggle (Fixed Position, Always Visible) -->
-      <div class="fixed top-2 left-2 p-2 z-50">
+      <div class="fixed top-2 left-2 bg-primary p-2 z-50">
         <sidebar-toggle class="text-accent text-3xl hover:text-secondary transition-colors" />
       </div>
 
       <!-- Navigation Links (Centered) -->
-      <nav class="flex gap-8 items-center mx-auto">
+      <nav class="flex gap-8 items-center center mx-auto">
         <nuxt-link
           to="/"
           class="text-accent text-lg hover:underline"
-          @click="onIntroFinished"
+      
         >Home</nuxt-link>
         <nuxt-link
           to="/artgallery"
           class="text-accent text-lg hover:underline"
-          @click="onIntroFinished"
+  
         >Art Gallery</nuxt-link>
         <nuxt-link
           to="/botcafe"
           class="text-accent text-lg hover:underline"
-          @click="onIntroFinished"
+        
         >Bot Cafe</nuxt-link>
         <nuxt-link
           to="/amibot"
           class="text-accent text-lg hover:underline"
-          @click="onIntroFinished"
+        "
         >AMIBot</nuxt-link>
       </nav>
 
@@ -106,14 +106,13 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-const loading = ref(true)
+
 
 // Add a flag to prevent double triggers of onIntroFinished
 const isProcessing = ref(false)
 
 onMounted(() => {
   displayStore.loadState()
-  loading.value = false
   displayStore.updateViewport() // Call to update viewport dimensions
   window.addEventListener('resize', displayStore.updateViewport)
 })

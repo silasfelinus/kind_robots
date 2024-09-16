@@ -126,8 +126,8 @@ try {
     await artStore.init()
     await themeStore.initTheme()
     await milestoneStore.initializeMilestones()
-    await displayStore.loadState()
-    await displayStore.updateViewport() 
+    displayStore.loadState()
+    displayStore.updateViewport() 
     window.addEventListener('resize', displayStore.updateViewport)
 
     console.log('Initialization complete.')

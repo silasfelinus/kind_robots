@@ -1,15 +1,12 @@
 <template>
   <div id="app" class="flex flex-col h-screen w-screen">
     <!-- Loader -->
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70">
+    <div v-if="displayStore.showLoader" class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70">
       <ami-loader />
     </div>
 
     <!-- Intro Component -->
-    <div
-      v-if="displayStore.showIntro"
-      class="fixed inset-0 z-40 flex justify-center items-center bg-base-200 bg-opacity-70"
-    >
+    <div v-if="displayStore.showIntro" class="fixed inset-0 z-40 flex justify-center items-center bg-base-200 bg-opacity-70">
       <IntroPage @finished="onIntroFinished" />
     </div>
 
@@ -49,14 +46,10 @@
       </aside>
 
       <!-- Main Content -->
-      <main
-        class="flex-grow p-1 transition-all duration-500 ease-in-out overflow-y-auto"
-      >
+      <main class="flex-grow p-4 transition-all duration-500 ease-in-out overflow-y-auto">
         <transition name="fade" mode="out-in">
           <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
-            <div
-              class="w-full max-w-4xl p-1 rounded-2xl border-2 border-accent bg-base-200 shadow-lg"
-            >
+            <div class="w-full max-w-4xl p-4 rounded-2xl border-2 border-accent bg-base-200 shadow-lg">
               <nuxt-page />
             </div>
           </div>
@@ -81,12 +74,11 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Add a flag to prevent double triggers of onIntroFinished
 const isProcessing = ref(false)
 
 onMounted(() => {
   displayStore.loadState()
-  displayStore.updateViewport() // Call to update viewport dimensions
+  displayStore.updateViewport() // Update viewport on load
   window.addEventListener('resize', displayStore.updateViewport)
 })
 
@@ -94,19 +86,18 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', displayStore.updateViewport)
 })
 
-// Ensure onIntroFinished is only processed once
 const onIntroFinished = () => {
   if (isProcessing.value) return
 
   isProcessing.value = true
-  displayStore.changeState('headerState', 'open') // Ensure header state is updated
-  displayStore.changeState('sidebarLeft', 'hidden') // Example of changing state
-  displayStore.changeState('footer', 'hidden') // Example of changing state
-  displayStore.toggleIntroState() // Hides the intro
+  displayStore.changeState('headerState', 'open')
+  displayStore.changeState('sidebarLeft', 'hidden')
+  displayStore.changeState('footer', 'hidden')
+  displayStore.toggleIntroState()
 
   setTimeout(() => {
-    isProcessing.value = false // Reset after processing is done
-  }, 300) // Adjust the time as per the animation length
+    isProcessing.value = false
+  }, 300)
 }
 </script>
 
@@ -116,7 +107,7 @@ const onIntroFinished = () => {
   transition: opacity 0.5s ease-in-out;
 }
 .fade-enter,
-.fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+.fade-leave-to {
   opacity: 0;
 }
 </style>

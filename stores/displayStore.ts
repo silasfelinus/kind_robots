@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 // Define the type for possible display states
 type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 
+// Define the interface for the store's state
 interface DisplayStoreState {
   headerState: DisplayState
   sidebarLeft: DisplayState
@@ -17,8 +18,10 @@ interface DisplayStoreState {
   headerVh: number
   sidebarVw: number
   footerVh: number
+  isVertical: boolean
 }
 
+// Define the store
 export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
     headerState: 'open',
@@ -32,8 +35,9 @@ export const useDisplayStore = defineStore('display', {
     footerFocused: false,
     showIntro: true,
     headerVh: 7,
-    sidebarVw: 0,
+    sidebarVw: 4, // Default collapsed width (4vw)
     footerVh: 5,
+    isVertical: false,
   }),
 
   actions: {
@@ -51,23 +55,63 @@ export const useDisplayStore = defineStore('display', {
       this.showIntro = !this.showIntro
       localStorage.setItem('showIntro', JSON.stringify(this.showIntro))
     },
-  },
 
-    // Update the viewport height and width only in client-side runtime
+    // Update the viewport dimensions
     updateViewport() {
       if (typeof window !== 'undefined') {
-        this.vh = window.innerHeight
-        this.vw = window.innerWidth
+        this.headerVh = window.innerHeight * 0.07 // 7% height of the viewport
+        this.isVertical = window.innerHeight > window.innerWidth
+
+        if (this.sidebarLeft === 'open') {
+          this.sidebarVw = this.isVertical ? 100 : 16 // Full width in vertical mode, 16vw in horizontal
+        } else {
+          this.sidebarVw = 4 // Collapsed state
+        }
       }
     },
 
+    // Toggle sidebar open/close and adjust width
     toggleSidebar(container: 'sidebarLeft' | 'sidebarRight') {
       const currentState = this[container]
-      this[container] = currentState === 'hidden' ? 'open' : 'hidden'
+
+      if (currentState === 'hidden') {
+        this[container] = 'open'
+        this.sidebarVw = this.isVertical ? 100 : 16 // Expand sidebar to 16vw or full width in vertical
+      } else {
+        this[container] = 'hidden'
+        this.sidebarVw = 4 // Collapse sidebar to 4vw
+      }
+
+      // Save state in localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem(container, this[container])
       }
     },
 
-    
+    // Handle orientation change
+    checkOrientation() {
+      this.isVertical = window.innerHeight > window.innerWidth
+      this.updateViewport() // Adjust layout based on orientation
+    },
+
+    // Add viewport listener and handle cleanup
+    initializeViewportWatcher() {
+      this.updateViewport()
+      window.addEventListener('resize', this.checkOrientation)
+    },
+
+    removeViewportWatcher() {
+      window.removeEventListener('resize', this.checkOrientation)
+    },
+
+    // Set state for header, sidebar, and footer
+    changeState(container: Extract<keyof DisplayStoreState, 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer'>, newState: DisplayState) {
+      this[container] = newState
+
+      // Save new state in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(container, newState)
+      }
+    },
+  },
 })

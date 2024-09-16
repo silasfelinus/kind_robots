@@ -56,10 +56,9 @@ export const useDisplayStore = defineStore('display', {
       localStorage.setItem('showIntro', JSON.stringify(this.showIntro))
     },
 
-    // Update the viewport dimensions
+    // Update the viewport dimensions (fix: no need to calculate header height dynamically)
     updateViewport() {
       if (typeof window !== 'undefined') {
-        this.headerVh = window.innerHeight * 0.07 // 7% height of the viewport
         this.isVertical = window.innerHeight > window.innerWidth
 
         if (this.sidebarLeft === 'open') {

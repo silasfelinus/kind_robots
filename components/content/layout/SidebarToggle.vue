@@ -4,7 +4,7 @@
     @click="toggleSidebarLeft"
     :style="buttonStyle"
   >
-    <Icon :name="'emojione:artist-palette'" class="toggle-icon" />
+    <Icon :name="emojione:artist-palette" class="toggle-icon" />
   </button>
 </template>
 

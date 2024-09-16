@@ -34,7 +34,7 @@
       
         >Home</nuxt-link>
         <nuxt-link
-          to="/artgallery"
+          to="/match"
           class="text-accent text-lg hover:underline"
   
         >Art Gallery</nuxt-link>

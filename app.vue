@@ -58,7 +58,7 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 w-full overflow-auto">
+    <div class="flex flex-1 w-full overflow-y-auto">
       <!-- Sidebar (Left) -->
       <aside>
         <kind-sidebar />

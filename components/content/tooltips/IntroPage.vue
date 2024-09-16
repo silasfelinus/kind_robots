@@ -13,15 +13,15 @@
 
       <!-- Overlay for text and buttons -->
       <div
-        class="absolute inset-0 flex flex-col justify-center items-center text-center p-8 z-50 bg-black bg-opacity-40 rounded-xl"
+        class="absolute inset-0 flex flex-col justify-end items-center text-center p-8 z-50 bg-black bg-opacity-50 rounded-xl"
       >
-        <h1 class="text-3xl font-bold mb-4 text-white">
+        <h1 class="text-4xl font-bold mb-2 text-white text-shadow-lg">
           {{ steps[currentStep].title }}
         </h1>
-        <p class="text-lg mb-6 text-white">
+        <p class="text-lg mb-6 text-white text-shadow-md">
           {{ steps[currentStep].description }}
         </p>
-        <div class="flex gap-4">
+        <div class="flex gap-4 mb-8">
           <button
             v-if="currentStep > 0"
             class="bg-secondary p-3 rounded-lg text-white"
@@ -34,10 +34,22 @@
             class="bg-primary p-3 rounded-lg text-white"
             @click.stop="nextStep"
           >
-            {{ currentStep === steps.length - 1 ? 'Finish' : steps[currentStep].buttonText }}
+            {{
+              currentStep === steps.length - 1
+                ? 'Finish'
+                : steps[currentStep].buttonText
+            }}
           </button>
         </div>
       </div>
+
+      <!-- Fast-forward button -->
+      <button
+        class="absolute bottom-4 right-4 bg-primary p-4 rounded-full text-white shadow-lg hover:bg-primary-dark"
+        @click.stop="fastForward"
+      >
+        <Icon name="material-symbols:fast-forward-rounded" class="w-6 h-6" />
+      </button>
     </div>
   </transition>
 </template>
@@ -66,6 +78,11 @@ const previousStep = () => {
     currentStep.value--
   }
 }
+
+const fastForward = () => {
+  // Skip to the last step
+  currentStep.value = steps.length - 1
+}
 </script>
 
 <style scoped>
@@ -88,5 +105,17 @@ const previousStep = () => {
 
 .bg-secondary {
   background-color: #e74c3c; /* Example secondary color */
+}
+
+.text-shadow-lg {
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8); /* Large shadow for title */
+}
+
+.text-shadow-md {
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6); /* Medium shadow for description */
+}
+
+.bg-primary-dark {
+  background-color: #2c8bcf; /* Darker shade for hover effect */
 }
 </style>

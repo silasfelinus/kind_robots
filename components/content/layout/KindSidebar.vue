@@ -1,4 +1,4 @@
-<template<template>
+<template>
   <!-- Collapsible Sidebar -->
   <aside
     :style="{

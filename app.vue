@@ -38,20 +38,19 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 flex-row">
+    <div class="flex flex-1 w-full overflow-hidden">
       <!-- Sidebar (Left) -->
       <aside
         v-if="displayStore.sidebarLeft !== 'hidden'"
         :style="{ width: `${displayStore.sidebarVw}vw` }"
-        class="p-4 bg-gray-100 shadow-lg"
+        class="p-4 bg-gray-100 shadow-lg transition-all duration-500 ease-in-out"
       >
         <kind-sidebar />
       </aside>
 
       <!-- Main Content -->
       <main
-        :class="[displayStore.sidebarLeft !== 'hidden' ? 'w-3/4' : 'w-full']"
-        class="p-8 transition-all duration-500 ease-in-out flex-grow"
+        class="flex-grow p-8 transition-all duration-500 ease-in-out overflow-y-auto"
       >
         <transition name="fade" mode="out-in">
           <div v-if="!displayStore.showIntro" class="flex justify-center items-center">

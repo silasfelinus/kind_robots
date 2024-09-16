@@ -59,6 +59,7 @@
 
       <!-- Main Content -->
       <main
+        :style="{ marginTop: `${displayStore.headerVh}vh` }"
         class="flex-grow p-8 transition-all duration-500 ease-in-out overflow-y-auto"
       >
         <transition name="fade" mode="out-in">

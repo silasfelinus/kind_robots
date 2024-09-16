@@ -45,7 +45,7 @@
         <kind-sidebar />
       </aside>
 
-      <!-- Main Content -->
+      <!-- Main Content with scrollable area -->
       <main class="flex-grow p-4 transition-all duration-500 ease-in-out overflow-y-auto">
         <transition name="fade" mode="out-in">
           <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
@@ -57,57 +57,13 @@
       </main>
     </div>
 
-    <!-- Footer -->
+    <!-- Footer (Positioned after scrolling through content) -->
     <footer
       v-if="displayStore.footer !== 'hidden'"
       :style="{ height: `${displayStore.footerVh}vh` }"
-      class="flex-none w-full bg-gray-800 text-accent"
+      class="flex-none w-full bg-gray-800 text-accent mt-auto"
     >
       <!-- Footer content goes here -->
     </footer>
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
-
-const displayStore = useDisplayStore()
-
-const isProcessing = ref(false)
-
-onMounted(() => {
-  displayStore.loadState()
-  displayStore.updateViewport() // Update viewport on load
-  window.addEventListener('resize', displayStore.updateViewport)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', displayStore.updateViewport)
-})
-
-const onIntroFinished = () => {
-  if (isProcessing.value) return
-
-  isProcessing.value = true
-  displayStore.changeState('headerState', 'open')
-  displayStore.changeState('sidebarLeft', 'hidden')
-  displayStore.changeState('footer', 'hidden')
-  displayStore.toggleIntroState()
-
-  setTimeout(() => {
-    isProcessing.value = false
-  }, 300)
-}
-</script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease-in-out;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

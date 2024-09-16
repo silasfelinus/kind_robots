@@ -1,15 +1,4 @@
 <template>
-  <div class="relative h-screen flex flex-col">
-    <!-- Header with sidebar toggle -->
-    <header class="relative">
-      <button class="absolute top-0 left-0 z-40" @click="toggleSidebar">
-        <Icon
-          :name="isSidebarOpen ? 'lucide:sidebar-open' : 'lucide:sidebar'"
-          class="h-6 w-6 text-gray-500"
-        />
-      </button>
-    </header>
-
     <!-- Collapsible Sidebar -->
     <aside
       :style="{
@@ -40,12 +29,6 @@
         </NuxtLink>
       </div>
     </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 p-8 transition-all duration-500 ease-in-out">
-      <nuxt-page />
-    </main>
-  </div>
 </template>
 
 <script setup lang="ts">

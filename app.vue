@@ -8,7 +8,7 @@
     <!-- Intro Component -->
     <div
       v-if="!loading && displayStore.showIntro"
-      class="absolute inset-0 z-20 flex justify-center items-center bg-black bg-opacity-70"
+      class="absolute inset-0 z-20 flex justify-center items-center bg-base-200 bg-opacity-70"
     >
       <IntroPage @finished="onIntroFinished" />
     </div>
@@ -23,8 +23,8 @@
       }"
     >
       <!-- Sidebar Toggle -->
-      <div class="p-4">
-        <SidebarToggle />
+      <div class="p-1 left-2 m-1 text-accent z-50 flex-grow">
+        <sidebar-toggle />
       </div>
 
       <!-- Navigation Links (Centered) -->

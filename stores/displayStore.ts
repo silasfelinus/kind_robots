@@ -10,10 +10,6 @@ interface DisplayStoreState {
   sidebarRight: DisplayState
   footer: DisplayState
   focusedContainer: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer' | null
-  headerFocused: boolean
-  sidebarLeftFocused: boolean
-  sidebarRightFocused: boolean
-  footerFocused: boolean
   showIntro: boolean
   headerVh: number
   sidebarVw: number
@@ -29,10 +25,6 @@ export const useDisplayStore = defineStore('display', {
     sidebarRight: 'hidden',
     footer: 'hidden',
     focusedContainer: null,
-    headerFocused: false,
-    sidebarLeftFocused: false,
-    sidebarRightFocused: false,
-    footerFocused: false,
     showIntro: true,
     headerVh: 7, // Default header height in vh
     sidebarVw: 4, // Default collapsed sidebar width (4vw)
@@ -44,15 +36,17 @@ export const useDisplayStore = defineStore('display', {
     // Load persisted state from localStorage
     loadState() {
       if (typeof window !== 'undefined') {
-        this.headerState = (localStorage.getItem('headerState') as DisplayState) || 'open'
-        this.sidebarLeft = (localStorage.getItem('sidebarLeft') as DisplayState) || 'hidden'
-        this.sidebarRight = (localStorage.getItem('sidebarRight') as DisplayState) || 'hidden'
-        this.footer = (localStorage.getItem('footer') as DisplayState) || 'hidden'
-        this.showIntro = localStorage.getItem('showIntro') === 'false' ? false : true
-        
-        // Load header height from localStorage if available
-        const storedHeaderVh = localStorage.getItem('headerVh')
-        this.headerVh = storedHeaderVh ? parseInt(storedHeaderVh, 10) : 7
+        const loadDisplayState = (key: keyof DisplayStoreState, defaultValue: DisplayState) => {
+          this[key] = (localStorage.getItem(key) as DisplayState) || defaultValue
+        }
+
+        loadDisplayState('headerState', 'open')
+        loadDisplayState('sidebarLeft', 'hidden')
+        loadDisplayState('sidebarRight', 'hidden')
+        loadDisplayState('footer', 'hidden')
+
+        this.showIntro = localStorage.getItem('showIntro') !== 'false'
+        this.headerVh = parseInt(localStorage.getItem('headerVh') || '7', 10)
       }
     },
 
@@ -67,43 +61,30 @@ export const useDisplayStore = defineStore('display', {
       if (typeof window !== 'undefined') {
         this.isVertical = window.innerHeight > window.innerWidth
 
-        // Dynamically calculate header height (for example, 7% of viewport height or max 10vh)
-        this.headerVh = Math.min(10, (window.innerHeight * 0.07) / window.innerHeight * 100) // Header 7vh or capped at 10vh
+        // Header height calculation: Max 10vh, otherwise 7% of viewport height
+        this.headerVh = Math.min(10, 7)
 
-        // Adjust sidebar width based on orientation
-        if (this.sidebarLeft === 'open') {
-          this.sidebarVw = this.isVertical ? 100 : 16 // Full width in vertical mode, 16vw in horizontal
-        } else {
-          this.sidebarVw = 4 // Collapsed state
-        }
+        // Sidebar width: 16vw in horizontal, full width (100vw) in vertical mode
+        this.sidebarVw = this.sidebarLeft === 'open' ? (this.isVertical ? 100 : 16) : 4
 
-        // Save header height in localStorage for persistence
         localStorage.setItem('headerVh', this.headerVh.toString())
       }
     },
 
     // Toggle sidebar visibility and adjust width
     toggleSidebar(container: 'sidebarLeft' | 'sidebarRight') {
-      const currentState = this[container]
+      this[container] = this[container] === 'hidden' ? 'open' : 'hidden'
+      this.sidebarVw = this.sidebarLeft === 'open' ? (this.isVertical ? 100 : 16) : 4
 
-      if (currentState === 'hidden') {
-        this[container] = 'open'
-        this.sidebarVw = this.isVertical ? 100 : 16 // Expand sidebar to 16vw or full width in vertical
-      } else {
-        this[container] = 'hidden'
-        this.sidebarVw = 4 // Collapse sidebar to 4vw
-      }
-
-      // Save sidebar state in localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem(container, this[container])
       }
     },
 
-    // Handle orientation change
+    // Handle orientation change and update layout
     checkOrientation() {
       this.isVertical = window.innerHeight > window.innerWidth
-      this.updateViewport() // Adjust layout based on orientation
+      this.updateViewport()
     },
 
     // Initialize viewport watcher for dynamic resizing
@@ -118,10 +99,9 @@ export const useDisplayStore = defineStore('display', {
     },
 
     // Change state for header, sidebar, and footer, and persist the state
-    changeState(container: Extract<keyof DisplayStoreState, 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer'>, newState: DisplayState) {
+    changeState(container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer', newState: DisplayState) {
       this[container] = newState
 
-      // Save the new state in localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem(container, newState)
       }

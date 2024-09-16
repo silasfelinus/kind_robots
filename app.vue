@@ -118,9 +118,8 @@ const displayStore = useDisplayStore()
 // Add a flag to prevent double triggers of onIntroFinished
 const isProcessing = ref(false)
 
-onMounted(() => {
-  
-try {
+onMounted(async () => {
+  try {
     await botStore.loadStore()
     await userStore.initializeUser()
     await artStore.init()
@@ -129,15 +128,15 @@ try {
     displayStore.loadState()
     displayStore.updateViewport() 
     window.addEventListener('resize', displayStore.updateViewport)
-
     console.log('Initialization complete.')
   } catch (error) {
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
-      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
+      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`
     )
   }
 })
+
 
 })
 

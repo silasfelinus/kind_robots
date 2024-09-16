@@ -97,16 +97,48 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { useUserStore } from '@/stores/userStore'
+import { useArtStore } from '@/stores/artStore'
+import { useThemeStore } from '@/stores/themeStore'
+import { useBotStore } from '@/stores/botStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
 
+
+const errorStore = useErrorStore()
+const userStore = useUserStore()
+const artStore = useArtStore()
+const themeStore = useThemeStore()
+const botStore = useBotStore()
+const milestoneStore = useMilestoneStore()
 const displayStore = useDisplayStore()
+
+
 
 // Add a flag to prevent double triggers of onIntroFinished
 const isProcessing = ref(false)
 
 onMounted(() => {
-  displayStore.loadState()
-  displayStore.updateViewport() // Call to update viewport dimensions
-  window.addEventListener('resize', displayStore.updateViewport)
+  
+try {
+    await botStore.loadStore()
+    await userStore.initializeUser()
+    await artStore.init()
+    await themeStore.initTheme()
+    await milestoneStore.initializeMilestones()
+    await displayStore.loadState()
+    await displayStore.updateViewport() 
+    window.addEventListener('resize', displayStore.updateViewport)
+
+    console.log('Initialization complete.')
+  } catch (error) {
+    errorStore.setError(
+      ErrorType.UNKNOWN_ERROR,
+      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+})
+
 })
 
 onBeforeUnmount(() => {

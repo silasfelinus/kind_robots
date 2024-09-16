@@ -29,7 +29,7 @@
       <!-- Navigation Links (Centered) -->
       <nav class="flex gap-8 items-center mx-auto">
         <nuxt-link
-          to="/home"
+          to="/"
           class="text-accent text-lg hover:underline"
           @click="onIntroFinished"
         >Home</nuxt-link>

@@ -83,7 +83,7 @@ export const useDisplayStore = defineStore('display', {
     // Calculate sidebar width based on state
     calculateSidebarWidth(sidebarState: DisplayState): number {
       if (this.isVertical) {
-        return sidebarState === 'open' ? 100 : 4 // Full width in vertical mode
+        return sidebarState === 'open' ? 40 : 4 // Full width in vertical mode
       }
       switch (sidebarState) {
         case 'open':

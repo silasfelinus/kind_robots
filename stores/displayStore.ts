@@ -15,6 +15,7 @@ interface DisplayStoreState {
   sidebarVw: number
   footerVh: number
   isVertical: boolean
+  viewportSize: 'mobile' | 'tablet' | 'desktop' // Added to track screen size
 }
 
 // Define the store
@@ -30,6 +31,7 @@ export const useDisplayStore = defineStore('display', {
     sidebarVw: 4, // Default collapsed sidebar width (4vw)
     footerVh: 5, // Default footer height in vh
     isVertical: false,
+    viewportSize: 'desktop', // Default to desktop size
   }),
 
   actions: {
@@ -37,10 +39,7 @@ export const useDisplayStore = defineStore('display', {
     loadState() {
       if (typeof window !== 'undefined') {
         const loadDisplayState = (key: keyof DisplayStoreState, defaultValue: DisplayState) => {
-          // Cast the value from localStorage to a DisplayState explicitly if it exists
           const storedValue = localStorage.getItem(key);
-          
-          // Type assertion to let TypeScript know that `key` refers to a valid property of `DisplayStoreState`
           if (storedValue) {
             (this[key] as DisplayState) = storedValue as DisplayState;
           } else {
@@ -53,7 +52,6 @@ export const useDisplayStore = defineStore('display', {
         loadDisplayState('sidebarRight', 'hidden');
         loadDisplayState('footer', 'hidden');
     
-        // Handling boolean and number parsing explicitly
         this.showIntro = localStorage.getItem('showIntro') !== 'false';
         this.headerVh = parseInt(localStorage.getItem('headerVh') || '7', 10);
       }
@@ -70,29 +68,44 @@ export const useDisplayStore = defineStore('display', {
       if (typeof window !== 'undefined') {
         this.isVertical = window.innerHeight > window.innerWidth
 
+        // Determine viewport size based on width (breakpoints for mobile, tablet, desktop)
+        const width = window.innerWidth
+        if (width < 600) {
+          this.viewportSize = 'mobile'
+        } else if (width >= 600 && width < 1024) {
+          this.viewportSize = 'tablet'
+        } else {
+          this.viewportSize = 'desktop'
+        }
+
         // Header height calculation: Max 10vh, otherwise 7% of viewport height
         this.headerVh = Math.min(10, 7)
 
-        // Adjust sidebar width based on the current state ('open', 'compact', or 'hidden')
+        // Adjust sidebar width based on the current state and screen size
         this.sidebarVw = this.calculateSidebarWidth(this.sidebarLeft)
 
         localStorage.setItem('headerVh', this.headerVh.toString())
       }
     },
 
-    // Calculate sidebar width based on state
+    // Calculate sidebar width based on state and screen size
     calculateSidebarWidth(sidebarState: DisplayState): number {
-      if (this.isVertical) {
+      const isVertical = this.isVertical
+      const size = this.viewportSize
+
+      if (isVertical) {
         return sidebarState === 'open' ? 40 : 4 // Full width in vertical mode
       }
-      switch (sidebarState) {
-        case 'open':
-          return 30 // Open state: 30vw
-        case 'compact':
-          return 10 // Compact state: 10vw
-        case 'hidden':
+
+      // Sidebar size varies based on screen size and state
+      switch (size) {
+        case 'mobile':
+          return sidebarState === 'open' ? 50 : sidebarState === 'compact' ? 12 : 4 // Mobile
+        case 'tablet':
+          return sidebarState === 'open' ? 35 : sidebarState === 'compact' ? 10 : 4 // Tablet
+        case 'desktop':
         default:
-          return 4 // Hidden or default collapsed state: 4vw
+          return sidebarState === 'open' ? 30 : sidebarState === 'compact' ? 8 : 4 // Desktop
       }
     },
 

@@ -31,7 +31,7 @@
         <nuxt-link to="/" class="text-accent text-lg hover:underline"
           >Home</nuxt-link
         >
-        <nuxt-link to="/match" class="text-accent text-lg hover:underline"
+        <nuxt-link to="/memory" class="text-accent text-lg hover:underline"
           >Art Gallery</nuxt-link
         >
         <nuxt-link to="/botcafe" class="text-accent text-lg hover:underline"

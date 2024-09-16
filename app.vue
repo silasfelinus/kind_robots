@@ -14,12 +14,12 @@
     </div>
 
     <header
-      class="flex-none w-full z-40 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
+      class="w-full z-40 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
       <!-- Sidebar Toggle -->
       <div
-        class="absolute top-4 left-4 p-3 z-50 bg-primary text-white rounded-lg shadow-md cursor-pointer"
+        class="absolute top-4 left-4 p-1 z-50 bg-primary text-white rounded-lg shadow-md cursor-pointer"
       >
         <sidebar-toggle class="text-4xl" />
       </div>
@@ -47,12 +47,12 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 w-full overflow-hidden">
+    <div class="flex flex-1 w-full overflow-scroll">
       <!-- Sidebar (Left) -->
       <aside
         v-if="displayStore.sidebarLeft !== 'hidden'"
         :style="{ width: `${displayStore.sidebarVw}vw` }"
-        class="p-4 bg-gray-100 shadow-lg transition-all duration-500 ease-in-out"
+        class="p-1 bg-primary shadow-lg transition-all duration-500 ease-in-out"
       >
         <kind-sidebar />
       </aside>
@@ -60,7 +60,7 @@
       <!-- Main Content -->
       <main
         :style="{ marginTop: `${displayStore.headerVh}vh` }"
-        class="flex-grow p-8 transition-all duration-500 ease-in-out overflow-y-auto"
+        class="flex-grow p-1 transition-all duration-500 ease-in-out overflow-y-auto"
       >
         <transition name="fade" mode="out-in">
           <div
@@ -68,7 +68,7 @@
             class="flex justify-center items-center"
           >
             <div
-              class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg"
+              class="w-full max-w-4xl p-1 rounded-2xl border-2 border-accent bg-base-200 shadow-lg"
             >
               <nuxt-page />
             </div>

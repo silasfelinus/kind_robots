@@ -2,27 +2,30 @@
   <div class="container rounded-2xl mx-auto p-2 bg-base-200">
     <!-- Message Interaction Area -->
     <div class="message-container bg-base-200 p-1 rounded-2xl">
-      <div class="prompt-area p-2 rounded-2xl">
-        <label for="newMessage" class="block mb-2 font-bold">
-          <div v-if="currentBot" class="user-intro p-2 rounded-2xl m-2">
-            <p class="text-lg">{{ currentBot.userIntro ?? 'User Intro' }}</p>
+      <div class="prompt-area p-2 rounded-lg">
+        <label for="newMessage" class="block mb-1 font-semibold text-md">
+          <div v-if="currentBot" class="user-intro p-1 rounded-md">
+            <p class="text-base">{{ currentBot.userIntro ?? 'User Intro' }}</p>
           </div>
         </label>
         <textarea
           id="newMessage"
           v-model="message"
-          rows="5"
-          class="message-input w-full p-2 rounded-md border-2 resize-none"
+          rows="3"
+          class="message-input w-full p-1 rounded-md border-2 resize-none"
           placeholder="Type your message..."
           @keyup.enter="sendMessage"
         />
-        <button
-          class="submit-button btn btn-primary mt-2"
-          :disabled="isLoading"
-          @click="sendMessage"
-        >
-          Send Message
-        </button>
+        <div class="flex justify-between items-center mt-1">
+          <button
+            class="btn btn-primary text-sm px-4 py-1"
+            :disabled="isLoading"
+            @click="sendMessage"
+          >
+            Send
+          </button>
+          <span v-if="error" class="text-red-500 text-sm">{{ error }}</span>
+        </div>
       </div>
 
       <!-- Loading Indicator -->
@@ -30,18 +33,9 @@
         <ami-butterfly />
       </div>
 
-      <!-- Conversations -->
-      <div
-        v-for="(conversation, index) in conversations"
-        :key="index"
-        class="response-container m-2 p-4 bg-white rounded-md shadow-md relative flex flex-col items-start"
-      >
-        <div
-          v-for="(msg, msgIndex) in conversation"
-          :key="msgIndex"
-          :class="{ 'flex-row-reverse': msg.role === 'user' }"
-          class="flex items-center message-content"
-        >
+      <!-- Conversations Display -->
+      <div v-for="(conversation, index) in conversations" :key="index" class="response-container m-2 p-3 bg-white rounded-lg shadow-md relative">
+        <div v-for="(msg, msgIndex) in conversation" :key="msgIndex" class="message-content">
           <ResponseEntry
             v-if="conversation && msg"
             :role="msg.role"
@@ -52,111 +46,31 @@
           />
         </div>
 
-        <!-- Reaction Buttons -->
-        <div class="reaction-buttons mt-2 flex space-x-2">
-          <!-- Love -->
-          <button
-            class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'isLoved') }"
-            @click="toggleReaction(index, 'isLoved')"
-          >
-            ❤️
-          </button>
-          <div
-            v-if="showPopup[index]?.isLoved"
-            class="popup bg-info text-lg rounded-2xl"
-          >
-            Favorited <Icon name="heart" />
+        <!-- Reactions and Reply Section -->
+        <div class="reaction-reply flex justify-between items-center mt-1">
+          <!-- Reaction Buttons -->
+          <div class="reaction-buttons flex space-x-2">
+            <button class="hover:bg-gray-200" :class="{ 'bg-primary': isReactionActive(index, 'isLoved') }" @click="toggleReaction(index, 'isLoved')">❤️</button>
+            <button class="hover:bg-gray-200" :class="{ 'bg-primary': isReactionActive(index, 'isClapped') }" @click="toggleReaction(index, 'isClapped')">👏</button>
+            <button class="hover:bg-gray-200" :class="{ 'bg-primary': isReactionActive(index, 'isBooed') }" @click="toggleReaction(index, 'isBooed')">👎</button>
+            <button class="hover:bg-gray-200" :class="{ 'bg-primary': isReactionActive(index, 'isHated') }" @click="toggleReaction(index, 'isHated')">🚫</button>
           </div>
 
-          <!-- Clap -->
-          <button
-            class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'isClapped') }"
-            @click="toggleReaction(index, 'isClapped')"
-          >
-            👏
-          </button>
-          <div
-            v-if="showPopup[index]?.isClapped"
-            class="popup bg-info text-lg rounded-2xl"
-          >
-            Clapped <Icon name="clap" />
-          </div>
-
-          <!-- Boo -->
-          <button
-            class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'isBooed') }"
-            @click="toggleReaction(index, 'isBooed')"
-          >
-            👎
-          </button>
-          <div
-            v-if="showPopup[index]?.isBooed"
-            class="popup bg-info text-lg rounded-2xl"
-          >
-            Booed <Icon name="boo" />
-          </div>
-
-          <!-- Hate -->
-          <button
-            class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'isHated') }"
-            @click="toggleReaction(index, 'isHated')"
-          >
-            🚫
-          </button>
-          <div
-            v-if="showPopup[index]?.isHated"
-            class="popup bg-info text-lg rounded-2xl"
-          >
-            Hated <Icon name="hate" />
-          </div>
-        </div>
-
-        <!-- Reply Section -->
-        <div
-          v-if="
-            activeConversationIndex !== null &&
-            activeConversationIndex === index
-          "
-          class="mt-2 flex items-center"
-        >
-          <textarea
-            v-model="replyMessage"
-            type="text"
-            rows="3"
-            placeholder="Continue conversation..."
-            class="flex-grow p-2 rounded-md border-2 text-lg resize-y"
-            @keyup.enter="continueConversation(index)"
-          />
-          <button
-            class="btn btn-primary ml-2"
-            :disabled="isReplyLoading"
-            @click="continueConversation(index)"
-          >
-            Reply
-          </button>
-          <div
-            v-if="isReplyLoading"
-            class="loader flex justify-center mt-2 ml-2"
-          >
-            <ami-butterfly />
+          <!-- Reply Section -->
+          <div v-if="activeConversationIndex !== null && activeConversationIndex === index" class="reply-section flex items-center">
+            <textarea v-model="replyMessage" rows="2" class="p-1 text-sm rounded-md border-2 resize-none" placeholder="Reply..." />
+            <button class="btn btn-primary text-sm ml-1" :disabled="isReplyLoading" @click="continueConversation(index)">Reply</button>
+            <div v-if="isReplyLoading" class="ml-2"><ami-butterfly /></div>
           </div>
         </div>
 
         <!-- Delete Conversation Button -->
-        <button
-          class="absolute top-2 right-2 text-red-500 hover:text-red-700"
-          @click.stop="deleteConversation(index)"
-        >
-          ×
-        </button>
+        <button class="absolute top-1 right-1 text-red-500 hover:text-red-700" @click.stop="deleteConversation(index)">×</button>
       </div>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect } from 'vue'

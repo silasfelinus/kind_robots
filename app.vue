@@ -17,36 +17,44 @@
     </div>
 
     <!-- Header -->
-    <header
-      class="w-full z-30 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out flex-none"
-      :style="{ height: `${displayStore.headerVh}vh` }"
-    >
-      <!-- Sidebar Toggle -->
-      <div class="top-4 left-4 p-1 z-40 text-white">
-        <sidebar-toggle class="text-4xl" />
-      </div>
+<header
+  class="w-full z-30 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out flex-none"
+  :style="{ height: `${displayStore.headerVh}vh` }"
+>
+  <!-- Sidebar Toggle -->
+  <div class="top-4 left-4 p-1 z-40 text-white">
+    <sidebar-toggle class="text-4xl" />
+  </div>
 
-      <!-- Navigation Links (Centered) -->
-      <nav class="flex gap-4 items-center mx-auto text-center">
-        <nuxt-link to="/" class="text-accent text-lg hover:underline"
-          >Home</nuxt-link
-        >
-        <nuxt-link to="/memory" class="text-accent text-lg hover:underline"
-          >Art Gallery</nuxt-link
-        >
-        <nuxt-link to="/botcafe" class="text-accent text-lg hover:underline"
-          >Bot Cafe</nuxt-link
-        >
-        <nuxt-link to="/amibot" class="text-accent text-lg hover:underline"
-          >AMIBot</nuxt-link
-        >
-      </nav>
+  <!-- Navigation Links (Centered) -->
+  <nav
+    class="flex gap-4 items-center mx-auto text-center flex-wrap justify-center"
+    style="min-width: 0;"
+  >
+    <nuxt-link
+      to="/"
+      class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+    >Home</nuxt-link>
+    <nuxt-link
+      to="/memory"
+      class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+    >Art Gallery</nuxt-link>
+    <nuxt-link
+      to="/botcafe"
+      class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+    >Bot Cafe</nuxt-link>
+    <nuxt-link
+      to="/amibot"
+      class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+    >AMIBot</nuxt-link>
+  </nav>
 
-      <!-- Intro Toggle Component -->
-      <div class="right-8 top-1/2 transform -translate-y-1/2">
-        <IntroToggle />
-      </div>
-    </header>
+  <!-- Intro Toggle Component -->
+  <div class="right-8 top-1/2 transform -translate-y-1/2">
+    <IntroToggle />
+  </div>
+</header>
+
 
     <!-- Main Layout -->
     <div class="flex flex-1 w-full overflow-hidden">

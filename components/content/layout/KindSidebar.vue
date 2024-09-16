@@ -5,7 +5,7 @@
       width: `${displayStore.sidebarVw}vw`,
       visibility: isSidebarOpen ? 'visible' : 'hidden',
       maxHeight: '100vh', // Ensure the sidebar stays within the viewport
-      overflowY: 'auto', // Enable scrolling if content overflows
+      overflowY: 'scroll', // Enable scrolling if content overflows
     }"
     class="transition-all duration-300 ease-in-out border rounded-2xl bg-base-200"
     :aria-hidden="!isSidebarOpen"
@@ -40,9 +40,6 @@ import { sidebarLinks } from '@/assets/sidebar' // Import the sidebar data
 
 const displayStore = useDisplayStore()
 const isSidebarOpen = computed(() => displayStore.sidebarLeft === 'open')
-
-// Toggle the sidebar
-const toggleSidebar = () => displayStore.toggleSidebar('sidebarLeft')
 
 // Filter links (you can add conditions if needed, like mature content)
 const filteredLinks = computed(() => sidebarLinks)

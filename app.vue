@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="flex flex-col h-screen w-screen">
     <!-- Loader -->
-    <div v-if="loading" class="absolute inset-0 z-50">
+    <div class="absolute inset-0 z-50">
       <ami-loader />
     </div>
 
@@ -66,7 +66,7 @@
     <footer
       v-if="displayStore.footer !== 'hidden'"
       :style="{ height: `${displayStore.footerVh}vh` }"
-      class="flex-none w-full bg-gray-800 text-white"
+      class="flex-none w-full bg-gray-800 text-accent"
     >
       <!-- Footer content goes here -->
     </footer>

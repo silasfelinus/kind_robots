@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="flex flex-col h-screen w-screen">
+  <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
     <!-- Loader -->
     <div
       v-if="displayStore.showLoader"
@@ -91,7 +91,7 @@
       :style="{ height: `${displayStore.footerVh}vh` }"
       class="flex-none w-full bg-gray-800 text-accent mt-auto"
     >
-      <!-- Footer content goes here -->
+      created by Silas Knight silas@kindrobots.org
     </footer>
   </div>
 </template>

@@ -1,9 +1,7 @@
 <template>
   <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
     <!-- Loader -->
-    <div
-      v-if="displayStore.showLoader"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70"
+ <div class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-70"
     >
       <ami-loader />
     </div>
@@ -28,7 +26,7 @@
 
       <!-- Navigation Links (Centered) -->
       <nav
-        class="flex gap-4 items-center mx-auto text-center flex-wrap justify-center"
+        class="flex gap-2 items-center mx-auto text-center flex-wrap justify-center"
         style="min-width: 0"
       >
         <nuxt-link
@@ -68,7 +66,7 @@
 
       <!-- Main Content with scrollable area -->
       <main
-        class="flex-grow p-4 transition-all duration-500 ease-in-out overflow-y-auto"
+        class="flex-grow p-1 transition-all duration-500 ease-in-out "
       >
         <transition name="fade" mode="out-in">
           <div
@@ -76,7 +74,7 @@
             class="flex justify-center items-center"
           >
             <div
-              class="w-full max-w-4xl p-4 rounded-2xl border-2 border-accent bg-base-200 shadow-lg"
+              class="w-full max-w-4xl rounded-2xl p-1 bg-base-200 overflow-y-auto"
             >
               <nuxt-page />
             </div>
@@ -131,6 +129,11 @@ const onIntroFinished = () => {
 </script>
 
 <style>
+
+.flex-1 {
+  min-height: 0; /* Prevent flex overflow issue */
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease-in-out;

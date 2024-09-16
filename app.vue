@@ -22,12 +22,12 @@
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
       <!-- Sidebar Toggle -->
-      <div class="top-4 left-4 p-1 z-40 bg-primary text-white">
+      <div class="top-4 left-4 p-1 z-40 text-white">
         <sidebar-toggle class="text-4xl" />
       </div>
 
       <!-- Navigation Links (Centered) -->
-      <nav class="flex gap-8 items-center mx-auto text-center">
+      <nav class="flex gap-4 items-center mx-auto text-center">
         <nuxt-link to="/" class="text-accent text-lg hover:underline"
           >Home</nuxt-link
         >

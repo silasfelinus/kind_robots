@@ -74,7 +74,7 @@
             class="flex justify-center items-center"
           >
             <div
-              class="w-full max-w-4xl rounded-2xl p-1 bg-base-200 overflow-y-auto"
+              class="w-full max-w-4xl rounded-2xl p-1 bg-base-200"
             >
               <nuxt-page />
             </div>

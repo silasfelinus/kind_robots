@@ -32,7 +32,7 @@
         <nuxt-link
           to="/"
           class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
-          >Home</nuxt-link
+          >Kind Robots</nuxt-link
         >
         <nuxt-link
           to="/memory"

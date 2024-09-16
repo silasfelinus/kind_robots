@@ -15,7 +15,8 @@ interface DisplayStoreState {
   sidebarVw: number
   footerVh: number
   isVertical: boolean
-  viewportSize: 'mobile' | 'tablet' | 'desktop' // Added to track screen size
+  viewportSize: 'mobile' | 'tablet' | 'desktop' | 'largeScreen' // Added 'largeScreen'
+  isTouchDevice: boolean // Detects if the device is touch-enabled
 }
 
 // Define the store
@@ -32,6 +33,7 @@ export const useDisplayStore = defineStore('display', {
     footerVh: 5, // Default footer height in vh
     isVertical: false,
     viewportSize: 'desktop', // Default to desktop size
+    isTouchDevice: false // Default to non-touch devices
   }),
 
   actions: {
@@ -56,7 +58,7 @@ export const useDisplayStore = defineStore('display', {
         this.headerVh = parseInt(localStorage.getItem('headerVh') || '7', 10);
       }
     },
-    
+
     // Toggle intro visibility
     toggleIntroState() {
       this.showIntro = !this.showIntro
@@ -67,15 +69,18 @@ export const useDisplayStore = defineStore('display', {
     updateViewport() {
       if (typeof window !== 'undefined') {
         this.isVertical = window.innerHeight > window.innerWidth
+        this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
-        // Determine viewport size based on width (breakpoints for mobile, tablet, desktop)
+        // Determine viewport size based on width (breakpoints for mobile, tablet, desktop, large screens)
         const width = window.innerWidth
         if (width < 600) {
           this.viewportSize = 'mobile'
         } else if (width >= 600 && width < 1024) {
           this.viewportSize = 'tablet'
-        } else {
+        } else if (width >= 1024 && width < 1600) {
           this.viewportSize = 'desktop'
+        } else {
+          this.viewportSize = 'largeScreen'
         }
 
         // Header height calculation: Max 10vh, otherwise 7% of viewport height
@@ -88,24 +93,27 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    // Calculate sidebar width based on state and screen size
+    // Calculate sidebar width based on state, screen size, and touch capability
     calculateSidebarWidth(sidebarState: DisplayState): number {
       const isVertical = this.isVertical
       const size = this.viewportSize
+      const isTouch = this.isTouchDevice
 
       if (isVertical) {
         return sidebarState === 'open' ? 30 : 4 // Full width in vertical mode
       }
 
-      // Sidebar size varies based on screen size and state
+      // Sidebar size varies based on screen size, touch capability, and state
       switch (size) {
         case 'mobile':
-          return sidebarState === 'open' ? 30 : sidebarState === 'compact' ? 12 : 4 // Mobile
+          return sidebarState === 'open' ? 25 : sidebarState === 'compact' ? 12 : 4 // Mobile
         case 'tablet':
-          return sidebarState === 'open' ? 25 : sidebarState === 'compact' ? 10 : 4 // Tablet
+          return sidebarState === 'open' ? 20 : sidebarState === 'compact' ? 14 : 4 // Tablet
         case 'desktop':
+          return sidebarState === 'open' ? (isTouch ? 22 : 20) : sidebarState === 'compact' ? 8 : 4 // Desktop, larger touch devices get wider sidebars
+        case 'largeScreen':
         default:
-          return sidebarState === 'open' ? 20 : sidebarState === 'compact' ? 8 : 4 // Desktop
+          return sidebarState === 'open' ? (isTouch ? 22 : 20) : sidebarState === 'compact' ? 10 : 4 // Large screens
       }
     },
 

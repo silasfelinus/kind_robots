@@ -1,41 +1,43 @@
 <template>
-  <!-- Main container -->
-  <div class="flex flex-col items-center bg-base-200 p-1 m-1">
+  <!-- Main container with reduced padding/margin -->
+  <div class="flex flex-col items-center bg-base-200 p-2 m-1">
     <bot-selector />
+
     <!-- Display bot details if a bot is selected -->
     <div
       v-if="currentBot"
       :data-theme="currentBot.theme"
       class="w-full bg-base-200 rounded-2xl"
     >
-      <!-- Bot name and ID -->
-      <div class="flex justify-between items-center m-4">
-        <h1 class="text-3xl font-bold">
-          {{ currentBot.name }}
+      <!-- Bot name and ID, combining into a single line to reduce vertical space -->
+      <div class="flex justify-between items-center m-2">
+        <h1 class="text-2xl font-bold">
+          {{ currentBot.name }} <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id - 1 }}</span>
         </h1>
-        <span class="text-sm text-gray-600"
-          >Bot ID#{{ currentBot.id - 1 }} / Meet Them All!</span
-        >
+        <span class="text-sm text-gray-600">Meet Them All!</span>
       </div>
-      <div v-if="currentBot" class="avatar-container w-full m-2 rounded-lg">
-        <!-- Bot Avatar and Details -->
-        <div class="flex-grow rounded-2xl m-2 p-2 border bg-base-200">
+
+      <!-- Condense avatar and details into a single flex-row to reduce space -->
+      <div class="flex flex-wrap items-center justify-between w-full m-2 rounded-lg">
+        <!-- Bot Avatar and Carousel, tighter space -->
+        <div class="w-1/3 p-2">
           <bot-carousel2 />
-          <div class="flex-1 text-center">
-            <h1 class="text-3xl font-bold">
-              {{ currentBot.name ?? 'Unknown Bot' }}
-            </h1>
-            <p class="text-xl">
-              {{ currentBot.subtitle ?? 'Subtitle' }}
-            </p>
-            <div class="card mt-2">
-              {{ currentBot.description ?? 'Description' }}
-            </div>
+        </div>
+
+        <!-- Bot Details with reduced text sizes -->
+        <div class="flex-1 text-center p-2">
+          <h2 class="text-2xl font-semibold">{{ currentBot.name ?? 'Unknown Bot' }}</h2>
+          <p class="text-md text-gray-600">{{ currentBot.subtitle ?? 'Subtitle' }}</p>
+          <div class="card mt-2 p-2 bg-base-100">
+            {{ currentBot.description ?? 'Description' }}
           </div>
         </div>
       </div>
 
-      <stream-test />
+      <!-- Stream Test component, streamlined to avoid pushing too much down -->
+      <div class="mt-2">
+        <stream-test />
+      </div>
     </div>
   </div>
 </template>

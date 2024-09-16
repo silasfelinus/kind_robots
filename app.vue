@@ -21,10 +21,10 @@
         visibility: displayStore.headerState !== 'hidden' ? 'visible' : 'hidden',
       }"
     >
-      <!-- Sidebar Toggle (Fixed Position, Always Visible) -->
-      <div class="fixed top-2 left-2 bg-primary p-2 z-50">
-        <sidebar-toggle class="text-accent text-3xl hover:text-secondary transition-colors" />
-      </div>
+      <div class="absolute top-4 left-4 p-3 z-50 bg-primary text-white rounded-lg shadow-md cursor-pointer">
+  <sidebar-toggle class="text-4xl" />
+</div>
+
 
       <!-- Navigation Links (Centered) -->
       <nav class="flex gap-8 items-center center mx-auto">

@@ -1,7 +1,7 @@
 <template>
-  <div id="app" class="relative h-screen w-screen">
+  <div id="app" class="flex flex-col h-screen w-screen">
     <!-- Loader -->
-    <div class="absolute inset-0 z-50">
+    <div v-if="loading" class="absolute inset-0 z-50">
       <ami-loader />
     </div>
 
@@ -13,35 +13,32 @@
       <IntroPage @finished="onIntroFinished" />
     </div>
 
+    <!-- Header -->
     <header
-  class="fixed top-0 left-0 w-full z-40 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
-  :style="{ height: `${displayStore.headerVh}vh` }"
->
-  <!-- Sidebar Toggle -->
-  <div class="absolute top-4 left-4 p-3 z-50 bg-primary text-white rounded-lg shadow-md cursor-pointer">
-    <sidebar-toggle class="text-4xl" />
-  </div>
+      class="flex-none w-full z-40 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
+      :style="{ height: `${displayStore.headerVh}vh` }"
+    >
+      <!-- Sidebar Toggle -->
+      <div class="absolute top-4 left-4 p-3 z-50 bg-primary text-white rounded-lg shadow-md cursor-pointer">
+        <sidebar-toggle class="text-4xl" />
+      </div>
 
-  <!-- Navigation Links (Centered) -->
-  <nav class="flex gap-8 items-center mx-auto text-center">
-    <nuxt-link to="/" class="text-accent text-lg hover:underline">Home</nuxt-link>
-    <nuxt-link to="/match" class="text-accent text-lg hover:underline">Art Gallery</nuxt-link>
-    <nuxt-link to="/botcafe" class="text-accent text-lg hover:underline">Bot Cafe</nuxt-link>
-    <nuxt-link to="/amibot" class="text-accent text-lg hover:underline">AMIBot</nuxt-link>
-  </nav>
+      <!-- Navigation Links (Centered) -->
+      <nav class="flex gap-8 items-center mx-auto text-center">
+        <nuxt-link to="/" class="text-accent text-lg hover:underline">Home</nuxt-link>
+        <nuxt-link to="/match" class="text-accent text-lg hover:underline">Art Gallery</nuxt-link>
+        <nuxt-link to="/botcafe" class="text-accent text-lg hover:underline">Bot Cafe</nuxt-link>
+        <nuxt-link to="/amibot" class="text-accent text-lg hover:underline">AMIBot</nuxt-link>
+      </nav>
 
-  <!-- Intro Toggle Component -->
-  <div class="absolute right-8 top-1/2 -translate-y-1/2">
-    <IntroToggle />
-  </div>
-</header>
-
+      <!-- Intro Toggle Component -->
+      <div class="absolute right-8 top-1/2 -translate-y-1/2">
+        <IntroToggle />
+      </div>
+    </header>
 
     <!-- Main Layout -->
-    <div
-      class="flex flex-row relative"
-      :style="{ top: `${displayStore.headerVh}vh` }"
-    >
+    <div class="flex flex-1 flex-row">
       <!-- Sidebar (Left) -->
       <aside
         v-if="displayStore.sidebarLeft !== 'hidden'"
@@ -54,16 +51,11 @@
       <!-- Main Content -->
       <main
         :class="[displayStore.sidebarLeft !== 'hidden' ? 'w-3/4' : 'w-full']"
-        class="p-8 transition-all duration-500 ease-in-out"
+        class="p-8 transition-all duration-500 ease-in-out flex-grow"
       >
         <transition name="fade" mode="out-in">
-          <div
-            v-if="!displayStore.showIntro"
-            class="flex justify-center items-center"
-          >
-            <div
-              class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg"
-            >
+          <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
+            <div class="w-full max-w-4xl p-8 rounded-2xl border-2 border-gray-300 bg-white shadow-lg">
               <nuxt-page />
             </div>
           </div>
@@ -75,7 +67,7 @@
     <footer
       v-if="displayStore.footer !== 'hidden'"
       :style="{ height: `${displayStore.footerVh}vh` }"
-      class="fixed bottom-0 w-full bg-gray-800 text-white"
+      class="flex-none w-full bg-gray-800 text-white"
     >
       <!-- Footer content goes here -->
     </footer>
@@ -87,7 +79,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-
+const loading = ref(true)
 
 // Add a flag to prevent double triggers of onIntroFinished
 const isProcessing = ref(false)

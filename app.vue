@@ -37,17 +37,17 @@
         <nuxt-link
           to="/memory"
           class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
-          >Art Gallery</nuxt-link
+          >Art</nuxt-link
         >
         <nuxt-link
           to="/botcafe"
           class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
-          >Bot Cafe</nuxt-link
+          >PromptBots</nuxt-link
         >
         <nuxt-link
           to="/amibot"
           class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
-          >AMIBot</nuxt-link
+          >AMI</nuxt-link
         >
       </nav>
 

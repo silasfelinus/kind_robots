@@ -16,7 +16,7 @@
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
       <!-- Sidebar Toggle -->
-      <div class="top-4 left-4 p-1 z-40 bg-primary text-white rounded-lg shadow-md cursor-pointer">
+      <div class="top-4 left-4 p-1 z-40 bg-primary text-white">
         <sidebar-toggle class="text-4xl" />
       </div>
 

@@ -64,17 +64,42 @@ export const useDisplayStore = defineStore('display', {
         // Header height calculation: Max 10vh, otherwise 7% of viewport height
         this.headerVh = Math.min(10, 7)
 
-        // Sidebar width: 16vw in horizontal, full width (100vw) in vertical mode
-        this.sidebarVw = this.sidebarLeft === 'open' ? (this.isVertical ? 100 : 16) : 4
+        // Adjust sidebar width based on the current state ('open', 'compact', or 'hidden')
+        this.sidebarVw = this.calculateSidebarWidth(this.sidebarLeft)
 
         localStorage.setItem('headerVh', this.headerVh.toString())
       }
     },
 
-    // Toggle sidebar visibility and adjust width
+    // Calculate sidebar width based on state
+    calculateSidebarWidth(sidebarState: DisplayState): number {
+      if (this.isVertical) {
+        return sidebarState === 'open' ? 100 : 4 // Full width in vertical mode
+      }
+      switch (sidebarState) {
+        case 'open':
+          return 30 // Open state: 30vw
+        case 'compact':
+          return 10 // Compact state: 10vw
+        case 'hidden':
+        default:
+          return 4 // Hidden or default collapsed state: 4vw
+      }
+    },
+
+    // Toggle sidebar visibility between 'open', 'compact', and 'hidden'
     toggleSidebar(container: 'sidebarLeft' | 'sidebarRight') {
-      this[container] = this[container] === 'hidden' ? 'open' : 'hidden'
-      this.sidebarVw = this.sidebarLeft === 'open' ? (this.isVertical ? 100 : 16) : 4
+      const currentState = this[container]
+
+      if (currentState === 'hidden') {
+        this[container] = 'compact'
+      } else if (currentState === 'compact') {
+        this[container] = 'open'
+      } else {
+        this[container] = 'hidden'
+      }
+
+      this.sidebarVw = this.calculateSidebarWidth(this[container])
 
       if (typeof window !== 'undefined') {
         localStorage.setItem(container, this[container])
@@ -101,6 +126,7 @@ export const useDisplayStore = defineStore('display', {
     // Change state for header, sidebar, and footer, and persist the state
     changeState(container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer', newState: DisplayState) {
       this[container] = newState
+      this.sidebarVw = this.calculateSidebarWidth(this.sidebarLeft)
 
       if (typeof window !== 'undefined') {
         localStorage.setItem(container, newState)

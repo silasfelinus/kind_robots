@@ -1,8 +1,8 @@
 <template>
   <button
     class="flex items-center justify-center p-1 hover:bg-secondary rounded-lg"
-    @click="toggleSidebarLeft"
     :style="buttonStyle"
+    @click="toggleSidebarLeft"
   >
     <Icon name="emojione:artist-palette" class="toggle-icon" />
   </button>

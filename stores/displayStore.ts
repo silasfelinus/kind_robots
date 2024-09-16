@@ -37,19 +37,28 @@ export const useDisplayStore = defineStore('display', {
     loadState() {
       if (typeof window !== 'undefined') {
         const loadDisplayState = (key: keyof DisplayStoreState, defaultValue: DisplayState) => {
-          this[key] = (localStorage.getItem(key) as DisplayState) || defaultValue
+          // Cast the value from localStorage to a DisplayState explicitly if it exists
+          const storedValue = localStorage.getItem(key);
+          
+          // Type assertion to let TypeScript know that `key` refers to a valid property of `DisplayStoreState`
+          if (storedValue) {
+            (this[key] as DisplayState) = storedValue as DisplayState;
+          } else {
+            (this[key] as DisplayState) = defaultValue;
+          }
         }
-
-        loadDisplayState('headerState', 'open')
-        loadDisplayState('sidebarLeft', 'hidden')
-        loadDisplayState('sidebarRight', 'hidden')
-        loadDisplayState('footer', 'hidden')
-
-        this.showIntro = localStorage.getItem('showIntro') !== 'false'
-        this.headerVh = parseInt(localStorage.getItem('headerVh') || '7', 10)
+    
+        loadDisplayState('headerState', 'open');
+        loadDisplayState('sidebarLeft', 'hidden');
+        loadDisplayState('sidebarRight', 'hidden');
+        loadDisplayState('footer', 'hidden');
+    
+        // Handling boolean and number parsing explicitly
+        this.showIntro = localStorage.getItem('showIntro') !== 'false';
+        this.headerVh = parseInt(localStorage.getItem('headerVh') || '7', 10);
       }
     },
-
+    
     // Toggle intro visibility
     toggleIntroState() {
       this.showIntro = !this.showIntro

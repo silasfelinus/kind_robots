@@ -1,72 +1,59 @@
 <template>
   <div id="app" class="flex flex-col h-screen w-screen">
     <!-- Loader -->
-    <div class="absolute inset-0 z-50">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70">
       <ami-loader />
     </div>
 
     <!-- Intro Component -->
     <div
       v-if="displayStore.showIntro"
-      class="absolute inset-0 z-20 flex justify-center items-center bg-base-200 bg-opacity-70"
+      class="fixed inset-0 z-40 flex justify-center items-center bg-base-200 bg-opacity-70"
     >
       <IntroPage @finished="onIntroFinished" />
     </div>
 
+    <!-- Header -->
     <header
-      class="w-full z-40 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
+      class="w-full z-30 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out flex-none"
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
       <!-- Sidebar Toggle -->
-      <div
-        class="absolute top-4 left-4 p-1 z-50 bg-primary text-white rounded-lg shadow-md cursor-pointer"
-      >
+      <div class="top-4 left-4 p-1 z-40 bg-primary text-white rounded-lg shadow-md cursor-pointer">
         <sidebar-toggle class="text-4xl" />
       </div>
 
       <!-- Navigation Links (Centered) -->
       <nav class="flex gap-8 items-center mx-auto text-center">
-        <nuxt-link to="/" class="text-accent text-lg hover:underline"
-          >Home</nuxt-link
-        >
-        <nuxt-link to="/match" class="text-accent text-lg hover:underline"
-          >Art Gallery</nuxt-link
-        >
-        <nuxt-link to="/botcafe" class="text-accent text-lg hover:underline"
-          >Bot Cafe</nuxt-link
-        >
-        <nuxt-link to="/amibot" class="text-accent text-lg hover:underline"
-          >AMIBot</nuxt-link
-        >
+        <nuxt-link to="/" class="text-accent text-lg hover:underline">Home</nuxt-link>
+        <nuxt-link to="/match" class="text-accent text-lg hover:underline">Art Gallery</nuxt-link>
+        <nuxt-link to="/botcafe" class="text-accent text-lg hover:underline">Bot Cafe</nuxt-link>
+        <nuxt-link to="/amibot" class="text-accent text-lg hover:underline">AMIBot</nuxt-link>
       </nav>
 
       <!-- Intro Toggle Component -->
-      <div class="absolute right-8 top-1/2 -translate-y-1/2">
+      <div class="right-8 top-1/2 transform -translate-y-1/2">
         <IntroToggle />
       </div>
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 w-full overflow-scroll">
+    <div class="flex flex-1 w-full overflow-hidden">
       <!-- Sidebar (Left) -->
       <aside
         v-if="displayStore.sidebarLeft !== 'hidden'"
         :style="{ width: `${displayStore.sidebarVw}vw` }"
-        class="p-1 bg-primary shadow-lg transition-all duration-500 ease-in-out"
+        class="p-1 bg-primary shadow-lg transition-all duration-500 ease-in-out flex-none"
       >
         <kind-sidebar />
       </aside>
 
       <!-- Main Content -->
       <main
-        :style="{ marginLeft: `${displayStore.sidebarVw}vw`, marginTop: `${displayStore.headerVh}vh` }"
         class="flex-grow p-1 transition-all duration-500 ease-in-out overflow-y-auto"
       >
         <transition name="fade" mode="out-in">
-          <div
-            v-if="!displayStore.showIntro"
-            class="flex justify-center items-center"
-          >
+          <div v-if="!displayStore.showIntro" class="flex justify-center items-center">
             <div
               class="w-full max-w-4xl p-1 rounded-2xl border-2 border-accent bg-base-200 shadow-lg"
             >
@@ -123,12 +110,13 @@ const onIntroFinished = () => {
 }
 </script>
 
-<style>
+<style scoped>
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease-in-out;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+.fade-enter,
+.fade-leave-to /* .fade-leave-active in <2.1.8 */ {
   opacity: 0;
 }
 </style>

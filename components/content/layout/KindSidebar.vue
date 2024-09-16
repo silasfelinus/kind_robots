@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { sidebarLinks } from '@/assets/sidebar' // Import the sidebar data
 
@@ -49,27 +49,34 @@ const displayStore = useDisplayStore()
 const sidebarWidth = computed(() => displayStore.sidebarVw)
 const isSidebarOpen = computed(() => displayStore.sidebarLeft !== 'hidden')
 
-// Calculate the total available sidebar height (viewport - header height in vh)
-const availableSidebarHeight = computed(() => 100 - displayStore.headerVh)
+const availableSidebarHeight = ref(100 - displayStore.headerVh)
+const iconHeight = ref(0)
 
-// Calculate the height of each icon based on the number of links and available height
-const iconHeight = computed(() => {
-  const totalLinks = sidebarLinks.length
-  const marginSpace = 10 * totalLinks // Example: 10px margin for each link
-  return (
-    ((availableSidebarHeight.value * window.innerHeight) / 100 - marginSpace) /
-    totalLinks
-  )
+// Ensure window-related calculations only run in the browser
+onMounted(() => {
+  const calculateIconHeight = () => {
+    if (typeof window !== 'undefined') {
+      const totalLinks = sidebarLinks.length
+      const marginSpace = 10 * totalLinks // Example: 10px margin for each link
+      availableSidebarHeight.value = 100 - displayStore.headerVh
+      const sidebarHeightInPx =
+        (availableSidebarHeight.value * window.innerHeight) / 100
+      iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks
+    }
+  }
+
+  // Initial calculation on mount
+  calculateIconHeight()
+
+  // Update calculations on resize
+  window.addEventListener('resize', calculateIconHeight)
+
+  // Cleanup on component unmount
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', calculateIconHeight)
+  })
 })
 
 // Filter links (you can add conditions if needed, like mature content)
 const filteredLinks = computed(() => sidebarLinks)
-
-onMounted(() => {
-  displayStore.initializeViewportWatcher()
-})
-
-onBeforeUnmount(() => {
-  displayStore.removeViewportWatcher()
-})
 </script>

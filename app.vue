@@ -18,13 +18,12 @@
       class="fixed top-0 left-0 w-full z-40 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
       :style="{
         height: `${displayStore.headerVh}vh`,
-        visibility:
-          displayStore.headerState !== 'hidden' ? 'visible' : 'hidden',
+        visibility: displayStore.headerState !== 'hidden' ? 'visible' : 'hidden',
       }"
     >
-      <!-- Sidebar Toggle -->
-      <div class="p-1 left-2 m-1 text-accent z-50 flex-grow">
-        <sidebar-toggle />
+      <!-- Sidebar Toggle (Fixed Position, Always Visible) -->
+      <div class="fixed top-2 left-2 p-2 z-50">
+        <sidebar-toggle class="text-accent text-3xl hover:text-secondary transition-colors" />
       </div>
 
       <!-- Navigation Links (Centered) -->
@@ -33,26 +32,22 @@
           to="/home"
           class="text-accent text-lg hover:underline"
           @click="onIntroFinished"
-          >Home</nuxt-link
-        >
+        >Home</nuxt-link>
         <nuxt-link
           to="/artgallery"
           class="text-accent text-lg hover:underline"
           @click="onIntroFinished"
-          >Art Gallery</nuxt-link
-        >
+        >Art Gallery</nuxt-link>
         <nuxt-link
           to="/botcafe"
           class="text-accent text-lg hover:underline"
           @click="onIntroFinished"
-          >Bot Cafe</nuxt-link
-        >
+        >Bot Cafe</nuxt-link>
         <nuxt-link
           to="/amibot"
           class="text-accent text-lg hover:underline"
           @click="onIntroFinished"
-          >AMIBot</nuxt-link
-        >
+        >AMIBot</nuxt-link>
       </nav>
 
       <!-- Intro Toggle Component -->

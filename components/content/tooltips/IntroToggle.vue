@@ -9,7 +9,7 @@
         :name="displayStore.showIntro ? 'fast-forward' : 'video-camera'" 
         class="mr-2" 
       />
-      {{ displayStore.showIntro ? 'Skip Intro' : 'Show Intro' }}
+      {{ displayStore.showIntro ? 'Skip Intro' : 'Intro' }}
     </button>
   </div>
 </template>

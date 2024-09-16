@@ -13,29 +13,29 @@
       <IntroPage @finished="onIntroFinished" />
     </div>
 
-    <!-- Header -->
     <header
-      class="flex-none w-full z-40 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
-      :style="{ height: `${displayStore.headerVh}vh` }"
-    >
-      <!-- Sidebar Toggle -->
-      <div class="absolute top-4 left-4 p-3 z-50 bg-primary text-white rounded-lg shadow-md cursor-pointer">
-        <sidebar-toggle class="text-4xl" />
-      </div>
+  class="flex-none w-full z-40 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
+  :style="{ height: `${displayStore.headerVh}vh` }"
+>
+  <!-- Sidebar Toggle -->
+  <div class="absolute top-4 left-4 p-3 z-50 bg-primary text-white rounded-lg shadow-md cursor-pointer">
+    <sidebar-toggle class="text-4xl" />
+  </div>
 
-      <!-- Navigation Links (Centered) -->
-      <nav class="flex gap-8 items-center mx-auto text-center">
-        <nuxt-link to="/" class="text-accent text-lg hover:underline">Home</nuxt-link>
-        <nuxt-link to="/match" class="text-accent text-lg hover:underline">Art Gallery</nuxt-link>
-        <nuxt-link to="/botcafe" class="text-accent text-lg hover:underline">Bot Cafe</nuxt-link>
-        <nuxt-link to="/amibot" class="text-accent text-lg hover:underline">AMIBot</nuxt-link>
-      </nav>
+  <!-- Navigation Links (Centered) -->
+  <nav class="flex gap-8 items-center mx-auto text-center">
+    <nuxt-link to="/" class="text-accent text-lg hover:underline">Home</nuxt-link>
+    <nuxt-link to="/match" class="text-accent text-lg hover:underline">Art Gallery</nuxt-link>
+    <nuxt-link to="/botcafe" class="text-accent text-lg hover:underline">Bot Cafe</nuxt-link>
+    <nuxt-link to="/amibot" class="text-accent text-lg hover:underline">AMIBot</nuxt-link>
+  </nav>
 
-      <!-- Intro Toggle Component -->
-      <div class="absolute right-8 top-1/2 -translate-y-1/2">
-        <IntroToggle />
-      </div>
-    </header>
+  <!-- Intro Toggle Component -->
+  <div class="absolute right-8 top-1/2 -translate-y-1/2">
+    <IntroToggle />
+  </div>
+</header>
+
 
     <!-- Main Layout -->
     <div class="flex flex-1 w-full overflow-hidden">

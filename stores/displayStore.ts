@@ -28,7 +28,7 @@ export const useDisplayStore = defineStore('display', {
     focusedContainer: null,
     showIntro: true,
     headerVh: 7, // Default header height in vh
-    sidebarVw: 4, // Default collapsed sidebar width (4vw)
+    sidebarVw: 7, // Default compact sidebar width (4vw)
     footerVh: 5, // Default footer height in vh
     isVertical: false,
     viewportSize: 'desktop', // Default to desktop size
@@ -94,18 +94,18 @@ export const useDisplayStore = defineStore('display', {
       const size = this.viewportSize
 
       if (isVertical) {
-        return sidebarState === 'open' ? 40 : 4 // Full width in vertical mode
+        return sidebarState === 'open' ? 30 : 4 // Full width in vertical mode
       }
 
       // Sidebar size varies based on screen size and state
       switch (size) {
         case 'mobile':
-          return sidebarState === 'open' ? 50 : sidebarState === 'compact' ? 12 : 4 // Mobile
+          return sidebarState === 'open' ? 30 : sidebarState === 'compact' ? 12 : 4 // Mobile
         case 'tablet':
-          return sidebarState === 'open' ? 35 : sidebarState === 'compact' ? 10 : 4 // Tablet
+          return sidebarState === 'open' ? 25 : sidebarState === 'compact' ? 10 : 4 // Tablet
         case 'desktop':
         default:
-          return sidebarState === 'open' ? 30 : sidebarState === 'compact' ? 8 : 4 // Desktop
+          return sidebarState === 'open' ? 20 : sidebarState === 'compact' ? 8 : 4 // Desktop
       }
     },
 

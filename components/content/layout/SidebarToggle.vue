@@ -2,15 +2,26 @@
   <button
     class="flex items-center justify-center p-1 hover:bg-secondary rounded-lg"
     @click="toggleSidebarLeft"
+    :style="buttonStyle"
   >
-    <Icon name="emojione:artist-palette" class="toggle-icon text-primary" />
+    <Icon :name="emojione:artist-palette" class="toggle-icon" />
   </button>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+
+// Compute the icon size based on the header height
+const buttonStyle = computed(() => {
+  const iconSize = Math.max(6, displayStore.headerVh - 2) // Ensure a minimum size of 6
+  return {
+    width: `${iconSize}vh`,
+    height: `${iconSize}vh`,
+  }
+})
 
 // Toggle the left sidebar
 const toggleSidebarLeft = () => {
@@ -22,8 +33,6 @@ const toggleSidebarLeft = () => {
 .toggle-icon {
   width: 100%;
   height: 100%;
-  max-width: 30px;
-  max-height: 30px;
   object-fit: contain;
 }
 

@@ -2,9 +2,8 @@
   <!-- Collapsible Sidebar -->
   <aside
     :style="{
-      width: isSidebarHidden ? '0vw' : sidebarWidth + 'vw',
-      visibility: isSidebarHidden ? 'hidden' : 'visible',
-      maxHeight: `${availableSidebarHeight}vh`, // Sidebar takes the remaining space after header
+      width: isSidebarHidden ? '0' : sidebarWidth + 'vw',
+      display: isSidebarHidden ? 'none' : 'block', // Use display to fully hide the sidebar
     }"
     class="transition-all duration-500 ease-in-out bg-base-200 hide-scrollbar"
     :aria-hidden="isSidebarHidden"
@@ -37,8 +36,9 @@
         <span
           v-show="isSidebarOpen"
           class="text-sm font-semibold ml-2 transition-opacity duration-300"
-          >{{ link.title }}</span
         >
+          {{ link.title }}
+        </span>
       </NuxtLink>
     </div>
   </aside>
@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import { sidebarLinks } from '@/assets/sidebar' // Import the sidebar data
+import { sidebarLinks } from '@/assets/sidebar'
 
 const displayStore = useDisplayStore()
 
@@ -57,38 +57,32 @@ const isSidebarOpen = computed(() => displayStore.sidebarLeft === 'open')
 const isSidebarCompact = computed(() => displayStore.sidebarLeft === 'compact')
 const isSidebarHidden = computed(() => displayStore.sidebarLeft === 'hidden')
 
-// Reduce the availableSidebarHeight slightly (e.g., by 2%) to prevent cut-off issues
-const availableSidebarHeight = ref(100 - displayStore.headerVh - 2) // Reduced height by 2% for safety
+// Adjust height calculations based on window size and available space
+const availableSidebarHeight = ref(100 - displayStore.headerVh - 2)
 const iconHeight = ref(0)
 
 onMounted(() => {
   const calculateIconHeight = () => {
     if (typeof window !== 'undefined') {
       const totalLinks = sidebarLinks.length
-      const marginSpace = 10 * totalLinks // Example: 10px margin for each link
+      const marginSpace = 10 * totalLinks // Adjust for link margins
 
-      // Calculate the total sidebar height in pixels after accounting for the header and the extra margin
       const sidebarHeightInPx =
         (availableSidebarHeight.value * window.innerHeight) / 100
-
-      // Reduce the height by 2px per link for safety room
-      iconHeight.value = (sidebarHeightInPx - marginSpace - 2) / totalLinks
+      iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks
     }
   }
 
-  // Initial calculation on mount
   calculateIconHeight()
 
-  // Update calculations on resize
   window.addEventListener('resize', calculateIconHeight)
 
-  // Cleanup on component unmount
   onBeforeUnmount(() => {
     window.removeEventListener('resize', calculateIconHeight)
   })
 })
 
-// Filter links (you can add conditions if needed, like mature content)
+// Filter links (can add conditions here if needed)
 const filteredLinks = computed(() => sidebarLinks)
 </script>
 
@@ -98,10 +92,10 @@ const filteredLinks = computed(() => sidebarLinks)
   overflow-y: auto;
 }
 .hide-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, WebKit */
+  display: none;
 }
 .hide-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 </style>

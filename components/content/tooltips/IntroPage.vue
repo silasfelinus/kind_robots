@@ -2,7 +2,7 @@
   <transition name="fade">
     <div
       v-if="currentStep < steps.length"
-      class="absolute top-0 left-0 w-full h-full z-40"
+      class="absolute top-0 left-0 w-full h-full z-50"
       :class="steps[currentStep].bgClass"
     >
       <img
@@ -13,7 +13,7 @@
 
       <!-- Overlay for text and buttons -->
       <div
-        class="absolute inset-0 flex flex-col justify-end items-center text-center p-8 z-50 bg-black bg-opacity-50 rounded-xl"
+        class="absolute inset-0 flex flex-col justify-end items-center text-center p-8 z-60 bg-black bg-opacity-50 rounded-xl"
       >
         <h1 class="text-4xl font-bold mb-2 text-white text-shadow-lg">
           {{ steps[currentStep].title }}
@@ -45,7 +45,7 @@
 
       <!-- Fast-forward button -->
       <button
-        class="absolute bottom-4 right-4 bg-primary p-4 rounded-full text-white shadow-lg hover:bg-primary-dark"
+        class="absolute bottom-4 right-4 bg-primary p-4 rounded-full text-white shadow-lg hover:bg-primary-dark z-60"
         @click.stop="fastForward"
       >
         <Icon name="material-symbols:fast-forward-rounded" class="w-6 h-6" />
@@ -58,17 +58,14 @@
 import { ref } from 'vue'
 import { steps } from '@/training/steps.js'
 
-// Declare the emit function for 'finished' event
 const emit = defineEmits(['finished'])
 
 const currentStep = ref(0)
 
 const nextStep = () => {
-  // Check if we are on the last step
   if (currentStep.value < steps.length - 1) {
     currentStep.value++
   } else {
-    // If on the last step, emit the 'finished' event to end the intro
     emit('finished')
   }
 }
@@ -80,14 +77,13 @@ const previousStep = () => {
 }
 
 const fastForward = () => {
-  // Skip to the last step
   currentStep.value = steps.length - 1
 }
 </script>
 
 <style scoped>
 .object-contain {
-  object-fit: contain; /* Ensures the image is fully visible */
+  object-fit: contain;
 }
 
 .fade-enter-active,
@@ -100,22 +96,22 @@ const fastForward = () => {
 }
 
 .bg-primary {
-  background-color: #3498db; /* Example primary color */
+  background-color: #3498db;
 }
 
 .bg-secondary {
-  background-color: #e74c3c; /* Example secondary color */
+  background-color: #e74c3c;
 }
 
 .text-shadow-lg {
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8); /* Large shadow for title */
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
 }
 
 .text-shadow-md {
-  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6); /* Medium shadow for description */
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
 }
 
 .bg-primary-dark {
-  background-color: #2c8bcf; /* Darker shade for hover effect */
+  background-color: #2c8bcf;
 }
 </style>

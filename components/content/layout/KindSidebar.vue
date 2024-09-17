@@ -7,7 +7,7 @@
       maxHeight: `${availableSidebarHeight}vh`, // Sidebar takes the remaining space after header
       overflowY: 'auto', // Scrollable if content overflows
     }"
-    class="transition-all duration-500 ease-in-out border rounded-2xl bg-base-200"
+    class="transition-all duration-500 ease-in-out bg-base-200"
     :aria-hidden="!isSidebarOpen"
   >
     <!-- Sidebar Links with Icons and Titles -->

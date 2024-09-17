@@ -3,14 +3,14 @@
     <!-- Loader, shown only until page is ready -->
     <div
       v-if="!pageReady"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-70"
+      class="fixed inset-0 flex items-center justify-center bg-opacity-70"
     >
       <ami-loader />
     </div>
 
     <!-- Header -->
     <header
-      class="w-full z-30 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out flex-none"
+      class="w-full bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out flex-none"
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
       <!-- Sidebar Toggle -->

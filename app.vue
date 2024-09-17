@@ -22,11 +22,16 @@
       <!-- Sidebar (Left) -->
       <kind-sidebar />
 
-      <!-- Main Content (Allow Scroll Here) -->
-      <div class="flex-grow w-full max-w-4xl bg-base-200 overflow-y-auto">
-        <!-- nuxt-page should trigger scrolling when needed -->
-        <nuxt-page />
-      </div>
+      <!-- Main Content with scrollable area -->
+      <main class="flex-grow overflow-y-auto">
+      
+          <div class="flex justify-center items-center">
+            <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
+              <nuxt-page />
+            </div>
+          </div>
+     
+      </main>
     </div>
 
     <!-- Footer (Stick to Bottom) -->

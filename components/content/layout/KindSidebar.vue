@@ -15,9 +15,9 @@
       :key="link.title"
       :style="{
         height: `${iconHeight}px`,
-        margin: '5px 0',
+        margin: '1px 0',
       }"
-      class="Icon-link-container flex items-center justify-center space-x-2 transition-all duration-300 ease-in-out hover:bg-base-100 hover:scale-105 rounded-xl p-2"
+      class="Icon-link-container flex items-left justify-left space-x-2 transition-all duration-300 ease-in-out hover:bg-base-100 hover:scale-105 rounded-xl p-2"
     >
       <NuxtLink
         :to="link.path"
@@ -71,8 +71,8 @@ onMounted(() => {
       const sidebarHeightInPx =
         (availableSidebarHeight.value * window.innerHeight) / 100
 
-      // Reduce the height by 5px per link for safety room
-      iconHeight.value = (sidebarHeightInPx - marginSpace - 5) / totalLinks
+      // Reduce the height by 2px per link for safety room
+      iconHeight.value = (sidebarHeightInPx - marginSpace - 2) / totalLinks
     }
   }
 

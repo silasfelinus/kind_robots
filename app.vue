@@ -1,7 +1,8 @@
 <template>
   <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
     <!-- Loader -->
- <div class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-70"
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-70"
     >
       <ami-loader />
     </div>
@@ -65,17 +66,13 @@
       </aside>
 
       <!-- Main Content with scrollable area -->
-      <main
-        class="flex-grow p-1 transition-all duration-500 ease-in-out "
-      >
+      <main class="flex-grow p-1 transition-all duration-500 ease-in-out">
         <transition name="fade" mode="out-in">
           <div
             v-if="!displayStore.showIntro"
             class="flex justify-center items-center"
           >
-            <div
-              class="w-full max-w-4xl rounded-2xl p-1 bg-base-200"
-            >
+            <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
               <nuxt-page />
             </div>
           </div>
@@ -104,7 +101,6 @@ import { useThemeStore } from '@/stores/themeStore'
 import { useBotStore } from '@/stores/botStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 
-
 const errorStore = useErrorStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
@@ -112,8 +108,6 @@ const themeStore = useThemeStore()
 const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
 const displayStore = useDisplayStore()
-
-
 
 // Add a flag to prevent double triggers of onIntroFinished
 const isProcessing = ref(false)
@@ -126,18 +120,15 @@ onMounted(async () => {
     await themeStore.initTheme()
     await milestoneStore.initializeMilestones()
     displayStore.loadState()
-    displayStore.updateViewport() 
+    displayStore.updateViewport()
     window.addEventListener('resize', displayStore.updateViewport)
     console.log('Initialization complete.')
   } catch (error) {
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
-      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`
+      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
-})
-
-
 })
 
 onBeforeUnmount(() => {
@@ -160,7 +151,6 @@ const onIntroFinished = () => {
 </script>
 
 <style>
-
 .flex-1 {
   min-height: 0; /* Prevent flex overflow issue */
 }

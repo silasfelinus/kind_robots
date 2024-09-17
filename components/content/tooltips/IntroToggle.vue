@@ -5,9 +5,9 @@
       class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm hover:bg-gray-300 flex items-center"
       @click="toggleIntro"
     >
-      <icon 
-        :name="displayStore.showIntro ? 'fast-forward' : 'video-camera'" 
-        class="mr-2" 
+      <icon
+        :name="displayStore.showIntro ? 'fast-forward' : 'video-camera'"
+        class="mr-2"
       />
       {{ displayStore.showIntro ? 'Skip Intro' : 'Intro' }}
     </button>

@@ -42,7 +42,6 @@ import { useArtStore } from '@/stores/artStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useBotStore } from '@/stores/botStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useDisplayStore } from '@/stores/displayStore'
 import KindSidebar from '@/components/content/layout/KindSidebar.vue'
 
 const errorStore = useErrorStore()
@@ -51,7 +50,6 @@ const artStore = useArtStore()
 const themeStore = useThemeStore()
 const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
-const displayStore = useDisplayStore()
 
 const isLoading = ref(true)
 const isLeftSidebarCollapsed = ref(false)
@@ -64,8 +62,6 @@ const toggleLeftSidebar = () => {
 const toggleRightSidebar = () => {
   isRightSidebarCollapsed.value = !isRightSidebarCollapsed.value
 }
-
-
 
 onMounted(async () => {
   try {

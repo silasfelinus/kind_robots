@@ -20,20 +20,14 @@
     <!-- Main Layout -->
     <div class="flex flex-1 w-full overflow-hidden">
       <!-- Sidebar (Left) -->
-      <aside>
-        <kind-sidebar />
-      </aside>
+      <kind-sidebar />
 
-      <!-- Main Content with scrollable area -->
-      <main
-        class="flex-grow overflow-y-auto p-1 transition-all duration-500 ease-in-out"
-      >
-        <div class="flex justify-center items-center">
-          <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
-            <nuxt-page />
-          </div>
+      <!-- Main Content -->
+      <div class="flex-grow flex justify-center items-center overflow-y-auto">
+        <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
+          <nuxt-page />
         </div>
-      </main>
+      </div>
     </div>
 
     <!-- Footer (Positioned after scrolling through content) -->

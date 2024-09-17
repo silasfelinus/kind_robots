@@ -5,9 +5,8 @@
       width: sidebarWidth,
       visibility: isSidebarOpen ? 'visible' : 'hidden',
       maxHeight: `${availableSidebarHeight}vh`, // Sidebar takes the remaining space after header
-      overflowY: 'auto', // Scrollable if content overflows
     }"
-    class="transition-all duration-500 ease-in-out bg-base-200"
+    class="transition-all duration-500 ease-in-out bg-base-200 hide-scrollbar"
     :aria-hidden="!isSidebarOpen"
   >
     <!-- Sidebar Links with Icons and Titles -->
@@ -84,3 +83,17 @@ onMounted(() => {
 // Filter links (you can add conditions if needed, like mature content)
 const filteredLinks = computed(() => sidebarLinks)
 </script>
+
+<style scoped>
+/* Hide scrollbar but keep content scrollable */
+.hide-scrollbar {
+  overflow-y: auto;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, WebKit */
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+</style>

@@ -2,12 +2,12 @@
   <!-- Collapsible Sidebar -->
   <aside
     :style="{
-      width: sidebarWidth,
-      visibility: isSidebarOpen ? 'visible' : 'hidden',
+      width: isSidebarHidden ? '0vw' : sidebarWidth + 'vw',
+      visibility: isSidebarHidden ? 'hidden' : 'visible',
       maxHeight: `${availableSidebarHeight}vh`, // Sidebar takes the remaining space after header
     }"
     class="transition-all duration-500 ease-in-out bg-base-200 hide-scrollbar"
-    :aria-hidden="!isSidebarOpen"
+    :aria-hidden="isSidebarHidden"
   >
     <!-- Sidebar Links with Icons and Titles -->
     <div
@@ -25,7 +25,13 @@
       >
         <Icon
           :name="link.icon"
-          :class="[isSidebarOpen ? 'h-16 w-16' : 'h-12 w-12']"
+          :class="[
+            isSidebarOpen
+              ? 'h-12 w-12'
+              : isSidebarCompact
+                ? 'h-10 w-10'
+                : 'h-8 w-8',
+          ]"
           class="transition-all duration-300 ease-in-out"
         />
         <span
@@ -45,14 +51,16 @@ import { sidebarLinks } from '@/assets/sidebar' // Import the sidebar data
 
 const displayStore = useDisplayStore()
 
+// Sidebar state based on the displayStore
 const sidebarWidth = computed(() => displayStore.sidebarVw)
-const isSidebarOpen = computed(() => displayStore.sidebarLeft !== 'hidden')
+const isSidebarOpen = computed(() => displayStore.sidebarLeft === 'open')
+const isSidebarCompact = computed(() => displayStore.sidebarLeft === 'compact')
+const isSidebarHidden = computed(() => displayStore.sidebarLeft === 'hidden')
 
 // Reduce the availableSidebarHeight slightly (e.g., by 2%) to prevent cut-off issues
 const availableSidebarHeight = ref(100 - displayStore.headerVh - 2) // Reduced height by 2% for safety
 const iconHeight = ref(0)
 
-// Ensure window-related calculations only run in the browser
 onMounted(() => {
   const calculateIconHeight = () => {
     if (typeof window !== 'undefined') {

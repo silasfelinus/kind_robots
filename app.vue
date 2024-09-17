@@ -20,6 +20,7 @@
     <!-- Main Layout -->
     <div class="flex-1 w-full flex overflow-hidden">
       <!-- Sidebar (Left) -->
+<kind-sidebar />
 
       <!-- Main Content with scrollable area -->
       <main class="flex-grow overflow-y-auto">

@@ -13,20 +13,20 @@
         <sidebar-toggle class="text-4xl" />
       </div>
 
-      <!-- Navigation Links (Refactored into its own component) -->
+      <!-- Navigation Links  -->
       <NavLinks />
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 w-full overflow-hidden">
+    <div class="flex flex-1 w-full overflow-y-auto">
       <!-- Sidebar (Left) -->
       <kind-sidebar />
 
       <!-- Main Content -->
-      <div class="flex-grow flex justify-center items-center overflow-y-auto">
-        <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
-          <nuxt-page />
-        </div>
+      <div
+        class="flex-grow flex justify-center items-center w-full max-w-4xl bg-base-200"
+      >
+        <nuxt-page />
       </div>
     </div>
 

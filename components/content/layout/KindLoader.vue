@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="!isReady"
-    class="fixed inset-0 flex items-center justify-center bg-opacity-70"
+    class="fixed inset-0 flex items-center justify-center bg-opacity-70 z-50"
   >
     <ami-loader />
   </div>

@@ -5,7 +5,7 @@
 
     <!-- Header -->
     <header
-      class="w-full bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
+      class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out"
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
       <!-- Sidebar Toggle -->
@@ -50,7 +50,6 @@
 </template>
 
 <script setup>
-import NavLinks from '@/components/NavLinks.vue'
 import { ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 

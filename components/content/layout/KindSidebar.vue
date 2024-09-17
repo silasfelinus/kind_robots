@@ -49,7 +49,8 @@ const displayStore = useDisplayStore()
 const sidebarWidth = computed(() => displayStore.sidebarVw)
 const isSidebarOpen = computed(() => displayStore.sidebarLeft !== 'hidden')
 
-const availableSidebarHeight = ref(100 - displayStore.headerVh)
+// Reduce the availableSidebarHeight slightly (e.g., by 2%) to prevent cut-off issues
+const availableSidebarHeight = ref(100 - displayStore.headerVh - 2) // Reduced height by 2% for safety
 const iconHeight = ref(0)
 
 // Ensure window-related calculations only run in the browser
@@ -58,10 +59,13 @@ onMounted(() => {
     if (typeof window !== 'undefined') {
       const totalLinks = sidebarLinks.length
       const marginSpace = 10 * totalLinks // Example: 10px margin for each link
-      availableSidebarHeight.value = 100 - displayStore.headerVh
+
+      // Calculate the total sidebar height in pixels after accounting for the header and the extra margin
       const sidebarHeightInPx =
         (availableSidebarHeight.value * window.innerHeight) / 100
-      iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks
+
+      // Reduce the height by 5px per link for safety room
+      iconHeight.value = (sidebarHeightInPx - marginSpace - 5) / totalLinks
     }
   }
 

@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="!pageReady"
     class="loading-overlay"
     :class="{ 'fade-out': fadeOut }"
     @transitionend="handleTransitionEnd"
@@ -13,12 +14,11 @@
     <!-- Multiple Butterflies with Animation Delay -->
     <ami-butterfly v-for="i in butterflyCount" :key="i" />
   </div>
- 
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useLoadStore } from '../../../stores/loadStore' // Assuming the path to your loadStore
+import { useLoadStore } from '../../../stores/loadStore' // Adjust path if needed
 
 const { randomLoadMessage } = useLoadStore()
 const currentMessage = ref('Building Kind Robots...')
@@ -40,8 +40,9 @@ onMounted(() => {
   setTimeout(() => {
     currentMessage.value = randomLoadMessage()
     intervalId = setInterval(updateMessage, 20 * 50) as NodeJS.Timeout
-  }, 700) // Update the message after a .5 second delay
-  setTimeout(startFadeOut, 1000) // Fade out after 2 seconds
+  }, 700) // Update the message after a .7 second delay
+
+  setTimeout(startFadeOut, 1000) // Fade out after 1 second
 })
 
 onUnmounted(() => {
@@ -53,7 +54,7 @@ onUnmounted(() => {
 const handleTransitionEnd = () => {
   if (fadeOut.value) {
     butterflyCount.value = 0
-    pageReady.value = true
+    pageReady.value = true // Page is now ready, overlay is removed
   }
 }
 </script>
@@ -67,12 +68,12 @@ const handleTransitionEnd = () => {
   height: 100vh;
   background: rgba(0, 0, 0, 0.8); /* Slight transparency for a more polished look */
   z-index: 9999;
-  display: flex; /* Use flex to center the loading message */
+  display: flex;
   justify-content: center;
   align-items: center;
   transition: opacity 1s;
-  opacity: 1; /* Initial state should be fully visible */
-  pointer-events: all; /* Allow clicks to be captured while loading */
+  opacity: 1;
+  pointer-events: all; /* Capture clicks while loading */
 }
 
 .loading-overlay.fade-out {
@@ -87,6 +88,15 @@ const handleTransitionEnd = () => {
   text-align: center;
 }
 
+/* Ensure butterflies are visible and not hidden */
+ami-butterfly {
+  position: absolute;
+  animation: fly 5s infinite;
+}
 
-
+@keyframes fly {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(50px, -50px); }
+  100% { transform: translate(0, 0); }
+}
 </style>

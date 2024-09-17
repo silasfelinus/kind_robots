@@ -13,7 +13,7 @@
 
       <!-- Overlay for text and buttons -->
       <div
-        class="absolute inset-0 flex flex-col justify-end items-center text-center p-8 z-60 bg-black bg-opacity-50 rounded-xl"
+        class="absolute inset-0 flex flex-col justify-end items-center text-center p-8 z-60 bg-base-200 bg-opacity-70 rounded-xl"
       >
         <h1 class="text-4xl font-bold mb-2 text-white text-shadow-lg">
           {{ steps[currentStep].title }}
@@ -31,25 +31,29 @@
           </button>
           <!-- Next or Finish button -->
           <button
+            v-if="currentStep === steps.length - 1"
+            class="bg-primary p-3 rounded-lg text-white"
+          >
+            <!-- NuxtLink for Finish -->
+            <NuxtLink to="/" class="text-white">Finish</NuxtLink>
+          </button>
+          <button
+            v-else
             class="bg-primary p-3 rounded-lg text-white"
             @click.stop="nextStep"
           >
-            {{
-              currentStep === steps.length - 1
-                ? 'Finish'
-                : steps[currentStep].buttonText
-            }}
+            {{ steps[currentStep].buttonText }}
           </button>
         </div>
       </div>
 
       <!-- Fast-forward button -->
-      <button
-        class="absolute bottom-4 right-4 bg-primary p-4 rounded-full text-white shadow-lg hover:bg-primary-dark z-60"
-        @click.stop="fastForward"
+      <NuxtLink
+        to="/"
+        class="absolute bottom-4 right-4 bg-accent p-4 rounded-full text-white shadow-lg hover:bg-accent-focus z-60"
       >
         <Icon name="material-symbols:fast-forward-rounded" class="w-6 h-6" />
-      </button>
+      </NuxtLink>
     </div>
   </transition>
 </template>
@@ -57,16 +61,12 @@
 <script setup>
 import { ref } from 'vue'
 import { steps } from '@/training/steps.js'
-import { useRouter } from 'vue-router'
 
 const currentStep = ref(0)
-const router = useRouter() // Use Nuxt's router
 
 const nextStep = () => {
   if (currentStep.value < steps.length - 1) {
     currentStep.value++
-  } else {
-    router.push('/') // Redirect to the homepage on Finish
   }
 }
 
@@ -74,11 +74,6 @@ const previousStep = () => {
   if (currentStep.value > 0) {
     currentStep.value--
   }
-}
-
-const fastForward = () => {
-  currentStep.value = steps.length - 1
-  router.push('/') // Redirect to the homepage on Skip
 }
 </script>
 
@@ -96,23 +91,11 @@ const fastForward = () => {
   opacity: 0;
 }
 
-.bg-primary {
-  background-color: #3498db;
-}
-
-.bg-secondary {
-  background-color: #e74c3c;
-}
-
 .text-shadow-lg {
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
 }
 
 .text-shadow-md {
   text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
-}
-
-.bg-primary-dark {
-  background-color: #2c8bcf;
 }
 </style>

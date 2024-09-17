@@ -2,15 +2,6 @@
 import { onMounted, onUnmounted, reactive } from 'vue'
 import { makeNoise2D } from 'open-simplex-noise'
 
-const initialized = ref(false)
-
-// Define the butterfly size constant here
-const BUTTERFLY_SIZE = 1 // You can change this number to adjust the butterfly size.
-
-onMounted(() => {
-  initialized.value = true
-})
-
 const randomColor = (): string => {
   const h = Math.floor(Math.random() * 360)
   const s = Math.floor(Math.random() * 50 + 50) // keep saturation between 50 and 100
@@ -18,7 +9,6 @@ const randomColor = (): string => {
   return `hsl(${h},${s}%,${l}%)`
 }
 
-// Analogous color generator
 const analogousColor = (hsl: string): string => {
   const hslMatch = hsl.match(/\d+/g)
   if (!hslMatch) {
@@ -29,7 +19,6 @@ const analogousColor = (hsl: string): string => {
   return `hsl(${newH},${s}%,${l}%)`
 }
 
-// Complementary color generator
 const complementaryColor = (color: string): string => {
   const [h, s, l] = color.replace('hsl(', '').replace(')', '').split(',')
   const newH = (parseInt(h) + 180) % 360
@@ -113,7 +102,6 @@ function updatePosition() {
     )
   }
 
-  // Change scale based on screen position
   butterfly.scale =
     0.33 +
     ((2 -
@@ -122,7 +110,6 @@ function updatePosition() {
       2) *
       0.67
 
-  // Update the rotation based on the direction
   butterfly.rotation = dx >= 0 ? 120 : 30
 }
 
@@ -153,8 +140,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    v-if="initialized"
-    class="butterfly z-50"
+    class="butterfly"
     :style="{
       left: butterfly.goal.x + 'px',
       top: butterfly.goal.y + 'px',
@@ -162,17 +148,23 @@ onUnmounted(() => {
         'rotate3d(1, 0.5, 0, ' +
         butterfly.rotation +
         'deg) scale(' +
-        butterfly.scale * BUTTERFLY_SIZE + // Apply size scaling here
+        butterfly.scale +
         ')',
     }"
   >
     <div class="left-wing">
-      <div class="top" :style="{ background: butterfly.wingTopColor }" />
-      <div class="bottom" :style="{ background: butterfly.wingBottomColor }" />
+      <div class="top" :style="{ background: butterfly.wingTopColor }"></div>
+      <div
+        class="bottom"
+        :style="{ background: butterfly.wingBottomColor }"
+      ></div>
     </div>
     <div class="right-wing">
-      <div class="top" :style="{ background: butterfly.wingTopColor }" />
-      <div class="bottom" :style="{ background: butterfly.wingBottomColor }" />
+      <div class="top" :style="{ background: butterfly.wingTopColor }"></div>
+      <div
+        class="bottom"
+        :style="{ background: butterfly.wingBottomColor }"
+      ></div>
     </div>
   </div>
 </template>
@@ -208,8 +200,8 @@ body {
 }
 
 .butterfly {
-  width: calc(100px * var(--size));
-  height: calc(100px * var(--size));
+  width: 100px;
+  height: 100px;
   position: absolute;
   transform-style: preserve-3d;
   transform: rotate3d(1, 0.5, 0, 110deg);
@@ -218,32 +210,27 @@ body {
 
 .left-wing,
 .right-wing {
-  width: calc(24px * var(--size));
-  height: calc(42px * var(--size));
+  width: 24px;
+  height: 42px;
   position: absolute;
-  top: calc(10px * var(--size));
+  top: 10px;
   pointer-events: none;
 }
 
 .left-wing {
-  left: calc(10px * var(--size));
-  top: calc(10px * var(--size));
-  transform-origin: calc(24px * var(--size)) 50%;
+  left: 10px;
+  top: 10px;
+  transform-origin: 24px 50%;
   transform: rotate3d(0, 1, 0, 20deg);
   animation: flutter-left 0.3s infinite;
   pointer-events: none;
 }
 
 .right-wing {
-  left: calc(34px * var(--size));
+  left: 34px;
   transform: rotate3d(0, 1, 0, -20deg);
   transform-origin: 0px 50%;
   animation: flutter-right 0.3s infinite;
-  pointer-events: none;
-}
-
-.left-wing .top {
-  right: 0;
   pointer-events: none;
 }
 
@@ -255,17 +242,15 @@ body {
 }
 
 .top {
-  width: calc(20px * var(--size));
-  height: calc(20px * var(--size));
+  width: 20px;
+  height: 20px;
   border-radius: 10px;
-  pointer-events: none;
 }
 
 .bottom {
-  top: calc(18px * var(--size));
-  width: calc(24px * var(--size));
-  height: calc(24px * var(--size));
+  top: 18px;
+  width: 24px;
+  height: 24px;
   border-radius: 12px;
-  pointer-events: none;
 }
 </style>

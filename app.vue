@@ -18,15 +18,16 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 w-full">
+    <div class="flex flex-1 w-full overflow-y-auto">
       <!-- Sidebar (Left) -->
       <kind-sidebar />
 
-      <!-- Main Content -->
-      <div class="flex-grow flex justify-center items-center overflow-y-auto">
-        <div class="w-full max-w-4xl bg-base-200">
-          <nuxt-page class="h-full" />
-        </div>
+      <!-- Main Content (Allow Scroll Here) -->
+      <div
+        class="flex-grow w-full max-w-4xl bg-base-200 overflow-y-auto h-full"
+      >
+        <!-- nuxt-page should trigger scrolling when needed -->
+        <nuxt-page class="min-h-screen" />
       </div>
     </div>
 

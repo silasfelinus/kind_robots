@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="flex flex-col h-full w-full bg-base-200">
+  <div id="app" class="flex flex-col min-h-screen w-full bg-base-200">
     <!-- KindLoader -->
     <KindLoader @page-ready="handlePageReady" />
 
@@ -25,17 +25,16 @@
       <!-- Main Content -->
       <div class="flex-grow flex justify-center items-center overflow-y-auto">
         <div class="w-full max-w-4xl bg-base-200">
-          <!-- Apply max height if necessary to force content scrolling -->
           <nuxt-page class="h-full" />
         </div>
       </div>
     </div>
 
-    <!-- Footer (Positioned after scrolling through content) -->
+    <!-- Footer (Stick to Bottom) -->
     <footer
       v-if="displayStore.footer !== 'hidden'"
       :style="{ height: `${displayStore.footerVh}vh` }"
-      class="flex-none w-full bg-gray-800 text-accent mt-auto"
+      class="w-full bg-gray-800 text-accent mt-auto flex-none"
     >
       created by Silas Knight silas@kindrobots.org
     </footer>

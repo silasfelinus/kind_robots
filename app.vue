@@ -50,7 +50,6 @@
 </template>
 
 <script setup>
-import KindLoader from '@/components/KindLoader.vue' // Import the KindLoader component
 import NavLinks from '@/components/NavLinks.vue'
 import { ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'

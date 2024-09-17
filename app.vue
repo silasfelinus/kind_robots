@@ -7,14 +7,6 @@
       <ami-loader />
     </div>
 
-    <!-- Intro Component -->
-    <div
-      v-if="displayStore.showIntro"
-      class="fixed inset-0 z-40 flex justify-center items-center bg-base-200 bg-opacity-70"
-    >
-      <IntroPage @finished="onIntroFinished" />
-    </div>
-
     <!-- Header -->
     <header
       class="w-full z-30 bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out flex-none"
@@ -50,12 +42,12 @@
           class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
           >AMI</nuxt-link
         >
+        <nuxt-link
+          to="/intro"
+          class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+          >Welcome</nuxt-link
+        >
       </nav>
-
-      <!-- Intro Toggle Component -->
-      <div class="top-4 right-4 p-1 z-50">
-        <IntroToggle />
-      </div>
     </header>
 
     <!-- Main Layout -->
@@ -68,10 +60,7 @@
       <!-- Main Content with scrollable area -->
       <main class="flex-grow p-1 transition-all duration-500 ease-in-out">
         <transition name="fade" mode="out-in">
-          <div
-            v-if="!displayStore.showIntro"
-            class="flex justify-center items-center"
-          >
+          <div class="flex justify-center items-center">
             <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
               <nuxt-page />
             </div>
@@ -134,20 +123,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   window.removeEventListener('resize', displayStore.updateViewport)
 })
-
-// Ensure onIntroFinished is only processed once
-const onIntroFinished = () => {
-  if (isProcessing.value) return
-
-  isProcessing.value = true
-  displayStore.changeState('headerState', 'open') // Ensure header state is updated
-  displayStore.changeState('sidebarLeft', 'hidden') // Example of changing state
-  displayStore.toggleIntroState() // Hides the intro
-
-  setTimeout(() => {
-    isProcessing.value = false // Reset after processing is done
-  }, 300) // Adjust the time as per the animation length
-}
 </script>
 
 <style>

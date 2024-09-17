@@ -1,7 +1,8 @@
 <template>
   <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
-    <!-- Loader -->
+    <!-- Loader, shown only until page is ready -->
     <div
+      v-if="!pageReady"
       class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-70"
     >
       <ami-loader />
@@ -100,6 +101,7 @@ const displayStore = useDisplayStore()
 
 // Add a flag to prevent double triggers of onIntroFinished
 const isProcessing = ref(false)
+const pageReady = ref(false) // Flag to control loader
 
 onMounted(async () => {
   try {
@@ -110,6 +112,12 @@ onMounted(async () => {
     await milestoneStore.initializeMilestones()
     displayStore.loadState()
     displayStore.updateViewport()
+
+    // Simulate a delay to remove loader (replace this with real logic as needed)
+    setTimeout(() => {
+      pageReady.value = true // Loader is hidden, app is interactive
+    }, 1500)
+
     window.addEventListener('resize', displayStore.updateViewport)
     console.log('Initialization complete.')
   } catch (error) {

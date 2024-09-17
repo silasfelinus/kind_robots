@@ -30,7 +30,7 @@ function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
 
 export const usePitchStore = defineStore('pitch', {
   state: () => ({
-    pitches: [] as Pitch[],        // All pitches
+    pitches: [] as Pitch[], // All pitches
     selectedPitches: [] as Pitch[], // Top 5 selected pitches
     isInitialized: false,
     selectedPitchId: null as number | null,
@@ -38,7 +38,9 @@ export const usePitchStore = defineStore('pitch', {
 
   getters: {
     brainstormPitches: (state) => {
-      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM')
+      return state.pitches.filter(
+        (pitch: Pitch) => pitch.PitchType === 'BRAINSTORM',
+      )
     },
 
     pitchesByTitle: (state) => {
@@ -58,7 +60,9 @@ export const usePitchStore = defineStore('pitch', {
       const userStore = useUserStore()
       return state.pitches.filter(
         (pitch) =>
-          pitch.isPublic || pitch.userId === userStore.userId || pitch.userId === 0,
+          pitch.isPublic ||
+          pitch.userId === userStore.userId ||
+          pitch.userId === 0,
       )
     },
 
@@ -74,7 +78,7 @@ export const usePitchStore = defineStore('pitch', {
     async initializePitches() {
       // Make sure fetchPitches is called correctly
       if (!this.isInitialized) {
-        await this.fetchPitches()  // Calls the action to fetch pitches
+        await this.fetchPitches() // Calls the action to fetch pitches
         this.isInitialized = true
       }
     },
@@ -88,7 +92,9 @@ export const usePitchStore = defineStore('pitch', {
           },
           body: JSON.stringify({
             n: 5,
-            messages: [{ role: 'user', content: '1 more original brainstorm.' }],
+            messages: [
+              { role: 'user', content: '1 more original brainstorm.' },
+            ],
             max_tokens: 500,
           }),
         })
@@ -154,7 +160,10 @@ export const usePitchStore = defineStore('pitch', {
 
       if (isClient) {
         localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
+        localStorage.setItem(
+          'selectedPitches',
+          JSON.stringify(this.selectedPitches),
+        )
       }
     },
 
@@ -188,39 +197,41 @@ export const usePitchStore = defineStore('pitch', {
         console.error('Failed to fetch pitch by ID:', error)
       }
     },
-// Create a new pitch
-async createPitch(newPitch: Partial<Pitch>) {
-  const errorStore = useErrorStore() // make sure the errorStore is included
-  try {
-    const response = await fetch('/api/pitches', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newPitch),
-    })
+    // Create a new pitch
+    async createPitch(newPitch: Partial<Pitch>) {
+      const errorStore = useErrorStore() // make sure the errorStore is included
+      try {
+        const response = await fetch('/api/pitches', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newPitch),
+        })
 
-    const data = await response.json()
+        const data = await response.json()
 
-    if (response.ok && data.pitch) {
-      // Push the new pitch into the store state
-      this.pitches.push(data.pitch)
-      if (isClient) {
-        localStorage.setItem('pitches', JSON.stringify(this.pitches))
+        if (response.ok && data.pitch) {
+          // Push the new pitch into the store state
+          this.pitches.push(data.pitch)
+          if (isClient) {
+            localStorage.setItem('pitches', JSON.stringify(this.pitches))
+          }
+          return { success: true, message: 'Pitch created successfully' }
+        } else {
+          throw new Error(data.message || 'Pitch creation failed')
+        }
+      } catch (error) {
+        if (isErrorWithMessage(error)) {
+          errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
+          return { success: false, message: error.message }
+        } else {
+          errorStore.setError(ErrorType.NETWORK_ERROR, 'Unknown error')
+          return {
+            success: false,
+            message: 'Unknown error during pitch creation',
+          }
+        }
       }
-      return { success: true, message: 'Pitch created successfully' }
-    } else {
-      throw new Error(data.message || 'Pitch creation failed')
-    }
-  } catch (error) {
-    if (isErrorWithMessage(error)) {
-      errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
-      return { success: false, message: error.message }
-    } else {
-      errorStore.setError(ErrorType.NETWORK_ERROR, 'Unknown error')
-      return { success: false, message: 'Unknown error during pitch creation' }
-    }
-  }
-},
-
+    },
 
     // Update a pitch
     async updatePitch(pitchId: number, updates: Partial<Pitch>) {

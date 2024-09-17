@@ -1,7 +1,9 @@
 <template>
   <div class="bg-base-100 shadow-md rounded-lg p-6 w-full mb-6">
-    <h3 class="text-lg font-semibold mb-4 text-primary">Create a Custom Pitch</h3>
-    
+    <h3 class="text-lg font-semibold mb-4 text-primary">
+      Create a Custom Pitch
+    </h3>
+
     <!-- Title Input -->
     <input
       v-model="newPitch.title"
@@ -9,7 +11,7 @@
       placeholder="Pitch Title"
       class="w-full border border-gray-300 rounded-md p-2 mb-4"
     />
-    
+
     <!-- Pitch Description -->
     <textarea
       v-model="newPitch.pitch"
@@ -17,7 +19,7 @@
       class="w-full border border-gray-300 rounded-md p-2 mb-4"
       rows="3"
     ></textarea>
-    
+
     <!-- Designer Input -->
     <input
       v-model="newPitch.designer"
@@ -25,7 +27,7 @@
       placeholder="Designer Name"
       class="w-full border border-gray-300 rounded-md p-2 mb-4"
     />
-    
+
     <!-- Flavor Text Input -->
     <textarea
       v-model="newPitch.flavorText"
@@ -41,7 +43,7 @@
       placeholder="Highlight Image URL (Optional)"
       class="w-full border border-gray-300 rounded-md p-2 mb-4"
     />
-    
+
     <!-- Pitch Type Select -->
     <select
       v-model="newPitch.PitchType"
@@ -57,23 +59,23 @@
     <!-- Public/Private Toggle -->
     <div class="flex items-center mb-4">
       <input
+        id="publicToggle"
         v-model="newPitch.isPublic"
         type="checkbox"
-        id="publicToggle"
         class="mr-2"
       />
       <label for="publicToggle" class="text-sm">Public</label>
     </div>
-    
+
     <!-- Save Button -->
     <button
       class="bg-primary hover:bg-primary-focus text-white py-2 px-4 rounded-full transition duration-300"
-      @click="createCustomPitch"
       :disabled="!newPitch.title || !newPitch.pitch || isSubmitting"
+      @click="createCustomPitch"
     >
       {{ isSubmitting ? 'Saving...' : 'Save Custom Pitch' }}
     </button>
-    
+
     <!-- Error Message -->
     <p v-if="errorStore.message" class="text-red-500 mt-4">
       {{ errorStore.message }}
@@ -83,10 +85,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
+import { usePitchStore, PitchType } from '@/stores/pitchStore'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { PitchType } from '@/stores/pitchStore'
 
 // Initialize stores
 const pitchStore = usePitchStore()
@@ -111,7 +112,10 @@ const isSubmitting = ref(false)
 // Function to handle creating a custom pitch
 const createCustomPitch = async () => {
   if (!newPitch.value.title || !newPitch.value.pitch) {
-    errorStore.setError(ErrorType.INPUT_ERROR, 'Title and description are required')
+    errorStore.setError(
+      ErrorType.INPUT_ERROR,
+      'Title and description are required',
+    )
     return
   }
 
@@ -145,7 +149,10 @@ const createCustomPitch = async () => {
       throw new Error(result.message)
     }
   } catch (error) {
-    errorStore.setError(ErrorType.NETWORK_ERROR, error.message || 'Failed to create pitch')
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      error.message || 'Failed to create pitch',
+    )
   } finally {
     isSubmitting.value = false
   }

@@ -34,8 +34,16 @@
       </div>
 
       <!-- Conversations Display -->
-      <div v-for="(conversation, index) in conversations" :key="index" class="response-container m-2 p-3 bg-white rounded-lg shadow-md relative">
-        <div v-for="(msg, msgIndex) in conversation" :key="msgIndex" class="message-content">
+      <div
+        v-for="(conversation, index) in conversations"
+        :key="index"
+        class="response-container m-2 p-3 bg-white rounded-lg shadow-md relative"
+      >
+        <div
+          v-for="(msg, msgIndex) in conversation"
+          :key="msgIndex"
+          class="message-content"
+        >
           <ResponseEntry
             v-if="conversation && msg"
             :role="msg.role"
@@ -50,27 +58,72 @@
         <div class="reaction-reply flex justify-between items-center mt-1">
           <!-- Reaction Buttons -->
           <div class="reaction-buttons flex space-x-2">
-            <button class="hover:bg-gray-200" :class="{ 'bg-primary': isReactionActive(index, 'isLoved') }" @click="toggleReaction(index, 'isLoved')">❤️</button>
-            <button class="hover:bg-gray-200" :class="{ 'bg-primary': isReactionActive(index, 'isClapped') }" @click="toggleReaction(index, 'isClapped')">👏</button>
-            <button class="hover:bg-gray-200" :class="{ 'bg-primary': isReactionActive(index, 'isBooed') }" @click="toggleReaction(index, 'isBooed')">👎</button>
-            <button class="hover:bg-gray-200" :class="{ 'bg-primary': isReactionActive(index, 'isHated') }" @click="toggleReaction(index, 'isHated')">🚫</button>
+            <button
+              class="hover:bg-gray-200"
+              :class="{ 'bg-primary': isReactionActive(index, 'isLoved') }"
+              @click="toggleReaction(index, 'isLoved')"
+            >
+              ❤️
+            </button>
+            <button
+              class="hover:bg-gray-200"
+              :class="{ 'bg-primary': isReactionActive(index, 'isClapped') }"
+              @click="toggleReaction(index, 'isClapped')"
+            >
+              👏
+            </button>
+            <button
+              class="hover:bg-gray-200"
+              :class="{ 'bg-primary': isReactionActive(index, 'isBooed') }"
+              @click="toggleReaction(index, 'isBooed')"
+            >
+              👎
+            </button>
+            <button
+              class="hover:bg-gray-200"
+              :class="{ 'bg-primary': isReactionActive(index, 'isHated') }"
+              @click="toggleReaction(index, 'isHated')"
+            >
+              🚫
+            </button>
           </div>
 
           <!-- Reply Section -->
-          <div v-if="activeConversationIndex !== null && activeConversationIndex === index" class="reply-section flex items-center">
-            <textarea v-model="replyMessage" rows="2" class="p-1 text-sm rounded-md border-2 resize-none" placeholder="Reply..." />
-            <button class="btn btn-primary text-sm ml-1" :disabled="isReplyLoading" @click="continueConversation(index)">Reply</button>
+          <div
+            v-if="
+              activeConversationIndex !== null &&
+              activeConversationIndex === index
+            "
+            class="reply-section flex items-center"
+          >
+            <textarea
+              v-model="replyMessage"
+              rows="2"
+              class="p-1 text-sm rounded-md border-2 resize-none"
+              placeholder="Reply..."
+            />
+            <button
+              class="btn btn-primary text-sm ml-1"
+              :disabled="isReplyLoading"
+              @click="continueConversation(index)"
+            >
+              Reply
+            </button>
             <div v-if="isReplyLoading" class="ml-2"><ami-butterfly /></div>
           </div>
         </div>
 
         <!-- Delete Conversation Button -->
-        <button class="absolute top-1 right-1 text-red-500 hover:text-red-700" @click.stop="deleteConversation(index)">×</button>
+        <button
+          class="absolute top-1 right-1 text-red-500 hover:text-red-700"
+          @click.stop="deleteConversation(index)"
+        >
+          ×
+        </button>
       </div>
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect } from 'vue'

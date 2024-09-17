@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 
-console.log("🚀 Starting up the video generation engine with Deforum!")
+console.log('🚀 Starting up the video generation engine with Deforum!')
 
 type GenerateVideoResponse = {
   video_url: string
@@ -38,30 +38,29 @@ export default defineEventHandler(async (event) => {
       requestData.designer || requestData.username || 'Anonymous',
       requestData.checkpoint || 'default',
       requestData.frames || 200,
-      requestData.translation2D || '0:(0)',  // Default 2D translation
-      requestData.translation3D || '0:(0)'  // Default 3D translation
+      requestData.translation2D || '0:(0)', // Default 2D translation
+      requestData.translation3D || '0:(0)', // Default 3D translation
     )
 
     if (!response || !response.video_url) {
-      throw new Error(`Video generation failed: ${response?.error || 'No video generated.'}`)
+      throw new Error(
+        `Video generation failed: ${response?.error || 'No video generated.'}`,
+      )
     }
 
     console.log('🎥 Video generated successfully!')
-
-
-
 
     // Return success response
     return {
       success: true,
       message: 'Video generated and prompt saved successfully!',
-      videoUrl: response.video_url
+      videoUrl: response.video_url,
     }
   } catch (error: unknown) {
     console.error('Video Generation Error:', error)
     return errorHandler({
       error,
-      context: `Video Generation - ${event.req.url}`
+      context: `Video Generation - ${event.req.url}`,
     })
   }
 })
@@ -73,7 +72,7 @@ async function generateVideo(
   checkpoint: string,
   frames: number,
   translation2D: string,
-  translation3D: string
+  translation3D: string,
 ): Promise<{ video_url: string }> {
   console.log('🎥 Starting video generation...')
   const config = {
@@ -91,23 +90,28 @@ async function generateVideo(
     translation3D,
     response_format: 'url',
   }
-  
+
   console.log('🚀 Video generation payload:', requestBody)
 
   try {
-    const response = await fetch('https://lola.acrocatranch.com/deforum/v1/txt2video', {
-      method: 'POST',
-      headers: config.headers,
-      body: JSON.stringify(requestBody),
-    })
+    const response = await fetch(
+      'https://lola.acrocatranch.com/deforum/v1/txt2video',
+      {
+        method: 'POST',
+        headers: config.headers,
+        body: JSON.stringify(requestBody),
+      },
+    )
 
     if (!response.ok) {
-      throw new Error(`Video generation failed: ${response.status} ${response.statusText}`)
+      throw new Error(
+        `Video generation failed: ${response.status} ${response.statusText}`,
+      )
     }
 
     const responseData = await response.json()
     return { video_url: responseData.video_url }
   } catch (error) {
-    throw new Error('Video generation failed.'+ error)
+    throw new Error('Video generation failed.' + error)
   }
 }

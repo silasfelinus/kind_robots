@@ -14,19 +14,28 @@
         </button>
         <div class="flex justify-around mt-2">
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('headerState', 'open') ? 'bg-success' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('headerState', 'open') ? 'bg-success' : 'bg-accent',
+            ]"
             @click="changeState('headerState', 'open')"
           >
             <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('headerState', 'compact') ? 'bg-warning' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('headerState', 'compact') ? 'bg-warning' : 'bg-accent',
+            ]"
             @click="changeState('headerState', 'compact')"
           >
             <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('headerState', 'hidden') ? 'bg-error' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('headerState', 'hidden') ? 'bg-error' : 'bg-accent',
+            ]"
             @click="changeState('headerState', 'hidden')"
           >
             <Icon name="eye-off" class="mr-2" /> Hidden
@@ -45,19 +54,28 @@
         </button>
         <div class="flex justify-around mt-2">
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('sidebarLeft', 'open') ? 'bg-success' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('sidebarLeft', 'open') ? 'bg-success' : 'bg-accent',
+            ]"
             @click="changeState('sidebarLeft', 'open')"
           >
             <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('sidebarLeft', 'compact') ? 'bg-warning' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('sidebarLeft', 'compact') ? 'bg-warning' : 'bg-accent',
+            ]"
             @click="changeState('sidebarLeft', 'compact')"
           >
             <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('sidebarLeft', 'hidden') ? 'bg-error' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('sidebarLeft', 'hidden') ? 'bg-error' : 'bg-accent',
+            ]"
             @click="changeState('sidebarLeft', 'hidden')"
           >
             <Icon name="eye-off" class="mr-2" /> Hidden
@@ -76,19 +94,28 @@
         </button>
         <div class="flex justify-around mt-2">
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('sidebarRight', 'open') ? 'bg-success' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('sidebarRight', 'open') ? 'bg-success' : 'bg-accent',
+            ]"
             @click="changeState('sidebarRight', 'open')"
           >
             <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('sidebarRight', 'compact') ? 'bg-warning' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('sidebarRight', 'compact') ? 'bg-warning' : 'bg-accent',
+            ]"
             @click="changeState('sidebarRight', 'compact')"
           >
             <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('sidebarRight', 'hidden') ? 'bg-error' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('sidebarRight', 'hidden') ? 'bg-error' : 'bg-accent',
+            ]"
             @click="changeState('sidebarRight', 'hidden')"
           >
             <Icon name="eye-off" class="mr-2" /> Hidden
@@ -107,19 +134,28 @@
         </button>
         <div class="flex justify-around mt-2">
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('bottomDrawer', 'open') ? 'bg-success' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('bottomDrawer', 'open') ? 'bg-success' : 'bg-accent',
+            ]"
             @click="changeState('bottomDrawer', 'open')"
           >
             <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('bottomDrawer', 'compact') ? 'bg-warning' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('bottomDrawer', 'compact') ? 'bg-warning' : 'bg-accent',
+            ]"
             @click="changeState('bottomDrawer', 'compact')"
           >
             <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
-            :class="['p-2 rounded-lg flex items-center', isActive('bottomDrawer', 'hidden') ? 'bg-error' : 'bg-accent']"
+            :class="[
+              'p-2 rounded-lg flex items-center',
+              isActive('bottomDrawer', 'hidden') ? 'bg-error' : 'bg-accent',
+            ]"
             @click="changeState('bottomDrawer', 'hidden')"
           >
             <Icon name="eye-off" class="mr-2" /> Hidden

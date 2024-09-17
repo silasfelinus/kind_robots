@@ -45,7 +45,9 @@ export const useDeforumStore = defineStore({
         'Failed to fetch Deforum videos.',
       )
     },
-    async generateVideo(data: GenerateDeforumData): Promise<{ success: boolean; message?: string; videoUrl?: string }> {
+    async generateVideo(
+      data: GenerateDeforumData,
+    ): Promise<{ success: boolean; message?: string; videoUrl?: string }> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
@@ -84,11 +86,16 @@ export const useDeforumStore = defineStore({
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
-          const response = await fetch(`/api/deforum/videos?videoUrl=${encodeURIComponent(videoUrl)}`, {
-            method: 'DELETE',
-          })
+          const response = await fetch(
+            `/api/deforum/videos?videoUrl=${encodeURIComponent(videoUrl)}`,
+            {
+              method: 'DELETE',
+            },
+          )
           if (response.ok) {
-            this.deforumVideos = this.deforumVideos.filter(v => v !== videoUrl)
+            this.deforumVideos = this.deforumVideos.filter(
+              (v) => v !== videoUrl,
+            )
             if (this.selectedVideo === videoUrl) {
               this.selectedVideo = null
             }
@@ -100,6 +107,6 @@ export const useDeforumStore = defineStore({
         ErrorType.NETWORK_ERROR,
         'Failed to delete Deforum video.',
       )
-    }
+    },
   },
 })

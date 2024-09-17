@@ -1,7 +1,6 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 
-
 const savedPitches = [] // This will store the submitted pitches for demonstration
 
 const creativePrompts = [
@@ -66,15 +65,15 @@ const creativePrompts = [
   },
 ]
 
-
-
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     const apiKey = process.env.OPENAI_API_KEY
 
     if (!apiKey) {
-      throw new Error('API key is missing. Please provide a valid OpenAI API key.')
+      throw new Error(
+        'API key is missing. Please provide a valid OpenAI API key.',
+      )
     }
 
     const { n = 5, newPitches = [] } = body // Expecting an array of new pitches if provided
@@ -83,7 +82,7 @@ export default defineEventHandler(async (event) => {
     if (Array.isArray(newPitches) && newPitches.length > 0) {
       // Validate each pitch
       const validPitches = newPitches.filter(
-        (pitch) => pitch.title && pitch.pitch // Ensure both title and pitch are present
+        (pitch) => pitch.title && pitch.pitch, // Ensure both title and pitch are present
       )
 
       if (validPitches.length > 0) {
@@ -98,7 +97,8 @@ export default defineEventHandler(async (event) => {
       } else {
         return {
           success: false,
-          message: 'No valid pitches provided. Please ensure title and pitch are present in each entry.',
+          message:
+            'No valid pitches provided. Please ensure title and pitch are present in each entry.',
         }
       }
     }
@@ -135,12 +135,13 @@ export default defineEventHandler(async (event) => {
     if (!response.ok) {
       const errorData = await response.json()
       console.error('Failed API Call with error:', errorData)
-      throw new Error(`Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`)
+      throw new Error(
+        `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
+      )
     }
 
     const responseData = await response.json()
     return responseData
-
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     console.error('Error processing request:', message)

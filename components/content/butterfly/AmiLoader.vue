@@ -66,7 +66,12 @@ const handleTransitionEnd = () => {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.8); /* Slight transparency for a more polished look */
+  background: rgba(
+    0,
+    0,
+    0,
+    0.8
+  ); /* Slight transparency for a more polished look */
   z-index: 9999;
   display: flex;
   justify-content: center;
@@ -95,8 +100,14 @@ ami-butterfly {
 }
 
 @keyframes fly {
-  0% { transform: translate(0, 0); }
-  50% { transform: translate(50px, -50px); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(50px, -50px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 </style>

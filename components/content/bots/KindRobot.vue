@@ -12,13 +12,18 @@
       <!-- Bot name and ID, combining into a single line to reduce vertical space -->
       <div class="flex justify-between items-center m-2">
         <h1 class="text-2xl font-bold">
-          {{ currentBot.name }} <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id - 1 }}</span>
+          {{ currentBot.name }}
+          <span class="text-sm text-gray-600"
+            >Bot ID#{{ currentBot.id - 1 }}</span
+          >
         </h1>
         <span class="text-sm text-gray-600">Meet Them All!</span>
       </div>
 
       <!-- Condense avatar and details into a single flex-row to reduce space -->
-      <div class="flex flex-wrap items-center justify-between w-full m-2 rounded-lg">
+      <div
+        class="flex flex-wrap items-center justify-between w-full m-2 rounded-lg"
+      >
         <!-- Bot Avatar and Carousel, tighter space -->
         <div class="w-1/3 p-2">
           <bot-carousel2 />
@@ -26,8 +31,12 @@
 
         <!-- Bot Details with reduced text sizes -->
         <div class="flex-1 text-center p-2">
-          <h2 class="text-2xl font-semibold">{{ currentBot.name ?? 'Unknown Bot' }}</h2>
-          <p class="text-md text-gray-600">{{ currentBot.subtitle ?? 'Subtitle' }}</p>
+          <h2 class="text-2xl font-semibold">
+            {{ currentBot.name ?? 'Unknown Bot' }}
+          </h2>
+          <p class="text-md text-gray-600">
+            {{ currentBot.subtitle ?? 'Subtitle' }}
+          </p>
           <div class="card mt-2 p-2 bg-base-100">
             {{ currentBot.description ?? 'Description' }}
           </div>

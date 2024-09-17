@@ -14,38 +14,37 @@
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
       <!-- Sidebar Toggle -->
-      <div class="top-4 left-4 p-1 z-40 text-white">
+      <div class="absolute top-4 left-4 p-1 z-40 text-white">
         <sidebar-toggle class="text-4xl" />
       </div>
 
       <!-- Navigation Links (Centered) -->
       <nav
-        class="flex gap-4 items-center mx-auto text-center flex-wrap justify-center"
-        style="min-width: 0"
+        class="flex gap-4 items-center mx-auto text-center flex-wrap justify-center min-w-0"
       >
         <nuxt-link
           to="/"
-          class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+          class="text-accent text-lg hover:underline whitespace-nowrap"
           >Kind Robots</nuxt-link
         >
         <nuxt-link
           to="/intro"
-          class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+          class="text-accent text-lg hover:underline whitespace-nowrap"
           >Welcome</nuxt-link
         >
         <nuxt-link
           to="/memory"
-          class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+          class="text-accent text-lg hover:underline whitespace-nowrap"
           >Art</nuxt-link
         >
         <nuxt-link
           to="/botcafe"
-          class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+          class="text-accent text-lg hover:underline whitespace-nowrap"
           >PromptBots</nuxt-link
         >
         <nuxt-link
           to="/amibot"
-          class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+          class="text-accent text-lg hover:underline whitespace-nowrap"
           >AMI</nuxt-link
         >
       </nav>
@@ -64,9 +63,7 @@
       >
         <transition name="fade" mode="out-in">
           <div v-if="pageReady" class="flex justify-center items-center">
-            <div
-              class="w-full max-w-4xl rounded-2xl p-1 bg-base-200 overflow-y-auto"
-            >
+            <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
               <nuxt-page />
             </div>
           </div>
@@ -136,30 +133,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
-.flex-1 {
-  min-height: 0; /* Prevent flex overflow issue */
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease-in-out;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
-  opacity: 0;
-}
-
 html,
 body {
   height: 100%;
   overflow: hidden; /* Prevent body scrolling */
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-}
-
-main {
-  height: 100%; /* Ensure main content takes full height */
 }
 </style>

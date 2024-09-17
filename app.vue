@@ -52,14 +52,14 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 w-full overflow-y-auto">
+    <div class="flex flex-1 w-full overflow-hidden">
       <!-- Sidebar (Left) -->
       <aside>
         <kind-sidebar />
       </aside>
 
       <!-- Main Content with scrollable area -->
-      <main class="flex-grow p-1 transition-all duration-500 ease-in-out">
+      <main class="flex-grow overflow-y-auto p-1 transition-all duration-500 ease-in-out">
         <transition name="fade" mode="out-in">
           <div class="flex justify-center items-center">
             <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
@@ -99,7 +99,6 @@ const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
 const displayStore = useDisplayStore()
 
-// Add a flag to prevent double triggers of onIntroFinished
 const isProcessing = ref(false)
 const pageReady = ref(false) // Flag to control loader
 
@@ -113,7 +112,7 @@ onMounted(async () => {
     displayStore.loadState()
     displayStore.updateViewport()
 
-    // Simulate a delay to remove loader (replace this with real logic as needed)
+    // Simulate a delay to remove loader
     setTimeout(() => {
       pageReady.value = true // Loader is hidden, app is interactive
     }, 1500)

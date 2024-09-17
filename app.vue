@@ -5,7 +5,7 @@
 
     <!-- Header -->
     <header
-      class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out"
+      class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
       <!-- Sidebar Toggle -->
@@ -20,7 +20,9 @@
     <!-- Main Layout -->
     <div class="flex-1 w-full flex overflow-hidden">
       <!-- Sidebar (Left) -->
-      <kind-sidebar />
+      <aside class="sticky top-0 h-[calc(100vh-100px)] overflow-y-auto">
+        <kind-sidebar />
+      </aside>
 
       <!-- Main Content (Allow Scroll Here) -->
       <div class="flex-grow w-full max-w-4xl bg-base-200 overflow-y-auto">
@@ -45,3 +47,15 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 </script>
+
+<style scoped>
+/* Ensure the main content does not overflow, and the layout scrolls as expected */
+.flex-1 {
+  min-height: 0; /* Flexbox fix for height calculation */
+}
+
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+}
+</style>

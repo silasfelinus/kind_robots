@@ -1,8 +1,5 @@
 <template>
   <div id="app" class="flex flex-col min-h-screen w-full bg-base-200">
-    <!-- KindLoader -->
-    <KindLoader @page-ready="handlePageReady" />
-
     <!-- Header -->
     <header
       class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out"
@@ -24,13 +21,11 @@
 
       <!-- Main Content with scrollable area -->
       <main class="flex-grow overflow-y-auto">
-      
-          <div class="flex justify-center items-center">
-            <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
-              <nuxt-page />
-            </div>
+        <div class="flex justify-center items-center">
+          <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
+            <nuxt-page />
           </div>
-     
+        </div>
       </main>
     </div>
 

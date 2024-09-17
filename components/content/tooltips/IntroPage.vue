@@ -57,8 +57,10 @@
 <script setup>
 import { ref } from 'vue'
 import { steps } from '@/training/steps.js'
+import { useRouter } from 'vue-router'
 
 const currentStep = ref(0)
+const router = useRouter() // Use Nuxt's router
 
 const nextStep = () => {
   if (currentStep.value < steps.length - 1) {

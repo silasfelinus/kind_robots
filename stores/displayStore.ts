@@ -17,6 +17,7 @@ interface DisplayStoreState {
   isVertical: boolean
   viewportSize: 'mobile' | 'tablet' | 'desktop' | 'largeScreen' // Added 'largeScreen'
   isTouchDevice: boolean // Detects if the device is touch-enabled
+  isLoaded: boolean
 }
 
 // Define the store
@@ -33,7 +34,9 @@ export const useDisplayStore = defineStore('display', {
     footerVh: 5, // Default footer height in vh
     isVertical: false,
     viewportSize: 'desktop', // Default to desktop size
-    isTouchDevice: false // Default to non-touch devices
+    isTouchDevice: false, // Default to non-touch devices
+    isLoaded: false,
+  
   }),
 
   actions: {

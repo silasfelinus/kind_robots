@@ -1,5 +1,8 @@
 <template>
   <div id="app" class="flex flex-col min-h-screen w-full bg-base-200">
+    <!-- KindLoader -->
+    <KindLoader @page-ready="handlePageReady" />
+
     <!-- Header -->
     <header
       class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out"

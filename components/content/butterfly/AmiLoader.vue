@@ -1,15 +1,12 @@
 <template>
   <div
-    v-if="!pageReady"
     class="loading-overlay"
     :class="{ 'fade-out': fadeOut }"
     @transitionend="handleTransitionEnd"
     @click="startFadeOut"
   >
     <!-- Dynamic Loading Message -->
-    <div class="loading-message">
-      {{ currentMessage }}
-    </div>
+    <div class="loading-message">{{ currentMessage }}</div>
 
     <!-- Multiple Butterflies with Animation Delay -->
     <ami-butterfly v-for="i in butterflyCount" :key="i" />
@@ -18,7 +15,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useLoadStore } from '../../../stores/loadStore' // Adjust path if needed
+import { useLoadStore } from '../../../stores/loadStore' // Assuming the path to your loadStore
 
 const { randomLoadMessage } = useLoadStore()
 const currentMessage = ref('Building Kind Robots...')
@@ -35,26 +32,23 @@ const updateMessage = () => {
   currentMessage.value = randomLoadMessage()
 }
 
-let intervalId: NodeJS.Timeout | undefined
+let intervalId: NodeJS.Timeout
 onMounted(() => {
   setTimeout(() => {
     currentMessage.value = randomLoadMessage()
-    intervalId = setInterval(updateMessage, 20 * 50) as NodeJS.Timeout
-  }, 700) // Update the message after a .7 second delay
-
-  setTimeout(startFadeOut, 1000) // Fade out after 1 second
+    intervalId = setInterval(updateMessage, 20 * 50)
+  }, 700) // Update the message after a .5 second delay
+  setTimeout(startFadeOut, 1000) // Fade out after 2 seconds
 })
 
 onUnmounted(() => {
-  if (intervalId) {
-    clearInterval(intervalId)
-  }
+  clearInterval(intervalId)
 })
 
 const handleTransitionEnd = () => {
   if (fadeOut.value) {
     butterflyCount.value = 0
-    pageReady.value = true // Page is now ready, overlay is removed
+    pageReady.value = true
   }
 }
 </script>
@@ -66,48 +60,32 @@ const handleTransitionEnd = () => {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(
-    0,
-    0,
-    0,
-    0.8
-  ); /* Slight transparency for a more polished look */
+  background: #111;
   z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   transition: opacity 1s;
-  opacity: 1;
-  pointer-events: all; /* Capture clicks while loading */
+  pointer-events: auto;
 }
-
 .loading-overlay.fade-out {
   opacity: 0;
-  pointer-events: none; /* Disable interactions when faded out */
+  pointer-events: none;
 }
-
 .loading-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   color: white;
   font-size: 24px;
   font-weight: bold;
   text-align: center;
 }
 
-/* Ensure butterflies are visible and not hidden */
-ami-butterfly {
-  position: absolute;
-  animation: fly 5s infinite;
+.nuxt-wrapper {
+  opacity: 0;
+  transition: opacity 1s;
 }
 
-@keyframes fly {
-  0% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(50px, -50px);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
+.nuxt-wrapper.fade-in {
+  opacity: 1;
 }
 </style>

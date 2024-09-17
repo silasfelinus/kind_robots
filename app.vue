@@ -1,16 +1,11 @@
 <template>
-  <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
-    <!-- Loader, shown only until page is ready -->
-    <div
-      v-if="!pageReady"
-      class="fixed inset-0 flex items-center justify-center bg-opacity-70"
-    >
-      <ami-loader />
-    </div>
+  <div id="app" class="flex flex-col h-full w-full bg-base-200">
+    <!-- KindLoader -->
+    <KindLoader @page-ready="handlePageReady" />
 
     <!-- Header -->
     <header
-      class="w-full bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out flex-none"
+      class="w-full bg-base-200 bg-opacity-60 flex justify-between items-center transition-all duration-500 ease-in-out"
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
       <!-- Sidebar Toggle -->
@@ -18,40 +13,12 @@
         <sidebar-toggle class="text-4xl" />
       </div>
 
-      <!-- Navigation Links (Centered) -->
-      <nav
-        class="flex gap-4 items-center mx-auto text-center flex-wrap justify-center min-w-0"
-      >
-        <nuxt-link
-          to="/"
-          class="text-accent text-lg hover:underline whitespace-nowrap"
-          >Kind Robots</nuxt-link
-        >
-        <nuxt-link
-          to="/intro"
-          class="text-accent text-lg hover:underline whitespace-nowrap"
-          >Welcome</nuxt-link
-        >
-        <nuxt-link
-          to="/memory"
-          class="text-accent text-lg hover:underline whitespace-nowrap"
-          >Art</nuxt-link
-        >
-        <nuxt-link
-          to="/botcafe"
-          class="text-accent text-lg hover:underline whitespace-nowrap"
-          >PromptBots</nuxt-link
-        >
-        <nuxt-link
-          to="/amibot"
-          class="text-accent text-lg hover:underline whitespace-nowrap"
-          >AMI</nuxt-link
-        >
-      </nav>
+      <!-- Navigation Links (Refactored into its own component) -->
+      <NavLinks />
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 w-full h-full overflow-hidden">
+    <div class="flex flex-1 w-full overflow-hidden">
       <!-- Sidebar (Left) -->
       <aside>
         <kind-sidebar />
@@ -83,59 +50,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import KindLoader from '@/components/KindLoader.vue' // Import the KindLoader component
+import NavLinks from '@/components/NavLinks.vue'
+import { ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { useUserStore } from '@/stores/userStore'
-import { useArtStore } from '@/stores/artStore'
-import { useThemeStore } from '@/stores/themeStore'
-import { useBotStore } from '@/stores/botStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
 
-const errorStore = useErrorStore()
-const userStore = useUserStore()
-const artStore = useArtStore()
-const themeStore = useThemeStore()
-const botStore = useBotStore()
-const milestoneStore = useMilestoneStore()
 const displayStore = useDisplayStore()
+const pageReady = ref(false) // This will now be set by the KindLoader component
 
-const pageReady = ref(false) // Flag to control loader
-
-onMounted(async () => {
-  try {
-    await botStore.loadStore()
-    await userStore.initializeUser()
-    await artStore.init()
-    await themeStore.initTheme()
-    await milestoneStore.initializeMilestones()
-    displayStore.loadState()
-    displayStore.updateViewport()
-
-    // Simulate a delay to remove loader
-    setTimeout(() => {
-      pageReady.value = true // Loader is hidden, app is interactive
-    }, 1500)
-
-    window.addEventListener('resize', displayStore.updateViewport)
-    console.log('Initialization complete.')
-  } catch (error) {
-    errorStore.setError(
-      ErrorType.UNKNOWN_ERROR,
-      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
-    )
-  }
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', displayStore.updateViewport)
-})
+// Method to handle the event emitted from KindLoader
+function handlePageReady(isReady) {
+  pageReady.value = isReady
+}
 </script>
 
 <style>
 html,
-body {
+body,
+#app {
   height: 100%;
-  overflow: hidden; /* Prevent body scrolling */
 }
 </style>

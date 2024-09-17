@@ -16,7 +16,7 @@ const displayStore = useDisplayStore()
 
 // Compute the icon size based on the header height
 const buttonStyle = computed(() => {
-  const iconSize = Math.max(6, displayStore.headerVh - 2) // Ensure a minimum size of 6
+  const iconSize = Math.max(5, displayStore.headerVh - 3)
   return {
     width: `${iconSize}vh`,
     height: `${iconSize}vh`,

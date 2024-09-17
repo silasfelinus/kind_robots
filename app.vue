@@ -20,15 +20,25 @@
     <!-- Main Layout -->
     <div class="flex-1 w-full flex overflow-hidden">
       <!-- Sidebar (Left) -->
-      <aside class="sticky top-0 h-[calc(100vh-100px)] overflow-y-auto">
-        <kind-sidebar />
+      <aside
+        class="sticky top-0 flex-shrink-0 overflow-y-auto transition-all duration-300"
+        :class="{
+          'w-64': displayStore.isSidebarOpen, /* Sidebar open width */
+          'w-0': !displayStore.isSidebarOpen, /* Sidebar closed width */
+        }"
+        style="max-height: calc(100vh - 100px);" <!-- Adjust height based on header size -->
+      >
+        <kind-sidebar v-if="displayStore.isSidebarOpen" />
       </aside>
 
-      <!-- Main Content (Allow Scroll Here) -->
-      <div class="flex-grow w-full max-w-4xl bg-base-200 overflow-y-auto">
-        <!-- nuxt-page should trigger scrolling when needed -->
-        <nuxt-page />
-      </div>
+      <!-- Main Content with scrollable area -->
+      <main class="flex-grow overflow-y-auto">
+        <div class="flex justify-center items-center">
+          <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
+            <nuxt-page />
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- Footer (Stick to Bottom) -->
@@ -57,5 +67,9 @@ const displayStore = useDisplayStore()
 .sticky {
   position: -webkit-sticky;
   position: sticky;
+}
+
+aside {
+  transition: width 0.3s ease-in-out; /* Smooth transition for sidebar width */
 }
 </style>

@@ -56,10 +56,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { steps } from '@/training/steps.js'
 
-const router = useRouter()
 const currentStep = ref(0)
 
 const nextStep = () => {

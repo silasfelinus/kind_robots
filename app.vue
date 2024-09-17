@@ -23,7 +23,7 @@
       <kind-sidebar />
 
       <!-- Main Content -->
-      <div class="flex-grow flex justify-center items-center overflow-y-auto">
+      <div class="flex-grow flex justify-center items-center scroll-smooth">
         <div class="w-full max-w-4xl bg-base-200">
           <nuxt-page />
         </div>

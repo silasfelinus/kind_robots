@@ -50,7 +50,6 @@
 </template>
 
 <script setup>
-import NavLinks from '@/components/NavLinks.vue'
 import { ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 

@@ -56,17 +56,17 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { steps } from '@/training/steps.js'
 
-const emit = defineEmits(['finished'])
-
+const router = useRouter()
 const currentStep = ref(0)
 
 const nextStep = () => {
   if (currentStep.value < steps.length - 1) {
     currentStep.value++
   } else {
-    emit('finished')
+    router.push('/') // Redirect to the homepage on Finish
   }
 }
 
@@ -78,6 +78,7 @@ const previousStep = () => {
 
 const fastForward = () => {
   currentStep.value = steps.length - 1
+  router.push('/') // Redirect to the homepage on Skip
 }
 </script>
 

@@ -20,13 +20,18 @@
 
       <!-- Navigation Links (Centered) -->
       <nav
-        class="flex gap-2 items-center mx-auto text-center flex-wrap justify-center"
+        class="flex gap-4 items-center mx-auto text-center flex-wrap justify-center"
         style="min-width: 0"
       >
         <nuxt-link
           to="/"
           class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
           >Kind Robots</nuxt-link
+        >
+        <nuxt-link
+          to="/intro"
+          class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
+          >Welcome</nuxt-link
         >
         <nuxt-link
           to="/memory"
@@ -43,16 +48,11 @@
           class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
           >AMI</nuxt-link
         >
-        <nuxt-link
-          to="/intro"
-          class="text-accent text-lg hover:underline whitespace-nowrap flex-shrink"
-          >Welcome</nuxt-link
-        >
       </nav>
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 w-full overflow-hidden">
+    <div class="flex flex-1 w-full h-full overflow-hidden">
       <!-- Sidebar (Left) -->
       <aside>
         <kind-sidebar />
@@ -64,7 +64,9 @@
       >
         <transition name="fade" mode="out-in">
           <div v-if="pageReady" class="flex justify-center items-center">
-            <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
+            <div
+              class="w-full max-w-4xl rounded-2xl p-1 bg-base-200 overflow-y-auto"
+            >
               <nuxt-page />
             </div>
           </div>
@@ -144,5 +146,20 @@ onBeforeUnmount(() => {
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
   opacity: 0;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden; /* Prevent body scrolling */
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  height: 100%; /* Ensure main content takes full height */
 }
 </style>

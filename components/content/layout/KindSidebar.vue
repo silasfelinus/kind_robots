@@ -3,9 +3,8 @@
   <aside
     :style="{
       width: isSidebarHidden ? '0' : sidebarWidth + 'vw',
-      display: isSidebarHidden ? 'none' : 'block', // Use display to fully hide the sidebar
     }"
-    class="transition-all duration-500 ease-in-out bg-base-200 hide-scrollbar"
+    class="transition-all duration-500 ease-in-out bg-base-200 hide-scrollbar flex-shrink-0"
     :aria-hidden="isSidebarHidden"
   >
     <!-- Sidebar Links with Icons and Titles -->
@@ -16,11 +15,11 @@
         height: `${iconHeight}px`,
         margin: '1px 0',
       }"
-      class="Icon-link-container flex items-left justify-left space-x-2 transition-all duration-300 ease-in-out hover:bg-base-100 hover:scale-105 rounded-xl p-2"
+      class="Icon-link-container flex items-center space-x-2 transition-all duration-300 ease-in-out hover:bg-base-100 hover:scale-105 rounded-xl p-2"
     >
       <NuxtLink
         :to="link.path"
-        class="flex items-center justify-center rounded-2xl text-center hover:scale-110 transition-transform"
+        class="flex items-center rounded-2xl text-center hover:scale-110 transition-transform"
       >
         <Icon
           :name="link.icon"
@@ -63,14 +62,12 @@ const iconHeight = ref(0)
 
 onMounted(() => {
   const calculateIconHeight = () => {
-    if (typeof window !== 'undefined') {
-      const totalLinks = sidebarLinks.length
-      const marginSpace = 10 * totalLinks // Adjust for link margins
+    const totalLinks = sidebarLinks.length
+    const marginSpace = 10 * totalLinks // Adjust for link margins
 
-      const sidebarHeightInPx =
-        (availableSidebarHeight.value * window.innerHeight) / 100
-      iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks
-    }
+    const sidebarHeightInPx =
+      (availableSidebarHeight.value * window.innerHeight) / 100
+    iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks
   }
 
   calculateIconHeight()

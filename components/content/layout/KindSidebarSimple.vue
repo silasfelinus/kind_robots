@@ -5,7 +5,6 @@
     <main class="flex-grow p-2">
       <div>
       <div class="p-1">
-        <h2 class="text-lg font-semibold mb-4">Sidebar Training</h2>
         <!-- Sidebar Links with Icons and Titles -->
         <div
           v-for="link in filteredLinks"

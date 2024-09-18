@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 // Define the type for possible display states
-type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
+export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 
 // Define the interface for the store's state
 interface DisplayStoreState {
@@ -41,29 +41,59 @@ export const useDisplayStore = defineStore('display', {
   }),
 
   actions: {
+    // Function to load a single display state from localStorage
+    loadDisplayState(key: keyof DisplayStoreState, defaultValue: DisplayState): DisplayState {
+      const storedValue = localStorage.getItem(key as string)
+      if (storedValue && ['open', 'compact', 'hidden', 'disabled'].includes(storedValue)) {
+        return storedValue as DisplayState
+      }
+      return defaultValue
+    },
+
     // Load persisted state from localStorage
     loadState() {
       if (typeof window !== 'undefined') {
-        const loadDisplayState = (
-          key: keyof DisplayStoreState,
-          defaultValue: DisplayState,
-        ) => {
-          const storedValue = localStorage.getItem(key as string)
-          if (storedValue) {
-            // Add a type assertion to ensure that TypeScript knows the type here
-            (this[key] as DisplayState) = storedValue as DisplayState
-          } else {
-            (this[key] as DisplayState) = defaultValue
-          }
-        }
-    
-        loadDisplayState('headerState', 'open')
-        loadDisplayState('sidebarLeft', 'hidden')
-        loadDisplayState('sidebarRight', 'hidden')
-        loadDisplayState('footer', 'open')
-    
+        this.headerState = this.loadDisplayState('headerState', 'open')
+        this.sidebarLeft = this.loadDisplayState('sidebarLeft', 'hidden')
+        this.sidebarRight = this.loadDisplayState('sidebarRight', 'hidden')
+        this.footer = this.loadDisplayState('footer', 'open')
 
-        this.headerVh = parseInt(localStorage.getItem('headerVh') || '7', 10)
+        const storedHeaderVh = localStorage.getItem('headerVh')
+        this.headerVh = storedHeaderVh ? parseInt(storedHeaderVh, 10) : 7
+
+        this.sidebarVw = this.calculateSidebarWidth()
+
+        this.isLoaded = true
+      }
+    },
+
+    // Save current state to localStorage
+    saveState() {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('headerState', this.headerState)
+        localStorage.setItem('sidebarLeft', this.sidebarLeft)
+        localStorage.setItem('sidebarRight', this.sidebarRight)
+        localStorage.setItem('footer', this.footer)
+        localStorage.setItem('headerVh', this.headerVh.toString())
+      }
+    },
+
+    // Calculate sidebar width based on state, screen size, and touch capability
+    calculateSidebarWidth(): number {
+      if (this.isVertical) {
+        return this.sidebarLeft === 'open' ? 30 : 4
+      }
+    
+      switch (this.viewportSize) {
+        case 'mobile':
+          return this.sidebarLeft === 'open' ? 25 : this.sidebarLeft === 'compact' ? 12 : 4
+        case 'tablet':
+          return this.sidebarLeft === 'open' ? 20 : this.sidebarLeft === 'compact' ? 14 : 6
+        case 'desktop':
+          return this.sidebarLeft === 'open' ? (this.isTouchDevice ? 22 : 20) : this.sidebarLeft === 'compact' ? 8 : 4
+        case 'largeScreen':
+        default:
+          return this.sidebarLeft === 'open' ? (this.isTouchDevice ? 22 : 20) : this.sidebarLeft === 'compact' ? 10 : 4
       }
     },
     
@@ -96,64 +126,18 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    // Calculate sidebar width based on state, screen size, and touch capability
-    calculateSidebarWidth(): number {
-      const isVertical = this.isVertical
-      const size = this.viewportSize
-      const isTouch = this.isTouchDevice
-
-      if (isVertical) {
-        return this.sidebarLeft === 'open' ? 30 : 4 // Full width in vertical mode
-      }
-
-      // Sidebar size varies based on screen size, touch capability, and state
-      switch (size) {
-        case 'mobile':
-          return this.sidebarLeft === 'open'
-            ? 25
-            : this.sidebarLeft === 'compact'
-              ? 12
-              : 4 // Mobile
-        case 'tablet':
-          return this.sidebarLeft === 'open'
-            ? 20
-            : this.sidebarLeft === 'compact'
-              ? 14
-              : 6 // Tablet
-        case 'desktop':
-          return this.sidebarLeft === 'open'
-            ? isTouch
-              ? 22
-              : 20
-            : this.sidebarLeft === 'compact'
-              ? 8
-              : 4 // Desktop, larger touch devices get wider sidebars
-        case 'largeScreen':
-        default:
-          return this.sidebarLeft === 'open'
-            ? isTouch
-              ? 22
-              : 20
-            : this.sidebarLeft === 'compact'
-              ? 10
-              : 4 // Large screens
-      }
-    },
-
     // Toggle sidebar visibility between 'open', 'compact', and 'hidden'
     toggleSidebar(container: 'sidebarLeft' | 'sidebarRight') {
-      const currentState = this[container]
-
-      if (currentState === 'hidden') {
-        this[container] = 'compact'
-      } else if (currentState === 'compact') {
-        this[container] = 'open'
-      } else {
-        this[container] = 'hidden'
+      const stateCycle: Record<DisplayState, DisplayState> = {
+        hidden: 'compact',
+        compact: 'open',
+        open: 'hidden',
+        disabled: 'hidden', // Optional, depending on your use case
       }
-
+    
+      this[container] = stateCycle[this[container]]
       this.sidebarVw = this.calculateSidebarWidth()
-
+    
       if (typeof window !== 'undefined') {
         localStorage.setItem(container, this[container])
       }

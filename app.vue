@@ -5,7 +5,7 @@
 
     <!-- Header -->
     <header
-      class="w-full bg-base-200 flex justify-between items-center sticky top-0 z-30"
+      class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
       <!-- Sidebar Toggle -->
@@ -21,22 +21,21 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="flex-1 w-full flex">
-      <!-- Sidebar (Left) without transitions and conditionally rendered -->
+    <div class="flex-1 w-full flex overflow-hidden">
+      <!-- Sidebar (Left) only renders when it's not hidden -->
       <aside
         v-if="displayStore.sidebarLeft !== 'hidden'"
-        class="bg-base-200 hide-scrollbar"
+        class="transition-all duration-300 bg-base-200 hide-scrollbar"
         :class="{
           'w-64': displayStore.sidebarLeft === 'open',
           'w-14': displayStore.sidebarLeft === 'compact',
-          'w-0': displayStore.sidebarLeft === 'hidden'
         }"
-        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)` }"
+        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, width: `${displayStore.sidebarVw}vw` }"
       >
-        <kind-sidebar v-if="displayStore.sidebarLeft !== 'hidden'" />
+        <kind-sidebar />
       </aside>
 
-      <!-- Main Content -->
+      <!-- Main Content with scrollable area -->
       <main class="flex-grow overflow-y-auto">
         <div class="flex justify-center items-center">
           <div class="w-full max-w-4xl rounded-2xl p-1 bg-base-200">
@@ -46,7 +45,7 @@
       </main>
     </div>
 
-    <!-- Footer -->
+    <!-- Footer (Stick to Bottom) -->
     <footer
       v-if="displayStore.footer !== 'hidden'"
       :style="{ height: `${displayStore.footerVh}vh` }"
@@ -62,6 +61,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
+// On mounted, initialize the viewport watcher to dynamically adjust sizes
 onMounted(() => {
   displayStore.initializeViewportWatcher()
 })
@@ -72,18 +72,12 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Sidebar */
+/* Smooth transition for sidebar width */
 aside {
-  width: 0;
-  background-color: var(--bg-base-200);
+  transition: width 0.3s ease-in-out;
 }
 
-/* Scrollable area for the main content */
-main {
-  overflow-y: auto;
-}
-
-/* Hide scrollbar but allow scrolling */
+/* Hide scrollbar but keep content scrollable */
 .hide-scrollbar {
   overflow-y: auto;
 }

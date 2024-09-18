@@ -13,7 +13,7 @@
 
       <!-- Overlay for text and buttons -->
       <div
-        class="absolute inset-0 flex flex-col justify-end items-center text-center p-8 bg-base-200 bg-opacity-70 rounded-xl"
+        class="absolute inset-0 flex flex-col justify-end items-center text-center p-8 bg-base-200 bg-opacity-10 rounded-xl"
       >
         <h1 class="text-4xl font-bold mb-2 text-white text-shadow-lg">
           {{ steps[currentStep].title }}

@@ -1,25 +1,26 @@
 <template>
   <div class="flex">
-    <!-- Sidebar -->
-    <aside
-      v-if="displayStore.sidebarLeft !== 'hidden'"
-      class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
-      :class="{
-        'w-64': isSidebarOpen && viewportSize === 'desktop',
-        'w-40': isSidebarOpen && viewportSize === 'tablet',
-        'w-24': isSidebarOpen && viewportSize === 'mobile',
-        'w-16': !isSidebarOpen && viewportSize !== 'mobile',
-        'w-0': displayStore.sidebarLeft === 'hidden'
-      }"
-      :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, position: 'sticky', top: `${displayStore.headerVh}vh` }"
-    >
+
+    
+    
+ 
+ <aside
+        v-if="displayStore.sidebarLeft !== 'hidden'"
+        class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
+        :class="{
+          'w-64': displayStore.sidebarLeft === 'open',
+          'w-16': displayStore.sidebarLeft === 'compact',
+          'w-0': displayStore.sidebarLeft === 'hidden'
+        }"
+        :style="{ maxHeight: calc(100vh - ${displayStore.headerVh}vh), position: 'sticky', top: ${displayStore.headerVh}vh }"
+      >
+      <div>
       <div class="p-1">
         <!-- Sidebar Links with Icons and Titles -->
-        <NuxtLink
+        <div
           v-for="link in filteredLinks"
           :key="link.title"
-          :to="link.path"
-          :style="{ height: `${iconHeight}px`, margin: '1px 0' }"
+          :style="{ height: ${iconHeight}px, margin: '1px 0' }"
           class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
         >
           <!-- Icon for each link -->
@@ -34,7 +35,8 @@
           >
             {{ link.title }}
           </span>
-        </NuxtLink>
+        </div>
+      </div>
       </div>
     </aside>
   </div>
@@ -48,49 +50,31 @@ import { sidebarLinks } from '@/assets/sidebar'
 // Access the display store for the sidebar state
 const displayStore = useDisplayStore()
 
-// Sidebar visibility state
+// Computed properties to check the sidebar state
 const isSidebarOpen = computed(() => displayStore.sidebarLeft === 'open')
 
 // Sidebar Links
 const filteredLinks = computed(() => sidebarLinks)
 
-// Variables for viewport size and icon height
-const availableSidebarHeight = ref(100 - displayStore.headerVh - 2) // Adjust height dynamically based on the header
+// Adjust height calculations based on window size and available space
+const availableSidebarHeight = ref(100 - 10) // Assume header height = 10vh for now
 const iconHeight = ref(0)
-const viewportSize = ref('desktop') // Can be 'mobile', 'tablet', 'desktop'
 
-// Function to calculate sidebar width based on viewport size
-const calculateViewportSize = () => {
-  const width = window.innerWidth
-  if (width < 600) {
-    viewportSize.value = 'mobile'
-  } else if (width >= 600 && width < 1024) {
-    viewportSize.value = 'tablet'
-  } else {
-    viewportSize.value = 'desktop'
-  }
-}
-
-// Function to calculate icon height
-const calculateIconHeight = () => {
-  const totalLinks = sidebarLinks.length
-  const marginSpace = 10 * totalLinks // Adjust for link margins
-  const sidebarHeightInPx = (availableSidebarHeight.value * window.innerHeight) / 100
-  iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks
-}
-
-// Lifecycle hooks for initialization
 onMounted(() => {
-  calculateViewportSize()
+  const calculateIconHeight = () => {
+    const totalLinks = sidebarLinks.length
+    const marginSpace = 10 * totalLinks // Adjust for link margins
+    const sidebarHeightInPx = (availableSidebarHeight.value * window.innerHeight) / 100
+    iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks
+  }
+
   calculateIconHeight()
 
-  window.addEventListener('resize', calculateViewportSize)
   window.addEventListener('resize', calculateIconHeight)
-})
 
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', calculateViewportSize)
-  window.removeEventListener('resize', calculateIconHeight)
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', calculateIconHeight)
+  })
 })
 </script>
 
@@ -102,14 +86,6 @@ onBeforeUnmount(() => {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
-aside {
-  transition: width 0.3s ease-in-out;
-  overflow-y: auto;
-  position: sticky; /* Keep the sidebar fixed while scrolling */
-  top: 0;
-}
-
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

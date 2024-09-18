@@ -5,11 +5,17 @@
       class="absolute top-0 left-0 w-full h-full z-50"
       :class="steps[currentStep].bgClass"
     >
-   <img src="/images/intro/welcome.webp" alt="Test Image" class="absolute top-0 left-0 w-full h-full object-contain" />
+      <!-- Background Image -->
+      <img
+        :src="steps[currentStep].image"
+        :alt="steps[currentStep].altText"
+        class="absolute top-0 left-0 w-full h-full object-contain"
+      />
 
-      <!-- Overlay for text and buttons -->
+      <!-- Text and Buttons with Small Opacity Overlay -->
       <div
-        class="absolute inset-0 flex flex-col justify-end items-center text-center p-8 bg-primary bg-opacity-0 rounded-xl"
+        class="absolute bottom-0 mb-12 flex flex-col justify-center items-center text-center p-8 bg-base-200 bg-opacity-70 rounded-xl max-w-lg mx-auto"
+        style="width: 80%;"
       >
         <h1 class="text-4xl font-bold mb-2 text-white text-shadow-lg">
           {{ steps[currentStep].title }}
@@ -17,7 +23,7 @@
         <p class="text-lg mb-6 text-white text-shadow-md">
           {{ steps[currentStep].description }}
         </p>
-        <div class="flex gap-4 mb-8">
+        <div class="flex gap-4 mb-4">
           <button
             v-if="currentStep > 0"
             class="bg-secondary p-3 rounded-lg text-white"
@@ -78,14 +84,11 @@ const previousStep = () => {
   object-fit: contain;
 }
 
-.object-cover {
-  object-fit: cover;
-}
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;
 }
+
 .fade-enter,
 .fade-leave-to {
   opacity: 0;

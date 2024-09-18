@@ -17,12 +17,11 @@
       <div>
         <div class="p-1">
           <!-- Sidebar Links with Icons and Titles -->
-          <nuxt-link
+          <NuxtLink
             v-for="link in filteredLinks"
             :key="link.title"
-            :to="link.path"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <!-- Icon for each link -->
             <Icon
@@ -36,7 +35,7 @@
             >
               {{ link.title }}
             </span>
-          </nuxt-link>
+          </NuxtLink>
         </div>
       </div>
     </aside>

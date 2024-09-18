@@ -1,10 +1,10 @@
 <template>
   <div class="flex">
-
-    <!-- Main Content Area -->
-    <main class="flex-grow p-4">
-      <div>
-              <div class="p-4">
+    <!-- Sidebar -->
+    <aside
+      class="w-64 h-screen bg-base-200 transition-all duration-300 overflow-hidden hide-scrollbar"
+    >
+      <div class="p-4">
         <h2 class="text-lg font-semibold mb-4">Sidebar Training</h2>
         <!-- Sidebar Links with Icons and Titles -->
         <div
@@ -18,12 +18,22 @@
             :name="link.icon"
             class="h-12 w-12 transition-all duration-300 ease-in-out"
           />
-          <!-- Link title -->
-          <span class="text-sm font-semibold ml-2">
+          <!-- Only show the link title when the sidebar is fully open -->
+          <span
+            v-if="isSidebarOpen"
+            class="text-sm font-semibold ml-2 transition-opacity duration-300"
+          >
             {{ link.title }}
           </span>
         </div>
       </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow p-4">
+      <div>
+        <p>Main content goes here...</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
       </div>
     </main>
   </div>
@@ -31,10 +41,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
 import { sidebarLinks } from '@/assets/sidebar'
 
+// Access the display store for the sidebar state
+const displayStore = useDisplayStore()
+
+// Computed properties to check the sidebar state
+const isSidebarOpen = computed(() => displayStore.sidebarLeft === 'open')
+
 // Sidebar Links
-// Example sidebar links with icons
 const filteredLinks = computed(() => sidebarLinks)
 
 // Adjust height calculations based on window size and available space

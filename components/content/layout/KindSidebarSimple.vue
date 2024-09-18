@@ -1,20 +1,16 @@
 <template>
   <div class="flex">
-
-    
-    
- 
- <aside
-        v-if="displayStore.sidebarLeft !== 'hidden'"
-        class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
-        :class="{
-          'w-64': displayStore.sidebarLeft === 'open',
-          'w-16': displayStore.sidebarLeft === 'compact',
-          'w-0': displayStore.sidebarLeft === 'hidden'
-        }"
-        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, position: 'sticky', top: `${displayStore.headerVh}vh` }"
-      >
-      <div>
+    <!-- Sidebar -->
+    <aside
+      v-if="displayStore.sidebarLeft !== 'hidden'"
+      class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
+      :class="{
+        'w-64': displayStore.sidebarLeft === 'open',
+        'w-16': displayStore.sidebarLeft === 'compact',
+        'w-0': displayStore.sidebarLeft === 'hidden'
+      }"
+      :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, position: 'sticky', top: `${displayStore.headerVh}vh` }"
+    >
       <div class="p-1">
         <!-- Sidebar Links with Icons and Titles -->
         <div
@@ -37,7 +33,6 @@
           </span>
         </div>
       </div>
-      </div>
     </aside>
   </div>
 </template>
@@ -53,11 +48,14 @@ const displayStore = useDisplayStore()
 // Computed properties to check the sidebar state
 const isSidebarOpen = computed(() => displayStore.sidebarLeft === 'open')
 
+// Sidebar Width from displayStore
+const sidebarWidth = computed(() => displayStore.sidebarVw)
+
 // Sidebar Links
 const filteredLinks = computed(() => sidebarLinks)
 
 // Adjust height calculations based on window size and available space
-const availableSidebarHeight = ref(100 - 10) // Assume header height = 10vh for now
+const availableSidebarHeight = ref(100 - displayStore.headerVh - 2) // Adjust height dynamically based on the header
 const iconHeight = ref(0)
 
 onMounted(() => {

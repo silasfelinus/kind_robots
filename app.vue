@@ -22,18 +22,10 @@
 
     <!-- Main Layout -->
     <div class="flex-1 w-full flex overflow-hidden">
-      <!-- Sidebar (Left) only renders when it's not hidden -->
-      <aside
-        v-if="displayStore.sidebarLeft !== 'hidden'"
-        class="transition-all duration-300 bg-base-200 hide-scrollbar"
-        :class="{
-          'w-64': displayStore.sidebarLeft === 'open',
-          'w-14': displayStore.sidebarLeft === 'compact',
-        }"
-        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, width: `${displayStore.sidebarVw}vw` }"
-      >
+      
+     
         <kind-sidebar />
-      </aside>
+      
 
       <!-- Main Content with scrollable area -->
       <main class="flex-grow overflow-y-auto">
@@ -70,22 +62,3 @@ onBeforeUnmount(() => {
   displayStore.removeViewportWatcher()
 })
 </script>
-
-<style scoped>
-/* Smooth transition for sidebar width */
-aside {
-  transition: width 0.3s ease-in-out;
-}
-
-/* Hide scrollbar but keep content scrollable */
-.hide-scrollbar {
-  overflow-y: auto;
-}
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-</style>

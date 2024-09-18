@@ -21,18 +21,17 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="flex-1 w-full flex">
+    <main class="flex-1 w-full flex">
       <kind-sidebar-simple />
-
       <!-- Main Content with scrollable area -->
-      <main class="flex-grow overflow-y-auto">
+      <div class="flex-grow overflow-y-auto">
         <div class="flex justify-center items-center">
           <div class="w-full max-w-4xl rounded-2xl bg-base-200">
             <nuxt-page />
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
 
     <!-- Footer (Stick to Bottom) -->
     <footer

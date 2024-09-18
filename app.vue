@@ -27,7 +27,12 @@
       <div class="flex-grow overflow-y-auto">
         <div class="flex justify-center items-center">
           <div class="w-full max-w-4xl rounded-2xl bg-base-200">
-            <nuxt-page />
+            <nuxt-page
+              :transition="{
+                name: 'bounce',
+                mode: 'out-in',
+              }"
+            />
           </div>
         </div>
       </div>

@@ -11,7 +11,7 @@
           v-for="link in filteredLinks"
           :key="link.title"
           :style="{ height: `${iconHeight}px`, margin: '1px 0' }"
-          class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl p-1"
+          class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
         >
           <!-- Icon for each link -->
           <Icon

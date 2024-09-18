@@ -21,13 +21,17 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="flex-1 w-full flex overflow-hidden">
+    <div class="flex flex-1 w-full">
       <!-- Sidebar (Left) -->
       <aside
-        class="sticky top-0 flex-shrink-0 overflow-y-auto transition-all duration-300"
+        class="overflow-y-auto transition-all duration-300 bg-base-200"
+        :class="{
+          'w-64': displayStore.isSidebarOpen, /* Sidebar open width */
+          'w-0': !displayStore.isSidebarOpen, /* Sidebar closed width */
+        }"
         :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)` }"
       >
-        <kind-sidebar />
+        <kind-sidebar v-if="displayStore.isSidebarOpen" />
       </aside>
 
       <!-- Main Content with scrollable area -->
@@ -70,5 +74,25 @@ const displayStore = useDisplayStore()
 
 aside {
   transition: width 0.3s ease-in-out; /* Smooth transition for sidebar width */
+  width: 0; /* Default to hidden */
+}
+
+.w-64 {
+  width: 16rem; /* Sidebar open width */
+}
+
+.w-0 {
+  width: 0; /* Sidebar closed width */
+}
+
+.hide-scrollbar {
+  overflow-y: auto;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 </style>

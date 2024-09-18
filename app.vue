@@ -22,18 +22,17 @@
 
     <!-- Main Layout -->
     <div class="flex-1 w-full flex overflow-hidden">
-      <!-- Sidebar (Left) -->
+      <!-- Sidebar (Left) only renders when it's not hidden -->
       <aside
+        v-if="displayStore.sidebarLeft !== 'hidden'"
         class="transition-all duration-300 bg-base-200 hide-scrollbar"
         :class="{
           'w-64': displayStore.sidebarLeft === 'open',
           'w-14': displayStore.sidebarLeft === 'compact',
-          'w-0': displayStore.sidebarLeft === 'hidden',
         }"
         :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, width: `${displayStore.sidebarVw}vw` }"
       >
-        <!-- Only render sidebar content if it's not hidden -->
-        <kind-sidebar v-if="displayStore.sidebarLeft !== 'hidden'" />
+        <kind-sidebar />
       </aside>
 
       <!-- Main Content with scrollable area -->

@@ -21,8 +21,8 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="flex-1 w-full flex overflow-hidden">
-      <!-- Sidebar (Left) with transitions restored -->
+    <div class="flex-1 w-full flex">
+      <!-- Sidebar (Left) fixed so it does not scroll with the content -->
       <aside
         v-if="displayStore.sidebarLeft !== 'hidden'"
         class="transition-all duration-300 bg-base-200 hide-scrollbar"
@@ -31,7 +31,7 @@
           'w-14': displayStore.sidebarLeft === 'compact',
           'w-0': displayStore.sidebarLeft === 'hidden'
         }"
-        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)` }"
+        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, position: 'sticky', top: `${displayStore.headerVh}vh` }"
       >
         <kind-sidebar-simple />
       </aside>
@@ -76,7 +76,9 @@ onBeforeUnmount(() => {
 /* Sidebar transition restored */
 aside {
   transition: width 0.3s ease-in-out;
-  overflow-y: auto; /* Ensure sidebar content is scrollable if needed */
+  overflow-y: auto;
+  position: sticky; /* Keep the sidebar fixed while scrolling */
+  top: 0;
 }
 
 /* Scrollable area for the main content */

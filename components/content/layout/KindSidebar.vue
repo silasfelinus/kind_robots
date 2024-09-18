@@ -4,9 +4,8 @@
     :style="{
       width: isSidebarHidden ? '0' : sidebarWidth + 'vw',
       visibility: isSidebarHidden ? 'hidden' : 'visible',
-      pointerEvents: isSidebarHidden ? 'none' : 'auto', // Disable interactions when hidden
     }"
-    class="transition-all duration-500 ease-in-out bg-base-200 hide-scrollbar flex-shrink-0"
+    class="transition-all duration-500 ease-in-out bg-base-200 hide-scrollbar flex-shrink-0 pointer-none"
     :aria-hidden="isSidebarHidden"
   >
     <!-- Sidebar Links with Icons and Titles -->
@@ -15,9 +14,9 @@
       :key="link.title"
       :style="{
         height: `${iconHeight}px`,
-        margin: '2px 0',
+        margin: '1px 0',
       }"
-      class="Icon-link-container flex items-center space-x-2 transition-all duration-300 ease-in-out hover:bg-base-100 hover:scale-105 rounded-xl p-2"
+      class="Icon-link-container flex items-center space-x-2 transition-all duration-300 ease-in-out hover:bg-base-100 hover:scale-105 rounded-xl p-2 pointer-auto"
     >
       <NuxtLink
         :to="link.path"
@@ -96,5 +95,15 @@ const filteredLinks = computed(() => sidebarLinks)
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Disable pointer events for the entire sidebar */
+.pointer-none {
+  pointer-events: none;
+}
+
+/* Re-enable pointer events for interactive elements inside the sidebar */
+.pointer-auto {
+  pointer-events: auto;
 }
 </style>

@@ -84,6 +84,14 @@ onMounted(() => {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+aside {
+  transition: width 0.3s ease-in-out;
+  overflow-y: auto;
+  position: sticky; /* Keep the sidebar fixed while scrolling */
+  top: 0;
+}
+
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

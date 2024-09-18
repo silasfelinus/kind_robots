@@ -2,16 +2,16 @@
   <div class="flex">
  
     <!-- Main Content Area -->
-    <main class="flex-grow p-4">
+    <main class="flex-grow p-2">
       <div>
-      <div class="p-4">
+      <div class="p-1">
         <h2 class="text-lg font-semibold mb-4">Sidebar Training</h2>
         <!-- Sidebar Links with Icons and Titles -->
         <div
           v-for="link in filteredLinks"
           :key="link.title"
           :style="{ height: `${iconHeight}px`, margin: '1px 0' }"
-          class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl p-2"
+          class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl p-1"
         >
           <!-- Icon for each link -->
           <Icon

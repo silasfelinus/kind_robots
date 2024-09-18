@@ -21,17 +21,19 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 w-full">
+    <div class="flex-1 w-full flex overflow-hidden">
       <!-- Sidebar (Left) -->
       <aside
-        class="overflow-y-auto transition-all duration-300 bg-base-200"
+        class="transition-all duration-300 bg-base-200 hide-scrollbar"
         :class="{
-          'w-64': displayStore.isSidebarOpen, /* Sidebar open width */
-          'w-0': !displayStore.isSidebarOpen, /* Sidebar closed width */
+          'w-64': displayStore.sidebarLeft === 'open',
+          'w-14': displayStore.sidebarLeft === 'compact',
+          'w-0': displayStore.sidebarLeft === 'hidden',
         }"
-        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)` }"
+        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, width: `${displayStore.sidebarVw}vw` }"
       >
-        <kind-sidebar v-if="displayStore.isSidebarOpen" />
+        <!-- Only render sidebar content if it's not hidden -->
+        <kind-sidebar v-if="displayStore.sidebarLeft !== 'hidden'" />
       </aside>
 
       <!-- Main Content with scrollable area -->
@@ -59,32 +61,24 @@
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+
+// On mounted, initialize the viewport watcher to dynamically adjust sizes
+onMounted(() => {
+  displayStore.initializeViewportWatcher()
+})
+
+onBeforeUnmount(() => {
+  displayStore.removeViewportWatcher()
+})
 </script>
 
 <style scoped>
-/* Ensure the main content does not overflow, and the layout scrolls as expected */
-.flex-1 {
-  min-height: 0; /* Flexbox fix for height calculation */
-}
-
-.sticky {
-  position: -webkit-sticky;
-  position: sticky;
-}
-
+/* Smooth transition for sidebar width */
 aside {
-  transition: width 0.3s ease-in-out; /* Smooth transition for sidebar width */
-  width: 0; /* Default to hidden */
+  transition: width 0.3s ease-in-out;
 }
 
-.w-64 {
-  width: 16rem; /* Sidebar open width */
-}
-
-.w-0 {
-  width: 0; /* Sidebar closed width */
-}
-
+/* Hide scrollbar but keep content scrollable */
 .hide-scrollbar {
   overflow-y: auto;
 }

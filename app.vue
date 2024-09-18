@@ -22,9 +22,8 @@
 
     <!-- Main Layout -->
     <div class="flex-1 w-full flex">
-    
-        <kind-sidebar-simple />
-     
+      <kind-sidebar-full />
+
       <!-- Main Content with scrollable area -->
       <main class="flex-grow overflow-y-auto">
         <div class="flex justify-center items-center">
@@ -62,11 +61,8 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-
-
 /* Scrollable area for the main content */
 main {
   overflow-y: auto;
 }
-
 </style>

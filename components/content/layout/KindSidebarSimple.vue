@@ -1,8 +1,21 @@
 <template>
   <div class="flex">
+
+    
+    
  
-    <!-- Main Content Area -->
-    <main class="flex-grow p-2">
+ <aside
+        v-if="displayStore.sidebarLeft !== 'hidden'"
+        class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
+        :class="{
+          'w-64': displayStore.sidebarLeft === 'open',
+          'w-16': displayStore.sidebarLeft === 'compact',
+          'w-0': displayStore.sidebarLeft === 'hidden'
+        }"
+        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, position: 'sticky', top: `${displayStore.headerVh}vh` }"
+      >
+
+class="">
       <div>
       <div class="p-1">
         <!-- Sidebar Links with Icons and Titles -->
@@ -27,7 +40,7 @@
         </div>
       </div>
       </div>
-    </main>
+    </aside>
   </div>
 </template>
 

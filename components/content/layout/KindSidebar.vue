@@ -3,6 +3,8 @@
   <aside
     :style="{
       width: isSidebarHidden ? '0' : sidebarWidth + 'vw',
+      visibility: isSidebarHidden ? 'hidden' : 'visible',
+      pointerEvents: isSidebarHidden ? 'none' : 'auto', // Disable interactions when hidden
     }"
     class="transition-all duration-500 ease-in-out bg-base-200 hide-scrollbar flex-shrink-0"
     :aria-hidden="isSidebarHidden"

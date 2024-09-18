@@ -28,7 +28,7 @@
         class="transition-all duration-300 bg-base-200 hide-scrollbar"
         :class="{
           'w-64': displayStore.sidebarLeft === 'open',
-          'w-14': displayStore.sidebarLeft === 'compact',
+          'w-16': displayStore.sidebarLeft === 'compact',
           'w-0': displayStore.sidebarLeft === 'hidden'
         }"
         :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, position: 'sticky', top: `${displayStore.headerVh}vh` }"

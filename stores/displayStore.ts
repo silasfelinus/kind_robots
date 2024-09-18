@@ -15,7 +15,6 @@ interface DisplayStoreState {
     | 'sidebarRight'
     | 'footer'
     | null
-  showIntro: boolean
   headerVh: number
   sidebarVw: number
   footerVh: number
@@ -30,9 +29,8 @@ export const useDisplayStore = defineStore('display', {
     headerState: 'open',
     sidebarLeft: 'hidden',
     sidebarRight: 'hidden',
-    footer: 'hidden',
+    footer: 'open',
     focusedContainer: null,
-    showIntro: true,
     headerVh: 7,
     sidebarVw: 7,
     footerVh: 5,
@@ -62,19 +60,13 @@ export const useDisplayStore = defineStore('display', {
         loadDisplayState('headerState', 'open')
         loadDisplayState('sidebarLeft', 'hidden')
         loadDisplayState('sidebarRight', 'hidden')
-        loadDisplayState('footer', 'hidden')
+        loadDisplayState('footer', 'open')
     
-        this.showIntro = localStorage.getItem('showIntro') !== 'false'
+
         this.headerVh = parseInt(localStorage.getItem('headerVh') || '7', 10)
       }
     },
     
-
-    // Toggle intro visibility
-    toggleIntroState() {
-      this.showIntro = !this.showIntro
-      localStorage.setItem('showIntro', JSON.stringify(this.showIntro))
-    },
 
     // Update viewport dimensions and header/sidebar sizes dynamically
     updateViewport() {

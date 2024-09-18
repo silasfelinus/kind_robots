@@ -5,11 +5,7 @@
       class="absolute top-0 left-0 w-full h-full z-50"
       :class="steps[currentStep].bgClass"
     >
-      <img
-        :src="steps[currentStep].image"
-        :alt="steps[currentStep].altText"
-        class="absolute top-0 left-0 w-full h-full"
-      />
+   <img src="/images/intro/welcome.webp" alt="Test Image" class="absolute top-0 left-0 w-full h-full object-contain" />
 
       <!-- Overlay for text and buttons -->
       <div

@@ -25,9 +25,7 @@
       <!-- Sidebar (Left) -->
       <aside
         class="sticky top-0 flex-shrink-0 overflow-y-auto transition-all duration-300"
-        :style="{
-          maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`,
-        }"
+        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)` }"
       >
         <kind-sidebar />
       </aside>

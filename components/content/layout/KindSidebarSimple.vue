@@ -1,9 +1,9 @@
 <template>
   <div class="flex">
-    <!-- Sidebar -->
-    <aside
-      class="w-64 h-screen bg-base-200 transition-all duration-300 overflow-hidden hide-scrollbar"
-    >
+ 
+    <!-- Main Content Area -->
+    <main class="flex-grow p-4">
+      <div>
       <div class="p-4">
         <h2 class="text-lg font-semibold mb-4">Sidebar Training</h2>
         <!-- Sidebar Links with Icons and Titles -->
@@ -27,13 +27,6 @@
           </span>
         </div>
       </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="flex-grow p-4">
-      <div>
-        <p>Main content goes here...</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
       </div>
     </main>
   </div>

@@ -22,20 +22,9 @@
 
     <!-- Main Layout -->
     <div class="flex-1 w-full flex">
-      <!-- Sidebar (Left) fixed so it does not scroll with the content -->
-      <aside
-        v-if="displayStore.sidebarLeft !== 'hidden'"
-        class="transition-all duration-300 bg-base-200 hide-scrollbar"
-        :class="{
-          'w-64': displayStore.sidebarLeft === 'open',
-          'w-16': displayStore.sidebarLeft === 'compact',
-          'w-0': displayStore.sidebarLeft === 'hidden'
-        }"
-        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, position: 'sticky', top: `${displayStore.headerVh}vh` }"
-      >
+      
         <kind-sidebar-simple />
-      </aside>
-
+     
       <!-- Main Content with scrollable area -->
       <main class="flex-grow overflow-y-auto">
         <div class="flex justify-center items-center">

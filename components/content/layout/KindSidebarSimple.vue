@@ -14,8 +14,6 @@
         }"
         :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`, position: 'sticky', top: `${displayStore.headerVh}vh` }"
       >
-
-class="">
       <div>
       <div class="p-1">
         <!-- Sidebar Links with Icons and Titles -->

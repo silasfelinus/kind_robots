@@ -2,32 +2,32 @@
   <div class="flex">
     <!-- Sidebar -->
     <aside
-      :class="{
-        'w-64': sidebarState === 'open',
-        'w-20': sidebarState === 'compact',
-        'w-0': sidebarState === 'closed',
-      }"
-      class="h-screen bg-base-200 transition-all duration-300 overflow-hidden"
+      class="w-64 h-screen bg-base-200 transition-all duration-300 overflow-hidden hide-scrollbar"
     >
-      <div v-if="sidebarState !== 'closed'" class="p-4">
-        <h2 class="text-lg font-semibold mb-4">Sidebar</h2>
-        <ul>
-          <li class="mb-2">Item 1</li>
-          <li class="mb-2">Item 2</li>
-          <li class="mb-2">Item 3</li>
-        </ul>
+      <div class="p-4">
+        <h2 class="text-lg font-semibold mb-4">Sidebar Training</h2>
+        <!-- Sidebar Links with Icons and Titles -->
+        <div
+          v-for="link in filteredLinks"
+          :key="link.title"
+          :style="{ height: `${iconHeight}px`, margin: '1px 0' }"
+          class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl p-2"
+        >
+          <!-- Icon for each link -->
+          <Icon
+            :name="link.icon"
+            class="h-12 w-12 transition-all duration-300 ease-in-out"
+          />
+          <!-- Link title -->
+          <span class="text-sm font-semibold ml-2">
+            {{ link.title }}
+          </span>
+        </div>
       </div>
     </aside>
 
     <!-- Main Content Area -->
     <main class="flex-grow p-4">
-      <button
-        @click="toggleSidebar"
-        class="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        Toggle Sidebar
-      </button>
-
       <div>
         <p>Main content goes here...</p>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
@@ -36,40 +36,53 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      // Initialize the sidebar state
-      sidebarState: 'open', // 'open', 'compact', 'closed'
-    };
-  },
-  methods: {
-    // Method to toggle between open, compact, and closed states
-    toggleSidebar() {
-      if (this.sidebarState === 'open') {
-        this.sidebarState = 'compact';
-      } else if (this.sidebarState === 'compact') {
-        this.sidebarState = 'closed';
-      } else {
-        this.sidebarState = 'open';
-      }
-    },
-  },
-};
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { sidebarLinks } from '@/assets/sidebar'
+
+// Sidebar Links
+// Example sidebar links with icons
+const filteredLinks = computed(() => sidebarLinks)
+
+// Adjust height calculations based on window size and available space
+const availableSidebarHeight = ref(100 - 10) // Assume header height = 10vh for now
+const iconHeight = ref(0)
+
+onMounted(() => {
+  const calculateIconHeight = () => {
+    const totalLinks = sidebarLinks.length
+    const marginSpace = 10 * totalLinks // Adjust for link margins
+    const sidebarHeightInPx = (availableSidebarHeight.value * window.innerHeight) / 100
+    iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks
+  }
+
+  calculateIconHeight()
+
+  window.addEventListener('resize', calculateIconHeight)
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', calculateIconHeight)
+  })
+})
 </script>
 
 <style scoped>
-/* Simple styling for the sidebar and main layout */
-aside {
-  background-color: #f0f0f0; /* Adjust the sidebar background as needed */
+/* Hide scrollbar but allow scrolling */
+.hide-scrollbar {
+  overflow-y: auto;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-button {
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #3b82f6;
+/* Interactive hover effects for the links */
+.Icon-link-container:hover {
+  background-color: var(--bg-base-100);
+  transform: scale(1.05);
+  transition: all 0.3s ease-in-out;
 }
 </style>

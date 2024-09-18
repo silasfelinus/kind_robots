@@ -154,6 +154,8 @@
       "HeaderUpgrade",
       "KindLoader",
       "KindSidebar",
+      "KindSidebarFull",
+      "KindSidebarSimple",
       "LayoutSelector",
       "LoadMessages",
       "LoadingBar",
@@ -254,7 +256,10 @@
   },
   {
     "folderName": "photoprism",
-    "components": ["ImageUpload", "PhotoGallery"]
+    "components": [
+      "ImageUpload",
+      "PhotoGallery"
+    ]
   },
   {
     "folderName": "products",

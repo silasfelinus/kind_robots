@@ -33,7 +33,7 @@
         }"
         :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)` }"
       >
-        <kind-sidebar />
+        <kind-sidebar-simple />
       </aside>
 
       <!-- Main Content with scrollable area -->

@@ -1,42 +1,42 @@
 <template>
   <div class="flex">
-
-    
-    
- 
- <aside
-        v-if="displayStore.sidebarLeft !== 'hidden'"
-        class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
-        :class="{
-          'w-64': displayStore.sidebarLeft === 'open',
-          'w-16': displayStore.sidebarLeft === 'compact',
-          'w-0': displayStore.sidebarLeft === 'hidden'
-        }"
-        :style="{ maxHeight: calc(100vh - ${displayStore.headerVh}vh), position: 'sticky', top: ${displayStore.headerVh}vh }"
-      >
+    <aside
+      v-if="displayStore.sidebarLeft !== 'hidden'"
+      class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
+      :class="{
+        'w-64': displayStore.sidebarLeft === 'open',
+        'w-16': displayStore.sidebarLeft === 'compact',
+        'w-0': displayStore.sidebarLeft === 'hidden'
+      }"
+      :style="{
+        maxHeight: 'calc(100vh - ' + displayStore.headerVh + 'vh)',
+        position: 'sticky',
+        top: displayStore.headerVh + 'vh'
+      }"
+    >
       <div>
-      <div class="p-1">
-        <!-- Sidebar Links with Icons and Titles -->
-        <div
-          v-for="link in filteredLinks"
-          :key="link.title"
-          :style="{ height: ${iconHeight}px, margin: '1px 0' }"
-          class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
-        >
-          <!-- Icon for each link -->
-          <Icon
-            :name="link.icon"
-            class="h-12 w-12 transition-all duration-300 ease-in-out"
-          />
-          <!-- Only show the link title when the sidebar is fully open -->
-          <span
-            v-if="isSidebarOpen"
-            class="text-sm font-semibold ml-2 transition-opacity duration-300"
+        <div class="p-1">
+          <!-- Sidebar Links with Icons and Titles -->
+          <div
+            v-for="link in filteredLinks"
+            :key="link.title"
+            :style="{ height: iconHeight + 'px', margin: '1px 0' }"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
-            {{ link.title }}
-          </span>
+            <!-- Icon for each link -->
+            <Icon
+              :name="link.icon"
+              class="h-12 w-12 transition-all duration-300 ease-in-out"
+            />
+            <!-- Only show the link title when the sidebar is fully open -->
+            <span
+              v-if="isSidebarOpen"
+              class="text-sm font-semibold ml-2 transition-opacity duration-300"
+            >
+              {{ link.title }}
+            </span>
+          </div>
         </div>
-      </div>
       </div>
     </aside>
   </div>

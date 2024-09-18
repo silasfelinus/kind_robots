@@ -1,6 +1,6 @@
 <template>
   <div class="flex">
-    <Aside
+    <aside
       v-if="(displayStore.sidebarLeft as DisplayState) !== 'hidden'"
       class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
       :class="{
@@ -15,16 +15,29 @@
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->
-      <Aside.Link
+      <div
         v-for="link in filteredLinks"
         :key="link.title"
-        :to="link.path"
-        :icon="link.icon"
-        :label="link.title"
         :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-        class="hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
-      />
-    </Aside>
+        class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+      >
+        <!-- Use NuxtLink for navigation -->
+        <NuxtLink :to="link.path" class="flex items-center">
+          <!-- Icon for each link -->
+          <Icon
+            :name="link.icon"
+            class="h-12 w-12 transition-all duration-300 ease-in-out"
+          />
+          <!-- Only show the link title when the sidebar is fully open -->
+          <span
+            v-if="displayStore.sidebarLeft === 'open'"
+            class="text-sm font-semibold ml-2 transition-opacity duration-300"
+          >
+            {{ link.title }}
+          </span>
+        </NuxtLink>
+      </div>
+    </aside>
   </div>
 </template>
 
@@ -37,11 +50,11 @@ import { sidebarLinks } from '@/assets/sidebar'
 // Access the display store for the sidebar state
 const displayStore = useDisplayStore()
 
-// Sidebar Links
+// Computed properties to filter links
 const filteredLinks = computed(() => sidebarLinks)
 
 // Adjust height calculations based on window size and available space
-const availableSidebarHeight = ref(100 - 7) // Assume header height = 10vh for now
+const availableSidebarHeight = ref(100 - 7) // Assume header height = 7vh for now
 const iconHeight = ref(0)
 
 onMounted(() => {

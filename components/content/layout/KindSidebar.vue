@@ -15,7 +15,7 @@
       :key="link.title"
       :style="{
         height: `${iconHeight}px`,
-        margin: '1px 0',
+        margin: '2px 0',
       }"
       class="Icon-link-container flex items-center space-x-2 transition-all duration-300 ease-in-out hover:bg-base-100 hover:scale-105 rounded-xl p-2"
     >

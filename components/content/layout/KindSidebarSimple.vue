@@ -1,23 +1,23 @@
 <template>
   <div class="flex">
     <aside
-      v-if="displayStore.sidebarLeft !== 'hidden'"
+      v-if="(displayStore.sidebarLeft as DisplayState) !== 'hidden'"
       class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
       :class="{
         'w-64': displayStore.sidebarLeft === 'open',
         'w-16': displayStore.sidebarLeft === 'compact',
-        'w-0': displayStore.sidebarLeft === 'hidden'
+        'w-0': displayStore.sidebarLeft === 'hidden',
       }"
       :style="{
         maxHeight: 'calc(100vh - ' + displayStore.headerVh + 'vh)',
         position: 'sticky',
-        top: displayStore.headerVh + 'vh'
+        top: displayStore.headerVh + 'vh',
       }"
     >
       <div>
         <div class="p-1">
           <!-- Sidebar Links with Icons and Titles -->
-          <nuxt-link
+          <NuxtLink
             v-for="link in filteredLinks"
             :key="link.title"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
@@ -35,7 +35,7 @@
             >
               {{ link.title }}
             </span>
-          </nuxt-link>
+          </NuxtLink>
         </div>
       </div>
     </aside>
@@ -45,6 +45,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
+import type { DisplayState } from '@/stores/displayStore'
 import { sidebarLinks } from '@/assets/sidebar'
 
 // Access the display store for the sidebar state
@@ -64,7 +65,8 @@ onMounted(() => {
   const calculateIconHeight = () => {
     const totalLinks = sidebarLinks.length
     const marginSpace = 10 * totalLinks // Adjust for link margins
-    const sidebarHeightInPx = (availableSidebarHeight.value * window.innerHeight) / 100
+    const sidebarHeightInPx =
+      (availableSidebarHeight.value * window.innerHeight) / 100
     iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks
   }
 

@@ -119,7 +119,7 @@ export const useDisplayStore = defineStore('display', {
             ? 20
             : this.sidebarLeft === 'compact'
               ? 14
-              : 4 // Tablet
+              : 6 // Tablet
         case 'desktop':
           return this.sidebarLeft === 'open'
             ? isTouch

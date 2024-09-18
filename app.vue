@@ -22,8 +22,8 @@
 
     <!-- Main Layout -->
     <div class="flex-1 w-full flex">
-      
-        <kind-sidebar-simple />
+      <aside>
+        <kind-sidebar-simple /></aside>
      
       <!-- Main Content with scrollable area -->
       <main class="flex-grow overflow-y-auto">

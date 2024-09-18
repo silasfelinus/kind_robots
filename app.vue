@@ -25,17 +25,11 @@
       <!-- Sidebar (Left) -->
       <aside
         class="sticky top-0 flex-shrink-0 overflow-y-auto transition-all duration-300"
-        :class="{
-          'w-64': isSidebarOpen /* Sidebar open width */,
-          'w-0': !isSidebarOpen /* Sidebar closed width */,
-        }"
         :style="{
-          display: isSidebarHidden ? 'none' : 'block',
           maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`,
         }"
       >
-        <!-- Sidebar content only rendered if open -->
-        <kind-sidebar v-if="displayStore.isSidebarOpen" />
+        <kind-sidebar />
       </aside>
 
       <!-- Main Content with scrollable area -->

@@ -22,8 +22,8 @@
 
     <!-- Main Layout -->
     <div class="flex-1 w-full flex">
-      <aside>
-        <kind-sidebar-simple /></aside>
+    
+        <kind-sidebar-simple />
      
       <!-- Main Content with scrollable area -->
       <main class="flex-grow overflow-y-auto">
@@ -63,12 +63,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* Sidebar transition restored */
-aside {
-  transition: width 0.3s ease-in-out;
-  overflow-y: auto;
-  position: sticky; /* Keep the sidebar fixed while scrolling */
-  top: 0;
-}
+
 
 /* Scrollable area for the main content */
 main {

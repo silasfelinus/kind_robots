@@ -10,7 +10,10 @@
     >
       <!-- Sidebar Toggle -->
       <div class="absolute top-4 left-4 p-1 z-40 text-white">
-        <sidebar-toggle class="text-4xl" @click="displayStore.toggleSidebar" />
+        <sidebar-toggle
+          class="text-4xl"
+          @click="displayStore.toggleSidebar('sidebarLeft')"
+        />
       </div>
 
       <!-- Navigation Links -->
@@ -23,10 +26,13 @@
       <aside
         class="sticky top-0 flex-shrink-0 overflow-y-auto transition-all duration-300"
         :class="{
-          'w-64': displayStore.isSidebarOpen, /* Sidebar open width */
-          'w-0': !displayStore.isSidebarOpen, /* Sidebar closed width */
+          'w-64': isSidebarOpen /* Sidebar open width */,
+          'w-0': !isSidebarOpen /* Sidebar closed width */,
         }"
-        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)` }"
+        :style="{
+          display: isSidebarHidden ? 'none' : 'block',
+          maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`,
+        }"
       >
         <!-- Sidebar content only rendered if open -->
         <kind-sidebar v-if="displayStore.isSidebarOpen" />

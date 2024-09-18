@@ -5,17 +5,17 @@
       class="absolute top-0 left-0 w-full h-full z-50"
       :class="steps[currentStep].bgClass"
     >
-      <!-- Background Image -->
+      <!-- Background Image, filling the entire height -->
       <img
         :src="steps[currentStep].image"
         :alt="steps[currentStep].altText"
-        class="absolute top-0 left-0 w-full h-full object-contain"
+        class="absolute top-0 left-0 w-full h-full object-cover"
       />
 
-      <!-- Text and Buttons with Small Opacity Overlay -->
+      <!-- Centered Text and Buttons at the lower part of the screen -->
       <div
-        class="absolute bottom-0 mb-12 flex flex-col justify-center items-center text-center p-8 bg-base-200 bg-opacity-70 rounded-xl max-w-lg mx-auto"
-        style="width: 80%;"
+        class="absolute inset-x-0 bottom-0 mb-12 flex flex-col justify-center items-center text-center p-8 bg-base-200 bg-opacity-70 rounded-xl max-w-lg mx-auto"
+        style="width: 80%; transform: translateY(-50%);" <!-- Move the div upwards to center it in the lower half -->
       >
         <h1 class="text-4xl font-bold mb-2 text-white text-shadow-lg">
           {{ steps[currentStep].title }}
@@ -80,8 +80,8 @@ const previousStep = () => {
 </script>
 
 <style scoped>
-.object-contain {
-  object-fit: contain;
+.object-cover {
+  object-fit: cover; /* Ensures the image fits the full height and width while maintaining aspect ratio */
 }
 
 .fade-enter-active,

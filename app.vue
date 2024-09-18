@@ -62,7 +62,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Sidebar transition restored */
 
 
 /* Scrollable area for the main content */

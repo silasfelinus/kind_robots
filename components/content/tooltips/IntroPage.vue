@@ -8,7 +8,7 @@
       <img
         :src="steps[currentStep].image"
         :alt="steps[currentStep].altText"
-        class="absolute top-0 left-0 w-full h-full object-contain"
+        class="absolute top-0 left-0 w-full h-full"
       />
 
       <!-- Overlay for text and buttons -->

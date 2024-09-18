@@ -10,7 +10,7 @@
     >
       <!-- Sidebar Toggle -->
       <div class="absolute top-4 left-4 p-1 z-40 text-white">
-        <sidebar-toggle class="text-4xl" />
+        <sidebar-toggle class="text-4xl" @click="displayStore.toggleSidebar" />
       </div>
 
       <!-- Navigation Links -->
@@ -26,8 +26,9 @@
           'w-64': displayStore.isSidebarOpen, /* Sidebar open width */
           'w-0': !displayStore.isSidebarOpen, /* Sidebar closed width */
         }"
-        style="max-height: calc(100vh - 100px);" <!-- Adjust height based on header size -->
+        :style="{ maxHeight: `calc(100vh - ${displayStore.headerVh}vh)` }"
       >
+        <!-- Sidebar content only rendered if open -->
         <kind-sidebar v-if="displayStore.isSidebarOpen" />
       </aside>
 

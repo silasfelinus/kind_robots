@@ -17,7 +17,7 @@
       <div>
         <div class="p-1">
           <!-- Sidebar Links with Icons and Titles -->
-          <NuxtLink
+          <div
             v-for="link in filteredLinks"
             :key="link.title"
             :to="link.path"
@@ -36,7 +36,7 @@
             >
               {{ link.title }}
             </span>
-          </NuxtLink>
+          </div>
         </div>
       </div>
     </aside>
@@ -59,13 +59,13 @@ const isSidebarOpen = computed(() => displayStore.sidebarLeft === 'open')
 const filteredLinks = computed(() => sidebarLinks)
 
 // Adjust height calculations based on window size and available space
-const availableSidebarHeight = ref(100 - 10) // Assume header height = 10vh for now
+const availableSidebarHeight = ref(100 - 7) // Assume header height = 10vh for now
 const iconHeight = ref(0)
 
 onMounted(() => {
   const calculateIconHeight = () => {
     const totalLinks = sidebarLinks.length
-    const marginSpace = 10 * totalLinks // Adjust for link margins
+    const marginSpace = 4 * totalLinks // Adjust for link margins
     const sidebarHeightInPx =
       (availableSidebarHeight.value * window.innerHeight) / 100
     iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks

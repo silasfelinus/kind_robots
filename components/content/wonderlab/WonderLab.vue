@@ -27,7 +27,7 @@
         <component-screen
           v-if="componentStore.selectedComponent"
           :component="componentStore.selectedComponent"
-          @close="clearSelectedComponent"
+          @close="componentStore.clearSelectedComponent"
         />
       </div>
     </transition>
@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
 import LabGallery from './LabGallery.vue'
 import ComponentScreen from './ComponentScreen.vue'
@@ -48,54 +48,9 @@ import ComponentScreen from './ComponentScreen.vue'
 // State variables
 const isLoading = ref(false)
 const errorMessages = ref<string[]>([])
-const debugInfo = ref<string[]>([])
-
-// Define the structure of a Folder in the components.json file
-interface Folder {
-  folderName: string
-  components: string[] // List of component names as strings
-}
 
 // Access the component store
 const componentStore = useComponentStore()
-
-// Fetch components.json and sync with the store
-const fetchComponentsJSON = async () => {
-  isLoading.value = true
-  try {
-    const response = await fetch('/components.json')
-    if (!response.ok) throw new Error('Failed to fetch components.json')
-
-    const jsonData = await response.json()
-    await syncComponentsWithStore(jsonData)
-  } catch (error: unknown) {
-    const err = error as Error
-    errorMessages.value.push(`Failed to load components.json: ${err.message}`)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// Sync the components from components.json with the store
-const syncComponentsWithStore = async (folders: Folder[]) => {
-  try {
-    await componentStore.syncComponents(folders)
-    debugInfo.value.push('Sync with store successful!')
-  } catch (error: unknown) {
-    const err = error as Error
-    errorMessages.value.push(`Failed to sync components: ${err.message}`)
-  }
-}
-
-// Function to clear the selected component and return to the folder view
-const clearSelectedComponent = () => {
-  componentStore.selectedComponent = null
-}
-
-// Initial fetch on component mount
-onMounted(() => {
-  fetchComponentsJSON()
-})
 </script>
 
 <style scoped>

@@ -1,20 +1,7 @@
 import { defineStore } from 'pinia'
 import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import errorStore and ErrorType
+import type {Component} from '@prisma/client'
 
-// Define the Component interface
-interface Component {
-  id: number
-  componentName: string
-  folderName: string
-  channelId?: number | null
-  createdAt: Date
-  updatedAt: Date | null
-  isWorking: boolean
-  underConstruction: boolean
-  isBroken: boolean
-  title: string | null
-  notes: string | null
-}
 
 // Define the Folder interface (from components.json)
 interface Folder {
@@ -29,17 +16,85 @@ export const useComponentStore = defineStore('componentStore', {
   }),
 
   getters: {
-    // Get the current selected component
     getSelectedComponent: (state) => state.selectedComponent,
-
-    // Get all components in a flat array
     allComponents(state) {
       return state.components
     },
   },
 
   actions: {
-    // Fetch all components from the API with error handling
+    // Initialize the components by syncing them from components.json and the API
+    async initializeComponents() {
+      const errorStore = useErrorStore()
+      
+      return errorStore.handleError(async () => {
+        // Step 1: Fetch folder and component names from components.json
+        const response = await fetch('/components.json')
+        if (!response.ok) {
+          throw new Error('Failed to fetch components.json')
+        }
+        const folderData: Folder[] = await response.json()
+        
+        // Step 2: Fetch existing components from the API (database)
+        const apiResponse = await fetch('/api/components')
+        if (!apiResponse.ok) {
+          throw new Error('Failed to fetch components from API')
+        }
+        const apiComponents: Component[] = await apiResponse.json()
+        
+        // Step 3: Identify and delete components in the database not in components.json
+        const componentsFromJson = folderData.flatMap(folder =>
+          folder.components.map(componentName => ({
+            componentName,
+            folderName: folder.folderName
+          }))
+        )
+        
+        for (const apiComponent of apiComponents) {
+          const existsInJson = componentsFromJson.some(
+            (jsonComp) => jsonComp.componentName === apiComponent.componentName && jsonComp.folderName === apiComponent.folderName
+          )
+          
+          if (!existsInJson) {
+            // Delete component from database if it doesn't exist in components.json
+            await this.deleteComponent(apiComponent.id)
+          }
+        }
+        
+        // Step 4: Sync (Upsert) components from components.json to the database
+        for (const folder of folderData) {
+          for (const componentName of folder.components) {
+            const existingComponent = apiComponents.find(
+              (comp) => comp.componentName === componentName && comp.folderName === folder.folderName
+            )
+            
+            const componentData = {
+              id: existingComponent ? existingComponent.id : 0, // Use 0 for new components
+              componentName,
+              folderName: folder.folderName,
+              createdAt: existingComponent?.createdAt || new Date(),
+              updatedAt: new Date(),
+              isWorking: existingComponent?.isWorking || true,
+              underConstruction: existingComponent?.underConstruction || false,
+              isBroken: existingComponent?.isBroken || false,
+              title: existingComponent?.title || null,
+              notes: existingComponent?.notes || null,
+            }
+            
+            await this.createOrUpdateComponent(componentData as Component, existingComponent ? 'update' : 'create')
+          }
+        }
+        
+        console.log('Components initialization complete')
+      }, ErrorType.GENERAL_ERROR, 'Error initializing components')
+    },
+    // Add this to your componentStore actions
+clearSelectedComponent() {
+  this.selectedComponent = null
+},
+
+
+        // Add this to your componentStore actions if it's missing
     async fetchAllComponents() {
       const errorStore = useErrorStore()
       return errorStore.handleError(async () => {
@@ -53,110 +108,8 @@ export const useComponentStore = defineStore('componentStore', {
       }, ErrorType.NETWORK_ERROR, 'Error fetching all components')
     },
 
-    // Sync components from the JSON file with the store (add or update)
-    async syncComponents(folders: Folder[]) {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        // Iterate through each folder
-        for (const folder of folders) {
-          // Iterate through each component in the folder
-          for (const componentName of folder.components) {
-            const existingComponent = this.components.find(
-              (comp) =>
-                comp.componentName === componentName &&
-                comp.folderName === folder.folderName
-            )
-
-            const componentData = {
-              id: existingComponent ? existingComponent.id : 0, // Use 0 for new components
-              componentName,
-              folderName: folder.folderName,
-              channelId: null, // Optional, can be null for now
-              createdAt: existingComponent ? existingComponent.createdAt : new Date(),
-              updatedAt: new Date(),
-              isWorking: existingComponent ? existingComponent.isWorking : true,
-              underConstruction: existingComponent
-                ? existingComponent.underConstruction
-                : false,
-              isBroken: existingComponent ? existingComponent.isBroken : false,
-              title: existingComponent ? existingComponent.title : null,
-              notes: existingComponent ? existingComponent.notes : null,
-            }
-
-            // Create or update the component in the store
-            const action = existingComponent ? 'update' : 'create'
-            await this.createOrUpdateComponent(
-              componentData as Component,
-              action
-            )
-          }
-        }
-        console.log('Sync with store successful!')
-      }, ErrorType.GENERAL_ERROR, 'Error syncing components with store')
-    },
-
-    // Fetch a specific component by ID with error handling
-    async fetchComponentById(id: number) {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const response = await fetch(`/api/components/${id}`)
-        if (!response.ok) {
-          throw new Error(`Failed to fetch component with id: ${id}`)
-        }
-        const component = await response.json()
-        this.selectedComponent = component
-        return component
-      }, ErrorType.NETWORK_ERROR, `Error fetching component with id ${id}`)
-    },
-
-    // Fetch components by folder name with error handling
-    async fetchComponentsByFolder(folderName: string) {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const response = await fetch(`/api/components/folder/${folderName}`)
-        if (!response.ok) {
-          throw new Error(`Failed to fetch components from folder: ${folderName}`)
-        }
-        const components = await response.json()
-        this.components = components // Update store with the fetched components
-        return components as Component[]
-      }, ErrorType.NETWORK_ERROR, `Error fetching components from folder: ${folderName}`)
-    },
-
-    // Find a component by name with error handling
-    async findComponentByName(folderName: string, componentName: string) {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(async () => {
-        const response = await fetch(`/api/components/${folderName}`)
-        if (!response.ok) {
-          throw new Error(`Failed to fetch components from folder "${folderName}".`)
-        }
-
-        const { components } = await response.json()
-
-        const foundComponent = components.find(
-          (comp: Component) => comp.componentName === componentName
-        )
-
-        if (!foundComponent) {
-          throw new Error(`Component "${componentName}" not found in folder "${folderName}".`)
-        }
-
-        this.setSelectedComponent(foundComponent)
-        return foundComponent
-      }, ErrorType.VALIDATION_ERROR, `Error finding component "${componentName}" in folder "${folderName}"`)
-    },
-
-    // Set the selected component in the store
-    setSelectedComponent(component: Component) {
-      this.selectedComponent = component
-    },
-
     // Create or update a component in the database with error handling
-    async createOrUpdateComponent(
-      component: Component,
-      action: 'create' | 'update'
-    ) {
+    async createOrUpdateComponent(component: Component, action: 'create' | 'update') {
       const errorStore = useErrorStore()
       return errorStore.handleError(async () => {
         const response = await fetch('/api/components', {

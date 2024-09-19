@@ -97,7 +97,8 @@ import { usePitchStore } from './../../../stores/pitchStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import AddPitch from './AddPitch.vue'
 import type { Pitch } from './../../../stores/pitchStore'
-import { useReactionStore, ReactionType } from '../../../stores/reactionStore'
+import { useReactionStore } from '../../../stores/reactionStore'
+import type { ReactionType } from '@prisma/client'
 
 // Stores and States
 const pitchStore = usePitchStore()

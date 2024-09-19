@@ -55,31 +55,37 @@
       </div>
     </div>
 
-    <!-- Bottom Section: Splash Image or Component Screen -->
-    <div class="relative h-full">
-      <transition name="flip">
-        <div
-          v-if="!showComponentScreen"
-          class="flex flex-col items-center justify-center h-full"
-        >
-          <!-- Splash Image and Instructions -->
-          <random-image class="mb-4" />
-          <p class="text-lg text-center px-4">
-            Welcome to Wonderforge! Select a folder above to view available
-            components. After selecting a component, the component details will
-            be displayed here. Have fun exploring!
-          </p>
-        </div>
-
-        <!-- Component Detail View: Displays detailed view of the selected component -->
-        <component-screen
-          v-else
-          :folder-name="selectedFolder"
-          :component-name="selectedComponent"
-          @close="showPreviousComponents"
-        />
-      </transition>
+<!-- Bottom Section: Splash Image or Component Screen -->
+<div class="relative h-full">
+  <transition name="flip">
+    <!-- Splash Image and Instructions -->
+    <div
+      v-if="!showComponentScreen"
+      class="flex flex-col items-center justify-center h-full"
+    >
+      <random-image class="mb-4" />
+      <p class="text-lg text-center px-4">
+        Welcome to Wonderforge! Select a folder above to view available
+        components. After selecting a component, the component details will
+        be displayed here. Have fun exploring!
+      </p>
     </div>
+
+    <!-- Component Detail View: Displays detailed view of the selected component -->
+    <div v-if="showComponentScreen">
+      <component-screen
+        :folder-name="selectedFolder"
+        :component-name="selectedComponent"
+        @close="showPreviousComponents"
+      />
+
+      <!-- Component Reaction: Reaction and Comment Section -->
+      <component-reaction :component-id="componentId" />
+    </div>
+  </transition>
+</div>
+
+      
 
     <!-- Error Reporting: Displays any errors encountered during the component loading -->
     <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4">

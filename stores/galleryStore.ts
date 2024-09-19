@@ -26,12 +26,7 @@ export const useGalleryStore = defineStore({
     },
 
     randomImage(state: GalleryState): string | null {
-      if (state.currentGallery && state.currentGallery.imagePaths) {
-        const images = state.currentGallery.imagePaths.split(',')
-        const randomIndex = Math.floor(Math.random() * images.length)
-        return `/images/${state.currentGallery.name}/${images[randomIndex]}`
-      }
-      return null
+      return state.currentImage ? state.currentImage : null
     },
 
     randomGallery(state: GalleryState): Gallery | null {
@@ -62,7 +57,6 @@ export const useGalleryStore = defineStore({
   actions: {
     // Initialize store by loading from localStorage or API
     async initializeStore() {
-      // Try loading from localStorage first
       const storedGalleries = localStorage.getItem('galleries')
       const storedCurrentGallery = localStorage.getItem('currentGallery')
       const storedCurrentImage = localStorage.getItem('currentImage')
@@ -81,7 +75,7 @@ export const useGalleryStore = defineStore({
 
       // If no galleries in localStorage, fetch from API
       if (!this.galleries.length) {
-        await this.fetchGalleries() // Use the action here
+        await this.fetchGalleries()
       }
     },
 
@@ -126,25 +120,29 @@ export const useGalleryStore = defineStore({
 
     // Set a random gallery and update state and localStorage
     setRandomGallery() {
-      const randomGallery = this.randomGallery // Use getter, not state property
+      const randomGallery = this.randomGallery
       if (randomGallery) {
         this.setGalleryByName(randomGallery.name)
       }
     },
 
-    // Change to a random image within the current gallery
-    changeToRandomImage() {
-      if (this.currentGallery && this.currentGallery.imagePaths) {
-        const images = this.currentGallery.imagePaths.split(',')
-        let newImage = this.currentImage
-
-        while (newImage === this.currentImage && images.length > 1) {
-          const randomIndex = Math.floor(Math.random() * images.length)
-          newImage = `/images/${this.currentGallery.name}/${images[randomIndex]}`
+    // Change to a random image by fetching from the API
+    async changeToRandomImage() {
+      try {
+        const response = await fetch('/api/galleries/random/image')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.image) {
+            this.currentImage = data.image
+            localStorage.setItem('currentImage', this.currentImage)
+          } else {
+            console.error('No image found in the response.')
+          }
+        } else {
+          console.error('Failed to fetch a random image.')
         }
-
-        this.currentImage = newImage
-        localStorage.setItem('currentImage', this.currentImage)
+      } catch (error) {
+        console.error('Error fetching random image:', error)
       }
     },
   },

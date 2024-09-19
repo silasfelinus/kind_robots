@@ -10,7 +10,7 @@ interface Component {
   id: number
   componentName: string
   folderName: string
-  channelId: number | null
+  channelId?: number | null
   createdAt: Date
   updatedAt: Date | null
   isWorking: boolean

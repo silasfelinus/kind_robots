@@ -61,8 +61,9 @@
 
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
+import type { Component } from '@prisma/client' // Adjust import as necessary
 
 // Access the component store
 const componentStore = useComponentStore()
@@ -70,31 +71,15 @@ const componentStore = useComponentStore()
 // State variables
 const isLoading = ref(false)
 const errorComponents = ref<string[]>([])
+const isMockup = ref(false) // Add isMockup state
 
 // Computed properties
 const folderNames = computed(() =>
   componentStore.folders.map((folder) => folder.folderName),
 )
 const selectedComponent = computed(() => componentStore.selectedComponent)
-const selectedComponents = computed(() => componentStore.selectedComponents) // Use store's selectedComponents
+const selectedComponents = computed(() => componentStore.selectedComponents) 
 
-// Fetch data from public/components.json
-const fetchComponentJSON = async () => {
-  try {
-    isLoading.value = true
-    const response = await fetch('/components.json')
-    if (!response.ok) {
-      throw new Error('Failed to load components.json')
-    }
-    const jsonData = await response.json()
-    componentStore.folders = jsonData
-  } catch (error) {
-    console.error('Error loading components.json:', error)
-    errorComponents.value.push('Failed to load components.json')
-  } finally {
-    isLoading.value = false
-  }
-}
 
 const fetchComponents = (folderName: string) => {
   componentStore.fetchComponentList(folderName)
@@ -109,8 +94,4 @@ const openComponent = (component: Component) => {
   componentStore.setSelectedComponent(component)
 }
 
-// Fetch folder names and component data when the component is mounted
-onMounted(() => {
-  fetchComponentJSON()
-})
-</script>
+// Fetch folder names and component data when

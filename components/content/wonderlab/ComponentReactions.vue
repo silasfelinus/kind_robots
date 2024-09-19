@@ -1,5 +1,49 @@
 <template>
-  <div class="relative">
+  <div class="relative w-full max-w-3xl bg-white p-6 rounded-lg shadow-md">
+    <h2 v-if="component">Edit Component: {{ component?.componentName }}</h2>
+    <p v-else>Loading component...</p>
+
+    <!-- Display form fields for title, notes, and boolean toggles -->
+    <div v-if="component" class="mt-4">
+      <label class="block mb-2">Title:</label>
+      <input
+        v-model="component.title"
+        type="text"
+        class="w-full p-2 border rounded"
+        @input="updateComponent"
+      />
+
+      <label class="block mt-4 mb-2">Notes:</label>
+      <textarea
+        v-model="component.notes"
+        class="w-full p-2 border rounded"
+        @input="updateComponent"
+      ></textarea>
+
+      <div class="mt-4">
+        <label class="mr-2">Is Working:</label>
+        <input
+          v-model="component.isWorking"
+          type="checkbox"
+          @change="updateComponent"
+        />
+
+        <label class="ml-4 mr-2">Under Construction:</label>
+        <input
+          v-model="component.underConstruction"
+          type="checkbox"
+          @change="updateComponent"
+        />
+
+        <label class="ml-4 mr-2">Is Broken:</label>
+        <input
+          v-model="component.isBroken"
+          type="checkbox"
+          @change="updateComponent"
+        />
+      </div>
+    </div>
+
     <!-- Reaction buttons -->
     <div
       class="fixed bottom-0 left-0 right-0 p-4 bg-gray-800 flex justify-around"
@@ -55,11 +99,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import CommentDisplay from './CommentDisplay.vue'
+import { ref, watch, computed, onMounted } from 'vue'
+import { useComponentStore } from '@/stores/componentStore'
 import { useReactionStore } from '@/stores/reactionStore'
+import { useUserStore } from '@/stores/userStore'
 import { ReactionType, ReactionCategory } from '@prisma/client' // Prisma import
+import CommentDisplay from './CommentDisplay.vue'
+import type { Component } from '@prisma/client'
 
 // Props
 const props = defineProps({
@@ -71,32 +117,47 @@ const props = defineProps({
 
 // Pinia stores
 const reactionStore = useReactionStore()
+const componentStore = useComponentStore()
 const userStore = useUserStore()
 
-// State
-const userId = computed(() => userStore.user?.id || 10) // Default to guest user ID 10 if not logged in
+// State for the component data
+const component = ref<Component | null>(null) // Explicitly typing component
 const reactionType = ref<ReactionType | null>(null) // Reaction type
 const commentTitle = ref('')
 const commentDescription = ref('')
 
+// Get the user ID
+const userId = computed(() => userStore.user?.id || 10) // Default to guest user ID 10 if not logged in
+
+// Fetch the component by ID and load it into the local state
+const fetchComponent = async () => {
+  try {
+    component.value = await componentStore.fetchComponentById(props.componentId)
+  } catch (error) {
+    console.error('Failed to fetch component:', error)
+  }
+}
+
 // Fetch the reaction when componentId changes
-watch(
-  () => props.componentId,
-  async (newId) => {
-    if (newId) {
-      await reactionStore.fetchReactionsByComponentId(newId)
-      const userReaction = reactionStore.getUserReactionForComponent(
-        newId,
-        userId.value,
-      )
-      if (userReaction) {
-        reactionType.value = userReaction.reactionType
-      } else {
-        reactionType.value = ReactionType.NEUTRAL // Default reaction
-      }
-    }
-  },
-)
+const fetchReactions = async () => {
+  await reactionStore.fetchReactionsByComponentId(props.componentId)
+  const userReaction = reactionStore.getUserReactionForComponent(
+    props.componentId,
+    userId.value,
+  )
+  if (userReaction) {
+    reactionType.value = userReaction.reactionType
+  } else {
+    reactionType.value = ReactionType.NEUTRAL // Default reaction
+  }
+}
+
+// Function to update the component when fields change
+const updateComponent = async () => {
+  if (component.value) {
+    await componentStore.createOrUpdateComponent(component.value, 'update')
+  }
+}
 
 // Function to toggle reactions
 const toggleReaction = async (newReactionType: ReactionType) => {
@@ -115,12 +176,12 @@ const toggleReaction = async (newReactionType: ReactionType) => {
       userId: userId.value,
       componentId: props.componentId,
       reactionType: newReactionType,
-      reactionCategory: ReactionCategory.COMPONENT, // Use Prisma enum
+      reactionCategory: ReactionCategory.COMPONENT, // Correct case
     })
   }
 }
 
-// Submit comment and create channel
+// Submit comment and reaction
 const submitComment = async () => {
   if (commentTitle.value && commentDescription.value) {
     await reactionStore.createReactionWithChannel(
@@ -128,7 +189,7 @@ const submitComment = async () => {
         userId: userId.value,
         componentId: props.componentId,
         reactionType: reactionType.value || ReactionType.NEUTRAL,
-        ReactionCategory: ReactionCategory.COMPONENT, // Use Prisma enum
+        ReactionCategory: ReactionCategory.COMPONENT, // Correct case
       },
       {
         title: commentTitle.value,
@@ -141,6 +202,21 @@ const submitComment = async () => {
     alert('Please add both a title and a comment.')
   }
 }
+
+// Fetch component and reactions on mount
+onMounted(() => {
+  fetchComponent()
+  fetchReactions()
+})
+
+// Watch for changes in componentId to refetch reactions and component data
+watch(
+  () => props.componentId,
+  () => {
+    fetchComponent()
+    fetchReactions()
+  },
+)
 </script>
 
 <style scoped>

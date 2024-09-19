@@ -1,62 +1,79 @@
 <template>
   <div class="p-6 bg-base-200 min-h-screen flex flex-col items-center">
+    <!-- Check if the component has been loaded dynamically -->
     <div
-      v-if="selectedComponent"
+      v-if="component && folderName && componentName"
       class="w-full max-w-3xl bg-white p-6 rounded-lg shadow-md"
     >
       <h2 class="text-3xl font-bold mb-4">
-        {{ selectedComponent.title || selectedComponent.componentName }}
+        Component: {{ componentName }} in Folder: {{ folderName }}
       </h2>
 
-      <div class="mb-6">
-        <label class="font-semibold">Title:</label>
-        <input
-          v-if="isAdmin"
-          v-model="selectedComponent.title"
-          type="text"
-          class="input input-bordered w-full"
-        />
-        <p v-else>{{ selectedComponent.title }}</p>
-      </div>
+      <!-- Dynamically load and display the component -->
+      <component :is="component"></component>
 
-      <div class="mb-6">
-        <label class="font-semibold">Notes:</label>
-        <textarea
-          v-if="isAdmin"
-          v-model="selectedComponent.notes"
-          class="textarea textarea-bordered w-full"
-        ></textarea>
-        <p v-else>{{ selectedComponent.notes }}</p>
-      </div>
-
-      <!-- Include the component reaction bar -->
-      <div class="mb-6">
-        <ComponentReaction :component-id="selectedComponent.id" />
-      </div>
-
-      <button class="btn btn-error" @click="leaveComponent">Leave</button>
+      <button class="btn btn-error mt-4" @click="emitClose">Close</button>
     </div>
+
+    <!-- Show a message if no component is selected -->
     <div v-else>
-      <p>No component selected</p>
+      <p>No component selected or failed to load.</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
-import { useUserStore } from '@/stores/userStore'
+import { ref, watch, defineProps, defineEmits } from 'vue'
 
-// Access the component store and the user store
-const componentStore = useComponentStore()
-const userStore = useUserStore()
+// Define the props for folderName and componentName
+const props = defineProps({
+  componentName: {
+    type: String,
+    required: true,
+    default: '',
+  },
+  folderName: {
+    type: String,
+    required: true,
+    default: '',
+  },
+})
 
-// Computed properties
-const selectedComponent = computed(() => componentStore.selectedComponent)
-const isAdmin = computed(() => userStore.user?.Role === 'ADMIN')
+// Declare the emit for the 'close' event
+const emit = defineEmits(['close'])
 
-// Function to leave the component view
-const leaveComponent = () => {
-  componentStore.clearSelectedComponent()
+// Emit the 'close' event when the button is clicked
+const emitClose = () => {
+  emit('close')
 }
+
+// State to hold the dynamically loaded component
+const component = ref<null | object>(null)
+
+// Function to dynamically import the component
+const loadComponent = async (folderName: string, componentName: string) => {
+  try {
+    // Dynamically import the component based on folder and component names
+    component.value = (
+      await import(`@/components/content/${folderName}/${componentName}.vue`)
+    ).default
+  } catch (error) {
+    console.error(
+      `Failed to load component: ${folderName}/${componentName}`,
+      error,
+    )
+    component.value = null // Set to null if loading fails
+  }
+}
+
+// Watch for changes in folderName or componentName and load the component
+watch(
+  () => [props.folderName, props.componentName],
+  ([newFolderName, newComponentName]) => {
+    if (newFolderName && newComponentName) {
+      loadComponent(newFolderName, newComponentName)
+    }
+  },
+  { immediate: true },
+)
 </script>

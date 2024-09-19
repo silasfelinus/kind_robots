@@ -1,4 +1,4 @@
-// server/api/randomimage.get.ts
+// server/api/galleries/random/image/index.get.ts
 import { defineEventHandler } from 'h3'
 import { fetchRandomImage } from '../..'
 

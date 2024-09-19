@@ -119,7 +119,7 @@ export async function fetchRandomImage(): Promise<string | null> {
       skip: randomIndex,
     })
 
-    if (!randomGallery || !randomGallery.imagePaths) {
+    if (!randomGallery || !randomGallery.imagePaths || !randomGallery.name) {
       return null
     }
 
@@ -130,11 +130,15 @@ export async function fetchRandomImage(): Promise<string | null> {
     const randomImage =
       imagePathsArray[Math.floor(Math.random() * imagePathsArray.length)]
 
-    return randomImage
+    // Prepend the gallery name and the /images folder to the image path
+    const fullImagePath = `/images/${randomGallery.name}/${randomImage}`
+
+    return fullImagePath
   } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
+
 
 // Function to fetch all images from all galleries
 export async function getAllGalleryImages(): Promise<{

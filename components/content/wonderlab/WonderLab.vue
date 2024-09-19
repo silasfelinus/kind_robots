@@ -17,7 +17,6 @@
         class="p-4 rounded-lg hover:bg-primary hover:text-default cursor-pointer transition duration-300 ease-in-out"
         @click="fetchComponents(folder.folderName)"
       >
-        >
         <div class="text-center">
           <Icon name="bi:folder-fill" class="text-4xl" />
           <p class="mt-2">{{ folder.folderName }}</p>

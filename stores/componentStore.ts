@@ -23,7 +23,6 @@ interface Component {
 export const useComponentStore = defineStore('componentStore', {
   state: () => ({
     folders: [] as Folder[], // Folder structure from JSON with components as objects
-    folderNames: [] as string[], // Dynamic list of folder names
     lastFetched: null as string | null, // ISO format date of last fetch
     selectedComponent: null as Component | null, // Full Component object for the selected component
     components: [] as Component[], // Flat list of all Component objects for ease of lookup
@@ -39,11 +38,6 @@ export const useComponentStore = defineStore('componentStore', {
       return state.folders.map((folder) => folder.folderName)
     },
 
-    // Get folders as an array of objects with folderName and Component objects
-    groupedFolders(state) {
-      return state.folders
-    },
-
     // Get all components in a flat array
     allComponents(state) {
       return state.folders.flatMap((folder) => folder.components)
@@ -54,15 +48,21 @@ export const useComponentStore = defineStore('componentStore', {
     async fetchComponentList(folderName: string) {
       const folder = this.folders.find((f) => f.folderName === folderName)
       if (folder) {
-        this.selectedComponents = folder.components // Set selected components here
+        this.$patch({
+          selectedComponents: folder.components, // Update state using $patch for better reactivity tracking
+        })
       } else {
         console.error(`Folder ${folderName} not found`)
-        this.selectedComponents = [] // Clear if not found
+        this.$patch({
+          selectedComponents: [] // Clear if not found
+        })
       }
     },
 
     clearSelectedComponents() {
-      this.selectedComponents = []
+      this.$patch({
+        selectedComponents: []
+      })
     },
 
     // Initialization function that syncs with the database and components.json
@@ -72,10 +72,12 @@ export const useComponentStore = defineStore('componentStore', {
         const jsonResponse = await fetch('/components.json')
         if (!jsonResponse.ok) throw new Error('components.json not found')
         const jsonFolders: Folder[] = await jsonResponse.json()
-        
+
         // Update store with folders and components
-        this.folders = jsonFolders
-        this.components = this.allComponents // Flat list of all components for easier lookup
+        this.$patch({
+          folders: jsonFolders,
+          components: this.allComponents // Flat list of all components for easier lookup
+        })
 
         console.log('ComponentStore initialized successfully')
       } catch (error) {
@@ -83,23 +85,28 @@ export const useComponentStore = defineStore('componentStore', {
       }
     },
 
-   // Select a component
-   setSelectedComponent(component: Component) {
-    this.selectedComponent = component
-  },
+    // Select a component
+    setSelectedComponent(component: Component) {
+      this.$patch({
+        selectedComponent: component
+      })
+    },
 
-  // Deselect the component
-  clearSelectedComponent() {
-    this.selectedComponent = null
-  },
-
+    // Deselect the component
+    clearSelectedComponent() {
+      this.$patch({
+        selectedComponent: null
+      })
+    },
 
     // Function to retrieve the default component from localStorage
     loadDefaultComponent() {
       const storedComponent = localStorage.getItem('selectedComponent')
       if (storedComponent) {
         try {
-          this.selectedComponent = JSON.parse(storedComponent) as Component
+          this.$patch({
+            selectedComponent: JSON.parse(storedComponent) as Component
+          })
         } catch (error) {
           console.error(
             'Failed to load selected component from localStorage:',
@@ -109,7 +116,6 @@ export const useComponentStore = defineStore('componentStore', {
       }
     },
 
-    
     // Sync the database with components.json
     async syncDatabaseWithJSON(
       dbComponents: Component[],
@@ -117,7 +123,7 @@ export const useComponentStore = defineStore('componentStore', {
     ) {
       try {
         // Flatten the components from JSON folders
-        const jsonComponents = jsonFolders.flatMap((folder) => folder.components);
+        const jsonComponents = jsonFolders.flatMap((folder) => folder.components)
 
         // Add or update missing components
         for (const jsonComponent of jsonComponents) {
@@ -125,10 +131,10 @@ export const useComponentStore = defineStore('componentStore', {
             (dbComp) =>
               dbComp.componentName === jsonComponent.componentName &&
               dbComp.folderName === jsonComponent.folderName
-          );
+          )
 
           if (!existingComponent) {
-            await this.createOrUpdateComponent(jsonComponent, 'create');
+            await this.createOrUpdateComponent(jsonComponent, 'create')
           } else {
             // Update existing components if they differ in any significant property
             if (
@@ -137,7 +143,7 @@ export const useComponentStore = defineStore('componentStore', {
               existingComponent.isBroken !== jsonComponent.isBroken ||
               existingComponent.notes !== jsonComponent.notes
             ) {
-              await this.createOrUpdateComponent(jsonComponent, 'update');
+              await this.createOrUpdateComponent(jsonComponent, 'update')
             }
           }
         }
@@ -148,14 +154,14 @@ export const useComponentStore = defineStore('componentStore', {
             (jsonComp) =>
               jsonComp.componentName === dbComponent.componentName &&
               jsonComp.folderName === dbComponent.folderName
-          );
+          )
 
           if (!stillInJson) {
-            await this.deleteComponent(dbComponent.componentName);
+            await this.deleteComponent(dbComponent.componentName)
           }
         }
       } catch (error) {
-        console.error('Error syncing database with components.json:', error);
+        console.error('Error syncing database with components.json:', error)
       }
     },
 
@@ -166,41 +172,19 @@ export const useComponentStore = defineStore('componentStore', {
           method: action === 'create' ? 'POST' : 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(component),
-        });
+        })
 
         if (!response.ok) {
           throw new Error(
             `${action === 'create' ? 'Create' : 'Update'} component failed: ${response.statusText}`
-          );
+          )
         }
 
         console.log(
           `Component ${component.componentName} ${action}d successfully`
-        );
-      } catch (error) {
-        console.error(`Error ${action === 'create' ? 'creating' : 'updating'} component:`, error);
-      }
-    },
-
-    // API call to update a component in the database
-    async updateComponent(component: Component) {
-      try {
-        const response = await fetch(
-          `/api/components/${component.componentName}`,
-          {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(component),
-          },
         )
-
-        if (!response.ok) {
-          throw new Error(`Failed to update component: ${response.statusText}`)
-        }
-
-        console.log(`Component ${component.componentName} updated successfully`)
       } catch (error) {
-        console.error('Error updating component in the database:', error)
+        console.error(`Error ${action === 'create' ? 'creating' : 'updating'} component:`, error)
       }
     },
 
@@ -215,15 +199,17 @@ export const useComponentStore = defineStore('componentStore', {
         }
 
         // Remove the component from the store
-        this.components = this.components.filter(
-          (c) => c.componentName !== componentName,
-        )
-        this.folders = this.folders.map((folder) => ({
-          ...folder,
-          components: folder.components.filter(
-            (c) => c.componentName !== componentName,
+        this.$patch({
+          components: this.components.filter(
+            (c) => c.componentName !== componentName
           ),
-        }))
+          folders: this.folders.map((folder) => ({
+            ...folder,
+            components: folder.components.filter(
+              (c) => c.componentName !== componentName
+            ),
+          }))
+        })
 
         console.log(`Component ${componentName} deleted successfully`)
       } catch (error) {

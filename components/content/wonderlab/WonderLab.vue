@@ -12,22 +12,6 @@
       <label for="json">Components JSON</label>
     </div>
 
-    <!-- Toggle filters for boolean values -->
-    <div class="mb-4 flex gap-4">
-      <label>
-        <input v-model="filters.isWorking" type="checkbox" />
-        Show Working Components
-      </label>
-      <label>
-        <input v-model="filters.underConstruction" type="checkbox" />
-        Show Under Construction
-      </label>
-      <label>
-        <input v-model="filters.isBroken" type="checkbox" />
-        Show Broken Components
-      </label>
-    </div>
-
     <!-- Display status message while loading components -->
     <div v-if="loadingStatus" class="text-xl text-center text-blue-500 mb-4">
       {{ loadingStatus }}
@@ -64,52 +48,54 @@
     >
       No matching components found.
     </div>
+
+    <!-- Add new components button -->
+    <button class="btn btn-primary mt-6" @click="addNewComponents">
+      Add New Components
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
-import type { Component } from '@prisma/client' // Import the Component type
+import type { Component } from '@prisma/client'
 
 // State
 const loadingStatus = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
 const dataSource = ref<'store' | 'json'>('store') // Toggle between database and JSON
+
+const componentStore = useComponentStore()
+const components = ref<Component[]>([]) // Initialize components as an array
+
+// Filters
 const filters = ref({
   isWorking: true,
   underConstruction: true,
   isBroken: true,
 })
 
-// Access the componentStore
-const componentStore = useComponentStore()
-
+// Fetch components from the store or JSON file
 const fetchComponents = async () => {
   try {
     loadingStatus.value = 'Loading components...'
 
     if (dataSource.value === 'store') {
-      await componentStore.fetchAllComponents() // Fetch from the store (API retrieval)
-      components.value = componentStore.allComponents // Use store data
+      await componentStore.fetchAllComponents()
+      components.value = componentStore.allComponents
     } else {
-      // Fetch components from components.json
       const response = await fetch('/components.json')
-      if (!response.ok) {
-        throw new Error('Failed to fetch components from JSON.')
-      }
+      if (!response.ok) throw new Error('Failed to fetch components from JSON.')
       const jsonFolders = await response.json()
 
-      // Ensure jsonFolders is an array and properly structured
-      if (!Array.isArray(jsonFolders)) {
+      if (!Array.isArray(jsonFolders))
         throw new Error('Invalid JSON structure.')
-      }
 
-      // Map JSON data to Component type with defaults
       components.value = jsonFolders.flatMap(
         (folder: { components: string[]; folderName: string }) =>
           folder.components.map((name: string) => ({
-            id: 0, // Placeholder ID; will be updated if fetched from the database
+            id: 0, // Placeholder ID
             createdAt: new Date(),
             updatedAt: null,
             folderName: folder.folderName,
@@ -123,7 +109,7 @@ const fetchComponents = async () => {
             Tags: [],
             Reactions: [],
           })),
-      ) as Component[] // Cast to Component[]
+      ) as Component[]
     }
 
     loadingStatus.value = null
@@ -133,10 +119,30 @@ const fetchComponents = async () => {
   }
 }
 
-const components = ref<Component[]>([]) // Initialize components as an array
+// Handle component addition to the store
+const addNewComponents = async () => {
+  try {
+    const newComponents = components.value.filter((component) => {
+      return !componentStore.allComponents.find(
+        (storedComp) => storedComp.componentName === component.componentName,
+      )
+    })
 
+    for (const component of newComponents) {
+      await componentStore.createOrUpdateComponent(component, 'create')
+    }
+
+    console.log('New components added successfully!')
+  } catch (error) {
+    console.error('Error adding new components:', error)
+  }
+}
+
+// Fetch components whenever the data source is changed
+watch(dataSource, fetchComponents)
+
+// Computed filtered components
 const filteredComponents = computed(() => {
-  // Ensure components.value is an array before filtering
   if (Array.isArray(components.value)) {
     return components.value.filter((component: Component) => {
       return (
@@ -149,19 +155,13 @@ const filteredComponents = computed(() => {
   return [] // Return an empty array if components.value is not an array
 })
 
-// Fetch components whenever the data source is changed
-watch(dataSource, fetchComponents)
-
 // On mounted, fetch the initial set of components
 onMounted(fetchComponents)
 </script>
 
 <style scoped>
+input[type='radio'],
 input[type='checkbox'] {
-  margin-right: 8px;
-}
-
-input[type='radio'] {
   margin-right: 4px;
   margin-left: 8px;
 }

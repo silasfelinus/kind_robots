@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 bg-base-200 min-h-screen grid grid-rows-2 gap-4">
+  <div class="p-2 bg-base-200 min-h-screen grid grid-rows-2 gap-2">
     <!-- Top Section: Folder or Component List -->
     <div class="h-full">
       <!-- Loading State: Displays a loading icon while data is being fetched -->
@@ -11,7 +11,7 @@
       <!-- Folder View: Displays the folder names for selection -->
       <div
         v-if="!showComponentScreen && !isLoading && !selectedComponents.length"
-        class="grid grid-cols-3 gap-4" <!-- Updated to 3 columns -->
+        class="grid grid-cols-4 gap-2"
       >
         <div
           v-for="folder in folderNames"
@@ -29,7 +29,7 @@
       <!-- Component List View: Displays components of the selected folder -->
       <div
         v-if="selectedComponents.length && !showComponentScreen"
-        class="grid grid-cols-3 gap-4 relative" <!-- Updated to 3 columns -->
+        class="grid grid-cols-4 gap-2 relative"
       >
         <!-- Back Button: Floating at the top -->
         <div class="absolute top-0 right-0">
@@ -76,20 +76,21 @@
           v-else
           :folder-name="selectedFolder"
           :component-name="selectedComponent"
-          @close="showPreviousComponents" <!-- Updated back behavior -->
+          @close="showPreviousComponents"
         />
       </transition>
     </div>
 
     <!-- Error Reporting: Displays any errors encountered during the component loading -->
-    <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4"> <!-- Updated to col-span-3 -->
+    <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4">
       🚨 Error loading data: {{ errorMessages.join(', ') }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useDisplayStore } from '@/stores/display'
 
 // Define the structure of a Folder in the components.json file
 interface Folder {
@@ -105,6 +106,20 @@ const selectedFolder = ref<string | null>(null) // Selected folder for context
 const showComponentScreen = ref(false) // Boolean flag to toggle the component screen
 const isLoading = ref(false) // Loading state flag
 const errorMessages = ref<string[]>([]) // Array for storing error messages
+
+// Access the display store to manage the sidebar states
+const displayStore = useDisplayStore()
+
+// Watch for changes to the component view state to hide/show sidebars
+watch(showComponentScreen, (newVal) => {
+  if (newVal) {
+    displayStore.changeState('sidebarLeft', 'hidden')
+    displayStore.changeState('sidebarRight', 'hidden')
+  } else {
+    displayStore.changeState('sidebarLeft', 'open')
+    displayStore.changeState('sidebarRight', 'open')
+  }
+})
 
 // Fetches the components.json data
 const fetchComponentsJSON = async () => {

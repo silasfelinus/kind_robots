@@ -55,7 +55,7 @@
     </div>
 
     <!-- Component Detail View -->
-    <ComponentScreen v-if="selectedComponent" />
+    <ComponentScreen v-if="selectedComponent" :is-mockup="isMockup" />
   </div>
 </template>
 
@@ -85,6 +85,7 @@ const componentStore = useComponentStore()
 const isLoading = ref(false)
 const selectedComponents = ref<Component[]>([]) // Explicitly define the type of selectedComponents
 const errorComponents = ref<string[]>([])
+const isMockup = ref(true) // Control whether the component is displayed as a mockup or full page
 
 // Computed properties
 const folderNames = computed(() =>
@@ -122,9 +123,10 @@ const clearSelectedComponents = () => {
   componentStore.clearSelectedComponent()
 }
 
-// Open a specific component
+// Open a specific component and switch to mockup view
 const openComponent = (component: Component) => {
   componentStore.setSelectedComponent(component)
+  isMockup.value = true // Initially, open in mockup mode
 }
 
 // Fetch folder names and component data when the component is mounted

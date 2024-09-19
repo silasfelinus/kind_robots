@@ -4,11 +4,11 @@
       class="w-full flex flex-col md:flex-row justify-between space-y-6 md:space-y-0 md:space-x-6"
     >
       <!-- Left Column for Leaderboard -->
-      <div class="md:w-1/2">
+      <div class="md:w-1/4">
         <match-leaderboard />
       </div>
       <!-- Right Column for Title, Instructions, and Controls -->
-      <div class="md:w-1/2 space-y-4">
+      <div class="md:w-1/4 space-y-4">
         <header class="text-center md:text-left space-y-2">
           <h1 class="text-4xl font-bold">Kind Robots Memory Game</h1>
           <p class="text-gray-600">Match the images and test your memory!</p>
@@ -92,6 +92,12 @@ import { ref, computed } from 'vue'
 import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
 import { useWindowSize } from '@vueuse/core'
+import { useDisplayStore } from '../../../stores/displayStore'
+
+const displayStore = useDisplayStore()
+
+
+
 
 const { width, height } = useWindowSize()
 
@@ -180,6 +186,7 @@ let firstSelected: GalleryImage | null = null
 async function generateMemoryGameImages() {
   try {
     isLoading.value = true
+displayStore.changeState('sidebarLeft', 'hidden') // Hide sidebarLeft when game starts
     gameWon.value = false
 
     const response = await fetch(

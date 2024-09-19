@@ -88,7 +88,7 @@ export const useDisplayStore = defineStore('display', {
         case 'mobile':
           return this.sidebarLeft === 'open' ? 25 : this.sidebarLeft === 'compact' ? 12 : 4
         case 'tablet':
-          return this.sidebarLeft === 'open' ? 20 : this.sidebarLeft === 'compact' ? 14 : 6
+          return this.sidebarLeft === 'open' ? 15 : this.sidebarLeft === 'compact' ? 14 : 6
         case 'desktop':
           return this.sidebarLeft === 'open' ? (this.isTouchDevice ? 22 : 20) : this.sidebarLeft === 'compact' ? 8 : 4
         case 'largeScreen':

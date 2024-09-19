@@ -11,7 +11,7 @@
       <!-- Folder View: Displays the folder names for selection -->
       <div
         v-if="!showComponentScreen && !isLoading && !selectedComponents.length"
-        class="grid grid-cols-2 gap-4"
+        class="grid grid-cols-3 gap-4" <!-- Updated to 3 columns -->
       >
         <div
           v-for="folder in folderNames"
@@ -29,10 +29,10 @@
       <!-- Component List View: Displays components of the selected folder -->
       <div
         v-if="selectedComponents.length && !showComponentScreen"
-        class="grid grid-cols-2 gap-4"
+        class="grid grid-cols-3 gap-4 relative" <!-- Updated to 3 columns -->
       >
-        <!-- Back Button: Allows returning to folder view -->
-        <div class="text-right mb-4">
+        <!-- Back Button: Floating at the top -->
+        <div class="absolute top-0 right-0">
           <Icon
             name="game-Icons:fast-backward-button"
             class="text-4xl cursor-pointer"
@@ -45,7 +45,7 @@
           v-for="component in selectedComponents"
           :key="component"
           class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition duration-300 ease-in-out"
-          @click="selectedFolder && selectComponent(selectedFolder, component)"
+          @click="selectComponent(selectedFolder, component)"
         >
           <div class="text-center">
             <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
@@ -70,18 +70,19 @@
             be displayed here. Have fun exploring!
           </p>
         </div>
+
         <!-- Component Detail View: Displays detailed view of the selected component -->
         <component-screen
           v-else
           :folder-name="selectedFolder"
           :component-name="selectedComponent"
-          @close="clearSelectedComponents"
+          @close="showPreviousComponents" <!-- Updated back behavior -->
         />
       </transition>
     </div>
 
     <!-- Error Reporting: Displays any errors encountered during the component loading -->
-    <div v-if="errorMessages.length" class="col-span-2 text-red-500 mt-4">
+    <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4"> <!-- Updated to col-span-3 -->
       🚨 Error loading data: {{ errorMessages.join(', ') }}
     </div>
   </div>
@@ -148,6 +149,12 @@ const clearSelectedComponents = () => {
   selectedComponent.value = null // Clears selected component
   selectedFolder.value = null // Clears selected folder
   showComponentScreen.value = false // Hide component screen
+}
+
+// Return to component list when closing a component
+const showPreviousComponents = () => {
+  selectedComponent.value = null
+  showComponentScreen.value = false // Show previous component list
 }
 
 // Initial fetch on component mount

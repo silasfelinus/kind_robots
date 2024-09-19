@@ -115,7 +115,7 @@ const toggleReaction = async (newReactionType: ReactionType) => {
       userId: userId.value,
       componentId: props.componentId,
       reactionType: newReactionType,
-      ReactionCategory: ReactionCategory.COMPONENT, // Use Prisma enum
+      reactionCategory: ReactionCategory.COMPONENT, // Use Prisma enum
     })
   }
 }

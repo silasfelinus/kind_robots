@@ -1,40 +1,5 @@
 <template>
-  <div class="bg-base-200 p-4">
-    <!-- Dynamic Component Container -->
-    <div v-if="!isLoading && selectedComponent">
-      <div v-if="errorLoadingComponent">
-        🚨 Error loading component: {{ errorLoadingComponent }}
-      </div>
-      <div v-else>
-        <div>
-          <!-- Editable Title and Notes for Admins -->
-          <div>
-            <label>Title:</label>
-            <input
-              v-if="isAdmin"
-              v-model="selectedComponent.title"
-              type="text"
-              class="input input-bordered w-full"
-            />
-            <p v-else>{{ selectedComponent.title }}</p>
-          </div>
-
-          <div class="mt-4">
-            <label>Notes:</label>
-            <textarea
-              v-if="isAdmin"
-              v-model="selectedComponent.notes"
-              class="textarea textarea-bordered w-full"
-            ></textarea>
-            <p v-else>{{ selectedComponent.notes }}</p>
-          </div>
-        </div>
-
-        <!-- Include the component reaction bar -->
-        <ComponentReaction :component-id="selectedComponent.id" />
-      </div>
-    </div>
-
+  <div class="p-6 bg-base-200 min-h-screen">
     <!-- Loading State -->
     <div v-if="isLoading">
       <Icon name="mdi:loading" class="animate-spin text-4xl" />
@@ -42,10 +7,7 @@
     </div>
 
     <!-- Folder View -->
-    <div
-      v-else-if="selectedComponents.length === 0"
-      class="grid grid-cols-3 gap-4"
-    >
+    <div v-if="!selectedComponent && !isLoading" class="grid grid-cols-3 gap-4">
       <div
         v-for="folder in folderNames"
         :key="folder"
@@ -59,8 +21,11 @@
       </div>
     </div>
 
-    <!-- Component View -->
-    <div v-else class="grid grid-cols-3 gap-4">
+    <!-- Component List View -->
+    <div
+      v-if="selectedComponents.length && !selectedComponent"
+      class="grid grid-cols-3 gap-4"
+    >
       <!-- Back Button -->
       <div class="col-span-full text-right mb-4">
         <Icon
@@ -88,145 +53,82 @@
     <div v-if="errorComponents.length > 0" class="text-red-500 mt-4">
       🚨 Error loading these components: {{ errorComponents.join(', ') }}
     </div>
+
+    <!-- Component Detail View -->
+    <ComponentScreen v-if="selectedComponent" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, onErrorCaptured } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
+import { ref, computed, onMounted } from 'vue'
+import { useComponentStore } from '@/stores/componentStore'
 
-const userStore = useUserStore()
-const isAdmin = computed(() => userStore.user?.Role === 'ADMIN')
-
-// Component interface based on your Prisma model
+// Define the types explicitly
 interface Component {
   id: number
-  createdAt: Date
-  updatedAt?: Date | null
-  folderName: string
   componentName: string
+  folderName: string
+  channelId: number | null
+  createdAt: Date
+  updatedAt: Date | null
   isWorking: boolean
   underConstruction: boolean
   isBroken: boolean
-  title?: string | null
-  notes?: string | null
-  Channels: Channel[]
-  Tags: Tag[]
-  Reactions: Reaction[]
+  title: string | null
+  notes: string | null
 }
 
-interface Channel {
-  id: number
-  name: string
-}
-
-interface Tag {
-  id: number
-  label: string
-}
-
-interface Reaction {
-  id: number
-  type: string
-}
-
-interface Folder {
-  folderName: string
-  components: string[] // This could also be Component[] if you have full details
-}
+// Access the component store
+const componentStore = useComponentStore()
 
 // State variables
 const isLoading = ref(false)
-const selectedComponents = ref<Component[]>([]) // Updated to store Component[] instead of string[]
-const selectedComponent = ref<Component | null>(null) // Typed correctly now
-
-const folderData = ref<Folder[]>([]) // Use Folder type instead of any
-
+const selectedComponents = ref<Component[]>([]) // Explicitly define the type of selectedComponents
 const errorComponents = ref<string[]>([])
-const errorLoadingComponent = ref<string | null>(null)
 
-// Fetch data from public/components.json directly
+// Computed properties
+const folderNames = computed(() =>
+  componentStore.folders.map((folder) => folder.folderName),
+)
+const selectedComponent = computed(() => componentStore.selectedComponent)
+
+// Fetch data from public/components.json
 const fetchComponentJSON = async () => {
   try {
+    isLoading.value = true
     const response = await fetch('/components.json')
     if (!response.ok) {
       throw new Error('Failed to load components.json')
     }
-    folderData.value = (await response.json()) as Folder[] // Ensure the type is Folder[]
+    const jsonData = await response.json()
+    componentStore.folders = jsonData
   } catch (error) {
     console.error('Error loading components.json:', error)
     errorComponents.value.push('Failed to load components.json')
+  } finally {
+    isLoading.value = false
   }
 }
 
-const folderNames = computed(() =>
-  folderData.value.map((folder) => folder.folderName),
-)
-
-const fetchComponents = (folder: string) => {
-  const selectedFolderData = folderData.value.find(
-    (f) => f.folderName === folder,
-  )
-  if (selectedFolderData) {
-    // Assuming selectedFolderData.components is a string[] or a Component[]
-    selectedComponents.value = selectedFolderData.components.map(
-      (component) => ({
-        // Example structure, adjust based on actual data
-        id: Math.random(), // If there's no id, generate one
-        folderName: folder,
-        componentName: component,
-        createdAt: new Date(),
-        isWorking: true,
-        underConstruction: false,
-        isBroken: false,
-        Channels: [],
-        Tags: [],
-        Reactions: [],
-      }),
-    )
-  } else {
-    selectedComponents.value = []
-  }
+// Function to fetch components for a folder
+const fetchComponents = (folderName: string) => {
+  const folder = componentStore.folders.find((f) => f.folderName === folderName)
+  selectedComponents.value = folder ? folder.components : []
 }
 
+// Clear selected components
 const clearSelectedComponents = () => {
   selectedComponents.value = []
-  selectedComponent.value = null
+  componentStore.clearSelectedComponent()
 }
 
-// Function to open a specific component
+// Open a specific component
 const openComponent = (component: Component) => {
-  selectedComponent.value = component
+  componentStore.setSelectedComponent(component)
 }
 
 // Fetch folder names and component data when the component is mounted
 onMounted(() => {
   fetchComponentJSON()
 })
-
-// Global error handler for unexpected errors
-onErrorCaptured((error) => {
-  console.error('An error occurred:', error)
-  return false
-})
 </script>
-
-<style scoped>
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.loader {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  border-top: 4px solid #000;
-  width: 24px;
-  height: 24px;
-  animation: spin 1s linear infinite;
-}
-</style>

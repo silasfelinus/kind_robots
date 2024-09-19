@@ -262,7 +262,7 @@ async function generateOrFetchAvatar(index?: number, promptOverride?: string) {
   try {
     isLoading.value = true
     const promptToUse = promptOverride || imagePrompt.value
-    const result = await artStore.generateArt({ prompt: promptToUse })
+    const result = await artStore.generateArt({ promptString: promptToUse })
 
     if (result.success && result.newArt?.path) {
       if (index !== undefined) {

@@ -60,29 +60,29 @@
           <div class="reaction-buttons flex space-x-2">
             <button
               class="hover:bg-gray-200"
-              :class="{ 'bg-primary': isReactionActive(index, 'isLoved') }"
-              @click="toggleReaction(index, 'isLoved')"
+              :class="{ 'bg-primary': isReactionActive(index, 'LOVED') }"
+              @click="toggleReaction(index, 'LOVED')"
             >
               ❤️
             </button>
             <button
               class="hover:bg-gray-200"
-              :class="{ 'bg-primary': isReactionActive(index, 'isClapped') }"
-              @click="toggleReaction(index, 'isClapped')"
+              :class="{ 'bg-primary': isReactionActive(index, 'CLAPPED') }"
+              @click="toggleReaction(index, 'CLAPPED')"
             >
               👏
             </button>
             <button
               class="hover:bg-gray-200"
-              :class="{ 'bg-primary': isReactionActive(index, 'isBooed') }"
-              @click="toggleReaction(index, 'isBooed')"
+              :class="{ 'bg-primary': isReactionActive(index, 'BOOED') }"
+              @click="toggleReaction(index, 'BOOED')"
             >
               👎
             </button>
             <button
               class="hover:bg-gray-200"
-              :class="{ 'bg-primary': isReactionActive(index, 'isHated') }"
-              @click="toggleReaction(index, 'isHated')"
+              :class="{ 'bg-primary': isReactionActive(index, 'HATED') }"
+              @click="toggleReaction(index, 'HATED')"
             >
               🚫
             </button>
@@ -130,7 +130,8 @@ import { ref, computed, onMounted, watchEffect } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
 import { useReactionStore } from '../../../stores/reactionStore'
-import { useChatStore, type ChatExchange } from '../../../stores/chatStore'
+import { useChatStore } from '../../../stores/chatStore'
+import type { ChatExchange, ReactionType } from '@prisma/client'
 
 const shouldShowMilestoneCheck = ref(false)
 let userKey: string | null = null
@@ -205,15 +206,13 @@ function convertToChatExchange(
   }
 }
 
-type ReactionType = 'isLoved' | 'isClapped' | 'isBooed' | 'isHated'
-
 // Fetch the reaction by chat exchange ID and check if a reaction is active
 const isReactionActive = (index: number, reactionType: ReactionType) => {
   const exchangeId = chatStore.getExchangeById(index)?.id
   if (!exchangeId) return false // Safely handle undefined exchange ID
 
   const reaction = reactionStore.getReactionByChatExchangeId(exchangeId)
-  return reaction ? reaction[reactionType] : false
+  return reaction ? reaction.reactionType === reactionType : false
 }
 
 watchEffect(() => {

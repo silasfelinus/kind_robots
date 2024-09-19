@@ -102,7 +102,9 @@ const addClap = async () => {
     if (!props.pitch) throw new Error('Pitch data is not available.')
     await reactionStore.createReaction({
       pitchId: props.pitch.id,
-      isClapped: true, // Assuming a "clap" is marked by this flag
+      reactionType: ReactionType.CLAPPED, // Use reactionType instead of isClapped
+      userId: 10, // Assuming a default userId, adjust as needed
+      ReactionCategory: ReactionCategory.PITCH, // Ensure the correct category is used
     })
   } catch (error) {
     errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)

@@ -56,13 +56,13 @@
         <div class="reaction-buttons mt-2 flex space-x-2">
           <button
             class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'isLoved') }"
-            @click="toggleReaction(index, 'isLoved')"
+            :class="{ 'bg-primary': isReactionActive(index, 'LOVED') }"
+            @click="toggleReaction(index, 'LOVED')"
           >
             ❤️
           </button>
           <div
-            v-if="showPopup[index]?.isLoved"
+            v-if="showPopup[index]?.LOVED"
             class="popup bg-info text-lg rounded-2xl"
           >
             Favorited <Icon name="heart" />
@@ -70,13 +70,13 @@
 
           <button
             class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'isHated') }"
-            @click="toggleReaction(index, 'isHated')"
+            :class="{ 'bg-primary': isReactionActive(index, 'HATED') }"
+            @click="toggleReaction(index, 'HATED')"
           >
             👎
           </button>
           <div
-            v-if="showPopup[index]?.isHated"
+            v-if="showPopup[index]?.HATED"
             class="popup bg-info text-lg rounded-2xl"
           >
             Disliked <Icon name="thumb-down" />
@@ -92,9 +92,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
 import { useReactionStore } from '../../../stores/reactionStore'
-import type { Reaction } from '@prisma/client'
-
-type ReactionType = 'isLoved' | 'isHated' | 'isBooed' | 'isClapped'
+import type { ReactionType } from '@prisma/client'
 
 let userKey: string | null = null
 
@@ -133,18 +131,19 @@ const message = ref('')
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 
-const userId = computed(() => userStore.userId || 0)
+const userId = computed(() => userStore.userId) // Default to 10 if userId is undefined
+
 const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
 
-// Helper to check reaction status using reactionStore
 const isReactionActive = (index: number, reactionType: ReactionType) => {
   const conversationId = conversations.value[index]?.[0]?.id ?? 0
 
-  return (
-    reactionStore.getUserReactionForComponent(conversationId, userId.value)?.[
-      reactionType
-    ] || false
+  const reaction = reactionStore.getUserReactionForComponent(
+    conversationId,
+    userId.value,
   )
+
+  return reaction?.reactionType === reactionType // Compare reactionType directly
 }
 
 const toggleReaction = async (index: number, reactionType: ReactionType) => {
@@ -157,26 +156,34 @@ const toggleReaction = async (index: number, reactionType: ReactionType) => {
   // Retrieve the existing reaction for the current conversation and user
   const existingReaction = reactionStore.getUserReactionForComponent(
     conversationId,
-    userId.value,
+    userId.value ?? 10, // Ensure userId is a number (default to 10 if undefined)
   )
 
-  // Prepare reaction data
-  const reactionData: Partial<Reaction> = {
-    userId: userId.value,
+  // Prepare reaction data ensuring userId is a valid number
+  const reactionData: {
+    userId: number
+    componentId: number
+    reactionType: ReactionType // Ensure reactionType is always defined here
+    pitchId?: number | null
+  } = {
+    userId: userId.value ?? 10, // Ensure userId is a number (default to 10)
     componentId: conversationId,
-    reactionType, // Set the reaction type (e.g., 'Loved', 'Hated')
+    reactionType, // Ensure reactionType is passed as a required field
+    pitchId: existingReaction?.pitchId ?? undefined, // Convert null to undefined
   }
 
   // Toggle the existing reaction or create a new one
   if (existingReaction) {
     // If the reaction already exists, update its type (if necessary)
-    reactionData.reactionType =
-      existingReaction.reactionType === reactionType
-        ? '' // Remove the reaction if it’s the same type (unlike)
-        : reactionType // Change to the new reaction type
-    await reactionStore.updateReaction(existingReaction.id, reactionData) // Update reaction in the store
+    if (existingReaction.reactionType === reactionType) {
+      // If the user tries to apply the same reaction, you may want to delete it instead of updating
+      await reactionStore.deleteReaction(existingReaction.id)
+    } else {
+      await reactionStore.updateReaction(existingReaction.id, reactionData)
+    }
   } else {
-    await reactionStore.createReaction(reactionData) // Create new reaction
+    // Create new reaction if it doesn't exist
+    await reactionStore.createReaction(reactionData)
   }
 
   // Show popup for the reaction

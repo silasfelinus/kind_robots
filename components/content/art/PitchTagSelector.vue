@@ -83,7 +83,7 @@ const showPublicPitches = ref(true)
 const selectedPitch = computed(() => pitchStore.selectedPitch)
 
 const updateSelectedPitch = (pitchId: number) => {
-  pitchStore.setSelectedPitch(pitchId)
+  pitchStore.selectedPitchId = pitchId
 }
 
 const pitches = computed(() => pitchStore.pitches as Pitch[])

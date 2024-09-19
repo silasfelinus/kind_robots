@@ -18,6 +18,6 @@ const props = defineProps<{
 const pitchStore = usePitchStore()
 
 const selectPitch = () => {
-  pitchStore.setSelectedPitch(props.pitch.id) // Using setSelectedPitch as per standard practice
+  pitchStore.selectedPitchId = props.pitch.id
 }
 </script>

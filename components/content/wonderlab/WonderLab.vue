@@ -81,12 +81,10 @@ const filters = ref({
   underConstruction: true,
   isBroken: true,
 })
-const components = ref<Component[]>([]) // Initialize components
 
 // Access the componentStore
 const componentStore = useComponentStore()
 
-// Function to fetch components from the store or components.json
 const fetchComponents = async () => {
   try {
     loadingStatus.value = 'Loading components...'
@@ -102,7 +100,7 @@ const fetchComponents = async () => {
       }
       const jsonFolders = await response.json()
 
-      // Ensure jsonFolders is an array
+      // Ensure jsonFolders is an array and properly structured
       if (!Array.isArray(jsonFolders)) {
         throw new Error('Invalid JSON structure.')
       }
@@ -135,15 +133,20 @@ const fetchComponents = async () => {
   }
 }
 
-// Filtered components based on toggles
+const components = ref<Component[]>([]) // Initialize components as an array
+
 const filteredComponents = computed(() => {
-  return components.value.filter((component: Component) => {
-    return (
-      (filters.value.isWorking && component.isWorking) ||
-      (filters.value.underConstruction && component.underConstruction) ||
-      (filters.value.isBroken && component.isBroken)
-    )
-  })
+  // Ensure components.value is an array before filtering
+  if (Array.isArray(components.value)) {
+    return components.value.filter((component: Component) => {
+      return (
+        (filters.value.isWorking && component.isWorking) ||
+        (filters.value.underConstruction && component.underConstruction) ||
+        (filters.value.isBroken && component.isBroken)
+      )
+    })
+  }
+  return [] // Return an empty array if components.value is not an array
 })
 
 // Fetch components whenever the data source is changed

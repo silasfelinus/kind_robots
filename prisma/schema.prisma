@@ -148,7 +148,7 @@ model Component {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime?     @updatedAt @default(now())
   folderName        String
-  componentName     String        // Individual component name
+  componentName     String        @unique// Individual component name
   isWorking         Boolean       @default(true)
   underConstruction Boolean       @default(false)
   isBroken          Boolean       @default(false)

@@ -34,8 +34,8 @@ const publicPitches = computed(() => pitchStore.publicPitches)
 const errorMessage = ref<string | null>(null)
 
 const onPitchChange = () => {
-  if (selectedPitchId.value) {
-    pitchStore.setSelectedPitch(selectedPitchId.value)
+  if (selectedPitchId.value !== null) {
+    pitchStore.selectedPitchId = selectedPitchId.value
   }
 }
 

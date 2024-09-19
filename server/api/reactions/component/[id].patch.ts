@@ -1,6 +1,7 @@
+//server/api/reactions/component/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
-import prisma from '../../utils/prisma' // No need to import ReactionType as it's not a separate enum in Prisma's client
+import prisma from '../../utils/prisma' 
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,10 +13,10 @@ export default defineEventHandler(async (event) => {
 
     // Parse the request body to get the reaction updates
     const body = await readBody(event)
-    const { reaction, userId } = body // Ensure 'reaction' is used, not 'reactionType'
+    const { reactionType, userId } = body // Ensure 'reaction' is used, not 'reactionType'
 
     // Ensure that both reaction and userId are provided
-    if (!reaction || !userId) {
+    if (!reactionType || !userId) {
       throw new Error('Reaction and User ID are required.')
     }
 
@@ -34,7 +35,7 @@ export default defineEventHandler(async (event) => {
       updatedReaction = await prisma.reaction.update({
         where: { id: existingReaction.id },
         data: {
-          reaction, // Use 'reaction' here, not 'reactionType'
+          reactionType, // Use 'reaction' here, not 'reactionType'
         },
       })
     } else {
@@ -43,7 +44,7 @@ export default defineEventHandler(async (event) => {
         data: {
           componentId,
           userId,
-          reaction, // Use 'reaction' here, not 'reactionType'
+          reactionType, // Use 'reaction' here, not 'reactionType'
         },
       })
     }

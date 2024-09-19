@@ -402,7 +402,7 @@ model Reaction {
   Channel           Channel?          @relation(fields: [channelId], references: [id])
   chatExchangeId    Int?              @default(1)
   ChatExchange      ChatExchange?     @relation(fields: [chatExchangeId], references: [id])
-  ReactionCategory  ReactionCategory  @default(CHANNEL)
+  reactionCategory  ReactionCategory  @default(CHANNEL)
 
   @@index([artId], map: "Reaction_artId_fkey")
   @@index([pitchId], map: "Reaction_pitchId_fkey")

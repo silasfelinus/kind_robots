@@ -56,7 +56,7 @@ export const useUserStore = defineStore({
       return Boolean(state.token) && Boolean(state.user)
     },
     userId(state): number {
-      return state.user ? state.user.id : 0
+      return state.user ? state.user.id : 10
     },
     username(state): string {
       return state.user ? state.user.username : 'Kind Guest'

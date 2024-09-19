@@ -80,47 +80,55 @@ export const useReactionStore = defineStore('reactionStore', {
         throw error
       }
     },
+// Create a new reaction
+async createReaction(reactionData: {
+  pitchId?: number | null
+  userId: number
+  reactionType: ReactionType
+  artId?: number
+  componentId?: number
+  channelId?: number
+  chatExchangeId?: number
+  comment?: string
+  reactionCategory?: ReactionCategory
+}) {
+  // Ensure userId is valid
+  if (!reactionData.userId) {
+    throw new Error('userId is required')
+  }
 
-    // Create a new reaction
-    async createReaction(reactionData: {
-      pitchId?: number
-      userId: number
-      reactionType: ReactionType
-      artId?: number
-      componentId?: number
-      channelId?: number
-      chatExchangeId?: number
-      comment?: string
-      ReactionCategory?: ReactionCategory
-    }) {
-      try {
-        const response = await fetch('/api/reactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(reactionData),
-        })
-        if (!response.ok) throw new Error('Failed to create reaction')
-        const newReaction: Reaction = await response.json()
-        this.reactions.push(newReaction)
-        return newReaction
-      } catch (error) {
-        console.error('Error creating reaction:', error)
-        throw error
-      }
-    },
+  try {
+    const response = await fetch('/api/reactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reactionData),
+    })
+    if (!response.ok) throw new Error('Failed to create reaction')
+    const newReaction: Reaction = await response.json()
+    this.reactions.push(newReaction)
+    return newReaction
+  } catch (error) {
+    console.error('Error creating reaction:', error)
+    throw error
+  }
+},
 
-    // Update an existing reaction
     async updateReaction(
       reactionId: number,
-      updates: { reactionType?: ReactionType },
+      updates: { reactionType?: ReactionType, pitchId?: number | null }
     ) {
       try {
+        const processedUpdates = {
+          ...updates,
+          pitchId: updates.pitchId ?? undefined, // Convert null to undefined
+        }
+    
         const response = await fetch(`/api/reactions/${reactionId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(updates),
+          body: JSON.stringify(processedUpdates),
         })
         if (!response.ok) throw new Error('Failed to update reaction')
         const updatedReaction: Reaction = await response.json()
@@ -134,6 +142,7 @@ export const useReactionStore = defineStore('reactionStore', {
         throw error
       }
     },
+    
 
     // Get reaction by chatExchangeId
     getReactionByChatExchangeId(chatExchangeId: number) {

@@ -30,8 +30,9 @@
 </template>
 
 <script setup lang="ts">
-import { useArtStore, type Art } from './../../../stores/artStore'
-import { usePromptStore, type Prompt } from './../../../stores/promptStore'
+import { useArtStore } from './../../../stores/artStore'
+import type { Art, Prompt } from '@prisma/client'
+import { usePromptStore } from './../../../stores/promptStore'
 import { usePitchStore } from './../../../stores/pitchStore'
 import { useReactionStore } from './../../../stores/reactionStore'
 import { computed, onMounted } from 'vue'
@@ -58,7 +59,7 @@ const selectedPitch = computed(() => pitchStore.selectedPitch)
 // Filter reactions for the current art
 const reactions = computed(() =>
   reactionStore.reactions.filter(
-    (r: { artId: number }) => r.artId === props.art.id,
+    (r: { artId: number | null }) => r.artId === props.art.id,
   ),
 )
 

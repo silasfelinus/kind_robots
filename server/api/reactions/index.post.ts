@@ -1,37 +1,20 @@
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
+// Import Prisma-generated types
+import type { ReactionType } from '@prisma/client'
+import { ReactionCategory } from '@prisma/client'
 
-// Define your enums directly in the code
-enum ReactionType {
-  ART = 'ART',
-  COMPONENT = 'COMPONENT',
-  PITCH = 'PITCH',
-  CHANNEL = 'CHANNEL',
-}
-
-// Define the type for requestData
+// Define the type for requestData manually (if not part of Prisma)
 interface RequestData {
   userId: number
-  reactionType: string // Allow string input from client
+  reactionType: ReactionType // ReactionType is the specific reaction (e.g., LOVED, CLAPPED)
+  reactionCategory: ReactionCategory // Use the Prisma-generated ReactionCategory enum
   artId?: number
   componentId?: number
   pitchId?: number
   channelId?: number
-  reaction?: string
-  title?: string
   comment?: string
-  isLoved?: boolean
-  isClapped?: boolean
-  isBooed?: boolean
-  isHated?: boolean
-}
-
-// Function to map string input to the ReactionType enum
-function mapReactionType(type: string): ReactionType | undefined {
-  // Convert the string to uppercase and match it to the enum value
-  const normalizedType = type.toUpperCase() as keyof typeof ReactionType
-  return ReactionType[normalizedType] // Map to ReactionType enum
 }
 
 export default defineEventHandler(async (event) => {
@@ -47,72 +30,49 @@ export default defineEventHandler(async (event) => {
 
     const {
       userId,
-      reactionType, // reactionType is a string to be normalized
+      reactionType, // reactionType is directly from the Prisma enum
+      reactionCategory, // reactionCategory (ART, COMPONENT, etc.)
       artId,
       componentId,
       pitchId,
       channelId,
-      reaction,
-      title,
       comment,
-      isLoved,
-      isClapped,
-      isBooed,
-      isHated,
     } = requestData
 
-    if (!userId || !reactionType) {
-      throw new Error('Missing required fields: userId or reactionType.')
+    if (!userId || !reactionType || !reactionCategory) {
+      throw new Error('Missing required fields: userId, reactionType, or ReactionCategory.')
     }
 
-    // Map reactionType string to the enum value
-    const mappedReactionType = mapReactionType(reactionType)
-    if (!mappedReactionType) {
-      throw new Error('Invalid reactionType provided.')
-    }
-
-    let reactionIdField:
-      | 'artId'
-      | 'componentId'
-      | 'pitchId'
-      | 'channelId'
-      | undefined
     let reactionMatchCondition: { [key: string]: number } = {}
 
-    // Determine which field to use based on the mapped ReactionType
-    switch (mappedReactionType) {
-      case ReactionType.ART:
-        reactionIdField = 'artId'
+    // Use the ReactionCategory enum values directly
+    switch (reactionCategory) {
+      case ReactionCategory.ART:
         if (!artId) throw new Error('artId is required for Art reactions.')
         reactionMatchCondition = { artId }
         break
-      case ReactionType.COMPONENT:
-        reactionIdField = 'componentId'
-        if (!componentId)
-          throw new Error('componentId is required for Component reactions.')
+      case ReactionCategory.COMPONENT:
+        if (!componentId) throw new Error('componentId is required for Component reactions.')
         reactionMatchCondition = { componentId }
         break
-      case ReactionType.PITCH:
-        reactionIdField = 'pitchId'
-        if (!pitchId)
-          throw new Error('pitchId is required for Pitch reactions.')
+      case ReactionCategory.PITCH:
+        if (!pitchId) throw new Error('pitchId is required for Pitch reactions.')
         reactionMatchCondition = { pitchId }
         break
-      case ReactionType.CHANNEL:
-        reactionIdField = 'channelId'
-        if (!channelId)
-          throw new Error('channelId is required for Channel reactions.')
+      case ReactionCategory.CHANNEL:
+        if (!channelId) throw new Error('channelId is required for Channel reactions.')
         reactionMatchCondition = { channelId }
         break
       default:
-        throw new Error('Unsupported ReactionType.')
+        throw new Error('Unsupported ReactionCategory.')
     }
 
     // Check if the user already reacted to the same item (art, component, pitch, or channel)
     const existingReaction = await prisma.reaction.findFirst({
       where: {
         userId,
-        ReactionCategory: mappedReactionType, // Use the mapped ReactionType enum value
+        reactionType, // Use the mapped ReactionType enum value
+        ReactionCategory: reactionCategory, // Ensure reactionCategory is also checked
         ...reactionMatchCondition,
       },
     })
@@ -122,13 +82,13 @@ export default defineEventHandler(async (event) => {
       const updatedReaction = await prisma.reaction.update({
         where: { id: existingReaction.id },
         data: {
-          reaction,
-          title,
           comment,
-          isLoved: isLoved ?? false, // Fallback to `false`
-          isClapped: isClapped ?? false,
-          isBooed: isBooed ?? false,
-          isHated: isHated ?? false,
+          reactionType,
+          ReactionCategory: reactionCategory,
+          artId: reactionCategory === ReactionCategory.ART ? artId : undefined,
+          componentId: reactionCategory === ReactionCategory.COMPONENT ? componentId : undefined,
+          pitchId: reactionCategory === ReactionCategory.PITCH ? pitchId : undefined,
+          channelId: reactionCategory === ReactionCategory.CHANNEL ? channelId : undefined,
         },
       })
 
@@ -138,26 +98,17 @@ export default defineEventHandler(async (event) => {
         message: 'Reaction updated successfully',
       }
     } else {
-      // Validate reactionIdField is properly assigned
-      if (!reactionIdField || !reactionMatchCondition[reactionIdField]) {
-        throw new Error(
-          `${reactionIdField} is required for this reaction type.`,
-        )
-      }
-
       // Create a new reaction
       const newReaction = await prisma.reaction.create({
         data: {
           userId,
-          ReactionCategory: mappedReactionType, // Use the mapped ReactionType enum value
-          [reactionIdField]: reactionMatchCondition[reactionIdField],
-          reaction,
-          title,
+          reactionType, // Use the mapped ReactionType enum value
+          ReactionCategory: reactionCategory, // Add the reactionCategory
+          artId: reactionCategory === ReactionCategory.ART ? artId : undefined,
+          componentId: reactionCategory === ReactionCategory.COMPONENT ? componentId : undefined,
+          pitchId: reactionCategory === ReactionCategory.PITCH ? pitchId : undefined,
+          channelId: reactionCategory === ReactionCategory.CHANNEL ? channelId : undefined,
           comment,
-          isLoved: isLoved ?? false,
-          isClapped: isClapped ?? false,
-          isBooed: isBooed ?? false,
-          isHated: isHated ?? false,
         },
       })
 

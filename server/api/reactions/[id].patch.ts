@@ -12,8 +12,16 @@ export default defineEventHandler(async (event) => {
 
     const requestData = await readBody(event)
 
-    const { reaction, title, comment, isLoved, isClapped, isBooed, isHated } =
-      requestData
+    const { comment, reactionType, reactionCategory } = requestData
+
+    // Ensure the required fields are provided
+    if (!reactionType || !reactionCategory) {
+      return {
+        success: false,
+        message: 'Reaction type and category are required.',
+        statusCode: 400,
+      }
+    }
 
     // Fetch the existing reaction to ensure it exists
     const existingReaction = await prisma.reaction.findUnique({
@@ -32,13 +40,9 @@ export default defineEventHandler(async (event) => {
     const updatedReaction = await prisma.reaction.update({
       where: { id: reactionId },
       data: {
-        reaction,
-        title,
         comment,
-        isLoved,
-        isClapped,
-        isBooed,
-        isHated,
+        reactionType, // Updating the reactionType field
+        ReactionCategory: reactionCategory, // Updating the reactionCategory field
       },
     })
 

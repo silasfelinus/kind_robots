@@ -19,10 +19,7 @@
     </div>
 
     <!-- Component List View -->
-    <div
-      v-if="selectedComponents.length && !showComponentScreen"
-      class="grid grid-cols-4 gap-2"
-    >
+    <div v-if="selectedComponents.length" class="grid grid-cols-4 gap-2">
       <div
         v-for="component in selectedComponents"
         :key="component.id"
@@ -35,25 +32,17 @@
         </div>
       </div>
     </div>
-
-    <!-- Component Detail View -->
-    <component-screen
-      v-if="showComponentScreen"
-      :component="selectedComponent"
-      @close="showPreviousComponents"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
-import type { Component } from '@prisma/client' // Import the Component interface
+import type { Component } from '@prisma/client'
 
 // State variables
-const selectedComponents = ref<Component[]>([]) // Typed explicitly as an array of Component
-const selectedComponent = ref<Component | null>(null) // Currently selected component, or null if none
-const showComponentScreen = ref(false) // Boolean flag to toggle the component screen
+const selectedComponents = ref<Component[]>([])
+const selectedFolder = ref<string | null>(null)
 
 // Access the component store
 const componentStore = useComponentStore()
@@ -71,18 +60,12 @@ const fetchComponentsFromFolder = (folderName: string) => {
   selectedComponents.value = componentStore.components.filter(
     (component) => component.folderName === folderName,
   )
+  selectedFolder.value = folderName
 }
 
-// Select a component for detailed view
+// Select a component and update the store
 const selectComponent = (component: Component) => {
-  selectedComponent.value = component
-  showComponentScreen.value = true
-}
-
-// Show the previous list of components
-const showPreviousComponents = () => {
-  selectedComponent.value = null
-  showComponentScreen.value = false
+  componentStore.selectedComponent = component // Directly update the selectedComponent in the store
 }
 
 // Initial fetch from store on component mount

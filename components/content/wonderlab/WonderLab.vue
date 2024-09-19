@@ -55,37 +55,35 @@
       </div>
     </div>
 
-<!-- Bottom Section: Splash Image or Component Screen -->
-<div class="relative h-full">
-  <transition name="flip">
-    <!-- Splash Image and Instructions -->
-    <div
-      v-if="!showComponentScreen"
-      class="flex flex-col items-center justify-center h-full"
-    >
-      <random-image class="mb-4" />
-      <p class="text-lg text-center px-4">
-        Welcome to Wonderforge! Select a folder above to view available
-        components. After selecting a component, the component details will
-        be displayed here. Have fun exploring!
-      </p>
+    <!-- Bottom Section: Splash Image or Component Screen -->
+    <div class="relative h-full">
+      <transition name="flip">
+        <!-- Splash Image and Instructions -->
+        <div
+          v-if="!showComponentScreen"
+          class="flex flex-col items-center justify-center h-full"
+        >
+          <random-image class="mb-4" />
+          <p class="text-lg text-center px-4">
+            Welcome to Wonderforge! Select a folder above to view available
+            components. After selecting a component, the component details will
+            be displayed here. Have fun exploring!
+          </p>
+        </div>
+
+        <!-- Component Detail View and Reaction Section -->
+        <div v-if="showComponentScreen">
+          <component-screen
+            :folder-name="selectedFolder"
+            :component-name="selectedComponent"
+            @close="showPreviousComponents"
+          />
+
+          <!-- Component Reaction: Reaction and Comment Section -->
+          <component-reaction :component-id="componentId" />
+        </div>
+      </transition>
     </div>
-
-    <!-- Component Detail View: Displays detailed view of the selected component -->
-    <div v-if="showComponentScreen">
-      <component-screen
-        :folder-name="selectedFolder"
-        :component-name="selectedComponent"
-        @close="showPreviousComponents"
-      />
-
-      <!-- Component Reaction: Reaction and Comment Section -->
-      <component-reaction :component-id="componentId" />
-    </div>
-  </transition>
-</div>
-
-      
 
     <!-- Error Reporting: Displays any errors encountered during the component loading -->
     <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4">
@@ -112,6 +110,7 @@ const selectedFolder = ref<string | null>(null) // Selected folder for context
 const showComponentScreen = ref(false) // Boolean flag to toggle the component screen
 const isLoading = ref(false) // Loading state flag
 const errorMessages = ref<string[]>([]) // Array for storing error messages
+const componentId = ref<number | null>(null) // Component ID for reactions
 
 // Access the display store to manage the sidebar states
 const displayStore = useDisplayStore()
@@ -162,6 +161,9 @@ const selectComponent = (folderName: string, componentName: string) => {
   selectedComponent.value = componentName
   selectedFolder.value = folderName
   showComponentScreen.value = true // Toggle to show component screen
+
+  // Assuming component ID is based on index for simplicity, adjust if needed
+  componentId.value = selectedComponents.value.indexOf(componentName) + 1
 }
 
 // Clear selected components to return to folder view
@@ -169,12 +171,14 @@ const clearSelectedComponents = () => {
   selectedComponents.value = [] // Clears component list
   selectedComponent.value = null // Clears selected component
   selectedFolder.value = null // Clears selected folder
+  componentId.value = null // Clear component ID
   showComponentScreen.value = false // Hide component screen
 }
 
 // Return to component list when closing a component
 const showPreviousComponents = () => {
   selectedComponent.value = null
+  componentId.value = null
   showComponentScreen.value = false // Show previous component list
 }
 

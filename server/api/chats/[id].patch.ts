@@ -4,10 +4,15 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 type ReactionData = {
-  liked?: boolean
-  hated?: boolean
-  loved?: boolean
-  flagged?: boolean
+  reactionType: 'LOVED' | 'CLAPPED' | 'BOOED' | 'HATED' | 'NEUTRAL' | 'FLAGGED'
+  comment?: string
+  userId: number
+  artId?: number
+  pitchId?: number
+  componentId?: number
+  channelId?: number
+  chatExchangeId?: number
+  reactionCategory: 'ART' | 'PITCH' | 'COMPONENT' | 'CHANNEL' | 'TITLE'
 }
 
 export default defineEventHandler(async (event) => {
@@ -20,36 +25,60 @@ export default defineEventHandler(async (event) => {
 
     // Read and validate reaction data
     const reactionData: ReactionData = await readBody(event)
-    const validReactions: Array<keyof ReactionData> = [
-      'liked',
-      'hated',
-      'loved',
-      'flagged',
-    ]
+    
+    // Validate reactionType and reactionCategory
+    const validReactionTypes = ['LOVED', 'CLAPPED', 'BOOED', 'HATED', 'NEUTRAL', 'FLAGGED']
+    const validReactionCategories = ['ART', 'PITCH', 'COMPONENT', 'CHANNEL', 'TITLE']
 
-    // Ensure all keys are valid and values are boolean
-    for (const key of Object.keys(reactionData) as Array<keyof ReactionData>) {
-      if (
-        !validReactions.includes(key) ||
-        typeof reactionData[key] !== 'boolean'
-      ) {
-        throw new TypeError('Invalid reaction data.')
-      }
+    if (!validReactionTypes.includes(reactionData.reactionType)) {
+      throw new TypeError('Invalid reaction type.')
     }
 
-    // Update chat exchange
-    const updatedExchange = await prisma.chatExchange.update({
-      where: { id },
-      data: reactionData,
+    if (!validReactionCategories.includes(reactionData.reactionCategory)) {
+      throw new TypeError('Invalid reaction category.')
+    }
+
+    // Adjusting the Prisma where clause
+const existingReaction = await prisma.reaction.findFirst({
+  where: {
+    chatExchangeId: reactionData.chatExchangeId ?? id, // Use chatExchangeId or id from route params
+    userId: reactionData.userId,
+  },
+})
+
+    // Update or create reaction for the chat exchange
+    const updatedReaction = await prisma.reaction.upsert({
+      where: { id: existingReaction?.id }, // Use existing reaction id or a dummy value (0 will trigger creation)
+  
+      update: {
+        reactionType: reactionData.reactionType,
+        comment: reactionData.comment,
+        artId: reactionData.artId,
+        pitchId: reactionData.pitchId,
+        componentId: reactionData.componentId,
+        channelId: reactionData.channelId,
+        ReactionCategory: reactionData.reactionCategory, // Correct field name
+      },
+      create: {
+        reactionType: reactionData.reactionType,
+        comment: reactionData.comment,
+        userId: reactionData.userId,
+        artId: reactionData.artId,
+        pitchId: reactionData.pitchId,
+        componentId: reactionData.componentId,
+        channelId: reactionData.channelId,
+        chatExchangeId: reactionData.chatExchangeId ?? id,
+        ReactionCategory: reactionData.reactionCategory, // Correct field name
+      },      
     })
 
     return {
       success: true,
-      updatedExchange,
+      updatedReaction,
     }
   } catch (error: unknown) {
     console.error(
-      `Error while updating chat exchange with id ${event.context.params?.id}:`,
+      `Error while updating reaction for chat exchange with id ${event.context.params?.id}:`,
       error,
     )
     const { success, message, statusCode } = errorHandler(error)

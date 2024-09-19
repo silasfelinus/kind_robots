@@ -29,12 +29,7 @@
         <div class="flex-grow overflow-y-auto">
           <div class="flex justify-center items-center">
             <div class="w-full max-w-4xl rounded-2xl bg-base-200">
-              <nuxt-page
-                :transition="{
-                  name: 'bounce',
-                  mode: 'out-in',
-                }"
-              />
+              <nuxt-page />
             </div>
           </div>
         </div>
@@ -78,5 +73,15 @@ onBeforeUnmount(() => {
 /* Scrollable area for the main content */
 main {
   overflow-y: auto;
+}
+
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.4s;
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  filter: blur(1rem);
 }
 </style>

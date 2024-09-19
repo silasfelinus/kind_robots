@@ -89,6 +89,12 @@
     <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4">
       🚨 Error loading data: {{ errorMessages.join(', ') }}
     </div>
+
+    <!-- Debug Information -->
+    <div v-if="debugInfo.length" class="col-span-3 text-blue-500 mt-4">
+      🛠️ Debug Info: <br />
+      <pre>{{ debugInfo.join('\n') }}</pre>
+    </div>
   </div>
 </template>
 
@@ -111,6 +117,7 @@ const selectedFolder = ref<string | null>(null) // Selected folder for context
 const showComponentScreen = ref(false) // Boolean flag to toggle the component screen
 const isLoading = ref(false) // Loading state flag
 const errorMessages = ref<string[]>([]) // Array for storing error messages
+const debugInfo = ref<string[]>([]) // Array for storing debug information
 
 // Access the display store and component store
 const displayStore = useDisplayStore()
@@ -137,11 +144,15 @@ const fetchComponentsJSON = async () => {
     const jsonData: Folder[] = await response.json() // Typed response to ensure we get an array of Folder
     folderNames.value = jsonData // Populate folder names based on the JSON response
 
+    // Log the fetched data to debug info for inspection
+    debugInfo.value.push('Fetched components.json data:')
+    debugInfo.value.push(JSON.stringify(jsonData, null, 2))
+
     // Sync components with the store (add or update)
     await syncComponentsWithStore(jsonData)
   } catch (error) {
     console.error('Error fetching components.json:', error)
-    errorMessages.value.push('Failed to load components.json')
+    errorMessages.value.push(`Failed to load components.json: ${error.message}`)
   } finally {
     isLoading.value = false
   }
@@ -151,9 +162,11 @@ const fetchComponentsJSON = async () => {
 const syncComponentsWithStore = async (folders: Folder[]) => {
   try {
     await componentStore.syncComponents(folders) // Call the store's sync method with the new data
+    debugInfo.value.push('Sync with store successful!')
   } catch (error) {
     console.error('Error syncing components with store:', error)
-    errorMessages.value.push('Failed to sync components with store')
+    errorMessages.value.push(`Failed to sync components with store: ${error.message}`)
+    debugInfo.value.push(`Sync with store failed: ${error.message}`)
   }
 }
 
@@ -165,7 +178,8 @@ const fetchComponentsFromStore = async (folderName: string) => {
     selectedFolder.value = folderName
   } catch (error) {
     console.error('Error fetching components from store:', error)
-    errorMessages.value.push('Failed to fetch components from store')
+    errorMessages.value.push(`Failed to fetch components from store: ${error.message}`)
+    debugInfo.value.push(`Error fetching components from store: ${error.message}`)
   }
 }
 

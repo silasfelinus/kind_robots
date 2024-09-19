@@ -1,16 +1,19 @@
-//server/api/components/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import type { Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
     const componentData = await readBody(event)
 
+    // Ensure Tags is an array before mapping
+    const tags = componentData.Tags || [];
+
     // Use the `upsert` method to either create a new component or update an existing one
     const upsertedComponent = await prisma.component.upsert({
       where: {
-        componentName: componentData.componentName, // Assuming componentName is unique
+        componentName: componentData.componentName, // Ensure componentName is unique in Prisma schema
       },
       update: {
         folderName: componentData.folderName,
@@ -19,9 +22,21 @@ export default defineEventHandler(async (event) => {
         isBroken: componentData.isBroken !== undefined ? componentData.isBroken : false,
         title: componentData.title || componentData.componentName,
         Tags: {
-          set: componentData.Tags || [], // Update the Tags relationship
+          connectOrCreate: tags.map((tag: Tag) => ({
+            where: { label: tag.label }, // Use another unique field for the Tags (assuming `label` is unique)
+            create: {
+              label: tag.label,
+              title: tag.title,
+              flavorText: tag.flavorText,
+              pitch: tag.pitch,
+              isPublic: tag.isPublic,
+              isMature: tag.isMature,
+              userId: tag.userId,
+              channelId: tag.channelId,
+            },
+          })),
         },
-        updatedAt: new Date(), // Ensure updatedAt is set to the current time
+        updatedAt: new Date(),
       },
       create: {
         folderName: componentData.folderName,
@@ -31,7 +46,19 @@ export default defineEventHandler(async (event) => {
         isBroken: componentData.isBroken || false,
         title: componentData.title || componentData.componentName,
         Tags: {
-          set: componentData.Tags || [], // Set the Tags relationship on create
+          connectOrCreate: tags.map((tag: Tag) => ({
+            where: { label: tag.label }, // Ensure `label` is unique for new tags
+            create: {
+              label: tag.label,
+              title: tag.title,
+              flavorText: tag.flavorText,
+              pitch: tag.pitch,
+              isPublic: tag.isPublic,
+              isMature: tag.isMature,
+              userId: tag.userId,
+              channelId: tag.channelId,
+            },
+          })),
         },
         createdAt: new Date(),
         updatedAt: new Date(),

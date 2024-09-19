@@ -53,28 +53,31 @@ export const useComponentStore = defineStore('componentStore', {
       }, ErrorType.NETWORK_ERROR, 'Error fetching all components')
     },
 
-    // Function to sync components from the JSON file with the store (add or update)
+    // Sync components from the JSON file with the store (add or update)
     async syncComponents(folders: Folder[]) {
       const errorStore = useErrorStore()
-
       return errorStore.handleError(async () => {
         // Iterate through each folder
         for (const folder of folders) {
           // Iterate through each component in the folder
           for (const componentName of folder.components) {
             const existingComponent = this.components.find(
-              (comp) => comp.componentName === componentName && comp.folderName === folder.folderName
+              (comp) =>
+                comp.componentName === componentName &&
+                comp.folderName === folder.folderName
             )
 
             const componentData = {
               id: existingComponent ? existingComponent.id : 0, // Use 0 for new components
-              componentName: componentName,
+              componentName,
               folderName: folder.folderName,
               channelId: null, // Optional, can be null for now
               createdAt: existingComponent ? existingComponent.createdAt : new Date(),
               updatedAt: new Date(),
               isWorking: existingComponent ? existingComponent.isWorking : true,
-              underConstruction: existingComponent ? existingComponent.underConstruction : false,
+              underConstruction: existingComponent
+                ? existingComponent.underConstruction
+                : false,
               isBroken: existingComponent ? existingComponent.isBroken : false,
               title: existingComponent ? existingComponent.title : null,
               notes: existingComponent ? existingComponent.notes : null,
@@ -82,10 +85,12 @@ export const useComponentStore = defineStore('componentStore', {
 
             // Create or update the component in the store
             const action = existingComponent ? 'update' : 'create'
-            await this.createOrUpdateComponent(componentData as Component, action)
+            await this.createOrUpdateComponent(
+              componentData as Component,
+              action
+            )
           }
         }
-
         console.log('Sync with store successful!')
       }, ErrorType.GENERAL_ERROR, 'Error syncing components with store')
     },
@@ -102,6 +107,20 @@ export const useComponentStore = defineStore('componentStore', {
         this.selectedComponent = component
         return component
       }, ErrorType.NETWORK_ERROR, `Error fetching component with id ${id}`)
+    },
+
+    // Fetch components by folder name with error handling
+    async fetchComponentsByFolder(folderName: string) {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
+        const response = await fetch(`/api/components/folder/${folderName}`)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch components from folder: ${folderName}`)
+        }
+        const components = await response.json()
+        this.components = components // Update store with the fetched components
+        return components as Component[]
+      }, ErrorType.NETWORK_ERROR, `Error fetching components from folder: ${folderName}`)
     },
 
     // Find a component by name with error handling
@@ -128,13 +147,16 @@ export const useComponentStore = defineStore('componentStore', {
       }, ErrorType.VALIDATION_ERROR, `Error finding component "${componentName}" in folder "${folderName}"`)
     },
 
-    // Set the selected component
+    // Set the selected component in the store
     setSelectedComponent(component: Component) {
       this.selectedComponent = component
     },
 
     // Create or update a component in the database with error handling
-    async createOrUpdateComponent(component: Component, action: 'create' | 'update') {
+    async createOrUpdateComponent(
+      component: Component,
+      action: 'create' | 'update'
+    ) {
       const errorStore = useErrorStore()
       return errorStore.handleError(async () => {
         const response = await fetch('/api/components', {
@@ -144,15 +166,26 @@ export const useComponentStore = defineStore('componentStore', {
         })
 
         if (!response.ok) {
-          throw new Error(`${action === 'create' ? 'Create' : 'Update'} component failed: ${response.statusText}`)
+          throw new Error(
+            `${action === 'create' ? 'Create' : 'Update'} component failed: ${
+              response.statusText
+            }`
+          )
         }
 
         if (action === 'create') {
           const newComponent = await response.json()
           this.components.push(newComponent) // Add the new component to the store
-          console.log(`Component ${newComponent.componentName} created successfully with ID: ${newComponent.id}`)
+          console.log(
+            `Component ${newComponent.componentName} created successfully with ID: ${newComponent.id}`
+          )
           return newComponent
         } else {
+          // Update the component in the store
+          const index = this.components.findIndex((comp) => comp.id === component.id)
+          if (index !== -1) {
+            this.components[index] = component // Update the store component
+          }
           console.log(`Component ${component.componentName} updated successfully`)
         }
       }, ErrorType.GENERAL_ERROR, `Error ${action === 'create' ? 'creating' : 'updating'} component`)

@@ -90,7 +90,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { useDisplayStore } from '@/stores/display'
+import { useDisplayStore } from '@/stores/displayStore'
 
 // Define the structure of a Folder in the components.json file
 interface Folder {

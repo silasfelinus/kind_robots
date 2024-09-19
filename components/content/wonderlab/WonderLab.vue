@@ -47,8 +47,14 @@
           v-if="selectedComponents.length"
           class="grid grid-cols-4 gap-2 relative"
         >
-          <!-- Back Button: Floating at the top -->
-          <div class="absolute top-0 right-0">
+          <!-- Back Button: Floating at the top with adjusted margin -->
+          <div
+            class="absolute"
+            :style="{
+              top: `calc(${displayStore.headerVh} + 10px)`,
+              right: '10px',
+            }"
+          >
             <Icon
               name="game-Icons:fast-backward-button"
               class="text-4xl cursor-pointer"
@@ -71,52 +77,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Bottom Section: Folder/Component Gallery or Splash Image & Instructions -->
-    <div class="relative h-full">
-      <transition name="flip">
-        <!-- Splash Image and Instructions (visible when no component is selected) -->
-        <div
-          v-if="!selectedComponents.length && !showComponentScreen"
-          class="flex flex-col items-center justify-center h-full"
-        >
-          <random-image class="mb-4" />
-          <p class="text-lg text-center px-4">
-            Welcome to Wonderforge! Select a folder above to view available
-            components. After selecting a component, the component details will
-            be displayed at the top. Have fun exploring!
-          </p>
-        </div>
-
-        <!-- Folder/Component Gallery (when components are loaded) -->
-        <div v-if="selectedComponents.length && !showComponentScreen">
-          <div class="grid grid-cols-4 gap-2 relative">
-            <!-- Back Button -->
-            <div class="absolute top-0 right-0">
-              <Icon
-                name="game-Icons:fast-backward-button"
-                class="text-4xl cursor-pointer"
-                @click="clearSelectedComponents"
-              />
-            </div>
-
-            <!-- Component Display -->
-            <div
-              v-for="component in selectedComponents"
-              :key="component"
-              class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition duration-300 ease-in-out"
-              @click="selectComponent(selectedFolder ?? '', component)"
-            >
-              <div class="text-center">
-                <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
-                <p>{{ component }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </transition>
-    </div>
-
     <!-- Error Reporting: Displays any errors encountered during the component loading -->
     <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4">
       🚨 Error loading data: {{ errorMessages.join(', ') }}

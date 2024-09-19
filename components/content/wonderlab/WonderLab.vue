@@ -1,77 +1,9 @@
 <template>
   <div class="p-2 bg-base-200 min-h-screen grid grid-rows-2 gap-2">
-    <!-- Top Section: Folder or Component List -->
+    <!-- Top Section: Component Detail or Folder/Component Gallery -->
     <div class="h-full">
-      <!-- Loading State: Displays a loading icon while data is being fetched -->
-      <div v-if="isLoading" class="flex justify-center items-center h-full">
-        <Icon name="mdi:loading" class="animate-spin text-4xl" />
-        Loading...
-      </div>
-
-      <!-- Folder View: Displays the folder names for selection -->
-      <div
-        v-if="!showComponentScreen && !isLoading && !selectedComponents.length"
-        class="grid grid-cols-4 gap-2"
-      >
-        <div
-          v-for="folder in folderNames"
-          :key="folder.folderName"
-          class="p-4 rounded-lg hover:bg-primary hover:text-default cursor-pointer transition duration-300 ease-in-out"
-          @click="fetchComponents(folder.folderName)"
-        >
-          <div class="text-center">
-            <Icon name="bi:folder-fill" class="text-4xl" />
-            <p class="mt-2">{{ folder.folderName }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Component List View: Displays components of the selected folder -->
-      <div
-        v-if="selectedComponents.length && !showComponentScreen"
-        class="grid grid-cols-4 gap-2 relative"
-      >
-        <!-- Back Button: Floating at the top -->
-        <div class="absolute top-0 right-0">
-          <Icon
-            name="game-Icons:fast-backward-button"
-            class="text-4xl cursor-pointer"
-            @click="clearSelectedComponents"
-          />
-        </div>
-
-        <!-- Displays individual components -->
-        <div
-          v-for="component in selectedComponents"
-          :key="component"
-          class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition duration-300 ease-in-out"
-          @click="selectComponent(selectedFolder ?? '', component)"
-        >
-          <div class="text-center">
-            <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
-            <p>{{ component }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom Section: Splash Image or Component Screen -->
-    <div class="relative h-full">
+      <!-- Component Detail View and Reaction Section -->
       <transition name="flip">
-        <!-- Splash Image and Instructions -->
-        <div
-          v-if="!showComponentScreen"
-          class="flex flex-col items-center justify-center h-full"
-        >
-          <random-image class="mb-4" />
-          <p class="text-lg text-center px-4">
-            Welcome to Wonderforge! Select a folder above to view available
-            components. After selecting a component, the component details will
-            be displayed here. Have fun exploring!
-          </p>
-        </div>
-
-        <!-- Component Detail View and Reaction Section -->
         <div v-if="showComponentScreen">
           <component-screen
             :folder-name="selectedFolder"
@@ -81,6 +13,106 @@
 
           <!-- Component Reaction: Reaction and Comment Section -->
           <component-reaction :component-id="componentId" />
+        </div>
+      </transition>
+
+      <!-- Folder or Component List (visible when no component is selected) -->
+      <div v-if="!showComponentScreen">
+        <!-- Loading State: Displays a loading icon while data is being fetched -->
+        <div v-if="isLoading" class="flex justify-center items-center h-full">
+          <Icon name="mdi:loading" class="animate-spin text-4xl" />
+          Loading...
+        </div>
+
+        <!-- Folder View: Displays the folder names for selection -->
+        <div
+          v-if="!isLoading && !selectedComponents.length"
+          class="grid grid-cols-4 gap-2"
+        >
+          <div
+            v-for="folder in folderNames"
+            :key="folder.folderName"
+            class="p-4 rounded-lg hover:bg-primary hover:text-default cursor-pointer transition duration-300 ease-in-out"
+            @click="fetchComponents(folder.folderName)"
+          >
+            <div class="text-center">
+              <Icon name="bi:folder-fill" class="text-4xl" />
+              <p class="mt-2">{{ folder.folderName }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Component List View: Displays components of the selected folder -->
+        <div
+          v-if="selectedComponents.length"
+          class="grid grid-cols-4 gap-2 relative"
+        >
+          <!-- Back Button: Floating at the top -->
+          <div class="absolute top-0 right-0">
+            <Icon
+              name="game-Icons:fast-backward-button"
+              class="text-4xl cursor-pointer"
+              @click="clearSelectedComponents"
+            />
+          </div>
+
+          <!-- Displays individual components -->
+          <div
+            v-for="component in selectedComponents"
+            :key="component"
+            class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition duration-300 ease-in-out"
+            @click="selectComponent(selectedFolder ?? '', component)"
+          >
+            <div class="text-center">
+              <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
+              <p>{{ component }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section: Folder/Component Gallery or Splash Image & Instructions -->
+    <div class="relative h-full">
+      <transition name="flip">
+        <!-- Splash Image and Instructions (visible when no component is selected) -->
+        <div
+          v-if="!selectedComponents.length && !showComponentScreen"
+          class="flex flex-col items-center justify-center h-full"
+        >
+          <random-image class="mb-4" />
+          <p class="text-lg text-center px-4">
+            Welcome to Wonderforge! Select a folder above to view available
+            components. After selecting a component, the component details will
+            be displayed at the top. Have fun exploring!
+          </p>
+        </div>
+
+        <!-- Folder/Component Gallery (when components are loaded) -->
+        <div v-if="selectedComponents.length && !showComponentScreen">
+          <div class="grid grid-cols-4 gap-2 relative">
+            <!-- Back Button -->
+            <div class="absolute top-0 right-0">
+              <Icon
+                name="game-Icons:fast-backward-button"
+                class="text-4xl cursor-pointer"
+                @click="clearSelectedComponents"
+              />
+            </div>
+
+            <!-- Component Display -->
+            <div
+              v-for="component in selectedComponents"
+              :key="component"
+              class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition duration-300 ease-in-out"
+              @click="selectComponent(selectedFolder ?? '', component)"
+            >
+              <div class="text-center">
+                <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
+                <p>{{ component }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </transition>
     </div>

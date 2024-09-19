@@ -168,28 +168,52 @@ export const useComponentStore = defineStore('componentStore', {
       }
     },
 
-    // Create or update a component in the database
-    async createOrUpdateComponent(component: Component, action: 'create' | 'update') {
-      try {
-        const response = await fetch('/api/components', {
-          method: action === 'create' ? 'POST' : 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(component),
-        })
+    // Add this to the componentStore
+async fetchComponentById(id: number) {
+  try {
+    const response = await fetch(`/api/components/${id}`)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch component with id: ${id}`)
+    }
+    const component = await response.json()
+    this.setSelectedComponent(component)
+    return component
+  } catch (error) {
+    console.error('Error fetching component by ID:', error)
+    throw error
+  }
+},
 
-        if (!response.ok) {
-          throw new Error(
-            `${action === 'create' ? 'Create' : 'Update'} component failed: ${response.statusText}`
-          )
-        }
+// Create or update a component in the database
+async createOrUpdateComponent(component: Component, action: 'create' | 'update') {
+  try {
+    const response = await fetch('/api/components', {
+      method: action === 'create' ? 'POST' : 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(component),
+    })
 
-        console.log(
-          `Component ${component.componentName} ${action}d successfully`
-        )
-      } catch (error) {
-        console.error(`Error ${action === 'create' ? 'creating' : 'updating'} component:`, error)
-      }
-    },
+    if (!response.ok) {
+      throw new Error(
+        `${action === 'create' ? 'Create' : 'Update'} component failed: ${response.statusText}`
+      )
+    }
+
+    // If action is 'create', extract the new component (with its generated ID) from the response
+    if (action === 'create') {
+      const newComponent = await response.json() // Assuming the server returns the full component, including the ID
+      console.log(`Component ${newComponent.componentName} created successfully with ID: ${newComponent.id}`)
+      return newComponent // Return the newly created component, including its ID
+    }
+
+    // If action is 'update', no need to return anything, just log success
+    console.log(`Component ${component.componentName} updated successfully`)
+  } catch (error) {
+    console.error(`Error ${action === 'create' ? 'creating' : 'updating'} component:`, error)
+    throw error // Re-throw the error so it can be caught by the caller
+  }
+},
+
 
     // API call to delete a component from the database
     async deleteComponent(componentName: string) {

@@ -1,87 +1,97 @@
 <template>
   <div class="p-6 bg-base-200 min-h-screen flex flex-col items-center">
-    <!-- Check if the component has been loaded dynamically -->
+    <!-- Display status message while creating/updating component -->
+    <div v-if="loadingStatus" class="text-xl text-center text-blue-500 mb-4">
+      {{ loadingStatus }}
+    </div>
+
+    <!-- Section to create a new component -->
     <div
-      v-if="component && folderName && componentName"
+      v-if="!componentId"
       class="w-full max-w-3xl bg-white p-6 rounded-lg shadow-md"
     >
-      <h2 class="text-3xl font-bold mb-4">
-        Component: {{ componentName }} in Folder: {{ folderName }}
-      </h2>
-
-      <!-- Dynamically load and display the component -->
-      <component :is="component"></component>
-
-      <button class="btn btn-error mt-4" @click="emitClose">Close</button>
-    </div>
-    <!-- Show a message if no component is selected or failed to load -->
-    <div v-else>
-      <h2 class="text-2xl font-bold mb-4">Error Loading Component</h2>
-      <p v-if="errorMessage" class="text-red-500 mb-4">{{ errorMessage }}</p>
-      <p v-else>No component selected or failed to load.</p>
-      <button class="btn btn-primary mt-4" @click="emitClose">
-        Return to Folder View
+      <h2 class="text-3xl font-bold mb-4">Create New Component</h2>
+      <input
+        v-model="newComponentName"
+        type="text"
+        placeholder="Component Name"
+        class="w-full p-2 mb-2 border rounded"
+      />
+      <input
+        v-model="newFolderName"
+        type="text"
+        placeholder="Folder Name"
+        class="w-full p-2 mb-2 border rounded"
+      />
+      <button class="btn btn-primary mt-4" @click="createOrUpdateComponent">
+        Create Component
       </button>
     </div>
+
+    <!-- Once we have a componentId, display the component-reaction section -->
+    <component-reaction v-if="componentId" :component-id="componentId" />
+
+    <!-- Error message display -->
+    <div v-if="errorMessage" class="text-red-500 mt-4">{{ errorMessage }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits } from 'vue'
+import { ref } from 'vue'
+import { useComponentStore } from '@/stores/componentStore'
+import type { Component } from '@prisma/client'
 
-// Define the props for folderName and componentName
-const props = defineProps({
-  componentName: {
-    type: String,
-    required: true,
-    default: '',
-  },
-  folderName: {
-    type: String,
-    required: true,
-    default: '',
-  },
-})
+// State
+const componentId = ref<number | null>(null) // Component ID, set once component is created/loaded
+const newComponentName = ref<string>('') // New component name for creation
+const newFolderName = ref<string>('') // New folder name for creation
+const loadingStatus = ref<string | null>(null)
+const errorMessage = ref<string | null>(null)
 
-// Declare the emit for the 'close' event
-const emit = defineEmits(['close'])
+// Access the componentStore
+const componentStore = useComponentStore()
 
-// Emit the 'close' event when the button is clicked
-const emitClose = () => {
-  emit('close')
-}
-
-// State to hold the dynamically loaded component
-const component = ref<null | object>(null)
-const errorMessage = ref<string | null>(null) // State for handling error messages
-
-// Function to dynamically import the component with proper error handling
-const loadComponent = async (folderName: string, componentName: string) => {
+// Function to create or update the component
+const createOrUpdateComponent = async () => {
   try {
-    // Reset the error message before loading
-    errorMessage.value = null
-    // Dynamically import the component based on folder and component names
-    component.value = (
-      await import(`@/components/content/${folderName}/${componentName}.vue`)
-    ).default
-  } catch (error) {
-    console.error(
-      `Failed to load component: ${folderName}/${componentName}`,
-      error,
+    loadingStatus.value = componentId.value
+      ? 'Updating component...'
+      : 'Creating component...'
+
+    const action = componentId.value ? 'update' : 'create'
+
+    // Create the component object, but only include 'id' if updating
+    const component = {
+      componentName: newComponentName.value,
+      folderName: newFolderName.value,
+      isWorking: true,
+      underConstruction: false,
+      isBroken: false,
+      title: null,
+      notes: null,
+      createdAt: new Date(),
+      updatedAt: null,
+      ...(componentId.value && { id: componentId.value }), // Only include 'id' if updating
+    }
+
+    // Create or update the component
+    const result = await componentStore.createOrUpdateComponent(
+      component as Component,
+      action,
     )
-    errorMessage.value = `The component "${componentName}" in the folder "${folderName}" failed to load. Please check if it exists or has any issues.`
-    component.value = null // Set to null if loading fails
+
+    // If it's a new component, set the component ID
+    if (action === 'create') {
+      componentId.value = result.id // Use the newly created ID
+      console.log('New component created with ID:', componentId.value)
+    } else {
+      console.log('Component updated successfully')
+    }
+
+    loadingStatus.value = null
+  } catch (error) {
+    errorMessage.value = `Error ${componentId.value ? 'updating' : 'creating'} component: ${(error as Error).message}`
+    loadingStatus.value = null
   }
 }
-
-// Watch for changes in folderName or componentName and load the component
-watch(
-  () => [props.folderName, props.componentName],
-  ([newFolderName, newComponentName]) => {
-    if (newFolderName && newComponentName) {
-      loadComponent(newFolderName, newComponentName)
-    }
-  },
-  { immediate: true },
-)
 </script>

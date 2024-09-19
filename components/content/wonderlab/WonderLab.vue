@@ -1,6 +1,6 @@
 <template>
-  <div class="p-6 bg-base-200 min-h-screen grid grid-cols-2 gap-4">
-    <!-- Left Section: Folder or Component List -->
+  <div class="p-6 bg-base-200 min-h-screen grid grid-rows-2 gap-4">
+    <!-- Top Section: Folder or Component List -->
     <div class="h-full">
       <!-- Loading State: Displays a loading icon while data is being fetched -->
       <div v-if="isLoading" class="flex justify-center items-center h-full">
@@ -11,7 +11,7 @@
       <!-- Folder View: Displays the folder names for selection -->
       <div
         v-if="!showComponentScreen && !isLoading && !selectedComponents.length"
-        class="grid grid-cols-1 gap-4"
+        class="grid grid-cols-2 gap-4"
       >
         <div
           v-for="folder in folderNames"
@@ -29,7 +29,7 @@
       <!-- Component List View: Displays components of the selected folder -->
       <div
         v-if="selectedComponents.length && !showComponentScreen"
-        class="grid grid-cols-1 gap-4"
+        class="grid grid-cols-2 gap-4"
       >
         <!-- Back Button: Allows returning to folder view -->
         <div class="text-right mb-4">
@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <!-- Right Section: Splash Image or Component Screen -->
+    <!-- Bottom Section: Splash Image or Component Screen -->
     <div class="relative h-full">
       <transition name="flip">
         <div
@@ -63,11 +63,11 @@
           class="flex flex-col items-center justify-center h-full"
         >
           <!-- Splash Image and Instructions -->
-          <random-gallery class="mb-4" />
+          <random-image class="mb-4" />
           <p class="text-lg text-center px-4">
-            Welcome to Wonderforge! Select a folder on the left to view
-            available components. After selecting a component, the component
-            details will be displayed here. Have fun exploring!
+            Welcome to Wonderforge! Select a folder above to view available
+            components. After selecting a component, the component details will
+            be displayed here. Have fun exploring!
           </p>
         </div>
         <!-- Component Detail View: Displays detailed view of the selected component -->

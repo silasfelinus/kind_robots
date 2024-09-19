@@ -10,9 +10,7 @@
       <div v-if="!isLoading && !errorMessages.length">
         <!-- Intro Section with random image and component count -->
         <div
-          v-if="
-            !selectedComponents.length && !selectedFolder && !selectedComponent
-          "
+          v-if="!componentStore.selectedComponent"
           class="intro-section text-center"
         >
           <random-image class="mb-4" />
@@ -23,15 +21,12 @@
         </div>
 
         <!-- LabGallery component -->
-        <lab-gallery
-          v-if="selectedFolder || selectedComponents.length"
-          @select-component="selectComponent"
-        />
+        <lab-gallery v-if="!componentStore.selectedComponent" />
 
         <!-- Component Screen -->
         <component-screen
-          v-if="selectedComponent"
-          :component="selectedComponent"
+          v-if="componentStore.selectedComponent"
+          :component="componentStore.selectedComponent"
           @close="clearSelectedComponent"
         />
       </div>
@@ -47,22 +42,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
-import LabGallery from './LabGallery.vue' // Assuming this is the correct path for LabGallery component
-import ComponentScreen from './ComponentScreen.vue' // Assuming this is the correct path for component-screen
+import LabGallery from './LabGallery.vue'
+import ComponentScreen from './ComponentScreen.vue'
+
+// State variables
+const isLoading = ref(false)
+const errorMessages = ref<string[]>([])
+const debugInfo = ref<string[]>([])
 
 // Define the structure of a Folder in the components.json file
 interface Folder {
   folderName: string
   components: string[] // List of component names as strings
 }
-
-// State variables
-const isLoading = ref(false)
-const errorMessages = ref<string[]>([]) // Array for storing error messages
-const selectedFolder = ref<string | null>(null) // Selected folder for context
-const selectedComponents = ref([]) // Components of the selected folder from the store (empty at start)
-const selectedComponent = ref<Component | null>(null) // The selected component for the detail view
-const debugInfo = ref<string[]>([]) // Array for storing debug information
 
 // Access the component store
 const componentStore = useComponentStore()
@@ -74,7 +66,7 @@ const fetchComponentsJSON = async () => {
     const response = await fetch('/components.json')
     if (!response.ok) throw new Error('Failed to fetch components.json')
 
-    const jsonData = await response.json() // Expecting array of Folder
+    const jsonData = await response.json()
     await syncComponentsWithStore(jsonData)
   } catch (error: unknown) {
     const err = error as Error
@@ -95,14 +87,9 @@ const syncComponentsWithStore = async (folders: Folder[]) => {
   }
 }
 
-// Function to handle selecting a component for detail view
-const selectComponent = (component: Component) => {
-  selectedComponent.value = component
-}
-
 // Function to clear the selected component and return to the folder view
 const clearSelectedComponent = () => {
-  selectedComponent.value = null
+  componentStore.selectedComponent = null
 }
 
 // Initial fetch on component mount
@@ -112,7 +99,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Flip animation for switching between splash and main content */
 .flip-enter-active,
 .flip-leave-active {
   transition: transform 0.6s;

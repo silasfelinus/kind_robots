@@ -1,3 +1,4 @@
+//server/api/components/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'

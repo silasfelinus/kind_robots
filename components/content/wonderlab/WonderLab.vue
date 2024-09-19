@@ -111,11 +111,16 @@ const fetchComponentJSON = async () => {
   }
 }
 
-// Function to fetch components for a folder
 const fetchComponents = (folderName: string) => {
   const folder = componentStore.folders.find((f) => f.folderName === folderName)
-  selectedComponents.value = folder ? folder.components : []
+  if (folder) {
+    selectedComponents.value = folder.components // Set the components for the selected folder
+  } else {
+    selectedComponents.value = [] // Clear if folder not found
+    console.error(`Folder with name ${folderName} not found`)
+  }
 }
+
 
 // Clear selected components
 const clearSelectedComponents = () => {

@@ -1,14 +1,10 @@
 <template>
   <div class="random-image-container">
     <div v-if="randomImage">
-      <img
-        :src="randomImage"
-        alt="Random Gallery Image"
-        class="rounded-lg shadow-lg"
-      />
+      <img :src="randomImage" alt="Random Gallery Image" class="rounded-lg shadow-lg" />
     </div>
     <div v-else class="text-center text-gray-500">
-      <p>No image available. Please select a gallery.</p>
+      <p>No image available.</p>
     </div>
   </div>
 </template>
@@ -25,12 +21,17 @@ const randomImage = computed(() => galleryStore.randomImage)
 
 // Initialize the store when the component mounts
 onMounted(async () => {
-  // If the store hasn't been initialized yet, initialize it
+  // Initialize the store if not initialized
   if (!galleryStore.galleries.length) {
     await galleryStore.initializeStore()
   }
 
-  // Ensure a gallery is selected and an image is loaded
+  // If no gallery is selected, set a random one
+  if (!galleryStore.currentGallery) {
+    galleryStore.setRandomGallery()
+  }
+
+  // Ensure a random image is selected if none is set
   if (!galleryStore.currentImage) {
     galleryStore.changeToRandomImage()
   }

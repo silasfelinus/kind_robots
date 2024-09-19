@@ -1,6 +1,6 @@
 <template>
   <main>
-    <NuxtLayout :name="page?.layout">
+    <NuxtLayout :name="page?.layout || 'default'">
       <ContentDoc />
     </NuxtLayout>
   </main>

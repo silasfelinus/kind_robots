@@ -1,12 +1,12 @@
 <template>
   <div class="p-6 bg-base-200 min-h-screen flex flex-col items-center">
-    <!-- Toggle between fetching from the store or the database -->
+    <!-- Toggle between fetching from the store or components.json -->
     <div class="mb-4">
       <label class="mr-2">Source:</label>
       <input id="store" v-model="dataSource" type="radio" value="store" />
-      <label for="store">Store</label>
-      <input id="database" v-model="dataSource" type="radio" value="database" />
-      <label for="database">Database</label>
+      <label for="store">Database (Store)</label>
+      <input id="json" v-model="dataSource" type="radio" value="json" />
+      <label for="json">Components JSON</label>
     </div>
 
     <!-- Toggle filters for boolean values -->
@@ -72,7 +72,7 @@ import type { Component } from '@prisma/client' // Import the Component type
 // State
 const loadingStatus = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
-const dataSource = ref<'store' | 'database'>('store') // Toggle between store and database
+const dataSource = ref<'store' | 'json'>('store') // Toggle between database and JSON
 const filters = ref({
   isWorking: true,
   underConstruction: true,
@@ -83,21 +83,45 @@ const filters = ref({
 const componentStore = useComponentStore()
 const components = ref<Component[]>([]) // Define the type for components
 
-// Function to fetch components from the store or database
+// Function to fetch components from the store or components.json
 const fetchComponents = async () => {
   try {
     loadingStatus.value = 'Loading components...'
 
     if (dataSource.value === 'store') {
-      components.value = componentStore.allComponents // Make sure this returns the correct type
+      components.value = componentStore.allComponents // Fetch from the store (database retrieval)
     } else {
-      // Fetch components from the database
-      const response = await fetch('/api/components')
+      // Fetch components from components.json
+      const response = await fetch('/components.json')
       if (!response.ok) {
-        throw new Error('Failed to fetch components from the database.')
+        throw new Error('Failed to fetch components from JSON.')
       }
-      const dbComponents: Component[] = await response.json() // Ensure correct type
-      components.value = dbComponents
+      const jsonFolders = await response.json()
+
+      // Ensure jsonFolders is an array
+      if (!Array.isArray(jsonFolders)) {
+        throw new Error('Invalid JSON structure.')
+      }
+
+      // Map JSON data to Component type with defaults
+      components.value = jsonFolders.flatMap(
+        (folder: { components: string[]; folderName: string }) =>
+          folder.components.map((name: string) => ({
+            id: 0, // Placeholder ID; will be updated if fetched from the database
+            createdAt: new Date(),
+            updatedAt: null,
+            folderName: folder.folderName,
+            componentName: name,
+            isWorking: true,
+            underConstruction: false,
+            isBroken: false,
+            title: null,
+            notes: null,
+            Channels: [],
+            Tags: [],
+            Reactions: [],
+          })),
+      ) as Component[] // Cast to Component[]
     }
 
     loadingStatus.value = null

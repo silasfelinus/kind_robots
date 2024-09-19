@@ -1,11 +1,9 @@
 <template>
-  <div class="container mx-auto px-4 py-4 flex flex-col h-full space-y-4">
+  <div class="container mx-auto flex flex-col h-full space-y-4">
     <!-- Top Section: Leaderboard and Difficulty Selection -->
     <div class="flex justify-between w-full">
       <!-- Leaderboard Section -->
-      <div
-        class="leaderboard-container w-full md:w-1/3 bg-gray-100 p-4 rounded-lg"
-      >
+      <div class="leaderboard-container w-full md:w-1/3">
         <match-leaderboard />
       </div>
 

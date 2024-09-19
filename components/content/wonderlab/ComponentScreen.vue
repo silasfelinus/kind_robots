@@ -15,9 +15,14 @@
       <button class="btn btn-error mt-4" @click="emitClose">Close</button>
     </div>
 
-    <!-- Show a message if no component is selected -->
+    <!-- Show a message if no component is selected or failed to load -->
     <div v-else>
-      <p>No component selected or failed to load.</p>
+      <h2 class="text-2xl font-bold mb-4">Error Loading Component</h2>
+      <p v-if="errorMessage" class="text-red-500 mb-4">{{ errorMessage }}</p>
+      <p v-else>No component selected or failed to load.</p>
+      <button class="btn btn-primary mt-4" @click="emitClose">
+        Return to Folder View
+      </button>
     </div>
   </div>
 </template>
@@ -49,10 +54,13 @@ const emitClose = () => {
 
 // State to hold the dynamically loaded component
 const component = ref<null | object>(null)
+const errorMessage = ref<string | null>(null) // State for handling error messages
 
-// Function to dynamically import the component
+// Function to dynamically import the component with proper error handling
 const loadComponent = async (folderName: string, componentName: string) => {
   try {
+    // Reset the error message before loading
+    errorMessage.value = null
     // Dynamically import the component based on folder and component names
     component.value = (
       await import(`@/components/content/${folderName}/${componentName}.vue`)
@@ -62,6 +70,7 @@ const loadComponent = async (folderName: string, componentName: string) => {
       `Failed to load component: ${folderName}/${componentName}`,
       error,
     )
+    errorMessage.value = `The component "${componentName}" in the folder "${folderName}" failed to load. Please check if it exists or has any issues.`
     component.value = null // Set to null if loading fails
   }
 }

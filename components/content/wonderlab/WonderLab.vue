@@ -59,39 +59,24 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
 
-// Define the types explicitly
-interface Component {
-  id: number
-  componentName: string
-  folderName: string
-  channelId: number | null
-  createdAt: Date
-  updatedAt: Date | null
-  isWorking: boolean
-  underConstruction: boolean
-  isBroken: boolean
-  title: string | null
-  notes: string | null
-}
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useComponentStore } from '@/stores/componentStore'
 
 // Access the component store
 const componentStore = useComponentStore()
 
 // State variables
 const isLoading = ref(false)
-const selectedComponents = ref<Component[]>([]) // Explicitly define the type of selectedComponents
 const errorComponents = ref<string[]>([])
-const isMockup = ref(true) // Control whether the component is displayed as a mockup or full page
 
 // Computed properties
 const folderNames = computed(() =>
   componentStore.folders.map((folder) => folder.folderName),
 )
 const selectedComponent = computed(() => componentStore.selectedComponent)
+const selectedComponents = computed(() => componentStore.selectedComponents) // Use store's selectedComponents
 
 // Fetch data from public/components.json
 const fetchComponentJSON = async () => {
@@ -112,26 +97,16 @@ const fetchComponentJSON = async () => {
 }
 
 const fetchComponents = (folderName: string) => {
-  const folder = componentStore.folders.find((f) => f.folderName === folderName)
-  if (folder) {
-    selectedComponents.value = folder.components // Set the components for the selected folder
-  } else {
-    selectedComponents.value = [] // Clear if folder not found
-    console.error(`Folder with name ${folderName} not found`)
-  }
+  componentStore.fetchComponentList(folderName)
 }
 
-
-// Clear selected components
 const clearSelectedComponents = () => {
-  selectedComponents.value = []
-  componentStore.clearSelectedComponent()
+  componentStore.clearSelectedComponents()
 }
 
 // Open a specific component and switch to mockup view
 const openComponent = (component: Component) => {
   componentStore.setSelectedComponent(component)
-  isMockup.value = true // Initially, open in mockup mode
 }
 
 // Fetch folder names and component data when the component is mounted

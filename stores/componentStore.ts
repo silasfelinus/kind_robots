@@ -46,6 +46,40 @@ export const useComponentStore = defineStore('componentStore', {
         console.log('Components fetched successfully:', this.components)
       }, ErrorType.NETWORK_ERROR, 'Error fetching all components')
     },
+// Function to sync components with the store (add or update)
+const syncComponents = async (folders: Folder[]) => {
+  try {
+    // Iterate through each folder
+    for (const folder of folders) {
+      // Iterate through each component in the folder
+      for (const componentName of folder.components) {
+        // Create or update the component in the store
+        const componentData = {
+          id: 0, // Let the backend/database handle ID generation
+          componentName: componentName,
+          folderName: folder.folderName,
+          channelId: null, // Optional, can be null for now
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          isWorking: true,
+          underConstruction: false,
+          isBroken: false,
+          title: null, // Optional title
+          notes: null, // Optional notes
+        }
+
+        // Try to create or update the component in the store
+        await componentStore.createOrUpdateComponent(componentData, 'create') // Use 'update' if you're updating
+      }
+    }
+
+    debugInfo.value.push('Sync with store successful!')
+  } catch (error) {
+    console.error('Error syncing components with store:', error)
+    errorMessages.value.push(`Failed to sync components with store: ${error.message}`)
+    debugInfo.value.push(`Sync with store failed: ${error.message}`)
+  }
+},
 
     // Fetch a specific component by ID with error handling
     async fetchComponentById(id: number) {

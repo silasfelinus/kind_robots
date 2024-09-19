@@ -1,11 +1,6 @@
 import { defineStore } from 'pinia'
 
-// Updated Folder interface to use Component[]
-interface Folder {
-  folderName: string
-  components: Component[] // Array of Component objects instead of strings
-}
-
+// Define the Component interface
 interface Component {
   id: number
   componentName: string
@@ -22,258 +17,124 @@ interface Component {
 
 export const useComponentStore = defineStore('componentStore', {
   state: () => ({
-    folders: [] as Folder[], // Folder structure from JSON with components as objects
-    lastFetched: null as string | null, // ISO format date of last fetch
-    selectedComponent: null as Component | null, // Full Component object for the selected component
     components: [] as Component[], // Flat list of all Component objects for ease of lookup
-    selectedComponents: [] as Component[], // Manage selected components in the store
+    selectedComponent: null as Component | null, // Full Component object for the selected component
   }),
 
   getters: {
     // Get the current selected component
     getSelectedComponent: (state) => state.selectedComponent,
 
-    // Dynamically calculate folder names from the folders array
-    folderNames(state) {
-      return state.folders.map((folder) => folder.folderName)
-    },
-
     // Get all components in a flat array
     allComponents(state) {
-      return state.folders.flatMap((folder) => folder.components)
+      return state.components
     },
   },
 
   actions: {
-    // Fetch components for a specific folder
-    async fetchComponentList(folderName: string) {
-      const folder = this.folders.find((f) => f.folderName === folderName)
-      if (folder) {
-        this.$patch({
-          selectedComponents: folder.components, // Update state using $patch for better reactivity tracking
-        })
-      } else {
-        console.error(`Folder ${folderName} not found`)
-        this.$patch({
-          selectedComponents: [] // Clear if not found
-        })
-      }
-    },
-
-    clearSelectedComponents() {
-      this.$patch({
-        selectedComponents: []
-      })
-    },
-
-    // Initialization function that syncs with the database and components.json
-    async initializeComponentStore() {
+    // Fetch all components from the API
+    async fetchAllComponents() {
       try {
-        // Fetch components.json
-        const jsonResponse = await fetch('/components.json')
-        if (!jsonResponse.ok) throw new Error('components.json not found')
-        const jsonFolders: Folder[] = await jsonResponse.json()
-
-        // Update store with folders and flat components list
-        const flatComponents = jsonFolders.flatMap(folder => folder.components)
-        
-        this.$patch({
-          folders: jsonFolders,
-          components: flatComponents, // Flat list of all components for easier lookup
-        })
-
-        console.log('ComponentStore initialized successfully')
+        const response = await fetch('/api/components')
+        if (!response.ok) {
+          throw new Error('Failed to fetch components.')
+        }
+        const data: Component[] = await response.json()
+        this.components = data
+        console.log('Components fetched successfully:', this.components)
       } catch (error) {
-        console.error('Error initializing componentStore:', error)
+        console.error('Error fetching components:', error)
       }
     },
 
-    // Select a component
+    // Fetch a specific component by ID
+    async fetchComponentById(id: number) {
+      try {
+        const response = await fetch(`/api/components/${id}`)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch component with id: ${id}`)
+        }
+        const component = await response.json()
+        this.selectedComponent = component
+        return component
+      } catch (error) {
+        console.error('Error fetching component by ID:', error)
+        throw error
+      }
+    },
+
+    // Find a component by name
+    async findComponentByName(folderName: string, componentName: string) {
+      try {
+        // Fetch the component from the API based on folder name
+        const response = await fetch(`/api/components/${folderName}`)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch components from folder "${folderName}".`)
+        }
+
+        const { components } = await response.json()
+
+        // Find the specific component by name
+        const foundComponent = components.find(
+          (comp: Component) => comp.componentName === componentName
+        )
+
+        if (foundComponent) {
+          // If found, set it as the selected component
+          this.setSelectedComponent(foundComponent)
+          return foundComponent
+        } else {
+          throw new Error(`Component "${componentName}" not found in folder "${folderName}".`)
+        }
+      } catch (error) {
+        console.error(`Error finding component by name:`, error)
+        throw error
+      }
+    },
+
+    // Set the selected component
     setSelectedComponent(component: Component) {
-      this.$patch({
-        selectedComponent: component
-      })
+      this.selectedComponent = component
     },
 
-    // Deselect the component
-    clearSelectedComponent() {
-      this.$patch({
-        selectedComponent: null
-      })
-    },
-
-    // Function to retrieve the default component from localStorage
-    loadDefaultComponent() {
-      const storedComponent = localStorage.getItem('selectedComponent')
-      if (storedComponent) {
-        try {
-          this.$patch({
-            selectedComponent: JSON.parse(storedComponent) as Component
-          })
-        } catch (error) {
-          console.error(
-            'Failed to load selected component from localStorage:',
-            error,
-          )
-        }
-      }
-    },
-
-    // Sync the database with components.json
-    async syncDatabaseWithJSON(
-      dbComponents: Component[],
-      jsonFolders: Folder[],
-    ) {
+    // Create or update a component in the database
+    async createOrUpdateComponent(component: Component, action: 'create' | 'update') {
       try {
-        // Flatten the components from JSON folders
-        const jsonComponents = jsonFolders.flatMap((folder) => folder.components)
+        const response = await fetch('/api/components', {
+          method: action === 'create' ? 'POST' : 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(component),
+        })
 
-        // Add or update missing components
-        for (const jsonComponent of jsonComponents) {
-          const existingComponent = dbComponents.find(
-            (dbComp) =>
-              dbComp.componentName === jsonComponent.componentName &&
-              dbComp.folderName === jsonComponent.folderName
-          )
-
-          if (!existingComponent) {
-            await this.createOrUpdateComponent(jsonComponent, 'create')
-          } else {
-            // Update existing components if they differ in any significant property
-            if (
-              existingComponent.isWorking !== jsonComponent.isWorking ||
-              existingComponent.underConstruction !== jsonComponent.underConstruction ||
-              existingComponent.isBroken !== jsonComponent.isBroken ||
-              existingComponent.notes !== jsonComponent.notes
-            ) {
-              await this.createOrUpdateComponent(jsonComponent, 'update')
-            }
-          }
+        if (!response.ok) {
+          throw new Error(`${action === 'create' ? 'Create' : 'Update'} component failed: ${response.statusText}`)
         }
 
-        // Remove components no longer in JSON
-        for (const dbComponent of dbComponents) {
-          const stillInJson = jsonComponents.some(
-            (jsonComp) =>
-              jsonComp.componentName === dbComponent.componentName &&
-              jsonComp.folderName === dbComponent.folderName
-          )
-
-          if (!stillInJson) {
-            await this.deleteComponent(dbComponent.componentName)
-          }
+        if (action === 'create') {
+          const newComponent = await response.json()
+          this.components.push(newComponent) // Add the new component to the store
+          console.log(`Component ${newComponent.componentName} created successfully with ID: ${newComponent.id}`)
+          return newComponent
+        } else {
+          console.log(`Component ${component.componentName} updated successfully`)
         }
       } catch (error) {
-        console.error('Error syncing database with components.json:', error)
+        console.error(`Error ${action === 'create' ? 'creating' : 'updating'} component:`, error)
+        throw error
       }
     },
 
-    // Add this to the componentStore
-async fetchComponentById(id: number) {
-  try {
-    const response = await fetch(`/api/components/${id}`)
-    if (!response.ok) {
-      throw new Error(`Failed to fetch component with id: ${id}`)
-    }
-    const component = await response.json()
-    this.setSelectedComponent(component)
-    return component
-  } catch (error) {
-    console.error('Error fetching component by ID:', error)
-    throw error
-  }
-},
-// Add this method to your componentStore
-async findComponentByName(folderName: string, componentName: string) {
-  try {
-    // Check if the component exists in the current store state first
-    const foundComponent = this.components.find(
-      (comp) => comp.folderName === folderName && comp.componentName === componentName
-    )
-    
-    if (foundComponent) {
-      // If found in the store, set it as the selected component
-      this.setSelectedComponent(foundComponent)
-      return foundComponent
-    }
-
-    // If not found in the store, fetch it from the API
-    const response = await fetch(`/api/components/folder/${folderName}/${componentName}`)
-    if (!response.ok) {
-      throw new Error(`Component "${componentName}" not found in folder "${folderName}".`)
-    }
-    
-    const component = await response.json()
-
-    // Update the store with the fetched component
-    this.$patch({
-      components: [...this.components, component]
-    })
-    
-    this.setSelectedComponent(component)
-    return component
-  } catch (error) {
-    console.error(`Error finding component by name:`, error)
-    throw error
-  }
-},
-
-
-// Create or update a component in the database
-async createOrUpdateComponent(component: Component, action: 'create' | 'update') {
-  try {
-    const response = await fetch('/api/components', {
-      method: action === 'create' ? 'POST' : 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(component),
-    })
-
-    if (!response.ok) {
-      throw new Error(
-        `${action === 'create' ? 'Create' : 'Update'} component failed: ${response.statusText}`
-      )
-    }
-
-    // If action is 'create', extract the new component (with its generated ID) from the response
-    if (action === 'create') {
-      const newComponent = await response.json() // Assuming the server returns the full component, including the ID
-      console.log(`Component ${newComponent.componentName} created successfully with ID: ${newComponent.id}`)
-      return newComponent // Return the newly created component, including its ID
-    }
-
-    // If action is 'update', no need to return anything, just log success
-    console.log(`Component ${component.componentName} updated successfully`)
-  } catch (error) {
-    console.error(`Error ${action === 'create' ? 'creating' : 'updating'} component:`, error)
-    throw error // Re-throw the error so it can be caught by the caller
-  }
-},
-
-
-    // API call to delete a component from the database
-    async deleteComponent(componentName: string) {
+    // Delete a specific component by ID
+    async deleteComponent(id: number) {
       try {
-        const response = await fetch(`/api/components/${componentName}`, {
+        const response = await fetch(`/api/components/${id}`, {
           method: 'DELETE',
         })
         if (!response.ok) {
-          throw new Error(`Failed to delete component: ${response.statusText}`)
+          throw new Error(`Failed to delete component with id: ${id}`)
         }
-
-        // Remove the component from the store
-        this.$patch({
-          components: this.components.filter(
-            (c) => c.componentName !== componentName
-          ),
-          folders: this.folders.map((folder) => ({
-            ...folder,
-            components: folder.components.filter(
-              (c) => c.componentName !== componentName
-            ),
-          }))
-        })
-
-        console.log(`Component ${componentName} deleted successfully`)
+        this.components = this.components.filter(c => c.id !== id) // Remove from the store
+        console.log(`Component with ID ${id} deleted successfully`)
       } catch (error) {
         console.error('Error deleting component from the database:', error)
       }

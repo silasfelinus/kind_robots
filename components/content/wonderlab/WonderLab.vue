@@ -45,7 +45,7 @@
           v-for="component in selectedComponents"
           :key="component"
           class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition duration-300 ease-in-out"
-          @click="selectComponent(selectedFolder, component)"
+          @click="selectComponent(selectedFolder ?? '', component)"
         >
           <div class="text-center">
             <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />

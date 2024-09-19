@@ -2,7 +2,13 @@
 <template>
   <div
     v-if="!isReady"
-    class="fixed inset-0 flex items-center justify-center bg-opacity-70 z-50"
+    :class="{
+      'fixed inset-0 flex items-center justify-center bg-opacity-70 z-50':
+        isFirstLoad,
+      'absolute flex items-center justify-center bg-opacity-70 z-50':
+        !isFirstLoad,
+    }"
+    :style="!isFirstLoad ? mainContentStyle : ''"
   >
     <ami-loader />
   </div>
@@ -27,6 +33,8 @@ const milestoneStore = useMilestoneStore()
 const displayStore = useDisplayStore()
 
 const isReady = ref(false)
+const isFirstLoad = ref(true) // Track if this is the first load
+const mainContentStyle = ref('') // Style for main content view after first load
 
 // Emit the state to parent component
 const emit = defineEmits(['pageReady'])
@@ -45,9 +53,13 @@ onMounted(async () => {
     displayStore.loadState()
     displayStore.updateViewport()
 
+    // Set the main content style based on sidebarVw and headerVh after the first load
+    mainContentStyle.value = `top: ${displayStore.headerVh}px; left: ${displayStore.sidebarVw}px;`
+
     // Simulate a delay to hide the loader
     setTimeout(() => {
       isReady.value = true
+      isFirstLoad.value = false // After first load, we switch to main screen view
       emit('pageReady', true) // Emit the pageReady state to parent
     }, 1000)
 

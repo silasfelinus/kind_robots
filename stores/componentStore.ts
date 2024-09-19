@@ -53,25 +53,11 @@ export const useComponentStore = defineStore('componentStore', {
     // Initialization function that syncs with the database and components.json
     async initializeComponentStore() {
       try {
-        // Fetch existing components from the database
-        const dbResponse = await fetch('/api/components')
-        if (!dbResponse.ok)
-          throw new Error('Failed to fetch components from the database')
-        const dbComponents: Component[] = await dbResponse.json()
-
         // Fetch components.json
-        let jsonFolders: Folder[] = []
-        try {
-          const jsonResponse = await fetch('/components.json')
-          if (!jsonResponse.ok) throw new Error('components.json not found')
-          jsonFolders = await jsonResponse.json()
-        } catch {
-          console.warn('components.json not found')
-        }
-
-        // Sync the database with components.json
-        await this.syncDatabaseWithJSON(dbComponents, jsonFolders)
-
+        const jsonResponse = await fetch('/components.json')
+        if (!jsonResponse.ok) throw new Error('components.json not found')
+        const jsonFolders: Folder[] = await jsonResponse.json()
+        
         // Update store with folders and components
         this.folders = jsonFolders
         this.components = this.allComponents // Flat list of all components for easier lookup
@@ -82,11 +68,16 @@ export const useComponentStore = defineStore('componentStore', {
       }
     },
 
-    // Select a component
-    setSelectedComponent(component: Component) {
-      this.selectedComponent = component
-      localStorage.setItem('selectedComponent', JSON.stringify(component)) // Persist to localStorage
-    },
+   // Select a component
+   setSelectedComponent(component: Component) {
+    this.selectedComponent = component
+  },
+
+  // Deselect the component
+  clearSelectedComponent() {
+    this.selectedComponent = null
+  },
+
 
     // Function to retrieve the default component from localStorage
     loadDefaultComponent() {

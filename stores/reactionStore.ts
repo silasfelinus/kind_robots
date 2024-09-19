@@ -1,22 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Reaction, Channel } from '@prisma/client'
-
-export enum ReactionType {
-  LOVED = 'LOVED',
-  CLAPPED = 'CLAPPED',
-  BOOED = 'BOOED',
-  HATED = 'HATED',
-  NEUTRAL = 'NEUTRAL',
-  FLAGGED = 'FLAGGED',
-}
-
-export enum ReactionCategory {
-  ART = 'ART',
-  PITCH = 'PITCH',
-  COMPONENT = 'COMPONENT',
-  CHANNEL = 'CHANNEL',
-  TITLE = 'TITLE',
-}
+import type { Reaction, Channel, ReactionType, ReactionCategory } from '@prisma/client'
 
 export const useReactionStore = defineStore('reactionStore', {
   state: () => ({

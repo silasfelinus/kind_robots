@@ -4,7 +4,7 @@
     <component-count />
 
     <!-- Toggle between fetching from the store (API) or components.json -->
-    <div class="mb-4">
+    <div class="mb-4 flex">
       <label class="mr-2">Source:</label>
       <input id="store" v-model="dataSource" type="radio" value="store" />
       <label for="store">Database (Store)</label>
@@ -22,31 +22,51 @@
       {{ errorMessage }}
     </div>
 
-    <!-- Display components based on selected filters -->
-    <div v-if="filteredComponents.length">
-      <h2 class="text-lg font-bold mb-4">Filtered Components</h2>
-      <ul>
-        <li
-          v-for="component in filteredComponents"
-          :key="component.id"
-          class="mb-2"
-        >
-          {{ component.componentName }} ({{ component.folderName }}) -
-          <span v-if="component.isWorking">Working</span>
-          <span v-else-if="component.underConstruction"
-            >Under Construction</span
-          >
-          <span v-else-if="component.isBroken">Broken</span>
-        </li>
-      </ul>
+    <!-- Gallery for Folders -->
+    <div v-if="folders.length" class="w-full grid grid-cols-2 gap-4">
+      <div
+        v-for="(folder, index) in folders"
+        :key="index"
+        class="bg-white p-4 rounded-lg shadow-md cursor-pointer hover:shadow-xl transition"
+        @click="selectFolder(folder)"
+      >
+        <h3 class="text-xl font-bold mb-2">{{ folder.folderName }}</h3>
+        <p class="text-sm text-gray-500">
+          {{ folder.components.length }} components
+        </p>
+      </div>
     </div>
 
-    <!-- No matching components -->
+    <!-- No folders message -->
     <div
-      v-if="!filteredComponents.length && !loadingStatus"
+      v-if="!folders.length && !loadingStatus"
       class="text-center text-lg text-gray-500"
     >
-      No matching components found.
+      No folders found.
+    </div>
+
+    <!-- Component List within selected folder -->
+    <div v-if="selectedFolder" class="mt-6 w-full">
+      <h2 class="text-lg font-bold mb-4">
+        Components in {{ selectedFolder.folderName }}
+      </h2>
+      <ul>
+        <li
+          v-for="component in selectedFolder.components"
+          :key="component.componentName"
+          class="cursor-pointer p-2 hover:bg-gray-200 transition"
+          @click="openComponentScreen(component)"
+        >
+          {{ component.componentName }} -
+          <span v-if="component.isWorking" class="text-green-500">Working</span>
+          <span v-else-if="component.underConstruction" class="text-yellow-500"
+            >Under Construction</span
+          >
+          <span v-else-if="component.isBroken" class="text-red-500"
+            >Broken</span
+          >
+        </li>
+      </ul>
     </div>
 
     <!-- Add new components button -->
@@ -68,12 +88,26 @@ const dataSource = ref<'store' | 'json'>('store') // Toggle between database and
 
 const componentStore = useComponentStore()
 const components = ref<Component[]>([]) // Initialize components as an array
+const selectedFolder = ref<{
+  folderName: string
+  components: Component[]
+} | null>(null)
 
-// Filters
+// Filters (you can add more filters if needed)
 const filters = ref({
   isWorking: true,
   underConstruction: true,
   isBroken: true,
+})
+
+const _filteredComponents = computed(() => {
+  return components.value.filter((component: Component) => {
+    return (
+      (filters.value.isWorking && component.isWorking) ||
+      (filters.value.underConstruction && component.underConstruction) ||
+      (filters.value.isBroken && component.isBroken)
+    )
+  })
 })
 
 // Fetch components from the store or JSON file
@@ -119,6 +153,27 @@ const fetchComponents = async () => {
   }
 }
 
+// Handle folder selection and filter components
+const selectFolder = (
+  folder: {
+    folderName: string
+    components: {
+      id: number
+      createdAt: Date
+      updatedAt: Date | null
+      folderName: string
+      componentName: string
+      isWorking: boolean
+      underConstruction: boolean
+      isBroken: boolean
+      title: string | null
+      notes: string | null
+    }[]
+  } | null,
+) => {
+  selectedFolder.value = folder
+}
+
 // Handle component addition to the store
 const addNewComponents = async () => {
   try {
@@ -138,22 +193,34 @@ const addNewComponents = async () => {
   }
 }
 
+// Open a component screen (You can implement actual routing logic here)
+const openComponentScreen = (component: Component) => {
+  console.log(`Opening component: ${component.componentName}`)
+  // Implement logic to display component details or route to a new view
+}
+
+// Computed: Group components by folder
+const folders = computed(() => {
+  const grouped = components.value.reduce(
+    (acc, component) => {
+      const folderName = component.folderName
+      if (!acc[folderName]) {
+        acc[folderName] = {
+          folderName: folderName,
+          components: [],
+        }
+      }
+      acc[folderName].components.push(component)
+      return acc
+    },
+    {} as Record<string, { folderName: string; components: Component[] }>,
+  )
+
+  return Object.values(grouped)
+})
+
 // Fetch components whenever the data source is changed
 watch(dataSource, fetchComponents)
-
-// Computed filtered components
-const filteredComponents = computed(() => {
-  if (Array.isArray(components.value)) {
-    return components.value.filter((component: Component) => {
-      return (
-        (filters.value.isWorking && component.isWorking) ||
-        (filters.value.underConstruction && component.underConstruction) ||
-        (filters.value.isBroken && component.isBroken)
-      )
-    })
-  }
-  return [] // Return an empty array if components.value is not an array
-})
 
 // On mounted, fetch the initial set of components
 onMounted(fetchComponents)
@@ -164,5 +231,15 @@ input[type='radio'],
 input[type='checkbox'] {
   margin-right: 4px;
   margin-left: 8px;
+}
+
+.grid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+li {
+  padding: 10px;
+  margin-bottom: 5px;
+  cursor: pointer;
 }
 </style>

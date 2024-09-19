@@ -28,20 +28,19 @@ export const useGalleryStore = defineStore({
     randomImage(state: GalleryState): string | null {
       return state.currentImage ? state.currentImage : null
     },
-
+    
     randomGallery(state: GalleryState): Gallery | null {
-      const otherGalleries = state.galleries.filter(
-        (g) => g.name !== state.currentGallery?.name,
-      )
+      const otherGalleries = Array.isArray(state.galleries)
+        ? state.galleries.filter(g => g.name !== state.currentGallery?.name)
+        : []
+    
       if (otherGalleries.length === 0 && state.currentGallery) {
         return state.currentGallery
       }
-      return (
-        otherGalleries[Math.floor(Math.random() * otherGalleries.length)] ||
-        null
-      )
+    
+      return otherGalleries[Math.floor(Math.random() * otherGalleries.length)] || null
     },
-
+    
     imagePathsByGalleryName(
       state: GalleryState,
     ): (galleryName: string) => string[] {

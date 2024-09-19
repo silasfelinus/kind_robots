@@ -1,83 +1,91 @@
 <template>
-  <div class="container mx-auto px-4 py-4 flex flex-col items-center space-y-6">
-    <div
-      class="w-full flex flex-col md:flex-row justify-between space-y-6 md:space-y-0 md:space-x-6"
-    >
-      <!-- Left Column for Leaderboard -->
-      <div class="md:w-1/4">
+  <div class="container mx-auto px-4 py-4 flex flex-col h-full space-y-4">
+    <!-- Top Section: Leaderboard and Difficulty Selection -->
+    <div class="flex justify-between w-full">
+      <!-- Leaderboard Section -->
+      <div
+        class="leaderboard-container w-full md:w-1/3 bg-gray-100 p-4 rounded-lg"
+      >
         <match-leaderboard />
       </div>
-      <!-- Right Column for Title, Instructions, and Controls -->
-      <div class="md:w-1/4 space-y-4">
-        <header class="text-center md:text-left space-y-2">
-          <h1 class="text-4xl font-bold">Kind Robots Memory Game</h1>
-          <p class="text-gray-600">Match the images and test your memory!</p>
-        </header>
-        <div class="difficulty-controls space-y-2">
-          <label for="difficulty" class="block">Select Difficulty:</label>
-          <select
-            id="difficulty"
-            v-model="selectedDifficulty"
-            class="mt-1 block w-full"
-          >
-            <option
-              v-for="difficulty in difficulties"
-              :key="difficulty.label"
-              :value="difficulty"
-            >
-              {{ difficulty.label }}
-            </option>
-          </select>
-          <button
-            class="rounded-xl text-white bg-blue-500 p-2 mt-1 border border-transparent hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300 w-full"
-            @click="resetGame"
-          >
-            Start New Game
-          </button>
-          <milestone-reward v-if="shouldShowMilestoneCheck" :id="5" />
-        </div>
-      </div>
-    </div>
 
-    <!-- Game Board Section -->
-    <div
-      class="game-board flex flex-wrap justify-center gap-4 overflow-y-auto max-h-[calc(100vh-250px)]"
-    >
-      <div v-if="isLoading" class="loader"></div>
+      <!-- Game Controls Section -->
       <div
-        v-for="galleryImage in galleryImages"
-        :key="galleryImage.id"
-        class="gallery-display m-2 hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
-        :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
-        @click="handleGalleryClick(galleryImage)"
+        class="controls-container w-full md:w-1/3 p-4 rounded-lg text-center"
       >
-        <div :class="{ flipped: galleryImage.flipped || galleryImage.matched }">
-          <!-- This is the back of the card -->
-          <img
-            class="card-back absolute inset-0 w-full h-full object-cover"
-            src="/images/kindtitle.webp"
-            alt="Memory Card"
-          />
-          <!-- This is the front of the card -->
-          <img
-            class="card-front absolute inset-0 w-full h-full object-cover"
-            :src="galleryImage.imagePath"
-            :alt="galleryImage.galleryName"
-          />
+        <h1 class="text-4xl font-bold mb-2">Kind Robots Memory Game</h1>
+        <p class="text-gray-600 mb-4">Match the images and test your memory!</p>
+
+        <label for="difficulty" class="block mb-2">Select Difficulty:</label>
+        <select
+          id="difficulty"
+          v-model="selectedDifficulty"
+          class="mb-2 p-2 w-full border border-gray-300 rounded"
+        >
+          <option
+            v-for="difficulty in difficulties"
+            :key="difficulty.label"
+            :value="difficulty"
+          >
+            {{ difficulty.label }}
+          </option>
+        </select>
+
+        <button
+          class="w-full p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
+          @click="resetGame"
+        >
+          Start New Game
+        </button>
+
+        <milestone-reward v-if="shouldShowMilestoneCheck" :id="5" />
+      </div>
+    </div>
+
+    <!-- Game Board Section: Takes up remaining space -->
+    <div
+      class="game-board-container flex-1 overflow-y-auto flex justify-center items-center"
+    >
+      <div class="game-board grid gap-4" :style="gameBoardStyle">
+        <div v-if="isLoading" class="loader"></div>
+        <div
+          v-for="galleryImage in galleryImages"
+          :key="galleryImage.id"
+          class="gallery-display hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
+          :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
+          @click="handleGalleryClick(galleryImage)"
+        >
+          <div
+            :class="{ flipped: galleryImage.flipped || galleryImage.matched }"
+          >
+            <!-- Card Back -->
+            <img
+              class="card-back absolute inset-0 w-full h-full object-cover"
+              src="/images/kindtitle.webp"
+              alt="Memory Card"
+            />
+            <!-- Card Front -->
+            <img
+              class="card-front absolute inset-0 w-full h-full object-cover"
+              :src="galleryImage.imagePath"
+              :alt="galleryImage.galleryName"
+            />
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="game-controls mt-4 flex flex-col items-center space-y-2">
+    <!-- Game End / Score Section -->
+    <div class="game-controls text-center p-4">
       <div v-if="notification" :class="notificationClasses">
         {{ notification.message }}
       </div>
       <div>Score: {{ score }}</div>
       <div>High Score: {{ highScore }}</div>
-      <div v-if="gameWon" class="mt-2 space-y-2 text-center">
-        Congratulations! You've won!
+      <div v-if="gameWon" class="mt-4">
+        <p>Congratulations! You've won!</p>
         <button
-          class="btn btn-info mt-2 px-4 py-2 bg-blue-500 text-default rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-200 transition-colors"
+          class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           @click="resetGame"
         >
           Play Again?
@@ -95,9 +103,6 @@ import { useWindowSize } from '@vueuse/core'
 import { useDisplayStore } from '../../../stores/displayStore'
 
 const displayStore = useDisplayStore()
-
-
-
 
 const { width, height } = useWindowSize()
 
@@ -127,6 +132,14 @@ interface GalleryImage {
   flipped: boolean
   matched: boolean
 }
+
+const gameBoardStyle = computed(() => {
+  const numPairs = selectedDifficulty.value.value
+  const columns = Math.min(numPairs, 4)
+  return {
+    gridTemplateColumns: `repeat(${columns}, 1fr)`,
+  }
+})
 
 const galleryImages = ref<GalleryImage[]>([])
 const gameWon = ref(false)
@@ -186,7 +199,7 @@ let firstSelected: GalleryImage | null = null
 async function generateMemoryGameImages() {
   try {
     isLoading.value = true
-displayStore.changeState('sidebarLeft', 'hidden') // Hide sidebarLeft when game starts
+    displayStore.changeState('sidebarLeft', 'hidden') // Hide sidebarLeft when game starts
     gameWon.value = false
 
     const response = await fetch(

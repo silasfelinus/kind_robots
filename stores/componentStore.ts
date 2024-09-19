@@ -45,6 +45,7 @@ export const useComponentStore = defineStore('componentStore', {
   },
 
   actions: {
+    // Fetch components for a specific folder
     async fetchComponentList(folderName: string) {
       const folder = this.folders.find((f) => f.folderName === folderName)
       if (folder) {
@@ -73,10 +74,12 @@ export const useComponentStore = defineStore('componentStore', {
         if (!jsonResponse.ok) throw new Error('components.json not found')
         const jsonFolders: Folder[] = await jsonResponse.json()
 
-        // Update store with folders and components
+        // Update store with folders and flat components list
+        const flatComponents = jsonFolders.flatMap(folder => folder.components)
+        
         this.$patch({
           folders: jsonFolders,
-          components: this.allComponents // Flat list of all components for easier lookup
+          components: flatComponents, // Flat list of all components for easier lookup
         })
 
         console.log('ComponentStore initialized successfully')

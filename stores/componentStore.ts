@@ -27,6 +27,7 @@ export const useComponentStore = defineStore('componentStore', {
     lastFetched: null as string | null, // ISO format date of last fetch
     selectedComponent: null as Component | null, // Full Component object for the selected component
     components: [] as Component[], // Flat list of all Component objects for ease of lookup
+    selectedComponents: [] as Component[], // Manage selected components in the store
   }),
 
   getters: {
@@ -50,6 +51,20 @@ export const useComponentStore = defineStore('componentStore', {
   },
 
   actions: {
+    async fetchComponentList(folderName: string) {
+      const folder = this.folders.find((f) => f.folderName === folderName)
+      if (folder) {
+        this.selectedComponents = folder.components // Set selected components here
+      } else {
+        console.error(`Folder ${folderName} not found`)
+        this.selectedComponents = [] // Clear if not found
+      }
+    },
+
+    clearSelectedComponents() {
+      this.selectedComponents = []
+    },
+
     // Initialization function that syncs with the database and components.json
     async initializeComponentStore() {
       try {
@@ -94,27 +109,7 @@ export const useComponentStore = defineStore('componentStore', {
       }
     },
 
-    // Fetch components for a specific folder
-    async fetchComponentList(folderName: string) {
-      try {
-        const response = await fetch(`/api/folders/${folderName}/components`)
-        const data = await response.json()
-
-        if (data.success) {
-          // Push folder data with full Component objects
-          const folderData = {
-            folderName,
-            components: data.components as Component[],
-          }
-          this.folders.push(folderData)
-        } else {
-          throw new Error('Failed to fetch components')
-        }
-      } catch (error) {
-        console.error('Error fetching components:', error)
-      }
-    },
-
+    
     // Sync the database with components.json
     async syncDatabaseWithJSON(
       dbComponents: Component[],

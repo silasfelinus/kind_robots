@@ -183,6 +183,41 @@ async fetchComponentById(id: number) {
     throw error
   }
 },
+// Add this method to your componentStore
+async findComponentByName(folderName: string, componentName: string) {
+  try {
+    // Check if the component exists in the current store state first
+    const foundComponent = this.components.find(
+      (comp) => comp.folderName === folderName && comp.componentName === componentName
+    )
+    
+    if (foundComponent) {
+      // If found in the store, set it as the selected component
+      this.setSelectedComponent(foundComponent)
+      return foundComponent
+    }
+
+    // If not found in the store, fetch it from the API
+    const response = await fetch(`/api/components/folder/${folderName}/${componentName}`)
+    if (!response.ok) {
+      throw new Error(`Component "${componentName}" not found in folder "${folderName}".`)
+    }
+    
+    const component = await response.json()
+
+    // Update the store with the fetched component
+    this.$patch({
+      components: [...this.components, component]
+    })
+    
+    this.setSelectedComponent(component)
+    return component
+  } catch (error) {
+    console.error(`Error finding component by name:`, error)
+    throw error
+  }
+},
+
 
 // Create or update a component in the database
 async createOrUpdateComponent(component: Component, action: 'create' | 'update') {

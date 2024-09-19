@@ -103,6 +103,7 @@ const showComponentScreen = ref(false) // Boolean flag to toggle the component s
 const isLoading = ref(false) // Loading state flag
 const errorMessages = ref<string[]>([]) // Array for storing error messages
 const componentId = ref<number | null>(null) // Component ID for reactions
+const componentIdMap = ref<{ [key: string]: number }>({}) // Store the mapping of component name to its ID
 
 // Access the display store to manage the sidebar states
 const displayStore = useDisplayStore()
@@ -118,8 +119,31 @@ watch(showComponentScreen, (newVal) => {
   }
 })
 
-// Fetches the components.json data
-const fetchComponentsJSON = async () => {
+// Upsert component data into the database and store the returned ID
+const upsertComponent = async (folderName: string, componentName: string) => {
+  try {
+    const response = await fetch(`/api/components/upsert`, {
+      method: 'POST',
+      body: JSON.stringify({ name: componentName, folder: folderName }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      // Store the component ID in the map
+      componentIdMap.value[`${folderName}/${componentName}`] = data.id
+    } else {
+      throw new Error(`Failed to upsert component: ${componentName}`)
+    }
+  } catch (error) {
+    errorMessages.value.push(
+      `Error upserting component "${componentName}": ${error}`,
+    )
+  }
+}
+
+// Fetches the components.json data and upserts components into the database
+const fetchAndUpsertComponents = async () => {
   isLoading.value = true
   try {
     const response = await fetch('/components.json')
@@ -127,6 +151,13 @@ const fetchComponentsJSON = async () => {
 
     const jsonData: Folder[] = await response.json() // Typed response to ensure we get an array of Folder
     folderNames.value = jsonData // Populate folder names based on the JSON response
+
+    // Iterate through each folder and component, and upsert them
+    for (const folder of jsonData) {
+      for (const component of folder.components) {
+        await upsertComponent(folder.folderName, component)
+      }
+    }
   } catch (error) {
     console.error('Error fetching components.json:', error)
     errorMessages.value.push('Failed to load components.json')
@@ -148,14 +179,21 @@ const fetchComponents = (folderName: string) => {
   }
 }
 
-// Select a specific component and show its detail view
+// Select a specific component and show its detail view using the component's ID
 const selectComponent = (folderName: string, componentName: string) => {
-  selectedComponent.value = componentName
-  selectedFolder.value = folderName
-  showComponentScreen.value = true // Toggle to show component screen
+  const fullKey = `${folderName}/${componentName}`
+  const id = componentIdMap.value[fullKey]
 
-  // Assuming component ID is based on index for simplicity, adjust if needed
-  componentId.value = selectedComponents.value.indexOf(componentName) + 1
+  if (id) {
+    selectedComponent.value = componentName
+    selectedFolder.value = folderName
+    componentId.value = id // Set the component ID based on the stored map
+    showComponentScreen.value = true // Toggle to show component screen
+  } else {
+    errorMessages.value.push(
+      `Component "${componentName}" not found in the database.`,
+    )
+  }
 }
 
 // Clear selected components to return to folder view
@@ -174,21 +212,8 @@ const showPreviousComponents = () => {
   showComponentScreen.value = false // Show previous component list
 }
 
-// Initial fetch on component mount
+// Initial fetch and upsert on component mount
 onMounted(() => {
-  fetchComponentsJSON() // Fetches components.json when the page is loaded
+  fetchAndUpsertComponents() // Fetch and upsert components.json when the page is loaded
 })
 </script>
-
-<style scoped>
-/* Flip animation for switching between splash and component screen */
-.flip-enter-active,
-.flip-leave-active {
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-.flip-enter,
-.flip-leave-to {
-  transform: rotateY(180deg);
-}
-</style>

@@ -8,6 +8,9 @@ type ExecCallback = (
 ) => void
 
 export default defineNuxtConfig({
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' }
+  },
   // Including the necessary modules/plugins
   modules: [
     '@pinia/nuxt', // Pinia state management

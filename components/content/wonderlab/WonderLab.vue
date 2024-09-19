@@ -1,6 +1,9 @@
 <template>
   <div class="p-6 bg-base-200 min-h-screen flex flex-col items-center">
-    <!-- Toggle between fetching from the store or components.json -->
+    <!-- Component Count -->
+    <component-count />
+
+    <!-- Toggle between fetching from the store (API) or components.json -->
     <div class="mb-4">
       <label class="mr-2">Source:</label>
       <input id="store" v-model="dataSource" type="radio" value="store" />
@@ -78,10 +81,10 @@ const filters = ref({
   underConstruction: true,
   isBroken: true,
 })
+const components = ref<Component[]>([]) // Initialize components
 
 // Access the componentStore
 const componentStore = useComponentStore()
-const components = ref<Component[]>([]) // Define the type for components
 
 // Function to fetch components from the store or components.json
 const fetchComponents = async () => {
@@ -89,7 +92,8 @@ const fetchComponents = async () => {
     loadingStatus.value = 'Loading components...'
 
     if (dataSource.value === 'store') {
-      components.value = componentStore.allComponents // Fetch from the store (database retrieval)
+      await componentStore.fetchAllComponents() // Fetch from the store (API retrieval)
+      components.value = componentStore.allComponents // Use store data
     } else {
       // Fetch components from components.json
       const response = await fetch('/components.json')

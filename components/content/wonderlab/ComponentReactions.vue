@@ -1,32 +1,32 @@
 <template>
   <div class="relative">
-    <!-- Existing reaction buttons -->
+    <!-- Reaction buttons -->
     <div
       class="fixed bottom-0 left-0 right-0 p-4 bg-gray-800 flex justify-around"
     >
       <Icon
         name="mdi:thumb-up-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-green-500': reaction.isClapped }"
-        @click="toggleReaction('isClapped')"
+        :class="{ 'text-green-500': reactionType === ReactionType.CLAPPED }"
+        @click="toggleReaction(ReactionType.CLAPPED)"
       />
       <Icon
         name="mdi:thumb-down-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-red-500': reaction.isBooed }"
-        @click="toggleReaction('isBooed')"
+        :class="{ 'text-red-500': reactionType === ReactionType.BOOED }"
+        @click="toggleReaction(ReactionType.BOOED)"
       />
       <Icon
         name="mdi:heart-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-pink-500': reaction.isLoved }"
-        @click="toggleReaction('isLoved')"
+        :class="{ 'text-pink-500': reactionType === ReactionType.LOVED }"
+        @click="toggleReaction(ReactionType.LOVED)"
       />
       <Icon
         name="mdi:emoticon-angry-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-yellow-500': reaction.isHated }"
-        @click="toggleReaction('isHated')"
+        :class="{ 'text-yellow-500': reactionType === ReactionType.HATED }"
+        @click="toggleReaction(ReactionType.HATED)"
       />
     </div>
 
@@ -49,16 +49,17 @@
 
     <!-- Comment Display Section -->
     <div class="mt-6">
-      <CommentDisplay :component-id="props.componentId" />
+      <CommentDisplay :component-id="componentId" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import { useReactionStore } from '../../../stores/reactionStore'
 import { useUserStore } from '@/stores/userStore'
 import CommentDisplay from './CommentDisplay.vue'
+import { useReactionStore } from '@/stores/reactionStore'
+import { ReactionType, ReactionCategory } from '@prisma/client' // Prisma import
 
 // Props
 const props = defineProps({
@@ -74,12 +75,7 @@ const userStore = useUserStore()
 
 // State
 const userId = computed(() => userStore.user?.id || 10) // Default to guest user ID 10 if not logged in
-const reaction = ref({
-  isClapped: false,
-  isBooed: false,
-  isLoved: false,
-  isHated: false,
-})
+const reactionType = ref<ReactionType | null>(null) // Reaction type
 const commentTitle = ref('')
 const commentDescription = ref('')
 
@@ -94,23 +90,17 @@ watch(
         userId.value,
       )
       if (userReaction) {
-        reaction.value = {
-          isClapped: userReaction.isClapped || false,
-          isBooed: userReaction.isBooed || false,
-          isLoved: userReaction.isLoved || false,
-          isHated: userReaction.isHated || false,
-        }
+        reactionType.value = userReaction.reactionType
+      } else {
+        reactionType.value = ReactionType.NEUTRAL // Default reaction
       }
     }
   },
 )
 
 // Function to toggle reactions
-const toggleReaction = async (ReactionType: keyof typeof reaction.value) => {
-  Object.keys(reaction.value).forEach((key) => {
-    reaction.value[key as keyof typeof reaction.value] = false
-  })
-  reaction.value[ReactionType] = true
+const toggleReaction = async (newReactionType: ReactionType) => {
+  reactionType.value = newReactionType
 
   const existingReaction = reactionStore.getUserReactionForComponent(
     props.componentId,
@@ -118,13 +108,14 @@ const toggleReaction = async (ReactionType: keyof typeof reaction.value) => {
   )
   if (existingReaction) {
     await reactionStore.updateReaction(existingReaction.id, {
-      ...reaction.value,
+      reactionType: newReactionType,
     })
   } else {
     await reactionStore.createReaction({
       userId: userId.value,
       componentId: props.componentId,
-      ...reaction.value,
+      reactionType: newReactionType,
+      ReactionCategory: ReactionCategory.COMPONENT, // Use Prisma enum
     })
   }
 }
@@ -136,7 +127,8 @@ const submitComment = async () => {
       {
         userId: userId.value,
         componentId: props.componentId,
-        ...reaction.value,
+        reactionType: reactionType.value || ReactionType.NEUTRAL,
+        ReactionCategory: ReactionCategory.COMPONENT, // Use Prisma enum
       },
       {
         title: commentTitle.value,

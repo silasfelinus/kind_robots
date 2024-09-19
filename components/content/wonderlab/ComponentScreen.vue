@@ -14,11 +14,6 @@
 
       <button class="btn btn-error mt-4" @click="emitClose">Close</button>
     </div>
-<!-- Component Reaction Section -->
-    <component-reaction :component-id="componentId" />
-
-
-
     <!-- Show a message if no component is selected or failed to load -->
     <div v-else>
       <h2 class="text-2xl font-bold mb-4">Error Loading Component</h2>

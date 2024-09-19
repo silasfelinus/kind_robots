@@ -1,245 +1,210 @@
 <template>
-  <div class="p-6 bg-base-200 min-h-screen flex flex-col items-center">
-    <!-- Component Count -->
-    <component-count />
+  <div class="p-2 bg-base-200 min-h-screen grid grid-rows-2 gap-2">
+    <!-- Top Section: Folder or Component List -->
+    <div class="h-full">
+      <!-- Loading State: Displays a loading icon while data is being fetched -->
+      <div v-if="isLoading" class="flex justify-center items-center h-full">
+        <Icon name="mdi:loading" class="animate-spin text-4xl" />
+        Loading...
+      </div>
 
-    <!-- Toggle between fetching from the store (API) or components.json -->
-    <div class="mb-4 flex">
-      <label class="mr-2">Source:</label>
-      <input id="store" v-model="dataSource" type="radio" value="store" />
-      <label for="store">Database (Store)</label>
-      <input id="json" v-model="dataSource" type="radio" value="json" />
-      <label for="json">Components JSON</label>
-    </div>
-
-    <!-- Display status message while loading components -->
-    <div v-if="loadingStatus" class="text-xl text-center text-blue-500 mb-4">
-      {{ loadingStatus }}
-    </div>
-
-    <!-- Display error message if any -->
-    <div v-if="errorMessage" class="text-red-500 mb-4">
-      {{ errorMessage }}
-    </div>
-
-    <!-- Gallery for Folders -->
-    <div v-if="folders.length" class="w-full grid grid-cols-2 gap-4">
+      <!-- Folder View: Displays the folder names for selection -->
       <div
-        v-for="(folder, index) in folders"
-        :key="index"
-        class="bg-white p-4 rounded-lg shadow-md cursor-pointer hover:shadow-xl transition"
-        @click="selectFolder(folder)"
+        v-if="!showComponentScreen && !isLoading && !selectedComponents.length"
+        class="grid grid-cols-4 gap-2"
       >
-        <h3 class="text-xl font-bold mb-2">{{ folder.folderName }}</h3>
-        <p class="text-sm text-gray-500">
-          {{ folder.components.length }} components
-        </p>
+        <div
+          v-for="folder in folderNames"
+          :key="folder.folderName"
+          class="p-4 rounded-lg hover:bg-primary hover:text-default cursor-pointer transition duration-300 ease-in-out"
+          @click="fetchComponentsFromStore(folder.folderName)"
+        >
+          <div class="text-center">
+            <Icon name="bi:folder-fill" class="text-4xl" />
+            <p class="mt-2">{{ folder.folderName }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Component List View: Displays components of the selected folder -->
+      <div
+        v-if="selectedComponents.length && !showComponentScreen"
+        class="grid grid-cols-4 gap-2 relative"
+      >
+        <!-- Back Button: Floating at the top -->
+        <div class="absolute top-0 right-0">
+          <Icon
+            name="game-Icons:fast-backward-button"
+            class="text-4xl cursor-pointer"
+            @click="clearSelectedComponents"
+          />
+        </div>
+
+        <!-- Displays individual components -->
+        <div
+          v-for="component in selectedComponents"
+          :key="component.name"
+          class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition duration-300 ease-in-out"
+          @click="selectComponent(selectedFolder, component)"
+        >
+          <div class="text-center">
+            <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
+            <p>{{ component.name }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- No folders message -->
-    <div
-      v-if="!folders.length && !loadingStatus"
-      class="text-center text-lg text-gray-500"
-    >
-      No folders found.
-    </div>
-
-    <!-- Component List within selected folder -->
-    <div v-if="selectedFolder" class="mt-6 w-full">
-      <h2 class="text-lg font-bold mb-4">
-        Components in {{ selectedFolder.folderName }}
-      </h2>
-      <ul>
-        <li
-          v-for="component in selectedFolder.components"
-          :key="component.componentName"
-          class="cursor-pointer p-2 hover:bg-gray-200 transition"
-          @click="openComponentScreen(component)"
+    <!-- Bottom Section: Splash Image or Component Screen -->
+    <div class="relative h-full">
+      <transition name="flip">
+        <!-- Splash Image and Instructions -->
+        <div
+          v-if="!showComponentScreen"
+          class="flex flex-col items-center justify-center h-full"
         >
-          {{ component.componentName }} -
-          <span v-if="component.isWorking" class="text-green-500">Working</span>
-          <span v-else-if="component.underConstruction" class="text-yellow-500"
-            >Under Construction</span
-          >
-          <span v-else-if="component.isBroken" class="text-red-500"
-            >Broken</span
-          >
-        </li>
-      </ul>
+          <random-image class="mb-4" />
+          <p class="text-lg text-center px-4">
+            Welcome to Wonderforge! Select a folder above to view available
+            components. After selecting a component, the component details will
+            be displayed here. Have fun exploring!
+          </p>
+        </div>
+
+        <!-- Component Detail View and Reaction Section -->
+        <div v-if="showComponentScreen">
+          <component-screen
+            :folder-name="selectedFolder"
+            :component-name="selectedComponent.name"
+            @close="showPreviousComponents"
+          />
+
+          <!-- Component Reaction: Reaction and Comment Section -->
+          <component-reaction :component-id="selectedComponent.id" />
+        </div>
+      </transition>
     </div>
 
-    <!-- Add new components button -->
-    <button class="btn btn-primary mt-6" @click="addNewComponents">
-      Add New Components
-    </button>
+    <!-- Error Reporting: Displays any errors encountered during the component loading -->
+    <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4">
+      🚨 Error loading data: {{ errorMessages.join(', ') }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
-import type { Component } from '@prisma/client'
+import { ref, onMounted, watch } from 'vue'
+import { useComponentStore } from '@/stores/componentStore' // Store for handling component data
+import { useDisplayStore } from '@/stores/displayStore'
 
-// State
-const loadingStatus = ref<string | null>(null)
-const errorMessage = ref<string | null>(null)
-const dataSource = ref<'store' | 'json'>('store') // Toggle between database and JSON
-
-const componentStore = useComponentStore()
-const components = ref<Component[]>([]) // Initialize components as an array
-const selectedFolder = ref<{
+// Define the structure of a Folder in the components.json file
+interface Folder {
   folderName: string
-  components: Component[]
-} | null>(null)
+  components: string[] // List of component names as strings
+}
 
-// Filters (you can add more filters if needed)
-const filters = ref({
-  isWorking: true,
-  underConstruction: true,
-  isBroken: true,
+// State variables
+const folderNames = ref<Folder[]>([]) // Array of Folder objects from components.json
+const selectedComponents = ref<any[]>([]) // Components of the selected folder from the store (real data)
+const selectedComponent = ref<any | null>(null) // Selected component for detailed view
+const selectedFolder = ref<string | null>(null) // Selected folder for context
+const showComponentScreen = ref(false) // Boolean flag to toggle the component screen
+const isLoading = ref(false) // Loading state flag
+const errorMessages = ref<string[]>([]) // Array for storing error messages
+
+// Access the display store and component store
+const displayStore = useDisplayStore()
+const componentStore = useComponentStore()
+
+// Watch for changes to the component view state to hide/show sidebars
+watch(showComponentScreen, (newVal) => {
+  if (newVal) {
+    displayStore.changeState('sidebarLeft', 'hidden')
+    displayStore.changeState('sidebarRight', 'hidden')
+  } else {
+    displayStore.changeState('sidebarLeft', 'open')
+    displayStore.changeState('sidebarRight', 'open')
+  }
 })
 
-const _filteredComponents = computed(() => {
-  return components.value.filter((component: Component) => {
-    return (
-      (filters.value.isWorking && component.isWorking) ||
-      (filters.value.underConstruction && component.underConstruction) ||
-      (filters.value.isBroken && component.isBroken)
-    )
-  })
-})
-
-// Fetch components from the store or JSON file
-const fetchComponents = async () => {
+// Fetches the components.json data and syncs with the store
+const fetchComponentsJSON = async () => {
+  isLoading.value = true
   try {
-    loadingStatus.value = 'Loading components...'
+    const response = await fetch('/components.json')
+    if (!response.ok) throw new Error('Failed to fetch components.json')
 
-    if (dataSource.value === 'store') {
-      await componentStore.fetchAllComponents()
-      components.value = componentStore.allComponents
-    } else {
-      const response = await fetch('/components.json')
-      if (!response.ok) throw new Error('Failed to fetch components from JSON.')
-      const jsonFolders = await response.json()
+    const jsonData: Folder[] = await response.json() // Typed response to ensure we get an array of Folder
+    folderNames.value = jsonData // Populate folder names based on the JSON response
 
-      if (!Array.isArray(jsonFolders))
-        throw new Error('Invalid JSON structure.')
-
-      components.value = jsonFolders.flatMap(
-        (folder: { components: string[]; folderName: string }) =>
-          folder.components.map((name: string) => ({
-            id: 0, // Placeholder ID
-            createdAt: new Date(),
-            updatedAt: null,
-            folderName: folder.folderName,
-            componentName: name,
-            isWorking: true,
-            underConstruction: false,
-            isBroken: false,
-            title: null,
-            notes: null,
-            Channels: [],
-            Tags: [],
-            Reactions: [],
-          })),
-      ) as Component[]
-    }
-
-    loadingStatus.value = null
+    // Sync components with the store (add or update)
+    await syncComponentsWithStore(jsonData)
   } catch (error) {
-    errorMessage.value = `Error loading components: ${(error as Error).message}`
-    loadingStatus.value = null
+    console.error('Error fetching components.json:', error)
+    errorMessages.value.push('Failed to load components.json')
+  } finally {
+    isLoading.value = false
   }
 }
 
-// Handle folder selection and filter components
-const selectFolder = (
-  folder: {
-    folderName: string
-    components: {
-      id: number
-      createdAt: Date
-      updatedAt: Date | null
-      folderName: string
-      componentName: string
-      isWorking: boolean
-      underConstruction: boolean
-      isBroken: boolean
-      title: string | null
-      notes: string | null
-    }[]
-  } | null,
-) => {
-  selectedFolder.value = folder
-}
-
-// Handle component addition to the store
-const addNewComponents = async () => {
+// Function to sync components with the store (add or update)
+const syncComponentsWithStore = async (folders: Folder[]) => {
   try {
-    const newComponents = components.value.filter((component) => {
-      return !componentStore.allComponents.find(
-        (storedComp) => storedComp.componentName === component.componentName,
-      )
-    })
-
-    for (const component of newComponents) {
-      await componentStore.createOrUpdateComponent(component, 'create')
-    }
-
-    console.log('New components added successfully!')
+    await componentStore.syncComponents(folders) // Call the store's sync method with the new data
   } catch (error) {
-    console.error('Error adding new components:', error)
+    console.error('Error syncing components with store:', error)
+    errorMessages.value.push('Failed to sync components with store')
   }
 }
 
-// Open a component screen (You can implement actual routing logic here)
-const openComponentScreen = (component: Component) => {
-  console.log(`Opening component: ${component.componentName}`)
-  // Implement logic to display component details or route to a new view
+// Fetch components for a selected folder from the store
+const fetchComponentsFromStore = async (folderName: string) => {
+  try {
+    const components = await componentStore.fetchComponentsByFolder(folderName) // Fetch components from the store
+    selectedComponents.value = components
+    selectedFolder.value = folderName
+  } catch (error) {
+    console.error('Error fetching components from store:', error)
+    errorMessages.value.push('Failed to fetch components from store')
+  }
 }
 
-// Computed: Group components by folder
-const folders = computed(() => {
-  const grouped = components.value.reduce(
-    (acc, component) => {
-      const folderName = component.folderName
-      if (!acc[folderName]) {
-        acc[folderName] = {
-          folderName: folderName,
-          components: [],
-        }
-      }
-      acc[folderName].components.push(component)
-      return acc
-    },
-    {} as Record<string, { folderName: string; components: Component[] }>,
-  )
+// Select a specific component and show its detail view
+const selectComponent = (folderName: string, component: any) => {
+  selectedComponent.value = component
+  selectedFolder.value = folderName
+  showComponentScreen.value = true // Toggle to show component screen
+}
 
-  return Object.values(grouped)
+// Clear selected components to return to folder view
+const clearSelectedComponents = () => {
+  selectedComponents.value = [] // Clears component list
+  selectedComponent.value = null // Clears selected component
+  selectedFolder.value = null // Clears selected folder
+  showComponentScreen.value = false // Hide component screen
+}
+
+// Return to component list when closing a component
+const showPreviousComponents = () => {
+  selectedComponent.value = null
+  showComponentScreen.value = false // Show previous component list
+}
+
+// Initial fetch on component mount
+onMounted(() => {
+  fetchComponentsJSON() // Fetches components.json and syncs on launch
 })
-
-// Fetch components whenever the data source is changed
-watch(dataSource, fetchComponents)
-
-// On mounted, fetch the initial set of components
-onMounted(fetchComponents)
 </script>
 
 <style scoped>
-input[type='radio'],
-input[type='checkbox'] {
-  margin-right: 4px;
-  margin-left: 8px;
+/* Flip animation for switching between splash and component screen */
+.flip-enter-active,
+.flip-leave-active {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
 }
-
-.grid {
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-}
-
-li {
-  padding: 10px;
-  margin-bottom: 5px;
-  cursor: pointer;
+.flip-enter,
+.flip-leave-to {
+  transform: rotateY(180deg);
 }
 </style>

@@ -59,9 +59,8 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
 import type { Component } from '@prisma/client' // Adjust import as necessary
 
@@ -78,8 +77,25 @@ const folderNames = computed(() =>
   componentStore.folders.map((folder) => folder.folderName),
 )
 const selectedComponent = computed(() => componentStore.selectedComponent)
-const selectedComponents = computed(() => componentStore.selectedComponents) 
+const selectedComponents = computed(() => componentStore.selectedComponents)
 
+// Function to fetch components (if needed for future)
+const _fetchComponentJSON = async () => {
+  try {
+    isLoading.value = true
+    const response = await fetch('/components.json')
+    if (!response.ok) {
+      throw new Error('Failed to load components.json')
+    }
+    const jsonData = await response.json()
+    componentStore.folders = jsonData
+  } catch (error) {
+    console.error('Error loading components.json:', error)
+    errorComponents.value.push('Failed to load components.json')
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const fetchComponents = (folderName: string) => {
   componentStore.fetchComponentList(folderName)
@@ -91,7 +107,14 @@ const clearSelectedComponents = () => {
 
 // Open a specific component and switch to mockup view
 const openComponent = (component: Component) => {
-  componentStore.setSelectedComponent(component)
+  // Ensure channelId exists
+  componentStore.setSelectedComponent({
+    ...component,
+  })
 }
 
-// Fetch folder names and component data when
+// Fetch folder names and component data when the component is mounted
+onMounted(() => {
+  componentStore.initializeComponentStore() // If fetching from store, initialize store
+})
+</script>

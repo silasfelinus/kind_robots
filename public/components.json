@@ -32,7 +32,6 @@
   {
     "folderName": "art",
     "components": [
-      "AddPitch",
       "Art-Generator",
       "ArtCard",
       "ArtGallery",

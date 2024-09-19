@@ -49,7 +49,7 @@ onMounted(async () => {
     setTimeout(() => {
       isReady.value = true
       emit('pageReady', true) // Emit the pageReady state to parent
-    }, 300)
+    }, 2000)
 
     window.addEventListener('resize', displayStore.updateViewport)
     console.log('Initialization complete.')

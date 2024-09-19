@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import errorStore and ErrorType
 
 // Define the Component interface
 interface Component {
@@ -32,9 +33,10 @@ export const useComponentStore = defineStore('componentStore', {
   },
 
   actions: {
-    // Fetch all components from the API
+    // Fetch all components from the API with error handling
     async fetchAllComponents() {
-      try {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
         const response = await fetch('/api/components')
         if (!response.ok) {
           throw new Error('Failed to fetch components.')
@@ -42,14 +44,13 @@ export const useComponentStore = defineStore('componentStore', {
         const data: Component[] = await response.json()
         this.components = data
         console.log('Components fetched successfully:', this.components)
-      } catch (error) {
-        console.error('Error fetching components:', error)
-      }
+      }, ErrorType.NETWORK_ERROR, 'Error fetching all components')
     },
 
-    // Fetch a specific component by ID
+    // Fetch a specific component by ID with error handling
     async fetchComponentById(id: number) {
-      try {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
         const response = await fetch(`/api/components/${id}`)
         if (!response.ok) {
           throw new Error(`Failed to fetch component with id: ${id}`)
@@ -57,16 +58,13 @@ export const useComponentStore = defineStore('componentStore', {
         const component = await response.json()
         this.selectedComponent = component
         return component
-      } catch (error) {
-        console.error('Error fetching component by ID:', error)
-        throw error
-      }
+      }, ErrorType.NETWORK_ERROR, `Error fetching component with id ${id}`)
     },
 
-    // Find a component by name
+    // Find a component by name with error handling
     async findComponentByName(folderName: string, componentName: string) {
-      try {
-        // Fetch the component from the API based on folder name
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
         const response = await fetch(`/api/components/${folderName}`)
         if (!response.ok) {
           throw new Error(`Failed to fetch components from folder "${folderName}".`)
@@ -74,22 +72,17 @@ export const useComponentStore = defineStore('componentStore', {
 
         const { components } = await response.json()
 
-        // Find the specific component by name
         const foundComponent = components.find(
           (comp: Component) => comp.componentName === componentName
         )
 
-        if (foundComponent) {
-          // If found, set it as the selected component
-          this.setSelectedComponent(foundComponent)
-          return foundComponent
-        } else {
+        if (!foundComponent) {
           throw new Error(`Component "${componentName}" not found in folder "${folderName}".`)
         }
-      } catch (error) {
-        console.error(`Error finding component by name:`, error)
-        throw error
-      }
+
+        this.setSelectedComponent(foundComponent)
+        return foundComponent
+      }, ErrorType.VALIDATION_ERROR, `Error finding component "${componentName}" in folder "${folderName}"`)
     },
 
     // Set the selected component
@@ -97,9 +90,10 @@ export const useComponentStore = defineStore('componentStore', {
       this.selectedComponent = component
     },
 
-    // Create or update a component in the database
+    // Create or update a component in the database with error handling
     async createOrUpdateComponent(component: Component, action: 'create' | 'update') {
-      try {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
         const response = await fetch('/api/components', {
           method: action === 'create' ? 'POST' : 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -118,15 +112,13 @@ export const useComponentStore = defineStore('componentStore', {
         } else {
           console.log(`Component ${component.componentName} updated successfully`)
         }
-      } catch (error) {
-        console.error(`Error ${action === 'create' ? 'creating' : 'updating'} component:`, error)
-        throw error
-      }
+      }, ErrorType.GENERAL_ERROR, `Error ${action === 'create' ? 'creating' : 'updating'} component`)
     },
 
-    // Delete a specific component by ID
+    // Delete a specific component by ID with error handling
     async deleteComponent(id: number) {
-      try {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
         const response = await fetch(`/api/components/${id}`, {
           method: 'DELETE',
         })
@@ -135,9 +127,7 @@ export const useComponentStore = defineStore('componentStore', {
         }
         this.components = this.components.filter(c => c.id !== id) // Remove from the store
         console.log(`Component with ID ${id} deleted successfully`)
-      } catch (error) {
-        console.error('Error deleting component from the database:', error)
-      }
+      }, ErrorType.GENERAL_ERROR, `Error deleting component with ID ${id}`)
     },
   },
 })

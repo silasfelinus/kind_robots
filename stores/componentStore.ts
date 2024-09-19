@@ -130,58 +130,69 @@ export const useComponentStore = defineStore('componentStore', {
       jsonFolders: Folder[],
     ) {
       try {
-        const jsonComponents = jsonFolders.flatMap(
-          (folder) => folder.components,
-        )
+        // Flatten the components from JSON folders
+        const jsonComponents = jsonFolders.flatMap((folder) => folder.components);
 
-        // Add missing components
+        // Add or update missing components
         for (const jsonComponent of jsonComponents) {
-          if (
-            !dbComponents.some(
-              (dbComp) => dbComp.componentName === jsonComponent.componentName,
-            )
-          ) {
-            await this.createOrUpdateComponent(jsonComponent)
+          const existingComponent = dbComponents.find(
+            (dbComp) =>
+              dbComp.componentName === jsonComponent.componentName &&
+              dbComp.folderName === jsonComponent.folderName
+          );
+
+          if (!existingComponent) {
+            await this.createOrUpdateComponent(jsonComponent, 'create');
+          } else {
+            // Update existing components if they differ in any significant property
+            if (
+              existingComponent.isWorking !== jsonComponent.isWorking ||
+              existingComponent.underConstruction !== jsonComponent.underConstruction ||
+              existingComponent.isBroken !== jsonComponent.isBroken ||
+              existingComponent.notes !== jsonComponent.notes
+            ) {
+              await this.createOrUpdateComponent(jsonComponent, 'update');
+            }
           }
         }
 
         // Remove components no longer in JSON
         for (const dbComponent of dbComponents) {
-          if (
-            !jsonComponents.some(
-              (jsonComp) =>
-                jsonComp.componentName === dbComponent.componentName,
-            )
-          ) {
-            await this.deleteComponent(dbComponent.componentName)
+          const stillInJson = jsonComponents.some(
+            (jsonComp) =>
+              jsonComp.componentName === dbComponent.componentName &&
+              jsonComp.folderName === dbComponent.folderName
+          );
+
+          if (!stillInJson) {
+            await this.deleteComponent(dbComponent.componentName);
           }
         }
       } catch (error) {
-        console.error('Error syncing database with components.json:', error)
+        console.error('Error syncing database with components.json:', error);
       }
     },
 
     // Create or update a component in the database
-    async createOrUpdateComponent(component: Component) {
+    async createOrUpdateComponent(component: Component, action: 'create' | 'update') {
       try {
         const response = await fetch('/api/components', {
-          method: 'POST',
+          method: action === 'create' ? 'POST' : 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(component),
-        })
+        });
 
-        if (response.status === 409) {
-          // Conflict, update existing component
-          await this.updateComponent(component)
-        } else if (!response.ok) {
-          throw new Error(`Failed to create component: ${response.statusText}`)
+        if (!response.ok) {
+          throw new Error(
+            `${action === 'create' ? 'Create' : 'Update'} component failed: ${response.statusText}`
+          );
         }
 
         console.log(
-          `Component ${component.componentName} processed successfully`,
-        )
+          `Component ${component.componentName} ${action}d successfully`
+        );
       } catch (error) {
-        console.error('Error creating or updating component:', error)
+        console.error(`Error ${action === 'create' ? 'creating' : 'updating'} component:`, error);
       }
     },
 

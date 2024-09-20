@@ -1,5 +1,13 @@
 <template>
-  <div class="p-6 bg-base-200 min-h-screen flex flex-col items-center">
+  <div class="p-6 bg-base-200 min-h-screen flex flex-col items-center relative">
+    <!-- Back button as overlay at the top of the screen -->
+    <button
+      class="absolute top-4 left-4 bg-blue-500 text-white px-4 py-2 rounded"
+      @click="handleBackButton"
+    >
+      Back
+    </button>
+
     <!-- Display status message while loading -->
     <div v-if="loadingStatus" class="text-xl text-center text-blue-500 mb-4">
       {{ loadingStatus }}
@@ -53,8 +61,10 @@ const selectedComponent = computed(() => componentStore.selectedComponent)
 const loadComponent = async (folderName: string, componentName: string) => {
   try {
     loadingStatus.value = 'Loading component...'
-    const componentPath = `@/components/content/${folderName}/${componentName}.vue`
-    dynamicComponent.value = (await import(componentPath)).default
+    const componentPath = `../../components/content/${folderName}/${componentName}.vue`
+    dynamicComponent.value = (
+      await import(/* @vite-ignore */ componentPath)
+    ).default
     loadingStatus.value = null
   } catch (error) {
     errorMessage.value = `Failed to load component: ${componentName} in folder: ${folderName}`
@@ -79,4 +89,9 @@ onMounted(() => {
     )
   }
 })
+
+// Function to handle the "Back" button
+const handleBackButton = () => {
+  componentStore.clearSelectedComponent() // Deselect the component
+}
 </script>

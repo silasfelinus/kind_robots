@@ -41,10 +41,7 @@ const findComponent = async (folderName: string, componentName: string) => {
     loadingStatus.value = 'Loading component...'
 
     // Fetch the component by folderName and componentName from the store
-    const component = await componentStore.findComponentByName(
-      folderName,
-      componentName,
-    )
+    const component = await componentStore.findComponentByName(componentName)
 
     if (component) {
       componentId.value = component.id // Set the found component ID

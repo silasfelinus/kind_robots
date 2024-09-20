@@ -18,11 +18,21 @@
     <div v-else class="text-center text-gray-500">
       <p>No image available.</p>
     </div>
+
+    <!-- Button to load a new random image -->
+    <div class="text-center mt-4">
+      <button
+        @click="loadNewRandomImage"
+        class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+      >
+        Load New Random Image
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
@@ -36,41 +46,35 @@ const randomImage = computed(() => galleryStore.currentImage)
 // State to hold error messages
 const errorMessage = ref<string | null>(null)
 
-// Initialize the store when the component mounts
-onMounted(async () => {
+// Function to load a random image
+const loadNewRandomImage = async () => {
   try {
-    // Use the errorStore to handle any errors while fetching galleries or images
-    await errorStore.handleError(
-      async () => {
-        // Initialize the gallery store if not already initialized
-        if (!galleryStore.galleries.length) {
-          await galleryStore.initializeStore()
-        }
+    errorMessage.value = null // Clear any existing error messages
 
-        // If no gallery is selected, pick a random one
-        if (!galleryStore.currentGallery) {
-          galleryStore.setRandomGallery()
-        }
+    // Initialize the gallery store if not already initialized
+    if (!galleryStore.galleries.length) {
+      await galleryStore.initializeStore()
+    }
 
-        // If no image is set, fetch a random image
-        if (!galleryStore.currentImage) {
-          await galleryStore.changeToRandomImage()
-        }
-      },
-      ErrorType.GENERAL_ERROR,
-      'Failed to load random image.',
-    )
+    // Set a random gallery and image
+    galleryStore.setRandomGallery()
+    await galleryStore.changeToRandomImage()
   } catch (error) {
     // Capture and display the error message
-    errorMessage.value =
-      errorStore.getError || 'An unknown error occurred: ' + error
+    errorMessage.value = errorStore.getError || 'Failed to load a random image.'
   }
+}
+
+// Load a random image when the component mounts
+onMounted(async () => {
+  await loadNewRandomImage()
 })
 </script>
 
 <style scoped>
 .random-image-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 300px;
@@ -79,5 +83,8 @@ img {
   max-width: 100%;
   max-height: 100%;
   object-fit: cover;
+}
+button {
+  margin-top: 16px;
 }
 </style>

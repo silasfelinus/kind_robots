@@ -15,28 +15,28 @@
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->
-      <div
-        v-for="link in filteredLinks"
-        :key="link.title"
-        :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-        class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
-      >
-        <!-- Use NuxtLink for navigation -->
-        <a :href="link.path" class="flex items-center">
-          <!-- Icon for each link -->
-          <Icon
-            :name="link.icon"
-            class="h-12 w-12 transition-all duration-300 ease-in-out"
-          />
-          <!-- Only show the link title when the sidebar is fully open -->
-          <span
-            v-if="displayStore.sidebarLeft === 'open'"
-            class="text-sm font-semibold ml-2 transition-opacity duration-300"
-          >
-            {{ link.title }}
-          </span>
-        </a>
-      </div>
+<div
+  v-for="link in filteredLinks"
+  :key="link.title"
+  :style="{ height: iconHeight + 'px', margin: '1px 0' }"
+  class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+>
+  <!-- Use a click event with router.push for navigation -->
+  <a @click.prevent="navigate(link.path)" class="flex items-center cursor-pointer">
+    <!-- Icon for each link -->
+    <Icon
+      :name="link.icon"
+      class="h-12 w-12 transition-all duration-300 ease-in-out"
+    />
+    <!-- Only show the link title when the sidebar is fully open -->
+    <span
+      v-if="displayStore.sidebarLeft === 'open'"
+      class="text-sm font-semibold ml-2 transition-opacity duration-300"
+    >
+      {{ link.title }}
+    </span>
+  </a>
+</div>
     </aside>
   </div>
 </template>
@@ -46,6 +46,14 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import type { DisplayState } from '@/stores/displayStore'
 import { sidebarLinks } from '@/assets/sidebar'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const navigate = (path: string) => {
+  router.push(path)
+}
+
 
 // Access the display store for the sidebar state
 const displayStore = useDisplayStore()

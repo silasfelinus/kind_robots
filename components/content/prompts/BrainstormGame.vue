@@ -86,7 +86,7 @@
       v-if="errorStore.message"
       class="bg-warning text-white py-4 px-6 rounded-full mt-6 text-center"
     >
-      <icon name="error" class="text-lg" /> {{ errorStore.message }}
+      <Icon name="error" class="text-lg" /> {{ errorStore.message }}
     </div>
   </div>
 </template>

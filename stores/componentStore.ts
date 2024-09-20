@@ -25,76 +25,94 @@ export const useComponentStore = defineStore('componentStore', {
     // Initialize the components by syncing them from components.json and the API
     async initializeComponents() {
       const errorStore = useErrorStore()
+      
       return errorStore.handleError(async () => {
         console.log('Starting components initialization...')
-
-        // Step 1: Fetch folder and component names from components.json
-        console.log('Fetching components.json...')
-        const response = await fetch('/components.json')
-        if (!response.ok) {
-          throw new Error('Failed to fetch components.json')
-        }
-        const folderData: Folder[] = await response.json()
-        console.log('Fetched components.json:', folderData)
-
-        // Step 2: Fetch existing components from the API (database)
-        console.log('Fetching existing components from API...')
-        const apiResponse = await fetch('/api/components')
-        if (!apiResponse.ok) {
-          throw new Error('Failed to fetch components from API')
-        }
-        const apiComponents: Component[] = await apiResponse.json()
-        console.log('Fetched existing components from API:', apiComponents)
-
-        // Step 3: Identify and delete components in the database not in components.json
-        console.log('Identifying components that need to be deleted...')
-        const componentsFromJson = folderData.flatMap(folder =>
-          folder.components.map(componentName => ({
-            componentName,
-            folderName: folder.folderName
-          }))
-        )
-
-        for (const apiComponent of apiComponents) {
-          const existsInJson = componentsFromJson.some(
-            (jsonComp) => jsonComp.componentName === apiComponent.componentName && jsonComp.folderName === apiComponent.folderName
-          )
-
-          if (!existsInJson) {
-            // Delete component from database if it doesn't exist in components.json
-            console.log(`Deleting component: ${apiComponent.componentName} from folder: ${apiComponent.folderName}`)
-            await this.deleteComponent(apiComponent.id)
+    
+        try {
+          // Step 1: Fetch folder and component names from components.json
+          console.log('Fetching components.json...')
+          const response = await fetch('/components.json')
+          if (!response.ok) {
+            throw new Error('Failed to fetch components.json')
           }
-        }
-
-        // Step 4: Sync (Upsert) components from components.json to the database
-        console.log('Syncing components from components.json to the API...')
-        for (const folder of folderData) {
-          for (const componentName of folder.components) {
-            const existingComponent = apiComponents.find(
-              (comp) => comp.componentName === componentName && comp.folderName === folder.folderName
-            )
-
-            const componentData = {
-              id: existingComponent ? existingComponent.id : 0, // Use 0 for new components
+          const folderData: Folder[] = await response.json()
+          if (!Array.isArray(folderData)) {
+            throw new Error('Invalid data format: components.json must be an array')
+          }
+          console.log('Fetched components.json:', folderData)
+    
+          // Step 2: Fetch existing components from the API (database)
+          console.log('Fetching existing components from API...')
+          const apiResponse = await fetch('/api/components')
+          if (!apiResponse.ok) {
+            throw new Error('Failed to fetch components from API')
+          }
+          const apiComponents: Component[] = await apiResponse.json()
+          if (!Array.isArray(apiComponents)) {
+            throw new Error('Invalid data format: API components must be an array')
+          }
+          console.log('Fetched existing components from API:', apiComponents)
+    
+          // Step 3: Identify and delete components in the database not in components.json
+          console.log('Identifying components that need to be deleted...')
+          const componentsFromJson = folderData.flatMap(folder =>
+            folder.components.map(componentName => ({
               componentName,
-              folderName: folder.folderName,
-              createdAt: existingComponent?.createdAt || new Date(),
-              updatedAt: new Date(),
-              isWorking: existingComponent?.isWorking || true,
-              underConstruction: existingComponent?.underConstruction || false,
-              isBroken: existingComponent?.isBroken || false,
-              title: existingComponent?.title || null,
-              notes: existingComponent?.notes || null,
-            }
-
-            await this.createOrUpdateComponent(componentData as Component, existingComponent ? 'update' : 'create')
+              folderName: folder.folderName
+            }))
+          )
+    
+          if (!Array.isArray(componentsFromJson)) {
+            throw new Error('Failed to process components.json into a valid format')
           }
+    
+          for (const apiComponent of apiComponents) {
+            const existsInJson = componentsFromJson.some(
+              (jsonComp) => jsonComp.componentName === apiComponent.componentName && jsonComp.folderName === apiComponent.folderName
+            )
+    
+            if (!existsInJson) {
+              // Delete component from database if it doesn't exist in components.json
+              console.log(`Deleting component: ${apiComponent.componentName} from folder: ${apiComponent.folderName}`)
+              await this.deleteComponent(apiComponent.id)
+            }
+          }
+    
+          // Step 4: Sync (Upsert) components from components.json to the database
+          console.log('Syncing components from components.json to the API...')
+          for (const folder of folderData) {
+            for (const componentName of folder.components) {
+              const existingComponent = apiComponents.find(
+                (comp) => comp.componentName === componentName && comp.folderName === folder.folderName
+              )
+    
+              const componentData = {
+                id: existingComponent ? existingComponent.id : 0, // Use 0 for new components
+                componentName,
+                folderName: folder.folderName,
+                createdAt: existingComponent?.createdAt || new Date(),
+                updatedAt: new Date(),
+                isWorking: existingComponent?.isWorking || true,
+                underConstruction: existingComponent?.underConstruction || false,
+                isBroken: existingComponent?.isBroken || false,
+                title: existingComponent?.title || null,
+                notes: existingComponent?.notes || null,
+              }
+    
+              await this.createOrUpdateComponent(componentData as Component, existingComponent ? 'update' : 'create')
+            }
+          }
+    
+          console.log('Components initialization complete!')
+    
+        } catch (error) {
+          console.error('Error during initialization:', error)
+          throw new Error(`Initialization failed: ${error}`)
         }
-
-        console.log('Components initialization complete!')
       }, ErrorType.GENERAL_ERROR, 'Error initializing components')
     },
+    
 
     // Fetch all components from the API with error handling
     async fetchAllComponents() {

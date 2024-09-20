@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="flex flex-col min-h-screen w-full bg-base-200">
-    <!-- KindLoader -->
-    <KindLoader @page-ready="handlePageReady" />
+    <!-- KindLoader (Only runs once) -->
+    <KindLoader v-if="!isKindLoaderInitialized" @page-ready="handlePageReady" />
 
     <!-- Main content is displayed only when the page is ready -->
     <div v-if="isPageReady">
@@ -49,7 +49,10 @@
 
 <script setup>
 import { useDisplayStore } from '@/stores/displayStore'
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+// Track whether the KindLoader has been initialized
+const isKindLoaderInitialized = ref(false)
 
 const displayStore = useDisplayStore()
 const isPageReady = ref(false) // Track whether the page is ready
@@ -57,6 +60,11 @@ const isPageReady = ref(false) // Track whether the page is ready
 const handlePageReady = (ready) => {
   isPageReady.value = ready
   console.log('Page ready:', ready)
+
+  // Mark the loader as initialized after the page is ready
+  if (ready) {
+    isKindLoaderInitialized.value = true
+  }
 }
 
 // On mounted, initialize the viewport watcher to dynamically adjust sizes

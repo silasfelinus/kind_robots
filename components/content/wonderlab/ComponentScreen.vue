@@ -1,6 +1,6 @@
 <template>
   <div class="p-6 bg-base-200 min-h-screen flex flex-col items-center">
-    <!-- Display status message while loading component -->
+    <!-- Display status message while loading -->
     <div v-if="loadingStatus" class="text-xl text-center text-blue-500 mb-4">
       {{ loadingStatus }}
     </div>
@@ -10,59 +10,73 @@
       {{ errorMessage }}
     </div>
 
-    <!-- Once we have a componentId, display the component-reaction section -->
-    <component-reaction v-if="componentId" :component-id="componentId" />
+    <!-- Display the dynamically loaded component -->
+    <component
+      :is="dynamicComponent"
+      v-if="selectedComponent && dynamicComponent"
+      class="mb-6"
+    />
 
-    <!-- Display a message if no component is found or matched -->
+    <!-- Display a message if no component is selected -->
     <div
-      v-if="!componentId && !loadingStatus"
+      v-if="!selectedComponent && !loadingStatus"
       class="text-center text-lg text-gray-500"
     >
-      No matching component found.
+      No component selected.
     </div>
+
+    <!-- Display the component-reaction for the selected component -->
+    <component-reaction
+      v-if="selectedComponent"
+      :component-id="selectedComponent.id"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
+import type { Component } from '@prisma/client'
 
 // State
-const componentId = ref<number | null>(null) // Component ID, to be set once the component is found
 const loadingStatus = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
+const dynamicComponent = ref<Component | null>(null) // To hold the dynamically imported component
 
 // Access the componentStore
 const componentStore = useComponentStore()
 
-// Function to find the matching component by folderName and componentName
-const findComponent = async (folderName: string, componentName: string) => {
+// Computed property to get the selected component from the store
+const selectedComponent = computed(() => componentStore.selectedComponent)
+
+// Function to dynamically load the component based on folder and component name
+const loadComponent = async (folderName: string, componentName: string) => {
   try {
     loadingStatus.value = 'Loading component...'
-
-    // Fetch the component by folderName and componentName from the store
-    const component = await componentStore.findComponentByName(componentName)
-
-    if (component) {
-      componentId.value = component.id // Set the found component ID
-    } else {
-      throw new Error('Component not found')
-    }
-
+    const componentPath = `@/components/content/${folderName}/${componentName}.vue`
+    dynamicComponent.value = (await import(componentPath)).default
     loadingStatus.value = null
   } catch (error) {
-    errorMessage.value = `Error loading component: ${(error as Error).message}`
+    errorMessage.value = `Failed to load component: ${componentName} in folder: ${folderName}`
+    console.error(error)
     loadingStatus.value = null
   }
 }
 
-// On mount, find the component based on the folderName and componentName
-onMounted(() => {
-  // You would typically get folderName and componentName from props or route params
-  const folderName = 'exampleFolder'
-  const componentName = 'exampleComponent'
+// Watch the selectedComponent and dynamically load the corresponding component when it changes
+watch(selectedComponent, (newComponent) => {
+  if (newComponent) {
+    loadComponent(newComponent.folderName, newComponent.componentName)
+  }
+})
 
-  // Find the component in the store
-  findComponent(folderName, componentName)
+// On mount, ensure the component is loaded if already selected
+onMounted(() => {
+  if (selectedComponent.value) {
+    loadComponent(
+      selectedComponent.value.folderName,
+      selectedComponent.value.componentName,
+    )
+  }
 })
 </script>

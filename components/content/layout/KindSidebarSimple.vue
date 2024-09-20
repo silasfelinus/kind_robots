@@ -22,7 +22,7 @@
         class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
       >
         <!-- Use NuxtLink for navigation -->
-        <a :href="link.path" class="flex items-center">
+        <NuxtLink :to="link.path" class="flex items-center">
           <!-- Icon for each link -->
           <Icon
             :name="link.icon"
@@ -35,7 +35,7 @@
           >
             {{ link.title }}
           </span>
-        </a>
+        </NuxtLink>
       </div>
     </aside>
   </div>

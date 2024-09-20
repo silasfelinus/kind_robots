@@ -24,35 +24,38 @@ export const useComponentStore = defineStore('componentStore', {
   actions: {
     // Initialize the components by syncing them from components.json and the API
     async initializeComponents() {
-      const errorStore = useErrorStore()
-      
+      const errorStore = useErrorStore();
+    
       return errorStore.handleError(async () => {
-        console.log('Starting components initialization...')
+        console.log('Starting components initialization...');
     
         try {
           // Step 1: Fetch folder and component names from components.json
-          console.log('Fetching components.json...')
-          const response = await fetch('/components.json')
+          console.log('Fetching components.json...');
+          const response = await fetch('/components.json');
           if (!response.ok) {
-            throw new Error('Failed to fetch components.json')
+            throw new Error('Failed to fetch components.json');
           }
-          const folderData: Folder[] = await response.json()
+          const folderData: Folder[] = await response.json();
           if (!Array.isArray(folderData)) {
-            throw new Error('Invalid data format: components.json must be an array')
+            throw new Error('Invalid data format: components.json must be an array');
           }
-          console.log('Fetched components.json:', folderData)
+          console.log('Fetched components.json:', folderData);
     
           // Step 2: Fetch existing components from the API (database)
-          console.log('Fetching existing components from API...')
-          const apiResponse = await fetch('/api/components')
+          console.log('Fetching existing components from API...');
+          const apiResponse = await fetch('/api/components');
           if (!apiResponse.ok) {
-            throw new Error('Failed to fetch components from API')
+            throw new Error('Failed to fetch components from API');
           }
-          const apiComponents: Component[] = await apiResponse.json()
-          if (!Array.isArray(apiComponents)) {
-            throw new Error('Invalid data format: API components must be an array')
+          
+          // Extract the components array from the response object
+          const apiData = await apiResponse.json();
+          if (!apiData.success || !Array.isArray(apiData.components)) {
+            throw new Error('Invalid data format: API response must contain a components array');
           }
-          console.log('Fetched existing components from API:', apiComponents)
+          const apiComponents: Component[] = apiData.components;
+          console.log('Fetched existing components from API:', apiComponents);
     
           // Step 3: Identify and delete components in the database not in components.json
           console.log('Identifying components that need to be deleted...')
@@ -128,6 +131,46 @@ export const useComponentStore = defineStore('componentStore', {
         console.log('Components fetched successfully:', this.components)
       }, ErrorType.NETWORK_ERROR, 'Error fetching all components')
     },
+    // Fetch a single component by ID with error handling
+async fetchComponentById(id: number) {
+  const errorStore = useErrorStore();
+  return errorStore.handleError(async () => {
+    console.log(`Fetching component with ID: ${id}`);
+    
+    const response = await fetch(`/api/components/${id}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch component with ID: ${id}`);
+    }
+    
+    const component: Component = await response.json();
+    
+    // Optionally set the fetched component as the selected component
+    this.selectedComponent = component;
+    console.log(`Component with ID: ${id} fetched successfully`, component);
+    
+    return component;
+  }, ErrorType.NETWORK_ERROR, `Error fetching component with ID ${id}`);
+},
+// Find a component by its name from the store
+findComponentByName(componentName: string) {
+  const foundComponent = this.components.find(
+    (component) => component.componentName === componentName
+  );
+
+  if (!foundComponent) {
+    throw new Error(`Component with name "${componentName}" not found.`);
+  }
+
+  // Optionally set the found component as the selected component
+  this.selectedComponent = foundComponent;
+  
+  console.log(`Component with name "${componentName}" found successfully`, foundComponent);
+  
+  return foundComponent;
+},
+
+
 
     // Create or update a component in the database with error handling
     async createOrUpdateComponent(component: Component, action: 'create' | 'update') {

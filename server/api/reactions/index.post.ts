@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
       where: {
         userId,
         reactionType, // Use the mapped ReactionType enum value
-        ReactionCategory: reactionCategory, // Ensure reactionCategory is also checked
+        reactionCategory: reactionCategory, // Ensure reactionCategory is also checked
         ...reactionMatchCondition,
       },
     })
@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
         data: {
           comment,
           reactionType,
-          ReactionCategory: reactionCategory,
+          reactionCategory: reactionCategory,
           artId: reactionCategory === ReactionCategory.ART ? artId : undefined,
           componentId: reactionCategory === ReactionCategory.COMPONENT ? componentId : undefined,
           pitchId: reactionCategory === ReactionCategory.PITCH ? pitchId : undefined,
@@ -103,7 +103,7 @@ export default defineEventHandler(async (event) => {
         data: {
           userId,
           reactionType, // Use the mapped ReactionType enum value
-          ReactionCategory: reactionCategory, // Add the reactionCategory
+          reactionCategory: reactionCategory, // Add the reactionCategory
           artId: reactionCategory === ReactionCategory.ART ? artId : undefined,
           componentId: reactionCategory === ReactionCategory.COMPONENT ? componentId : undefined,
           pitchId: reactionCategory === ReactionCategory.PITCH ? pitchId : undefined,

@@ -33,12 +33,10 @@ describe('Reaction Management API Tests', () => {
       },
       body: {
         userId: userId,
-        artId: artId,
-        isBooed: true,
-        title: 'hmmm!',
-        reaction: 'skeptical',
-        comment: 'not sure here',
-        reactionType: 'ART',
+        reactionType: 'BOOED', // Use one of the ReactionType enum values
+        reactionCategory: 'ART', // Ensure you use the correct category for art
+        artId: artId, // Include artId since the category is ART
+        comment: 'Not really my favorite',
       },
     }).then((response) => {
       // Log the entire response to debug structure
@@ -49,6 +47,7 @@ describe('Reaction Management API Tests', () => {
 
       // Validate that the response contains a reaction object
       expect(response.body).to.have.property('reaction')
+      expect(response.body.reaction).to.have.property('id')
 
       // Capture the reaction ID for later use
       reactionId = response.body.reaction.id
@@ -59,44 +58,40 @@ describe('Reaction Management API Tests', () => {
   })
 
   it('Edit an Existing Art Reaction', () => {
-    if (reactionId) {
-      cy.request({
-        method: 'PATCH',
-        url: `${baseUrl}/${reactionId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        body: {
-          isClapped: true,
-          comment: 'Still loving this art!',
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    } else {
-      throw new Error(
-        'reactionId is not defined. Cannot perform PATCH request.',
-      )
-    }
+    // Ensure reactionId is set before proceeding
+    cy.wrap(reactionId).should('exist')
+
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${reactionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        reactionType: 'LOVED', // Changing the reactionType
+        comment: 'Actually, this is growing on me!',
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+    })
   })
 
   it('Delete an Art Reaction', () => {
-    if (reactionId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${reactionId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    } else {
-      throw new Error(
-        'reactionId is not defined. Cannot perform DELETE request.',
-      )
-    }
+    // Ensure reactionId is set before proceeding
+    cy.wrap(reactionId).should('exist')
+
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${reactionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+    })
   })
 })

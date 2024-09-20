@@ -19,6 +19,27 @@
             Welcome to the WonderLab! Select a folder to view components.
           </p>
           <component-count />
+
+          <!-- Sync Components Button -->
+          <button
+            class="btn btn-primary mt-4"
+            :disabled="isSyncing"
+            @click="syncComponents"
+          >
+            <span v-if="isSyncing">Syncing...</span>
+            <span v-else>Sync Components</span>
+          </button>
+
+          <!-- Display real-time log output -->
+          <div class="log-output bg-gray-200 p-4 mt-4 rounded">
+            <p
+              v-for="(log, index) in logOutput"
+              :key="index"
+              class="text-sm text-left"
+            >
+              {{ log }}
+            </p>
+          </div>
         </div>
 
         <!-- LabGallery component, scrollable for smaller screens -->
@@ -60,6 +81,8 @@ import ComponentScreen from './ComponentScreen.vue'
 const isLoading = ref(true)
 const errorMessages = ref<string[]>([])
 const debugMessage = ref<string | null>(null) // For debugging the initialization process
+const isSyncing = ref(false) // For handling sync button loading
+const logOutput = ref<string[]>([]) // Capture real-time logs
 
 // Access the component store, display store, and error store
 const componentStore = useComponentStore()
@@ -107,6 +130,38 @@ onMounted(async () => {
 const handleComponentClose = () => {
   componentStore.clearSelectedComponent()
 }
+
+// Sync components from components.json to the database
+const syncComponents = async () => {
+  isSyncing.value = true
+  logOutput.value = [] // Clear previous logs
+  debugMessage.value = 'Syncing components...'
+
+  // Override console.log temporarily
+  const originalLog = console.log
+  console.log = (message: unknown) => {
+    logOutput.value.push(String(message))
+    originalLog(message) // Still output to browser console
+  }
+
+  try {
+    await errorStore.handleError(
+      async () => {
+        await componentStore.syncComponents()
+        debugMessage.value = 'Components synced successfully!'
+      },
+      ErrorType.GENERAL_ERROR,
+      'Error syncing components from components.json',
+    )
+  } catch (error) {
+    errorMessages.value.push('Failed to sync components')
+    console.error('Error during component sync:', error)
+  } finally {
+    // Restore original console.log
+    console.log = originalLog
+    isSyncing.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -125,6 +180,12 @@ const handleComponentClose = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.log-output {
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
 }
 
 /* Mobile-first design for LabGallery */

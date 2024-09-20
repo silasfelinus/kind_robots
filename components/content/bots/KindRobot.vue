@@ -1,6 +1,6 @@
 <template>
-  <!-- Main container with reduced padding/margin -->
-  <div class="flex flex-col items-center bg-base-200 p-2 m-1">
+  <!-- Main container with reduced padding/margin and vertical scroll handling -->
+  <div class="flex flex-col items-center bg-base-200 p-2 m-1 overflow-y-auto">
     <bot-selector />
 
     <!-- Display bot details if a bot is selected -->
@@ -13,23 +13,21 @@
       <div class="flex justify-between items-center m-2">
         <h1 class="text-2xl font-bold">
           {{ currentBot.name }}
-          <span class="text-sm text-gray-600"
-            >Bot ID#{{ currentBot.id - 1 }}</span
-          >
+          <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id - 1 }}</span>
         </h1>
         <span class="text-sm text-gray-600">Meet Them All!</span>
       </div>
 
-      <!-- Condense avatar and details into a single flex-row to reduce space -->
+      <!-- Condense avatar, details, and stream-test into a single row -->
       <div
-        class="flex flex-wrap items-center justify-between w-full m-2 rounded-lg"
+        class="flex flex-wrap items-start justify-between w-full m-2 rounded-lg"
       >
-        <!-- Bot Avatar and Carousel, tighter space -->
+        <!-- Bot Avatar and Carousel -->
         <div class="w-1/3 p-2">
           <bot-carousel2 />
         </div>
 
-        <!-- Bot Details with reduced text sizes -->
+        <!-- Bot Details -->
         <div class="flex-1 text-center p-2">
           <h2 class="text-2xl font-semibold">
             {{ currentBot.name ?? 'Unknown Bot' }}
@@ -41,11 +39,11 @@
             {{ currentBot.description ?? 'Description' }}
           </div>
         </div>
-      </div>
 
-      <!-- Stream Test component, streamlined to avoid pushing too much down -->
-      <div class="mt-2">
-        <stream-test />
+        <!-- Stream Test component placed next to Bot Details -->
+        <div class="w-1/3 p-2">
+          <stream-test />
+        </div>
       </div>
     </div>
   </div>
@@ -58,33 +56,3 @@ import { useBotStore } from '../../../stores/botStore'
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)
 </script>
-
-<style>
-.animate-typing {
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: 0.15em solid transparent;
-  animation:
-    typing 2s steps(30, end),
-    blink-caret 0.75s step-end infinite;
-}
-
-@keyframes typing {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-}
-
-@keyframes blink-caret {
-  from,
-  to {
-    border-color: transparent;
-  }
-  50% {
-    border-color: inherit;
-  }
-}
-</style>

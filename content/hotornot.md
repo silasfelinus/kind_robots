@@ -15,3 +15,5 @@ dottitip: "I hate judging things, I say everything is hot. it's a problem"
 ---
 
 :hot-or-not
+
+:random-image

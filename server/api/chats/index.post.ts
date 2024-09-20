@@ -27,7 +27,11 @@ export default defineEventHandler(async (event) => {
       !exchangeData.userPrompt ||
       !exchangeData.botResponse
     ) {
-      throw new Error('Invalid exchange data. Missing required fields.')
+      return errorHandler({
+        success: false,
+        message: 'Invalid exchange data. Missing required fields.',
+        statusCode: 400, // Bad request
+      })
     }
 
     // Optional: Check if the user and bot exist in the database
@@ -40,11 +44,19 @@ export default defineEventHandler(async (event) => {
     })
 
     if (exchangeData.userId && !user) {
-      throw new Error(`User with id ${exchangeData.userId} does not exist.`)
+      return errorHandler({
+        success: false,
+        message: `User with id ${exchangeData.userId} does not exist.`,
+        statusCode: 404, // Not found
+      })
     }
 
     if (!bot) {
-      throw new Error(`Bot with id ${exchangeData.botId} does not exist.`)
+      return errorHandler({
+        success: false,
+        message: `Bot with id ${exchangeData.botId} does not exist.`,
+        statusCode: 404, // Not found
+      })
     }
 
     // Create the new chat exchange
@@ -65,20 +77,27 @@ export default defineEventHandler(async (event) => {
       newExchange,
     }
   } catch (error: unknown) {
-    // Type guard to narrow down error type
     let message = 'An unknown error occurred.'
+    let statusCode = 500 // Internal server error by default
+
     if (error instanceof Error) {
-      message = error.message
+      // Prisma-specific error handling (if any)
+      if (error.name === 'PrismaClientKnownRequestError') {
+        message = `Database error: ${error.message}`
+        statusCode = 500
+      } else {
+        message = error.message
+      }
     }
 
-    // Log the error for debugging
+    // Log the error for further investigation
     console.error('Error in /server/api/chats/index.post.ts:', error)
 
-    // Use custom error handling
+    // Use custom error handling with improved message and status code
     return errorHandler({
       success: false,
       message,
-      statusCode: 500,
+      statusCode,
     })
   }
 })

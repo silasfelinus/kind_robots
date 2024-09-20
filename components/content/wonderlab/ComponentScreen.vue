@@ -18,18 +18,15 @@
       {{ errorMessage }}
     </div>
 
-    <!-- Display the dynamically loaded component -->
+    <!-- Dynamically render the selected component if available -->
     <component
-      :is="dynamicComponent"
-      v-if="selectedComponent && dynamicComponent"
+      :is="selectedComponentName"
+      v-if="selectedComponentName"
       class="mb-6"
     />
 
     <!-- Display a message if no component is selected -->
-    <div
-      v-if="!selectedComponent && !loadingStatus"
-      class="text-center text-lg text-gray-500"
-    >
+    <div v-if="!selectedComponentName && !loadingStatus" class="text-center text-lg text-gray-500">
       No component selected.
     </div>
 
@@ -42,14 +39,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
-import type { Component } from '@prisma/client'
 
 // State
 const loadingStatus = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
-const dynamicComponent = ref<Component | null>(null) // To hold the dynamically imported component
 
 // Access the componentStore
 const componentStore = useComponentStore()
@@ -57,36 +52,17 @@ const componentStore = useComponentStore()
 // Computed property to get the selected component from the store
 const selectedComponent = computed(() => componentStore.selectedComponent)
 
-// Function to dynamically load the component based on folder and component name
-const loadComponent = async (folderName: string, componentName: string) => {
-  try {
-    loadingStatus.value = 'Loading component...'
-    const componentPath = `../../components/content/${folderName}/${componentName}.vue`
-    dynamicComponent.value = (
-      await import(/* @vite-ignore */ componentPath)
-    ).default
-    loadingStatus.value = null
-  } catch (error) {
-    errorMessage.value = `Failed to load component: ${componentName} in folder: ${folderName}`
-    console.error(error)
-    loadingStatus.value = null
-  }
-}
-
-// Watch the selectedComponent and dynamically load the corresponding component when it changes
-watch(selectedComponent, (newComponent) => {
-  if (newComponent) {
-    loadComponent(newComponent.folderName, newComponent.componentName)
-  }
+// This will hold the name of the dynamically selected component
+const selectedComponentName = computed(() => {
+  return selectedComponent.value
+    ? `${selectedComponent.value.folderName}-${selectedComponent.value.componentName}`
+    : null
 })
 
-// On mount, ensure the component is loaded if already selected
-onMounted(() => {
-  if (selectedComponent.value) {
-    loadComponent(
-      selectedComponent.value.folderName,
-      selectedComponent.value.componentName,
-    )
+// Watch the selectedComponent and update dynamically when it changes
+watch(selectedComponent, (newComponent) => {
+  if (!newComponent) {
+    errorMessage.value = 'No component selected.'
   }
 })
 

@@ -22,6 +22,7 @@ import { useThemeStore } from '@/stores/themeStore'
 import { useBotStore } from '@/stores/botStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { usePitchStore } from '@/stores/pitchStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -31,6 +32,7 @@ const themeStore = useThemeStore()
 const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
 const displayStore = useDisplayStore()
+const pitchStore = usePitchStore()
 
 // State management
 const isReady = ref(false)
@@ -55,6 +57,7 @@ onMounted(async () => {
       artStore.init(),
       themeStore.initTheme(),
       milestoneStore.initializeMilestones(),
+      pitchStore.initializePitches(),
     ])
 
     displayStore.loadState()
@@ -77,7 +80,7 @@ onMounted(async () => {
   } catch (error) {
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
-      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`
+      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
 })

@@ -1,4 +1,3 @@
-<!-- components/KindLoader.vue -->
 <template>
   <div
     v-if="!isReady"
@@ -24,6 +23,7 @@ import { useBotStore } from '@/stores/botStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Stores
 const errorStore = useErrorStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
@@ -32,16 +32,23 @@ const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
 const displayStore = useDisplayStore()
 
+// State management
 const isReady = ref(false)
-const isFirstLoad = ref(true) // Track if this is the first load
-const mainContentStyle = ref('') // Style for main content view after first load
-
-// Emit the state to parent component
+const isFirstLoad = ref(true) // This tracks if it’s the first load
+const mainContentStyle = ref('') // Style for main content view after the first load
 const emit = defineEmits(['pageReady'])
 
 onMounted(async () => {
+  if (displayStore.isLoaded) {
+    // If already initialized, skip the loader
+    isReady.value = true
+    emit('pageReady', true)
+    isFirstLoad.value = false
+    return
+  }
+
   try {
-    // Handle all store initializations here
+    // Initialize the stores
     await Promise.all([
       botStore.loadStore(),
       userStore.initializeUser(),
@@ -59,16 +66,18 @@ onMounted(async () => {
     // Simulate a delay to hide the loader
     setTimeout(() => {
       isReady.value = true
-      isFirstLoad.value = false // After first load, we switch to main screen view
-      emit('pageReady', true) // Emit the pageReady state to parent
+      isFirstLoad.value = false
+      emit('pageReady', true)
+
+      // Mark the loader as initialized
+      displayStore.isLoaded = true
     }, 1000)
 
     window.addEventListener('resize', displayStore.updateViewport)
-    console.log('Initialization complete.')
   } catch (error) {
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
-      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
+      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`
     )
   }
 })

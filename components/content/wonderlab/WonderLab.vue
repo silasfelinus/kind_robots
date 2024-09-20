@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- Loading State -->
     <div v-if="isLoading" class="flex justify-center items-center h-full">
       <Icon name="mdi:loading" class="animate-spin text-4xl" />
       Loading...
@@ -20,14 +21,17 @@
           <component-count />
         </div>
 
-        <!-- LabGallery component -->
-        <lab-gallery v-if="!componentStore.selectedComponent" />
+        <!-- LabGallery component, scrollable for smaller screens -->
+        <lab-gallery
+          v-if="!componentStore.selectedComponent"
+          class="lab-gallery"
+        />
 
         <!-- Component Screen -->
         <component-screen
           v-if="componentStore.selectedComponent"
           :component="componentStore.selectedComponent"
-          @close="componentStore.clearSelectedComponent"
+          @close="handleComponentClose"
         />
       </div>
     </transition>
@@ -36,21 +40,73 @@
     <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4">
       🚨 Error loading data: {{ errorMessages.join(', ') }}
     </div>
+
+    <!-- Debug Message -->
+    <div v-if="debugMessage" class="text-blue-500 mt-4">
+      {{ debugMessage }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
+import { useDisplayStore } from '@/stores/displayStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import LabGallery from './LabGallery.vue'
 import ComponentScreen from './ComponentScreen.vue'
 
 // State variables
-const isLoading = ref(false)
+const isLoading = ref(true)
 const errorMessages = ref<string[]>([])
+const debugMessage = ref<string | null>(null) // For debugging the initialization process
 
-// Access the component store
+// Access the component store, display store, and error store
 const componentStore = useComponentStore()
+const displayStore = useDisplayStore()
+const errorStore = useErrorStore()
+
+// Watch for when a component is selected to hide the sidebars
+watch(
+  () => componentStore.selectedComponent,
+  (selectedComponent) => {
+    if (selectedComponent) {
+      displayStore.changeState('sidebarLeft', 'hidden')
+      displayStore.changeState('sidebarRight', 'hidden')
+      debugMessage.value = 'Component selected, sidebars hidden.'
+    } else {
+      displayStore.changeState('sidebarLeft', 'open')
+      displayStore.changeState('sidebarRight', 'open')
+      debugMessage.value = 'No component selected, sidebars opened.'
+    }
+  },
+)
+
+// Initialize components on mount
+onMounted(async () => {
+  isLoading.value = true
+  try {
+    debugMessage.value = 'Initializing components...'
+    await errorStore.handleError(
+      async () => {
+        await componentStore.initializeComponents()
+        debugMessage.value = 'Components initialized successfully!'
+      },
+      ErrorType.GENERAL_ERROR,
+      'Error during component initialization',
+    )
+  } catch (error) {
+    errorMessages.value.push('Failed to initialize components')
+    console.error('Error during initialization:', error)
+  } finally {
+    isLoading.value = false
+  }
+})
+
+// Handle when the component is closed
+const handleComponentClose = () => {
+  componentStore.clearSelectedComponent()
+}
 </script>
 
 <style scoped>
@@ -69,5 +125,19 @@ const componentStore = useComponentStore()
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+/* Mobile-first design for LabGallery */
+.lab-gallery {
+  max-height: 80vh; /* Ensure space for scroll */
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+/* Adjust padding for smaller screens */
+@media (max-width: 600px) {
+  .lab-gallery {
+    padding: 0.5rem;
+  }
 }
 </style>

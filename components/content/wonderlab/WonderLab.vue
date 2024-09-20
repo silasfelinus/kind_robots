@@ -14,7 +14,7 @@
           v-if="!componentStore.selectedComponent"
           class="intro-section text-center"
         >
-          <random-image class="mb-4" />
+    
           <p class="text-lg px-4">
             Welcome to the WonderLab! Select a folder to view components.
           </p>

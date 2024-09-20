@@ -54,10 +54,9 @@ const selectedComponent = computed(() => componentStore.selectedComponent)
 
 // This will hold the name of the dynamically selected component
 const selectedComponentName = computed(() => {
-  return selectedComponent.value
-    ? `${selectedComponent.value.folderName}-${selectedComponent.value.componentName}`
-    : null
+  return selectedComponent.value ? selectedComponent.value.componentName : null
 })
+
 
 // Watch the selectedComponent and update dynamically when it changes
 watch(selectedComponent, (newComponent) => {

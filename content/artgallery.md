@@ -14,5 +14,5 @@ amitip: I just like looking at the pictures.
 sort: highlight
 ---
 
-:photo-gallery
+:photoprism-folders
 :user-galleries

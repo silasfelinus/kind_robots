@@ -1,13 +1,16 @@
 <template>
   <div class="relative w-full max-w-3xl bg-white p-6 rounded-lg shadow-md">
-    <h2 v-if="component">Edit Component: {{ component?.componentName }}</h2>
+    <!-- Display component information dynamically -->
+    <h2 v-if="selectedComponent">
+      Edit Component: {{ selectedComponent?.componentName }}
+    </h2>
     <p v-else>Loading component...</p>
 
     <!-- Display form fields for title, notes, and boolean toggles -->
-    <div v-if="component" class="mt-4">
+    <div v-if="selectedComponent" class="mt-4">
       <label class="block mb-2">Title:</label>
       <input
-        v-model="component.title"
+        v-model="selectedComponent.title"
         type="text"
         class="w-full p-2 border rounded"
         @input="updateComponent"
@@ -15,7 +18,7 @@
 
       <label class="block mt-4 mb-2">Notes:</label>
       <textarea
-        v-model="component.notes"
+        v-model="selectedComponent.notes"
         class="w-full p-2 border rounded"
         @input="updateComponent"
       ></textarea>
@@ -23,21 +26,21 @@
       <div class="mt-4">
         <label class="mr-2">Is Working:</label>
         <input
-          v-model="component.isWorking"
+          v-model="selectedComponent.isWorking"
           type="checkbox"
           @change="updateComponent"
         />
 
         <label class="ml-4 mr-2">Under Construction:</label>
         <input
-          v-model="component.underConstruction"
+          v-model="selectedComponent.underConstruction"
           type="checkbox"
           @change="updateComponent"
         />
 
         <label class="ml-4 mr-2">Is Broken:</label>
         <input
-          v-model="component.isBroken"
+          v-model="selectedComponent.isBroken"
           type="checkbox"
           @change="updateComponent"
         />
@@ -92,8 +95,8 @@
     </div>
 
     <!-- Comment Display Section -->
-    <div class="mt-6">
-      <CommentDisplay :component-id="componentId" />
+    <div v-if="selectedComponent" class="mt-6">
+      <CommentDisplay :component-id="selectedComponent?.id" />
     </div>
   </div>
 </template>
@@ -105,44 +108,35 @@ import { useReactionStore } from '@/stores/reactionStore'
 import { useUserStore } from '@/stores/userStore'
 import { ReactionType, ReactionCategory } from '@prisma/client' // Prisma import
 import CommentDisplay from './CommentDisplay.vue'
-import type { Component } from '@prisma/client'
-
-// Props
-const props = defineProps({
-  componentId: {
-    type: Number,
-    required: true,
-  },
-})
 
 // Pinia stores
 const reactionStore = useReactionStore()
 const componentStore = useComponentStore()
 const userStore = useUserStore()
 
-// State for the component data
-const component = ref<Component | null>(null) // Explicitly typing component
+// State for reaction and comments
 const reactionType = ref<ReactionType | null>(null) // Reaction type
 const commentTitle = ref('')
 const commentDescription = ref('')
 
+// Get the selected component from the store
+const selectedComponent = computed(() => componentStore.selectedComponent)
+
 // Get the user ID
 const userId = computed(() => userStore.user?.id || 10) // Default to guest user ID 10 if not logged in
 
-// Fetch the component by ID and load it into the local state
-const fetchComponent = async () => {
-  try {
-    component.value = await componentStore.fetchComponentById(props.componentId)
-  } catch (error) {
-    console.error('Failed to fetch component:', error)
+// Watch the selectedComponent to update the local reaction state
+watch(selectedComponent, (newComponent) => {
+  if (newComponent) {
+    fetchReactions(newComponent.id)
   }
-}
+})
 
-// Fetch the reaction when componentId changes
-const fetchReactions = async () => {
-  await reactionStore.fetchReactionsByComponentId(props.componentId)
+// Fetch reactions for the selected component
+const fetchReactions = async (componentId: number) => {
+  await reactionStore.fetchReactionsByComponentId(componentId)
   const userReaction = reactionStore.getUserReactionForComponent(
-    props.componentId,
+    componentId,
     userId.value,
   )
   if (userReaction) {
@@ -154,8 +148,11 @@ const fetchReactions = async () => {
 
 // Function to update the component when fields change
 const updateComponent = async () => {
-  if (component.value) {
-    await componentStore.createOrUpdateComponent(component.value, 'update')
+  if (selectedComponent.value) {
+    await componentStore.createOrUpdateComponent(
+      selectedComponent.value,
+      'update',
+    )
   }
 }
 
@@ -164,7 +161,7 @@ const toggleReaction = async (newReactionType: ReactionType) => {
   reactionType.value = newReactionType
 
   const existingReaction = reactionStore.getUserReactionForComponent(
-    props.componentId,
+    selectedComponent.value?.id || 0,
     userId.value,
   )
   if (existingReaction) {
@@ -174,9 +171,9 @@ const toggleReaction = async (newReactionType: ReactionType) => {
   } else {
     await reactionStore.createReaction({
       userId: userId.value,
-      componentId: props.componentId,
+      componentId: selectedComponent.value?.id || 0,
       reactionType: newReactionType,
-      reactionCategory: ReactionCategory.COMPONENT, // Correct case
+      reactionCategory: ReactionCategory.COMPONENT,
     })
   }
 }
@@ -187,9 +184,9 @@ const submitComment = async () => {
     await reactionStore.createReactionWithChannel(
       {
         userId: userId.value,
-        componentId: props.componentId,
+        componentId: selectedComponent.value?.id || 0,
         reactionType: reactionType.value || ReactionType.NEUTRAL,
-        ReactionCategory: ReactionCategory.COMPONENT, // Correct case
+        ReactionCategory: ReactionCategory.COMPONENT,
       },
       {
         title: commentTitle.value,
@@ -203,20 +200,12 @@ const submitComment = async () => {
   }
 }
 
-// Fetch component and reactions on mount
+// Fetch reactions and initialize when component is mounted
 onMounted(() => {
-  fetchComponent()
-  fetchReactions()
+  if (selectedComponent.value) {
+    fetchReactions(selectedComponent.value.id)
+  }
 })
-
-// Watch for changes in componentId to refetch reactions and component data
-watch(
-  () => props.componentId,
-  () => {
-    fetchComponent()
-    fetchReactions()
-  },
-)
 </script>
 
 <style scoped>

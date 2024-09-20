@@ -85,16 +85,15 @@ export const useGalleryStore = defineStore({
         await this.fetchGalleries()
       }
     },
-    
     async fetchGalleries() {
       try {
         const response = await fetch('/api/galleries')
         if (response.ok) {
           const data = await response.json()
     
-          // Ensure data is an array before assigning
-          if (Array.isArray(data)) {
-            this.galleries = data
+          // Ensure data contains the galleries array before assigning
+          if (data.success && Array.isArray(data.galleries)) {
+            this.galleries = data.galleries
             localStorage.setItem('galleries', JSON.stringify(this.galleries))
     
             // Set a default gallery if none is selected
@@ -102,7 +101,7 @@ export const useGalleryStore = defineStore({
               this.setGalleryByName(this.galleries[0].name)
             }
           } else {
-            console.error('Invalid galleries data format. Expected an array.')
+            console.error('Invalid galleries data format. Expected an array under the galleries property.')
           }
         } else {
           console.error('Failed to fetch galleries')
@@ -111,6 +110,7 @@ export const useGalleryStore = defineStore({
         console.error('Error fetching galleries:', error)
       }
     },
+    
     
 
     // Set the current gallery by name and update localStorage

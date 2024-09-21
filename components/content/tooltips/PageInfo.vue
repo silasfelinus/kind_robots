@@ -62,7 +62,6 @@
 
 <script setup lang="ts">
 import { useDisplayStore } from '@/stores/displayStore'
-import { useContent } from '@nuxt/content'
 
 // Access the displayStore and page content
 const displayStore = useDisplayStore()

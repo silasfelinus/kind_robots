@@ -257,7 +257,7 @@ async function validateAndLoadPromptId(
       const newPrompt = await prisma.prompt.create({
         data: {
           prompt: data.promptString,
-          userId: validatedData.userId || undefined, // Use validated userId
+          userId: validatedData.userId || 10, // Use validated userId
           galleryId: data.galleryId ?? 21,
           pitchId: data.pitchId ?? null,
           playerId: data.playerId || null,

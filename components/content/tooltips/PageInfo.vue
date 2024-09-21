@@ -4,7 +4,7 @@
     <div 
       v-if="!showInfo" 
       @click="toggleInfo" 
-      class="cursor-pointer absolute top-0 right-0 opacity-70 p-2 z-40"
+      class="absolute top-4 right-4 opacity-70 p-2 cursor-pointer z-40"
     >
       <icon name="i-info" class="text-2xl" />
     </div>
@@ -17,9 +17,9 @@
       </button>
 
       <!-- Page Content -->
-      <div class="flex flex-col items-center justify-center">
+      <div class="flex flex-col items-center justify-center flex-grow">
         <!-- Image -->
-        <div class="flex justify-center items-center m-1">
+        <div class="flex justify-center items-center m-4">
           <img
             :src="'/images/' + page.image"
             alt="Main Image"
@@ -64,29 +64,67 @@
 import { useDisplayStore } from '@/stores/displayStore'
 import { useContent } from '@nuxt/content'
 
-const { page } = useContent()
+// Access the displayStore and page content
 const displayStore = useDisplayStore()
+const { page } = useContent()
 
-// ShowInfo from the store
-const showInfoInStore = computed({
+// Computed properties for store interactions
+const showInfo = computed({
   get: () => displayStore.showInfo,
   set: (value: boolean) => displayStore.showInfo = value
 })
 
-// Toggle Info function to show or hide the splash screen
+// Toggles the visibility of the page info splash screen
 const toggleInfo = () => {
   displayStore.showInfo = !displayStore.showInfo
 }
+
+// Access dynamic content from the page
+const pageTitle = computed(() => page?.title || 'Welcome')
+const pageSubtitle = computed(() => page?.subtitle || '')
+const pageDescription = computed(() => page?.description || '')
+const pageTooltip = computed(() => page?.tooltip || '')
+const pageDottitip = computed(() => page?.dottitip || '')
+const pageAmitip = computed(() => page?.amitip || '')
 </script>
 
 <style scoped>
-/* Splash screen full page overlay when open */
+/* Ensure the page info icon is placed inside the main content area */
+div.absolute {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 40;
+}
+
+/* Full-screen splash screen */
 div.fixed {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9); /* Slight opacity */
   z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Page info content */
+div.flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Responsive image inside the splash screen */
+img.rounded-2xl {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>

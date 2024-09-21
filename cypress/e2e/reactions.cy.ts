@@ -24,9 +24,9 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
 
       // Check the response status and capture the artId
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('id')
+      expect(response.body.art).to.have.property('id')
 
-      artId = response.body.id
+      artId = response.body.art.id
       expect(artId).to.be.a('number')
 
       console.log('Created Art ID:', artId) // Log for debugging

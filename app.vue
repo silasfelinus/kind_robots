@@ -26,10 +26,13 @@
       <div class="flex-1 w-full flex">
         <kind-sidebar-simple />
         <!-- Main Content with scrollable area -->
-        <main class="flex-grow overflow-y-auto">
+        <main class="flex-grow overflow-y-auto relative">
           <div class="flex justify-center items-center">
-            <div class="w-full max-w-4xl rounded-2xl bg-base-200">
+            <div class="w-full max-w-4xl rounded-2xl bg-base-200 relative">
+              <!-- Page Info Icon and Splash -->
               <page-info />
+
+              <!-- Main content from Nuxt page -->
               <NuxtPage />
             </div>
           </div>
@@ -82,5 +85,13 @@ onBeforeUnmount(() => {
 /* Scrollable area for the main content */
 main {
   overflow-y: auto;
+}
+
+/* The page-info toggle button is positioned in the top right corner */
+.page-info-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
 }
 </style>

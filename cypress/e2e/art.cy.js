@@ -20,6 +20,10 @@ describe('Art Management API Tests', () => {
         steps: 10,
         userId: 1,
         pitch: 'surreal',
+        path: ' ',
+        seed: null,
+        galleryId: null,
+        promptId: null,
       },
       failOnStatusCode: false, // Prevent Cypress from failing immediately if the status is not 200
     }).then((response) => {

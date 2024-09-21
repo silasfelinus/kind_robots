@@ -22,18 +22,15 @@
         <NavLinks />
       </header>
 
-        <page-info />
-
       <!-- Main Layout -->
       <div class="flex-1 w-full flex">
         <kind-sidebar-simple />
         <!-- Main Content with scrollable area -->
         <main class="flex-grow overflow-y-auto relative">
-          <div class="flex justify-center items-center">
+          <div class="flex justify-center items-center relative">
             <div class="w-full max-w-4xl rounded-2xl bg-base-200 relative">
               <!-- Page Info Icon and Splash -->
-      
-
+              <page-info />
               <!-- Main content from Nuxt page -->
               <NuxtPage />
             </div>
@@ -52,42 +49,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { useDisplayStore } from '@/stores/displayStore'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-
-// Track whether the KindLoader has been initialized
-const isKindLoaderInitialized = ref(false)
-
-const displayStore = useDisplayStore()
-const isPageReady = ref(false) // Track whether the page is ready
-
-const handlePageReady = (ready) => {
-  isPageReady.value = ready
-  console.log('Page ready:', ready)
-
-  // Mark the loader as initialized after the page is ready
-  if (ready) {
-    isKindLoaderInitialized.value = true
-  }
-}
-
-// On mounted, initialize the viewport watcher to dynamically adjust sizes
-onMounted(() => {
-  displayStore.initializeViewportWatcher()
-})
-
-onBeforeUnmount(() => {
-  displayStore.removeViewportWatcher()
-})
-</script>
-
-<style scoped>
-/* Scrollable area for the main content */
-main {
-  overflow-y: auto;
-}
-
-
-</style>

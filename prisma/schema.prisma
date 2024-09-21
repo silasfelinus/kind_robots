@@ -22,7 +22,7 @@ model Art {
   promptString      String        @default(" ")
   isPublic          Boolean?      @default(false)
   isMature          Boolean?      @default(false)
-  promptId          Int?          @default(1)
+  promptId          Int?
   Prompt            Prompt?       @relation(fields: [promptId], references: [id])
   userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])

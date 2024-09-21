@@ -4,7 +4,7 @@ describe('ChatExchange Management API Tests', () => {
   const apiKey = Cypress.env('API_KEY')
   let chatExchangeId: number // Explicitly define the type as number
   const userId: number = 1 // Example user ID (assuming 1 is valid)
-  const botId: number = 2 // Example bot ID (assuming 2 is valid)
+  const botId: number = 1 // Example bot ID (assuming 2 is valid)
 
   it('Create a New Chat Exchange', () => {
     cy.request({

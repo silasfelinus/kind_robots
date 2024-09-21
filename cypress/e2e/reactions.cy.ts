@@ -16,7 +16,14 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
         'x-api-key': apiKey,
       },
       body: {
-        promptString: 'goth kitten', // Example prompt for creating art
+        promptString: 'surreal, A beautiful pancake sunrise over the mountains',
+        steps: 10,
+        userId: 1,
+        pitch: 'surreal',
+        path: ' ',
+        seed: null,
+        galleryId: null,
+        promptId: null,
       },
     }).then((response) => {
       // Log the entire response to debug structure

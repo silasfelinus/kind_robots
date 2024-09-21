@@ -98,7 +98,7 @@ export default defineEventHandler(async (event) => {
       validatedData.designer || 'kindguest',
       cfgValue || 3,
       requestData.seed || -1,
-      requestData.steps || 20,
+      requestData.steps || 20
     )
 
     if (!response || !response.images?.length) {
@@ -140,10 +140,10 @@ export default defineEventHandler(async (event) => {
         promptString: requestData.promptString,
         isPublic: requestData.isPublic,
         isMature: requestData.isMature,
-        userId: requestData.userId,
-        promptId: requestData.promptId,
-        pitchId: requestData.pitchId,
-        galleryId: requestData.galleryId,
+        userId: validatedData.userId,
+        promptId: validatedData.promptId,
+        pitchId: validatedData.pitchId,
+        galleryId: validatedData.galleryId,
       },
     })
 

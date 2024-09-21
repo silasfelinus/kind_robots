@@ -18,12 +18,12 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
       body: {
         promptString: 'surreal, A beautiful pancake sunrise over the mountains',
         steps: 10,
-        userId: 1,
-        pitch: 'surreal',
         path: ' ',
         seed: null,
+        channelId: null,
         galleryId: null,
         promptId: null,
+        pitchId: null,
       },
     }).then((response) => {
       // Log the entire response to debug structure
@@ -84,6 +84,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
       body: {
         reactionType: 'CLAPPED', // Changing the reaction type
         comment: 'Actually, clapping for this artwork!',
+        reactionCategory: 'ART'
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

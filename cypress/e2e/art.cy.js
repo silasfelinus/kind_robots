@@ -18,12 +18,12 @@ describe('Art Management API Tests', () => {
       body: {
         promptString: 'surreal, A beautiful pancake sunrise over the mountains',
         steps: 10,
-        userId: 1,
-        pitch: 'surreal',
         path: ' ',
         seed: null,
+        channelId: null,
         galleryId: null,
         promptId: null,
+        pitchId: null,
       },
       failOnStatusCode: false, // Prevent Cypress from failing immediately if the status is not 200
     }).then((response) => {

@@ -37,25 +37,12 @@ describe('Component Management API Tests', () => {
         underConstruction: false,
         isBroken: false,
         title: 'Test Component',
-        Tags: {
-          create: [
-            {
-              label: 'vue',
-              title: 'Vue Component Tag',
-              isMature: false,
-            },
-            {
-              label: 'component',
-              title: 'Component Tag',
-              isMature: false,
-            },
-          ],
-        },
+       
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      componentId = response.body.newComponent.id // Save the component ID for use in later tests
+      componentId = response.body.component.id // Save the component ID for use in later tests
     })
   })
 

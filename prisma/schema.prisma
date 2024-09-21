@@ -26,7 +26,7 @@ model Art {
   Prompt            Prompt?       @relation(fields: [promptId], references: [id])
   userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
-  pitchId           Int?          @default(1)
+  pitchId           Int?
   Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
   galleryId         Int?          @default(21)
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])

@@ -9,12 +9,7 @@ interface DisplayStoreState {
   sidebarLeft: DisplayState
   sidebarRight: DisplayState
   footer: DisplayState
-  focusedContainer:
-    | 'headerState'
-    | 'sidebarLeft'
-    | 'sidebarRight'
-    | 'footer'
-    | null
+  focusedContainer: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer' | null
   headerVh: number
   sidebarVw: number
   footerVh: number
@@ -22,6 +17,7 @@ interface DisplayStoreState {
   viewportSize: 'mobile' | 'tablet' | 'desktop' | 'largeScreen'
   isTouchDevice: boolean
   isLoaded: boolean
+  showInfo: boolean
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -38,19 +34,11 @@ export const useDisplayStore = defineStore('display', {
     viewportSize: 'desktop',
     isTouchDevice: false,
     isLoaded: false,
+    showInfo: true, // Default is true; can be loaded from localStorage
   }),
 
   actions: {
-    // Function to load a single display state from localStorage
-    loadDisplayState(key: keyof DisplayStoreState, defaultValue: DisplayState): DisplayState {
-      const storedValue = localStorage.getItem(key as string)
-      if (storedValue && ['open', 'compact', 'hidden', 'disabled'].includes(storedValue)) {
-        return storedValue as DisplayState
-      }
-      return defaultValue
-    },
-
-    // Load persisted state from localStorage
+    // Load state from localStorage and assign defaults if unavailable
     loadState() {
       if (typeof window !== 'undefined') {
         this.headerState = this.loadDisplayState('headerState', 'open')
@@ -61,13 +49,24 @@ export const useDisplayStore = defineStore('display', {
         const storedHeaderVh = localStorage.getItem('headerVh')
         this.headerVh = storedHeaderVh ? parseInt(storedHeaderVh, 10) : 7
 
-        this.sidebarVw = this.calculateSidebarWidth()
+        const storedShowInfo = localStorage.getItem('showInfo')
+        this.showInfo = storedShowInfo !== null ? storedShowInfo === 'true' : true
 
+        this.sidebarVw = this.calculateSidebarWidth()
         this.isLoaded = true
       }
     },
 
-    // Save current state to localStorage
+    // Function to load a specific display state from localStorage
+    loadDisplayState(key: keyof DisplayStoreState, defaultValue: DisplayState): DisplayState {
+      const storedValue = localStorage.getItem(key as string)
+      if (storedValue && ['open', 'compact', 'hidden', 'disabled'].includes(storedValue)) {
+        return storedValue as DisplayState
+      }
+      return defaultValue
+    },
+
+    // Save the current state to localStorage
     saveState() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('headerState', this.headerState)
@@ -75,15 +74,15 @@ export const useDisplayStore = defineStore('display', {
         localStorage.setItem('sidebarRight', this.sidebarRight)
         localStorage.setItem('footer', this.footer)
         localStorage.setItem('headerVh', this.headerVh.toString())
+        localStorage.setItem('showInfo', this.showInfo.toString()) // Save showInfo state
       }
     },
 
-    // Calculate sidebar width based on state, screen size, and touch capability
+    // Calculate sidebar width based on device type and screen size
     calculateSidebarWidth(): number {
       if (this.isVertical) {
         return this.sidebarLeft === 'open' ? 30 : 4
       }
-    
       switch (this.viewportSize) {
         case 'mobile':
           return this.sidebarLeft === 'open' ? 25 : this.sidebarLeft === 'compact' ? 12 : 4
@@ -96,14 +95,12 @@ export const useDisplayStore = defineStore('display', {
           return this.sidebarLeft === 'open' ? (this.isTouchDevice ? 22 : 20) : this.sidebarLeft === 'compact' ? 10 : 4
       }
     },
-    
 
-    // Update viewport dimensions and header/sidebar sizes dynamically
+    // Update the viewport size and orientation
     updateViewport() {
       if (typeof window !== 'undefined') {
         this.isVertical = window.innerHeight > window.innerWidth
-        this.isTouchDevice =
-          'ontouchstart' in window || navigator.maxTouchPoints > 0
+        this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
         const width = window.innerWidth
         if (width < 600) {
@@ -116,55 +113,48 @@ export const useDisplayStore = defineStore('display', {
           this.viewportSize = 'largeScreen'
         }
 
-        // Header height calculation: Max 10vh, otherwise 7% of viewport height
         this.headerVh = Math.min(10, 7)
-
-        // Adjust sidebar width based on the current state and screen size
         this.sidebarVw = this.calculateSidebarWidth()
 
         localStorage.setItem('headerVh', this.headerVh.toString())
       }
     },
 
-    // Toggle sidebar visibility between 'open', 'compact', and 'hidden'
+    // Toggle sidebar state between 'hidden', 'compact', and 'open'
     toggleSidebar(container: 'sidebarLeft' | 'sidebarRight') {
       const stateCycle: Record<DisplayState, DisplayState> = {
         hidden: 'compact',
         compact: 'open',
         open: 'hidden',
-        disabled: 'hidden', // Optional, depending on your use case
+        disabled: 'hidden', // Optional
       }
-    
       this[container] = stateCycle[this[container]]
       this.sidebarVw = this.calculateSidebarWidth()
-    
+      
       if (typeof window !== 'undefined') {
         localStorage.setItem(container, this[container])
       }
     },
 
-    // Handle orientation change and update layout
+    // Handle orientation changes and update layout
     checkOrientation() {
       this.isVertical = window.innerHeight > window.innerWidth
       this.updateViewport()
     },
 
-    // Initialize viewport watcher for dynamic resizing
+    // Initialize the viewport watcher for dynamic resizing
     initializeViewportWatcher() {
       this.updateViewport()
       window.addEventListener('resize', this.checkOrientation)
     },
 
-    // Remove viewport listener when unmounting
+    // Remove the viewport watcher
     removeViewportWatcher() {
       window.removeEventListener('resize', this.checkOrientation)
     },
 
-    // Change state for header, sidebar, and footer, and persist the state
-    changeState(
-      container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer',
-      newState: DisplayState,
-    ) {
+    // Update the state for header, sidebar, or footer and save to localStorage
+    changeState(container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer', newState: DisplayState) {
       this[container] = newState
       this.sidebarVw = this.calculateSidebarWidth()
 

@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
       data: {
         comment,
         reactionType, // Updating the reactionType field
-        ReactionCategory: reactionCategory, // Updating the reactionCategory field
+        reactionCategory: reactionCategory, // Updating the reactionCategory field
       },
     })
 

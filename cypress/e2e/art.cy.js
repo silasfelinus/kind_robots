@@ -10,7 +10,7 @@ describe('Art Management API Tests', () => {
   before(() => {
     cy.request({
       method: 'POST',
-      url: `${baseUrl}/generate`,
+      url: `${baseUrl}/`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,

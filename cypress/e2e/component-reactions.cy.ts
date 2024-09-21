@@ -31,9 +31,9 @@ describe('Component Reactions API Tests', () => {
 
       // Check the response status and capture the componentId
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('id')
+      expect(response.body.component).to.have.property('id')
 
-      componentId = response.body.id
+      componentId = response.body.component.id
       expect(componentId).to.be.a('number')
 
       console.log('Created Component ID:', componentId) // Log for debugging
@@ -130,6 +130,7 @@ describe('Component Reactions API Tests', () => {
       body: {
         reactionType: 'BOOED', // Change reaction type
         comment: 'Actually, I have second thoughts...',
+        reactionCategory: "COMPONENT",
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

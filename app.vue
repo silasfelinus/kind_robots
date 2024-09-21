@@ -7,7 +7,7 @@
     <div v-if="isPageReady">
       <!-- Header -->
       <header
-        class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
+        class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky shadow-md top-0 z-30"
         :style="{ height: `${displayStore.headerVh}vh` }"
       >
         <!-- Sidebar Toggle -->
@@ -22,6 +22,8 @@
         <NavLinks />
       </header>
 
+        <page-info />
+
       <!-- Main Layout -->
       <div class="flex-1 w-full flex">
         <kind-sidebar-simple />
@@ -30,7 +32,7 @@
           <div class="flex justify-center items-center">
             <div class="w-full max-w-4xl rounded-2xl bg-base-200 relative">
               <!-- Page Info Icon and Splash -->
-              <page-info />
+      
 
               <!-- Main content from Nuxt page -->
               <NuxtPage />
@@ -87,11 +89,5 @@ main {
   overflow-y: auto;
 }
 
-/* The page-info toggle button is positioned in the top right corner */
-.page-info-toggle {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 50;
-}
+
 </style>

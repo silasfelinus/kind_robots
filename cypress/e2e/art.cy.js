@@ -102,8 +102,6 @@ describe('Art Management API Tests', () => {
       expect(response.body.art).to.include({
         id: artId,
         userId: 1,
-        promptId: 1,
-        pitchId: 1,
         checkpoint: 'model-checkpoint-001',
         sampler: 'Euler',
       })

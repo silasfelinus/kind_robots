@@ -66,7 +66,7 @@
                 class="w-12 h-12 rounded-full shadow-md"
               />
               <div class="flex flex-col">
-                <span class="text-sm text-accent font-semibold">DottiBot</span>
+                <span class="text-sm font-semibold">DottiBot</span>
                 <p class="text-sm">{{ page.dottitip }}</p>
               </div>
             </div>
@@ -83,7 +83,7 @@
                 class="w-12 h-12 rounded-full shadow-md"
               />
               <div class="flex flex-col">
-                <span class="text-sm text-accent font-semibold">AMIbot</span>
+                <span class="text-sm font-semibold">AMIbot</span>
                 <p class="text-sm">{{ page.amitip }}</p>
               </div>
             </div>
@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore and page content
@@ -134,10 +134,10 @@ const showInfoInStore = computed({
   },
 })
 
-// Watch for changes in the store and sync with the local splash visibility
+// Watch for changes in the store, but this only affects auto-display on navigation
 watch(showInfoInStore, (newVal) => {
-  if (!newVal) {
-    isShowingSplash.value = false
+  if (newVal) {
+    isShowingSplash.value = true
   }
 })
 
@@ -158,12 +158,12 @@ onMounted(() => {
 })
 
 const toggleSplash = () => {
-  if (showInfoInStore.value) {
-    isShowingSplash.value = !isShowingSplash.value
-  }
+  // Toggle the local splash visibility without affecting the store state
+  isShowingSplash.value = !isShowingSplash.value
 }
 
 const closeSplash = () => {
+  // Only close the splash locally, do not modify the store's auto-display logic
   isShowingSplash.value = false
 }
 </script>

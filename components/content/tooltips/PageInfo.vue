@@ -14,7 +14,7 @@
         'text-3xl transition duration-300',
         isShowingSplash
           ? 'text-secondary hover:text-secondary-focus glow-effect'
-          : 'text-accent hover:text-info',  
+          : 'text-accent hover:text-info',
       ]"
     />
   </div>
@@ -116,8 +116,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore and page content
@@ -126,7 +126,6 @@ const { page } = useContent()
 
 // Local boolean to manage splash visibility
 const isShowingSplash = ref(false)
-const route = useRoute()
 const router = useRouter()
 
 // Computed property for the store interaction
@@ -176,8 +175,8 @@ const closeSplash = () => {
 /* Updated glow effect using accent color */
 .glow-effect {
   box-shadow:
-    0 0 15px rgba(0, 170, 255, 0.8), /* Use accent/info color */
-    0 0 25px rgba(0, 170, 255, 0.6); /* Adjust intensity for glow */
+    0 0 15px rgba(0, 170, 255, 0.8),
+    /* Use accent/info color */ 0 0 25px rgba(0, 170, 255, 0.6); /* Adjust intensity for glow */
   transition: box-shadow 0.3s ease-in-out;
 }
 

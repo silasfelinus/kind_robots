@@ -19,23 +19,9 @@
         </div>
 
         <!-- Navigation Links -->
-        <div
-          class="nav-links flex items-center justify-center gap-4 md:gap-6 lg:gap-8 p-2 md:p-4"
-        >
-          <a
-            v-for="link in navLinks"
-            :key="link.text"
-            :href="link.url"
-            class="text-base sm:text-sm md:text-lg font-medium text-base-content hover:text-secondary transition-all"
-          >
-            {{ link.text }}
-          </a>
-        </div>
+        <nav-links />
 
-        <!-- Page Info Toggle -->
-        <div class="absolute top-4 right-4 p-1 z-40">
-          <PageInfo />
-        </div>
+  
       </header>
 
       <!-- Main Layout -->
@@ -154,11 +140,6 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-/* Additional adjustments for small screen navigation links */
-.nav-links a {
-  white-space: nowrap; /* Prevent links from overflowing */
 }
 
 /* Optional: Ensure links wrap if they exceed available width */

@@ -1,28 +1,28 @@
 <template>
   <!-- Icon to open the welcome page -->
   <div
-    class="cursor-pointer p-2 flex items-center justify-center page-info-toggle"
+    class="cursor-pointer p-2 flex items-center justify-center"
     @click="toggleInfo"
   >
     <icon
       v-if="!showInfo"
       name="i-info"
-      class="text-3xl text-gray-700 hover:text-gray-900 transition duration-300"
+      class="text-3xl text-accent hover:text-accent-focus transition duration-300"
     />
     <icon
       v-else
       name="i-close"
-      class="text-3xl text-gray-700 hover:text-gray-900 transition duration-300"
+      class="text-3xl text-accent hover:text-accent-focus transition duration-300"
     />
   </div>
 
   <!-- Welcome splash screen -->
   <div
     v-if="showInfo"
-    class="fixed inset-0 bg-white bg-opacity-90 z-50 flex items-center justify-center p-4"
+    class="fixed inset-0 bg-primary bg-opacity-90 z-50 flex items-center justify-center p-4"
   >
     <div
-      class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-4xl max-h-full overflow-auto"
+      class="bg-base-200 rounded-2xl shadow-lg p-6 w-full max-w-lg max-h-full overflow-auto"
     >
       <!-- Page Content -->
       <div class="flex flex-col items-center justify-center space-y-6">
@@ -31,25 +31,25 @@
           <img
             :src="'/images/' + page.image"
             alt="Main Image"
-            class="rounded-2xl border border-gray-300 shadow-md w-64 h-64 object-cover"
+            class="rounded-2xl border border-base-300 shadow-md w-64 h-64 object-cover"
           />
         </div>
 
         <!-- Title and Subtitle -->
         <div class="flex flex-col justify-center items-center">
-          <h1 class="text-4xl font-bold text-gray-800">{{ pageTitle }}</h1>
-          <h2 v-if="pageSubtitle" class="text-lg font-medium text-gray-600">
+          <h1 class="text-2xl font-bold text-secondary">{{ pageTitle }}</h1>
+          <h2 v-if="pageSubtitle" class="text-lg font-medium text-accent">
             {{ pageSubtitle }}
           </h2>
         </div>
 
         <!-- Description -->
-        <div class="text-center text-gray-600 max-w-xl">
+        <div class="text-center text-base-content max-w-md">
           <p>{{ pageDescription }}</p>
         </div>
 
         <!-- Tooltip Info -->
-        <div class="mt-2 text-center text-gray-500">
+        <div class="mt-2 text-center text-neutral">
           <p v-if="pageTooltip" class="italic">{{ pageTooltip }}</p>
           <p v-if="pageDottitip" class="mt-1">{{ pageDottitip }}</p>
           <p v-if="pageAmitip" class="mt-1 text-sm">{{ pageAmitip }}</p>
@@ -63,14 +63,14 @@
             id="showInfo"
             v-model="showInfoInStore"
             type="checkbox"
-            class="mr-2 h-4 w-4 text-primary focus:ring-0"
+            class="mr-2 h-4 w-4 text-accent focus:ring-0"
           />
-          <label for="showInfo" class="text-gray-700"
+          <label for="showInfo" class="text-base-content"
             >Don't show this again</label
           >
         </div>
         <button
-          class="bg-primary text-white py-2 px-4 rounded-lg shadow-md hover:bg-primary-dark transition duration-300"
+          class="bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300"
           @click="toggleInfo"
         >
           OK
@@ -81,11 +81,14 @@
 </template>
 
 <script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore and page content
 const displayStore = useDisplayStore()
 const { page } = useContent()
+const route = useRoute()
+const router = useRouter()
 
 // Computed properties for store interactions
 const showInfo = computed({
@@ -97,6 +100,12 @@ const showInfo = computed({
 const toggleInfo = () => {
   displayStore.showInfo = !displayStore.showInfo
 }
+
+// Reset the info toggle whenever the route changes
+router.beforeEach((to, from, next) => {
+  displayStore.showInfo = true // Reset the info toggle
+  next()
+})
 
 // Access dynamic content from the page
 const pageTitle = computed(() => page?.title || 'Welcome')
@@ -110,13 +119,7 @@ const pageAmitip = computed(() => page?.amitip || 'No amitip available')
 </script>
 
 <style scoped>
-.page-info-toggle {
-  position: relative;
-  top: 0;
-  right: 0;
-}
-
 .icon:hover {
-  color: #1a202c;
+  color: var(--tw-text-opacity, 1);
 }
 </style>

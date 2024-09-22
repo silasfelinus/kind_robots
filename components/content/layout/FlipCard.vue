@@ -17,7 +17,7 @@ const flipped = ref(false)
 
 <style scoped>
 .flip-card {
-  perspective: 1000px;
+  perspective: 999px;
   width: 300px;
   height: 500px;
 }

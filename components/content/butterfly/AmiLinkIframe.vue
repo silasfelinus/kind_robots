@@ -16,7 +16,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const isLoading = ref(false)
 const iframeVisible = ref(false)
 const iframeSrc = ref('')

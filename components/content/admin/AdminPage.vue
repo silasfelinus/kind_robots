@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 const selectedModel = ref('User') // default model
 const data = ref(null)
 

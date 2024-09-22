@@ -107,7 +107,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
 
 const date = ref(new Date().toISOString().substr(0, 10))

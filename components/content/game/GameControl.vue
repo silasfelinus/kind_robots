@@ -9,7 +9,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useGameStore } from './../../../stores/gameStore'
 import { ref, onMounted } from 'vue'
 

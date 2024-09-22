@@ -12,7 +12,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useErrorStore } from './../stores/errorStore' // Adjust path as necessary
 

@@ -10,7 +10,7 @@
   </transition>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useDreamStore } from '../../../stores/dreamStore'
 
 const dreamStore = useDreamStore()

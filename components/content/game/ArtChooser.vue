@@ -30,7 +30,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useGameStore } from './../../../stores/gameStore'
 import { useArtStore } from './../../../stores/artStore' // If art is stored separately

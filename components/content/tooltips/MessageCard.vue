@@ -1,19 +1,14 @@
 <template>
   <transition name="fade-slide">
     <div
-      v-if="show"
+      
       class="message-card"
       :class="[
         bgClass,
         'z-10 p-1 rounded-lg border flex items-center space-x-2',
       ]"
     >
-      <button
-        class="absolute top-0 right-0 m-1 text-sm"
-        @click="emitRemoveCard"
-      >
-        .
-      </button>
+      
 
       <img :src="imageSrc" :alt="altText" class="rounded-full w-10 h-10" />
       <div>
@@ -29,8 +24,7 @@
 </template>
 
 <script setup lang="ts">
-const { show, bgClass, imageSrc, altText, username, message } = defineProps<{
-  show: boolean
+const { bgClass, imageSrc, altText, username, message } = defineProps<{
   bgClass: string
   imageSrc: string
   altText: string
@@ -38,9 +32,5 @@ const { show, bgClass, imageSrc, altText, username, message } = defineProps<{
   message: string
 }>()
 
-const emit = defineEmits(['remove-card'])
 
-const emitRemoveCard = () => {
-  emit('remove-card')
-}
 </script>

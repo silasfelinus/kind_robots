@@ -66,7 +66,7 @@
                 class="w-12 h-12 rounded-full shadow-md"
               />
               <div class="flex flex-col">
-                <span class="text-sm font-semibold">DottiBot</span>
+                <span class="text-sm text-accent font-semibold">DottiBot</span>
                 <p class="text-sm">{{ page.dottitip }}</p>
               </div>
             </div>
@@ -83,7 +83,7 @@
                 class="w-12 h-12 rounded-full shadow-md"
               />
               <div class="flex flex-col">
-                <span class="text-sm font-semibold">AMIbot</span>
+                <span class="text-sm text-accent font-semibold">AMIbot</span>
                 <p class="text-sm">{{ page.amitip }}</p>
               </div>
             </div>
@@ -134,6 +134,13 @@ const showInfoInStore = computed({
   },
 })
 
+// Watch for changes in the store and sync with the local splash visibility
+watch(showInfoInStore, (newVal) => {
+  if (!newVal) {
+    isShowingSplash.value = false
+  }
+})
+
 // Image size: max 50% of either viewport width (vw) or viewport height (vh)
 const imgStyle = ref({ width: '', height: '' })
 
@@ -151,7 +158,9 @@ onMounted(() => {
 })
 
 const toggleSplash = () => {
-  isShowingSplash.value = !isShowingSplash.value
+  if (showInfoInStore.value) {
+    isShowingSplash.value = !isShowingSplash.value
+  }
 }
 
 const closeSplash = () => {

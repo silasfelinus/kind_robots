@@ -1,23 +1,34 @@
 <template>
   <div>
     <!-- Icon to open the welcome page -->
-    <div 
-      v-if="!showInfo" 
-      @click="toggleInfo" 
+    <div
+      v-if="!showInfo"
       class="absolute top-4 right-4 opacity-70 p-2 cursor-pointer z-40"
+      @click="toggleInfo"
     >
-      <icon name="i-info" class="text-3xl text-gray-700 hover:text-gray-900 transition duration-300" />
+      <icon
+        name="i-info"
+        class="text-3xl text-gray-700 hover:text-gray-900 transition duration-300"
+      />
     </div>
 
     <!-- Welcome splash screen -->
-    <div v-if="showInfo" class="fixed inset-0 bg-white bg-opacity-90 z-50 flex flex-col justify-between p-6">
+    <div
+      v-if="showInfo"
+      class="fixed inset-0 bg-white bg-opacity-90 z-50 flex flex-col justify-between p-6"
+    >
       <!-- X button in the top right corner -->
-      <button @click="toggleInfo" class="absolute top-4 right-4 text-2xl text-gray-700 hover:text-gray-900">
+      <button
+        class="absolute top-4 right-4 text-2xl text-gray-700 hover:text-gray-900"
+        @click="toggleInfo"
+      >
         <icon name="i-close" />
       </button>
 
       <!-- Page Content -->
-      <div class="flex flex-col items-center justify-center flex-grow space-y-6">
+      <div
+        class="flex flex-col items-center justify-center flex-grow space-y-6"
+      >
         <!-- Image -->
         <div class="flex justify-center items-center">
           <img
@@ -30,7 +41,9 @@
         <!-- Title and Subtitle -->
         <div class="flex flex-col justify-center items-center">
           <h1 class="text-4xl font-bold text-gray-800">{{ pageTitle }}</h1>
-          <h2 v-if="pageSubtitle" class="text-lg font-medium text-gray-600">{{ pageSubtitle }}</h2>
+          <h2 v-if="pageSubtitle" class="text-lg font-medium text-gray-600">
+            {{ pageSubtitle }}
+          </h2>
         </div>
 
         <!-- Description -->
@@ -49,10 +62,20 @@
       <!-- OK button and Show Info checkbox -->
       <div class="flex justify-between items-center mt-8">
         <div class="flex items-center">
-          <input type="checkbox" id="showInfo" v-model="showInfoInStore" class="mr-2 h-4 w-4 text-primary focus:ring-0" />
-          <label for="showInfo" class="text-gray-700">Don't show this again</label>
+          <input
+            id="showInfo"
+            v-model="showInfoInStore"
+            type="checkbox"
+            class="mr-2 h-4 w-4 text-primary focus:ring-0"
+          />
+          <label for="showInfo" class="text-gray-700"
+            >Don't show this again</label
+          >
         </div>
-        <button @click="toggleInfo" class="bg-primary text-white py-2 px-4 rounded-lg shadow-md hover:bg-primary-dark transition duration-300">
+        <button
+          class="bg-primary text-white py-2 px-4 rounded-lg shadow-md hover:bg-primary-dark transition duration-300"
+          @click="toggleInfo"
+        >
           OK
         </button>
       </div>
@@ -70,7 +93,7 @@ const { page } = useContent()
 // Computed properties for store interactions
 const showInfo = computed({
   get: () => displayStore.showInfo,
-  set: (value: boolean) => displayStore.showInfo = value
+  set: (value: boolean) => (displayStore.showInfo = value),
 })
 
 // Toggles the visibility of the page info splash screen

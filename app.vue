@@ -7,7 +7,7 @@
     <div v-if="isPageReady">
       <!-- Header -->
       <header
-        class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky shadow-md top-0 z-30"
+        class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
         :style="{ height: `${displayStore.headerVh}vh` }"
       >
         <!-- Sidebar Toggle -->
@@ -27,10 +27,11 @@
         <kind-sidebar-simple />
         <!-- Main Content with scrollable area -->
         <main class="flex-grow overflow-y-auto relative">
-          <div class="flex justify-center items-center relative">
+          <div class="flex justify-center items-center">
             <div class="w-full max-w-4xl rounded-2xl bg-base-200 relative">
               <!-- Page Info Icon and Splash -->
               <page-info />
+
               <!-- Main content from Nuxt page -->
               <NuxtPage />
             </div>
@@ -49,3 +50,48 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import { useDisplayStore } from '@/stores/displayStore'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+// Track whether the KindLoader has been initialized
+const isKindLoaderInitialized = ref(false)
+
+const displayStore = useDisplayStore()
+const isPageReady = ref(false) // Track whether the page is ready
+
+const handlePageReady = (ready) => {
+  isPageReady.value = ready
+  console.log('Page ready:', ready)
+
+  // Mark the loader as initialized after the page is ready
+  if (ready) {
+    isKindLoaderInitialized.value = true
+  }
+}
+
+// On mounted, initialize the viewport watcher to dynamically adjust sizes
+onMounted(() => {
+  displayStore.initializeViewportWatcher()
+})
+
+onBeforeUnmount(() => {
+  displayStore.removeViewportWatcher()
+})
+</script>
+
+<style scoped>
+/* Scrollable area for the main content */
+main {
+  overflow-y: auto;
+}
+
+/* The page-info toggle button is positioned in the top right corner */
+.page-info-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
+}
+</style>

@@ -65,7 +65,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // State
 const prompt = ref('')
 const color = ref(null)

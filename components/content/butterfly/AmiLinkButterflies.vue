@@ -7,7 +7,7 @@
   <AmiSwarm v-if="showAmiSwarm" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 const buttonText = ref('Home of AMIbot')
 
 const showAmiSwarm = ref(false) // Control display of AmiSwarm

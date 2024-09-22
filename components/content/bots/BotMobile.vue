@@ -10,7 +10,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import BotBubble from './BotBubble.vue'
 import BotChat from './BotChat.vue'
 </script>

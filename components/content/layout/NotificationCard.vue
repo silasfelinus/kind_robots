@@ -19,7 +19,7 @@
   </transition>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watchEffect, onMounted } from 'vue'
 import interact from '@interactjs/interact'
 

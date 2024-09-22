@@ -15,7 +15,7 @@
       <!-- Centered Text and Buttons at the lower part of the screen -->
       <div
         class="absolute inset-x-0 bottom-0 mb-12 flex flex-col justify-center items-center text-center p-8 bg-base-200 bg-opacity-70 rounded-xl max-w-lg mx-auto"
-        style="width: 80%; transform: translateY(-50%);" 
+        style="width: 80%; transform: translateY(-50%)"
       >
         <h1 class="text-4xl font-bold mb-2 text-white text-shadow-lg">
           {{ steps[currentStep].title }}
@@ -60,7 +60,7 @@
   </transition>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { steps } from '@/training/steps.js'
 

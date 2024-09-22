@@ -79,3 +79,91 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
+import SplashTutorial from '@/components/SplashTutorial.vue'
+
+// Track whether the KindLoader has been initialized
+const isKindLoaderInitialized = ref(false)
+const displayStore = useDisplayStore()
+const isPageReady = ref(false)
+
+// Control for tutorial visibility and animation direction
+const showTutorial = ref(true)
+const animationDirection = ref('flip-forward')
+
+// When the page is ready, load content
+const handlePageReady = (ready) => {
+  isPageReady.value = ready
+  if (ready) {
+    isKindLoaderInitialized.value = true
+  }
+}
+
+// Transition from the tutorial to the main content (NuxtPage)
+const handlePageTransition = () => {
+  animationDirection.value = 'flip-forward'
+  showTutorial.value = false
+}
+
+// Transition back from the main content to the tutorial
+const handlePageReturn = () => {
+  animationDirection.value = 'flip-backward'
+  showTutorial.value = true
+}
+
+onMounted(() => {
+  displayStore.initializeViewportWatcher()
+})
+
+onBeforeUnmount(() => {
+  displayStore.removeViewportWatcher()
+})
+</script>
+
+<style scoped>
+/* Flip animation */
+.flip-container {
+  perspective: 1000px;
+}
+
+.flip-forward-enter-active,
+.flip-forward-leave-active,
+.flip-backward-enter-active,
+.flip-backward-leave-active {
+  transition: transform 0.6s ease;
+  backface-visibility: hidden;
+}
+
+.flip-forward-enter,
+.flip-backward-leave-to {
+  transform: rotateY(-180deg);
+}
+
+.flip-backward-enter,
+.flip-forward-leave-to {
+  transform: rotateY(180deg);
+}
+
+main {
+  overflow-y: auto;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Additional adjustments for small screen navigation links */
+.nav-links a {
+  white-space: nowrap; /* Prevent links from overflowing */
+}
+
+/* Optional: Ensure links wrap if they exceed available width */
+.nav-links {
+  flex-wrap: wrap;
+}
+</style>

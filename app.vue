@@ -1,4 +1,3 @@
-<!-- app.vue -->
 <template>
   <div id="app" class="flex flex-col min-h-screen w-full bg-base-200">
     <!-- KindLoader (Only runs once) -->
@@ -34,7 +33,12 @@
         <main class="flex-grow overflow-y-auto relative">
           <div class="flex justify-center items-center">
             <div class="w-full max-w-4xl rounded-2xl bg-base-200 relative">
-              <NuxtPage />
+              <!-- Conditional rendering of tutorial or page content -->
+              <SplashTutorial
+                v-if="showTutorial"
+                @page-transition="handlePageTransition"
+              />
+              <NuxtPage v-else />
             </div>
           </div>
         </main>
@@ -53,20 +57,28 @@
 </template>
 
 <script setup>
-import { useDisplayStore } from '@/stores/displayStore'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
+import SplashTutorial from '@/components/SplashTutorial.vue'
 
 // Track whether the KindLoader has been initialized
 const isKindLoaderInitialized = ref(false)
 const displayStore = useDisplayStore()
 const isPageReady = ref(false)
 
+// Control for tutorial visibility
+const showTutorial = ref(true)
+
 const handlePageReady = (ready) => {
   isPageReady.value = ready
-
   if (ready) {
     isKindLoaderInitialized.value = true
   }
+}
+
+const handlePageTransition = () => {
+  // Transition from tutorial to Nuxt page content
+  showTutorial.value = false
 }
 
 onMounted(() => {

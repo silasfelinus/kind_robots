@@ -7,7 +7,6 @@ import { errorHandler } from '../utils/error'
 export default defineEventHandler(async () => {
   try {
     const pitches = await prisma.pitch.findMany()
-    console.log('Fetched pitches:', pitches) // Debugging line
     return { success: true, pitches }
   } catch (error: unknown) {
     console.error('Error fetching pitches:', error) // Debugging line
@@ -19,7 +18,6 @@ export default defineEventHandler(async () => {
 export async function fetchAllPitches(): Promise<Pitch[]> {
   try {
     const pitches = await prisma.pitch.findMany()
-    console.log('Fetched pitches from fetchAllPitches:', pitches) // Debugging line
     return pitches
   } catch (error: unknown) {
     console.error('Error in fetchAllPitches:', error) // Debugging line

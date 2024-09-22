@@ -117,6 +117,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore and page content
@@ -125,6 +126,8 @@ const { page } = useContent()
 
 // Local boolean to manage splash visibility
 const isShowingSplash = ref(false)
+const route = useRoute()
+const router = useRouter()
 
 // Computed property for the store interaction
 const showInfoInStore = computed({
@@ -134,11 +137,12 @@ const showInfoInStore = computed({
   },
 })
 
-// Watch for changes in the store, but this only affects auto-display on navigation
-watch(showInfoInStore, (newVal) => {
-  if (newVal) {
+// Auto-show splash based on store state when navigating to new routes
+router.beforeEach((to, from, next) => {
+  if (showInfoInStore.value) {
     isShowingSplash.value = true
   }
+  next()
 })
 
 // Image size: max 50% of either viewport width (vw) or viewport height (vh)

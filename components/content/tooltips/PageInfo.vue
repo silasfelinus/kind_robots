@@ -25,7 +25,7 @@
     class="fixed inset-0 z-50 flex items-center justify-center p-4"
   >
     <div
-      class="bg-base-100 rounded-2xl shadow-lg p-6 w-full max-w-md max-h-3/4 overflow-auto"
+      class="bg-base-100 rounded-2xl shadow-lg p-6 w-full max-w-md max-h-1/2 overflow-auto"
     >
       <!-- Page Content -->
       <div class="flex flex-col items-center justify-center space-y-6">
@@ -34,7 +34,7 @@
           <img
             :src="'/images/' + page.image"
             alt="Main Image"
-            class="rounded-2xl border border-base-300 shadow-md w-64 h-64 object-cover"
+            class="rounded-2xl border border-base-300 shadow-md w-32 h-32 object-cover"
           />
         </div>
 

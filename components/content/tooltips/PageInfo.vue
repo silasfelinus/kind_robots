@@ -4,19 +4,28 @@
     class="cursor-pointer p-2 flex items-center justify-center"
     @click="toggleInfo"
   >
-    <icon
-      name="i-info"
-      class="text-3xl text-accent hover:text-accent-focus transition duration-300"
+    <Icon
+      :name="
+        showInfo
+          ? 'streamline:interface-checkmark'
+          : 'streamline:information-desk-solid'
+      "
+      :class="[
+        'text-3xl transition duration-300',
+        showInfo
+          ? 'text-secondary hover:text-secondary-focus'
+          : 'text-accent hover:text-accent-focus',
+      ]"
     />
   </div>
 
   <!-- Welcome splash screen -->
   <div
     v-if="showInfo"
-    class="fixed inset z-50 flex items-center justify-center p-4"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-base-200 bg-opacity-90"
   >
     <div
-      class="bg-base-200 rounded-2xl shadow-lg p-6 w-full max-w-lg max-h-full overflow-auto"
+      class="bg-base-100 rounded-2xl shadow-lg p-6 w-full max-w-2xl max-h-full overflow-auto"
     >
       <!-- Page Content -->
       <div class="flex flex-col items-center justify-center space-y-6">
@@ -42,7 +51,38 @@
           <p>{{ page.description }}</p>
         </div>
 
-        <PageTips />
+        <!-- Integrated Bot Message Cards -->
+        <div class="flex flex-col space-y-4">
+          <!-- AMIbot Message Card -->
+          <div
+            class="flex items-center space-x-4 p-4 rounded-lg border-2 bg-base-200 shadow-2xl border-accent"
+          >
+            <img
+              src="/images/amibotsquare1.webp"
+              alt="AMIbot Avatar"
+              class="w-12 h-12 rounded-full shadow-md"
+            />
+            <div class="flex flex-col">
+              <span class="text-sm font-semibold">AMIbot</span>
+              <p class="text-sm">{{ page.amitip }}</p>
+            </div>
+          </div>
+
+          <!-- DottiBot Message Card -->
+          <div
+            class="flex items-center space-x-4 p-4 rounded-lg border-2 bg-base-200 shadow-2xl border-secondary"
+          >
+            <img
+              src="/images/avatars/dottie1.webp"
+              alt="DottiBot Avatar"
+              class="w-12 h-12 rounded-full shadow-md"
+            />
+            <div class="flex flex-col">
+              <span class="text-sm font-semibold">DottiBot</span>
+              <p class="text-sm">{{ page.dottitip }}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- OK button and Show Info checkbox -->
@@ -70,13 +110,11 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore and page content
 const displayStore = useDisplayStore()
 const { page } = useContent()
-const router = useRouter()
 
 // Computed properties for store interactions
 const showInfo = computed({
@@ -88,16 +126,11 @@ const showInfo = computed({
 const toggleInfo = () => {
   displayStore.showInfo = !displayStore.showInfo
 }
-
-// Reset the info toggle whenever the route changes
-router.beforeEach((to, from, next) => {
-  displayStore.showInfo = true // Reset the info toggle
-  next()
-})
 </script>
 
 <style scoped>
-.icon:hover {
-  color: var(--tw-text-opacity, 1);
+/* Styling for the integrated avatar and message content */
+img {
+  object-fit: cover;
 }
 </style>

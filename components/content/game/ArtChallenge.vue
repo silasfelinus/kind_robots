@@ -126,7 +126,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import ChatControl from './ChatControl.vue'
 import GameControl from './GameControl.vue'
 import UserControl from './UserControl.vue'

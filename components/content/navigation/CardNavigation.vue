@@ -43,7 +43,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const navigationTree = ref([])
 
 const fetchContentNavigation = async () => {

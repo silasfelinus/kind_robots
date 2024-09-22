@@ -29,7 +29,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useBotStore } from '../../../stores/botStore'
 
 const botStore = useBotStore()

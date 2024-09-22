@@ -19,7 +19,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
 import { usePitchStore } from './../../../stores/pitchStore'
 import { useArtStore } from './../../../stores/artStore'

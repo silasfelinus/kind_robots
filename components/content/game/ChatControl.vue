@@ -74,7 +74,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import { useChannelStore } from '@/stores/channelStore'
 import { useUserStore } from '@/stores/userStore'

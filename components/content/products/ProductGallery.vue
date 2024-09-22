@@ -7,7 +7,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const productStore = useProductStore()
 const products = computed(() => productStore.products)
 </script>

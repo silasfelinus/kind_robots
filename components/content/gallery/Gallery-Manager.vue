@@ -34,7 +34,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useGalleryStore } from '../../../stores/galleryStore'
 import { useErrorStore } from '../../../stores/errorStore'

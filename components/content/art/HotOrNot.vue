@@ -25,7 +25,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { useArtStore } from './../../../stores/artStore'

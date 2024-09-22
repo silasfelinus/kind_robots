@@ -127,7 +127,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { reactive, onMounted, ref } from 'vue'
 import confetti from 'canvas-confetti'
 import responses from '../../../assets/buttonResponses'

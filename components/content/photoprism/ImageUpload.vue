@@ -8,7 +8,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useArtStore } from './../../../stores/artStore'
 
 const artStore = useArtStore()

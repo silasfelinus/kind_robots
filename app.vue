@@ -23,7 +23,7 @@
         <NavLinks />
 
         <!-- Page Info Toggle (on the right side of the header) -->
-        <div class="absolute top-4 right-4 p-1 z-40 text-white">
+        <div class="absolute top-4 right-4 p-1 z-40">
           <PageInfo />
         </div>
       </header>

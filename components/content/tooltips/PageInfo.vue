@@ -14,7 +14,7 @@
         'text-3xl transition duration-300',
         isShowingSplash
           ? 'text-secondary hover:text-secondary-focus glow-effect'
-          : 'text-accent hover:text-info',  <!-- Hover to info color -->
+          : 'text-accent hover:text-info',  
       ]"
     />
   </div>

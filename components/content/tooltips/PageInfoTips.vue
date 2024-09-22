@@ -4,7 +4,7 @@
     <div v-if="showInfo" class="flex w-full justify-between items-center">
       <div class="flex flex-col-reverse items-end space-y-2 space-y-reverse">
         <!-- AMIbot Message Card -->
-        <MessageCard
+        <PageInfoCard
           v-if="showAmiCard"
           :show="true"
           bg-class="bg-base-200 shadow-2xl border-accent backdrop-blur-lg"
@@ -16,7 +16,7 @@
         />
 
         <!-- DottiBot Message Card -->
-        <MessageCard
+        <PageInfoCard
           v-if="showDottiCard"
           :show="true"
           bg-class="bg-base-200 shadow-2xl border-secondary backdrop-blur-lg"

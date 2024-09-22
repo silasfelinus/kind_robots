@@ -19,9 +19,20 @@
         </div>
 
         <!-- Navigation Links -->
-        <NavLinks />
+        <div
+          class="nav-links flex items-center justify-center gap-4 md:gap-6 lg:gap-8 p-2 md:p-4"
+        >
+          <a
+            v-for="link in navLinks"
+            :key="link.text"
+            :href="link.url"
+            class="text-base sm:text-sm md:text-lg font-medium text-base-content hover:text-secondary transition-all"
+          >
+            {{ link.text }}
+          </a>
+        </div>
 
-        <!-- Page Info Toggle (on the right side of the header) -->
+        <!-- Page Info Toggle -->
         <div class="absolute top-4 right-4 p-1 z-40">
           <PageInfo />
         </div>
@@ -33,12 +44,25 @@
         <main class="flex-grow overflow-y-auto relative">
           <div class="flex justify-center items-center">
             <div class="w-full max-w-4xl rounded-2xl bg-base-200 relative">
-              <!-- Conditional rendering of tutorial or page content -->
-              <SplashTutorial
-                v-if="showTutorial"
-                @page-transition="handlePageTransition"
-              />
-              <NuxtPage v-else />
+              <!-- Transition wrapper for flip animation -->
+              <transition :name="animationDirection">
+                <div v-if="showTutorial" key="tutorial" class="flip-container">
+                  <SplashTutorial @page-transition="handlePageTransition" />
+                </div>
+                <div v-else key="content" class="flip-container">
+                  <NuxtPage />
+                </div>
+              </transition>
+
+              <!-- Reverse Button to go back to Tutorial -->
+              <button
+                v-if="!showTutorial"
+                class="absolute bottom-4 left-4 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center"
+                @click="handlePageReturn"
+              >
+                <div class="triangle-left"></div>
+                <span>Back to Tutorial</span>
+              </button>
             </div>
           </div>
         </main>
@@ -55,49 +79,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
-import SplashTutorial from '@/components/SplashTutorial.vue'
-
-// Track whether the KindLoader has been initialized
-const isKindLoaderInitialized = ref(false)
-const displayStore = useDisplayStore()
-const isPageReady = ref(false)
-
-// Control for tutorial visibility
-const showTutorial = ref(true)
-
-const handlePageReady = (ready) => {
-  isPageReady.value = ready
-  if (ready) {
-    isKindLoaderInitialized.value = true
-  }
-}
-
-const handlePageTransition = () => {
-  // Transition from tutorial to Nuxt page content
-  showTutorial.value = false
-}
-
-onMounted(() => {
-  displayStore.initializeViewportWatcher()
-})
-
-onBeforeUnmount(() => {
-  displayStore.removeViewportWatcher()
-})
-</script>
-
-<style scoped>
-main {
-  overflow-y: auto;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-</style>

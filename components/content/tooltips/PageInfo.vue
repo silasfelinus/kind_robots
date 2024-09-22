@@ -70,13 +70,12 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore and page content
 const displayStore = useDisplayStore()
 const { page } = useContent()
-const route = useRoute()
 const router = useRouter()
 
 // Computed properties for store interactions
@@ -95,8 +94,6 @@ router.beforeEach((to, from, next) => {
   displayStore.showInfo = true // Reset the info toggle
   next()
 })
-
-
 </script>
 
 <style scoped>

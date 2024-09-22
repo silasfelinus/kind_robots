@@ -103,11 +103,13 @@ const toggleInfo = () => {
 
 // Access dynamic content from the page
 const pageTitle = computed(() => page?.title || 'Welcome')
-const pageSubtitle = computed(() => page?.subtitle || '')
-const pageDescription = computed(() => page?.description || '')
-const pageTooltip = computed(() => page?.tooltip || '')
-const pageDottitip = computed(() => page?.dottitip || '')
-const pageAmitip = computed(() => page?.amitip || '')
+const pageSubtitle = computed(() => page?.subtitle || 'No subtitle available')
+const pageDescription = computed(
+  () => page?.description || 'No description available',
+)
+const pageTooltip = computed(() => page?.tooltip || 'No tooltip')
+const pageDottitip = computed(() => page?.dottitip || 'No dottitip')
+const pageAmitip = computed(() => page?.amitip || 'No amitip')
 </script>
 
 <style scoped>

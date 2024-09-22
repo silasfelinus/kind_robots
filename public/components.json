@@ -119,6 +119,7 @@
       "MakeArt",
       "OldGallery",
       "RandomGallery",
+      "RandomImage",
       "TeleportWindow",
       "UserGalleries",
       "gallery-viewer"
@@ -257,7 +258,8 @@
     "folderName": "photoprism",
     "components": [
       "ImageUpload",
-      "PhotoGallery"
+      "PhotoGallery",
+      "PhotoprismFolders"
     ]
   },
   {
@@ -322,6 +324,7 @@
       "MessageCard",
       "Meta-Tips",
       "NavToggle",
+      "PageInfo",
       "RoomDashboard",
       "RoomMeta",
       "StreamingTooltip",
@@ -356,8 +359,11 @@
     "components": [
       "ChannelManager",
       "CommentDisplay",
-      "ComponentGallery",
-      "ComponentReactions"
+      "ComponentCount",
+      "ComponentReactions",
+      "ComponentScreen",
+      "LabGallery",
+      "WonderLab"
     ]
   }
 ]

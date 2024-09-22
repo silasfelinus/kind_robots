@@ -5,13 +5,7 @@
     @click="toggleInfo"
   >
     <icon
-      v-if="!showInfo"
       name="i-info"
-      class="text-3xl text-accent hover:text-accent-focus transition duration-300"
-    />
-    <icon
-      v-else
-      name="i-close"
       class="text-3xl text-accent hover:text-accent-focus transition duration-300"
     />
   </div>
@@ -19,7 +13,7 @@
   <!-- Welcome splash screen -->
   <div
     v-if="showInfo"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    class="fixed inset-0 bg-primary bg-opacity-90 z-50 flex items-center justify-center p-4"
   >
     <div
       class="bg-base-200 rounded-2xl shadow-lg p-6 w-full max-w-lg max-h-full overflow-auto"
@@ -38,21 +32,21 @@
         <!-- Title and Subtitle -->
         <div class="flex flex-col justify-center items-center">
           <h1 class="text-2xl font-bold text-secondary">{{ pageTitle }}</h1>
-          <h2 v-if="page.subtitle" class="text-lg font-medium text-accent">
-            {{ page.subtitle }}
+          <h2 v-if="pageSubtitle" class="text-lg font-medium text-accent">
+            {{ pageSubtitle }}
           </h2>
         </div>
 
         <!-- Description -->
         <div class="text-center text-base-content max-w-md">
-          <p>{{ page.description }}</p>
+          <p>{{ pageDescription }}</p>
         </div>
 
         <!-- Tooltip Info -->
         <div class="mt-2 text-center text-neutral">
-          <p v-if="page.tooltip" class="italic">{{ page.tooltip }}</p>
-          <p v-if="page.dottitip" class="mt-1">{{ page.dottitip }}</p>
-          <p v-if="page.amitip" class="mt-1 text-sm">{{ page.amitip }}</p>
+          <p v-if="pageTooltip" class="italic">{{ pageTooltip }}</p>
+          <p v-if="pageDottitip" class="mt-1">{{ pageDottitip }}</p>
+          <p v-if="pageAmitip" class="mt-1 text-sm">{{ pageAmitip }}</p>
         </div>
       </div>
 
@@ -107,7 +101,15 @@ router.beforeEach((to, from, next) => {
   next()
 })
 
-
+// Access dynamic content from the page
+const pageTitle = computed(() => page?.title || 'Welcome')
+const pageSubtitle = computed(() => page?.subtitle || 'No subtitle available')
+const pageDescription = computed(
+  () => page?.description || 'No description available',
+)
+const pageTooltip = computed(() => page?.tooltip || 'No tooltip available')
+const pageDottitip = computed(() => page?.dottitip || 'No dottitip available')
+const pageAmitip = computed(() => page?.amitip || 'No amitip available')
 </script>
 
 <style scoped>

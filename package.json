@@ -75,7 +75,8 @@
     "nuxt": "^3.12.4",
     "open-simplex-noise": "^2.5.0",
     "pinia": "^2.2.1",
-    "stripe": "^16.7.0"
+    "stripe": "^16.7.0",
+    "webdav": "^5.7.1"
   },
   "overrides": {
     "vue": "latest"

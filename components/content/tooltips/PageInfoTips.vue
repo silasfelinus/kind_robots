@@ -21,14 +21,10 @@
           :message="page.dottitip"
         />
       </div>
-      <!-- Tooltip Toggle Button -->
-      <tooltip-toggle class="ml-auto" />
+
     </div>
     
-    <!-- Tooltip Toggle when Cards are Hidden -->
-    <div v-else>
-      <tooltip-toggle />
-    </div>
+    
   </div>
 </template>
 

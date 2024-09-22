@@ -19,7 +19,7 @@
   <!-- Welcome splash screen -->
   <div
     v-if="showInfo"
-    class="fixed inset-0 bg-primary bg-opacity-90 z-50 flex items-center justify-center p-4"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
   >
     <div
       class="bg-base-200 rounded-2xl shadow-lg p-6 w-full max-w-lg max-h-full overflow-auto"

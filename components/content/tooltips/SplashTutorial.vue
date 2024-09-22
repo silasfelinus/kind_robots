@@ -83,12 +83,15 @@
   </div>
 </template>
 
-<script setup>
-import {  computed } from 'vue'
+<script setup lang="ts">
+import { computed, defineEmits } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access displayStore to compute space below header and sidebar
 const displayStore = useDisplayStore()
+
+// Emit event when transitioning to the next page
+const emit = defineEmits(['page-transition'])
 
 // Compute tutorial wrapper style based on available space
 const tutorialStyle = computed(() => ({
@@ -107,7 +110,7 @@ const startPageTransition = () => {
 // Manage whether to show the splash again in the future
 const showInfoInStore = computed({
   get: () => displayStore.showInfo,
-  set: (value: boolean) => {
+  set: (value) => {
     displayStore.showInfo = value
   },
 })

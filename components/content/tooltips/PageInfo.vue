@@ -26,7 +26,7 @@
     @click.self="closeSplash"
   >
     <div
-      class="bg-base-100 border rounded-2xl shadow-lg p-6 w-full max-w-md max-h-3/4 overflow-auto"
+      class="bg-base-100 border border-accent rounded-2xl shadow-lg p-6 w-full max-w-md max-h-3/4 overflow-auto"
     >
       <!-- Page Content -->
       <div class="flex flex-col items-center justify-center space-y-6">
@@ -58,7 +58,7 @@
           <!-- DottiBot Message Bubble -->
           <div class="flex justify-end">
             <div
-              class="flex items-center space-x-4 p-4 rounded-lg bg-info text-base-200 shadow-lg w-full md:w-3/4"
+              class="flex items-center space-x-4 p-4 rounded-lg bg-primary text-base-200 shadow-lg w-full md:w-3/4"
             >
               <img
                 src="/images/avatars/dottie1.webp"
@@ -75,7 +75,7 @@
           <!-- AMIbot Message Bubble -->
           <div class="flex justify-start">
             <div
-              class="flex items-center space-x-4 p-4 rounded-lg bg-accent text-base-200 shadow-lg w-full md:w-3/4"
+              class="flex items-center space-x-4 p-4 rounded-lg bg-secondary text-base-200 shadow-lg w-full md:w-3/4"
             >
               <img
                 src="/images/amibotsquare1.webp"

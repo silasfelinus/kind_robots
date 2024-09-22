@@ -62,17 +62,6 @@
 
     <!-- Footer with Next Button -->
     <div class="flex justify-between items-center mt-8 px-4">
-      <div class="flex items-center">
-        <input
-          id="showInfo"
-          v-model="showInfoInStore"
-          type="checkbox"
-          class="mr-2 h-4 w-4 text-accent focus:ring-0"
-        />
-        <label for="showInfo" class="text-base-content"
-          >Don't show this again</label
-        >
-      </div>
       <button
         class="bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300"
         @click="startPageTransition"
@@ -106,14 +95,6 @@ const { page } = useContent()
 const startPageTransition = () => {
   emit('page-transition')
 }
-
-// Manage whether to show the splash again in the future
-const showInfoInStore = computed({
-  get: () => displayStore.showInfo,
-  set: (value) => {
-    displayStore.showInfo = value
-  },
-})
 </script>
 
 <style scoped>

@@ -22,10 +22,10 @@
   <!-- Welcome splash screen -->
   <div
     v-if="showInfo"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-base-200 bg-opacity-90"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
   >
     <div
-      class="bg-base-100 rounded-2xl shadow-lg p-6 w-full max-w-2xl max-h-full overflow-auto"
+      class="bg-base-100 rounded-2xl shadow-lg p-6 w-full max-w-md max-h-3/4 overflow-auto"
     >
       <!-- Page Content -->
       <div class="flex flex-col items-center justify-center space-y-6">

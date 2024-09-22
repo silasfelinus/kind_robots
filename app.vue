@@ -83,7 +83,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import SplashTutorial from '@/components/SplashTutorial.vue'
 
 // Track whether the KindLoader has been initialized
 const isKindLoaderInitialized = ref(false)

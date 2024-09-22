@@ -18,10 +18,7 @@
           />
         </div>
 
-        <!-- Navigation Links -->
         <nav-links />
-
-  
       </header>
 
       <!-- Main Layout -->
@@ -29,16 +26,21 @@
         <kind-sidebar-simple />
         <main class="flex-grow overflow-y-auto relative">
           <div class="flex justify-center items-center">
-            <div class="w-full max-w-4xl rounded-2xl bg-base-200 relative">
-              <!-- Transition wrapper for flip animation -->
-              <transition :name="animationDirection">
-                <div v-if="showTutorial" key="tutorial" class="flip-container">
+            <div
+              class="w-full max-w-4xl rounded-2xl bg-base-200 relative flip-card"
+            >
+              <div
+                class="flip-card-inner"
+                :class="{ 'is-flipped': !showTutorial }"
+              >
+                <!-- Conditional rendering of tutorial or page content -->
+                <div v-if="showTutorial" key="tutorial" class="flip-card-front">
                   <SplashTutorial @page-transition="handlePageTransition" />
                 </div>
-                <div v-else key="content" class="flip-container">
+                <div v-else key="content" class="flip-card-back">
                   <NuxtPage />
                 </div>
-              </transition>
+              </div>
 
               <!-- Reverse Button to go back to Tutorial -->
               <button
@@ -69,6 +71,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
+import SplashTutorial from '@/components/SplashTutorial.vue'
 
 // Track whether the KindLoader has been initialized
 const isKindLoaderInitialized = ref(false)
@@ -77,7 +80,6 @@ const isPageReady = ref(false)
 
 // Control for tutorial visibility and animation direction
 const showTutorial = ref(true)
-const animationDirection = ref('flip-forward')
 
 // When the page is ready, load content
 const handlePageReady = (ready) => {
@@ -89,13 +91,11 @@ const handlePageReady = (ready) => {
 
 // Transition from the tutorial to the main content (NuxtPage)
 const handlePageTransition = () => {
-  animationDirection.value = 'flip-forward'
   showTutorial.value = false
 }
 
 // Transition back from the main content to the tutorial
 const handlePageReturn = () => {
-  animationDirection.value = 'flip-backward'
   showTutorial.value = true
 }
 
@@ -109,41 +109,39 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Flip animation */
-.flip-container {
+/* Flip card container */
+.flip-card {
   perspective: 1000px;
+  width: 100%;
+  height: 100%;
 }
 
-.flip-forward-enter-active,
-.flip-forward-leave-active,
-.flip-backward-enter-active,
-.flip-backward-leave-active {
-  transition: transform 0.6s ease;
-  backface-visibility: hidden;
+/* Inner container holding both sides */
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
 }
 
-.flip-forward-enter,
-.flip-backward-leave-to {
-  transform: rotateY(-180deg);
-}
-
-.flip-backward-enter,
-.flip-forward-leave-to {
+/* Flipped state */
+.flip-card-inner.is-flipped {
   transform: rotateY(180deg);
 }
 
-main {
-  overflow-y: auto;
+/* Front and back face of the card */
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Optional: Ensure links wrap if they exceed available width */
-.nav-links {
-  flex-wrap: wrap;
+/* Back side */
+.flip-card-back {
+  transform: rotateY(180deg);
 }
 </style>

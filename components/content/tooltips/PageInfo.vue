@@ -13,7 +13,7 @@
   <!-- Welcome splash screen -->
   <div
     v-if="showInfo"
-    class="fixed inset-0 bg-primary bg-opacity-90 z-50 flex items-center justify-center p-4"
+    class="fixed inset z-50 flex items-center justify-center p-4"
   >
     <div
       class="bg-base-200 rounded-2xl shadow-lg p-6 w-full max-w-lg max-h-full overflow-auto"
@@ -32,7 +32,7 @@
         <!-- Title and Subtitle -->
         <div class="flex flex-col justify-center items-center">
           <h1 class="text-2xl font-bold text-secondary">{{ page.title }}</h1>
-          <h2 v-if="pageSubtitle" class="text-lg font-medium text-accent">
+          <h2 v-if="page.subtitle" class="text-lg font-medium text-accent">
             {{ page.subtitle }}
           </h2>
         </div>
@@ -42,7 +42,7 @@
           <p>{{ page.description }}</p>
         </div>
 
-        <page-info-tips />
+        <PageTips />
       </div>
 
       <!-- OK button and Show Info checkbox -->

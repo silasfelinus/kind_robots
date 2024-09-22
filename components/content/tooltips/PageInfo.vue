@@ -34,8 +34,9 @@
         <div class="flex justify-center items-center">
           <img
             :src="'/images/' + page.image"
+            :style="imgStyle"
             alt="Main Image"
-            class="rounded-2xl border border-base-300 shadow-md w-64 h-64 object-cover"
+            class="rounded-2xl border border-base-300 shadow-md object-cover"
           />
         </div>
 
@@ -54,11 +55,10 @@
 
         <!-- Integrated Bot Message Cards as chat bubbles -->
         <div class="flex flex-col space-y-4 w-full">
-
-  <!-- DottiBot Message Bubble -->
+          <!-- DottiBot Message Bubble -->
           <div class="flex justify-end">
             <div
-              class="flex items-center space-x-4 p-4 rounded-lg bg-info text-base-200 shadow-lg w-3/4"
+              class="flex items-center space-x-4 p-4 rounded-lg bg-info text-base-200 shadow-lg w-full md:w-3/4"
             >
               <img
                 src="/images/avatars/dottie1.webp"
@@ -75,7 +75,7 @@
           <!-- AMIbot Message Bubble -->
           <div class="flex justify-start">
             <div
-              class="flex items-center space-x-4 p-4 rounded-lg bg-accent text-base-200 shadow-lg w-3/4"
+              class="flex items-center space-x-4 p-4 rounded-lg bg-accent text-base-200 shadow-lg w-full md:w-3/4"
             >
               <img
                 src="/images/amibotsquare1.webp"
@@ -88,8 +88,6 @@
               </div>
             </div>
           </div>
-
-        
         </div>
       </div>
 
@@ -118,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore and page content
@@ -136,12 +134,26 @@ const showInfoInStore = computed({
   },
 })
 
-// Toggles the splash screen visibility
+// Image size: max 50% of either viewport width (vw) or viewport height (vh)
+const imgStyle = ref({ width: '', height: '' })
+
+const updateImgStyle = () => {
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const size = Math.min(vw, vh) / 2
+  imgStyle.value = { width: `${size}px`, height: `${size}px` }
+}
+
+// Update image size on mount
+onMounted(() => {
+  updateImgStyle()
+  window.addEventListener('resize', updateImgStyle)
+})
+
 const toggleSplash = () => {
   isShowingSplash.value = !isShowingSplash.value
 }
 
-// Closes the splash without affecting the store
 const closeSplash = () => {
   isShowingSplash.value = false
 }

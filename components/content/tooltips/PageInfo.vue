@@ -14,7 +14,7 @@
         'text-3xl transition duration-300',
         isShowingSplash
           ? 'text-secondary hover:text-secondary-focus glow-effect'
-          : 'text-accent hover:text-accent-focus',
+          : 'text-accent hover:text-info',  <!-- Hover to info color -->
       ]"
     />
   </div>
@@ -105,7 +105,7 @@
           >
         </div>
         <button
-          class="bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300"
+          class="bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300"
           @click="closeSplash"
         >
           OK

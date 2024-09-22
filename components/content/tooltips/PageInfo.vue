@@ -7,13 +7,13 @@
     <Icon
       :name="
         showInfo
-          ? 'streamline:interface-checkmark'
+          ? 'pepicons-pop:person-checkmark'
           : 'streamline:information-desk-solid'
       "
       :class="[
         'text-3xl transition duration-300',
         showInfo
-          ? 'text-secondary hover:text-secondary-focus'
+          ? 'text-secondary hover:text-secondary-focus glow-effect'
           : 'text-accent hover:text-accent-focus',
       ]"
     />
@@ -129,7 +129,14 @@ const toggleInfo = () => {
 </script>
 
 <style scoped>
-/* Styling for the integrated avatar and message content */
+/* Add glow effect for selected icon */
+.glow-effect {
+  box-shadow:
+    0 0 15px rgba(255, 204, 0, 0.8),
+    0 0 25px rgba(255, 204, 0, 0.6);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
 img {
   object-fit: cover;
 }

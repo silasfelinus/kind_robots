@@ -1,3 +1,4 @@
+<!-- app.vue -->
 <template>
   <div id="app" class="flex flex-col min-h-screen w-full bg-base-200">
     <!-- KindLoader (Only runs once) -->
@@ -20,19 +21,19 @@
 
         <!-- Navigation Links -->
         <NavLinks />
+
+        <!-- Page Info Toggle (on the right side of the header) -->
+        <div class="absolute top-4 right-4 p-1 z-40 text-white">
+          <PageInfo />
+        </div>
       </header>
 
       <!-- Main Layout -->
       <div class="flex-1 w-full flex">
         <kind-sidebar-simple />
-        <!-- Main Content with scrollable area -->
         <main class="flex-grow overflow-y-auto relative">
           <div class="flex justify-center items-center">
             <div class="w-full max-w-4xl rounded-2xl bg-base-200 relative">
-              <!-- Page Info Icon and Splash -->
-              <page-info />
-
-              <!-- Main content from Nuxt page -->
               <NuxtPage />
             </div>
           </div>
@@ -57,21 +58,17 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 // Track whether the KindLoader has been initialized
 const isKindLoaderInitialized = ref(false)
-
 const displayStore = useDisplayStore()
-const isPageReady = ref(false) // Track whether the page is ready
+const isPageReady = ref(false)
 
 const handlePageReady = (ready) => {
   isPageReady.value = ready
-  console.log('Page ready:', ready)
 
-  // Mark the loader as initialized after the page is ready
   if (ready) {
     isKindLoaderInitialized.value = true
   }
 }
 
-// On mounted, initialize the viewport watcher to dynamically adjust sizes
 onMounted(() => {
   displayStore.initializeViewportWatcher()
 })
@@ -82,16 +79,13 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Scrollable area for the main content */
 main {
   overflow-y: auto;
 }
 
-/* The page-info toggle button is positioned in the top right corner */
-.page-info-toggle {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 50;
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>

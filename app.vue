@@ -79,3 +79,99 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
+import { useDisplayStore } from '@/stores/displayStore'
+
+// Track whether the KindLoader has been initialized
+const isKindLoaderInitialized = ref(false)
+const displayStore = useDisplayStore()
+const isPageReady = ref(false)
+
+// Control for tutorial visibility and animation direction
+const showTutorial = ref(true)
+const router = useRouter()
+
+// When the page is ready, load content
+const handlePageReady = (ready) => {
+  isPageReady.value = ready
+  if (ready) {
+    isKindLoaderInitialized.value = true
+  }
+}
+
+// Transition from the tutorial to the main content (NuxtPage)
+const handlePageTransition = () => {
+  showTutorial.value = false
+}
+
+// Transition back from the main content to the tutorial
+const handlePageReturn = () => {
+  showTutorial.value = true
+}
+
+// Auto-reset tutorial on route changes
+router.beforeEach((to, from, next) => {
+  // Always show the tutorial when navigating to a new page
+  showTutorial.value = true
+  next()
+})
+
+onMounted(() => {
+  displayStore.initializeViewportWatcher()
+})
+
+onBeforeUnmount(() => {
+  displayStore.removeViewportWatcher()
+})
+</script>
+
+<style scoped>
+/* Flip card container */
+.flip-card {
+  width: 100%;
+  height: 100%;
+  perspective: 1000px; /* Custom CSS for perspective */
+}
+
+/* Inner container holding both sides */
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+/* Flipped state */
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+/* Front and back face of the card */
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+}
+
+/* Back side */
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* Triangle left for Back button */
+.triangle-left {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 15px solid white; /* Arrow color */
+  margin-right: 8px;
+}
+</style>

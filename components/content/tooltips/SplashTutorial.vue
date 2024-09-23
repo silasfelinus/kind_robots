@@ -18,17 +18,18 @@
 
     <!-- Image and Description Section -->
     <div
-      class="flex flex-col md:flex-row justify-center items-center mt-2 md:mt-4 md:space-x-4 px-4"
+      class="flex flex-col items-center justify-center mt-2 md:mt-4 lg:space-x-6 lg:mx-auto lg:max-w-4xl lg:w-full px-4"
     >
+      <!-- Image Section -->
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
         class="rounded-2xl border border-base-300 shadow-md object-cover w-40 h-40 md:w-64 md:h-64"
       />
 
-      <!-- Highlighted Description Section -->
+      <!-- Description Section (always below the image) -->
       <div
-        class="card bg-info text-info-content p-4 md:p-6 rounded-xl shadow-md mt-4 md:mt-0 max-w-lg w-full"
+        class="bg-info text-info-content p-4 md:p-6 rounded-xl shadow-md mt-4 lg:mt-4 w-full"
       >
         <p class="text-sm md:text-base font-medium">
           {{ page.description }}
@@ -37,13 +38,11 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div
-      class="flex flex-col justify-between space-y-4 mt-6 mx-auto w-full max-w-4xl px-4"
-    >
+    <div class="flex flex-col space-y-4 mt-6 mx-auto w-full max-w-4xl px-4">
       <!-- DottiBot Message -->
-      <div class="flex justify-start">
+      <div class="flex justify-start w-full">
         <div
-          class="mr-auto flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full"
+          class="mr-auto flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-3/4"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -58,9 +57,9 @@
       </div>
 
       <!-- AMIbot Message -->
-      <div class="flex justify-end">
+      <div class="flex justify-end w-full">
         <div
-          class="ml-auto flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full"
+          class="ml-auto flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-3/4"
         >
           <img
             src="/images/amibotsquare1.webp"
@@ -73,17 +72,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Next Button -->
-    <div class="absolute bottom-4 right-4">
-      <button
-        class="flex items-center bg-accent text-white py-2 px-4 rounded-lg shadow-md hover:bg-accent-focus transition duration-300"
-        @click="startPageTransition"
-      >
-        Next
-        <div class="triangle-right"></div>
-      </button>
     </div>
   </div>
 </template>
@@ -114,45 +102,27 @@ const startPageTransition = () => {
 </script>
 
 <style scoped>
-/* Flexbox and layout styling */
+/* General flex and layout handling */
 .tutorial-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--tw-bg-opacity, 1);
-  transition: all 0.5s ease;
-  position: relative;
-  overflow: hidden; /* Prevents overflowing on small screens */
+  @apply flex justify-center items-center bg-opacity-100 transition-all ease-in-out relative overflow-hidden;
 }
 
-/* Adjust chat-like style for bot messages */
+/* Bot message styling */
 .dotti-message,
 .ami-message {
-  border-radius: 15px;
-  padding: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  @apply flex items-center space-x-2 p-3 rounded-lg shadow-lg;
 }
 
-/* Card styling for the description section */
-.card {
-  background-color: var(--tw-bg-opacity, 1);
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 16px;
+.dotti-message {
+  @apply bg-primary border border-secondary text-base-200;
+}
+
+.ami-message {
+  @apply bg-secondary border border-primary text-base-200;
 }
 
 /* Improved readability for AMIbot text */
 .text-white {
-  color: #ffffff;
-}
-
-/* Triangle right for Next button */
-.triangle-right {
-  width: 0;
-  height: 0;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-left: 12px solid white; /* Arrow color */
-  margin-left: 8px;
+  @apply text-white;
 }
 </style>

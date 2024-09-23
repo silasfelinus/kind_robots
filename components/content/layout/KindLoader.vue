@@ -13,7 +13,7 @@
   </div>
 </template>
 
-<s<script setup lang="ts">
+<script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'

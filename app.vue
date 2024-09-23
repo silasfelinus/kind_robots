@@ -39,21 +39,22 @@
       <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
         <div class="flex justify-center items-center w-full">
           <div
-            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card"
+            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
             :style="{
-              height: `${100 - displayStore.headerVh - 4}vh` /* Adjust height dynamically based on viewport */,
-              paddingRight: '2rem' /* Padding from right margin */,
+              height: `${100 - displayStore.headerVh - 4}vh`,
+              paddingRight: '2rem',
             }"
           >
             <div
               class="flip-card-inner"
               :class="{ 'is-flipped': !showTutorial }"
             >
-              <!-- Conditional rendering of tutorial or page content -->
-              <div v-show="showTutorial" class="flip-card-front">
+              <!-- Use v-if for conditional rendering -->
+              <div v-if="showTutorial" class="flip-card-front">
                 <SplashTutorial @page-transition="toggleTutorial" />
               </div>
-              <div v-show="!showTutorial" class="flip-card-back">
+              <div v-else class="flip-card-back">
+                <!-- Ensure NuxtPage is visible after flip -->
                 <NuxtPage />
               </div>
             </div>
@@ -106,14 +107,14 @@ onBeforeUnmount(() => {
 .flip-card {
   width: 100%;
   height: 100%;
-  perspective: 1000px;
+  perspective: 1200px; /* Increased perspective for larger content */
 }
 
 .flip-card-inner {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth animation */
+  transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
   transform-style: preserve-3d;
 }
 
@@ -122,7 +123,7 @@ onBeforeUnmount(() => {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden; /* Hides the backface when flipped */
+  backface-visibility: hidden;
   transition: opacity 0.3s ease-in-out;
 }
 
@@ -135,16 +136,16 @@ onBeforeUnmount(() => {
 }
 
 .is-flipped .flip-card-inner {
-  transform: rotateY(180deg); /* This class triggers the flip */
+  transform: rotateY(180deg);
 }
 
 .is-flipped .flip-card-front {
   opacity: 0;
-  pointer-events: none; /* Hide the front side */
+  pointer-events: none;
 }
 
 .is-flipped .flip-card-back {
   opacity: 1;
-  pointer-events: all; /* Show the back side */
+  pointer-events: all;
 }
 </style>

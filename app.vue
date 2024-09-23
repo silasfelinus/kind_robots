@@ -49,12 +49,11 @@
               class="flip-card-inner"
               :class="{ 'is-flipped': !showTutorial }"
             >
-              <!-- Use v-if for conditional rendering -->
-              <div v-if="showTutorial" class="flip-card-front">
-                <SplashTutorial @page-transition="toggleTutorial" />
+              <!-- Conditional rendering of tutorial or page content -->
+              <div v-show="showTutorial" key="tutorial" class="flip-card-front">
+                <SplashTutorial @page-transition="handlePageTransition" />
               </div>
-              <div v-else class="flip-card-back">
-                <!-- Ensure NuxtPage is visible after flip -->
+              <div v-show="!showTutorial" key="content" class="flip-card-back">
                 <NuxtPage />
               </div>
             </div>

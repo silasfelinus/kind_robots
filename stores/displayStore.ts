@@ -34,7 +34,7 @@ export const useDisplayStore = defineStore('display', {
     viewportSize: 'large',
     isTouchDevice: false,
     isLoaded: false,
-    showInfo: true, // Default is true; can be loaded from localStorage
+    showInfo: true,
   }),
 
   actions: {
@@ -70,28 +70,34 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    // Update the viewport size and orientation
-    updateViewport() {
-      if (typeof window !== 'undefined') {
-        this.isVertical = window.innerHeight > window.innerWidth
-        this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+// Update the viewport size and orientation
+updateViewport() {
+  if (typeof window !== 'undefined') {
+    // Update the orientation based on window size
+    this.isVertical = window.innerHeight > window.innerWidth
+    
+    // Check if it's a touch device
+    this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
-        const width = window.innerWidth
+    const width = window.innerWidth
 
-        if (width < 768) {
-          this.viewportSize = 'small'
-        } else if (width >= 768 && width < 1024) {
-          this.viewportSize = 'medium'
-        } else if (width >= 1024 && width < 1440) {
-          this.viewportSize = 'large'
-        } else {
-          this.viewportSize = 'extraLarge'
-        }
+    // Determine viewport size
+    if (width < 768) {
+      this.viewportSize = 'small'
+    } else if (width >= 768 && width < 1024) {
+      this.viewportSize = 'medium'
+    } else if (width >= 1024 && width < 1440) {
+      this.viewportSize = 'large'
+    } else {
+      this.viewportSize = 'extraLarge'
+    }
 
-        this.headerVh = Math.min(10, 7)
-        this.sidebarVw = this.calculateSidebarWidth()
-      }
-    },
+    // Set the header height and sidebar width
+    this.headerVh = Math.min(window.innerHeight * 0.1, 7)
+    this.sidebarVw = this.calculateSidebarWidth()
+  }
+},
+
 
     // Initialize the viewport watcher for dynamic resizing
     initializeViewportWatcher() {
@@ -104,28 +110,32 @@ export const useDisplayStore = defineStore('display', {
       window.removeEventListener('resize', this.updateViewport)
     },
 
-    // Load the saved display settings from localStorage
-    loadState() {
-      if (typeof window !== 'undefined') {
-        const storedSidebarLeft = localStorage.getItem('sidebarLeft') as DisplayState
-        const storedSidebarRight = localStorage.getItem('sidebarRight') as DisplayState
-        const storedHeaderVh = localStorage.getItem('headerVh')
-
-        if (storedSidebarLeft) {
-          this.sidebarLeft = storedSidebarLeft
+    loadState(): Promise<void> {
+      return new Promise((resolve) => {
+        if (typeof window !== 'undefined') {
+          const storedSidebarLeft = localStorage.getItem('sidebarLeft') as DisplayState
+          const storedSidebarRight = localStorage.getItem('sidebarRight') as DisplayState
+          const storedHeaderVh = localStorage.getItem('headerVh')
+    
+          if (storedSidebarLeft) {
+            this.sidebarLeft = storedSidebarLeft
+          }
+    
+          if (storedSidebarRight) {
+            this.sidebarRight = storedSidebarRight
+          }
+    
+          if (storedHeaderVh) {
+            this.headerVh = parseInt(storedHeaderVh, 10)
+          }
+    
+          this.sidebarVw = this.calculateSidebarWidth()
         }
-
-        if (storedSidebarRight) {
-          this.sidebarRight = storedSidebarRight
-        }
-
-        if (storedHeaderVh) {
-          this.headerVh = parseInt(storedHeaderVh, 10)
-        }
-
-        this.sidebarVw = this.calculateSidebarWidth()
-      }
+        resolve() // Ensure it resolves after execution
+      })
     },
+    
+   
 
     // Save the display state to localStorage
     saveState() {

@@ -7,7 +7,7 @@
     <div v-if="isPageReady">
       <!-- Header -->
       <header
-        class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
+        class="w-full bg-base-200 flex justify-between items-center sticky top-0 z-30 transition-all duration-500 ease-in-out"
         :style="{ height: `${displayStore.headerVh}vh` }"
       >
         <!-- Sidebar Toggle -->
@@ -26,9 +26,7 @@
         <kind-sidebar-simple />
         <main class="flex-grow overflow-y-auto relative">
           <div class="flex justify-center items-center">
-            <div
-              class="w-full max-w-4xl rounded-2xl bg-base-200 relative flip-card"
-            >
+            <div class="w-full max-w-4xl rounded-2xl bg-base-200 relative flip-card">
               <div
                 class="flip-card-inner"
                 :class="{ 'is-flipped': !showTutorial }"
@@ -130,48 +128,32 @@ onBeforeUnmount(() => {
 <style scoped>
 /* Flip card container */
 .flip-card {
-  perspective: 1000px;
-  width: 100%;
-  height: 100%;
+  @apply perspective-1000 w-full h-full;
 }
 
 /* Inner container holding both sides */
 .flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
+  @apply relative w-full h-full transition-transform duration-600 transform-style-preserve-3d;
 }
 
 /* Flipped state */
 .flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
+  @apply transform rotate-y-180;
 }
 
 /* Front and back face of the card */
 .flip-card-front,
 .flip-card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 12px;
+  @apply absolute w-full h-full backface-hidden rounded-2xl;
 }
 
 /* Back side */
 .flip-card-back {
-  transform: rotateY(180deg);
+  @apply transform rotate-y-180;
 }
 
 /* Triangle left for Back button */
 .triangle-left {
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-  border-right: 15px solid white; /* Arrow color */
-  margin-right: 8px;
+  @apply w-0 h-0 border-t-10 border-b-10 border-r-15 border-transparent border-r-white mr-2;
 }
-
 </style>

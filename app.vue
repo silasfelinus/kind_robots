@@ -33,13 +33,17 @@
       </button>
     </header>
 
-    <!-- Main Layout with strong margin and padding -->
+    <!-- Main Layout with flexible layout for sidebar -->
     <div class="flex-1 w-full flex">
       <kind-sidebar-simple />
-      <main class="flex-grow overflow-y-auto relative">
-        <div class="flex justify-center items-center">
+      <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
+        <div class="flex justify-center items-center w-full">
           <div
-            class="w-full max-w-4xl rounded-2xl bg-base-200 relative flip-card shadow-lg p-4 lg:p-8"
+            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
+            :style="{
+              height: `${100 - displayStore.headerVh - 4}vh` /* Adjust height dynamically based on viewport */,
+              paddingRight: '2rem' /* Padding from right margin */,
+            }"
           >
             <div
               class="flip-card-inner"
@@ -99,10 +103,18 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.flip-card-inner {
+.flip-card {
+  width: 100%;
+  height: 100%;
   perspective: 1000px;
-  transform-style: preserve-3d;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
   transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth animation */
+  transform-style: preserve-3d;
 }
 
 .flip-card-front,
@@ -111,7 +123,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   backface-visibility: hidden; /* Hides the backface when flipped */
-  transition: opacity 0.3s ease-in-out; /* Add opacity transition */
+  transition: opacity 0.3s ease-in-out;
 }
 
 .flip-card-front {

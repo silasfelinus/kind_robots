@@ -3,7 +3,7 @@
     <!-- KindLoader (Only runs once) -->
     <KindLoader v-if="!isKindLoaderInitialized" @page-ready="handlePageReady" />
 
-    <!-- Main content is displayed only when the page is ready -->
+    
 
       <!-- Header -->
       <header
@@ -38,7 +38,7 @@
           <span>Instructions</span>
         </button>
       </header>
-    <div v-if="isPageReady">
+  
       <!-- Main Layout with strong margin and padding -->
       <div class="flex-1 w-full flex">
         <kind-sidebar-simple />
@@ -64,7 +64,7 @@
         </main>
       </div>
     </div>
-  </div>
+  
 </template>
 
 <script setup lang="ts">

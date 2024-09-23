@@ -79,6 +79,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Track whether the KindLoader has been initialized
@@ -88,6 +89,7 @@ const isPageReady = ref(false)
 
 // Control for tutorial visibility and animation direction
 const showTutorial = ref(true)
+const router = useRouter()
 
 // When the page is ready, load content
 const handlePageReady = (ready) => {
@@ -106,6 +108,13 @@ const handlePageTransition = () => {
 const handlePageReturn = () => {
   showTutorial.value = true
 }
+
+// Auto-reset tutorial on route changes
+router.beforeEach((to, from, next) => {
+  // Always show the tutorial when navigating to a new page
+  showTutorial.value = true
+  next()
+})
 
 onMounted(() => {
   displayStore.initializeViewportWatcher()

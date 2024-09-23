@@ -16,7 +16,7 @@
             class="text-4xl"
             @click="displayStore.toggleSidebar('sidebarLeft')"
           />
-        </div>
+        
 
         <nav-links />
 

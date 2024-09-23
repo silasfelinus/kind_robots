@@ -1,10 +1,10 @@
 <template>
   <div
-    class="relative flex flex-col h-full w-full bg-base-100 overflow-hidden mx-10"
+    class="relative flex flex-col h-full w-full bg-base-100 overflow-hidden"
     :style="tutorialStyle"
   >
     <!-- Title and Subtitle -->
-    <div class="flex flex-col items-center justify-center p-4 md:p-6 mt-8">
+    <div class="flex flex-col items-center justify-center p-4 md:p-6">
       <h1 class="text-xl md:text-3xl font-bold text-secondary">
         {{ page.title }}
       </h1>
@@ -91,7 +91,7 @@ const emit = defineEmits(['page-transition'])
 // Compute tutorial wrapper style based on available space
 const tutorialStyle = computed(() => ({
   height: `${100 - displayStore.headerVh}vh`,
-  width: `${100 - displayStore.sidebarVw}vw`,
+  width: `${95 - displayStore.sidebarVw}vw`,
 }))
 
 // Page content
@@ -102,20 +102,3 @@ const startPageTransition = () => {
   emit('page-transition')
 }
 </script>
-
-<style scoped>
-/* Improved readability for AMIbot text */
-.text-white {
-  color: #ffffff;
-}
-
-/* Triangle right for Next button */
-.triangle-right {
-  width: 0;
-  height: 0;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-left: 12px solid white; /* Arrow color */
-  margin-left: 8px;
-}
-</style>

@@ -1,13 +1,6 @@
 <template>
   <div class="art-gallery-layout">
-    <div class="splash-section">
-      <img
-        src="/images/artsplash3.webp"
-        alt="Art Splash"
-        class="splash-image"
-        @click="loadFirstImage"
-      />
-    </div>
+    <div class="splash-section"></div>
 
     <div v-show="!showSplash" class="gallery-section">
       <GallerySelector v-model="selectedGallery" :options="galleryOptions" />
@@ -91,13 +84,6 @@ const vote = (choice) => {
   }
   // Reset icon after a short duration to display it temporarily
   setTimeout(() => (activeIcon.value = null), 1000)
-}
-
-// Load the first image
-const loadFirstImage = () => {
-  showSplash.value = false
-  galleryStore.sortAndSelectFirstImage(selectedGallery.value)
-  currentImage.value = galleryStore.currentImage
 }
 
 // Set up and tear down event listeners

@@ -74,29 +74,28 @@ export const useDisplayStore = defineStore('display', {
 updateViewport() {
   if (typeof window !== 'undefined') {
     // Update the orientation based on window size
-    this.isVertical = window.innerHeight > window.innerWidth
-    
-    // Check if it's a touch device
-    this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    this.isVertical = window.innerHeight > window.innerWidth;
+    this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-    const width = window.innerWidth
+    const width = window.innerWidth;
 
     // Determine viewport size
     if (width < 768) {
-      this.viewportSize = 'small'
+      this.viewportSize = 'small';
     } else if (width >= 768 && width < 1024) {
-      this.viewportSize = 'medium'
+      this.viewportSize = 'medium';
     } else if (width >= 1024 && width < 1440) {
-      this.viewportSize = 'large'
+      this.viewportSize = 'large';
     } else {
-      this.viewportSize = 'extraLarge'
+      this.viewportSize = 'extraLarge';
     }
 
     // Set the header height and sidebar width
-    this.headerVh = Math.min(window.innerHeight * 0.1, 7)
-    this.sidebarVw = this.calculateSidebarWidth()
+    this.headerVh = Math.min(window.innerHeight * 0.1, 7);
+    this.sidebarVw = this.calculateSidebarWidth();
   }
 },
+
 
 
     // Initialize the viewport watcher for dynamic resizing

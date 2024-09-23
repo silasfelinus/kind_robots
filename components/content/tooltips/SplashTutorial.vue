@@ -59,16 +59,7 @@
       </div>
     </div>
 
-    <!-- Footer with Next Button -->
-    <div class="flex justify-end mt-4 px-4">
-      <button
-        class="fixed top-4 right-4 bg-accent text-base-200 py-2 px-3 md:py-2 md:px-4 rounded-lg shadow-md hover:bg-accent-focus transition duration-300 flex items-center z-50"
-        @click="startPageTransition"
-      >
-        <span>Next</span>
-        <div class="triangle-right ml-2"></div>
-      </button>
-    </div>
+    
   </div>
 </template>
 

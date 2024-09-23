@@ -45,7 +45,8 @@
               <!-- Next Button -->
               <button
                 v-if="showTutorial"
-                class="fixed -top-4 right-0 bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50"
+                class="absolute bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50"
+                :style="{ top: `${displayStore.headerVh}vh` }"
                 @click="handlePageTransition"
               >
                 Launch
@@ -54,7 +55,8 @@
               <!-- Back Button -->
               <button
                 v-if="!showTutorial"
-                class="fixed -top-4 left-0 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
+                class="absolute bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
+                :style="{ top: `${displayStore.headerVh}vh` }"
                 @click="handlePageReturn"
               >
                 <div class="triangle-left"></div>
@@ -170,5 +172,11 @@ onBeforeUnmount(() => {
   border-bottom: 10px solid transparent;
   border-right: 15px solid white; /* Arrow color */
   margin-right: 8px;
+}
+
+/* Chat-like insets for DottiBot and AMIbot messages */
+.chat-message {
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>

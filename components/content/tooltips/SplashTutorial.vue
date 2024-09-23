@@ -1,15 +1,25 @@
 <template>
-  <div class="flex flex-col h-full w-full bg-base-100 overflow-hidden" :style="tutorialStyle">
+  <div
+    class="flex flex-col h-full w-full bg-base-100 overflow-hidden"
+    :style="tutorialStyle"
+  >
     <!-- Title and Subtitle -->
     <div class="flex flex-col items-center justify-center p-2 md:p-4">
-      <h1 class="text-xl md:text-3xl font-bold text-secondary">{{ page.title }}</h1>
-      <h2 v-if="page.subtitle" class="text-md md:text-xl font-medium text-accent mt-2">
+      <h1 class="text-xl md:text-3xl font-bold text-secondary">
+        {{ page.title }}
+      </h1>
+      <h2
+        v-if="page.subtitle"
+        class="text-md md:text-xl font-medium text-accent mt-2"
+      >
         {{ page.subtitle }}
       </h2>
     </div>
 
     <!-- Image and Description Section -->
-    <div class="flex flex-col md:flex-row justify-center items-center mt-2 md:mt-4 md:space-x-6 px-2">
+    <div
+      class="flex flex-col md:flex-row justify-center items-center mt-2 md:mt-4 md:space-x-6 px-2"
+    >
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
@@ -21,10 +31,14 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div class="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 mt-6 mx-auto w-full max-w-4xl px-4">
+    <div
+      class="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 mt-6 mx-auto w-full max-w-4xl px-4"
+    >
       <!-- DottiBot Message -->
       <div class="flex md:w-1/2 justify-end">
-        <div class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full">
+        <div
+          class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full"
+        >
           <img
             src="/images/avatars/dottie1.webp"
             alt="DottiBot Avatar"
@@ -39,7 +53,9 @@
 
       <!-- AMIbot Message -->
       <div class="flex md:w-1/2 justify-start">
-        <div class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full">
+        <div
+          class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full"
+        >
           <img
             src="/images/amibotsquare1.webp"
             alt="AMIbot Avatar"
@@ -51,6 +67,17 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Next Button -->
+    <div class="absolute bottom-4 right-4">
+      <button
+        class="flex items-center bg-accent text-white py-2 px-4 rounded-lg shadow-md hover:bg-accent-focus transition duration-300"
+        @click="startPageTransition"
+      >
+        Next
+        <div class="triangle-right"></div>
+      </button>
     </div>
   </div>
 </template>

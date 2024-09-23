@@ -7,7 +7,7 @@
     <div v-if="isPageReady">
       <!-- Header -->
       <header
-        class="w-full bg-base-200 flex justify-between items-center sticky top-0 z-30 transition-all duration-500 ease-in-out"
+        class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
         :style="{ height: `${displayStore.headerVh}vh` }"
       >
         <!-- Sidebar Toggle -->
@@ -26,7 +26,9 @@
         <kind-sidebar-simple />
         <main class="flex-grow overflow-y-auto relative">
           <div class="flex justify-center items-center">
-            <div class="w-full max-w-4xl rounded-2xl bg-base-200 relative flip-card">
+            <div
+              class="w-full max-w-4xl rounded-2xl bg-base-200 relative flip-card"
+            >
               <div
                 class="flip-card-inner"
                 :class="{ 'is-flipped': !showTutorial }"
@@ -128,7 +130,9 @@ onBeforeUnmount(() => {
 <style scoped>
 /* Flip card container */
 .flip-card {
-  @apply perspective-1000 w-full h-full;
+  @apply perspective-1000; /* Correct Tailwind utility for perspective */
+  width: 100%;
+  height: 100%;
 }
 
 /* Inner container holding both sides */

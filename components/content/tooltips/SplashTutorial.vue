@@ -24,7 +24,7 @@
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-cover w-40 h-40 md:w-64 md:h-64 max-w-full" <!-- Added max-w-full -->
+        class="rounded-2xl border border-base-300 shadow-md object-cover w-40 h-40 md:w-64 md:h-64 max-w-full"
       />
 
       <!-- Description Section (always below the image) -->
@@ -39,14 +39,12 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div
-      class="flex flex-col space-y-4 mt-6 mx-auto w-full max-w-4xl px-4"
-    >
+    <div class="flex flex-col space-y-4 mt-6 mx-auto w-full max-w-4xl px-4">
       <!-- DottiBot Message -->
       <div class="flex justify-start w-full">
         <div
           class="mr-14 ml-4 flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-3/4 box-border"
-          style="max-width: 100%;" <!-- Added max-width for message box -->
+          style="max-width: 100%;"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -64,7 +62,7 @@
       <div class="flex justify-end w-full">
         <div
           class="ml-14 mr-4 flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-3/4 box-border"
-          style="max-width: 100%;" <!-- Added max-width for message box -->
+          style="max-width: 100%;"
         >
           <img
             src="/images/amibotsquare1.webp"
@@ -94,7 +92,7 @@ const emit = defineEmits(['page-transition'])
 // Compute tutorial wrapper style based on available space
 const tutorialStyle = computed(() => ({
   height: `${100 - displayStore.headerVh}vh`,
-  width: `${100 - displayStore.sidebarVw}vw`,  // Changed from 95 to 100 to avoid unintentional shrinking
+  width: `${100 - displayStore.sidebarVw}vw`,
 }))
 
 // Page content

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col h-full w-full bg-base-100 overflow-hidden"
+    class="relative flex flex-col h-full w-full bg-base-100 overflow-hidden mx-10"
     :style="tutorialStyle"
   >
     <!-- Title and Subtitle -->
@@ -44,7 +44,7 @@
       <!-- DottiBot Message -->
       <div class="flex justify-start w-full">
         <div
-          class="mr-4 flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-3/4"
+          class="mr-14 ml-4 flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-3/4"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -61,7 +61,7 @@
       <!-- AMIbot Message -->
       <div class="flex justify-end w-full">
         <div
-          class="ml-4 flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-3/4"
+          class="ml-14 mr-4 flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-3/4"
         >
           <img
             src="/images/amibotsquare1.webp"

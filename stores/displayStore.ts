@@ -85,6 +85,23 @@ export const useDisplayStore = defineStore('display', {
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
+    changeState(container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer', state: DisplayState) {
+      try {
+        console.log(`Changing ${container} state to ${state}`)
+        this[container] = state
+        this.sidebarVw = this.calculateSidebarWidth()
+    
+        // Save the new state to localStorage if needed
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(container, this[container])
+        }
+      } catch (error) {
+        console.error(`Error changing state for ${container}:`, error)
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
+    },
+    
 
     // Update the viewport size and orientation
     updateViewport() {

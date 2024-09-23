@@ -1,10 +1,10 @@
 <template>
   <div
-    class="flex flex-col h-full w-full bg-base-100 overflow-hidden"
+    class="relative flex flex-col h-full w-full bg-base-100 overflow-hidden"
     :style="tutorialStyle"
   >
     <!-- Title and Subtitle -->
-    <div class="flex flex-col items-center justify-center p-2 md:p-4">
+    <div class="flex flex-col items-center justify-center p-4 md:p-6 mt-8">
       <h1 class="text-xl md:text-3xl font-bold text-secondary">
         {{ page.title }}
       </h1>
@@ -18,7 +18,7 @@
 
     <!-- Image and Description Section -->
     <div
-      class="flex flex-col md:flex-row justify-center items-center mt-2 md:mt-4 md:space-x-4 px-2"
+      class="flex flex-col md:flex-row justify-center items-center mt-2 md:mt-4 md:space-x-4 px-4"
     >
       <img
         :src="'/images/' + page.image"
@@ -28,7 +28,7 @@
 
       <!-- Highlighted Description Section -->
       <div
-        class="bg-info text-info-content p-4 md:p-6 rounded-xl shadow-md mt-4 md:mt-0 max-w-lg w-full"
+        class="card bg-info text-info-content p-4 md:p-6 rounded-xl shadow-md mt-4 md:mt-0 max-w-lg w-full"
       >
         <p class="text-sm md:text-base font-medium">
           {{ page.description }}
@@ -38,12 +38,12 @@
 
     <!-- Bot Messages Section -->
     <div
-      class="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 mt-6 mx-auto w-full max-w-4xl px-4"
+      class="flex flex-col justify-between space-y-4 mt-6 mx-auto w-full max-w-4xl px-4"
     >
       <!-- DottiBot Message -->
-      <div class="flex md:w-1/2 justify-end">
+      <div class="flex justify-start">
         <div
-          class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full"
+          class="flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -58,9 +58,9 @@
       </div>
 
       <!-- AMIbot Message -->
-      <div class="flex md:w-1/2 justify-start">
+      <div class="flex justify-end">
         <div
-          class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full"
+          class="flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full"
         >
           <img
             src="/images/amibotsquare1.webp"
@@ -114,6 +114,38 @@ const startPageTransition = () => {
 </script>
 
 <style scoped>
+/* Flexbox and layout styling */
+.tutorial-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--tw-bg-opacity, 1);
+  transition: all 0.5s ease;
+  position: relative;
+  overflow: hidden; /* Prevents overflowing on small screens */
+}
+
+/* Adjust chat-like style for bot messages */
+.dotti-message,
+.ami-message {
+  border-radius: 15px;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Card styling for the description section */
+.card {
+  background-color: var(--tw-bg-opacity, 1);
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+}
+
+/* Improved readability for AMIbot text */
+.text-white {
+  color: #ffffff;
+}
+
 /* Triangle right for Next button */
 .triangle-right {
   width: 0;

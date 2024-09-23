@@ -49,11 +49,13 @@
               class="flip-card-inner"
               :class="{ 'is-flipped': !showTutorial }"
             >
-              <!-- Conditional rendering of tutorial or page content -->
-              <div v-show="showTutorial" key="tutorial" class="flip-card-front">
+              <!-- Front side: Splash Tutorial -->
+              <div class="flip-card-front">
                 <SplashTutorial @page-transition="handlePageTransition" />
               </div>
-              <div v-show="!showTutorial" key="content" class="flip-card-back">
+
+              <!-- Back side: NuxtPage content -->
+              <div class="flip-card-back">
                 <NuxtPage />
               </div>
             </div>
@@ -103,39 +105,37 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Flip card container */
 .flip-card {
   width: 100%;
   height: 100%;
-  perspective: 1000px; /* Custom CSS for perspective */
+  perspective: 1000px; /* Creates depth for the flip effect */
 }
 
-/* Inner container holding both sides */
 .flip-card-inner {
-  position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s;
+  transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
 }
 
-/* Flipped state */
 .flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg); /* Flips the entire card horizontally */
 }
 
-/* Front and back face of the card */
 .flip-card-front,
 .flip-card-back {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
+  backface-visibility: hidden; /* Hides the backside during rotation */
   border-radius: 12px;
 }
 
-/* Back side */
+.flip-card-front {
+  z-index: 2; /* Ensures the front side is on top */
+}
+
 .flip-card-back {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg); /* Ensures the back side starts flipped */
 }
 </style>

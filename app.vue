@@ -16,33 +16,32 @@
             class="text-4xl"
             @click="displayStore.toggleSidebar('sidebarLeft')"
           />
-        
+        </div>
 
         <nav-links />
 
-<!-- Next Button -->
-              <button
-                v-if="showTutorial"
-                class="absolute top-4 right-4 bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50"
-                @click="handlePageTransition"
-              >
-                Launch
-              </button>
+        <!-- Next Button -->
+        <button
+          v-if="showTutorial"
+          class="absolute top-4 right-4 bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50"
+          @click="handlePageTransition"
+        >
+          Launch
+        </button>
 
-              <!-- Back Button -->
-              <button
-                v-if="!showTutorial"
-                class="absolute top-4 right-4 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
-                @click="handlePageReturn"
-              >
-                <div class="triangle-left"></div>
-                <span>Instructions</span>
-              </button>
-            </div>
+        <!-- Back Button -->
+        <button
+          v-if="!showTutorial"
+          class="absolute top-4 right-4 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
+          @click="handlePageReturn"
+        >
+          <div class="triangle-left"></div>
+          <span>Instructions</span>
+        </button>
       </header>
 
       <!-- Main Layout with strong margin and padding -->
-      <div class="flex-1 w-full flex p-4 md:p-8 lg:p-12  box-border">
+      <div class="flex-1 w-full flex p-4 md:p-8 lg:p-12 box-border">
         <kind-sidebar-simple />
         <main class="flex-grow overflow-y-auto relative">
           <div class="flex justify-center items-center">
@@ -62,8 +61,7 @@
                   <NuxtPage />
                 </div>
               </div>
-
-              
+            </div>
           </div>
         </main>
       </div>

@@ -30,7 +30,7 @@ export const useDisplayStore = defineStore('display', {
     headerVh: 7,
     sidebarVw: 7,
     footerVh: 5,
-    isVertical: false, // Vertical flag still in place for other components
+    isVertical: false,
     viewportSize: 'large',
     isTouchDevice: false,
     isLoaded: false,
@@ -38,8 +38,12 @@ export const useDisplayStore = defineStore('display', {
   }),
 
   actions: {
-    // Function to calculate sidebar width based on screen size
+    // Function to calculate sidebar width based on screen size and orientation
     calculateSidebarWidth(): number {
+      if (this.isVertical) {
+        return this.sidebarLeft === 'open' ? 25 : 4 // Custom width for vertical mode
+      }
+      
       switch (this.viewportSize) {
         case 'small':
           return this.sidebarLeft === 'open' ? 25 : this.sidebarLeft === 'compact' ? 12 : 4
@@ -56,8 +60,8 @@ export const useDisplayStore = defineStore('display', {
     // Update the viewport size and orientation
     updateViewport() {
       if (typeof window !== 'undefined') {
-        this.isVertical = window.innerHeight > window.innerWidth // Vertical layout check remains
-        
+        this.isVertical = window.innerHeight > window.innerWidth
+
         this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
         const width = window.innerWidth
@@ -72,10 +76,9 @@ export const useDisplayStore = defineStore('display', {
           this.viewportSize = 'extraLarge'
         }
 
-        this.headerVh = Math.min(10, 7) // Example calculation; modify as needed
+        this.headerVh = Math.min(10, 7)
         this.sidebarVw = this.calculateSidebarWidth()
 
-        localStorage.setItem('headerVh', this.headerVh.toString())
       }
     },
 

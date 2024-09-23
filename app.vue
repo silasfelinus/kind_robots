@@ -36,7 +36,7 @@
       </button>
     </header>
 
-<!-- Main Layout with strong margin and padding -->
+    <!-- Main Layout with strong margin and padding -->
     <div class="flex-1 w-full flex">
       <kind-sidebar-simple />
       <main class="flex-grow overflow-y-auto relative">
@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
@@ -84,7 +84,9 @@ const handlePageReady = (ready: boolean) => {
 
 // Toggle between tutorial and main content
 const toggleTutorial = () => {
-  console.log(showTutorial.value ? 'Launching main content' : 'Returning to tutorial')
+  console.log(
+    showTutorial.value ? 'Launching main content' : 'Returning to tutorial',
+  )
   showTutorial.value = !showTutorial.value
 }
 

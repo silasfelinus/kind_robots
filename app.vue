@@ -36,17 +36,17 @@
       </button>
     </header>
 
-    <!-- Main Layout with strong margin and padding -->
+<!-- Main Layout with strong margin and padding -->
     <div class="flex-1 w-full flex">
       <kind-sidebar-simple />
       <main class="flex-grow overflow-y-auto relative">
         <div class="flex justify-center items-center">
           <div
-            class="w-full max-w-4xl rounded-2xl bg-base-200 relative shadow-lg p-4 lg:p-8"
+            class="w-full max-w-4xl rounded-2xl bg-base-200 relative flip-card shadow-lg p-4 lg:p-8"
           >
             <div
-              class="flip-card-inner transition-transform duration-500 transform-style-3d"
-              :class="{ 'rotate-y-180': !showTutorial }"
+              class="flip-card-inner"
+              :class="{ 'is-flipped': !showTutorial }"
             >
               <!-- Conditional rendering of tutorial or page content -->
               <div v-if="showTutorial" key="tutorial" class="flip-card-front">

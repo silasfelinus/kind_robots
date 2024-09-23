@@ -42,10 +42,19 @@
                 </div>
               </div>
 
-              <!-- Reverse Button to go back to Tutorial -->
+              <!-- Next Button -->
+              <button
+                v-if="showTutorial"
+                class="fixed top-4 right-4 bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50"
+                @click="handlePageTransition"
+              >
+                Next
+              </button>
+
+              <!-- Back Button -->
               <button
                 v-if="!showTutorial"
-                class="absolute bottom-4 left-4 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center"
+                class="fixed top-4 left-4 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
                 @click="handlePageReturn"
               >
                 <div class="triangle-left"></div>
@@ -142,5 +151,15 @@ onBeforeUnmount(() => {
 /* Back side */
 .flip-card-back {
   transform: rotateY(180deg);
+}
+
+/* Triangle left for Back button */
+.triangle-left {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 15px solid white; /* Arrow color */
+  margin-right: 8px;
 }
 </style>

@@ -130,34 +130,47 @@ onBeforeUnmount(() => {
 <style scoped>
 /* Flip card container */
 .flip-card {
-  @apply perspective-1000; /* Correct Tailwind utility for perspective */
   width: 100%;
   height: 100%;
+  perspective: 1000px; /* Custom CSS for perspective */
 }
 
 /* Inner container holding both sides */
 .flip-card-inner {
-  @apply relative w-full h-full transition-transform duration-600 transform-style-preserve-3d;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
 }
 
 /* Flipped state */
 .flip-card-inner.is-flipped {
-  @apply transform rotate-y-180;
+  transform: rotateY(180deg);
 }
 
 /* Front and back face of the card */
 .flip-card-front,
 .flip-card-back {
-  @apply absolute w-full h-full backface-hidden rounded-2xl;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
 }
 
 /* Back side */
 .flip-card-back {
-  @apply transform rotate-y-180;
+  transform: rotateY(180deg);
 }
 
 /* Triangle left for Back button */
 .triangle-left {
-  @apply w-0 h-0 border-t-10 border-b-10 border-r-15 border-transparent border-r-white mr-2;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 15px solid white; /* Arrow color */
+  margin-right: 8px;
 }
 </style>

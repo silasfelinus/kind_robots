@@ -23,7 +23,7 @@
         <!-- Next Button -->
         <button
           v-if="showTutorial"
-          class="absolute top-4 right-4 bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50"
+          class="absolute bottom-1 right-4 bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50"
           @click="handlePageTransition"
         >
           Launch
@@ -32,7 +32,7 @@
         <!-- Back Button -->
         <button
           v-if="!showTutorial"
-          class="absolute top-4 right-4 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
+          class="absolute bottom-1 right-4 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
           @click="handlePageReturn"
         >
           <div class="triangle-left"></div>
@@ -41,23 +41,22 @@
       </header>
 
       <!-- Main Layout with strong margin and padding -->
-      <div class="flex-1 w-full flex p-4 md:p-8 lg:p-12 box-border">
+      <div class="flex-1 w-full flex">
         <kind-sidebar-simple />
         <main class="flex-grow overflow-y-auto relative">
           <div class="flex justify-center items-center">
             <div
               class="w-full max-w-4xl rounded-2xl bg-base-200 relative flip-card shadow-lg p-4 lg:p-8"
-              style="box-sizing: border-box;"
             >
               <div
                 class="flip-card-inner"
                 :class="{ 'is-flipped': !showTutorial }"
               >
                 <!-- Conditional rendering of tutorial or page content -->
-                <div v-if="showTutorial" key="tutorial" class="flip-card-front rounded-2xl mx-10">
+                <div v-if="showTutorial" key="tutorial" class="flip-card-front">
                   <SplashTutorial @page-transition="handlePageTransition" />
                 </div>
-                <div v-else key="content" class="flip-card-back rounded-2xl mx-10">
+                <div v-else key="content" class="flip-card-back">
                   <NuxtPage />
                 </div>
               </div>
@@ -65,15 +64,6 @@
           </div>
         </main>
       </div>
-
-      <!-- Footer (Stick to Bottom) -->
-      <footer
-        v-if="displayStore.footer !== 'hidden'"
-        :style="{ height: `${displayStore.footerVh}vh` }"
-        class="w-full bg-gray-800 text-accent mt-auto flex-none p-4"
-      >
-        created by Silas Knight silas@kindrobots.org
-      </footer>
     </div>
   </div>
 </template>
@@ -155,7 +145,6 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border-radius: 12px;
 }
 
 /* Back side */
@@ -163,13 +152,4 @@ onBeforeUnmount(() => {
   transform: rotateY(180deg);
 }
 
-/* Triangle left for Back button */
-.triangle-left {
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-  border-right: 15px solid white; /* Arrow color */
-  margin-right: 8px;
-}
 </style>

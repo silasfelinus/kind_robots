@@ -88,8 +88,8 @@ const emit = defineEmits(['page-transition'])
 
 // Compute tutorial wrapper style based on available space
 const tutorialStyle = computed(() => ({
-  height: `${100 - displayStore.headerVh}vh`,
-  width: `${100 - displayStore.sidebarVw}vw`,
+  height: `${98 - displayStore.headerVh}vh`,
+  width: `${98 - displayStore.sidebarVw}vw`,
 }))
 
 // Page content

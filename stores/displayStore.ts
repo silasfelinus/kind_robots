@@ -40,8 +40,6 @@ export const useDisplayStore = defineStore('display', {
   actions: {
     // Function to calculate sidebar width based on screen size and orientation
     calculateSidebarWidth(): number {
-
-    
       switch (this.viewportSize) {
         case 'small':
           return this.sidebarLeft === 'open' ? 25 : this.sidebarLeft === 'compact' ? 12 : 4
@@ -55,11 +53,27 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
+    // Toggle sidebar state between 'hidden', 'compact', and 'open'
+    toggleSidebar(side: 'sidebarLeft' | 'sidebarRight') {
+      const stateCycle: Record<DisplayState, DisplayState> = {
+        hidden: 'compact',
+        compact: 'open',
+        open: 'hidden',
+        disabled: 'hidden', // Optional state that can be ignored for now
+      }
+      this[side] = stateCycle[this[side]]
+      this.sidebarVw = this.calculateSidebarWidth()
+
+      // Save state to localStorage if necessary
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(side, this[side])
+      }
+    },
+
     // Update the viewport size and orientation
     updateViewport() {
       if (typeof window !== 'undefined') {
         this.isVertical = window.innerHeight > window.innerWidth
-
         this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
         const width = window.innerWidth
@@ -76,7 +90,6 @@ export const useDisplayStore = defineStore('display', {
 
         this.headerVh = Math.min(10, 7)
         this.sidebarVw = this.calculateSidebarWidth()
-
       }
     },
 
@@ -90,5 +103,37 @@ export const useDisplayStore = defineStore('display', {
     removeViewportWatcher() {
       window.removeEventListener('resize', this.updateViewport)
     },
+
+    // Load the saved display settings from localStorage
+    loadState() {
+      if (typeof window !== 'undefined') {
+        const storedSidebarLeft = localStorage.getItem('sidebarLeft') as DisplayState
+        const storedSidebarRight = localStorage.getItem('sidebarRight') as DisplayState
+        const storedHeaderVh = localStorage.getItem('headerVh')
+
+        if (storedSidebarLeft) {
+          this.sidebarLeft = storedSidebarLeft
+        }
+
+        if (storedSidebarRight) {
+          this.sidebarRight = storedSidebarRight
+        }
+
+        if (storedHeaderVh) {
+          this.headerVh = parseInt(storedHeaderVh, 10)
+        }
+
+        this.sidebarVw = this.calculateSidebarWidth()
+      }
+    },
+
+    // Save the display state to localStorage
+    saveState() {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarLeft', this.sidebarLeft)
+        localStorage.setItem('sidebarRight', this.sidebarRight)
+        localStorage.setItem('headerVh', this.headerVh.toString())
+      }
+    }
   },
 })

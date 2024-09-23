@@ -2,66 +2,58 @@
   <div class="flex flex-col h-full w-full bg-base-100 overflow-hidden" :style="tutorialStyle">
     <!-- Title and Subtitle -->
     <div class="flex flex-col items-center justify-center p-2 md:p-4">
-      <h1 class="text-xl md:text-3xl font-bold text-secondary">{{ page.title }}</h1>
-      <h2 v-if="page.subtitle" class="text-md md:text-xl font-medium text-accent mt-2">
+      <h1 class="text-lg md:text-xl font-bold text-secondary">{{ page.title }}</h1>
+      <h2 v-if="page.subtitle" class="text-sm md:text-lg font-medium text-accent mt-1">
         {{ page.subtitle }}
       </h2>
     </div>
 
-    <!-- Image and Description Section -->
-    <div class="flex flex-col md:flex-row justify-center items-center mt-2 md:mt-4 md:space-x-6 px-2">
-      <img
-        :src="'/images/' + page.image"
-        alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-cover w-40 h-40 md:w-64 md:h-64"
-      />
-      <div class="text-center text-base-content max-w-md mx-auto mt-4 md:mt-0">
-        <p class="text-xs md:text-base">{{ page.description }}</p>
-      </div>
-    </div>
-
-    <!-- Bot Messages Section (Chat Exchange Layout) -->
-    <div class="flex flex-col space-y-4 mt-6 mx-auto w-full max-w-lg px-4">
-      <!-- DottiBot Message (Aligned to the right, like a chat bubble) -->
-      <div class="flex justify-end">
-        <div class="flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full md:w-3/4">
-          <img
-            src="/images/avatars/dottie1.webp"
-            alt="DottiBot Avatar"
-            class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
-          />
-          <div class="flex flex-col">
-            <span class="text-xs md:text-sm font-semibold">DottiBot</span>
-            <p class="text-xs md:text-sm">{{ page.dottitip }}</p>
-          </div>
+    <!-- Main Content (Image, Description, and Bot Messages) -->
+    <div class="flex flex-col md:flex-row justify-center items-start md:items-center mt-2 md:mt-4 md:space-x-6 px-2">
+      <!-- Left Column: Image and Description -->
+      <div class="flex flex-col items-center md:w-1/2">
+        <img
+          :src="'/images/' + page.image"
+          alt="Main Image"
+          class="rounded-2xl border border-base-300 shadow-md object-cover w-full md:w-auto h-auto"
+        />
+        <div class="text-center text-base-content max-w-md mx-auto mt-4 md:mt-0">
+          <p class="text-xs md:text-sm">{{ page.description }}</p>
         </div>
       </div>
 
-      <!-- AMIbot Message (Aligned to the left, like a chat bubble) -->
-      <div class="flex justify-start">
-        <div class="flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full md:w-3/4">
-          <img
-            src="/images/amibotsquare1.webp"
-            alt="AMIbot Avatar"
-            class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
-          />
-          <div class="flex flex-col">
-            <span class="text-xs md:text-sm font-semibold">AMIbot</span>
-            <p class="text-xs md:text-sm text-white">{{ page.amitip }}</p>
+      <!-- Right Column: Bot Messages (On larger screens) -->
+      <div class="flex flex-col space-y-4 mt-6 mx-auto md:mx-0 w-full max-w-md md:max-w-none md:w-1/2 px-4">
+        <!-- DottiBot Message -->
+        <div class="flex justify-end">
+          <div class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full md:w-auto inset-box-right">
+            <img
+              src="/images/avatars/dottie1.webp"
+              alt="DottiBot Avatar"
+              class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
+            />
+            <div class="flex flex-col">
+              <span class="text-xs md:text-sm font-semibold">DottiBot</span>
+              <p class="text-xs md:text-sm">{{ page.dottitip }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- AMIbot Message -->
+        <div class="flex justify-start">
+          <div class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full md:w-auto inset-box-left">
+            <img
+              src="/images/amibotsquare1.webp"
+              alt="AMIbot Avatar"
+              class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
+            />
+            <div class="flex flex-col">
+              <span class="text-xs md:text-sm font-semibold">AMIbot</span>
+              <p class="text-xs md:text-sm text-white">{{ page.amitip }}</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Next Button -->
-    <div class="absolute bottom-4 right-4">
-      <button
-        class="flex items-center bg-accent text-white py-2 px-4 rounded-lg shadow-md hover:bg-accent-focus transition duration-300"
-        @click="startPageTransition"
-      >
-        Next
-        <div class="triangle-right"></div>
-      </button>
     </div>
   </div>
 </template>
@@ -112,13 +104,25 @@ img {
   color: #ffffff;
 }
 
-/* Triangle right for Next button */
-.triangle-right {
-  width: 0;
-  height: 0;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-left: 12px solid white; /* Arrow color */
-  margin-left: 8px;
+/* Insets for chat messages */
+.inset-box-right {
+  margin-right: auto;
+}
+
+.inset-box-left {
+  margin-left: auto;
+}
+
+/* Chat bubbles for DottiBot and AMIbot */
+.flex {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Responsive layout adjustments */
+@media (min-width: 768px) {
+  .md\\:flex-row {
+    display: flex;
+  }
 }
 </style>

@@ -26,7 +26,7 @@
       <div class="flex flex-col space-y-4 mt-6 mx-auto md:mx-0 w-full max-w-md md:max-w-none md:w-1/2 px-4">
         <!-- DottiBot Message -->
         <div class="flex justify-end">
-          <div class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full md:w-auto inset-box-right">
+          <div class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full md:w-auto">
             <img
               src="/images/avatars/dottie1.webp"
               alt="DottiBot Avatar"
@@ -41,7 +41,7 @@
 
         <!-- AMIbot Message -->
         <div class="flex justify-start">
-          <div class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full md:w-auto inset-box-left">
+          <div class="flex items-center space-x-2 md:space-x-4 p-3 md:p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full md:w-auto">
             <img
               src="/images/amibotsquare1.webp"
               alt="AMIbot Avatar"
@@ -84,17 +84,7 @@ const startPageTransition = () => {
 </script>
 
 <style scoped>
-/* Flexbox and layout styling */
-.tutorial-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--tw-bg-opacity, 1);
-  transition: all 0.5s ease;
-  position: relative;
-  overflow: hidden; /* Prevents overflowing on small screens */
-}
-
+/* Remove unnecessary custom CSS for cleaner Tailwind implementation */
 img {
   object-fit: cover;
 }
@@ -102,27 +92,5 @@ img {
 /* Improved readability for AMIbot text */
 .text-white {
   color: #ffffff;
-}
-
-/* Insets for chat messages */
-.inset-box-right {
-  margin-right: auto;
-}
-
-.inset-box-left {
-  margin-left: auto;
-}
-
-/* Chat bubbles for DottiBot and AMIbot */
-.flex {
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-/* Responsive layout adjustments */
-@media (min-width: 768px) {
-  .md\\:flex-row {
-    display: flex;
-  }
 }
 </style>

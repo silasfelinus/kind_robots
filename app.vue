@@ -10,10 +10,7 @@
     >
       <!-- Sidebar Toggle -->
       <div class="absolute top-4 left-4 p-1 z-40 text-white">
-        <sidebar-toggle
-          class="text-4xl"
-          @click="displayStore.toggleSidebar('sidebarLeft')"
-        />
+        <sidebar-toggle class="text-4xl" />
       </div>
 
       <nav-links />
@@ -21,7 +18,7 @@
       <!-- Tutorial and Back Buttons -->
       <button
         v-if="showTutorial"
-        class="absolute bottom-4 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50 px-4 py-2"
+        class="fixed bottom-4 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50 px-4 py-2"
         @click="toggleTutorial"
       >
         Launch
@@ -29,7 +26,7 @@
 
       <button
         v-else
-        class="absolute bottom-4 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50 px-4 py-2"
+        class="fixed bottom-4 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50 px-4 py-2"
         @click="toggleTutorial"
       >
         <span>Instructions</span>
@@ -78,32 +75,25 @@ const isPageReady = ref(false)
 
 // Handle when page is ready
 const handlePageReady = (ready: boolean) => {
-  console.log('Page ready state:', ready)
   isPageReady.value = ready
 }
 
 // Toggle between tutorial and main content
 const toggleTutorial = () => {
-  console.log(
-    showTutorial.value ? 'Launching main content' : 'Returning to tutorial',
-  )
   showTutorial.value = !showTutorial.value
 }
 
 // Auto-reset tutorial on route changes if needed
 router.beforeEach((to, from, next) => {
-  console.log('Route change detected, resetting tutorial')
   showTutorial.value = true
   next()
 })
 
 onMounted(() => {
-  console.log('Initializing viewport watcher')
   displayStore.initializeViewportWatcher()
 })
 
 onBeforeUnmount(() => {
-  console.log('Removing viewport watcher')
   displayStore.removeViewportWatcher()
 })
 </script>
@@ -111,7 +101,7 @@ onBeforeUnmount(() => {
 <style scoped>
 /* Flip card container */
 .flip-card-inner {
-  perspective: 1000px; /* Tailwind doesn't have perspective utilities */
+  perspective: 1000px;
   transform-style: preserve-3d;
 }
 

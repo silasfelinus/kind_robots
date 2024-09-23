@@ -104,48 +104,39 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* Flip card container */
 .flip-card {
   width: 100%;
   height: 100%;
-  perspective: 1200px; /* Increased perspective for larger content */
+  perspective: 1000px; /* Custom CSS for perspective */
 }
 
+/* Inner container holding both sides */
 .flip-card-inner {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.6s;
   transform-style: preserve-3d;
 }
 
+/* Flipped state */
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+/* Front and back face of the card */
 .flip-card-front,
 .flip-card-back {
   position: absolute;
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  transition: opacity 0.3s ease-in-out;
+  border-radius: 12px;
 }
 
-.flip-card-front {
-  transform: rotateY(0deg);
-}
-
+/* Back side */
 .flip-card-back {
   transform: rotateY(180deg);
-}
-
-.is-flipped .flip-card-inner {
-  transform: rotateY(180deg);
-}
-
-.is-flipped .flip-card-front {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.is-flipped .flip-card-back {
-  opacity: 1;
-  pointer-events: all;
 }
 </style>

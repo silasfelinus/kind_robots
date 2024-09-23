@@ -45,8 +45,7 @@
               <!-- Next Button -->
               <button
                 v-if="showTutorial"
-                class="absolute bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50"
-                :style="{ top: `${displayStore.headerVh}vh` }"
+                class="absolute top-4 right-4 bg-info text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50"
                 @click="handlePageTransition"
               >
                 Launch
@@ -55,8 +54,7 @@
               <!-- Back Button -->
               <button
                 v-if="!showTutorial"
-                class="absolute bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
-                :style="{ top: `${displayStore.headerVh}vh` }"
+                class="absolute top-4 right-4 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
                 @click="handlePageReturn"
               >
                 <div class="triangle-left"></div>

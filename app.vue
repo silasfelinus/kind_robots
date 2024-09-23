@@ -4,7 +4,7 @@
     <KindLoader v-if="!isKindLoaderInitialized" @page-ready="handlePageReady" />
 
     <!-- Main content is displayed only when the page is ready -->
-    <div v-if="isPageReady">
+
       <!-- Header -->
       <header
         class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
@@ -38,7 +38,7 @@
           <span>Instructions</span>
         </button>
       </header>
-
+    <div v-if="isPageReady">
       <!-- Main Layout with strong margin and padding -->
       <div class="flex-1 w-full flex">
         <kind-sidebar-simple />

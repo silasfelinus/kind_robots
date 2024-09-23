@@ -174,9 +174,4 @@ onBeforeUnmount(() => {
   margin-right: 8px;
 }
 
-/* Chat-like insets for DottiBot and AMIbot messages */
-.chat-message {
-  margin-left: auto;
-  margin-right: auto;
-}
 </style>

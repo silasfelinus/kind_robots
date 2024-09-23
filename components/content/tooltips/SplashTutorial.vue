@@ -38,7 +38,9 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div class="flex flex-col space-y-4 mt-6 mx-auto w-full max-w-4xl px-4">
+    <div
+      class="flex flex-col space-y-4 mt-6 mx-auto w-full max-w-4xl px-4"
+    >
       <!-- DottiBot Message -->
       <div class="flex justify-start w-full">
         <div
@@ -88,8 +90,8 @@ const emit = defineEmits(['page-transition'])
 
 // Compute tutorial wrapper style based on available space
 const tutorialStyle = computed(() => ({
-  height: `${98 - displayStore.headerVh}vh`,
-  width: `${98 - displayStore.sidebarVw}vw`,
+  height: `${100 - displayStore.headerVh}vh`,
+  width: `${100 - displayStore.sidebarVw}vw`,
 }))
 
 // Page content
@@ -102,27 +104,18 @@ const startPageTransition = () => {
 </script>
 
 <style scoped>
-/* General flex and layout handling */
-.tutorial-wrapper {
-  @apply flex justify-center items-center bg-opacity-100 transition-all ease-in-out relative overflow-hidden;
-}
-
-/* Bot message styling */
-.dotti-message,
-.ami-message {
-  @apply flex items-center space-x-2 p-3 rounded-lg shadow-lg;
-}
-
-.dotti-message {
-  @apply bg-primary border border-secondary text-base-200;
-}
-
-.ami-message {
-  @apply bg-secondary border border-primary text-base-200;
-}
-
 /* Improved readability for AMIbot text */
 .text-white {
-  @apply text-white;
+  color: #ffffff;
+}
+
+/* Triangle right for Next button */
+.triangle-right {
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 12px solid white; /* Arrow color */
+  margin-left: 8px;
 }
 </style>

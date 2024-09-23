@@ -59,49 +59,42 @@ onMounted(async () => {
       (async () => {
         if (typeof displayStore.updateViewport === 'function') {
           await displayStore.updateViewport()
-          console.log('Viewport updated')
         }
       })(),
 
       (async () => {
         if (typeof botStore.loadStore === 'function') {
           await botStore.loadStore()
-          console.log('BotStore loaded')
         }
       })(),
 
       (async () => {
         if (typeof userStore.initializeUser === 'function') {
           await userStore.initializeUser()
-          console.log('UserStore initialized')
         }
       })(),
 
       (async () => {
         if (typeof artStore.init === 'function') {
           await artStore.init()
-          console.log('ArtStore initialized')
         }
       })(),
 
       (async () => {
         if (typeof themeStore.initTheme === 'function') {
           await themeStore.initTheme()
-          console.log('ThemeStore initialized')
         }
       })(),
 
       (async () => {
         if (typeof milestoneStore.initializeMilestones === 'function') {
           await milestoneStore.initializeMilestones()
-          console.log('MilestoneStore initialized')
         }
       })(),
 
       (async () => {
         if (typeof pitchStore.initializePitches === 'function') {
           await pitchStore.initializePitches()
-          console.log('PitchStore initialized')
         }
       })(),
     ])

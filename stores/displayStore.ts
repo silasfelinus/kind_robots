@@ -66,9 +66,9 @@ export const useDisplayStore = defineStore('display', {
       try {
         console.log(`Toggling sidebar ${side}. Current state:`, this[side])
         const stateCycle: Record<DisplayState, DisplayState> = {
-          hidden: 'compact',
-          compact: 'open',
-          open: 'hidden',
+          hidden: 'open',
+          compact: 'hidden',
+          open: 'compact',
           disabled: 'hidden',
         }
         this[side] = stateCycle[this[side]]

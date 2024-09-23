@@ -14,5 +14,6 @@ category: settings
 sort: highlight
 dottitip: Hi! I'm Dotti, Bot Builder extraordinaire!  Welcome to my experiential laboratory.
 ---
+:store-debug
 
 :navigation-trimmed

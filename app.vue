@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="flex flex-col min-h-screen w-full bg-base-200">
     <!-- KindLoader (Only runs once) -->
-    <KindLoader v-if="!isKindLoaderInitialized" @page-ready="handlePageReady" />
+    <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
 
     <!-- Header -->
     <header
@@ -18,20 +18,19 @@
 
       <nav-links />
 
-      <!-- Next Button -->
+      <!-- Tutorial and Back Buttons -->
       <button
         v-if="showTutorial"
-        class="absolute bottom-1 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50"
-        @click="handlePageTransition"
+        class="action-button bg-info hover:bg-info-focus"
+        @click="toggleTutorial"
       >
         Launch
       </button>
 
-      <!-- Back Button -->
       <button
-        v-if="!showTutorial"
-        class="absolute bottom-1 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
-        @click="handlePageReturn"
+        v-else
+        class="action-button bg-secondary hover:bg-secondary-focus"
+        @click="toggleTutorial"
       >
         <span>Instructions</span>
       </button>
@@ -51,7 +50,7 @@
             >
               <!-- Conditional rendering of tutorial or page content -->
               <div v-if="showTutorial" key="tutorial" class="flip-card-front">
-                <SplashTutorial @page-transition="handlePageTransition" />
+                <SplashTutorial @page-transition="toggleTutorial" />
               </div>
               <div v-else key="content" class="flip-card-back">
                 <NuxtPage />
@@ -65,55 +64,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Track whether the KindLoader has been initialized
-const isKindLoaderInitialized = ref(false)
+// Initialize stores and states
 const displayStore = useDisplayStore()
-const isPageReady = ref(false)
-
-// Control for tutorial visibility and animation direction
 const showTutorial = ref(true)
 const router = useRouter()
 
-// When the page is ready, load content
-const handlePageReady = (ready) => {
-  console.log('Page ready state:', ready) // Debug log
+// Combine isPageReady and isKindLoaderInitialized logic into one
+const isPageReady = ref(false)
+
+// Handle when page is ready
+const handlePageReady = (ready: boolean) => {
+  console.log('Page ready state:', ready)
   isPageReady.value = ready
-  if (ready) {
-    isKindLoaderInitialized.value = true
-  }
 }
 
-// Transition from the tutorial to the main content (NuxtPage)
-const handlePageTransition = () => {
-  console.log('Transitioning to main content') // Debug log
-  showTutorial.value = false
+// Toggle between tutorial and main content
+const toggleTutorial = () => {
+  console.log(showTutorial.value ? 'Launching main content' : 'Returning to tutorial')
+  showTutorial.value = !showTutorial.value
 }
 
-// Transition back from the main content to the tutorial
-const handlePageReturn = () => {
-  console.log('Returning to tutorial') // Debug log
-  showTutorial.value = true
-}
-
-// Auto-reset tutorial on route changes
+// Auto-reset tutorial on route changes if needed
 router.beforeEach((to, from, next) => {
-  console.log('Route change detected, resetting tutorial') // Debug log
-  // Always show the tutorial when navigating to a new page
+  console.log('Route change detected, resetting tutorial')
   showTutorial.value = true
   next()
 })
 
 onMounted(() => {
-  console.log('Initializing viewport watcher') // Debug log
+  console.log('Initializing viewport watcher')
   displayStore.initializeViewportWatcher()
 })
 
 onBeforeUnmount(() => {
-  console.log('Removing viewport watcher') // Debug log
+  console.log('Removing viewport watcher')
   displayStore.removeViewportWatcher()
 })
 </script>
@@ -152,5 +140,20 @@ onBeforeUnmount(() => {
 /* Back side */
 .flip-card-back {
   transform: rotateY(180deg);
+}
+
+/* Shared button styles */
+.action-button {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  text-base-200;
+  rounded-lg;
+  shadow-md;
+  transition: duration-300;
+  flex;
+  items-center;
+  z-50;
+  padding: 0.75rem 1rem;
 }
 </style>

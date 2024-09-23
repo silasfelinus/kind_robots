@@ -26,12 +26,12 @@ import { usePitchStore } from '@/stores/pitchStore'
 
 // Stores
 const errorStore = useErrorStore()
+const displayStore = useDisplayStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
 const themeStore = useThemeStore()
 const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
-const displayStore = useDisplayStore()
 const pitchStore = usePitchStore()
 
 // State management
@@ -41,42 +41,66 @@ const mainContentStyle = ref('')
 const emit = defineEmits(['pageReady'])
 
 onMounted(async () => {
+  console.log('Starting initialization...')
+
   try {
     if (displayStore.isLoaded) {
-      // If already initialized, skip the loader
+      console.log('DisplayStore already loaded. Skipping initialization.')
       isReady.value = true
       isFirstLoad.value = false
       emit('pageReady', true)
       return
     }
 
+    console.log('Initializing stores...')
+
     // Initialize the stores in parallel
     await Promise.all([
-      botStore.loadStore(),
-      userStore.initializeUser(),
-      artStore.init(),
-      themeStore.initTheme(),
-      milestoneStore.initializeMilestones(),
-      pitchStore.initializePitches(),
+      displayStore.updateViewport().then(() => {
+        console.log('Viewport updated')
+      }),
+      botStore.loadStore().then(() => {
+        console.log('BotStore loaded')
+      }),
+      userStore.initializeUser().then(() => {
+        console.log('UserStore initialized')
+      }),
+      artStore.init().then(() => {
+        console.log('ArtStore initialized')
+      }),
+      themeStore.initTheme().then(() => {
+        console.log('ThemeStore initialized')
+      }),
+      milestoneStore.initializeMilestones().then(() => {
+        console.log('MilestoneStore initialized')
+      }),
+      pitchStore.initializePitches().then(() => {
+        console.log('PitchStore initialized')
+      }),
     ])
 
-    displayStore.updateViewport()
+    console.log('All stores initialized successfully.')
 
     // Dynamically set the main content style based on sidebar and header sizes
     mainContentStyle.value = `top: ${displayStore.headerVh}px; left: ${displayStore.sidebarVw}px;`
+    console.log('Main content style set:', mainContentStyle.value)
 
     // Simulate a delay for loader visibility
     setTimeout(() => {
+      console.log('Page is ready, hiding loader.')
       isReady.value = true
       isFirstLoad.value = false
       emit('pageReady', true)
 
+      // Mark displayStore as loaded
       displayStore.isLoaded = true
     }, 1000)
 
     // Add viewport resize event listener
     window.addEventListener('resize', displayStore.updateViewport)
+    console.log('Viewport resize listener added.')
   } catch (error) {
+    console.error('Initialization failed:', error)
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
       `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -85,6 +109,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  console.log('Removing viewport resize listener.')
   window.removeEventListener('resize', displayStore.updateViewport)
 })
 </script>

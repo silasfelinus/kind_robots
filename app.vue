@@ -99,22 +99,10 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.flip-card {
-  perspective: 1000px;
-  width: 300px;
-  height: 500px;
-}
-
 .flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
+  perspective: 1000px;
   transform-style: preserve-3d;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
+  transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth animation */
 }
 
 .flip-card-front,
@@ -122,12 +110,29 @@ onBeforeUnmount(() => {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
-  border: 2px solid var(--bg-base);
-  border-radius: 5px;
+  backface-visibility: hidden; /* Hides the backface when flipped */
+  transition: opacity 0.3s ease-in-out; /* Add opacity transition */
+}
+
+.flip-card-front {
+  transform: rotateY(0deg);
 }
 
 .flip-card-back {
   transform: rotateY(180deg);
+}
+
+.is-flipped .flip-card-inner {
+  transform: rotateY(180deg); /* This class triggers the flip */
+}
+
+.is-flipped .flip-card-front {
+  opacity: 0;
+  pointer-events: none; /* Hide the front side */
+}
+
+.is-flipped .flip-card-back {
+  opacity: 1;
+  pointer-events: all; /* Show the back side */
 }
 </style>

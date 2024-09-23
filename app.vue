@@ -21,7 +21,7 @@
       <!-- Tutorial and Back Buttons -->
       <button
         v-if="showTutorial"
-        class="action-button bg-info hover:bg-info-focus"
+        class="absolute bottom-4 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50 px-4 py-2"
         @click="toggleTutorial"
       >
         Launch
@@ -29,24 +29,24 @@
 
       <button
         v-else
-        class="action-button bg-secondary hover:bg-secondary-focus"
+        class="absolute bottom-4 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50 px-4 py-2"
         @click="toggleTutorial"
       >
         <span>Instructions</span>
       </button>
     </header>
-  
+
     <!-- Main Layout with strong margin and padding -->
     <div class="flex-1 w-full flex">
       <kind-sidebar-simple />
       <main class="flex-grow overflow-y-auto relative">
         <div class="flex justify-center items-center">
           <div
-            class="w-full max-w-4xl rounded-2xl bg-base-200 relative flip-card shadow-lg p-4 lg:p-8"
+            class="w-full max-w-4xl rounded-2xl bg-base-200 relative shadow-lg p-4 lg:p-8"
           >
             <div
-              class="flip-card-inner"
-              :class="{ 'is-flipped': !showTutorial }"
+              class="flip-card-inner transition-transform duration-500 transform-style-3d"
+              :class="{ 'rotate-y-180': !showTutorial }"
             >
               <!-- Conditional rendering of tutorial or page content -->
               <div v-if="showTutorial" key="tutorial" class="flip-card-front">
@@ -108,24 +108,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* Flip card container */
-.flip-card {
-  width: 100%;
-  height: 100%;
-  perspective: 1000px; /* Custom CSS for perspective */
-}
-
-/* Inner container holding both sides */
 .flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
+  perspective: 1000px; /* Tailwind doesn't have perspective utilities */
   transform-style: preserve-3d;
-}
-
-/* Flipped state */
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
 }
 
 /* Front and back face of the card */
@@ -142,18 +127,8 @@ onBeforeUnmount(() => {
   transform: rotateY(180deg);
 }
 
-/* Shared button styles */
-.action-button {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  text-base-200;
-  rounded-lg;
-  shadow-md;
-  transition: duration-300;
-  flex;
-  items-center;
-  z-50;
-  padding: 0.75rem 1rem;
+/* Flipped state */
+.rotate-y-180 {
+  transform: rotateY(180deg);
 }
 </style>

@@ -56,27 +56,34 @@ onMounted(async () => {
 
     // Initialize the stores in parallel
     await Promise.all([
-      displayStore.updateViewport().then(() => {
-        console.log('Viewport updated')
-      }),
-      botStore.loadStore().then(() => {
-        console.log('BotStore loaded')
-      }),
-      userStore.initializeUser().then(() => {
-        console.log('UserStore initialized')
-      }),
-      artStore.init().then(() => {
-        console.log('ArtStore initialized')
-      }),
-      themeStore.initTheme().then(() => {
-        console.log('ThemeStore initialized')
-      }),
-      milestoneStore.initializeMilestones().then(() => {
-        console.log('MilestoneStore initialized')
-      }),
-      pitchStore.initializePitches().then(() => {
-        console.log('PitchStore initialized')
-      }),
+      // Ensure updateViewport returns a promise or safely call it
+      displayStore
+        .updateViewport?.()
+        .then(() => console.log('Viewport updated')) || Promise.resolve(),
+
+      // Ensure botStore.loadStore is a promise or safely call it
+      botStore.loadStore?.().then(() => console.log('BotStore loaded')) ||
+        Promise.resolve(),
+
+      userStore
+        .initializeUser?.()
+        .then(() => console.log('UserStore initialized')) || Promise.resolve(),
+
+      artStore.init?.().then(() => console.log('ArtStore initialized')) ||
+        Promise.resolve(),
+
+      themeStore
+        .initTheme?.()
+        .then(() => console.log('ThemeStore initialized')) || Promise.resolve(),
+
+      milestoneStore
+        .initializeMilestones?.()
+        .then(() => console.log('MilestoneStore initialized')) ||
+        Promise.resolve(),
+
+      pitchStore
+        .initializePitches?.()
+        .then(() => console.log('PitchStore initialized')) || Promise.resolve(),
     ])
 
     console.log('All stores initialized successfully.')

@@ -54,7 +54,7 @@
               <!-- Back Button -->
               <button
                 v-if="!showTutorial"
-                class="fixed top-4 left-4 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
+                class="fixed top-0 left-0 bg-secondary text-base-200 py-2 px-4 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50"
                 @click="handlePageReturn"
               >
                 <div class="triangle-left"></div>

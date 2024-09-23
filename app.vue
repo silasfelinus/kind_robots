@@ -39,7 +39,7 @@
       <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
         <div class="flex justify-center items-center w-full">
           <div
-            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
+            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card"
             :style="{
               height: `${100 - displayStore.headerVh - 4}vh` /* Adjust height dynamically based on viewport */,
               paddingRight: '2rem' /* Padding from right margin */,

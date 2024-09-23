@@ -23,7 +23,7 @@ interface DisplayStoreState {
 export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
     headerState: 'open',
-    sidebarLeft: 'hidden',
+    sidebarLeft: 'open',
     sidebarRight: 'hidden',
     footer: 'open',
     focusedContainer: null,

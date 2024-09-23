@@ -81,7 +81,7 @@ export const useDisplayStore = defineStore('display', {
     // Calculate sidebar width based on device type and screen size
     calculateSidebarWidth(): number {
       if (this.isVertical) {
-        return this.sidebarLeft === 'open' ? 30 : 4
+        return this.sidebarLeft === 'open' ? 25 : 3.5
       }
       switch (this.viewportSize) {
         case 'mobile':

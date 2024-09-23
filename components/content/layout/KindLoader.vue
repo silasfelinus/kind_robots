@@ -13,7 +13,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<s<script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
@@ -36,21 +36,21 @@ const pitchStore = usePitchStore()
 
 // State management
 const isReady = ref(false)
-const isFirstLoad = ref(true) // This tracks if it’s the first load
-const mainContentStyle = ref('') // Style for main content view after the first load
+const isFirstLoad = ref(true)
+const mainContentStyle = ref('')
 const emit = defineEmits(['pageReady'])
 
 onMounted(async () => {
-  if (displayStore.isLoaded) {
-    // If already initialized, skip the loader
-    isReady.value = true
-    emit('pageReady', true)
-    isFirstLoad.value = false
-    return
-  }
-
   try {
-    // Initialize the stores
+    if (displayStore.isLoaded) {
+      // If already initialized, skip the loader
+      isReady.value = true
+      isFirstLoad.value = false
+      emit('pageReady', true)
+      return
+    }
+
+    // Initialize the stores in parallel
     await Promise.all([
       botStore.loadStore(),
       userStore.initializeUser(),
@@ -60,22 +60,21 @@ onMounted(async () => {
       pitchStore.initializePitches(),
     ])
 
-    displayStore.loadState()
     displayStore.updateViewport()
 
-    // Set the main content style based on sidebarVw and headerVh after the first load
+    // Dynamically set the main content style based on sidebar and header sizes
     mainContentStyle.value = `top: ${displayStore.headerVh}px; left: ${displayStore.sidebarVw}px;`
 
-    // Simulate a delay to hide the loader
+    // Simulate a delay for loader visibility
     setTimeout(() => {
       isReady.value = true
       isFirstLoad.value = false
       emit('pageReady', true)
 
-      // Mark the loader as initialized
       displayStore.isLoaded = true
     }, 1000)
 
+    // Add viewport resize event listener
     window.addEventListener('resize', displayStore.updateViewport)
   } catch (error) {
     errorStore.setError(

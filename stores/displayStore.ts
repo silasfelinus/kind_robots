@@ -40,10 +40,8 @@ export const useDisplayStore = defineStore('display', {
   actions: {
     // Function to calculate sidebar width based on screen size and orientation
     calculateSidebarWidth(): number {
-      if (this.isVertical) {
-        return this.sidebarLeft === 'open' ? 25 : 4 // Custom width for vertical mode
-      }
-      
+
+    
       switch (this.viewportSize) {
         case 'small':
           return this.sidebarLeft === 'open' ? 25 : this.sidebarLeft === 'compact' ? 12 : 4

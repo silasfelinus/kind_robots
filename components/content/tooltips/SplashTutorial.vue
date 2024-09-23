@@ -30,7 +30,7 @@
       <!-- Description Section (always below the image) -->
       <div
         class="bg-info text-info-content p-4 md:p-6 rounded-xl shadow-md mt-4 lg:mt-4 w-full box-border"
-        style="max-width: 100%;"
+        style="max-width: 100%"
       >
         <p class="text-sm md:text-base font-medium">
           {{ page.description }}
@@ -44,7 +44,7 @@
       <div class="flex justify-start w-full">
         <div
           class="mr-14 ml-4 flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-3/4 box-border"
-          style="max-width: 100%;"
+          style="max-width: 100%"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -62,7 +62,7 @@
       <div class="flex justify-end w-full">
         <div
           class="ml-14 mr-4 flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-3/4 box-border"
-          style="max-width: 100%;"
+          style="max-width: 100%"
         >
           <img
             src="/images/amibotsquare1.webp"
@@ -86,9 +86,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 // Access displayStore to compute space below header and sidebar
 const displayStore = useDisplayStore()
 
-// Emit event when transitioning to the next page
-const emit = defineEmits(['page-transition'])
-
 // Compute tutorial wrapper style based on available space
 const tutorialStyle = computed(() => ({
   height: `${100 - displayStore.headerVh}vh`,
@@ -97,9 +94,4 @@ const tutorialStyle = computed(() => ({
 
 // Page content
 const { page } = useContent()
-
-// Method to trigger the transition to the actual page content
-const startPageTransition = () => {
-  emit('page-transition')
-}
 </script>

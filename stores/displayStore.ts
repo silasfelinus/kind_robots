@@ -89,8 +89,30 @@ export const useDisplayStore = defineStore('display', {
         return 7 // Default width in case of error
       }
     },
+   toggleFooter() {
+      try {
+        const stateCycle: Record<DisplayState, DisplayState> = {
+          hidden: 'open',
+          compact: 'hidden',
+          open: 'compact',
+          disabled: 'hidden',
+        }
+        this.footer = stateCycle[this.footer]
 
-    // Function to calculate the available space for the main content area
+        // Recalculate the main content size after footer toggle
+        this.calculateMainContentSize()
+
+        // Save the footer state to localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('footer', this.footer)
+        }
+      } catch (error) {
+        console.error('Error toggling footer:', error)
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
+    },
+
     calculateMainContentSize() {
       try {
         const headerHeight = this.headerState !== 'hidden' ? this.headerVh : 0

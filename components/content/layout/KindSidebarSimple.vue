@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
     <aside
-      v-if="(displayStore.sidebarLeft as DisplayState) !== 'hidden'"
+      v-if="displayStore.sidebarLeft !== 'hidden'"
       class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
       :class="{
         'w-64': displayStore.sidebarLeft === 'open',
@@ -9,9 +9,9 @@
         'w-0': displayStore.sidebarLeft === 'hidden',
       }"
       :style="{
-        maxHeight: 'calc(100vh - ' + displayStore.headerVh + 'vh)',
+        maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`,
         position: 'sticky',
-        top: displayStore.headerVh + 'vh',
+        top: `${displayStore.headerVh}vh`,
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -47,15 +47,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import type { DisplayState } from '@/stores/displayStore'
 import { sidebarLinks } from '@/assets/sidebar'
 import { useRouter } from 'vue-router'
 
+// Access router to handle navigation
 const router = useRouter()
-
-const navigate = (path: string) => {
-  router.push(path)
-}
 
 // Access the display store for the sidebar state
 const displayStore = useDisplayStore()
@@ -64,8 +60,12 @@ const displayStore = useDisplayStore()
 const filteredLinks = computed(() => sidebarLinks)
 
 // Adjust height calculations based on window size and available space
-const availableSidebarHeight = ref(100 - 7) // Assume header height = 7vh for now
+const availableSidebarHeight = ref(100 - displayStore.headerVh) // Adjust for the actual header height from the store
 const iconHeight = ref(0)
+
+const navigate = (path: string) => {
+  router.push(path)
+}
 
 onMounted(() => {
   const calculateIconHeight = () => {

@@ -37,11 +37,12 @@
     <div class="flex-1 w-full flex">
       <kind-sidebar-simple />
       <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
-        <div class="flex justify-center items-center w-full">
+        <div class="flex justify-center items-center w-3/4">
           <div
             class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
             :style="{
               height: `${100 - displayStore.headerVh - 4}vh`,
+              width: `${100 - displayStore.sidebarWh - 4}vh`,
               paddingRight: '2rem',
             }"
           >

@@ -102,6 +102,7 @@
     >
       <kind-footer />
     </footer>
+<store-debug />
   </div>
 </template>
 

@@ -1,7 +1,7 @@
 import { defineEventHandler } from 'h3';
 import { createClient } from 'webdav';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   // Retrieve the WebDAV login and server info from environment variables
   const webdavUrl = process.env.PHOTOPRISM_WEBDAV_URL || 'https://photos.acrocatranch.com';
   const username = process.env.PHOTOPRISM_USERNAME;
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: 'Unable to connect to PhotoPrism WebDAV.',
-      error: error.message,
+      error: error,
     };
   }
 });

@@ -47,22 +47,27 @@
 
       <!-- Main content -->
       <main
-        class="flex-grow overflow-y-auto relative p-4 lg:p-8"
+        class="flex-grow overflow-hidden relative"
         :style="{
           height: `${displayStore.mainVh}vh`,
           width: `${displayStore.mainVw}vw`
         }"
       >
-        <div class="flex justify-center items-center w-full h-full">
-          <div class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg">
-            <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
+        <div class="flex justify-center items-center w-full h-full overflow-hidden">
+          <div
+            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg overflow-hidden"
+            :style="{
+              maxHeight: `${displayStore.mainVh}vh`"
+            }"
+          >
+            <div class="flip-card-inner h-full overflow-hidden" :class="{ 'is-flipped': !showTutorial }">
               <!-- Front side: Splash Tutorial -->
-              <div class="flip-card-front">
+              <div class="flip-card-front h-full overflow-y-auto">
                 <SplashTutorial @page-transition="handlePageTransition" />
               </div>
 
               <!-- Back side: NuxtPage content -->
-              <div class="flip-card-back">
+              <div class="flip-card-back h-full overflow-y-auto">
                 <NuxtPage />
               </div>
             </div>
@@ -151,6 +156,7 @@ onBeforeUnmount(() => {
   height: 100%;
   backface-visibility: hidden; /* Hides the backside during rotation */
   border-radius: 12px;
+  overflow-y: auto; /* Enable scrolling for content overflow */
 }
 
 .flip-card-front {

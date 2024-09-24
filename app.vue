@@ -70,12 +70,11 @@
       </main>
 
       <!-- Right Sidebar -->
-      <kind-sidebar-right v-if="displayStore.sidebarRight !== 'hidden'" />
+      <kind-sidebar-right />
     </div>
 
     <!-- Footer -->
     <kind-footer
-      v-if="displayStore.footer !== 'hidden'"
       :style="{
         height: `${displayStore.footerVh}vh`,
         width: `${displayStore.footerVw}vw`,

@@ -171,6 +171,7 @@ onBeforeUnmount(() => {
   z-index: 10000;
   padding: 1rem;
   border-radius: 0.5rem;
+  pointer-events: none; /* Disable interactions */
 }
 
 .debug-info p {

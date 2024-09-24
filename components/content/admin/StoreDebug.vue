@@ -94,14 +94,23 @@ import { onMounted, onBeforeUnmount } from 'vue'
 // Initialize the store
 const displayStore = useDisplayStore()
 
-// Ensure the viewport watcher is set up when the component mounts
+// Function to handle key press
+const handleKeyPress = (event: KeyboardEvent) => {
+  if (event.key === 'd' || event.key === 'D') {
+    displayStore.showInfo = !displayStore.showInfo
+  }
+}
+
+// Ensure the viewport watcher and key press event are set up when the component mounts
 onMounted(() => {
   displayStore.initializeViewportWatcher()
+  window.addEventListener('keydown', handleKeyPress)
 })
 
 // Clean up the event listener when the component is destroyed
 onBeforeUnmount(() => {
   displayStore.removeViewportWatcher()
+  window.removeEventListener('keydown', handleKeyPress)
 })
 </script>
 

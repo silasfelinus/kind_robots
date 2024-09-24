@@ -22,8 +22,8 @@
     <!-- Button to load a new random image -->
     <div class="text-center mt-4">
       <button
-        @click="loadNewRandomImage"
         class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+        @click="loadNewRandomImage"
       >
         Load New Random Image
       </button>
@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import { useGalleryStore } from '@/stores/galleryStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { useErrorStore } from '@/stores/errorStore'
 
 // Initialize the gallery store and error store
 const galleryStore = useGalleryStore()
@@ -61,7 +61,8 @@ const loadNewRandomImage = async () => {
     await galleryStore.changeToRandomImage()
   } catch (error) {
     // Capture and display the error message
-    errorMessage.value = errorStore.getError || 'Failed to load a random image.'
+    errorMessage.value =
+      errorStore.getError || 'Failed to load a random image.' + error
   }
 }
 

@@ -3,9 +3,9 @@
     <h1 class="text-2xl font-bold mb-4">PhotoPrism Folders</h1>
 
     <button
-      @click="fetchFolders"
       class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
       :disabled="loading"
+      @click="fetchFolders"
     >
       Fetch Folders
     </button>
@@ -48,7 +48,7 @@ const fetchFolders = async () => {
       errorMessage.value = data.message || 'Failed to retrieve folders.'
     }
   } catch (error) {
-    errorMessage.value = 'An error occurred while fetching the folders.'
+    errorMessage.value = 'An error occurred while fetching the folders.' + error
   } finally {
     loading.value = false
   }

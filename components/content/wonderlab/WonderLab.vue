@@ -14,23 +14,21 @@
           v-if="!componentStore.selectedComponent"
           class="intro-section text-center"
         >
-    
           <p class="text-lg px-4">
             Welcome to the WonderLab! Select a folder to view components.
           </p>
           <component-count />
 
-  <!-- Sync Components Button, shown only if the user is ADMIN -->
-<button
-  v-if="userStore.role === 'ADMIN'"
-  class="btn btn-primary mt-4"
-  :disabled="isSyncing"
-  @click="syncComponents"
->
-  <span v-if="isSyncing">Syncing...</span>
-  <span v-else>Sync Components</span>
-</button>
-
+          <!-- Sync Components Button, shown only if the user is ADMIN -->
+          <button
+            v-if="userStore.role === 'ADMIN'"
+            class="btn btn-primary mt-4"
+            :disabled="isSyncing"
+            @click="syncComponents"
+          >
+            <span v-if="isSyncing">Syncing...</span>
+            <span v-else>Sync Components</span>
+          </button>
 
           <!-- Display real-time log output -->
           <div class="log-output bg-gray-200 p-4 mt-4 rounded">
@@ -76,7 +74,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { useUserStore } from '@/stores/userStore'  // Import user store
+import { useUserStore } from '@/stores/userStore' // Import user store
 import LabGallery from './LabGallery.vue'
 import ComponentScreen from './ComponentScreen.vue'
 
@@ -92,9 +90,6 @@ const componentStore = useComponentStore()
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 const userStore = useUserStore()
-
-// Computed property to check if the user is an admin
-const isAdmin = computed(() => userStore.role === 'ADMIN')
 
 // Watch for when a component is selected to hide the sidebars
 watch(
@@ -169,7 +164,6 @@ const syncComponents = async () => {
     isSyncing.value = false
   }
 }
-
 </script>
 
 <style scoped>

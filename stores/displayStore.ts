@@ -21,7 +21,7 @@ interface DisplayStoreState {
   isTouchDevice: boolean
   isLoaded: boolean
   showInfo: boolean
-  iconSize: number  // This will track the base icon size
+  iconSize: number  
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -43,7 +43,7 @@ export const useDisplayStore = defineStore('display', {
     isTouchDevice: false,
     isLoaded: false,
     showInfo: true,
-    iconSize: 24,  // Default icon size, but we'll dynamically update it
+    iconSize: 24,  
   }),
 
   actions: {

@@ -138,6 +138,7 @@ export const useDisplayStore = defineStore('display', {
           hidden: 'open',
           open: 'hidden',
           disabled: 'hidden',
+          compact: 'hidden'
         }
         this.footer = stateCycle[this.footer]
 

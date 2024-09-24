@@ -1,13 +1,14 @@
 <template>
   <div class="flex">
+    <!-- Left Sidebar -->
     <aside
       v-if="displayStore.sidebarLeft !== 'hidden'"
       class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
       :style="{
-        width: `${displayStore.sidebarLeftVw}vw`,
+        width: displayStore.sidebarLeftVw + 'vw',
         maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`,
         position: 'sticky',
-        top: `${displayStore.headerVh}vh`,
+        top: `${displayStore.headerVh}vh`
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -39,7 +40,6 @@
     </aside>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'

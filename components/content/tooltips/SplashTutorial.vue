@@ -17,7 +17,9 @@
     </div>
 
     <!-- Main Content Section (Image and Description) -->
-    <div class="flex flex-1 flex-col items-center justify-center w-full px-4 lg:px-8">
+    <div
+      class="flex flex-1 flex-col items-center justify-center w-full px-4 lg:px-8"
+    >
       <!-- Image Section -->
       <img
         :src="'/images/' + page.image"
@@ -36,7 +38,9 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div class="flex flex-col space-y-6 w-full max-w-4xl px-4 lg:px-8 flex-shrink-0">
+    <div
+      class="flex flex-col space-y-6 w-full max-w-4xl px-4 lg:px-8 flex-shrink-0"
+    >
       <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div
@@ -79,6 +83,8 @@ import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+
+const { page } = useContent()
 
 // Calculate the available space dynamically based on the display store.
 const mainContentStyle = computed(() => ({

@@ -1,28 +1,40 @@
 <template>
   <div
     v-if="displayStore.footer !== 'hidden'"
-    :class="{
-      'h-12': displayStore.footer === 'open',
-      'h-6': displayStore.footer === 'compact',
+    class="kind-footer w-full bg-primary text-white flex justify-center items-center transition-all duration-500"
+    :style="{
+      height: `${displayStore.footerVh}vh`,
+      width: `${displayStore.footerVw}%`
     }"
-    class="kind-footer w-full bg-primary text-white flex justify-center items-center p-4 transition-all duration-500"
-    :style="{ height: `${displayStore.footerVh}vh`, width: `${displayStore.footerVw}%` }"
   >
-    <p class="text-center text-sm">
-      © 2024 My Project. All rights reserved.
+    <p class="text-center text-sm flex items-center space-x-2">
+      <!-- Icon with dynamic sizing -->
+      <Icon name="copyright" :class="iconClass" />
+      <span>© 2024 My Project. All rights reserved.</span>
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useDisplayStore } from '@/stores/displayStore'
+import { computed } from 'vue'
 
 const displayStore = useDisplayStore()
+
+// Computed property to dynamically calculate the icon size based on the displayStore
+const iconClass = computed(() => {
+  return {
+    'h-6 w-6': displayStore.footer === 'compact',
+    'h-8 w-8': displayStore.footer === 'open',
+    'h-auto w-auto': displayStore.iconSize === 0,  // fallback for default icon size
+  }
+})
 </script>
 
 <style scoped>
 .kind-footer {
   background-color: var(--tw-bg-primary);
   color: var(--tw-text-white);
+  padding: 1rem;
 }
 </style>

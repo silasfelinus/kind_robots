@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col items-center justify-center h-full w-full bg-base-100 overflow-hidden"
+    class="relative flex flex-col items-center justify-center h-full w-full bg-base-100 overflow-hidden rounded-2xl border border-accent mb-4 mr-10"
     :style="tutorialStyle"
   >
     <!-- Title and Subtitle -->

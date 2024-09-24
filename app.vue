@@ -56,9 +56,8 @@
         <div class="flex justify-center items-center w-full h-full overflow-hidden">
           <div
             class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg overflow-hidden"
-            :style="{
-              maxHeight: `${displayStore.mainVh}vh`"
-            }"
+          :style="{ maxHeight: `${displayStore.mainVh}vh` }"
+
           >
             <div class="flip-card-inner h-full overflow-hidden" :class="{ 'is-flipped': !showTutorial }">
               <!-- Front side: Splash Tutorial -->

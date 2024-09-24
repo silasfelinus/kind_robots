@@ -85,7 +85,7 @@
         }"
         class="bg-secondary h-full transition-all duration-500"
       >
-        <kind-sidebar-simple-right />
+        <kind-sidebar-right />
       </div>
     </div>
 
@@ -95,7 +95,7 @@
       class="w-full bg-primary transition-all duration-500"
       :style="{ height: `${displayStore.footerVh}vh`, width: `${displayStore.footerVw}%` }"
     >
-      <kind-footer-simple />
+      <kind-footer />
     </footer>
   </div>
 </template>

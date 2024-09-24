@@ -44,7 +44,6 @@
     <div class="flex-1 w-full flex relative">
       <!-- Left Sidebar -->
       <div
-        v-if="displayStore.sidebarLeft !== 'hidden'"
         :style="{ width: `${displayStore.sidebarLeftVw}vw` }"
         class="bg-secondary h-full transition-all duration-500"
       >
@@ -78,7 +77,6 @@
 
       <!-- Right Sidebar -->
       <div
-        v-if="displayStore.sidebarRight !== 'hidden'"
         :style="{ width: `${displayStore.sidebarRightVw}vw` }"
         class="bg-secondary h-full transition-all duration-500"
       >
@@ -88,14 +86,11 @@
 
     <!-- Footer -->
     <footer
-      v-if="displayStore.footer !== 'hidden'"
       class="w-full bg-primary transition-all duration-500"
       :style="{ height: `${displayStore.footerVh}vh`, width: `${displayStore.footerVw}%` }"
     >
       <kind-footer />
     </footer>
-
-    <store-debug />
   </div>
 </template>
 

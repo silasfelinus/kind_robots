@@ -52,7 +52,7 @@
             >
               <!-- Front side: Splash Tutorial -->
               <div class="flip-card-front">
-                <SplashTutorial @page-transition="handlePageTransition" />
+                <SplashTutorial />
               </div>
 
               <!-- Back side: NuxtPage content -->

@@ -13,6 +13,18 @@
         <sidebar-toggle class="text-4xl" @click="toggleSidebar('sidebarLeft')" />
       </div>
 
+      <!-- Sidebar Toggle (Right) -->
+      <div class="absolute bottom-4 right-4 p-1 z-40 text-white">
+        <sidebar-right-toggle class="text-4xl" @click="toggleSidebar('sidebarRight')" />
+      </div>
+
+      <!-- Footer Toggle -->
+      <div class="absolute bottom-4 center p-1 z-40 text-white">
+        <footer-toggle class="text-4xl" @click="toggleSidebar('footer')" />
+      </div>
+
+
+
       <nav-links />
 
       <!-- Tutorial and Back Buttons -->
@@ -76,15 +88,6 @@
         </div>
       </main>
 
-      <!-- Right Sidebar -->
-      <div
-        v-if="displayStore.sidebarRight !== 'hidden'"
-        :class="{
-          'w-2': displayStore.sidebarRight === 'compact',
-          'w-1/5': displayStore.sidebarRight === 'open',
-        }"
-        class="bg-secondary h-full transition-all duration-500"
-      >
         <kind-sidebar-right />
       </div>
     </div>

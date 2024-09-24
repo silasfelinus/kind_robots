@@ -89,6 +89,7 @@
       </main>
 
         <kind-sidebar-right />
+</div>
       </div>
     </div>
 

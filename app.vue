@@ -3,12 +3,7 @@
     <!-- KindLoader (Only runs once) -->
     <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
 
-    <!-- Header -->
-    <header
-      class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
-      :style="{ height: `${displayStore.headerVh}vh` }"
-    >
-      <!-- Sidebar Toggle (Left) -->
+    <!-- Sidebar Toggle (Left) -->
       <div class="absolute top-4 left-4 p-1 z-40 text-white">
         <sidebar-toggle class="text-4xl" @click="toggleSidebar('sidebarLeft')" />
       </div>
@@ -22,6 +17,13 @@
       <div class="absolute bottom-4 center p-1 z-40 text-white">
         <footer-toggle class="text-4xl" @click="toggleFooter" />
       </div>
+
+    <!-- Header -->
+    <header
+      class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
+      :style="{ height: `${displayStore.headerVh}vh` }"
+    >
+  
 
       <nav-links />
 

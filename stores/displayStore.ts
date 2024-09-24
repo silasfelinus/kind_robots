@@ -72,7 +72,7 @@ export const useDisplayStore = defineStore('display', {
           }
 
           // Set the header height and sidebar widths
-          this.headerVh = Math.min(window.innerHeight * 0.1, 7)
+          this.headerVh = Math.min(window.innerHeight * 0.08, 6)
           this.sidebarLeftVw = this.calculateSidebarLeftWidth()
           this.sidebarRightVw = this.calculateSidebarRightWidth()
 

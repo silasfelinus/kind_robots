@@ -7,7 +7,9 @@
       :style="{ height: displayStore.headerVh + 'vh' }"
     >
       <p>Header</p>
-      <p v-if="displayStore.showInfo">Header VH: {{ displayStore.headerVh }}vh</p>
+      <p v-if="displayStore.showInfo">
+        Header VH: {{ displayStore.headerVh }}vh
+      </p>
     </header>
 
     <!-- Main content area with sidebars and main content -->
@@ -18,12 +20,16 @@
         :style="{ width: displayStore.sidebarVw + 'vw' }"
       >
         <p>Left Sidebar</p>
-        <p v-if="displayStore.showInfo">Sidebar VW: {{ displayStore.sidebarVw }}vw</p>
+        <p v-if="displayStore.showInfo">
+          Sidebar VW: {{ displayStore.sidebarVw }}vw
+        </p>
       </aside>
 
       <main class="main-content-overlay debug-box">
         <p>Main Content</p>
-        <p v-if="displayStore.showInfo">Viewport: {{ displayStore.viewportSize }}</p>
+        <p v-if="displayStore.showInfo">
+          Viewport: {{ displayStore.viewportSize }}
+        </p>
       </main>
 
       <aside
@@ -32,7 +38,9 @@
         :style="{ width: displayStore.sidebarVw + 'vw' }"
       >
         <p>Right Sidebar</p>
-        <p v-if="displayStore.showInfo">Right Sidebar VW: {{ displayStore.sidebarVw }}vw</p>
+        <p v-if="displayStore.showInfo">
+          Right Sidebar VW: {{ displayStore.sidebarVw }}vw
+        </p>
       </aside>
     </div>
 
@@ -42,28 +50,30 @@
       :style="{ height: displayStore.footerVh + 'vh' }"
     >
       <p>Footer</p>
-      <p v-if="displayStore.showInfo">Footer VH: {{ displayStore.footerVh }}vh</p>
+      <p v-if="displayStore.showInfo">
+        Footer VH: {{ displayStore.footerVh }}vh
+      </p>
     </footer>
 
     <!-- Debug Toggle Button -->
-    <button
-      class="debug-toggle"
-      @click="toggleDebugMode"
-    >
+    <button class="debug-toggle" @click="toggleDebugMode">
       {{ displayStore.showInfo ? 'Hide Debug Info' : 'Show Debug Info' }}
     </button>
 
     <!-- Info Sheet Toggle -->
     <button
+      v-if="displayStore.showInfo"
       class="info-toggle"
       @click="toggleInfoSheet"
-      v-if="displayStore.showInfo"
     >
       Toggle Info Sheet
     </button>
 
     <!-- Info Sheet Display -->
-    <div v-if="displayStore.showInfoSheet && displayStore.showInfo" class="info-sheet">
+    <div
+      v-if="displayStore.showInfoSheet && displayStore.showInfo"
+      class="info-sheet"
+    >
       <p>Header VH: {{ displayStore.headerVh }}vh</p>
       <p>Sidebar VW: {{ displayStore.sidebarVw }}vw</p>
       <p>Footer VH: {{ displayStore.footerVh }}vh</p>

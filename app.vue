@@ -13,11 +13,6 @@
       <sidebar-right-toggle class="text-4xl" @click="toggleSidebar('sidebarRight')" />
     </div>
 
-    <!-- Footer Toggle -->
-    <div class="absolute bottom-4 justify-center p-1 z-40 text-white">
-      <footer-toggle class="text-4xl" @click="toggleFooter" />
-    </div>
-
     <!-- Header -->
     <header
       class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
@@ -83,14 +78,6 @@
         <kind-sidebar-right />
       </div>
     </div>
-
-    <!-- Footer -->
-    <footer
-      class="w-full bg-primary transition-all duration-500"
-      :style="{ height: `${displayStore.footerVh}vh`, width: `${displayStore.footerVw}%` }"
-    >
-      <kind-footer />
-    </footer>
   </div>
 </template>
 

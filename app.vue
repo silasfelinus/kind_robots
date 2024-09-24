@@ -23,8 +23,6 @@
         <footer-toggle class="text-4xl" @click="toggleFooter" />
       </div>
 
-
-
       <nav-links />
 
       <!-- Tutorial and Back Buttons -->
@@ -88,8 +86,9 @@
         </div>
       </main>
 
+      <!-- Right Sidebar -->
+      <div v-if="displayStore.sidebarRight !== 'hidden'" class="bg-secondary h-full transition-all duration-500">
         <kind-sidebar-right />
-</div>
       </div>
     </div>
 
@@ -103,6 +102,7 @@
     </footer>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'

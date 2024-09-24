@@ -4,7 +4,7 @@
     :style="buttonStyle"
     @click="toggleFooter"
   >
-    <Icon name="emojione:artist-palette" class="toggle-icon" />
+    <Icon name="carbon:tool-box" class="toggle-icon" />
   </button>
 </template>
 

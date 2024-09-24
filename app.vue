@@ -1,117 +1,142 @@
 <template>
-  <div
-    class="relative flex flex-col items-center justify-between h-full w-full bg-base-100 overflow-hidden rounded-2xl border border-accent mb-4"
-    :style="mainContentStyle"
-  >
-    <!-- Title and Subtitle Section -->
-    <div class="w-full flex justify-between items-center p-4">
-      <h1 class="text-lg md:text-2xl font-bold text-secondary w-full">
-        {{ page.title }}
-      </h1>
-      <h2
-        v-if="page.subtitle"
-        class="text-sm md:text-lg font-medium text-accent ml-auto"
-      >
-        {{ page.subtitle }}
-      </h2>
-    </div>
+  <div id="app" class="flex flex-col min-h-screen w-full bg-base-200">
+    <!-- KindLoader (Only runs once) -->
+    <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
 
-    <!-- Main Content Section (Image and Description) -->
-    <div class="flex flex-1 flex-col items-center justify-center w-full px-4 lg:px-8">
-      <!-- Image Section -->
-      <img
-        :src="'/images/' + page.image"
-        alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-cover w-full max-w-lg flex-shrink-0"
-      />
-
-      <!-- Description Section -->
-      <div
-        class="bg-info text-info-content p-4 rounded-xl shadow-md w-full lg:w-2/3 max-w-4xl mt-4 flex-shrink-0"
-      >
-        <p class="text-xs md:text-sm font-medium text-center">
-          {{ page.description }}
-        </p>
+    <!-- Header -->
+    <header
+      class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
+      :style="{ height: `${displayStore.headerVh}vh` }"
+    >
+      <!-- Sidebar Toggle -->
+      <div class="absolute top-4 left-4 p-1 z-40 text-white">
+        <sidebar-toggle class="text-4xl" />
       </div>
-    </div>
 
-    <!-- Bot Messages Section -->
-    <div class="flex flex-col space-y-6 w-full max-w-4xl px-4 lg:px-8 flex-shrink-0">
-      <!-- DottiBot Message -->
-      <div class="flex justify-center">
-        <div
-          class="flex items-center space-x-2 p-4 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
-        >
-          <img
-            src="/images/avatars/dottie1.webp"
-            alt="DottiBot Avatar"
-            class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
-          />
-          <div class="flex flex-col">
-            <span class="text-sm font-semibold">DottiBot</span>
-            <p class="text-xs md:text-sm">{{ page.dottitip }}</p>
+      <nav-links />
+
+      <!-- Tutorial and Back Buttons -->
+      <button
+        v-if="showTutorial"
+        class="fixed top-4 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50 px-4 py-2"
+        @click="toggleTutorial"
+      >
+        Launch
+      </button>
+
+      <button
+        v-else
+        class="fixed top-4 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50 px-4 py-2"
+        @click="toggleTutorial"
+      >
+        <span>Instructions</span>
+      </button>
+    </header>
+
+    <!-- Main Layout with flexible layout for sidebar -->
+    <div class="flex-1 w-full flex">
+      <kind-sidebar-simple />
+      <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
+        <div class="flex justify-center items-center w-3/4">
+          <div
+            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
+            :style="{
+              height: `${displayStore.mainVh}vh`,
+              width: `${displayStore.mainWh}vh`,
+              paddingRight: '2rem',
+            }"
+          >
+            <div
+              class="flip-card-inner"
+              :class="{ 'is-flipped': !showTutorial }"
+            >
+              <!-- Front side: Splash Tutorial -->
+              <div class="flip-card-front">
+                <SplashTutorial @page-transition="handlePageTransition" />
+              </div>
+
+              <!-- Back side: NuxtPage content -->
+              <div class="flip-card-back">
+                <NuxtPage />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- AMIbot Message -->
-      <div class="flex justify-center">
-        <div
-          class="flex items-center space-x-2 p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
-        >
-          <img
-            src="/images/amibotsquare1.webp"
-            alt="AMIbot Avatar"
-            class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
-          />
-          <div class="flex flex-col">
-            <span class="text-sm font-semibold">AMIbot</span>
-            <p class="text-xs md:text-sm text-white">{{ page.amitip }}</p>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Initialize stores and states
 const displayStore = useDisplayStore()
+const showTutorial = ref(true)
+const router = useRouter()
 
-// Ensure the store initializes correctly when the component mounts
+// Combine isPageReady and isKindLoaderInitialized logic into one
+const isPageReady = ref(false)
+
+// Handle when page is ready
+const handlePageReady = (ready: boolean) => {
+  isPageReady.value = ready
+}
+
+// Toggle between tutorial and main content
+const toggleTutorial = () => {
+  showTutorial.value = !showTutorial.value
+}
+
+// Auto-reset tutorial on route changes if needed
+router.beforeEach((to, from, next) => {
+  showTutorial.value = true
+  next()
+})
+
 onMounted(() => {
   displayStore.initializeViewportWatcher()
 })
 
-// Calculate the available space dynamically based on the display store.
-const mainContentStyle = computed(() => ({
-  height: `${displayStore.mainVh || 100}vh`,
-  width: `${displayStore.mainVw || 100}vw`,
-}))
+onBeforeUnmount(() => {
+  displayStore.removeViewportWatcher()
+})
 </script>
 
 <style scoped>
-html,
-body,
-#app {
+.flip-card {
+  width: 100%;
   height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* Prevent scrollbars */
+  perspective: 1000px; /* Creates depth for the flip effect */
 }
 
-/* Flex-based grid for content stretching */
-.flex-1 {
-  flex-grow: 1;
-  flex-shrink: 0;
+.flip-card-inner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
 }
 
-/* Utility to handle max width for large screens */
-@media (min-width: 1024px) {
-  .max-w-4xl {
-    max-width: 75vw;
-  }
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg); /* Flips the entire card horizontally */
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* Hides the backside during rotation */
+  border-radius: 12px;
+}
+
+.flip-card-front {
+  z-index: 2; /* Ensures the front side is on top */
+}
+
+.flip-card-back {
+  transform: rotateY(180deg); /* Ensures the back side starts flipped */
 }
 </style>

@@ -4,30 +4,30 @@
     :style="mainContentStyle"
   >
     <!-- Title and Subtitle Section -->
-    <div class="w-full flex justify-between items-center p-1"> <!-- Reduced padding -->
+    <div class="w-full flex justify-between items-center p-1"> 
       <h1 class="text-lg md:text-xl font-bold text-secondary w-full"> <!-- Reduced font size -->
         {{ page.title }}
       </h1>
       <h2
         v-if="page.subtitle"
-        class="text-xs md:text-base font-medium text-accent ml-auto" <!-- Reduced font size -->
+        class="text-xs md:text-base font-medium text-accent ml-auto" 
       >
         {{ page.subtitle }}
       </h2>
     </div>
 
     <!-- Main Content Section (Image and Description) -->
-    <div class="flex flex-1 flex-col items-center justify-center w-full px-2 lg:px-4 space-y-2"> <!-- Compact space -->
+    <div class="flex flex-1 flex-col items-center justify-center w-full px-2 lg:px-4 space-y-2"> 
       <!-- Image Section -->
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-cover w-full max-w-md h-auto flex-shrink-0" <!-- Shrunk max width -->
+        class="rounded-2xl border border-base-300 shadow-md object-cover w-full max-w-md h-auto flex-shrink-0" 
       />
 
       <!-- Description Section -->
       <div
-        class="bg-info text-info-content p-2 rounded-xl shadow-md w-full lg:w-2/3 max-w-3xl mt-2 flex-shrink-0" <!-- Reduced padding -->
+        class="bg-info text-info-content p-2 rounded-xl shadow-md w-full lg:w-2/3 max-w-3xl mt-2 flex-shrink-0" 
       >
         <p class="text-xs md:text-sm font-medium text-center">
           {{ page.description }}
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div class="flex flex-col space-y-2 w-full max-w-3xl px-2 lg:px-4 flex-shrink-0"> <!-- Reduced spacing -->
+    <div class="flex flex-col space-y-2 w-full max-w-3xl px-2 lg:px-4 flex-shrink-0"> 
       <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div
@@ -45,7 +45,7 @@
           <img
             src="/images/avatars/dottie1.webp"
             alt="DottiBot Avatar"
-            class="w-8 h-8 md:w-10 md:h-10 rounded-full shadow-md" <!-- Shrunk avatar size -->
+            class="w-8 h-8 md:w-10 md:h-10 rounded-full shadow-md" 
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">DottiBot</span>
@@ -62,7 +62,7 @@
           <img
             src="/images/amibotsquare1.webp"
             alt="AMIbot Avatar"
-            class="w-8 h-8 md:w-10 md:h-10 rounded-full shadow-md" <!-- Shrunk avatar size -->
+            class="w-8 h-8 md:w-10 md:h-10 rounded-full shadow-md" 
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">AMIbot</span>

@@ -41,7 +41,7 @@ async function logRequest(userId: string | null, requestUrl: string) {
       error,
     )
     console.log(
-      `Log data: userId: ${userId}, requestUrl: ${requestUrl}, timestamp: ${new Date().toISOString()}`,
+      `Console Log: requestUrl: ${requestUrl}`,
     )
   }
 }

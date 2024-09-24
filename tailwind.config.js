@@ -1,11 +1,8 @@
+import { sidebarLinks } from './assets/sidebar'
+
 /** @type {import('tailwindcss').Config} */
 export default {
-  safelist: [
-    {
-      pattern:
-        /(icon|text-gray|cursor-pointer|transition-shadow|line-md|fluent|mdi|game-icons|emojione-monotone|material-symbols|mingcute|fxemoji|fluent:chat-bubbles-question-16-regular)/,
-    },
-  ],
+  safelist: sidebarLinks.map((link) => link.icon), // Safelist all icons
   jit: true,
   content: [
     './pages/**/*.{html,ts,js,vue}',

@@ -2,6 +2,8 @@
 import { onMounted, onUnmounted, reactive } from 'vue'
 import { makeNoise2D } from 'open-simplex-noise'
 
+const hydrated = ref(false)
+
 const randomColor = (): string => {
   const h = Math.floor(Math.random() * 360)
   const s = Math.floor(Math.random() * 50 + 50) // keep saturation between 50 and 100
@@ -119,6 +121,7 @@ function animate() {
 }
 
 onMounted(() => {
+  hydrated.value = true
   windowSize.width = window.innerWidth
   windowSize.height = window.innerHeight
 
@@ -140,6 +143,7 @@ onUnmounted(() => {
 
 <template>
   <div
+    v-if="hydrated"
     class="butterfly"
     :style="{
       left: butterfly.goal.x + 'px',

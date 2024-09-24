@@ -1,35 +1,33 @@
 <template>
   <div
-    class="relative flex flex-col items-center justify-center h-full w-full bg-base-100 overflow-hidden rounded-2xl border border-accent mb-4 mr-10"
-    :style="tutorialStyle"
+    class="relative flex flex-col items-center justify-between h-full w-full bg-base-100 overflow-hidden rounded-2xl border border-accent mb-4"
+    :style="mainContentStyle"
   >
-    <!-- Title and Subtitle -->
-    <div class="text-center p-4">
-      <h1 class="text-lg md:text-2xl font-bold text-secondary">
+    <!-- Title and Subtitle Section -->
+    <div class="w-full flex justify-between items-center p-4">
+      <h1 class="text-lg md:text-2xl font-bold text-secondary w-full">
         {{ page.title }}
       </h1>
       <h2
         v-if="page.subtitle"
-        class="text-sm md:text-lg font-medium text-accent mt-1"
+        class="text-sm md:text-lg font-medium text-accent ml-auto"
       >
         {{ page.subtitle }}
       </h2>
     </div>
 
-    <!-- Image and Description Section -->
-    <div
-      class="flex flex-col items-center justify-center mt-4 space-y-6 px-4 lg:px-8"
-    >
+    <!-- Main Content Section (Image and Description) -->
+    <div class="flex flex-1 flex-col items-center justify-center w-full px-4 lg:px-8">
       <!-- Image Section -->
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-cover w-32 h-32 md:w-56 md:h-56"
+        class="rounded-2xl border border-base-300 shadow-md object-cover w-full max-w-lg flex-shrink-0"
       />
 
       <!-- Description Section -->
       <div
-        class="bg-info text-info-content p-4 rounded-xl shadow-md w-full lg:w-2/3 max-w-4xl"
+        class="bg-info text-info-content p-4 rounded-xl shadow-md w-full lg:w-2/3 max-w-4xl mt-4 flex-shrink-0"
       >
         <p class="text-xs md:text-sm font-medium text-center">
           {{ page.description }}
@@ -38,11 +36,11 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div class="flex flex-col space-y-6 mt-6 w-full max-w-4xl px-4 lg:px-8">
+    <div class="flex flex-col space-y-6 w-full max-w-4xl px-4 lg:px-8 flex-shrink-0">
       <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-4 ml-10 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-center space-x-2 p-4 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -59,7 +57,7 @@
       <!-- AMIbot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 mr-10 p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-center space-x-2 p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
         >
           <img
             src="/images/amibotsquare1.webp"
@@ -80,17 +78,13 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Access displayStore to compute space below header and sidebar
 const displayStore = useDisplayStore()
 
-// Compute tutorial wrapper style based on available space
-const tutorialStyle = computed(() => ({
-  height: `${100 - displayStore.headerVh}vh`,
-  width: `${100 - displayStore.sidebarVw}vw`,
+// Calculate the available space dynamically based on the display store.
+const mainContentStyle = computed(() => ({
+  height: `${displayStore.mainVh}vh`,
+  width: `${displayStore.mainVw}vw`,
 }))
-
-// Page content
-const { page } = useContent()
 </script>
 
 <style scoped>
@@ -103,8 +97,14 @@ body,
   overflow: hidden; /* Prevent scrollbars */
 }
 
+/* Flex-based grid for content stretching */
+.flex-1 {
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+/* Utility to handle max width for large screens */
 @media (min-width: 1024px) {
-  /* For larger screens */
   .max-w-4xl {
     max-width: 75vw;
   }

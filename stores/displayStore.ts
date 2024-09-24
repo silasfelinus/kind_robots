@@ -32,7 +32,7 @@ export const useDisplayStore = defineStore('display', {
     footer: 'open',
     focusedContainer: null,
     headerVh: 7,
-    footerVh: 5,
+    footerVh: 1,
     sidebarLeftVw: 7,
     sidebarRightVw: 7,
     mainVh: 0,
@@ -155,25 +155,25 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    calculateMainContentSize() {
-      try {
-        const headerHeight = this.headerState !== 'hidden' ? this.headerVh : 0
-        const footerHeight = this.footer !== 'hidden' ? this.footerVh : 0
-        const leftSidebarWidth = this.sidebarLeft !== 'hidden' ? this.sidebarLeftVw : 0
-        const rightSidebarWidth = this.sidebarRight !== 'hidden' ? this.sidebarRightVw : 0
+calculateMainContentSize() {
+  try {
+    const headerHeight = this.headerState !== 'hidden' ? this.headerVh : 0
+    const footerHeight = Math.max(this.footerVh, 1) // Ensure a minimum footer height of 1vh
+    const leftSidebarWidth = this.sidebarLeft !== 'hidden' ? this.sidebarLeftVw : 0
+    const rightSidebarWidth = this.sidebarRight !== 'hidden' ? this.sidebarRightVw : 0
 
-        // Calculate available vertical and horizontal space for the main content
-        this.mainVh = 100 - headerHeight - footerHeight
-        this.mainVw = 100 - leftSidebarWidth - rightSidebarWidth
+    // Calculate available vertical and horizontal space for the main content
+    this.mainVh = 100 - headerHeight - footerHeight
+    this.mainVw = 100 - leftSidebarWidth - rightSidebarWidth
 
-        // Footer width might be affected by the sidebars
-        this.footerVw = 100 - leftSidebarWidth - rightSidebarWidth
-      } catch (error) {
-        console.error('Error calculating main content size:', error)
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
-    },
+    // Footer width might be affected by the sidebars
+    this.footerVw = 100 - leftSidebarWidth - rightSidebarWidth
+  } catch (error) {
+    console.error('Error calculating main content size:', error)
+    const errorStore = useErrorStore()
+    errorStore.setError(ErrorType.GENERAL_ERROR, error)
+  }
+},
 
     // Toggle sidebar state for either left or right sidebar
     toggleSidebar(side: 'sidebarLeft' | 'sidebarRight') {

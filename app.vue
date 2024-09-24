@@ -41,8 +41,8 @@
           <div
             class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
             :style="{
-              height: `${100 - displayStore.headerVh - 4}vh`,
-              width: `${100 - displayStore.sidebarWh - 4}vh`,
+              height: `${displayStore.mainVh}vh`,
+              width: `${displayStore.mainWh}vh`,
               paddingRight: '2rem',
             }"
           >

@@ -12,7 +12,8 @@ interface DisplayStoreState {
   focusedContainer: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer' | null
   headerVh: number
   footerVh: number
-  sidebarVw: number
+  sidebarLeftVw: number
+  sidebarRightVw: number
   mainVh: number
   mainVw: number
   footerVw: number
@@ -31,7 +32,8 @@ export const useDisplayStore = defineStore('display', {
     footer: 'open',
     focusedContainer: null,
     headerVh: 7,
-    sidebarVw: 7,
+    sidebarLeftVw: 7,
+    sidebarRightVw: 7,
     footerVh: 5,
     mainVh: 0,
     mainVw: 0,
@@ -44,8 +46,8 @@ export const useDisplayStore = defineStore('display', {
   }),
 
   actions: {
-    // Function to calculate sidebar width based on screen size and orientation
-    calculateSidebarWidth(): number {
+    // Function to calculate sidebar width for left sidebar based on screen size and orientation
+    calculateSidebarLeftWidth(): number {
       try {
         switch (this.viewportSize) {
           case 'small':
@@ -59,7 +61,29 @@ export const useDisplayStore = defineStore('display', {
             return this.sidebarLeft === 'open' ? 13 : this.sidebarLeft === 'compact' ? 6 : 1
         }
       } catch (error) {
-        console.error('Error calculating sidebar width:', error)
+        console.error('Error calculating left sidebar width:', error)
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+        return 7 // Default width in case of error
+      }
+    },
+
+    // Function to calculate sidebar width for right sidebar based on screen size and orientation
+    calculateSidebarRightWidth(): number {
+      try {
+        switch (this.viewportSize) {
+          case 'small':
+            return this.sidebarRight === 'open' ? 13 : this.sidebarRight === 'compact' ? 12 : 2
+          case 'medium':
+            return this.sidebarRight === 'open' ? 13 : this.sidebarRight === 'compact' ? 10 : 2
+          case 'large':
+            return this.sidebarRight === 'open' ? 13 : this.sidebarRight === 'compact' ? 8 : 1
+          case 'extraLarge':
+          default:
+            return this.sidebarRight === 'open' ? 13 : this.sidebarRight === 'compact' ? 6 : 1
+        }
+      } catch (error) {
+        console.error('Error calculating right sidebar width:', error)
         const errorStore = useErrorStore()
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
         return 7 // Default width in case of error
@@ -71,8 +95,8 @@ export const useDisplayStore = defineStore('display', {
       try {
         const headerHeight = this.headerState !== 'hidden' ? this.headerVh : 0
         const footerHeight = this.footer !== 'hidden' ? this.footerVh : 0
-        const leftSidebarWidth = this.sidebarLeft !== 'hidden' ? this.sidebarVw : 0
-        const rightSidebarWidth = this.sidebarRight !== 'hidden' ? this.sidebarVw : 0
+        const leftSidebarWidth = this.sidebarLeft !== 'hidden' ? this.sidebarLeftVw : 0
+        const rightSidebarWidth = this.sidebarRight !== 'hidden' ? this.sidebarRightVw : 0
 
         // Calculate available vertical and horizontal space for the main content
         this.mainVh = 100 - headerHeight - footerHeight
@@ -87,7 +111,7 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    // Toggle sidebar state between 'hidden', 'compact', and 'open'
+    // Toggle sidebar state for either left or right sidebar
     toggleSidebar(side: 'sidebarLeft' | 'sidebarRight') {
       try {
         const stateCycle: Record<DisplayState, DisplayState> = {
@@ -97,7 +121,13 @@ export const useDisplayStore = defineStore('display', {
           disabled: 'hidden',
         }
         this[side] = stateCycle[this[side]]
-        this.sidebarVw = this.calculateSidebarWidth()
+
+        // Recalculate the width of the toggled sidebar
+        if (side === 'sidebarLeft') {
+          this.sidebarLeftVw = this.calculateSidebarLeftWidth()
+        } else {
+          this.sidebarRightVw = this.calculateSidebarRightWidth()
+        }
 
         // Recalculate main content size after toggling sidebars
         this.calculateMainContentSize()
@@ -117,7 +147,13 @@ export const useDisplayStore = defineStore('display', {
     changeState(container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer', state: DisplayState) {
       try {
         this[container] = state
-        this.sidebarVw = this.calculateSidebarWidth()
+
+        // Recalculate the widths for left or right sidebar if applicable
+        if (container === 'sidebarLeft') {
+          this.sidebarLeftVw = this.calculateSidebarLeftWidth()
+        } else if (container === 'sidebarRight') {
+          this.sidebarRightVw = this.calculateSidebarRightWidth()
+        }
 
         // Recalculate main content size after changing the state of a container
         this.calculateMainContentSize()
@@ -153,9 +189,10 @@ export const useDisplayStore = defineStore('display', {
             this.viewportSize = 'extraLarge'
           }
 
-          // Set the header height and sidebar width
+          // Set the header height and sidebar widths
           this.headerVh = Math.min(window.innerHeight * 0.1, 7)
-          this.sidebarVw = this.calculateSidebarWidth()
+          this.sidebarLeftVw = this.calculateSidebarLeftWidth()
+          this.sidebarRightVw = this.calculateSidebarRightWidth()
 
           // Recalculate main content size based on the updated values
           this.calculateMainContentSize()
@@ -231,7 +268,8 @@ export const useDisplayStore = defineStore('display', {
               this.footerVw = parseInt(storedFooterVw, 10)
             }
 
-            this.sidebarVw = this.calculateSidebarWidth()
+            this.sidebarLeftVw = this.calculateSidebarLeftWidth()
+            this.sidebarRightVw = this.calculateSidebarRightWidth()
             this.calculateMainContentSize()
           }
           resolve()

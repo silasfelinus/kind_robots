@@ -44,9 +44,39 @@
       <p>Footer</p>
       <p v-if="displayStore.showInfo">Footer VH: {{ displayStore.footerVh }}vh</p>
     </footer>
+
+    <!-- Debug Toggle Button -->
+    <button
+      class="debug-toggle"
+      @click="toggleDebugMode"
+    >
+      {{ displayStore.showInfo ? 'Hide Debug Info' : 'Show Debug Info' }}
+    </button>
+
+    <!-- Info Sheet Toggle -->
+    <button
+      class="info-toggle"
+      @click="toggleInfoSheet"
+      v-if="displayStore.showInfo"
+    >
+      Toggle Info Sheet
+    </button>
+
+    <!-- Info Sheet Display -->
+    <div v-if="displayStore.showInfoSheet && displayStore.showInfo" class="info-sheet">
+      <p>Header VH: {{ displayStore.headerVh }}vh</p>
+      <p>Sidebar VW: {{ displayStore.sidebarVw }}vw</p>
+      <p>Footer VH: {{ displayStore.footerVh }}vh</p>
+      <p>Viewport: {{ displayStore.viewportSize }}</p>
+      <p>Touch Device: {{ displayStore.isTouchDevice ? 'Yes' : 'No' }}</p>
+      <p>Vertical Layout: {{ displayStore.isVertical ? 'Yes' : 'No' }}</p>
+      <p>Header State: {{ displayStore.headerState }}</p>
+      <p>Left Sidebar: {{ displayStore.sidebarLeft }}</p>
+      <p>Right Sidebar: {{ displayStore.sidebarRight }}</p>
+      <p>Footer State: {{ displayStore.footer }}</p>
+    </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { useDisplayStore } from '@/stores/displayStore'
@@ -55,17 +85,24 @@ import { onMounted, onBeforeUnmount } from 'vue'
 // Initialize the store
 const displayStore = useDisplayStore()
 
-// Function to handle key press
+// Function to toggle the debug mode visibility
+const toggleDebugMode = () => {
+  displayStore.showInfo = !displayStore.showInfo
+}
+
+// Function to toggle the info sheet visibility
+const toggleInfoSheet = () => {
+  displayStore.showInfoSheet = !displayStore.showInfoSheet
+}
+
+// Function to handle key press for toggling debug mode
 const handleKeyPress = (event: KeyboardEvent) => {
   const target = event.target as HTMLElement
-
-  // Check if the target element is an input, textarea, or contenteditable
   const isInteractiveElement =
     ['INPUT', 'TEXTAREA'].includes(target.tagName) || target.isContentEditable
 
-  // Only toggle if 'D' is pressed and the target is not an interactive element
   if (!isInteractiveElement && (event.key === 'd' || event.key === 'D')) {
-    displayStore.showInfo = !displayStore.showInfo
+    toggleDebugMode()
   }
 }
 
@@ -83,14 +120,24 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
-<style.header-overlay,
+.content-area {
+  display: flex;
+  flex: 1;
+}
+
+.header-overlay,
 .sidebar-left-overlay,
 .sidebar-right-overlay,
 .main-content-overlay,
 .footer-overlay {
   position: relative;
-  background-color: rgba(0, 128, 255, 0.5);
+  background-color: rgba(0, 128, 255, 0.5); /* Light Blue */
   text-align: center;
   color: white;
   padding: 1rem;
@@ -105,10 +152,37 @@ onBeforeUnmount(() => {
   background-color: rgba(0, 0, 0, 0.3); /* Highlight during debug mode */
 }
 
-.content-area {
-  display: flex;
-  flex: 1;
-  height: 100%;
+.debug-toggle {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
+.info-toggle {
+  position: absolute;
+  bottom: 60px;
+  right: 20px;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.info-sheet {
+  position: absolute;
+  bottom: 100px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  z-index: 1000;
+}
 </style>

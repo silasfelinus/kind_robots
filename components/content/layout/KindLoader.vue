@@ -7,7 +7,7 @@
       'absolute flex items-center justify-center bg-opacity-70 z-50':
         !isFirstLoad,
     }"
-    :style="!isFirstLoad ? mainContentStyle : ''"
+    :style="mainContentStyle"
   >
     <ami-loader />
   </div>
@@ -37,7 +37,7 @@ const pitchStore = usePitchStore()
 // State management
 const isReady = ref(false)
 const isFirstLoad = ref(true)
-const mainContentStyle = ref('')
+const mainContentStyle = ref(`top: 0; left: 0;`)
 const emit = defineEmits(['pageReady'])
 
 onMounted(async () => {
@@ -103,11 +103,9 @@ onMounted(async () => {
 
     // Dynamically set the main content style based on sidebar and header sizes
     mainContentStyle.value = `top: ${displayStore.headerVh}px; left: ${displayStore.sidebarVw}px;`
-    console.log('Main content style set:', mainContentStyle.value)
 
     // Simulate a delay for loader visibility
     setTimeout(() => {
-      console.log('Page is ready, hiding loader.')
       isReady.value = true
       isFirstLoad.value = false
       emit('pageReady', true)
@@ -118,7 +116,6 @@ onMounted(async () => {
 
     // Add viewport resize event listener
     window.addEventListener('resize', displayStore.updateViewport)
-    console.log('Viewport resize listener added.')
   } catch (error) {
     console.error('Initialization failed:', error)
     errorStore.setError(
@@ -129,7 +126,6 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  console.log('Removing viewport resize listener.')
   window.removeEventListener('resize', displayStore.updateViewport)
 })
 </script>

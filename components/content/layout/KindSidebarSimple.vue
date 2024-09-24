@@ -3,12 +3,8 @@
     <aside
       v-if="displayStore.sidebarLeft !== 'hidden'"
       class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
-      :class="{
-        'w-64': displayStore.sidebarLeft === 'open',
-        'w-16': displayStore.sidebarLeft === 'compact',
-        'w-0': displayStore.sidebarLeft === 'hidden',
-      }"
       :style="{
+        width: `${displayStore.sidebarLeftVw}vw`,
         maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`,
         position: 'sticky',
         top: `${displayStore.headerVh}vh`,
@@ -43,6 +39,7 @@
     </aside>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'

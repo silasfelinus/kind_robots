@@ -40,31 +40,33 @@
 
       <!-- Main Content Area -->
       <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
-        <div class="flex justify-center items-center w-3/4">
-          <div
-            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
-            :style="{
-              height: `${displayStore.mainVh}vh`,
-              width: `${displayStore.mainVw}vw`,
-              paddingRight: '2rem',
-            }"
-          >
+        <MainScreen>
+          <div class="flex justify-center items-center w-3/4">
             <div
-              class="flip-card-inner"
-              :class="{ 'is-flipped': !showTutorial }"
+              class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
+              :style="{
+                height: `${displayStore.mainVh}vh`,
+                width: `${displayStore.mainVw}vw`,
+                paddingRight: '2rem',
+              }"
             >
-              <!-- Front side: Splash Tutorial -->
-              <div class="flip-card-front">
-                <SplashTutorial />
-              </div>
+              <div
+                class="flip-card-inner"
+                :class="{ 'is-flipped': !showTutorial }"
+              >
+                <!-- Front side: Splash Tutorial -->
+                <div class="flip-card-front">
+                  <SplashTutorial />
+                </div>
 
-              <!-- Back side: NuxtPage content -->
-              <div class="flip-card-back">
-                <NuxtPage />
+                <!-- Back side: NuxtPage content -->
+                <div class="flip-card-back">
+                  <NuxtPage />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </MainScreen>
       </main>
 
       <!-- Right Sidebar -->

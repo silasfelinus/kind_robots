@@ -42,7 +42,7 @@
       <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-4 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-center space-x-2 p-4 ml-10 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -59,7 +59,7 @@
       <!-- AMIbot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-center space-x-2 mr-10 p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
         >
           <img
             src="/images/amibotsquare1.webp"

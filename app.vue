@@ -64,6 +64,7 @@
         </div>
       </main>
     </div>
+    <store-debug />
   </div>
 </template>
 

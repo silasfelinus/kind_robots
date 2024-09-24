@@ -3,7 +3,6 @@ import { useErrorStore, ErrorType } from './errorStore'
 
 export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 
-// Define the interface for the store's state
 interface DisplayStoreState {
   headerState: DisplayState
   sidebarLeft: DisplayState
@@ -22,6 +21,7 @@ interface DisplayStoreState {
   isTouchDevice: boolean
   isLoaded: boolean
   showInfo: boolean
+  iconSize: number  // This will track the base icon size
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -32,9 +32,9 @@ export const useDisplayStore = defineStore('display', {
     footer: 'open',
     focusedContainer: null,
     headerVh: 7,
+    footerVh: 5,
     sidebarLeftVw: 7,
     sidebarRightVw: 7,
-    footerVh: 5,
     mainVh: 0,
     mainVw: 0,
     footerVw: 100,
@@ -43,9 +43,52 @@ export const useDisplayStore = defineStore('display', {
     isTouchDevice: false,
     isLoaded: false,
     showInfo: true,
+    iconSize: 24,  // Default icon size, but we'll dynamically update it
   }),
 
   actions: {
+    // Update the viewport size and adjust icon size accordingly
+    updateViewport() {
+      try {
+        if (typeof window !== 'undefined') {
+          this.isVertical = window.innerHeight > window.innerWidth
+          this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+
+          const width = window.innerWidth
+
+          // Determine viewport size
+          if (width < 768) {
+            this.viewportSize = 'small'
+            this.iconSize = 20  // Smaller icon size for small devices
+          } else if (width >= 768 && width < 1024) {
+            this.viewportSize = 'medium'
+            this.iconSize = 24  // Medium size icons for tablets or similar devices
+          } else if (width >= 1024 && width < 1440) {
+            this.viewportSize = 'large'
+            this.iconSize = 28  // Larger size for desktops
+          } else {
+            this.viewportSize = 'extraLarge'
+            this.iconSize = 32  // Very large icons for extra-large screens
+          }
+
+          // Set the header height and sidebar widths
+          this.headerVh = Math.min(window.innerHeight * 0.1, 7)
+          this.sidebarLeftVw = this.calculateSidebarLeftWidth()
+          this.sidebarRightVw = this.calculateSidebarRightWidth()
+
+          // Recalculate main content size based on the updated values
+          this.calculateMainContentSize()
+        }
+      } catch (error) {
+        console.error('Error updating viewport:', error)
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
+    },
+
+    // Other actions such as calculateSidebarLeftWidth, calculateSidebarRightWidth, etc.
+    // These methods remain the same and continue as needed.
+  
     // Function to calculate sidebar width for left sidebar based on screen size and orientation
     calculateSidebarLeftWidth(): number {
       try {
@@ -191,40 +234,7 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    // Update the viewport size and orientation
-    updateViewport() {
-      try {
-        if (typeof window !== 'undefined') {
-          this.isVertical = window.innerHeight > window.innerWidth
-          this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-
-          const width = window.innerWidth
-
-          // Determine viewport size
-          if (width < 768) {
-            this.viewportSize = 'small'
-          } else if (width >= 768 && width < 1024) {
-            this.viewportSize = 'medium'
-          } else if (width >= 1024 && width < 1440) {
-            this.viewportSize = 'large'
-          } else {
-            this.viewportSize = 'extraLarge'
-          }
-
-          // Set the header height and sidebar widths
-          this.headerVh = Math.min(window.innerHeight * 0.1, 7)
-          this.sidebarLeftVw = this.calculateSidebarLeftWidth()
-          this.sidebarRightVw = this.calculateSidebarRightWidth()
-
-          // Recalculate main content size based on the updated values
-          this.calculateMainContentSize()
-        }
-      } catch (error) {
-        console.error('Error updating viewport:', error)
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
-    },
+    
 
     // Initialize the viewport watcher for dynamic resizing
     initializeViewportWatcher() {

@@ -3,7 +3,7 @@ export default {
   safelist: [
     {
       pattern:
-        /(icon|text-gray|cursor-pointer|transition-shadow|line-md|fluent|mdi|game-icons|emojione-monotone|material-symbols|mingcute|fxemoji)/,
+        /(icon|text-gray|cursor-pointer|transition-shadow|line-md|fluent|mdi|game-icons|emojione-monotone|material-symbols|mingcute|fxemoji|fluent:chat-bubbles-question-16-regular)/,
     },
   ],
   jit: true,

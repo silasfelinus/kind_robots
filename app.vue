@@ -14,7 +14,7 @@
     </div>
 
     <!-- Footer Toggle -->
-    <div class="absolute bottom-4 center p-1 z-40 text-white">
+    <div class="absolute bottom-4 justify-center p-1 z-40 text-white">
       <footer-toggle class="text-4xl" @click="toggleFooter" />
     </div>
 

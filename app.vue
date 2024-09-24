@@ -56,8 +56,7 @@
         <div class="flex justify-center items-center w-full h-full overflow-hidden">
           <div
             class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg overflow-hidden"
-          :style="{ maxHeight: `${displayStore.mainVh}vh` }"
-
+            :style="{ maxHeight: `${displayStore.mainVh}vh` }"
           >
             <div class="flip-card-inner h-full overflow-hidden" :class="{ 'is-flipped': !showTutorial }">
               <!-- Front side: Splash Tutorial -->
@@ -84,6 +83,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
@@ -142,6 +142,7 @@ onBeforeUnmount(() => {
   height: 100%;
   transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
+  position: relative;
 }
 
 .flip-card-inner.is-flipped {
@@ -153,16 +154,17 @@ onBeforeUnmount(() => {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden; /* Hides the backside during rotation */
+  backface-visibility: hidden; /* Ensures the hidden side stays hidden */
   border-radius: 12px;
   overflow-y: auto; /* Enable scrolling for content overflow */
 }
 
 .flip-card-front {
-  z-index: 2; /* Ensures the front side is on top */
+  z-index: 2; /* Ensures the front side is on top when not flipped */
 }
 
 .flip-card-back {
-  transform: rotateY(180deg); /* Ensures the back side starts flipped */
+  transform: rotateY(180deg); /* Back side starts flipped */
+  z-index: 1; /* Back side has a lower z-index initially */
 }
 </style>

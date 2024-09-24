@@ -8,9 +8,9 @@
       class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
-      <!-- Sidebar Toggle -->
+      <!-- Sidebar Toggle (Left) -->
       <div class="absolute top-4 left-4 p-1 z-40 text-white">
-        <sidebar-toggle class="text-4xl" />
+        <sidebar-toggle class="text-4xl" @click="toggleSidebar('sidebarLeft')" />
       </div>
 
       <nav-links />
@@ -33,16 +33,28 @@
       </button>
     </header>
 
-    <!-- Main Layout with flexible layout for sidebar -->
-    <div class="flex-1 w-full flex">
-      <kind-sidebar-simple />
+    <!-- Main Layout with flexible layout for sidebars and footer -->
+    <div class="flex-1 w-full flex relative">
+      <!-- Left Sidebar -->
+      <div
+        v-if="displayStore.sidebarLeft !== 'hidden'"
+        :class="{
+          'w-2': displayStore.sidebarLeft === 'compact',
+          'w-1/5': displayStore.sidebarLeft === 'open',
+        }"
+        class="bg-secondary h-full transition-all duration-500"
+      >
+        <kind-sidebar-simple />
+      </div>
+
+      <!-- Main content -->
       <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
         <div class="flex justify-center items-center w-3/4">
           <div
             class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
             :style="{
               height: `${displayStore.mainVh}vh`,
-              width: `${displayStore.mainWh}vh`,
+              width: `${displayStore.mainVw}vw`,
               paddingRight: '2rem',
             }"
           >
@@ -63,8 +75,28 @@
           </div>
         </div>
       </main>
+
+      <!-- Right Sidebar -->
+      <div
+        v-if="displayStore.sidebarRight !== 'hidden'"
+        :class="{
+          'w-2': displayStore.sidebarRight === 'compact',
+          'w-1/5': displayStore.sidebarRight === 'open',
+        }"
+        class="bg-secondary h-full transition-all duration-500"
+      >
+        <kind-sidebar-simple-right />
+      </div>
     </div>
-  
+
+    <!-- Footer -->
+    <footer
+      v-if="displayStore.footer !== 'hidden'"
+      class="w-full bg-primary transition-all duration-500"
+      :style="{ height: `${displayStore.footerVh}vh`, width: `${displayStore.footerVw}%` }"
+    >
+      <kind-footer-simple />
+    </footer>
   </div>
 </template>
 
@@ -76,10 +108,8 @@ import { useDisplayStore } from '@/stores/displayStore'
 // Initialize stores and states
 const displayStore = useDisplayStore()
 const showTutorial = ref(true)
-const router = useRouter()
-
-// Combine isPageReady and isKindLoaderInitialized logic into one
 const isPageReady = ref(false)
+const router = useRouter()
 
 // Handle when page is ready
 const handlePageReady = (ready: boolean) => {
@@ -89,6 +119,11 @@ const handlePageReady = (ready: boolean) => {
 // Toggle between tutorial and main content
 const toggleTutorial = () => {
   showTutorial.value = !showTutorial.value
+}
+
+// Toggle left or right sidebar state
+const toggleSidebar = (side: 'sidebarLeft' | 'sidebarRight') => {
+  displayStore.toggleSidebar(side)
 }
 
 // Auto-reset tutorial on route changes if needed

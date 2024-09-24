@@ -4,7 +4,7 @@
     :style="buttonStyle"
     @click="toggleFooter"
   >
-    <Icon name="carbon:tool-box" class="toggle-icon" />
+    <Icon name="simple-icons:circle" class="toggle-icon" />
   </button>
 </template>
 

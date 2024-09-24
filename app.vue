@@ -81,6 +81,14 @@
         <kind-sidebar-right />
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer
+      class="w-full bg-primary transition-all duration-500 border-t border-gray-300"
+      :style="{ height: `${displayStore.footerVh}vh`, width: `${displayStore.footerVw}%` }"
+    >
+      <kind-footer />
+    </footer>
   </div>
 </template>
 

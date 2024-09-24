@@ -96,7 +96,14 @@ const displayStore = useDisplayStore()
 
 // Function to handle key press
 const handleKeyPress = (event: KeyboardEvent) => {
-  if (event.key === 'd' || event.key === 'D') {
+  const target = event.target as HTMLElement
+
+  // Check if the target element is an input, textarea, or contenteditable
+  const isInteractiveElement =
+    ['INPUT', 'TEXTAREA'].includes(target.tagName) || target.isContentEditable
+
+  // Only toggle if 'D' is pressed and the target is not an interactive element
+  if (!isInteractiveElement && (event.key === 'd' || event.key === 'D')) {
     displayStore.showInfo = !displayStore.showInfo
   }
 }

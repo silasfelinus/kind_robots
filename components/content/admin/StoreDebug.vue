@@ -1,5 +1,6 @@
 <template>
-  <div class="main-layout">
+  <div class="main-layout absolute">
+    <!-- Header with overlay -->
     <header
       class="header-overlay"
       :style="{ height: displayStore.headerVh + 'vh' }"
@@ -7,6 +8,7 @@
       <p>Header</p>
     </header>
 
+    <!-- Main content area with sidebars and main content -->
     <div class="content-area">
       <aside
         v-if="displayStore.sidebarLeft === 'open'"
@@ -29,6 +31,7 @@
       </aside>
     </div>
 
+    <!-- Footer with overlay -->
     <footer
       class="footer-overlay"
       :style="{ height: displayStore.footerVh + 'vh' }"
@@ -49,6 +52,36 @@
         <p>Left Sidebar: {{ displayStore.sidebarLeft }}</p>
         <p>Right Sidebar: {{ displayStore.sidebarRight }}</p>
         <p>Footer State: {{ displayStore.footer }}</p>
+      </div>
+    </div>
+
+    <!-- New section position debug overlay -->
+    <div v-if="displayStore.showInfo" class="section-overlay">
+      <!-- Header Overlay -->
+      <div class="overlay-header debug-box">
+        <p>Header</p>
+      </div>
+      <!-- Left Sidebar Overlay -->
+      <div
+        v-if="displayStore.sidebarLeft === 'open'"
+        class="overlay-sidebar-left debug-box"
+      >
+        <p>Left Sidebar</p>
+      </div>
+      <!-- Main Content Overlay -->
+      <div class="overlay-main-content debug-box">
+        <p>Main Content</p>
+      </div>
+      <!-- Right Sidebar Overlay -->
+      <div
+        v-if="displayStore.sidebarRight === 'open'"
+        class="overlay-sidebar-right debug-box"
+      >
+        <p>Right Sidebar</p>
+      </div>
+      <!-- Footer Overlay -->
+      <div class="overlay-footer debug-box">
+        <p>Footer</p>
       </div>
     </div>
   </div>
@@ -127,5 +160,66 @@ onBeforeUnmount(() => {
 .debug-info p {
   margin: 0;
   padding: 0.5rem 0;
+}
+
+/* Debug overlay for section positions */
+.section-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* Ensure it doesn't affect clicks */
+}
+
+.debug-box {
+  position: absolute;
+  border: 2px dashed rgba(255, 255, 255, 0.8);
+  color: white;
+  text-align: center;
+  z-index: 9999;
+  font-size: 1.2rem;
+  pointer-events: none; /* Don't block interactions */
+}
+
+/* Specific overlay section positions */
+.overlay-header {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-height, 20vh);
+  background-color: rgba(0, 128, 255, 0.3);
+}
+
+.overlay-sidebar-left {
+  top: var(--header-height, 20vh);
+  left: 0;
+  width: var(--sidebar-width, 20vw);
+  height: calc(100vh - var(--header-height, 20vh) - var(--footer-height, 10vh));
+  background-color: rgba(255, 165, 0, 0.3);
+}
+
+.overlay-main-content {
+  top: var(--header-height, 20vh);
+  left: var(--sidebar-width, 20vw);
+  width: calc(100vw - var(--sidebar-width, 20vw) * 2);
+  height: calc(100vh - var(--header-height, 20vh) - var(--footer-height, 10vh));
+  background-color: rgba(144, 238, 144, 0.3);
+}
+
+.overlay-sidebar-right {
+  top: var(--header-height, 20vh);
+  right: 0;
+  width: var(--sidebar-width, 20vw);
+  height: calc(100vh - var(--header-height, 20vh) - var(--footer-height, 10vh));
+  background-color: rgba(255, 165, 0, 0.3);
+}
+
+.overlay-footer {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--footer-height, 10vh);
+  background-color: rgba(255, 69, 0, 0.3);
 }
 </style>

@@ -20,7 +20,7 @@
 
       <!-- Footer Toggle -->
       <div class="absolute bottom-4 center p-1 z-40 text-white">
-        <footer-toggle class="text-4xl" @click="toggleSidebar('footer')" />
+        <footer-toggle class="text-4xl" @click="toggleFooter" />
       </div>
 
 
@@ -127,6 +127,10 @@ const toggleTutorial = () => {
 // Toggle left or right sidebar state
 const toggleSidebar = (side: 'sidebarLeft' | 'sidebarRight') => {
   displayStore.toggleSidebar(side)
+}
+
+const toggleFooter = () => {
+  displayStore.toggleFooter()
 }
 
 // Auto-reset tutorial on route changes if needed

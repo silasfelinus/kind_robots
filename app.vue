@@ -4,30 +4,26 @@
     <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
 
     <!-- Sidebar Toggle (Left) -->
-      <div class="absolute top-4 left-4 p-1 z-40 text-white">
-        <sidebar-toggle class="text-4xl" @click="toggleSidebar('sidebarLeft')" />
-      </div>
+    <div class="absolute top-4 left-4 p-1 z-40 text-white">
+      <sidebar-toggle class="text-4xl" @click="toggleSidebar('sidebarLeft')" />
+    </div>
 
-      <!-- Sidebar Toggle (Right) -->
-      <div class="absolute bottom-4 right-4 p-1 z-40 text-white">
-        <sidebar-right-toggle class="text-4xl" @click="toggleSidebar('sidebarRight')" />
-      </div>
+    <!-- Sidebar Toggle (Right) -->
+    <div class="absolute bottom-4 right-4 p-1 z-40 text-white">
+      <sidebar-right-toggle class="text-4xl" @click="toggleSidebar('sidebarRight')" />
+    </div>
 
-      <!-- Footer Toggle -->
-      <div class="absolute bottom-4 center p-1 z-40 text-white">
-        <footer-toggle class="text-4xl" @click="toggleFooter" />
-      </div>
+    <!-- Footer Toggle -->
+    <div class="absolute bottom-4 center p-1 z-40 text-white">
+      <footer-toggle class="text-4xl" @click="toggleFooter" />
+    </div>
 
     <!-- Header -->
     <header
       class="w-full bg-base-200 flex justify-between items-center transition-all duration-500 ease-in-out sticky top-0 z-30"
       :style="{ height: `${displayStore.headerVh}vh` }"
     >
-  
-
       <nav-links />
-
-      <!-- Tutorial and Back Buttons -->
       <button
         v-if="showTutorial"
         class="fixed top-4 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 flex items-center z-50 px-4 py-2"
@@ -35,7 +31,6 @@
       >
         Launch
       </button>
-
       <button
         v-else
         class="fixed top-4 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 flex items-center z-50 px-4 py-2"
@@ -50,30 +45,23 @@
       <!-- Left Sidebar -->
       <div
         v-if="displayStore.sidebarLeft !== 'hidden'"
-        :class="{
-          'w-2': displayStore.sidebarLeft === 'compact',
-          'w-1/5': displayStore.sidebarLeft === 'open',
-        }"
+        :style="{ width: `${displayStore.sidebarLeftVw}vw` }"
         class="bg-secondary h-full transition-all duration-500"
       >
         <kind-sidebar-simple />
       </div>
 
       <!-- Main content -->
-      <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
-        <div class="flex justify-center items-center w-3/4">
-          <div
-            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
-            :style="{
-              height: `${displayStore.mainVh}vh`,
-              width: `${displayStore.mainVw}vw`,
-              paddingRight: '2rem',
-            }"
-          >
-            <div
-              class="flip-card-inner"
-              :class="{ 'is-flipped': !showTutorial }"
-            >
+      <main
+        class="flex-grow overflow-y-auto relative p-4 lg:p-8"
+        :style="{
+          height: `${displayStore.mainVh}vh`,
+          width: `${displayStore.mainVw}vw`
+        }"
+      >
+        <div class="flex justify-center items-center w-full h-full">
+          <div class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg">
+            <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
               <!-- Front side: Splash Tutorial -->
               <div class="flip-card-front">
                 <SplashTutorial @page-transition="handlePageTransition" />
@@ -89,7 +77,11 @@
       </main>
 
       <!-- Right Sidebar -->
-      <div v-if="displayStore.sidebarRight !== 'hidden'" class="bg-secondary h-full transition-all duration-500">
+      <div
+        v-if="displayStore.sidebarRight !== 'hidden'"
+        :style="{ width: `${displayStore.sidebarRightVw}vw` }"
+        class="bg-secondary h-full transition-all duration-500"
+      >
         <kind-sidebar-right />
       </div>
     </div>
@@ -102,10 +94,10 @@
     >
       <kind-footer />
     </footer>
-<store-debug />
+
+    <store-debug />
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'

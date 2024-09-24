@@ -10,11 +10,13 @@ interface DisplayStoreState {
   footer: DisplayState
   focusedContainer: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer' | null
   headerVh: number
-  footerVh: number
   sidebarLeftVw: number
   sidebarRightVw: number
+  sidebarLeftVh: number
+  sidebarRightVh: number
   mainVh: number
   mainVw: number
+  footerVh: number
   footerVw: number
   isVertical: boolean
   viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
@@ -32,11 +34,13 @@ export const useDisplayStore = defineStore('display', {
     footer: 'open',
     focusedContainer: null,
     headerVh: 7,
-    footerVh: 1,
     sidebarLeftVw: 7,
-    sidebarRightVw: 7,
-    mainVh: 0,
-    mainVw: 0,
+    sidebarLeftVh: 92,
+    sidebarRightVw: 1,
+    sidebarRightVh: 92,
+    mainVh: 92,
+    mainVw: 92,
+    footerVh: 2,
     footerVw: 100,
     isVertical: false,
     viewportSize: 'large',

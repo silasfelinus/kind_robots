@@ -4,14 +4,14 @@
     :style="{ width: displayStore.sidebarRightVw + 'vw' }"
     class="kind-sidebar-right h-full bg-secondary text-white flex flex-col p-4 transition-all duration-500"
   >
-    <h2 class="text-xl font-bold mb-4" v-if="displayStore.sidebarRight === 'open'">Right Sidebar</h2>
+    <h2 v-if="displayStore.sidebarRight === 'open'" class="text-xl font-bold mb-4">Right Sidebar</h2>
     
     <ul class="space-y-2">
       <li
         v-for="item in items"
         :key="item.id"
-        @click="navigate(item.path)" 
-        class="hover:bg-primary p-2 rounded-md cursor-pointer flex flex-col items-center transition-all duration-500"
+        class="hover:bg-primary p-2 rounded-md cursor-pointer flex flex-col items-center transition-all duration-500" 
+        @click="navigate(item.path)"
       >
         <!-- Icon with dynamic sizing -->
         <Icon

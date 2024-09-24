@@ -33,16 +33,19 @@
       </button>
     </header>
 
-    <!-- Main Layout with flexible layout for sidebar -->
+    <!-- Main Layout with flexible layout for sidebars and footer -->
     <div class="flex-1 w-full flex">
+      <!-- Left Sidebar -->
       <kind-sidebar-simple />
+
+      <!-- Main Content Area -->
       <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
         <div class="flex justify-center items-center w-3/4">
           <div
             class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
             :style="{
               height: `${displayStore.mainVh}vh`,
-              width: `${displayStore.mainWh}vh`,
+              width: `${displayStore.mainVw}vw`,
               paddingRight: '2rem',
             }"
           >
@@ -63,7 +66,19 @@
           </div>
         </div>
       </main>
+
+      <!-- Right Sidebar -->
+      <kind-sidebar-right v-if="displayStore.sidebarRight !== 'hidden'" />
     </div>
+
+    <!-- Footer -->
+    <kind-footer
+      v-if="displayStore.footer !== 'hidden'"
+      :style="{
+        height: `${displayStore.footerVh}vh`,
+        width: `${displayStore.footerVw}vw`,
+      }"
+    />
   </div>
 </template>
 

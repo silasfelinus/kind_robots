@@ -4,32 +4,30 @@
     :style="mainContentStyle"
   >
     <!-- Title and Subtitle Section -->
-    <div class="w-full flex justify-between items-center p-4">
-      <h1 class="text-lg md:text-2xl font-bold text-secondary w-full">
+    <div class="w-full flex justify-between items-center p-1"> <!-- Reduced padding -->
+      <h1 class="text-lg md:text-xl font-bold text-secondary w-full"> <!-- Reduced font size -->
         {{ page.title }}
       </h1>
       <h2
         v-if="page.subtitle"
-        class="text-sm md:text-lg font-medium text-accent ml-auto"
+        class="text-xs md:text-base font-medium text-accent ml-auto" <!-- Reduced font size -->
       >
         {{ page.subtitle }}
       </h2>
     </div>
 
     <!-- Main Content Section (Image and Description) -->
-    <div
-      class="flex flex-1 flex-col items-center justify-center w-full px-4 lg:px-8"
-    >
+    <div class="flex flex-1 flex-col items-center justify-center w-full px-2 lg:px-4 space-y-2"> <!-- Compact space -->
       <!-- Image Section -->
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-cover w-full max-w-lg flex-shrink-0"
+        class="rounded-2xl border border-base-300 shadow-md object-cover w-full max-w-md h-auto flex-shrink-0" <!-- Shrunk max width -->
       />
 
       <!-- Description Section -->
       <div
-        class="bg-info text-info-content p-4 rounded-xl shadow-md w-full lg:w-2/3 max-w-4xl mt-4 flex-shrink-0"
+        class="bg-info text-info-content p-2 rounded-xl shadow-md w-full lg:w-2/3 max-w-3xl mt-2 flex-shrink-0" <!-- Reduced padding -->
       >
         <p class="text-xs md:text-sm font-medium text-center">
           {{ page.description }}
@@ -38,21 +36,19 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div
-      class="flex flex-col space-y-6 w-full max-w-4xl px-4 lg:px-8 flex-shrink-0"
-    >
+    <div class="flex flex-col space-y-2 w-full max-w-3xl px-2 lg:px-4 flex-shrink-0"> <!-- Reduced spacing -->
       <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-4 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-center space-x-2 p-2 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
         >
           <img
             src="/images/avatars/dottie1.webp"
             alt="DottiBot Avatar"
-            class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
+            class="w-8 h-8 md:w-10 md:h-10 rounded-full shadow-md" <!-- Shrunk avatar size -->
           />
           <div class="flex flex-col">
-            <span class="text-sm font-semibold">DottiBot</span>
+            <span class="text-xs font-semibold">DottiBot</span>
             <p class="text-xs md:text-sm">{{ page.dottitip }}</p>
           </div>
         </div>
@@ -61,15 +57,15 @@
       <!-- AMIbot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-4 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-center space-x-2 p-2 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
         >
           <img
             src="/images/amibotsquare1.webp"
             alt="AMIbot Avatar"
-            class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
+            class="w-8 h-8 md:w-10 md:h-10 rounded-full shadow-md" <!-- Shrunk avatar size -->
           />
           <div class="flex flex-col">
-            <span class="text-sm font-semibold">AMIbot</span>
+            <span class="text-xs font-semibold">AMIbot</span>
             <p class="text-xs md:text-sm text-white">{{ page.amitip }}</p>
           </div>
         </div>
@@ -79,17 +75,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-const { page } = useContent()
+// Ensure the store initializes correctly when the component mounts
+onMounted(() => {
+  displayStore.initializeViewportWatcher()
+})
 
 // Calculate the available space dynamically based on the display store.
 const mainContentStyle = computed(() => ({
-  height: `${displayStore.mainVh}vh`,
-  width: `${displayStore.mainVw}vw`,
+  height: `${displayStore.mainVh || 100}vh`,
+  width: `${displayStore.mainVw || 100}vw`,
 }))
 </script>
 
@@ -111,8 +110,8 @@ body,
 
 /* Utility to handle max width for large screens */
 @media (min-width: 1024px) {
-  .max-w-4xl {
-    max-width: 75vw;
+  .max-w-3xl {
+    max-width: 70vw; /* Reduced max width */
   }
 }
 </style>

@@ -47,18 +47,18 @@
 
       <!-- Main content -->
       <main
-        class="flex-grow overflow-hidden relative"
+        class="flex-grow relative"
         :style="{
           height: `${displayStore.mainVh}vh`,
           width: `${displayStore.mainVw}vw`
         }"
       >
-        <div class="flex justify-center items-center w-full h-full overflow-hidden">
+        <div class="fixed flex justify-center items-center w-full h-full overflow-hidden">
           <div
-            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg overflow-hidden"
+            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
             :style="{ maxHeight: `${displayStore.mainVh}vh` }"
           >
-            <div class="flip-card-inner h-full overflow-hidden" :class="{ 'is-flipped': !showTutorial }">
+            <div class="flip-card-inner h-full" :class="{ 'is-flipped': !showTutorial }">
               <!-- Front side: Splash Tutorial -->
               <div class="flip-card-front h-full overflow-y-auto">
                 <SplashTutorial @page-transition="handlePageTransition" />
@@ -83,7 +83,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'

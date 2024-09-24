@@ -44,14 +44,14 @@ export const useDisplayStore = defineStore('display', {
         console.log('Calculating sidebar width based on viewport size:', this.viewportSize)
         switch (this.viewportSize) {
           case 'small':
-            return this.sidebarLeft === 'open' ? 25 : this.sidebarLeft === 'compact' ? 12 : 4
+            return this.sidebarLeft === 'open' ? 13 : this.sidebarLeft === 'compact' ? 12 : 2
           case 'medium':
-            return this.sidebarLeft === 'open' ? 15 : this.sidebarLeft === 'compact' ? 10 : 4
+            return this.sidebarLeft === 'open' ? 13 : this.sidebarLeft === 'compact' ? 10 : 2
           case 'large':
-            return this.sidebarLeft === 'open' ? 18 : this.sidebarLeft === 'compact' ? 10 : 4
+            return this.sidebarLeft === 'open' ? 13 : this.sidebarLeft === 'compact' ? 8 : 1
           case 'extraLarge':
           default:
-            return this.sidebarLeft === 'open' ? 20 : this.sidebarLeft === 'compact' ? 12 : 4
+            return this.sidebarLeft === 'open' ? 13 : this.sidebarLeft === 'compact' ? 6 : 1
         }
       } catch (error) {
         console.error('Error calculating sidebar width:', error)

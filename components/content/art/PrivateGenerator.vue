@@ -19,7 +19,7 @@ const showMature = computed(() => userStore.showMature)
 const siteUrl = 'https://lola.acrocatranch.com'
 </script>
 
-<style>
+<style scoped>
 html,
 body,
 #app {

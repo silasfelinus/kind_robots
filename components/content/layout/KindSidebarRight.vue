@@ -10,12 +10,12 @@
       <li
         v-for="item in items"
         :key="item.id"
-        @click="navigate(item.path)" <!-- Handle click event for navigation -->
+        @click="navigate(item.path)" 
         class="hover:bg-primary p-2 rounded-md cursor-pointer flex flex-col items-center transition-all duration-500"
       >
         <!-- Icon with dynamic sizing -->
         <Icon
-          :name="item.icon" <!-- Assuming each item has an icon field -->
+          :name="item.icon" 
           :class="{
             'h-12 w-12': displayStore.sidebarRight === 'open',
             'h-8 w-8': displayStore.sidebarRight === 'compact',

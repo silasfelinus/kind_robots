@@ -7,8 +7,7 @@
       :style="{
         width: displayStore.sidebarLeftVw + 'vw',
         maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`,
-        position: 'sticky',
-        top: `${displayStore.headerVh}vh`
+        position: 'sticky'
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->

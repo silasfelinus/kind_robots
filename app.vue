@@ -39,13 +39,13 @@
     >
       <!-- Left Sidebar (below the header) -->
       <kind-sidebar-simple
-        :style="{ width: `${displayStore.sidebarLeftWidth}vw`, height: '100%', marginTop: `${displayStore.headerVh}vh` }"
+        :style="{ width: `${displayStore.sidebarLeftWidth}vw`, height: '100%' }"
       />
 
       <!-- Main Content Area -->
       <main
         class="relative overflow-hidden"
-        :style="{ width: `${displayStore.mainVw}vw`, height: '${displayStore.mainVh}vh'}"
+        :style="{ width: `${displayStore.mainVw}vw`, height: '100%' }"
       >
         <div class="flex justify-center items-center w-full h-full">
           <div
@@ -74,18 +74,16 @@
 
       <!-- Right Sidebar -->
       <kind-sidebar-right
-        :style="{ width: `${displayStore.sidebarRightVw}vw`, height: '${displayStore.sidebarRightVh}vh' }"
+        :style="{ width: `${displayStore.sidebarRightVw}vw`, height: '100%' }"
       />
     </div>
 
     <!-- Footer -->
     <kind-footer
-      :style="{ height: `${displayStore.footerVh}vh`, width: '${displayStore.footerVw}vw' }"
+      :style="{ height: `${displayStore.footerVh}vh`, width: '100vw' }"
     />
   </div>
 </template>
-
-
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'

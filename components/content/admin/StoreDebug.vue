@@ -1,208 +1,153 @@
 <template>
-  <div class="main-layout absolute inset-0 pointer-events-none">
-    <!-- Unified layout and debug overlay -->
-    <header
-      class="header-overlay debug-box pointer-events-none"
-      :class="{ 'debug-active': displayStore.showInfo }"
-      :style="{ height: displayStore.headerVh + 'vh' }"
-    >
-      <p>Header</p>
-      <p v-if="displayStore.showInfo">
-        Header VH: {{ displayStore.headerVh }}vh
-      </p>
+  <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
+    <!-- KindLoader (Only runs once) -->
+    <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
+
+    <!-- Header -->
+    <header class="sticky top-0 z-30 w-full bg-base-200" :class="`h-[${displayStore.headerVh}vh]`">
+      <!-- Sidebar Toggle -->
+      <div class="absolute top-2 left-4 p-1 z-40 text-white">
+        <sidebar-toggle class="text-4xl" />
+      </div>
+
+      <nav-links />
+
+      <!-- Tutorial and Back Buttons -->
+      <button
+        v-if="showTutorial"
+        class="fixed top-1 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-1"
+        @click="toggleTutorial"
+      >
+        Launch
+      </button>
+
+      <button
+        v-else
+        class="fixed top-1 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 p-1"
+        @click="toggleTutorial"
+      >
+        <span>Instructions</span>
+      </button>
     </header>
 
-    <!-- Main content area with sidebars and main content -->
-    <div class="content-area flex-grow flex relative">
-      <aside
-        class="sidebar-left-overlay debug-box pointer-events-none"
-        :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{ width: displayStore.sidebarLeftVw + 'vw', height: displayStore.mainVh + 'vh' }"
-      >
-        <p>Left Sidebar</p>
-        <p v-if="displayStore.showInfo">
-          Sidebar VW: {{ displayStore.sidebarLeftVw }}vw
-        </p>
-        <p v-if="displayStore.showInfo">
-          Sidebar VH: {{ displayStore.mainVh }}vh
-        </p>
-      </aside>
+    <!-- Main Layout Wrapper -->
+    <div class="flex flex-grow relative overflow-hidden">
+      <!-- Left Sidebar (below the header) -->
+      <kind-sidebar-simple class="h-full" :class="`w-[${displayStore.sidebarLeftWidth}vw]`" />
 
-      <main class="main-content-overlay debug-box flex-grow pointer-events-none">
-        <p>Main Content</p>
-        <p v-if="displayStore.showInfo">
-          Main Content VH: {{ displayStore.mainVh }}vh
-        </p>
-        <p v-if="displayStore.showInfo">
-          Main Content VW: {{ displayStore.mainVw }}vw
-        </p>
+      <!-- Main Content Area -->
+      <main class="relative flex-grow overflow-y-auto flex justify-center items-center">
+        <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto">
+          <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
+
+            <!-- Front side: Splash Tutorial -->
+            <div class="flip-card-front">
+              <SplashTutorial />
+            </div>
+
+            <!-- Back side: NuxtPage content -->
+            <div class="flip-card-back">
+              <NuxtPage />
+            </div>
+          </div>
+        </div>
       </main>
 
-      <aside
-        class="sidebar-right-overlay debug-box pointer-events-none"
-        :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{ width: displayStore.sidebarRightVw + 'vw', height: displayStore.mainVh + 'vh' }"
-      >
-        <p>Right Sidebar</p>
-        <p v-if="displayStore.showInfo">
-          Right Sidebar VW: {{ displayStore.sidebarRightVw }}vw
-        </p>
-        <p v-if="displayStore.showInfo">
-          Right Sidebar VH: {{ displayStore.mainVh }}vh
-        </p>
-      </aside>
+      <!-- Right Sidebar -->
+      <kind-sidebar-right class="h-full" :class="`w-[${displayStore.sidebarRightWidth}vw]`" />
     </div>
 
-    <footer
-      class="footer-overlay debug-box pointer-events-none"
-      :class="{ 'debug-active': displayStore.showInfo }"
-      :style="{ height: displayStore.footerVh + 'vh' }"
-    >
-      <p>Footer</p>
-      <p v-if="displayStore.showInfo">
-        Footer VH: {{ displayStore.footerVh }}vh
-      </p>
+    <!-- Footer -->
+    <footer class="w-full bg-base-200 flex items-center justify-center" :class="`h-[${displayStore.footerVh}vh]`">
+      created by Silas Knight silas@kindrobots.org
     </footer>
 
-    <!-- Debug Toggle Button -->
-    <button class="debug-toggle pointer-events-auto" @click="toggleDebugMode">
-      {{ displayStore.showInfo ? 'Hide Debug Info' : 'Show Debug Info' }}
-    </button>
-
-    <!-- Info Sheet Toggle -->
-    <button
-      v-if="displayStore.showInfo"
-      class="info-toggle pointer-events-auto"
-      @click="toggleInfoSheet"
-    >
-      Toggle Info Sheet
-    </button>
-
-    <!-- Info Sheet Display -->
-    <div
-      v-if="displayStore.showInfoSheet && displayStore.showInfo"
-      class="info-sheet pointer-events-auto"
-    >
-      <p>Header VH: {{ displayStore.headerVh }}vh</p>
-      <p>Sidebar Left VW: {{ displayStore.sidebarLeftVw }}vw</p>
-      <p>Sidebar Left VH: {{ displayStore.mainVh }}vh</p>
-      <p>Sidebar Right VW: {{ displayStore.sidebarRightVw }}vw</p>
-      <p>Sidebar Right VH: {{ displayStore.mainVh }}vh</p>
-      <p>Main Content VH: {{ displayStore.mainVh }}vh</p>
-      <p>Main Content VW: {{ displayStore.mainVw }}vw</p>
-      <p>Footer VH: {{ displayStore.footerVh }}vh</p>
-      <p>Viewport: {{ displayStore.viewportSize }}</p>
-      <p>Touch Device: {{ displayStore.isTouchDevice ? 'Yes' : 'No' }}</p>
-      <p>Vertical Layout: {{ displayStore.isVertical ? 'Yes' : 'No' }}</p>
+    <!-- Ticks Overlay -->
+    <div class="ticks-overlay pointer-events-none absolute inset-0">
+      <!-- Vertical Ticks -->
+      <div class="ticks-vw absolute inset-y-0 left-0 flex flex-col justify-between">
+        <span v-for="tick in vwTicks" :key="tick" class="text-xs text-white" :style="{ top: tick + 'vh' }">
+          {{ tick }}vw
+        </span>
+      </div>
+      <!-- Horizontal Ticks -->
+      <div class="ticks-vh absolute inset-x-0 top-0 flex justify-between">
+        <span v-for="tick in vhTicks" :key="tick" class="text-xs text-white" :style="{ left: tick + 'vw' }">
+          {{ tick }}vh
+        </span>
+      </div>
     </div>
+
+    <!-- Store Debug Overlay -->
+    <store-debug class="absolute inset-0 pointer-events-none" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
-import { onMounted, onBeforeUnmount } from 'vue'
 
-// Initialize the store
+// Initialize stores and states
 const displayStore = useDisplayStore()
+const showTutorial = ref(true)
+const router = useRouter()
 
-// Function to toggle the debug mode visibility
-const toggleDebugMode = () => {
-  displayStore.showInfo = !displayStore.showInfo
+// Ticks for overlay
+const vwTicks = ref([])
+const vhTicks = ref([])
+
+// Combine isPageReady and isKindLoaderInitialized logic into one
+const isPageReady = ref(false)
+
+// Handle when page is ready
+const handlePageReady = (ready: boolean) => {
+  isPageReady.value = ready
 }
 
-// Function to toggle the info sheet visibility
-const toggleInfoSheet = () => {
-  displayStore.showInfoSheet = !displayStore.showInfoSheet
+// Toggle between tutorial and main content
+const toggleTutorial = () => {
+  showTutorial.value = !showTutorial.value
 }
 
-// Function to handle key press for toggling debug mode
-const handleKeyPress = (event: KeyboardEvent) => {
-  const target = event.target as HTMLElement
-  const isInteractiveElement =
-    ['INPUT', 'TEXTAREA'].includes(target.tagName) || target.isContentEditable
+// Auto-reset tutorial on route changes if needed
+router.beforeEach((to, from, next) => {
+  showTutorial.value = true
+  next()
+})
 
-  if (!isInteractiveElement && (event.key === 'd' || event.key === 'D')) {
-    toggleDebugMode()
-  }
+// Function to generate ticks for every 20vw and 20vh
+const generateTicks = () => {
+  vwTicks.value = Array.from({ length: 5 }, (_, i) => (i + 1) * 20) // 20vw, 40vw, 60vw, etc.
+  vhTicks.value = Array.from({ length: 5 }, (_, i) => (i + 1) * 20) // 20vh, 40vh, 60vh, etc.
 }
 
 // Ensure the viewport watcher and key press event are set up when the component mounts
 onMounted(() => {
   displayStore.initializeViewportWatcher()
-  window.addEventListener('keydown', handleKeyPress)
+  generateTicks()
 })
 
 // Clean up the event listener when the component is destroyed
 onBeforeUnmount(() => {
   displayStore.removeViewportWatcher()
-  window.removeEventListener('keydown', handleKeyPress)
 })
 </script>
 
 <style scoped>
-.main-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-.content-area {
-  display: flex;
-  flex-grow: 1;
-}
-
-.header-overlay,
-.sidebar-left-overlay,
-.sidebar-right-overlay,
-.main-content-overlay,
-.footer-overlay {
-  position: relative;
-  background-color: rgba(0, 128, 255, 0.3); /* Transparent light blue */
-  text-align: center;
-  color: white;
-  padding: 1rem;
-}
-
-.debug-box {
-  border: none;
-}
-
-.debug-active {
-  border: 2px dashed rgba(255, 255, 255, 0.8);
-  background-color: rgba(0, 0, 0, 0.1); /* Transparent highlight during debug mode */
-}
-
-.debug-toggle {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  background-color: #007bff;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.info-toggle {
-  position: absolute;
-  bottom: 60px;
-  right: 20px;
-  background-color: #007bff;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.info-sheet {
-  position: absolute;
-  bottom: 100px;
-  right: 20px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  font-size: 1rem;
+/* Ticks for visual feedback at each 20vw and 20vh */
+.ticks-overlay {
   z-index: 1000;
+}
+
+.ticks-vw span,
+.ticks-vh span {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.2rem;
+  font-size: 0.75rem;
+  pointer-events: none; /* Make sure they don't block clicks */
 }
 </style>

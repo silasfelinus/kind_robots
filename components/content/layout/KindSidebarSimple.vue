@@ -3,11 +3,11 @@
     <!-- Left Sidebar -->
     <aside
       v-if="displayStore.sidebarLeft !== 'hidden'"
-      class="transition-all duration-300 bg-base-200 rounded-2xl hide-scrollbar flex-grow p-1"
+      class="transition-all duration-300 bg-base-200 rounded-2xl hide-scrollbar p-1"
       :style="{
         width: displayStore.sidebarLeftVw + 'vw',
-        maxHeight: `calc(100vh - ${displayStore.headerVh}vh) - ${displayStore.footerVh}vh)`,
-        position: 'sticky'
+        maxHeight: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`,
+        overflowY: 'auto'
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -56,7 +56,7 @@ const displayStore = useDisplayStore()
 const filteredLinks = computed(() => sidebarLinks)
 
 // Adjust height calculations based on window size and available space
-const availableSidebarHeight = ref(100 - displayStore.headerVh) // Adjust for the actual header height from the store
+const availableSidebarHeight = ref(100 - displayStore.headerVh - displayStore.footerVh) // Adjust for header and footer
 const iconHeight = ref(0)
 
 const navigate = (path: string) => {

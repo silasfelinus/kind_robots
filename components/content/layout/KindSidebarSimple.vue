@@ -3,7 +3,7 @@
     <!-- Left Sidebar -->
     <aside
       v-if="displayStore.sidebarLeft !== 'hidden'"
-      class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-1"
+      class="transition-all duration-300 bg-base-200 rounded-2xl hide-scrollbar flex-grow p-1"
       :style="{
         width: displayStore.sidebarLeftVw + 'vw',
         maxHeight: `calc(100vh - ${displayStore.headerVh}vh) - ${displayStore.footerVh}vh)`,

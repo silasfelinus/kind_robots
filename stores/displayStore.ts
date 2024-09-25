@@ -16,7 +16,6 @@ interface DisplayStoreState {
   sidebarRightVh: number
   mainVh: number
   mainVw: number
-  footerVh: number
   footerVw: number
   isVertical: boolean
   viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
@@ -31,7 +30,7 @@ export const useDisplayStore = defineStore('display', {
     headerState: 'open',
     sidebarLeft: 'open',
     sidebarRight: 'hidden',
-    footer: 'open',
+    footer: 'hidden',  // Start footer as hidden since you don't have it currently
     focusedContainer: null,
     headerVh: 7,
     sidebarLeftVw: 7,
@@ -40,15 +39,30 @@ export const useDisplayStore = defineStore('display', {
     sidebarRightVh: 92,
     mainVh: 92,
     mainVw: 92,
-    footerVh: 2,
     footerVw: 100,
     isVertical: false,
     viewportSize: 'large',
     isTouchDevice: false,
     isLoaded: false,
     showInfo: true,
-    iconSize: 24,  
+    iconSize: 24,
   }),
+
+  getters: {
+    footerVh(): number {
+      // Return the footer height based on its current state
+      switch (this.footer) {
+        case 'open':
+          return 6;  // Adjustable size for open footer
+        case 'compact':
+          return 3;  // Smaller size for compact
+        case 'hidden':
+        case 'disabled':
+        default:
+          return 0;  // No space used when hidden or disabled
+      }
+    }
+  },
 
   actions: {
     // Update the viewport size and adjust icon size accordingly
@@ -89,6 +103,81 @@ export const useDisplayStore = defineStore('display', {
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
+
+    calculateMainContentSize() {
+      try {
+        const leftSidebarWidth = this.sidebarLeftVw
+        const rightSidebarWidth = this.sidebarRightVw
+
+        // Calculate available vertical and horizontal space for the main content
+        this.mainVh = 100 - this.headerVh - this.footerVh  // Adjust main height based on footer state
+        this.mainVw = 100 - leftSidebarWidth - rightSidebarWidth
+
+        // Footer width might be affected by the sidebars
+        this.footerVw = 100 - leftSidebarWidth - rightSidebarWidth
+      } catch (error) {
+        console.error('Error calculating main content size:', error)
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
+    },
+
+    toggleSidebar(side: 'sidebarLeft' | 'sidebarRight') {
+      try {
+        const stateCycle: Record<DisplayState, DisplayState> = {
+          hidden: 'open',
+          compact: 'hidden',
+          open: 'compact',
+          disabled: 'hidden',
+        }
+        this[side] = stateCycle[this[side]]
+
+        // Recalculate the width of the toggled sidebar
+        if (side === 'sidebarLeft') {
+          this.sidebarLeftVw = this.calculateSidebarLeftWidth()
+        } else {
+          this.sidebarRightVw = this.calculateSidebarRightWidth()
+        }
+
+        // Recalculate main content size after toggling sidebars
+        this.calculateMainContentSize()
+
+        // Save state to localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(side, this[side])
+        }
+      } catch (error) {
+        console.error(`Error toggling sidebar ${side}:`, error)
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
+    },
+
+    toggleFooter() {
+      try {
+        const stateCycle: Record<DisplayState, DisplayState> = {
+          hidden: 'open',
+          open: 'hidden',
+          disabled: 'hidden',
+          compact: 'hidden',
+        }
+        this.footer = stateCycle[this.footer]
+
+        // Recalculate the main content size after footer toggle
+        this.calculateMainContentSize()
+
+        // Save the footer state to localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('footer', this.footer)
+        }
+      } catch (error) {
+        console.error('Error toggling footer:', error)
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
+    },
+
+
 
     // Other actions such as calculateSidebarLeftWidth, calculateSidebarRightWidth, etc.
     // These methods remain the same and continue as needed.
@@ -136,82 +225,6 @@ export const useDisplayStore = defineStore('display', {
         return 7 // Default width in case of error
       }
     },
-   toggleFooter() {
-      try {
-        const stateCycle: Record<DisplayState, DisplayState> = {
-          hidden: 'open',
-          open: 'hidden',
-          disabled: 'hidden',
-          compact: 'hidden'
-        }
-        this.footer = stateCycle[this.footer]
-
-        // Recalculate the main content size after footer toggle
-        this.calculateMainContentSize()
-
-        // Save the footer state to localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('footer', this.footer)
-        }
-      } catch (error) {
-        console.error('Error toggling footer:', error)
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
-    },
-
-calculateMainContentSize() {
-  try {
-    const headerHeight = this.headerState !== 'hidden' ? this.headerVh : 0
-    const footerHeight = Math.max(this.footerVh, 1) // Ensure a minimum footer height of 1vh
-    const leftSidebarWidth = this.sidebarLeft !== 'hidden' ? this.sidebarLeftVw : 0
-    const rightSidebarWidth = this.sidebarRight !== 'hidden' ? this.sidebarRightVw : 0
-
-    // Calculate available vertical and horizontal space for the main content
-    this.mainVh = 100 - headerHeight - footerHeight
-    this.mainVw = 100 - leftSidebarWidth - rightSidebarWidth
-
-    // Footer width might be affected by the sidebars
-    this.footerVw = 100 - leftSidebarWidth - rightSidebarWidth
-  } catch (error) {
-    console.error('Error calculating main content size:', error)
-    const errorStore = useErrorStore()
-    errorStore.setError(ErrorType.GENERAL_ERROR, error)
-  }
-},
-
-    // Toggle sidebar state for either left or right sidebar
-    toggleSidebar(side: 'sidebarLeft' | 'sidebarRight') {
-      try {
-        const stateCycle: Record<DisplayState, DisplayState> = {
-          hidden: 'open',
-          compact: 'hidden',
-          open: 'compact',
-          disabled: 'hidden',
-        }
-        this[side] = stateCycle[this[side]]
-
-        // Recalculate the width of the toggled sidebar
-        if (side === 'sidebarLeft') {
-          this.sidebarLeftVw = this.calculateSidebarLeftWidth()
-        } else {
-          this.sidebarRightVw = this.calculateSidebarRightWidth()
-        }
-
-        // Recalculate main content size after toggling sidebars
-        this.calculateMainContentSize()
-
-        // Save state to localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(side, this[side])
-        }
-      } catch (error) {
-        console.error(`Error toggling sidebar ${side}:`, error)
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
-    },
-
     // Change the state of a container and update layout accordingly
     changeState(container: 'headerState' | 'sidebarLeft' | 'sidebarRight' | 'footer', state: DisplayState) {
       try {
@@ -271,7 +284,6 @@ calculateMainContentSize() {
             const storedSidebarLeft = localStorage.getItem('sidebarLeft') as DisplayState
             const storedSidebarRight = localStorage.getItem('sidebarRight') as DisplayState
             const storedHeaderVh = localStorage.getItem('headerVh')
-            const storedFooterVh = localStorage.getItem('footerVh')
             const storedMainVh = localStorage.getItem('mainVh')
             const storedMainVw = localStorage.getItem('mainVw')
             const storedFooterVw = localStorage.getItem('footerVw')
@@ -288,9 +300,7 @@ calculateMainContentSize() {
               this.headerVh = parseInt(storedHeaderVh, 10)
             }
 
-            if (storedFooterVh) {
-              this.footerVh = parseInt(storedFooterVh, 10)
-            }
+
 
             if (storedMainVh) {
               this.mainVh = parseInt(storedMainVh, 10)
@@ -325,7 +335,6 @@ calculateMainContentSize() {
           localStorage.setItem('sidebarLeft', this.sidebarLeft)
           localStorage.setItem('sidebarRight', this.sidebarRight)
           localStorage.setItem('headerVh', this.headerVh.toString())
-          localStorage.setItem('footerVh', this.footerVh.toString())
           localStorage.setItem('mainVh', this.mainVh.toString())
           localStorage.setItem('mainVw', this.mainVw.toString())
           localStorage.setItem('footerVw', this.footerVw.toString())

@@ -1,5 +1,5 @@
 <template>
-  <div class="main-layout absolute">
+  <div class="main-layout absolute inset-0">
     <!-- Unified layout and debug overlay -->
     <header
       class="header-overlay debug-box"
@@ -13,33 +13,36 @@
     </header>
 
     <!-- Main content area with sidebars and main content -->
-    <div class="content-area">
+    <div class="content-area flex-grow flex relative">
       <aside
         class="sidebar-left-overlay debug-box"
         :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{ width: displayStore.sidebarVw + 'vw' }"
+        :style="{ width: displayStore.sidebarLeftVw + 'vw', height: displayStore.mainVh + 'vh' }"
       >
         <p>Left Sidebar</p>
         <p v-if="displayStore.showInfo">
-          Sidebar VW: {{ displayStore.sidebarVw }}vw
+          Sidebar VW: {{ displayStore.sidebarLeftVw }}vw
         </p>
       </aside>
 
-      <main class="main-content-overlay debug-box">
+      <main class="main-content-overlay debug-box flex-grow">
         <p>Main Content</p>
         <p v-if="displayStore.showInfo">
-          Viewport: {{ displayStore.viewportSize }}
+          Main Content VH: {{ displayStore.mainVh }}vh
+        </p>
+        <p v-if="displayStore.showInfo">
+          Main Content VW: {{ displayStore.mainVw }}vw
         </p>
       </main>
 
       <aside
         class="sidebar-right-overlay debug-box"
         :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{ width: displayStore.sidebarVw + 'vw' }"
+        :style="{ width: displayStore.sidebarRightVw + 'vw', height: displayStore.mainVh + 'vh' }"
       >
         <p>Right Sidebar</p>
         <p v-if="displayStore.showInfo">
-          Right Sidebar VW: {{ displayStore.sidebarVw }}vw
+          Right Sidebar VW: {{ displayStore.sidebarRightVw }}vw
         </p>
       </aside>
     </div>
@@ -75,15 +78,14 @@
       class="info-sheet"
     >
       <p>Header VH: {{ displayStore.headerVh }}vh</p>
-      <p>Sidebar VW: {{ displayStore.sidebarVw }}vw</p>
+      <p>Sidebar Left VW: {{ displayStore.sidebarLeftVw }}vw</p>
+      <p>Sidebar Right VW: {{ displayStore.sidebarRightVw }}vw</p>
+      <p>Main Content VH: {{ displayStore.mainVh }}vh</p>
+      <p>Main Content VW: {{ displayStore.mainVw }}vw</p>
       <p>Footer VH: {{ displayStore.footerVh }}vh</p>
       <p>Viewport: {{ displayStore.viewportSize }}</p>
       <p>Touch Device: {{ displayStore.isTouchDevice ? 'Yes' : 'No' }}</p>
       <p>Vertical Layout: {{ displayStore.isVertical ? 'Yes' : 'No' }}</p>
-      <p>Header State: {{ displayStore.headerState }}</p>
-      <p>Left Sidebar: {{ displayStore.sidebarLeft }}</p>
-      <p>Right Sidebar: {{ displayStore.sidebarRight }}</p>
-      <p>Footer State: {{ displayStore.footer }}</p>
     </div>
   </div>
 </template>
@@ -138,7 +140,7 @@ onBeforeUnmount(() => {
 
 .content-area {
   display: flex;
-  flex: 1;
+  flex-grow: 1;
 }
 
 .header-overlay,

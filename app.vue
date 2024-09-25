@@ -1,12 +1,10 @@
 <template>
-  <div id="app" :style="{ height: '100vh', width: '100vw', backgroundColor: 'var(--base-200)' }">
+  <div id="app" class="h-screen w-screen bg-base-200">
     <!-- KindLoader (Only runs once) -->
     <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
 
     <!-- Header -->
-    <header
-      :style="{ height: `${displayStore.headerVh}vh`, width: '100vw', backgroundColor: 'var(--base-200)', position: 'sticky', top: 0, zIndex: 30 }"
-    >
+    <header class="sticky top-0 z-30 w-full bg-base-200" :class="`h-[${displayStore.headerVh}vh]`">
       <!-- Sidebar Toggle -->
       <div class="absolute top-4 left-4 p-1 z-40 text-white">
         <sidebar-toggle class="text-4xl" />
@@ -33,57 +31,36 @@
     </header>
 
     <!-- Main Layout Wrapper -->
-    <div
-      class="relative flex"
-      :style="{ width: '100vw', height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)` }"
-    >
+    <div class="flex relative w-full" :class="`h-[calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)]`">
       <!-- Left Sidebar (below the header) -->
-      <kind-sidebar-simple
-        :style="{ width: `${displayStore.sidebarLeftWidth}vw`, height: '100%' }"
-      />
+      <kind-sidebar-simple class="h-full" :class="`w-[${displayStore.sidebarLeftWidth}vw]`" />
 
       <!-- Main Content Area -->
-      <main
-        class="relative overflow-hidden"
-        :style="{ width: `${displayStore.mainVw}vw`, height: '100%' }"
-      >
-        <div class="flex justify-center items-center w-full h-full">
-          <div
-            class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg"
-            :style="{
-              height: '100%',
-              width: '100%',
-              overflow: 'scroll',
-              marginBottom: '1rem', // Add margin to prevent overflowing
-            }"
-          >
-            <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
-              <!-- Front side: Splash Tutorial -->
-              <div class="flip-card-front">
-                <SplashTutorial />
-              </div>
+      <main class="relative overflow-y-auto w-full h-full p-1 flex justify-center items-center">
+        <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-hidden">
+          <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
+            <!-- Front side: Splash Tutorial -->
+            <div class="flip-card-front">
+              <SplashTutorial />
+            </div>
 
-              <!-- Back side: NuxtPage content -->
-              <div class="flip-card-back">
-                <NuxtPage />
-              </div>
+            <!-- Back side: NuxtPage content -->
+            <div class="flip-card-back">
+              <NuxtPage />
             </div>
           </div>
         </div>
       </main>
 
       <!-- Right Sidebar -->
-      <kind-sidebar-right
-        :style="{ width: `${displayStore.sidebarRightVw}vw`, height: '100%' }"
-      />
+      <kind-sidebar-right class="h-full" :class="`w-[${displayStore.sidebarRightWidth}vw]`" />
     </div>
 
     <!-- Footer -->
-    <kind-footer
-      :style="{ height: `${displayStore.footerVh}vh`, width: '100vw' }"
-    />
+    <footer class="w-full" :class="`h-[${displayStore.footerVh}vh]`" />
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'

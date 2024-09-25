@@ -30,7 +30,7 @@ export const useDisplayStore = defineStore('display', {
     headerState: 'open',
     sidebarLeft: 'open',
     sidebarRight: 'hidden',
-    footer: 'hidden',  // Start footer as hidden since you don't have it currently
+    footer: 'hidden',
     focusedContainer: null,
     headerVh: 7,
     sidebarLeftVw: 7,
@@ -57,7 +57,7 @@ export const useDisplayStore = defineStore('display', {
         case 'compact':
           return 3;  // Smaller size for compact
         case 'hidden':
-          return 1;
+          return 2;
         case 'disabled':
         default:
           return 0;  // No space used when disabled
@@ -114,8 +114,6 @@ export const useDisplayStore = defineStore('display', {
         this.mainVh = 100 - this.headerVh - this.footerVh  // Adjust main height based on footer state
         this.mainVw = 100 - leftSidebarWidth - rightSidebarWidth
 
-        // Footer width might be affected by the sidebars
-        this.footerVw = 100 - leftSidebarWidth - rightSidebarWidth
       } catch (error) {
         console.error('Error calculating main content size:', error)
         const errorStore = useErrorStore()

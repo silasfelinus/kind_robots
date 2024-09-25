@@ -57,7 +57,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="w-full bg-base-200" :class="`h-[${displayStore.footerVh}vh]`"></footer>
+    <footer class="w-full bg-base-200" :class="`h-[${displayStore.footerVh}vh]`">created by Silas Knight silas@kindrobots.org</footer>
   </div>
 </template>
 

@@ -33,45 +33,42 @@
       </button>
     </header>
 
-    <!-- Main Layout with flexible layout for sidebars and footer -->
-    <div class="flex-1 w-full flex">
-      <!-- Left Sidebar -->
-      <kind-sidebar-simple />
+  <div :style="{ width: '100vw', height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)` }">
+  <!-- Left Sidebar -->
+  <kind-sidebar-simple :style="{ width: `${displayStore.sidebarLeftWidth}vw`, height: '100%' }" />
 
-      <!-- Main Content Area -->
-      <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
-        <MainScreen>
-          <div class="flex justify-center items-center w-full">
-            <div
-              class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
-              :style="{
-                height: `${displayStore.mainVh}vh`,
-                width: `${displayStore.mainVw}vw`,
-                paddingRight: '2rem',
-              }"
-            >
-              <div
-                class="flip-card-inner"
-                :class="{ 'is-flipped': !showTutorial }"
-              >
-                <!-- Front side: Splash Tutorial -->
-                <div class="flip-card-front">
-                  <SplashTutorial />
-                </div>
+  <!-- Main Content Area -->
+  <main :style="{ width: `${displayStore.mainVw}vw`, height: '100%', padding: '2rem' }" class="overflow-y-auto relative">
+    <MainScreen>
+      <div class="flex justify-center items-center w-full">
+        <div
+          class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
+          :style="{
+            height: `${displayStore.mainVh}vh`,
+            width: `${displayStore.mainVw}vw`,
+            paddingRight: '2rem',
+          }"
+        >
+          <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
+            <!-- Front side: Splash Tutorial -->
+            <div class="flip-card-front">
+              <SplashTutorial />
+            </div>
 
-                <!-- Back side: NuxtPage content -->
-                <div class="flip-card-back">
-                  <NuxtPage />
-                </div>
-              </div>
+            <!-- Back side: NuxtPage content -->
+            <div class="flip-card-back">
+              <NuxtPage />
             </div>
           </div>
-        </MainScreen>
-      </main>
+        </div>
+      </div>
+    </MainScreen>
+  </main>
 
-      <!-- Right Sidebar -->
-      <kind-sidebar-right />
-    </div>
+  <!-- Right Sidebar -->
+  <kind-sidebar-right :style="{ width: `${displayStore.sidebarRightWidth}vw`, height: '100%' }" />
+</div>
+
 
     <!-- Footer -->
     <kind-footer

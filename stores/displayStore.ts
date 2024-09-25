@@ -188,9 +188,9 @@ export const useDisplayStore = defineStore('display', {
       try {
         switch (this.viewportSize) {
           case 'small':
-            return this.sidebarLeft === 'open' ? 13 : this.sidebarLeft === 'compact' ? 12 : 2
+            return this.sidebarLeft === 'open' ? 21 : this.sidebarLeft === 'compact' ? 12 : 2
           case 'medium':
-            return this.sidebarLeft === 'open' ? 16 : this.sidebarLeft === 'compact' ? 10 : 2
+            return this.sidebarLeft === 'open' ? 19 : this.sidebarLeft === 'compact' ? 10 : 2
           case 'large':
             return this.sidebarLeft === 'open' ? 16 : this.sidebarLeft === 'compact' ? 8 : 1
           case 'extraLarge':

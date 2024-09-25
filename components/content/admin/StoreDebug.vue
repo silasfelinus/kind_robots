@@ -4,10 +4,14 @@
     <header
       class="header-overlay debug-box pointer-events-none"
       :class="{ 'debug-active': displayStore.showInfo }"
-      :style="{ height: displayStore.headerVh + 'vh' }"
+      :style="isDisplayStoreLayout
+        ? { height: displayStore.headerVh + 'vh' }
+        : { height: '6vh' }"
     >
       <p>Header</p>
-      <p v-if="displayStore.showInfo">Header VH: {{ displayStore.headerVh }}vh</p>
+      <p v-if="displayStore.showInfo">
+        Header VH: {{ isDisplayStoreLayout ? displayStore.headerVh : 6 }}vh
+      </p>
     </header>
 
     <!-- Main content area with sidebars and main content -->
@@ -15,41 +19,49 @@
       <aside
         class="sidebar-left-overlay debug-box pointer-events-none"
         :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{ width: displayStore.sidebarLeftVw + 'vw', height: displayStore.mainVh + 'vh' }"
+        :style="isDisplayStoreLayout
+          ? { width: displayStore.sidebarLeftVw + 'vw', height: displayStore.mainVh + 'vh' }
+          : { width: '19vw', height: '92vh' }"
       >
         <p>Left Sidebar</p>
-        <p v-if="displayStore.showInfo">Sidebar VW: {{ displayStore.sidebarLeftVw }}vw</p>
-        <p v-if="displayStore.showInfo">Sidebar VH: {{ displayStore.mainVh }}vh</p>
+        <p v-if="displayStore.showInfo">Sidebar VW: {{ isDisplayStoreLayout ? displayStore.sidebarLeftVw : 19 }}vw</p>
+        <p v-if="displayStore.showInfo">Sidebar VH: {{ isDisplayStoreLayout ? displayStore.mainVh : 92 }}vh</p>
       </aside>
 
       <main
         class="main-content-overlay debug-box pointer-events-none"
         :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{ height: displayStore.mainVh + 'vh', width: displayStore.mainVw + 'vw' }"
+        :style="isDisplayStoreLayout
+          ? { height: displayStore.mainVh + 'vh', width: displayStore.mainVw + 'vw' }
+          : { height: '92vh', width: '79vw' }"
       >
         <p>Main Content</p>
-        <p v-if="displayStore.showInfo">Main Content VH: {{ displayStore.mainVh }}vh</p>
-        <p v-if="displayStore.showInfo">Main Content VW: {{ displayStore.mainVw }}vw</p>
+        <p v-if="displayStore.showInfo">Main Content VH: {{ isDisplayStoreLayout ? displayStore.mainVh : 92 }}vh</p>
+        <p v-if="displayStore.showInfo">Main Content VW: {{ isDisplayStoreLayout ? displayStore.mainVw : 79 }}vw</p>
       </main>
 
       <aside
         class="sidebar-right-overlay debug-box pointer-events-none"
         :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{ width: displayStore.sidebarRightVw + 'vw', height: displayStore.mainVh + 'vh' }"
+        :style="isDisplayStoreLayout
+          ? { width: displayStore.sidebarRightVw + 'vw', height: displayStore.mainVh + 'vh' }
+          : { width: '2vw', height: '92vh' }"
       >
         <p>Right Sidebar</p>
-        <p v-if="displayStore.showInfo">Right Sidebar VW: {{ displayStore.sidebarRightVw }}vw</p>
-        <p v-if="displayStore.showInfo">Right Sidebar VH: {{ displayStore.mainVh }}vh</p>
+        <p v-if="displayStore.showInfo">Sidebar VW: {{ isDisplayStoreLayout ? displayStore.sidebarRightVw : 2 }}vw</p>
+        <p v-if="displayStore.showInfo">Sidebar VH: {{ isDisplayStoreLayout ? displayStore.mainVh : 92 }}vh</p>
       </aside>
     </div>
 
     <footer
       class="footer-overlay debug-box pointer-events-none"
       :class="{ 'debug-active': displayStore.showInfo }"
-      :style="{ height: displayStore.footerVh + 'vh' }"
+      :style="isDisplayStoreLayout
+        ? { height: displayStore.footerVh + 'vh' }
+        : { height: '2vh' }"
     >
       <p>Footer</p>
-      <p v-if="displayStore.showInfo">Footer VH: {{ displayStore.footerVh }}vh</p>
+      <p v-if="displayStore.showInfo">Footer VH: {{ isDisplayStoreLayout ? displayStore.footerVh : 2 }}vh</p>
     </footer>
 
     <!-- Tick Overlay for every 20vh/20vw -->
@@ -58,6 +70,11 @@
     <!-- Debug Toggle Button -->
     <button class="debug-toggle pointer-events-auto" @click="toggleDebugMode">
       {{ displayStore.showInfo ? 'Hide Debug Info' : 'Show Debug Info' }}
+    </button>
+
+    <!-- Layout Toggle Buttons -->
+    <button class="layout-toggle pointer-events-auto" @click="toggleLayout">
+      {{ isDisplayStoreLayout ? 'Use Hardcoded Layout' : 'Use Display Store Layout' }}
     </button>
 
     <!-- Info Sheet Toggle -->
@@ -74,14 +91,14 @@
       v-if="displayStore.showInfoSheet && displayStore.showInfo"
       class="info-sheet pointer-events-auto"
     >
-      <p>Header VH: {{ displayStore.headerVh }}vh</p>
-      <p>Sidebar Left VW: {{ displayStore.sidebarLeftVw }}vw</p>
-      <p>Sidebar Left VH: {{ displayStore.mainVh }}vh</p>
-      <p>Sidebar Right VW: {{ displayStore.sidebarRightVw }}vw</p>
-      <p>Sidebar Right VH: {{ displayStore.mainVh }}vh</p>
-      <p>Main Content VH: {{ displayStore.mainVh }}vh</p>
-      <p>Main Content VW: {{ displayStore.mainVw }}vw</p>
-      <p>Footer VH: {{ displayStore.footerVh }}vh</p>
+      <p>Header VH: {{ isDisplayStoreLayout ? displayStore.headerVh : 6 }}vh</p>
+      <p>Sidebar Left VW: {{ isDisplayStoreLayout ? displayStore.sidebarLeftVw : 19 }}vw</p>
+      <p>Sidebar Left VH: {{ isDisplayStoreLayout ? displayStore.mainVh : 92 }}vh</p>
+      <p>Sidebar Right VW: {{ isDisplayStoreLayout ? displayStore.sidebarRightVw : 2 }}vw</p>
+      <p>Sidebar Right VH: {{ isDisplayStoreLayout ? displayStore.mainVh : 92 }}vh</p>
+      <p>Main Content VH: {{ isDisplayStoreLayout ? displayStore.mainVh : 92 }}vh</p>
+      <p>Main Content VW: {{ isDisplayStoreLayout ? displayStore.mainVw : 79 }}vw</p>
+      <p>Footer VH: {{ isDisplayStoreLayout ? displayStore.footerVh : 2 }}vh</p>
       <p>Viewport: {{ displayStore.viewportSize }}</p>
       <p>Touch Device: {{ displayStore.isTouchDevice ? 'Yes' : 'No' }}</p>
       <p>Vertical Layout: {{ displayStore.isVertical ? 'Yes' : 'No' }}</p>
@@ -90,19 +107,29 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import { onMounted, onBeforeUnmount } from 'vue'
 
+// Initialize the store
 const displayStore = useDisplayStore()
 
+// Toggle between dynamic displayStore layout and hardcoded layout
+const isDisplayStoreLayout = ref(true)
+const toggleLayout = () => {
+  isDisplayStoreLayout.value = !isDisplayStoreLayout.value
+}
+
+// Toggle debug info display
 const toggleDebugMode = () => {
   displayStore.showInfo = !displayStore.showInfo
 }
 
+// Toggle info sheet display
 const toggleInfoSheet = () => {
   displayStore.showInfoSheet = !displayStore.showInfoSheet
 }
 
+// Handle key press for toggling debug mode
 const handleKeyPress = (event: KeyboardEvent) => {
   const target = event.target as HTMLElement
   const isInteractiveElement = ['INPUT', 'TEXTAREA'].includes(target.tagName) || target.isContentEditable
@@ -112,11 +139,13 @@ const handleKeyPress = (event: KeyboardEvent) => {
   }
 }
 
+// Ensure the viewport watcher and key press event are set up when the component mounts
 onMounted(() => {
   displayStore.initializeViewportWatcher()
   window.addEventListener('keydown', handleKeyPress)
 })
 
+// Clean up the event listener when the component is destroyed
 onBeforeUnmount(() => {
   displayStore.removeViewportWatcher()
   window.removeEventListener('keydown', handleKeyPress)
@@ -134,7 +163,7 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: auto 1fr auto;
   height: 100%;
-  width: 100%; /* Ensure the full viewport width is used */
+  width: 100%;
 }
 
 .header-overlay,
@@ -189,10 +218,10 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-.debug-toggle {
+.debug-toggle,
+.layout-toggle,
+.info-toggle {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
   background-color: #007bff;
   color: white;
   padding: 10px 15px;
@@ -200,20 +229,24 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
-.info-toggle {
-  position: absolute;
+.debug-toggle {
+  bottom: 20px;
+  right: 20px;
+}
+
+.layout-toggle {
   bottom: 60px;
   right: 20px;
-  background-color: #007bff;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
+}
+
+.info-toggle {
+  bottom: 100px;
+  right: 20px;
 }
 
 .info-sheet {
   position: absolute;
-  bottom: 100px;
+  bottom: 140px;
   right: 20px;
   background-color: rgba(0, 0, 0, 0.7);
   color: white;

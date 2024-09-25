@@ -62,8 +62,8 @@
       created by Silas Knight silas@kindrobots.org
     </footer>
 
-    <!-- Store Debug Overlay -->
-    <div class="absolute top-0 left-0 w-full h-full pointer-events-none z-50">
+    <!-- Store Debug Overlay in its own parent container -->
+    <div class="debug-overlay-container absolute inset-0 pointer-events-none z-50">
       <store-debug class="h-full w-full" />
     </div>
   </div>
@@ -140,5 +140,16 @@ onBeforeUnmount(() => {
 
 .flip-card-back {
   transform: rotateY(180deg); /* Ensures the back side starts flipped */
+}
+
+/* Debug Overlay Container */
+.debug-overlay-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none; /* Ensures this overlay doesn’t block interactions */
+  z-index: 50; /* Stays above the main content but doesn’t interfere */
 }
 </style>

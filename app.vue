@@ -33,20 +33,19 @@
     </header>
 
     <!-- Main Layout Wrapper -->
-    <div :style="{ width: '100vw', height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)` }">
+    <div class="flex" :style="{ width: '100vw', height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)` }">
       <!-- Left Sidebar -->
       <kind-sidebar-simple :style="{ width: `${displayStore.sidebarLeftWidth}vw`, height: '100%' }" />
 
       <!-- Main Content Area -->
-      <main :style="{ width: `${displayStore.mainVw}vw`, height: '100%', padding: '2rem', overflow: 'hidden' }">
+      <main class="relative" :style="{ width: `${displayStore.mainVw}vw`, height: '100%', padding: '2rem', overflow: 'hidden' }">
         <MainScreen>
-          <div :style="{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }">
+          <div class="flex justify-center items-center w-full h-full">
             <div
               class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
               :style="{
-                height: `${displayStore.mainVh}vh`,
-                width: `${displayStore.mainVw}vw`,
-                paddingRight: '2rem',
+                height: '100%', // Adjust height to respect full container
+                width: '100%', // Use full width of container
                 overflow: 'hidden',
               }"
             >
@@ -76,6 +75,7 @@
     />
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'

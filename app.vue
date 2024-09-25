@@ -37,7 +37,7 @@
 
       <!-- Main Content Area -->
       <main class="relative overflow-y-auto w-full h-full p-1 flex justify-center items-center">
-        <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-hidden">
+        <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto">
           <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
             <!-- Front side: Splash Tutorial -->
             <div class="flip-card-front">

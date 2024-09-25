@@ -41,7 +41,7 @@
       <!-- Main Content Area -->
       <main class="flex-grow overflow-y-auto relative p-4 lg:p-8">
         <MainScreen>
-          <div class="flex justify-center items-center w-3/4">
+          <div class="flex justify-center items-center w-full">
             <div
               class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
               :style="{

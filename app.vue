@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="h-screen w-screen bg-base-200">
+  <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
     <!-- KindLoader (Only runs once) -->
     <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
 
@@ -31,13 +31,13 @@
     </header>
 
     <!-- Main Layout Wrapper -->
-    <div class="flex relative w-full" :class="`h-[calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)]`">
+    <div class="flex flex-grow">
       <!-- Left Sidebar (below the header) -->
       <kind-sidebar-simple class="h-full" :class="`w-[${displayStore.sidebarLeftWidth}vw]`" />
 
       <!-- Main Content Area -->
-      <main class="relative overflow-y-auto w-full h-full p-1 flex justify-center items-center">
-        <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto">
+      <main class="relative flex-grow overflow-y-auto p-4 flex justify-center items-center">
+        <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-hidden">
           <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
             <!-- Front side: Splash Tutorial -->
             <div class="flip-card-front">
@@ -57,9 +57,10 @@
     </div>
 
     <!-- Footer -->
-    <footer class="w-full" :class="`h-[${displayStore.footerVh}vh]`" />
+    <footer class="w-full bg-base-200" :class="`h-[${displayStore.footerVh}vh]`"></footer>
   </div>
 </template>
+
 
 
 <script setup lang="ts">

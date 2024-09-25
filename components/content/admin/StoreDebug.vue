@@ -7,9 +7,7 @@
       :style="{ height: displayStore.headerVh + 'vh' }"
     >
       <p>Header</p>
-      <p v-if="displayStore.showInfo">
-        Header VH: {{ displayStore.headerVh }}vh
-      </p>
+      <p v-if="displayStore.showInfo">Header VH: {{ displayStore.headerVh }}vh</p>
     </header>
 
     <!-- Main content area with sidebars and main content -->
@@ -17,52 +15,31 @@
       <aside
         class="sidebar-left-overlay debug-box pointer-events-none"
         :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{
-          width: displayStore.sidebarLeftVw + 'vw',
-          height: displayStore.mainVh + 'vh',
-        }"
+        :style="{ width: displayStore.sidebarLeftVw + 'vw', height: displayStore.mainVh + 'vh' }"
       >
         <p>Left Sidebar</p>
-        <p v-if="displayStore.showInfo">
-          Sidebar VW: {{ displayStore.sidebarLeftVw }}vw
-        </p>
-        <p v-if="displayStore.showInfo">
-          Sidebar VH: {{ displayStore.mainVh }}vh
-        </p>
+        <p v-if="displayStore.showInfo">Sidebar VW: {{ displayStore.sidebarLeftVw }}vw</p>
+        <p v-if="displayStore.showInfo">Sidebar VH: {{ displayStore.mainVh }}vh</p>
       </aside>
 
       <main
         class="main-content-overlay debug-box pointer-events-none"
         :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{
-          height: displayStore.mainVh + 'vh',
-          width: displayStore.mainVw + 'vw',
-        }"
+        :style="{ height: displayStore.mainVh + 'vh', width: displayStore.mainVw + 'vw' }"
       >
         <p>Main Content</p>
-        <p v-if="displayStore.showInfo">
-          Main Content VH: {{ displayStore.mainVh }}vh
-        </p>
-        <p v-if="displayStore.showInfo">
-          Main Content VW: {{ displayStore.mainVw }}vw
-        </p>
+        <p v-if="displayStore.showInfo">Main Content VH: {{ displayStore.mainVh }}vh</p>
+        <p v-if="displayStore.showInfo">Main Content VW: {{ displayStore.mainVw }}vw</p>
       </main>
 
       <aside
         class="sidebar-right-overlay debug-box pointer-events-none"
         :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{
-          width: displayStore.sidebarRightVw + 'vw',
-          height: displayStore.mainVh + 'vh',
-        }"
+        :style="{ width: displayStore.sidebarRightVw + 'vw', height: displayStore.mainVh + 'vh' }"
       >
         <p>Right Sidebar</p>
-        <p v-if="displayStore.showInfo">
-          Right Sidebar VW: {{ displayStore.sidebarRightVw }}vw
-        </p>
-        <p v-if="displayStore.showInfo">
-          Right Sidebar VH: {{ displayStore.mainVh }}vh
-        </p>
+        <p v-if="displayStore.showInfo">Right Sidebar VW: {{ displayStore.sidebarRightVw }}vw</p>
+        <p v-if="displayStore.showInfo">Right Sidebar VH: {{ displayStore.mainVh }}vh</p>
       </aside>
     </div>
 
@@ -72,9 +49,7 @@
       :style="{ height: displayStore.footerVh + 'vh' }"
     >
       <p>Footer</p>
-      <p v-if="displayStore.showInfo">
-        Footer VH: {{ displayStore.footerVh }}vh
-      </p>
+      <p v-if="displayStore.showInfo">Footer VH: {{ displayStore.footerVh }}vh</p>
     </footer>
 
     <!-- Tick Overlay for every 20vh/20vw -->
@@ -130,8 +105,7 @@ const toggleInfoSheet = () => {
 
 const handleKeyPress = (event: KeyboardEvent) => {
   const target = event.target as HTMLElement
-  const isInteractiveElement =
-    ['INPUT', 'TEXTAREA'].includes(target.tagName) || target.isContentEditable
+  const isInteractiveElement = ['INPUT', 'TEXTAREA'].includes(target.tagName) || target.isContentEditable
 
   if (!isInteractiveElement && (event.key === 'd' || event.key === 'D')) {
     toggleDebugMode()
@@ -160,6 +134,7 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: auto 1fr auto;
   height: 100%;
+  width: 100%; /* Ensure the full viewport width is used */
 }
 
 .header-overlay,
@@ -167,10 +142,29 @@ onBeforeUnmount(() => {
 .sidebar-right-overlay,
 .main-content-overlay,
 .footer-overlay {
-  background-color: rgba(0, 128, 255, 0.3); /* Transparent light blue */
+  position: relative;
   text-align: center;
   color: white;
-  padding: 0; /* No padding */
+}
+
+.header-overlay {
+  background-color: #ff6f61; /* Red for header */
+}
+
+.sidebar-left-overlay {
+  background-color: #6fa8dc; /* Blue for left sidebar */
+}
+
+.main-content-overlay {
+  background-color: #76dd71; /* Green for main content */
+}
+
+.sidebar-right-overlay {
+  background-color: #f4d03f; /* Yellow for right sidebar */
+}
+
+.footer-overlay {
+  background-color: #f39c12; /* Orange for footer */
 }
 
 .debug-box {
@@ -179,12 +173,7 @@ onBeforeUnmount(() => {
 
 .debug-active {
   border: 2px dashed rgba(255, 255, 255, 0.8);
-  background-color: rgba(
-    0,
-    0,
-    0,
-    0.1
-  ); /* Transparent highlight during debug mode */
+  background-color: rgba(0, 0, 0, 0.1); /* Transparent highlight during debug mode */
 }
 
 .tick-overlay {
@@ -193,11 +182,8 @@ onBeforeUnmount(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: linear-gradient(
-      to right,
-      rgba(255, 255, 255, 0.5) 1px,
-      transparent 1px
-    ),
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.5) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 1px, transparent 1px);
   background-size: 20vw 20vh;
   pointer-events: none;

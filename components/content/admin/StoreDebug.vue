@@ -13,7 +13,7 @@
     </header>
 
     <!-- Main content area with sidebars and main content -->
-    <div class="content-area relative">
+    <div class="content-area">
       <aside
         class="sidebar-left-overlay debug-box pointer-events-none"
         :class="{ 'debug-active': displayStore.showInfo }"
@@ -34,7 +34,10 @@
       <main
         class="main-content-overlay debug-box pointer-events-none"
         :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{ height: displayStore.mainVh + 'vh' }"
+        :style="{
+          height: displayStore.mainVh + 'vh',
+          width: displayStore.mainVw + 'vw',
+        }"
       >
         <p>Main Content</p>
         <p v-if="displayStore.showInfo">
@@ -115,20 +118,16 @@
 import { useDisplayStore } from '@/stores/displayStore'
 import { onMounted, onBeforeUnmount } from 'vue'
 
-// Initialize the store
 const displayStore = useDisplayStore()
 
-// Function to toggle the debug mode visibility
 const toggleDebugMode = () => {
   displayStore.showInfo = !displayStore.showInfo
 }
 
-// Function to toggle the info sheet visibility
 const toggleInfoSheet = () => {
   displayStore.showInfoSheet = !displayStore.showInfoSheet
 }
 
-// Function to handle key press for toggling debug mode
 const handleKeyPress = (event: KeyboardEvent) => {
   const target = event.target as HTMLElement
   const isInteractiveElement =
@@ -139,13 +138,11 @@ const handleKeyPress = (event: KeyboardEvent) => {
   }
 }
 
-// Ensure the viewport watcher and key press event are set up when the component mounts
 onMounted(() => {
   displayStore.initializeViewportWatcher()
   window.addEventListener('keydown', handleKeyPress)
 })
 
-// Clean up the event listener when the component is destroyed
 onBeforeUnmount(() => {
   displayStore.removeViewportWatcher()
   window.removeEventListener('keydown', handleKeyPress)
@@ -154,14 +151,15 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .main-layout {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   height: 100vh;
 }
 
 .content-area {
-  display: flex;
-  height: 92vh; /* Main content should fit within remaining vertical space */
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  height: 100%;
 }
 
 .header-overlay,
@@ -169,11 +167,10 @@ onBeforeUnmount(() => {
 .sidebar-right-overlay,
 .main-content-overlay,
 .footer-overlay {
-  position: relative;
   background-color: rgba(0, 128, 255, 0.3); /* Transparent light blue */
   text-align: center;
   color: white;
-  padding: 0; /* Remove any padding to prevent affecting dimensions */
+  padding: 0; /* No padding */
 }
 
 .debug-box {
@@ -190,7 +187,6 @@ onBeforeUnmount(() => {
   ); /* Transparent highlight during debug mode */
 }
 
-/* Tick overlay for every 20vh/20vw */
 .tick-overlay {
   position: absolute;
   top: 0;

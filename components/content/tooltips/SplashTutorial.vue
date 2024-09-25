@@ -17,7 +17,9 @@
     </div>
 
     <!-- Main Content Section (Image and Description) -->
-    <div class="flex flex-1 flex-col items-center justify-center w-full px-2 lg:px-4 space-y-2">
+    <div
+      class="flex flex-1 flex-col items-center justify-center w-full px-2 lg:px-4 space-y-2"
+    >
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
@@ -34,7 +36,9 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div class="flex flex-col space-y-2 w-full max-w-3xl px-2 lg:px-4 flex-shrink-0">
+    <div
+      class="flex flex-col space-y-2 w-full max-w-3xl px-2 lg:px-4 flex-shrink-0"
+    >
       <div class="flex justify-center">
         <div
           class="flex items-center space-x-2 p-2 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
@@ -75,6 +79,7 @@ import { computed, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+const { page } = useContent()
 
 onMounted(() => {
   displayStore.initializeViewportWatcher()

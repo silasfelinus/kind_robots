@@ -1,7 +1,7 @@
 <template>
-  <div class="relative flex flex-col items-center justify-center h-full w-full bg-base-300 p-2 overflow-hidden rounded-2xl shadow-lg">
+  <div class="relative flex flex-col items-center justify-center h-full w-full bg-base-300 overflow-hidden rounded-2xl shadow-lg">
     <!-- Main Content Section -->
-    <div class="flex flex-col items-center justify-center w-full space-y-4 flex-1">
+    <div class="flex flex-col items-center justify-center w-full flex-1">
       <!-- Main Image -->
       <img
         :src="'/images/' + page.image"
@@ -22,7 +22,7 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div class="flex flex-col space-y-2 w-full max-w-3xl px-4 flex-shrink-0">
+    <div class="flex flex-col space-y-1 w-full max-w-3xl px-4 flex-shrink-0">
       <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div
@@ -31,7 +31,7 @@
           <img
             src="/images/avatars/dottie1.webp"
             alt="DottiBot Avatar"
-            class="w-8 h-8 md:w-10 md:h-10 rounded-full shadow-md"
+            class="w-8 h-8 lg:w-10 lg:h-10 rounded-full shadow-md"
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">DottiBot</span>
@@ -48,7 +48,7 @@
           <img
             src="/images/amibotsquare1.webp"
             alt="AMIbot Avatar"
-            class="w-8 h-8 md:w-10 md:h-10 rounded-full shadow-md"
+            class="w-8 h-8 lg:w-10 lg:h-10 rounded-full shadow-md"
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">AMIbot</span>

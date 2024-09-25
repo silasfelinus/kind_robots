@@ -1,4 +1,10 @@
 <template>
+<div>
+<!-- Store Debug Overlay in its own parent container -->
+    <div class="debug-overlay-container absolute inset-0 pointer-events-none z-50">
+      <store-debug class="h-full w-full" />
+    </div>
+
   <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
     <!-- KindLoader (Only runs once) -->
     <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
@@ -61,11 +67,8 @@
     <footer class="w-full bg-base-200 flex items-center justify-center" :class="`h-[${displayStore.footerVh}vh]`">
       created by Silas Knight silas@kindrobots.org
     </footer>
-
-    <!-- Store Debug Overlay in its own parent container -->
-    <div class="debug-overlay-container absolute inset-0 pointer-events-none z-50">
-      <store-debug class="h-full w-full" />
-    </div>
+</div>
+    
   </div>
 </template>
 

@@ -6,7 +6,7 @@
     <!-- Header -->
     <header class="sticky top-0 z-30 w-full bg-base-200" :class="`h-[${displayStore.headerVh}vh]`">
       <!-- Sidebar Toggle -->
-      <div class="absolute top-4 left-4 p-1 z-40 text-white">
+      <div class="absolute top-2 left-4 p-1 z-40 text-white">
         <sidebar-toggle class="text-4xl" />
       </div>
 
@@ -15,7 +15,7 @@
       <!-- Tutorial and Back Buttons -->
       <button
         v-if="showTutorial"
-        class="fixed top-4 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 px-4 py-2"
+        class="fixed top-2 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 px-4 py-2"
         @click="toggleTutorial"
       >
         Launch
@@ -23,7 +23,7 @@
 
       <button
         v-else
-        class="fixed top-4 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 px-4 py-2"
+        class="fixed top-2 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 px-4 py-2"
         @click="toggleTutorial"
       >
         <span>Instructions</span>

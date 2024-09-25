@@ -33,40 +33,49 @@
     </header>
 
     <!-- Main Layout Wrapper -->
-    <div class="flex" :style="{ width: '100vw', height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)` }">
-      <!-- Left Sidebar -->
-      <kind-sidebar-simple :style="{ width: `${displayStore.sidebarLeftWidth}vw`, height: '100%' }" />
+    <div
+      class="relative flex"
+      :style="{ width: '100vw', height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)` }"
+    >
+      <!-- Left Sidebar (below the header) -->
+      <kind-sidebar-simple
+        :style="{ width: `${displayStore.sidebarLeftWidth}vw`, height: '100%', marginTop: `${displayStore.headerVh}vh` }"
+      />
 
       <!-- Main Content Area -->
-      <main class="relative" :style="{ width: `${displayStore.mainVw}vw`, height: '100%', padding: '2rem', overflow: 'hidden' }">
-        
-          <div class="flex justify-center items-center w-full h-full">
-            <div
-              class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
-              :style="{
-                height: '100%', // Adjust height to respect full container
-                width: '100%', // Use full width of container
-                overflow: 'hidden',
-              }"
-            >
-              <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
-                <!-- Front side: Splash Tutorial -->
-                <div class="flip-card-front">
-                  <SplashTutorial />
-                </div>
+      <main
+        class="relative overflow-hidden"
+        :style="{ width: `${displayStore.mainVw}vw`, height: '100%', padding: '2rem', marginRight: '1rem' }"
+      >
+        <div class="flex justify-center items-center w-full h-full">
+          <div
+            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
+            :style="{
+              height: '100%',
+              width: '100%',
+              overflow: 'hidden',
+              marginBottom: '1rem', // Add margin to prevent overflowing
+            }"
+          >
+            <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
+              <!-- Front side: Splash Tutorial -->
+              <div class="flip-card-front">
+                <SplashTutorial />
+              </div>
 
-                <!-- Back side: NuxtPage content -->
-                <div class="flip-card-back">
-                  <NuxtPage />
-                </div>
+              <!-- Back side: NuxtPage content -->
+              <div class="flip-card-back">
+                <NuxtPage />
               </div>
             </div>
           </div>
-       
+        </div>
       </main>
 
       <!-- Right Sidebar -->
-      <kind-sidebar-right :style="{ width: `${displayStore.sidebarRightWidth}vw`, height: '100%' }" />
+      <kind-sidebar-right
+        :style="{ width: `${displayStore.sidebarRightWidth}vw`, height: '100%' }"
+      />
     </div>
 
     <!-- Footer -->
@@ -75,6 +84,7 @@
     />
   </div>
 </template>
+
 
 
 <script setup lang="ts">

@@ -1,7 +1,7 @@
 <template>
-  <div class="relative flex flex-col items-center justify-center h-full w-full bg-base-300 overflow-hidden rounded-2xl shadow-lg">
+  <div class="relative flex flex-col h-full w-full bg-base-300 overflow-hidden rounded-2xl shadow-lg">
     <!-- Main Content Section -->
-    <div class="flex flex-col items-center justify-center w-full flex-1">
+    <div class="flex-1 flex flex-col items-center w-full justify-start space-y-4 overflow-auto p-4">
       <!-- Main Image -->
       <img
         :src="'/images/' + page.image"
@@ -22,7 +22,7 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div class="flex flex-col space-y-1 w-full max-w-3xl px-4 flex-shrink-0">
+    <div class="flex flex-col space-y-2 w-full max-w-3xl px-4 py-2 overflow-auto">
       <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div

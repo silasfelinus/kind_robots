@@ -2,19 +2,7 @@
   <div
     class="relative flex flex-col items-center justify-between h-full w-full bg-base-300 p-1 overflow-y-auto rounded-2xl shadow-lg"
   >
-    <!-- Title and Subtitle Section -->
-    <div class="w-full flex justify-between items-center p-1">
-      <h1 class="text-lg md:text-xl font-bold text-secondary w-full">
-        {{ page.title }}
-      </h1>
-      <h2
-        v-if="page.subtitle"
-        class="text-xs md:text-base font-medium text-accent ml-auto"
-      >
-        {{ page.subtitle }}
-      </h2>
-    </div>
-
+    
     <!-- Main Content Section -->
     <div
       class="flex-1 flex flex-col items-center justify-center w-full overflow-y-auto"
@@ -27,6 +15,20 @@
       <div
         class="bg-info text-info-content p-2 rounded-xl shadow-md w-2/3"
       >
+
+<!-- Title and Subtitle Section -->
+    <div class="w-full flex justify-between items-center p-1">
+      <h1 class="text-lg md:text-xl font-bold text-secondary w-full">
+        {{ page.title }}
+      </h1>
+      <h2
+        v-if="page.subtitle"
+        class="text-xs md:text-base font-medium text-accent ml-auto"
+      >
+        {{ page.subtitle }}
+      </h2>
+    </div>
+
         <p class="text-xs md:text-sm font-medium text-center">
           {{ page.description }}
         </p>

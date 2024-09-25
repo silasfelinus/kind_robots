@@ -1,28 +1,34 @@
 <template>
-  <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
-    <!-- KindLoader (Only runs once) -->
-    <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
-
-    <!-- Header -->
-    <header class="header-overlay debug-box" :style="{ height: displayStore.headerVh + 'vh' }">
+  <div class="main-layout absolute inset-0 pointer-events-none">
+    <!-- Unified layout and debug overlay -->
+    <header
+      class="header-overlay debug-box pointer-events-none"
+      :class="{ 'debug-active': displayStore.showInfo }"
+      :style="{ height: displayStore.headerVh + 'vh' }"
+    >
       <p>Header</p>
       <p v-if="displayStore.showInfo">
         Header VH: {{ displayStore.headerVh }}vh
       </p>
     </header>
 
-    <!-- Main Layout Wrapper -->
-    <div class="flex flex-grow">
-      <!-- Left Sidebar -->
-      <aside class="sidebar-left-overlay debug-box" :style="{ width: displayStore.sidebarLeftVw + 'vw', height: displayStore.mainVh + 'vh' }">
+    <!-- Main content area with sidebars and main content -->
+    <div class="content-area flex-grow flex relative">
+      <aside
+        class="sidebar-left-overlay debug-box pointer-events-none"
+        :class="{ 'debug-active': displayStore.showInfo }"
+        :style="{ width: displayStore.sidebarLeftVw + 'vw', height: displayStore.mainVh + 'vh' }"
+      >
         <p>Left Sidebar</p>
         <p v-if="displayStore.showInfo">
           Sidebar VW: {{ displayStore.sidebarLeftVw }}vw
         </p>
+        <p v-if="displayStore.showInfo">
+          Sidebar VH: {{ displayStore.mainVh }}vh
+        </p>
       </aside>
 
-      <!-- Main Content Area -->
-      <main class="main-content-overlay debug-box flex-grow">
+      <main class="main-content-overlay debug-box flex-grow pointer-events-none">
         <p>Main Content</p>
         <p v-if="displayStore.showInfo">
           Main Content VH: {{ displayStore.mainVh }}vh
@@ -32,17 +38,26 @@
         </p>
       </main>
 
-      <!-- Right Sidebar -->
-      <aside class="sidebar-right-overlay debug-box" :style="{ width: displayStore.sidebarRightVw + 'vw', height: displayStore.mainVh + 'vh' }">
+      <aside
+        class="sidebar-right-overlay debug-box pointer-events-none"
+        :class="{ 'debug-active': displayStore.showInfo }"
+        :style="{ width: displayStore.sidebarRightVw + 'vw', height: displayStore.mainVh + 'vh' }"
+      >
         <p>Right Sidebar</p>
         <p v-if="displayStore.showInfo">
           Right Sidebar VW: {{ displayStore.sidebarRightVw }}vw
         </p>
+        <p v-if="displayStore.showInfo">
+          Right Sidebar VH: {{ displayStore.mainVh }}vh
+        </p>
       </aside>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer-overlay debug-box" :style="{ height: displayStore.footerVh + 'vh' }">
+    <footer
+      class="footer-overlay debug-box pointer-events-none"
+      :class="{ 'debug-active': displayStore.showInfo }"
+      :style="{ height: displayStore.footerVh + 'vh' }"
+    >
       <p>Footer</p>
       <p v-if="displayStore.showInfo">
         Footer VH: {{ displayStore.footerVh }}vh
@@ -50,20 +65,29 @@
     </footer>
 
     <!-- Debug Toggle Button -->
-    <button class="debug-toggle" @click="toggleDebugMode">
+    <button class="debug-toggle pointer-events-auto" @click="toggleDebugMode">
       {{ displayStore.showInfo ? 'Hide Debug Info' : 'Show Debug Info' }}
     </button>
 
     <!-- Info Sheet Toggle -->
-    <button v-if="displayStore.showInfo" class="info-toggle" @click="toggleInfoSheet">
+    <button
+      v-if="displayStore.showInfo"
+      class="info-toggle pointer-events-auto"
+      @click="toggleInfoSheet"
+    >
       Toggle Info Sheet
     </button>
 
     <!-- Info Sheet Display -->
-    <div v-if="displayStore.showInfoSheet && displayStore.showInfo" class="info-sheet">
+    <div
+      v-if="displayStore.showInfoSheet && displayStore.showInfo"
+      class="info-sheet pointer-events-auto"
+    >
       <p>Header VH: {{ displayStore.headerVh }}vh</p>
       <p>Sidebar Left VW: {{ displayStore.sidebarLeftVw }}vw</p>
+      <p>Sidebar Left VH: {{ displayStore.mainVh }}vh</p>
       <p>Sidebar Right VW: {{ displayStore.sidebarRightVw }}vw</p>
+      <p>Sidebar Right VH: {{ displayStore.mainVh }}vh</p>
       <p>Main Content VH: {{ displayStore.mainVh }}vh</p>
       <p>Main Content VW: {{ displayStore.mainVw }}vw</p>
       <p>Footer VH: {{ displayStore.footerVh }}vh</p>
@@ -133,7 +157,7 @@ onBeforeUnmount(() => {
 .main-content-overlay,
 .footer-overlay {
   position: relative;
-  background-color: rgba(0, 128, 255, 0.5); /* Light Blue */
+  background-color: rgba(0, 128, 255, 0.3); /* Transparent light blue */
   text-align: center;
   color: white;
   padding: 1rem;
@@ -145,7 +169,7 @@ onBeforeUnmount(() => {
 
 .debug-active {
   border: 2px dashed rgba(255, 255, 255, 0.8);
-  background-color: rgba(0, 0, 0, 0.3); /* Highlight during debug mode */
+  background-color: rgba(0, 0, 0, 0.1); /* Transparent highlight during debug mode */
 }
 
 .debug-toggle {

@@ -3,7 +3,7 @@
     <!-- Header -->
     <header
       class="header-overlay debug-box pointer-events-none"
-      :style="{ height: displayStore.headerVh ? displayStore.headerVh + 'vh' : '6vh' }"
+      :style="{ height: displayStore.headerVh + 'vh' }"
     ></header>
 
     <!-- Main content area with sidebars and main content -->
@@ -11,26 +11,26 @@
       <aside
         class="sidebar-left-overlay debug-box pointer-events-none"
         :style="{
-          width: displayStore.sidebarLeftVw ? displayStore.sidebarLeftVw + 'vw' : '19vw',
-          height: displayStore.mainVh ? displayStore.mainVh + 'vh' : '92vh'
+          width: displayStore.sidebarLeftVw + 'vw',
+          height: displayStore.mainVh + 'vh'
         }"
       ></aside>
 
       <main
         class="main-content-overlay debug-box pointer-events-none"
         :style="{
-          height: displayStore.mainVh ? displayStore.mainVh + 'vh' : '92vh',
-          width: displayStore.mainVw ? displayStore.mainVw + 'vw' : '79vw'
+          height: displayStore.mainVh + 'vh',
+          width: displayStore.mainVw + 'vw'
         }"
       >
         <!-- Floating color-coded key in the center -->
         <div class="color-key absolute inset-0 flex justify-center items-center pointer-events-none">
           <div class="key-container bg-white p-4 rounded-lg shadow-md">
-            <p><span class="color-box bg-red-500"></span> Header ({{ displayStore.headerVh || 6 }}vh)</p>
-            <p><span class="color-box bg-blue-500"></span> Left Sidebar ({{ displayStore.sidebarLeftVw || 19 }}vw)</p>
-            <p><span class="color-box bg-green-500"></span> Main Content ({{ displayStore.mainVw || 79 }}vw, {{ displayStore.mainVh || 92 }}vh)</p>
-            <p><span class="color-box bg-yellow-500"></span> Right Sidebar ({{ displayStore.sidebarRightVw || 2 }}vw)</p>
-            <p><span class="color-box bg-orange-500"></span> Footer ({{ displayStore.footerVh || 2 }}vh)</p>
+            <p><span class="color-box bg-red-500"></span> Header ({{ displayStore.headerVh }}vh)</p>
+            <p><span class="color-box bg-blue-500"></span> Left Sidebar ({{ displayStore.sidebarLeftVw }}vw)</p>
+            <p><span class="color-box bg-green-500"></span> Main Content ({{ displayStore.mainVw }}vw, {{ displayStore.mainVh }}vh)</p>
+            <p><span class="color-box bg-yellow-500"></span> Right Sidebar ({{ displayStore.sidebarRightVw }}vw)</p>
+            <p><span class="color-box bg-orange-500"></span> Footer ({{ displayStore.footerVh }}vh)</p>
           </div>
         </div>
       </main>
@@ -38,8 +38,8 @@
       <aside
         class="sidebar-right-overlay debug-box pointer-events-none"
         :style="{
-          width: displayStore.sidebarRightVw ? displayStore.sidebarRightVw + 'vw' : '2vw',
-          height: displayStore.mainVh ? displayStore.mainVh + 'vh' : '92vh'
+          width: displayStore.sidebarRightVw + 'vw',
+          height: displayStore.mainVh + 'vh'
         }"
       ></aside>
     </div>
@@ -47,7 +47,7 @@
     <!-- Footer -->
     <footer
       class="footer-overlay debug-box pointer-events-none"
-      :style="{ height: displayStore.footerVh ? displayStore.footerVh + 'vh' : '2vh' }"
+      :style="{ height: displayStore.footerVh + 'vh' }"
     ></footer>
 
     <!-- Tick Overlay for every 20vh/20vw -->

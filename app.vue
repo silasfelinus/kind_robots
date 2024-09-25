@@ -3,42 +3,51 @@
     <!-- Header -->
     <header
       class="header-overlay debug-box pointer-events-none"
-      :style="{ height: '6vh' }"
+      :style="{ height: displayStore.headerVh ? displayStore.headerVh + 'vh' : '6vh' }"
     ></header>
 
     <!-- Main content area with sidebars and main content -->
     <div class="content-area">
       <aside
         class="sidebar-left-overlay debug-box pointer-events-none"
-        :style="{ width: '19vw', height: '92vh' }"
+        :style="{
+          width: displayStore.sidebarLeftVw ? displayStore.sidebarLeftVw + 'vw' : '19vw',
+          height: displayStore.mainVh ? displayStore.mainVh + 'vh' : '92vh'
+        }"
       ></aside>
 
       <main
         class="main-content-overlay debug-box pointer-events-none"
-        :style="{ height: '92vh', width: '79vw' }"
+        :style="{
+          height: displayStore.mainVh ? displayStore.mainVh + 'vh' : '92vh',
+          width: displayStore.mainVw ? displayStore.mainVw + 'vw' : '79vw'
+        }"
       >
         <!-- Floating color-coded key in the center -->
         <div class="color-key absolute inset-0 flex justify-center items-center pointer-events-none">
           <div class="key-container bg-white p-4 rounded-lg shadow-md">
-            <p><span class="color-box bg-red-500"></span> Header (6vh)</p>
-            <p><span class="color-box bg-blue-500"></span> Left Sidebar (19vw)</p>
-            <p><span class="color-box bg-green-500"></span> Main Content (79vw, 92vh)</p>
-            <p><span class="color-box bg-yellow-500"></span> Right Sidebar (2vw)</p>
-            <p><span class="color-box bg-orange-500"></span> Footer (2vh)</p>
+            <p><span class="color-box bg-red-500"></span> Header ({{ displayStore.headerVh || 6 }}vh)</p>
+            <p><span class="color-box bg-blue-500"></span> Left Sidebar ({{ displayStore.sidebarLeftVw || 19 }}vw)</p>
+            <p><span class="color-box bg-green-500"></span> Main Content ({{ displayStore.mainVw || 79 }}vw, {{ displayStore.mainVh || 92 }}vh)</p>
+            <p><span class="color-box bg-yellow-500"></span> Right Sidebar ({{ displayStore.sidebarRightVw || 2 }}vw)</p>
+            <p><span class="color-box bg-orange-500"></span> Footer ({{ displayStore.footerVh || 2 }}vh)</p>
           </div>
         </div>
       </main>
 
       <aside
         class="sidebar-right-overlay debug-box pointer-events-none"
-        :style="{ width: '2vw', height: '92vh' }"
+        :style="{
+          width: displayStore.sidebarRightVw ? displayStore.sidebarRightVw + 'vw' : '2vw',
+          height: displayStore.mainVh ? displayStore.mainVh + 'vh' : '92vh'
+        }"
       ></aside>
     </div>
 
     <!-- Footer -->
     <footer
       class="footer-overlay debug-box pointer-events-none"
-      :style="{ height: '2vh' }"
+      :style="{ height: displayStore.footerVh ? displayStore.footerVh + 'vh' : '2vh' }"
     ></footer>
 
     <!-- Tick Overlay for every 20vh/20vw -->
@@ -47,7 +56,9 @@
 </template>
 
 <script setup lang="ts">
-// No JavaScript logic required since we're using hardcoded values
+import { useDisplayStore } from '@/stores/displayStore'
+
+const displayStore = useDisplayStore()
 </script>
 
 <style scoped>

@@ -6,6 +6,15 @@
     <store-debug class="h-full w-full" />
   </div>
 </template>
+
+<script setup lang="ts">
+import { useDisplayStore } from '@/stores/displayStore'
+const displayStore = useDisplayStore()
+
+onMounted(async () => {
+  displayStore.updateViewport()
+})
+</script>
 <style>
 /* Debug Overlay Container */
 .debug-overlay-container {

@@ -31,7 +31,7 @@
     </header>
 
     <!-- Main Layout Wrapper -->
-    <div class="flex flex-grow">
+    <div class="flex flex-grow relative overflow-hidden">
       <!-- Left Sidebar (below the header) -->
       <kind-sidebar-simple class="h-full" :class="`w-[${displayStore.sidebarLeftWidth}vw]`" />
 
@@ -58,10 +58,12 @@
     </div>
 
     <!-- Footer -->
-    <footer class="fixed bottom-0 left-0 w-full bg-base-200 h-[${displayStore.footerVh}vh] flex items-center justify-center">
+    <footer class="w-full bg-base-200 flex items-center justify-center" :class="`h-[${displayStore.footerVh}vh]`">
       created by Silas Knight silas@kindrobots.org
     </footer>
-<store-debug />
+
+    <!-- Store Debug Overlay -->
+    <store-debug class="absolute inset-0 pointer-events-none" />
   </div>
 </template>
 

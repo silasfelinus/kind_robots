@@ -1,6 +1,6 @@
 <template>
   <div
-    class="interstitial flex flex-col justify-center items-center h-full w-full"
+    class="interstitial flex flex-col justify-center items-center h-full w-full bg-primary rounded-2xl border-lg bordr-accent p-1"
     :style="interstitialStyle"
   >
     <slot />
@@ -32,7 +32,12 @@ onMounted(() => {
   box-sizing: border-box; /* Ensures padding and borders are included in the width/height */
   max-width: 100%; /* Ensure it doesn’t grow beyond its parent */
   max-height: 100%; /* Ensure it stays within the height boundary */
-  background-color: rgba(255, 255, 255, 0.9); /* Optional background to differentiate */
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.9
+  ); /* Optional background to differentiate */
   border-radius: 0.5rem; /* Optional styling for visual appeal */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for floating effect */
 }

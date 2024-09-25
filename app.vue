@@ -39,7 +39,7 @@
 
       <!-- Main Content Area -->
       <main class="relative" :style="{ width: `${displayStore.mainVw}vw`, height: '100%', padding: '2rem', overflow: 'hidden' }">
-        <MainScreen>
+        
           <div class="flex justify-center items-center w-full h-full">
             <div
               class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
@@ -62,7 +62,7 @@
               </div>
             </div>
           </div>
-        </MainScreen>
+       
       </main>
 
       <!-- Right Sidebar -->

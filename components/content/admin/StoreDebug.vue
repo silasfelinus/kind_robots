@@ -65,15 +65,16 @@
     <!-- Ticks Overlay -->
     <div class="ticks-overlay pointer-events-none absolute inset-0">
       <!-- Vertical Ticks -->
-      <div class="ticks-vw absolute inset-y-0 left-0 flex flex-col justify-between">
-        <span v-for="tick in vwTicks" :key="tick" class="text-xs text-white" :style="{ top: tick + 'vh' }">
-          {{ tick }}vw
+      <div class="ticks-vh absolute inset-y-0 left-0 flex flex-col justify-between">
+        <span v-for="tick in vhTicks" :key="`vh-${tick}`" class="text-xs text-white" :style="{ top: `${tick}%` }">
+          {{ tick }}vh
         </span>
       </div>
+
       <!-- Horizontal Ticks -->
-      <div class="ticks-vh absolute inset-x-0 top-0 flex justify-between">
-        <span v-for="tick in vhTicks" :key="tick" class="text-xs text-white" :style="{ left: tick + 'vw' }">
-          {{ tick }}vh
+      <div class="ticks-vw absolute inset-x-0 top-0 flex justify-between">
+        <span v-for="tick in vwTicks" :key="`vw-${tick}`" class="text-xs text-white" :style="{ left: `${tick}%` }">
+          {{ tick }}vw
         </span>
       </div>
     </div>

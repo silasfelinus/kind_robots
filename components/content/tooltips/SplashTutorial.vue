@@ -1,12 +1,15 @@
 <template>
-  <div class="relative flex flex-col h-full w-full bg-base-300 overflow-hidden rounded-2xl shadow-lg">
+  <div
+    class="relative flex flex-col h-full w-full bg-base-300 overflow-hidden rounded-2xl shadow-lg"
+    :style="{ height: displayStore.mainVh + 'vh' }"
+  >
     <!-- Main Content Section -->
-    <div class="flex-1 flex flex-col items-center w-full justify-start space-y-4 overflow-auto p-4">
+    <div class="flex-1 flex flex-col items-center justify-start space-y-4 overflow-y-auto p-4">
       <!-- Main Image -->
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[50vh]"
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[40vh]"
       />
 
       <!-- Title, Description, and Subtitle Section -->
@@ -22,11 +25,11 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div class="flex flex-col space-y-2 w-full max-w-3xl px-4 py-2 overflow-auto">
+    <div class="flex flex-col space-y-2 w-full max-w-3xl px-4 py-2 overflow-y-auto">
       <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-2 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-2/3"
+          class="flex items-center space-x-2 p-2 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -43,7 +46,7 @@
       <!-- AMIbot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-2 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-2/3"
+          class="flex items-center space-x-2 p-2 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
         >
           <img
             src="/images/amibotsquare1.webp"
@@ -61,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()

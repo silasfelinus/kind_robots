@@ -63,7 +63,9 @@
     </footer>
 
     <!-- Store Debug Overlay -->
-    <store-debug class="absolute inset-0 pointer-events-none" />
+    <div class="absolute top-0 left-0 w-full h-full pointer-events-none z-50">
+      <store-debug class="h-full w-full" />
+    </div>
   </div>
 </template>
 

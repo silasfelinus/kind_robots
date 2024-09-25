@@ -74,7 +74,7 @@
 
       <!-- Right Sidebar -->
       <kind-sidebar-right
-        :style="{ width: `${displayStore.sidebarRightWidth}vw`, height: '${displayStore.sidebarRightHeight}vh' }"
+        :style="{ width: `${displayStore.sidebarRightVw}vw`, height: '${displayStore.sidebarRightVh}vh' }"
       />
     </div>
 

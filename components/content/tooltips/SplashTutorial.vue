@@ -1,7 +1,6 @@
 <template>
   <div
-	    class="relative flex flex-col items-center justify-between h-full w-full bg-base-300 p-1 overflow-y-auto rounded-2xl shadow-lg"
-    :style="mainContentStyle"
+    class="relative flex flex-col items-center justify-between h-full w-full bg-base-300 p-1 overflow-y-auto rounded-2xl shadow-lg"
   >
     <!-- Title and Subtitle Section -->
     <div class="w-full flex justify-between items-center p-1">
@@ -18,12 +17,12 @@
 
     <!-- Main Content Section -->
     <div
-      class="flex-1 flex flex-col items-center justify-center w-full overflow-auto"
+      class="flex-1 flex flex-col items-center justify-center w-full overflow-y-auto"
     >
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-200"
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[60vh]" <!-- Limits the image height to 60vh -->
       />
       <div
         class="bg-info text-info-content p-2 rounded-xl shadow-md w-2/3"
@@ -83,11 +82,6 @@ const { page } = useContent()
 onMounted(() => {
   displayStore.initializeViewportWatcher()
 })
-
-const mainContentStyle = computed(() => ({
-  height: `${displayStore.mainVh || 100}vh`,
-  width: `${displayStore.mainVw || 100}vw`,
-}))
 </script>
 
 <style scoped>

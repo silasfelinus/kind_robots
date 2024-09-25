@@ -57,11 +57,11 @@
     </div>
 
     <!-- Footer -->
-    <footer class="w-full bg-base-200" :class="`h-[${displayStore.footerVh}vh]`">created by Silas Knight silas@kindrobots.org</footer>
+    <footer class="w-full bg-base-200" :class="`h-[${displayStore.footerVh}vh]`">
+      created by Silas Knight silas@kindrobots.org
+    </footer>
   </div>
 </template>
-
-
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'

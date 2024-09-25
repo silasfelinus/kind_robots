@@ -16,18 +16,16 @@
       </h2>
     </div>
 
-    <!-- Main Content Section (Image and Description) -->
     <div
-      class="flex flex-1 flex-col items-center justify-center w-full px-2 lg:px-4 space-y-2"
+      class="flex-1 flex flex-col items-center justify-center w-full px-2 lg:px-4 space-y-2 overflow-auto"
     >
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-cover w-full max-w-md h-auto flex-shrink-0"
+        class="rounded-2xl border border-base-300 shadow-md object-cover w-full max-w-md h-auto"
       />
-
       <div
-        class="bg-info text-info-content p-2 rounded-xl shadow-md w-full lg:w-2/3 max-w-3xl mt-2 flex-shrink-0"
+        class="bg-info text-info-content p-2 rounded-xl shadow-md w-full lg:w-2/3 max-w-3xl mt-2"
       >
         <p class="text-xs md:text-sm font-medium text-center">
           {{ page.description }}
@@ -99,11 +97,6 @@ body,
   margin: 0;
   padding: 0;
   overflow: hidden;
-}
-
-.flex-1 {
-  flex-grow: 1;
-  flex-shrink: 0;
 }
 
 @media (min-width: 1024px) {

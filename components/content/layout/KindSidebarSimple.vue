@@ -3,10 +3,10 @@
     <!-- Left Sidebar -->
     <aside
       v-if="displayStore.sidebarLeft !== 'hidden'"
-      class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
+      class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-1"
       :style="{
         width: displayStore.sidebarLeftVw + 'vw',
-        maxHeight: `calc(100vh - ${displayStore.headerVh}vh)`,
+        maxHeight: `calc(100vh - ${displayStore.headerVh}vh) - ${displayStore.footerVh}vh)`,
         position: 'sticky'
       }"
     >

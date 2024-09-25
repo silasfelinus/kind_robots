@@ -36,9 +36,10 @@
       <kind-sidebar-simple class="h-full" :class="`w-[${displayStore.sidebarLeftWidth}vw]`" />
 
       <!-- Main Content Area -->
-      <main class="relative flex-grow overflow-y-auto p-4 flex justify-center items-center">
-        <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-hidden">
+      <main class="relative flex-grow overflow-y-auto flex justify-center items-center">
+        <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto">
           <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
+
             <!-- Front side: Splash Tutorial -->
             <div class="flip-card-front">
               <SplashTutorial />
@@ -57,7 +58,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="w-full bg-base-200" :class="`h-[${displayStore.footerVh}vh]`">
+    <footer class="fixed bottom-0 left-0 w-full bg-base-200 h-[8vh] flex items-center justify-center">
       created by Silas Knight silas@kindrobots.org
     </footer>
   </div>

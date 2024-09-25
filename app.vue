@@ -4,49 +4,42 @@
     <header
       class="header-overlay debug-box pointer-events-none"
       :style="{ height: '6vh' }"
-    >
-      <p>Header</p>
-      <p>Header VH: 6vh</p>
-    </header>
+    ></header>
 
     <!-- Main content area with sidebars and main content -->
     <div class="content-area">
       <aside
         class="sidebar-left-overlay debug-box pointer-events-none"
         :style="{ width: '19vw', height: '92vh' }"
-      >
-        <p>Left Sidebar</p>
-        <p>Sidebar VW: 19vw</p>
-        <p>Sidebar VH: 92vh</p>
-      </aside>
+      ></aside>
 
       <main
         class="main-content-overlay debug-box pointer-events-none"
         :style="{ height: '92vh', width: '79vw' }"
       >
-        <p>Main Content</p>
-        <p>Main Content VH: 92vh</p>
-        <p>Main Content VW: 79vw</p>
+        <!-- Floating color-coded key in the center -->
+        <div class="color-key absolute inset-0 flex justify-center items-center pointer-events-none">
+          <div class="key-container bg-white p-4 rounded-lg shadow-md">
+            <p><span class="color-box bg-red-500"></span> Header (6vh)</p>
+            <p><span class="color-box bg-blue-500"></span> Left Sidebar (19vw)</p>
+            <p><span class="color-box bg-green-500"></span> Main Content (79vw, 92vh)</p>
+            <p><span class="color-box bg-yellow-500"></span> Right Sidebar (2vw)</p>
+            <p><span class="color-box bg-orange-500"></span> Footer (2vh)</p>
+          </div>
+        </div>
       </main>
 
       <aside
         class="sidebar-right-overlay debug-box pointer-events-none"
         :style="{ width: '2vw', height: '92vh' }"
-      >
-        <p>Right Sidebar</p>
-        <p>Sidebar VW: 2vw</p>
-        <p>Sidebar VH: 92vh</p>
-      </aside>
+      ></aside>
     </div>
 
     <!-- Footer -->
     <footer
       class="footer-overlay debug-box pointer-events-none"
       :style="{ height: '2vh' }"
-    >
-      <p>Footer</p>
-      <p>Footer VH: 2vh</p>
-    </footer>
+    ></footer>
 
     <!-- Tick Overlay for every 20vh/20vw -->
     <div class="tick-overlay pointer-events-none"></div>
@@ -62,12 +55,14 @@
   display: grid;
   grid-template-rows: auto 1fr auto; /* Header, Main Content, Footer */
   height: 100vh; /* Ensure the total height is always 100vh */
+  overflow: hidden; /* Prevent any overflow */
 }
 
 .content-area {
   display: grid;
   grid-template-columns: 19vw 79vw 2vw; /* Left Sidebar, Main Content, Right Sidebar */
   height: 92vh; /* Consistent height for main content area */
+  overflow: hidden; /* Prevent horizontal scrolling */
 }
 
 .header-overlay,
@@ -77,7 +72,6 @@
 .footer-overlay {
   position: relative;
   text-align: center;
-  color: white;
 }
 
 .header-overlay {
@@ -90,6 +84,7 @@
 
 .main-content-overlay {
   background-color: #76dd71; /* Green for main content */
+  position: relative;
 }
 
 .sidebar-right-overlay {
@@ -116,4 +111,28 @@
   background-size: 20vw 20vh;
   pointer-events: none;
 }
+
+/* Floating color-coded key */
+.color-key {
+  pointer-events: none; /* Ensure it doesn't block interactions */
+}
+
+.key-container {
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.color-box {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.bg-red-500 { background-color: #ff6f61; }
+.bg-blue-500 { background-color: #6fa8dc; }
+.bg-green-500 { background-color: #76dd71; }
+.bg-yellow-500 { background-color: #f4d03f; }
+.bg-orange-500 { background-color: #f39c12; }
 </style>

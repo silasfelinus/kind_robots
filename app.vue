@@ -15,7 +15,7 @@
       <!-- Tutorial and Back Buttons -->
       <button
         v-if="showTutorial"
-        class="fixed top-2 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 px-4 py-2"
+        class="fixed top-1 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-1"
         @click="toggleTutorial"
       >
         Launch
@@ -23,7 +23,7 @@
 
       <button
         v-else
-        class="fixed top-2 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 px-4 py-2"
+        class="fixed top-1 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 p-1"
         @click="toggleTutorial"
       >
         <span>Instructions</span>
@@ -58,7 +58,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="fixed bottom-0 left-0 w-full bg-base-200 h-[8vh] flex items-center justify-center">
+    <footer class="fixed bottom-0 left-0 w-full bg-base-200 h-[${displayStore.footerVh}vh] flex items-center justify-center">
       created by Silas Knight silas@kindrobots.org
     </footer>
   </div>

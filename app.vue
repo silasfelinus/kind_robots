@@ -61,6 +61,7 @@
     <footer class="fixed bottom-0 left-0 w-full bg-base-200 h-[${displayStore.footerVh}vh] flex items-center justify-center">
       created by Silas Knight silas@kindrobots.org
     </footer>
+<store-debug />
   </div>
 </template>
 

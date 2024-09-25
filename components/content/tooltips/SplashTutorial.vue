@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col items-center justify-between h-full w-full bg-base-100 overflow-hidden rounded-2xl border border-accent mb-4"
+	    class="relative flex flex-col items-center justify-between h-full w-full bg-base-100 overflow-hidden rounded-2xl border border-accent"
     :style="mainContentStyle"
   >
     <!-- Title and Subtitle Section -->
@@ -16,16 +16,17 @@
       </h2>
     </div>
 
+    <!-- Main Content Section -->
     <div
-      class="flex-1 flex flex-col items-center justify-center w-full px-2 lg:px-4 space-y-2 overflow-auto"
+      class="flex-1 flex flex-col items-center justify-center w-full overflow-auto"
     >
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-cover w-full max-w-md h-auto"
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-200"
       />
       <div
-        class="bg-info text-info-content p-2 rounded-xl shadow-md w-full lg:w-2/3 max-w-3xl mt-2"
+        class="bg-info text-info-content p-2 rounded-xl shadow-md w-2/3"
       >
         <p class="text-xs md:text-sm font-medium text-center">
           {{ page.description }}
@@ -34,12 +35,11 @@
     </div>
 
     <!-- Bot Messages Section -->
-    <div
-      class="flex flex-col space-y-2 w-full max-w-3xl px-2 lg:px-4 flex-shrink-0"
-    >
+    <div class="flex flex-col space-y-1 w-full max-w-3xl px-2 lg:px-4 flex-shrink-0">
+      <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-2 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-center space-x-2 p-1 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-2/3"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -53,9 +53,10 @@
         </div>
       </div>
 
+      <!-- AMIbot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-2 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-center space-x-2 p-1 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-2/3"
         >
           <img
             src="/images/amibotsquare1.webp"
@@ -90,18 +91,5 @@ const mainContentStyle = computed(() => ({
 </script>
 
 <style scoped>
-html,
-body,
-#app {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
-@media (min-width: 1024px) {
-  .max-w-3xl {
-    max-width: 70vw;
-  }
-}
+/* Tailwind utilities handle the layout, so no custom CSS is needed */
 </style>

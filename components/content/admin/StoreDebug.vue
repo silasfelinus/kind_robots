@@ -1,30 +1,27 @@
 <template>
-  <div class="main-layout absolute inset-0">
-    <!-- Unified layout and debug overlay -->
-    <header
-      class="header-overlay debug-box"
-      :class="{ 'debug-active': displayStore.showInfo }"
-      :style="{ height: displayStore.headerVh + 'vh' }"
-    >
+  <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
+    <!-- KindLoader (Only runs once) -->
+    <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
+
+    <!-- Header -->
+    <header class="header-overlay debug-box" :style="{ height: displayStore.headerVh + 'vh' }">
       <p>Header</p>
       <p v-if="displayStore.showInfo">
         Header VH: {{ displayStore.headerVh }}vh
       </p>
     </header>
 
-    <!-- Main content area with sidebars and main content -->
-    <div class="content-area flex-grow flex relative">
-      <aside
-        class="sidebar-left-overlay debug-box"
-        :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{ width: displayStore.sidebarLeftVw + 'vw', height: displayStore.mainVh + 'vh' }"
-      >
+    <!-- Main Layout Wrapper -->
+    <div class="flex flex-grow">
+      <!-- Left Sidebar -->
+      <aside class="sidebar-left-overlay debug-box" :style="{ width: displayStore.sidebarLeftVw + 'vw', height: displayStore.mainVh + 'vh' }">
         <p>Left Sidebar</p>
         <p v-if="displayStore.showInfo">
           Sidebar VW: {{ displayStore.sidebarLeftVw }}vw
         </p>
       </aside>
 
+      <!-- Main Content Area -->
       <main class="main-content-overlay debug-box flex-grow">
         <p>Main Content</p>
         <p v-if="displayStore.showInfo">
@@ -35,11 +32,8 @@
         </p>
       </main>
 
-      <aside
-        class="sidebar-right-overlay debug-box"
-        :class="{ 'debug-active': displayStore.showInfo }"
-        :style="{ width: displayStore.sidebarRightVw + 'vw', height: displayStore.mainVh + 'vh' }"
-      >
+      <!-- Right Sidebar -->
+      <aside class="sidebar-right-overlay debug-box" :style="{ width: displayStore.sidebarRightVw + 'vw', height: displayStore.mainVh + 'vh' }">
         <p>Right Sidebar</p>
         <p v-if="displayStore.showInfo">
           Right Sidebar VW: {{ displayStore.sidebarRightVw }}vw
@@ -47,11 +41,8 @@
       </aside>
     </div>
 
-    <footer
-      class="footer-overlay debug-box"
-      :class="{ 'debug-active': displayStore.showInfo }"
-      :style="{ height: displayStore.footerVh + 'vh' }"
-    >
+    <!-- Footer -->
+    <footer class="footer-overlay debug-box" :style="{ height: displayStore.footerVh + 'vh' }">
       <p>Footer</p>
       <p v-if="displayStore.showInfo">
         Footer VH: {{ displayStore.footerVh }}vh
@@ -64,19 +55,12 @@
     </button>
 
     <!-- Info Sheet Toggle -->
-    <button
-      v-if="displayStore.showInfo"
-      class="info-toggle"
-      @click="toggleInfoSheet"
-    >
+    <button v-if="displayStore.showInfo" class="info-toggle" @click="toggleInfoSheet">
       Toggle Info Sheet
     </button>
 
     <!-- Info Sheet Display -->
-    <div
-      v-if="displayStore.showInfoSheet && displayStore.showInfo"
-      class="info-sheet"
-    >
+    <div v-if="displayStore.showInfoSheet && displayStore.showInfo" class="info-sheet">
       <p>Header VH: {{ displayStore.headerVh }}vh</p>
       <p>Sidebar Left VW: {{ displayStore.sidebarLeftVw }}vw</p>
       <p>Sidebar Right VW: {{ displayStore.sidebarRightVw }}vw</p>

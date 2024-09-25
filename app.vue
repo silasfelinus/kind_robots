@@ -45,15 +45,15 @@
       <!-- Main Content Area -->
       <main
         class="relative overflow-hidden"
-        :style="{ width: `${displayStore.mainVw}vw`, height: '100%', padding: '2rem', marginRight: '1rem' }"
+        :style="{ width: `${displayStore.mainVw}vw`, height: '${displayStore.mainVh}vh'}"
       >
         <div class="flex justify-center items-center w-full h-full">
           <div
-            class="w-full max-w-5xl rounded-2xl bg-base-200 relative flip-card shadow-lg"
+            class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg"
             :style="{
               height: '100%',
               width: '100%',
-              overflow: 'hidden',
+              overflow: 'scroll',
               marginBottom: '1rem', // Add margin to prevent overflowing
             }"
           >
@@ -74,13 +74,13 @@
 
       <!-- Right Sidebar -->
       <kind-sidebar-right
-        :style="{ width: `${displayStore.sidebarRightWidth}vw`, height: '100%' }"
+        :style="{ width: `${displayStore.sidebarRightWidth}vw`, height: '${displayStore.sidebarRightHeight}vh' }"
       />
     </div>
 
     <!-- Footer -->
     <kind-footer
-      :style="{ height: `${displayStore.footerVh}vh`, width: '100vw' }"
+      :style="{ height: `${displayStore.footerVh}vh`, width: '${displayStore.footerVw}vw' }"
     />
   </div>
 </template>

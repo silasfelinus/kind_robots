@@ -57,9 +57,10 @@ export const useDisplayStore = defineStore('display', {
         case 'compact':
           return 3;  // Smaller size for compact
         case 'hidden':
+          return 1;
         case 'disabled':
         default:
-          return 0;  // No space used when hidden or disabled
+          return 0;  // No space used when disabled
       }
     }
   },

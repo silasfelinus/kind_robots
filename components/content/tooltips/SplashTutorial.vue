@@ -22,7 +22,7 @@
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[60vh]" <!-- Limits the image height to 60vh -->
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[60vh]" 
       />
       <div
         class="bg-info text-info-content p-2 rounded-xl shadow-md w-2/3"

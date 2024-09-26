@@ -20,6 +20,27 @@
       </select>
     </div>
 
+    <!-- Gallery Selection Dropdown -->
+    <div class="w-full max-w-4xl mx-auto mb-6">
+      <label for="selectGallery" class="block text-sm font-medium"
+        >Select Gallery:</label
+      >
+      <select
+        id="selectGallery"
+        v-model="selectedGallery"
+        class="w-full p-2 rounded border"
+      >
+        <option value="" disabled>Select a gallery</option>
+        <option
+          v-for="gallery in galleryStore.galleries"
+          :key="gallery.name"
+          :value="gallery.name"
+        >
+          {{ gallery.name }}
+        </option>
+      </select>
+    </div>
+
     <form
       class="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl mx-auto"
       @submit.prevent="handleSubmit"
@@ -50,18 +71,6 @@
           />
         </div>
 
-        <!-- Description -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="description" class="block text-sm font-medium"
-            >Description:</label
-          >
-          <textarea
-            id="description"
-            v-model="description"
-            class="resize w-full p-2 rounded border"
-          ></textarea>
-        </div>
-
         <!-- Avatar Image URL -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="avatarImageInput" class="block text-sm font-medium"
@@ -81,161 +90,45 @@
               class="w-32 h-32 object-cover"
             />
           </div>
-        </div>
-
-        <!-- Image Prompt -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="imagePrompt" class="block text-sm font-medium"
-            >Image Prompt:</label
+          <button
+            class="btn btn-primary mt-2"
+            type="button"
+            @click="generateRandomAvatar"
           >
-          <input
-            id="imagePrompt"
-            v-model="imagePrompt"
-            type="text"
-            class="w-full p-2 rounded border"
-          />
+            Generate Random Avatar
+          </button>
         </div>
 
-        <!-- Bot Introduction -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="botIntro" class="block text-sm font-medium"
-            >Bot Introduction:</label
-          >
-          <input
-            id="botIntro"
-            v-model="botIntro"
-            type="text"
-            class="w-full p-2 rounded border"
-          />
-        </div>
+        <!-- Additional fields (like description, prompt, etc.) go here -->
 
-        <!-- User Introduction -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="userIntro" class="block text-sm font-medium"
-            >User Introduction:</label
-          >
-          <input
-            id="userIntro"
-            v-model="userIntro"
-            type="text"
-            class="w-full p-2 rounded border"
-          />
-        </div>
-
-        <!-- Prompt -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="prompt" class="block text-sm font-medium">Prompt:</label>
-          <textarea
-            id="prompt"
-            v-model="prompt"
-            class="resize w-full p-2 rounded border"
-          ></textarea>
-        </div>
-
-        <!-- Sample Response -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="sampleResponse" class="block text-sm font-medium"
-            >Sample Response:</label
-          >
-          <textarea
-            id="sampleResponse"
-            v-model="sampleResponse"
-            class="resize w-full p-2 rounded border"
-          ></textarea>
-        </div>
-
-        <!-- Public Checkbox -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="isPublic" class="block text-sm font-medium"
-            >Is Public:</label
-          >
-          <input
-            id="isPublic"
-            v-model="isPublic"
-            type="checkbox"
-            class="p-2 rounded border"
-          />
-        </div>
-
-        <!-- Under Construction Checkbox -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="underConstruction" class="block text-sm font-medium"
-            >Under Construction:</label
-          >
-          <input
-            id="underConstruction"
-            v-model="underConstruction"
-            type="checkbox"
-            class="p-2 rounded border"
-          />
-        </div>
-
-        <!-- Theme -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="theme" class="block text-sm font-medium">Theme:</label>
-          <input
-            id="theme"
-            v-model="theme"
-            type="text"
-            class="w-full p-2 rounded border"
-          />
-        </div>
-
-        <!-- Personality -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="personality" class="block text-sm font-medium"
-            >Personality:</label
-          >
-          <input
-            id="personality"
-            v-model="personality"
-            type="text"
-            class="w-full p-2 rounded border"
-          />
-        </div>
+        <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
+        <button type="submit" class="btn btn-success w-full">Save Bot</button>
       </div>
-
-      <!-- Bot Sample Component -->
-      <bot-sample
-        :name="name"
-        :bot-type="botType"
-        :subtitle="subtitle"
-        :description="description"
-        :avatar-image="avatarImage"
-        :theme="theme"
-        :under-construction="underConstruction"
-        :bot-intro="botIntro"
-        :user-intro="userIntro"
-        :prompt="prompt"
-        :personality="personality"
-        :sample-response="sampleResponse"
-      />
-
-      <!-- Submit Button -->
-      <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
-      <button type="submit" class="btn btn-success w-full">Save Bot</button>
     </form>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
+import { useGalleryStore } from './../../../stores/galleryStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import { useUserStore } from './../../../stores/userStore'
 
 const botStore = useBotStore()
+const galleryStore = useGalleryStore()
 const userStore = useUserStore()
 const errorStore = useErrorStore()
 
 const isLoading = ref(false)
 const selectedBotId = ref<number | null>(null)
+const selectedGallery = ref<string | null>(null) // To hold the selected gallery
 
 // Form fields with default values
 const name = ref('')
 const subtitle = ref('Kind Robot')
 const botType = ref('PROMPTBOT')
 const description = ref("I'm a kind robot")
-const avatarImage = ref('/images/wonderchest/wonderchest-1630.webp')
+const avatarImage = ref('/images/wonderchest/wonderchest304_(23).webp')
 const botIntro = ref('SloganMaker')
 const userIntro = ref('Help me make a slogan for')
 const imagePrompt = ref('robot avatar')
@@ -250,6 +143,32 @@ const sampleResponse = ref('')
 
 // Fetch userId from userStore
 const userId = computed(() => userStore.userId)
+
+// Function to generate a random avatar from the selected gallery
+async function generateRandomAvatar() {
+  try {
+    if (!selectedGallery.value) {
+      throw new Error('Please select a gallery first.')
+    }
+
+    isLoading.value = true
+    galleryStore.setGalleryByName(selectedGallery.value)
+    await galleryStore.changeToRandomImage()
+
+    if (galleryStore.currentImage) {
+      avatarImage.value = galleryStore.currentImage
+    } else {
+      throw new Error('Failed to fetch a random avatar image.')
+    }
+  } catch (error) {
+    errorStore.setError(
+      ErrorType.GENERAL_ERROR,
+      'Error generating or fetching avatar: ' + (error as Error).message,
+    )
+  } finally {
+    isLoading.value = false
+  }
+}
 
 async function handleSubmit(e: Event) {
   e.preventDefault()
@@ -324,7 +243,7 @@ function resetForm() {
   subtitle.value = 'Kind Robot'
   botType.value = 'PROMPTBOT'
   description.value = "I'm a kind robot"
-  avatarImage.value = '/images/wonderchest/wonderchest-1630.webp'
+  avatarImage.value = '/images/wonderchest/wonderchest304_(23).webp'
   botIntro.value = 'SloganMaker'
   userIntro.value = 'Help me make a slogan for'
   imagePrompt.value = 'robot avatar'
@@ -342,6 +261,7 @@ watch(selectedBotId, () => {
   loadBotData()
 })
 
-// Initialize the botStore by fetching bots when the component is mounted
+// Fetch the galleries when the component is mounted
+await galleryStore.initializeStore()
 await botStore.loadStore()
 </script>

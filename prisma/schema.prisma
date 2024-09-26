@@ -76,7 +76,7 @@ model Bot {
   canDelete         Boolean       @default(false)
   userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
-  ChatExhanges      ChatExchange[]
+  ChatExchanges     ChatExchange[]
   Messages          Message[]
   Posts             Post[]
 }

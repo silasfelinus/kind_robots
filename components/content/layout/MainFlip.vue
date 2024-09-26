@@ -10,7 +10,7 @@
     <div
       v-if="!isLargeViewport"
       class="flip-card-inner"
-      :class="{ 'is-flipped': displayStore.showTutorial }"
+      :class="{ 'is-flipped': !displayStore.showTutorial }"
     >
       <!-- Front side: Splash Tutorial -->
       <div class="flip-card-front">
@@ -24,21 +24,17 @@
     </div>
 
     <!-- Two-column layout for large and extra-large viewports -->
-    <div
-      v-if="isLargeViewport"
-      class="flex flex-col overflow-y-auto border-info h-full p-1"
-    >
+    <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto h-full">
       <splash-tutorial />
     </div>
     <div
       v-if="isLargeViewport"
-      class="flex flex-col overflow-y-auto h-full border border-accent rounded-2xl p-1"
+      class="flex flex-col overflow-y-auto h-full border rounded-2xl"
     >
       <NuxtPage />
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
@@ -70,24 +66,16 @@ onMounted(() => {
   height: 100%;
 }
 
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
-}
-
-.flip-card-front {
-  z-index: 2;
-}
-
 .flip-card-inner {
   width: 100%;
   height: 100%;
   transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
 }
 
 .flip-card-front,
@@ -101,15 +89,18 @@ onMounted(() => {
   flex-direction: column;
 }
 
+.flip-card-front {
+  z-index: 2;
+}
+
 .flip-card-back {
   transform: rotateY(180deg);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh; /* Ensure the card back takes full height */
   scroll-snap-type: y mandatory;
   scroll-snap-align: start;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Ensure grid layout height takes full available space */

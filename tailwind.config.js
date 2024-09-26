@@ -1,8 +1,5 @@
-import { sidebarLinks } from './assets/sidebar'
-
 /** @type {import('tailwindcss').Config} */
 export default {
-  safelist: sidebarLinks.map((link) => link.icon), // Safelist all icons
   jit: true,
   content: [
     './pages/**/*.{html,ts,js,vue}',

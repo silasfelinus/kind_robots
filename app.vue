@@ -12,7 +12,7 @@
         class="sidebar-left-overlay debug-box pointer-events-none"
         :style="{
           width: displayStore.sidebarLeftVw + 'vw',
-          height: displayStore.mainVh + 'vh',
+          height: displayStore.mainVh + 'vh'
         }"
       ></aside>
 
@@ -20,39 +20,17 @@
         class="main-content-overlay debug-box pointer-events-none"
         :style="{
           height: displayStore.mainVh + 'vh',
-          width: displayStore.mainVw + 'vw',
+          width: displayStore.mainVw + 'vw'
         }"
       >
         <!-- Floating color-coded key in the center -->
-        <div
-          class="color-key absolute inset-0 flex justify-center items-center pointer-events-none"
-        >
+        <div class="color-key absolute inset-0 flex justify-center items-center pointer-events-none">
           <div class="key-container bg-white p-4 rounded-lg shadow-md">
-            <p>
-              <span class="color-box bg-red-500"></span> Header ({{
-                displayStore.headerVh
-              }}vh)
-            </p>
-            <p>
-              <span class="color-box bg-blue-500"></span> Left Sidebar ({{
-                displayStore.sidebarLeftVw
-              }}vw)
-            </p>
-            <p>
-              <span class="color-box bg-green-500"></span> Main Content ({{
-                displayStore.mainVw
-              }}vw, {{ displayStore.mainVh }}vh)
-            </p>
-            <p>
-              <span class="color-box bg-yellow-500"></span> Right Sidebar ({{
-                displayStore.sidebarRightVw
-              }}vw)
-            </p>
-            <p>
-              <span class="color-box bg-orange-500"></span> Footer ({{
-                displayStore.footerVh
-              }}vh)
-            </p>
+            <p><span class="color-box bg-red-500"></span> Header ({{ displayStore.headerVh }}vh)</p>
+            <p><span class="color-box bg-blue-500"></span> Left Sidebar ({{ displayStore.sidebarLeftVw }}vw)</p>
+            <p><span class="color-box bg-green-500"></span> Main Content ({{ displayStore.mainVw }}vw, {{ displayStore.mainVh }}vh)</p>
+            <p><span class="color-box bg-yellow-500"></span> Right Sidebar ({{ displayStore.sidebarRightVw }}vw)</p>
+            <p><span class="color-box bg-orange-500"></span> Footer ({{ displayStore.footerVh }}vh)</p>
           </div>
         </div>
       </main>
@@ -61,7 +39,7 @@
         class="sidebar-right-overlay debug-box pointer-events-none"
         :style="{
           width: displayStore.sidebarRightVw + 'vw',
-          height: displayStore.mainVh + 'vh',
+          height: displayStore.mainVh + 'vh'
         }"
       ></aside>
     </div>
@@ -78,18 +56,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-
-onMounted(() => {
-  displayStore.initialize() // Calls both loadState and initializes the viewport watcher
-})
-
-onBeforeUnmount(() => {
-  displayStore.removeViewportWatcher() // Removes the viewport watcher when component is unmounted
-})
 </script>
 
 <style scoped>
@@ -102,8 +71,11 @@ onBeforeUnmount(() => {
 
 .content-area {
   display: grid;
-  grid-template-columns: 19vw 79vw 2vw; /* Left Sidebar, Main Content, Right Sidebar */
-  height: 92vh; /* Consistent height for main content area */
+  grid-template-columns: 
+    minmax(0, calc(var(--sidebar-left-vw) * 1vw)) 
+    minmax(0, calc(100vw - var(--sidebar-left-vw) * 1vw - var(--sidebar-right-vw) * 1vw)) 
+    minmax(0, calc(var(--sidebar-right-vw) * 1vw)); /* Dynamic based on sidebar widths */
+  height: calc(var(--main-vh) * 1vh); /* Dynamic height based on main content */
   overflow: hidden; /* Prevent horizontal scrolling */
 }
 
@@ -114,6 +86,7 @@ onBeforeUnmount(() => {
 .footer-overlay {
   position: relative;
   text-align: center;
+  padding: 0; /* Ensure no padding */
 }
 
 .header-overlay {
@@ -147,11 +120,8 @@ onBeforeUnmount(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: linear-gradient(
-      to right,
-      rgba(255, 255, 255, 0.5) 1px,
-      transparent 1px
-    ),
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.5) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 1px, transparent 1px);
   background-size: 20vw 20vh;
   pointer-events: none;
@@ -175,19 +145,9 @@ onBeforeUnmount(() => {
   vertical-align: middle;
 }
 
-.bg-red-500 {
-  background-color: #ff6f61;
-}
-.bg-blue-500 {
-  background-color: #6fa8dc;
-}
-.bg-green-500 {
-  background-color: #76dd71;
-}
-.bg-yellow-500 {
-  background-color: #f4d03f;
-}
-.bg-orange-500 {
-  background-color: #f39c12;
-}
+.bg-red-500 { background-color: #ff6f61; }
+.bg-blue-500 { background-color: #6fa8dc; }
+.bg-green-500 { background-color: #76dd71; }
+.bg-yellow-500 { background-color: #f4d03f; }
+.bg-orange-500 { background-color: #f39c12; }
 </style>

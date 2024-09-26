@@ -7,7 +7,7 @@
         'items-center',
         'justify-center',
         'rounded-2xl',
-        'bg-base-200',
+        'bg-base-300',
         'text-center',
         'hover:scale-110',
         'hover:glow-animation',

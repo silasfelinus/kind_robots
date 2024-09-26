@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg"
+    class="w-full max-w-5xl rounded-2xl bg-base-300 relative flip-card shadow-lg"
   >
     <div
       class="flip-card-inner"

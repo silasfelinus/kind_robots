@@ -60,8 +60,8 @@ onMounted(() => {
 // Computed
 const headerClass = computed(() =>
   isCompact.value
-    ? 'flex flex-row items-center bg-base-200 m-1'
-    : 'flex flex-col bg-base-200 m-1',
+    ? 'flex flex-row items-center bg-base-300 m-1'
+    : 'flex flex-col bg-base-300 m-1',
 )
 const avatarSize = computed(() => (isCompact.value ? 'small' : 'large'))
 const username = computed(() => user.value?.username || 'Kind Guest')

@@ -38,7 +38,7 @@
     </div>
     <div
       v-if="isExtended"
-      class="absolute left-1/2 transform -translate-x-1/2 bg-base-200 p-2 rounded-lg hidden group-hover:block z-10"
+      class="absolute left-1/2 transform -translate-x-1/2 bg-base-300 p-2 rounded-lg hidden group-hover:block z-10"
       :class="{
         'top-0 -translate-y-full': !isHighlight,
         'top-1/4 -translate-y-1/2': isHighlight,

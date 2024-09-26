@@ -18,7 +18,7 @@ export const steps = [
     altText: 'Create Art',
     buttonText: 'Next',
     focus: 'leftSide',
-    bgClass: 'bg-base-100',
+    bgClass: 'bg-base-300',
   },
   {
     id: 'botcafe',
@@ -29,7 +29,7 @@ export const steps = [
     altText: 'Features Image',
     buttonText: 'Next',
     focus: 'rightSide',
-    bgClass: 'bg-base-200',
+    bgClass: 'bg-base-300',
   },
   {
     id: 'outro',

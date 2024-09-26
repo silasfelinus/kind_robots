@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 p-4 rounded shadow-lg modal">
+  <div class="bg-base-300 p-4 rounded shadow-lg modal">
     <!-- Reward Details -->
     <Icon :name="reward.icon" class="text-6xl mb-2" />
     <h2 class="text-xl mb-2">

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col items-center p-2 bg-base-200 overflow-auto h-screen rounded-2xl"
+    class="relative flex flex-col items-center p-2 bg-base-300 overflow-auto h-screen rounded-2xl"
   >
     <div class="m-4 mx-auto max-w-4xl">
       <div class="h-96 carousel carousel-vertical rounded-box">

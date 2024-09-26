@@ -9,7 +9,7 @@
         class="flex flex-col rounded-2xl items-center justify-center my-4 drag-card"
       >
         <div
-          class="rounded-2xl border-4 p-2 bg-base-200 shadow-md hover:shadow-lg transition-shadow duration-300"
+          class="rounded-2xl border-4 p-2 bg-base-300 shadow-md hover:shadow-lg transition-shadow duration-300"
         >
           <NuxtLink
             :to="page._path"

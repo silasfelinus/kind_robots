@@ -7,7 +7,7 @@
     <!-- Silas Section -->
     <div
       v-if="page.tooltip"
-      class="flex flex-col items-center bg-base-200 rounded-2xl p-4"
+      class="flex flex-col items-center bg-base-300 rounded-2xl p-4"
     >
       <img
         src="/images/silasfelinus.webp"
@@ -23,7 +23,7 @@
     <!-- AMI Section -->
     <div
       v-if="page.amitip"
-      class="flex flex-col items-center bg-base-200 rounded-2xl p-4"
+      class="flex flex-col items-center bg-base-300 rounded-2xl p-4"
     >
       <img
         src="/images/amibotsquare1.webp"

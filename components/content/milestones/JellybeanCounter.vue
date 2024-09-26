@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 rounded-2xl border m-2 p-2 mx-auto max-w-screen-xl">
+  <div class="bg-base-300 rounded-2xl border m-2 p-2 mx-auto max-w-screen-xl">
     <!-- Header -->
     <div class="text-center bg-primary text-white border p-2 m-2 rounded-2xl">
       <h1 class="text-2xl">{{ userStore.username }}'s Milestones</h1>

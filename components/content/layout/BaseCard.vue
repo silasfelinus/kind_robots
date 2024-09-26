@@ -44,7 +44,7 @@ const props = defineProps({
 // Break down long class strings for better readability and maintainability
 const baseCardClasses = computed(() =>
   [
-    'bg-base-200',
+    'bg-base-300',
     'border-xl',
     'p-8',
     'm-6',

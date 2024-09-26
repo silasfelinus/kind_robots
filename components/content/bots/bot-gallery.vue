@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col justify-center sm:py-12 bg-base-200">
+  <div class="min-h-screen flex flex-col justify-center sm:py-12 bg-base-300">
     <div class="relative py-3 sm:max-w-xl sm:mx-auto">
       <div
         class="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 shadow-lg transform rounded-3xl"

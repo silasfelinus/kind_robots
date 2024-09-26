@@ -1,6 +1,6 @@
 <template>
   <!-- Art Gallery Container -->
-  <div class="relative bg-base-200 rounded-2xl m-1 p-0">
+  <div class="relative bg-base-300 rounded-2xl m-1 p-0">
     <!-- View Control Icons -->
     <div
       class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-lg"

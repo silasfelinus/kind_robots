@@ -1,5 +1,5 @@
 <template>
-  <div class="product-card bg-base-200 rounded-2xl p-4 flex flex-col">
+  <div class="product-card bg-base-300 rounded-2xl p-4 flex flex-col">
     <div class="product-header flex items-center justify-between mb-2">
       <div class="product-title text-lg font-bold">
         {{ product.title }}

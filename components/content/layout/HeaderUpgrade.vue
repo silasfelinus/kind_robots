@@ -1,7 +1,7 @@
 <template>
   <div class="relative w-full m-1 p-1" style="max-height: 12vh">
     <header
-      class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-200 w-full max-w-[95vw] space-x-2"
+      class="flex items-center justify-between rounded-2xl border p-1 m-1 bg-base-300 w-full max-w-[95vw] space-x-2"
     >
       <!-- Avatar and Title Section -->
       <div class="flex items-center rounded-2xl space-x-3 flex-grow">

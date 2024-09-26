@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 p-4">
+  <div class="bg-base-300 p-4">
     <h1 class="text-2xl mb-4">Quests</h1>
     <div v-for="todo in todos" :key="todo.id" class="bg-primary p-2 mb-2">
       <div>

@@ -8,7 +8,7 @@
         :class="[
           selectedPitch?.id === pitch.id
             ? 'bg-primary text-white'
-            : 'bg-base-200',
+            : 'bg-base-300',
           'rounded-2xl border p-2 m-2',
         ]"
         @click="updateSelectedPitch(pitch.id)"

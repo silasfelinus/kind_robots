@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 min-h-screen flex flex-col items-center py-8">
+  <div class="bg-base-300 min-h-screen flex flex-col items-center py-8">
     <!-- Spotify Login -->
     <div v-if="!token" class="mb-8">
       <button class="btn btn-primary" @click="fetchSpotifyToken">

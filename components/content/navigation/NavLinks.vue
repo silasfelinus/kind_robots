@@ -28,7 +28,7 @@
     <!-- Hidden Menu on Small Screens (Accolade Menu) -->
     <div
       v-if="isMenuOpen"
-      class="absolute top-12 left-0 w-full bg-base-200 shadow-lg sm:hidden flex flex-col items-center"
+      class="absolute top-12 left-0 w-full bg-base-300 shadow-lg sm:hidden flex flex-col items-center"
     >
       <nuxt-link
         v-for="link in navLinks"

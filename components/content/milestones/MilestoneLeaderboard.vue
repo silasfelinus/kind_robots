@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 rounded-2xl border p-4 m-2">
+  <div class="bg-base-300 rounded-2xl border p-4 m-2">
     <h2 class="text-lg font-bold text-center">Jellybean Collectors</h2>
     <ul class="list-decimal list-inside">
       <li v-for="(entry, index) in leaderboardData" :key="index">

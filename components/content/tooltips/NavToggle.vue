@@ -1,6 +1,6 @@
 <template>
   <button
-    class="p-1 bg-base-200 m-1 flex items-center justify-center"
+    class="p-1 bg-base-300 m-1 flex items-center justify-center"
     @click="toggleNav"
   >
     <Icon

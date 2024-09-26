@@ -6,7 +6,7 @@
     <!-- Header -->
     <header
       class="sticky top-0 z-30 w-full bg-base-200"
-      :style="{ height: `${headerHeight}px` }"
+      :style="{ height: `${headerHeight}px`, top: `${displayStore.headerOffset}px` }"
     >
       <!-- Sidebar Toggle -->
       <div class="absolute top-2 left-4 p-1 z-40 text-white">
@@ -35,17 +35,18 @@
 
     <!-- Main Layout Wrapper -->
     <div class="flex flex-grow relative overflow-hidden">
-      <!-- Left Sidebar (below the header) -->
-      <kind-sidebar-simple class="h-full" :style="{ width: `${sidebarLeftWidth}vw` }" />
+      <!-- Left Sidebar -->
+      <kind-sidebar-simple
+        class="h-full"
+        :style="{ width: `${sidebarLeftWidth}vw`, left: `${displayStore.sidebarLeftOffset}px` }"
+      />
 
       <!-- Main Content Area -->
       <main
         class="relative flex-grow overflow-y-auto flex justify-center items-center"
         :style="{ height: `${mainHeight}px` }"
       >
-        <div
-          class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto"
-        >
+        <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto">
           <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
             <!-- Front side: Splash Tutorial -->
             <div class="flip-card-front">
@@ -61,7 +62,7 @@
       </main>
 
       <!-- Right Sidebar -->
-      <aside class="h-full" :style="{ width: `${sidebarRightWidth}vw` }" />
+      <aside class="h-full" :style="{ width: `${sidebarRightWidth}vw`, right: `${displayStore.sidebarRightOffset}px` }" />
     </div>
 
     <!-- Footer -->
@@ -72,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
@@ -80,7 +81,9 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 const showTutorial = ref(true)
 const router = useRouter()
-const windowHeight = ref(window.innerHeight) // Dynamically calculated window height
+
+// Dynamically calculated window height and other variables
+const windowHeight = ref(window.innerHeight)
 const headerHeight = ref(0)
 const footerHeight = ref(0)
 const mainHeight = ref(0)
@@ -100,8 +103,8 @@ const toggleTutorial = () => {
   showTutorial.value = !showTutorial.value
 }
 
-// Calculate and update heights dynamically
-const updateHeights = () => {
+// Update heights and widths dynamically
+const updateLayout = () => {
   const totalHeight = window.innerHeight
   headerHeight.value = (displayStore.headerVh / 100) * totalHeight
   footerHeight.value = (displayStore.footerVh / 100) * totalHeight
@@ -111,16 +114,25 @@ const updateHeights = () => {
 
 onMounted(() => {
   displayStore.initializeViewportWatcher()
-  updateHeights()
+  updateLayout()
 
-  // Recalculate heights on window resize
-  window.addEventListener('resize', updateHeights)
+  // Recalculate layout on window resize
+  window.addEventListener('resize', updateLayout)
 })
 
 onBeforeUnmount(() => {
   displayStore.removeViewportWatcher()
-  window.removeEventListener('resize', updateHeights)
+  window.removeEventListener('resize', updateLayout)
 })
+
+// Watch for changes in displayStore and update layout accordingly
+watch(
+  () => displayStore,
+  () => {
+    updateLayout()
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>

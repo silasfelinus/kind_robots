@@ -35,6 +35,6 @@ const containerStyles = computed(() => ({
   flex-direction: column;
   overflow: hidden;
   border-radius: 2rem;
-  background-color: var(--bg-base-200);
+  background-color: var(--bg-base-300);
 }
 </style>

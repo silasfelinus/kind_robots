@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 p-4">
+  <div class="bg-base-300 p-4">
     <!-- Error Message -->
     <div v-if="rewardStore.error" class="text-red-500">
       🚨 {{ rewardStore.error }}

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative bg-base-200 rounded-2xl m-4 p-4">
+  <div class="relative bg-base-300 rounded-2xl m-4 p-4">
     <!-- View Toggle -->
     <div class="absolute top-4 right-4 flex space-x-2 z-40">
       <Icon

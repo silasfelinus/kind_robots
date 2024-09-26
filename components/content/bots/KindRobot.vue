@@ -1,13 +1,13 @@
 <template>
   <!-- Main container with reduced padding/margin and vertical scroll handling -->
-  <div class="flex flex-col items-center bg-base-200 p-2 m-1 overflow-y-auto">
+  <div class="flex flex-col items-center bg-base-300 p-2 m-1 overflow-y-auto">
     <bot-selector />
 
     <!-- Display bot details if a bot is selected -->
     <div
       v-if="currentBot"
       :data-theme="currentBot.theme"
-      class="w-full bg-base-200 rounded-2xl"
+      class="w-full bg-base-300 rounded-2xl"
     >
       <!-- Bot name and ID, combining into a single line to reduce vertical space -->
       <div class="flex justify-between items-center m-2">
@@ -37,7 +37,7 @@
           <p class="text-md text-gray-600">
             {{ currentBot.subtitle ?? 'Subtitle' }}
           </p>
-          <div class="card mt-2 p-2 bg-base-100">
+          <div class="card mt-2 p-2 bg-base-300">
             {{ currentBot.description ?? 'Description' }}
           </div>
         </div>

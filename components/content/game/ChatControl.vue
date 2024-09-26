@@ -1,6 +1,6 @@
 <template>
   <div
-    class="chat-control bg-base-200 rounded-2xl p-4 border max-w-full flex flex-col space-y-4 mb-48"
+    class="chat-control bg-base-300 rounded-2xl p-4 border max-w-full flex flex-col space-y-4 mb-48"
   >
     <!-- Channel Selection Dropdown -->
     <div class="font-semibold mb-2 text-lg text-primary">Select a Channel:</div>
@@ -25,7 +25,7 @@
       <!-- Chat Window Column -->
       <div
         v-if="selectedChannel"
-        class="chat-window bg-base-100 rounded-2xl p-4 max-h-96 overflow-y-auto border border-accent flex-1"
+        class="chat-window bg-base-300 rounded-2xl p-4 max-h-96 overflow-y-auto border border-accent flex-1"
       >
         <div
           v-if="selectedChannelMessages.length === 0"

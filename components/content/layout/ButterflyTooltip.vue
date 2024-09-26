@@ -8,7 +8,7 @@
     <!-- Tooltip Popup -->
     <div
       v-else-if="tooltipOpen && page.tooltip"
-      class="tooltip-popup bg-base-200 p-4 rounded-2xl border"
+      class="tooltip-popup bg-base-300 p-4 rounded-2xl border"
     >
       <div v-if="page.tooltip">
         <span class="font-semibold">

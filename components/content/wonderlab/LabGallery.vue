@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 bg-base-200 min-h-screen grid grid-rows-2 gap-2">
+  <div class="p-2 bg-base-300 min-h-screen grid grid-rows-2 gap-2">
     <!-- Folder View -->
     <div
       v-if="folderNames.length && !selectedComponents.length"

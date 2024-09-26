@@ -4,7 +4,7 @@
   >
     <div v-if="currentBot" class="col-span-full lg:col-span-1 flex flex-col">
       <div
-        class="card bg-base-200 text-base-content shadow-xl flex-grow overflow-auto"
+        class="card bg-base-300 text-base-content shadow-xl flex-grow overflow-auto"
       >
         <div class="flex flex-col lg:flex-row items-stretch">
           <avatar-image />

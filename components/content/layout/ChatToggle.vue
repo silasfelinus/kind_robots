@@ -9,7 +9,7 @@
     </div>
 
     <!-- Chat Component -->
-    <div v-else class="p-4 rounded-lg bg-base-200">
+    <div v-else class="p-4 rounded-lg bg-base-300">
       <!-- Chatbot Bubble -->
       <div class="p-2 rounded-lg bg-primary mb-2">
         {{ page.title || 'Hello, Kind Guest!' }}

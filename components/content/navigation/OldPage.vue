@@ -52,7 +52,7 @@ onMounted(() => {
   >
     <!-- Sidebar -->
     <div
-      class="md:w-1/5 flex flex-col items-center bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
+      class="md:w-1/5 flex flex-col items-center bg-gradient-to-r from-bg-base-300 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
     >
       <div
         ref="flipContainer"

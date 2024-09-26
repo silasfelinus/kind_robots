@@ -20,7 +20,7 @@
             class="flex flex-col items-center py-1 px-1 text-md shadow-lg group"
           >
             <div
-              class="bg-base-200 p-2 rounded-2xl overflow-hidden flex items-center justify-center border transition-colors group-hover:border-secondary"
+              class="bg-base-300 p-2 rounded-2xl overflow-hidden flex items-center justify-center border transition-colors group-hover:border-secondary"
             >
               <img
                 :src="`/images/${page.image}`"

@@ -5,7 +5,7 @@
       <div
         v-for="milestone in lockedMilestones"
         :key="milestone.id"
-        class="card bg-base-200 rounded-2xl p-4 transition duration-300 ease-in-out relative"
+        class="card bg-base-300 rounded-2xl p-4 transition duration-300 ease-in-out relative"
       >
         <div class="text-center">
           <!-- Milestone Icon -->

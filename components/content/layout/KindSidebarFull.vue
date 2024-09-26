@@ -2,7 +2,7 @@
   <div class="flex">
     <aside
       v-if="(displayStore.sidebarLeft as DisplayState) !== 'hidden'"
-      class="transition-all duration-300 bg-base-200 hide-scrollbar flex-grow p-2"
+      class="transition-all duration-300 bg-base-300 hide-scrollbar flex-grow p-2"
       :class="{
         'w-64': displayStore.sidebarLeft === 'open',
         'w-16': displayStore.sidebarLeft === 'compact',
@@ -20,7 +20,7 @@
           <NuxtLink
             to="/"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="line-md:home-md-twotone"
@@ -37,7 +37,7 @@
           <NuxtLink
             to="/addbot"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="fluent:bot-add-20-regular"
@@ -54,7 +54,7 @@
           <NuxtLink
             to="/botcafe"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="mdi:chat-processing"
@@ -71,7 +71,7 @@
           <NuxtLink
             to="/pitch"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="fluent:chat-bubbles-question-16-regular"
@@ -88,7 +88,7 @@
           <NuxtLink
             to="/artmaker"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="game-icons:easel"
@@ -105,7 +105,7 @@
           <NuxtLink
             to="/hotornot"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="emojione-monotone:fire"
@@ -122,7 +122,7 @@
           <NuxtLink
             to="/artgallery"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="mdi:palette"
@@ -139,7 +139,7 @@
           <NuxtLink
             to="/artchallenge"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="game-icons:tabletop-players"
@@ -156,7 +156,7 @@
           <NuxtLink
             to="/brainstorm"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="game-icons:robot-antennas"
@@ -173,7 +173,7 @@
           <NuxtLink
             to="/memory"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="material-symbols:art-track-outline-rounded"
@@ -190,7 +190,7 @@
           <NuxtLink
             to="/dashboard"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="mingcute:settings-6-fill"
@@ -208,7 +208,7 @@
             v-if="showMature"
             to="/mature"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="fxemoji:lips"
@@ -226,7 +226,7 @@
             v-if="showMature"
             to="/wonderlab"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="game-icons:gear-hammer"
@@ -243,7 +243,7 @@
           <NuxtLink
             to="/about"
             :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-            class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+            class="Icon-link-container flex items-center space-x-2 hover:bg-base-300 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
           >
             <Icon
               name="game-icons:abstract-037"

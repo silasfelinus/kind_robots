@@ -1,6 +1,6 @@
 <template>
   <div
-    class="theme-toggle flex flex-col items-center bg-base-200 p-2 m-2 rounded-2xl text-lg w-screen h-screen border"
+    class="theme-toggle flex flex-col items-center bg-base-300 p-2 m-2 rounded-2xl text-lg w-screen h-screen border"
   >
     <div class="text-2xl font-bold mb-2 w-full text-center">Choose Theme:</div>
     <milestone-reward v-if="themeChanged" :id="9" />

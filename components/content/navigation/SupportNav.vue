@@ -25,7 +25,7 @@
         <Icon name="line-md:download-outline-loop" class="text-lg m-2" />
       </div>
       <div class="flex flex-col items-start">
-        <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
+        <div class="text-lg font-bold bg-base-300 p-2 rounded-2xl border">
           {{ page.title }}
         </div>
         <popup-description

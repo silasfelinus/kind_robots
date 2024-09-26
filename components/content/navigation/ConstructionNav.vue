@@ -38,7 +38,7 @@
       </div>
       <!-- Page Title and Popup -->
       <div class="flex flex-col items-start">
-        <div class="text-lg font-bold bg-base-200 px-2 rounded-2xl border">
+        <div class="text-lg font-bold bg-base-300 px-2 rounded-2xl border">
           {{ page.title }}
         </div>
         <popup-description

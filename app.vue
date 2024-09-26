@@ -1,5 +1,5 @@
 <template>
-  <div class="main-layout absolute inset-0">
+  <div class="main-layout absolute inset-0 bg-base-300">
     <kind-loader></kind-loader>
     <!-- Header -->
     <header
@@ -20,7 +20,7 @@
       }"
     >
       <kind-sidebar-simple
-        class="sidebar-left-overlay overflow-y-auto"
+        class="sidebar-left-overlay overflow-y-auto bg-base-300"
         :style="{
           width: sidebarLeftWidth,
           height: mainHeight,

@@ -23,6 +23,6 @@ const { message, sender, align } = props
 const bubbleClasses = [
   'p-3',
   'rounded-lg',
-  align === 'left' ? 'bg-base-200' : 'bg-info',
+  align === 'left' ? 'bg-base-300' : 'bg-info',
 ]
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="live-chat-window bg-base-200 rounded-2xl p-4 max-h-400">
+  <div class="live-chat-window bg-base-300 rounded-2xl p-4 max-h-400">
     <!-- Chat Messages -->
     <div class="chat-messages overflow-y-auto max-h-300">
       <div

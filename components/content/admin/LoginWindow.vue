@@ -27,7 +27,7 @@
     <!-- Login Dropdown -->
     <div
       v-if="isVisible && !isLoggedIn"
-      class="flex flex-col items-center bg-base-200 p-4 rounded-2xl shadow-lg transition-all duration-300"
+      class="flex flex-col items-center bg-base-300 p-4 rounded-2xl shadow-lg transition-all duration-300"
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
@@ -192,11 +192,11 @@ onMounted(() => {
 }
 
 /* Adding some stylish upgrades */
-.bg-base-200 {
+.bg-base-300 {
   transition: background-color 0.3s ease;
 }
 
-.bg-base-200:hover {
+.bg-base-300:hover {
   background-color: var(--bg-base-300);
 }
 

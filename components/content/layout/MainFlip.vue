@@ -3,17 +3,12 @@
     class="w-full rounded-2xl bg-base-300 relative shadow-lg h-full"
     :class="{
       'grid grid-cols-2 gap-4': isLargeViewport,
-      'flip-card':
-        displayStore.viewportSize !== 'large' &&
-        displayStore.viewportSize !== 'extraLarge',
+      'flip-card': !isLargeViewport,
     }"
   >
     <!-- Flip-card Layout for small and medium viewports -->
     <div
-      v-if="
-        displayStore.viewportSize !== 'large' &&
-        displayStore.viewportSize !== 'extraLarge'
-      "
+      v-if="!isLargeViewport"
       class="flip-card-inner"
       :class="{ 'is-flipped': !displayStore.showTutorial }"
     >
@@ -37,10 +32,33 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
+
+// Initialize the display store
+const displayStore = useDisplayStore()
+
+// Watch for changes in viewport size
+const isLargeViewport = computed(
+  () =>
+    displayStore.viewportSize === 'large' ||
+    displayStore.viewportSize === 'extraLarge',
+)
+
+// Ensure initialization happens on component mount
+onMounted(() => {
+  if (!displayStore.isInitialized) {
+    displayStore.initialize()
+  }
+})
+</script>
+
 <style scoped>
 .flip-card {
   width: 100%;
-  height: 100%; /* Ensure the flip-card takes full height */
+  height: 100%;
   perspective: 1000px;
 }
 
@@ -63,7 +81,7 @@
   height: 100%;
   backface-visibility: hidden;
   border-radius: 12px;
-  display: flex; /* Allow flexible content */
+  display: flex;
   flex-direction: column;
 }
 
@@ -73,7 +91,7 @@
 
 .flip-card-back {
   transform: rotateY(180deg);
-  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-y: auto;
 }
 
 /* Ensure grid layout height takes full available space */

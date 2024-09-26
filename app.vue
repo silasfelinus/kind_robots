@@ -131,14 +131,17 @@ const setCustomVh = () => {
   }
 }
 
-// Initialize the viewport state and load previous states
 onMounted(() => {
-  setCustomVh()
-  window.addEventListener('resize', setCustomVh)
-  displayStore.initialize()
+  if (typeof window !== 'undefined') {
+    setCustomVh()
+    if (!displayStore.isInitialized) {
+      window.addEventListener('resize', setCustomVh)
+      displayStore.initialize()
+      displayStore.isInitialized = true // Add a flag to prevent duplicate init
+    }
+  }
 })
 
-// Remove the viewport watcher on component unmount
 onBeforeUnmount(() => {
   if (typeof window !== 'undefined') {
     window.removeEventListener('resize', setCustomVh)

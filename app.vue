@@ -1,6 +1,6 @@
 <template>
   <div class="main-layout absolute inset-0">
-    <kind-loader />
+    <kindloader></kindloader>
     <!-- Header -->
     <header
       class="header-overlay"
@@ -8,7 +8,7 @@
         height: headerHeight,
       }"
     >
-      <main-header />
+      <sidebar-toggle></sidebar-toggle>
     </header>
 
     <!-- Main content area with sidebars and main content -->
@@ -34,7 +34,7 @@
           width: mainWidth,
         }"
       >
-        <MainFlip />
+        <MainFlip></MainFlip>
       </main>
 
       <aside

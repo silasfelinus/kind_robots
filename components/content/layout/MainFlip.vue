@@ -8,12 +8,12 @@
     >
       <!-- Front side: Splash Tutorial -->
       <div class="flip-card-front">
-        <SplashTutorial />
+        <SplashTutorial></SplashTutorial>
       </div>
 
       <!-- Back side: NuxtPage content (with scrolling) -->
       <div class="flip-card-back overflow-y-auto">
-        <NuxtPage />
+        <NuxtPage></NuxtPage>
       </div>
     </div>
   </div>

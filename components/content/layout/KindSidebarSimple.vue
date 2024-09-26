@@ -15,7 +15,7 @@
         v-for="link in hardcodedLinks"
         :key="link.title"
         :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-        class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-110 rounded-xl mt-1 mb-1 p-2 text-accent"
+        class="Icon-link-container flex items-center space-x-1 md:space-x-2 hover:bg-base-100 hover:scale-110 rounded-xl mt-1 mb-1 p-1 md:p-2 text-accent"
       >
         <!-- Use a click event with router.push for navigation -->
         <a
@@ -25,7 +25,7 @@
           <!-- Icon for each link -->
           <Icon
             :name="link.icon"
-            class="h-12 w-12 transition-all duration-300 ease-in-out text-accent"
+            class="h-6 w-6 md:h-12 md:w-12 transition-all duration-300 ease-in-out text-accent"
           />
           <!-- Only show the link title when the sidebar is fully open -->
           <span

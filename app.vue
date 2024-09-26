@@ -17,7 +17,7 @@
       </main>
 
       <!-- Right Sidebar -->
-      <kind-sidebar-right class="h-full" :style="{ width: `${displayStore.sidebarRightWidth}vw` }" />
+      <aside class="h-full" :style="{ width: `${displayStore.sidebarRightWidth}vw` }" />
     </div>
 
     <!-- Footer -->

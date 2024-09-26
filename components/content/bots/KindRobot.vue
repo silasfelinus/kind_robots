@@ -13,7 +13,9 @@
       <div class="flex justify-between items-center m-2">
         <h1 class="text-2xl font-bold">
           {{ currentBot.name }}
-          <span class="text-sm text-gray-600">Bot ID#{{ currentBot.id - 1 }}</span>
+          <span class="text-sm text-gray-600"
+            >Bot ID#{{ currentBot.id - 1 }}</span
+          >
         </h1>
         <span class="text-sm text-gray-600">Meet Them All!</span>
       </div>

@@ -264,11 +264,7 @@
   },
   {
     "folderName": "photoprism",
-    "components": [
-      "ImageUpload",
-      "PhotoGallery",
-      "PhotoprismFolders"
-    ]
+    "components": ["ImageUpload", "PhotoGallery", "PhotoprismFolders"]
   },
   {
     "folderName": "products",

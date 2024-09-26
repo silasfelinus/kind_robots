@@ -32,7 +32,7 @@ export const useDisplayStore = defineStore('display', {
         small: { open: 8, compact: 6, hidden: 1, disabled: 0 },
         medium: { open: 7, compact: 5, hidden: 1, disabled: 0 },
         large: { open: 6, compact: 4, hidden: 1, disabled: 0 },
-        extraLarge: { open: 5, compact: 3, hidden: 1, disabled: 0 }
+        extraLarge: { open: 5, compact: 3, hidden: 1, disabled: 0 },
       }[state.viewportSize]
       return sizes[state.headerState] || 6
     },
@@ -41,7 +41,7 @@ export const useDisplayStore = defineStore('display', {
         small: { open: 21, compact: 12, hidden: 1, disabled: 0 },
         medium: { open: 19, compact: 10, hidden: 1, disabled: 0 },
         large: { open: 16, compact: 8, hidden: 1, disabled: 0 },
-        extraLarge: { open: 13, compact: 6, hidden: 1, disabled: 0 }
+        extraLarge: { open: 13, compact: 6, hidden: 1, disabled: 0 },
       }[state.viewportSize]
       return sizes[state.sidebarLeftState] || 16
     },
@@ -50,7 +50,7 @@ export const useDisplayStore = defineStore('display', {
         small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
         medium: { open: 3, compact: 2, hidden: 1, disabled: 0 },
         large: { open: 3, compact: 2, hidden: 1, disabled: 0 },
-        extraLarge: { open: 3, compact: 2, hidden: 1, disabled: 0 }
+        extraLarge: { open: 3, compact: 2, hidden: 1, disabled: 0 },
       }[state.viewportSize]
       return sizes[state.sidebarRightState] || 2
     },
@@ -59,7 +59,7 @@ export const useDisplayStore = defineStore('display', {
         small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
         medium: { open: 2, compact: 1, hidden: 1, disabled: 0 },
         large: { open: 2, compact: 1, hidden: 1, disabled: 0 },
-        extraLarge: { open: 1, compact: 0.5, hidden: 1, disabled: 0 }
+        extraLarge: { open: 1, compact: 0.5, hidden: 1, disabled: 0 },
       }[state.viewportSize]
       return sizes[state.footerState] || 2
     },
@@ -74,10 +74,10 @@ export const useDisplayStore = defineStore('display', {
         small: { open: 18, compact: 16, hidden: 14, disabled: 14 },
         medium: { open: 24, compact: 20, hidden: 18, disabled: 18 },
         large: { open: 28, compact: 24, hidden: 20, disabled: 20 },
-        extraLarge: { open: 32, compact: 28, hidden: 24, disabled: 24 }
+        extraLarge: { open: 32, compact: 28, hidden: 24, disabled: 24 },
       }[state.viewportSize]
       return sizes[state.headerState] || 24
-    }
+    },
   },
 
   actions: {
@@ -85,7 +85,8 @@ export const useDisplayStore = defineStore('display', {
       try {
         if (typeof window !== 'undefined') {
           this.isVertical = window.innerHeight > window.innerWidth
-          this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+          this.isTouchDevice =
+            'ontouchstart' in window || navigator.maxTouchPoints > 0
 
           const width = window.innerWidth
           if (width < 768) {
@@ -164,18 +165,24 @@ export const useDisplayStore = defineStore('display', {
     loadState() {
       try {
         if (typeof window !== 'undefined') {
-          const storedSidebarLeft = localStorage.getItem('sidebarLeftState') as DisplayState
-          const storedSidebarRight = localStorage.getItem('sidebarRightState') as DisplayState
+          const storedSidebarLeft = localStorage.getItem(
+            'sidebarLeftState',
+          ) as DisplayState
+          const storedSidebarRight = localStorage.getItem(
+            'sidebarRightState',
+          ) as DisplayState
           const storedHeaderState = localStorage.getItem('headerState')
           const storedFooterState = localStorage.getItem('footerState')
           const storedShowTutorial = localStorage.getItem('showTutorial')
 
           if (storedSidebarLeft) this.sidebarLeftState = storedSidebarLeft
           if (storedSidebarRight) this.sidebarRightState = storedSidebarRight
-          if (storedHeaderState) this.headerState = storedHeaderState as DisplayState
-          if (storedFooterState) this.footerState = storedFooterState as DisplayState
-          if (storedShowTutorial)  this.showTutorial = storedShowTutorial === 'true'
-      
+          if (storedHeaderState)
+            this.headerState = storedHeaderState as DisplayState
+          if (storedFooterState)
+            this.footerState = storedFooterState as DisplayState
+          if (storedShowTutorial)
+            this.showTutorial = storedShowTutorial === 'true'
         }
       } catch (error) {
         console.error('Error loading display state from localStorage:', error)

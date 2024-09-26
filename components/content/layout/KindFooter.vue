@@ -4,7 +4,7 @@
     class="kind-footer w-full bg-primary text-white flex justify-center items-center transition-all duration-500"
     :style="{
       height: `${displayStore.footerVh}vh`,
-      width: `${displayStore.footerVw}%`
+      width: `${displayStore.footerVw}%`,
     }"
   >
     <p class="text-center text-sm flex items-center space-x-2">
@@ -26,7 +26,7 @@ const iconClass = computed(() => {
   return {
     'h-6 w-6': displayStore.footer === 'compact',
     'h-8 w-8': displayStore.footer === 'open',
-    'h-auto w-auto': displayStore.iconSize === 0,  // fallback for default icon size
+    'h-auto w-auto': displayStore.iconSize === 0, // fallback for default icon size
   }
 })
 </script>

@@ -4,18 +4,23 @@
     :style="{ width: displayStore.sidebarRightVw + 'vw' }"
     class="kind-sidebar-right h-full bg-secondary text-white flex flex-col p-4 transition-all duration-500"
   >
-    <h2 v-if="displayStore.sidebarRight === 'open'" class="text-xl font-bold mb-4">Right Sidebar</h2>
-    
+    <h2
+      v-if="displayStore.sidebarRight === 'open'"
+      class="text-xl font-bold mb-4"
+    >
+      Right Sidebar
+    </h2>
+
     <ul class="space-y-2">
       <li
         v-for="item in items"
         :key="item.id"
-        class="hover:bg-primary p-2 rounded-md cursor-pointer flex flex-col items-center transition-all duration-500" 
+        class="hover:bg-primary p-2 rounded-md cursor-pointer flex flex-col items-center transition-all duration-500"
         @click="navigate(item.path)"
       >
         <!-- Icon with dynamic sizing -->
         <Icon
-          :name="item.icon" 
+          :name="item.icon"
           :class="{
             'h-12 w-12': displayStore.sidebarRight === 'open',
             'h-8 w-8': displayStore.sidebarRight === 'compact',

@@ -26,7 +26,10 @@
     />
 
     <!-- Display a message if no component is selected -->
-    <div v-if="!selectedComponentName && !loadingStatus" class="text-center text-lg text-gray-500">
+    <div
+      v-if="!selectedComponentName && !loadingStatus"
+      class="text-center text-lg text-gray-500"
+    >
       No component selected.
     </div>
 
@@ -56,7 +59,6 @@ const selectedComponent = computed(() => componentStore.selectedComponent)
 const selectedComponentName = computed(() => {
   return selectedComponent.value ? selectedComponent.value.componentName : null
 })
-
 
 // Watch the selectedComponent and update dynamically when it changes
 watch(selectedComponent, (newComponent) => {

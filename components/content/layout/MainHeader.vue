@@ -30,3 +30,9 @@
     </button>
   </header>
 </template>
+
+<script setup lang="ts">
+import { useDisplayStore } from '@/stores/displayStore'
+
+const displayStore = useDisplayStore()
+</script>

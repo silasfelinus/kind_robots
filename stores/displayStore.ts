@@ -27,79 +27,60 @@ export const useDisplayStore = defineStore('display', {
   }),
 
   getters: {
-    // Dynamically calculate header height based on viewport size and state
-    headerVh: (state) => {
+    headerVh: (state): number => {
       const sizes = {
-        small: { open: 8, compact: 6, hidden: 0 },
-        medium: { open: 7, compact: 5, hidden: 0 },
-        large: { open: 6, compact: 4, hidden: 0 },
-        extraLarge: { open: 5, compact: 3, hidden: 0 }
+        small: { open: 8, compact: 6, hidden: 0, disabled: 0 },
+        medium: { open: 7, compact: 5, hidden: 0, disabled: 0 },
+        large: { open: 6, compact: 4, hidden: 0, disabled: 0 },
+        extraLarge: { open: 5, compact: 3, hidden: 0, disabled: 0 }
       }[state.viewportSize]
-
       return sizes[state.headerState] || 6
     },
-
-    // Dynamically calculate left sidebar width based on viewport size and state
-    sidebarLeftVw: (state) => {
+    sidebarLeftVw: (state): number => {
       const sizes = {
-        small: { open: 21, compact: 12, hidden: 0 },
-        medium: { open: 19, compact: 10, hidden: 0 },
-        large: { open: 16, compact: 8, hidden: 0 },
-        extraLarge: { open: 13, compact: 6, hidden: 0 }
+        small: { open: 21, compact: 12, hidden: 0, disabled: 0 },
+        medium: { open: 19, compact: 10, hidden: 0, disabled: 0 },
+        large: { open: 16, compact: 8, hidden: 0, disabled: 0 },
+        extraLarge: { open: 13, compact: 6, hidden: 0, disabled: 0 }
       }[state.viewportSize]
-
       return sizes[state.sidebarLeftState] || 16
     },
-
-    // Dynamically calculate right sidebar width based on viewport size and state
-    sidebarRightVw: (state) => {
+    sidebarRightVw: (state): number => {
       const sizes = {
-        small: { open: 3, compact: 2, hidden: 0 },
-        medium: { open: 2, compact: 1, hidden: 0 },
-        large: { open: 2, compact: 1, hidden: 0 },
-        extraLarge: { open: 2, compact: 1, hidden: 0 }
+        small: { open: 3, compact: 2, hidden: 0, disabled: 0 },
+        medium: { open: 2, compact: 1, hidden: 0, disabled: 0 },
+        large: { open: 2, compact: 1, hidden: 0, disabled: 0 },
+        extraLarge: { open: 2, compact: 1, hidden: 0, disabled: 0 }
       }[state.viewportSize]
-
       return sizes[state.sidebarRightState] || 2
     },
-
-    // Dynamically calculate footer height based on viewport size and state
-    footerVh: (state) => {
+    footerVh: (state): number => {
       const sizes = {
-        small: { open: 3, compact: 2, hidden: 0 },
-        medium: { open: 2, compact: 1, hidden: 0 },
-        large: { open: 2, compact: 1, hidden: 0 },
-        extraLarge: { open: 1, compact: 0.5, hidden: 0 }
+        small: { open: 3, compact: 2, hidden: 0, disabled: 0 },
+        medium: { open: 2, compact: 1, hidden: 0, disabled: 0 },
+        large: { open: 2, compact: 1, hidden: 0, disabled: 0 },
+        extraLarge: { open: 1, compact: 0.5, hidden: 0, disabled: 0 }
       }[state.viewportSize]
-
       return sizes[state.footerState] || 2
     },
-
-    // Calculate main content height based on viewport size and component sizes
-    mainVh: (state) => {
-      return 100 - state.headerVh - state.footerVh
+    mainVh(): number {
+      return 100 - this.headerVh - this.footerVh
     },
-
-    // Calculate main content width based on viewport size and sidebar widths
-    mainVw: (state) => {
-      return 100 - state.sidebarLeftVw - state.sidebarRightVw
+    mainVw(): number {
+      return 100 - this.sidebarLeftVw - this.sidebarRightVw
     },
-
-    // Return icon size based on viewport size
-    iconSize: (state) => {
+    iconSize: (state): number => {
       const sizes = {
-        small: { open: 18, compact: 16, hidden: 14 },
-        medium: { open: 24, compact: 20, hidden: 18 },
-        large: { open: 28, compact: 24, hidden: 20 },
-        extraLarge: { open: 32, compact: 28, hidden: 24 }
+        small: { open: 18, compact: 16, hidden: 14, disabled: 14 },
+        medium: { open: 24, compact: 20, hidden: 18, disabled: 18 },
+        large: { open: 28, compact: 24, hidden: 20, disabled: 20 },
+        extraLarge: { open: 32, compact: 28, hidden: 24, disabled: 24 }
       }[state.viewportSize]
-
       return sizes[state.headerState] || 24
     }
   },
 
   actions: {
-    // Update the viewport size and handle screen size adjustments
     updateViewport() {
       try {
         if (typeof window !== 'undefined') {
@@ -107,7 +88,6 @@ export const useDisplayStore = defineStore('display', {
           this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
           const width = window.innerWidth
-          // Determine viewport size
           if (width < 768) {
             this.viewportSize = 'small'
           } else if (width >= 768 && width < 1024) {
@@ -125,7 +105,6 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    // Toggle sidebar state and automatically recalculate layout
     toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
       try {
         const stateCycle: Record<DisplayState, DisplayState> = {
@@ -135,8 +114,6 @@ export const useDisplayStore = defineStore('display', {
           disabled: 'hidden',
         }
         this[side] = stateCycle[this[side]]
-
-        // Save state to localStorage
         this.saveState()
       } catch (error) {
         console.error(`Error toggling sidebar ${side}:`, error)
@@ -145,7 +122,6 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    // Toggle footer state
     toggleFooter() {
       try {
         const stateCycle: Record<DisplayState, DisplayState> = {
@@ -155,8 +131,6 @@ export const useDisplayStore = defineStore('display', {
           disabled: 'hidden',
         }
         this.footerState = stateCycle[this.footerState]
-
-        // Save state to localStorage
         this.saveState()
       } catch (error) {
         console.error('Error toggling footer:', error)
@@ -165,30 +139,16 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    // Initialize viewport watcher for dynamic resizing
-    initializeViewportWatcher() {
-      try {
-        this.updateViewport()
-        window.addEventListener('resize', this.updateViewport)
-      } catch (error) {
-        console.error('Error initializing viewport watcher:', error)
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
+    initialize() {
+      this.loadState()
+      this.updateViewport()
+      window.addEventListener('resize', this.updateViewport)
     },
 
-    // Remove the viewport watcher when component is destroyed
     removeViewportWatcher() {
-      try {
-        window.removeEventListener('resize', this.updateViewport)
-      } catch (error) {
-        console.error('Error removing viewport watcher:', error)
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
+      window.removeEventListener('resize', this.updateViewport)
     },
 
-    // Load display state from localStorage
     loadState() {
       try {
         if (typeof window !== 'undefined') {
@@ -209,7 +169,6 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    // Save display state to localStorage
     saveState() {
       try {
         if (typeof window !== 'undefined') {

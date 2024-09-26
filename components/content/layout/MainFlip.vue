@@ -60,10 +60,9 @@ onMounted(() => {
 
 <style scoped>
 .flip-card {
-  display: flex;
-  flex-direction: column;
-  overflow-y: hidden; /* Prevent any overflow issues at the top-level */
+  width: 100%;
   height: 100%;
+  perspective: 1000px;
 }
 
 .flip-card-inner {
@@ -95,12 +94,7 @@ onMounted(() => {
 
 .flip-card-back {
   transform: rotateY(180deg);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* Ensure the card back takes full height */
-  scroll-snap-type: y mandatory;
-  scroll-snap-align: start;
+  overflow-y: auto; /* Ensure this element is scrollable */
 }
 
 /* Ensure grid layout height takes full available space */
@@ -108,10 +102,5 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   height: 100%;
-}
-html,
-body {
-  height: 100%;
-  overflow: hidden;
 }
 </style>

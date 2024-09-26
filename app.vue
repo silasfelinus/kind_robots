@@ -1,10 +1,10 @@
 <template>
   <div class="main-layout absolute inset-0 pointer-events-none">
     <!-- Header -->
-    <header
+    <main-header
       class="header-overlay"
       :style="{ height: 'calc(var(--vh, 1vh) * ' + displayStore.headerVh + ')' }"
-    ></header>
+    ></main-header>
 
     <!-- Main content area with sidebars and main content -->
     <div
@@ -14,13 +14,13 @@
         height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
       }"
     >
-      <aside
-        class="sidebar-left-overlay"
+      <kind-sidebar-simple
+        class="sidebar-left-overlay overflow-y-auto"
         :style="{
           width: displayStore.sidebarLeftVw + 'vw',
           height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
         }"
-      ></aside>
+      ></kind-sidebar-simple>
 
       <main
         class="main-content-overlay"

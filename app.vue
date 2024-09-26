@@ -57,8 +57,7 @@
           width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
         }"
       >
-        <!-- Main content goes here -->
-        <NuxtPage />
+        <MainFlip />
       </main>
 
       <aside

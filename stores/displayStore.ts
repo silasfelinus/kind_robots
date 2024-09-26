@@ -12,6 +12,7 @@ interface DisplayStoreState {
   viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
   isTouchDevice: boolean
   showTutorial: boolean
+  isInitialized: boolean
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -24,6 +25,7 @@ export const useDisplayStore = defineStore('display', {
     viewportSize: 'large',
     isTouchDevice: false,
     showTutorial: true,
+    isInitialized: false,
   }),
 
   getters: {
@@ -145,6 +147,7 @@ export const useDisplayStore = defineStore('display', {
         this.loadState()
         this.updateViewport()
         window.addEventListener('resize', this.updateViewport)
+        this.isInitialized = true
       } catch (error) {
         console.error('Error initializing display state:', error)
         const errorStore = useErrorStore()
@@ -164,7 +167,7 @@ export const useDisplayStore = defineStore('display', {
 
     loadState() {
       try {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && window.localStorage) {
           const storedSidebarLeft = localStorage.getItem(
             'sidebarLeftState',
           ) as DisplayState

@@ -3,7 +3,7 @@ export default defineEventHandler(() => [
     name: `AMIb0t`,
     type: `chatbot`,
     description: `Raising awareness to purchase mosquito nets for children in africa`,
-    avatarImage: `/images/wonderchest/wonderchest304_(23).webp`,
+    avatarImage: `/images/wonderchest/wonderchest-1630.webp`,
     model: `gpt-4o-mini`,
     post: `https://api.openai.com/v1/completions`,
     temperature: 1.0,

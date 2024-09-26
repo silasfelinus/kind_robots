@@ -3,13 +3,13 @@
     class="relative flex flex-col h-full w-full bg-base-200 border border-accent p-1 overflow-hidden rounded-2xl shadow-lg"
     :style="{ height: displayStore.mainVh + 'vh' }"
   >
-    <!-- Floating Background Icon -->
+    <!-- Floating Background Icon (now smaller and in the top-right corner) -->
     <div
-      class="absolute inset-0 z-0 opacity-30"
+      class="absolute top-2 right-2 z-0 opacity-30"
       :class="{
-        'w-1/2 h-1/2': displayStore.isMobile,
-        'w-1/3 h-1/3': displayStore.isTablet,
-        'w-1/4 h-1/4': displayStore.isDesktop,
+        'w-12 h-12': displayStore.isMobile,
+        'w-16 h-16': displayStore.isTablet,
+        'w-20 h-20': displayStore.isDesktop,
       }"
     >
       <Icon :name="page.icon" class="object-cover w-full h-full" />
@@ -92,7 +92,3 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 const { page } = useContent()
 </script>
-
-<style scoped>
-/* No custom CSS needed, Tailwind utilities are used */
-</style>

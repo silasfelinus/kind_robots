@@ -1,129 +1,107 @@
 <template>
-  <div id="app" class="flex flex-col" :style="{ height: `${windowHeight}px` }">
-    <!-- KindLoader (Only runs once) -->
-    <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
-
+  <div class="main-layout absolute inset-0 pointer-events-none">
     <!-- Header -->
     <header
-      class="sticky top-0 z-30 w-full bg-base-200"
-      :style="{ height: `${headerHeight}px`, top: `${displayStore.headerOffset}px` }"
+      class="header-overlay"
+      :style="{ height: 'calc(var(--vh, 1vh) * ' + displayStore.headerVh + ')' }"
+    ></header>
+
+    <!-- Main content area with sidebars and main content -->
+    <div
+      class="content-area"
+      :style="{
+        gridTemplateColumns: `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
+        height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
+      }"
     >
-      <!-- Sidebar Toggle -->
-      <div class="absolute top-2 left-4 p-1 z-40 text-white">
-        <sidebar-toggle class="text-4xl" />
-      </div>
+      <aside
+        class="sidebar-left-overlay"
+        :style="{
+          width: displayStore.sidebarLeftVw + 'vw',
+          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
+        }"
+      ></aside>
 
-      <nav-links />
-
-      <!-- Tutorial and Back Buttons -->
-      <button
-        v-if="showTutorial"
-        class="fixed top-1 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-1"
-        @click="toggleTutorial"
-      >
-        Launch
-      </button>
-
-      <button
-        v-else
-        class="fixed top-1 right-4 bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 p-1"
-        @click="toggleTutorial"
-      >
-        <span>Instructions</span>
-      </button>
-    </header>
-
-    <!-- Main Layout Wrapper -->
-    <div class="flex flex-grow relative overflow-hidden">
-      <!-- Left Sidebar -->
-      <kind-sidebar-simple
-        class="h-full"
-        :style="{ width: `${sidebarLeftWidth}vw`, left: `${displayStore.sidebarLeftOffset}px` }"
-      />
-
-      <!-- Main Content Area -->
       <main
-        class="relative flex-grow overflow-y-auto flex justify-center items-center"
-        :style="{ height: `${mainHeight}px` }"
+        class="main-content-overlay"
+        :style="{
+          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
+          width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
+        }"
       >
-        <!-- MainFlip Component Reintroduced -->
-        <MainFlip :show-tutorial="showTutorial" />
+        <!-- Main content goes here -->
+        <NuxtPage />
       </main>
 
-      <!-- Right Sidebar -->
-      <aside class="h-full" :style="{ width: `${sidebarRightWidth}vw`, right: `${displayStore.sidebarRightOffset}px` }" />
+      <aside
+        class="sidebar-right-overlay"
+        :style="{
+          width: displayStore.sidebarRightVw + 'vw',
+          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
+        }"
+      ></aside>
     </div>
 
     <!-- Footer -->
-    <footer class="w-full bg-base-200 flex items-center justify-center" :style="{ height: `${footerHeight}px` }">
-      created by Silas Knight silas@kindrobots.org
-    </footer>
+    <footer
+      class="footer-overlay"
+      :style="{ height: 'calc(var(--vh, 1vh) * ' + displayStore.footerVh + ')' }"
+    ></footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import MainFlip from '@/components/MainFlip.vue' // Import MainFlip component
 
-// Initialize stores and states
+// Initialize the display store
 const displayStore = useDisplayStore()
-const showTutorial = ref(displayStore.showTutorial) // Sync with store state
-const router = useRouter()
 
-// Dynamically calculated window height and other variables
-const windowHeight = ref(window.innerHeight)
-const headerHeight = ref(0)
-const footerHeight = ref(0)
-const mainHeight = ref(0)
-const sidebarLeftWidth = ref(displayStore.sidebarLeftVw)
-const sidebarRightWidth = ref(displayStore.sidebarRightVw)
+// Function to set a custom --vh CSS variable to handle mobile devices like iPads
+const setCustomVh = () => {
+  if (typeof window !== 'undefined') {  // Check if we're in the browser
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+};
 
-// Combine isPageReady and isKindLoaderInitialized logic into one
-const isPageReady = ref(false)
-
-// Handle when page is ready
-const handlePageReady = (ready: boolean) => {
-  isPageReady.value = ready
-}
-
-// Toggle between tutorial and main content
-const toggleTutorial = () => {
-  displayStore.toggleTutorial() // Directly use store action
-  showTutorial.value = displayStore.showTutorial
-}
-
-// Update heights and widths dynamically
-const updateLayout = () => {
-  const totalHeight = window.innerHeight
-  headerHeight.value = (displayStore.headerVh / 100) * totalHeight
-  footerHeight.value = (displayStore.footerVh / 100) * totalHeight
-  mainHeight.value = totalHeight - headerHeight.value - footerHeight.value
-  windowHeight.value = totalHeight
-  sidebarLeftWidth.value = displayStore.sidebarLeftVw
-  sidebarRightWidth.value = displayStore.sidebarRightVw
-}
-
+// Initialize the viewport state and load previous states
 onMounted(() => {
-  displayStore.initialize()
-  updateLayout()
+  setCustomVh(); // Set custom vh on mount if in the browser
+  window.addEventListener('resize', setCustomVh); // Update custom vh on resize if in the browser
+  displayStore.initialize(); // Initialize store settings
+});
 
-  // Recalculate layout on window resize
-  window.addEventListener('resize', updateLayout)
-})
-
+// Remove the viewport watcher on component unmount
 onBeforeUnmount(() => {
-  displayStore.removeViewportWatcher()
-  window.removeEventListener('resize', updateLayout)
-})
-
-// Watch for changes in displayStore and update layout accordingly
-watch(
-  () => displayStore,
-  () => {
-    updateLayout()
-  },
-  { deep: true }
-)
+  if (typeof window !== 'undefined') {  // Only clean up in the browser
+    window.removeEventListener('resize', setCustomVh); // Clean up the listener
+  }
+  displayStore.removeViewportWatcher();
+});
 </script>
+
+<style scoped>
+.main-layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* Header, Main Content, Footer */
+  height: calc(var(--vh, 1vh) * 100); /* Custom height using var(--vh) */
+  overflow: hidden; /* Prevent any overflow */
+}
+
+.content-area {
+  display: grid;
+  grid-template-columns: 1fr; /* Dynamically handled by inline styles */
+  overflow: hidden; /* Prevent horizontal scrolling */
+}
+
+.header-overlay,
+.sidebar-left-overlay,
+.sidebar-right-overlay,
+.main-content-overlay,
+.footer-overlay {
+  position: relative;
+  text-align: center;
+  padding: 0; /* Ensure no padding */
+}
+</style>

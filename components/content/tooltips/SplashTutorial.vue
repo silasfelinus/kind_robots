@@ -20,9 +20,9 @@
           {{ page.title }}
         </h1>
 
-        <p class="text-sm md:text-base font-medium text-info-content px-4">
+        <h3 class="text-sm md:text-base font-medium text-secondary px-4">
           {{ page.description }}
-        </p>
+        </h3>
 
         <h2
           v-if="page.subtitle"
@@ -40,7 +40,7 @@
       <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-2 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-left space-x-2 p-2 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -57,7 +57,7 @@
       <!-- AMIbot Message -->
       <div class="flex justify-center">
         <div
-          class="flex items-center space-x-2 p-2 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-right space-x-2 p-2 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
         >
           <img
             src="/images/amibotsquare1.webp"

@@ -1,10 +1,10 @@
 <template>
   <div class="main-layout absolute inset-0 pointer-events-none">
     <!-- Header -->
-    <main-header
+    <header
       class="header-overlay"
       :style="{ height: 'calc(var(--vh, 1vh) * ' + displayStore.headerVh + ')' }"
-    ></main-header>
+    ></header>
 
     <!-- Main content area with sidebars and main content -->
     <div

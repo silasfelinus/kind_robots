@@ -232,7 +232,7 @@ const errorStore = useErrorStore()
 
 const isLoading = ref(false)
 const selectedBotId = ref<number | null>(null)
-const selectedGallery = ref<string | null>(null) // To hold the selected gallery
+const selectedGallery = ref<string | null>(null)
 
 // Form fields with default values
 const name = ref('')
@@ -254,6 +254,109 @@ const sampleResponse = ref('')
 
 // Fetch userId from userStore
 const userId = computed(() => userStore.userId)
+
+// Load the data of the selected bot into the form fields
+function loadBotData() {
+  const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
+  if (bot) {
+    name.value = bot.name || ''
+    subtitle.value = bot.subtitle || 'Kind Robot'
+    botType.value = bot.BotType || 'PROMPTBOT'
+    description.value = bot.description || "I'm a kind robot"
+    avatarImage.value = bot.avatarImage || '/images/default-avatar.png'
+    botIntro.value = bot.botIntro || 'SloganMaker'
+    userIntro.value = bot.userIntro || 'Help me make a slogan for'
+    prompt.value = bot.prompt || 'Arm butterflies with mini-flamethrowers'
+    isPublic.value = bot.isPublic ?? true
+    underConstruction.value = bot.underConstruction ?? false
+    theme.value = bot.theme || ''
+    personality.value = bot.personality || 'kind'
+    sampleResponse.value = bot.sampleResponse || ''
+  } else {
+    resetForm()
+  }
+}
+
+// Reset the form to default values
+function resetForm() {
+  name.value = ''
+  subtitle.value = 'Kind Robot'
+  botType.value = 'PROMPTBOT'
+  description.value = "I'm a kind robot"
+  avatarImage.value = '/images/wonderchest/wonderchest-1630.webp'
+  botIntro.value = 'SloganMaker'
+  userIntro.value = 'Help me make a slogan for'
+  imagePrompt.value = 'robot avatar'
+  prompt.value =
+    'Arm butterflies with mini-flamethrowers to kick mosquitos butts'
+  isPublic.value = true
+  underConstruction.value = false
+  theme.value = ''
+  personality.value = 'kind'
+  sampleResponse.value = ''
+}
+
+// Handle form submission
+async function handleSubmit(e: Event) {
+  e.preventDefault()
+
+  try {
+    const botData = {
+      BotType: botType.value,
+      name: name.value,
+      subtitle: subtitle.value ?? '',
+      description: description.value ?? '',
+      avatarImage: avatarImage.value ?? '/images/default-avatar.png',
+      botIntro: botIntro.value ?? '',
+      userIntro: userIntro.value ?? '',
+      prompt: prompt.value ?? '',
+      isPublic: isPublic.value,
+      underConstruction: underConstruction.value,
+      theme: theme.value ?? '',
+      personality: personality.value ?? '',
+      sampleResponse: sampleResponse.value ?? '',
+      userId: userId.value,
+    }
+
+    const selectedBot = botStore.bots.find(
+      (bot) => bot.id === selectedBotId.value,
+    )
+
+    // Check if the user owns the bot
+    if (selectedBot?.userId === userId.value) {
+      // User owns the bot, update it
+      await botStore.updateBot(selectedBotId.value!, botData)
+      console.log('Bot updated successfully!')
+    } else {
+      // User does NOT own the bot, save with a different name
+      // Check if the name already exists and modify it if needed
+      const isNameTaken = botStore.bots.some(
+        (bot) => bot.name.toLowerCase() === name.value.toLowerCase(),
+      )
+
+      if (isNameTaken) {
+        // Append a suffix to the name (e.g., "-copy" or a unique number)
+        botData.name = `${botData.name}-copy-${Date.now()}`
+      }
+
+      // Save the new bot under the user's account
+      await botStore.addBots([botData])
+      console.log('New bot created successfully!')
+    }
+  } catch (error) {
+    errorStore.setError(
+      ErrorType.GENERAL_ERROR,
+      'Error saving bot: ' + (error as Error).message,
+    )
+  }
+}
+
+// Watch for changes in selectedBotId to load bot data
+watch(selectedBotId, (newBotId) => {
+  if (newBotId) {
+    loadBotData()
+  }
+})
 
 // Function to generate a random avatar from the selected gallery
 async function generateRandomAvatar() {
@@ -280,112 +383,6 @@ async function generateRandomAvatar() {
     isLoading.value = false
   }
 }
-
-async function handleSubmit(e: Event) {
-  e.preventDefault()
-
-  try {
-    // Check if the name is unique (or it's the current bot being edited)
-    const isNameTaken = botStore.bots.some(
-      (bot) =>
-        bot.name.toLowerCase() === name.value.toLowerCase() &&
-        bot.id !== selectedBotId.value,
-    )
-
-    if (isNameTaken) {
-      errorStore.setError(
-        ErrorType.GENERAL_ERROR,
-        'Bot name must be unique. Please choose a different name.',
-      )
-      return
-    }
-
-    const botData = {
-      BotType: botType.value,
-      name: name.value,
-      subtitle: subtitle.value ?? '',
-      description: description.value ?? '',
-      avatarImage: avatarImage.value ?? '/images/default-avatar.png',
-      botIntro: botIntro.value ?? '',
-      userIntro: userIntro.value ?? '',
-      prompt: prompt.value ?? '',
-      isPublic: isPublic.value,
-      underConstruction: underConstruction.value,
-      theme: theme.value ?? '',
-      personality: personality.value ?? '',
-      sampleResponse: sampleResponse.value ?? '',
-      userId: userId.value,
-    }
-
-    if (selectedBotId.value && botStore.currentBot?.userId === userId.value) {
-      // Update an existing bot if the user is the owner
-      await botStore.updateBot(selectedBotId.value, botData)
-    } else {
-      // Create a new bot if the user doesn't own the selected bot
-      await botStore.addBots([botData])
-    }
-
-    console.log('Bot saved successfully!')
-  } catch (error) {
-    errorStore.setError(
-      ErrorType.GENERAL_ERROR,
-      'Error saving bot: ' + (error as Error).message,
-    )
-  }
-}
-
-// Load the data of the selected bot into the form fields
-function loadBotData() {
-  const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
-  if (bot) {
-    if (bot.userId === userId.value) {
-      // If user owns the bot, load its data into all fields
-      name.value = bot.name ?? ''
-      subtitle.value = bot.subtitle ?? 'Kind Robot'
-      botType.value = bot.BotType ?? 'PROMPTBOT'
-      description.value = bot.description ?? "I'm a kind robot"
-      avatarImage.value = bot.avatarImage ?? '/images/default-avatar.png'
-      botIntro.value = bot.botIntro ?? 'SloganMaker'
-      userIntro.value = bot.userIntro ?? 'Help me make a slogan for'
-      prompt.value = bot.prompt ?? 'Arm butterflies with mini-flamethrowers'
-      isPublic.value = bot.isPublic ?? true
-      underConstruction.value = bot.underConstruction ?? false
-      theme.value = bot.theme ?? ''
-      personality.value = bot.personality ?? 'kind'
-      sampleResponse.value = bot.sampleResponse ?? ''
-    } else {
-      // If user doesn't own the bot, reset the form
-      resetForm()
-    }
-  } else {
-    // Reset the form if no bot is selected
-    resetForm()
-  }
-}
-
-// Reset the form to default values
-function resetForm() {
-  name.value = ''
-  subtitle.value = 'Kind Robot'
-  botType.value = 'PROMPTBOT'
-  description.value = "I'm a kind robot"
-  avatarImage.value = '/images/wonderchest/wonderchest-1630.webp'
-  botIntro.value = 'SloganMaker'
-  userIntro.value = 'Help me make a slogan for'
-  imagePrompt.value = 'robot avatar'
-  prompt.value =
-    'Arm butterflies with mini-flamethrowers to kick mosquitos butts'
-  isPublic.value = true
-  underConstruction.value = false
-  theme.value = ''
-  personality.value = 'kind'
-  sampleResponse.value = ''
-}
-
-// Watch for selectedBotId changes to load bot data
-watch(selectedBotId, () => {
-  loadBotData()
-})
 
 // Run client-side only logic inside onMounted
 onMounted(async () => {

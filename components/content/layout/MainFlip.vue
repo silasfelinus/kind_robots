@@ -18,7 +18,7 @@
       </div>
 
       <!-- Back side: NuxtPage content (with scrolling) -->
-      <div class="flip-card-back overflow-y-auto h-screen">
+      <div class="flip-card-back overflow-y-auto min-h-screen">
         <NuxtPage></NuxtPage>
       </div>
     </div>
@@ -97,7 +97,6 @@ onMounted(() => {
 
 .flip-card-back {
   transform: rotateY(180deg);
-  overflow-y: auto; /* Ensure this element is scrollable */
 }
 
 /* Ensure grid layout height takes full available space */

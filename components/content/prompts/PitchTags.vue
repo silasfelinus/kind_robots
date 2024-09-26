@@ -61,8 +61,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePitchStore } from './../../../stores/pitchStore'
-import { useUserStore } from './../../../stores/userStore'
+import { usePitchStore } from '../../../stores/pitchStore'
+import { useUserStore } from '../../../stores/userStore'
 
 const pitchStore = usePitchStore()
 const userStore = useUserStore()

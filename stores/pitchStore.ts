@@ -37,6 +37,11 @@ export const usePitchStore = defineStore('pitch', {
   }),
 
   getters: {
+      getPitchesByType: (state) => (pitchType: PitchType) => {
+        return state.pitches.filter((pitch: Pitch) => pitch.PitchType === pitchType);
+      },
+
+    
     brainstormPitches: (state) => {
       return state.pitches.filter(
         (pitch: Pitch) => pitch.PitchType === 'BRAINSTORM',
@@ -179,22 +184,23 @@ export const usePitchStore = defineStore('pitch', {
         console.error('Failed to fetch pitches:', error)
       }
     },
-    // Fetch a pitch by ID
     async fetchPitchById(pitchId: number) {
-      const existingPitch = this.pitches.find((pitch) => pitch.id === pitchId)
-      if (existingPitch) return existingPitch
-
       try {
-        const data = await this.performFetch(`/api/pitches/${pitchId}`)
+        const data = await this.performFetch(`/api/pitches/${pitchId}`);
         if (data.pitch) {
-          this.pitches.push(data.pitch)
+          this.pitches.push(data.pitch);
           if (isClient) {
-            localStorage.setItem('pitches', JSON.stringify(this.pitches))
+            localStorage.setItem('pitches', JSON.stringify(this.pitches));
           }
-          return data.pitch
+          return data.pitch;
         }
+        throw new Error('Pitch not found');
       } catch (error) {
-        console.error('Failed to fetch pitch by ID:', error)
+        if (isErrorWithMessage(error)) {
+          console.error('Error fetching pitch:', error.message);
+        } else {
+          console.error('Unknown error fetching pitch');
+        }
       }
     },
     // Create a new pitch

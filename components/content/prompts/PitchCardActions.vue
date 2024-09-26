@@ -33,9 +33,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore, type Pitch } from './../../../stores/pitchStore'
-import { useReactionStore } from './../../../stores/reactionStore'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { usePitchStore, type Pitch } from '../../../stores/pitchStore'
+import { useReactionStore } from '../../../stores/reactionStore'
+import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 
 const props = defineProps<{
   pitch?: Pitch // Make it optional

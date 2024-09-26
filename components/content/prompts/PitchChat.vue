@@ -38,8 +38,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { usePitchStore } from './../../../stores/pitchStore'
-import { useChannelStore } from './../../../stores/channelStore'
+import { usePitchStore } from '../../../stores/pitchStore'
+import { useChannelStore } from '../../../stores/channelStore'
 
 const pitchStore = usePitchStore()
 const channelStore = useChannelStore()

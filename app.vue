@@ -127,39 +127,3 @@ watch(
   { deep: true }
 )
 </script>
-
-<style scoped>
-.flip-card {
-  width: 100%;
-  height: 100%;
-  perspective: 1000px; /* Creates depth for the flip effect */
-}
-
-.flip-card-inner {
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s ease-in-out;
-  transform-style: preserve-3d;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg); /* Flips the entire card horizontally */
-}
-
-.flip-card-front,
-.flip-card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden; /* Hides the backside during rotation */
-  border-radius: 12px;
-}
-
-.flip-card-front {
-  z-index: 2; /* Ensures the front side is on top */
-}
-
-.flip-card-back {
-  transform: rotateY(180deg); /* Ensures the back side starts flipped */
-}
-</style>

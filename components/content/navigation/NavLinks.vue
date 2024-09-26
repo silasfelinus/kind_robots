@@ -50,7 +50,7 @@
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
-        class="text-accent text-sm hover:underline whitespace-nowrap"
+        class="text-accent text-lg hover:underline whitespace-nowrap"
       >
         {{ link.text }}
       </nuxt-link>

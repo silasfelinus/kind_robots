@@ -1,6 +1,6 @@
 // /server/api/bots/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error' // Import the error handler
+import { errorHandler } from '../utils/error'
 import prisma from './../utils/prisma'
 import type { Prisma, Bot } from '@prisma/client'
 
@@ -10,19 +10,16 @@ export default defineEventHandler(async (event) => {
     const result = await addBot(botsData)
     return { success: true, ...result }
   } catch (error) {
-    // Use the error handler to process the error
     const { message, statusCode } = errorHandler(error)
 
-    // Return the error response with the processed message and status code
     return {
       success: false,
       message: 'Failed to create a new bot',
       error: message,
-      statusCode: statusCode || 500, // Default to 500 if no status code is provided
+      statusCode: statusCode || 500,
     }
   }
 })
-
 export async function addBot(
   botData: Partial<Bot>,
 ): Promise<{ bot: Bot | null; error: string | null }> {
@@ -31,8 +28,36 @@ export async function addBot(
   }
 
   try {
+    // Ensure we send only the fields that are defined in the schema
+    const dataToSave: Prisma.BotCreateInput = {
+      BotType: botData.BotType ?? 'PROMPTBOT', // Ensure BotType is set
+      name: botData.name,
+      subtitle: botData.subtitle || null,
+      description: botData.description || null,
+      avatarImage: botData.avatarImage || '/images/default-avatar.png',
+      botIntro: botData.botIntro ?? '',
+      userIntro: botData.userIntro ?? '',
+      prompt: botData.prompt ?? '',
+      trainingPath: botData.trainingPath || null,
+      theme: botData.theme || null,
+      personality: botData.personality || null,
+      sampleResponse: botData.sampleResponse || null,
+      isPublic: botData.isPublic ?? false,
+      underConstruction: botData.underConstruction ?? false,
+      canDelete: botData.canDelete ?? false,
+    }
+
+    // If userId is defined, connect the bot to the User relation
+    if (botData.userId !== undefined && botData.userId !== null) {
+      dataToSave.User = {
+        connect: {
+          id: botData.userId,
+        },
+      }
+    }
+
     const bot = await prisma.bot.create({
-      data: botData as Prisma.BotCreateInput,
+      data: dataToSave,
     })
     return { bot, error: null }
   } catch (error: unknown) {

@@ -19,7 +19,11 @@
 
       <!-- Tutorial and Back Buttons -->
       <button
-        v-if="displayStore.showTutorial"
+        v-if="
+          displayStore.showTutorial &&
+          (displayStore.viewportSize === 'small' ||
+            displayStore.viewportSize === 'medium')
+        "
         class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-1 mr-2"
         @click="displayStore.toggleTutorial"
       >
@@ -27,7 +31,11 @@
       </button>
 
       <button
-        v-else
+        v-if="
+          !displayStore.showTutorial &&
+          (displayStore.viewportSize === 'small' ||
+            displayStore.viewportSize === 'medium')
+        "
         class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 p-1 mr-2"
         @click="displayStore.toggleTutorial"
       >

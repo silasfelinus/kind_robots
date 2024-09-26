@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto"
+    class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg"
   >
     <div
       class="flip-card-inner"
@@ -10,8 +10,9 @@
       <div class="flip-card-front">
         <SplashTutorial />
       </div>
-      <!-- Back side: NuxtPage content -->
-      <div class="flip-card-back">
+
+      <!-- Back side: NuxtPage content (with scrolling) -->
+      <div class="flip-card-back overflow-y-auto">
         <NuxtPage />
       </div>
     </div>
@@ -57,5 +58,6 @@ const displayStore = useDisplayStore()
 
 .flip-card-back {
   transform: rotateY(180deg);
+  overflow-y: auto; /* Enable vertical scrolling */
 }
 </style>

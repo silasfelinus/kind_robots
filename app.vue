@@ -3,12 +3,36 @@
     <kind-loader></kind-loader>
     <!-- Header -->
     <header
-      class="header-overlay"
+      class="header-overlay bg-base-300 items-center justify-between"
       :style="{
         height: headerHeight,
       }"
     >
-      <main-header></main-header>
+      <!-- Sidebar Toggle -->
+      <div class="p-1 z-40 text-white ml-2">
+        <sidebar-toggle class="text-4xl" />
+      </div>
+
+      <!-- Navigation Links -->
+      <nav-links class="flex-grow" />
+      <!-- Added margin to avoid overlapping with the sidebar toggle -->
+
+      <!-- Tutorial and Back Buttons -->
+      <button
+        v-if="displayStore.showTutorial"
+        class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-1 mr-2"
+        @click="displayStore.toggleTutorial"
+      >
+        Launch
+      </button>
+
+      <button
+        v-else
+        class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 p-1 mr-2"
+        @click="displayStore.toggleTutorial"
+      >
+        Instructions
+      </button>
     </header>
 
     <!-- Main content area with sidebars and main content -->
@@ -118,7 +142,6 @@ onBeforeUnmount(() => {
 
 .content-area {
   display: grid;
-  grid-template-columns: 1fr; /* Dynamically handled by inline styles */
   overflow: hidden; /* Prevent horizontal scrolling */
 }
 

@@ -27,7 +27,10 @@
     <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto h-full">
       <splash-tutorial />
     </div>
-    <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto h-full">
+    <div
+      v-if="isLargeViewport"
+      class="flex flex-col overflow-y-auto h-full border rounded-2xl"
+    >
       <NuxtPage />
     </div>
   </div>

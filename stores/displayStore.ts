@@ -29,37 +29,37 @@ export const useDisplayStore = defineStore('display', {
   getters: {
     headerVh: (state): number => {
       const sizes = {
-        small: { open: 8, compact: 6, hidden: 0, disabled: 0 },
-        medium: { open: 7, compact: 5, hidden: 0, disabled: 0 },
-        large: { open: 6, compact: 4, hidden: 0, disabled: 0 },
-        extraLarge: { open: 5, compact: 3, hidden: 0, disabled: 0 }
+        small: { open: 8, compact: 6, hidden: 1, disabled: 0 },
+        medium: { open: 7, compact: 5, hidden: 1, disabled: 0 },
+        large: { open: 6, compact: 4, hidden: 1, disabled: 0 },
+        extraLarge: { open: 5, compact: 3, hidden: 1, disabled: 0 }
       }[state.viewportSize]
       return sizes[state.headerState] || 6
     },
     sidebarLeftVw: (state): number => {
       const sizes = {
-        small: { open: 21, compact: 12, hidden: 0, disabled: 0 },
-        medium: { open: 19, compact: 10, hidden: 0, disabled: 0 },
-        large: { open: 16, compact: 8, hidden: 0, disabled: 0 },
-        extraLarge: { open: 13, compact: 6, hidden: 0, disabled: 0 }
+        small: { open: 21, compact: 12, hidden: 1, disabled: 0 },
+        medium: { open: 19, compact: 10, hidden: 1, disabled: 0 },
+        large: { open: 16, compact: 8, hidden: 1, disabled: 0 },
+        extraLarge: { open: 13, compact: 6, hidden: 1, disabled: 0 }
       }[state.viewportSize]
       return sizes[state.sidebarLeftState] || 16
     },
     sidebarRightVw: (state): number => {
       const sizes = {
-        small: { open: 3, compact: 2, hidden: 0, disabled: 0 },
-        medium: { open: 2, compact: 1, hidden: 0, disabled: 0 },
-        large: { open: 2, compact: 1, hidden: 0, disabled: 0 },
-        extraLarge: { open: 2, compact: 1, hidden: 0, disabled: 0 }
+        small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
+        medium: { open: 3, compact: 2, hidden: 1, disabled: 0 },
+        large: { open: 3, compact: 2, hidden: 1, disabled: 0 },
+        extraLarge: { open: 3, compact: 2, hidden: 1, disabled: 0 }
       }[state.viewportSize]
       return sizes[state.sidebarRightState] || 2
     },
     footerVh: (state): number => {
       const sizes = {
-        small: { open: 3, compact: 2, hidden: 0, disabled: 0 },
-        medium: { open: 2, compact: 1, hidden: 0, disabled: 0 },
-        large: { open: 2, compact: 1, hidden: 0, disabled: 0 },
-        extraLarge: { open: 1, compact: 0.5, hidden: 0, disabled: 0 }
+        small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
+        medium: { open: 2, compact: 1, hidden: 1, disabled: 0 },
+        large: { open: 2, compact: 1, hidden: 1, disabled: 0 },
+        extraLarge: { open: 1, compact: 0.5, hidden: 1, disabled: 0 }
       }[state.viewportSize]
       return sizes[state.footerState] || 2
     },

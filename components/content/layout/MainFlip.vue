@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full rounded-2xl bg-base-300 relative shadow-lg"
+    class="w-full rounded-2xl bg-base-300 relative shadow-lg h-full"
     :class="{
       'grid grid-cols-2 gap-4': isLargeViewport,
       'flip-card':
@@ -23,40 +23,24 @@
       </div>
 
       <!-- Back side: NuxtPage content (with scrolling) -->
-      <div class="flip-card-back overflow-y-auto">
+      <div class="flip-card-back h-full">
         <NuxtPage />
       </div>
     </div>
 
     <!-- Two-column layout for large and extra-large viewports -->
-    <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto">
+    <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto h-full">
       <splash-tutorial />
     </div>
-    <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto">
+    <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto h-full">
       <NuxtPage />
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
-
-const displayStore = useDisplayStore()
-
-// We can also use a computed property if we need further complex logic
-const isLargeViewport = computed(() => {
-  return (
-    displayStore.viewportSize === 'large' ||
-    displayStore.viewportSize === 'extraLarge'
-  )
-})
-</script>
-
 <style scoped>
 .flip-card {
   width: 100%;
-  height: 100%;
+  height: 100%; /* Ensure the flip-card takes full height */
   perspective: 1000px;
 }
 
@@ -65,6 +49,7 @@ const isLargeViewport = computed(() => {
   height: 100%;
   transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
+  position: relative;
 }
 
 .flip-card-inner.is-flipped {
@@ -78,6 +63,8 @@ const isLargeViewport = computed(() => {
   height: 100%;
   backface-visibility: hidden;
   border-radius: 12px;
+  display: flex; /* Allow flexible content */
+  flex-direction: column;
 }
 
 .flip-card-front {
@@ -89,9 +76,10 @@ const isLargeViewport = computed(() => {
   overflow-y: auto; /* Enable vertical scrolling */
 }
 
-/* Two-column layout when viewport is large or extra large */
+/* Ensure grid layout height takes full available space */
 .grid-cols-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  height: 100%;
 }
 </style>

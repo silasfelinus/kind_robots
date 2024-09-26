@@ -6,7 +6,7 @@
     <!-- Hamburger Icon for Small Screens -->
     <div class="sm:hidden">
       <button
-        class="focus:outline-none text-accent p-1"
+        class="focus:outline-none text-accent"
         aria-label="Toggle menu"
         @click="toggleMenu"
       >

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full rounded-2xl bg-base-300 relative shadow-lg h-full"
+    class="w-full rounded-2xl bg-base-300 relative shadow-lg min-h-screen"
     :class="{
       'grid grid-cols-2 gap-4': isLargeViewport,
       'flip-card': !isLargeViewport,
@@ -18,23 +18,24 @@
       </div>
 
       <!-- Back side: NuxtPage content (with scrolling) -->
-      <div class="flip-card-back overflow-y-auto">
+      <div class="flip-card-back overflow-y-auto h-screen">
         <NuxtPage />
       </div>
     </div>
 
     <!-- Two-column layout for large and extra-large viewports -->
-    <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto h-full">
+    <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto min-h-screen">
       <splash-tutorial />
     </div>
     <div
       v-if="isLargeViewport"
-      class="flex flex-col overflow-y-auto h-full border rounded-2xl"
+      class="flex flex-col overflow-y-auto min-h-screen border rounded-2xl"
     >
       <NuxtPage />
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { onMounted } from 'vue'

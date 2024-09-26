@@ -32,7 +32,7 @@
           <!-- Item Layout -->
           <div
             v-show="true"
-            class="flex flex-col items-center cursor-pointer hover:bg-accent transition rounded-2xl p-4 relative"
+            class="flex flex-col items-center cursor-pointer hover:bg-accent hover-scale-110 transition rounded-2xl p-4 relative"
           >
             <div class="flex-grow relative">
               <img

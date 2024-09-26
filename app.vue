@@ -8,7 +8,7 @@
         height: headerHeight,
       }"
     >
-      <sidebar-toggle></sidebar-toggle>
+      <main-header></main-header>
     </header>
 
     <!-- Main content area with sidebars and main content -->

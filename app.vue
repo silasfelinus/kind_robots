@@ -4,11 +4,7 @@
     <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
 
     <!-- Header (refactored into MainHeader) -->
-    <MainHeader
-      :show-tutorial="displayStore.showTutorial"
-      :style="{ height: `${displayStore.headerVh}vh` }"
-      @toggle-tutorial="toggleTutorial"
-    />
+    <header />
 
     <!-- Main Layout Wrapper -->
     <div class="flex flex-grow relative overflow-hidden">
@@ -22,14 +18,7 @@
       />
 
       <!-- Main Content Area -->
-      <main
-        class="relative flex-grow overflow-y-auto flex justify-center items-center"
-        :style="{
-          height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`,
-        }"
-      >
-        <MainFlip :show-tutorial="displayStore.showTutorial" />
-      </main>
+      <main></main>
 
       <!-- Right Sidebar -->
       <aside
@@ -64,11 +53,6 @@ const router = useRouter()
 // Handle when page is ready
 const handlePageReady = (ready: boolean) => {
   isPageReady.value = ready
-}
-
-// Toggle between tutorial and main content (linked to displayStore)
-const toggleTutorial = () => {
-  displayStore.showTutorial = !displayStore.showTutorial
 }
 
 // Auto-reset tutorial on route changes (linked to displayStore)

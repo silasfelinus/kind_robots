@@ -1,4 +1,3 @@
-// /stores/botStore.ts
 import { defineStore } from 'pinia'
 import type { Bot } from '@prisma/client'
 import { botData } from './seeds/seedBots'
@@ -37,6 +36,8 @@ export const useBotStore = defineStore({
     async fetchBots(): Promise<void> {
       const errorStore = useErrorStore()
       try {
+        if (typeof window === 'undefined') return // Ensure this only runs on the client
+
         const response = await fetch('/api/bots')
         if (!response.ok) {
           throw new Error(`Failed to fetch bots: ${response.statusText}`)
@@ -59,6 +60,7 @@ export const useBotStore = defineStore({
     },
 
     async loadStore(): Promise<void> {
+      if (typeof window === 'undefined') return // Ensure this only runs on the client
       this.loading = true
       try {
         await this.fetchBots()
@@ -71,6 +73,8 @@ export const useBotStore = defineStore({
     async updateBots(botsData: Partial<Bot>[]): Promise<void> {
       const errorStore = useErrorStore()
       try {
+        if (typeof window === 'undefined') return // Ensure this only runs on the client
+
         const response = await fetch('/api/bots', {
           method: 'POST',
           headers: {
@@ -106,6 +110,8 @@ export const useBotStore = defineStore({
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
       const errorStore = useErrorStore()
       try {
+        if (typeof window === 'undefined') return // Ensure this only runs on the client
+
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'PUT',
           headers: {
@@ -139,6 +145,8 @@ export const useBotStore = defineStore({
     async deleteBot(id: number): Promise<void> {
       const errorStore = useErrorStore()
       try {
+        if (typeof window === 'undefined') return // Ensure this only runs on the client
+
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'DELETE',
         })
@@ -166,6 +174,8 @@ export const useBotStore = defineStore({
     async addBots(botsData: Partial<Bot>[]): Promise<void> {
       const errorStore = useErrorStore()
       try {
+        if (typeof window === 'undefined') return // Ensure this only runs on the client
+
         const response = await fetch('/api/bots', {
           method: 'POST',
           headers: {
@@ -199,6 +209,8 @@ export const useBotStore = defineStore({
     async getBotById(id: number): Promise<void> {
       const errorStore = useErrorStore()
       try {
+        if (typeof window === 'undefined') return // Ensure this only runs on the client
+
         const response = await fetch(`/api/bot/id/${id}`)
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`)
@@ -223,6 +235,8 @@ export const useBotStore = defineStore({
     async getBotByName(name: string): Promise<void> {
       const errorStore = useErrorStore()
       try {
+        if (typeof window === 'undefined') return // Ensure this only runs on the client
+
         const response = await fetch(`/api/bot/name/${name}`)
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`)
@@ -247,6 +261,8 @@ export const useBotStore = defineStore({
     async seedBots(): Promise<void> {
       const errorStore = useErrorStore()
       try {
+        if (typeof window === 'undefined') return // Ensure this only runs on the client
+
         await this.addBots(botData)
         await this.fetchBots()
       } catch (err: unknown) {

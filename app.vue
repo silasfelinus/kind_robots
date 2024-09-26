@@ -15,15 +15,10 @@
 
       <!-- Navigation Links -->
       <nav-links class="flex-grow"></nav-links>
-      <!-- Added margin to avoid overlapping with the sidebar toggle -->
 
-      <!-- Tutorial and Back Buttons -->
+      <!-- Tutorial and Back Buttons (conditionally hidden on large screens) -->
       <button
-        v-if="
-          displayStore.showTutorial &&
-          (displayStore.viewportSize === 'small' ||
-            displayStore.viewportSize === 'medium')
-        "
+        v-if="showLaunchButton"
         class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-1 mr-2"
         @click="displayStore.toggleTutorial"
       >
@@ -31,11 +26,7 @@
       </button>
 
       <button
-        v-if="
-          !displayStore.showTutorial &&
-          (displayStore.viewportSize === 'small' ||
-            displayStore.viewportSize === 'medium')
-        "
+        v-if="showInstructionsButton"
         class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 p-1 mr-2"
         @click="displayStore.toggleTutorial"
       >
@@ -115,10 +106,24 @@ const gridColumns = computed(
     `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
 )
 
+// Computed properties for button visibility
+const showLaunchButton = computed(() => {
+  return (
+    displayStore.showTutorial &&
+    ['small', 'medium'].includes(displayStore.viewportSize)
+  )
+})
+
+const showInstructionsButton = computed(() => {
+  return (
+    !displayStore.showTutorial &&
+    ['small', 'medium'].includes(displayStore.viewportSize)
+  )
+})
+
 // Function to set a custom --vh CSS variable to handle mobile devices like iPads
 const setCustomVh = () => {
   if (typeof window !== 'undefined') {
-    // Check if we're in the browser
     const vh = window.innerHeight * 0.01
     document.documentElement.style.setProperty('--vh', `${vh}px`)
   }
@@ -126,15 +131,15 @@ const setCustomVh = () => {
 
 // Initialize the viewport state and load previous states
 onMounted(() => {
-  setCustomVh() // Set custom vh on mount if in the browser
-  window.addEventListener('resize', setCustomVh) // Update custom vh on resize if in the browser
-  displayStore.initialize() // Initialize store settings
+  setCustomVh()
+  window.addEventListener('resize', setCustomVh)
+  displayStore.initialize()
 })
 
 // Remove the viewport watcher on component unmount
 onBeforeUnmount(() => {
   if (typeof window !== 'undefined') {
-    window.removeEventListener('resize', setCustomVh) // Clean up the listener
+    window.removeEventListener('resize', setCustomVh)
   }
   displayStore.removeViewportWatcher()
 })

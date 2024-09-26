@@ -139,7 +139,6 @@ export async function fetchRandomImage(): Promise<string | null> {
   }
 }
 
-
 // Function to fetch all images from all galleries
 export async function getAllGalleryImages(): Promise<{
   [galleryId: number]: string[]

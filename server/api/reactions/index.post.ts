@@ -40,7 +40,9 @@ export default defineEventHandler(async (event) => {
     } = requestData
 
     if (!userId || !reactionType || !reactionCategory) {
-      throw new Error('Missing required fields: userId, reactionType, or ReactionCategory.')
+      throw new Error(
+        'Missing required fields: userId, reactionType, or ReactionCategory.',
+      )
     }
 
     let reactionMatchCondition: { [key: string]: number } = {}
@@ -52,15 +54,18 @@ export default defineEventHandler(async (event) => {
         reactionMatchCondition = { artId }
         break
       case ReactionCategory.COMPONENT:
-        if (!componentId) throw new Error('componentId is required for Component reactions.')
+        if (!componentId)
+          throw new Error('componentId is required for Component reactions.')
         reactionMatchCondition = { componentId }
         break
       case ReactionCategory.PITCH:
-        if (!pitchId) throw new Error('pitchId is required for Pitch reactions.')
+        if (!pitchId)
+          throw new Error('pitchId is required for Pitch reactions.')
         reactionMatchCondition = { pitchId }
         break
       case ReactionCategory.CHANNEL:
-        if (!channelId) throw new Error('channelId is required for Channel reactions.')
+        if (!channelId)
+          throw new Error('channelId is required for Channel reactions.')
         reactionMatchCondition = { channelId }
         break
       default:
@@ -86,9 +91,16 @@ export default defineEventHandler(async (event) => {
           reactionType,
           reactionCategory: reactionCategory,
           artId: reactionCategory === ReactionCategory.ART ? artId : undefined,
-          componentId: reactionCategory === ReactionCategory.COMPONENT ? componentId : undefined,
-          pitchId: reactionCategory === ReactionCategory.PITCH ? pitchId : undefined,
-          channelId: reactionCategory === ReactionCategory.CHANNEL ? channelId : undefined,
+          componentId:
+            reactionCategory === ReactionCategory.COMPONENT
+              ? componentId
+              : undefined,
+          pitchId:
+            reactionCategory === ReactionCategory.PITCH ? pitchId : undefined,
+          channelId:
+            reactionCategory === ReactionCategory.CHANNEL
+              ? channelId
+              : undefined,
         },
       })
 
@@ -105,9 +117,16 @@ export default defineEventHandler(async (event) => {
           reactionType, // Use the mapped ReactionType enum value
           reactionCategory: reactionCategory, // Add the reactionCategory
           artId: reactionCategory === ReactionCategory.ART ? artId : undefined,
-          componentId: reactionCategory === ReactionCategory.COMPONENT ? componentId : undefined,
-          pitchId: reactionCategory === ReactionCategory.PITCH ? pitchId : undefined,
-          channelId: reactionCategory === ReactionCategory.CHANNEL ? channelId : undefined,
+          componentId:
+            reactionCategory === ReactionCategory.COMPONENT
+              ? componentId
+              : undefined,
+          pitchId:
+            reactionCategory === ReactionCategory.PITCH ? pitchId : undefined,
+          channelId:
+            reactionCategory === ReactionCategory.CHANNEL
+              ? channelId
+              : undefined,
           comment,
         },
       })

@@ -84,7 +84,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
       body: {
         reactionType: 'CLAPPED', // Changing the reaction type
         comment: 'Actually, clapping for this artwork!',
-        reactionCategory: 'ART'
+        reactionCategory: 'ART',
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

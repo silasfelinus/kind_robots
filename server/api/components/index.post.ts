@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     const componentData = await readBody(event)
 
     // Ensure Tags is an array before mapping
-    const tags = componentData.Tags || [];
+    const tags = componentData.Tags || []
 
     // Use the `upsert` method to either create a new component or update an existing one
     const upsertedComponent = await prisma.component.upsert({
@@ -17,9 +17,16 @@ export default defineEventHandler(async (event) => {
       },
       update: {
         folderName: componentData.folderName,
-        isWorking: componentData.isWorking !== undefined ? componentData.isWorking : true,
-        underConstruction: componentData.underConstruction !== undefined ? componentData.underConstruction : false,
-        isBroken: componentData.isBroken !== undefined ? componentData.isBroken : false,
+        isWorking:
+          componentData.isWorking !== undefined
+            ? componentData.isWorking
+            : true,
+        underConstruction:
+          componentData.underConstruction !== undefined
+            ? componentData.underConstruction
+            : false,
+        isBroken:
+          componentData.isBroken !== undefined ? componentData.isBroken : false,
         title: componentData.title || componentData.componentName,
         Tags: {
           connectOrCreate: tags.map((tag: Tag) => ({

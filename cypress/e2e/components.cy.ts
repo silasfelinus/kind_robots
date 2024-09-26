@@ -37,7 +37,6 @@ describe('Component Management API Tests', () => {
         underConstruction: false,
         isBroken: false,
         title: 'Test Component',
-       
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

@@ -90,7 +90,11 @@ export default defineEventHandler(async (event) => {
           reactionType: mappedReactionType,
         },
       })
-      return { success: true, reaction: updatedReaction, message: 'Reaction updated successfully' }
+      return {
+        success: true,
+        reaction: updatedReaction,
+        message: 'Reaction updated successfully',
+      }
     } else {
       // Create a new reaction
       const newReaction = await prisma.reaction.create({
@@ -101,7 +105,11 @@ export default defineEventHandler(async (event) => {
           comment,
         },
       })
-      return { success: true, reaction: newReaction, message: 'Reaction created successfully' }
+      return {
+        success: true,
+        reaction: newReaction,
+        message: 'Reaction created successfully',
+      }
     }
   } catch (error) {
     return errorHandler({
@@ -149,7 +157,6 @@ export const deleteReaction = async (reactionId: number): Promise<boolean> => {
     console.error(`Error deleting reaction with ID ${reactionId}:`, error)
     return false
   }
-
 }
 
 // Function to fetch a single Reaction by ID

@@ -25,10 +25,23 @@ export default defineEventHandler(async (event) => {
 
     // Read and validate reaction data
     const reactionData: ReactionData = await readBody(event)
-    
+
     // Validate reactionType and reactionCategory
-    const validReactionTypes = ['LOVED', 'CLAPPED', 'BOOED', 'HATED', 'NEUTRAL', 'FLAGGED']
-    const validReactionCategories = ['ART', 'PITCH', 'COMPONENT', 'CHANNEL', 'TITLE']
+    const validReactionTypes = [
+      'LOVED',
+      'CLAPPED',
+      'BOOED',
+      'HATED',
+      'NEUTRAL',
+      'FLAGGED',
+    ]
+    const validReactionCategories = [
+      'ART',
+      'PITCH',
+      'COMPONENT',
+      'CHANNEL',
+      'TITLE',
+    ]
 
     if (!validReactionTypes.includes(reactionData.reactionType)) {
       throw new TypeError('Invalid reaction type.')
@@ -39,17 +52,17 @@ export default defineEventHandler(async (event) => {
     }
 
     // Adjusting the Prisma where clause
-const existingReaction = await prisma.reaction.findFirst({
-  where: {
-    chatExchangeId: reactionData.chatExchangeId ?? id, // Use chatExchangeId or id from route params
-    userId: reactionData.userId,
-  },
-})
+    const existingReaction = await prisma.reaction.findFirst({
+      where: {
+        chatExchangeId: reactionData.chatExchangeId ?? id, // Use chatExchangeId or id from route params
+        userId: reactionData.userId,
+      },
+    })
 
     // Update or create reaction for the chat exchange
     const updatedReaction = await prisma.reaction.upsert({
       where: { id: existingReaction?.id }, // Use existing reaction id or a dummy value (0 will trigger creation)
-  
+
       update: {
         reactionType: reactionData.reactionType,
         comment: reactionData.comment,
@@ -69,7 +82,7 @@ const existingReaction = await prisma.reaction.findFirst({
         channelId: reactionData.channelId,
         chatExchangeId: reactionData.chatExchangeId ?? id,
         ReactionCategory: reactionData.reactionCategory, // Correct field name
-      },      
+      },
     })
 
     return {

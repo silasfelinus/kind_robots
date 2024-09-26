@@ -28,19 +28,22 @@ export const useGalleryStore = defineStore({
     randomImage(state: GalleryState): string | null {
       return state.currentImage ? state.currentImage : null
     },
-    
+
     randomGallery(state: GalleryState): Gallery | null {
       const otherGalleries = Array.isArray(state.galleries)
-        ? state.galleries.filter(g => g.name !== state.currentGallery?.name)
+        ? state.galleries.filter((g) => g.name !== state.currentGallery?.name)
         : []
-    
+
       if (otherGalleries.length === 0 && state.currentGallery) {
         return state.currentGallery
       }
-    
-      return otherGalleries[Math.floor(Math.random() * otherGalleries.length)] || null
+
+      return (
+        otherGalleries[Math.floor(Math.random() * otherGalleries.length)] ||
+        null
+      )
     },
-    
+
     imagePathsByGalleryName(
       state: GalleryState,
     ): (galleryName: string) => string[] {
@@ -59,7 +62,7 @@ export const useGalleryStore = defineStore({
       const storedGalleries = localStorage.getItem('galleries')
       const storedCurrentGallery = localStorage.getItem('currentGallery')
       const storedCurrentImage = localStorage.getItem('currentImage')
-    
+
       if (storedGalleries) {
         try {
           this.galleries = JSON.parse(storedGalleries)
@@ -71,15 +74,15 @@ export const useGalleryStore = defineStore({
           console.error('Failed to parse stored galleries:', error)
         }
       }
-    
+
       if (storedCurrentGallery) {
         this.currentGallery = JSON.parse(storedCurrentGallery)
       }
-    
+
       if (storedCurrentImage) {
         this.currentImage = storedCurrentImage
       }
-    
+
       // If no galleries in localStorage, fetch from API
       if (!this.galleries.length) {
         await this.fetchGalleries()
@@ -90,18 +93,20 @@ export const useGalleryStore = defineStore({
         const response = await fetch('/api/galleries')
         if (response.ok) {
           const data = await response.json()
-    
+
           // Ensure data contains the galleries array before assigning
           if (data.success && Array.isArray(data.galleries)) {
             this.galleries = data.galleries
             localStorage.setItem('galleries', JSON.stringify(this.galleries))
-    
+
             // Set a default gallery if none is selected
             if (!this.currentGallery && this.galleries.length > 0) {
               this.setGalleryByName(this.galleries[0].name)
             }
           } else {
-            console.error('Invalid galleries data format. Expected an array under the galleries property.')
+            console.error(
+              'Invalid galleries data format. Expected an array under the galleries property.',
+            )
           }
         } else {
           console.error('Failed to fetch galleries')
@@ -110,8 +115,6 @@ export const useGalleryStore = defineStore({
         console.error('Error fetching galleries:', error)
       }
     },
-    
-    
 
     // Set the current gallery by name and update localStorage
     setGalleryByName(name: string) {

@@ -35,12 +35,12 @@
 
     <!-- Bot Messages Section -->
     <div
-      class="flex flex-col space-y-2 w-full max-w-3xl px-4 py-2 overflow-y-auto"
+      class="flex flex-col space-y-4 w-full max-w-3xl px-4 py-2 overflow-y-auto"
     >
       <!-- DottiBot Message -->
-      <div class="flex justify-center">
+      <div class="flex justify-start">
         <div
-          class="flex items-left space-x-2 p-2 bg-primary border border-secondary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-start space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-tl-none rounded-tr-2xl rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -55,9 +55,9 @@
       </div>
 
       <!-- AMIbot Message -->
-      <div class="flex justify-center">
+      <div class="flex justify-end">
         <div
-          class="flex items-right space-x-2 p-2 bg-secondary border border-primary text-base-200 rounded-lg shadow-lg w-full lg:w-2/3"
+          class="flex items-start space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-tl-2xl rounded-tr-none rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3"
         >
           <img
             src="/images/amibotsquare1.webp"

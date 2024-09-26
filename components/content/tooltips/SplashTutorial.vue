@@ -4,7 +4,9 @@
     :style="{ height: displayStore.mainVh + 'vh' }"
   >
     <!-- Main Content Section -->
-    <div class="flex-1 flex flex-col items-center justify-start space-y-4 overflow-y-auto p-4">
+    <div
+      class="flex-1 flex flex-col items-center justify-start space-y-4 overflow-y-auto p-4"
+    >
       <!-- Main Image -->
       <img
         :src="'/images/' + page.image"
@@ -14,18 +16,27 @@
 
       <!-- Title, Description, and Subtitle Section -->
       <div class="text-center w-full space-y-2">
-        <h1 class="text-xl md:text-2xl font-bold text-secondary">{{ page.title }}</h1>
+        <h1 class="text-xl md:text-2xl font-bold text-secondary">
+          {{ page.title }}
+        </h1>
 
-        <p class="text-sm md:text-base font-medium text-info-content px-4">{{ page.description }}</p>
+        <p class="text-sm md:text-base font-medium text-info-content px-4">
+          {{ page.description }}
+        </p>
 
-        <h2 v-if="page.subtitle" class="text-xs md:text-sm font-medium text-accent">
+        <h2
+          v-if="page.subtitle"
+          class="text-xs md:text-sm font-medium text-accent"
+        >
           {{ page.subtitle }}
         </h2>
       </div>
     </div>
 
     <!-- Bot Messages Section -->
-    <div class="flex flex-col space-y-2 w-full max-w-3xl px-4 py-2 overflow-y-auto">
+    <div
+      class="flex flex-col space-y-2 w-full max-w-3xl px-4 py-2 overflow-y-auto"
+    >
       <!-- DottiBot Message -->
       <div class="flex justify-center">
         <div
@@ -64,15 +75,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 const { page } = useContent()
-
-onMounted(() => {
-  displayStore.initializeViewportWatcher()
-})
 </script>
 
 <style scoped>

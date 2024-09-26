@@ -1,23 +1,34 @@
 <template>
   <div class="main-layout absolute inset-0 bg-base-300">
-    <kind-loader></kind-loader>
+    <!-- Loader Component -->
+    <div v-if="!hasLoaderError">
+      <kind-loader @error="handleError('Loader')"></kind-loader>
+    </div>
+
     <!-- Header -->
     <header
+      v-if="!hasHeaderError"
       class="header-overlay bg-base-300 flex items-center justify-between w-full px-4"
       :style="{ height: headerHeight }"
     >
       <!-- Sidebar Toggle -->
-      <div class="p-1 z-40 text-white">
-        <sidebar-toggle class="text-4xl"></sidebar-toggle>
+      <div v-if="!hasSidebarToggleError" class="p-1 z-40 text-white">
+        <sidebar-toggle
+          class="text-4xl"
+          @error="handleError('SidebarToggle')"
+        ></sidebar-toggle>
       </div>
 
       <!-- Navigation Links (centered in the row) -->
-      <div class="flex-grow">
-        <nav-links class="hidden sm:flex justify-center"></nav-links>
+      <div v-if="!hasNavLinksError" class="flex-grow">
+        <nav-links
+          class="hidden sm:flex justify-center"
+          @error="handleError('NavLinks')"
+        ></nav-links>
       </div>
 
       <!-- Launch/Instructions Buttons (right-aligned in the row) -->
-      <div class="flex items-center space-x-2">
+      <div v-if="!hasLaunchButtonsError" class="flex items-center space-x-2">
         <button
           v-if="showLaunchButton"
           class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-1"
@@ -38,54 +49,113 @@
 
     <!-- Main content area with sidebars and main content -->
     <div
+      v-if="!hasContentAreaError"
       class="content-area"
       :style="{
         gridTemplateColumns: gridColumns,
         height: mainHeight,
       }"
     >
+      <!-- Left Sidebar -->
       <kind-sidebar-simple
+        v-if="!hasSidebarLeftError"
         class="sidebar-left-overlay overflow-y-auto bg-base-300"
         :style="{
           width: sidebarLeftWidth,
           height: mainHeight,
         }"
+        @error="handleError('SidebarLeft')"
       ></kind-sidebar-simple>
 
+      <!-- Main Content -->
       <main
+        v-if="!hasMainFlipError"
         class="main-content-overlay rounded-2xl bg-base-300"
         :style="{
           height: mainHeight,
           width: mainWidth,
         }"
       >
-        <main-flip></main-flip>
+        <main-flip @error="handleError('MainFlip')"></main-flip>
       </main>
 
+      <!-- Right Sidebar -->
       <aside
+        v-if="!hasSidebarRightError"
         class="sidebar-right-overlay"
         :style="{
           width: sidebarRightWidth,
           height: mainHeight,
         }"
+        @error="handleError('SidebarRight')"
       ></aside>
     </div>
 
     <!-- Footer -->
     <footer
+      v-if="!hasFooterError"
       class="footer-overlay"
       :style="{
         height: footerHeight,
       }"
+      @error="handleError('Footer')"
     ></footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+
+// Error flags for each component
+const hasLoaderError = ref(false)
+const hasHeaderError = ref(false)
+const hasSidebarToggleError = ref(false)
+const hasNavLinksError = ref(false)
+const hasLaunchButtonsError = ref(false)
+const hasContentAreaError = ref(false)
+const hasSidebarLeftError = ref(false)
+const hasMainFlipError = ref(false)
+const hasSidebarRightError = ref(false)
+const hasFooterError = ref(false)
+
+// Error handling function
+const handleError = (component: string) => {
+  switch (component) {
+    case 'Loader':
+      hasLoaderError.value = true
+      break
+    case 'Header':
+      hasHeaderError.value = true
+      break
+    case 'SidebarToggle':
+      hasSidebarToggleError.value = true
+      break
+    case 'NavLinks':
+      hasNavLinksError.value = true
+      break
+    case 'LaunchButtons':
+      hasLaunchButtonsError.value = true
+      break
+    case 'ContentArea':
+      hasContentAreaError.value = true
+      break
+    case 'SidebarLeft':
+      hasSidebarLeftError.value = true
+      break
+    case 'MainFlip':
+      hasMainFlipError.value = true
+      break
+    case 'SidebarRight':
+      hasSidebarRightError.value = true
+      break
+    case 'Footer':
+      hasFooterError.value = true
+      break
+  }
+}
 
 // Computed properties for reactive access to store data
 const headerHeight = computed(

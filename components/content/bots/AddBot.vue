@@ -219,7 +219,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
@@ -280,6 +280,7 @@ async function generateRandomAvatar() {
     isLoading.value = false
   }
 }
+
 async function handleSubmit(e: Event) {
   e.preventDefault()
 
@@ -317,12 +318,6 @@ async function handleSubmit(e: Event) {
     }
 
     if (selectedBotId.value && botStore.currentBot?.userId === userId.value) {
-      await botStore.updateBot(selectedBotId.value, botData)
-    } else {
-      await botStore.addBots([botData])
-    }
-
-    if (selectedBotId.value && botStore.currentBot?.userId === userId.value) {
       // Update an existing bot if the user is the owner
       await botStore.updateBot(selectedBotId.value, botData)
     } else {
@@ -339,6 +334,7 @@ async function handleSubmit(e: Event) {
   }
 }
 
+// Load the data of the selected bot into the form fields
 function loadBotData() {
   const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
   if (bot) {
@@ -391,7 +387,9 @@ watch(selectedBotId, () => {
   loadBotData()
 })
 
-// Fetch the galleries when the component is mounted
-await galleryStore.initializeStore()
-await botStore.loadStore()
+// Run client-side only logic inside onMounted
+onMounted(async () => {
+  await galleryStore.initializeStore()
+  await botStore.loadStore()
+})
 </script>

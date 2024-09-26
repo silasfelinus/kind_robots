@@ -10,30 +10,6 @@
       <div class="p-1 z-40 text-white">
         <sidebar-toggle class="text-4xl"></sidebar-toggle>
       </div>
-
-      <!-- Navigation Links (centered in the row) -->
-      <div class="flex-grow">
-        <nav-links class="hidden sm:flex justify-center"></nav-links>
-      </div>
-
-      <!-- Launch/Instructions Buttons (right-aligned in the row) -->
-      <div class="flex items-center space-x-2">
-        <button
-          v-if="showLaunchButton"
-          class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-1"
-          @click="displayStore.toggleTutorial"
-        >
-          Launch
-        </button>
-
-        <button
-          v-if="showInstructionsButton"
-          class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 p-1"
-          @click="displayStore.toggleTutorial"
-        >
-          Instructions
-        </button>
-      </div>
     </header>
 
     <!-- Main content area with sidebars and main content -->
@@ -107,21 +83,6 @@ const gridColumns = computed(
   () =>
     `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
 )
-
-// Computed properties for button visibility
-const showLaunchButton = computed(() => {
-  return (
-    displayStore.showTutorial &&
-    ['small', 'medium'].includes(displayStore.viewportSize)
-  )
-})
-
-const showInstructionsButton = computed(() => {
-  return (
-    !displayStore.showTutorial &&
-    ['small', 'medium'].includes(displayStore.viewportSize)
-  )
-})
 
 // Function to set a custom --vh CSS variable to handle mobile devices like iPads
 const setCustomVh = () => {

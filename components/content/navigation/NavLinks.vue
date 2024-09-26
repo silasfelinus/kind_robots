@@ -10,7 +10,7 @@
         aria-label="Toggle menu"
         @click="toggleMenu"
       >
-        <!-- Hamburger Icon (Accolade Menu Icon) -->
+        <!-- Hamburger Icon -->
         <svg
           class="w-5 h-5"
           fill="none"
@@ -45,7 +45,7 @@
     </div>
 
     <!-- Horizontal Links for Larger Screens -->
-    <div class="hidden sm:flex items-center gap-2">
+    <div class="hidden sm:flex items-center gap-4">
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"
@@ -61,20 +61,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-// Control whether the hamburger menu is open
 const isMenuOpen = ref(false)
 
-// Toggle the menu open or closed
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
 
-// Close the menu when a link is clicked
 const closeMenu = () => {
   isMenuOpen.value = false
 }
 
-// Navigation links
 const navLinks = [
   { text: 'Kind Robots', url: '/' },
   { text: 'Welcome', url: '/intro' },
@@ -85,12 +81,7 @@ const navLinks = [
 </script>
 
 <style scoped>
-/* Optional styles for customizing the menu appearance */
 nav {
   position: relative;
-}
-
-button {
-  outline: none;
 }
 </style>

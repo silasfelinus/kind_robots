@@ -3,7 +3,7 @@
     <!-- View Toggle -->
     <div class="absolute top-4 right-4 flex space-x-2 z-40">
       <Icon
-        name="grommet-Icons:grid"
+        name="icon-park-outline:grid-sixteen"
         class="text-2xl cursor-pointer"
         @click="setView('fourRow')"
       />
@@ -71,7 +71,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
-import { userNavigation } from './../../../training/userNavigation'
+import { userNavigation } from '../../../training/userNavigation'
 
 const view = ref('twoRow')
 const itemClass = ref('w-1/2 p-4')

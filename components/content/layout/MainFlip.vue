@@ -19,23 +19,25 @@
 
       <!-- Back side: NuxtPage content (with scrolling) -->
       <div class="flip-card-back overflow-y-auto h-screen">
-        <NuxtPage />
+        <NuxtPage></NuxtPage>
       </div>
     </div>
 
     <!-- Two-column layout for large and extra-large viewports -->
-    <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto min-h-screen">
+    <div
+      v-if="isLargeViewport"
+      class="flex flex-col overflow-y-auto min-h-screen"
+    >
       <splash-tutorial />
     </div>
     <div
       v-if="isLargeViewport"
       class="flex flex-col overflow-y-auto min-h-screen border rounded-2xl"
     >
-      <NuxtPage />
+      <NuxtPage></NuxtPage>
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { onMounted } from 'vue'

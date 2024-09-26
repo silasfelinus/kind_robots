@@ -37,7 +37,7 @@
         @click="closeNav"
       >
         <div class="h-full w-full border border-gray-300 rounded">
-          <slot class="bg-grey-200 rounded-2xl p-1 m-1" />
+          <slot class="bg-grey-200 rounded-2xl p-1 m-1"></slot>
         </div>
       </div>
     </div>

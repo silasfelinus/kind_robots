@@ -14,7 +14,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Compute the icon size based on the header height
+// Compute the icon size based on the headerVh value
 const buttonStyle = computed(() => {
   const iconSize = Math.max(5, displayStore.headerVh - 3)
   return {
@@ -25,7 +25,7 @@ const buttonStyle = computed(() => {
 
 // Toggle the left sidebar
 const toggleSidebarLeft = () => {
-  displayStore.toggleSidebar('sidebarLeft')
+  displayStore.toggleSidebar('sidebarLeftState') // Use the correct state name
 }
 </script>
 

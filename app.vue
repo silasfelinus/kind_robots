@@ -34,7 +34,7 @@
           width: mainWidth,
         }"
       >
-        <MainFlip></MainFlip>
+        <main-flip></main-flip>
       </main>
 
       <aside

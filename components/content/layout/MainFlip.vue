@@ -1,6 +1,11 @@
 <template>
-  <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto">
-    <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
+  <div
+    class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto"
+  >
+    <div
+      class="flip-card-inner"
+      :class="{ 'is-flipped': !displayStore.showTutorial }"
+    >
       <!-- Front side: Splash Tutorial -->
       <div class="flip-card-front">
         <SplashTutorial />
@@ -14,15 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
 
-// Props to control flipping behavior
-const props = defineProps({
-  showTutorial: {
-    type: Boolean,
-    required: true,
-  },
-})
+const displayStore = useDisplayStore()
 </script>
 
 <style scoped>

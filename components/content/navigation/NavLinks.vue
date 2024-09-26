@@ -1,5 +1,8 @@
 <template>
-  <nav class="relative flex items-center justify-center w-full">
+  <nav
+    role="navigation"
+    class="relative flex items-center justify-center w-full"
+  >
     <!-- Hamburger Icon for Small Screens -->
     <div class="sm:hidden">
       <button

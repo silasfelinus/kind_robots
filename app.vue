@@ -10,11 +10,11 @@
     >
       <!-- Sidebar Toggle -->
       <div class="p-1 z-40 text-white ml-2">
-        <sidebar-toggle class="text-4xl" />
+        <sidebar-toggle class="text-4xl"></sidebar-toggle>
       </div>
 
       <!-- Navigation Links -->
-      <nav-links class="flex-grow" />
+      <nav-links class="flex-grow"></nav-links>
       <!-- Added margin to avoid overlapping with the sidebar toggle -->
 
       <!-- Tutorial and Back Buttons -->

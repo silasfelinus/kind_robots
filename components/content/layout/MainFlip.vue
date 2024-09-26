@@ -60,9 +60,18 @@ onMounted(() => {
 
 <style scoped>
 .flip-card {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden; /* Prevent any overflow issues at the top-level */
   height: 100%;
-  perspective: 1000px;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front {
+  z-index: 2;
 }
 
 .flip-card-inner {
@@ -71,10 +80,10 @@ onMounted(() => {
   transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
   position: relative;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
 }
 
 .flip-card-front,
@@ -88,13 +97,15 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.flip-card-front {
-  z-index: 2;
-}
-
 .flip-card-back {
   transform: rotateY(180deg);
-  overflow-y: auto; /* Ensure this element is scrollable */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  scroll-snap-type: y mandatory;
+  scroll-snap-align: start;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Ensure grid layout height takes full available space */
@@ -102,5 +113,10 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   height: 100%;
+}
+html,
+body {
+  height: 100%;
+  overflow: hidden;
 }
 </style>

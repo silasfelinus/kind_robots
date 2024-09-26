@@ -11,7 +11,7 @@ interface DisplayStoreState {
   isVertical: boolean
   viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
   isTouchDevice: boolean
-  showInfo: boolean
+  showTutorial: boolean
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -23,7 +23,7 @@ export const useDisplayStore = defineStore('display', {
     isVertical: false,
     viewportSize: 'large',
     isTouchDevice: false,
-    showInfo: true,
+    showTutorial: true,
   }),
 
   getters: {
@@ -168,17 +168,24 @@ export const useDisplayStore = defineStore('display', {
           const storedSidebarRight = localStorage.getItem('sidebarRightState') as DisplayState
           const storedHeaderState = localStorage.getItem('headerState')
           const storedFooterState = localStorage.getItem('footerState')
+          const storedShowTutorial = localStorage.getItem('showTutorial')
 
           if (storedSidebarLeft) this.sidebarLeftState = storedSidebarLeft
           if (storedSidebarRight) this.sidebarRightState = storedSidebarRight
           if (storedHeaderState) this.headerState = storedHeaderState as DisplayState
           if (storedFooterState) this.footerState = storedFooterState as DisplayState
+          if (storedShowTutorial)  this.showTutorial = storedShowTutorial === 'true'
+      
         }
       } catch (error) {
         console.error('Error loading display state from localStorage:', error)
         const errorStore = useErrorStore()
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
+    },
+    toggleTutorial() {
+      this.showTutorial = !this.showTutorial
+      this.saveState()
     },
 
     saveState() {
@@ -188,6 +195,7 @@ export const useDisplayStore = defineStore('display', {
           localStorage.setItem('sidebarRightState', this.sidebarRightState)
           localStorage.setItem('headerState', this.headerState)
           localStorage.setItem('footerState', this.footerState)
+          localStorage.setItem('showTutorial', String(this.showTutorial))
         }
       } catch (error) {
         console.error('Error saving display state to localStorage:', error)

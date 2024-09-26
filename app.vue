@@ -15,7 +15,6 @@
 
       <!-- Navigation Links -->
       <nav-links class="flex-grow ml-16" />
-      <!-- Added margin to avoid overlapping with the sidebar toggle -->
 
       <!-- Tutorial and Back Buttons -->
       <button
@@ -52,13 +51,13 @@
       ></kind-sidebar-simple>
 
       <main
-        class="main-content-overlay rounded-2xl bg-base-300 overflow-y-auto"
+        class="main-content-overlay rounded-2xl bg-base-300"
         :style="{
           height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
           width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
         }"
       >
-        <MainFlip />
+        <MainFlip class="overflow-y-auto" />
       </main>
 
       <aside

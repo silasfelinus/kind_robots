@@ -140,13 +140,25 @@ export const useDisplayStore = defineStore('display', {
     },
 
     initialize() {
-      this.loadState()
-      this.updateViewport()
-      window.addEventListener('resize', this.updateViewport)
+      try {
+        this.loadState()
+        this.updateViewport()
+        window.addEventListener('resize', this.updateViewport)
+      } catch (error) {
+        console.error('Error initializing display state:', error)
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
     },
 
     removeViewportWatcher() {
-      window.removeEventListener('resize', this.updateViewport)
+      try {
+        window.removeEventListener('resize', this.updateViewport)
+      } catch (error) {
+        console.error('Error removing viewport watcher:', error)
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
     },
 
     loadState() {

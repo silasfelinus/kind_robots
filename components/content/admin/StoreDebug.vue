@@ -7,7 +7,13 @@
     ></header>
 
     <!-- Main content area with sidebars and main content -->
-    <div class="content-area">
+    <div
+      class="content-area"
+      :style="{
+        gridTemplateColumns: `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
+        height: `${displayStore.mainVh}vh`,
+      }"
+    >
       <aside
         class="sidebar-left-overlay debug-box pointer-events-none"
         :style="{
@@ -20,7 +26,7 @@
         class="main-content-overlay debug-box pointer-events-none"
         :style="{
           height: displayStore.mainVh + 'vh',
-          width: displayStore.mainVw + 'vw',
+          width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
         }"
       >
         <!-- Floating color-coded key in the center -->
@@ -88,9 +94,21 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Initialize the display store
 const displayStore = useDisplayStore()
+
+// Initialize the viewport state and load previous states
+onMounted(() => {
+  displayStore.initialize()
+})
+
+// Remove the viewport watcher on component unmount
+onBeforeUnmount(() => {
+  displayStore.removeViewportWatcher()
+})
 </script>
 
 <style scoped>
@@ -103,11 +121,7 @@ const displayStore = useDisplayStore()
 
 .content-area {
   display: grid;
-  grid-template-columns:
-    calc(var(--sidebar-left-vw) * 1vw)
-    calc(100vw - var(--sidebar-left-vw) * 1vw - var(--sidebar-right-vw) * 1vw)
-    calc(var(--sidebar-right-vw) * 1vw); /* Fixed based on sidebar widths */
-  height: calc(var(--main-vh) * 1vh); /* Dynamic height based on main content */
+  grid-template-columns: 1fr; /* Dynamically handled by inline styles */
   overflow: hidden; /* Prevent horizontal scrolling */
 }
 

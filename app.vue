@@ -102,20 +102,24 @@ const displayStore = useDisplayStore()
 
 // Function to set a custom --vh CSS variable to handle mobile devices like iPads
 const setCustomVh = () => {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
+  if (typeof window !== 'undefined') {  // Check if we're in the browser
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
 };
 
 // Initialize the viewport state and load previous states
 onMounted(() => {
-  setCustomVh(); // Set custom vh on mount
-  window.addEventListener('resize', setCustomVh); // Update custom vh on resize
+  setCustomVh(); // Set custom vh on mount if in the browser
+  window.addEventListener('resize', setCustomVh); // Update custom vh on resize if in the browser
   displayStore.initialize(); // Initialize store settings
 });
 
 // Remove the viewport watcher on component unmount
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', setCustomVh); // Clean up the listener
+  if (typeof window !== 'undefined') {  // Only clean up in the browser
+    window.removeEventListener('resize', setCustomVh); // Clean up the listener
+  }
   displayStore.removeViewportWatcher();
 });
 </script>

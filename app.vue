@@ -5,7 +5,7 @@
     <header
       class="header-overlay"
       :style="{
-        height: 'calc(var(--vh, 1vh) * ' + displayStore.headerVh + ')',
+        height: headerHeight,
       }"
     >
       <main-header />
@@ -15,23 +15,23 @@
     <div
       class="content-area"
       :style="{
-        gridTemplateColumns: `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
-        height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
+        gridTemplateColumns: gridColumns,
+        height: mainHeight,
       }"
     >
       <kind-sidebar-simple
         class="sidebar-left-overlay overflow-y-auto"
         :style="{
-          width: displayStore.sidebarLeftVw + 'vw',
-          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
+          width: sidebarLeftWidth,
+          height: mainHeight,
         }"
       ></kind-sidebar-simple>
 
       <main
         class="main-content-overlay rounded-2xl bg-base-300"
         :style="{
-          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
-          width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
+          height: mainHeight,
+          width: mainWidth,
         }"
       >
         <MainFlip />
@@ -40,8 +40,8 @@
       <aside
         class="sidebar-right-overlay"
         :style="{
-          width: displayStore.sidebarRightVw + 'vw',
-          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
+          width: sidebarRightWidth,
+          height: mainHeight,
         }"
       ></aside>
     </div>
@@ -50,18 +50,38 @@
     <footer
       class="footer-overlay"
       :style="{
-        height: 'calc(var(--vh, 1vh) * ' + displayStore.footerVh + ')',
+        height: footerHeight,
       }"
     ></footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount } from 'vue'
+import { computed, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Initialize the display store
 const displayStore = useDisplayStore()
+
+// Computed properties for reactive access to store data
+const headerHeight = computed(
+  () => `calc(var(--vh, 1vh) * ${displayStore.headerVh})`,
+)
+const mainHeight = computed(
+  () => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`,
+)
+const footerHeight = computed(
+  () => `calc(var(--vh, 1vh) * ${displayStore.footerVh})`,
+)
+const sidebarLeftWidth = computed(() => `${displayStore.sidebarLeftVw}vw`)
+const sidebarRightWidth = computed(() => `${displayStore.sidebarRightVw}vw`)
+const mainWidth = computed(
+  () =>
+    `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
+)
+const gridColumns = computed(
+  () =>
+    `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
+)
 
 // Function to set a custom --vh CSS variable to handle mobile devices like iPads
 const setCustomVh = () => {
@@ -82,7 +102,6 @@ onMounted(() => {
 // Remove the viewport watcher on component unmount
 onBeforeUnmount(() => {
   if (typeof window !== 'undefined') {
-    // Only clean up in the browser
     window.removeEventListener('resize', setCustomVh) // Clean up the listener
   }
   displayStore.removeViewportWatcher()
@@ -100,7 +119,7 @@ onBeforeUnmount(() => {
 .content-area {
   display: grid;
   grid-template-columns: 1fr; /* Dynamically handled by inline styles */
-  overflow: scroll; /* Prevent horizontal scrolling */
+  overflow: hidden; /* Prevent horizontal scrolling */
 }
 
 .header-overlay,

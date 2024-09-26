@@ -1,6 +1,9 @@
 <template>
   <div
-    class="w-full rounded-2xl bg-base-300 relative shadow-lg min-h-screen"
+    class="w-full border-accent rounded-2xl bg-base-300 relative shadow-lg"
+    :style="{
+      height: mainHeight,
+    }"
     :class="{
       'grid grid-cols-2 gap-4': isLargeViewport,
       'flip-card': !isLargeViewport,
@@ -45,6 +48,10 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 // Initialize the display store
 const displayStore = useDisplayStore()
+
+const mainHeight = computed(
+  () => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`,
+)
 
 // Watch for changes in viewport size
 const isLargeViewport = computed(

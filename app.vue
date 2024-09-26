@@ -104,10 +104,15 @@ const displayStore = useDisplayStore()
 .content-area {
   display: grid;
   grid-template-columns:
-    calc(var(--sidebar-left-vw) * 1vw)
-    calc(100vw - var(--sidebar-left-vw) * 1vw - var(--sidebar-right-vw) * 1vw)
-    calc(var(--sidebar-right-vw) * 1vw); /* Fixed based on sidebar widths */
-  height: calc(var(--main-vh) * 1vh); /* Dynamic height based on main content */
+    calc(displayStore.sidebarLeftVw * 1vw)
+    calc(
+      100vw - displayStore.sidebarLeftVw * 1vw - displayStore.sidebarRightVw *
+        1vw
+    )
+    calc(displayStore.sidebarRightVw * 1vw); /* Fixed based on sidebar widths */
+  height: calc(
+    displayStore.mainVh * 1vh
+  ); /* Dynamic height based on main content */
   overflow: hidden; /* Prevent horizontal scrolling */
 }
 

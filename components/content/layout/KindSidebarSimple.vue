@@ -30,7 +30,7 @@
           <!-- Only show the link title when the sidebar is fully open -->
           <span
             v-if="displayStore.sidebarLeftState === 'open'"
-            class="text-lg font-semibold ml-2 transition-opacity duration-300 text-accent"
+            class="text-sm md: text-md lg:text-lg font-semibold ml-2 transition-opacity duration-300 text-accent"
           >
             {{ link.title }}
           </span>

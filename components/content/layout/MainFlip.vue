@@ -24,12 +24,15 @@
     </div>
 
     <!-- Two-column layout for large and extra-large viewports -->
-    <div v-if="isLargeViewport" class="flex flex-col overflow-y-auto h-full">
+    <div
+      v-if="isLargeViewport"
+      class="flex flex-col overflow-y-auto border-info h-full p-1"
+    >
       <splash-tutorial />
     </div>
     <div
       v-if="isLargeViewport"
-      class="flex flex-col overflow-y-auto h-full border rounded-2xl"
+      class="flex flex-col overflow-y-auto h-full border border-accent rounded-2xl p-1"
     >
       <NuxtPage />
     </div>

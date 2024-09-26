@@ -31,8 +31,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
-import MainFlip from '@/components/MainFlip.vue'
-import MainHeader from '@/components/MainHeader.vue'
+
 
 // Initialize stores and states
 const displayStore = useDisplayStore()

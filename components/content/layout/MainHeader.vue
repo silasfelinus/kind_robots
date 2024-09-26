@@ -1,6 +1,6 @@
 <template>
   <header
-    class="w-full bg-base-200 items-center justify-between"
+    class="w-full bg-base-300 items-center justify-between"
     :style="{ height: `${headerHeight}vh` }"
   >
     <!-- Sidebar Toggle -->

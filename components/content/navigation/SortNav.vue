@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="w-full p-2 transition-all duration-500 ease-in-out bg-base-200 border rounded-2xl"
+    class="w-full p-2 transition-all duration-500 ease-in-out bg-base-300 border rounded-2xl"
   >
     <div class="flex flex-wrap justify-center m-2 space-x-2">
       <div

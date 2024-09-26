@@ -18,13 +18,13 @@
       />
       <div
         v-show="showMatureTooltip"
-        class="absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-full mt-[-20px] bg-base-200 p-2 rounded-2xl border z-40 text-sm"
+        class="absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-full mt-[-20px] bg-base-300 p-2 rounded-2xl border z-40 text-sm"
       >
         Toggle Mature Content
       </div>
       <div
         v-if="showMaturePopup"
-        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full mb-[-20px] bg-base-200 p-2 rounded-2xl border z-40 text-sm transition-opacity duration-1000 ease-in-out"
+        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full mb-[-20px] bg-base-300 p-2 rounded-2xl border z-40 text-sm transition-opacity duration-1000 ease-in-out"
       >
         Mature Content {{ isMatureToggled ? 'Enabled' : 'Disabled' }}
       </div>

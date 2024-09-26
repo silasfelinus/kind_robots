@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="selectedPitch"
-    class="pitch-card bg-base-200 rounded-2xl p-4 shadow-lg"
+    class="pitch-card bg-base-300 rounded-2xl p-4 shadow-lg"
   >
     <!-- Header: Title and Designer -->
     <div class="header flex justify-between items-center mb-4">

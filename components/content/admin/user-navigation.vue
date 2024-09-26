@@ -1,5 +1,5 @@
 <template>
-  <div class="relative bg-base-200 rounded-2xl m-4 p-4">
+  <div class="relative bg-base-300 rounded-2xl m-4 p-4">
     <div
       class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-1 shadow-lg"
     >
@@ -48,7 +48,7 @@
         :class="itemClass"
       >
         <div
-          class="bg-base-200 rounded-2xl p-4 flex flex-col items-center cursor-pointer hover:bg-accent transition"
+          class="bg-base-300 rounded-2xl p-4 flex flex-col items-center cursor-pointer hover:bg-accent transition"
         >
           <img :src="item.image" alt="" class="mb-2 rounded-2xl border" />
           <div class="text-lg font-bold mb-2">

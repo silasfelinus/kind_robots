@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/html-self-closing -->
 <template>
-  <div class="bg-base-200 rounded-2xl p-8 text-lg">
+  <div class="bg-base-300 rounded-2xl p-8 text-lg">
     <h1 class="text-2xl mb-4">Art-Generator</h1>
     Enter your Art Prompt. We will automatically begin with the pitch:
     <div class="font-bold">

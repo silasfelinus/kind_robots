@@ -47,7 +47,7 @@ const randomMessage = ref(
 
 <style scoped>
 .card {
-  background-color: var(--bg-base-200);
+  background-color: var(--bg-base-300);
   color: var(--text-base-content);
   box-shadow: var(--shadow-xl);
   overflow: auto;

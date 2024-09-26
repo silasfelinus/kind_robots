@@ -5,7 +5,7 @@
       v-for="page in highlightPages"
       :key="page._id"
       :to="page._path"
-      class="group hover:bg-accent transition-colors relative p-2 rounded-2xl border bg-base-200 flex flex-row items-center space-x-2 w-72"
+      class="group hover:bg-accent transition-colors relative p-2 rounded-2xl border bg-base-300 flex flex-row items-center space-x-2 w-72"
       @mouseover="isHovered = page._id"
       @mouseleave="isHovered = undefined"
     >
@@ -17,7 +17,7 @@
         />
       </div>
       <div class="flex flex-col justify-between items-start w-full">
-        <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
+        <div class="text-lg font-bold bg-base-300 p-2 rounded-2xl border">
           {{ page.title }}
         </div>
         <div

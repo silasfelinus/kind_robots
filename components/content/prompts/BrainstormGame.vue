@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col items-center bg-base-200 rounded-2xl p-4 sm:p-6 md:p-8 m-4 md:m-6 border border-primary shadow-xl w-full max-w-full overflow-hidden"
+    class="flex flex-col items-center bg-base-300 rounded-2xl p-4 sm:p-6 md:p-8 m-4 md:m-6 border border-primary shadow-xl w-full max-w-full overflow-hidden"
   >
     <!-- Title and Info -->
     <h1
@@ -41,7 +41,7 @@
       <div
         v-for="idea in brainstormPitches"
         :key="idea.id"
-        class="bg-base-100 shadow-md rounded-lg p-4 cursor-pointer hover:bg-base-300 transition duration-300"
+        class="bg-base-300 shadow-md rounded-lg p-4 cursor-pointer hover:bg-base-300 transition duration-300"
         @click="selectPitch(idea)"
       >
         <!-- Basic Pitch Display -->

@@ -6,7 +6,7 @@
     <MessageCard
       v-if="showAmiCard"
       :show="true"
-      bg-class="bg-base-200 shadow-xl"
+      bg-class="bg-base-300 shadow-xl"
       image-src="/images/amibotsquare1.webp"
       alt-text="AMI"
       username="AMIbot"
@@ -16,7 +16,7 @@
     <MessageCard
       v-if="showSilasCard"
       :show="true"
-      bg-class="bg-base-200 shadow-xl"
+      bg-class="bg-base-300 shadow-xl"
       image-src="/images/silasfelinus.webp"
       alt-text="Silas"
       username="silasfelinus"

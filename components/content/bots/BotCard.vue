@@ -1,5 +1,5 @@
 <template>
-  <div class="bot-card flex rounded-2xl bg-base-200 p-4">
+  <div class="bot-card flex rounded-2xl bg-base-300 p-4">
     <img
       :src="bot.avatarImage"
       alt="Bot Avatar"

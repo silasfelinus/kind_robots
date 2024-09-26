@@ -2,7 +2,7 @@
   <div class="flex flex-col h-screen text-gray-800">
     <!-- Sidebar -->
     <div
-      class="flex flex-col items-center bg-gradient-to-r from-bg-base-200 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
+      class="flex flex-col items-center bg-gradient-to-r from-bg-base-300 via-base-400 to-bg-base-600 rounded-r-xl space-y-4"
     >
       <!-- Toggle Switch -->
       <div

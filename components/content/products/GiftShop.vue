@@ -1,5 +1,5 @@
 <template>
-  <div class="giftshop-container bg-base-200 rounded-2xl p-4 flex flex-col">
+  <div class="giftshop-container bg-base-300 rounded-2xl p-4 flex flex-col">
     <!-- Header Section -->
     <div class="giftshop-header text-lg font-bold mb-4">
       Welcome to the Gift Shop!

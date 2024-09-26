@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-base-200 border-2 border-accent rounded-md shadow-md m-4 p-4 flex flex-col items-center justify-center"
+    class="bg-base-300 border-2 border-accent rounded-md shadow-md m-4 p-4 flex flex-col items-center justify-center"
   >
     <!-- Avatar Image -->
     <avatar-image class="w-1/3 h-1/3 rounded-full object-cover mb-4" />

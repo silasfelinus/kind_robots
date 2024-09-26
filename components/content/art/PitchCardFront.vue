@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="pitch"
-    class="flex flex-col items-center rounded-2xl hover:shadow-lg p-4 bg-base-200"
+    class="flex flex-col items-center rounded-2xl hover:shadow-lg p-4 bg-base-300"
   >
     <!-- Avatar Image -->
     <img :src="avatarImage" alt="Avatar" class="rounded-full w-16 h-16 mb-2" />
@@ -32,7 +32,7 @@
       </div>
       <div
         v-if="tooltipVisible"
-        class="absolute left-0 top-full text-xs bg-base-100 p-1 rounded"
+        class="absolute left-0 top-full text-xs bg-base-300 p-1 rounded"
       >
         {{ pitch.designer }}
       </div>

@@ -26,7 +26,7 @@
     @click.self="closeSplash"
   >
     <div
-      class="bg-base-100 border border-accent rounded-2xl shadow-lg p-6 w-full max-w-md max-h-3/4 overflow-auto"
+      class="bg-base-300 border border-accent rounded-2xl shadow-lg p-6 w-full max-w-md max-h-3/4 overflow-auto"
     >
       <!-- Page Content -->
       <div class="flex flex-col items-center justify-center space-y-6">

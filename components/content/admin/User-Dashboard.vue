@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="['bg-base-200 p-2 rounded-2xl relative', { 'h-32': isMinimized }]"
+    :class="['bg-base-300 p-2 rounded-2xl relative', { 'h-32': isMinimized }]"
   >
     <button
       v-if="!isMinimized"
@@ -21,7 +21,7 @@
           class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2"
         >
           <h2
-            class="text-lg font-semibold bg-base-200 border-accent rounded-2xl border p-2 pt-1 pb-1"
+            class="text-lg font-semibold bg-base-300 border-accent rounded-2xl border p-2 pt-1 pb-1"
           >
             {{ user?.username || 'Kind Guest' }}
           </h2>

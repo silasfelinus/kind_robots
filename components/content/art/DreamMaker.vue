@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 rounded-2xl p-8 text-lg">
+  <div class="bg-base-300 rounded-2xl p-8 text-lg">
     <h1 class="text-2xl mb-4">Dream Generator</h1>
     <button
       class="bg-accent rounded-2xl p-2 text-white"

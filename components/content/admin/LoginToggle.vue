@@ -199,11 +199,11 @@ onMounted(() => {
 }
 
 /* Adding some stylish upgrades */
-.bg-base-200 {
+.bg-base-300 {
   transition: background-color 0.3s ease;
 }
 
-.bg-base-200:hover {
+.bg-base-300:hover {
   background-color: var(--bg-base-400);
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col items-center overflow-visible bg-base-200 rounded-2xl p-2 border"
+    class="relative flex flex-col items-center overflow-visible bg-base-300 rounded-2xl p-2 border"
     :class="{ 'h-[10vh]': !isExtended, 'h-[25vh]': isExtended }"
   >
     <!-- Toggle Button -->
@@ -31,7 +31,7 @@
         <!-- Compact View -->
         <div v-if="!isExtended" class="flex flex-row items-center space-x-2">
           <Icon name="page.Icon" class="text-3xl" />
-          <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
+          <div class="text-lg font-bold bg-base-300 p-2 rounded-2xl border">
             {{ page.title }}
           </div>
         </div>
@@ -39,7 +39,7 @@
         <!-- Tooltip -->
         <div
           v-if="!isExtended && isHovered === page._id"
-          class="absolute -top-32 mb-1 left-1/2 transform -translate-x-1/2 p-2 bg-base-200 rounded-2xl border shadow-lg z-10 flex items-center space-x-4"
+          class="absolute -top-32 mb-1 left-1/2 transform -translate-x-1/2 p-2 bg-base-300 rounded-2xl border shadow-lg z-10 flex items-center space-x-4"
         >
           <div class="w-24 h-24 rounded-lg overflow-hidden border bg-secondary">
             <img
@@ -48,7 +48,7 @@
               class="object-cover w-full h-full"
             />
           </div>
-          <div class="text-sm bg-base-200 p-2 rounded-2xl border">
+          <div class="text-sm bg-base-300 p-2 rounded-2xl border">
             {{ page.description }}
           </div>
         </div>
@@ -62,7 +62,7 @@
               class="object-cover w-full h-full"
             />
           </div>
-          <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
+          <div class="text-lg font-bold bg-base-300 p-2 rounded-2xl border">
             {{ page.title }}
           </div>
         </div>
@@ -72,7 +72,7 @@
     <!-- Support and Construction Nav (Displayed only when extended) -->
     <div
       v-if="isExtended"
-      class="mt-4 p-2 rounded-2xl bg-base-200 flex flex-col items-center space-y-4"
+      class="mt-4 p-2 rounded-2xl bg-base-300 flex flex-col items-center space-y-4"
     >
       <support-nav />
       <construction-nav />

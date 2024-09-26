@@ -1,5 +1,5 @@
 <template>
-  <div class="min-x-200 min-y-100 bg-base-200 rounded-2xl p-2 m-2 border">
+  <div class="min-x-200 min-y-100 bg-base-300 rounded-2xl p-2 m-2 border">
     <h3 class="text-lg font-bold">
       {{ props.idea.title }}
     </h3>

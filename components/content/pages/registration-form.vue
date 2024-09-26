@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 flex flex-col items-center p-4 rounded-2xl">
+  <div class="bg-base-300 flex flex-col items-center p-4 rounded-2xl">
     <h1 class="text-3xl font-bold text-primary mb-4">Kind Robots</h1>
     <div v-if="isLoggedIn" class="text-lg text-info mb-4">
       You are already logged in. Would you like to
@@ -17,7 +17,7 @@
             type="text"
             placeholder="Username"
             required
-            class="w-full p-2 border rounded text-4xl bg-base-200 placeholder-base-300"
+            class="w-full p-2 border rounded text-4xl bg-base-300 placeholder-base-300"
             aria-label="Username"
             autocomplete="username"
             @input="checkUsernameAvailability"
@@ -51,7 +51,7 @@
             v-model="email"
             type="email"
             placeholder="Email (optional)"
-            class="w-full p-2 border rounded text-lg bg-base-200 placeholder-base-300"
+            class="w-full p-2 border rounded text-lg bg-base-300 placeholder-base-300"
             aria-label="Email"
             autocomplete="email"
           />
@@ -61,7 +61,7 @@
             v-model="password"
             :type="showPassword ? 'text' : 'password'"
             placeholder="Password (keep it blank if you prefer)"
-            class="w-full p-2 border rounded text-lg bg-base-200 placeholder-base-300"
+            class="w-full p-2 border rounded text-lg bg-base-300 placeholder-base-300"
             aria-label="Password"
             autocomplete="new-password"
             @input="validatePassword"
@@ -90,7 +90,7 @@
             v-model="confirmPassword"
             :type="showConfirmPassword ? 'text' : 'password'"
             placeholder="Confirm Password"
-            class="w-full p-2 border rounded text-lg bg-base-200 placeholder-base-300"
+            class="w-full p-2 border rounded text-lg bg-base-300 placeholder-base-300"
             aria-label="Confirm Password"
             autocomplete="new-password"
             @input="validateConfirmPassword"

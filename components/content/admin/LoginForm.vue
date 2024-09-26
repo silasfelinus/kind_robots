@@ -1,7 +1,7 @@
 <template>
   <div class="login-form-container" @click.self="closeForm">
     <div
-      class="login-form p-2 m-1 rounded-2xl bg-base-200 border shadow-lg transition-all duration-300 w-full max-w-md"
+      class="login-form p-2 m-1 rounded-2xl bg-base-300 border shadow-lg transition-all duration-300 w-full max-w-md"
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
@@ -154,7 +154,7 @@ const handleRetryLogin = () => {
 }
 
 .login-form {
-  background-color: var(--bg-base-200);
+  background-color: var(--bg-base-300);
 }
 
 .group:hover .float-tooltip {

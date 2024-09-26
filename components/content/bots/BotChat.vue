@@ -31,7 +31,7 @@ const currentBot = computed(() => botStore.currentBot)
 .container {
   display: flex;
   flex-direction: column;
-  background: var(--bg-base-200);
+  background: var(--bg-base-300);
   height: 100%;
   width: 100%;
   border-radius: 1rem;
@@ -68,7 +68,7 @@ const currentBot = computed(() => botStore.currentBot)
 
 .bot-info {
   text-align: left;
-  border: 1px solid var(--bg-base-200);
+  border: 1px solid var(--bg-base-300);
   border-radius: 1rem;
   margin: 0.5rem;
   padding: 0.5rem;

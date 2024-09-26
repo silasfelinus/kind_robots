@@ -1,6 +1,6 @@
 <template>
   <div
-    class="pitch-manager bg-base-200 rounded-2xl p-6 border max-w-full flex flex-col space-y-6 mb-48"
+    class="pitch-manager bg-base-300 rounded-2xl p-6 border max-w-full flex flex-col space-y-6 mb-48"
   >
     <!-- Pitch Selection Mode -->
     <div v-if="isSelectionMode" class="selection-mode">
@@ -12,7 +12,7 @@
         <div
           v-for="pitch in selectedPitches"
           :key="pitch.id"
-          class="pitch-item bg-base-100 p-4 rounded-xl border shadow"
+          class="pitch-item bg-base-300 p-4 rounded-xl border shadow"
         >
           <h3 class="text-lg font-bold">{{ pitch.title }}</h3>
           <p class="text-sm text-gray-600 mb-2">{{ pitch.description }}</p>
@@ -34,7 +34,7 @@
         <div
           v-for="art in galleryArt"
           :key="art.id"
-          class="art-item bg-base-100 p-4 rounded-xl border shadow"
+          class="art-item bg-base-300 p-4 rounded-xl border shadow"
         >
           <h3 class="text-lg font-bold">{{ art.title }}</h3>
           <img

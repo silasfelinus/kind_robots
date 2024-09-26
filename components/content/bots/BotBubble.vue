@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative select-none overflow-hidden p-1 border rounded-2xl bg-base-200"
+    class="relative select-none overflow-hidden p-1 border rounded-2xl bg-base-300"
   >
     <!-- Bot Scroll Container -->
     <div ref="scrollContainer" class="scroll-container px-2">

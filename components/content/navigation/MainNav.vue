@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-wrap justify-center space-x-2 overflow-y-auto pb-10 bg-base-200 rounded-2xl p-2 border relative"
+    class="flex flex-wrap justify-center space-x-2 overflow-y-auto pb-10 bg-base-300 rounded-2xl p-2 border relative"
     style="overflow: visible; z-index: 0"
   >
     <div
@@ -31,7 +31,7 @@
         @mouseover="isHovered = page._id"
         @mouseleave="isHovered = undefined"
       >
-        <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
+        <div class="text-lg font-bold bg-base-300 p-2 rounded-2xl border">
           {{ page.title }}
         </div>
         <popup-description

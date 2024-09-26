@@ -1,6 +1,6 @@
 <template>
   <div
-    class="art-prompts bg-base-200 rounded-2xl border flex flex-col m-4 p-4 space-y-4"
+    class="art-prompts bg-base-300 rounded-2xl border flex flex-col m-4 p-4 space-y-4"
   >
     <h1 class="text-2xl font-semibold text-center">Art Prompts</h1>
 

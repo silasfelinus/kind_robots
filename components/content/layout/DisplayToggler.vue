@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 p-4 border rounded-2xl shadow-md">
+  <div class="bg-base-300 p-4 border rounded-2xl shadow-md">
     <h2 class="text-lg font-bold text-center mb-4">Display Tester</h2>
 
     <div class="flex flex-wrap justify-around gap-4">

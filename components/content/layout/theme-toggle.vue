@@ -16,7 +16,7 @@
       <div
         v-show="open"
         :style="modalPosition"
-        class="theme-menu grid grid-cols-2 md:grid-cols-3 gap-2 bg-base-200 border p-4 rounded-2xl z-10 transition-opacity duration-200"
+        class="theme-menu grid grid-cols-2 md:grid-cols-3 gap-2 bg-base-300 border p-4 rounded-2xl z-10 transition-opacity duration-200"
         style="min-width: 200px"
       >
         <button

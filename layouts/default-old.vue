@@ -25,7 +25,7 @@
           hidden: !isNavVisible || !isLargeScreen,
           'w-full': isNavVisible && !isLargeScreen,
         }"
-        class="flex-none h-full overflow-y-auto transition-all duration-600 ease-in-out bg-base-200 rounded-lg shadow-lg"
+        class="flex-none h-full overflow-y-auto transition-all duration-600 ease-in-out bg-base-300 rounded-lg shadow-lg"
         @click.stop
       >
         <navigation-trimmed class="rounded-2xl p-1 m-1" />

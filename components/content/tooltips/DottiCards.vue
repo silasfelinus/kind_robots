@@ -7,7 +7,7 @@
         <MessageCard
           v-if="showAmiCard"
           :show="true"
-          bg-class="bg-base-200 shadow-2xl border-accent backdrop-blur-lg"
+          bg-class="bg-base-300 shadow-2xl border-accent backdrop-blur-lg"
           image-src="/images/amibotsquare1.webp"
           alt-text="AMI"
           username="AMIbot"
@@ -17,7 +17,7 @@
         <MessageCard
           v-if="showDottiCard"
           :show="true"
-          bg-class="bg-base-200 shadow-2xl border-secondary backdrop-blur-lg"
+          bg-class="bg-base-300 shadow-2xl border-secondary backdrop-blur-lg"
           image-src="/images/avatars/dottie1.webp"
           alt-text="Dotti"
           username="DottiBot"

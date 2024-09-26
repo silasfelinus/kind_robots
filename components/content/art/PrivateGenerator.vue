@@ -4,7 +4,7 @@
     <iframe
       v-if="showMature"
       :src="siteUrl"
-      class="website-iframe bg-base-200 rounded-2xl"
+      class="website-iframe bg-base-300 rounded-2xl"
     ></iframe>
     <rebel-button v-else class="full-size-btn" />
   </div>

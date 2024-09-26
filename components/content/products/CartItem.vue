@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="product && cartItem"
-    class="cart-item bg-base-200 rounded-2xl p-4 flex flex-col"
+    class="cart-item bg-base-300 rounded-2xl p-4 flex flex-col"
   >
     <!-- Pass the product to the ProductCard component -->
     <ProductCard :product="product" />

@@ -25,7 +25,7 @@ export default {
 
 <style scoped>
 .text-bubble {
-  background-color: var(--bg-base-200);
+  background-color: var(--bg-base-300);
   border-radius: 12px;
   padding: 10px;
   max-width: 150px;

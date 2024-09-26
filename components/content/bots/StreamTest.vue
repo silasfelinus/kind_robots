@@ -1,7 +1,7 @@
 <template>
-  <div class="container rounded-2xl mx-auto p-2 bg-base-200">
+  <div class="container rounded-2xl mx-auto p-2 bg-base-300">
     <!-- Message Interaction Area -->
-    <div class="message-container bg-base-200 p-1 rounded-2xl">
+    <div class="message-container bg-base-300 p-1 rounded-2xl">
       <div class="prompt-area p-2 rounded-lg">
         <label for="newMessage" class="block mb-1 font-semibold text-md">
           <div v-if="currentBot" class="user-intro p-1 rounded-md">

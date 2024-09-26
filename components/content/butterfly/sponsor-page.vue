@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div
-      class="bg-base-200 p-6 rounded-lg shadow-xl text-center text-default space-y-6"
+      class="bg-base-300 p-6 rounded-lg shadow-xl text-center text-default space-y-6"
     >
       <h1 class="text-4xl font-semibold">
         Greetings, friends of all species and circuits!

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col items-center bg-base-200 rounded-2xl transition-all"
+    class="relative flex flex-col items-center bg-base-300 rounded-2xl transition-all"
     :class="{
       'h-[10vh] transition-duration-300': !isExtended,
       'h-[40vh] transition-duration-300': isExtended,
@@ -47,7 +47,7 @@
         <!-- Compact View -->
         <div v-if="!isExtended" class="flex flex-row items-center space-x-2">
           <Icon name="{{page.Icon}}" class="text-3xl" />
-          <div class="text-lg font-bold bg-base-200 p-2 rounded-2xl border">
+          <div class="text-lg font-bold bg-base-300 p-2 rounded-2xl border">
             {{ page.title }}
           </div>
         </div>
@@ -71,7 +71,7 @@
           </div>
           <div class="flex flex-col items-start">
             <div
-              class="text-lg font-bold bg-base-200 p-2 m-1 rounded-2xl border"
+              class="text-lg font-bold bg-base-300 p-2 m-1 rounded-2xl border"
             >
               {{ page.title }}
             </div>
@@ -89,7 +89,7 @@
     <!-- Support and Construction Nav (Displayed only when extended) -->
     <div
       v-if="isExtended"
-      class="mt-4 p-2 rounded-2xl bg-base-200 flex flex-col items-center space-y-4 w-full"
+      class="mt-4 p-2 rounded-2xl bg-base-300 flex flex-col items-center space-y-4 w-full"
     >
       <support-nav />
       <construction-nav />

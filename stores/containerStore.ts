@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 export const useContainerStore = defineStore({
   id: 'container',
   state: () => ({
-    bgColor: 'bg-base-200',
+    bgColor: 'bg-base-300',
     margin: 'm-6',
     padding: 'p-8',
     borderRadius: 'rounded-xl',
@@ -12,7 +12,7 @@ export const useContainerStore = defineStore({
     shadow: 'shadow-md',
     transition: 'transition-transform',
     backdrop: 'backdrop-blur-md',
-    outerBgColor: 'bg-base-200',
+    outerBgColor: 'bg-base-300',
   }),
   getters: {
     containerColors() {
@@ -20,9 +20,9 @@ export const useContainerStore = defineStore({
         'bg-primary',
         'bg-secondary',
         'bg-accent',
-        'bg-base-200',
+        'bg-base-300',
         'bg-info',
-        'bg-base-200',
+        'bg-base-300',
       ]
     },
     containerMargins() {

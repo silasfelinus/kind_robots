@@ -1,7 +1,7 @@
 <template>
   <!-- Main Container -->
   <div
-    class="flex flex-col items-center p-8 bg-base-200 rounded-lg shadow-lg relative w-64 h-64"
+    class="flex flex-col items-center p-8 bg-base-300 rounded-lg shadow-lg relative w-64 h-64"
   >
     <!-- Tip Toggles -->
     <div class="absolute bottom-0 right-0 mb-2 mr-2 flex flex-col items-end">

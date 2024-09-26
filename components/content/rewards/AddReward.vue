@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 p-4 rounded">
+  <div class="bg-base-300 p-4 rounded">
     <h2 class="text-xl mb-2">Add New Reward</h2>
     <form @submit.prevent="addReward">
       <!-- Icon Selection -->
@@ -10,7 +10,7 @@
         <select
           v-model="newReward.Icon"
           required
-          class="p-2 rounded bg-base-200"
+          class="p-2 rounded bg-base-300"
         >
           <option v-for="(name, label) in IconMap" :key="label" :value="name">
             {{ label }} - {{ name }}
@@ -34,7 +34,7 @@
           v-model="newReward.Icon"
           placeholder="🌟"
           required
-          class="p-2 rounded bg-base-200"
+          class="p-2 rounded bg-base-300"
         />
       </div>
       <div class="mb-2">
@@ -46,7 +46,7 @@
           v-model="newReward.text"
           placeholder="Reward Text"
           required
-          class="p-2 rounded bg-base-200"
+          class="p-2 rounded bg-base-300"
         />
       </div>
       <div class="mb-2">
@@ -58,7 +58,7 @@
           v-model="newReward.power"
           placeholder="Reward Power"
           required
-          class="p-2 rounded bg-base-200"
+          class="p-2 rounded bg-base-300"
         />
       </div>
       <div class="mb-2">
@@ -70,7 +70,7 @@
           v-model="newReward.rarity"
           type="number"
           placeholder="50"
-          class="p-2 rounded bg-base-200"
+          class="p-2 rounded bg-base-300"
         />
       </div>
       <button type="submit" class="bg-primary text-default p-2 rounded">

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-base-200 rounded-2xl shadow-lg"
+    class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-base-300 rounded-2xl shadow-lg"
   >
     <div
       v-for="(feature, index) in comingSoon"

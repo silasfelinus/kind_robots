@@ -1,6 +1,6 @@
 <template>
   <div
-    class="channel-manager bg-base-200 p-4 rounded-2xl border border-base-300 flex flex-col h-full w-full space-y-4"
+    class="channel-manager bg-base-300 p-4 rounded-2xl border border-base-300 flex flex-col h-full w-full space-y-4"
   >
     <!-- Channel Management Header -->
     <div
@@ -93,7 +93,7 @@
             <li
               v-for="message in messages"
               :key="message.id"
-              class="p-2 bg-base-100 rounded-lg border"
+              class="p-2 bg-base-300 rounded-lg border"
             >
               <p>{{ message.content }}</p>
               <small class="text-gray-400">Sent by: {{ message.userId }}</small>

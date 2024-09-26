@@ -5,7 +5,7 @@
       width: isSidebarHidden ? '0' : sidebarWidth + 'vw',
       visibility: isSidebarHidden ? 'hidden' : 'visible',
     }"
-    class="transition-all duration-500 ease-in-out bg-base-200 hide-scrollbar flex-shrink-0 pointer-none"
+    class="transition-all duration-500 ease-in-out bg-base-300 hide-scrollbar flex-shrink-0 pointer-none"
     :aria-hidden="isSidebarHidden"
   >
     <!-- Sidebar Links with Icons and Titles -->
@@ -16,7 +16,7 @@
         height: `${iconHeight}px`,
         margin: '1px 0',
       }"
-      class="Icon-link-container flex items-center space-x-2 transition-all duration-300 ease-in-out hover:bg-base-100 hover:scale-105 rounded-xl p-2 pointer-auto"
+      class="Icon-link-container flex items-center space-x-2 transition-all duration-300 ease-in-out hover:bg-base-300 hover:scale-105 rounded-xl p-2 pointer-auto"
     >
       <NuxtLink
         :to="link.path"

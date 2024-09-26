@@ -2,8 +2,8 @@
   <header
     :class="
       isCompact
-        ? 'flex flex-row items-center bg-base-200 m-1'
-        : 'flex flex-col bg-base-200 m-1'
+        ? 'flex flex-row items-center bg-base-300 m-1'
+        : 'flex flex-col bg-base-300 m-1'
     "
   >
     <!-- User Info -->

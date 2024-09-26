@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-200 p-8 flex flex-col md:flex-row">
+  <div class="bg-base-300 p-8 flex flex-col md:flex-row">
     <!-- Main Content -->
     <main class="flex-1 mb-12">
       <header class="text-center mb-12">

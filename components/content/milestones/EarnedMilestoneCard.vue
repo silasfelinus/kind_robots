@@ -1,7 +1,7 @@
 <template>
   <!-- Achieved Milestone Card -->
   <div
-    class="card bg-base-200 border hover:bg-accent-dark hover:shadow-xl rounded-2xl p-4 m-2 transition duration-300 ease-in-out relative"
+    class="card bg-base-300 border hover:bg-accent-dark hover:shadow-xl rounded-2xl p-4 m-2 transition duration-300 ease-in-out relative"
   >
     <!-- Star Icon for Achieved Milestones -->
     <div class="absolute top-2 right-2 z-6">

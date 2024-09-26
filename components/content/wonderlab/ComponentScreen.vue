@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 bg-base-200 min-h-screen flex flex-col items-center relative">
+  <div class="p-6 bg-base-300 min-h-screen flex flex-col items-center relative">
     <!-- Back button as overlay at the top of the screen -->
     <button
       class="absolute top-4 left-4 bg-blue-500 text-white px-4 py-2 rounded"

@@ -64,7 +64,7 @@ const toggleIcon = computed(() =>
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg-base-200);
+  background-color: var(--bg-base-300);
 }
 
 .home-link {
@@ -101,6 +101,6 @@ const toggleIcon = computed(() =>
 
 .toggle-Icon {
   font-size: 2rem;
-  color: var(--bg-base-200);
+  color: var(--bg-base-300);
 }
 </style>

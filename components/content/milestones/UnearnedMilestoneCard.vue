@@ -1,7 +1,7 @@
 <template>
   <!-- Unachieved Milestone Card -->
   <div
-    class="card bg-base-200 hover:bg-accent-dark hover:shadow-xl rounded-2xl p-4 m-2 border transition duration-300 ease-in-out relative"
+    class="card bg-base-300 hover:bg-accent-dark hover:shadow-xl rounded-2xl p-4 m-2 border transition duration-300 ease-in-out relative"
   >
     <div class="text-center flex flex-col items-center">
       <!-- Milestone Icon -->

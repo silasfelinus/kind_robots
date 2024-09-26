@@ -59,33 +59,36 @@ export const useGalleryStore = defineStore({
   actions: {
     // Initialize store by loading from localStorage or API
     async initializeStore() {
-      const storedGalleries = localStorage.getItem('galleries')
-      const storedCurrentGallery = localStorage.getItem('currentGallery')
-      const storedCurrentImage = localStorage.getItem('currentImage')
+      if (typeof window !== 'undefined') {
+        // Ensure localStorage is only accessed in the client
+        const storedGalleries = localStorage.getItem('galleries')
+        const storedCurrentGallery = localStorage.getItem('currentGallery')
+        const storedCurrentImage = localStorage.getItem('currentImage')
 
-      if (storedGalleries) {
-        try {
-          this.galleries = JSON.parse(storedGalleries)
-          if (!Array.isArray(this.galleries)) {
-            this.galleries = [] // Ensure it's an array
+        if (storedGalleries) {
+          try {
+            this.galleries = JSON.parse(storedGalleries)
+            if (!Array.isArray(this.galleries)) {
+              this.galleries = [] // Ensure it's an array
+            }
+          } catch (error) {
+            this.galleries = [] // In case of JSON parsing failure
+            console.error('Failed to parse stored galleries:', error)
           }
-        } catch (error) {
-          this.galleries = [] // In case of JSON parsing failure
-          console.error('Failed to parse stored galleries:', error)
         }
-      }
 
-      if (storedCurrentGallery) {
-        this.currentGallery = JSON.parse(storedCurrentGallery)
-      }
+        if (storedCurrentGallery) {
+          this.currentGallery = JSON.parse(storedCurrentGallery)
+        }
 
-      if (storedCurrentImage) {
-        this.currentImage = storedCurrentImage
-      }
+        if (storedCurrentImage) {
+          this.currentImage = storedCurrentImage
+        }
 
-      // If no galleries in localStorage, fetch from API
-      if (!this.galleries.length) {
-        await this.fetchGalleries()
+        // If no galleries in localStorage, fetch from API
+        if (!this.galleries.length) {
+          await this.fetchGalleries()
+        }
       }
     },
     async fetchGalleries() {
@@ -97,7 +100,9 @@ export const useGalleryStore = defineStore({
           // Ensure data contains the galleries array before assigning
           if (data.success && Array.isArray(data.galleries)) {
             this.galleries = data.galleries
-            localStorage.setItem('galleries', JSON.stringify(this.galleries))
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('galleries', JSON.stringify(this.galleries))
+            }
 
             // Set a default gallery if none is selected
             if (!this.currentGallery && this.galleries.length > 0) {
@@ -124,11 +129,13 @@ export const useGalleryStore = defineStore({
       if (selectedGallery) {
         this.currentGallery = selectedGallery
         this.currentImage = selectedGallery.imagePaths?.split(',')[0] || ''
-        localStorage.setItem(
-          'currentGallery',
-          JSON.stringify(this.currentGallery),
-        )
-        localStorage.setItem('currentImage', this.currentImage)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            'currentGallery',
+            JSON.stringify(this.currentGallery),
+          )
+          localStorage.setItem('currentImage', this.currentImage)
+        }
       } else {
         console.warn(`Gallery with name ${name} not found`)
       }
@@ -150,7 +157,9 @@ export const useGalleryStore = defineStore({
           const data = await response.json()
           if (data.success && data.image) {
             this.currentImage = data.image
-            localStorage.setItem('currentImage', this.currentImage)
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('currentImage', this.currentImage)
+            }
           } else {
             console.error('No image found in the response.')
           }

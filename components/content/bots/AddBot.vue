@@ -1,11 +1,31 @@
 <template>
   <div class="rounded-2xl border p-2 m-2 flex flex-col items-center">
-    <h1 class="text-3xl mb-4 text-center">Create a New Bot</h1>
+    <h1 class="text-3xl mb-4 text-center">Create or Edit a Bot</h1>
+
+    <!-- Bot Selection Dropdown -->
+    <div class="w-full max-w-4xl mx-auto mb-6">
+      <label for="selectBot" class="block text-sm font-medium"
+        >Select Existing Bot:</label
+      >
+      <select
+        id="selectBot"
+        v-model="selectedBotId"
+        class="w-full p-2 rounded border"
+        @change="loadBotData"
+      >
+        <option value="" disabled>Select a bot</option>
+        <option v-for="bot in botStore.bots" :key="bot.id" :value="bot.id">
+          {{ bot.name }}
+        </option>
+      </select>
+    </div>
+
     <form
       class="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl mx-auto"
       @submit.prevent="handleSubmit"
     >
       <div class="flex flex-wrap -mx-2">
+        <!-- Name -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="name" class="block text-sm font-medium">Name:</label>
           <input
@@ -16,6 +36,8 @@
             required
           />
         </div>
+
+        <!-- Subtitle -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="subtitle" class="block text-sm font-medium"
             >Subtitle:</label
@@ -27,6 +49,8 @@
             class="w-full p-2 rounded border"
           />
         </div>
+
+        <!-- Description -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="description" class="block text-sm font-medium"
             >Description:</label
@@ -35,36 +59,31 @@
             id="description"
             v-model="description"
             class="resize w-full p-2 rounded border"
-          />
+          ></textarea>
         </div>
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="avatarImage" class="block text-sm font-medium"
-            >Avatar Image URL:</label
-          >
-          <div class="flex flex-wrap gap-4">
-            <div
-              v-for="(art, index) in artResults"
-              :key="art.id"
-              class="flex flex-col items-center"
-            >
-              <img
-                :src="art.path || '/images/default-avatar.png'"
-                alt="Generated Avatar"
-                class="w-32 h-32 object-cover mb-2"
-              />
 
-              <button type="button" @click="generateOrFetchAvatar(index)">
-                Generate Another
-              </button>
-              <button
-                type="button"
-                @click="selectAvatar(art.path || '/images/default-avatar.png')"
-              >
-                Select
-              </button>
-            </div>
+        <!-- Avatar Image URL -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="avatarImageInput" class="block text-sm font-medium"
+            >Avatar Image (URL):</label
+          >
+          <input
+            id="avatarImageInput"
+            v-model="avatarImage"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Enter a custom avatar image URL"
+          />
+          <div class="mt-2">
+            <img
+              :src="avatarImage || '/images/default-avatar.png'"
+              alt="Avatar Preview"
+              class="w-32 h-32 object-cover"
+            />
           </div>
         </div>
+
+        <!-- Image Prompt -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="imagePrompt" class="block text-sm font-medium"
             >Image Prompt:</label
@@ -76,6 +95,8 @@
             class="w-full p-2 rounded border"
           />
         </div>
+
+        <!-- Bot Introduction -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="botIntro" class="block text-sm font-medium"
             >Bot Introduction:</label
@@ -87,6 +108,8 @@
             class="w-full p-2 rounded border"
           />
         </div>
+
+        <!-- User Introduction -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="userIntro" class="block text-sm font-medium"
             >User Introduction:</label
@@ -98,14 +121,18 @@
             class="w-full p-2 rounded border"
           />
         </div>
+
+        <!-- Prompt -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="prompt" class="block text-sm font-medium">Prompt:</label>
           <textarea
             id="prompt"
             v-model="prompt"
             class="resize w-full p-2 rounded border"
-          />
+          ></textarea>
         </div>
+
+        <!-- Sample Response -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="sampleResponse" class="block text-sm font-medium"
             >Sample Response:</label
@@ -114,21 +141,10 @@
             id="sampleResponse"
             v-model="sampleResponse"
             class="resize w-full p-2 rounded border"
-          />
-          <button
-            type="button"
-            class="btn btn-primary mt-2"
-            @click="testPrompt"
-          >
-            Test Prompt
-          </button>
-          <div
-            v-if="promptTestResult"
-            class="mt-2 text-green-500 animate-pulse"
-          >
-            Test Result: {{ promptTestResult }}
-          </div>
+          ></textarea>
         </div>
+
+        <!-- Public Checkbox -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="isPublic" class="block text-sm font-medium"
             >Is Public:</label
@@ -140,6 +156,8 @@
             class="p-2 rounded border"
           />
         </div>
+
+        <!-- Under Construction Checkbox -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="underConstruction" class="block text-sm font-medium"
             >Under Construction:</label
@@ -151,6 +169,8 @@
             class="p-2 rounded border"
           />
         </div>
+
+        <!-- Theme -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="theme" class="block text-sm font-medium">Theme:</label>
           <input
@@ -160,6 +180,8 @@
             class="w-full p-2 rounded border"
           />
         </div>
+
+        <!-- Personality -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="personality" class="block text-sm font-medium"
             >Personality:</label
@@ -172,6 +194,8 @@
           />
         </div>
       </div>
+
+      <!-- Bot Sample Component -->
       <bot-sample
         :name="name"
         :bot-type="botType"
@@ -186,27 +210,27 @@
         :personality="personality"
         :sample-response="sampleResponse"
       />
-      <span v-if="isLoading" class="loading loading-ring loading-lg" />
-      <button type="submit" class="btn btn-success w-full">Create Bot</button>
+
+      <!-- Submit Button -->
+      <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
+      <button type="submit" class="btn btn-success w-full">Save Bot</button>
     </form>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
-import { useArtStore, type Art } from './../../../stores/artStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import { useUserStore } from './../../../stores/userStore'
 
 const botStore = useBotStore()
-const artStore = useArtStore()
 const userStore = useUserStore()
-const errorStore = useErrorStore() // Use errorStore for managing errors
+const errorStore = useErrorStore()
 
 const isLoading = ref(false)
+const selectedBotId = ref<number | null>(null)
 
-// Form fields
+// Form fields with default values
 const name = ref('')
 const subtitle = ref('Kind Robot')
 const botType = ref('PROMPTBOT')
@@ -223,100 +247,101 @@ const underConstruction = ref(false)
 const theme = ref('')
 const personality = ref('kind')
 const sampleResponse = ref('')
-const userId = computed(() => userStore.userId)
 
-const promptTestResult = ref<string | null>(null)
+// Fetch userId from userStore
+const userId = computed(() => userStore.userId)
 
 async function handleSubmit(e: Event) {
   e.preventDefault()
 
   try {
     const botData = {
-      botType: botType.value,
+      BotType: botType.value,
       name: name.value,
-      subtitle: subtitle.value,
-      description: description.value,
-      avatarImage: avatarImage.value,
-      botIntro: botIntro.value,
-      userIntro: userIntro.value,
-      prompt: prompt.value,
+      subtitle: subtitle.value ?? '',
+      description: description.value ?? '',
+      avatarImage: avatarImage.value ?? '/images/default-avatar.png',
+      botIntro: botIntro.value ?? '',
+      userIntro: userIntro.value ?? '',
+      prompt: prompt.value ?? '',
       isPublic: isPublic.value,
       underConstruction: underConstruction.value,
-      theme: theme.value,
-      personality: personality.value,
-      sampleResponse: sampleResponse.value,
-      userId: userId.value,
+      theme: theme.value ?? '',
+      personality: personality.value ?? '',
+      sampleResponse: sampleResponse.value ?? '',
+      userId: userId.value, // Ensure the bot is saved with the correct userId
     }
 
-    const response = await botStore.addBots([botData])
-    console.log(response)
-  } catch (error) {
-    errorStore.setError(
-      ErrorType.GENERAL_ERROR,
-      'Error creating bot: ' + (error as Error).message,
-    )
-  }
-}
-
-async function generateOrFetchAvatar(index?: number, promptOverride?: string) {
-  try {
-    isLoading.value = true
-    const promptToUse = promptOverride || imagePrompt.value
-    const result = await artStore.generateArt({ promptString: promptToUse })
-
-    if (result.success && result.newArt?.path) {
-      if (index !== undefined) {
-        artResults.value[index] = result.newArt
-      } else {
-        avatarImage.value = result.newArt.path
-      }
-    } else if (!result.success) {
-      throw new Error(result.message || 'Failed to generate or fetch avatar.')
-    }
-  } catch (error) {
-    errorStore.setError(
-      ErrorType.GENERAL_ERROR,
-      'Error generating or fetching avatar: ' + (error as Error).message,
-    )
-  } finally {
-    isLoading.value = false
-  }
-}
-
-async function testPrompt() {
-  try {
-    const response = await fetch('/api/botcafe/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt: prompt.value }),
-    })
-
-    if (response.ok) {
-      const data = await response.json()
-      promptTestResult.value = data.result // Adjust based on the API response structure
+    if (selectedBotId.value && botStore.currentBot?.userId === userId.value) {
+      // Update an existing bot if the user is the owner
+      await botStore.updateBot(selectedBotId.value, botData)
     } else {
-      errorStore.setError(
-        ErrorType.GENERAL_ERROR,
-        'Error testing prompt: API response not OK',
-      )
+      // Create a new bot if user doesn't own the selected bot
+      await botStore.addBots([botData])
     }
+
+    console.log('Bot saved successfully!')
   } catch (error) {
     errorStore.setError(
       ErrorType.GENERAL_ERROR,
-      'Error testing prompt: ' + (error as Error).message,
+      'Error saving bot: ' + (error as Error).message,
     )
   }
 }
 
-// Method to select an avatar
-const selectAvatar = (path: string) => {
-  avatarImage.value = path
+// Load the data of the selected bot into the form fields
+function loadBotData() {
+  const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
+  if (bot) {
+    if (bot.userId === userId.value) {
+      // If user owns the bot, load its data
+      name.value = bot.name ?? ''
+      subtitle.value = bot.subtitle ?? '' // Ensuring subtitle is a string
+      botType.value = bot.BotType ?? 'PROMPTBOT' // Correct case for BotType
+      description.value = bot.description ?? ''
+      avatarImage.value = bot.avatarImage ?? '/images/default-avatar.png'
+      botIntro.value = bot.botIntro ?? ''
+      userIntro.value = bot.userIntro ?? ''
+      prompt.value = bot.prompt ?? ''
+      isPublic.value = bot.isPublic ?? true
+      underConstruction.value = bot.underConstruction ?? false
+      theme.value = bot.theme ?? ''
+      personality.value = bot.personality ?? ''
+      sampleResponse.value = bot.sampleResponse ?? ''
+    } else {
+      // If user doesn't own the bot, reset the form and prepare to create a new bot
+      resetForm()
+    }
+  } else {
+    // Reset the form if no bot is selected
+    resetForm()
+  }
 }
 
-const artResults = ref<Art[]>([])
+// Reset the form to default values
+function resetForm() {
+  name.value = ''
+  subtitle.value = 'Kind Robot'
+  botType.value = 'PROMPTBOT'
+  description.value = "I'm a kind robot"
+  avatarImage.value = '/images/wonderchest/wonderchest-1630.webp'
+  botIntro.value = 'SloganMaker'
+  userIntro.value = 'Help me make a slogan for'
+  imagePrompt.value = 'robot avatar'
+  prompt.value =
+    'Arm butterflies with mini-flamethrowers to kick mosquitos butts'
+  isPublic.value = true
+  underConstruction.value = false
+  theme.value = ''
+  personality.value = 'kind'
+  sampleResponse.value = ''
+}
 
-// Initialize with one avatar
-generateOrFetchAvatar()
+// Watch for selectedBotId changes to load bot data
+watch(selectedBotId, () => {
+  loadBotData()
+})
+
+// Initialize the botStore by fetching bots when the component is mounted
+await botStore.loadStore()
 </script>

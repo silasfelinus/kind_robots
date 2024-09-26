@@ -5,12 +5,7 @@
   >
     <!-- Floating Background Icon (now smaller and in the top-right corner) -->
     <div
-      class="absolute top-2 right-2 z-0 opacity-30"
-      :class="{
-        'w-12 h-12': displayStore.isMobile,
-        'w-16 h-16': displayStore.isTablet,
-        'w-20 h-20': displayStore.isDesktop,
-      }"
+      class="absolute top-2 right-2 z-0 opacity-30 md: w-12 md:h-12 lg:w-16 lg:h-16"
     >
       <Icon :name="page.icon" class="object-cover w-full h-full" />
     </div>

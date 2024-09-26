@@ -44,7 +44,7 @@ onMounted(async () => {
   console.log('Starting initialization...')
 
   try {
-    if (displayStore.isLoaded) {
+    if (displayStore.isInitialized) {
       console.log('DisplayStore already loaded. Skipping initialization.')
       isReady.value = true
       isFirstLoad.value = false
@@ -102,7 +102,7 @@ onMounted(async () => {
     console.log('All stores initialized successfully.')
 
     // Dynamically set the main content style based on sidebar and header sizes
-    mainContentStyle.value = `top: ${displayStore.headerVh}px; left: ${displayStore.sidebarVw}px;`
+    mainContentStyle.value = `top: ${displayStore.headerVh}px; left: ${displayStore.sidebarLeftVw}px;`
 
     // Simulate a delay for loader visibility
     setTimeout(() => {
@@ -111,7 +111,7 @@ onMounted(async () => {
       emit('pageReady', true)
 
       // Mark displayStore as loaded
-      displayStore.isLoaded = true
+      displayStore.isInitialized = true
     }, 1000)
 
     // Add viewport resize event listener

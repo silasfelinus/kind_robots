@@ -169,11 +169,25 @@ async function generateRandomAvatar() {
     isLoading.value = false
   }
 }
-
 async function handleSubmit(e: Event) {
   e.preventDefault()
 
   try {
+    // Check if the name is unique (or it's the current bot being edited)
+    const isNameTaken = botStore.bots.some(
+      (bot) =>
+        bot.name.toLowerCase() === name.value.toLowerCase() &&
+        bot.id !== selectedBotId.value,
+    )
+
+    if (isNameTaken) {
+      errorStore.setError(
+        ErrorType.GENERAL_ERROR,
+        'Bot name must be unique. Please choose a different name.',
+      )
+      return
+    }
+
     const botData = {
       BotType: botType.value,
       name: name.value,
@@ -195,7 +209,7 @@ async function handleSubmit(e: Event) {
       // Update an existing bot if the user is the owner
       await botStore.updateBot(selectedBotId.value, botData)
     } else {
-      // Create a new bot if user doesn't own the selected bot
+      // Create a new bot if the user doesn't own the selected bot
       await botStore.addBots([botData])
     }
 

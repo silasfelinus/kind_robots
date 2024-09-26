@@ -141,6 +141,7 @@ export const useDisplayStore = defineStore('display', {
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
+    
 
     initialize() {
       try {

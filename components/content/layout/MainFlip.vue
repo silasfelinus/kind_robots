@@ -29,14 +29,14 @@
     <!-- Two-column layout for large and extra-large viewports -->
     <div
       v-if="isLargeViewport"
-      class="flex flex-col overflow-y-auto"
+      class="flex flex-col overflow-y-auto border border-accent rounded-2xl p-1"
       :style="{ height: '100%' }"
     >
       <splash-tutorial />
     </div>
     <div
       v-if="isLargeViewport"
-      class="flex flex-col overflow-y-auto border rounded-2xl"
+      class="flex flex-col overflow-y-auto"
       :style="{ height: '100%' }"
     >
       <NuxtPage></NuxtPage>

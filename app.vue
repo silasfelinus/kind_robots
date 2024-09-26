@@ -1,12 +1,12 @@
 <template>
-  <div id="app" class="flex flex-col h-screen w-screen bg-base-200">
+  <div id="app" class="flex flex-col" :style="{ height: `${windowHeight}px` }">
     <!-- KindLoader (Only runs once) -->
     <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
 
     <!-- Header -->
     <header
       class="sticky top-0 z-30 w-full bg-base-200"
-      :class="`h-[${displayStore.headerVh}vh]`"
+      :style="{ height: `${headerHeight}px` }"
     >
       <!-- Sidebar Toggle -->
       <div class="absolute top-2 left-4 p-1 z-40 text-white">
@@ -36,14 +36,12 @@
     <!-- Main Layout Wrapper -->
     <div class="flex flex-grow relative overflow-hidden">
       <!-- Left Sidebar (below the header) -->
-      <kind-sidebar-simple
-        class="h-full"
-        :class="`w-[${displayStore.sidebarLeftWidth}vw]`"
-      />
+      <kind-sidebar-simple class="h-full" :style="{ width: `${sidebarLeftWidth}vw` }" />
 
       <!-- Main Content Area -->
       <main
         class="relative flex-grow overflow-y-auto flex justify-center items-center"
+        :style="{ height: `${mainHeight}px` }"
       >
         <div
           class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto"
@@ -63,17 +61,11 @@
       </main>
 
       <!-- Right Sidebar -->
-      <kind-sidebar-right
-        class="h-full"
-        :class="`w-[${displayStore.sidebarRightWidth}vw]`"
-      />
+      <aside class="h-full" :style="{ width: `${sidebarRightWidth}vw` }" />
     </div>
 
     <!-- Footer -->
-    <footer
-      class="w-full bg-base-200 flex items-center justify-center"
-      :class="`h-[${displayStore.footerVh}vh]`"
-    >
+    <footer class="w-full bg-base-200 flex items-center justify-center" :style="{ height: `${footerHeight}px` }">
       created by Silas Knight silas@kindrobots.org
     </footer>
   </div>
@@ -88,6 +80,12 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 const showTutorial = ref(true)
 const router = useRouter()
+const windowHeight = ref(window.innerHeight) // Dynamically calculated window height
+const headerHeight = ref(0)
+const footerHeight = ref(0)
+const mainHeight = ref(0)
+const sidebarLeftWidth = ref(displayStore.sidebarLeftWidth)
+const sidebarRightWidth = ref(displayStore.sidebarRightWidth)
 
 // Combine isPageReady and isKindLoaderInitialized logic into one
 const isPageReady = ref(false)
@@ -102,18 +100,26 @@ const toggleTutorial = () => {
   showTutorial.value = !showTutorial.value
 }
 
-// Auto-reset tutorial on route changes if needed
-router.beforeEach((to, from, next) => {
-  showTutorial.value = true
-  next()
-})
+// Calculate and update heights dynamically
+const updateHeights = () => {
+  const totalHeight = window.innerHeight
+  headerHeight.value = (displayStore.headerVh / 100) * totalHeight
+  footerHeight.value = (displayStore.footerVh / 100) * totalHeight
+  mainHeight.value = totalHeight - headerHeight.value - footerHeight.value
+  windowHeight.value = totalHeight
+}
 
 onMounted(() => {
   displayStore.initializeViewportWatcher()
+  updateHeights()
+
+  // Recalculate heights on window resize
+  window.addEventListener('resize', updateHeights)
 })
 
 onBeforeUnmount(() => {
   displayStore.removeViewportWatcher()
+  window.removeEventListener('resize', updateHeights)
 })
 </script>
 

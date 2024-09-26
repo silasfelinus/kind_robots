@@ -1,18 +1,18 @@
 <template>
   <nav
     role="navigation"
-    class="relative flex items-center justify-center w-full"
+    class="relative flex items-center justify-between w-full"
   >
     <!-- Hamburger Icon for Small Screens -->
     <div class="sm:hidden">
       <button
-        class="p-2 focus:outline-none text-accent"
+        class="focus:outline-none text-accent p-1"
         aria-label="Toggle menu"
         @click="toggleMenu"
       >
         <!-- Hamburger Icon (Accolade Menu Icon) -->
         <svg
-          class="w-6 h-6"
+          class="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -28,29 +28,29 @@
       </button>
     </div>
 
-    <!-- Hidden Menu on Small Screens (Accolade Menu) -->
+    <!-- Hidden Menu on Small Screens -->
     <div
       v-if="isMenuOpen"
-      class="absolute top-12 left-0 w-full bg-base-300 shadow-lg sm:hidden flex flex-col items-center"
+      class="absolute top-10 left-0 w-full bg-base-300 shadow-lg sm:hidden flex flex-col items-center"
     >
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
-        class="block text-accent text-lg py-2 hover:bg-secondary hover:text-base-100 w-full text-center"
+        class="block text-accent text-base py-1 hover:bg-secondary hover:text-base-100 w-full text-center"
         @click="closeMenu"
       >
         {{ link.text }}
       </nuxt-link>
     </div>
 
-    <!-- Normal Nav Links for Larger Screens -->
-    <div class="hidden sm:flex items-center gap-4">
+    <!-- Horizontal Links for Larger Screens -->
+    <div class="hidden sm:flex items-center gap-2">
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
-        class="text-accent text-lg hover:underline whitespace-nowrap"
+        class="text-accent text-sm hover:underline whitespace-nowrap"
       >
         {{ link.text }}
       </nuxt-link>
@@ -85,7 +85,7 @@ const navLinks = [
 </script>
 
 <style scoped>
-/* Optional styles for further customizing the menu appearance */
+/* Optional styles for customizing the menu appearance */
 nav {
   position: relative;
 }

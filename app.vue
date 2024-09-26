@@ -3,7 +3,9 @@
     <!-- Header -->
     <header
       class="header-overlay"
-      :style="{ height: 'calc(var(--vh, 1vh) * ' + displayStore.headerVh + ')' }"
+      :style="{
+        height: 'calc(var(--vh, 1vh) * ' + displayStore.headerVh + ')',
+      }"
     ></header>
 
     <!-- Main content area with sidebars and main content -->
@@ -23,7 +25,7 @@
       ></kind-sidebar-simple>
 
       <main
-        class="main-content-overlay rounded-2xl bg-base-300"
+        class="main-content-overlay rounded-2xl bg-base-300 overflow-y-auto"
         :style="{
           height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
           width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
@@ -45,7 +47,9 @@
     <!-- Footer -->
     <footer
       class="footer-overlay"
-      :style="{ height: 'calc(var(--vh, 1vh) * ' + displayStore.footerVh + ')' }"
+      :style="{
+        height: 'calc(var(--vh, 1vh) * ' + displayStore.footerVh + ')',
+      }"
     ></footer>
   </div>
 </template>
@@ -59,26 +63,28 @@ const displayStore = useDisplayStore()
 
 // Function to set a custom --vh CSS variable to handle mobile devices like iPads
 const setCustomVh = () => {
-  if (typeof window !== 'undefined') {  // Check if we're in the browser
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  if (typeof window !== 'undefined') {
+    // Check if we're in the browser
+    const vh = window.innerHeight * 0.01
+    document.documentElement.style.setProperty('--vh', `${vh}px`)
   }
-};
+}
 
 // Initialize the viewport state and load previous states
 onMounted(() => {
-  setCustomVh(); // Set custom vh on mount if in the browser
-  window.addEventListener('resize', setCustomVh); // Update custom vh on resize if in the browser
-  displayStore.initialize(); // Initialize store settings
-});
+  setCustomVh() // Set custom vh on mount if in the browser
+  window.addEventListener('resize', setCustomVh) // Update custom vh on resize if in the browser
+  displayStore.initialize() // Initialize store settings
+})
 
 // Remove the viewport watcher on component unmount
 onBeforeUnmount(() => {
-  if (typeof window !== 'undefined') {  // Only clean up in the browser
-    window.removeEventListener('resize', setCustomVh); // Clean up the listener
+  if (typeof window !== 'undefined') {
+    // Only clean up in the browser
+    window.removeEventListener('resize', setCustomVh) // Clean up the listener
   }
-  displayStore.removeViewportWatcher();
-});
+  displayStore.removeViewportWatcher()
+})
 </script>
 
 <style scoped>

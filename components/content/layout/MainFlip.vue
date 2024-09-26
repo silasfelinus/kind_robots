@@ -10,7 +10,7 @@
     <div
       v-if="!isLargeViewport"
       class="flip-card-inner"
-      :class="{ 'is-flipped': !displayStore.showTutorial }"
+      :class="{ 'is-flipped': displayStore.showTutorial }"
     >
       <!-- Front side: Splash Tutorial -->
       <div class="flip-card-front">
@@ -38,6 +38,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { onMounted } from 'vue'

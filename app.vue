@@ -4,38 +4,60 @@
     <KindLoader v-if="!isPageReady" @page-ready="handlePageReady" />
 
     <!-- Header (refactored into MainHeader) -->
-    <MainHeader :show-tutorial="showTutorial" @toggle-tutorial="toggleTutorial" />
+    <MainHeader
+      :show-tutorial="displayStore.showTutorial"
+      :style="{ height: `${displayStore.headerVh}vh` }"
+      @toggle-tutorial="toggleTutorial"
+    />
 
     <!-- Main Layout Wrapper -->
     <div class="flex flex-grow relative overflow-hidden">
       <!-- Left Sidebar -->
-      <kind-sidebar-simple class="h-full" :style="{ width: `${displayStore.sidebarLeftWidth}vw` }" />
+      <kind-sidebar-simple
+        class="h-full"
+        :style="{
+          width: `${displayStore.sidebarLeftVw}vw`,
+          height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`,
+        }"
+      />
 
       <!-- Main Content Area -->
-      <main class="relative flex-grow overflow-y-auto flex justify-center items-center">
-        <MainFlip :show-tutorial="showTutorial" />
+      <main
+        class="relative flex-grow overflow-y-auto flex justify-center items-center"
+        :style="{
+          height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`,
+        }"
+      >
+        <MainFlip :show-tutorial="displayStore.showTutorial" />
       </main>
 
       <!-- Right Sidebar -->
-      <aside class="h-full" :style="{ width: `${displayStore.sidebarRightWidth}vw` }" />
+      <aside
+        class="h-full"
+        :style="{
+          width: `${displayStore.sidebarRightVw}vw`,
+          height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`,
+        }"
+      />
     </div>
 
     <!-- Footer -->
-    <footer class="w-full bg-base-200 flex items-center justify-center" :style="{ height: `${displayStore.footerVh}vh` }">
+    <footer
+      class="w-full bg-base-200 flex items-center justify-center"
+      :style="{ height: `${displayStore.footerVh}vh` }"
+    >
       created by Silas Knight silas@kindrobots.org
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
-
 // Initialize stores and states
 const displayStore = useDisplayStore()
-const showTutorial = ref(true)
 const isPageReady = ref(false)
 const router = useRouter()
 
@@ -44,14 +66,14 @@ const handlePageReady = (ready: boolean) => {
   isPageReady.value = ready
 }
 
-// Toggle between tutorial and main content
+// Toggle between tutorial and main content (linked to displayStore)
 const toggleTutorial = () => {
-  showTutorial.value = !showTutorial.value
+  displayStore.showTutorial = !displayStore.showTutorial
 }
 
-// Auto-reset tutorial on route changes
+// Auto-reset tutorial on route changes (linked to displayStore)
 router.beforeEach((to, from, next) => {
-  showTutorial.value = true
+  displayStore.showTutorial = true
   next()
 })
 

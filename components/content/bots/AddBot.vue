@@ -128,7 +128,7 @@ const name = ref('')
 const subtitle = ref('Kind Robot')
 const botType = ref('PROMPTBOT')
 const description = ref("I'm a kind robot")
-const avatarImage = ref('/images/wonderchest/wonderchest304_(23).webp')
+const avatarImage = ref('/images/wonderchest/wonderchest-1630.webp')
 const botIntro = ref('SloganMaker')
 const userIntro = ref('Help me make a slogan for')
 const imagePrompt = ref('robot avatar')
@@ -243,7 +243,7 @@ function resetForm() {
   subtitle.value = 'Kind Robot'
   botType.value = 'PROMPTBOT'
   description.value = "I'm a kind robot"
-  avatarImage.value = '/images/wonderchest/wonderchest304_(23).webp'
+  avatarImage.value = '/images/wonderchest/wonderchest-1630.webp.webp'
   botIntro.value = 'SloganMaker'
   userIntro.value = 'Help me make a slogan for'
   imagePrompt.value = 'robot avatar'

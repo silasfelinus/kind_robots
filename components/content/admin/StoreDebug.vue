@@ -3,7 +3,7 @@
     <!-- Header -->
     <header
       class="header-overlay debug-box pointer-events-none"
-      :style="{ height: displayStore.headerVh + 'vh' }"
+      :style="{ height: 'calc(var(--vh, 1vh) * ' + displayStore.headerVh + ')' }"
     ></header>
 
     <!-- Main content area with sidebars and main content -->
@@ -11,21 +11,21 @@
       class="content-area"
       :style="{
         gridTemplateColumns: `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
-        height: `${displayStore.mainVh}vh`,
+        height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
       }"
     >
       <aside
         class="sidebar-left-overlay debug-box pointer-events-none"
         :style="{
           width: displayStore.sidebarLeftVw + 'vw',
-          height: displayStore.mainVh + 'vh',
+          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
         }"
       ></aside>
 
       <main
         class="main-content-overlay debug-box pointer-events-none"
         :style="{
-          height: displayStore.mainVh + 'vh',
+          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
           width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
         }"
       >
@@ -77,7 +77,7 @@
         class="sidebar-right-overlay debug-box pointer-events-none"
         :style="{
           width: displayStore.sidebarRightVw + 'vw',
-          height: displayStore.mainVh + 'vh',
+          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
         }"
       ></aside>
     </div>
@@ -85,7 +85,7 @@
     <!-- Footer -->
     <footer
       class="footer-overlay debug-box pointer-events-none"
-      :style="{ height: displayStore.footerVh + 'vh' }"
+      :style="{ height: 'calc(var(--vh, 1vh) * ' + displayStore.footerVh + ')' }"
     ></footer>
 
     <!-- Tick Overlay for every 20vh/20vw -->
@@ -100,22 +100,35 @@ import { useDisplayStore } from '@/stores/displayStore'
 // Initialize the display store
 const displayStore = useDisplayStore()
 
+// Function to set a custom --vh CSS variable to handle mobile devices like iPads
+const setCustomVh = () => {
+  if (typeof window !== 'undefined') {  // Check if we're in the browser
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+};
+
 // Initialize the viewport state and load previous states
 onMounted(() => {
-  displayStore.initialize()
-})
+  setCustomVh(); // Set custom vh on mount if in the browser
+  window.addEventListener('resize', setCustomVh); // Update custom vh on resize if in the browser
+  displayStore.initialize(); // Initialize store settings
+});
 
 // Remove the viewport watcher on component unmount
 onBeforeUnmount(() => {
-  displayStore.removeViewportWatcher()
-})
+  if (typeof window !== 'undefined') {  // Only clean up in the browser
+    window.removeEventListener('resize', setCustomVh); // Clean up the listener
+  }
+  displayStore.removeViewportWatcher();
+});
 </script>
 
 <style scoped>
 .main-layout {
   display: grid;
   grid-template-rows: auto 1fr auto; /* Header, Main Content, Footer */
-  height: 100vh; /* Ensure the total height is always 100vh */
+  height: calc(var(--vh, 1vh) * 100); /* Custom height using var(--vh) */
   overflow: hidden; /* Prevent any overflow */
 }
 

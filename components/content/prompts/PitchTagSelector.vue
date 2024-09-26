@@ -52,10 +52,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore } from './../../../stores/pitchStore'
-import { useUserStore } from './../../../stores/userStore'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
-import { useFilterStore } from './../../../stores/filterStore'
+import { usePitchStore } from '../../../stores/pitchStore'
+import { useUserStore } from '../../../stores/userStore'
+import { useErrorStore, ErrorType } from '../../../stores/errorStore'
+import { useFilterStore } from '../../../stores/filterStore'
 
 // Define pitch type with attributes matching the schema
 interface Pitch {

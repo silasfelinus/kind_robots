@@ -2,7 +2,7 @@
   <div class="flex">
     <!-- Left Sidebar -->
     <aside
-      v-if="displayStore.sidebarLeft !== 'hidden'"
+      v-if="displayStore.sidebarLeftState !== 'hidden'"
       class="transition-all duration-300 bg-base-300 rounded-2xl hide-scrollbar p-1"
       :style="{
         width: displayStore.sidebarLeftVw + 'vw',

@@ -23,7 +23,7 @@
       ></kind-sidebar-simple>
 
       <main
-        class="main-content-overlay"
+        class="main-content-overlay rounded-2xl bg-base-300"
         :style="{
           height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
           width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,

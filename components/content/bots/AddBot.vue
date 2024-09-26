@@ -85,7 +85,7 @@
           />
           <div class="mt-2">
             <img
-              :src="avatarImage || '/images/default-avatar.png'"
+              :src="avatarImage || '/images/wonderchest/wonderchest-1630.webp'"
               alt="Avatar Preview"
               class="w-32 h-32 object-cover"
             />
@@ -99,7 +99,117 @@
           </button>
         </div>
 
-        <!-- Additional fields (like description, prompt, etc.) go here -->
+        <!-- Description -->
+        <div class="px-2 w-full mb-4">
+          <label for="description" class="block text-sm font-medium"
+            >Description:</label
+          >
+          <textarea
+            id="description"
+            v-model="description"
+            rows="3"
+            class="w-full p-2 rounded border"
+            placeholder="Enter a short description for the bot"
+          ></textarea>
+        </div>
+
+        <!-- Bot Intro -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="botIntro" class="block text-sm font-medium"
+            >Bot Intro:</label
+          >
+          <input
+            id="botIntro"
+            v-model="botIntro"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Bot introduction message"
+          />
+        </div>
+
+        <!-- User Intro -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="userIntro" class="block text-sm font-medium"
+            >User Intro:</label
+          >
+          <input
+            id="userIntro"
+            v-model="userIntro"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Intro message for the user"
+          />
+        </div>
+
+        <!-- Image Prompt for Generating Avatar -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="imagePrompt" class="block text-sm font-medium"
+            >Avatar Image Prompt:</label
+          >
+          <input
+            id="imagePrompt"
+            v-model="imagePrompt"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Enter an image prompt to generate the avatar"
+          />
+        </div>
+
+        <!-- Personality -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="personality" class="block text-sm font-medium"
+            >Personality:</label
+          >
+          <input
+            id="personality"
+            v-model="personality"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Describe the bot's personality"
+          />
+        </div>
+
+        <!-- Sample Response -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="sampleResponse" class="block text-sm font-medium"
+            >Sample Response:</label
+          >
+          <input
+            id="sampleResponse"
+            v-model="sampleResponse"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Enter a sample response from the bot"
+          />
+        </div>
+
+        <!-- Public Visibility -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="isPublic" class="block text-sm font-medium"
+            >Public Visibility:</label
+          >
+          <select
+            id="isPublic"
+            v-model="isPublic"
+            class="w-full p-2 rounded border"
+          >
+            <option :value="true">Public</option>
+            <option :value="false">Private</option>
+          </select>
+        </div>
+
+        <!-- Under Construction -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="underConstruction" class="block text-sm font-medium"
+            >Under Construction:</label
+          >
+          <input
+            id="underConstruction"
+            v-model="underConstruction"
+            type="checkbox"
+          />
+          <span class="ml-2">Mark as under construction</span>
+        </div>
 
         <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
         <button type="submit" class="btn btn-success w-full">Save Bot</button>
@@ -107,6 +217,7 @@
     </form>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
@@ -202,7 +313,13 @@ async function handleSubmit(e: Event) {
       theme: theme.value ?? '',
       personality: personality.value ?? '',
       sampleResponse: sampleResponse.value ?? '',
-      userId: userId.value, // Ensure the bot is saved with the correct userId
+      userId: userId.value,
+    }
+
+    if (selectedBotId.value && botStore.currentBot?.userId === userId.value) {
+      await botStore.updateBot(selectedBotId.value, botData)
+    } else {
+      await botStore.addBots([botData])
     }
 
     if (selectedBotId.value && botStore.currentBot?.userId === userId.value) {
@@ -222,27 +339,26 @@ async function handleSubmit(e: Event) {
   }
 }
 
-// Load the data of the selected bot into the form fields
 function loadBotData() {
   const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
   if (bot) {
     if (bot.userId === userId.value) {
-      // If user owns the bot, load its data
+      // If user owns the bot, load its data into all fields
       name.value = bot.name ?? ''
-      subtitle.value = bot.subtitle ?? '' // Ensuring subtitle is a string
-      botType.value = bot.BotType ?? 'PROMPTBOT' // Correct case for BotType
-      description.value = bot.description ?? ''
+      subtitle.value = bot.subtitle ?? 'Kind Robot'
+      botType.value = bot.BotType ?? 'PROMPTBOT'
+      description.value = bot.description ?? "I'm a kind robot"
       avatarImage.value = bot.avatarImage ?? '/images/default-avatar.png'
-      botIntro.value = bot.botIntro ?? ''
-      userIntro.value = bot.userIntro ?? ''
-      prompt.value = bot.prompt ?? ''
+      botIntro.value = bot.botIntro ?? 'SloganMaker'
+      userIntro.value = bot.userIntro ?? 'Help me make a slogan for'
+      prompt.value = bot.prompt ?? 'Arm butterflies with mini-flamethrowers'
       isPublic.value = bot.isPublic ?? true
       underConstruction.value = bot.underConstruction ?? false
       theme.value = bot.theme ?? ''
-      personality.value = bot.personality ?? ''
+      personality.value = bot.personality ?? 'kind'
       sampleResponse.value = bot.sampleResponse ?? ''
     } else {
-      // If user doesn't own the bot, reset the form and prepare to create a new bot
+      // If user doesn't own the bot, reset the form
       resetForm()
     }
   } else {

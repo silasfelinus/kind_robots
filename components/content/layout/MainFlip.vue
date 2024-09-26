@@ -1,14 +1,12 @@
 <template>
-  <div
-    class="w-full max-w-5xl rounded-2xl bg-base-300 relative flip-card shadow-lg"
-  >
+  <div class="w-full rounded-2xl bg-base-300 relative flip-card shadow-lg">
     <div
       class="flip-card-inner"
       :class="{ 'is-flipped': !displayStore.showTutorial }"
     >
       <!-- Front side: Splash Tutorial -->
       <div class="flip-card-front">
-        <SplashTutorial></SplashTutorial>
+        <splash-tutorial></splash-tutorial>
       </div>
 
       <!-- Back side: NuxtPage content (with scrolling) -->

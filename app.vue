@@ -46,19 +46,8 @@
         class="relative flex-grow overflow-y-auto flex justify-center items-center"
         :style="{ height: `${mainHeight}px` }"
       >
-        <div class="w-full max-w-5xl rounded-2xl bg-base-100 relative flip-card shadow-lg overflow-y-auto">
-          <div class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
-            <!-- Front side: Splash Tutorial -->
-            <div class="flip-card-front">
-              <SplashTutorial />
-            </div>
-
-            <!-- Back side: NuxtPage content -->
-            <div class="flip-card-back">
-              <NuxtPage />
-            </div>
-          </div>
-        </div>
+        <!-- MainFlip Component Reintroduced -->
+        <MainFlip :show-tutorial="showTutorial" />
       </main>
 
       <!-- Right Sidebar -->
@@ -76,10 +65,11 @@
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
+import MainFlip from '@/components/MainFlip.vue' // Import MainFlip component
 
 // Initialize stores and states
 const displayStore = useDisplayStore()
-const showTutorial = ref(true)
+const showTutorial = ref(displayStore.showTutorial) // Sync with store state
 const router = useRouter()
 
 // Dynamically calculated window height and other variables
@@ -87,8 +77,8 @@ const windowHeight = ref(window.innerHeight)
 const headerHeight = ref(0)
 const footerHeight = ref(0)
 const mainHeight = ref(0)
-const sidebarLeftWidth = ref(displayStore.sidebarLeftWidth)
-const sidebarRightWidth = ref(displayStore.sidebarRightWidth)
+const sidebarLeftWidth = ref(displayStore.sidebarLeftVw)
+const sidebarRightWidth = ref(displayStore.sidebarRightVw)
 
 // Combine isPageReady and isKindLoaderInitialized logic into one
 const isPageReady = ref(false)
@@ -100,7 +90,8 @@ const handlePageReady = (ready: boolean) => {
 
 // Toggle between tutorial and main content
 const toggleTutorial = () => {
-  showTutorial.value = !showTutorial.value
+  displayStore.toggleTutorial() // Directly use store action
+  showTutorial.value = displayStore.showTutorial
 }
 
 // Update heights and widths dynamically
@@ -110,10 +101,12 @@ const updateLayout = () => {
   footerHeight.value = (displayStore.footerVh / 100) * totalHeight
   mainHeight.value = totalHeight - headerHeight.value - footerHeight.value
   windowHeight.value = totalHeight
+  sidebarLeftWidth.value = displayStore.sidebarLeftVw
+  sidebarRightWidth.value = displayStore.sidebarRightVw
 }
 
 onMounted(() => {
-  displayStore.initializeViewportWatcher()
+  displayStore.initialize()
   updateLayout()
 
   // Recalculate layout on window resize

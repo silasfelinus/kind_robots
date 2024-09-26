@@ -129,7 +129,7 @@ onMounted(() => {
 
 /* Interactive hover effects for the links */
 .Icon-link-container:hover {
-  background-color: var(--bg-base-300);
+  background-color: var(--bg-base-100);
   transform: scale(1.05);
   transition: all 0.3s ease-in-out;
 }

@@ -42,8 +42,8 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
-import { useArtStore } from './../../../stores/artStore'
-import { usePitchStore } from './../../../stores/pitchStore' // Import pitchStore
+import { useArtStore } from '../../../stores/artStore'
+import { usePitchStore } from '../../../stores/pitchStore' // Import pitchStore
 
 // Initialize stores
 const artStore = useArtStore()

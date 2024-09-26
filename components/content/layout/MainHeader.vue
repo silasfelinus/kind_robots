@@ -16,7 +16,7 @@
     <button
       v-if="displayStore.showTutorial"
       class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-2 mr-4"
-      @click="toggleTutorial"
+      @click="displayStore.toggleTutorial"
     >
       Launch
     </button>
@@ -24,7 +24,7 @@
     <button
       v-else
       class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 p-2 mr-4"
-      @click="toggleTutorial"
+      @click="displayStore.toggleTutorial"
     >
       Instructions
     </button>

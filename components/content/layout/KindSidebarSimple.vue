@@ -7,7 +7,7 @@
       :style="{
         width: displayStore.sidebarLeftVw + 'vw',
         maxHeight: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`,
-        overflowY: 'auto'
+        overflowY: 'auto',
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -15,7 +15,7 @@
         v-for="link in filteredLinks"
         :key="link.title"
         :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-        class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1"
+        class="Icon-link-container flex items-center space-x-2 hover:bg-base-100 hover:scale-105 rounded-xl mt-1 mb-1 p-1 text-accent"
       >
         <!-- Use a click event with router.push for navigation -->
         <a
@@ -25,12 +25,12 @@
           <!-- Icon for each link -->
           <Icon
             :name="link.icon"
-            class="h-12 w-12 transition-all duration-300 ease-in-out"
+            class="h-12 w-12 transition-all duration-300 ease-in-out text-accent"
           />
           <!-- Only show the link title when the sidebar is fully open -->
           <span
             v-if="displayStore.sidebarLeft === 'open'"
-            class="text-sm font-semibold ml-2 transition-opacity duration-300"
+            class="text-sm font-semibold ml-2 transition-opacity duration-300 text-accent"
           >
             {{ link.title }}
           </span>
@@ -56,7 +56,9 @@ const displayStore = useDisplayStore()
 const filteredLinks = computed(() => sidebarLinks)
 
 // Adjust height calculations based on window size and available space
-const availableSidebarHeight = ref(100 - displayStore.headerVh - displayStore.footerVh) // Adjust for header and footer
+const availableSidebarHeight = ref(
+  100 - displayStore.headerVh - displayStore.footerVh,
+) // Adjust for header and footer
 const iconHeight = ref(0)
 
 const navigate = (path: string) => {

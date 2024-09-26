@@ -1,8 +1,20 @@
 <template>
   <div
-    class="relative flex flex-col h-full w-full bg-base-300 overflow-hidden rounded-2xl shadow-lg"
+    class="relative flex flex-col h-full w-full bg-base-200 border border-accent p-1 overflow-hidden rounded-2xl shadow-lg"
     :style="{ height: displayStore.mainVh + 'vh' }"
   >
+    <!-- Floating Background Icon -->
+    <div
+      class="absolute inset-0 z-0 opacity-30"
+      :class="{
+        'w-1/2 h-1/2': displayStore.isMobile,
+        'w-1/3 h-1/3': displayStore.isTablet,
+        'w-1/4 h-1/4': displayStore.isDesktop,
+      }"
+    >
+      <Icon :name="page.icon" class="object-cover w-full h-full" />
+    </div>
+
     <!-- Main Content Section -->
     <div
       class="flex-1 flex flex-col items-center justify-start space-y-4 overflow-y-auto p-4"
@@ -11,25 +23,25 @@
       <img
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[40vh]"
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[40vh] lg:max-h-[50vh]"
       />
 
       <!-- Title, Description, and Subtitle Section -->
       <div class="text-center w-full space-y-2">
-        <h1 class="text-xl md:text-2xl font-bold text-secondary">
+        <h1 class="text-2xl lg:text-4xl font-bold text-secondary">
           {{ page.title }}
         </h1>
 
-        <h3 class="text-sm md:text-base font-medium text-secondary px-4">
-          {{ page.description }}
-        </h3>
-
         <h2
           v-if="page.subtitle"
-          class="text-xs md:text-sm font-medium text-accent"
+          class="text-sm md:text-md font-medium text-accent"
         >
           {{ page.subtitle }}
         </h2>
+
+        <h3 class="text-2xl md:text-base font-medium text-secondary px-4">
+          {{ page.description }}
+        </h3>
       </div>
     </div>
 

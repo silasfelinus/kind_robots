@@ -373,7 +373,7 @@ function resetForm() {
   subtitle.value = 'Kind Robot'
   botType.value = 'PROMPTBOT'
   description.value = "I'm a kind robot"
-  avatarImage.value = '/images/wonderchest/wonderchest-1630.webp.webp'
+  avatarImage.value = '/images/wonderchest/wonderchest-1630.webp'
   botIntro.value = 'SloganMaker'
   userIntro.value = 'Help me make a slogan for'
   imagePrompt.value = 'robot avatar'

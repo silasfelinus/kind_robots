@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col h-full w-full bg-base-200 border border-accent p-1 overflow-hidden rounded-2xl shadow-lg"
+    class="relative flex flex-col h-full w-full overflow-hidden shadow-lg"
     :style="{ height: displayStore.mainVh + 'vh' }"
   >
     <!-- Floating Background Icon (now smaller and in the top-right corner) -->
@@ -12,7 +12,7 @@
 
     <!-- Main Content Section -->
     <div
-      class="flex-1 flex flex-col items-center justify-start space-y-4 overflow-y-auto p-4"
+      class="flex-1 flex flex-col items-center justify-start space-y-2 overflow-y-auto p-2"
     >
       <!-- Main Image -->
       <img

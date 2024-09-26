@@ -98,7 +98,7 @@ export default defineEventHandler(async (event) => {
       validatedData.designer || 'kindguest',
       cfgValue || 3,
       requestData.seed || -1,
-      requestData.steps || 20
+      requestData.steps || 20,
     )
 
     if (!response || !response.images?.length) {

@@ -73,7 +73,7 @@ describe('Component Reactions API Tests', () => {
   })
 
   // Step 3: Fetch all reactions for the component
-  it('Get a Component\'s Reactions', () => {
+  it("Get a Component's Reactions", () => {
     cy.wrap(componentId).should('exist') // Ensure the componentId exists before fetching reactions
 
     cy.request({
@@ -130,13 +130,15 @@ describe('Component Reactions API Tests', () => {
       body: {
         reactionType: 'BOOED', // Change reaction type
         comment: 'Actually, I have second thoughts...',
-        reactionCategory: "COMPONENT",
+        reactionCategory: 'COMPONENT',
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.reaction.reactionType).to.eq('BOOED')
-      expect(response.body.reaction.comment).to.eq('Actually, I have second thoughts...')
+      expect(response.body.reaction.comment).to.eq(
+        'Actually, I have second thoughts...',
+      )
     })
   })
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="main-layout absolute inset-0 pointer-events-none">
+  <div class="main-layout absolute inset-0">
     <kind-loader />
     <!-- Header -->
     <header
@@ -34,7 +34,7 @@
           width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
         }"
       >
-        <MainFlip class="overflow-y-auto" />
+        <MainFlip />
       </main>
 
       <aside
@@ -100,7 +100,7 @@ onBeforeUnmount(() => {
 .content-area {
   display: grid;
   grid-template-columns: 1fr; /* Dynamically handled by inline styles */
-  overflow: hidden; /* Prevent horizontal scrolling */
+  overflow: scroll; /* Prevent horizontal scrolling */
 }
 
 .header-overlay,

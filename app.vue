@@ -1,5 +1,6 @@
 <template>
   <div class="main-layout absolute inset-0 pointer-events-none">
+    <kind-loader />
     <!-- Header -->
     <header
       class="header-overlay"

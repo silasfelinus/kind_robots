@@ -12,32 +12,28 @@ interface DisplayStoreState {
   viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
   isTouchDevice: boolean
   showTutorial: boolean
+  showIntro: boolean // Re-added showIntro
   isInitialized: boolean
-  showIntro: boolean
-  footerVw: number
+  footerVw: number // Kept from old version
 }
 
 export const useDisplayStore = defineStore('display', {
-  state: (): DisplayStoreState => {
-    console.log("Initializing display store state")
-    return {
-      headerState: 'open',
-      sidebarLeftState: 'open',
-      sidebarRightState: 'hidden',
-      footerState: 'hidden',
-      isVertical: false,
-      viewportSize: 'large',
-      isTouchDevice: false,
-      showTutorial: true,
-      isInitialized: false,
-      showIntro: true,
-      footerVw: 100,
-    }
-  },
+  state: (): DisplayStoreState => ({
+    headerState: 'open',
+    sidebarLeftState: 'open',
+    sidebarRightState: 'hidden',
+    footerState: 'hidden',
+    isVertical: false,
+    viewportSize: 'large',
+    isTouchDevice: false,
+    showTutorial: true,
+    showIntro: true, // Re-added showIntro to state
+    isInitialized: false,
+    footerVw: 100, // Kept from old version
+  }),
 
   getters: {
     headerVh: (state): number => {
-      console.log("Calculating headerVh:", state)
       const sizes = {
         small: { open: 11, compact: 6, hidden: 1, disabled: 0 },
         medium: { open: 10, compact: 5, hidden: 1, disabled: 0 },
@@ -47,7 +43,6 @@ export const useDisplayStore = defineStore('display', {
       return sizes[state.headerState] || 6
     },
     sidebarLeftVw: (state): number => {
-      console.log("Calculating sidebarLeftVw:", state)
       const sizes = {
         small: { open: 24, compact: 12, hidden: 1, disabled: 0 },
         medium: { open: 21, compact: 10, hidden: 1, disabled: 0 },
@@ -57,7 +52,6 @@ export const useDisplayStore = defineStore('display', {
       return sizes[state.sidebarLeftState] || 16
     },
     sidebarRightVw: (state): number => {
-      console.log("Calculating sidebarRightVw:", state)
       const sizes = {
         small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
         medium: { open: 3, compact: 2, hidden: 1, disabled: 0 },
@@ -67,7 +61,6 @@ export const useDisplayStore = defineStore('display', {
       return sizes[state.sidebarRightState] || 2
     },
     footerVh: (state): number => {
-      console.log("Calculating footerVh:", state)
       const sizes = {
         small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
         medium: { open: 2, compact: 1, hidden: 1, disabled: 0 },
@@ -77,15 +70,13 @@ export const useDisplayStore = defineStore('display', {
       return sizes[state.footerState] || 2
     },
     mainVh(_state): number {
-      console.log("Calculating mainVh")
-      return 100 - this.headerVh - this.footerVh
+      return 100 - this.headerVh - this.footerVh;
     },
-    mainVw(_state): number {
-      console.log("Calculating mainVw")
-      return 100 - this.sidebarLeftVw - this.sidebarRightVw
+    
+    mainVw(_state): number { // Fixed getter
+      return 100 - this.sidebarLeftVw  - this.sidebarRightVw
     },
     iconSize: (state): number => {
-      console.log("Calculating iconSize:", state)
       const sizes = {
         small: { open: 18, compact: 16, hidden: 14, disabled: 14 },
         medium: { open: 24, compact: 20, hidden: 18, disabled: 18 },
@@ -98,15 +89,11 @@ export const useDisplayStore = defineStore('display', {
 
   actions: {
     updateViewport() {
-      console.log("Updating viewport")
       try {
         if (typeof window !== 'undefined') {
           this.isVertical = window.innerHeight > window.innerWidth
-          this.isTouchDevice =
-            'ontouchstart' in window || navigator.maxTouchPoints > 0
-
+          this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
           const width = window.innerWidth
-          console.log("Viewport width:", width)
           if (width < 768) {
             this.viewportSize = 'small'
           } else if (width >= 768 && width < 1024) {
@@ -116,29 +103,23 @@ export const useDisplayStore = defineStore('display', {
           } else {
             this.viewportSize = 'extraLarge'
           }
-          console.log("Updated viewport size:", this.viewportSize)
         }
       } catch (error) {
-        console.error('Error updating viewport:', error)
         const errorStore = useErrorStore()
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
-    toggleTutorial() {
-      console.log("Toggling tutorial from", this.showTutorial)
-      this.showTutorial = !this.showTutorial
-      this.saveState()
-      console.log("Toggled tutorial to", this.showTutorial)
-    },
-    toggleIntro() {
-      console.log("Toggling intro from", this.showIntro)
-      this.showIntro = !this.showIntro
-      this.saveState()
-      console.log("Toggled intro to", this.showIntro)
+    removeViewportWatcher() {
+      try {
+        window.removeEventListener('resize', this.updateViewport)
+      } catch (error) {
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
     },
 
+
     toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
-      console.log(`Toggling sidebar ${side} from`, this[side])
       try {
         const stateCycle: Record<DisplayState, DisplayState> = {
           hidden: 'open',
@@ -147,32 +128,14 @@ export const useDisplayStore = defineStore('display', {
           disabled: 'hidden',
         }
         this[side] = stateCycle[this[side]]
-        console.log(`Toggled sidebar ${side} to`, this[side])
         this.saveState()
       } catch (error) {
-        console.error(`Error toggling sidebar ${side}:`, error)
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
-    },
-
-    changeState(
-      section: 'sidebarLeftState' | 'sidebarRightState' | 'headerState' | 'footerState',
-      newState: DisplayState,
-    ) {
-      console.log(`Changing state for ${section} from`, this[section], "to", newState)
-      try {
-        this[section] = newState
-        this.saveState()
-      } catch (error) {
-        console.error(`Error changing state for ${section}:`, error)
         const errorStore = useErrorStore()
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
 
     toggleFooter() {
-      console.log("Toggling footer from", this.footerState)
       try {
         const stateCycle: Record<DisplayState, DisplayState> = {
           hidden: 'open',
@@ -181,43 +144,41 @@ export const useDisplayStore = defineStore('display', {
           disabled: 'hidden',
         }
         this.footerState = stateCycle[this.footerState]
-        console.log("Toggled footer to", this.footerState)
         this.saveState()
       } catch (error) {
-        console.error('Error toggling footer:', error)
         const errorStore = useErrorStore()
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
 
+    toggleTutorial() {
+      this.showTutorial = !this.showTutorial
+      this.saveState()
+    },
+
+    toggleIntro() { // Re-added toggleIntro method
+      this.showIntro = !this.showIntro
+      this.saveState()
+    },
+
+    changeState(section: 'sidebarLeftState' | 'sidebarRightState' | 'headerState' | 'footerState', newState: DisplayState) { // Re-added changeState method
+      this[section] = newState
+      this.saveState()
+    },
+
     initialize() {
-      console.log("Initializing display state")
       try {
         this.loadState()
         this.updateViewport()
         window.addEventListener('resize', this.updateViewport)
         this.isInitialized = true
-        console.log("Display store initialized:", this)
       } catch (error) {
-        console.error('Error initializing display state:', error)
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
-    },
-
-    removeViewportWatcher() {
-      console.log("Removing viewport watcher")
-      try {
-        window.removeEventListener('resize', this.updateViewport)
-      } catch (error) {
-        console.error('Error removing viewport watcher:', error)
         const errorStore = useErrorStore()
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
 
     loadState() {
-      console.log("Loading display state from localStorage")
       try {
         if (typeof window !== 'undefined' && window.localStorage) {
           const storedSidebarLeft = localStorage.getItem('sidebarLeftState') as DisplayState
@@ -225,25 +186,22 @@ export const useDisplayStore = defineStore('display', {
           const storedHeaderState = localStorage.getItem('headerState') as DisplayState
           const storedFooterState = localStorage.getItem('footerState') as DisplayState
           const storedShowTutorial = localStorage.getItem('showTutorial')
-          const storedShowIntro = localStorage.getItem('showIntro')
+          const storedShowIntro = localStorage.getItem('showIntro') // Re-added storedShowIntro
 
           if (storedSidebarLeft) this.sidebarLeftState = storedSidebarLeft
           if (storedSidebarRight) this.sidebarRightState = storedSidebarRight
           if (storedHeaderState) this.headerState = storedHeaderState
           if (storedFooterState) this.footerState = storedFooterState
           if (storedShowTutorial) this.showTutorial = storedShowTutorial === 'true'
-          if (storedShowIntro) this.showIntro = storedShowIntro === 'true'
-          console.log("Loaded state:", this)
+          if (storedShowIntro) this.showIntro = storedShowIntro === 'true' // Re-added intro load
         }
       } catch (error) {
-        console.error('Error loading display state from localStorage:', error)
         const errorStore = useErrorStore()
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
 
     saveState() {
-      console.log("Saving display state to localStorage:", this)
       try {
         if (typeof window !== 'undefined') {
           localStorage.setItem('sidebarLeftState', this.sidebarLeftState)
@@ -251,10 +209,9 @@ export const useDisplayStore = defineStore('display', {
           localStorage.setItem('headerState', this.headerState)
           localStorage.setItem('footerState', this.footerState)
           localStorage.setItem('showTutorial', String(this.showTutorial))
-          localStorage.setItem('showIntro', String(this.showIntro))
+          localStorage.setItem('showIntro', String(this.showIntro)) // Re-added intro save
         }
       } catch (error) {
-        console.error('Error saving display state to localStorage:', error)
         const errorStore = useErrorStore()
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }

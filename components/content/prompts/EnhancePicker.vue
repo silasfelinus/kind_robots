@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDeforumStore } from '@/stores/deforumStore'
+import { useDeforumStore } from './../../../stores/deforumStore'
 
 // List of available images
 const imageList = [

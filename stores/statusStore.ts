@@ -16,7 +16,7 @@ export interface StatusHistoryEntry {
 interface StatusState {
   message: string | null
   type: StatusType | null // Use the enum for the type here
-  history: StatusHistoryEntry[],
+  history: StatusHistoryEntry[]
   isLoading: boolean
 }
 

@@ -6,6 +6,7 @@ import { userExists } from '../users'
 import prisma from '../utils/prisma'
 import type { User } from '@prisma/client'
 
+
 const config = useRuntimeConfig()
 const JWT_SECRET = config.private.JWT_SECRET
 

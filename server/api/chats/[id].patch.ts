@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
         pitchId: reactionData.pitchId,
         componentId: reactionData.componentId,
         channelId: reactionData.channelId,
-        ReactionCategory: reactionData.reactionCategory, // Correct field name
+        reactionCategory: reactionData.reactionCategory, // Correct field name
       },
       create: {
         reactionType: reactionData.reactionType,
@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
         componentId: reactionData.componentId,
         channelId: reactionData.channelId,
         chatExchangeId: reactionData.chatExchangeId ?? id,
-        ReactionCategory: reactionData.reactionCategory, // Correct field name
+        reactionCategory: reactionData.reactionCategory, // Correct field name
       },
     })
 

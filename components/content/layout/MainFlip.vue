@@ -103,10 +103,10 @@ onMounted(() => {
 
 .flip-card-back {
   transform: rotateY(180deg);
-  overflow-y: auto; /* Allows the back side to scroll */
+  overflow-y: auto; /* Allows scrolling if content exceeds height */
+  height: 100%; /* Ensure it respects the parent height */
 }
 
-/* Two-column layout should also respect height */
 .grid-cols-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

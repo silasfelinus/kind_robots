@@ -1,63 +1,39 @@
 <template>
-  <div class="flex flex-col items-center space-y-8">
-    <!-- Pitch Selection -->
-    <div class="flex flex-wrap">
-      <h1>Pitch Selector</h1>
-      <div v-for="pitch in enrichedPitches" :key="pitch.id" class="relative">
-        <button
-          :class="[
-            selectedPitch?.id === pitch.id
-              ? 'bg-primary text-white'
-              : 'bg-base-300',
-            'rounded-2xl border p-2 m-2',
-          ]"
-          @click="updateSelectedPitch(pitch.id)"
-          @mouseover="showTooltip(pitch.id)"
-          @mouseleave="hideTooltip(pitch.id)"
-        >
-          {{ pitch.title }}
-          {{ pitch.pitch }}
-        </button>
-        <!-- Tooltip -->
-        <div
-          v-if="tooltipVisible[pitch.id]"
-          class="absolute left-0 bottom-full mb-2 text-xs bg-base-300 p-1 rounded"
-        >
-          <span class="font-bold"> created by: {{ pitch.userId }}</span>
-        </div>
+  <div class="pitch-selector flex flex-col items-center space-y-4">
+    <!-- PitchTypeSelector Component -->
+    <PitchTypeSelector />
+
+    <!-- Display Pitches based on the selected PitchType -->
+    <div v-if="filteredPitches.length" class="pitch-list grid gap-4">
+      <div
+        v-for="pitch in filteredPitches"
+        :key="pitch.id"
+        class="rounded-lg border p-3 bg-base-300 hover:bg-primary hover:text-white"
+        @click="updateSelectedPitch(pitch.id)"
+      >
+        <h3 class="font-bold">{{ pitch.title || 'Untitled' }}</h3>
+        <p>{{ pitch.pitch }}</p>
       </div>
     </div>
+
+    <p v-else class="text-sm text-gray-500">
+      No pitches available for the selected type.
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import type { Pitch } from '@prisma/client'
-import { usePitchStore } from '../../../stores/pitchStore'
+import { computed } from 'vue'
+import { usePitchStore } from '@/stores/pitchStore'
 
+// Initialize pitch store
 const pitchStore = usePitchStore()
 
-const selectedPitch = computed(() => pitchStore.selectedPitch)
-const pitches = computed(() => pitchStore.pitches)
-const tooltipVisible = ref<Record<number, boolean>>({}) // Specify type here
+// Fetch pitches by selected pitch type
+const filteredPitches = computed(() => pitchStore.getPitchesBySelectedType)
 
-// Function to show tooltip
-const showTooltip = (pitchId: number) => {
-  tooltipVisible.value[pitchId] = true
-}
-
-// Function to hide tooltip
-const hideTooltip = (pitchId: number) => {
-  tooltipVisible.value[pitchId] = false
-}
-
+// Function to update selected pitch
 const updateSelectedPitch = (pitchId: number) => {
   pitchStore.selectedPitchId = pitchId
 }
-
-const enrichedPitches = computed<Pitch[]>(() => {
-  return pitches.value.map((pitch) => {
-    return { ...pitch }
-  })
-})
 </script>

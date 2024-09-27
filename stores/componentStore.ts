@@ -272,4 +272,4 @@ export const useComponentStore = defineStore('componentStore', {
   },
 })
 
-export type { Component}
+export type { Component as KindComponent }

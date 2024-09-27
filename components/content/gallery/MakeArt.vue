@@ -40,7 +40,7 @@ import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 const userText = ref('')
 const statusStore = useStatusStore()
 const errorStore = useErrorStore()
-const imageData = ref(null)
+const imageData = ref<string | null>(null) // Explicitly set type to string | null
 const loading = ref(false) // Declare a ref for loading state
 
 const statusMessage = computed(() => statusStore.message)
@@ -85,16 +85,15 @@ const submit = async () => {
     imageData.value = `data:image/png;base64,${result.images[0]}`
 
     statusStore.setStatus(StatusType.SUCCESS, 'Successfully submitted!')
-  } catch (error) {
-    console.error(error) // Log the error to the console for debugging
+  } catch (err) {
+    console.error(err) // Log the error to the console for debugging
 
-    // Extract the error message
     const errorMessage =
-      error.response?.data?.message || error.message || 'Failed to submit text'
+      err instanceof Error ? err.message : 'An unknown error occurred'
 
     errorStore.handleError(
       () => {
-        throw error
+        throw err
       },
       ErrorType.NETWORK_ERROR,
       errorMessage,

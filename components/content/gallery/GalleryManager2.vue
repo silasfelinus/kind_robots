@@ -41,7 +41,22 @@
 </template>
 
 <script setup lang="ts">
-const galleries = ref([])
+// Define the gallery type
+interface Gallery {
+  id: number
+  name: string
+  content: string
+  description: string
+  highlightImage: string | null
+  isMature: boolean
+  isAuth: boolean
+  user: string
+  createdAt: string
+  updatedAt: string
+}
+
+// Define the ref with the Gallery type
+const galleries = ref<Gallery[]>([])
 
 onMounted(async () => {
   const res = await fetch('/api/galleries')
@@ -50,6 +65,6 @@ onMounted(async () => {
     console.error('Failed to fetch galleries')
     return
   }
-  galleries.value = await res.json()
+  galleries.value = await res.json() // Expecting it to return Gallery[]
 })
 </script>

@@ -12,14 +12,13 @@ export default defineNuxtConfig({
     pageTransition: { name: 'page', mode: 'out-in' },
   },
   // Including the necessary modules/plugins
-  modules: [
-    '@pinia/nuxt', // Pinia state management
-    '@nuxtjs/tailwindcss', // Tailwind CSS for styling
-    '@nuxt/content', // Nuxt Content for Markdown, JSON, etc.
-    '@unlok-co/nuxt-stripe', // Stripe module for payments
-    '@nuxt/eslint', // ESLint module for linting
-    '@nuxt/icon', // Automatic icon imports
-  ],
+  modules: [// Pinia state management
+  '@pinia/nuxt', // Tailwind CSS for styling
+  '@nuxtjs/tailwindcss', // Nuxt Content for Markdown, JSON, etc.
+  '@nuxt/content', // Stripe module for payments
+  '@unlok-co/nuxt-stripe', // ESLint module for linting
+  '@nuxt/eslint', // Automatic icon imports
+  '@nuxt/icon', '@nuxt/image'],
 
   // Vite configuration, specifically aliasing
   srcDir: '.',

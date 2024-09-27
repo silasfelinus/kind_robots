@@ -188,7 +188,7 @@ const submitComment = async () => {
         userId: userId.value,
         componentId: selectedComponent.value?.id || 0,
         reactionType: (reactionType.value as ReactionType) || 'NEUTRAL',
-        ReactionCategory: 'COMPONENT',
+        reactionCategory: 'COMPONENT',
       },
       {
         title: commentTitle.value,

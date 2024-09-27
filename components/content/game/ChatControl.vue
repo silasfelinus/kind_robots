@@ -2,7 +2,6 @@
   <div
     class="chat-control bg-base-300 rounded-2xl p-4 border max-w-full flex flex-col space-y-4 mb-48"
   >
-    <!-- Channel Selection Dropdown -->
     <div class="font-semibold mb-2 text-lg text-primary">Select a Channel:</div>
     <div class="mb-4">
       <select
@@ -22,7 +21,6 @@
     </div>
 
     <div class="flex flex-col md:flex-row gap-4 flex-1">
-      <!-- Chat Window Column -->
       <div
         v-if="selectedChannel"
         class="chat-window bg-base-300 rounded-2xl p-4 max-h-96 overflow-y-auto border border-accent flex-1"
@@ -39,19 +37,16 @@
           :key="message.id"
           :class="[
             'p-3 mb-2 rounded-lg text-sm shadow',
-            message.userId === currentUser.id
+            message.userId === currentUser.value?.id
               ? 'bg-primary-light text-white self-end'
               : 'bg-secondary text-secondary-content',
           ]"
-          :style="
-            message.userId === currentUser.id ? 'align-self: flex-end;' : ''
-          "
         >
-          <strong>{{ message.userName }}:</strong> {{ message.text }}
+          <strong>{{ message.sender || 'Unknown User' }}:</strong>
+          {{ message.content }}
         </div>
       </div>
 
-      <!-- Send Message Column -->
       <div
         v-if="selectedChannel"
         class="flex flex-col items-center gap-2 mt-4 w-full md:w-1/3"
@@ -78,13 +73,14 @@
 import { computed, ref, onMounted } from 'vue'
 import { useChannelStore } from '@/stores/channelStore'
 import { useUserStore } from '@/stores/userStore'
-import { useErrorStore } from '@/stores/errorStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import type { User } from '@prisma/client' // Ensure User type is imported
 
 const channelStore = useChannelStore()
 const userStore = useUserStore()
 const errorStore = useErrorStore()
-const currentUser = userStore.user
-const selectedChannel = ref(null)
+const currentUser = ref<User | null>(userStore.user) // Ensure correct type
+const selectedChannel = ref<Channel | null>(null)
 const newMessage = ref('')
 
 // Computed property to filter non-null channels
@@ -92,7 +88,7 @@ const nonNullChannels = computed(() => {
   return channelStore.channels.filter((channel) => channel.label)
 })
 
-// Fetch messages when a channel is selected
+// Fetch messages for the selected channel
 const selectedChannelMessages = computed(() => {
   return selectedChannel.value
     ? channelStore.messages.filter(
@@ -105,28 +101,31 @@ const selectedChannelMessages = computed(() => {
 const handleChannelChange = async () => {
   if (selectedChannel.value) {
     try {
-      // Fetch the messages for the selected channel from the backend if necessary
       await channelStore.fetchMessagesByChannelId(selectedChannel.value.id)
     } catch (error) {
-      errorStore.setError('Failed to load messages for the channel.', error)
+      errorStore.setError(
+        ErrorType.VALIDATION_ERROR,
+        'Failed to load messages for the channel. ' + error,
+      )
     }
   }
 }
 
-// Send a new message
 const sendMessage = async () => {
   if (newMessage.value && selectedChannel.value) {
     try {
-      // Assuming sendMessage API is present in channelStore
       await channelStore.sendMessage({
         channelId: selectedChannel.value.id,
-        text: newMessage.value,
-        userId: currentUser.id,
-        userName: currentUser.name,
+        content: newMessage.value,
+        userId: currentUser.value ? currentUser.value.id : 10, // Default userId to 10 if currentUser is null
+        sender: currentUser.value ? currentUser.value.name : 'Anonymous',
       })
       newMessage.value = ''
     } catch (error) {
-      errorStore.setError('Failed to send message.', error)
+      errorStore.setError(
+        ErrorType.VALIDATION_ERROR,
+        'Failed to send message. ' + error,
+      )
     }
   }
 }
@@ -134,9 +133,12 @@ const sendMessage = async () => {
 // Fetch initial channels on mount
 onMounted(async () => {
   try {
-    await channelStore.fetchChannels()
+    await channelStore.fetchChannels() // Ensure this method exists
   } catch (error) {
-    errorStore.setError('Failed to load channels.', error)
+    errorStore.setError(
+      ErrorType.VALIDATION_ERROR,
+      'Failed to load channels. ' + error,
+    )
   }
 })
 </script>

@@ -39,7 +39,7 @@ const props = defineProps({
 })
 
 const isVisible = ref(!!props.message)
-const notificationCard = ref(null)
+const notificationCard = ref<HTMLElement | null>(null)
 
 watchEffect(() => {
   isVisible.value = !!props.message
@@ -55,27 +55,29 @@ const hideCard = () => {
 }
 
 onMounted(() => {
-  interact(notificationCard.value).draggable({
-    inertia: true,
-    modifiers: [
-      interact.modifiers.restrictRect({
-        restriction: 'parent',
-        endOnly: true,
-      }),
-    ],
-    autoScroll: true,
-    onmove: function (event) {
-      const target = event.target
-      const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
-      const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+  if (notificationCard.value) {
+    interact(notificationCard.value).draggable({
+      inertia: true,
+      modifiers: [
+        interact.modifiers.restrictRect({
+          restriction: 'parent',
+          endOnly: true,
+        }),
+      ],
+      autoScroll: true,
+      onmove: function (event) {
+        const target = event.target
+        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
 
-      target.style.webkitTransform =
-        target.style.transform = `translate(${x}px, ${y}px)`
+        target.style.webkitTransform =
+          target.style.transform = `translate(${x}px, ${y}px)`
 
-      target.setAttribute('data-x', x)
-      target.setAttribute('data-y', y)
-    },
-  })
+        target.setAttribute('data-x', x)
+        target.setAttribute('data-y', y)
+      },
+    })
+  }
 })
 </script>
 

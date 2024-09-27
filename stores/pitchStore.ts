@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { useErrorStore, ErrorType } from './errorStore'
-import type { Pitch } from '@prisma/client' 
-import { PitchType}  from '@prisma/client' 
+import type { Pitch } from '@prisma/client'
+import { PitchType } from '@prisma/client'
 
 const isClient = typeof window !== 'undefined'
 
@@ -11,6 +11,16 @@ interface FetchResponse {
   pitches?: Pitch[]
   message?: string
   success: boolean
+  artEntries?: Art[]
+}
+
+// Create an object for runtime use
+export enum PitchTypeEnum {
+  ARTPITCH= 'Art Pitch',
+  BRAINSTORM= 'Brainstorm',
+  BOT= 'Bot',
+  ARTGALLERY= 'Art Gallery',
+  INSPIRATION= 'Inspiration',
 }
 
 interface ErrorWithMessage {
@@ -25,25 +35,35 @@ export const usePitchStore = defineStore('pitch', {
   state: () => ({
     pitches: [] as Pitch[], // All pitches
     selectedPitches: [] as Pitch[], // Top 5 selected pitches
+    selectedPitchType: null as PitchType | null, // PitchType can be null
     isInitialized: false,
-    selectedPitchId: null as number | null,
-    selectedPitchType: null as PitchType | null
+    galleryArt: [] as Art[],
   }),
 
   getters: {
-      getPitchesByType: (state) => (pitchType: PitchType) => {
-        return state.pitches.filter((pitch: Pitch) => pitch.PitchType === pitchType);
-      },
-      getPitchesBySelectedType: (state) => {
-        if (!state.selectedPitchType) return [];
-        return state.pitches.filter(
-          (pitch: Pitch) => pitch.PitchType === state.selectedPitchType
-        );
-      },
-    brainstormPitches: (state) => {
+    // Get selected pitch, which is the first in the selectedPitches array
+    selectedPitch: (state) => {
+      return state.selectedPitches.length ? state.selectedPitches[0] : null
+    },
+
+    // Get the ID of the selected pitch (first in the selectedPitches array)
+    selectedPitchId: (state) => {
+      return state.selectedPitches.length ? state.selectedPitches[0].id : null
+    },
+
+    getPitchesByType: (state) => (pitchType: PitchType) => {
+      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === pitchType)
+    },
+
+    getPitchesBySelectedType: (state) => {
+      if (!state.selectedPitchType) return []
       return state.pitches.filter(
-        (pitch: Pitch) => pitch.PitchType === 'BRAINSTORM',
+        (pitch: Pitch) => pitch.PitchType === state.selectedPitchType
       )
+    },
+
+    brainstormPitches: (state) => {
+      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM')
     },
 
     pitchesByTitle: (state) => {
@@ -63,32 +83,41 @@ export const usePitchStore = defineStore('pitch', {
       const userStore = useUserStore()
       return state.pitches.filter(
         (pitch) =>
-          pitch.isPublic ||
-          pitch.userId === userStore.userId ||
-          pitch.userId === 0,
-      )
-    },
-
-    selectedPitch: (state) => {
-      return (
-        state.pitches.find((pitch) => pitch.id === state.selectedPitchId) ||
-        null
+          pitch.isPublic || pitch.userId === userStore.userId || pitch.userId === 0,
       )
     },
   },
 
   actions: {
     async initializePitches() {
-      // Make sure fetchPitches is called correctly
       if (!this.isInitialized) {
-        await this.fetchPitches() // Calls the action to fetch pitches
+        await this.fetchPitches() // Fetches pitches
         this.isInitialized = true
       }
     },
-    setSelectedPitchType(pitchType: PitchType | null) {
-      this.selectedPitchType = pitchType;
+
+    setSelectedPitch(pitchId: number) {
+      const pitch = this.pitches.find((p) => p.id === pitchId)
+      if (pitch) {
+        this.selectedPitches = [pitch] // Set the selected pitch
+      }
     },
-    // Fetch brainstorm pitches
+
+    setSelectedPitchType(pitchType: PitchType | null) {
+
+        this.selectedPitchType = pitchType
+    },
+    async fetchRandomPitches(count: number) {
+      try {
+        const response = await fetch(`/api/pitches/random?count=${count}`)
+        const data = await response.json()
+        this.selectedPitches = data.pitches || []
+      } catch (error) {
+        console.error('Failed to fetch random pitches:', error)
+      }
+    },
+
+
     async fetchBrainstormPitches() {
       try {
         const response = await fetch('/api/botcafe/brainstorm', {
@@ -98,9 +127,7 @@ export const usePitchStore = defineStore('pitch', {
           },
           body: JSON.stringify({
             n: 5,
-            messages: [
-              { role: 'user', content: '1 more original brainstorm.' },
-            ],
+            messages: [{ role: 'user', content: '1 more original brainstorm.' }],
             max_tokens: 500,
           }),
         })
@@ -119,7 +146,6 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    // Helper function to parse API ideas into Pitch format
     parseIdeasFromAPI(rawContent: string): Pitch[] {
       const lines = rawContent.split('\n')
       const ideasList = lines.filter((line: string) => /^\d+\./.test(line))
@@ -145,12 +171,9 @@ export const usePitchStore = defineStore('pitch', {
       })
     },
 
-    // Add new pitches and select the newest five brainstorm pitches
     addPitches(newPitches: Pitch[]) {
       newPitches.forEach((newPitch) => {
-        const existingPitch = this.pitches.find(
-          (pitch) => pitch.id === newPitch.id,
-        )
+        const existingPitch = this.pitches.find((pitch) => pitch.id === newPitch.id)
         if (!existingPitch) {
           this.pitches.push(newPitch)
         }
@@ -161,19 +184,14 @@ export const usePitchStore = defineStore('pitch', {
         .filter((pitch) => pitch.PitchType === PitchType.BRAINSTORM)
         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)) // Sort by most recent
 
-      // Update the selected pitches to be the newest five
       this.selectedPitches = brainstormPitches.slice(0, 5)
 
       if (isClient) {
         localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        localStorage.setItem(
-          'selectedPitches',
-          JSON.stringify(this.selectedPitches),
-        )
+        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
       }
     },
 
-    // Fetch existing pitches from API or storage
     async fetchPitches() {
       try {
         const data = await this.performFetch('/api/pitches/batch')
@@ -185,28 +203,29 @@ export const usePitchStore = defineStore('pitch', {
         console.error('Failed to fetch pitches:', error)
       }
     },
+
     async fetchPitchById(pitchId: number) {
       try {
-        const data = await this.performFetch(`/api/pitches/${pitchId}`);
+        const data = await this.performFetch(`/api/pitches/${pitchId}`)
         if (data.pitch) {
-          this.pitches.push(data.pitch);
+          this.pitches.push(data.pitch)
           if (isClient) {
-            localStorage.setItem('pitches', JSON.stringify(this.pitches));
+            localStorage.setItem('pitches', JSON.stringify(this.pitches))
           }
-          return data.pitch;
+          return data.pitch
         }
-        throw new Error('Pitch not found');
+        throw new Error('Pitch not found')
       } catch (error) {
         if (isErrorWithMessage(error)) {
-          console.error('Error fetching pitch:', error.message);
+          console.error('Error fetching pitch:', error.message)
         } else {
-          console.error('Unknown error fetching pitch');
+          console.error('Unknown error fetching pitch')
         }
       }
     },
-    // Create a new pitch
+
     async createPitch(newPitch: Partial<Pitch>) {
-      const errorStore = useErrorStore() // make sure the errorStore is included
+      const errorStore = useErrorStore()
       try {
         const response = await fetch('/api/pitches', {
           method: 'POST',
@@ -217,7 +236,6 @@ export const usePitchStore = defineStore('pitch', {
         const data = await response.json()
 
         if (response.ok && data.pitch) {
-          // Push the new pitch into the store state
           this.pitches.push(data.pitch)
           if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
@@ -240,7 +258,6 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    // Update a pitch
     async updatePitch(pitchId: number, updates: Partial<Pitch>) {
       try {
         const data = await this.performFetch(`/api/pitches/${pitchId}`, {
@@ -272,7 +289,6 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    // Delete a pitch
     async deletePitch(pitchId: number) {
       try {
         await this.performFetch(`/api/pitches/${pitchId}`, { method: 'DELETE' })
@@ -300,23 +316,27 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    // Fetch more pitches by title
+    async fetchArtForPitch(pitchId: number) {
+      try {
+        const response = await fetch(`/api/pitches/art/${pitchId}`)
+        const data = await response.json()
+        this.galleryArt = data.artEntries || []
+      } catch (error) {
+        console.error('Failed to fetch art for pitch:', error)
+      }
+    },
+
+
     async fetchMorePitchesByTitle(title: string) {
       try {
-        const data = await this.performFetch(
-          `/api/pitches/title/${encodeURIComponent(title)}`,
-        )
+        const data = await this.performFetch(`/api/pitches/title/${encodeURIComponent(title)}`)
         this.addPitches(data.pitches || [])
       } catch (error) {
         console.error(`Failed to fetch more pitches for title: ${title}`, error)
       }
     },
 
-    // Utility function to perform fetch with error handling
-    async performFetch(
-      url: string,
-      options: RequestInit = {},
-    ): Promise<FetchResponse> {
+    async performFetch(url: string, options: RequestInit = {}): Promise<FetchResponse> {
       const errorStore = useErrorStore()
       try {
         const response = await fetch(url, options)
@@ -343,4 +363,4 @@ export const usePitchStore = defineStore('pitch', {
   },
 })
 
-export type { Pitch }
+export type { Pitch, PitchType }

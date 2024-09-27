@@ -14,7 +14,7 @@ interface DisplayStoreState {
   showTutorial: boolean
   isInitialized: boolean
   showIntro: boolean
-  footerWh: number
+  footerVw: number
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -29,7 +29,7 @@ export const useDisplayStore = defineStore('display', {
     showTutorial: true,
     isInitialized: false,
     showIntro: true,
-    footerWh: 100
+    footerVw: 100
   }),
 
   getters: {

@@ -12,12 +12,13 @@
 import { usePitchStore, type Pitch } from '../../../stores/pitchStore'
 
 const props = defineProps<{
-  pitch: Pitch // Make sure Pitch type matches your schema in the store
+  pitch: Pitch // Ensure the Pitch type matches your schema
 }>()
 
 const pitchStore = usePitchStore()
 
+// Use the store's action to set the selected pitch
 const selectPitch = () => {
-  pitchStore.selectedPitchId = props.pitch.id
+  pitchStore.setSelectedPitch(props.pitch.id) // Call the store's action
 }
 </script>

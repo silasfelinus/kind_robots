@@ -32,8 +32,8 @@ const pitchStore = usePitchStore()
 // Fetch pitches by selected pitch type
 const filteredPitches = computed(() => pitchStore.getPitchesBySelectedType)
 
-// Function to update selected pitch
+// Function to update selected pitch by calling the store action
 const updateSelectedPitch = (pitchId: number) => {
-  pitchStore.selectedPitchId = pitchId
+  pitchStore.setSelectedPitch(pitchId)  // Use the store action to set the selected pitch
 }
 </script>

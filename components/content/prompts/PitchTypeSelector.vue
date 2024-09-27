@@ -6,8 +6,12 @@
       v-model="selectedPitchType"
       class="p-2 border rounded-lg"
     >
-      <option v-for="type in pitchTypes" :key="type" :value="type">
-        {{ type }}
+      <option
+        v-for="(label, type) in pitchTypeOptions"
+        :key="type"
+        :value="type"
+      >
+        {{ label }}
       </option>
     </select>
   </div>
@@ -15,16 +19,23 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore, PitchType } from './../../../stores/pitchStore'
+import { usePitchStore, PitchTypeEnum } from './../../../stores/pitchStore'
+import type { PitchType } from './../../../stores/pitchStore' // Use a type-only import for PitchType
 
-// Use the correct import from Prisma and store
+// Initialize the pitch store
 const pitchStore = usePitchStore()
 
-// Available PitchType values from Prisma
-const pitchTypes = Object.values(PitchType)
+// Map between PitchTypeEnum (human-readable) and PitchType (store values)
+const pitchTypeOptions = {
+  [PitchTypeEnum.ARTPITCH]: 'Art Pitch',
+  [PitchTypeEnum.BRAINSTORM]: 'Brainstorm',
+  [PitchTypeEnum.BOT]: 'Bot',
+  [PitchTypeEnum.ARTGALLERY]: 'Art Gallery',
+  [PitchTypeEnum.INSPIRATION]: 'Inspiration',
+}
 
-// Use a computed property that supports null for the selectedPitchType
-const selectedPitchType = computed<PitchType | null>({
+// Use a computed property to bind the selectedPitchType to the store
+const selectedPitchType = computed({
   get: () => pitchStore.selectedPitchType,
   set: (value: PitchType | null) => pitchStore.setSelectedPitchType(value),
 })

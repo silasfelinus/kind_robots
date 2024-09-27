@@ -41,7 +41,7 @@ const pitchStore = usePitchStore()
 const artStore = useArtStore()
 
 // Get the selected pitch from the gameStore (update if the property name is different)
-const selectedPitch = computed(() => pitchStore.currentPitch) // Assuming it's currentPitch
+const selectedPitch = computed(() => pitchStore.selectedPitch) // Assuming it's currentPitch
 
 const filteredArtIds = computed(() => {
   if (!selectedPitch.value) return []

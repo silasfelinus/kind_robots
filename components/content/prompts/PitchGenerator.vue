@@ -3,7 +3,7 @@
     <h1>Pitch Generator</h1>
 
     <!-- Dropdown for selecting a pitch -->
-    <select v-model="selectedPitchId" @change="onPitchChange">
+    <select v-model="selectedPitchId">
       <option v-for="pitch in publicPitches" :key="pitch.id" :value="pitch.id">
         {{ pitch.title }}
       </option>
@@ -29,16 +29,17 @@ const artStore = useArtStore()
 const pitchStore = usePitchStore()
 const errorStore = useErrorStore()
 
-const selectedPitchId = ref<number | null>(null)
+// Create a ref to store the selected pitch ID
+const selectedPitchId = computed(() => pitchStore.selectedPitchId)
+
+// Computed property for public pitches
 const publicPitches = computed(() => pitchStore.publicPitches)
+
+// Ref for error messages
 const errorMessage = ref<string | null>(null)
 
-const onPitchChange = () => {
-  if (selectedPitchId.value !== null) {
-    pitchStore.selectedPitchId = selectedPitchId.value
-  }
-}
 
+// Method to generate art based on the selected pitch
 const generateArtBasedOnPitch = async () => {
   if (pitchStore.selectedPitch) {
     const pitch = pitchStore.selectedPitch

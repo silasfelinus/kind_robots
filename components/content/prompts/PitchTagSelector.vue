@@ -83,10 +83,10 @@ const showPublicPitches = ref(true)
 
 const selectedPitch = computed(() => pitchStore.selectedPitch)
 
+// Function to update selected pitch by calling the store action
 const updateSelectedPitch = (pitchId: number) => {
-  pitchStore.selectedPitchId = pitchId
+  pitchStore.setSelectedPitch(pitchId) // Use the store action to set the selected pitch
 }
-
 const pitches = computed(() => pitchStore.pitches as Pitch[])
 
 const filteredPitches = computed(() => {

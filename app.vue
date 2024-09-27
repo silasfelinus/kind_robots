@@ -1,6 +1,7 @@
 <template>
   <div class="main-layout absolute inset-0 bg-base-300">
     <!-- Loader Component -->
+<kind-loader></kind-loader>
 
     <!-- Header -->
     <header
@@ -25,6 +26,7 @@
       >
         Launch
       </button>
+button here
 
       <button
         v-if="showInstructionsButton"
@@ -86,15 +88,12 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from './stores/displayStore'
-import { useReactionStore } from './stores/reactionStore'
-import { useUserStore } from './stores/userStore'
+
 import { useErrorStore, ErrorType } from './stores/errorStore'
 
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
-const reactionStore = useReactionStore()
-const pitchStore = usePitchStore()
-const userStore = useUserStore()
+
 
 // Error handler utility with specific Error type
 const handleError = (
@@ -151,10 +150,7 @@ const setCustomVh = () => {
 
 onMounted(() => {
   try {
-    displayStore.initialize()
-    pitchStore.initializePitches()
-    reactionStore.initializeReactions()
-    userStore.initializeUser()
+    
     console.log('Mounted: Initializing custom vh and display store')
     setCustomVh()
 
@@ -179,7 +175,7 @@ onBeforeUnmount(() => {
     displayStore.removeViewportWatcher()
     console.log('Unmounting: Cleaned up event listeners')
   } catch (error) {
-    console.error('Error in onBeforeUnmount:', error) // Log the error to fix unused error issue
+    console.error('Error in onBeforeUnmount:', error) 
     handleError(
       new Error('Component unmounting failed'),
       'Error during onBeforeUnmount lifecycle',
@@ -192,13 +188,13 @@ onBeforeUnmount(() => {
 .main-layout {
   display: grid;
   grid-template-rows: auto 1fr auto; /* Header, Main Content, Footer */
-  height: 100vh; /* Use full viewport height */
-  overflow: hidden; /* Prevent overflow */
+  height: 100vh; 
+  overflow: hidden; 
 }
 
 .content-area {
   display: grid;
-  overflow: hidden; /* Prevent horizontal scrolling */
+  overflow: hidden; 
 }
 
 .header-overlay,
@@ -208,6 +204,6 @@ onBeforeUnmount(() => {
 .footer-overlay {
   position: relative;
   text-align: center;
-  padding: 0; /* Ensure no padding */
+  padding: 0; 
 }
 </style>

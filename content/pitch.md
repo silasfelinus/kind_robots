@@ -14,11 +14,5 @@ amitip: 'Short? Fun? Open-Ended?'
 sort: highlight
 ---
 
-:pitch-manager
-:pitch-card
-:pitch-chat
-:pitch-gallery
-:pitch-generator
 :pitch-selector
-:pitch-tags
-:pitch-tag-selector
+

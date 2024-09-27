@@ -29,7 +29,7 @@ export const useDisplayStore = defineStore('display', {
     showTutorial: true,
     isInitialized: false,
     showIntro: true,
-    footerVw: 100
+    footerVw: 100,
   }),
 
   getters: {
@@ -128,14 +128,21 @@ export const useDisplayStore = defineStore('display', {
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
-    changeState(section: 'sidebarLeftState' | 'sidebarRightState' | 'headerState' | 'footerState', newState: DisplayState) {
+    changeState(
+      section:
+        | 'sidebarLeftState'
+        | 'sidebarRightState'
+        | 'headerState'
+        | 'footerState',
+      newState: DisplayState,
+    ) {
       try {
-        this[section] = newState;
-        this.saveState(); // Save the state after changing it
+        this[section] = newState
+        this.saveState() // Save the state after changing it
       } catch (error) {
-        console.error(`Error changing state for ${section}:`, error);
-        const errorStore = useErrorStore();
-        errorStore.setError(ErrorType.GENERAL_ERROR, error);
+        console.error(`Error changing state for ${section}:`, error)
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
 
@@ -155,7 +162,6 @@ export const useDisplayStore = defineStore('display', {
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
-    
 
     initialize() {
       try {

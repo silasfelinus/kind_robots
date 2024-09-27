@@ -5,12 +5,12 @@ import { errorHandler } from '../../utils/error'
 import { verifyJwtToken } from '../../auth'
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null; // Declare 'id' outside of try-catch for broader scope
+  let id: number | null = null // Declare 'id' outside of try-catch for broader scope
 
   try {
     // Extract and validate the gallery ID from the request parameters
     id = Number(event.context.params?.id) // Reverting back to 'id' for clarity
-    
+
     if (isNaN(id) || id <= 0) {
       throw createError({
         statusCode: 400, // Bad Request
@@ -79,7 +79,9 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     return {
       success: false,
-      message: handledError.message || `Failed to delete gallery with id ${id !== null ? id : 'unknown'}.`, // Handle the case when 'id' is not defined
+      message:
+        handledError.message ||
+        `Failed to delete gallery with id ${id !== null ? id : 'unknown'}.`, // Handle the case when 'id' is not defined
       statusCode: handledError.statusCode || 500,
     }
   }

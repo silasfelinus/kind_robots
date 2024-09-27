@@ -193,7 +193,6 @@ export async function getGalleryImages(galleryId: number): Promise<string[]> {
   }
 }
 
-
 // Function to get a random image from a gallery by ID
 export async function getRandomGalleryImage(
   galleryId: number,
@@ -259,7 +258,6 @@ export async function randomGallery(): Promise<Gallery | null> {
     skip: randomIndex,
   })
 }
-
 
 // Function to count all galleries
 export async function countGalleries(): Promise<number> {

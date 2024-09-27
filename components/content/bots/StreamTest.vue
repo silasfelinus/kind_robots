@@ -129,7 +129,10 @@
 import { ref, computed, onMounted, watchEffect } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
-import { useReactionStore, type ReactionType } from '../../../stores/reactionStore'
+import {
+  useReactionStore,
+  type ReactionType,
+} from '../../../stores/reactionStore'
 import { useChatStore, type ChatExchange } from '../../../stores/chatStore'
 
 const shouldShowMilestoneCheck = ref(false)

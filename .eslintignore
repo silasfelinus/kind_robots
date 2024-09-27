@@ -1,9 +1,0 @@
-node_modules/
-dist/
-.nuxt/
-.output
-.env
-cypress/*
-spec*
-cypress/
-cypress/e2e/

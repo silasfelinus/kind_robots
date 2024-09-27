@@ -31,14 +31,16 @@ export const useGalleryStore = defineStore({
 
     randomGallery(state: GalleryState): Gallery | null {
       const otherGalleries = state.galleries.filter(
-        (g) => g.name !== state.currentGallery?.name
+        (g) => g.name !== state.currentGallery?.name,
       )
       return otherGalleries.length
         ? otherGalleries[Math.floor(Math.random() * otherGalleries.length)]
         : state.currentGallery
     },
 
-    imagePathsByGalleryName(state: GalleryState): (galleryName: string) => string[] {
+    imagePathsByGalleryName(
+      state: GalleryState,
+    ): (galleryName: string) => string[] {
       return (galleryName: string) => {
         const gallery = state.galleries.find((g) => g.name === galleryName)
         return gallery?.imagePaths ? gallery.imagePaths.split(',') : []
@@ -150,7 +152,7 @@ export const useGalleryStore = defineStore({
             }
           } else {
             console.error(
-              'Invalid galleries data format. Expected an array under the galleries property.'
+              'Invalid galleries data format. Expected an array under the galleries property.',
             )
           }
         } else {
@@ -163,13 +165,16 @@ export const useGalleryStore = defineStore({
 
     setGalleryByName(name: string) {
       const selectedGallery = this.galleries.find(
-        (gallery: Gallery) => gallery.name === name
+        (gallery: Gallery) => gallery.name === name,
       )
       if (selectedGallery) {
         this.currentGallery = selectedGallery
         this.currentImage = selectedGallery.imagePaths?.split(',')[0] || ''
         if (typeof window !== 'undefined') {
-          localStorage.setItem('currentGallery', JSON.stringify(this.currentGallery))
+          localStorage.setItem(
+            'currentGallery',
+            JSON.stringify(this.currentGallery),
+          )
           localStorage.setItem('currentImage', this.currentImage)
         }
       } else {

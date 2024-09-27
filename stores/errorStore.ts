@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 
 export enum ErrorType {
   NETWORK_ERROR = 'Network Error',
@@ -12,18 +12,18 @@ export enum ErrorType {
 }
 
 export interface ErrorHistoryEntry {
-  type: ErrorType;
-  message: string;
-  timestamp: Date;
+  type: ErrorType
+  message: string
+  timestamp: Date
 }
 
 interface ErrorState {
-  message: string | null;
-  type: ErrorType | null;
-  history: ErrorHistoryEntry[];
+  message: string | null
+  type: ErrorType | null
+  history: ErrorHistoryEntry[]
 }
 
-const MAX_HISTORY = 100; // Limit the history to 100 errors for better memory management
+const MAX_HISTORY = 100 // Limit the history to 100 errors for better memory management
 
 export const useErrorStore = defineStore('error', {
   state: (): ErrorState => ({
@@ -44,49 +44,49 @@ export const useErrorStore = defineStore('error', {
      * @param {unknown} message - The error message or error object.
      */
     setError(type: ErrorType, message: unknown): void {
-      let errorMessage: string;
+      let errorMessage: string
 
       if (message instanceof Error) {
-        errorMessage = message.message;
+        errorMessage = message.message
       } else if (typeof message === 'string') {
-        errorMessage = message;
+        errorMessage = message
       } else {
-        errorMessage = 'An unknown error occurred';
+        errorMessage = 'An unknown error occurred'
       }
 
       const errorEntry: ErrorHistoryEntry = {
         type,
         message: errorMessage,
         timestamp: new Date(),
-      };
+      }
 
-      this.message = errorMessage;
-      this.type = type;
-      this.history.push(errorEntry);
+      this.message = errorMessage
+      this.type = type
+      this.history.push(errorEntry)
 
       // Trim history if it exceeds the maximum allowed size
       if (this.history.length > MAX_HISTORY) {
-        this.history.shift();
+        this.history.shift()
       }
     },
 
     addError(type: ErrorType, message: unknown): void {
-      this.setError(type, message); // Use the existing setError function
+      this.setError(type, message) // Use the existing setError function
     },
 
     /**
      * Clears the current error state.
      */
     clearError(): void {
-      this.message = null;
-      this.type = null;
+      this.message = null
+      this.type = null
     },
 
     /**
      * Clears the error history.
      */
     clearErrorHistory(): void {
-      this.history = [];
+      this.history = []
     },
 
     /**
@@ -103,14 +103,14 @@ export const useErrorStore = defineStore('error', {
       errorMessage: string = 'An error occurred',
     ): Promise<T> {
       try {
-        return await handler();
+        return await handler()
       } catch (error) {
         const detailedErrorMessage = `${errorMessage} Details: ${
           error instanceof Error ? error.message : ''
-        }`;
-        this.setError(type, detailedErrorMessage);
+        }`
+        this.setError(type, detailedErrorMessage)
         // Optionally, you could choose to rethrow or not depending on the use case
-        throw new Error(detailedErrorMessage);
+        throw new Error(detailedErrorMessage)
       }
     },
 
@@ -121,11 +121,11 @@ export const useErrorStore = defineStore('error', {
     async checkConnection(): Promise<boolean> {
       return new Promise((resolve, reject) => {
         if (this.history.length > 0) {
-          resolve(true);
+          resolve(true)
         } else {
-          reject(new Error('No errors in store. Connection might be down.'));
+          reject(new Error('No errors in store. Connection might be down.'))
         }
-      });
+      })
     },
 
     /**
@@ -134,13 +134,13 @@ export const useErrorStore = defineStore('error', {
      */
     async loadStore(): Promise<string> {
       try {
-        const errors = this.getErrors;
-        return `Loaded ${errors.length} errors. Hopefully, there were no issues.`;
+        const errors = this.getErrors
+        return `Loaded ${errors.length} errors. Hopefully, there were no issues.`
       } catch (error) {
-        const loadErrorMessage = `Error loading store: ${error instanceof Error ? error.message : 'Unknown error'}`;
-        this.setError(ErrorType.STORE_ERROR, loadErrorMessage);
-        throw new Error(loadErrorMessage);
+        const loadErrorMessage = `Error loading store: ${error instanceof Error ? error.message : 'Unknown error'}`
+        this.setError(ErrorType.STORE_ERROR, loadErrorMessage)
+        throw new Error(loadErrorMessage)
       }
     },
   },
-});
+})

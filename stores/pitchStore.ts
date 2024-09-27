@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { useErrorStore, ErrorType } from './errorStore'
-import type { Pitch, Art } from '@prisma/client' 
-import { PitchType }  from '@prisma/client' 
+import type { Pitch, Art } from '@prisma/client'
+import { PitchType } from '@prisma/client'
 
 const isClient = typeof window !== 'undefined'
 
@@ -30,24 +30,26 @@ export const usePitchStore = defineStore('pitch', {
     selectedPitchId: null as number | null,
     selectedPitchType: null as PitchType | null,
     currentPitch: null as Pitch | null, // Ensure currentPitch can be null
-    galleryArt: [] as Art[] // Add a galleryArt state to hold fetched art
+    galleryArt: [] as Art[], // Add a galleryArt state to hold fetched art
   }),
 
   getters: {
     getPitchesByType: (state) => (pitchType: PitchType) => {
-      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === pitchType)
+      return state.pitches.filter(
+        (pitch: Pitch) => pitch.PitchType === pitchType,
+      )
     },
 
     getPitchesBySelectedType: (state) => {
       if (!state.selectedPitchType) return []
       return state.pitches.filter(
-        (pitch: Pitch) => pitch.PitchType === state.selectedPitchType
+        (pitch: Pitch) => pitch.PitchType === state.selectedPitchType,
       )
     },
 
     brainstormPitches: (state) => {
       return state.pitches.filter(
-        (pitch: Pitch) => pitch.PitchType === PitchType.BRAINSTORM
+        (pitch: Pitch) => pitch.PitchType === PitchType.BRAINSTORM,
       )
     },
 
@@ -70,15 +72,16 @@ export const usePitchStore = defineStore('pitch', {
         (pitch) =>
           pitch.isPublic ||
           pitch.userId === userStore.userId ||
-          pitch.userId === 0
+          pitch.userId === 0,
       )
     },
 
     selectedPitch: (state) => {
       return (
-        state.pitches.find((pitch) => pitch.id === state.selectedPitchId) || null
+        state.pitches.find((pitch) => pitch.id === state.selectedPitchId) ||
+        null
       )
-    }
+    },
   },
 
   actions: {
@@ -91,6 +94,67 @@ export const usePitchStore = defineStore('pitch', {
     setSelectedPitch(pitchId: number) {
       this.selectedPitchId = pitchId
     },
+    // Inside the actions section of your pitchStore
+async updatePitch(pitchId: number, updatedData: Partial<Pitch>) {
+  const errorStore = useErrorStore()
+  try {
+    const response = await fetch(`/api/pitches/${pitchId}`, {
+      method: 'PUT', // Use PUT for updating an existing resource
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedData),
+    })
+
+    const data = await response.json()
+
+    if (response.ok && data.pitch) {
+      // Update the pitch in the local store
+      const index = this.pitches.findIndex(pitch => pitch.id === pitchId)
+      if (index !== -1) {
+        this.pitches[index] = data.pitch
+      }
+      if (isClient) {
+        localStorage.setItem('pitches', JSON.stringify(this.pitches))
+      }
+      return { success: true, message: 'Pitch updated successfully' }
+    } else {
+      throw new Error(data.message || 'Pitch update failed')
+    }
+  } catch (error) {
+    const errorMessage = isErrorWithMessage(error)
+      ? error.message
+      : 'Unknown error'
+    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+    return { success: false, message: errorMessage }
+  }
+},
+
+async deletePitch(pitchId: number) {
+  const errorStore = useErrorStore()
+  try {
+    const response = await fetch(`/api/pitches/${pitchId}`, {
+      method: 'DELETE', // Use DELETE to remove a resource
+    })
+
+    if (response.ok) {
+      // Remove the pitch from the local store
+      this.pitches = this.pitches.filter(pitch => pitch.id !== pitchId)
+      if (isClient) {
+        localStorage.setItem('pitches', JSON.stringify(this.pitches))
+      }
+      return { success: true, message: 'Pitch deleted successfully' }
+    } else {
+      const data = await response.json()
+      throw new Error(data.message || 'Pitch deletion failed')
+    }
+  } catch (error) {
+    const errorMessage = isErrorWithMessage(error)
+      ? error.message
+      : 'Unknown error'
+    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+    return { success: false, message: errorMessage }
+  }
+},
+
 
     setSelectedPitchType(pitchType: PitchType | null) {
       this.selectedPitchType = pitchType
@@ -110,19 +174,23 @@ export const usePitchStore = defineStore('pitch', {
         const response = await fetch('/api/botcafe/brainstorm', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             n: 5,
-            messages: [{ role: 'user', content: '1 more original brainstorm.' }],
-            max_tokens: 500
-          })
+            messages: [
+              { role: 'user', content: '1 more original brainstorm.' },
+            ],
+            max_tokens: 500,
+          }),
         })
 
         const data = await response.json()
 
         if (data.choices && data.choices[0] && data.choices[0].message) {
-          const newIdeas: Pitch[] = this.parseIdeasFromAPI(data.choices[0].message.content)
+          const newIdeas: Pitch[] = this.parseIdeasFromAPI(
+            data.choices[0].message.content,
+          )
           this.addPitches(newIdeas)
         }
       } catch (error) {
@@ -150,7 +218,7 @@ export const usePitchStore = defineStore('pitch', {
           flavorText: null,
           highlightImage: null,
           playerId: null,
-          channelId: null
+          channelId: null,
         } as Pitch
       })
     },
@@ -170,7 +238,10 @@ export const usePitchStore = defineStore('pitch', {
 
       if (isClient) {
         localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
+        localStorage.setItem(
+          'selectedPitches',
+          JSON.stringify(this.selectedPitches),
+        )
       }
     },
 
@@ -198,7 +269,10 @@ export const usePitchStore = defineStore('pitch', {
         }
         throw new Error('Pitch not found')
       } catch (error) {
-        console.error('Error fetching pitch:', isErrorWithMessage(error) ? error.message : 'Unknown error')
+        console.error(
+          'Error fetching pitch:',
+          isErrorWithMessage(error) ? error.message : 'Unknown error',
+        )
       }
     },
 
@@ -207,7 +281,10 @@ export const usePitchStore = defineStore('pitch', {
         const data = await this.performFetch(`/api/pitches/${pitchId}/art`)
         this.galleryArt = data.art || [] // Store fetched art in the state
       } catch (error) {
-        console.error('Error fetching art for pitch:', isErrorWithMessage(error) ? error.message : 'Unknown error')
+        console.error(
+          'Error fetching art for pitch:',
+          isErrorWithMessage(error) ? error.message : 'Unknown error',
+        )
       }
     },
 
@@ -217,7 +294,7 @@ export const usePitchStore = defineStore('pitch', {
         const response = await fetch('/api/pitches', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newPitch)
+          body: JSON.stringify(newPitch),
         })
 
         const data = await response.json()
@@ -232,31 +309,41 @@ export const usePitchStore = defineStore('pitch', {
           throw new Error(data.message || 'Pitch creation failed')
         }
       } catch (error) {
-        const errorMessage = isErrorWithMessage(error) ? error.message : 'Unknown error'
+        const errorMessage = isErrorWithMessage(error)
+          ? error.message
+          : 'Unknown error'
         errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
         return { success: false, message: errorMessage }
       }
     },
 
-    async performFetch(url: string, options: RequestInit = {}): Promise<FetchResponse> {
+    async performFetch(
+      url: string,
+      options: RequestInit = {},
+    ): Promise<FetchResponse> {
       const errorStore = useErrorStore()
       try {
         const response = await fetch(url, options)
         const data = await response.json()
 
         if (!response.ok) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, data.message || 'Fetch operation failed')
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            data.message || 'Fetch operation failed',
+          )
           return { success: false, message: data.message }
         }
 
         return { ...data, success: true }
       } catch (error) {
-        const errorMessage = isErrorWithMessage(error) ? error.message : 'Unknown network error'
+        const errorMessage = isErrorWithMessage(error)
+          ? error.message
+          : 'Unknown network error'
         errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
         return { success: false, message: errorMessage }
       }
-    }
-  }
+    },
+  },
 })
 
 export { type Pitch, PitchType }

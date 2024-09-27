@@ -274,3 +274,26 @@ onBeforeUnmount(() => {
   }
 })
 </script>
+<style scoped>
+.main-layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* Header, Main Content, Footer */
+  height: calc(var(--vh, 1vh) * 100); /* Custom height using var(--vh) */
+  overflow: hidden; /* Prevent any overflow */
+}
+
+.content-area {
+  display: grid;
+  overflow: hidden; /* Prevent horizontal scrolling */
+}
+
+.header-overlay,
+.sidebar-left-overlay,
+.sidebar-right-overlay,
+.main-content-overlay,
+.footer-overlay {
+  position: relative;
+  text-align: center;
+  padding: 0; /* Ensure no padding */
+}
+</style>

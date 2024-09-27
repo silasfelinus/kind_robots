@@ -52,10 +52,14 @@ import { sidebarLinks } from '@/assets/sidebar'
 const displayStore = useDisplayStore()
 
 // Sidebar state based on the displayStore
-const sidebarWidth = computed(() => displayStore.sidebarVw)
-const isSidebarOpen = computed(() => displayStore.sidebarLeft === 'open')
-const isSidebarCompact = computed(() => displayStore.sidebarLeft === 'compact')
-const isSidebarHidden = computed(() => displayStore.sidebarLeft === 'hidden')
+const sidebarWidth = computed(() => displayStore.sidebarLeftVw)
+const isSidebarOpen = computed(() => displayStore.sidebarLeftState === 'open')
+const isSidebarCompact = computed(
+  () => displayStore.sidebarLeftState === 'compact',
+)
+const isSidebarHidden = computed(
+  () => displayStore.sidebarLeftState === 'hidden',
+)
 
 // Adjust height calculations based on window size and available space
 const availableSidebarHeight = ref(100 - displayStore.headerVh - 2)

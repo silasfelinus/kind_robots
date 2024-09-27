@@ -3,7 +3,7 @@
     class="interstitial flex justify-center items-center h-full w-full bg-primary rounded-2xl border-2 border-accent p-4 overflow-hidden shadow-md"
     :style="interstitialStyle"
   >
-    <slot />
+    <slot></slot>
   </div>
 </template>
 
@@ -20,7 +20,7 @@ const interstitialStyle = computed(() => ({
 }))
 
 onMounted(() => {
-  displayStore.initializeViewportWatcher()
+  displayStore.initialize()
 })
 </script>
 

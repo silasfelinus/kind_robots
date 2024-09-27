@@ -8,7 +8,7 @@
       <strong>showMature (from user object):</strong>
       {{ user?.showMature || false }}
     </p>
-    <p><strong>show user object:</strong> {{ user.value }}</p>
+    <p><strong>show user object:</strong> {{ user }}</p>
     <button @click="refreshUserSettings">Refresh Settings</button>
   </div>
 </template>
@@ -20,7 +20,7 @@ import { useUserStore } from './../../../stores/userStore'
 const userStore = useUserStore()
 const user = computed(() => userStore.user || null)
 
-const showMature = computed(() => userStore.showMature() || false)
+const showMature = computed(() => userStore.showMature || false) // Remove parentheses, this should be a property not a method
 
 function refreshUserSettings() {
   userStore

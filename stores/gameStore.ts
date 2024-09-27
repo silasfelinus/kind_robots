@@ -296,3 +296,5 @@ export const useGameStore = defineStore('gameStore', {
     },
   },
 })
+
+export type {Game}

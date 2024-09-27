@@ -31,7 +31,7 @@ export const useArtStore = defineStore({
   id: 'artStore',
   state: () => ({
     artAssets: [] as Art[],
-    Reactions: [] as Reaction[],
+    reactions: [] as Reaction[],
     tags: [] as Tag[],
     selectedArt: null as Art | null,
     artImages: [] as ArtImage[],
@@ -42,13 +42,15 @@ export const useArtStore = defineStore({
         this.fetchAllArt()
       }
     },
+    
     selectArt(artId: number) {
-      const foundArt = this.artAssets.find((art: Art) => art.id === artId)
+      const foundArt = this.artAssets.find((art) => art.id === artId)
       this.selectedArt = foundArt || null
       if (!foundArt) {
         console.warn(`Art with id ${artId} not found.`)
       }
     },
+    
     async fetchArtByUserId(userId: number) {
       const errorStore = useErrorStore()
       try {
@@ -60,194 +62,145 @@ export const useArtStore = defineStore({
         const data = await response.json()
         this.artAssets = data.art
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
-        } else {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            'An unexpected error occurred',
-          )
-        }
+        errorStore.setError(ErrorType.NETWORK_ERROR, (error as Error).message || 'An unexpected error occurred')
       }
     },
+
     async fetchAllArt() {
       const errorStore = useErrorStore()
-      if (this.artAssets.length > 0) {
-        return // Prevent refetching if assets are already available
-      }
+      if (this.artAssets.length > 0) return // Prevent refetching
+      
+      return errorStore.handleError(async () => {
+        const response = await fetch('/api/art')
+        if (response.ok) {
+          const data = await response.json()
+          
+          // Assuming API provides galleryId
+          this.artAssets = await Promise.all(
+            data.artEntries.map(async (art: ExtendedArt) => {
+              const galleryResponse = await fetch(`/api/galleries/${art.galleryId}`)
+              const gallery = galleryResponse.ok ? await galleryResponse.json() : null
+              return { ...art, gallery }
+            })
+          )
+          if (localStorage) localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
+        } else {
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
+        }
+      }, ErrorType.NETWORK_ERROR, 'Failed to fetch art.')
+    },
 
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch('/api/art')
-          if (response.ok) {
-            const data = await response.json()
-
-            // Assuming your API provides `galleryId`, you'll need to fetch gallery data by ID
-            this.artAssets = await Promise.all(
-              data.artEntries.map(async (art: ExtendedArt) => {
-                // Fetch gallery by `galleryId`
-                const galleryResponse = await fetch(`/api/galleries/${art.galleryId}`)
-                const gallery = galleryResponse.ok ? await galleryResponse.json() : null
-                return { ...art, gallery } // Attach the gallery data to the art object
-              })
-            )
-
-            if (localStorage) {
-              localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
-            }
-          } else {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch art.',
-      )
+    getArtById(id: number): Art | undefined {
+      return this.artAssets.find((art) => art.id === id)
     },
     
-    getArtById(id: number): Art | undefined {
-      return this.artAssets.find((art: Art) => art.id === id)
-    },
     getReactionsById(id: number): Reaction[] {
-      return this.Reactions.filter(
-        (reaction: Reaction) => reaction.artId === id,
-      )
+      return this.reactions.filter((reaction) => reaction.artId === id)
     },
+
     getTagsById(id: number): Tag | undefined {
-      return this.tags.find((tag: Tag) => tag.id === id)
+      return this.tags.find((tag) => tag.id === id)
     },
+
     getArtImagesById(artId: number): ArtImage[] {
-      return this.artImages.filter((image: ArtImage) => image.artId === artId)
+      return this.artImages.filter((image) => image.artId === artId)
     },
+
     async deleteArt(id: number) {
       const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch(`/api/art/${id}`, {
-            method: 'DELETE',
-          })
-          if (response.ok) {
-            this.artAssets = this.artAssets.filter((art: Art) => art.id !== id)
-            if (localStorage) {
-              localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
-            }
-          } else {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to delete art.',
-      )
+      return errorStore.handleError(async () => {
+        const response = await fetch(`/api/art/${id}`, { method: 'DELETE' })
+        if (response.ok) {
+          this.artAssets = this.artAssets.filter((art) => art.id !== id)
+          if (localStorage) localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
+        } else {
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
+        }
+      }, ErrorType.NETWORK_ERROR, 'Failed to delete art.')
     },
+
     getArtByPitchId(pitchId: number): Art[] {
-      return this.artAssets.filter((art: Art) => art.pitchId === pitchId)
+      return this.artAssets.filter((art) => art.pitchId === pitchId)
     },
+
     async createReaction(reactionData: Reaction): Promise<Reaction | null> {
       const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch('/api/reactions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(reactionData),
-          })
-          if (response.ok) {
-            const { newReaction } = await response.json()
-            return newReaction
-          } else {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to create reaction.',
-      )
+      return errorStore.handleError(async () => {
+        const response = await fetch('/api/reactions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reactionData),
+        })
+        if (response.ok) {
+          const { newReaction } = await response.json()
+          return newReaction
+        } else {
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
+        }
+      }, ErrorType.NETWORK_ERROR, 'Failed to create reaction.')
     },
-    async editReaction(
-      id: number,
-      reactionData: Reaction,
-    ): Promise<Reaction | null> {
+
+    async editReaction(id: number, reactionData: Reaction): Promise<Reaction | null> {
       const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch(`/api/reactions/${id}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(reactionData),
-          })
-          if (response.ok) {
-            return await response.json()
-          } else {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to update reaction.',
-      )
+      return errorStore.handleError(async () => {
+        const response = await fetch(`/api/reactions/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reactionData),
+        })
+        if (response.ok) {
+          return await response.json()
+        } else {
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
+        }
+      }, ErrorType.NETWORK_ERROR, 'Failed to update reaction.')
     },
+
     async deleteReaction(id: number): Promise<boolean> {
       const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch(`/api/reactions/${id}`, {
-            method: 'DELETE',
-          })
-          if (response.ok) {
-            return true
-          } else {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to delete reaction.',
-      )
+      return errorStore.handleError(async () => {
+        const response = await fetch(`/api/reactions/${id}`, { method: 'DELETE' })
+        if (response.ok) {
+          return true
+        } else {
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
+        }
+      }, ErrorType.NETWORK_ERROR, 'Failed to delete reaction.')
     },
+
     async fetchArtById(id: number): Promise<Art | null> {
       const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch(`/api/art/${id}`)
-          if (response.ok) {
-            return await response.json()
-          } else {
-            return null
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch art by ID.',
-      )
+      return errorStore.handleError(async () => {
+        const response = await fetch(`/api/art/${id}`)
+        if (response.ok) {
+          return await response.json()
+        } else {
+          return null
+        }
+      }, ErrorType.NETWORK_ERROR, 'Failed to fetch art by ID.')
     },
-    async generateArt(
-      data: GenerateArtData,
-    ): Promise<{ success: boolean; message?: string; newArt?: Art }> {
+
+    async generateArt(data: GenerateArtData): Promise<{ success: boolean; message?: string; newArt?: Art }> {
       const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch('/api/art/generate', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          })
-          if (response.ok) {
-            const result = await response.json()
-            return { success: true, newArt: result.newArt }
-          } else {
-            const errorResponse = await response.json()
-            return { success: false, message: errorResponse.message }
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to generate art.',
-      )
+      return errorStore.handleError(async () => {
+        const response = await fetch('/api/art/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+        if (response.ok) {
+          const result = await response.json()
+          return { success: true, newArt: result.newArt }
+        } else {
+          const errorResponse = await response.json()
+          return { success: false, message: errorResponse.message }
+        }
+      }, ErrorType.NETWORK_ERROR, 'Failed to generate art.')
     },
   },
 })

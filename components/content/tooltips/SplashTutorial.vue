@@ -56,7 +56,7 @@
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">DottiBot</span>
-            <p class="text-xs md:text-md lg:text-lg">{{ page.dottitip }}</p>
+            <p class="text-xs md:text-lg lg:text-xl">{{ page.dottitip }}</p>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">AMIbot</span>
-            <p class="text-xs md:text-md lg:text-lg text-white">{{ page.amitip }}</p>
+            <p class="text-xs md:text-lg lg:text-xl text-white">{{ page.amitip }}</p>
           </div>
         </div>
       </div>

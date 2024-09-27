@@ -115,11 +115,13 @@
               v-model="newPitch.PitchType"
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             >
-              <option value="ARTPITCH">Art Pitch</option>
-              <option value="BRAINSTORM">Brainstorm</option>
-              <option value="BOT">Bot</option>
-              <option value="ARTGALLERY">Art Gallery</option>
-              <option value="INSPIRATION">Inspiration</option>
+              <option
+                v-for="(label, type) in PitchType"
+                :key="type"
+                :value="type"
+              >
+                {{ label }}
+              </option>
             </select>
           </div>
 
@@ -202,7 +204,7 @@
 import { ref, computed } from 'vue'
 import {
   usePitchStore,
-  PitchType,
+  PitchTypeEnum as PitchType,
   type Pitch,
 } from './../../../stores/pitchStore'
 import { useUserStore } from './../../../stores/userStore'
@@ -227,7 +229,7 @@ const newPitch = ref<Partial<Pitch>>({
   designer: user.value?.username || 'kindguest',
   flavorText: '',
   highlightImage: '',
-  PitchType: PitchType.ARTPITCH,
+  PitchType: 'ARTPITCH',
   isMature: false,
   isPublic: true,
   userId: user.value?.id || 1, // Fallback userId
@@ -252,7 +254,7 @@ const resetForm = () => {
     designer: user.value?.username || 'kindguest',
     flavorText: '',
     highlightImage: '',
-    PitchType: PitchType.ARTPITCH,
+    PitchType: 'ARTPITCH',
     isMature: false,
     isPublic: true,
     userId: user.value?.id || 1,

@@ -15,7 +15,7 @@
           class="message-input w-full p-1 rounded-md border-2 resize-none"
           placeholder="Type your message..."
           @keyup.enter="sendMessage"
-        />
+        ></textarea>
         <div class="flex justify-between items-center mt-1">
           <button
             class="btn btn-primary text-sm px-4 py-1"

@@ -26,7 +26,6 @@
       "avatar-header",
       "coming-soon",
       "karma-tracker",
-      "navigation-trimmed",
       "user-navigation"
     ]
   },
@@ -44,17 +43,6 @@
       "EditableText",
       "GeneratorTest",
       "HotOrNot",
-      "PitchCard",
-      "PitchCardActions",
-      "PitchCardFront",
-      "PitchChat",
-      "PitchGallery",
-      "PitchGenerator",
-      "PitchManager",
-      "PitchSelector",
-      "PitchTagSelector",
-      "PitchTags",
-      "PitchViewer",
       "PrivateGenerator",
       "mature-toggle"
     ]
@@ -245,6 +233,7 @@
       "deluxe-nav",
       "nav-working",
       "navigation-row",
+      "navigation-trimmed",
       "site-footer",
       "site-header"
     ]
@@ -290,6 +279,18 @@
       "BubbleTest",
       "DeforumManager",
       "EnhancePicker",
+      "PitchCard",
+      "PitchCardActions",
+      "PitchCardFront",
+      "PitchChat",
+      "PitchGallery",
+      "PitchGenerator",
+      "PitchManager",
+      "PitchSelector",
+      "PitchTagSelector",
+      "PitchTags",
+      "PitchTypeSelector",
+      "PitchViewer",
       "TodoManager"
     ]
   },

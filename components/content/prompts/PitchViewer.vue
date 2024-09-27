@@ -9,7 +9,8 @@
 </template>
 
 <script setup lang="ts">
-import { usePitchStore, type Pitch } from '../../../stores/pitchStore'
+import { usePitchStore } from '../../../stores/pitchStore'
+import type { Pitch } from '@prisma/client'
 
 const props = defineProps<{
   pitch: Pitch // Make sure Pitch type matches your schema in the store

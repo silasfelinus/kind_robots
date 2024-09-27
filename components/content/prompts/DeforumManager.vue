@@ -129,8 +129,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { GenerateDeforumData } from '@/stores/deforumStore'
-import { useDeforumStore } from '@/stores/deforumStore'
+import type { GenerateDeforumData } from './../../../stores/deforumStore'
+import { useDeforumStore } from './../../../stores/deforumStore'
 const deforumStore = useDeforumStore()
 
 // New video form data

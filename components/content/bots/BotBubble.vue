@@ -1,83 +1,77 @@
 <template>
-  <div
-    class="relative select-none overflow-hidden p-1 border rounded-2xl bg-base-300"
-  >
-    <!-- Bot Scroll Container -->
-    <div ref="scrollContainer" class="scroll-container px-2">
+  <div class="gallery-container">
+    <div ref="scrollContainer" class="scroll-container">
       <div
         v-for="(bot, index) in bots"
         :key="`bot-${index}`"
         class="bot-bubble"
         @click="selectBot(bot.id)"
       >
-        <img :src="bot.avatarImage" alt="Bot's Avatar" class="bot-img" />
+        <img
+          :src="bot.avatarImage || defaultAvatar"
+          alt="Bot Avatar"
+          class="bot-img"
+        />
         <h3 class="bot-name">{{ bot.name }}</h3>
       </div>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
-const scrollContainer = ref(null)
+const scrollContainer = ref<HTMLElement | null>(null)
+const defaultAvatar = '/path/to/default-avatar.png' // Use a fallback image
 
-function selectBot(botId) {
-  botStore.selectBot(botId)
+function selectBot(botId: string | number) {
+  botStore.selectBot(Number(botId)) // Ensure botId is a number
 }
 
 onMounted(() => {
   if (bots.value.length > 0) {
     selectBot(bots.value[0].id)
   }
-  // Handle scrolling using CSS scroll snapping
   if (scrollContainer.value) {
-    scrollContainer.value.scrollLeft = 0 // Reset scroll to the start
+    scrollContainer.value.scrollLeft = 0
   }
 })
 </script>
 
 <style scoped>
+.gallery-container {
+  padding: 10px;
+  background-color: var(--tw-bg-base-300);
+  border-radius: var(--tw-rounded-2xl);
+  overflow: hidden;
+}
+
 .scroll-container {
   display: flex;
   overflow-x: auto;
-  overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  cursor: grab; /* Cursor indicates draggable area */
-  padding: 0 10px; /* Add padding inside the container for visual spacing */
+  gap: 10px;
+  padding: 0 10px;
 }
 
 .bot-bubble {
-  flex: 0 0 auto; /* Don't grow, don't shrink, basis is auto */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 20vw;
-  min-width: 180px;
-  height: 200px;
-  margin: 0 8px;
-  padding: 10px;
-  scroll-snap-align: start;
+  flex: 0 0 auto;
+  width: 150px;
   text-align: center;
-  border-radius: 50%; /* Ensures that the bot-bubble appears circular */
+  scroll-snap-align: start;
 }
 
 .bot-img {
-  width: 100px; /* Set fixed width */
-  height: 100px; /* Set fixed height, keep aspect ratio */
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .bot-name {
-  margin-top: 10px;
-  font-size: 14px; /* Adjust font size */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin-top: 8px;
+  font-size: 1rem;
 }
 </style>

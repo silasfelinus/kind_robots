@@ -1,7 +1,7 @@
 <template>
-  <div class="bot-card flex rounded-2xl bg-base-300 p-4">
+  <div v-if="bot" class="bot-card flex rounded-2xl bg-base-300 p-4">
     <img
-      :src="bot.avatarImage"
+      :src="bot.avatarImage || '/path/to/default-avatar.png'"
       alt="Bot Avatar"
       class="w-16 h-16 rounded-full"
     />
@@ -9,15 +9,15 @@
       <h2 class="text-lg font-bold">
         {{ bot.name }}
       </h2>
-      <p class="text-sm">
+      <p v-if="bot.subtitle" class="text-sm">
         {{ bot.subtitle }}
       </p>
-      <p class="text-xs text-accent">
+      <p v-if="bot.personality" class="text-xs text-accent">
         {{ bot.personality }}
       </p>
       <button
         class="bg-primary text-white rounded px-2 py-1 mt-2"
-        @click="selectBot"
+        @click="selectBot(bot.id)"
       >
         Chat
       </button>
@@ -26,8 +26,16 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 
 const botStore = useBotStore()
+
+// Get the currently selected bot
 const bot = computed(() => botStore.currentBot)
+
+// Function to select a bot by its ID
+function selectBot(botId: number) {
+  botStore.selectBot(botId)
+}
 </script>

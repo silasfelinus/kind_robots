@@ -40,9 +40,11 @@
 import { ref, computed, watch } from 'vue'
 import { usePitchStore } from '../../../stores/pitchStore'
 import { useChannelStore } from '../../../stores/channelStore'
+import { useUserStore } from '../../../stores/userStore' // Import user store
 
 const pitchStore = usePitchStore()
 const channelStore = useChannelStore()
+const userStore = useUserStore() // Get user information
 
 // Get the channelId from the selected pitch
 const channelId = computed(() => pitchStore.selectedPitch?.channelId || 0)
@@ -62,12 +64,17 @@ const currentChannelMessages = computed(() => {
   return channelStore.messages.filter((msg) => msg.channelId === channel?.id)
 })
 
+// Get the current user information
+const currentUser = computed(() => userStore.user)
+
 // Function to send a new message
 const sendMessage = async () => {
-  if (newMessage.value.trim() !== '') {
+  if (newMessage.value.trim() !== '' && currentUser.value) {
     await channelStore.sendMessage({
       content: newMessage.value,
       channelId: selectedChannelId.value,
+      userId: currentUser.value.id, // Add userId from the current user
+      sender: currentUser.value.name || 'Anonymous', // Add sender name, default to 'Anonymous'
     })
     newMessage.value = '' // Clear the input field after sending
   }

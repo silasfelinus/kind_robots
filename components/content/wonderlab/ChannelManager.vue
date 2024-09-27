@@ -134,8 +134,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useChannelStore } from './../../../stores/channelStore'
+import { useUserStore } from './../../../stores/userStore' // Import user store
 
 const channelStore = useChannelStore()
+const userStore = useUserStore() // Get the user store
+
 const newChannelName = ref('')
 const newMessage = ref('')
 const isLoading = ref(false) // Loading state
@@ -149,6 +152,7 @@ onMounted(() => {
 const channels = computed(() => channelStore.channels)
 const currentChannel = computed(() => channelStore.currentChannel)
 const messages = computed(() => channelStore.messages)
+const currentUser = computed(() => userStore.user) // Get the current user from the user store
 
 // Create a new channel
 const createChannel = async () => {
@@ -173,10 +177,11 @@ const setCurrentChannel = (channelId: number) => {
   channelStore.setCurrentChannel(channelId)
 }
 
-// Set the current active channel
+// Initialize channels
 const initializeChannels = () => {
   channelStore.initializeChannels()
 }
+
 // Check if the channel is the current one
 const isCurrentChannel = (channelId: number) => {
   return currentChannel.value?.id === channelId
@@ -198,12 +203,14 @@ const removeChannel = async (channelId: number) => {
 
 // Send a message
 const sendMessage = async () => {
-  if (newMessage.value && currentChannel.value) {
+  if (newMessage.value && currentChannel.value && currentUser.value) {
     isLoading.value = true
     try {
       await channelStore.sendMessage({
         content: newMessage.value,
         channelId: currentChannel.value.id,
+        userId: currentUser.value.id, // Add userId from the current user
+        sender: currentUser.value.name || 'Anonymous', // Add sender's name, fallback to 'Anonymous'
       })
       newMessage.value = ''
     } catch (error) {

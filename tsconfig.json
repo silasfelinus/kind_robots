@@ -5,5 +5,9 @@
       "@/*": ["./*"]
     }
   },
-  "extends": "./.nuxt/tsconfig.json"
+  "extends": "./.nuxt/tsconfig.json",
+  "include": [
+    "components/**/*",  // For checking components directory
+    "stores/**/*"       // For checking stores directory
+  ]
 }

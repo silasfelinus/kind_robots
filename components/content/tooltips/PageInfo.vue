@@ -130,9 +130,9 @@ const router = useRouter()
 
 // Computed property for the store interaction
 const showInfoInStore = computed({
-  get: () => displayStore.showInfo,
+  get: () => displayStore.showIntro,
   set: (value: boolean) => {
-    displayStore.showInfo = value
+    displayStore.showIntro = value
   },
 })
 

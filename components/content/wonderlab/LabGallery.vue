@@ -37,7 +37,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useComponentStore, type Component } from '@/stores/componentStore'
+import {
+  useComponentStore,
+  type KindComponent as Component,
+} from '@/stores/componentStore'
 
 // State variables
 const selectedComponents = ref<Component[]>([])

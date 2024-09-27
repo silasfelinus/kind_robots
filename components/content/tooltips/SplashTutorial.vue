@@ -22,19 +22,19 @@
       />
 
       <!-- Title, Description, and Subtitle Section -->
-      <div class="text-center w-full space-y-2">
+      <div class="text-center w-full space-y-1 md:space-y-2">
         <h1 class="text-2xl lg:text-4xl font-bold text-secondary">
           {{ page.title }}
         </h1>
 
         <h2
           v-if="page.subtitle"
-          class="text-sm md:text-md font-medium text-accent"
+          class="text-xs md:text-md font-medium text-accent"
         >
           {{ page.subtitle }}
         </h2>
 
-        <h3 class="text-2xl md:text-base font-medium text-secondary px-4">
+        <h3 class="text-sm md:text-2xl md:text-base font-medium text-secondary px-2 md:px-4">
           {{ page.description }}
         </h3>
       </div>
@@ -42,7 +42,7 @@
 
     <!-- Bot Messages Section -->
     <div
-      class="flex flex-col space-y-4 w-full max-w-3xl px-4 py-2 overflow-y-auto"
+      class="flex flex-col space-y-2 md:space-y-4 w-full max-w-3xl px-4 py-1 md:py-2 overflow-y-auto"
     >
       <!-- DottiBot Message -->
       <div class="flex justify-start">
@@ -56,7 +56,7 @@
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">DottiBot</span>
-            <p class="text-xs md:text-sm">{{ page.dottitip }}</p>
+            <p class="text-xs md:text-lg lg:text-xl">{{ page.dottitip }}</p>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">AMIbot</span>
-            <p class="text-xs md:text-sm text-white">{{ page.amitip }}</p>
+            <p class="text-xs md:text-lg lg:text-xl text-white">{{ page.amitip }}</p>
           </div>
         </div>
       </div>

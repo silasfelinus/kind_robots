@@ -36,8 +36,8 @@ import { computed } from 'vue'
 import { usePitchStore, type Pitch } from '../../../stores/pitchStore'
 import {
   useReactionStore,
-  type ReactionType,
-  type ReactionCategory,
+  ReactionTypeEnum,
+  ReactionCategoryEnum,
 } from '../../../stores/reactionStore'
 import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 
@@ -106,9 +106,9 @@ const addClap = async () => {
     if (!props.pitch) throw new Error('Pitch data is not available.')
     await reactionStore.createReaction({
       pitchId: props.pitch.id,
-      reactionType: ReactionType.CLAPPED, // Use reactionType instead of isClapped
+      reactionType: ReactionTypeEnum.CLAPPED, // Use reactionType instead of isClapped
       userId: 10, // Assuming a default userId, adjust as needed
-      reactionCategory: ReactionCategory.PITCH, // Ensure the correct category is used
+      reactionCategory: ReactionCategoryEnum.PITCH, // Ensure the correct category is used
     })
   } catch (error) {
     errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)

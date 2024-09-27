@@ -220,14 +220,14 @@ const formData = ref({
   sampler: '',
   seed: undefined,
   designer: '',
-  galleryName: gallery.value.name,
-  galleryId: gallery.value.id,
+  galleryName: gallery.value?.name || 'cafefred',
+  galleryId: gallery.value?.id,
   channelName: '',
   pitch: '',
   isPublic: true,
   isMature: false,
-  userId: user.value.userId || 1,
-  username: user.value.username,
+  userId: user.value?.id || 10,
+  username: user.value?.username,
 })
 
 const steps = ref([])
@@ -258,8 +258,6 @@ const generateArt = async () => {
     }
   } catch (error) {
     console.error('Error generating art:', error)
-    steps.value.push('⚠️ Error generating art')
-    errorMessage.value = error.message || 'An unknown error occurred'
   }
 }
 </script>

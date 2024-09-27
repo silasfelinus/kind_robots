@@ -4,26 +4,37 @@
       v-for="bot in botStore.bots"
       :key="bot.id"
       class="card bordered"
-      :class="{ 'ring-4 ring-blue-500': botStore.selectedBot === bot }"
+      :class="{ 'ring-4 ring-blue-500': botStore.selectedBotId === bot.id }"
       @click="botStore.selectBot(bot.id)"
     >
       <figure>
-        <img :src="bot.avatarImage" alt="bot avatar" />
+        <img
+          :src="bot.avatarImage || '/path/to/default-avatar.png'"
+          alt="bot avatar"
+        />
       </figure>
       <div class="card-body">
-        <h2 class="card-title">
-          {{ bot.name }}
-        </h2>
-        <p>{{ bot.description }}</p>
+        <h2 class="card-title">{{ bot.name }}</h2>
+        <p v-if="bot.subtitle">{{ bot.subtitle }}</p>
+        <p v-if="bot.description">{{ bot.description }}</p>
         <p>Type: {{ bot.BotType }}</p>
-        <p>Model: {{ bot.model }}</p>
-        <p>Post: {{ bot.post }}</p>
-        <p>Temperature: {{ bot.temperature }}</p>
-        <p>Max Tokens: {{ bot.maxTokens }}</p>
+        <p>Intro: {{ bot.botIntro }}</p>
+        <p>User Intro: {{ bot.userIntro }}</p>
         <p>Prompt: {{ bot.prompt }}</p>
-        <div v-if="bot.image">
-          <p>Image: {{ bot.image }}</p>
-        </div>
+
+        <!-- Conditionally render optional properties -->
+        <p v-if="bot.trainingPath">Training Path: {{ bot.trainingPath }}</p>
+        <p v-if="bot.theme">Theme: {{ bot.theme }}</p>
+        <p v-if="bot.personality">Personality: {{ bot.personality }}</p>
+        <p v-if="bot.modules">Modules: {{ bot.modules }}</p>
+        <p v-if="bot.sampleResponse">
+          Sample Response: {{ bot.sampleResponse }}
+        </p>
+        <p v-if="bot.tagline">Tagline: {{ bot.tagline }}</p>
+
+        <!-- Display bot status -->
+        <p v-if="bot.underConstruction">⚠️ Under Construction</p>
+        <p v-if="bot.isPublic">🌐 Public Bot</p>
       </div>
     </div>
   </div>

@@ -50,19 +50,19 @@
           <p class="text-xs md:text-sm">{{ idea.pitch }}</p>
           <button
             class="bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded-full transition duration-300 ml-2"
-            @click.stop="reactToPitch(idea, ReactionType.CLAPPED)"
+            @click.stop="reactToPitch(idea, ReactionTypeEnum.CLAPPED)"
           >
             Clap Reaction
           </button>
           <button
             class="bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded-full transition duration-300 ml-2"
-            @click.stop="reactToPitch(idea, ReactionType.LOVED)"
+            @click.stop="reactToPitch(idea, ReactionTypeEnum.LOVED)"
           >
             Love Reaction
           </button>
           <button
             class="bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded-full transition duration-300 ml-2"
-            @click.stop="reactToPitch(idea, ReactionType.HATED)"
+            @click.stop="reactToPitch(idea, ReactionTypeEnum.HATED)"
           >
             Hate Reaction
           </button>
@@ -98,7 +98,7 @@ import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import AddPitch from './AddPitch.vue'
 import {
   useReactionStore,
-  type ReactionType,
+  ReactionTypeEnum,
 } from '../../../stores/reactionStore'
 
 // Stores and States
@@ -118,7 +118,7 @@ const handlePitchCreated = (pitch: Pitch) => {
   }
 }
 
-const reactToPitch = async (pitch: Pitch, reactionType: ReactionType) => {
+const reactToPitch = async (pitch: Pitch, reactionType: ReactionTypeEnum) => {
   try {
     const userStore = useUserStore()
     await reactionStore.createReaction({

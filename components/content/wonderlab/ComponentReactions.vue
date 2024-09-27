@@ -54,26 +54,26 @@
       <Icon
         name="mdi:thumb-up-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-green-500': reactionType === ReactionTypeEnum.CLAPPED }"
-        @click="toggleReaction(ReactionTypeEnum.CLAPPED)"
+        :class="{ 'text-green-500': reactionType === 'CLAPPED' }"
+        @click="toggleReaction('CLAPPED')"
       />
       <Icon
         name="mdi:thumb-down-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-red-500': reactionType === ReactionTypeEnum.BOOED }"
-        @click="toggleReaction(ReactionTypeEnum.BOOED)"
+        :class="{ 'text-red-500': reactionType === 'BOOED' }"
+        @click="toggleReaction('BOOED')"
       />
       <Icon
         name="mdi:heart-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-pink-500': reactionType === ReactionTypeEnum.LOVED }"
-        @click="toggleReaction(ReactionTypeEnum.LOVED)"
+        :class="{ 'text-pink-500': reactionType === 'LOVED' }"
+        @click="toggleReaction('LOVED')"
       />
       <Icon
         name="mdi:emoticon-angry-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-yellow-500': reactionType === ReactionTypeEnum.HATED }"
-        @click="toggleReaction(ReactionTypeEnum.HATED)"
+        :class="{ 'text-yellow-500': reactionType === 'HATED' }"
+        @click="toggleReaction('HATED')"
       />
     </div>
 
@@ -103,13 +103,12 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
+import { useComponentStore } from './../../../stores/componentStore'
 import {
   useReactionStore,
-  ReactionTypeEnum,
-  ReactionCategoryEnum,
-} from '@/stores/reactionStore'
-import { useUserStore } from '@/stores/userStore'
+  type ReactionType,
+} from './../../../stores/reactionStore'
+import { useUserStore } from './../../../stores/userStore'
 import CommentDisplay from './CommentDisplay.vue'
 
 // Pinia stores
@@ -118,7 +117,7 @@ const componentStore = useComponentStore()
 const userStore = useUserStore()
 
 // State for reaction and comments
-const reactionType = ref<ReactionTypeEnum | null>(null) // Use runtime enum
+const reactionType = ref<string | null>(null)
 const commentTitle = ref('')
 const commentDescription = ref('')
 
@@ -143,9 +142,9 @@ const fetchReactions = async (componentId: number) => {
     userId.value,
   )
   if (userReaction) {
-    reactionType.value = userReaction.reactionType
+    reactionType.value = userReaction.reactionType // Now using ReactionType directly
   } else {
-    reactionType.value = ReactionTypeEnum.NEUTRAL // Default reaction
+    reactionType.value = 'NEUTRAL' // Default reaction if none exists
   }
 }
 
@@ -159,9 +158,9 @@ const updateComponent = async () => {
   }
 }
 
-// Function to toggle reactions
-const toggleReaction = async (newReactionType: ReactionTypeEnum) => {
-  reactionType.value = newReactionType
+const toggleReaction = async (newReactionType: string) => {
+  // Cast the string value to ReactionType
+  reactionType.value = newReactionType as ReactionType
 
   const existingReaction = reactionStore.getUserReactionForComponent(
     selectedComponent.value?.id || 0,
@@ -169,14 +168,14 @@ const toggleReaction = async (newReactionType: ReactionTypeEnum) => {
   )
   if (existingReaction) {
     await reactionStore.updateReaction(existingReaction.id, {
-      reactionType: newReactionType as ReactionTypeEnum, // Cast to Prisma type when sending to the API
+      reactionType: newReactionType as ReactionType, // Cast to ReactionType
     })
   } else {
     await reactionStore.createReaction({
       userId: userId.value,
       componentId: selectedComponent.value?.id || 0,
-      reactionType: newReactionType as ReactionTypeEnum, // Cast to Prisma type
-      reactionCategory: ReactionCategoryEnum.COMPONENT as ReactionCategoryEnum, // Cast to Prisma type
+      reactionType: newReactionType as ReactionType, // Cast to ReactionType
+      reactionCategory: 'COMPONENT',
     })
   }
 }
@@ -188,14 +187,15 @@ const submitComment = async () => {
       {
         userId: userId.value,
         componentId: selectedComponent.value?.id || 0,
-        reactionType: reactionType.value || ReactionTypeEnum.NEUTRAL,
-        reactionCategory: ReactionCategoryEnum.COMPONENT,
+        reactionType: (reactionType.value as ReactionType) || 'NEUTRAL',
+        ReactionCategory: 'COMPONENT',
       },
       {
         title: commentTitle.value,
         description: commentDescription.value,
       },
     )
+
     commentTitle.value = ''
     commentDescription.value = ''
   } else {

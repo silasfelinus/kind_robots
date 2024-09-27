@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import errorStore and ErrorType
+import { useErrorStore, ErrorType } from './errorStore' // Import errorStore and ErrorType
 import type { Component } from '@prisma/client'
 
 // Define the Folder interface (from components.json)

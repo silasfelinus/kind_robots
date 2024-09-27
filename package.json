@@ -2,8 +2,7 @@
   "name": "kind-robots",
   "private": true,
   "scripts": {
-    "tstest": "tsc --noEmit --project tsconfig.json",
-    "tsnux": "npx nuxi typecheck",
+    "test": "npx nuxi typecheck",
     "dev": "nuxt dev --host",
     "build": "npx prisma generate && nuxt build",
     "start": "nuxt start",

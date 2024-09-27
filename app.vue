@@ -88,7 +88,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
+import { useDisplayStore } from './stores/displayStore'
 
 const displayStore = useDisplayStore()
 

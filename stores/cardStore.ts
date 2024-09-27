@@ -1,5 +1,6 @@
 // ~/stores/cardStore.ts
 import { defineStore } from 'pinia'
+import type { Page} from './contentStore';
 import { useContentStore } from './contentStore'
 
 // Define a type for grid settings

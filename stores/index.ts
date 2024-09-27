@@ -1,4 +1,5 @@
 // stores/index.ts
+import type { Ref } from 'vue';
 
 export * from './botStore'
 export * from './errorStore'

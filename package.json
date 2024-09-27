@@ -45,7 +45,6 @@
     "@iconify-json/tdesign": "^1.1.8",
     "@iconify-json/typcn": "^1.1.10",
     "@nuxt/icon": "^1.4.5",
-    "@nuxt/typescript-build": "^3.0.2",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@types/bcrypt": "^5.0.2",
     "@unlok-co/nuxt-stripe": "^3.0.0",
@@ -58,8 +57,7 @@
     "prettier-plugin-tailwindcss": "^0.6.6",
     "prisma": "^5.20.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.2",
-    "vue-tsc": "^2.1.6"
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "@interactjs/interact": "^1.10.27",

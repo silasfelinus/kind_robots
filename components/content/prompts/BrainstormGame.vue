@@ -96,9 +96,9 @@ import { ref, computed } from 'vue'
 import { usePitchStore } from './../../../stores/pitchStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import AddPitch from './AddPitch.vue'
-import type { Pitch } from './../../../stores/pitchStore'
 import { useReactionStore } from '../../../stores/reactionStore'
-import type { ReactionType } from '@prisma/client'
+import type { Pitch } from '@prisma/client'
+import { ReactionType } from '@prisma/client'
 
 // Stores and States
 const pitchStore = usePitchStore()
@@ -123,7 +123,7 @@ const reactToPitch = async (pitch: Pitch, reactionType: ReactionType) => {
     await reactionStore.createReaction({
       pitchId: pitch.id,
       userId: userStore.userId,
-      reactionType, // Use ReactionType enum directly
+      reactionType, // Use ReactionType enum
     })
   } catch (error: unknown) {
     const err = error as Error

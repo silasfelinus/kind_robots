@@ -22,4 +22,3 @@ sort: highlight
 :pitch-selector
 :pitch-tags
 :pitch-tag-selector
-:pitch-viewer

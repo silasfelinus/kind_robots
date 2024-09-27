@@ -2,6 +2,7 @@
   <div class="flex flex-col items-center space-y-8">
     <!-- Pitch Selection -->
     <div class="flex flex-wrap">
+      <h1>Pitch Selector</h1>
       <div v-for="pitch in enrichedPitches" :key="pitch.id" class="relative">
         <button
           :class="[

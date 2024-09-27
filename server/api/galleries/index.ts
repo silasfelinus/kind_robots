@@ -189,10 +189,10 @@ export async function getGalleryImages(galleryId: number): Promise<string[]> {
       constructImageUrl(gallery.name, imageName.trim()),
     )
   } catch (error: unknown) {
-    console.error(`Failed to get gallery images: ${error}`)
-    throw error
+    throw errorHandler(error)
   }
 }
+
 
 // Function to get a random image from a gallery by ID
 export async function getRandomGalleryImage(
@@ -247,7 +247,6 @@ export async function addGalleries(
   return { count: result.count, galleries, errors }
 }
 
-// Function to get a random gallery
 export async function randomGallery(): Promise<Gallery | null> {
   const totalGalleries = await prisma.gallery.count()
 
@@ -260,6 +259,7 @@ export async function randomGallery(): Promise<Gallery | null> {
     skip: randomIndex,
   })
 }
+
 
 // Function to count all galleries
 export async function countGalleries(): Promise<number> {

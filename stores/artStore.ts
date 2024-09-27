@@ -2,6 +2,13 @@ import { defineStore } from 'pinia'
 import type { Art, Reaction, ArtImage, Tag } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 
+interface ExtendedArt extends Art {
+  gallery?: {
+    highlightImage?: string | null
+    name?: string | null
+    description?: string | null
+  }
+}
 
 export interface GenerateArtData {
   title?: string
@@ -65,12 +72,26 @@ export const useArtStore = defineStore({
     },
     async fetchAllArt() {
       const errorStore = useErrorStore()
+      if (this.artAssets.length > 0) {
+        return // Prevent refetching if assets are already available
+      }
+
       return errorStore.handleError(
         async () => {
           const response = await fetch('/api/art')
           if (response.ok) {
             const data = await response.json()
-            this.artAssets = data.artEntries
+
+            // Assuming your API provides `galleryId`, you'll need to fetch gallery data by ID
+            this.artAssets = await Promise.all(
+              data.artEntries.map(async (art: ExtendedArt) => {
+                // Fetch gallery by `galleryId`
+                const galleryResponse = await fetch(`/api/galleries/${art.galleryId}`)
+                const gallery = galleryResponse.ok ? await galleryResponse.json() : null
+                return { ...art, gallery } // Attach the gallery data to the art object
+              })
+            )
+
             if (localStorage) {
               localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
             }
@@ -83,6 +104,7 @@ export const useArtStore = defineStore({
         'Failed to fetch art.',
       )
     },
+    
     getArtById(id: number): Art | undefined {
       return this.artAssets.find((art: Art) => art.id === id)
     },

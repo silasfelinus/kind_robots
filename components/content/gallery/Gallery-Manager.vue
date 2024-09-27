@@ -60,15 +60,16 @@ const addGallery = async () => {
   }
 }
 
-const deleteGallery = async (id) => {
+const deleteGallery = async (id: number) => {
   try {
-    await galleryStore.deleteGallery(id)
+    const userId = 1 // Assuming you fetch this from the logged-in user's session/store
+    await galleryStore.deleteGallery(id, userId)
     statusStore.addStatus({
       message: 'Gallery deleted successfully',
       type: 'success',
     })
   } catch (error) {
-    errorStore.addError(error)
+    errorStore.addError(ErrorType.GENERAL_ERROR, error)
   }
 }
 </script>

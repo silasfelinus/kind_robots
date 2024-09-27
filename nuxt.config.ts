@@ -11,6 +11,9 @@ export default defineNuxtConfig({
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
   },
+  typescript: {
+    typeCheck: true
+  },
   // Including the necessary modules/plugins
   modules: [
     '@pinia/nuxt', // Pinia state management

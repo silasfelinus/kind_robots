@@ -9,7 +9,7 @@
     >
       <figure>
         <img
-          :src="bot.avatarImage || '/path/to/default-avatar.png'"
+          :src="bot.avatarImage || '/images/avatars/lingua1.webp'"
           alt="bot avatar"
         />
       </figure>

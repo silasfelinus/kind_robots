@@ -22,8 +22,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
-import { useLayoutStore } from '@/stores/layoutStore'
-import { useErrorStore } from '@/stores/errorStore'
+import { useLayoutStore } from './../../../stores/layoutStore'
+import { useErrorStore } from './../../../stores/errorStore'
 
 // Content and Bot stores
 const layoutStore = useLayoutStore()

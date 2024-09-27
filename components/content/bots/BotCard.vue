@@ -1,7 +1,7 @@
 <template>
   <div v-if="bot" class="bot-card flex rounded-2xl bg-base-300 p-4">
     <img
-      :src="bot.avatarImage || '/path/to/default-avatar.png'"
+      :src="bot.avatarImage || '/images/avatars/lingua1.webp'"
       alt="Bot Avatar"
       class="w-16 h-16 rounded-full"
     />

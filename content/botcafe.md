@@ -16,4 +16,4 @@ dottitip: I've been meaning to ask you, AMI...What's it like being a robot? I ma
 ---
 
 
-:authelia-login
+:kind-robot

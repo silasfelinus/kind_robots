@@ -96,12 +96,12 @@ watch(
   () => componentStore.selectedComponent,
   (selectedComponent) => {
     if (selectedComponent) {
-      displayStore.changeState('sidebarLeft', 'hidden')
-      displayStore.changeState('sidebarRight', 'hidden')
+      displayStore.changeState('sidebarLeftState', 'hidden')
+      displayStore.changeState('sidebarRightState', 'hidden')
       debugMessage.value = 'Component selected, sidebars hidden.'
     } else {
-      displayStore.changeState('sidebarLeft', 'open')
-      displayStore.changeState('sidebarRight', 'open')
+      displayStore.changeState('sidebarLeftState', 'open')
+      displayStore.changeState('sidebarRightState', 'open')
       debugMessage.value = 'No component selected, sidebars opened.'
     }
   },

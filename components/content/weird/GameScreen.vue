@@ -11,19 +11,19 @@
 
     <div class="flex justify-around m-4">
       <select v-model="color" class="select select-bordered w-40">
-        <option disabled="disabled" selected="selected">Color</option>
+        <option disabled selected>Color</option>
         <option v-for="(option, index) in colors" :key="index" :value="option">
           {{ option }}
         </option>
       </select>
       <select v-model="model" class="select select-bordered w-40">
-        <option disabled="disabled" selected="selected">Model</option>
+        <option disabled selected>Model</option>
         <option v-for="(option, index) in models" :key="index" :value="option">
           {{ option }}
         </option>
       </select>
       <select v-model="location" class="select select-bordered w-40">
-        <option disabled="disabled" selected="selected">Location</option>
+        <option disabled selected>Location</option>
         <option
           v-for="(option, index) in locations"
           :key="index"
@@ -33,7 +33,7 @@
         </option>
       </select>
       <select v-model="embedding" class="select select-bordered w-40">
-        <option disabled="disabled" selected="selected">Embedding</option>
+        <option disabled selected>Embedding</option>
         <option
           v-for="(option, index) in embeddings"
           :key="index"
@@ -58,7 +58,7 @@
       <div class="card bordered w-1/2 p-4">
         <div class="card-body">
           <!-- Image response -->
-          <img :src="imageResponse" alt="Art" />
+          <img v-if="imageResponse" :src="imageResponse || ''" alt="Art" />
         </div>
       </div>
     </div>
@@ -66,39 +66,57 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useFetch } from '#app'
+
 // State
-const prompt = ref('')
-const color = ref(null)
-const model = ref(null)
-const location = ref(null)
-const embedding = ref(null)
-const imageResponse = ref(null)
-const chatHistory = ref([])
+const prompt = ref<string>('')
+const color = ref<string | null>(null)
+const model = ref<string | null>(null)
+const location = ref<string | null>(null)
+const embedding = ref<string | null>(null)
+const imageResponse = ref<string | null>(null)
+const chatHistory = ref<string[]>([])
 
 // Fetch wildcard data
-const { data: colors } = useFetch('/content/wildcard/color.md')
-const { data: models } = useFetch('/content/wildcard/model.md')
-const { data: locations } = useFetch('/content/wildcard/location.md')
-const { data: embeddings } = useFetch('/content/wildcard/embedding.md')
+const { data: colors } = useFetch<string[]>('/content/wildcard/color.md')
+const { data: models } = useFetch<string[]>('/content/wildcard/model.md')
+const { data: locations } = useFetch<string[]>('/content/wildcard/location.md')
+const { data: embeddings } = useFetch<string[]>(
+  '/content/wildcard/embedding.md',
+)
+
+// Define response structure
+interface ArtResponse {
+  chat: string
+  image: string
+}
 
 // Make Art method
 const makeArt = async () => {
-  const response = await $fetch('https://cafefred.cafepurr.com', {
-    method: 'POST',
-    body: JSON.stringify({
-      prompt: prompt.value,
-      color: color.value,
-      model: model.value,
-      location: location.value,
-      embedding: embedding.value,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+  try {
+    const response = await $fetch<ArtResponse>(
+      'https://cafefred.cafepurr.com',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          prompt: prompt.value,
+          color: color.value,
+          model: model.value,
+          location: location.value,
+          embedding: embedding.value,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
 
-  // Update chat history and image response
-  chatHistory.value.push(response.chat)
-  imageResponse.value = response.image
+    // Update chat history and image response
+    chatHistory.value.push(response.chat)
+    imageResponse.value = response.image
+  } catch (error) {
+    console.error('Error making art:', error)
+  }
 }
 </script>

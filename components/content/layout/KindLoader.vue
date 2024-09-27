@@ -15,14 +15,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { useUserStore } from '@/stores/userStore'
-import { useArtStore } from '@/stores/artStore'
-import { useThemeStore } from '@/stores/themeStore'
-import { useBotStore } from '@/stores/botStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useDisplayStore } from '@/stores/displayStore'
-import { usePitchStore } from '@/stores/pitchStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useArtStore } from './../../../stores/artStore'
+import { useThemeStore } from './../../../stores/themeStore'
+import { useBotStore } from './../../../stores/botStore'
+import { useMilestoneStore } from './../../../stores/milestoneStore'
+import { useDisplayStore } from './../../../stores/displayStore'
+import { usePitchStore } from './../../../stores/pitchStore'
 
 // Stores
 const errorStore = useErrorStore()

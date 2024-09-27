@@ -32,12 +32,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
+import type { CSSProperties } from 'vue' // Importing CSSProperties
 
 const src = ref('')
 const isPixelatingOut = ref(false)
 const isPixelatingIn = ref(false)
 
-const imageStyle = ref({})
+const imageStyle = ref<CSSProperties>({}) // Explicitly typing imageStyle as CSSProperties
 const shouldShowMilestoneCheck = ref(false)
 
 watchEffect(() => {
@@ -74,11 +75,12 @@ const fetchImage = async () => {
     }, 500)
   }
 }
+
 const handleScroll = () => {
   const scrollY = window.scrollY
-  const parallaxFactor = 0.25 // Adjust this factor, experiment with values like 0.2 or 0.25 to find what suits best.
+  const parallaxFactor = 0.25 // Adjust this factor as necessary
   const yOffset = scrollY * parallaxFactor
-  imageStyle.value.backgroundPosition = `center ${-yOffset}px`
+  imageStyle.value.backgroundPosition = `center ${-yOffset}px` // Now TypeScript will recognize backgroundPosition
 }
 
 onMounted(() => {

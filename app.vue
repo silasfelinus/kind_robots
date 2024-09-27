@@ -192,8 +192,8 @@ onBeforeUnmount(() => {
 .main-layout {
   display: grid;
   grid-template-rows: auto 1fr auto; /* Header, Main Content, Footer */
-  height: calc(var(--vh, 1vh) * 100); /* Custom height using var(--vh) */
-  overflow: hidden; /* Prevent any overflow */
+  height: 100vh; /* Use full viewport height */
+  overflow: hidden; /* Prevent overflow */
 }
 
 .content-area {

@@ -15,8 +15,8 @@
         <div class="flex justify-around mt-2">
           <button
             :class="[
-              'p-2 rounded-lg flex items-center',
               isActive('headerState', 'open') ? 'bg-success' : 'bg-accent',
+              'p-2 rounded-lg flex items-center',
             ]"
             @click="changeState('headerState', 'open')"
           >
@@ -24,8 +24,8 @@
           </button>
           <button
             :class="[
-              'p-2 rounded-lg flex items-center',
               isActive('headerState', 'compact') ? 'bg-warning' : 'bg-accent',
+              'p-2 rounded-lg flex items-center',
             ]"
             @click="changeState('headerState', 'compact')"
           >
@@ -33,8 +33,8 @@
           </button>
           <button
             :class="[
-              'p-2 rounded-lg flex items-center',
               isActive('headerState', 'hidden') ? 'bg-error' : 'bg-accent',
+              'p-2 rounded-lg flex items-center',
             ]"
             @click="changeState('headerState', 'hidden')"
           >
@@ -48,35 +48,37 @@
         <h3 class="font-bold mb-2">Sidebar Left</h3>
         <button
           class="bg-accent p-2 rounded-lg mb-2 flex items-center justify-center"
-          @click="toggle('sidebarLeft')"
+          @click="toggle('sidebarLeftState')"
         >
           <Icon name="eye" class="mr-2" /> Toggle Sidebar Left
         </button>
         <div class="flex justify-around mt-2">
           <button
             :class="[
+              isActive('sidebarLeftState', 'open') ? 'bg-success' : 'bg-accent',
               'p-2 rounded-lg flex items-center',
-              isActive('sidebarLeft', 'open') ? 'bg-success' : 'bg-accent',
             ]"
-            @click="changeState('sidebarLeft', 'open')"
+            @click="changeState('sidebarLeftState', 'open')"
           >
             <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
             :class="[
+              isActive('sidebarLeftState', 'compact')
+                ? 'bg-warning'
+                : 'bg-accent',
               'p-2 rounded-lg flex items-center',
-              isActive('sidebarLeft', 'compact') ? 'bg-warning' : 'bg-accent',
             ]"
-            @click="changeState('sidebarLeft', 'compact')"
+            @click="changeState('sidebarLeftState', 'compact')"
           >
             <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
             :class="[
+              isActive('sidebarLeftState', 'hidden') ? 'bg-error' : 'bg-accent',
               'p-2 rounded-lg flex items-center',
-              isActive('sidebarLeft', 'hidden') ? 'bg-error' : 'bg-accent',
             ]"
-            @click="changeState('sidebarLeft', 'hidden')"
+            @click="changeState('sidebarLeftState', 'hidden')"
           >
             <Icon name="eye-off" class="mr-2" /> Hidden
           </button>
@@ -88,75 +90,81 @@
         <h3 class="font-bold mb-2">Sidebar Right</h3>
         <button
           class="bg-accent p-2 rounded-lg mb-2 flex items-center justify-center"
-          @click="toggle('sidebarRight')"
+          @click="toggle('sidebarRightState')"
         >
           <Icon name="eye" class="mr-2" /> Toggle Sidebar Right
         </button>
         <div class="flex justify-around mt-2">
           <button
             :class="[
+              isActive('sidebarRightState', 'open')
+                ? 'bg-success'
+                : 'bg-accent',
               'p-2 rounded-lg flex items-center',
-              isActive('sidebarRight', 'open') ? 'bg-success' : 'bg-accent',
             ]"
-            @click="changeState('sidebarRight', 'open')"
+            @click="changeState('sidebarRightState', 'open')"
           >
             <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
             :class="[
+              isActive('sidebarRightState', 'compact')
+                ? 'bg-warning'
+                : 'bg-accent',
               'p-2 rounded-lg flex items-center',
-              isActive('sidebarRight', 'compact') ? 'bg-warning' : 'bg-accent',
             ]"
-            @click="changeState('sidebarRight', 'compact')"
+            @click="changeState('sidebarRightState', 'compact')"
           >
             <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
             :class="[
+              isActive('sidebarRightState', 'hidden')
+                ? 'bg-error'
+                : 'bg-accent',
               'p-2 rounded-lg flex items-center',
-              isActive('sidebarRight', 'hidden') ? 'bg-error' : 'bg-accent',
             ]"
-            @click="changeState('sidebarRight', 'hidden')"
+            @click="changeState('sidebarRightState', 'hidden')"
           >
             <Icon name="eye-off" class="mr-2" /> Hidden
           </button>
         </div>
       </div>
 
-      <!-- Bottom Drawer State Control -->
+      <!-- Footer State Control -->
       <div class="bg-primary p-4 border border-accent rounded-2xl text-center">
-        <h3 class="font-bold mb-2">Bottom Drawer</h3>
+        <h3 class="font-bold mb-2">Footer</h3>
         <button
           class="bg-accent p-2 rounded-lg mb-2 flex items-center justify-center"
-          @click="toggle('bottomDrawer')"
+          @click="toggle('footerState')"
         >
-          <Icon name="eye" class="mr-2" /> Toggle Bottom Drawer
+          <Icon name="eye" class="mr-2" /> Toggle Footer
         </button>
         <div class="flex justify-around mt-2">
           <button
             :class="[
+              isActive('footerState', 'open') ? 'bg-success' : 'bg-accent',
               'p-2 rounded-lg flex items-center',
-              isActive('bottomDrawer', 'open') ? 'bg-success' : 'bg-accent',
             ]"
-            @click="changeState('bottomDrawer', 'open')"
+            @click="changeState('footerState', 'open')"
           >
             <Icon name="arrow-up-circle" class="mr-2" /> Open
           </button>
           <button
             :class="[
+              isActive('footerState', 'compact') ? 'bg-warning' : 'bg-accent',
               'p-2 rounded-lg flex items-center',
-              isActive('bottomDrawer', 'compact') ? 'bg-warning' : 'bg-accent',
             ]"
-            @click="changeState('bottomDrawer', 'compact')"
+            @click="changeState('footerState', 'compact')"
           >
             <Icon name="minimize" class="mr-2" /> Compact
           </button>
           <button
             :class="[
+              isActive('footerState', 'hidden') ? 'bg-error' : 'bg-accent',
               'p-2 rounded-lg flex items-center',
-              isActive('bottomDrawer', 'hidden') ? 'bg-error' : 'bg-accent',
             ]"
-            @click="changeState('bottomDrawer', 'hidden')"
+            @click="changeState('footerState', 'hidden')"
           >
             <Icon name="eye-off" class="mr-2" /> Hidden
           </button>
@@ -169,27 +177,35 @@
 <script setup lang="ts">
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Define the type for 'container' and 'state'
+type DisplayContainer =
+  | 'headerState'
+  | 'sidebarLeftState'
+  | 'sidebarRightState'
+  | 'footerState'
+type DisplayState = 'open' | 'compact' | 'hidden'
+
 const displayStore = useDisplayStore()
 
 // Toggle function to switch between open/hidden states
-const toggle = (container) => {
-  const state = displayStore[container] === 'open' ? 'hidden' : 'open'
+const toggle = (container: DisplayContainer) => {
+  const state: DisplayState =
+    displayStore[container] === 'open' ? 'hidden' : 'open'
   displayStore.changeState(container, state)
 }
 
 // Change state function for more specific control
-const changeState = (container, state) => {
+const changeState = (container: DisplayContainer, state: DisplayState) => {
   displayStore.changeState(container, state)
 }
 
 // Check if the current state is active
-const isActive = (container, state) => {
+const isActive = (container: DisplayContainer, state: DisplayState) => {
   return displayStore[container] === state
 }
 </script>
 
 <style scoped>
-/* Custom styling for DisplayToggler */
 button:focus {
   outline: none;
 }

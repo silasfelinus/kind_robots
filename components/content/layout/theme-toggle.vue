@@ -36,30 +36,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { useThemeStore } from '../../../stores/themeStore'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useThemeStore } from '@/stores/themeStore'
+import { useDisplayStore } from '@/stores/displayStore'
 
+// Using the display store to track layout-related properties
 const themeStore = useThemeStore()
-const buttonRef = ref(null)
+const displayStore = useDisplayStore()
+const buttonRef = ref<HTMLElement | null>(null) // Typing buttonRef properly
 const open = ref(false)
 
+// Calculating the position of the modal using displayStore
 const modalPosition = computed(() => {
   if (!buttonRef.value) return {}
 
   const rect = buttonRef.value.getBoundingClientRect()
-  const windowHeight = window.innerHeight
-  const windowWidth = window.innerWidth
-
-  const topSpace = rect.top
-  const bottomSpace = windowHeight - rect.bottom
-  const leftSpace = rect.left
-  const rightSpace = windowWidth - rect.right
 
   return {
-    top: bottomSpace > topSpace ? 'auto' : '0',
-    bottom: bottomSpace > topSpace ? '0' : 'auto',
-    left: rightSpace > leftSpace ? 'auto' : '0',
-    right: rightSpace > leftSpace ? '0' : 'auto',
+    top: rect.bottom + 'px',
+    left: rect.left + 'px',
+    right: 'auto',
+    bottom: 'auto',
   }
 })
 
@@ -67,17 +64,21 @@ const toggleMenu = () => {
   open.value = !open.value
 }
 
-const closeMenu = (e) => {
-  if (buttonRef.value && !buttonRef.value.contains(e.target)) {
+// Closing the menu when clicking outside
+const closeMenu = (e: MouseEvent) => {
+  if (buttonRef.value && !buttonRef.value.contains(e.target as Node)) {
     open.value = false
   }
 }
 
+// Initialize theme and setup event listeners
 onMounted(() => {
   themeStore.initTheme()
   window.addEventListener('click', closeMenu)
+  displayStore.updateViewport() // Update viewport on mount
 })
 
+// Cleanup on unmount
 onUnmounted(() => {
   window.removeEventListener('click', closeMenu)
 })

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { useErrorStore, ErrorType } from './errorStore'
+import { useErrorStore, ErrorType } from './../stores/errorStore'
 
 export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 

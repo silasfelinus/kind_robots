@@ -40,7 +40,7 @@ import { ref, computed, onMounted } from 'vue'
 import {
   useComponentStore,
   type KindComponent as Component,
-} from '@/stores/componentStore'
+} from './../../../stores/componentStore'
 
 // State variables
 const selectedComponents = ref<Component[]>([])

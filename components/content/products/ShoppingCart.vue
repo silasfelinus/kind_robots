@@ -9,8 +9,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useCartStore } from './../../../stores/cartStore'
-import type { CartItem } from '@prisma/client' // Import CartItem type
+import { useCartStore, type CartItem } from './../../../stores/cartStore'
 
 const cartStore = useCartStore()
 

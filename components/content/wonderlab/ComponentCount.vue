@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
+import { useComponentStore } from './../../../stores/componentStore'
 
 // Access the component store
 const componentStore = useComponentStore()

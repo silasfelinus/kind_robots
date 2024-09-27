@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import type { Art, Reaction, ArtImage, Tag } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 
-const isClient = import.meta.client
 
 export interface GenerateArtData {
   title?: string
@@ -72,7 +71,7 @@ export const useArtStore = defineStore({
           if (response.ok) {
             const data = await response.json()
             this.artAssets = data.artEntries
-            if (isClient) {
+            if (localStorage) {
               localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
             }
           } else {
@@ -107,7 +106,7 @@ export const useArtStore = defineStore({
           })
           if (response.ok) {
             this.artAssets = this.artAssets.filter((art: Art) => art.id !== id)
-            if (isClient) {
+            if (localStorage) {
               localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
             }
           } else {

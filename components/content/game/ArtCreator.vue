@@ -33,7 +33,7 @@ const prompt = ref('')
 const createArt = async () => {
   if (activePitch.value) {
     const artData = {
-      prompt: prompt.value,
+      promptString: prompt.value,
       pitchId: activePitch.value.id,
       title: `Art for ${activePitch.value.title}`,
     }

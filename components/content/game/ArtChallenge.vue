@@ -113,7 +113,7 @@
         v-if="gameStore.showPitchScreen"
         class="w-full md:w-1/3 bg-white p-4 border-l border-gray-300"
       >
-        <PitchScreen />
+        <PitchManager />
       </div>
 
       <div
@@ -132,7 +132,6 @@ import GameControl from './GameControl.vue'
 import UserControl from './UserControl.vue'
 import ArtChooser from './ArtChooser.vue'
 import ArtCreator from './ArtCreator.vue'
-import PitchScreen from './PitchScreen.vue'
 import GameOver from './GameOver.vue'
 import { useGameStore } from './../../../stores/gameStore'
 

@@ -35,6 +35,9 @@ const props = defineProps({
   },
 })
 
+// Define the emit function
+const emit = defineEmits(['click'])
+
 const cardColor = computed(() => {
   const baseColors = ['bg-accent', 'bg-secondary', 'bg-accent', 'bg-warning']
   return baseColors[props.colorId - 1] || baseColors[0]

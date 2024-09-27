@@ -1,12 +1,12 @@
 <template>
   <div class="flex">
     <aside
-      v-if="(displayStore.sidebarLeft as DisplayState) !== 'hidden'"
+      v-if="(displayStore.sidebarLeftState as DisplayState) !== 'hidden'"
       class="transition-all duration-300 bg-base-300 hide-scrollbar flex-grow p-2"
       :class="{
-        'w-64': displayStore.sidebarLeft === 'open',
-        'w-16': displayStore.sidebarLeft === 'compact',
-        'w-0': displayStore.sidebarLeft === 'hidden',
+        'w-64': displayStore.sidebarLeftState === 'open',
+        'w-16': displayStore.sidebarLeftState === 'compact',
+        'w-0': displayStore.sidebarLeftState === 'hidden',
       }"
       :style="{
         maxHeight: 'calc(100vh - ' + displayStore.headerVh + 'vh)',
@@ -273,7 +273,7 @@ const userStore = useUserStore()
 const showMature = computed(() => userStore.showMature)
 
 // Computed properties to check the sidebar state
-const isSidebarOpen = computed(() => displayStore.sidebarLeft === 'open')
+const isSidebarOpen = computed(() => displayStore.sidebarLeftState === 'open')
 
 // Adjust height calculations based on window size and available space
 const availableSidebarHeight = ref(100 - 10) // Assume header height = 10vh for now

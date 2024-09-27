@@ -118,6 +118,28 @@ export const useReactionStore = defineStore('reactionStore', {
         this.loading = false
       }
     },
+        // Fetch reactions by artId
+        async fetchReactionsByArtId(artId: number) {
+          this.loading = true
+          this.error = null
+          try {
+            const response = await fetch(`/api/reactions/art/${artId}`)
+            const data = await response.json()
+            if (!response.ok) throw new Error('Failed to fetch reactions')
+            this.reactions = data.reactions
+          } catch (error) {
+            this.error =
+              error instanceof Error ? error.message : 'Failed to fetch reactions'
+          } finally {
+            this.loading = false
+          }
+        },
+      // Get reaction by chatExchangeId
+    getReactionByChatExchangeId(chatExchangeId: number) {
+      return this.reactions.find(
+        (reaction: Reaction) => reaction.chatExchangeId === chatExchangeId,
+      )
+    },    
     async fetchReactionsByComponentId(componentId: number) {
       console.log(`Fetching reactions for componentId: ${componentId}`)
       this.loading = true

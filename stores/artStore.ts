@@ -203,6 +203,30 @@ export const useArtStore = defineStore({
         'Failed to fetch art by ID.',
       )
     },
+     // New uploadImage action
+     async uploadImage(formData: FormData): Promise<void> {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(
+        async () => {
+          const response = await fetch('/api/art/upload', {
+            method: 'POST',
+            body: formData, // Send the FormData object with the image file
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            console.log('Image uploaded successfully:', data)
+            // You can now push the uploaded image details to your state if needed
+            this.artImages.push(data)
+          } else {
+            const errorResponse = await response.json()
+            throw new Error(errorResponse.message)
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to upload image.',
+      )
+    },
     async generateArt(
       data: GenerateArtData,
     ): Promise<{ success: boolean; message?: string; newArt?: Art }> {
@@ -231,4 +255,4 @@ export const useArtStore = defineStore({
   },
 })
 
-export type { Art, ArtImage, Reaction }
+export type { Art, ArtImage }

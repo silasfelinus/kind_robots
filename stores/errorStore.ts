@@ -8,6 +8,7 @@ export enum ErrorType {
   GENERAL_ERROR = 'General Error',
   REGISTRATION_ERROR = 'Registration Error',
   INTERACTION_ERROR = 'Interaction Error',
+  STORE_ERROR = 'Store Error'
 }
 
 export interface ErrorHistoryEntry {

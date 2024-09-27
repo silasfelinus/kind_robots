@@ -10,9 +10,13 @@
       Fetch Folders
     </button>
 
+    <!-- Loading Message -->
     <div v-if="loading" class="mt-4 text-gray-500">Loading...</div>
+
+    <!-- Error Message -->
     <div v-if="errorMessage" class="mt-4 text-red-500">{{ errorMessage }}</div>
 
+    <!-- Folders List -->
     <ul v-if="folders.length > 0" class="mt-6">
       <li
         v-for="folder in folders"
@@ -28,12 +32,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+// Define Folder type for better type safety
+interface Folder {
+  filename: string
+  basename: string
+}
+
 // Reactive state
-const folders = ref([])
+const folders = ref<Folder[]>([])
 const errorMessage = ref('')
 const loading = ref(false)
 
-// Fetch folders from the API
+// Fetch folders from the PhotoPrism API
 const fetchFolders = async () => {
   loading.value = true
   errorMessage.value = ''
@@ -43,12 +53,12 @@ const fetchFolders = async () => {
     const data = await response.json()
 
     if (data.success) {
-      folders.value = data.data
+      folders.value = data.data as Folder[] // Ensure the response data is typed correctly
     } else {
       errorMessage.value = data.message || 'Failed to retrieve folders.'
     }
   } catch (error) {
-    errorMessage.value = 'An error occurred while fetching the folders.' + error
+    errorMessage.value = `An error occurred while fetching the folders: ${error}`
   } finally {
     loading.value = false
   }
@@ -56,5 +66,5 @@ const fetchFolders = async () => {
 </script>
 
 <style scoped>
-/* No custom styles needed, Tailwind handles everything */
+/* Tailwind handles styling */
 </style>

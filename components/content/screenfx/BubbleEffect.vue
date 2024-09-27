@@ -24,9 +24,20 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRandomColor } from './../../../utils/useRandomColor'
 
-const bubbles = ref([])
+// Define Bubble interface to type bubble objects
+interface Bubble {
+  id: number
+  x: number
+  size: number
+  speed: number
+  color: string
+}
+
+// Array of bubbles typed as Bubble[]
+const bubbles = ref<Bubble[]>([])
 const MAX_BUBBLES = 20
 
+// Function to create a new bubble
 const createBubble = () => {
   if (bubbles.value.length < MAX_BUBBLES) {
     const size = Math.random() * 50 + 10
@@ -35,11 +46,12 @@ const createBubble = () => {
     const { randomColor } = useRandomColor()
     const color = randomColor.value
 
-    bubbles.value.push({ id: Date.now(), x, size, speed, color }) // Added id for bubble uniqueness
+    bubbles.value.push({ id: Date.now(), x, size, speed, color }) // Push new bubble into bubbles array
   }
 }
 
-const bubbleStyle = (bubble) => ({
+// Bubble style computation with typed bubble parameter
+const bubbleStyle = (bubble: Bubble) => ({
   left: `${bubble.x}vw`,
   bottom: '-10vw', // bubbles start off-screen
   width: `${bubble.size}vw`,
@@ -47,16 +59,20 @@ const bubbleStyle = (bubble) => ({
   animationDuration: `${bubble.speed}s`,
 })
 
-let bubbleCreationInterval
+// Type for bubbleCreationInterval, explicitly cast setInterval to number
+let bubbleCreationInterval: number | null = null
+
 onMounted(() => {
   for (let i = 0; i < MAX_BUBBLES; i++) {
     createBubble()
   }
-  bubbleCreationInterval = setInterval(createBubble, 3000)
+  bubbleCreationInterval = setInterval(createBubble, 3000) as unknown as number
 })
 
 onBeforeUnmount(() => {
-  clearInterval(bubbleCreationInterval)
+  if (bubbleCreationInterval !== null) {
+    clearInterval(bubbleCreationInterval)
+  }
 })
 </script>
 

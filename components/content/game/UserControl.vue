@@ -36,12 +36,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from './../../../stores/userStore'
 import { useGameStore } from './../../../stores/gameStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
 
+const userStore = useUserStore()
 const gameStore = useGameStore()
 const galleryStore = useGalleryStore()
-const username = ref(gameStore.user?.username || '')
+const username = ref(userStore.user?.username || '') // Get initial username from user store
 const selectedAvatar = ref('')
 
 // Load the avatar gallery and set the default avatar
@@ -58,16 +60,29 @@ const avatarImages = computed(() => {
 })
 
 // Handle avatar selection
-const selectAvatar = (image) => {
+const selectAvatar = (image: string) => {
   selectedAvatar.value = image
 }
 
 // Save the profile including the selected avatar
 const saveProfile = async () => {
-  await gameStore.updatePlayer(gameStore.currentPlayer?.id, {
-    username: username.value,
-    avatarImage: selectedAvatar.value,
-  })
+  const userId = userStore.user?.id // Get user ID from userStore
+
+  if (userId !== undefined) {
+    // Update the User model
+    const response = await userStore.updateUserInfo({
+      username: username.value,
+      avatarImage: selectedAvatar.value, // Use the selected avatar
+    })
+
+    if (response.success) {
+      console.log('Profile updated successfully')
+    } else {
+      console.error('Failed to update profile:', response.message)
+    }
+  } else {
+    console.error('User ID is undefined, unable to save profile.')
+  }
 }
 </script>
 

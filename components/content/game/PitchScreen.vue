@@ -40,14 +40,16 @@
           :key="art.id"
           class="art-item bg-base-300 p-4 rounded-xl border shadow"
         >
-          <h3 class="text-lg font-bold">{{ art.title || 'Untitled Art' }}</h3>
+          <h3 class="text-lg font-bold">
+            {{ art.path ? 'Art' : 'Untitled Art' }}
+          </h3>
           <img
-            :src="art.url"
+            :src="art.path || 'placeholder-image-url.jpg'"
             alt="Art"
             class="art-image my-2 rounded-lg shadow-lg"
           />
           <p class="text-sm text-gray-600">
-            {{ art.description || 'No description available' }}
+            Sampler: {{ art.sampler || 'No sampler information available' }}
           </p>
         </div>
       </div>
@@ -78,24 +80,19 @@ const galleryArt = computed(() => pitchStore.galleryArt || [])
 onMounted(async () => {
   try {
     if (isSelectionMode.value) {
-      // Fetch random unique pitches for pitch selection
-      await pitchStore.fetchRandomPitches(3)
+      await pitchStore.fetchRandomPitches(3) // Fetch random pitches for selection
     } else {
-      // Fetch art associated with the selected pitch for gallery mode
-      const pitchId = route.params.pitchId
-      await pitchStore.fetchArtForPitch(pitchId)
+      const pitchId = Number(route.params.pitchId) // Convert to number
+      await pitchStore.fetchArtForPitch(pitchId) // Fetch art associated with selected pitch
     }
   } catch (error) {
-    // Handle error (possibly using an error store)
     console.error('Error fetching data in PitchManager:', error)
-    // Optionally: display error message in the UI
   }
 })
 
 // Function to select a pitch (for selection mode)
 const selectPitch = (pitchId: number) => {
-  pitchStore.setSelectedPitch(pitchId)
-  // Redirect or handle post-selection actions here if needed
+  pitchStore.setSelectedPitch(pitchId) // Set the selected pitch in the store
 }
 </script>
 

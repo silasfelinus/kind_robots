@@ -26,7 +26,7 @@ const iconClass = computed(() => {
   return {
     'h-6 w-6': displayStore.footerState === 'compact',
     'h-8 w-8': displayStore.footerState === 'open',
-    'h-auto w-auto': displayStore.iconSize === 0, // fallback for default icon size
+    'h-auto w-auto': displayStore.iconSize === 0, // Fallback for default icon size
   }
 })
 </script>

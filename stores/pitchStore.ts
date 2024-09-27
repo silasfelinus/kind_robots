@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { useErrorStore, ErrorType } from './errorStore'
-import type { Pitch } from '@prisma/client' 
+import type { Pitch, Art } from '@prisma/client' 
 import { PitchType }  from '@prisma/client' 
 
 const isClient = typeof window !== 'undefined'
@@ -9,6 +9,7 @@ const isClient = typeof window !== 'undefined'
 interface FetchResponse {
   pitch?: Pitch
   pitches?: Pitch[]
+  art?: Art[] // Update this type according to your Art model
   message?: string
   success: boolean
 }
@@ -28,7 +29,8 @@ export const usePitchStore = defineStore('pitch', {
     isInitialized: false,
     selectedPitchId: null as number | null,
     selectedPitchType: null as PitchType | null,
-    currentPitch: null as Pitch | null // Ensure currentPitch can be null
+    currentPitch: null as Pitch | null, // Ensure currentPitch can be null
+    galleryArt: [] as Art[] // Add a galleryArt state to hold fetched art
   }),
 
   getters: {
@@ -86,9 +88,21 @@ export const usePitchStore = defineStore('pitch', {
         this.isInitialized = true
       }
     },
+    setSelectedPitch(pitchId: number) {
+      this.selectedPitchId = pitchId
+    },
 
     setSelectedPitchType(pitchType: PitchType | null) {
       this.selectedPitchType = pitchType
+    },
+    async fetchRandomPitches(count: number) {
+      try {
+        const response = await fetch(`/api/pitches/random?count=${count}`)
+        const data = await response.json()
+        this.selectedPitches = data.pitches || []
+      } catch (error) {
+        console.error('Error fetching random pitches:', error)
+      }
     },
 
     async fetchBrainstormPitches() {
@@ -185,6 +199,15 @@ export const usePitchStore = defineStore('pitch', {
         throw new Error('Pitch not found')
       } catch (error) {
         console.error('Error fetching pitch:', isErrorWithMessage(error) ? error.message : 'Unknown error')
+      }
+    },
+
+    async fetchArtForPitch(pitchId: number) {
+      try {
+        const data = await this.performFetch(`/api/pitches/${pitchId}/art`)
+        this.galleryArt = data.art || [] // Store fetched art in the state
+      } catch (error) {
+        console.error('Error fetching art for pitch:', isErrorWithMessage(error) ? error.message : 'Unknown error')
       }
     },
 

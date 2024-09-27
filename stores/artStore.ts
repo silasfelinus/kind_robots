@@ -3,12 +3,16 @@ import type { Art, Reaction, ArtImage, Tag } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 
 interface ExtendedArt extends Art {
+  title?: string; // Optional, as not all art may have a title
+  url?: string; // Add the url property here if it exists
+  description?: string; // Add the description property here if it exists
   gallery?: {
-    highlightImage?: string | null
-    name?: string | null
-    description?: string | null
-  }
+    highlightImage?: string | null;
+    name?: string | null;
+    description?: string | null;
+  };
 }
+
 
 export interface GenerateArtData {
   title?: string
@@ -42,6 +46,24 @@ export const useArtStore = defineStore({
         this.fetchAllArt()
       }
     },
+    async uploadImage(formData: FormData) {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(async () => {
+        const response = await fetch('/api/art/upload', {
+          method: 'POST',
+          body: formData,
+        })
+        if (response.ok) {
+          const newArt = await response.json()
+          this.artAssets.push(newArt) // Optionally add to local state
+          return newArt
+        } else {
+          const errorResponse = await response.json()
+          throw new Error(errorResponse.message)
+        }
+      }, ErrorType.NETWORK_ERROR, 'Failed to upload image.')
+    },
+
     
     selectArt(artId: number) {
       const foundArt = this.artAssets.find((art) => art.id === artId)
@@ -69,7 +91,7 @@ export const useArtStore = defineStore({
     async fetchAllArt() {
       const errorStore = useErrorStore()
       if (this.artAssets.length > 0) return // Prevent refetching
-      
+    
       return errorStore.handleError(async () => {
         const response = await fetch('/api/art')
         if (response.ok) {
@@ -90,6 +112,8 @@ export const useArtStore = defineStore({
         }
       }, ErrorType.NETWORK_ERROR, 'Failed to fetch art.')
     },
+    
+    
 
     getArtById(id: number): Art | undefined {
       return this.artAssets.find((art) => art.id === id)

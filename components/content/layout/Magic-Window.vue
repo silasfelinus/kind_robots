@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const src = ref('')
 const isLoading = ref(true)
@@ -29,8 +29,12 @@ const fetchImage = async () => {
   warpEffect.value = true
   isLoading.value = true
 
-  const imageLayer = document.querySelector('.image-layer')
-  imageLayer.classList.add('pixelate-out')
+  const imageLayer = document.querySelector(
+    '.image-layer',
+  ) as HTMLElement | null
+  if (imageLayer) {
+    imageLayer.classList.add('pixelate-out')
+  }
 
   await new Promise((resolve) => setTimeout(resolve, 750))
 
@@ -50,12 +54,17 @@ const fetchImage = async () => {
 
     setTimeout(() => {
       warpEffect.value = false
-      imageLayer.classList.remove('pixelate-out')
-      imageLayer.classList.add('pixelate-in')
+      const imageLayer = document.querySelector(
+        '.image-layer',
+      ) as HTMLElement | null
+      if (imageLayer) {
+        imageLayer.classList.remove('pixelate-out')
+        imageLayer.classList.add('pixelate-in')
 
-      setTimeout(() => {
-        imageLayer.classList.remove('pixelate-in')
-      }, 500)
+        setTimeout(() => {
+          imageLayer.classList.remove('pixelate-in')
+        }, 500)
+      }
     }, 500)
   }
 }
@@ -66,13 +75,13 @@ const handleScroll = () => {
 }
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll) // Attach scroll listener to the window
+  window.addEventListener('scroll', handleScroll)
 
   fetchImage() // Fetch image when the component is mounted
 })
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll) // Remove scroll listener when the component is unmounted
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -92,17 +101,15 @@ onUnmounted(() => {
   height: 100vh;
   background-size: cover;
   background-position: center;
-  transform: translateY(var(--offsetY)); /* For parallax effect */
-  transition: background-image 0.5s ease-in-out; /* Smooth transition for image change */
+  transform: translateY(var(--offsetY));
+  transition: background-image 0.5s ease-in-out;
 }
 
 .cover {
-  background: white; /* Assuming white as your background color */
+  background: white;
   position: absolute;
   z-index: 1;
 }
-
-/* Adjusting the masks to create a centered frame */
 
 .top {
   width: 100%;
@@ -135,7 +142,7 @@ onUnmounted(() => {
 .teleport-button {
   appearance: none;
   border: none;
-  background: #007bff; /* Assuming a blue color, adjust as needed */
+  background: #007bff;
   color: white;
   cursor: pointer;
   padding: 12px 24px;
@@ -144,16 +151,16 @@ onUnmounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border-radius: 4px; /* Rounded corners */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition:
     background-color 0.3s ease,
-    transform 0.3s ease; /* Smooth transitions for hover */
+    transform 0.3s ease;
 }
 
 .teleport-button:hover {
-  background-color: #0056b3; /* Slightly darker blue on hover */
-  transform: translate(-50%, -50%) scale(1.05); /* A subtle increase in size on hover for emphasis */
+  background-color: #0056b3;
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
 @keyframes pixelateOut {

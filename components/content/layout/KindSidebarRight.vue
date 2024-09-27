@@ -1,11 +1,11 @@
 <template>
   <div
-    v-if="displayStore.sidebarRight !== 'hidden'"
+    v-if="displayStore.sidebarRightState !== 'hidden'"
     :style="{ width: displayStore.sidebarRightVw + 'vw' }"
     class="kind-sidebar-right h-full bg-secondary text-white flex flex-col p-4 transition-all duration-500"
   >
     <h2
-      v-if="displayStore.sidebarRight === 'open'"
+      v-if="displayStore.sidebarRightState === 'open'"
       class="text-xl font-bold mb-4"
     >
       Right Sidebar
@@ -22,15 +22,15 @@
         <Icon
           :name="item.icon"
           :class="{
-            'h-12 w-12': displayStore.sidebarRight === 'open',
-            'h-8 w-8': displayStore.sidebarRight === 'compact',
+            'h-12 w-12': displayStore.sidebarRightState === 'open',
+            'h-8 w-8': displayStore.sidebarRightState === 'compact',
           }"
           class="mb-2"
         />
 
         <!-- Only show text when sidebar is open -->
         <span
-          v-if="displayStore.sidebarRight === 'open'"
+          v-if="displayStore.sidebarRightState === 'open'"
           class="text-sm font-semibold"
         >
           {{ item.name }}

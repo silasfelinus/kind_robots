@@ -444,3 +444,5 @@ export const useUserStore = defineStore({
     },
   },
 })
+
+export type { User}

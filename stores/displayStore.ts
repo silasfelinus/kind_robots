@@ -13,6 +13,7 @@ interface DisplayStoreState {
   isTouchDevice: boolean
   showTutorial: boolean
   isInitialized: boolean
+  showIntro: boolean
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -26,6 +27,7 @@ export const useDisplayStore = defineStore('display', {
     isTouchDevice: false,
     showTutorial: true,
     isInitialized: false,
+    showIntro: true
   }),
 
   getters: {
@@ -206,6 +208,10 @@ export const useDisplayStore = defineStore('display', {
     },
     toggleTutorial() {
       this.showTutorial = !this.showTutorial
+      this.saveState()
+    },
+    toggleIntro() {
+      this.showIntro = !this.showIntro
       this.saveState()
     },
 

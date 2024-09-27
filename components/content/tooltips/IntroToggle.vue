@@ -21,6 +21,6 @@ const displayStore = useDisplayStore()
 
 const toggleIntro = () => {
   console.log('Intro toggle button clicked') // Add logging to debug
-  displayStore.toggleIntroState()
+  displayStore.toggleIntro()
 }
 </script>

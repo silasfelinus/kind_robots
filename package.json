@@ -2,6 +2,9 @@
   "name": "kind-robots",
   "private": true,
   "scripts": {
+    "tstest": "tsc --noEmit",
+    "tscomponents": "tsc --noEmit components/**/*.ts components/**/*.vue",
+    "tsstores": "tsc --noEmit stores/**/*.ts",
     "dev": "nuxt dev --host",
     "build": "npx prisma generate && nuxt build",
     "start": "nuxt start",

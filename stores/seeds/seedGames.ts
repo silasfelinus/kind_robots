@@ -3,21 +3,21 @@ import type { Game } from '@prisma/client' // Import the Game type based on your
 
 export const gameData: Partial<Game>[] = [
   {
-    content: 'Complete the Blue Sky Task',
     category: 'Blue Sky Tasks',
+    descriptor: 'Complete the Blue Sky Task with creativity and innovation.',
+    designer: 'User1',
+    winner: null,  // No winner yet
     isFinished: false,
-    userId: 1,
-    reward: 'A Magic Reward',
-    points: 10,
     isPrivate: false,
+    // Assuming you'll handle Users, Art, Prompts, and Players separately
   },
   {
-    content: 'Finish the Puzzle Challenge',
     category: 'Puzzle Challenges',
+    descriptor: 'Solve this tricky puzzle to win a prize.',
+    designer: 'User2',
+    winner: 'User3',  // A winner has been decided
     isFinished: true,
-    userId: 2,
-    reward: 'Special Prize',
-    points: 20,
     isPrivate: true,
+    // Handle related data for Users, Art, Prompts, and Players
   },
-]
+];

@@ -23,7 +23,7 @@
 
       <!-- Title, Description, and Subtitle Section -->
       <div class="text-center w-full space-y-1 md:space-y-2">
-        <h1 class="text-2xl lg:text-4xl font-bold text-secondary">
+        <h1 class="text-2xl lg:text-4xl font-bold">
           {{ page.title }}
         </h1>
 
@@ -34,7 +34,7 @@
           {{ page.subtitle }}
         </h2>
 
-        <h3 class="text-sm md:text-2xl md:text-base font-medium text-secondary px-2 md:px-4">
+        <h3 class="text-sm md:text-2xl font-medium px-2 md:px-4">
           {{ page.description }}
         </h3>
       </div>
@@ -52,7 +52,7 @@
           <img
             src="/images/avatars/dottie1.webp"
             alt="DottiBot Avatar"
-            class="w-8 h-8 lg:w-10 lg:h-10 rounded-full shadow-md"
+            class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">DottiBot</span>
@@ -66,15 +66,17 @@
         <div
           class="flex items-start space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-tl-2xl rounded-tr-none rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3"
         >
+          <div class="flex flex-col">
+            <span class="text-xs font-semibold">AMIbot</span>
+            <p class="text-xs md:text-lg lg:text-xl text-white">
+              {{ page.amitip }}
+            </p>
+          </div>
           <img
             src="/images/amibotsquare1.webp"
             alt="AMIbot Avatar"
-            class="w-8 h-8 lg:w-10 lg:h-10 rounded-full shadow-md"
+            class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
           />
-          <div class="flex flex-col">
-            <span class="text-xs font-semibold">AMIbot</span>
-            <p class="text-xs md:text-lg lg:text-xl text-white">{{ page.amitip }}</p>
-          </div>
         </div>
       </div>
     </div>

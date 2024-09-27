@@ -15,7 +15,7 @@
         v-for="link in hardcodedLinks"
         :key="link.title"
         :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-        class="Icon-link-container flex items-center space-x-1 md:space-x-2 hover:bg-base-100 hover:scale-110 rounded-xl mt-1 mb-1 p-1 md:p-2 text-accent"
+        class="Icon-link-container flex items-center space-x-1 md:space-x-2 hover:bg-base-100 hover:scale-110 rounded-xl mt-1 mb-1 p-1 md:p-2"
       >
         <!-- Use a click event with router.push for navigation -->
         <a
@@ -30,7 +30,7 @@
           <!-- Only show the link title when the sidebar is fully open -->
           <span
             v-if="displayStore.sidebarLeftState === 'open'"
-            class="text-xs md:text-md lg:text-lg font-semibold ml-2 transition-opacity duration-300 text-accent"
+            class="text-xs md:text-md lg:text-lg font-semibold ml-2 transition-opacity duration-300"
           >
             {{ link.title }}
           </span>

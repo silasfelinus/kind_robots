@@ -60,6 +60,11 @@ export const useThemeStore = defineStore('theme', {
       localStorage.setItem('theme', theme)
     },
     initTheme() {
+      if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+        // We're on the server, or localStorage is not available
+        return
+      }
+    
       const savedTheme = localStorage.getItem('theme')
       const defaultTheme = savedTheme || 'retro'
       if (!this.themes.includes(defaultTheme)) {
@@ -71,6 +76,7 @@ export const useThemeStore = defineStore('theme', {
       }
       this.changeTheme(defaultTheme)
     },
+    
     setBotOverride(value: boolean) {
       this.botOverride = value
     },

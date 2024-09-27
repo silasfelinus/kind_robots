@@ -89,29 +89,119 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from './stores/displayStore'
+import { useErrorStore, ErrorType } from './stores/errorStore'
 
 const displayStore = useDisplayStore()
+const errorStore = useErrorStore()
+
+// Error handler utility with specific Error type
+const handleError = (
+  error: Error,
+  message: string,
+  type: ErrorType = ErrorType.GENERAL_ERROR,
+) => {
+  console.error(message, error.stack || error)
+  errorStore.setError(type, error) // Pass ErrorType and error as arguments
+}
 
 // Computed properties for reactive access to store data
-const headerHeight = computed(
-  () => `calc(var(--vh, 1vh) * ${displayStore.headerVh})`,
-)
-const mainHeight = computed(
-  () => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`,
-)
-const footerHeight = computed(
-  () => `calc(var(--vh, 1vh) * ${displayStore.footerVh})`,
-)
-const sidebarLeftWidth = computed(() => `${displayStore.sidebarLeftVw}vw`)
-const sidebarRightWidth = computed(() => `${displayStore.sidebarRightVw}vw`)
-const mainWidth = computed(
-  () =>
-    `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
-)
-const gridColumns = computed(
-  () =>
-    `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
-)
+const headerHeight = computed(() => {
+  try {
+    return `calc(var(--vh, 1vh) * ${displayStore.headerVh})`
+  } catch (error) {
+    console.error('Error in headerHeight:', error) // Log the error to fix unused error issue
+    handleError(
+      new Error('Header height calculation failed'),
+      'Error calculating header height',
+      ErrorType.STORE_ERROR,
+    )
+    return '50px' // Fallback
+  }
+})
+
+const mainHeight = computed(() => {
+  try {
+    return `calc(var(--vh, 1vh) * ${displayStore.mainVh})`
+  } catch (error) {
+    console.error('Error in mainHeight:', error) // Log the error to fix unused error issue
+    handleError(
+      new Error('Main height calculation failed'),
+      'Error calculating main height',
+      ErrorType.STORE_ERROR,
+    )
+    return 'calc(100vh - 100px)' // Fallback
+  }
+})
+
+const footerHeight = computed(() => {
+  try {
+    return `calc(var(--vh, 1vh) * ${displayStore.footerVh})`
+  } catch (error) {
+    console.error('Error in footerHeight:', error) // Log the error to fix unused error issue
+    handleError(
+      new Error('Footer height calculation failed'),
+      'Error calculating footer height',
+      ErrorType.STORE_ERROR,
+    )
+    return '50px' // Fallback
+  }
+})
+
+const sidebarLeftWidth = computed(() => {
+  try {
+    return `${displayStore.sidebarLeftVw}vw`
+  } catch (error) {
+    console.error('Error in sidebarLeftWidth:', error) // Log the error to fix unused error issue
+    handleError(
+      new Error('Sidebar left width calculation failed'),
+      'Error calculating sidebarLeft width',
+      ErrorType.STORE_ERROR,
+    )
+    return '20vw' // Fallback
+  }
+})
+
+const sidebarRightWidth = computed(() => {
+  try {
+    return `${displayStore.sidebarRightVw}vw`
+  } catch (error) {
+    console.error('Error in sidebarRightWidth:', error) // Log the error to fix unused error issue
+    handleError(
+      new Error('Sidebar right width calculation failed'),
+      'Error calculating sidebarRight width',
+      ErrorType.STORE_ERROR,
+    )
+    return '20vw' // Fallback
+  }
+})
+
+const mainWidth = computed(() => {
+  try {
+    return `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`
+  } catch (error) {
+    console.error('Error in mainWidth:', error) // Log the error to fix unused error issue
+    handleError(
+      new Error('Main width calculation failed'),
+      'Error calculating main width',
+      ErrorType.STORE_ERROR,
+    )
+    return '100vw' // Fallback
+  }
+})
+
+const gridColumns = computed(() => {
+  try {
+    return `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`
+  } catch (error) {
+    console.error('Error in gridColumns:', error) // Log the error to fix unused error issue
+    handleError(
+      new Error('Grid column calculation failed'),
+      'Error calculating grid columns',
+      ErrorType.STORE_ERROR,
+    )
+    return '1fr' // Fallback
+  }
+})
 
 // Computed properties for button visibility
 const showLaunchButton = computed(() => {
@@ -130,50 +220,51 @@ const showInstructionsButton = computed(() => {
 
 // Function to set a custom --vh CSS variable to handle mobile devices like iPads
 const setCustomVh = () => {
-  if (typeof window !== 'undefined') {
+  try {
     const vh = window.innerHeight * 0.01
     document.documentElement.style.setProperty('--vh', `${vh}px`)
+  } catch (error) {
+    console.error('Error in setCustomVh:', error) // Log the error to fix unused error issue
+    handleError(
+      new Error('Setting custom vh failed'),
+      'Error setting custom vh',
+      ErrorType.STORE_ERROR,
+    )
   }
 }
 
 onMounted(() => {
-  if (typeof window !== 'undefined') {
+  try {
+    console.log('Mounted: Initializing custom vh and display store')
     setCustomVh()
+
     if (!displayStore.isInitialized) {
       window.addEventListener('resize', setCustomVh)
       displayStore.initialize()
+      console.log('displayStore initialized:', displayStore)
     }
+  } catch (error) {
+    console.error('Error in onMounted:', error) // Log the error to fix unused error issue
+    handleError(
+      new Error('Component mounting failed'),
+      'Error during onMounted lifecycle',
+      ErrorType.STORE_ERROR,
+    )
   }
 })
 
 onBeforeUnmount(() => {
-  if (typeof window !== 'undefined') {
+  try {
     window.removeEventListener('resize', setCustomVh)
+    displayStore.removeViewportWatcher()
+    console.log('Unmounting: Cleaned up event listeners')
+  } catch (error) {
+    console.error('Error in onBeforeUnmount:', error) // Log the error to fix unused error issue
+    handleError(
+      new Error('Component unmounting failed'),
+      'Error during onBeforeUnmount lifecycle',
+      ErrorType.STORE_ERROR,
+    )
   }
-  displayStore.removeViewportWatcher()
 })
 </script>
-
-<style scoped>
-.main-layout {
-  display: grid;
-  grid-template-rows: auto 1fr auto; /* Header, Main Content, Footer */
-  height: calc(var(--vh, 1vh) * 100); /* Custom height using var(--vh) */
-  overflow: hidden; /* Prevent any overflow */
-}
-
-.content-area {
-  display: grid;
-  overflow: hidden; /* Prevent horizontal scrolling */
-}
-
-.header-overlay,
-.sidebar-left-overlay,
-.sidebar-right-overlay,
-.main-content-overlay,
-.footer-overlay {
-  position: relative;
-  text-align: center;
-  padding: 0; /* Ensure no padding */
-}
-</style>

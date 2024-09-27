@@ -104,7 +104,7 @@ const headerHeight = computed(() => {
   try {
     return `calc(var(--vh, 1vh) * ${displayStore.headerVh})`
   } catch (error) {
-    console.error('Error in headerHeight:', error) // Log the error to fix unused error issue
+    console.error('Error in headerHeight:', error)
     handleError(
       new Error('Header height calculation failed'),
       'Error calculating header height',
@@ -118,7 +118,7 @@ const mainHeight = computed(() => {
   try {
     return `calc(var(--vh, 1vh) * ${displayStore.mainVh})`
   } catch (error) {
-    console.error('Error in mainHeight:', error) // Log the error to fix unused error issue
+    console.error('Error in mainHeight:', error)
     handleError(
       new Error('Main height calculation failed'),
       'Error calculating main height',
@@ -132,7 +132,7 @@ const footerHeight = computed(() => {
   try {
     return `calc(var(--vh, 1vh) * ${displayStore.footerVh})`
   } catch (error) {
-    console.error('Error in footerHeight:', error) // Log the error to fix unused error issue
+    console.error('Error in footerHeight:', error)
     handleError(
       new Error('Footer height calculation failed'),
       'Error calculating footer height',
@@ -146,7 +146,7 @@ const sidebarLeftWidth = computed(() => {
   try {
     return `${displayStore.sidebarLeftVw}vw`
   } catch (error) {
-    console.error('Error in sidebarLeftWidth:', error) // Log the error to fix unused error issue
+    console.error('Error in sidebarLeftWidth:', error)
     handleError(
       new Error('Sidebar left width calculation failed'),
       'Error calculating sidebarLeft width',
@@ -160,7 +160,7 @@ const sidebarRightWidth = computed(() => {
   try {
     return `${displayStore.sidebarRightVw}vw`
   } catch (error) {
-    console.error('Error in sidebarRightWidth:', error) // Log the error to fix unused error issue
+    console.error('Error in sidebarRightWidth:', error)
     handleError(
       new Error('Sidebar right width calculation failed'),
       'Error calculating sidebarRight width',
@@ -174,7 +174,7 @@ const mainWidth = computed(() => {
   try {
     return `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`
   } catch (error) {
-    console.error('Error in mainWidth:', error) // Log the error to fix unused error issue
+    console.error('Error in mainWidth:', error)
     handleError(
       new Error('Main width calculation failed'),
       'Error calculating main width',
@@ -188,7 +188,7 @@ const gridColumns = computed(() => {
   try {
     return `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`
   } catch (error) {
-    console.error('Error in gridColumns:', error) // Log the error to fix unused error issue
+    console.error('Error in gridColumns:', error)
     handleError(
       new Error('Grid column calculation failed'),
       'Error calculating grid columns',
@@ -219,7 +219,7 @@ const setCustomVh = () => {
     const vh = window.innerHeight * 0.01
     document.documentElement.style.setProperty('--vh', `${vh}px`)
   } catch (error) {
-    console.error('Error in setCustomVh:', error) // Log the error to fix unused error issue
+    console.error('Error in setCustomVh:', error)
     handleError(
       new Error('Setting custom vh failed'),
       'Error setting custom vh',
@@ -239,7 +239,7 @@ onMounted(() => {
       console.log('displayStore initialized:', displayStore)
     }
   } catch (error) {
-    console.error('Error in onMounted:', error) // Log the error to fix unused error issue
+    console.error('Error in onMounted:', error)
     handleError(
       new Error('Component mounting failed'),
       'Error during onMounted lifecycle',
@@ -254,7 +254,7 @@ onBeforeUnmount(() => {
     displayStore.removeViewportWatcher()
     console.log('Unmounting: Cleaned up event listeners')
   } catch (error) {
-    console.error('Error in onBeforeUnmount:', error) // Log the error to fix unused error issue
+    console.error('Error in onBeforeUnmount:', error)
     handleError(
       new Error('Component unmounting failed'),
       'Error during onBeforeUnmount lifecycle',

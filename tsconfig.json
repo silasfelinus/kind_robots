@@ -1,20 +1,3 @@
 {
-  "compilerOptions": { 
-    "types": [
-      "@nuxt/types",
-      "@types/node"
-    ],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
-    }
-  },
-  "extends": "./.nuxt/tsconfig.json",
-  "include": [
-    "components/content/**/*",  // For checking components directory
-    "stores/**/*",       // For checking stores directory
-    "nuxt.config.ts",
-    "server/**/*",
-    "stores/**/*",
-  ]
+  "extends": "./.nuxt/tsconfig.json"
 }

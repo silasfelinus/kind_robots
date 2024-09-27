@@ -93,6 +93,7 @@ import { useErrorStore, ErrorType } from './stores/errorStore'
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 const reactionStore = useReactionStore()
+const pitchStore = usePitchStore()
 const userStore = useUserStore()
 
 // Error handler utility with specific Error type
@@ -237,6 +238,7 @@ const setCustomVh = () => {
 onMounted(() => {
   try {
     displayStore.initialize()
+    pitchStore.initializePitches()
     reactionStore.initializeReactions()
     userStore.initializeUser()
     console.log('Mounted: Initializing custom vh and display store')

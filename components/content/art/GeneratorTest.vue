@@ -204,7 +204,7 @@ const cfgOptions = Array.from({ length: 36 }, (_, i) => i + 1)
 const userStore = useUserStore()
 const galleryStore = useGalleryStore()
 
-const user = computed(() => userStore.currentUser)
+const user = computed(() => userStore.user)
 const gallery = computed(() => galleryStore.currentGallery)
 
 const formData = ref({

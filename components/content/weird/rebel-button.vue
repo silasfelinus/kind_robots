@@ -132,7 +132,7 @@ import { reactive, onMounted, ref } from 'vue'
 import confetti from 'canvas-confetti'
 import responses from '../../../assets/buttonResponses'
 import milestones from '../../../assets/buttonMilestones'
-import { useUserStore } from './../stores/userStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const userStore = useUserStore()
 const state = reactive({
@@ -146,23 +146,22 @@ const state = reactive({
   previousMessage: '',
   lastMilestone: '',
 })
-const buttonRef = ref(null)
+const buttonRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
   // Fetch the leaderboard if the user is logged in
   if (userStore.isLoggedIn) {
     // Fetch the user's click record from the store
     const userClickRecord = userStore.clickRecord
-
-    // Fetch the locally stored high score
-    const localHighScore = parseInt(localStorage.getItem('topScore')) || 0
+    const localHighScore =
+      parseInt(localStorage.getItem('topScore') || '0') || 0
 
     // Set both to the higher number
     const highestScore = Math.max(userClickRecord, localHighScore)
     state.topScore = highestScore
     localStorage.setItem('Local TopScore', highestScore.toString())
 
-    state.topScore = parseInt(localStorage.getItem('topScore')) || 0
+    state.topScore = parseInt(localStorage.getItem('topScore') || '0') || 0
   }
 })
 
@@ -187,7 +186,8 @@ const pressedButton = () => {
 
   // Save to localStorage every 10 clicks to optimize performance
   if (state.pressCount % 10 === 0) {
-    localStorage.setItem('topScore', state.topScore)
+    localStorage.setItem('topScore', state.topScore.toString())
+
     submitTopScore()
   }
 
@@ -215,18 +215,20 @@ const submitTopScore = async () => {
     await userStore.fetchHighClickScores()
   }
 }
-const triggerConfetti = () => {
-  const { top, left, width } = buttonRef.value.getBoundingClientRect()
-  confetti({
-    particleCount: 100 + state.pressCount * 10,
-    spread: 70,
-    origin: {
-      y: top / window.innerHeight,
-      x: (left + width / 2) / window.innerWidth,
-    },
-  })
-}
 
+const triggerConfetti = () => {
+  if (buttonRef.value) {
+    const { top, left, width } = buttonRef.value.getBoundingClientRect() // This will now work
+    confetti({
+      particleCount: 100 + state.pressCount * 10,
+      spread: 70,
+      origin: {
+        y: top / window.innerHeight,
+        x: (left + width / 2) / window.innerWidth,
+      },
+    })
+  }
+}
 const openResetPopup = () => {
   state.showResetPopup = true
 }

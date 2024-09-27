@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useLoadStore } from '../../../stores/loadStore' // Assuming the path to your loadStore
+import { useLoadStore } from './../../../stores/loadStore' // Assuming the path to your loadStore
 
 const { randomLoadMessage } = useLoadStore()
 const currentMessage = ref('Building Kind Robots...')

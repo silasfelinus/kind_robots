@@ -49,14 +49,15 @@ const galleries = galleryStore.$state.galleries
 
 const addGallery = async () => {
   try {
-    await galleryStore.addGallery(newGallery.value)
+    const userId = 1 // Fetch this from the logged-in user's session/store
+    await galleryStore.addGallery({ ...newGallery.value, userId })
     newGallery.value.name = ''
     statusStore.addStatus({
       message: 'Gallery added successfully',
-      type: 'success',
+      type: 'success' as StatusType,
     })
   } catch (error) {
-    errorStore.addError(error)
+    errorStore.addError(ErrorType.GENERAL_ERROR, error)
   }
 }
 
@@ -65,8 +66,8 @@ const deleteGallery = async (id: number) => {
     const userId = 1 // Assuming you fetch this from the logged-in user's session/store
     await galleryStore.deleteGallery(id, userId)
     statusStore.addStatus({
-      message: 'Gallery deleted successfully',
-      type: 'success',
+      message: 'Gallery added successfully',
+      type: 'success' as StatusType, // Explicitly casting
     })
   } catch (error) {
     errorStore.addError(ErrorType.GENERAL_ERROR, error)

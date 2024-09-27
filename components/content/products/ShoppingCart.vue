@@ -9,9 +9,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useCartStore } from './../../../stores/cartStore'
+import type { CartItem } from '@prisma/client' // Import CartItem type
 
 const cartStore = useCartStore()
-const cartItems = ref([])
+
+// Ensure cartItems is correctly typed as CartItem[]
+const cartItems = ref<CartItem[]>([])
 
 onMounted(async () => {
   await cartStore.fetchItemsByCartId(1) // Replace 1 with the actual cart ID

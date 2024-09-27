@@ -1,6 +1,9 @@
 <template>
   <div
-    class="w-full rounded-2xl bg-base-300 relative shadow-lg min-h-screen"
+    class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
+    :style="{
+      height: mainHeight, // Constrain the height using mainHeight from the store
+    }"
     :class="{
       'grid grid-cols-2 gap-4': isLargeViewport,
       'flip-card': !isLargeViewport,
@@ -17,34 +20,40 @@
         <splash-tutorial />
       </div>
 
-      <!-- Back side: NuxtPage content (with scrolling) -->
-      <div class="flip-card-back overflow-y-auto h-screen">
-        <NuxtPage />
+      <!-- Back side: NuxtPage content -->
+      <div class="flip-card-back overflow-y-auto">
+        <NuxtPage></NuxtPage>
       </div>
     </div>
 
     <!-- Two-column layout for large and extra-large viewports -->
     <div
       v-if="isLargeViewport"
-      class="flex flex-col overflow-y-auto min-h-screen"
+      class="flex flex-col overflow-y-auto border border-accent rounded-2xl p-1"
+      :style="{ height: '100%' }"
     >
       <splash-tutorial />
     </div>
     <div
       v-if="isLargeViewport"
-      class="flex flex-col overflow-y-auto min-h-screen border rounded-2xl"
+      class="flex flex-col overflow-y-auto"
+      :style="{ height: '100%' }"
     >
-      <NuxtPage />
+      <NuxtPage></NuxtPage>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useDisplayStore } from './../../../stores/displayStore'
+import { useDisplayStore } from '@/stores/displayStore'
 
 // Initialize the display store
 const displayStore = useDisplayStore()
+
+const mainHeight = computed(
+  () => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`,
+)
 
 // Watch for changes in viewport size
 const isLargeViewport = computed(
@@ -61,16 +70,17 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style>
+/* Ensure the main content respects the boundaries */
 .flip-card {
   width: 100%;
-  height: 100%;
+  height: 100%; /* Match the height of its parent container */
   perspective: 1000px;
 }
 
 .flip-card-inner {
   width: 100%;
-  height: 100%;
+  height: 100%; /* Ensure it stays within the parent height */
   transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
   position: relative;
@@ -91,19 +101,21 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.flip-card-front {
-  z-index: 2;
-}
-
 .flip-card-back {
   transform: rotateY(180deg);
-  overflow-y: auto; /* Ensure this element is scrollable */
+  overflow-y: auto; /* Allows the back side to scroll */
 }
 
-/* Ensure grid layout height takes full available space */
+/* Two-column layout should also respect height */
 .grid-cols-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  height: 100%;
+  height: 100%; /* Ensure the two-column layout respects the container height */
+}
+
+/* Ensure border for main content */
+.w-full.border-accent {
+  border-color: var(--tw-border-opacity) var(--tw-border-opacity);
+  border-width: 2px;
 }
 </style>

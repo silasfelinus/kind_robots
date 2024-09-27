@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="displayStore.footer !== 'hidden'"
+    v-if="displayStore.footerState !== 'hidden'"
     class="kind-footer w-full bg-primary text-white flex justify-center items-center transition-all duration-500"
     :style="{
       height: `${displayStore.footerVh}vh`,
@@ -24,8 +24,8 @@ const displayStore = useDisplayStore()
 // Computed property to dynamically calculate the icon size based on the displayStore
 const iconClass = computed(() => {
   return {
-    'h-6 w-6': displayStore.footer === 'compact',
-    'h-8 w-8': displayStore.footer === 'open',
+    'h-6 w-6': displayStore.footerState === 'compact',
+    'h-8 w-8': displayStore.footerState === 'open',
     'h-auto w-auto': displayStore.iconSize === 0, // fallback for default icon size
   }
 })

@@ -9,7 +9,9 @@
 
     <!-- Display art matching the selected pitch -->
     <div v-else>
-      <p class="text-gray-700 mb-4">Selected Pitch: {{ selectedPitch.name }}</p>
+      <p class="text-gray-700 mb-4">
+        Selected Pitch: {{ selectedPitch.title || 'Untitled' }}
+      </p>
 
       <div v-if="filteredArtIds.length > 0" class="grid grid-cols-2 gap-4">
         <div
@@ -41,14 +43,14 @@ const artStore = useArtStore()
 // Get the selected pitch from the gameStore (update if the property name is different)
 const selectedPitch = computed(() => pitchStore.currentPitch) // Assuming it's currentPitch
 
-// Filter the art by matching pitchId
 const filteredArtIds = computed(() => {
   if (!selectedPitch.value) return []
 
-  // Assuming artStore has an array of art objects, each containing artId and pitchId
+  // Safely handle cases where art.pitchId might be null
   return artStore.artAssets
     .filter(
-      (art: { pitchId: number }) => art.pitchId === selectedPitch.value.id,
+      (art: { pitchId: number | null }) =>
+        art.pitchId === selectedPitch.value?.id,
     )
     .map((art: { id: number }) => art.id) // Return just the artIds
 })

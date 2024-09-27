@@ -13,8 +13,10 @@ import { useArtStore } from './../../../stores/artStore'
 
 const artStore = useArtStore()
 
-const uploadImage = async (event) => {
-  const uploadedFile = event.target.files[0]
+const uploadImage = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const uploadedFile = input?.files?.[0]
+
   if (uploadedFile) {
     const formData = new FormData()
     formData.append('image', uploadedFile)

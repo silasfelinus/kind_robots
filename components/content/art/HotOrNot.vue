@@ -3,9 +3,14 @@
     <div class="splash-section"></div>
 
     <div v-show="!showSplash" class="gallery-section">
-      <GallerySelector v-model="selectedGallery" :options="galleryOptions" />
+      <gallery-selector />
       <div class="art-container">
-        <img :src="currentImage.url" alt="Current Art" class="art-image" />
+        <img
+          v-if="currentImage"
+          :src="currentImage.url"
+          alt="Current Art"
+          class="art-image"
+        />
         <div class="button-container">
           <button class="gallery-button" @click="vote('hate')">Hate</button>
           <button class="gallery-button" @click="vote('love')">Love</button>
@@ -17,17 +22,25 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useGalleryStore } from './../../../stores/galleryStore'
-import { useArtStore } from './../../../stores/artStore'
+import { useReactionStore } from './../../../stores/reactionStore'
 
 const showSplash = ref(true)
-const selectedGallery = ref('')
 const galleryStore = useGalleryStore()
-const artStore = useArtStore()
-const currentImage = ref({})
+const reactionStore = useReactionStore()
+
+interface ArtImage {
+  id: number
+  url: string
+}
+
+const currentImage = ref<ArtImage | null>(null)
+const activeIcon = ref<string | null>(null)
+
+// Assume userId is available in the session or store
+const userId = 1 // Replace with actual logic to get the logged-in user ID
 
 // Touch coordinates
 let touchstartX = 0
@@ -36,13 +49,13 @@ let touchstartY = 0
 let touchendY = 0
 
 // Define the touch start function
-const handleTouchStart = (event) => {
+const handleTouchStart = (event: TouchEvent) => {
   touchstartX = event.touches[0].screenX
   touchstartY = event.touches[0].screenY
 }
 
 // Define the touch end function
-const handleTouchEnd = (event) => {
+const handleTouchEnd = (event: TouchEvent) => {
   touchendX = event.changedTouches[0].screenX
   touchendY = event.changedTouches[0].screenY
   handleSwipeGesture()
@@ -53,50 +66,99 @@ const handleSwipeGesture = () => {
   const deltaX = touchendX - touchstartX
   const deltaY = touchendY - touchstartY
 
-  if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    if (deltaX > 0) vote('hot')
-    else vote('not')
+  if (deltaX > 0) {
+    vote('hot')
   } else {
-    if (deltaY > 0) vote('hate')
-    else vote('love')
+    vote('not')
+  }
+
+  if (deltaY > 0) {
+    vote('hate')
+  } else {
+    vote('love')
   }
 }
 
-const activeIcon = ref(null)
+// Vote function to handle reactions
+type VoteChoice = 'hate' | 'love' | 'not' | 'hot'
 
-const vote = (choice) => {
-  artStore.recordReaction(currentImage.value.id, choice)
-  galleryStore.moveToNextImage()
+const vote = async (choice: VoteChoice) => {
+  if (currentImage.value) {
+    try {
+      // Call the reactionStore to create a reaction
+      await reactionStore.createReaction({
+        userId,
+        reactionType: getReactionType(choice),
+        artId: currentImage.value.id,
+        reactionCategory: 'ART',
+      })
 
+      // Change to a random image in the current gallery
+      await galleryStore.changeToRandomImage()
+
+      // Update active icon based on vote choice
+      switch (choice) {
+        case 'hot':
+          activeIcon.value = 'mdi-fire'
+          break
+        case 'love':
+          activeIcon.value = 'mdi-heart'
+          break
+        case 'not':
+          activeIcon.value = 'mdi-thumb-down-outline'
+          break
+        case 'hate':
+          activeIcon.value = 'mdi-delete'
+          break
+      }
+
+      // Reset icon after 1 second
+      setTimeout(() => (activeIcon.value = null), 1000)
+    } catch (error) {
+      console.error('Error recording reaction or fetching new image:', error)
+    }
+  }
+}
+
+// Helper function to map vote choices to reaction types
+const getReactionType = (choice: VoteChoice) => {
   switch (choice) {
     case 'hot':
-      activeIcon.value = 'mdi-fire'
-      break
+      return 'LOVED'
     case 'love':
-      activeIcon.value = 'mdi-heart'
-      break
+      return 'LOVED'
     case 'not':
-      activeIcon.value = 'mdi-thumb-down-outline'
-      break
+      return 'BOOED'
     case 'hate':
-      activeIcon.value = 'mdi-delete'
-      break
+      return 'HATED'
+    default:
+      return 'NEUTRAL'
   }
-  // Reset icon after a short duration to display it temporarily
-  setTimeout(() => (activeIcon.value = null), 1000)
 }
 
-// Set up and tear down event listeners
 onMounted(() => {
-  const imageElement = document.querySelector('.art-image')
-  imageElement.addEventListener('touchstart', handleTouchStart)
-  imageElement.addEventListener('touchend', handleTouchEnd)
+  const imageElement = document.querySelector('.art-image') as HTMLImageElement
+  if (imageElement) {
+    imageElement.addEventListener(
+      'touchstart',
+      handleTouchStart as EventListener,
+    )
+    imageElement.addEventListener('touchend', handleTouchEnd as EventListener)
+  }
 })
 
 onUnmounted(() => {
-  const imageElement = document.querySelector('.art-image')
-  imageElement.removeEventListener('touchstart', handleTouchStart)
-  imageElement.removeEventListener('touchend', handleTouchEnd)
+  const imageElement = document.querySelector('.art-image') as HTMLImageElement
+  if (imageElement) {
+    imageElement.removeEventListener(
+      'touchstart',
+      handleTouchStart as EventListener,
+    )
+    imageElement.removeEventListener(
+      'touchend',
+      handleTouchEnd as EventListener,
+    )
+  }
 })
 </script>
 

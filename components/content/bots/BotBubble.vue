@@ -24,7 +24,7 @@ import { useBotStore } from './../../../stores/botStore'
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
 const scrollContainer = ref<HTMLElement | null>(null)
-const defaultAvatar = '/path/to/default-avatar.png' // Use a fallback image
+const defaultAvatar = '/images/avatars/lingua1.webp' // Use a fallback image
 
 function selectBot(botId: string | number) {
   botStore.selectBot(Number(botId)) // Ensure botId is a number

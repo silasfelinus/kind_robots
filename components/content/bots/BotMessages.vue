@@ -4,7 +4,6 @@
       <select
         v-model="selectedBotId"
         class="block w-full p-2 rounded-2xl border border-gray-300"
-        @change="filteredMessages"
       >
         <option value="">All Messages</option>
         <option v-for="bot in bots" :key="bot.id" :value="bot.id">
@@ -19,19 +18,13 @@
       class="message-card bg-white shadow-md rounded-2xl p-4 mb-4"
     >
       <div class="message-header flex items-center mb-2">
-        <img
-          v-if="message.avatar"
-          :src="message.avatar"
-          alt="User Avatar"
-          class="w-10 h-10 rounded-full mr-2"
-        />
         <h3 class="text-lg font-semibold">
           {{ message.username }} (Bot: {{ message.botName }})
         </h3>
         <!-- Toggle Public Button -->
         <button
           class="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
-          @click="togglePublic(message.id, !message.isPublic)"
+          @click="togglePublic(message.id)"
         >
           {{ message.isPublic ? 'Unshare' : 'Share' }}
         </button>
@@ -49,17 +42,17 @@ import { useChatStore } from './../../../stores/chatStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useBotStore } from './../../../stores/botStore'
 
-// Getting userId, selectedBotId, and methods from respective stores
+// Get stores and necessary properties
 const { userId } = useUserStore()
-const { selectedBotId } = useBotStore()
+const { selectedBotId, bots } = useBotStore()
 const { fetchChatExchangesByUserId, chatExchanges, togglePublic } =
   useChatStore()
 
+// Fetch chat exchanges on mount
 onMounted(async () => {
-  if (userId.value) {
-    // Ensure userId is present before fetching
+  if (userId) {
     try {
-      await fetchChatExchangesByUserId(userId.value)
+      await fetchChatExchangesByUserId(userId)
     } catch (error) {
       console.error('Failed to fetch chat exchanges:', error)
     }
@@ -70,13 +63,11 @@ onMounted(async () => {
 
 // Filter messages based on selectedBotId
 const filteredMessages = computed(() => {
-  if (!chatExchanges.value || chatExchanges.value.length === 0) return []
+  if (!chatExchanges || chatExchanges.length === 0) return []
 
-  return selectedBotId.value
-    ? chatExchanges.value.filter(
-        (exchange) => exchange.botId === selectedBotId.value,
-      )
-    : chatExchanges.value
+  return selectedBotId
+    ? chatExchanges.filter((exchange) => exchange.botId === selectedBotId)
+    : chatExchanges
 })
 </script>
 

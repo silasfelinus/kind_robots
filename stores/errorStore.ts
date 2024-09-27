@@ -68,6 +68,9 @@ export const useErrorStore = defineStore('error', {
         this.history.shift()
       }
     },
+    addError(type: ErrorType, message: unknown) {
+      this.setError(type, message) // Use the existing setError function
+    },
 
     /**
      * Clears the current error state.

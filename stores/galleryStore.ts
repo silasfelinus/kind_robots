@@ -30,28 +30,18 @@ export const useGalleryStore = defineStore({
     },
 
     randomGallery(state: GalleryState): Gallery | null {
-      const otherGalleries = Array.isArray(state.galleries)
-        ? state.galleries.filter((g) => g.name !== state.currentGallery?.name)
-        : []
-
-      if (otherGalleries.length === 0 && state.currentGallery) {
-        return state.currentGallery
-      }
-
-      return (
-        otherGalleries[Math.floor(Math.random() * otherGalleries.length)] ||
-        null
+      const otherGalleries = state.galleries.filter(
+        (g) => g.name !== state.currentGallery?.name
       )
+      return otherGalleries.length
+        ? otherGalleries[Math.floor(Math.random() * otherGalleries.length)]
+        : state.currentGallery
     },
 
-    imagePathsByGalleryName(
-      state: GalleryState,
-    ): (galleryName: string) => string[] {
+    imagePathsByGalleryName(state: GalleryState): (galleryName: string) => string[] {
       return (galleryName: string) => {
         const gallery = state.galleries.find((g) => g.name === galleryName)
-        return gallery && gallery.imagePaths
-          ? gallery.imagePaths.split(',')
-          : []
+        return gallery?.imagePaths ? gallery.imagePaths.split(',') : []
       }
     },
   },
@@ -91,6 +81,56 @@ export const useGalleryStore = defineStore({
         }
       }
     },
+
+    async addGallery(gallery: { name: string; userId: number }) {
+      try {
+        const response = await fetch('/api/galleries', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(gallery),
+        })
+
+        const newGallery = await response.json()
+        this.galleries.push(newGallery)
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('galleries', JSON.stringify(this.galleries))
+        }
+      } catch (error) {
+        console.error('Failed to add gallery:', error)
+      }
+    },
+
+    async deleteGallery(id: number, userId: number) {
+      const gallery = this.galleries.find((gallery) => gallery.id === id)
+
+      if (!gallery) {
+        console.error('Gallery not found.')
+        return
+      }
+
+      if (gallery.userId !== userId) {
+        console.error('User is not authorized to delete this gallery.')
+        return
+      }
+
+      try {
+        await fetch(`/api/galleries/${id}`, {
+          method: 'DELETE',
+        })
+
+        this.galleries = this.galleries.filter((gallery) => gallery.id !== id)
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('galleries', JSON.stringify(this.galleries))
+        }
+      } catch (error) {
+        console.error('Failed to delete gallery:', error)
+      }
+    },
+
     async fetchGalleries() {
       try {
         const response = await fetch('/api/galleries')
@@ -110,7 +150,7 @@ export const useGalleryStore = defineStore({
             }
           } else {
             console.error(
-              'Invalid galleries data format. Expected an array under the galleries property.',
+              'Invalid galleries data format. Expected an array under the galleries property.'
             )
           }
         } else {
@@ -121,19 +161,15 @@ export const useGalleryStore = defineStore({
       }
     },
 
-    // Set the current gallery by name and update localStorage
     setGalleryByName(name: string) {
       const selectedGallery = this.galleries.find(
-        (gallery: Gallery) => gallery.name === name,
+        (gallery: Gallery) => gallery.name === name
       )
       if (selectedGallery) {
         this.currentGallery = selectedGallery
         this.currentImage = selectedGallery.imagePaths?.split(',')[0] || ''
         if (typeof window !== 'undefined') {
-          localStorage.setItem(
-            'currentGallery',
-            JSON.stringify(this.currentGallery),
-          )
+          localStorage.setItem('currentGallery', JSON.stringify(this.currentGallery))
           localStorage.setItem('currentImage', this.currentImage)
         }
       } else {

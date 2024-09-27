@@ -15,6 +15,7 @@ export const useMilestoneStore = defineStore({
 
   actions: {
     async initializeMilestones() {
+      console.log('initializing milestones')
       const errorStore = useErrorStore()
 
       if (this.isInitialized) return

@@ -200,7 +200,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePitchStore, PitchType } from './../../../stores/pitchStore'
+import {
+  usePitchStore,
+  PitchType,
+  type Pitch,
+} from './../../../stores/pitchStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 

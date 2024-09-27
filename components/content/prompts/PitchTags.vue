@@ -1,6 +1,6 @@
 <template>
   <div class="bg-base-300 rounded-2xl p-8 text-lg">
-    <h1 class="text-2xl mb-4">Pitch Manager</h1>
+    <h1 class="text-2xl mb-4">PitchTags Manager</h1>
     <!-- Toggle Switch for Admin -->
     <div v-if="isAdmin" class="mt-4">
       <label class="flex items-center">

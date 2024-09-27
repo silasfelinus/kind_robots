@@ -230,4 +230,4 @@ export const useArtStore = defineStore({
   },
 })
 
-export type { Art, ArtImage, Reaction }
+export type { Art, ArtImage }

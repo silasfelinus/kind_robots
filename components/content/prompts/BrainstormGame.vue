@@ -93,12 +93,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePitchStore } from './../../../stores/pitchStore'
+import { usePitchStore, type Pitch } from './../../../stores/pitchStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import AddPitch from './AddPitch.vue'
-import { useReactionStore } from '../../../stores/reactionStore'
-import type { Pitch } from '@prisma/client'
-import { ReactionType } from '@prisma/client'
+import {
+  useReactionStore,
+  type ReactionType,
+} from '../../../stores/reactionStore'
 
 // Stores and States
 const pitchStore = usePitchStore()

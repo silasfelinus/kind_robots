@@ -92,7 +92,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
 import { useReactionStore } from '../../../stores/reactionStore'
-import type { ReactionType } from '@prisma/client'
+import type { ReactionType } from '../../../stores/reactionStore'
 
 let userKey: string | null = null
 

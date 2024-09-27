@@ -13,7 +13,7 @@
       to your top five, or create your own!
     </p>
 
-    <AddPitch @pitch-created="handlePitchCreated" />
+    <add-pitch @pitch-created="handlePitchCreated"></add-pitch>
 
     <!-- Top 5 Selected Pitches (Responsive) -->
     <div
@@ -95,7 +95,6 @@
 import { ref, computed } from 'vue'
 import { usePitchStore, type Pitch } from './../../../stores/pitchStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
-import AddPitch from './AddPitch.vue'
 import {
   useReactionStore,
   ReactionTypeEnum,
@@ -174,15 +173,12 @@ const submitTopPitches = async () => {
     selectedPitches.value = [null, null, null, null, null]
   } catch (error: unknown) {
     const err = error as Error
-    errorStore.setError(
-      ErrorType.NETWORK_ERROR,
-
-      err || 'Failed to submit top 5 pitches',
-    )
+    errorStore.setError(ErrorType.NETWORK_ERROR, err || 'Failed to submit top 5 pitches')
   } finally {
     isSubmitting.value = false
   }
 }
+
 </script>
 
 <style scoped>

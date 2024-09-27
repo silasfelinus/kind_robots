@@ -115,7 +115,7 @@ export const useArtStore = defineStore({
                 return { ...art, gallery }
               }),
             )
-            if (localStorage)
+            if (typeof window !== 'undefined' && window.localStorage)
               localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
           } else {
             const errorResponse = await response.json()
@@ -150,7 +150,7 @@ export const useArtStore = defineStore({
           const response = await fetch(`/api/art/${id}`, { method: 'DELETE' })
           if (response.ok) {
             this.artAssets = this.artAssets.filter((art) => art.id !== id)
-            if (localStorage)
+            if (typeof window !== 'undefined' && window.localStorage)
               localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
           } else {
             const errorResponse = await response.json()

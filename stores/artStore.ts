@@ -208,7 +208,7 @@ export const useArtStore = defineStore({
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
-          const response = await fetch('/api/art/upload', {
+          const response = await fetch('/api/utils/UploadArtImage', {
             method: 'POST',
             body: formData, // Send the FormData object with the image file
           })

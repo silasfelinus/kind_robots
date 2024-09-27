@@ -17,9 +17,20 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+// Define the type for the art object
+interface Art {
+  id: number
+  url: string
+}
+
 const winnerName = ref('PlayerOne')
 const winnerAvatar = ref('https://example.com/avatar.png')
-const winningArts = ref([])
+
+// Specify that winningArts is an array of Art objects
+const winningArts = ref<Art[]>([
+  { id: 1, url: 'https://example.com/art1.png' },
+  { id: 2, url: 'https://example.com/art2.png' },
+])
 
 const startNewGame = () => {
   // Logic to start a new game

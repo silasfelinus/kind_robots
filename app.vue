@@ -1,1 +1,1 @@
-<template><kind-loader></kind-loader></template>
+<template>Hi</template>

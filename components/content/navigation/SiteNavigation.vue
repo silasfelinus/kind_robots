@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <AppNavigation :navigation-tree="navigation" />
+    <AppNavigation :navigation-tree="navigation || []" />
   </nav>
 </template>
 

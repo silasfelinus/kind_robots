@@ -13,12 +13,14 @@
 import { useGameStore } from './../../../stores/gameStore'
 import { ref, onMounted } from 'vue'
 
+import type { Game } from './../../../stores/gameStore'
+
 const gameStore = useGameStore()
-const games = ref([])
+const games = ref<Game[]>([]) // Set the type for games
 
 onMounted(async () => {
   await gameStore.loadGames()
-  games.value = gameStore.games
+  games.value = gameStore.games // TypeScript now knows the structure
 })
 
 const createGame = async () => {
@@ -28,7 +30,8 @@ const createGame = async () => {
   })
 }
 
-const joinGame = async (gameId) => {
+const joinGame = async (gameId: number) => {
+  // Explicit type for gameId
   await gameStore.joinGame(gameId, 'PlayerOne')
 }
 </script>

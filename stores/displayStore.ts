@@ -14,6 +14,7 @@ interface DisplayStoreState {
   showTutorial: boolean
   isInitialized: boolean
   showIntro: boolean
+  footerWh: number
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -27,7 +28,8 @@ export const useDisplayStore = defineStore('display', {
     isTouchDevice: false,
     showTutorial: true,
     isInitialized: false,
-    showIntro: true
+    showIntro: true,
+    footerWh: 100
   }),
 
   getters: {

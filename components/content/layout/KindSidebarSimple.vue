@@ -15,7 +15,7 @@
         v-for="link in hardcodedLinks"
         :key="link.title"
         :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-        class="Icon-link-container flex items-center space-x-1 md:space-x-2 hover:bg-base-100 hover:scale-110 rounded-xl mt-1 mb-1 p-1 md:p-2"
+        class="Icon-link-container flex items-center space-x-1 md:space-x-2 hover:bg-primary hover:scale-110 rounded-xl mt-1 mb-1 p-1 md:p-2"
       >
         <!-- Use a click event with router.push for navigation -->
         <a
@@ -127,10 +127,4 @@ onMounted(() => {
   scrollbar-width: none;
 }
 
-/* Interactive hover effects for the links */
-.Icon-link-container:hover {
-  background-color: var(--bg-base-100);
-  transform: scale(1.05);
-  transition: all 0.3s ease-in-out;
-}
 </style>

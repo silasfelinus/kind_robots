@@ -8,7 +8,7 @@
     >
       <div class="card bordered">
         <figure>
-          <img :src="bot.avatarImage" />
+          <img :src="bot.avatarImage || '/images/avatars/lingua1.webp'" />
         </figure>
         <div class="card-body">
           <h2 class="card-title">
@@ -28,11 +28,11 @@
 import { useBotStore } from '../../../stores/botStore'
 
 const botStore = useBotStore()
-const selectedBotId = ref(null)
+const selectedBotId = ref<number | null>(null)
 
 const bots = computed(() => botStore.bots)
-const selectBot = (id) => {
+const selectBot = (id: number) => {
   selectedBotId.value = id
 }
-const isSelectedBot = (id) => id === selectedBotId.value
+const isSelectedBot = (id: number) => id === selectedBotId.value
 </script>

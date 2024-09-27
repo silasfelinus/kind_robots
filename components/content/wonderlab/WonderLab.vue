@@ -17,7 +17,7 @@
           <p class="text-lg px-4">
             Welcome to the WonderLab! Select a folder to view components.
           </p>
-          <component-count />
+          <component-count></component-count>
 
           <!-- Sync Components Button, shown only if the user is ADMIN -->
           <button
@@ -53,7 +53,7 @@
           v-if="componentStore.selectedComponent"
           :component="componentStore.selectedComponent"
           @close="handleComponentClose"
-        />
+        ></component-screen>
       </div>
     </transition>
 
@@ -71,10 +71,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
-import { useDisplayStore } from '@/stores/displayStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { useUserStore } from '@/stores/userStore' // Import user store
+import { useComponentStore } from './../../../stores/componentStore'
+import { useDisplayStore } from './../../../stores/displayStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { useUserStore } from './../../../stores/userStore' // Import user store
 import LabGallery from './LabGallery.vue'
 import ComponentScreen from './ComponentScreen.vue'
 

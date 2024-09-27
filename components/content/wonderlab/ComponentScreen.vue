@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
+import { useComponentStore } from './../../../stores/componentStore'
 
 // State
 const loadingStatus = ref<string | null>(null)

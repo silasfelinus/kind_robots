@@ -124,6 +124,16 @@ export const useDisplayStore = defineStore('display', {
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
+    changeState(section: 'sidebarLeftState' | 'sidebarRightState' | 'headerState' | 'footerState', newState: DisplayState) {
+      try {
+        this[section] = newState;
+        this.saveState(); // Save the state after changing it
+      } catch (error) {
+        console.error(`Error changing state for ${section}:`, error);
+        const errorStore = useErrorStore();
+        errorStore.setError(ErrorType.GENERAL_ERROR, error);
+      }
+    },
 
     toggleFooter() {
       try {

@@ -33,7 +33,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 const eyeballSize = Math.floor(Math.random() * 100) + 50
 const irisSize = eyeballSize * 0.6
 const irisColor = ref(generateRandomColor())
-const eyeElement = ref(null)
+const eyeElement = ref<HTMLElement | null>(null) // Explicit type
 const mouseX = ref(0)
 const mouseY = ref(0)
 const upperEyelidY = ref(0)
@@ -141,7 +141,8 @@ function openEye() {
   lowerEyelidY.value = 0
 }
 
-const handleMouseMove = (e) => {
+const handleMouseMove = (e: MouseEvent) => {
+  // Explicit type for the event
   if (currentBehavior === 'moveRandomly') {
     return // Don't move with the mouse if the current behavior is set to move randomly
   }
@@ -152,7 +153,9 @@ const handleMouseMove = (e) => {
 
 // Lifecycle Hooks
 onMounted(() => {
-  eyeElement.value = document.querySelector('.bg-white.rounded-full')
+  eyeElement.value = document.querySelector(
+    '.bg-white.rounded-full',
+  ) as HTMLElement | null
 
   if (typeof window !== 'undefined') {
     mouseX.value = window.innerWidth / 2

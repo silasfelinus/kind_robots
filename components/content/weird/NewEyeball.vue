@@ -15,20 +15,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
+
+// Type definitions for timeouts/intervals
+let defaultBehaviorInterval: NodeJS.Timeout | null = null
+let trackTimeout: NodeJS.Timeout | null = null
+let blinkInterval: NodeJS.Timeout | null = null
 
 const eyeballSize = 150
 const irisSize = eyeballSize * 0.6
-const eyeElement = ref(null)
+const eyeElement = ref<HTMLElement | null>(null)
 const irisX = ref(0)
 const irisY = ref(0)
 const irisColor = ref(`hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`)
 const moveDuration = ref(0.5) // Slower movement
 const pupilRadius = irisSize / 2
 const maxDistance = eyeballSize / 2 - pupilRadius
-let defaultBehaviorInterval
-let trackTimeout
-let blinkInterval
 
 const irisStyle = computed(() => ({
   backgroundColor: irisColor.value,
@@ -45,32 +47,31 @@ const eyeballStyle = computed(() => ({
   height: `${eyeballSize}px`,
 }))
 
-const handleClick = (event) => {
-  console.log('ow!')
-  const eyeBounds = eyeElement.value.getBoundingClientRect()
-  const isClickInsideEye =
-    event.clientX >= eyeBounds.left &&
-    event.clientX <= eyeBounds.right &&
-    event.clientY >= eyeBounds.top &&
-    event.clientY <= eyeBounds.bottom
+const handleClick = (event: MouseEvent) => {
+  if (eyeElement.value) {
+    const eyeBounds = eyeElement.value.getBoundingClientRect()
+    const isClickInsideEye =
+      event.clientX >= eyeBounds.left &&
+      event.clientX <= eyeBounds.right &&
+      event.clientY >= eyeBounds.top &&
+      event.clientY <= eyeBounds.bottom
 
-  if (isClickInsideEye) {
-    blinkEye() // Call the blink function without disturbing the shared timer
+    if (isClickInsideEye) {
+      blinkEye()
+    }
+
+    clearInterval(defaultBehaviorInterval as NodeJS.Timeout)
+    clearTimeout(trackTimeout as NodeJS.Timeout)
+
+    moveIris(event)
+
+    document.addEventListener('mousemove', moveIris)
+
+    trackTimeout = setTimeout(() => {
+      document.removeEventListener('mousemove', moveIris)
+      startDefaultBehavior()
+    }, 2000)
   }
-
-  clearInterval(defaultBehaviorInterval) // Stop default behavior
-  clearTimeout(trackTimeout) // Clear any existing timeouts
-
-  moveIris(event)
-
-  // Change from eyeElement.value to document
-  document.addEventListener('mousemove', moveIris)
-
-  trackTimeout = setTimeout(() => {
-    // Change from eyeElement.value to document
-    document.removeEventListener('mousemove', moveIris)
-    startDefaultBehavior()
-  }, 2000) // 2 seconds of tracking
 }
 
 const startDefaultBehavior = () => {
@@ -80,53 +81,57 @@ const startDefaultBehavior = () => {
 
     irisX.value = Math.cos(angle) * distance
     irisY.value = Math.sin(angle) * distance
-  }, 2500) // 2.5 seconds per random movement
+  }, 2500)
 }
 
 const blinkEye = () => {
-  eyeElement.value.classList.add('blink')
-  setTimeout(() => {
-    eyeElement.value.classList.remove('blink')
-  }, 200) // Assuming 200ms for blink animation
+  if (eyeElement.value) {
+    eyeElement.value.classList.add('blink')
+    setTimeout(() => {
+      eyeElement.value?.classList.remove('blink')
+    }, 200)
+  }
+}
+
+const moveIris = (event: MouseEvent) => {
+  if (eyeElement.value) {
+    const eyeBounds = eyeElement.value.getBoundingClientRect()
+    const relativeX = event.clientX - eyeBounds.left - eyeballSize / 2
+    const relativeY = event.clientY - eyeBounds.top - eyeballSize / 2
+
+    const distance = Math.min(
+      maxDistance,
+      Math.sqrt(relativeX ** 2 + relativeY ** 2),
+    )
+    const angle = Math.atan2(relativeY, relativeX)
+
+    irisX.value = Math.cos(angle) * distance
+    irisY.value = Math.sin(angle) * distance
+  }
 }
 
 onMounted(async () => {
   await nextTick()
-  eyeElement.value = document.querySelector('.bg-white.rounded-full')
-  eyeElement.value.addEventListener('click', handleClick)
+  eyeElement.value = document.querySelector(
+    '.bg-white.rounded-full',
+  ) as HTMLElement
+  eyeElement.value?.addEventListener('click', handleClick)
   startDefaultBehavior()
 
-  // Shared blink timer for all eyes
-  blinkInterval = setInterval(blinkEye, 5000) // Blink every 5 seconds
+  blinkInterval = setInterval(blinkEye, 5000)
 })
 
 onBeforeUnmount(() => {
-  clearInterval(defaultBehaviorInterval)
-  clearInterval(blinkInterval)
-  clearTimeout(trackTimeout)
-  eyeElement.value.removeEventListener('click', handleClick)
+  clearInterval(defaultBehaviorInterval as NodeJS.Timeout)
+  clearInterval(blinkInterval as NodeJS.Timeout)
+  clearTimeout(trackTimeout as NodeJS.Timeout)
 
-  // Remove the event listener from the document
+  if (eyeElement.value) {
+    eyeElement.value.removeEventListener('click', handleClick)
+  }
+
   document.removeEventListener('mousemove', moveIris)
 })
-
-const moveIris = (event) => {
-  const eyeBounds = eyeElement.value.getBoundingClientRect()
-
-  // Calculate the relative position of the mouse inside the eye element.
-  const relativeX = event.clientX - eyeBounds.left - eyeballSize / 2
-  const relativeY = event.clientY - eyeBounds.top - eyeballSize / 2
-
-  // Limit the iris movement to the boundaries of the eye
-  const distance = Math.min(
-    maxDistance,
-    Math.sqrt(relativeX ** 2 + relativeY ** 2),
-  )
-  const angle = Math.atan2(relativeY, relativeX)
-
-  irisX.value = Math.cos(angle) * distance
-  irisY.value = Math.sin(angle) * distance
-}
 </script>
 
 <style scoped>

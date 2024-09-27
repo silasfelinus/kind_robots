@@ -21,7 +21,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 const eyeballSize = 150
 const irisSize = eyeballSize * 0.6
 const maxIrisDist = eyeballSize / 2 - irisSize / 2
-const eyeElement = ref(null)
+const eyeElement = ref<HTMLElement | null>(null)
 const irisX = ref(0)
 const irisY = ref(0)
 
@@ -38,9 +38,11 @@ const irisStyle = computed(() => ({
 }))
 
 // Random movement of iris
-let intervalId
+let intervalId: ReturnType<typeof setInterval>
 onMounted(() => {
-  eyeElement.value = document.querySelector('.bg-white.rounded-full')
+  eyeElement.value = document.querySelector(
+    '.bg-white.rounded-full',
+  ) as HTMLElement | null
 
   intervalId = setInterval(() => {
     const angle = Math.random() * 2 * Math.PI
@@ -53,9 +55,9 @@ onMounted(() => {
   function randomBlink() {
     setTimeout(
       () => {
-        eyeElement.value.classList.add('blink')
+        eyeElement.value?.classList.add('blink')
         setTimeout(() => {
-          eyeElement.value.classList.remove('blink')
+          eyeElement.value?.classList.remove('blink')
           randomBlink()
         }, 200) // Blink duration
       },

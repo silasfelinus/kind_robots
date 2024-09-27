@@ -197,7 +197,7 @@ let firstSelected: GalleryImage | null = null
 async function generateMemoryGameImages() {
   try {
     isLoading.value = true
-    displayStore.changeState('sidebarLeft', 'hidden')
+    displayStore.changeState('sidebarLeftState', 'hidden')
     gameWon.value = false
 
     const response = await fetch(

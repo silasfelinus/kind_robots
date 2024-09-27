@@ -1,5 +1,9 @@
 {
   "compilerOptions": { 
+    "types": [
+      "@nuxt/types",
+      "@types/node"
+    ],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]

@@ -35,8 +35,11 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useChannelStore } from './../../../stores/channelStore'
-import type { Channel, Message } from '@prisma/client'
+import {
+  useChannelStore,
+  type Channel,
+  type Message,
+} from './../../../stores/channelStore'
 
 // Props
 const props = defineProps({

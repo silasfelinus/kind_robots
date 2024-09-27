@@ -129,9 +129,8 @@
 import { ref, computed, onMounted, watchEffect } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
-import { useReactionStore } from '../../../stores/reactionStore'
-import { useChatStore } from '../../../stores/chatStore'
-import type { ChatExchange, ReactionType } from '@prisma/client'
+import { useReactionStore, type ReactionType } from '../../../stores/reactionStore'
+import { useChatStore, type ChatExchange } from '../../../stores/chatStore'
 
 const shouldShowMilestoneCheck = ref(false)
 let userKey: string | null = null

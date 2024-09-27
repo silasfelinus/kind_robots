@@ -64,11 +64,11 @@ const imageList = [
 ]
 
 // Selected image state
-const selectedImage = ref(null)
+const selectedImage = ref<string | null>(null)
 const deforumStore = useDeforumStore()
 
 // Function to select an image
-const selectImage = (imageName) => {
+const selectImage = (imageName: string) => {
   selectedImage.value = imageName
 }
 

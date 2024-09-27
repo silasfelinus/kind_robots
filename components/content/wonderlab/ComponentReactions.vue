@@ -54,26 +54,26 @@
       <Icon
         name="mdi:thumb-up-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-green-500': reactionType === ReactionType.CLAPPED }"
-        @click="toggleReaction(ReactionType.CLAPPED)"
+        :class="{ 'text-green-500': reactionType === ReactionTypeEnum.CLAPPED }"
+        @click="toggleReaction(ReactionTypeEnum.CLAPPED)"
       />
       <Icon
         name="mdi:thumb-down-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-red-500': reactionType === ReactionType.BOOED }"
-        @click="toggleReaction(ReactionType.BOOED)"
+        :class="{ 'text-red-500': reactionType === ReactionTypeEnum.BOOED }"
+        @click="toggleReaction(ReactionTypeEnum.BOOED)"
       />
       <Icon
         name="mdi:heart-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-pink-500': reactionType === ReactionType.LOVED }"
-        @click="toggleReaction(ReactionType.LOVED)"
+        :class="{ 'text-pink-500': reactionType === ReactionTypeEnum.LOVED }"
+        @click="toggleReaction(ReactionTypeEnum.LOVED)"
       />
       <Icon
         name="mdi:emoticon-angry-outline"
         class="text-6xl cursor-pointer"
-        :class="{ 'text-yellow-500': reactionType === ReactionType.HATED }"
-        @click="toggleReaction(ReactionType.HATED)"
+        :class="{ 'text-yellow-500': reactionType === ReactionTypeEnum.HATED }"
+        @click="toggleReaction(ReactionTypeEnum.HATED)"
       />
     </div>
 
@@ -104,9 +104,12 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
-import { useReactionStore } from '@/stores/reactionStore'
+import {
+  useReactionStore,
+  ReactionTypeEnum,
+  ReactionCategoryEnum,
+} from '@/stores/reactionStore'
 import { useUserStore } from '@/stores/userStore'
-import { ReactionType, ReactionCategory } from '@prisma/client' // Prisma import
 import CommentDisplay from './CommentDisplay.vue'
 
 // Pinia stores
@@ -115,7 +118,7 @@ const componentStore = useComponentStore()
 const userStore = useUserStore()
 
 // State for reaction and comments
-const reactionType = ref<ReactionType | null>(null) // Reaction type
+const reactionType = ref<ReactionTypeEnum | null>(null) // Use runtime enum
 const commentTitle = ref('')
 const commentDescription = ref('')
 
@@ -142,7 +145,7 @@ const fetchReactions = async (componentId: number) => {
   if (userReaction) {
     reactionType.value = userReaction.reactionType
   } else {
-    reactionType.value = ReactionType.NEUTRAL // Default reaction
+    reactionType.value = ReactionTypeEnum.NEUTRAL // Default reaction
   }
 }
 
@@ -157,7 +160,7 @@ const updateComponent = async () => {
 }
 
 // Function to toggle reactions
-const toggleReaction = async (newReactionType: ReactionType) => {
+const toggleReaction = async (newReactionType: ReactionTypeEnum) => {
   reactionType.value = newReactionType
 
   const existingReaction = reactionStore.getUserReactionForComponent(
@@ -166,14 +169,14 @@ const toggleReaction = async (newReactionType: ReactionType) => {
   )
   if (existingReaction) {
     await reactionStore.updateReaction(existingReaction.id, {
-      reactionType: newReactionType,
+      reactionType: newReactionType as ReactionTypeEnum, // Cast to Prisma type when sending to the API
     })
   } else {
     await reactionStore.createReaction({
       userId: userId.value,
       componentId: selectedComponent.value?.id || 0,
-      reactionType: newReactionType,
-      reactionCategory: ReactionCategory.COMPONENT,
+      reactionType: newReactionType as ReactionTypeEnum, // Cast to Prisma type
+      reactionCategory: ReactionCategoryEnum.COMPONENT as ReactionCategoryEnum, // Cast to Prisma type
     })
   }
 }
@@ -185,8 +188,8 @@ const submitComment = async () => {
       {
         userId: userId.value,
         componentId: selectedComponent.value?.id || 0,
-        reactionType: reactionType.value || ReactionType.NEUTRAL,
-        ReactionCategory: ReactionCategory.COMPONENT,
+        reactionType: reactionType.value || ReactionTypeEnum.NEUTRAL,
+        reactionCategory: ReactionCategoryEnum.COMPONENT,
       },
       {
         title: commentTitle.value,
@@ -207,7 +210,3 @@ onMounted(() => {
   }
 })
 </script>
-
-<style scoped>
-/* Styles for reaction icons */
-</style>

@@ -37,8 +37,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
-import type { Component } from '@prisma/client'
+import { useComponentStore, type Component } from '@/stores/componentStore'
 
 // State variables
 const selectedComponents = ref<Component[]>([])
@@ -71,7 +70,7 @@ const selectComponent = (component: Component) => {
 // Initial fetch from store on component mount
 onMounted(() => {
   if (!componentStore.components.length) {
-    componentStore.fetchAllComponents() // Ensure we load components if not already loaded
+    componentStore.initializeComponents() // Ensure we load components if not already loaded
   }
 })
 </script>

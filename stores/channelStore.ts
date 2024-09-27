@@ -217,3 +217,5 @@ export const useChannelStore = defineStore({
     },
   },
 })
+
+export type { Message, Channel }

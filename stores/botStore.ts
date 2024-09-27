@@ -3,6 +3,7 @@ import type { Bot } from '@prisma/client'
 import { botData } from './seeds/seedBots'
 import { useErrorStore, ErrorType } from './../stores/errorStore' // Import your errorStore
 
+
 export const useBotStore = defineStore({
   id: 'botStore',
 

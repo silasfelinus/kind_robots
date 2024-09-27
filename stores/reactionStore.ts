@@ -6,6 +6,26 @@ import type {
   ReactionCategory,
 } from '@prisma/client'
 
+
+// Define runtime enums corresponding to the types
+export enum ReactionTypeEnum {
+  LOVED = 'LOVED',
+  CLAPPED = 'CLAPPED',
+  BOOED = 'BOOED',
+  HATED = 'HATED',
+  NEUTRAL = 'NEUTRAL',
+  FLAGGED = 'FLAGGED',
+}
+
+export enum ReactionCategoryEnum {
+  ART = 'ART',
+  PITCH = 'PITCH',
+  COMPONENT = 'COMPONENT',
+  CHANNEL = 'CHANNEL',
+  TITLE = 'TITLE',
+}
+
+
 export const useReactionStore = defineStore('reactionStore', {
   state: () => ({
     reactions: [] as Reaction[],
@@ -286,3 +306,5 @@ export const useReactionStore = defineStore('reactionStore', {
     },
   },
 })
+
+export type { Reaction, ReactionType, ReactionCategory }

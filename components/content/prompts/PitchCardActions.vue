@@ -33,10 +33,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore } from '../../../stores/pitchStore'
-import { useReactionStore } from '../../../stores/reactionStore'
-import type { Pitch } from '@prisma/client'
-import { ReactionType, ReactionCategory } from '@prisma/client'
+import { usePitchStore, type Pitch } from '../../../stores/pitchStore'
+import {
+  useReactionStore,
+  type ReactionType,
+  type ReactionCategory,
+} from '../../../stores/reactionStore'
 import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 
 const props = defineProps<{

@@ -271,3 +271,5 @@ export const useComponentStore = defineStore('componentStore', {
     },
   },
 })
+
+export type { Component}

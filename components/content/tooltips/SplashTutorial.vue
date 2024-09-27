@@ -5,7 +5,8 @@
   >
     <!-- Floating Background Icon (now smaller and in the top-right corner) -->
     <div
-      class="absolute top-2 right-2 z-0 opacity-30 md: w-12 md:h-12 lg:w-16 lg:h-16"
+      v-if="page && page.icon"
+      class="absolute top-2 right-2 z-0 opacity-30 md:w-12 md:h-12 lg:w-16 lg:h-16"
     >
       <Icon :name="page.icon" class="object-cover w-full h-full" />
     </div>
@@ -16,6 +17,7 @@
     >
       <!-- Main Image -->
       <img
+        v-if="page && page.image"
         :src="'/images/' + page.image"
         alt="Main Image"
         class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[40vh] lg:max-h-[50vh]"
@@ -23,18 +25,21 @@
 
       <!-- Title, Description, and Subtitle Section -->
       <div class="text-center w-full space-y-1 md:space-y-2">
-        <h1 class="text-2xl lg:text-4xl font-bold">
+        <h1 v-if="page && page.title" class="text-2xl lg:text-4xl font-bold">
           {{ page.title }}
         </h1>
 
         <h2
-          v-if="page.subtitle"
+          v-if="page && page.subtitle"
           class="text-xs md:text-md font-medium text-accent"
         >
           {{ page.subtitle }}
         </h2>
 
-        <h3 class="text-sm md:text-2xl font-medium px-2 md:px-4">
+        <h3
+          v-if="page && page.description"
+          class="text-sm md:text-2xl font-medium px-2 md:px-4"
+        >
           {{ page.description }}
         </h3>
       </div>
@@ -42,6 +47,7 @@
 
     <!-- Bot Messages Section -->
     <div
+      v-if="page && page.dottitip && page.amitip"
       class="flex flex-col space-y-2 md:space-y-4 w-full max-w-3xl px-4 py-1 md:py-2 overflow-y-auto"
     >
       <!-- DottiBot Message -->

@@ -39,11 +39,23 @@
     </ul>
   </div>
 </template>
-
 <script setup lang="ts">
+import { computed } from 'vue'
+
+// Define types for the navigation tree items, including `_id`
+interface NavigationItem {
+  _id: string // Add _id property
+  _path: string
+  title: string
+  image?: string
+  gallery?: string
+  children?: NavigationItem[]
+}
+
+// Define props with the navigationTree as an array of NavigationItem
 const props = defineProps({
   navigationTree: {
-    type: Array,
+    type: Array as () => NavigationItem[],
     default: () => [],
   },
   level: {
@@ -52,13 +64,17 @@ const props = defineProps({
   },
 })
 
-const filterChildRoutes = (item) => {
+// Filter child routes to exclude children with the same _path as their parent
+const filterChildRoutes = (item: NavigationItem) => {
   if (item.children) {
-    item.children = item.children.filter((child) => child._path !== item._path)
+    item.children = item.children.filter(
+      (child: NavigationItem) => child._path !== item._path,
+    )
   }
   return item
 }
 
+// Computed property to return the filtered navigation tree
 const filteredNavigationTree = computed(() =>
   props.navigationTree.map(filterChildRoutes),
 )

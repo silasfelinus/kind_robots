@@ -25,7 +25,7 @@ const buttonStyle = computed(() => {
 
 // Toggle the left sidebar
 const toggleSidebarRight = () => {
-  displayStore.toggleSidebar('sidebarRight')
+  displayStore.toggleSidebar('sidebarRightState')
 }
 </script>
 

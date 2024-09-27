@@ -37,7 +37,7 @@
           :key="message.id"
           :class="[
             'p-3 mb-2 rounded-lg text-sm shadow',
-            message.userId === currentUser.value?.id
+            message.userId === currentUser?.id
               ? 'bg-primary-light text-white self-end'
               : 'bg-secondary text-secondary-content',
           ]"
@@ -71,15 +71,18 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
-import { useChannelStore } from '@/stores/channelStore'
-import { useUserStore } from '@/stores/userStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import type { User } from '@prisma/client' // Ensure User type is imported
+import { useChannelStore } from './../../../stores/channelStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import type { Channel } from './../../../stores/channelStore' // Ensure the Channel type is imported or defined
 
+// Stores
 const channelStore = useChannelStore()
 const userStore = useUserStore()
 const errorStore = useErrorStore()
-const currentUser = ref<User | null>(userStore.user) // Ensure correct type
+
+// Reactive references
+const currentUser = computed(() => userStore.user) // Use computed to always keep track of the current user
 const selectedChannel = ref<Channel | null>(null)
 const newMessage = ref('')
 
@@ -88,16 +91,16 @@ const nonNullChannels = computed(() => {
   return channelStore.channels.filter((channel) => channel.label)
 })
 
-// Fetch messages for the selected channel
+// Computed property to filter messages for the selected channel
 const selectedChannelMessages = computed(() => {
   return selectedChannel.value
     ? channelStore.messages.filter(
-        (message) => message.channelId === selectedChannel.value.id,
+        (message) => message.channelId === selectedChannel.value!.id,
       )
     : []
 })
 
-// Handle the change event from the dropdown
+// Handle channel change
 const handleChannelChange = async () => {
   if (selectedChannel.value) {
     try {
@@ -118,7 +121,7 @@ const sendMessage = async () => {
         channelId: selectedChannel.value.id,
         content: newMessage.value,
         userId: currentUser.value ? currentUser.value.id : 10, // Default userId to 10 if currentUser is null
-        sender: currentUser.value ? currentUser.value.name : 'Anonymous',
+        sender: currentUser.value?.name || 'Anonymous', // Ensure sender is always a string
       })
       newMessage.value = ''
     } catch (error) {
@@ -130,10 +133,10 @@ const sendMessage = async () => {
   }
 }
 
-// Fetch initial channels on mount
+// Fetch initial channels on component mount
 onMounted(async () => {
   try {
-    await channelStore.fetchChannels() // Ensure this method exists
+    await channelStore.fetchChannels()
   } catch (error) {
     errorStore.setError(
       ErrorType.VALIDATION_ERROR,

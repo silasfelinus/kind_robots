@@ -86,7 +86,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from './stores/displayStore'
-import { usePitchStore } from './stores/pitchStore'
 import { useReactionStore } from './stores/reactionStore'
 import { useUserStore } from './stores/userStore'
 import { useErrorStore, ErrorType } from './stores/errorStore'
@@ -94,7 +93,6 @@ import { useErrorStore, ErrorType } from './stores/errorStore'
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 const reactionStore = useReactionStore()
-const pitchStore = usePitchStore()
 const userStore = useUserStore()
 
 // Error handler utility with specific Error type
@@ -239,7 +237,6 @@ const setCustomVh = () => {
 onMounted(() => {
   try {
     displayStore.initialize()
-    pitchStore.initializePitches()
     reactionStore.initializeReactions()
     userStore.initializeUser()
     console.log('Mounted: Initializing custom vh and display store')

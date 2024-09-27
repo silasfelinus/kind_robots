@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
+import { useDisplayStore } from './../../../stores/displayStore'
 
 // Initialize the display store
 const displayStore = useDisplayStore()

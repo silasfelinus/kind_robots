@@ -32,23 +32,25 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useGameStore } from './../../../stores/gameStore'
-import { useArtStore } from './../../../stores/artStore' // If art is stored separately
+import { useArtStore } from './../../../stores/artStore' // Corrected import path
+import { usePitchStore } from './../../../stores/pitchStore' // Corrected import path
 
-const gameStore = useGameStore()
-const artStore = useArtStore() // Assumes you have a store managing art data
+const pitchStore = usePitchStore()
+const artStore = useArtStore()
 
-// Get the selected pitch from the gameStore
-const selectedPitch = computed(() => gameStore.selectedPitch)
+// Get the selected pitch from the gameStore (update if the property name is different)
+const selectedPitch = computed(() => pitchStore.currentPitch) // Assuming it's currentPitch
 
 // Filter the art by matching pitchId
 const filteredArtIds = computed(() => {
   if (!selectedPitch.value) return []
 
   // Assuming artStore has an array of art objects, each containing artId and pitchId
-  return artStore.artList
-    .filter((art) => art.pitchId === selectedPitch.value.id)
-    .map((art) => art.id) // Return just the artIds
+  return artStore.artAssets
+    .filter(
+      (art: { pitchId: number }) => art.pitchId === selectedPitch.value.id,
+    )
+    .map((art: { id: number }) => art.id) // Return just the artIds
 })
 </script>
 

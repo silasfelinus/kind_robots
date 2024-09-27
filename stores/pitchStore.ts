@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { useErrorStore, ErrorType } from './errorStore'
-import type { Pitch } from '@prisma/client' // Import both Pitch and PitchType from Prisma
+import type { Pitch } from '@prisma/client' 
+import { PitchType}  from '@prisma/client' 
 
 const isClient = typeof window !== 'undefined'
 
@@ -10,14 +11,6 @@ interface FetchResponse {
   pitches?: Pitch[]
   message?: string
   success: boolean
-}
-
-export enum PitchType {
-  BRAINSTORM = 'BRAINSTORM',
-  ARTPITCH = 'ARTPITCH',
-  BOT = 'BOT',
-  ARTGALLERY = 'ARTGALLERY',
-  INSPIRATION = 'INSPIRATION',
 }
 
 interface ErrorWithMessage {
@@ -34,14 +27,19 @@ export const usePitchStore = defineStore('pitch', {
     selectedPitches: [] as Pitch[], // Top 5 selected pitches
     isInitialized: false,
     selectedPitchId: null as number | null,
+    selectedPitchType: null as PitchType | null
   }),
 
   getters: {
       getPitchesByType: (state) => (pitchType: PitchType) => {
         return state.pitches.filter((pitch: Pitch) => pitch.PitchType === pitchType);
       },
-
-    
+      getPitchesBySelectedType: (state) => {
+        if (!state.selectedPitchType) return [];
+        return state.pitches.filter(
+          (pitch: Pitch) => pitch.PitchType === state.selectedPitchType
+        );
+      },
     brainstormPitches: (state) => {
       return state.pitches.filter(
         (pitch: Pitch) => pitch.PitchType === 'BRAINSTORM',
@@ -86,6 +84,9 @@ export const usePitchStore = defineStore('pitch', {
         await this.fetchPitches() // Calls the action to fetch pitches
         this.isInitialized = true
       }
+    },
+    setSelectedPitchType(pitchType: PitchType | null) {
+      this.selectedPitchType = pitchType;
     },
     // Fetch brainstorm pitches
     async fetchBrainstormPitches() {

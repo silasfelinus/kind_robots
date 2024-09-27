@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
+import { usePitchStore } from '../../../stores/pitchStore'
 
 // Initialize pitch store
 const pitchStore = usePitchStore()

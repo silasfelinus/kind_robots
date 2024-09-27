@@ -1,17 +1,8 @@
 import { defineStore } from 'pinia'
-import type { Art, Reaction, ArtImage, Tag } from '@prisma/client'
+import type { Art, Reaction, ArtImage } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 
-interface ExtendedArt extends Art {
-  title?: string // Optional, as not all art may have a title
-  url?: string // Add the url property here if it exists
-  description?: string // Add the description property here if it exists
-  gallery?: {
-    highlightImage?: string | null
-    name?: string | null
-    description?: string | null
-  }
-}
+const isClient = import.meta.client
 
 export interface GenerateArtData {
   title?: string
@@ -34,7 +25,7 @@ export const useArtStore = defineStore({
   id: 'artStore',
   state: () => ({
     artAssets: [] as Art[],
-    reactions: [] as Reaction[],
+    Reactions: [] as Reaction[],
     tags: [] as Tag[],
     selectedArt: null as Art | null,
     artImages: [] as ArtImage[],
@@ -45,36 +36,13 @@ export const useArtStore = defineStore({
         this.fetchAllArt()
       }
     },
-    async uploadImage(formData: FormData) {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch('/api/art/upload', {
-            method: 'POST',
-            body: formData,
-          })
-          if (response.ok) {
-            const newArt = await response.json()
-            this.artAssets.push(newArt) // Optionally add to local state
-            return newArt
-          } else {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to upload image.',
-      )
-    },
-
     selectArt(artId: number) {
-      const foundArt = this.artAssets.find((art) => art.id === artId)
+      const foundArt = this.artAssets.find((art: Art) => art.id === artId)
       this.selectedArt = foundArt || null
       if (!foundArt) {
         console.warn(`Art with id ${artId} not found.`)
       }
     },
-
     async fetchArtByUserId(userId: number) {
       const errorStore = useErrorStore()
       try {
@@ -86,37 +54,27 @@ export const useArtStore = defineStore({
         const data = await response.json()
         this.artAssets = data.art
       } catch (error: unknown) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          (error as Error).message || 'An unexpected error occurred',
-        )
+        if (error instanceof Error) {
+          errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
+        } else {
+          errorStore.setError(
+            ErrorType.NETWORK_ERROR,
+            'An unexpected error occurred',
+          )
+        }
       }
     },
-
     async fetchAllArt() {
       const errorStore = useErrorStore()
-      if (this.artAssets.length > 0) return // Prevent refetching
-
       return errorStore.handleError(
         async () => {
           const response = await fetch('/api/art')
           if (response.ok) {
             const data = await response.json()
-
-            // Assuming API provides galleryId
-            this.artAssets = await Promise.all(
-              data.artEntries.map(async (art: ExtendedArt) => {
-                const galleryResponse = await fetch(
-                  `/api/galleries/${art.galleryId}`,
-                )
-                const gallery = galleryResponse.ok
-                  ? await galleryResponse.json()
-                  : null
-                return { ...art, gallery }
-              }),
-            )
-            if (typeof window !== 'undefined' && window.localStorage)
+            this.artAssets = data.artEntries
+            if (isClient) {
               localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
+            }
           } else {
             const errorResponse = await response.json()
             throw new Error(errorResponse.message)
@@ -126,32 +84,32 @@ export const useArtStore = defineStore({
         'Failed to fetch art.',
       )
     },
-
     getArtById(id: number): Art | undefined {
-      return this.artAssets.find((art) => art.id === id)
+      return this.artAssets.find((art: Art) => art.id === id)
     },
-
     getReactionsById(id: number): Reaction[] {
-      return this.reactions.filter((reaction) => reaction.artId === id)
+      return this.Reactions.filter(
+        (reaction: Reaction) => reaction.artId === id,
+      )
     },
-
     getTagsById(id: number): Tag | undefined {
-      return this.tags.find((tag) => tag.id === id)
+      return this.tags.find((tag: Tag) => tag.id === id)
     },
-
     getArtImagesById(artId: number): ArtImage[] {
-      return this.artImages.filter((image) => image.artId === artId)
+      return this.artImages.filter((image: ArtImage) => image.artId === artId)
     },
-
     async deleteArt(id: number) {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
-          const response = await fetch(`/api/art/${id}`, { method: 'DELETE' })
+          const response = await fetch(`/api/art/${id}`, {
+            method: 'DELETE',
+          })
           if (response.ok) {
-            this.artAssets = this.artAssets.filter((art) => art.id !== id)
-            if (typeof window !== 'undefined' && window.localStorage)
+            this.artAssets = this.artAssets.filter((art: Art) => art.id !== id)
+            if (isClient) {
               localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
+            }
           } else {
             const errorResponse = await response.json()
             throw new Error(errorResponse.message)
@@ -161,18 +119,18 @@ export const useArtStore = defineStore({
         'Failed to delete art.',
       )
     },
-
     getArtByPitchId(pitchId: number): Art[] {
-      return this.artAssets.filter((art) => art.pitchId === pitchId)
+      return this.artAssets.filter((art: Art) => art.pitchId === pitchId)
     },
-
     async createReaction(reactionData: Reaction): Promise<Reaction | null> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
           const response = await fetch('/api/reactions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify(reactionData),
           })
           if (response.ok) {
@@ -187,7 +145,6 @@ export const useArtStore = defineStore({
         'Failed to create reaction.',
       )
     },
-
     async editReaction(
       id: number,
       reactionData: Reaction,
@@ -197,7 +154,9 @@ export const useArtStore = defineStore({
         async () => {
           const response = await fetch(`/api/reactions/${id}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify(reactionData),
           })
           if (response.ok) {
@@ -211,7 +170,6 @@ export const useArtStore = defineStore({
         'Failed to update reaction.',
       )
     },
-
     async deleteReaction(id: number): Promise<boolean> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
@@ -230,7 +188,6 @@ export const useArtStore = defineStore({
         'Failed to delete reaction.',
       )
     },
-
     async fetchArtById(id: number): Promise<Art | null> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
@@ -246,7 +203,6 @@ export const useArtStore = defineStore({
         'Failed to fetch art by ID.',
       )
     },
-
     async generateArt(
       data: GenerateArtData,
     ): Promise<{ success: boolean; message?: string; newArt?: Art }> {
@@ -255,7 +211,9 @@ export const useArtStore = defineStore({
         async () => {
           const response = await fetch('/api/art/generate', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify(data),
           })
           if (response.ok) {
@@ -273,4 +231,4 @@ export const useArtStore = defineStore({
   },
 })
 
-export type { Art, ArtImage }
+export type { Art, ArtImage, Reaction }

@@ -33,8 +33,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore, type Pitch } from '../../../stores/pitchStore'
+import { usePitchStore } from '../../../stores/pitchStore'
 import { useReactionStore } from '../../../stores/reactionStore'
+import type { Pitch } from '@prisma/client'
+import { ReactionType, ReactionCategory } from '@prisma/client'
 import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 
 const props = defineProps<{
@@ -104,7 +106,7 @@ const addClap = async () => {
       pitchId: props.pitch.id,
       reactionType: ReactionType.CLAPPED, // Use reactionType instead of isClapped
       userId: 10, // Assuming a default userId, adjust as needed
-      ReactionCategory: ReactionCategory.PITCH, // Ensure the correct category is used
+      reactionCategory: ReactionCategory.PITCH, // Ensure the correct category is used
     })
   } catch (error) {
     errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)

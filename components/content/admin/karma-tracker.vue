@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useUserStore } from '../stores/userStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const userStore = useUserStore()
 const karma = ref(userStore.karma)

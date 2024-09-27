@@ -8,14 +8,18 @@
 </template>
 
 <script setup lang="ts">
-const buttonText = ref('Home of AMIbot')
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter() // Import the router
+
+const buttonText = ref('Home of AMIbot')
 const showAmiSwarm = ref(false) // Control display of AmiSwarm
 
 const handleButtonClick = () => {
   showAmiSwarm.value = !showAmiSwarm.value // Toggle AmiSwarm visibility
 
-  if (buttonText.value === 'Click to Release the Butterflies') {
+  if (showAmiSwarm.value) {
     buttonText.value = 'No More butterflies?'
     router.push('/kindrobots/amibot')
   } else {

@@ -1,4 +1,4 @@
-// /server/api/pitches/index.put.ts
+// /server/api/pitches/[id]/patch.ts
 import { defineEventHandler, readBody } from 'h3'
 import type { Pitch } from '@prisma/client'
 import { errorHandler } from '../utils/error'

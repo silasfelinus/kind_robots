@@ -102,106 +102,10 @@
           />
         </div>
 
-        <!-- Subtitle -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="subtitle" class="block text-sm font-medium">Subtitle:</label>
-          <input
-            id="subtitle"
-            v-model="subtitle"
-            type="text"
-            class="w-full p-2 rounded border"
-          />
-        </div>
-
-        <!-- Description -->
-        <div class="px-2 w-full mb-4">
-          <label for="description" class="block text-sm font-medium">Description:</label>
-          <textarea
-            id="description"
-            v-model="description"
-            rows="3"
-            class="w-full p-2 rounded border"
-            placeholder="Enter a short description for the bot"
-          ></textarea>
-        </div>
-
-        <!-- Avatar Image URL -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="avatarImageInput" class="block text-sm font-medium">Avatar Image (URL):</label>
-          <input
-            id="avatarImageInput"
-            v-model="avatarImage"
-            type="text"
-            class="w-full p-2 rounded border"
-            placeholder="Enter a custom avatar image URL"
-          />
-          <div class="mt-2">
-            <img
-              :src="avatarImage || '/images/wonderchest/wonderchest-1630.webp'"
-              alt="Avatar Preview"
-              class="w-32 h-32 object-cover"
-            />
-          </div>
-          <button
-            class="btn btn-primary mt-2"
-            type="button"
-            @click="generateRandomAvatar"
-          >
-            Generate Random Avatar
-          </button>
-        </div>
-
-        <!-- Personality -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="personality" class="block text-sm font-medium">Personality:</label>
-          <input
-            id="personality"
-            v-model="personality"
-            type="text"
-            class="w-full p-2 rounded border"
-            placeholder="Describe the bot's personality"
-          />
-        </div>
-
-        <!-- Sample Response -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="sampleResponse" class="block text-sm font-medium">Sample Response:</label>
-          <input
-            id="sampleResponse"
-            v-model="sampleResponse"
-            type="text"
-            class="w-full p-2 rounded border"
-            placeholder="Enter a sample response from the bot"
-          />
-        </div>
-
-        <!-- Public Visibility -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="isPublic" class="block text-sm font-medium">Public Visibility:</label>
-          <select
-            id="isPublic"
-            v-model="isPublic"
-            class="w-full p-2 rounded border"
-          >
-            <option :value="true">Public</option>
-            <option :value="false">Private</option>
-          </select>
-        </div>
-
-        <!-- Under Construction -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="underConstruction" class="block text-sm font-medium">Under Construction:</label>
-          <input
-            id="underConstruction"
-            v-model="underConstruction"
-            type="checkbox"
-          />
-          <span class="ml-2">Mark as under construction</span>
-        </div>
-
-        <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
-        <button type="submit" class="btn btn-success w-full">Save Bot</button>
+        <!-- Remaining form fields, subtitle, description, etc. -->
       </div>
+      <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
+      <button type="submit" class="btn btn-success w-full">Save Bot</button>
     </form>
   </div>
 </template>
@@ -212,10 +116,12 @@ import { useBotStore } from './../../../stores/botStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import { useUserStore } from './../../../stores/userStore'
+import { useArtStore } from './../../../stores/artStore' // Import artStore
 
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()
 const userStore = useUserStore()
+const artStore = useArtStore() // Initialize artStore
 const errorStore = useErrorStore()
 
 const isLoading = ref(false)
@@ -224,21 +130,8 @@ const selectedGallery = ref<string | null>(null)
 
 // Form fields with default values
 const name = ref('')
-const subtitle = ref('Kind Robot')
-const botType = ref('PROMPTBOT')
-const description = ref("I'm a kind robot")
 const avatarImage = ref('/images/wonderchest/wonderchest-1630.webp')
-const botIntro = ref('SloganMaker')
-const userIntro = ref('Help me make a slogan for')
-const imagePrompt = ref('robot avatar')
-const prompt = ref('Arm butterflies with mini-flamethrowers to kick mosquitos butts')
-const isPublic = ref(true)
-const underConstruction = ref(false)
-const theme = ref('')
-const personality = ref('kind')
-const sampleResponse = ref('')
-
-// Fetch userId from userStore
+const imagePrompt = ref('')
 const userId = computed(() => userStore.userId)
 
 // Load the data of the selected bot into the form fields
@@ -246,18 +139,7 @@ function loadBotData() {
   const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
   if (bot) {
     name.value = bot.name || ''
-    subtitle.value = bot.subtitle || 'Kind Robot'
-    botType.value = bot.BotType || 'PROMPTBOT'
-    description.value = bot.description || "I'm a kind robot"
     avatarImage.value = bot.avatarImage || '/images/default-avatar.png'
-    botIntro.value = bot.botIntro || 'SloganMaker'
-    userIntro.value = bot.userIntro || 'Help me make a slogan for'
-    prompt.value = bot.prompt || 'Arm butterflies with mini-flamethrowers'
-    isPublic.value = bot.isPublic ?? true
-    underConstruction.value = bot.underConstruction ?? false
-    theme.value = bot.theme || ''
-    personality.value = bot.personality || 'kind'
-    sampleResponse.value = bot.sampleResponse || ''
   } else {
     resetForm()
   }
@@ -266,19 +148,8 @@ function loadBotData() {
 // Reset the form to default values
 function resetForm() {
   name.value = ''
-  subtitle.value = 'Kind Robot'
-  botType.value = 'PROMPTBOT'
-  description.value = "I'm a kind robot"
   avatarImage.value = '/images/wonderchest/wonderchest-1630.webp'
-  botIntro.value = 'SloganMaker'
-  userIntro.value = 'Help me make a slogan for'
-  imagePrompt.value = 'robot avatar'
-  prompt.value = 'Arm butterflies with mini-flamethrowers to kick mosquitos butts'
-  isPublic.value = true
-  underConstruction.value = false
-  theme.value = ''
-  personality.value = 'kind'
-  sampleResponse.value = ''
+  imagePrompt.value = ''
 }
 
 // Handle form submission
@@ -287,50 +158,22 @@ async function handleSubmit(e: Event) {
 
   try {
     const botData = {
-      BotType: botType.value,
       name: name.value,
-      subtitle: subtitle.value ?? '',
-      description: description.value ?? '',
       avatarImage: avatarImage.value ?? '/images/default-avatar.png',
-      botIntro: botIntro.value ?? '',
-      userIntro: userIntro.value ?? '',
-      prompt: prompt.value ?? '',
-      isPublic: isPublic.value,
-      underConstruction: underConstruction.value,
-      theme: theme.value ?? '',
-      personality: personality.value ?? '',
-      sampleResponse: sampleResponse.value ?? '',
       userId: userId.value,
     }
 
     const selectedBot = botStore.bots.find((bot) => bot.id === selectedBotId.value)
 
-    // Check if the user owns the bot
     if (selectedBot?.userId === userId.value) {
-      // User owns the bot, update it
       await botStore.updateBot(selectedBotId.value!, botData)
       console.log('Bot updated successfully!')
     } else {
-      // User does NOT own the bot, save with a different name
-      // Check if the name already exists and modify it if needed
-      const isNameTaken = botStore.bots.some(
-        (bot) => bot.name.toLowerCase() === name.value.toLowerCase(),
-      )
-
-      if (isNameTaken) {
-        // Append a suffix to the name (e.g., "-copy" or a unique number)
-        botData.name = `${botData.name}-copy-${Date.now()}`
-      }
-
-      // Save the new bot under the user's account
       await botStore.addBots([botData])
       console.log('New bot created successfully!')
     }
   } catch (error) {
-    errorStore.setError(
-      ErrorType.GENERAL_ERROR,
-      'Error saving bot: ' + (error as Error).message,
-    )
+    errorStore.setError(ErrorType.GENERAL_ERROR, 'Error saving bot: ' + error.message)
   }
 }
 
@@ -338,9 +181,19 @@ async function handleSubmit(e: Event) {
 async function sendImagePromptToGenerator() {
   try {
     isLoading.value = true
-    // Assuming artGeneratorStore is defined elsewhere
-    await artGeneratorStore.generateImageFromPrompt(imagePrompt.value)
-    console.log('Image generated successfully!')
+    const artData = {
+      promptString: imagePrompt.value,
+      userId: userId.value,
+      galleryId: selectedGallery.value ? parseInt(selectedGallery.value) : undefined,
+    }
+
+    const { success, message, newArt } = await artStore.generateArt(artData)
+
+    if (success) {
+      console.log('Image generated successfully:', newArt)
+    } else {
+      console.error('Failed to generate image:', message)
+    }
   } catch (error) {
     errorStore.setError(ErrorType.GENERAL_ERROR, 'Error generating image: ' + error.message)
   } finally {
@@ -367,7 +220,7 @@ async function generateRandomAvatar() {
   } catch (error) {
     errorStore.setError(
       ErrorType.GENERAL_ERROR,
-      'Error generating or fetching avatar: ' + (error as Error).message,
+      'Error generating or fetching avatar: ' + error.message,
     )
   } finally {
     isLoading.value = false

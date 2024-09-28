@@ -27,7 +27,7 @@
 
       <button
         v-if="showInstructionsButton"
-        class="bg-secondary text-base-200 ml-2 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 pl-1"
+        class="bg-secondary text-base-200 ml-2 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 pl-4"
         @click="displayStore.toggleTutorial"
       >
         Instructions

@@ -1,8 +1,5 @@
 <template>
   <div class="main-layout absolute inset-0 bg-base-300">
-    <!-- Loader Component -->
-<kind-loader></kind-loader>
-
     <!-- Header -->
     <header
       class="header-overlay bg-base-300 flex items-center justify-between w-full px-4"
@@ -26,7 +23,7 @@
       >
         Launch
       </button>
-button here
+      button here
 
       <button
         v-if="showInstructionsButton"
@@ -94,7 +91,6 @@ import { useErrorStore, ErrorType } from './stores/errorStore'
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 
-
 // Error handler utility with specific Error type
 const handleError = (
   error: Error,
@@ -150,7 +146,6 @@ const setCustomVh = () => {
 
 onMounted(() => {
   try {
-    
     console.log('Mounted: Initializing custom vh and display store')
     setCustomVh()
 
@@ -175,7 +170,7 @@ onBeforeUnmount(() => {
     displayStore.removeViewportWatcher()
     console.log('Unmounting: Cleaned up event listeners')
   } catch (error) {
-    console.error('Error in onBeforeUnmount:', error) 
+    console.error('Error in onBeforeUnmount:', error)
     handleError(
       new Error('Component unmounting failed'),
       'Error during onBeforeUnmount lifecycle',
@@ -188,13 +183,13 @@ onBeforeUnmount(() => {
 .main-layout {
   display: grid;
   grid-template-rows: auto 1fr auto; /* Header, Main Content, Footer */
-  height: 100vh; 
-  overflow: hidden; 
+  height: 100vh;
+  overflow: hidden;
 }
 
 .content-area {
   display: grid;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .header-overlay,
@@ -204,6 +199,6 @@ onBeforeUnmount(() => {
 .footer-overlay {
   position: relative;
   text-align: center;
-  padding: 0; 
+  padding: 0;
 }
 </style>

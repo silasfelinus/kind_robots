@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { useUserStore } from './userStore'
-import { useErrorStore, ErrorType } from './errorStore'
+import { useUserStore } from './../stores/userStore'
+import { useErrorStore, ErrorType } from './../stores/errorStore'
 import type { Pitch } from '@prisma/client'
 import { PitchType } from '@prisma/client'
 

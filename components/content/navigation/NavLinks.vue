@@ -4,7 +4,7 @@
     class="relative flex items-center justify-between w-full"
   >
     <!-- Hamburger Icon for Small Screens -->
-    <div class="sm:hidden">
+    <div class="md:hidden">
       <button
         class="focus:outline-none text-accent"
         aria-label="Toggle menu"
@@ -31,7 +31,7 @@
     <!-- Hidden Menu on Small Screens -->
     <div
       v-if="isMenuOpen"
-      class="absolute top-10 left-0 w-full bg-base-300 shadow-lg sm:hidden flex flex-col items-center"
+      class="absolute top-10 left-0 w-full bg-base-300 shadow-lg md:hidden flex flex-col items-center"
     >
       <nuxt-link
         v-for="link in navLinks"
@@ -45,7 +45,7 @@
     </div>
 
     <!-- Horizontal Links for Larger Screens -->
-    <div class="hidden sm:flex items-center gap-4">
+    <div class="hidden md:flex items-center gap-4">
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"

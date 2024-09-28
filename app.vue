@@ -24,7 +24,6 @@
       >
         Launch
       </button>
-      button here
 
       <button
         v-if="showInstructionsButton"

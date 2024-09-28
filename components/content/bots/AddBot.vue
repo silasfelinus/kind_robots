@@ -102,7 +102,112 @@
           />
         </div>
 
-        <!-- Remaining form fields, subtitle, description, etc. -->
+        <!-- Subtitle -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="subtitle" class="block text-sm font-medium">Subtitle:</label>
+          <input
+            id="subtitle"
+            v-model="subtitle"
+            type="text"
+            class="w-full p-2 rounded border"
+          />
+        </div>
+
+        <!-- Description -->
+        <div class="px-2 w-full mb-4">
+          <label for="description" class="block text-sm font-medium">Description:</label>
+          <textarea
+            id="description"
+            v-model="description"
+            rows="3"
+            class="w-full p-2 rounded border"
+            placeholder="Enter a short description for the bot"
+          ></textarea>
+        </div>
+
+        <!-- Bot Intro -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="botIntro" class="block text-sm font-medium">Bot Intro:</label>
+          <input
+            id="botIntro"
+            v-model="botIntro"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Bot introduction message"
+          />
+        </div>
+
+        <!-- User Intro -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="userIntro" class="block text-sm font-medium">User Intro:</label>
+          <input
+            id="userIntro"
+            v-model="userIntro"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Intro message for the user"
+          />
+        </div>
+
+        <!-- Image Prompt for Generating Avatar -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="imagePrompt" class="block text-sm font-medium">Avatar Image Prompt:</label>
+          <input
+            id="imagePrompt"
+            v-model="imagePrompt"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Enter an image prompt to generate the avatar"
+          />
+        </div>
+
+        <!-- Personality -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="personality" class="block text-sm font-medium">Personality:</label>
+          <input
+            id="personality"
+            v-model="personality"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Describe the bot's personality"
+          />
+        </div>
+
+        <!-- Sample Response -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="sampleResponse" class="block text-sm font-medium">Sample Response:</label>
+          <input
+            id="sampleResponse"
+            v-model="sampleResponse"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Enter a sample response from the bot"
+          />
+        </div>
+
+        <!-- Public Visibility -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="isPublic" class="block text-sm font-medium">Public Visibility:</label>
+          <select
+            id="isPublic"
+            v-model="isPublic"
+            class="w-full p-2 rounded border"
+          >
+            <option :value="true">Public</option>
+            <option :value="false">Private</option>
+          </select>
+        </div>
+
+        <!-- Under Construction -->
+        <div class="px-2 w-full md:w-1/2 mb-4">
+          <label for="underConstruction" class="block text-sm font-medium">Under Construction:</label>
+          <input
+            id="underConstruction"
+            v-model="underConstruction"
+            type="checkbox"
+          />
+          <span class="ml-2">Mark as under construction</span>
+        </div>
       </div>
       <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
       <button type="submit" class="btn btn-success w-full">Save Bot</button>
@@ -130,8 +235,17 @@ const selectedGallery = ref<string | null>(null)
 
 // Form fields with default values
 const name = ref('')
+const subtitle = ref('')
 const avatarImage = ref('/images/wonderchest/wonderchest-1630.webp')
+const description = ref('')
+const botIntro = ref('')
+const userIntro = ref('')
 const imagePrompt = ref('')
+const personality = ref('')
+const sampleResponse = ref('')
+const isPublic = ref(true)
+const underConstruction = ref(false)
+
 const userId = computed(() => userStore.userId)
 
 // Load the data of the selected bot into the form fields
@@ -139,7 +253,16 @@ function loadBotData() {
   const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
   if (bot) {
     name.value = bot.name || ''
+    subtitle.value = bot.subtitle || ''
     avatarImage.value = bot.avatarImage || '/images/default-avatar.png'
+    description.value = bot.description || ''
+    botIntro.value = bot.botIntro || ''
+    userIntro.value = bot.userIntro || ''
+    imagePrompt.value = bot.prompt || ''
+    isPublic.value = bot.isPublic ?? true
+    underConstruction.value = bot.underConstruction ?? false
+    personality.value = bot.personality || ''
+    sampleResponse.value = bot.sampleResponse || ''
   } else {
     resetForm()
   }
@@ -148,8 +271,16 @@ function loadBotData() {
 // Reset the form to default values
 function resetForm() {
   name.value = ''
+  subtitle.value = ''
   avatarImage.value = '/images/wonderchest/wonderchest-1630.webp'
+  description.value = ''
+  botIntro.value = ''
+  userIntro.value = ''
   imagePrompt.value = ''
+  personality.value = ''
+  sampleResponse.value = ''
+  isPublic.value = true
+  underConstruction.value = false
 }
 
 // Handle form submission
@@ -159,7 +290,16 @@ async function handleSubmit(e: Event) {
   try {
     const botData = {
       name: name.value,
+      subtitle: subtitle.value ?? '',
       avatarImage: avatarImage.value ?? '/images/default-avatar.png',
+      description: description.value ?? '',
+      botIntro: botIntro.value ?? '',
+      userIntro: userIntro.value ?? '',
+      prompt: imagePrompt.value ?? '',
+      isPublic: isPublic.value,
+      underConstruction: underConstruction.value,
+      personality: personality.value ?? '',
+      sampleResponse: sampleResponse.value ?? '',
       userId: userId.value,
     }
 

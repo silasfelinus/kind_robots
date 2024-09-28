@@ -8,6 +8,9 @@
       <p v-if="status" :class="status === 'success' ? 'text-green-400' : 'text-red-400'">
         {{ status === 'success' ? '✅ Success' : '❌ Failed' }}
       </p>
+      <ul v-if="errors.length > 0" class="text-red-500 mt-2">
+        <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
+      </ul>
     </div>
   </div>
 </template>
@@ -20,22 +23,20 @@ interface StoreTestProps {
   loadStore: () => Promise<any>;
 }
 
-const props = defineProps<StoreTestProps>();
+const props = defineProps<StoreTestProps>()
 
 const status = ref<'' | 'success' | 'failed'>('')
+const errors = ref<string[]>([])
 
 const testStore = async () => {
   try {
-    await props.loadStore();
-    status.value = 'success';
+    await props.loadStore()
+    status.value = 'success'
+    errors.value = [] // Clear errors on success
   } catch (error) {
-    status.value = 'failed';
+    status.value = 'failed'
+    console.error(error) // Log error for debugging
+    errors.value.push(error instanceof Error ? error.message : String(error))
   }
 }
 </script>
-
-<style scoped>
-.shadow-lg {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-</style>

@@ -45,6 +45,7 @@ export async function addBot(
       isPublic: botData.isPublic ?? false,
       underConstruction: botData.underConstruction ?? false,
       canDelete: botData.canDelete ?? false,
+      tagline: botData.tagline ?? '',
     }
 
     // If userId is defined, connect the bot to the User relation

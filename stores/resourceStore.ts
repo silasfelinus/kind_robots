@@ -12,8 +12,7 @@ interface ResourceStoreState {
   currentResource: Resource | null
   totalResources: number
   errors: string[]
-  page: number
-  pageSize: number
+  
 }
 
 export const useResourceStore = defineStore({
@@ -23,8 +22,7 @@ export const useResourceStore = defineStore({
     currentResource: null,
     totalResources: 0,
     errors: [],
-    page: 1,
-    pageSize: 100,
+    
   }),
   actions: {
     async loadStore(): Promise<void> {
@@ -34,7 +32,7 @@ export const useResourceStore = defineStore({
         if (this.totalResources === 0) {
           await this.seedResources()
         }
-        await this.getResources(this.page, this.pageSize)
+        await this.getResources()
 
         statusStore.setStatus(StatusType.SUCCESS, `Loaded ${this.resources.length} resources`)
       } catch (error) {
@@ -47,10 +45,10 @@ export const useResourceStore = defineStore({
       }
     },
 
-    async getResources(page = 1, pageSize = 10): Promise<void> {
+    async getResources(): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Fetching resources...')
       try {
-        const response = await fetch(`/api/resources?page=${page}&pageSize=${pageSize}`)
+        const response = await fetch(`/api/resources`)
         if (!response.ok) throw new Error('Failed to fetch resources')
         const data = await response.json()
         this.resources = [...this.resources, ...data]

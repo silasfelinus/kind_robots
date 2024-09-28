@@ -1,9 +1,8 @@
-// ~/stores/resourceStore.ts
 import { defineStore } from 'pinia'
 import type { Resource } from '@prisma/client'
 import { useErrorStore, ErrorType } from './errorStore'
 import { useStatusStore, StatusType } from './statusStore'
-import { resourceData } from './seeds/seedResources' // Assuming you have a seeds file for Resource data
+import { resourceData } from './seeds/seedResources'
 
 const errorStore = useErrorStore()
 const statusStore = useStatusStore()
@@ -31,46 +30,58 @@ export const useResourceStore = defineStore({
     async loadStore(): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Loading resource store...')
       try {
-        // Get the current count of resources
         await this.countResources()
         if (this.totalResources === 0) {
           await this.seedResources()
         }
-
-        // Load other store data
         await this.getResources(this.page, this.pageSize)
 
-        statusStore.setStatus(
-          StatusType.SUCCESS,
-          `Loaded ${this.resources.length} resources`,
-        )
+        statusStore.setStatus(StatusType.SUCCESS, `Loaded ${this.resources.length} resources`)
       } catch (error) {
+        console.error('Resource Store Load Error:', error) // Log detailed error
         errorStore.setError(
           ErrorType.UNKNOWN_ERROR,
-          'Error initializing resource store: ' + error,
+          `Error initializing resource store: ${error instanceof Error ? error.message : error}`,
         )
+        this.errors.push(`Resource Store Load Error: ${error}`)
       }
     },
+
     async getResources(page = 1, pageSize = 10): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Fetching resources...')
       try {
-        const response = await fetch(
-          `/api/resources?page=${page}&pageSize=${pageSize}`,
-        )
+        const response = await fetch(`/api/resources?page=${page}&pageSize=${pageSize}`)
         if (!response.ok) throw new Error('Failed to fetch resources')
         const data = await response.json()
         this.resources = [...this.resources, ...data]
         this.page++
-        statusStore.setStatus(
-          StatusType.SUCCESS,
-          `Fetched ${this.resources.length} resources`,
-        )
+        statusStore.setStatus(StatusType.SUCCESS, `Fetched ${this.resources.length} resources`)
       } catch (error) {
+        console.error('Failed to fetch resources:', error) // Log detailed error
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
-          'Failed to fetch resources: ' + error,
+          `Failed to fetch resources: ${error instanceof Error ? error.message : error}`,
         )
+        this.errors.push(`Fetch Resources Error: ${error}`)
       }
+    },
+
+    async seedResources(): Promise<void> {
+      statusStore.setStatus(StatusType.INFO, 'Seeding resources...')
+      try {
+        await this.addResources(resourceData)
+        statusStore.setStatus(StatusType.SUCCESS, 'Resources successfully seeded.')
+      } catch (error) {
+        console.error('Error seeding resources:', error) // Log detailed error
+        errorStore.setError(
+          ErrorType.UNKNOWN_ERROR,
+          `Error loading resources: ${error instanceof Error ? error.message : error}`,
+        )
+        this.errors.push(`Seed Resources Error: ${error}`)
+      }
+
+      await this.getResources()
+      await this.countResources()
     },
     async getResourceById(id: number): Promise<void> {
       statusStore.setStatus(
@@ -205,26 +216,6 @@ export const useResourceStore = defineStore({
           'Failed to count resources: ' + error,
         )
       }
-    },
-    async seedResources(): Promise<void> {
-      // If there are no resources, load them
-      statusStore.setStatus(StatusType.INFO, 'Seeding resources...')
-      try {
-        await this.addResources(resourceData)
-        statusStore.setStatus(
-          StatusType.SUCCESS,
-          'Resources successfully seeded.',
-        )
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.UNKNOWN_ERROR,
-          'Error loading resources: ' + error,
-        )
-      }
-
-      // Fetch the updated list of resources and total resources count after seeding
-      await this.getResources()
-      await this.countResources()
     },
   },
 })

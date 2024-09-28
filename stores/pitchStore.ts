@@ -97,7 +97,7 @@ export const usePitchStore = defineStore('pitch', {
     await this.fetchPitches(); // Fetches pitches
     this.isInitialized = true;
   }
-}
+},
 
     setSelectedPitch(pitchId: number) {
       const pitch = this.pitches.find((p) => p.id === pitchId)

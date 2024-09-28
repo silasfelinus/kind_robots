@@ -15,5 +15,5 @@ underConstruction: true
 dottitip: AMI, is it safe to let people poke around in the lab?
 layout: 'vertical-scroll'
 ---
-:store-test
+:store-tester
 :wonder-lab

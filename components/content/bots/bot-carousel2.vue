@@ -1,14 +1,24 @@
 <template>
-  <div
-    class="relative flex flex-col items-center bg-base overflow-auto h-screen"
-  >
-    <div
-      class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
-    />
+  <div class="relative flex flex-col items-center bg-base overflow-auto h-screen">
+    <!-- Background Gradient -->
+    <div class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10" />
+
+    <!-- Header -->
     <h1 class="mt-8 text-3xl font-semibold text-center">
       Welcome to Kind Robots
     </h1>
-    <div class="mt-24 mx-auto max-w-4xl">
+
+    <!-- Carousel Container -->
+    <div class="mt-24 mx-auto max-w-4xl relative">
+      <!-- Non-Intrusive Spinner -->
+      <div
+        v-if="isLoading"
+        class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
+      >
+        <div class="w-16 h-16 border-4 border-accent border-t-transparent border-solid rounded-full animate-spin"></div>
+      </div>
+
+      <!-- Bot Carousel -->
       <div class="h-96 carousel carousel-vertical rounded-box">
         <div
           v-for="bot in bots"
@@ -27,6 +37,8 @@
           />
         </div>
       </div>
+
+      <!-- Current Bot Information -->
       <div
         v-if="currentBot"
         class="mt-4 text-2xl text-dark font-semibold text-center"
@@ -41,37 +53,43 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, watch, ref } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 
+// Bot store setup
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)
 const currentBot = computed(() => botStore.currentBot)
+const isLoading = ref(true)
 
+// Set the current bot function
 const setCurrentBot = (botId: number) => {
   botStore.getBotById(botId)
 }
 
+// Load bots on mount and stop loading spinner
 onMounted(async () => {
   if (bots.value.length === 0) {
     await botStore.loadStore()
   }
+  isLoading.value = false
 })
 
+// Watch the current bot and smooth scroll into view if needed
 watch(
   () => currentBot.value,
   (newBot) => {
     if (newBot) {
       const carousel = document.querySelector('.carousel') as HTMLElement
-      const botElement = document.getElementById(
-        `bot-${newBot.id}`,
-      ) as HTMLElement
+      const botElement = document.getElementById(`bot-${newBot.id}`) as HTMLElement
       if (carousel && botElement) {
         const carouselRect = carousel.getBoundingClientRect()
         const botElementRect = botElement.getBoundingClientRect()
         const offset = botElementRect.top - carouselRect.top
-        carousel.scrollTop =
-          offset - (carousel.clientHeight - botElement.clientHeight) / 2
+        // Only scroll if bot is not already centered
+        if (Math.abs(offset) > 10) {
+          carousel.scrollTop = offset - (carousel.clientHeight - botElement.clientHeight) / 2
+        }
       }
     }
   },

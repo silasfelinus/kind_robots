@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 
 // Bot store setup
@@ -74,24 +74,4 @@ onMounted(async () => {
   }
   isLoading.value = false
 })
-
-// Watch the current bot and smooth scroll into view if needed
-watch(
-  () => currentBot.value,
-  (newBot) => {
-    if (newBot) {
-      const carousel = document.querySelector('.carousel') as HTMLElement
-      const botElement = document.getElementById(`bot-${newBot.id}`) as HTMLElement
-      if (carousel && botElement) {
-        const carouselRect = carousel.getBoundingClientRect()
-        const botElementRect = botElement.getBoundingClientRect()
-        const offset = botElementRect.top - carouselRect.top
-        // Only scroll if bot is not already centered
-        if (Math.abs(offset) > 10) {
-          carousel.scrollTop = offset - (carousel.clientHeight - botElement.clientHeight) / 2
-        }
-      }
-    }
-  },
-)
 </script>

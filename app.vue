@@ -3,7 +3,7 @@
     <kind-loader></kind-loader>
     <!-- Header -->
     <header
-      class="header-overlay bg-base-300 flex items-center justify-between w-full px-4"
+      class="header-overlay bg-base-300 flex items-center justify-around w-full px-4"
       :style="{ height: headerHeight }"
     >
       <!-- Sidebar Toggle -->

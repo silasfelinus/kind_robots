@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
-import type { Art, Reaction, ArtImage } from '@prisma/client'
+import type { Art, Reaction, ArtImage, Tag } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 
-const isClient = import.meta.client
+const isClient = typeof window !== 'undefined';
+
 
 export interface GenerateArtData {
   title?: string
@@ -43,46 +44,46 @@ export const useArtStore = defineStore({
         console.warn(`Art with id ${artId} not found.`)
       }
     },
-    async fetchArtByUserId(userId: number) {
-      const errorStore = useErrorStore()
+    async fetchArtByUserId(userId: number): Promise<void> {
+      const errorStore = useErrorStore();
       try {
-        const response = await fetch(`/api/art/user/${userId}`)
+        const response = await fetch(`/api/art/user/${userId}`);
         if (!response.ok) {
-          const errorResponse = await response.json()
-          throw new Error(errorResponse.message)
+          const errorResponse = await response.json();
+          throw new Error(errorResponse.message);
         }
-        const data = await response.json()
-        this.artAssets = data.art
+        const data = await response.json();
+        // Explicit type casting to Prisma's `Art[]`
+        this.artAssets = data.art as Art[];
       } catch (error: unknown) {
         if (error instanceof Error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
+          errorStore.setError(ErrorType.NETWORK_ERROR, error.message);
         } else {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            'An unexpected error occurred',
-          )
+          errorStore.setError(ErrorType.NETWORK_ERROR, 'An unexpected error occurred');
         }
       }
     },
-    async fetchAllArt() {
-      const errorStore = useErrorStore()
+    
+    async fetchAllArt(): Promise<void> {
+      const errorStore = useErrorStore();
       return errorStore.handleError(
         async () => {
-          const response = await fetch('/api/art')
+          const response = await fetch('/api/art');
           if (response.ok) {
-            const data = await response.json()
-            this.artAssets = data.artEntries
+            const data = await response.json();
+            // Explicitly typing the response to Prisma's Art[]
+            this.artAssets = data.artEntries as Art[];
             if (isClient) {
-              localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
+              localStorage.setItem('artAssets', JSON.stringify(this.artAssets));
             }
           } else {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
+            const errorResponse = await response.json();
+            throw new Error(errorResponse.message);
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to fetch art.',
-      )
+        'Failed to fetch art.'
+      );
     },
     getArtById(id: number): Art | undefined {
       return this.artAssets.find((art: Art) => art.id === id)

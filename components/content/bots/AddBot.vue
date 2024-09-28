@@ -4,7 +4,9 @@
 
     <!-- Bot Selection Dropdown -->
     <div class="w-full max-w-4xl mx-auto mb-6">
-      <label for="selectBot" class="block text-sm font-medium">Select Existing Bot:</label>
+      <label for="selectBot" class="block text-sm font-medium"
+        >Select Existing Bot:</label
+      >
       <select
         id="selectBot"
         v-model="selectedBotId"
@@ -20,7 +22,9 @@
 
     <!-- Avatar Image URL and Gallery Selection -->
     <div class="w-full max-w-4xl mx-auto mb-6 flex flex-col items-center">
-      <label for="avatarImageInput" class="block text-sm font-medium mb-2">Avatar Image (URL):</label>
+      <label for="avatarImageInput" class="block text-sm font-medium mb-2"
+        >Avatar Image (URL):</label
+      >
       <input
         id="avatarImageInput"
         v-model="avatarImage"
@@ -38,7 +42,9 @@
 
       <!-- Gallery Selection Dropdown -->
       <div class="w-full mb-4">
-        <label for="selectGallery" class="block text-sm font-medium">Select Gallery:</label>
+        <label for="selectGallery" class="block text-sm font-medium"
+          >Select Gallery:</label
+        >
         <select
           id="selectGallery"
           v-model="selectedGallery"
@@ -58,8 +64,8 @@
       <button
         class="btn btn-primary"
         type="button"
-        @click="generateRandomAvatar"
         :disabled="isLoading"
+        @click="generateRandomAvatar"
       >
         Generate Random Avatar
       </button>
@@ -67,7 +73,9 @@
 
     <!-- Image Prompt and Generation Button -->
     <div class="w-full max-w-4xl mx-auto mb-6">
-      <label for="imagePrompt" class="block text-sm font-medium">Avatar Image Prompt:</label>
+      <label for="imagePrompt" class="block text-sm font-medium"
+        >Avatar Image Prompt:</label
+      >
       <input
         id="imagePrompt"
         v-model="imagePrompt"
@@ -79,8 +87,8 @@
 
     <button
       class="btn btn-success w-full mb-4"
-      @click="sendImagePromptToGenerator"
       :disabled="isLoading"
+      @click="sendImagePromptToGenerator"
     >
       Generate Image
     </button>
@@ -104,7 +112,9 @@
 
         <!-- Subtitle -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="subtitle" class="block text-sm font-medium">Subtitle:</label>
+          <label for="subtitle" class="block text-sm font-medium"
+            >Subtitle:</label
+          >
           <input
             id="subtitle"
             v-model="subtitle"
@@ -115,7 +125,9 @@
 
         <!-- Description -->
         <div class="px-2 w-full mb-4">
-          <label for="description" class="block text-sm font-medium">Description:</label>
+          <label for="description" class="block text-sm font-medium"
+            >Description:</label
+          >
           <textarea
             id="description"
             v-model="description"
@@ -127,7 +139,9 @@
 
         <!-- Bot Intro -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="botIntro" class="block text-sm font-medium">Bot Intro:</label>
+          <label for="botIntro" class="block text-sm font-medium"
+            >Bot Intro:</label
+          >
           <input
             id="botIntro"
             v-model="botIntro"
@@ -139,7 +153,9 @@
 
         <!-- User Intro -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="userIntro" class="block text-sm font-medium">User Intro:</label>
+          <label for="userIntro" class="block text-sm font-medium"
+            >User Intro:</label
+          >
           <input
             id="userIntro"
             v-model="userIntro"
@@ -151,7 +167,9 @@
 
         <!-- Image Prompt for Generating Avatar -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="imagePrompt" class="block text-sm font-medium">Avatar Image Prompt:</label>
+          <label for="imagePrompt" class="block text-sm font-medium"
+            >Avatar Image Prompt:</label
+          >
           <input
             id="imagePrompt"
             v-model="imagePrompt"
@@ -163,7 +181,9 @@
 
         <!-- Personality -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="personality" class="block text-sm font-medium">Personality:</label>
+          <label for="personality" class="block text-sm font-medium"
+            >Personality:</label
+          >
           <input
             id="personality"
             v-model="personality"
@@ -175,7 +195,9 @@
 
         <!-- Sample Response -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="sampleResponse" class="block text-sm font-medium">Sample Response:</label>
+          <label for="sampleResponse" class="block text-sm font-medium"
+            >Sample Response:</label
+          >
           <input
             id="sampleResponse"
             v-model="sampleResponse"
@@ -187,7 +209,9 @@
 
         <!-- Public Visibility -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="isPublic" class="block text-sm font-medium">Public Visibility:</label>
+          <label for="isPublic" class="block text-sm font-medium"
+            >Public Visibility:</label
+          >
           <select
             id="isPublic"
             v-model="isPublic"
@@ -200,7 +224,9 @@
 
         <!-- Under Construction -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="underConstruction" class="block text-sm font-medium">Under Construction:</label>
+          <label for="underConstruction" class="block text-sm font-medium"
+            >Under Construction:</label
+          >
           <input
             id="underConstruction"
             v-model="underConstruction"
@@ -303,7 +329,9 @@ async function handleSubmit(e: Event) {
       userId: userId.value,
     }
 
-    const selectedBot = botStore.bots.find((bot) => bot.id === selectedBotId.value)
+    const selectedBot = botStore.bots.find(
+      (bot) => bot.id === selectedBotId.value,
+    )
 
     if (selectedBot?.userId === userId.value) {
       await botStore.updateBot(selectedBotId.value!, botData)
@@ -313,7 +341,7 @@ async function handleSubmit(e: Event) {
       console.log('New bot created successfully!')
     }
   } catch (error) {
-    errorStore.setError(ErrorType.GENERAL_ERROR, 'Error saving bot: ' + error.message)
+    errorStore.setError(ErrorType.GENERAL_ERROR, 'Error saving bot: ' + error)
   }
 }
 
@@ -324,7 +352,9 @@ async function sendImagePromptToGenerator() {
     const artData = {
       promptString: imagePrompt.value,
       userId: userId.value,
-      galleryId: selectedGallery.value ? parseInt(selectedGallery.value) : undefined,
+      galleryId: selectedGallery.value
+        ? parseInt(selectedGallery.value)
+        : undefined,
     }
 
     const { success, message, newArt } = await artStore.generateArt(artData)
@@ -335,7 +365,10 @@ async function sendImagePromptToGenerator() {
       console.error('Failed to generate image:', message)
     }
   } catch (error) {
-    errorStore.setError(ErrorType.GENERAL_ERROR, 'Error generating image: ' + error.message)
+    errorStore.setError(
+      ErrorType.GENERAL_ERROR,
+      'Error generating image: ' + error,
+    )
   } finally {
     isLoading.value = false
   }
@@ -360,7 +393,7 @@ async function generateRandomAvatar() {
   } catch (error) {
     errorStore.setError(
       ErrorType.GENERAL_ERROR,
-      'Error generating or fetching avatar: ' + error.message,
+      'Error generating or fetching avatar: ' + error,
     )
   } finally {
     isLoading.value = false

@@ -22,6 +22,16 @@ export enum PitchTypeEnum {
   INSPIRATION= 'Inspiration',
 }
 
+// Assuming Prisma PitchType is something like 'ARTPITCH', 'BRAINSTORM', etc.
+const pitchTypeMap: Record<string, PitchTypeEnum> = {
+  'ARTPITCH': PitchTypeEnum.ARTPITCH,
+  'BRAINSTORM': PitchTypeEnum.BRAINSTORM,
+  'BOT': PitchTypeEnum.BOT,
+  'ARTGALLERY': PitchTypeEnum.ARTGALLERY,
+  'INSPIRATION': PitchTypeEnum.INSPIRATION,
+}
+
+
 interface ErrorWithMessage {
   message: string
 }
@@ -34,7 +44,7 @@ export const usePitchStore = defineStore('pitch', {
   state: () => ({
     pitches: [] as Pitch[], // All pitches
     selectedPitches: [] as Pitch[], // Top 5 selected pitches
-    selectedPitchType: null as PitchType | null, // PitchType can be null
+    selectedPitchType: null as PitchTypeEnum | null, // PitchType can be null
     isInitialized: false,
     galleryArt: [] as Art[],
   }),
@@ -49,17 +59,19 @@ export const usePitchStore = defineStore('pitch', {
     selectedPitchId: (state) => {
       return state.selectedPitches.length ? state.selectedPitches[0].id : null
     },
-    getPitchesByType: (state) => (pitchType: PitchType) => {
-      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === pitchType)
+    getPitchesByType: (state) => (pitchType: PitchTypeEnum) => {
+      return state.pitches.filter(
+        (pitch: Pitch) => pitchTypeMap[pitch.PitchType] === pitchType
+      )
     },
     
-
     getPitchesBySelectedType: (state) => {
       if (!state.selectedPitchType) return []
       return state.pitches.filter(
-        (pitch: Pitch) => pitch.PitchType === state.selectedPitchType
+        (pitch: Pitch) => pitchTypeMap[pitch.PitchType] === state.selectedPitchType
       )
     },
+    
 
     brainstormPitches: (state) => {
       return state.pitches.filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM')
@@ -105,7 +117,7 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    setSelectedPitchType(pitchType: PitchType | null) {
+    setSelectedPitchType(pitchType: PitchTypeEnum | null) {
 
         this.selectedPitchType = pitchType
     },
@@ -396,4 +408,4 @@ export const usePitchStore = defineStore('pitch', {
   },
 })
 
-export type { Pitch, PitchType }
+export type { Pitch }

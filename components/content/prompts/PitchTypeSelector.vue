@@ -19,19 +19,20 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore, PitchTypeEnum } from './../../../stores/pitchStore'
-import type { PitchType } from './../../../stores/pitchStore' // Use a type-only import for PitchType
+import {
+  usePitchStore,
+  PitchTypeEnum as PitchType,
+} from './../../../stores/pitchStore'
 
 // Initialize the pitch store
 const pitchStore = usePitchStore()
 
-// Map between PitchTypeEnum (human-readable) and PitchType (store values)
 const pitchTypeOptions = {
-  [PitchTypeEnum.ARTPITCH]: 'Art Pitch',
-  [PitchTypeEnum.BRAINSTORM]: 'Brainstorm',
-  [PitchTypeEnum.BOT]: 'Bot',
-  [PitchTypeEnum.ARTGALLERY]: 'Art Gallery',
-  [PitchTypeEnum.INSPIRATION]: 'Inspiration',
+  [PitchType.ARTPITCH]: 'Art Pitch',
+  [PitchType.BRAINSTORM]: 'Brainstorm',
+  [PitchType.BOT]: 'Bot',
+  [PitchType.ARTGALLERY]: 'Art Gallery',
+  [PitchType.INSPIRATION]: 'Inspiration',
 }
 
 // Use a computed property to bind the selectedPitchType to the store

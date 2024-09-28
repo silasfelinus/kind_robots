@@ -42,32 +42,37 @@ export default defineEventHandler(async (event): Promise<ImageResponse> => {
     }
 
     // Shuffle the gallery IDs
-    const shuffledIDs = initialGalleryIDs.sort(() => 0.5 - Math.random());
+    let remainingGalleryIDs = initialGalleryIDs.sort(() => 0.5 - Math.random()).map((g) => g.id);
 
-    // Select the required number of gallery IDs
-    const selectedGalleryIDs = shuffledIDs
-      .slice(0, Math.min(count, shuffledIDs.length))
-      .map((g) => g.id);
+    const selectedImages: string[] = [];
 
-    // Fetch galleries using the selected IDs
-    const galleries = await prisma.gallery.findMany({
-      where: {
-        id: { in: selectedGalleryIDs },
-      },
-    });
+    // Retry until we have enough images or run out of galleries
+    while (selectedImages.length < count && remainingGalleryIDs.length > 0) {
+      const batchSize = Math.min(remainingGalleryIDs.length, count - selectedImages.length);
+      const selectedBatchIDs = remainingGalleryIDs.slice(0, batchSize);
+      remainingGalleryIDs = remainingGalleryIDs.slice(batchSize); // Reduce the list of remaining galleries
 
-    // Extract images from each gallery
-    const imagesPromises = galleries.map((gallery) =>
-      getGalleryImages(gallery.id),
-    );
-    const allImagesArrays = await Promise.all(imagesPromises);
+      // Fetch galleries using the selected IDs
+      const galleries = await prisma.gallery.findMany({
+        where: {
+          id: { in: selectedBatchIDs },
+        },
+      });
 
-    // Extract one image path from each gallery
-    const selectedImages = allImagesArrays.flatMap((galleryImages) => {
-      return galleryImages.length > 0
-        ? galleryImages[Math.floor(Math.random() * galleryImages.length)]
-        : [];
-    });
+      // Extract images from each gallery
+      const imagesPromises = galleries.map((gallery) =>
+        getGalleryImages(gallery.id),
+      );
+      const allImagesArrays = await Promise.all(imagesPromises);
+
+      // Extract one image path from each gallery and add to the selectedImages
+      allImagesArrays.forEach((galleryImages) => {
+        if (galleryImages.length > 0) {
+          const randomImage = galleryImages[Math.floor(Math.random() * galleryImages.length)];
+          selectedImages.push(randomImage);
+        }
+      });
+    }
 
     if (selectedImages.length < count) {
       return {

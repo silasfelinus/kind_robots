@@ -20,7 +20,7 @@
         v-if="page && page.image"
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[40vh] lg:max-h-[50vh]"
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[35vh] lg:max-h-[45vh]"
       />
 
       <!-- Title, Description, and Subtitle Section -->
@@ -38,7 +38,7 @@
 
         <h3
           v-if="page && page.description"
-          class="text-sm md:text-lg lg:text-xl font-medium px-2 md:px-4"
+          class="text-sm lg:text-md font-medium px-2 md:px-4"
         >
           {{ page.description }}
         </h3>
@@ -62,7 +62,7 @@
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">DottiBot</span>
-            <p class="text-xs md:text-lg lg:text-xl">{{ page.dottitip }}</p>
+            <p class="text-xs md:text-md lg:text-lg">{{ page.dottitip }}</p>
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@
         >
           <div class="flex flex-col">
             <span class="text-xs font-semibold">AMIbot</span>
-            <p class="text-xs md:text-lg lg:text-xl text-white">
+            <p class="text-xs md:text-md lg:text-lg text-white">
               {{ page.amitip }}
             </p>
           </div>

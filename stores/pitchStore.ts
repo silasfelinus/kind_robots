@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './../stores/userStore'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
-import type { Pitch } from '@prisma/client'
+import type { Pitch, Art } from '@prisma/client'
 import { PitchType } from '@prisma/client'
 
 const isClient = typeof window !== 'undefined'
@@ -50,10 +50,10 @@ export const usePitchStore = defineStore('pitch', {
     selectedPitchId: (state) => {
       return state.selectedPitches.length ? state.selectedPitches[0].id : null
     },
-
     getPitchesByType: (state) => (pitchType: PitchType) => {
       return state.pitches.filter((pitch: Pitch) => pitch.PitchType === pitchType)
     },
+    
 
     getPitchesBySelectedType: (state) => {
       if (!state.selectedPitchType) return []
@@ -225,39 +225,38 @@ export const usePitchStore = defineStore('pitch', {
     },
 
     async createPitch(newPitch: Partial<Pitch>) {
-      const errorStore = useErrorStore()
+      const errorStore = useErrorStore();
       try {
         const response = await fetch('/api/pitches', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newPitch),
-        })
-
-        const data = await response.json()
-
+        });
+    
+        const data = await response.json();
+    
         if (response.ok && data.pitch) {
-          this.pitches.push(data.pitch)
+          this.pitches.push(data.pitch);
           if (isClient) {
-            localStorage.setItem('pitches', JSON.stringify(this.pitches))
+            localStorage.setItem('pitches', JSON.stringify(this.pitches));
           }
-          return { success: true, message: 'Pitch created successfully' }
+          return { success: true, message: 'Pitch created successfully' };
         } else {
-          throw new Error(data.message || 'Pitch creation failed')
+          throw new Error(data.message || 'Pitch creation failed');
         }
       } catch (error) {
         if (isErrorWithMessage(error)) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
-          return { success: false, message: error.message }
+          errorStore.setError(ErrorType.NETWORK_ERROR, error.message);
+          return { success: false, message: error.message };
         } else {
-          errorStore.setError(ErrorType.NETWORK_ERROR, 'Unknown error')
+          errorStore.setError(ErrorType.NETWORK_ERROR, 'Unknown error');
           return {
             success: false,
             message: 'Unknown error during pitch creation',
-          }
+          };
         }
       }
     },
-
     async updatePitch(pitchId: number, updates: Partial<Pitch>) {
       try {
         const data = await this.performFetch(`/api/pitches/${pitchId}`, {
@@ -288,7 +287,6 @@ export const usePitchStore = defineStore('pitch', {
         }
       }
     },
-
     async deletePitch(pitchId: number) {
       try {
         await this.performFetch(`/api/pitches/${pitchId}`, { method: 'DELETE' })
@@ -315,7 +313,6 @@ export const usePitchStore = defineStore('pitch', {
         }
       }
     },
-
     async fetchArtForPitch(pitchId: number) {
       try {
         const response = await fetch(`/api/pitches/art/${pitchId}`)

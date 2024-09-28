@@ -52,7 +52,6 @@ export const useResourceStore = defineStore({
         if (!response.ok) throw new Error('Failed to fetch resources')
         const data = await response.json()
         this.resources = [...this.resources, ...data]
-        this.page++
         statusStore.setStatus(StatusType.SUCCESS, `Fetched ${this.resources.length} resources`)
       } catch (error) {
         console.error('Failed to fetch resources:', error) // Log detailed error

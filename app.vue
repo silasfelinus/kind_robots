@@ -1,6 +1,6 @@
 <template>
   <div class="main-layout absolute inset-0 bg-base-300">
-<kind-loader></kind-loader>
+    <kind-loader></kind-loader>
     <!-- Header -->
     <header
       class="header-overlay bg-base-300 flex items-center justify-between w-full px-4"
@@ -19,7 +19,7 @@
       <!-- Launch/Instructions Buttons (right-aligned in the row) -->
       <button
         v-if="showLaunchButton"
-        class="bg-info text-base-200 ml-2 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-1"
+        class="bg-info text-base-200 ml-2 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 pl-4"
         @click="displayStore.toggleTutorial"
       >
         Launch
@@ -27,7 +27,7 @@
 
       <button
         v-if="showInstructionsButton"
-        class="bg-secondary text-base-200 ml-2 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 p-1"
+        class="bg-secondary text-base-200 ml-2 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 pl-1"
         @click="displayStore.toggleTutorial"
       >
         Instructions

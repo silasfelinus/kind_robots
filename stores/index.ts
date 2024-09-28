@@ -31,3 +31,7 @@ export const loadTagStore = async () => {
   return useTagStore();
 };
 
+export const loadDisplayStore = async () => {
+  const { useDisplayStore } = await import('@/stores/displayStore');
+  return useDisplayStore();
+};

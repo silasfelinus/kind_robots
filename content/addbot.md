@@ -13,5 +13,5 @@ dottitip: 'The more bots, the more our community grows'
 amitip: I love seeing what new bots people come up with!
 sort: highlight
 ---
-
+:add-bot-test
 :add-bot

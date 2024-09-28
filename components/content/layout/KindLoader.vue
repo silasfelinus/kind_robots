@@ -45,23 +45,18 @@ onMounted(async () => {
 
   try {
     if (displayStore.isInitialized) {
-      console.log('DisplayStore already initialized. Skipping initialization.')
       isReady.value = true
       isFirstLoad.value = false
       emit('pageReady', true)
       return
     }
 
-    console.log('Initializing stores...')
-
     // Initialize the stores in parallel with individual error handling for each store
     await Promise.all([
       (async () => {
         try {
           if (typeof displayStore.updateViewport === 'function') {
-            console.log('Initializing DisplayStore...')
             await displayStore.updateViewport()
-            console.log('DisplayStore initialized successfully.')
           }
         } catch (error) {
           console.error('DisplayStore initialization failed:', error)
@@ -76,9 +71,7 @@ onMounted(async () => {
       (async () => {
         try {
           if (typeof botStore.loadStore === 'function') {
-            console.log('Initializing BotStore...')
             await botStore.loadStore()
-            console.log('BotStore initialized successfully.')
           }
         } catch (error) {
           console.error('BotStore initialization failed:', error)
@@ -93,9 +86,7 @@ onMounted(async () => {
       (async () => {
         try {
           if (typeof userStore.initializeUser === 'function') {
-            console.log('Initializing UserStore...')
             await userStore.initializeUser()
-            console.log('UserStore initialized successfully.')
           }
         } catch (error) {
           console.error('UserStore initialization failed:', error)
@@ -110,9 +101,7 @@ onMounted(async () => {
       (async () => {
         try {
           if (typeof artStore.init === 'function') {
-            console.log('Initializing ArtStore...')
             await artStore.init()
-            console.log('ArtStore initialized successfully.')
           }
         } catch (error) {
           console.error('ArtStore initialization failed:', error)
@@ -127,9 +116,7 @@ onMounted(async () => {
       (async () => {
         try {
           if (typeof themeStore.initTheme === 'function') {
-            console.log('Initializing ThemeStore...')
             await themeStore.initTheme()
-            console.log('ThemeStore initialized successfully.')
           }
         } catch (error) {
           console.error('ThemeStore initialization failed:', error)
@@ -144,9 +131,7 @@ onMounted(async () => {
       (async () => {
         try {
           if (typeof milestoneStore.initializeMilestones === 'function') {
-            console.log('Initializing MilestoneStore...')
             await milestoneStore.initializeMilestones()
-            console.log('MilestoneStore initialized successfully.')
           }
         } catch (error) {
           console.error('MilestoneStore initialization failed:', error)
@@ -161,9 +146,7 @@ onMounted(async () => {
       (async () => {
         try {
           if (typeof pitchStore.initializePitches === 'function') {
-            console.log('Initializing PitchStore...')
             await pitchStore.initializePitches()
-            console.log('PitchStore initialized successfully.')
           }
         } catch (error) {
           console.error('PitchStore initialization failed:', error)

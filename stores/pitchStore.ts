@@ -336,7 +336,7 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-async function performFetch(
+async performFetch(
   url: string,
   options: RequestInit = {},
   retries = 3,

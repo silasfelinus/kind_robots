@@ -1,7 +1,11 @@
 <template>
-  <div class="relative flex flex-col items-center bg-base overflow-auto h-screen">
+  <div
+    class="relative flex flex-col items-center bg-base overflow-hidden h-screen"
+  >
     <!-- Background Gradient -->
-    <div class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10" />
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
+    ></div>
 
     <!-- Header -->
     <h1 class="mt-8 text-3xl font-semibold text-center">
@@ -9,22 +13,28 @@
     </h1>
 
     <!-- Carousel Container -->
-    <div class="mt-24 mx-auto max-w-4xl relative">
+    <div
+      class="mt-12 mx-auto max-w-4xl relative h-full flex flex-col justify-center"
+    >
       <!-- Non-Intrusive Spinner -->
       <div
         v-if="isLoading"
         class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
       >
-        <div class="w-16 h-16 border-4 border-accent border-t-transparent border-solid rounded-full animate-spin"></div>
+        <div
+          class="w-16 h-16 border-4 border-accent border-t-transparent border-solid rounded-full animate-spin"
+        ></div>
       </div>
 
       <!-- Bot Carousel -->
-      <div class="h-96 carousel carousel-vertical rounded-box">
+      <div
+        class="carousel carousel-vertical rounded-box h-96 flex items-center"
+      >
         <div
           v-for="bot in bots"
           :id="`bot-${bot.id}`"
           :key="bot.id"
-          class="carousel-item h-full cursor-pointer transition-colors ease-in-out duration-200"
+          class="carousel-item h-3/4 cursor-pointer transition-colors ease-in-out duration-200"
           :class="{
             'bg-accent text-default': currentBot?.id === bot.id,
             'bg-primary': currentBot?.id !== bot.id,
@@ -33,7 +43,7 @@
         >
           <img
             :src="bot.avatarImage ?? undefined"
-            class="w-full object-cover rounded-lg"
+            class="w-full h-full object-contain rounded-lg"
           />
         </div>
       </div>

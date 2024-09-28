@@ -26,6 +26,11 @@ export const loadComponentStore = async () => {
   return useComponentStore();
 };
 
+export const loadUserStore = async () => {
+  const { useUserStore } = await import('@/stores/userStore');
+  return useUserStore();
+};
+
 export const loadTagStore = async () => {
   const { useTagStore } = await import('@/stores/tagStore');
   return useTagStore();

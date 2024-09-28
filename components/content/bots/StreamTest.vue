@@ -34,110 +34,29 @@
       </div>
 
       <!-- Conversations Display -->
-      <div
-        v-for="(conversation, index) in conversations"
-        :key="index"
-        class="response-container m-2 p-3 bg-white rounded-lg shadow-md relative"
-      >
-        <div
-          v-for="(msg, msgIndex) in conversation"
-          :key="msgIndex"
-          class="message-content"
-        >
-          <ResponseEntry
-            v-if="conversation && msg"
-            :role="msg.role"
-            :content="msg.content ?? ''"
-            :avatar-image="msg.avatarImage ?? '/default-image.png'"
-            :bot-name="msg.botName ?? 'Kind Robot'"
-            :subtitle="msg.subtitle ?? 'No subtitle'"
-          />
-        </div>
-
-        <!-- Reactions and Reply Section -->
-        <div class="reaction-reply flex justify-between items-center mt-1">
-          <!-- Reaction Buttons -->
-          <div class="reaction-buttons flex space-x-2">
-            <button
-              class="hover:bg-gray-200"
-              :class="{ 'bg-primary': isReactionActive(index, 'LOVED') }"
-              @click="toggleReaction(index, 'LOVED')"
-            >
-              ❤️
-            </button>
-            <button
-              class="hover:bg-gray-200"
-              :class="{ 'bg-primary': isReactionActive(index, 'CLAPPED') }"
-              @click="toggleReaction(index, 'CLAPPED')"
-            >
-              👏
-            </button>
-            <button
-              class="hover:bg-gray-200"
-              :class="{ 'bg-primary': isReactionActive(index, 'BOOED') }"
-              @click="toggleReaction(index, 'BOOED')"
-            >
-              👎
-            </button>
-            <button
-              class="hover:bg-gray-200"
-              :class="{ 'bg-primary': isReactionActive(index, 'HATED') }"
-              @click="toggleReaction(index, 'HATED')"
-            >
-              🚫
-            </button>
-          </div>
-
-          <!-- Reply Section -->
-          <div
-            v-if="
-              activeConversationIndex !== null &&
-              activeConversationIndex === index
-            "
-            class="reply-section flex items-center"
-          >
-            <textarea
-              v-model="replyMessage"
-              rows="2"
-              class="p-1 text-sm rounded-md border-2 resize-none"
-              placeholder="Reply..."
-            />
-            <button
-              class="btn btn-primary text-sm ml-1"
-              :disabled="isReplyLoading"
-              @click="continueConversation(index)"
-            >
-              Reply
-            </button>
-            <div v-if="isReplyLoading" class="ml-2"><ami-butterfly /></div>
-          </div>
-        </div>
-
-        <!-- Delete Conversation Button -->
-        <button
-          class="absolute top-1 right-1 text-red-500 hover:text-red-700"
-          @click.stop="deleteConversation(index)"
-        >
-          ×
-        </button>
-      </div>
+      <ConversationDisplay
+        :conversations="conversations"
+        :active-conversation-index="activeConversationIndex"
+        :current-bot="currentBot"
+        :is-reply-loading="isReplyLoading"
+        @reply-message="continueConversation"
+        @delete-conversation="deleteConversation"
+        @toggle-reaction="toggleReaction"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watchEffect } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
-import { useChatStore, type ChatExchange } from '../../../stores/chatStore'
-import {
-  useReactionStore,
-  type ReactionType,
-} from '../../../stores/reactionStore'
+import { useChatStore } from '../../../stores/chatStore'
 
 const shouldShowMilestoneCheck = ref(false)
 let userKey: string | null = null
-const reactionStore = useReactionStore()
+const chatStore = useChatStore()
+const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
 
 onMounted(() => {
   userKey = localStorage.getItem('user_openai_key')
@@ -155,9 +74,8 @@ const conversations = ref<Message[][]>([])
 const activeConversationIndex = ref<number | null>(null)
 const botStore = useBotStore()
 const userStore = useUserStore()
-const chatStore = useChatStore()
-const currentBot = computed(
-  () =>
+const currentBot = computed(() => {
+  return (
     botStore.currentBot ?? {
       name: 'Unknown Bot',
       subtitle: 'No subtitle available',
@@ -165,71 +83,13 @@ const currentBot = computed(
       userIntro: 'Hi Bot',
       prompt: 'I am a kind robot',
       avatarImage: '/images/amibotsquare1.webp',
-    },
-)
-
+    }
+  )
+})
 const message = ref('')
-const replyMessage = ref('')
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 const isReplyLoading = ref(false)
-
-const userId = computed(() => userStore.userId || 0)
-const botId = computed(() => botStore.currentBot?.id || 0)
-const botName = computed(() => botStore.currentBot?.name || '')
-const username = computed(() => userStore.username)
-const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
-
-// Convert conversation to ChatExchange
-function convertToChatExchange(
-  conversation: Message[],
-  userId: number,
-  botId: number,
-  botName: string,
-  username: string,
-): ChatExchange {
-  const userPrompt =
-    conversation.find((msg) => msg.role === 'user')?.content ?? ''
-  const botResponse =
-    conversation.find((msg) => msg.role === 'assistant')?.content ?? ''
-
-  return {
-    id: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    botId,
-    botName,
-    userId,
-    username,
-    userPrompt,
-    botResponse,
-    isPublic: false,
-    previousEntryId: 0,
-  }
-}
-
-// Check if reaction is active
-const isReactionActive = (index: number, reactionType: ReactionType) => {
-  const exchangeId = chatStore.getExchangeById(index)?.id
-  if (!exchangeId) return false
-
-  const reaction = reactionStore.getReactionByChatExchangeId(exchangeId)
-  return reaction ? reaction.reactionType === reactionType : false
-}
-
-watchEffect(() => {
-  if (conversations.value.length > 0) {
-    const lastConversation = conversations.value[conversations.value.length - 1]
-    const lastExchange = convertToChatExchange(
-      lastConversation,
-      userId.value,
-      botId.value,
-      botName.value,
-      username.value,
-    )
-    chatStore.addOrUpdateExchange(lastExchange)
-  }
-})
 
 // Send message
 const sendMessage = async () => {
@@ -283,7 +143,7 @@ const sendMessage = async () => {
 }
 
 // Continue conversation
-const continueConversation = async (index: number) => {
+const continueConversation = async (index: number, replyMessage: string) => {
   isReplyLoading.value = true
   try {
     const sanitizedMessages = conversations.value[index].map((msg) => ({
@@ -291,8 +151,8 @@ const continueConversation = async (index: number) => {
     }))
 
     const fullMessage = currentBot.value?.userIntro
-      ? `${currentBot.value.userIntro} ${replyMessage.value}`
-      : replyMessage.value
+      ? `${currentBot.value.userIntro} ${replyMessage}`
+      : replyMessage
 
     sanitizedMessages.push({ role: 'user', content: fullMessage })
 
@@ -315,14 +175,12 @@ const continueConversation = async (index: number) => {
 
     conversations.value[index].push({
       role: 'user',
-      content: replyMessage.value,
+      content: replyMessage,
     })
     conversations.value[index].push({
       role: 'assistant',
       content: data.choices[0].message.content,
     })
-
-    replyMessage.value = ''
   } catch (err) {
     console.error(err)
   } finally {
@@ -336,7 +194,6 @@ const deleteConversation = (index: number) => {
   activeConversationIndex.value = null
 }
 
-// Toggle reaction
 const toggleReaction = async (index: number, reactionType: ReactionType) => {
   const exchangeId = chatStore.getExchangeById(index)?.id
   if (!exchangeId) return

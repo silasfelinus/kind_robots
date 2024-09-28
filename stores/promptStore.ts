@@ -23,7 +23,7 @@ export const usePromptStore = defineStore('promptStore', {
       const errorStore = useErrorStore()
 
       try {
-        const response = await fetch('/api/art/prompts/all')
+        const response = await fetch('/api/prompts/')
         if (!response.ok) throw new Error(await response.text())
         const data = await response.json()
         this.prompts = data.prompts

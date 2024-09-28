@@ -260,7 +260,7 @@ export const usePitchStore = defineStore('pitch', {
     async updatePitch(pitchId: number, updates: Partial<Pitch>) {
       try {
         const data = await this.performFetch(`/api/pitches/${pitchId}`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updates),
         })
@@ -333,30 +333,76 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    async performFetch(url: string, options: RequestInit = {}): Promise<FetchResponse> {
-      const errorStore = useErrorStore()
-      try {
-        const response = await fetch(url, options)
-        const data = await response.json()
+    async function performFetch(
+  url: string, 
+  options: RequestInit = {}, 
+  retries = 3, 
+  timeout = 8000 // Timeout set to 8 seconds by default
+): Promise<FetchResponse> {
+  const errorStore = useErrorStore()
 
-        if (!response.ok) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            data.message || 'Failed to perform fetch operation',
-          )
-          return { success: false, message: data.message }
-        }
+  // Helper function to implement timeout
+  const fetchWithTimeout = (url: string, options: RequestInit, timeout: number): Promise<Response> => {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        reject(new Error('Request timed out'));
+      }, timeout);
 
-        return { ...data, success: true }
-      } catch (error) {
-        const errorMessage = isErrorWithMessage(error)
-          ? error.message
-          : 'Unknown network error'
-        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
-        console.error('Network error:', errorMessage)
-        return { success: false, message: errorMessage }
+      fetch(url, options)
+        .then((response) => {
+          clearTimeout(timer);
+          resolve(response);
+        })
+        .catch((error) => {
+          clearTimeout(timer);
+          reject(error);
+        });
+    });
+  };
+
+  // Retry logic for transient errors
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await fetchWithTimeout(url, options, timeout);
+      const data = await response.json();
+
+      // Handle non-OK responses
+      if (!response.ok) {
+        const errorMessage = `Error: ${response.status} - ${response.statusText}`;
+        logAndSetError(errorMessage, data.message || errorMessage);
+        return { success: false, message: data.message || errorMessage };
       }
-    },
+
+      // Success case
+      return { ...data, success: true };
+
+    } catch (error) {
+      // Network errors, timeouts, etc.
+      const isLastAttempt = attempt === retries;
+      const errorMessage = isErrorWithMessage(error)
+        ? error.message
+        : 'Unknown network error';
+
+      console.error(`Attempt ${attempt} failed: ${errorMessage}`);
+
+      if (isLastAttempt) {
+        // After retries, log the final error and set to error store
+        logAndSetError('Network Error', errorMessage);
+        return { success: false, message: errorMessage };
+      }
+    }
+  }
+
+  // Fallback in case retries are exhausted
+  return { success: false, message: 'All fetch attempts failed' };
+
+  // Helper to log and store errors
+  function logAndSetError(logMessage: string, userMessage: string) {
+    console.error(logMessage);
+    errorStore.setError(ErrorType.NETWORK_ERROR, userMessage);
+  }
+},
+
   },
 })
 

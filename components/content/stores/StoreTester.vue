@@ -52,8 +52,7 @@ import {
   loadTagStore 
 } from '@/stores'
 
-// Import the base component
-import StoreTest from '@/components/StoreTest.vue'
+
 </script>
 
 <style scoped>

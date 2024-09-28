@@ -31,40 +31,48 @@ const selectedBot = ref('')
 const bots = computed<Bot[]>(() => botStore.bots)
 const currentBot = computed(() => botStore.currentBot)
 
+// Load the bots on mount and set default bot if available
 onMounted(async () => {
   try {
     await botStore.loadStore()
-    // Automatically select the first bot if available
     if (bots.value.length > 0) {
-      selectedBot.value = bots.value[0].id.toString() // Convert to string
-      await botStore.getBotById(Number(selectedBot.value)) // Fetch the bot details
+      selectedBot.value = bots.value[0].id.toString() // Convert to string for select
+      await botStore.getBotById(Number(selectedBot.value)) // Load the default bot
     }
   } catch (err) {
     console.error('🚨 Failed to load store', err)
   }
 })
+
+// Handle change in bot selection
 const handleChange = async () => {
   await botStore.getBotById(Number(selectedBot.value))
 }
 
+// Only trigger smooth scrolling when the bot changes via user interaction
+let preventScroll = false
+
 watch(
   () => currentBot.value,
-  (newCurrentBot) => {
-    if (newCurrentBot) {
+  (newCurrentBot, oldCurrentBot) => {
+    if (newCurrentBot && !preventScroll) {
       const id = newCurrentBot.id
       const botElement = document.getElementById(`bot-${id}`)
       botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
-  },
+    // Reset the flag after scroll
+    preventScroll = false
+  }
 )
 
+// Sync selected bot with current bot
 watch(
   () => currentBot.value,
   (newCurrentBot) => {
     if (newCurrentBot) {
-      selectedBot.value = newCurrentBot.id.toString() // convert to string here
+      selectedBot.value = newCurrentBot.id.toString() // Convert to string for select element
     }
-  },
+  }
 )
 </script>
 

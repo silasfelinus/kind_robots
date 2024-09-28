@@ -129,11 +129,11 @@
 import { ref, computed, onMounted, watchEffect } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
+import { useChatStore, type ChatExchange } from '../../../stores/chatStore'
 import {
   useReactionStore,
   type ReactionType,
 } from '../../../stores/reactionStore'
-import { useChatStore, type ChatExchange } from '../../../stores/chatStore'
 
 const shouldShowMilestoneCheck = ref(false)
 let userKey: string | null = null
@@ -156,8 +156,8 @@ const activeConversationIndex = ref<number | null>(null)
 const botStore = useBotStore()
 const userStore = useUserStore()
 const chatStore = useChatStore()
-const currentBot = computed(() => {
-  return (
+const currentBot = computed(
+  () =>
     botStore.currentBot ?? {
       name: 'Unknown Bot',
       subtitle: 'No subtitle available',
@@ -165,9 +165,9 @@ const currentBot = computed(() => {
       userIntro: 'Hi Bot',
       prompt: 'I am a kind robot',
       avatarImage: '/images/amibotsquare1.webp',
-    }
-  )
-})
+    },
+)
+
 const message = ref('')
 const replyMessage = ref('')
 const isLoading = ref(false)
@@ -180,7 +180,7 @@ const botName = computed(() => botStore.currentBot?.name || '')
 const username = computed(() => userStore.username)
 const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
 
-// Function to convert a conversation to ChatExchange
+// Convert conversation to ChatExchange
 function convertToChatExchange(
   conversation: Message[],
   userId: number,
@@ -208,10 +208,10 @@ function convertToChatExchange(
   }
 }
 
-// Fetch the reaction by chat exchange ID and check if a reaction is active
+// Check if reaction is active
 const isReactionActive = (index: number, reactionType: ReactionType) => {
   const exchangeId = chatStore.getExchangeById(index)?.id
-  if (!exchangeId) return false // Safely handle undefined exchange ID
+  if (!exchangeId) return false
 
   const reaction = reactionStore.getReactionByChatExchangeId(exchangeId)
   return reaction ? reaction.reactionType === reactionType : false
@@ -231,6 +231,7 @@ watchEffect(() => {
   }
 })
 
+// Send message
 const sendMessage = async () => {
   isLoading.value = true
   try {
@@ -261,14 +262,14 @@ const sendMessage = async () => {
       {
         role: 'user',
         content: message.value,
-        avatarImage: userStore.user?.avatarImage ?? undefined, // Ensure it's string or undefined
+        avatarImage: userStore.user?.avatarImage ?? undefined,
       },
       {
         role: 'assistant',
         content: data.choices[0].message.content,
-        avatarImage: currentBot.value?.avatarImage ?? undefined, // Ensure it's string or undefined
+        avatarImage: currentBot.value?.avatarImage ?? undefined,
         botName: currentBot.value?.name ?? 'Kind Robot',
-        subtitle: currentBot.value?.subtitle ?? undefined, // Ensure it's string or undefined
+        subtitle: currentBot.value?.subtitle ?? undefined,
       },
     ])
 
@@ -281,6 +282,7 @@ const sendMessage = async () => {
   }
 }
 
+// Continue conversation
 const continueConversation = async (index: number) => {
   isReplyLoading.value = true
   try {
@@ -307,9 +309,7 @@ const continueConversation = async (index: number) => {
       }),
     })
 
-    if (!res.ok) {
-      throw new Error('Failed to continue conversation')
-    }
+    if (!res.ok) throw new Error('Failed to continue conversation')
 
     const data = await res.json()
 
@@ -321,6 +321,7 @@ const continueConversation = async (index: number) => {
       role: 'assistant',
       content: data.choices[0].message.content,
     })
+
     replyMessage.value = ''
   } catch (err) {
     console.error(err)
@@ -329,11 +330,13 @@ const continueConversation = async (index: number) => {
   }
 }
 
+// Delete conversation
 const deleteConversation = (index: number) => {
   conversations.value.splice(index, 1)
   activeConversationIndex.value = null
 }
 
+// Toggle reaction
 const toggleReaction = async (index: number, reactionType: ReactionType) => {
   const exchangeId = chatStore.getExchangeById(index)?.id
   if (!exchangeId) return

@@ -10,9 +10,8 @@ const statusStore = useStatusStore()
 interface ResourceStoreState {
   resources: Resource[]
   currentResource: Resource | null
-  totalResources: number
   errors: string[]
-  
+  isInitialized: boolean
 }
 
 export const useResourceStore = defineStore({
@@ -20,23 +19,27 @@ export const useResourceStore = defineStore({
   state: (): ResourceStoreState => ({
     resources: [],
     currentResource: null,
-    totalResources: 0,
     errors: [],
+    isInitialized: false,
     
   }),
   actions: {
     async loadStore(): Promise<void> {
       statusStore.setStatus(StatusType.INFO, 'Loading resource store...')
       try {
-        await this.countResources()
-        if (this.totalResources === 0) {
-          await this.seedResources()
+        if (!this.isInitialized) {
+          await this.getResources()
+          if (this.resources.length === 0) {
+            await this.seedResources()
+            await this.getResources()
+          }
+          this.isInitialized = true
         }
-        await this.getResources()
+
 
         statusStore.setStatus(StatusType.SUCCESS, `Loaded ${this.resources.length} resources`)
       } catch (error) {
-        console.error('Resource Store Load Error:', error) // Log detailed error
+        console.error('Resource Store Load Error:', error)
         errorStore.setError(
           ErrorType.UNKNOWN_ERROR,
           `Error initializing resource store: ${error instanceof Error ? error.message : error}`,
@@ -78,7 +81,6 @@ export const useResourceStore = defineStore({
       }
 
       await this.getResources()
-      await this.countResources()
     },
     async getResourceById(id: number): Promise<void> {
       statusStore.setStatus(
@@ -119,8 +121,6 @@ export const useResourceStore = defineStore({
           StatusType.SUCCESS,
           `Added ${this.resources.length} resources`,
         )
-        // Update the total resources count after adding new resources
-        await this.countResources()
       } catch (error) {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
@@ -135,7 +135,7 @@ export const useResourceStore = defineStore({
       )
       try {
         const response = await fetch(`/api/resources/${id}`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -173,44 +173,10 @@ export const useResourceStore = defineStore({
         )
         // Fetch the updated list of resources and total resources count after deleting a resource
         await this.getResources()
-        await this.countResources()
       } catch (error) {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
           'Failed to delete resource: ' + error,
-        )
-      }
-    },
-    async randomResource(): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Fetching a random resource...')
-      try {
-        const response = await fetch(`/api/resources/random`)
-        if (!response.ok) throw new Error('Failed to fetch a random resource')
-        const data = await response.json()
-        this.currentResource = data
-        statusStore.setStatus(StatusType.SUCCESS, 'Fetched a random resource')
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          'Failed to fetch a random resource: ' + error,
-        )
-      }
-    },
-    async countResources(): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Counting resources...')
-      try {
-        const response = await fetch(`/api/resources/count`)
-        if (!response.ok) throw new Error('Failed to count resources')
-        const data = await response.json()
-        this.totalResources = data
-        statusStore.setStatus(
-          StatusType.SUCCESS,
-          `Counted a total of ${this.totalResources} resources`,
-        )
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          'Failed to count resources: ' + error,
         )
       }
     },

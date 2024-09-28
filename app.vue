@@ -19,7 +19,7 @@
       <!-- Launch/Instructions Buttons (right-aligned in the row) -->
       <button
         v-if="showLaunchButton"
-        class="bg-info text-base-200 ml-2 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 pl-4"
+        class="bg-info text-base-200 ml-2 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 pl-4"
         @click="displayStore.toggleTutorial"
       >
         Launch
@@ -27,7 +27,7 @@
 
       <button
         v-if="showInstructionsButton"
-        class="bg-secondary text-base-200 ml-2 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 pl-4"
+        class="bg-secondary text-base-200 ml-2 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-40 pl-4"
         @click="displayStore.toggleTutorial"
       >
         Instructions

@@ -319,6 +319,13 @@
     ]
   },
   {
+    "folderName": "stores",
+    "components": [
+      "StoreTest",
+      "StoreTester"
+    ]
+  },
+  {
     "folderName": "tooltips",
     "components": [
       "ChatBubble",

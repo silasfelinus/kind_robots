@@ -20,31 +20,34 @@
         <span class="text-sm text-gray-600">Meet Them All!</span>
       </div>
 
-      <!-- Condense avatar, details, and stream-test into a single row -->
+      <!-- Adjust layout for different screen sizes -->
       <div
-        class="flex flex-wrap items-start justify-between w-full m-2 rounded-lg"
+        class="flex flex-col md:flex-row items-start justify-between w-full m-2 rounded-lg"
       >
         <!-- Bot Avatar and Carousel -->
-        <div class="w-1/3 p-2">
+        <div class="w-full md:w-1/3 p-2">
           <bot-carousel2 />
         </div>
 
-        <!-- Bot Details -->
-        <div class="flex-1 text-center p-2">
-          <h2 class="text-2xl font-semibold">
-            {{ currentBot.name ?? 'Unknown Bot' }}
-          </h2>
-          <p class="text-md text-gray-600">
-            {{ currentBot.subtitle ?? 'Subtitle' }}
-          </p>
-          <div class="card mt-2 p-2 bg-base-300">
-            {{ currentBot.description ?? 'Description' }}
+        <!-- Bot Details and Stream Test in a single column for larger screens -->
+        <div class="flex-1 flex flex-col w-full md:w-2/3 p-2">
+          <!-- Bot Details -->
+          <div class="text-center">
+            <h2 class="text-2xl font-semibold">
+              {{ currentBot.name ?? 'Unknown Bot' }}
+            </h2>
+            <p class="text-md text-gray-600">
+              {{ currentBot.subtitle ?? 'Subtitle' }}
+            </p>
+            <div class="card mt-2 p-2 bg-base-300">
+              {{ currentBot.description ?? 'Description' }}
+            </div>
           </div>
-        </div>
 
-        <!-- Stream Test component placed next to Bot Details -->
-        <div class="w-1/3 p-2">
-          <stream-test />
+          <!-- Stream Test component positioned below Bot Details -->
+          <div class="mt-4 md:mt-auto">
+            <stream-test class="h-48 md:h-auto" />
+          </div>
         </div>
       </div>
     </div>

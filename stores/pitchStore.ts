@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { useUserStore } from './../stores/userStore'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 import type { Pitch, Art } from '@prisma/client'
-import { PitchType } from '@prisma/client'
 
 const isClient = typeof window !== 'undefined'
 
@@ -68,7 +67,7 @@ export const usePitchStore = defineStore('pitch', {
 
     pitchesByTitle: (state) => {
       return state.pitches
-        .filter((pitch: Pitch) => pitch.PitchType === PitchType.BRAINSTORM)
+        .filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM')
         .reduce((grouped: Record<string, Pitch[]>, pitch: Pitch) => {
           const title = pitch.title || 'Untitled'
           if (!grouped[title]) {
@@ -164,7 +163,7 @@ export const usePitchStore = defineStore('pitch', {
           designer: null,
           flavorText: null,
           highlightImage: null,
-          PitchType: PitchType.BRAINSTORM,
+          PitchType: 'BRAINSTORM',
           isMature: false,
           isPublic: true,
           userId: 1,
@@ -184,7 +183,7 @@ export const usePitchStore = defineStore('pitch', {
 
       // Automatically select the newest five brainstorm pitches
       const brainstormPitches = this.pitches
-        .filter((pitch) => pitch.PitchType === PitchType.BRAINSTORM)
+        .filter((pitch) => pitch.PitchType === 'BRAINSTORM')
         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)) // Sort by most recent
 
       this.selectedPitches = brainstormPitches.slice(0, 5)

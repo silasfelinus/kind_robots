@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col w-full bg-base-300 rounded-2xl p-2">
-    <label class="font-bold text-lg m-2" for="bot-selector"
-      >🤖 Please Select your Bot:</label
-    >
+    <label class="font-bold text-lg m-2" for="bot-selector">
+      🤖 Please Select your Bot:
+    </label>
     <select
       id="bot-selector"
       v-model="selectedBot"
@@ -49,30 +49,14 @@ const handleChange = async () => {
   await botStore.getBotById(Number(selectedBot.value))
 }
 
-// Only trigger smooth scrolling when the bot changes via user interaction
-let preventScroll = false
-
-watch(
-  () => currentBot.value,
-  (newCurrentBot, oldCurrentBot) => {
-    if (newCurrentBot && !preventScroll) {
-      const id = newCurrentBot.id
-      const botElement = document.getElementById(`bot-${id}`)
-      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-    // Reset the flag after scroll
-    preventScroll = false
-  }
-)
-
-// Sync selected bot with current bot
+// Sync selected bot with current bot without any scrolling
 watch(
   () => currentBot.value,
   (newCurrentBot) => {
     if (newCurrentBot) {
       selectedBot.value = newCurrentBot.id.toString() // Convert to string for select element
     }
-  }
+  },
 )
 </script>
 

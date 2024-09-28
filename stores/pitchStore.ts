@@ -326,84 +326,74 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
+    async performFetch(
+      url: string,
+      options: RequestInit = {},
+      retries = 3,
+      timeout = 8000
+    ): Promise<FetchResponse> {
+      const errorStore = useErrorStore();
 
-    async fetchMorePitchesByTitle(title: string) {
-      try {
-        const data = await this.performFetch(`/api/pitches/title/${encodeURIComponent(title)}`)
-        this.addPitches(data.pitches || [])
-      } catch (error) {
-        console.error(`Failed to fetch more pitches for title: ${title}`, error)
+      if (!isClient) {
+        return { success: false, message: 'Cannot fetch on the server.' };
+      }
+
+      const fetchWithTimeout = (url: string, options: RequestInit, timeout: number): Promise<Response> => {
+        return new Promise((resolve, reject) => {
+          const timer = setTimeout(() => {
+            reject(new Error('Request timed out'));
+          }, timeout);
+
+          fetch(url, options)
+            .then((response) => {
+              clearTimeout(timer);
+              resolve(response);
+            })
+            .catch((error) => {
+              clearTimeout(timer);
+              reject(error);
+            });
+        });
+      };
+
+      // Retry logic for transient errors
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const response = await fetchWithTimeout(url, options, timeout);
+          const data = await response.json();
+
+          // Handle non-OK responses
+          if (!response.ok) {
+            const errorMessage = `Error: ${response.status} - ${response.statusText}`;
+            logAndSetError(errorMessage, data.message || errorMessage);
+            return { success: false, message: data.message || errorMessage };
+          }
+
+          // Success case
+          return { ...data, success: true };
+        } catch (error) {
+          const isLastAttempt = attempt === retries;
+          const errorMessage = isErrorWithMessage(error)
+            ? error.message
+            : 'Unknown network error';
+
+          console.error(`Attempt ${attempt} failed: ${errorMessage}`);
+
+          if (isLastAttempt) {
+            logAndSetError('Network Error', errorMessage);
+            return { success: false, message: errorMessage };
+          }
+        }
+      }
+
+      // Fallback in case retries are exhausted
+      return { success: false, message: 'All fetch attempts failed' };
+
+      function logAndSetError(logMessage: string, userMessage: string) {
+        console.error(logMessage);
+        errorStore.setError(ErrorType.NETWORK_ERROR, userMessage);
       }
     },
-
-async performFetch(
-  url: string,
-  options: RequestInit = {},
-  retries = 3,
-  timeout = 8000
-): Promise<FetchResponse> {
-  const errorStore = useErrorStore();
-
-  if (!isClient) {
-    return { success: false, message: 'Cannot fetch on the server.' };
-  }
-
-  const fetchWithTimeout = (url: string, options: RequestInit, timeout: number): Promise<Response> => {
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        reject(new Error('Request timed out'));
-      }, timeout);
-
-      fetch(url, options)
-        .then((response) => {
-          clearTimeout(timer);
-          resolve(response);
-        })
-        .catch((error) => {
-          clearTimeout(timer);
-          reject(error);
-        });
-    });
-  };
-
-  // Retry logic for transient errors
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const response = await fetchWithTimeout(url, options, timeout);
-      const data = await response.json();
-
-      // Handle non-OK responses
-      if (!response.ok) {
-        const errorMessage = `Error: ${response.status} - ${response.statusText}`;
-        logAndSetError(errorMessage, data.message || errorMessage);
-        return { success: false, message: data.message || errorMessage };
-      }
-
-      // Success case
-      return { ...data, success: true };
-    } catch (error) {
-      const isLastAttempt = attempt === retries;
-      const errorMessage = isErrorWithMessage(error)
-        ? error.message
-        : 'Unknown network error';
-
-      console.error(`Attempt ${attempt} failed: ${errorMessage}`);
-
-      if (isLastAttempt) {
-        logAndSetError('Network Error', errorMessage);
-        return { success: false, message: errorMessage };
-      }
-    }
-  }
-
-  // Fallback in case retries are exhausted
-  return { success: false, message: 'All fetch attempts failed' };
-
-  function logAndSetError(logMessage: string, userMessage: string) {
-    console.error(logMessage);
-    errorStore.setError(ErrorType.NETWORK_ERROR, userMessage);
-  }
-},
   },
 })
 

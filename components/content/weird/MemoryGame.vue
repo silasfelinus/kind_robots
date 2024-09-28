@@ -3,7 +3,7 @@
     <!-- Top Section: Leaderboard and Difficulty Selection -->
     <div class="flex justify-between w-full">
       <!-- Leaderboard Section -->
-      <div class="leaderboard-container w-full md:w-1/2">
+      <div class="leaderboard-container justify-center w-full md:w-1/2">
         <match-leaderboard />
       </div>
 
@@ -11,7 +11,7 @@
       <div
         class="controls-container w-full md:w-1/3 p-4 rounded-lg text-center"
       >
-        <h1 class="text-4xl font-bold mb-2">Kind Robots Memory Game</h1>
+        <h1 class="text-lg font-bold mb-2">Kind Robots Memory Game</h1>
         <p class="text-gray-600 mb-4">Match the images and test your memory!</p>
 
         <label for="difficulty" class="block mb-2">Select Difficulty:</label>

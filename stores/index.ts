@@ -1,6 +1,3 @@
-// stores/index.ts
-
-
 export const loadPromptStore = async () => {
   const { usePromptStore } = await import('@/stores/promptStore');
   return usePromptStore();
@@ -39,4 +36,84 @@ export const loadTagStore = async () => {
 export const loadDisplayStore = async () => {
   const { useDisplayStore } = await import('@/stores/displayStore');
   return useDisplayStore();
+};
+
+export const loadPitchStore = async () => {
+  const { usePitchStore } = await import('@/stores/pitchStore');
+  return usePitchStore();
+};
+
+export const loadCartStore = async () => {
+  const { useCartStore } = await import('@/stores/cartStore');
+  return useCartStore();
+};
+
+export const loadChannelStore = async () => {
+  const { useChannelStore } = await import('@/stores/channelStore');
+  return useChannelStore();
+};
+
+export const loadChatStore = async () => {
+  const { useChatStore } = await import('@/stores/chatStore');
+  return useChatStore();
+};
+
+export const loadContentStore = async () => {
+  const { useContentStore } = await import('@/stores/contentStore');
+  return useContentStore();
+};
+
+export const loadCustomerStore = async () => {
+  const { useCustomerStore } = await import('@/stores/customerStore');
+  return useCustomerStore();
+};
+
+export const loadDreamStore = async () => {
+  const { useDreamStore } = await import('@/stores/dreamStore');
+  return useDreamStore();
+};
+
+export const loadErrorStore = async () => {
+  const { useErrorStore } = await import('@/stores/errorStore');
+  return useErrorStore();
+};
+
+export const loadGameStore = async () => {
+  const { useGameStore } = await import('@/stores/gameStore');
+  return useGameStore();
+};
+
+export const loadMilestoneStore = async () => {
+  const { useMilestoneStore } = await import('@/stores/milestoneStore');
+  return useMilestoneStore();
+};
+
+export const loadProductStore = async () => {
+  const { useProductStore } = await import('@/stores/productStore');
+  return useProductStore();
+};
+
+export const loadReactionStore = async () => {
+  const { useReactionStore } = await import('@/stores/reactionStore');
+  return useReactionStore();
+};
+
+export const loadResourceStore = async () => {
+  const { useResourceStore } = await import('@/stores/resourceStore');
+  return useResourceStore();
+};
+
+export const loadRewardStore = async () => {
+  const { useRewardStore } = await import('@/stores/rewardStore');
+  return useRewardStore();
+};
+
+export const loadThemeStore = async () => {
+  const { useThemeStore } = await import('@/stores/themeStore');
+  return useThemeStore();
+};
+
+export const loadTodoStore = async () => {
+  const { useTodoStore } = await import('@/stores/todoStore');
+  return useTodoStore();
 };

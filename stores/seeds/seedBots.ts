@@ -1,6 +1,21 @@
 // ~/stores/seeds/seedBots.ts
 import type { Bot } from '@prisma/client'
 
+// Define your default bot data
+export const defaultBot: Partial<Bot> = {
+  name: 'DefaultBot',
+  BotType: 'CHATBOT',
+  subtitle: 'Your Friendly Assistant',
+  description: 'I help you get things done!',
+  botIntro: 'You are DefaultBot, your friendly and helpful assistant.',
+  userIntro: 'Hello DefaultBot!',
+  prompt: 'Give me a task and I will help you complete it step-by-step.',
+  sampleResponse: 'Here is how you can accomplish that task...',
+  underConstruction: true, // Default set to true
+  canDelete: true,         // Default set to true
+  isPublic: false,         // Default set to false
+};
+
 // Define your array of initial bot data
 export const botData: Partial<Bot>[] = [
   {

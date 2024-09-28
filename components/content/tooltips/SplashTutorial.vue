@@ -24,7 +24,7 @@
       />
 
       <!-- Title, Description, and Subtitle Section -->
-      <div class="text-center w-full space-y-1 md:space-y-2">
+      <div class="text-center w-full space-y-1 lg:space-y-2">
         <h1 v-if="page && page.title" class="text-2xl lg:text-4xl font-bold">
           {{ page.title }}
         </h1>
@@ -38,7 +38,7 @@
 
         <h3
           v-if="page && page.description"
-          class="text-sm md:text-2xl font-medium px-2 md:px-4"
+          class="text-sm md:text-lg lg:text-xl font-medium px-2 md:px-4"
         >
           {{ page.description }}
         </h3>
@@ -48,12 +48,12 @@
     <!-- Bot Messages Section -->
     <div
       v-if="page && page.dottitip && page.amitip"
-      class="flex flex-col space-y-2 md:space-y-4 w-full max-w-3xl px-4 py-1 md:py-2 overflow-y-auto"
+      class="flex flex-col space-y-2 md:space-y-4 w-full max-w-3xl px-4 py-1 lg:py-2 overflow-y-auto"
     >
       <!-- DottiBot Message -->
       <div class="flex justify-start">
         <div
-          class="flex items-start space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-tl-none rounded-tr-2xl rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3"
+          class="flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-tl-none rounded-tr-2xl rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pr-4"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -70,7 +70,7 @@
       <!-- AMIbot Message -->
       <div class="flex justify-end">
         <div
-          class="flex items-start space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-tl-2xl rounded-tr-none rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3"
+          class="flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-tl-2xl rounded-tr-none rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pl-4"
         >
           <div class="flex flex-col">
             <span class="text-xs font-semibold">AMIbot</span>

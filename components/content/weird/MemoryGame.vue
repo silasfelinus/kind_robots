@@ -3,7 +3,7 @@
     <!-- Top Section: Leaderboard and Difficulty Selection -->
     <div class="flex justify-between w-full">
       <!-- Leaderboard Section -->
-      <div class="leaderboard-container w-full md:w-1/3">
+      <div class="leaderboard-container w-full md:w-1/2">
         <match-leaderboard />
       </div>
 
@@ -202,8 +202,18 @@ async function generateMemoryGameImages() {
 
     const response = await fetch(
       `/api/galleries/random/count/${pairsNeeded.value}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
     )
+
     const data = await response.json()
+
+    if (!data.success || !Array.isArray(data.images)) {
+      throw new Error(data.message || 'Failed to fetch images.')
+    }
 
     if (data.images.length !== pairsNeeded.value) {
       throw new Error('Received an unexpected number of images.')
@@ -213,7 +223,7 @@ async function generateMemoryGameImages() {
       .map((image, index) => ({
         id: index,
         galleryName: '',
-        imagePath: image,
+        imagePath: typeof image === 'string' ? image : '',
         flipped: false,
         matched: false,
       }))
@@ -222,10 +232,21 @@ async function generateMemoryGameImages() {
     isLoading.value = false
   } catch (error) {
     isLoading.value = false
-    console.error('Error generating images:', error)
-    notification.value = {
-      type: 'error',
-      message: 'Error generating images. Please try again later.',
+
+    // Type guard to check if the error is an instance of Error
+    if (error instanceof Error) {
+      console.error('Error generating images:', error.message)
+      notification.value = {
+        type: 'error',
+        message:
+          error.message || 'Error generating images. Please try again later.',
+      }
+    } else {
+      console.error('Unknown error occurred:', error)
+      notification.value = {
+        type: 'error',
+        message: 'An unknown error occurred. Please try again later.',
+      }
     }
   }
 }

@@ -90,11 +90,14 @@ export const usePitchStore = defineStore('pitch', {
 
   actions: {
     async initializePitches() {
-      if (!this.isInitialized) {
-        await this.fetchPitches() // Fetches pitches
-        this.isInitialized = true
-      }
-    },
+  if (!isClient) {
+    return;
+  }
+  if (!this.isInitialized) {
+    await this.fetchPitches(); // Fetches pitches
+    this.isInitialized = true;
+  }
+}
 
     setSelectedPitch(pitchId: number) {
       const pitch = this.pitches.find((p) => p.id === pitchId)
@@ -333,15 +336,18 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    async function performFetch(
-  url: string, 
-  options: RequestInit = {}, 
-  retries = 3, 
-  timeout = 8000 // Timeout set to 8 seconds by default
+async function performFetch(
+  url: string,
+  options: RequestInit = {},
+  retries = 3,
+  timeout = 8000
 ): Promise<FetchResponse> {
-  const errorStore = useErrorStore()
+  const errorStore = useErrorStore();
 
-  // Helper function to implement timeout
+  if (!isClient) {
+    return { success: false, message: 'Cannot fetch on the server.' };
+  }
+
   const fetchWithTimeout = (url: string, options: RequestInit, timeout: number): Promise<Response> => {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -375,9 +381,7 @@ export const usePitchStore = defineStore('pitch', {
 
       // Success case
       return { ...data, success: true };
-
     } catch (error) {
-      // Network errors, timeouts, etc.
       const isLastAttempt = attempt === retries;
       const errorMessage = isErrorWithMessage(error)
         ? error.message
@@ -386,7 +390,6 @@ export const usePitchStore = defineStore('pitch', {
       console.error(`Attempt ${attempt} failed: ${errorMessage}`);
 
       if (isLastAttempt) {
-        // After retries, log the final error and set to error store
         logAndSetError('Network Error', errorMessage);
         return { success: false, message: errorMessage };
       }
@@ -396,13 +399,11 @@ export const usePitchStore = defineStore('pitch', {
   // Fallback in case retries are exhausted
   return { success: false, message: 'All fetch attempts failed' };
 
-  // Helper to log and store errors
   function logAndSetError(logMessage: string, userMessage: string) {
     console.error(logMessage);
     errorStore.setError(ErrorType.NETWORK_ERROR, userMessage);
   }
 },
-
   },
 })
 

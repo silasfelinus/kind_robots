@@ -44,119 +44,22 @@ onMounted(async () => {
   console.log('Starting initialization process...')
 
   try {
-    if (displayStore.isInitialized) {
-      isReady.value = true
-      isFirstLoad.value = false
-      emit('pageReady', true)
-      return
+    if (!displayStore.isInitialized) {
+      await errorStore.handleError(
+        async () => displayStore.initialize(),
+        ErrorType.STORE_ERROR,
+        'Error initializing display store',
+      )
     }
 
-    // Initialize the stores in parallel with individual error handling for each store
+    // Initialize other stores in parallel
     await Promise.all([
-      (async () => {
-        try {
-          if (typeof displayStore.updateViewport === 'function') {
-            await displayStore.updateViewport()
-          }
-        } catch (error) {
-          console.error('DisplayStore initialization failed:', error)
-          errorStore.setError(
-            ErrorType.STORE_ERROR,
-            'DisplayStore failed to initialize',
-          )
-          throw error
-        }
-      })(),
-
-      (async () => {
-        try {
-          if (typeof botStore.loadStore === 'function') {
-            await botStore.loadStore()
-          }
-        } catch (error) {
-          console.error('BotStore initialization failed:', error)
-          errorStore.setError(
-            ErrorType.STORE_ERROR,
-            'BotStore failed to initialize',
-          )
-          throw error
-        }
-      })(),
-
-      (async () => {
-        try {
-          if (typeof userStore.initializeUser === 'function') {
-            await userStore.initializeUser()
-          }
-        } catch (error) {
-          console.error('UserStore initialization failed:', error)
-          errorStore.setError(
-            ErrorType.STORE_ERROR,
-            'UserStore failed to initialize',
-          )
-          throw error
-        }
-      })(),
-
-      (async () => {
-        try {
-          if (typeof artStore.init === 'function') {
-            await artStore.init()
-          }
-        } catch (error) {
-          console.error('ArtStore initialization failed:', error)
-          errorStore.setError(
-            ErrorType.STORE_ERROR,
-            'ArtStore failed to initialize',
-          )
-          throw error
-        }
-      })(),
-
-      (async () => {
-        try {
-          if (typeof themeStore.initTheme === 'function') {
-            await themeStore.initTheme()
-          }
-        } catch (error) {
-          console.error('ThemeStore initialization failed:', error)
-          errorStore.setError(
-            ErrorType.STORE_ERROR,
-            'ThemeStore failed to initialize',
-          )
-          throw error
-        }
-      })(),
-
-      (async () => {
-        try {
-          if (typeof milestoneStore.initializeMilestones === 'function') {
-            await milestoneStore.initializeMilestones()
-          }
-        } catch (error) {
-          console.error('MilestoneStore initialization failed:', error)
-          errorStore.setError(
-            ErrorType.STORE_ERROR,
-            'MilestoneStore failed to initialize',
-          )
-          throw error
-        }
-      })(),
-
-      (async () => {
-        try {
-          if (typeof pitchStore.initializePitches === 'function') {
-            await pitchStore.initializePitches()
-          }
-        } catch (error) {
-          console.error('PitchStore initialization failed:', error)
-          errorStore.setError(
-            ErrorType.STORE_ERROR,
-            'PitchStore failed to initialize',
-          )
-          throw error
-        }
-      })(),
+      botStore.loadStore?.(),
+      userStore.initializeUser?.(),
+      artStore.init?.(),
+      themeStore.initTheme?.(),
+      milestoneStore.initializeMilestones?.(),
+      pitchStore.initializePitches?.(),
     ])
 
     console.log('All stores initialized successfully.')
@@ -169,15 +72,9 @@ onMounted(async () => {
       isReady.value = true
       isFirstLoad.value = false
       emit('pageReady', true)
-
-      // Mark displayStore as loaded
-      displayStore.isInitialized = true
     }, 1000)
-
-    // Add viewport resize event listener
-    window.addEventListener('resize', displayStore.updateViewport)
   } catch (error) {
-    console.error('Overall initialization failed:', error)
+    console.error('Initialization failed:', error)
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
       `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -186,6 +83,6 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', displayStore.updateViewport)
+  displayStore.removeViewportWatcher() // Clean up the watcher
 })
 </script>

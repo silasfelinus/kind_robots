@@ -16,6 +16,15 @@
         <nav-links class="hidden sm:flex justify-center"></nav-links>
       </div>
 
+      <!-- Full-Screen Toggle Button (Visible on large screens only) -->
+      <button
+        v-if="isLargeViewport"
+        class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"
+        @click="displayStore.toggleFullScreen"
+      >
+        {{ displayStore.isFullScreen ? 'Two Columns' : 'Full Screen' }}
+      </button>
+
       <!-- Launch Button -->
       <button
         v-if="showLaunchButton"
@@ -84,25 +93,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount } from 'vue'
-import { useDisplayStore } from './stores/displayStore'
-
 import { useErrorStore, ErrorType } from './stores/errorStore'
+import { computed, onMounted } from 'vue'
+import { useDisplayStore } from './stores/displayStore'
 
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 
-// Error handler utility with specific Error type
-const handleError = (
-  error: Error,
-  message: string,
-  type: ErrorType = ErrorType.GENERAL_ERROR,
-) => {
-  console.error(message, error.stack || error)
-  errorStore.setError(type, error) // Pass ErrorType and error as arguments
-}
-
-// Computed properties for reactive access to store data
+// Computed properties
+const isLargeViewport = computed(() => displayStore.mainVw > 1024) // Adjust breakpoint as needed
 const headerHeight = computed(
   () => `calc(var(--vh, 1vh) * ${displayStore.headerVh})`,
 )
@@ -112,16 +111,15 @@ const mainHeight = computed(
 const footerHeight = computed(
   () => `calc(var(--vh, 1vh) * ${displayStore.footerVh})`,
 )
+const gridColumns = computed(() => displayStore.gridColumns) // Use displayStore getter
+
 const sidebarLeftWidth = computed(() => `${displayStore.sidebarLeftVw}vw`)
 const sidebarRightWidth = computed(() => `${displayStore.sidebarRightVw}vw`)
 const mainWidth = computed(
   () =>
     `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
 )
-const gridColumns = computed(
-  () =>
-    `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
-)
+
 // Computed properties for button visibility
 const showLaunchButton = computed(() => {
   return (
@@ -137,45 +135,19 @@ const showInstructionsButton = computed(() => {
   )
 })
 
-// Function to set a custom --vh CSS variable to handle mobile devices like iPads
-const setCustomVh = () => {
-  if (typeof window !== 'undefined') {
-    const vh = window.innerHeight * 0.01
-    document.documentElement.style.setProperty('--vh', `${vh}px`)
-  }
-}
-
-onMounted(() => {
+onMounted(async () => {
   try {
-    console.log('Mounted: Initializing custom vh and display store')
-    setCustomVh()
-
     if (!displayStore.isInitialized) {
-      window.addEventListener('resize', setCustomVh)
-      displayStore.initialize()
-      console.log('displayStore initialized:', displayStore)
+      await errorStore.handleError(
+        async () => displayStore.initialize(),
+        ErrorType.STORE_ERROR,
+        'Error initializing display store',
+      )
     }
   } catch (error) {
-    console.error('Error in onMounted:', error) // Log the error to fix unused error issue
-    handleError(
-      new Error('Component mounting failed'),
-      'Error during onMounted lifecycle',
+    errorStore.setError(
       ErrorType.STORE_ERROR,
-    )
-  }
-})
-
-onBeforeUnmount(() => {
-  try {
-    window.removeEventListener('resize', setCustomVh)
-    displayStore.removeViewportWatcher()
-    console.log('Unmounting: Cleaned up event listeners')
-  } catch (error) {
-    console.error('Error in onBeforeUnmount:', error)
-    handleError(
-      new Error('Component unmounting failed'),
-      'Error during onBeforeUnmount lifecycle',
-      ErrorType.STORE_ERROR,
+      error instanceof Error ? error.message : 'Unknown error during mounting',
     )
   }
 })

@@ -96,8 +96,7 @@ const resetFlipState = () => {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden; /* Prevent the back from being visible during the flip */
-  -webkit-backface-visibility: hidden; /* WebKit browsers */
+  /* Temporarily remove backface visibility to handle mirrored issue on iOS Chrome */
   border-radius: 12px;
   display: flex;
   flex-direction: column;

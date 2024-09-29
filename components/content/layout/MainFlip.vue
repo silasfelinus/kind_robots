@@ -1,9 +1,6 @@
 <template>
   <div
-    class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
-    :style="{
-      height: mainHeight, // Constrain the height using mainHeight from the store
-    }"
+    class="w-full rounded-2xl bg-base-300 relative shadow-lg min-h-screen"
     :class="{
       'grid grid-cols-2 gap-4': isLargeViewport,
       'flip-card': !isLargeViewport,
@@ -20,53 +17,60 @@
         <splash-tutorial />
       </div>
 
-      <!-- Back side: NuxtPage content -->
-      <div class="flip-card-back overflow-y-auto">
-        <NuxtPage></NuxtPage>
+      <!-- Back side: NuxtPage content (with scrolling) -->
+      <div class="flip-card-back overflow-y-auto h-screen">
+        <NuxtPage />
       </div>
     </div>
 
     <!-- Two-column layout for large and extra-large viewports -->
     <div
       v-if="isLargeViewport"
-      class="flex flex-col overflow-y-auto"
-      :style="{ height: '100%' }"
+      class="flex flex-col overflow-y-auto min-h-screen"
     >
       <splash-tutorial />
     </div>
     <div
       v-if="isLargeViewport"
-      class="flex flex-col overflow-y-auto border rounded-2xl"
-      :style="{ height: '100%' }"
+      class="flex flex-col overflow-y-auto min-h-screen border rounded-2xl"
     >
-      <NuxtPage></NuxtPage>
+      <NuxtPage />
     </div>
   </div>
 </template>
 
-
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Initialize the display store
 const displayStore = useDisplayStore()
-const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`)
-const flipped = ref(false)  // Track if the card is flipped
+
+// Watch for changes in viewport size
+const isLargeViewport = computed(
+  () =>
+    displayStore.viewportSize === 'large' ||
+    displayStore.viewportSize === 'extraLarge',
+)
+
+// Ensure initialization happens on component mount
+onMounted(() => {
+  if (!displayStore.isInitialized) {
+    displayStore.initialize()
+  }
+})
 </script>
 
-
-<style>
-/* Ensure the main content respects the boundaries */
+<style scoped>
 .flip-card {
   width: 100%;
-  height: 100%; /* Match the height of its parent container */
+  height: 100%;
   perspective: 1000px;
 }
 
 .flip-card-inner {
   width: 100%;
-  height: 100%; /* Ensure it stays within the parent height */
+  height: 100%;
   transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
   position: relative;
@@ -87,21 +91,19 @@ const flipped = ref(false)  // Track if the card is flipped
   flex-direction: column;
 }
 
-.flip-card-back {
-  transform: rotateY(180deg);
-  overflow-y: auto; /* Allows the back side to scroll */
+.flip-card-front {
+  z-index: 2;
 }
 
-/* Two-column layout should also respect height */
+.flip-card-back {
+  transform: rotateY(180deg);
+  overflow-y: auto; /* Ensure this element is scrollable */
+}
+
+/* Ensure grid layout height takes full available space */
 .grid-cols-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  height: 100%; /* Ensure the two-column layout respects the container height */
-}
-
-/* Ensure border for main content */
-.w-full.border-accent {
-  border-color: var(--tw-border-opacity) var(--tw-border-opacity);
-  border-width: 2px;
+  height: 100%;
 }
 </style>

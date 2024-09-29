@@ -2,10 +2,7 @@
   <div
     class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
-    :class="{
-      'grid grid-cols-2 gap-4': isLargeViewport, 
-      'flip-card': !isLargeViewport
-    }"
+    :class="{ 'grid grid-cols-2 gap-4': isLargeViewport, 'flip-card': !isLargeViewport }"
   >
     <!-- Flip-card Layout for small and medium viewports -->
     <div
@@ -15,12 +12,18 @@
       @transitionend="handleTransitionEnd"
     >
       <!-- Front side: Splash Tutorial -->
-      <div class="flip-card-front" :class="{ 'intangible': !displayStore.showTutorial && isFlippedComplete }">
+      <div 
+        class="flip-card-front"
+        :class="{ 'intangible': !displayStore.showTutorial && isFlippedComplete }"
+      >
         <splash-tutorial />
       </div>
 
       <!-- Back side: NuxtPage content -->
-      <div class="flip-card-back overflow-y-auto" :class="{ 'intangible': displayStore.showTutorial && isFlippedComplete }">
+      <div 
+        class="flip-card-back overflow-y-auto"
+        :class="{ 'intangible': displayStore.showTutorial && isFlippedComplete }"
+      >
         <NuxtPage />
       </div>
     </div>
@@ -55,19 +58,19 @@ const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})
 const isFlippedComplete = ref(false)
 
 const handleTransitionEnd = () => {
-  // Delay the application of 'intangible' class to ensure the animation completes
+  // Ensure the intangible class is applied only after the animation has completed
   setTimeout(() => {
     isFlippedComplete.value = true
-  }, 50) // Small delay ensures the animation completes before applying the class
+  }, 100) // Add a small delay to ensure the full animation completes
 }
 </script>
 
 <style scoped>
-/* Ensure the main content respects the boundaries */
+/* Flip card container */
 .flip-card {
   width: 100%;
   height: 100%; /* Match the height of its parent container */
-  perspective: 1000px; /* 3D perspective for flip animation */
+  perspective: 1000px; /* 3D perspective for the flip */
 }
 
 .flip-card-inner {
@@ -87,7 +90,7 @@ const handleTransitionEnd = () => {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden; /* Hide the back side when it's flipped */
+  backface-visibility: hidden; /* Prevent the back from being visible during the flip */
   -webkit-backface-visibility: hidden; /* WebKit browsers */
   border-radius: 12px;
   display: flex;
@@ -95,7 +98,7 @@ const handleTransitionEnd = () => {
   transition: visibility 0s linear 0.6s, pointer-events 0s linear 0.6s;
 }
 
-/* Hide the side that's no longer visible after flip animation */
+/* Ensure the invisible side is not interactive after the flip */
 .intangible {
   visibility: hidden;
   pointer-events: none;
@@ -106,7 +109,7 @@ const handleTransitionEnd = () => {
   overflow-y: auto; /* Scrollable content if needed */
 }
 
-/* Two-column layout should also respect height */
+/* Two-column layout should respect height */
 .grid-cols-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

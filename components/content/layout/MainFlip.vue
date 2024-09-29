@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
+    class="w-full bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
     :class="{
       'grid grid-cols-2 gap-4': isLargeViewport,
@@ -10,7 +10,7 @@
     <!-- Flip-card Layout for small and medium viewports -->
     <div
       v-if="!isLargeViewport"
-      class="flip-card-inner"
+      class="flip-card-inner border-accent border-2 rounded-2xl"
       :class="{
         'is-flipped': flipState === 'main' || flipState === 'toMain',
       }"
@@ -54,16 +54,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+const route = useRoute()
 const flipState = computed(() => displayStore.flipState)
 const mainHeight = computed(
   () => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`,
 )
-
 const isLargeViewport = computed(() => displayStore.mainVw > 760)
+
+// Watch for route changes and flip back to the tutorial
+watch(
+  () => route.path,
+  (newPath, oldPath) => {
+    if (newPath !== oldPath) {
+      // Reset the flip state to tutorial when the route changes
+      displayStore.toggleFlipState() // Ensure we move back to 'toTutorial'
+    }
+  },
+)
 
 const handleTransitionEnd = () => {
   displayStore.completeFlip()

@@ -57,21 +57,21 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 // Initialize the display store
 const displayStore = useDisplayStore()
-const mainHeight = computed(
-  () => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`,
-)
+
+// Main content height computed based on the viewport height
+const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`)
 
 // Track if the flip animation has completed
 const isFlippedComplete = ref(false)
+
+// Determine if it's a large viewport to handle layout accordingly
+const isLargeViewport = computed(() => displayStore.isLargeViewport)
 
 const handleTransitionEnd = () => {
   // Allow the new side to become interactive after the flip completes
   isFlippedComplete.value = true
 }
 
-const isLargeViewport = computed(() => displayStore.mainVw > 760)
-
-// Function to handle the completion of the flip-out animation
 const onFlipOut = (side: string) => {
   if (side === 'splash' && !displayStore.showTutorial) {
     // The tutorial side just finished flipping out, make it invisible
@@ -83,9 +83,10 @@ const onFlipOut = (side: string) => {
   }
 }
 
-// Ensure that we always start on the splash tutorial page
+// Ensure that we always start on the splash tutorial page for new navigations
 onMounted(() => {
-  displayStore.showTutorial = true // Set to true to always start with splash tutorial
+  displayStore.showTutorial = true // Always start with splash tutorial on page load
+  isFlippedComplete.value = false // Reset flip state
 })
 </script>
 

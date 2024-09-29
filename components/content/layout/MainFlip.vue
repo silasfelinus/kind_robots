@@ -59,9 +59,7 @@ const isFlippedComplete = ref(false)
 
 const handleTransitionEnd = () => {
   // Ensure the intangible class is applied only after the animation has completed
-  setTimeout(() => {
-    isFlippedComplete.value = true
-  }, 100) // Add a small delay to ensure the full animation completes
+  isFlippedComplete.value = true
 }
 </script>
 
@@ -95,7 +93,7 @@ const handleTransitionEnd = () => {
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  transition: visibility 0s linear 0.6s, pointer-events 0s linear 0.6s;
+  transition: visibility 0s linear 0s, pointer-events 0s linear 0s; /* Instant after flip starts */
 }
 
 /* Ensure the invisible side is not interactive after the flip */
@@ -107,6 +105,11 @@ const handleTransitionEnd = () => {
 .flip-card-back {
   transform: rotateY(180deg); /* Back side of the card */
   overflow-y: auto; /* Scrollable content if needed */
+}
+
+.flip-card-back.is-flipped {
+  visibility: visible;
+  pointer-events: auto; /* Make sure the back is interactive after the flip */
 }
 
 /* Two-column layout should respect height */

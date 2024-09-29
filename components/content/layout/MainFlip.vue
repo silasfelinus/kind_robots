@@ -82,15 +82,16 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden; /* Prevents content from overflowing */
+  z-index: 1; /* Ensures front side starts on top */
 }
 
 .flip-card-front {
-  transform: rotateY(0deg); /* Default view */
+  transform: rotateY(0deg); /* Front side shown by default */
 }
 
 .flip-card-back {
-  transform: rotateY(180deg); /* Initially flipped and hidden */
-  overflow-y: auto; /* Allows scrolling on the back if content exceeds height */
+  transform: rotateY(180deg); /* Back side starts flipped */
+  overflow-y: auto; /* Allows scrolling if content exceeds height */
 }
 
 .flip-card-inner {
@@ -110,8 +111,9 @@ onMounted(() => {
 }
 
 .flip-card-inner.is-flipped {
-  transform: rotateY(180deg); /* Flips the card */
+  transform: rotateY(180deg); /* Flips the card to show the back side */
 }
+
 
 
 

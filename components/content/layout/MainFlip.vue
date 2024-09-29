@@ -14,8 +14,8 @@
       <!-- Front side: Splash Tutorial -->
       <div
         class="flip-card-front"
-        :class="{ 'intangible': !displayStore.showTutorial && isFlippedComplete }"
-        @animationstart="resetFlipState"
+        :class="{ 'invisible': !displayStore.showTutorial && !isFlippedComplete }"
+        @transitionend="onFlipOut('splash')"
       >
         <splash-tutorial />
       </div>
@@ -23,8 +23,8 @@
       <!-- Back side: NuxtPage content -->
       <div
         class="flip-card-back overflow-y-auto"
-        :class="{ 'intangible': displayStore.showTutorial && isFlippedComplete }"
-        @animationstart="resetFlipState"
+        :class="{ 'invisible': displayStore.showTutorial && !isFlippedComplete }"
+        @transitionend="onFlipOut('nuxt')"
       >
         <NuxtPage />
       </div>
@@ -56,18 +56,24 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`)
 
-// Track if the animation is complete
+// Track if the flip animation has completed
 const isFlippedComplete = ref(false)
 
 const handleTransitionEnd = () => {
-  // Add a small delay to ensure the full animation completes before applying the class
-  setTimeout(() => {
-    isFlippedComplete.value = true
-  }, 100) // Ensure enough delay for animation to finish
+  // Allow the new side to become interactive after the flip completes
+  isFlippedComplete.value = true
 }
 
-const resetFlipState = () => {
-  isFlippedComplete.value = false // Reset the flip state when animation starts
+// Function to handle the completion of the flip-out animation
+const onFlipOut = (side) => {
+  if (side === 'splash' && !displayStore.showTutorial) {
+    // The tutorial side just finished flipping out, make it invisible
+    isFlippedComplete.value = false
+  }
+  if (side === 'nuxt' && displayStore.showTutorial) {
+    // The Nuxt page side just finished flipping out, make it invisible
+    isFlippedComplete.value = false
+  }
 }
 </script>
 
@@ -96,17 +102,19 @@ const resetFlipState = () => {
   position: absolute;
   width: 100%;
   height: 100%;
-  /* Temporarily remove backface visibility to handle mirrored issue on iOS Chrome */
+  backface-visibility: hidden; /* Prevent the back from being visible during the flip */
   border-radius: 12px;
   display: flex;
   flex-direction: column;
+  /* Ensure visibility and pointer-events are handled properly */
   transition: visibility 0s linear 0.6s, pointer-events 0s linear 0.6s;
 }
 
-/* Ensure the invisible side is not interactive after the flip */
-.intangible {
-  visibility: hidden;
-  pointer-events: none;
+/* Ensure the outgoing side is invisible after its flip animation ends */
+.flip-card-front.invisible,
+.flip-card-back.invisible {
+  visibility: hidden; /* The non-visible side is hidden after the animation */
+  pointer-events: none; /* The non-visible side is non-interactive */
 }
 
 .flip-card-back {

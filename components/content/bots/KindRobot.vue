@@ -1,7 +1,7 @@
 <template>
   <!-- Main container with reduced padding/margin, full height, and no scrolling -->
   <div
-    class="flex flex-col items-center bg-base-300 p-2 m-1 h-screen overflow-hidden"
+    class="flex flex-col items-center bg-base-300 p-2 m-1 h-screen overflow-auto"
   >
     <bot-selector />
 

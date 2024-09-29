@@ -102,15 +102,25 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden; /* Prevents content from overflowing */
+  pointer-events: none; /* Prevent touch events when flipped */
 }
 
 .flip-card-front {
   transform: rotateY(0deg); /* Front side shown by default */
+  pointer-events: auto; /* Allow interactions when front is active */
 }
 
 .flip-card-back {
   transform: rotateY(180deg); /* Back side starts flipped */
   overflow-y: auto; /* Allows scrolling if content exceeds height */
+}
+
+.flip-card-inner.is-flipped .flip-card-front {
+  pointer-events: none; /* Disable interactions for the front when flipped */
+}
+
+.flip-card-inner.is-flipped .flip-card-back {
+  pointer-events: auto; /* Enable interactions for the back when flipped */
 }
 
 .grid-cols-2 {

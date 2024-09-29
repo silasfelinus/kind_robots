@@ -2,7 +2,10 @@
   <div
     class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
-    :class="{ 'grid grid-cols-2 gap-4': isLargeViewport, 'flip-card': !isLargeViewport }"
+    :class="{
+      'grid grid-cols-2 gap-4': isLargeViewport, 
+      'flip-card': !isLargeViewport
+    }"
   >
     <!-- Flip-card Layout for small and medium viewports -->
     <div

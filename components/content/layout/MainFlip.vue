@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
+    class="w-full border-accent md:border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
     :class="{ 'grid grid-cols-2 gap-4': isLargeViewport, 'flip-card': !isLargeViewport }"
   >
@@ -9,14 +9,15 @@
       v-if="!isLargeViewport"
       class="flip-card-inner"
       :class="{ 'is-flipped': !displayStore.showTutorial }"
+      @transitionend="handleTransitionEnd"
     >
       <!-- Front side: Splash Tutorial -->
-      <div class="flip-card-front">
+      <div class="flip-card-front" :class="{ 'invisible': displayStore.showTutorial }">
         <splash-tutorial />
       </div>
 
       <!-- Back side: NuxtPage content -->
-      <div class="flip-card-back overflow-y-auto">
+      <div class="flip-card-back overflow-y-auto" :class="{ 'invisible': !displayStore.showTutorial }">
         <NuxtPage />
       </div>
     </div>
@@ -40,17 +41,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Initialize the display store
 const displayStore = useDisplayStore()
 const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`)
 
-// Watch for changes in viewport size to control flip-card or two-column layout
-const isLargeViewport = computed(() => 
-  displayStore.viewportSize === 'large' || displayStore.viewportSize === 'extraLarge'
-)
+// Track if the animation is complete
+const isFlippedComplete = ref(false)
+
+const handleTransitionEnd = () => {
+  isFlippedComplete.value = true
+}
 </script>
 
 <style scoped>
@@ -58,7 +61,7 @@ const isLargeViewport = computed(() =>
 .flip-card {
   width: 100%;
   height: 100%; /* Match the height of its parent container */
-  perspective: 1000px; /* 3D perspective for flip animation */
+  perspective: 1000px;
 }
 
 .flip-card-inner {
@@ -70,7 +73,7 @@ const isLargeViewport = computed(() =>
 }
 
 .flip-card-inner.is-flipped {
-  transform: rotateY(180deg); /* Trigger flip on the Y-axis */
+  transform: rotateY(180deg); /* Flip the card */
 }
 
 .flip-card-front,
@@ -78,10 +81,17 @@ const isLargeViewport = computed(() =>
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden; /* Hide back side during flip */
+  backface-visibility: hidden; /* Hide the back side when it's flipped */
   -webkit-backface-visibility: hidden; /* WebKit browsers */
   display: flex;
   flex-direction: column;
+  transition: visibility 0s linear 0.6s, pointer-events 0s linear 0.6s;
+}
+
+.flip-card-front.invisible,
+.flip-card-back.invisible {
+  visibility: hidden;
+  pointer-events: none; /* Make the invisible side non-interactive */
 }
 
 .flip-card-back {
@@ -95,5 +105,6 @@ const isLargeViewport = computed(() =>
   grid-template-columns: repeat(2, 1fr);
   height: 100%; /* Ensure the two-column layout respects the container height */
 }
+
 
 </style>

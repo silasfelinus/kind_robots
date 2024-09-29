@@ -79,19 +79,7 @@ onMounted(() => {
   overflow: hidden; /* Ensure no overflow on small screens */
 }
 
-.flip-card-inner {
-  transition: transform 0.6s ease-in-out;
-  transform-style: preserve-3d;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg); /* Flips the card to show the back side */
-}
-
-.flip-card-front,
+.flip.flip-card-front,
 .flip-card-back {
   position: absolute;
   width: 100%;
@@ -102,17 +90,29 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden; /* Prevents content from overflowing */
-  z-index: 1; /* Ensures front side starts on top */
+  z-index: 1; /* Default lower z-index */
 }
 
 .flip-card-front {
-  transform: rotateY(0deg); /* Front side shown by default */
+  transform: rotateY(0deg);
+  z-index: 2; /* Front side should always be on top by default */
 }
 
 .flip-card-back {
-  transform: rotateY(180deg); /* Back side starts flipped */
-  overflow-y: auto; /* Allows scrolling if content exceeds height */
+  transform: rotateY(180deg);
+  z-index: 0; /* Back side should be behind the front by default */
 }
+
+.flip-card-inner.is-flipped .flip-card-front {
+  z-index: 0; /* When flipped, the front should be hidden behind */
+}
+
+.flip-card-inner.is-flipped .flip-card-back {
+  z-index: 2; /* When flipped, the back should be on top */
+}
+
+
+
 
 .grid-cols-2 {
   display: grid;

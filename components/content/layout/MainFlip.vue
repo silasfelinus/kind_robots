@@ -71,6 +71,26 @@ onMounted(() => {
 </script>
 
 <style>
+.flip-card {
+  perspective: 1000px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Ensure no overflow on small screens */
+}
+
+.flip-card-inner {
+  transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg); /* Flips the card to show the back side */
+}
+
 .flip-card-front,
 .flip-card-back {
   position: absolute;
@@ -86,37 +106,11 @@ onMounted(() => {
 
 .flip-card-front {
   transform: rotateY(0deg); /* Front side shown by default */
-  z-index: 2; /* Ensure front is clickable by default */
 }
 
 .flip-card-back {
   transform: rotateY(180deg); /* Back side starts flipped */
-  z-index: 1; /* Ensure back is below front initially */
   overflow-y: auto; /* Allows scrolling if content exceeds height */
-}
-
-.flip-card-inner {
-  transition: transform 0.6s ease-in-out;
-  transform-style: preserve-3d;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.flip-card {
-  perspective: 1000px;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden; /* Ensure no overflow on small screens */
-}
-
-.flip-card-inner.is-flipped .flip-card-front {
-  z-index: 1; /* Ensure front goes behind when flipped */
-}
-
-.flip-card-inner.is-flipped .flip-card-back {
-  z-index: 2; /* Ensure back is on top when flipped */
 }
 
 .grid-cols-2 {

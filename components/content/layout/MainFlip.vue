@@ -12,17 +12,19 @@
       @transitionend="handleTransitionEnd"
     >
       <!-- Front side: Splash Tutorial -->
-      <div 
+      <div
         class="flip-card-front"
         :class="{ 'intangible': !displayStore.showTutorial && isFlippedComplete }"
+        @animationstart="resetFlipState"
       >
         <splash-tutorial />
       </div>
 
       <!-- Back side: NuxtPage content -->
-      <div 
+      <div
         class="flip-card-back overflow-y-auto"
         :class="{ 'intangible': displayStore.showTutorial && isFlippedComplete }"
+        @animationstart="resetFlipState"
       >
         <NuxtPage />
       </div>
@@ -58,8 +60,14 @@ const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})
 const isFlippedComplete = ref(false)
 
 const handleTransitionEnd = () => {
-  // Ensure the intangible class is applied only after the animation has completed
-  isFlippedComplete.value = true
+  // Add a small delay to ensure the full animation completes before applying the class
+  setTimeout(() => {
+    isFlippedComplete.value = true
+  }, 100) // Ensure enough delay for animation to finish
+}
+
+const resetFlipState = () => {
+  isFlippedComplete.value = false // Reset the flip state when animation starts
 }
 </script>
 
@@ -93,7 +101,7 @@ const handleTransitionEnd = () => {
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  transition: visibility 0s linear 0s, pointer-events 0s linear 0s; /* Instant after flip starts */
+  transition: visibility 0s linear 0.6s, pointer-events 0s linear 0.6s;
 }
 
 /* Ensure the invisible side is not interactive after the flip */
@@ -105,11 +113,6 @@ const handleTransitionEnd = () => {
 .flip-card-back {
   transform: rotateY(180deg); /* Back side of the card */
   overflow-y: auto; /* Scrollable content if needed */
-}
-
-.flip-card-back.is-flipped {
-  visibility: visible;
-  pointer-events: auto; /* Make sure the back is interactive after the flip */
 }
 
 /* Two-column layout should respect height */

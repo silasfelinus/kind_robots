@@ -70,7 +70,27 @@ onMounted(() => {
 })
 </script>
 
-<style>
+<style scoped>
+.flip-card {
+  perspective: 1000px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Ensure no overflow on small screens */
+}
+
+.flip-card-inner {
+  transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg); /* Flips the card to show the back side */
+}
+
 .flip-card-front,
 .flip-card-back {
   position: absolute;
@@ -93,30 +113,6 @@ onMounted(() => {
   transform: rotateY(180deg); /* Back side starts flipped */
   overflow-y: auto; /* Allows scrolling if content exceeds height */
 }
-
-.flip-card-inner {
-  transition: transform 0.6s ease-in-out;
-  transform-style: preserve-3d;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.flip-card {
-  perspective: 1000px;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden; /* Ensure no overflow on small screens */
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg); /* Flips the card to show the back side */
-}
-
-
-
-
 
 .grid-cols-2 {
   display: grid;

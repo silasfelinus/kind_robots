@@ -18,7 +18,7 @@
       <!-- Front side: Splash Tutorial -->
       <div
         class="flip-card-front"
-        v-if="displayStore.showTutorial"
+        :class="{ 'hidden': !displayStore.showTutorial }"
       >
         <splash-tutorial />
       </div>
@@ -26,7 +26,7 @@
       <!-- Back side: NuxtPage content -->
       <div
         class="flip-card-back overflow-y-auto"
-        v-if="!displayStore.showTutorial"
+        :class="{ 'hidden': displayStore.showTutorial }"
       >
         <NuxtPage></NuxtPage>
       </div>
@@ -117,6 +117,12 @@ onMounted(() => {
 .flip-card-back {
   transform: rotateY(180deg); /* Back side starts flipped */
   overflow-y: auto; /* Allows scrolling if content exceeds height */
+}
+
+/* Ensure the hidden class works */
+.hidden {
+  visibility: hidden;
+  pointer-events: none; /* Ensures it's not interactable */
 }
 
 .grid-cols-2 {

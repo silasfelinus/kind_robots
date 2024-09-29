@@ -1,27 +1,21 @@
 <template>
   <div
-    class="w-full bg-base-300 relative shadow-lg"
+    class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
-    :class="{
-      'grid grid-cols-2 gap-4': isLargeViewport,
-      'flip-card': !isLargeViewport,
-    }"
+    :class="{ 'grid grid-cols-2 gap-4': isLargeViewport, 'flip-card': !isLargeViewport }"
   >
     <!-- Flip-card Layout for small and medium viewports -->
     <div
       v-if="!isLargeViewport"
-      class="flip-card-inner border-accent border-2 rounded-2xl"
-      :class="{
-        'is-flipped': flipState === 'main' || flipState === 'toMain',
-      }"
+      class="flip-card-inner"
+      :class="{ 'is-flipped': !displayStore.showTutorial }"
       @transitionend="handleTransitionEnd"
     >
       <!-- Front side: Splash Tutorial -->
       <div
         class="flip-card-front"
-        :class="{
-          invisible: flipState !== 'tutorial' && flipState !== 'toTutorial',
-        }"
+        :class="{ 'invisible': !displayStore.showTutorial && !isFlippedComplete }"
+        @transitionend="onFlipOut('splash')"
       >
         <splash-tutorial />
       </div>
@@ -29,7 +23,8 @@
       <!-- Back side: NuxtPage content -->
       <div
         class="flip-card-back overflow-y-auto"
-        :class="{ invisible: flipState !== 'main' && flipState !== 'toMain' }"
+        :class="{ 'invisible': displayStore.showTutorial && !isFlippedComplete }"
+        @transitionend="onFlipOut('nuxt')"
       >
         <NuxtPage />
       </div>
@@ -54,52 +49,57 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Initialize the display store
 const displayStore = useDisplayStore()
-const route = useRoute()
-const flipState = computed(() => displayStore.flipState)
-const mainHeight = computed(
-  () => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`,
-)
-const isLargeViewport = computed(() => displayStore.mainVw > 760)
+const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`)
 
-// Watch for route changes and flip back to the tutorial
-watch(
-  () => route.path,
-  (newPath, oldPath) => {
-    if (newPath !== oldPath) {
-      // Reset the flip state to tutorial when the route changes
-      displayStore.toggleFlipState() // Ensure we move back to 'toTutorial'
-    }
-  },
-)
+// Track if the flip animation has completed
+const isFlippedComplete = ref(false)
 
 const handleTransitionEnd = () => {
-  displayStore.completeFlip()
+  // Allow the new side to become interactive after the flip completes
+  isFlippedComplete.value = true
 }
+
+// Function to handle the completion of the flip-out animation
+const onFlipOut = (side) => {
+  if (side === 'splash' && !displayStore.showTutorial) {
+    // The tutorial side just finished flipping out, make it invisible
+    isFlippedComplete.value = false
+  }
+  if (side === 'nuxt' && displayStore.showTutorial) {
+    // The Nuxt page side just finished flipping out, make it invisible
+    isFlippedComplete.value = false
+  }
+}
+
+// Ensure that we always start on the splash tutorial page
+onMounted(() => {
+  displayStore.showTutorial = true // Set to true to always start with splash tutorial
+})
 </script>
 
 <style scoped>
 /* Flip card container */
 .flip-card {
   width: 100%;
-  height: 100%;
-  perspective: 1000px;
+  height: 100%; /* Match the height of its parent container */
+  perspective: 1000px; /* 3D perspective for the flip */
 }
 
 .flip-card-inner {
   width: 100%;
-  height: 100%;
-  transition: transform 0.6s ease-in-out;
-  transform-style: preserve-3d;
+  height: 100%; /* Ensure it stays within the parent height */
+  transition: transform 0.6s ease-in-out; /* Smooth flip animation */
+  transform-style: preserve-3d; /* 3D space for the flip */
   position: relative;
 }
 
 .flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg); /* Flip the card */
 }
 
 .flip-card-front,
@@ -107,17 +107,36 @@ const handleTransitionEnd = () => {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
+  backface-visibility: hidden; /* Prevent the back from being visible during the flip */
   border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  /* Ensure visibility and pointer-events are handled properly */
+  transition: visibility 0s linear 0.6s, pointer-events 0s linear 0.6s;
 }
 
+/* Ensure the outgoing side is invisible after its flip animation ends */
 .flip-card-front.invisible,
 .flip-card-back.invisible {
-  visibility: hidden;
-  pointer-events: none;
+  visibility: hidden; /* The non-visible side is hidden after the animation */
+  pointer-events: none; /* The non-visible side is non-interactive */
 }
 
 .flip-card-back {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg); /* Back side of the card */
+  overflow-y: auto; /* Scrollable content if needed */
+}
+
+/* Two-column layout should respect height */
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  height: 100%; /* Ensure the two-column layout respects the container height */
+}
+
+/* Ensure border for main content */
+.w-full.border-accent {
+  border-color: var(--tw-border-opacity) var(--tw-border-opacity);
+  border-width: 2px;
 }
 </style>

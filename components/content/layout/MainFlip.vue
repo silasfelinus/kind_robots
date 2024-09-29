@@ -2,7 +2,10 @@
   <div
     class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
-    :class="{ 'grid grid-cols-2 gap-4': isLargeViewport, 'flip-card': !isLargeViewport }"
+    :class="{
+      'grid grid-cols-2 gap-4': isLargeViewport,
+      'flip-card': !isLargeViewport,
+    }"
   >
     <!-- Flip-card Layout for small and medium viewports -->
     <div
@@ -14,7 +17,7 @@
       <!-- Front side: Splash Tutorial -->
       <div
         class="flip-card-front"
-        :class="{ 'invisible': !displayStore.showTutorial && !isFlippedComplete }"
+        :class="{ invisible: !displayStore.showTutorial && !isFlippedComplete }"
         @transitionend="onFlipOut('splash')"
       >
         <splash-tutorial />
@@ -23,7 +26,7 @@
       <!-- Back side: NuxtPage content -->
       <div
         class="flip-card-back overflow-y-auto"
-        :class="{ 'invisible': displayStore.showTutorial && !isFlippedComplete }"
+        :class="{ invisible: displayStore.showTutorial && !isFlippedComplete }"
         @transitionend="onFlipOut('nuxt')"
       >
         <NuxtPage />
@@ -54,7 +57,9 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 // Initialize the display store
 const displayStore = useDisplayStore()
-const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`)
+const mainHeight = computed(
+  () => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`,
+)
 
 // Track if the flip animation has completed
 const isFlippedComplete = ref(false)
@@ -64,8 +69,10 @@ const handleTransitionEnd = () => {
   isFlippedComplete.value = true
 }
 
+const isLargeViewport = computed(() => displayStore.mainVw > 760)
+
 // Function to handle the completion of the flip-out animation
-const onFlipOut = (side) => {
+const onFlipOut = (side: string) => {
   if (side === 'splash' && !displayStore.showTutorial) {
     // The tutorial side just finished flipping out, make it invisible
     isFlippedComplete.value = false
@@ -112,7 +119,9 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   /* Ensure visibility and pointer-events are handled properly */
-  transition: visibility 0s linear 0.6s, pointer-events 0s linear 0.6s;
+  transition:
+    visibility 0s linear 0.6s,
+    pointer-events 0s linear 0.6s;
 }
 
 /* Ensure the outgoing side is invisible after its flip animation ends */

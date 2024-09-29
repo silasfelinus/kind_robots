@@ -77,25 +77,28 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   backface-visibility: hidden; /* Prevent backside visibility */
-  -webkit-backface-visibility: hidden; /* Webkit for better cross-browser support */
+  -webkit-backface-visibility: hidden; /* For Webkit browsers */
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Ensures that no extra content spills over */
+  overflow: hidden; /* Prevents content from overflowing */
+}
+
+.flip-card-front {
+  transform: rotateY(0deg); /* Default view */
 }
 
 .flip-card-back {
-  transform: rotateY(180deg);
-  overflow-y: auto; /* Allows scrolling if content exceeds height */
+  transform: rotateY(180deg); /* Initially flipped and hidden */
+  overflow-y: auto; /* Allows scrolling on the back if content exceeds height */
 }
 
 .flip-card-inner {
   transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
-  position: relative;
   width: 100%;
   height: 100%;
-  overflow: hidden; /* Prevents any content overflow */
+  position: relative;
 }
 
 .flip-card {
@@ -103,13 +106,13 @@ onMounted(() => {
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: hidden; /* Ensures no overflow on small screens */
+  overflow: hidden; /* Ensure no overflow on small screens */
 }
-
 
 .flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg); /* Flips the card */
 }
+
 
 
 

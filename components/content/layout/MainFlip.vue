@@ -71,41 +71,47 @@ onMounted(() => {
 </script>
 
 <style>
-/* Ensure the main content respects the boundaries */
-.flip-card {
-  width: 100%;
-  height: 100%; /* Match the height of its parent container */
-  perspective: 1000px;
-}
-
-.flip-card-inner {
-  width: 100%;
-  height: 100%; /* Ensure it stays within the parent height */
-  transition: transform 0.6s ease-in-out;
-  transform-style: preserve-3d;
-  position: relative;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
-}
-
 .flip-card-front,
 .flip-card-back {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
+  backface-visibility: hidden; /* Prevent backside visibility */
+  -webkit-backface-visibility: hidden; /* Webkit for better cross-browser support */
   border-radius: 12px;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* Ensures that no extra content spills over */
 }
 
 .flip-card-back {
   transform: rotateY(180deg);
   overflow-y: auto; /* Allows scrolling if content exceeds height */
-  height: 100%; /* Ensure it respects the parent height */
 }
+
+.flip-card-inner {
+  transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Prevents any content overflow */
+}
+
+.flip-card {
+  perspective: 1000px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Ensures no overflow on small screens */
+}
+
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+
 
 .grid-cols-2 {
   display: grid;

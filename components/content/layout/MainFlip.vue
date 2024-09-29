@@ -1,7 +1,7 @@
 <template>
   <div
     class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
-    :style="{ height: mainHeight }" <!-- Constrain the height using mainHeight from the store -->
+    :style="{ height: mainHeight }"
     :class="{ 'grid grid-cols-2 gap-4': isLargeViewport, 'flip-card': !isLargeViewport }"
   >
     <!-- Flip-card Layout for small and medium viewports -->

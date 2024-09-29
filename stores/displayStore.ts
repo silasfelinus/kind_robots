@@ -17,6 +17,7 @@ interface DisplayStoreState {
   isInitialized: boolean
   footerVw: number 
   flipState: FlipState
+  isFullScreen: boolean
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -33,6 +34,7 @@ export const useDisplayStore = defineStore('display', {
     isInitialized: false,
     footerVw: 100, 
     flipState: 'tutorial',
+    isFullScreen: false,
   }),
 
   getters: {
@@ -88,11 +90,21 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize]
       return sizes[state.headerState] || 24
     },
+    gridColumns(_state): string {
+      return this.isFullScreen
+        ? '1fr' // Full-screen layout
+        : `${this.sidebarLeftVw}vw calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) ${this.sidebarRightVw}vw`; // Two-column layout
+    },
   },
 
   actions: {
+    toggleFullScreen() {
+      this.isFullScreen = !this.isFullScreen;
+      this.saveState(); // Optionally, save state to localStorage
+    },
     updateViewport() {
       try {
+        this.setCustomVh(); 
         if (typeof window !== 'undefined') {
           this.isVertical = window.innerHeight > window.innerWidth
           this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
@@ -110,6 +122,12 @@ export const useDisplayStore = defineStore('display', {
       } catch (error) {
         const errorStore = useErrorStore()
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
+    },
+    setCustomVh() {
+      if (typeof window !== 'undefined') {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
       }
     },
     toggleFlipState() {

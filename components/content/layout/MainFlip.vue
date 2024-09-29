@@ -52,7 +52,10 @@ const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})
 const isFlippedComplete = ref(false)
 
 const handleTransitionEnd = () => {
-  isFlippedComplete.value = true
+  // Delay the application of 'intangible' class to ensure the animation completes
+  setTimeout(() => {
+    isFlippedComplete.value = true
+  }, 50) // Small delay ensures the animation completes before applying the class
 }
 </script>
 

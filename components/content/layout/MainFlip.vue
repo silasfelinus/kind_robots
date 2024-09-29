@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full border-accent md:border-2 rounded-2xl bg-base-300 relative shadow-lg"
+    class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
     :class="{ 'grid grid-cols-2 gap-4': isLargeViewport, 'flip-card': !isLargeViewport }"
   >
@@ -12,12 +12,12 @@
       @transitionend="handleTransitionEnd"
     >
       <!-- Front side: Splash Tutorial -->
-      <div class="flip-card-front" :class="{ 'invisible': displayStore.showTutorial }">
+      <div class="flip-card-front" :class="{ 'intangible': !displayStore.showTutorial && isFlippedComplete }">
         <splash-tutorial />
       </div>
 
       <!-- Back side: NuxtPage content -->
-      <div class="flip-card-back overflow-y-auto" :class="{ 'invisible': !displayStore.showTutorial }">
+      <div class="flip-card-back overflow-y-auto" :class="{ 'intangible': displayStore.showTutorial && isFlippedComplete }">
         <NuxtPage />
       </div>
     </div>
@@ -61,7 +61,7 @@ const handleTransitionEnd = () => {
 .flip-card {
   width: 100%;
   height: 100%; /* Match the height of its parent container */
-  perspective: 1000px;
+  perspective: 1000px; /* 3D perspective for flip animation */
 }
 
 .flip-card-inner {
@@ -83,15 +83,16 @@ const handleTransitionEnd = () => {
   height: 100%;
   backface-visibility: hidden; /* Hide the back side when it's flipped */
   -webkit-backface-visibility: hidden; /* WebKit browsers */
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   transition: visibility 0s linear 0.6s, pointer-events 0s linear 0.6s;
 }
 
-.flip-card-front.invisible,
-.flip-card-back.invisible {
+/* Hide the side that's no longer visible after flip animation */
+.intangible {
   visibility: hidden;
-  pointer-events: none; /* Make the invisible side non-interactive */
+  pointer-events: none;
 }
 
 .flip-card-back {
@@ -106,5 +107,9 @@ const handleTransitionEnd = () => {
   height: 100%; /* Ensure the two-column layout respects the container height */
 }
 
-
+/* Ensure border for main content */
+.w-full.border-accent {
+  border-color: var(--tw-border-opacity) var(--tw-border-opacity);
+  border-width: 2px;
+}
 </style>

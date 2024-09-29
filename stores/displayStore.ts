@@ -174,8 +174,13 @@ export const useDisplayStore = defineStore('display', {
     },
 
     toggleTutorial() {
+      if (this.flipState === 'tutorial' || this.flipState === 'toTutorial') {
+        this.flipState = 'toMain';
+      } else {
+        this.flipState = 'toTutorial';
+      }
       this.showTutorial = !this.showTutorial
-      this.saveState()
+      this.saveState();
     },
 
     toggleIntro() { // Re-added toggleIntro method

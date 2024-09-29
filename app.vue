@@ -16,18 +16,19 @@
         <nav-links class="hidden sm:flex justify-center"></nav-links>
       </div>
 
-      <!-- Launch/Instructions Buttons (right-aligned in the row) -->
+      <!-- Launch Button -->
       <button
         v-if="showLaunchButton"
-        class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 pl-14"
+        class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 p-1 ml-4 mr-4"
         @click="displayStore.toggleTutorial"
       >
         Launch
       </button>
 
+      <!-- Instructions Button -->
       <button
         v-if="showInstructionsButton"
-        class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-40 pl-14"
+        class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-40 p-1 ml-4"
         @click="displayStore.toggleTutorial"
       >
         Instructions

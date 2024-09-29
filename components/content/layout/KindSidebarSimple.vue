@@ -86,9 +86,7 @@ const router = useRouter()
 const displayStore = useDisplayStore()
 
 // Adjust height calculations based on window size and available space
-const availableSidebarHeight = ref(
-  100 - displayStore.headerVh - displayStore.footerVh,
-) // Adjust for header and footer
+const availableSidebarHeight = computed(() => displayStore.mainVh) // Adjust for header and footer
 const iconHeight = ref(0)
 
 const navigate = (path: string) => {
@@ -126,5 +124,4 @@ onMounted(() => {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-
 </style>

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 
 export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
+export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 
 interface DisplayStoreState {
   headerState: DisplayState
@@ -12,9 +13,10 @@ interface DisplayStoreState {
   viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
   isTouchDevice: boolean
   showTutorial: boolean
-  showIntro: boolean // Re-added showIntro
+  showIntro: boolean
   isInitialized: boolean
-  footerVw: number // Kept from old version
+  footerVw: number 
+  flipState: FlipState
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -27,9 +29,10 @@ export const useDisplayStore = defineStore('display', {
     viewportSize: 'large',
     isTouchDevice: false,
     showTutorial: true,
-    showIntro: true, // Re-added showIntro to state
+    showIntro: true,
     isInitialized: false,
-    footerVw: 100, // Kept from old version
+    footerVw: 100, 
+    flipState: 'tutorial',
   }),
 
   getters: {
@@ -109,6 +112,25 @@ export const useDisplayStore = defineStore('display', {
         errorStore.setError(ErrorType.GENERAL_ERROR, error)
       }
     },
+    toggleFlipState() {
+      // Manage the flip transition based on current state
+      if (this.flipState === 'tutorial') {
+        this.flipState = 'toMain'
+      } else if (this.flipState === 'main') {
+        this.flipState = 'toTutorial'
+      }
+      this.saveState()
+    },
+
+    completeFlip() {
+      // Called when the flip animation completes
+      if (this.flipState === 'toMain') {
+        this.flipState = 'main'
+      } else if (this.flipState === 'toTutorial') {
+        this.flipState = 'tutorial'
+      }
+      this.saveState()
+    },
     removeViewportWatcher() {
       try {
         window.removeEventListener('resize', this.updateViewport)
@@ -161,7 +183,7 @@ export const useDisplayStore = defineStore('display', {
       this.saveState()
     },
 
-    changeState(section: 'sidebarLeftState' | 'sidebarRightState' | 'headerState' | 'footerState', newState: DisplayState) { // Re-added changeState method
+    changeState(section: 'sidebarLeftState' | 'sidebarRightState' | 'headerState' | 'footerState', newState: DisplayState) { 
       this[section] = newState
       this.saveState()
     },
@@ -186,14 +208,17 @@ export const useDisplayStore = defineStore('display', {
           const storedHeaderState = localStorage.getItem('headerState') as DisplayState
           const storedFooterState = localStorage.getItem('footerState') as DisplayState
           const storedShowTutorial = localStorage.getItem('showTutorial')
-          const storedShowIntro = localStorage.getItem('showIntro') // Re-added storedShowIntro
+          const storedShowIntro = localStorage.getItem('showIntro') 
+          const storedFlipState = localStorage.getItem('flipState') as FlipState
 
+        
+          if (storedFlipState) this.flipState = storedFlipState
           if (storedSidebarLeft) this.sidebarLeftState = storedSidebarLeft
           if (storedSidebarRight) this.sidebarRightState = storedSidebarRight
           if (storedHeaderState) this.headerState = storedHeaderState
           if (storedFooterState) this.footerState = storedFooterState
           if (storedShowTutorial) this.showTutorial = storedShowTutorial === 'true'
-          if (storedShowIntro) this.showIntro = storedShowIntro === 'true' // Re-added intro load
+          if (storedShowIntro) this.showIntro = storedShowIntro === 'true' 
         }
       } catch (error) {
         const errorStore = useErrorStore()
@@ -209,7 +234,8 @@ export const useDisplayStore = defineStore('display', {
           localStorage.setItem('headerState', this.headerState)
           localStorage.setItem('footerState', this.footerState)
           localStorage.setItem('showTutorial', String(this.showTutorial))
-          localStorage.setItem('showIntro', String(this.showIntro)) // Re-added intro save
+          localStorage.setItem('showIntro', String(this.showIntro))
+          localStorage.setItem('flipState', this.flipState)
         }
       } catch (error) {
         const errorStore = useErrorStore()

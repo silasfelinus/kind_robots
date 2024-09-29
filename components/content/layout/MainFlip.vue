@@ -2,20 +2,26 @@
   <div
     class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
-    :class="{ 'grid grid-cols-2 gap-4': isLargeViewport, 'flip-card': !isLargeViewport }"
+    :class="{
+      'grid grid-cols-2 gap-4': isLargeViewport,
+      'flip-card': !isLargeViewport,
+    }"
   >
     <!-- Flip-card Layout for small and medium viewports -->
     <div
       v-if="!isLargeViewport"
       class="flip-card-inner"
-      :class="{ 'is-flipped': !displayStore.showTutorial }"
+      :class="{
+        'is-flipped': flipState === 'main' || flipState === 'toMain',
+      }"
       @transitionend="handleTransitionEnd"
     >
       <!-- Front side: Splash Tutorial -->
       <div
         class="flip-card-front"
-        :class="{ 'invisible': !displayStore.showTutorial && !isFlippedComplete }"
-        @transitionend="onFlipOut('splash')"
+        :class="{
+          invisible: flipState !== 'tutorial' && flipState !== 'toTutorial',
+        }"
       >
         <splash-tutorial />
       </div>
@@ -23,8 +29,7 @@
       <!-- Back side: NuxtPage content -->
       <div
         class="flip-card-back overflow-y-auto"
-        :class="{ 'invisible': displayStore.showTutorial && !isFlippedComplete }"
-        @transitionend="onFlipOut('nuxt')"
+        :class="{ invisible: flipState !== 'main' && flipState !== 'toMain' }"
       >
         <NuxtPage />
       </div>
@@ -49,31 +54,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Initialize the display store
 const displayStore = useDisplayStore()
-const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`)
+const flipState = computed(() => displayStore.flipState)
+const mainHeight = computed(
+  () => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`,
+)
 
-// Track if the flip animation has completed
-const isFlippedComplete = ref(false)
+const isLargeViewport = computed(() => displayStore.mainVw > 760)
 
 const handleTransitionEnd = () => {
-  // Allow the new side to become interactive after the flip completes
-  isFlippedComplete.value = true
-}
-
-// Function to handle the completion of the flip-out animation
-const onFlipOut = (side) => {
-  if (side === 'splash' && !displayStore.showTutorial) {
-    // The tutorial side just finished flipping out, make it invisible
-    isFlippedComplete.value = false
-  }
-  if (side === 'nuxt' && displayStore.showTutorial) {
-    // The Nuxt page side just finished flipping out, make it invisible
-    isFlippedComplete.value = false
-  }
+  displayStore.completeFlip()
 }
 </script>
 
@@ -81,20 +74,20 @@ const onFlipOut = (side) => {
 /* Flip card container */
 .flip-card {
   width: 100%;
-  height: 100%; /* Match the height of its parent container */
-  perspective: 1000px; /* 3D perspective for the flip */
+  height: 100%;
+  perspective: 1000px;
 }
 
 .flip-card-inner {
   width: 100%;
-  height: 100%; /* Ensure it stays within the parent height */
-  transition: transform 0.6s ease-in-out; /* Smooth flip animation */
-  transform-style: preserve-3d; /* 3D space for the flip */
+  height: 100%;
+  transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
   position: relative;
 }
 
 .flip-card-inner.is-flipped {
-  transform: rotateY(180deg); /* Flip the card */
+  transform: rotateY(180deg);
 }
 
 .flip-card-front,
@@ -102,36 +95,17 @@ const onFlipOut = (side) => {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden; /* Prevent the back from being visible during the flip */
+  backface-visibility: hidden;
   border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  /* Ensure visibility and pointer-events are handled properly */
-  transition: visibility 0s linear 0.6s, pointer-events 0s linear 0.6s;
 }
 
-/* Ensure the outgoing side is invisible after its flip animation ends */
 .flip-card-front.invisible,
 .flip-card-back.invisible {
-  visibility: hidden; /* The non-visible side is hidden after the animation */
-  pointer-events: none; /* The non-visible side is non-interactive */
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .flip-card-back {
-  transform: rotateY(180deg); /* Back side of the card */
-  overflow-y: auto; /* Scrollable content if needed */
-}
-
-/* Two-column layout should respect height */
-.grid-cols-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  height: 100%; /* Ensure the two-column layout respects the container height */
-}
-
-/* Ensure border for main content */
-.w-full.border-accent {
-  border-color: var(--tw-border-opacity) var(--tw-border-opacity);
-  border-width: 2px;
+  transform: rotateY(180deg);
 }
 </style>

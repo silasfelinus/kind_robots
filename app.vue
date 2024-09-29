@@ -3,7 +3,7 @@
     <kind-loader></kind-loader>
     <!-- Header -->
     <header
-      class="header-overlay bg-base-300 flex items-center justify-around w-full px-4"
+      class="header-overlay bg-base-300 flex items-center justify-between w-full px-4"
       :style="{ height: headerHeight }"
     >
       <!-- Sidebar Toggle -->
@@ -19,7 +19,7 @@
       <!-- Launch/Instructions Buttons (right-aligned in the row) -->
       <button
         v-if="showLaunchButton"
-        class="bg-info text-base-200 ml-2 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 pl-4"
+        class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 pl-14"
         @click="displayStore.toggleTutorial"
       >
         Launch
@@ -27,7 +27,7 @@
 
       <button
         v-if="showInstructionsButton"
-        class="bg-secondary text-base-200 ml-2 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-40 pl-4"
+        class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-40 pl-14"
         @click="displayStore.toggleTutorial"
       >
         Instructions

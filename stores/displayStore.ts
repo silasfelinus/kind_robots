@@ -5,20 +5,25 @@ export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 
 interface DisplayStoreState {
-  headerState: DisplayState
-  sidebarLeftState: DisplayState
-  sidebarRightState: DisplayState
-  footerState: DisplayState
-  isVertical: boolean
-  viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
-  isTouchDevice: boolean
-  showTutorial: boolean
-  showIntro: boolean
-  isInitialized: boolean
-  footerVw: number 
-  flipState: FlipState
-  isFullScreen: boolean
+  headerState: DisplayState;
+  sidebarLeftState: DisplayState;
+  sidebarRightState: DisplayState;
+  footerState: DisplayState;
+  isVertical: boolean;
+  viewportSize: 'small' | 'medium' | 'large' | 'extraLarge';
+  isTouchDevice: boolean;
+  showTutorial: boolean;
+  showIntro: boolean;
+  isInitialized: boolean;
+  footerVw: number;
+  flipState: FlipState;
+  isFullScreen: boolean;
+  headerVh: number; 
+  footerVh: number; 
+  sidebarLeftVw: number; 
+  sidebarRightVw: number; 
 }
+
 
 export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
@@ -35,6 +40,10 @@ export const useDisplayStore = defineStore('display', {
     footerVw: 100, 
     flipState: 'tutorial',
     isFullScreen: false,
+    headerVh: 7,
+    footerVh: 7,
+    sidebarLeftVw: 16,
+    sidebarRightVw: 2, 
   }),
 
   getters: {
@@ -44,9 +53,35 @@ export const useDisplayStore = defineStore('display', {
         medium: { open: 10, compact: 5, hidden: 1, disabled: 0 },
         large: { open: 9, compact: 4, hidden: 1, disabled: 0 },
         extraLarge: { open: 8, compact: 3, hidden: 1, disabled: 0 },
-      }[state.viewportSize]
-      return sizes[state.headerState] || 6
+      }[state.viewportSize];
+      return sizes[state.headerState] || 6;
     },
+    
+    headerHeight: (state): string => `calc(var(--vh, 1vh) * ${state.headerVh})`,
+    
+    mainHeight: (state): string => `calc(var(--vh, 1vh) * ${100 - state.headerVh - state.footerVh})`,
+    
+    footerVh: (state): number => {
+      const sizes = {
+        small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
+        medium: { open: 2, compact: 1, hidden: 1, disabled: 0 },
+        large: { open: 2, compact: 1, hidden: 1, disabled: 0 },
+        extraLarge: { open: 1, compact: 0.5, hidden: 1, disabled: 0 },
+      }[state.viewportSize];
+      return sizes[state.footerState] || 2;
+    },
+    
+    footerHeight: (state): string => `calc(var(--vh, 1vh) * ${state.footerVh})`,
+    
+    sidebarLeftWidth: (state): string => `${state.sidebarLeftVw}vw`,
+    
+    sidebarRightWidth: (state): string => `${state.sidebarRightVw}vw`,
+    
+    mainWidth: (state): string => `calc(100vw - ${state.sidebarLeftVw}vw - ${state.sidebarRightVw}vw)`,
+    
+    gridColumns: (state): string => state.isFullScreen ? '1fr' : `${state.sidebarLeftVw}vw calc(100vw - ${state.sidebarLeftVw}vw - ${state.sidebarRightVw}vw) ${state.sidebarRightVw}vw`,
+    
+    isLargeViewport: (state): boolean => ['large', 'extraLarge'].includes(state.viewportSize),
     sidebarLeftVw: (state): number => {
       const sizes = {
         small: { open: 24, compact: 12, hidden: 1, disabled: 0 },
@@ -65,15 +100,6 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize]
       return sizes[state.sidebarRightState] || 2
     },
-    footerVh: (state): number => {
-      const sizes = {
-        small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
-        medium: { open: 2, compact: 1, hidden: 1, disabled: 0 },
-        large: { open: 2, compact: 1, hidden: 1, disabled: 0 },
-        extraLarge: { open: 1, compact: 0.5, hidden: 1, disabled: 0 },
-      }[state.viewportSize]
-      return sizes[state.footerState] || 2
-    },
     mainVh(_state): number {
       return 100 - this.headerVh - this.footerVh;
     },
@@ -90,11 +116,7 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize]
       return sizes[state.headerState] || 24
     },
-    gridColumns(_state): string {
-      return this.isFullScreen
-        ? '1fr' // Full-screen layout
-        : `${this.sidebarLeftVw}vw calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) ${this.sidebarRightVw}vw`; // Two-column layout
-    },
+
   },
 
   actions: {

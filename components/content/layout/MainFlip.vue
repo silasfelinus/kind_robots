@@ -70,7 +70,6 @@ onMounted(() => {
 })
 </script>
 
-
 <style>
 .flip-card-front,
 .flip-card-back {
@@ -83,15 +82,16 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden; /* Prevents content from overflowing */
-  z-index: 1; /* Ensures front side starts on top */
 }
 
 .flip-card-front {
   transform: rotateY(0deg); /* Front side shown by default */
+  z-index: 2; /* Ensure front is clickable by default */
 }
 
 .flip-card-back {
   transform: rotateY(180deg); /* Back side starts flipped */
+  z-index: 1; /* Ensure back is below front initially */
   overflow-y: auto; /* Allows scrolling if content exceeds height */
 }
 
@@ -111,13 +111,13 @@ onMounted(() => {
   overflow: hidden; /* Ensure no overflow on small screens */
 }
 
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg); /* Flips the card to show the back side */
+.flip-card-inner.is-flipped .flip-card-front {
+  z-index: 1; /* Ensure front goes behind when flipped */
 }
 
-
-
-
+.flip-card-inner.is-flipped .flip-card-back {
+  z-index: 2; /* Ensure back is on top when flipped */
+}
 
 .grid-cols-2 {
   display: grid;
@@ -131,4 +131,3 @@ onMounted(() => {
   border-width: 2px;
 }
 </style>
-

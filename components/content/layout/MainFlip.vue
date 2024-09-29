@@ -1,7 +1,7 @@
 <template>
   <div
     class="flip-card w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
-    :style="{ height: mainHeight }"  <!-- Constrain height -->
+    :style="{ height: mainHeight }"  
     @click="flipped = !flipped"
   >
     <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">

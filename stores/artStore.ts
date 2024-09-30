@@ -243,7 +243,7 @@ export const useArtStore = defineStore({
           })
           if (response.ok) {
             const result = await response.json()
-            return { success: true, newArt: result.newArt }
+            return { success: true, art: result.art }
           } else {
             const errorResponse = await response.json()
             return { success: false, message: errorResponse.message }

@@ -6,7 +6,9 @@ interface State {
   prompts: Prompt[]
   artByPromptId: Art[]
   selectedPrompt: Prompt | null
-  fetchedPrompts: Record<number, Prompt | null> // Store for fetched prompts by ID
+  fetchedPrompts: Record<number, Prompt | null>
+  promptField: string
+  isInitialized: boolean
 }
 
 export const usePromptStore = defineStore('promptStore', {
@@ -15,9 +17,43 @@ export const usePromptStore = defineStore('promptStore', {
     artByPromptId: [],
     selectedPrompt: null,
     fetchedPrompts: {}, // Initialize fetched prompts as an empty object
+    promptField: ' ',
+    isInitialized: false, 
   }),
 
   actions: {
+       // Initialize promptStore
+       async initialize() {
+        if (this.isInitialized) return // Skip if already initialized
+  
+        if (typeof window !== 'undefined') {
+          // Restore promptField from localStorage
+          this.loadPromptField()
+        }
+  
+        // Fetch prompts
+        await this.fetchPrompts()
+  
+        // Mark as initialized
+        this.isInitialized = true
+      },
+          // Save prompt field to localStorage
+    savePromptField() {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('promptField', this.promptField)
+      }
+    },
+
+    // Load prompt field from localStorage
+    loadPromptField() {
+      if (typeof window !== 'undefined') {
+        const savedPrompt = localStorage.getItem('promptField')
+        if (savedPrompt) {
+          this.promptField = savedPrompt
+        }
+      }
+    },
+
     // Fetch all art prompts
     async fetchPrompts() {
       const errorStore = useErrorStore()

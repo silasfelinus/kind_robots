@@ -25,20 +25,23 @@ export interface GenerateArtData {
 export const useArtStore = defineStore({
   id: 'artStore',
   state: () => ({
-    artAssets: [] as Art[],
-    Reactions: [] as Reaction[],
+    art: [] as Art[],
+    reactions: [] as Reaction[],
     tags: [] as Tag[],
     selectedArt: null as Art | null,
     artImages: [] as ArtImage[],
+    loading: false,
+    error: '',
+    currentArt: null as Art | null,
   }),
   actions: {
     init() {
-      if (this.artAssets.length === 0) {
+      if (this.art.length === 0) {
         this.fetchAllArt()
       }
     },
     selectArt(artId: number) {
-      const foundArt = this.artAssets.find((art: Art) => art.id === artId)
+      const foundArt = this.art.find((art: Art) => art.id === artId)
       this.selectedArt = foundArt || null
       if (!foundArt) {
         console.warn(`Art with id ${artId} not found.`)
@@ -54,7 +57,7 @@ export const useArtStore = defineStore({
         }
         const data = await response.json();
         // Explicit type casting to Prisma's `Art[]`
-        this.artAssets = data.art as Art[];
+        this.art = data.art as Art[];
       } catch (error: unknown) {
         if (error instanceof Error) {
           errorStore.setError(ErrorType.NETWORK_ERROR, error.message);
@@ -72,9 +75,9 @@ export const useArtStore = defineStore({
           if (response.ok) {
             const data = await response.json();
             // Explicitly typing the response to Prisma's Art[]
-            this.artAssets = data.artEntries as Art[];
+            this.art = data.artEntries as Art[];
             if (isClient) {
-              localStorage.setItem('artAssets', JSON.stringify(this.artAssets));
+              localStorage.setItem('art', JSON.stringify(this.art));
             }
           } else {
             const errorResponse = await response.json();
@@ -86,10 +89,10 @@ export const useArtStore = defineStore({
       );
     },
     getArtById(id: number): Art | undefined {
-      return this.artAssets.find((art: Art) => art.id === id)
+      return this.art.find((art: Art) => art.id === id)
     },
     getReactionsById(id: number): Reaction[] {
-      return this.Reactions.filter(
+      return this.reactions.filter(
         (reaction: Reaction) => reaction.artId === id,
       )
     },
@@ -107,9 +110,9 @@ export const useArtStore = defineStore({
             method: 'DELETE',
           })
           if (response.ok) {
-            this.artAssets = this.artAssets.filter((art: Art) => art.id !== id)
+            this.art = this.art.filter((art: Art) => art.id !== id)
             if (isClient) {
-              localStorage.setItem('artAssets', JSON.stringify(this.artAssets))
+              localStorage.setItem('art', JSON.stringify(this.art))
             }
           } else {
             const errorResponse = await response.json()
@@ -121,7 +124,7 @@ export const useArtStore = defineStore({
       )
     },
     getArtByPitchId(pitchId: number): Art[] {
-      return this.artAssets.filter((art: Art) => art.pitchId === pitchId)
+      return this.art.filter((art: Art) => art.pitchId === pitchId)
     },
     async createReaction(reactionData: Reaction): Promise<Reaction | null> {
       const errorStore = useErrorStore()
@@ -232,6 +235,10 @@ export const useArtStore = defineStore({
       data: GenerateArtData,
     ): Promise<{ success: boolean; message?: string; newArt?: Art }> {
       const errorStore = useErrorStore()
+      this.loading = true
+      this.currentArt = null // Reset the art
+      this.error = ''
+
       return errorStore.handleError(
         async () => {
           const response = await fetch('/api/art/generate', {
@@ -243,6 +250,7 @@ export const useArtStore = defineStore({
           })
           if (response.ok) {
             const result = await response.json()
+            this.currentArt = result.art
             return { success: true, art: result.art }
           } else {
             const errorResponse = await response.json()

@@ -51,15 +51,13 @@ const artStore = useArtStore()
 const pitchStore = usePitchStore()
 
 // Fetch all art assets
-const artAssetsArray = computed(() => Array.from(artStore.artAssets.values()))
+const artArray = computed(() => Array.from(artStore.art.values()))
 
 // Filter art assets based on the selected pitch from pitchStore
 const filteredArtAssets = computed(() => {
   const selectedPitch = pitchStore.selectedPitch
   if (selectedPitch) {
-    return artAssetsArray.value.filter(
-      (art) => art.pitchId === selectedPitch.id,
-    )
+    return artArray.value.filter((art) => art.pitchId === selectedPitch.id)
   }
   return []
 })

@@ -47,7 +47,7 @@ const filteredArtIds = computed(() => {
   if (!selectedPitch.value) return []
 
   // Safely handle cases where art.pitchId might be null
-  return artStore.artAssets
+  return artStore.art
     .filter(
       (art: { pitchId: number | null }) =>
         art.pitchId === selectedPitch.value?.id,

@@ -44,16 +44,16 @@ import { usePitchStore } from './../../../stores/pitchStore'
 const artStore = useArtStore()
 const pitchStore = usePitchStore()
 
-// Convert the artAssets Map to an array
-const artAssetsArray = computed(() => Array.from(artStore.artAssets.values()))
+// Convert the art Map to an array
+const artArray = computed(() => Array.from(artStore.art.values()))
 
 // Filter art assets based on the selected pitch
 const filteredArtAssets = computed(() => {
   if (pitchStore.selectedPitch) {
     const selectedPitchId = pitchStore.selectedPitch.id
-    return artAssetsArray.value.filter((art) => art.pitchId === selectedPitchId)
+    return artArray.value.filter((art) => art.pitchId === selectedPitchId)
   }
-  return artAssetsArray.value // If no pitch is selected, return all art
+  return artArray.value // If no pitch is selected, return all art
 })
 
 const view = ref('twoRow')

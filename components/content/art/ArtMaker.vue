@@ -27,52 +27,41 @@
     <p v-if="error" class="text-red-500 mt-4">{{ error }}</p>
 
     <!-- Generated Art Display -->
-    <div v-if="art && !loading" class="mt-8 relative">
-      <img
-        :src="art?.path || ''"
-        alt="Generated Art"
-        class="rounded-lg shadow-lg w-full"
-      />
+    <div v-if="art && !loading" class="mt-8">
+      <ArtCard :art="art" />
+    </div>
 
-      <!-- Overlay to show art details -->
-      <div
-        v-if="showInfo"
-        class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white p-4 rounded-lg"
-      >
-        <p><strong>Designer:</strong> {{ art?.designer }}</p>
-        <p><strong>Prompt:</strong> {{ art?.promptString }}</p>
-        <p><strong>Steps:</strong> {{ art?.steps }}</p>
-        <p><strong>Seed:</strong> {{ art?.seed }}</p>
-        <p><strong>CFG:</strong> {{ art?.cfg }}</p>
+    <!-- User's Collected Art Display -->
+    <div v-if="collectedArt.length > 0" class="mt-8">
+      <h2 class="text-xl text-center mb-4">🖼️ Your Art Collection</h2>
+      <div class="grid grid-cols-1 gap-4">
+        <ArtCard
+          v-for="artItem in collectedArt"
+          :key="artItem.id"
+          :art="artItem"
+        />
       </div>
-
-      <!-- Toggle Info Button -->
-      <button
-        class="mt-4 bg-secondary rounded-2xl p-2 text-white w-full hover:bg-secondary-dark"
-        @click="toggleInfo"
-      >
-        {{ showInfo ? 'Hide' : 'Show' }} Art Details
-      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import ArtCard from './ArtCard.vue' // Import the reusable ArtCard component
 
-// Local state
-const showInfo = ref(false)
-
-// Access the artStore and promptStore
+// Access the artStore, promptStore, and errorStore
 const artStore = useArtStore()
 const promptStore = usePromptStore()
+const errorStore = useErrorStore()
 
 // Computed properties for state
 const loading = computed(() => artStore.loading)
 const art = computed(() => artStore.currentArt)
-const error = computed(() => artStore.error)
+const error = computed(() => errorStore.getError)
+const collectedArt = computed(() => artStore.collectedArt)
 
 // Save the prompt when the input changes
 const savePrompt = () => {
@@ -87,21 +76,28 @@ const extractPitch = (promptString: string) => {
 
 // Generate art based on the prompt
 const generateArt = async () => {
-  const pitch = extractPitch(promptStore.promptField) // Extract pitch from prompt
-  await artStore.generateArt({
-    promptString: promptStore.promptField,
-    pitch: pitch, // Include pitch
-    userId: 10, // Example user ID
-  })
+  const pitch = extractPitch(promptStore.promptField)
+  await errorStore.handleError(
+    async () => {
+      const result = await artStore.generateArt({
+        promptString: promptStore.promptField,
+        pitch: pitch,
+        userId: 10, // Example user ID
+      })
+
+      if (!result.success) {
+        throw new Error(result.message || 'Unknown error occurred.')
+      }
+    },
+    ErrorType.GENERAL_ERROR,
+    'Failed to generate art.',
+  )
 }
 
-// Toggle art details visibility
-const toggleInfo = () => {
-  showInfo.value = !showInfo.value
-}
-
-// Initialize the prompt store when the component is mounted
+// Initialize the artStore and promptStore when the component is mounted
 onMounted(async () => {
+  const userId = 10 // Example user ID
+  await artStore.initialize(userId)
   await promptStore.initialize()
 })
 </script>

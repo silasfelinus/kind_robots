@@ -24,7 +24,7 @@ model Art {
   isMature          Boolean?      @default(false)
   promptId          Int?
   Prompt            Prompt?       @relation(fields: [promptId], references: [id])
-  userId            Int?          @default(1)
+  userId            Int?          @default(10)
   User              User?         @relation(fields: [userId], references: [id])
   pitchId           Int?
   Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
@@ -36,6 +36,7 @@ model Art {
   Game              Game[]
   Player            Player[]
   ArtImage          ArtImage[]
+  ArtCollection     ArtCollection[]
 }
 
 model ArtImage {
@@ -50,6 +51,15 @@ model ArtImage {
   User              User?         @relation(fields: [userId], references: [id])
   artId             Int?
   Art               Art?          @relation(fields: [artId], references: [id])
+}
+
+model ArtCollection {
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime?     @updatedAt @default(now())
+  userId            Int          @default(10)
+  User              User         @relation(fields: [userId], references: [id])
+  art               Art[]
 }
 
 
@@ -567,6 +577,7 @@ model User {
   Logs              Log[]
   ArtImage          ArtImage[]
   Todos             Todo[]
+  ArtCollections    ArtCollection[]
 }
 
 model ReactionToTag {

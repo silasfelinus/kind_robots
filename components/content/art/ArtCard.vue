@@ -8,7 +8,7 @@
     </h3>
     <div class="image-wrapper relative">
       <img
-        :src="art.path ?? 'default-image-path.jpg'"
+        :src="art.path ?? '/placeholder.jpg'"
         alt="Artwork"
         class="rounded-2xl transition-transform ease-in-out hover:scale-105 w-full h-auto object-cover"
         loading="lazy"
@@ -21,7 +21,7 @@
       <div class="flex justify-between items-center mt-2">
         <p class="text-base">Claps: {{ reactions.length || 0 }}</p>
         <p class="text-base">
-          Adoptable?:
+          isPublic?:
           <span class="font-semibold">{{ art.isPublic ? 'Yes' : 'No' }}</span>
         </p>
       </div>
@@ -30,14 +30,13 @@
 </template>
 
 <script setup lang="ts">
-import { useArtStore } from './../../../stores/artStore'
-import type { Art } from './../../../stores/artStore'
-import { usePromptStore, type Prompt } from './../../../stores/promptStore'
-import { usePitchStore } from './../../../stores/pitchStore'
-import { useReactionStore } from './../../../stores/reactionStore'
+import { useArtStore } from '@/stores/artStore'
+import { usePromptStore } from '@/stores/promptStore'
+import { usePitchStore } from '@/stores/pitchStore'
+import { useReactionStore } from '@/stores/reactionStore'
 import { computed, onMounted } from 'vue'
 
-// Define props with type Art
+// Props
 const props = defineProps<{
   art: Art
 }>()
@@ -48,19 +47,17 @@ const promptStore = usePromptStore()
 const pitchStore = usePitchStore()
 const reactionStore = useReactionStore()
 
-// Compute prompt based on art ID
-const prompt = computed<Prompt | null>(() =>
+// Compute the prompt based on art ID
+const prompt = computed(() =>
   props.art.promptId ? promptStore.fetchedPrompts[props.art.promptId] : null,
 )
 
-// Use the selected pitch from the pitch store
+// Selected pitch from the pitch store
 const selectedPitch = computed(() => pitchStore.selectedPitch)
 
 // Filter reactions for the current art
 const reactions = computed(() =>
-  reactionStore.reactions.filter(
-    (r: { artId: number | null }) => r.artId === props.art.id,
-  ),
+  reactionStore.reactions.filter((r) => r.artId === props.art.id),
 )
 
 // Fetch prompt and reactions on mount

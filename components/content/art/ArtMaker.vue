@@ -79,11 +79,19 @@ const savePrompt = () => {
   promptStore.savePromptField()
 }
 
+// Extract pitch (first part before the comma)
+const extractPitch = (promptString: string) => {
+  const pitch = promptString.split(',')[0].trim()
+  return pitch || 'Untitled Pitch'
+}
+
 // Generate art based on the prompt
 const generateArt = async () => {
+  const pitch = extractPitch(promptStore.promptField) // Extract pitch from prompt
   await artStore.generateArt({
     promptString: promptStore.promptField,
-    userId: 1, // Example user ID
+    pitch: pitch, // Include pitch
+    userId: 10, // Example user ID
   })
 }
 

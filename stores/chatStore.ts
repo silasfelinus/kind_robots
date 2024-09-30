@@ -36,7 +36,6 @@ export const useChatStore = defineStore({
       const promptData = await promptStore.addPrompt(prompt, userId, botId)
 
       const exchange: ChatExchange = {
-        id: 0, // Placeholder, gets assigned by the DB
         createdAt: new Date(),
         updatedAt: new Date(),
         username: userStore.username,
@@ -48,7 +47,6 @@ export const useChatStore = defineStore({
         userId,
         botId,
         promptId: promptData.id, // Link to the new prompt
-        Reactions: [],
       }
 
       // Send the chat exchange to the backend for processing
@@ -142,7 +140,7 @@ export const useChatStore = defineStore({
         return
       }
 
-      const data = await this.fetch(`/api/chats/${exchangeId}/reactions`, {
+      const data = await this.fetch(`/api/reactions/chat/${exchangeId}/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reaction }),

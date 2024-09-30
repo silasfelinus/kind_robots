@@ -14,7 +14,3 @@ amitip: Try the Dream Generator, maybe you'll unlock the secret jellybean achiev
 sort: highlight
 ---
 :art-maker
-:generator-test
-:dream-generator
-:pitch-manager
-:image-upload

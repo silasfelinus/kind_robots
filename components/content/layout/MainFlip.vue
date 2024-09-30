@@ -8,23 +8,19 @@
       'flip-card': !displayStore.isLargeViewport || displayStore.isFullScreen,
     }"
   >
-    <!-- Simple mode for mobile or if simpleMode is true -->
+    <!-- Mobile Viewport: Show either SplashTutorial or NuxtPage -->
     <div v-if="displayStore.isMobileViewport">
-      <!-- Show SplashTutorial if in tutorial mode -->
       <splash-tutorial v-show="displayStore.showTutorial" />
-
-      <!-- Show NuxtPage if not in tutorial mode -->
       <NuxtPage v-show="!displayStore.showTutorial" />
     </div>
 
-    <!-- Flip-card Layout for larger viewports or full-screen mode -->
+    <!-- Flip-card Layout: For full-screen mode or non-large viewports -->
     <div
       v-else-if="!displayStore.isLargeViewport || displayStore.isFullScreen"
       class="flip-card-inner"
       :class="{ 'is-flipped': !displayStore.showTutorial }"
       @transitionend="handleTransitionEnd"
     >
-      <!-- Front side: Splash Tutorial -->
       <div
         class="flip-card-front"
         :class="{ invisible: !displayStore.showTutorial && !isFlippedComplete }"
@@ -33,7 +29,6 @@
         <splash-tutorial />
       </div>
 
-      <!-- Back side: NuxtPage content -->
       <div
         class="flip-card-back overflow-y-auto"
         :class="{ invisible: displayStore.showTutorial && !isFlippedComplete }"
@@ -43,20 +38,14 @@
       </div>
     </div>
 
-    <!-- Two-column layout for large viewports when not in full-screen mode -->
-    <div
-      v-else
-      class="flex flex-col overflow-y-auto"
-      :style="{ height: '100%' }"
-    >
-      <splash-tutorial />
-    </div>
-    <div
-      v-if="displayStore.isLargeViewport && !displayStore.isFullScreen"
-      class="flex flex-col overflow-y-auto border rounded-2xl"
-      :style="{ height: '100%' }"
-    >
-      <NuxtPage />
+    <!-- Two-column Layout: Only for large viewports and not in full-screen -->
+    <div v-else class="grid grid-cols-2 gap-4" :style="{ height: '100%' }">
+      <div class="flex flex-col overflow-y-auto">
+        <splash-tutorial />
+      </div>
+      <div class="flex flex-col overflow-y-auto border rounded-2xl">
+        <NuxtPage />
+      </div>
     </div>
   </div>
 
@@ -69,7 +58,7 @@
     {{ displayStore.showTutorial ? 'Launch' : 'Show Instructions' }}
   </button>
 
-  <!-- Full Screen Toggle Button for Large Viewports -->
+  <!-- Full-Screen Toggle Button for Large Viewports -->
   <button
     v-if="displayStore.isLargeViewport"
     class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"

@@ -1,17 +1,18 @@
 <template>
-  <!-- Main container with reduced padding/margin, full height, and no scrolling -->
+  <!-- Main container with full height and overflow management -->
   <div
-    class="flex flex-col items-center bg-base-300 p-2 m-1 h-screen overflow-auto"
+    class="flex flex-col items-center bg-base-300 p-2 m-1 h-screen overflow-hidden"
   >
+    <!-- Bot Selector, remains on top with appropriate margin -->
     <bot-selector />
 
     <!-- Display bot details if a bot is selected -->
     <div
       v-if="currentBot"
       :data-theme="currentBot.theme"
-      class="w-full bg-base-300 rounded-2xl h-full flex flex-col"
+      class="w-full bg-base-300 rounded-2xl flex flex-col flex-grow overflow-hidden"
     >
-      <!-- Bot name and ID, combining into a single line to reduce vertical space -->
+      <!-- Bot name and ID, combining into a single line -->
       <div class="flex justify-between items-center m-2">
         <h1 class="text-2xl font-bold">
           {{ currentBot.name }}
@@ -22,19 +23,19 @@
         <span class="text-sm text-gray-600">Meet Them All!</span>
       </div>
 
-      <!-- Responsive layout with fixed heights to prevent overflow -->
-      <div
-        class="flex flex-col md:flex-row justify-between w-full m-2 rounded-lg flex-grow"
-      >
-        <!-- Bot Avatar and Carousel -->
+      <!-- Responsive layout that adjusts between 1 column on small screens and 2 columns on larger screens -->
+      <div class="flex flex-col md:flex-row w-full flex-grow overflow-hidden">
+        <!-- Bot Avatar and Carousel on left -->
         <div class="w-full md:w-1/3 p-2 flex-shrink-0 max-h-full">
           <bot-carousel2 class="h-full" />
         </div>
 
-        <!-- Bot Details and Stream Test in a single column for larger screens -->
-        <div class="flex-1 flex flex-col w-full md:w-2/3 p-2 h-full">
+        <!-- Bot Details and Stream Test on right -->
+        <div
+          class="flex-1 flex flex-col w-full md:w-2/3 p-2 h-full overflow-hidden"
+        >
           <!-- Bot Details -->
-          <div class="text-center mb-2 flex-grow">
+          <div class="text-center mb-2 flex-grow overflow-y-auto">
             <h2 class="text-2xl font-semibold">
               {{ currentBot.name ?? 'Unknown Bot' }}
             </h2>
@@ -46,7 +47,7 @@
             </div>
           </div>
 
-          <!-- Stream Test component positioned below Bot Details and taking remaining space -->
+          <!-- Stream Test component positioned at the bottom, taking remaining space -->
           <div class="flex-grow flex items-end">
             <stream-test class="h-48 md:h-auto w-full" />
           </div>

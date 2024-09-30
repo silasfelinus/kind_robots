@@ -9,10 +9,10 @@
     }"
   >
     <!-- Simple mode for mobile or if simpleMode is true -->
-    <div v-if="displayStore.isMobileViewport || displayStore.simpleMode">
+    <div v-if="displayStore.isMobileViewport">
       <!-- Show SplashTutorial if in tutorial mode -->
       <splash-tutorial v-show="displayStore.showTutorial" />
-      
+
       <!-- Show NuxtPage if not in tutorial mode -->
       <NuxtPage v-show="!displayStore.showTutorial" />
     </div>
@@ -80,12 +80,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Initialize the display store
 const displayStore = useDisplayStore()
-const mainHeight = computed(displayStore.mainVh)
+const mainHeight = computed(() => displayStore.mainHeight)
 
 // Track if the flip animation has completed
 const isFlippedComplete = ref(false)
@@ -96,32 +96,32 @@ const handleTransitionEnd = () => {
 }
 
 const forceReflow = () => {
-  const element = document.querySelector('.flip-card-inner');
-  if (element) {
-    element.offsetHeight; // Trigger reflow by reading the property
+  const element = document.querySelector('.flip-card-inner')
+  if (element instanceof HTMLElement) {
+    // Force reflow by accessing offsetHeight
+    void element.offsetHeight
   }
-};
+}
 
 const onFlipOut = (side: string) => {
   // Trigger reflow at the start
-  forceReflow();
+  forceReflow()
 
   if (side === 'splash' && !displayStore.showTutorial) {
-    isFlippedComplete.value = false;
+    isFlippedComplete.value = false
   } else if (side === 'nuxt' && displayStore.showTutorial) {
-    isFlippedComplete.value = false;
+    isFlippedComplete.value = false
   }
 
   // Trigger reflow at the end to ensure the transition is applied
-  forceReflow();
-};
-
-
+  forceReflow()
+}
 </script>
 
 <style scoped>
 /* Add a simple fade-in effect */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {

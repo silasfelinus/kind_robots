@@ -62,9 +62,10 @@
     class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"
     @click="displayStore.toggleFullScreen"
   >
-    {{ displayStore.isFullScreen ? 'Two Columns' : 'Full Screen' }}
+    {{ displayStore.isFullScreen ? 'Exit Full Screen' : 'Enter Full Screen' }}
   </button>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'

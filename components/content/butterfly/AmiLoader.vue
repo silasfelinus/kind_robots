@@ -38,7 +38,7 @@ onMounted(() => {
     currentMessage.value = randomLoadMessage()
     intervalId = setInterval(updateMessage, 20 * 50)
   }, 700) // Update the message after a .5 second delay
-  setTimeout(startFadeOut, 1000) // Fade out after 2 seconds
+  setTimeout(startFadeOut, 1300) // Fade out after 2 seconds
 })
 
 onUnmounted(() => {

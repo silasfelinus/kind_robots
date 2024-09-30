@@ -125,7 +125,8 @@ onMounted(() => {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden; /* Prevent the back from being visible during the flip */
+  backface-visibility: hidden; /* Hide the back during the flip */
+  -webkit-backface-visibility: hidden; /* Ensure hidden backface on WebKit browsers */
   border-radius: 12px;
   display: flex;
   flex-direction: column;

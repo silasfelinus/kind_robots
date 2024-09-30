@@ -14,9 +14,6 @@
           :active-conversation-index="activeConversationIndex"
           :current-bot="currentBot"
           :is-reply-loading="isReplyLoading"
-          @reply-message="continueConversation"
-          @delete-conversation="deleteConversation"
-          @toggle-reaction="toggleReaction"
         />
       </div>
 
@@ -61,14 +58,10 @@
 import { ref, computed } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
-import { useChatStore } from '../../../stores/chatStore'
 
 // Define refs and stores
-const shouldShowMilestoneCheck = ref(false)
 const config = useRuntimeConfig()
 const userKey = config.public.OPENAI_KEY
-const chatStore = useChatStore()
-const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
 
 interface Message {
   role: 'user' | 'assistant'

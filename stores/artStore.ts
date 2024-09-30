@@ -250,38 +250,44 @@ export const useArtStore = defineStore({
       );
     },
 
-    async generateArt(
-      data: GenerateArtData,
-    ): Promise<{ success: boolean; message?: string; newArt?: Art }> {
-      const errorStore = useErrorStore();
-      this.loading = true;
-      this.currentArt = null; // Reset the art
-      this.error = '';
-    
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch('/api/art/generate', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          });
-          if (response.ok) {
-            const result = await response.json();
-            this.currentArt = result.art;
-            return { success: true, art: result.art };
-          } else {
-            const errorResponse = await response.json();
-            return { success: false, message: errorResponse.message };
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to generate art.',
-      ).finally(() => {
-        this.loading = false;
+    // Validate the prompt string for invalid characters or patterns
+const validatePromptString = (prompt: string): boolean => {
+  // Simple validation: Ensure the prompt is not empty and doesn't contain special characters.
+  const validPattern = /^[a-zA-Z0-9 ,]+$/; // Adjust the pattern as necessary
+  return validPattern.test(prompt);
+}
+
+// Generate art based on the prompt
+const generateArt = async () => {
+  const pitch = extractPitch(promptStore.promptField);
+  
+  // Log the prompt and pitch for debugging
+  console.log("Generating art with prompt:", promptStore.promptField);
+  console.log("Using pitch:", pitch);
+
+  // Validate the prompt before proceeding
+  if (!validatePromptString(promptStore.promptField)) {
+    console.error("Invalid prompt string:", promptStore.promptField);
+    errorStore.setError(ErrorType.VALIDATION_ERROR, "Invalid characters in prompt.");
+    return;
+  }
+
+  await errorStore.handleError(
+    async () => {
+      const result = await artStore.generateArt({
+        promptString: promptStore.promptField,
+        pitch: pitch, // Include pitch
+        userId: 10, // Example user ID
       });
+
+      if (!result.success) {
+        throw new Error(result.message || 'Unknown error occurred.');
+      }
     },
+    ErrorType.GENERAL_ERROR,
+    'Failed to generate art.',
+  );
+},
   },
 });
 

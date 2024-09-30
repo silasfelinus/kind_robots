@@ -67,12 +67,7 @@ onMounted(async () => {
     // Dynamically set the main content style based on sidebar and header sizes
     mainContentStyle.value = `top: ${displayStore.headerVh}px; left: ${displayStore.sidebarLeftVw}px;`
 
-    // Simulate a delay for loader visibility
-    setTimeout(() => {
-      isReady.value = true
-      isFirstLoad.value = false
-      emit('pageReady', true)
-    }, 1000)
+    
   } catch (error) {
     console.error('Initialization failed:', error)
     errorStore.setError(

@@ -12,6 +12,7 @@ import { useBotStore } from './../../../stores/botStore'
 import { useMilestoneStore } from './../../../stores/milestoneStore'
 import { useDisplayStore } from './../../../stores/displayStore'
 import { usePitchStore } from './../../../stores/pitchStore'
+import { usePromptStore } from './../../../stores/promptStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -22,6 +23,7 @@ const themeStore = useThemeStore()
 const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
 const pitchStore = usePitchStore()
+const promptStore = usePromptStore()
 
 // State management
 const isReady = ref(false)
@@ -47,6 +49,7 @@ onMounted(async () => {
       themeStore.initTheme?.(),
       milestoneStore.initializeMilestones?.(),
       pitchStore.initializePitches?.(),
+      promptStore.initialize?.(),
     ])
 
     console.log('All stores initialized successfully.')

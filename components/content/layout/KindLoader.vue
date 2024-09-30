@@ -1,16 +1,5 @@
 <template>
-  <div
-    v-if="!isReady"
-    :class="{
-      'fixed inset-0 flex items-center justify-center bg-opacity-70 z-50':
-        isFirstLoad,
-      'absolute flex items-center justify-center bg-opacity-70 z-50':
-        !isFirstLoad,
-    }"
-    :style="mainContentStyle"
-  >
-    <ami-loader />
-  </div>
+  <ami-loader />
 </template>
 
 <script setup lang="ts">
@@ -36,11 +25,6 @@ const pitchStore = usePitchStore()
 
 // State management
 const isReady = ref(false)
-const isFirstLoad = ref(true)
-const mainContentStyle = ref({
-  top: 0,
-  left: 0,
-})
 const emit = defineEmits(['pageReady'])
 
 onMounted(async () => {
@@ -67,24 +51,14 @@ onMounted(async () => {
 
     console.log('All stores initialized successfully.')
 
-    // Dynamically set the main content style based on sidebar and header sizes
-    mainContentStyle.value = {
-      top: `${displayStore.headerVh}px`,
-      left: `${displayStore.sidebarLeftVw}px`,
-    }
-
-    // Simulate a delay for loader visibility
-    await new Promise(resolve => setTimeout(resolve, 500))
-
+    // Immediately announce the page is ready
     isReady.value = true
-    isFirstLoad.value = false
     emit('pageReady', true)
-
   } catch (error) {
     console.error('Initialization failed:', error)
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
-      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`
+      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
 })

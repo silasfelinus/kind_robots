@@ -280,20 +280,14 @@ export const useReactionStore = defineStore('reactionStore', {
         throw error
       }
     },
-
-    async updateReaction(reactionId: number, updates: { reactionType?: ReactionType; pitchId?: number | null }) {
+    async updateReaction(reactionId: number, updates: { reactionType?: ReactionTypeEnum }) {
       console.log('Updating reaction with reactionId:', reactionId, 'and updates:', updates)
-
+    
       try {
-        const processedUpdates = {
-          ...updates,
-          pitchId: updates.pitchId ?? undefined,
-        }
-
         const response = await fetch(`/api/reactions/${reactionId}`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(processedUpdates),
+          body: JSON.stringify(updates),
         })
         if (!response.ok) {
           console.error('Error response from updateReaction:', response)
@@ -311,6 +305,7 @@ export const useReactionStore = defineStore('reactionStore', {
         throw error
       }
     },
+    
 
     async deleteReaction(reactionId: number) {
       console.log('Deleting reaction with reactionId:', reactionId)

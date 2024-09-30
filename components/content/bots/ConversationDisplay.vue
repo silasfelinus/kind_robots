@@ -28,28 +28,28 @@
           <button
             class="hover:bg-gray-200"
             :class="{ 'bg-primary': isReactionActive(index, 'LOVED') }"
-            @click="toggleReaction(index, 'LOVED')"
+            @click="toggleReaction(index, ReactionTypeEnum.LOVED)"
           >
             ❤️
           </button>
           <button
             class="hover:bg-gray-200"
             :class="{ 'bg-primary': isReactionActive(index, 'CLAPPED') }"
-            @click="toggleReaction(index, 'CLAPPED')"
+            @click="toggleReaction(index, ReactionTypeEnum.CLAPPED)"
           >
             👏
           </button>
           <button
             class="hover:bg-gray-200"
             :class="{ 'bg-primary': isReactionActive(index, 'BOOED') }"
-            @click="toggleReaction(index, 'BOOED')"
+            @click="toggleReaction(index, ReactionTypeEnum.BOOED)"
           >
             👎
           </button>
           <button
             class="hover:bg-gray-200"
             :class="{ 'bg-primary': isReactionActive(index, 'HATED') }"
-            @click="toggleReaction(index, 'HATED')"
+            @click="toggleReaction(index, ReactionTypeEnum.HATED)"
           >
             🚫
           </button>
@@ -99,7 +99,7 @@ import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
 import {
   useReactionStore,
-  type ReactionType,
+  type ReactionTypeEnum,
 } from '../../../stores/reactionStore'
 import { useChatStore, type ChatExchange } from '../../../stores/chatStore'
 
@@ -123,8 +123,8 @@ const chatStore = useChatStore()
 const replyMessage = ref('')
 const isReplyLoading = ref(false)
 
-const userId = computed(() => userStore.userId || 0)
-const botId = computed(() => botStore.currentBot?.id || 0)
+const userId = computed(() => userStore.userId || 10)
+const botId = computed(() => botStore.currentBot?.id || 1)
 const username = computed(() => userStore.username)
 const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
 
@@ -175,7 +175,7 @@ watchEffect(() => {
       botName.value,
       username.value,
     )
-    chatStore.addOrUpdateExchange(lastExchange)
+    chatStore.addOrUpdateExchange(lastExchange, userId.value, botId.value)
   }
 })
 
@@ -184,29 +184,40 @@ const deleteConversation = (index: number) => {
   activeConversationIndex.value = null
 }
 
-const toggleReaction = async (index: number, reactionType: ReactionType) => {
+const toggleReaction = async (
+  index: number,
+  reactionType: ReactionTypeEnum,
+) => {
   const exchangeId = chatStore.getExchangeById(index)?.id
-  if (!exchangeId) return
+  const userId = userStore.user?.id
+  if (!exchangeId || !userId) return
 
-  const res = await fetch('/api/reactions/toggle', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      chatExchangeId: exchangeId,
-      reactionType,
-    }),
-  })
+  // Check if there's an existing reaction for this chat exchange
+  const existingReaction = reactionStore.getReactionByChatExchangeId(exchangeId)
 
-  if (res.ok) {
+  try {
+    if (existingReaction) {
+      // If the reaction exists, update it with the new reactionType
+      await reactionStore.updateReaction(existingReaction.id, {
+        reactionType,
+      })
+    } else {
+      // Otherwise, create a new reaction
+      await reactionStore.createReaction({
+        chatExchangeId: exchangeId,
+        userId,
+        reactionType,
+        reactionCategory: ReactionCategoryEnum.CHANNEL, // Adjust as per your use case
+      })
+    }
+
+    // Show a temporary popup for the reaction
     showPopup.value[index] = { [reactionType]: true }
-
-    // Hide popup after 2 seconds
     setTimeout(() => {
       showPopup.value[index][reactionType] = false
     }, 2000)
+  } catch (error) {
+    console.error('Failed to toggle reaction:', error)
   }
 }
 </script>

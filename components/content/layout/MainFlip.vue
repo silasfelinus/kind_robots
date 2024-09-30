@@ -2,11 +2,11 @@
   <div
     class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
-    :class="{ 'grid grid-cols-2 gap-4': isLargeViewport, 'flip-card': !isLargeViewport }"
+    :class="{ 'grid grid-cols-2 gap-4': isLargeViewport && !displayStore.isFullScreen, 'flip-card': !isLargeViewport || displayStore.isFullScreen }"
   >
-    <!-- Flip-card Layout for small and medium viewports -->
+    <!-- Flip-card Layout for small viewports or full-screen mode -->
     <div
-      v-if="!isLargeViewport"
+      v-if="!isLargeViewport || displayStore.isFullScreen"
       class="flip-card-inner"
       :class="{ 'is-flipped': !displayStore.showTutorial }"
       @transitionend="handleTransitionEnd"
@@ -30,22 +30,40 @@
       </div>
     </div>
 
-    <!-- Two-column layout for large and extra-large viewports -->
+    <!-- Two-column layout for large viewports when not in full-screen mode -->
     <div
-      v-if="isLargeViewport"
+      v-if="isLargeViewport && !displayStore.isFullScreen"
       class="flex flex-col overflow-y-auto"
       :style="{ height: '100%' }"
     >
       <splash-tutorial />
     </div>
     <div
-      v-if="isLargeViewport"
+      v-if="isLargeViewport && !displayStore.isFullScreen"
       class="flex flex-col overflow-y-auto border rounded-2xl"
       :style="{ height: '100%' }"
     >
       <NuxtPage />
     </div>
   </div>
+
+  <!-- Full-Screen Control Button -->
+  <button
+    v-if="displayStore.isFullScreen"
+    class="bg-secondary text-base-100 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 fixed bottom-4 right-4 p-3"
+    @click="displayStore.showTutorial = !displayStore.showTutorial"
+  >
+    {{ displayStore.showTutorial ? 'Launch' : 'Show Instructions' }}
+  </button>
+
+  <!-- Full Screen Toggle Button for Large Viewports -->
+  <button
+    v-if="isLargeViewport"
+    class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"
+    @click="displayStore.toggleFullScreen"
+  >
+    {{ displayStore.isFullScreen ? 'Two Columns' : 'Full Screen' }}
+  </button>
 </template>
 
 <script setup lang="ts">

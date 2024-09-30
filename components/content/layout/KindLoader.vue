@@ -1,5 +1,4 @@
-
-     <template>
+<template>
   <div
     v-if="!isReady"
     :class="{
@@ -69,10 +68,11 @@ onMounted(async () => {
     mainContentStyle.value = top: ${displayStore.headerVh}px; left: ${displayStore.sidebarLeftVw}px;
 
     // Simulate a delay for loader visibility
-    
+    setTimeout(() => {
       isReady.value = true
       isFirstLoad.value = false
       emit('pageReady', true)
+    }, 5)
   } catch (error) {
     console.error('Initialization failed:', error)
     errorStore.setError(

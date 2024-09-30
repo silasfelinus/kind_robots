@@ -2,10 +2,7 @@
   <div
     class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
-    :class="{
-      'grid grid-cols-2 gap-4': isLargeViewport,
-      'flip-card': !isLargeViewport,
-    }"
+    :class="{ 'grid grid-cols-2 gap-4': isLargeViewport, 'flip-card': !isLargeViewport }"
   >
     <!-- Flip-card Layout for small and medium viewports -->
     <div
@@ -17,7 +14,7 @@
       <!-- Front side: Splash Tutorial -->
       <div
         class="flip-card-front"
-        :class="{ invisible: !displayStore.showTutorial && !isFlippedComplete }"
+        :class="{ 'invisible': !displayStore.showTutorial && !isFlippedComplete }"
         @transitionend="onFlipOut('splash')"
       >
         <splash-tutorial />
@@ -26,7 +23,7 @@
       <!-- Back side: NuxtPage content -->
       <div
         class="flip-card-back overflow-y-auto"
-        :class="{ invisible: displayStore.showTutorial && !isFlippedComplete }"
+        :class="{ 'invisible': displayStore.showTutorial && !isFlippedComplete }"
         @transitionend="onFlipOut('nuxt')"
       >
         <NuxtPage />
@@ -57,22 +54,18 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 // Initialize the display store
 const displayStore = useDisplayStore()
-
-// Main content height computed based on the viewport height
 const mainHeight = computed(() => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`)
 
 // Track if the flip animation has completed
 const isFlippedComplete = ref(false)
-
-// Determine if it's a large viewport to handle layout accordingly
-const isLargeViewport = computed(() => displayStore.isLargeViewport)
 
 const handleTransitionEnd = () => {
   // Allow the new side to become interactive after the flip completes
   isFlippedComplete.value = true
 }
 
-const onFlipOut = (side: string) => {
+// Function to handle the completion of the flip-out animation
+const onFlipOut = (side) => {
   if (side === 'splash' && !displayStore.showTutorial) {
     // The tutorial side just finished flipping out, make it invisible
     isFlippedComplete.value = false
@@ -83,10 +76,9 @@ const onFlipOut = (side: string) => {
   }
 }
 
-// Ensure that we always start on the splash tutorial page for new navigations
+// Ensure that we always start on the splash tutorial page
 onMounted(() => {
-  displayStore.showTutorial = true // Always start with splash tutorial on page load
-  isFlippedComplete.value = false // Reset flip state
+  displayStore.showTutorial = true // Set to true to always start with splash tutorial
 })
 </script>
 
@@ -120,9 +112,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   /* Ensure visibility and pointer-events are handled properly */
-  transition:
-    visibility 0s linear 0.6s,
-    pointer-events 0s linear 0.6s;
+  transition: visibility 0s linear 0.6s, pointer-events 0s linear 0.6s;
 }
 
 /* Ensure the outgoing side is invisible after its flip animation ends */

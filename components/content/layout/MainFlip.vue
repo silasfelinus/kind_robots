@@ -95,26 +95,27 @@ const handleTransitionEnd = () => {
   isFlippedComplete.value = true
 }
 
-// Function to trigger a forced reflow to fix initial transition issue
 const forceReflow = () => {
-  const element = document.querySelector('.flip-card-inner')
+  const element = document.querySelector('.flip-card-inner');
   if (element) {
-    element.offsetHeight // Trigger reflow by reading the property
+    element.offsetHeight; // Trigger reflow by reading the property
   }
-}
+};
 
-// Function to handle the completion of the flip-out animation
 const onFlipOut = (side: string) => {
-forceReflow()
+  // Trigger reflow at the start
+  forceReflow();
+
   if (side === 'splash' && !displayStore.showTutorial) {
-    // The tutorial side just finished flipping out, make it invisible
-    isFlippedComplete.value = false
+    isFlippedComplete.value = false;
+  } else if (side === 'nuxt' && displayStore.showTutorial) {
+    isFlippedComplete.value = false;
   }
-  if (side === 'nuxt' && displayStore.showTutorial) {
-    // The Nuxt page side just finished flipping out, make it invisible
-    isFlippedComplete.value = false
-  }
-}
+
+  // Trigger reflow at the end to ensure the transition is applied
+  forceReflow();
+};
+
 
 </script>
 

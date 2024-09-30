@@ -79,6 +79,7 @@ model Bot {
   ChatExchanges     ChatExchange[]
   Messages          Message[]
   Posts             Post[]
+  Prompts           Prompt[]
 }
 
 model Cart {
@@ -140,6 +141,8 @@ model ChatExchange {
   Bot               Bot?          @relation(fields: [botId], references: [id])
   userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
+  promptId          Int           
+  Prompt            Prompt        @relation(fields: [promptId], references: [id])
   Reactions         Reaction[]
 }
 
@@ -374,6 +377,8 @@ model Prompt {
   Player            Player?       @relation(fields: [playerId], references: [id])
   Game              Game[]
   Art               Art[]
+  Chats             ChatExchange[]
+  Bots              Bot[]
 }
 
 model RandomList {

@@ -32,7 +32,7 @@ export async function createPrompt(prompt: PromptData): Promise<Prompt> {
 
     return await prisma.prompt.create({
       data: {
-        userId: prompt.userId || 0,
+        userId: prompt.userId || 10,
         prompt: prompt.prompt,
         galleryId: prompt.galleryId || null,
         pitchId: prompt.pitchId || null,

@@ -20,6 +20,7 @@ export interface GenerateArtData {
   cfgHalf?: boolean
   isMature?: boolean
   isPublic?: boolean
+  pitch?: string
 }
 
 export const useArtStore = defineStore({
@@ -33,6 +34,7 @@ export const useArtStore = defineStore({
     loading: false,
     error: '',
     currentArt: null as Art | null,
+    pitch: '',
   }),
   actions: {
     init() {
@@ -238,7 +240,7 @@ export const useArtStore = defineStore({
       this.loading = true
       this.currentArt = null // Reset the art
       this.error = ''
-
+    
       return errorStore.handleError(
         async () => {
           const response = await fetch('/api/art/generate', {
@@ -259,8 +261,11 @@ export const useArtStore = defineStore({
         },
         ErrorType.NETWORK_ERROR,
         'Failed to generate art.',
-      )
+      ).finally(() => {
+        this.loading = false
+      })
     },
+    
   },
 })
 

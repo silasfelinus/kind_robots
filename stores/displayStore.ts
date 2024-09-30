@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 
+// Define the types for state values and other variables
 export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 
@@ -15,15 +16,9 @@ interface DisplayStoreState {
   showTutorial: boolean;
   showIntro: boolean;
   isInitialized: boolean;
-  footerVw: number;
   flipState: FlipState;
   isFullScreen: boolean;
-  headerVh: number; 
-  footerVh: number; 
-  sidebarLeftVw: number; 
-  sidebarRightVw: number; 
 }
-
 
 export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
@@ -37,17 +32,12 @@ export const useDisplayStore = defineStore('display', {
     showTutorial: true,
     showIntro: true,
     isInitialized: false,
-    footerVw: 100, 
     flipState: 'tutorial',
     isFullScreen: false,
-    headerVh: 7,
-    footerVh: 7,
-    sidebarLeftVw: 16,
-    sidebarRightVw: 2, 
   }),
 
   getters: {
-    headerVh: (state): number => {
+    headerVh(state): number {
       const sizes = {
         small: { open: 11, compact: 6, hidden: 1, disabled: 0 },
         medium: { open: 10, compact: 5, hidden: 1, disabled: 0 },
@@ -56,11 +46,7 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize];
       return sizes[state.headerState] || 6;
     },
-    
-    headerHeight: (state): string => `calc(var(--vh, 1vh) * ${state.headerVh})`,
-    
-    mainHeight: (state): string => `calc(var(--vh, 1vh) * ${100 - state.headerVh - state.footerVh})`,
-    
+
     footerVh: (state): number => {
       const sizes = {
         small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
@@ -70,18 +56,7 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize];
       return sizes[state.footerState] || 2;
     },
-    
-    footerHeight: (state): string => `calc(var(--vh, 1vh) * ${state.footerVh})`,
-    
-    sidebarLeftWidth: (state): string => `${state.sidebarLeftVw}vw`,
-    
-    sidebarRightWidth: (state): string => `${state.sidebarRightVw}vw`,
-    
-    mainWidth: (state): string => `calc(100vw - ${state.sidebarLeftVw}vw - ${state.sidebarRightVw}vw)`,
-    
-    gridColumns: (state): string => state.isFullScreen ? '1fr' : `${state.sidebarLeftVw}vw calc(100vw - ${state.sidebarLeftVw}vw - ${state.sidebarRightVw}vw) ${state.sidebarRightVw}vw`,
-    
-    isLargeViewport: (state): boolean => ['large', 'extraLarge'].includes(state.viewportSize),
+
     sidebarLeftVw: (state): number => {
       const sizes = {
         small: { open: 24, compact: 12, hidden: 1, disabled: 0 },
@@ -91,6 +66,7 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize]
       return sizes[state.sidebarLeftState] || 16
     },
+
     sidebarRightVw: (state): number => {
       const sizes = {
         small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
@@ -100,13 +76,52 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize]
       return sizes[state.sidebarRightState] || 2
     },
-    mainVh(_state): number {
-      return 100 - this.headerVh - this.footerVh;
+
+    mainVh(): number { 
+      return 100 - this.headerVh  - this.footerVh
     },
-    
-    mainVw(_state): number { // Fixed getter
+    mainVw(): number { 
       return 100 - this.sidebarLeftVw  - this.sidebarRightVw
     },
+  
+
+    headerHeight(): string {
+      return `calc(var(--vh, 1vh) * ${this.headerVh})`;
+    },
+
+    mainHeight(): string {
+      return `calc(var(--vh, 1vh) * (${this.mainVh})`;
+    },
+
+
+    mainWidth(): string { 
+      return `calc(var(--vw, 1vw) * (${this.mainVw})`;
+    },
+    footerHeight(): string {
+      return `calc(var(--vh, 1vh) * ${this.footerVh})`;
+    },
+    sidebarLeftWidth(): string {
+      return `${this.sidebarLeftVw}vw`;
+    },
+
+    sidebarRightWidth(): string {
+      return `${this.sidebarRightVw}vw`;
+    },
+    
+    gridColumns(): string {
+      if (this.isFullScreen) {
+        // Full-screen layout: sidebars still present, but main content spans the available space.
+        return `${this.sidebarLeftVw}vw calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) ${this.sidebarRightVw}vw`;
+      } else {
+        // Split layout: sidebars and main content divided into two sections.
+        return `${this.sidebarLeftVw}vw calc((100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) / 2) calc((100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) / 2) ${this.sidebarRightVw}vw`;
+      }
+    },
+    
+  
+    
+    isLargeViewport: (state): boolean => ['large', 'extraLarge'].includes(state.viewportSize),
+
     iconSize: (state): number => {
       const sizes = {
         small: { open: 18, compact: 16, hidden: 14, disabled: 14 },
@@ -116,10 +131,53 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize]
       return sizes[state.headerState] || 24
     },
-
   },
 
   actions: {
+    initialize() {
+      if (this.isInitialized) {
+        return; // Skip initialization if already initialized
+      }
+      
+      try {
+        this.loadState();
+        this.updateViewport();
+        window.addEventListener('resize', this.updateViewport);
+        this.isInitialized = true;
+      } catch (error) {
+        const errorStore = useErrorStore();
+        errorStore.setError(ErrorType.GENERAL_ERROR, error);
+      }
+    },
+
+    loadState() {
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const storedSidebarLeft = localStorage.getItem('sidebarLeftState') as DisplayState
+          const storedSidebarRight = localStorage.getItem('sidebarRightState') as DisplayState
+          const storedHeaderState = localStorage.getItem('headerState') as DisplayState
+          const storedFooterState = localStorage.getItem('footerState') as DisplayState
+          const storedShowTutorial = localStorage.getItem('showTutorial')
+          const storedShowIntro = localStorage.getItem('showIntro') 
+          const storedFullScreen = localStorage.getItem('isFullScreen') 
+          const storedFlipState = localStorage.getItem('flipState') as FlipState
+
+        
+          if (storedFlipState) this.flipState = storedFlipState
+          if (storedSidebarLeft) this.sidebarLeftState = storedSidebarLeft
+          if (storedSidebarRight) this.sidebarRightState = storedSidebarRight
+          if (storedHeaderState) this.headerState = storedHeaderState
+          if (storedFooterState) this.footerState = storedFooterState
+          if (storedShowTutorial) this.showTutorial = storedShowTutorial === 'true'
+          if (storedFullScreen) this.isFullScreen = storedFullScreen === 'true'
+          if (storedShowIntro) this.showIntro = storedShowIntro === 'true' 
+        }
+      } catch (error) {
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      }
+    },
+
     toggleFullScreen() {
       this.isFullScreen = !this.isFullScreen;
       this.saveState(); // Optionally, save state to localStorage
@@ -161,6 +219,19 @@ export const useDisplayStore = defineStore('display', {
       }
       this.saveState()
     },
+    setFlipState(newState: FlipState) {
+      // Validate if the new state is one of the allowed flip states
+      const validStates: FlipState[] = ['tutorial', 'main', 'toTutorial', 'toMain'];
+    
+      if (validStates.includes(newState)) {
+        this.flipState = newState;
+        this.saveState(); // Save the state to persist it if needed
+      } else {
+        const errorStore = useErrorStore()
+        errorStore.setError(ErrorType.GENERAL_ERROR,'Invalid flip state provided:'+ newState);
+      }
+    },
+    
 
     completeFlip() {
       // Called when the flip animation completes
@@ -223,7 +294,7 @@ export const useDisplayStore = defineStore('display', {
       this.saveState();
     },
 
-    toggleIntro() { // Re-added toggleIntro method
+    toggleIntro() {
       this.showIntro = !this.showIntro
       this.saveState()
     },
@@ -233,43 +304,6 @@ export const useDisplayStore = defineStore('display', {
       this.saveState()
     },
 
-    initialize() {
-      try {
-        this.loadState()
-        this.updateViewport()
-        window.addEventListener('resize', this.updateViewport)
-        this.isInitialized = true
-      } catch (error) {
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
-    },
-
-    loadState() {
-      try {
-        if (typeof window !== 'undefined' && window.localStorage) {
-          const storedSidebarLeft = localStorage.getItem('sidebarLeftState') as DisplayState
-          const storedSidebarRight = localStorage.getItem('sidebarRightState') as DisplayState
-          const storedHeaderState = localStorage.getItem('headerState') as DisplayState
-          const storedFooterState = localStorage.getItem('footerState') as DisplayState
-          const storedShowTutorial = localStorage.getItem('showTutorial')
-          const storedShowIntro = localStorage.getItem('showIntro') 
-          const storedFlipState = localStorage.getItem('flipState') as FlipState
-
-        
-          if (storedFlipState) this.flipState = storedFlipState
-          if (storedSidebarLeft) this.sidebarLeftState = storedSidebarLeft
-          if (storedSidebarRight) this.sidebarRightState = storedSidebarRight
-          if (storedHeaderState) this.headerState = storedHeaderState
-          if (storedFooterState) this.footerState = storedFooterState
-          if (storedShowTutorial) this.showTutorial = storedShowTutorial === 'true'
-          if (storedShowIntro) this.showIntro = storedShowIntro === 'true' 
-        }
-      } catch (error) {
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
-    },
 
     saveState() {
       try {
@@ -279,6 +313,7 @@ export const useDisplayStore = defineStore('display', {
           localStorage.setItem('headerState', this.headerState)
           localStorage.setItem('footerState', this.footerState)
           localStorage.setItem('showTutorial', String(this.showTutorial))
+          localStorage.setItem('isFullScreenl', String(this.isFullScreen))
           localStorage.setItem('showIntro', String(this.showIntro))
           localStorage.setItem('flipState', this.flipState)
         }

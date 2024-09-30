@@ -13,7 +13,7 @@
     >
       <!-- Front side: Splash Tutorial -->
       <div
-        v-show="isFlipping || displayStore.showTutorial" <!-- Show splash during flip or when selected -->
+        v-show="isFlipping || displayStore.showTutorial" 
         class="flip-card-front"
         @transitionend="onFlipOut('splash')"
       >
@@ -22,7 +22,7 @@
 
       <!-- Back side: NuxtPage content -->
       <div
-        v-show="isFlipping || !displayStore.showTutorial" <!-- Show NuxtPage during flip or when selected -->
+        v-show="isFlipping || !displayStore.showTutorial" 
         class="flip-card-back overflow-y-auto"
         @transitionend="onFlipOut('nuxt')"
       >

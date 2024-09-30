@@ -141,8 +141,8 @@ model ChatExchange {
   Bot               Bot?          @relation(fields: [botId], references: [id])
   userId            Int?
   User              User?         @relation(fields: [userId], references: [id])
-  promptId          Int           
-  Prompt            Prompt        @relation(fields: [promptId], references: [id])
+  promptId          Int?         
+  Prompt            Prompt?        @relation(fields: [promptId], references: [id])
   Reactions         Reaction[]
 }
 

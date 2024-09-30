@@ -56,25 +56,26 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
-import { useUserStore } from '../../../stores/userStore'
+import { useBotStore } from '@/stores/botStore'
+import { useChatStore } from '@/stores/chatStore'
+import { useUserStore } from '@/stores/userStore'
 
-// Define refs and stores
-const config = useRuntimeConfig()
-const userKey = config.public.OPENAI_KEY
-
-interface Message {
-  role: 'user' | 'assistant'
-  content: string
-  avatarImage?: string
-  botName?: string
-  subtitle?: string
-}
-
-const conversations = ref<Message[][]>([])
-const activeConversationIndex = ref<number | null>(null)
+// Store references
 const botStore = useBotStore()
+const chatStore = useChatStore()
 const userStore = useUserStore()
+
+// Get conversations and activeConversationIndex from chatStore
+const conversations = computed(() => chatStore.chatExchanges) // Assuming this holds your conversations
+const activeConversationIndex = ref<number | null>(null) // Could track the active index if needed
+
+// Define state for the message, loading indicators, and current bot
+const message = ref('')
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+const isReplyLoading = ref(false)
+
+// Computed value to get the current bot
 const currentBot = computed(
   () =>
     botStore.currentBot ?? {
@@ -87,50 +88,20 @@ const currentBot = computed(
     },
 )
 
-// Define state for the message and loading indicators
-const message = ref('')
-const isLoading = ref(false)
-const error = ref<string | null>(null)
-const isReplyLoading = ref(false)
-
 // Send message function
 const sendMessage = async () => {
   if (!message.value.trim()) return
   isLoading.value = true
   try {
-    const fullMessage = currentBot.value?.userIntro
-      ? `${currentBot.value.userIntro} ${message.value}`
-      : message.value
-    const res = await fetch('/api/botcafe/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: fullMessage }],
-        stream: false,
-        user_openai_key: userKey,
-      }),
-    })
-    if (!res.ok) throw new Error('Failed to send message')
-    const data = await res.json()
-    conversations.value.push([
-      {
-        role: 'user',
-        content: message.value,
-        avatarImage: userStore.user?.avatarImage ?? undefined,
-      },
-      {
-        role: 'assistant',
-        content: data.choices[0].message.content,
-        avatarImage: currentBot.value?.avatarImage ?? undefined,
-        botName: currentBot.value?.name ?? 'Kind Robot',
-        subtitle: currentBot.value?.subtitle ?? undefined,
-      },
-    ])
-    message.value = ''
+    const userId = userStore.user?.id
+    const botId = botStore.currentBot?.id
+    if (!userId || !botId)
+      throw new Error('User or Bot information is missing.')
+
+    // Use chatStore to handle sending the message
+    await chatStore.addOrUpdateExchange(message.value, userId, botId)
+
+    message.value = '' // Clear input after sending
   } catch (err) {
     console.error(err)
     error.value = 'Failed to send the message. Please try again.'

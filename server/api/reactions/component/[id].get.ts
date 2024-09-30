@@ -1,3 +1,4 @@
+//server/api/reactions/component/[id].get.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'

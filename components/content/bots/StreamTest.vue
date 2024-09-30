@@ -48,19 +48,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
 import { useChatStore } from '../../../stores/chatStore'
 
 const shouldShowMilestoneCheck = ref(false)
-let userKey: string | null = null
+const config = useRuntimeConfig()
+const userKey = config.public.OPENAI_KEY
 const chatStore = useChatStore()
 const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
-
-onMounted(() => {
-  userKey = localStorage.getItem('user_openai_key')
-})
 
 interface Message {
   role: 'user' | 'assistant'

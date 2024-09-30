@@ -305,7 +305,33 @@ export const useReactionStore = defineStore('reactionStore', {
         throw error
       }
     },
+    async editReaction(
+      id: number,
+      reactionData: Reaction,
+    ): Promise<Reaction | null> {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(
+        async () => {
+          const response = await fetch(`/api/reactions/${id}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(reactionData),
+          })
+          if (response.ok) {
+            return await response.json()
+          } else {
+            const errorResponse = await response.json()
+            throw new Error(errorResponse.message)
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to update reaction.',
+      )
+    },
     
+
 
     async deleteReaction(reactionId: number) {
       console.log('Deleting reaction with reactionId:', reactionId)

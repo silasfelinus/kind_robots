@@ -45,7 +45,7 @@ onMounted(async () => {
     await Promise.all([
       botStore.loadStore?.(),
       userStore.initializeUser?.(),
-      artStore.init?.(),
+      artStore.initialize?.(),
       themeStore.initTheme?.(),
       milestoneStore.initializeMilestones?.(),
       pitchStore.initializePitches?.(),

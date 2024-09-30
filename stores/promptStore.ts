@@ -69,6 +69,31 @@ export const usePromptStore = defineStore('promptStore', {
         )
       }
     },
+        // Add a new prompt (general text prompt)
+        async addPrompt(newPrompt: string, userId: number, botId: number) {
+          const errorStore = useErrorStore()
+    
+          try {
+            const response = await fetch('/api/prompts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prompt: newPrompt,
+                userId,
+                botId,
+              }),
+            })
+            if (!response.ok) throw new Error(await response.text())
+            const createdPrompt = await response.json()
+            this.prompts.push(createdPrompt)
+            return createdPrompt
+          } catch (error) {
+            errorStore.setError(
+              ErrorType.NETWORK_ERROR,
+              `Error creating prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            )
+          }
+        },
 
     // Create a new art prompt
     async createPrompt(newPrompt: string) {

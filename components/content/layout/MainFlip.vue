@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full border-accent border-2 rounded-2xl bg-base-300 relative shadow-lg"
+    class="w-full md:border-accent-200 md:border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
     :class="{
       'grid grid-cols-2 gap-4':
@@ -19,7 +19,7 @@
 
     <!-- Flip-card Layout for larger viewports or full-screen mode -->
     <div
-      v-else
+      v-else-if="!displayStore.isLargeViewport || displayStore.isFullScreen"
       class="flip-card-inner"
       :class="{ 'is-flipped': !displayStore.showTutorial }"
       @transitionend="handleTransitionEnd"
@@ -45,7 +45,7 @@
 
     <!-- Two-column layout for large viewports when not in full-screen mode -->
     <div
-      v-if="displayStore.isLargeViewport && !displayStore.isFullScreen"
+      v-else
       class="flex flex-col overflow-y-auto"
       :style="{ height: '100%' }"
     >

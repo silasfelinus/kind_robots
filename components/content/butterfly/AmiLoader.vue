@@ -46,7 +46,7 @@ onMounted(() => {
   
   setTimeout(startFadeOut, 1300) // Fade out the message after 2 seconds
   
-  setTimeout(startButterflyFadeOut, 5000) // Butterflies fade out after 5 seconds
+  setTimeout(startButterflyFadeOut, 10000) // Butterflies fade out after 5 seconds
 })
 
 onUnmounted(() => {

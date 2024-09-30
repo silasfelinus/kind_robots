@@ -38,12 +38,14 @@
       </div>
     </div>
 
-    <!-- Two-column Layout: Only for large viewports and not in full-screen -->
+    <!-- Two-column layout for large viewports and not in full-screen mode -->
     <div v-else class="grid grid-cols-2 gap-4" :style="{ height: '100%' }">
-      <div class="flex flex-col overflow-y-auto">
+      <!-- First column: SplashTutorial -->
+      <div class="flex flex-col overflow-y-auto h-full">
         <splash-tutorial />
       </div>
-      <div class="flex flex-col overflow-y-auto border rounded-2xl">
+      <!-- Second column: NuxtPage -->
+      <div class="flex flex-col overflow-y-auto h-full border rounded-2xl">
         <NuxtPage />
       </div>
     </div>
@@ -58,7 +60,7 @@
     {{ displayStore.showTutorial ? 'Launch' : 'Show Instructions' }}
   </button>
 
-  <!-- Full-Screen Toggle Button for Large Viewports -->
+  <!-- Full Screen Toggle Button for Large Viewports -->
   <button
     v-if="displayStore.isLargeViewport"
     class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"

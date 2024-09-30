@@ -8,9 +8,18 @@
       'flip-card': !displayStore.isLargeViewport || displayStore.isFullScreen,
     }"
   >
-    <!-- Flip-card Layout for small viewports or full-screen mode -->
+    <!-- Simple mode for mobile or if simpleMode is true -->
+    <div v-if="displayStore.isMobileViewport || displayStore.simpleMode">
+      <!-- Show SplashTutorial if in tutorial mode -->
+      <splash-tutorial v-show="displayStore.showTutorial" />
+      
+      <!-- Show NuxtPage if not in tutorial mode -->
+      <NuxtPage v-show="!displayStore.showTutorial" />
+    </div>
+
+    <!-- Flip-card Layout for larger viewports or full-screen mode -->
     <div
-      v-if="!displayStore.isLargeViewport || displayStore.isFullScreen"
+      v-else
       class="flip-card-inner"
       :class="{ 'is-flipped': !displayStore.showTutorial }"
       @transitionend="handleTransitionEnd"
@@ -107,6 +116,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Add a simple fade-in effect */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
+}
+
 /* Flip card container */
 .flip-card {
   width: 100%;

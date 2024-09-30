@@ -9,7 +9,7 @@
     <div class="loading-message">{{ currentMessage }}</div>
 
     <!-- Multiple Butterflies with Animation Delay -->
-    <ami-butterfly v-for="i in butterflyCount" :key="i" />
+    <ami-butterfly v-for="i in butterflyCount" :key="i" :class="{ 'butterfly-fade-out': butterflyFadeOut }" />
   </div>
 </template>
 
@@ -22,10 +22,15 @@ const currentMessage = ref('Building Kind Robots...')
 
 const butterflyCount = ref(20)
 const fadeOut = ref(false)
+const butterflyFadeOut = ref(false) // New state for butterflies' fade-out
 const pageReady = ref(false)
 
 const startFadeOut = () => {
-  fadeOut.value = true
+  fadeOut.value = true // Fades out the message and overlay
+}
+
+const startButterflyFadeOut = () => {
+  butterflyFadeOut.value = true // Fades out butterflies after additional delay
 }
 
 const updateMessage = () => {
@@ -38,7 +43,10 @@ onMounted(() => {
     currentMessage.value = randomLoadMessage()
     intervalId = setInterval(updateMessage, 20 * 50)
   }, 700) // Update the message after a .5 second delay
-  setTimeout(startFadeOut, 1300) // Fade out after 2 seconds
+  
+  setTimeout(startFadeOut, 1300) // Fade out the message after 2 seconds
+  
+  setTimeout(startButterflyFadeOut, 10000) // Butterflies fade out after 5 seconds
 })
 
 onUnmounted(() => {
@@ -47,8 +55,8 @@ onUnmounted(() => {
 
 const handleTransitionEnd = () => {
   if (fadeOut.value) {
-    butterflyCount.value = 0
-    pageReady.value = true
+    pageReady.value = true // Marks the page as ready when message fades out
+    // Butterflies will continue to fly until the butterflyFadeOut kicks in.
   }
 }
 </script>
@@ -78,6 +86,12 @@ const handleTransitionEnd = () => {
   font-size: 24px;
   font-weight: bold;
   text-align: center;
+}
+
+/* Fade-out animation for butterflies */
+.butterfly-fade-out {
+  opacity: 0;
+  transition: opacity 1s;
 }
 
 .nuxt-wrapper {

@@ -18,6 +18,7 @@ interface DisplayStoreState {
   isInitialized: boolean;
   flipState: FlipState;
   isFullScreen: boolean;
+  isMobileViewport: boolean;
 }
 
 export const useDisplayStore = defineStore('display', {
@@ -34,6 +35,7 @@ export const useDisplayStore = defineStore('display', {
     isInitialized: false,
     flipState: 'tutorial',
     isFullScreen: false,
+    isMobileViewport: true,
   }),
 
   getters: {
@@ -191,12 +193,16 @@ export const useDisplayStore = defineStore('display', {
           const width = window.innerWidth
           if (width < 768) {
             this.viewportSize = 'small'
+            this.isMobileViewport = true;
           } else if (width >= 768 && width < 1024) {
             this.viewportSize = 'medium'
+            this.isMobileViewport = false;
           } else if (width >= 1024 && width < 1440) {
             this.viewportSize = 'large'
+            this.isMobileViewport = false;
           } else {
             this.viewportSize = 'extraLarge'
+            this.isMobileViewport = false;
           }
         }
       } catch (error) {

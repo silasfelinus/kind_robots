@@ -85,9 +85,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 // Initialize the display store
 const displayStore = useDisplayStore()
-const mainHeight = computed(
-  () => `calc(var(--vh, 1vh) * ${displayStore.mainVh})`,
-)
+const mainHeight = computed(displayStore.mainVh)
 
 // Track if the flip animation has completed
 const isFlippedComplete = ref(false)
@@ -97,8 +95,17 @@ const handleTransitionEnd = () => {
   isFlippedComplete.value = true
 }
 
+// Function to trigger a forced reflow to fix initial transition issue
+const forceReflow = () => {
+  const element = document.querySelector('.flip-card-inner')
+  if (element) {
+    element.offsetHeight // Trigger reflow by reading the property
+  }
+}
+
 // Function to handle the completion of the flip-out animation
 const onFlipOut = (side: string) => {
+forceReflow()
   if (side === 'splash' && !displayStore.showTutorial) {
     // The tutorial side just finished flipping out, make it invisible
     isFlippedComplete.value = false
@@ -109,10 +116,6 @@ const onFlipOut = (side: string) => {
   }
 }
 
-// Ensure that we always start on the splash tutorial page
-onMounted(() => {
-  displayStore.showTutorial = true // Set to true to always start with splash tutorial
-})
 </script>
 
 <style scoped>

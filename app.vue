@@ -17,9 +17,9 @@
         <nav-links class="hidden sm:flex space-x-4"></nav-links>
       </div>
 
-      <!-- Kind Buttons (Aligned to the right) -->
+      <!-- Kind Buttons (Aligned to the right inside the header) -->
       <div class="flex items-center space-x-2">
-        <kind-buttons></kind-buttons>
+        <kind-buttons class="kind-buttons"></kind-buttons>
       </div>
     </header>
 

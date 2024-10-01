@@ -40,6 +40,8 @@
         :style="{
           height: mainHeight,
           width: isFullScreen ? '100%' : mainWidth,
+          maxHeight: '100%', /* Ensures content respects container's height */
+          maxWidth: '100%',  /* Ensures content respects container's width */
         }"
       >
         <main-content />
@@ -100,21 +102,29 @@ onMounted(async () => {
   display: grid;
   grid-template-rows: auto 1fr auto;
   height: 100vh;
-  overflow: hidden;
+  overflow: hidden; /* Ensures the layout does not overflow */
 }
 
 .content-area {
   display: grid;
   gap: 0;
-  overflow: hidden;
+  overflow: hidden; /* Ensures the content does not overflow its container */
 }
 
 .main-content-overlay {
   overflow-y: auto;
+  max-height: 100%; /* Ensures that content does not overflow its container */
+  max-width: 100%;  /* Ensures that content respects the container's width */
 }
 
 .sidebar-left-overlay,
 .sidebar-right-overlay {
   overflow-y: auto;
+}
+
+.footer-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

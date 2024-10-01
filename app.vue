@@ -36,27 +36,31 @@
       ></kind-sidebar-simple>
 
       <!-- Main content view -->
-      <main class="rounded-2xl bg-base-300 overflow-y-auto p-4">
+      <main class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full">
         <!-- Fullscreen mode: Two-column layout showing both tutorial and page -->
         <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">
-          <SplashTutorial />
-          <NuxtPage />
+          <div class="h-full">
+            <SplashTutorial class="h-full" />
+          </div>
+          <div class="h-full">
+            <NuxtPage class="h-full" />
+          </div>
         </div>
 
         <!-- Single column layout for non-fullscreen modes -->
         <div v-else class="flex justify-center items-center w-full h-full">
-          <div v-if="showTutorial" class="instructions">
-            <SplashTutorial />
+          <div v-if="showTutorial" class="instructions h-full w-full">
+            <SplashTutorial class="h-full w-full" />
           </div>
-          <div v-else class="launch">
-            <NuxtPage />
+          <div v-else class="launch h-full w-full">
+            <NuxtPage class="h-full w-full" />
           </div>
         </div>
       </main>
 
       <!-- Sidebar right -->
       <aside
-        class="overflow-y-auto bg-base-300"
+        class="bg-base-300 h-full"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>
@@ -94,5 +98,23 @@ const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
   grid-template-rows: auto 1fr auto;
   height: 100vh;
   overflow: hidden;
+}
+
+.main-content-overlay,
+.instructions,
+.launch {
+  height: 100%;
+}
+
+.grid-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.grid-cols-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+button:hover {
+  cursor: pointer;
 }
 </style>

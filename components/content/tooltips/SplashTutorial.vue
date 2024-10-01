@@ -11,10 +11,16 @@
       <Icon :name="page.icon" class="object-cover w-full h-full" />
     </div>
 
-    <!-- Main Content Section -->
+    <!-- Under Construction Icon (only visible if page.underConstruction is true) -->
     <div
-      class="flex-1 flex flex-col items-center justify-start space-y-2 overflow-y-auto p-2"
+      v-if="page && page.underConstruction"
+      class="absolute top-2 left-2 z-10 opacity-90 md:w-12 md:h-12 lg:w-16 lg:h-16"
     >
+      <Icon name="construction" class="object-cover w-full h-full text-warning" />
+    </div>
+
+    <!-- Main Content Section -->
+    <div class="flex-1 flex flex-col items-center justify-start space-y-2 overflow-y-auto p-2">
       <!-- Main Image -->
       <img
         v-if="page && page.image"

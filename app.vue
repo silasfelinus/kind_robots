@@ -26,22 +26,25 @@
     <!-- Main content area -->
     <div
       class="grid h-full"
-      :class="{ 'grid-cols-1': isFullScreen, 'lg:grid-cols-2': !isFullScreen }"
+      :class="isFullScreen ? 'grid-cols-1' : 'grid-cols-[auto_1fr_auto]'"
       :style="{ height: mainHeight }"
     >
-      <!-- Sidebar left (based on displayStore width) -->
+      <!-- Sidebar left -->
       <kind-sidebar-simple
         class="overflow-y-auto bg-base-300"
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
       ></kind-sidebar-simple>
 
       <!-- Main content view -->
-      <main
-        class="rounded-2xl bg-base-300 overflow-y-auto"
-        :style="{ height: mainHeight, width: mainWidth }"
-      >
-        <!-- Mobile view: Single column layout -->
-        <div v-if="isMobileViewport" class="flex flex-col w-full h-full">
+      <main class="rounded-2xl bg-base-300 overflow-y-auto p-4">
+        <!-- Fullscreen mode: Two-column layout showing both tutorial and page -->
+        <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">
+          <SplashTutorial />
+          <NuxtPage />
+        </div>
+
+        <!-- Single column layout for non-fullscreen modes -->
+        <div v-else class="flex justify-center items-center w-full h-full">
           <div v-if="showTutorial" class="instructions">
             <SplashTutorial />
           </div>
@@ -49,50 +52,11 @@
             <NuxtPage />
           </div>
         </div>
-
-        <!-- Medium view: Single column centered content -->
-        <div
-          v-else-if="isMediumViewport"
-          class="flex justify-center items-center w-full h-full"
-        >
-          <div v-if="showTutorial" class="tutorial-section">
-            <SplashTutorial />
-          </div>
-          <div v-else class="launch-section">
-            <NuxtPage />
-          </div>
-        </div>
-
-        <!-- Large/Extra-large view: Two-column layout (if not full screen) -->
-        <div
-          v-else-if="isLargeOrMore && !isFullScreen"
-          class="grid grid-cols-2 w-full h-full"
-        >
-          <div class="left-column p-4">
-            <SplashTutorial />
-          </div>
-          <div class="right-column overflow-y-auto p-4">
-            <NuxtPage />
-          </div>
-        </div>
-
-        <!-- Fullscreen view: Full content area -->
-        <div
-          v-else-if="isFullScreen"
-          class="flex justify-center items-center w-full h-full"
-        >
-          <div v-if="showTutorial">
-            <SplashTutorial />
-          </div>
-          <div v-else>
-            <NuxtPage />
-          </div>
-        </div>
       </main>
 
-      <!-- Sidebar right (based on displayStore width) -->
+      <!-- Sidebar right -->
       <aside
-        class="overflow-y-auto"
+        class="overflow-y-auto bg-base-300"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>
@@ -109,24 +73,19 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Access display store
 const displayStore = useDisplayStore()
 
-// Viewport conditions
-const isMobileViewport = computed(() => displayStore.isMobileViewport)
-const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
-const isLargeOrMore = computed(() =>
-  ['large', 'extraLarge'].includes(displayStore.viewportSize),
-)
+// Fullscreen and tutorial state
 const showTutorial = computed(() => displayStore.showTutorial)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 
-// Main height and width calculations based on available space
+// Layout dimensions
+const headerHeight = computed(() => displayStore.headerHeight)
 const mainHeight = computed(() => displayStore.mainHeight)
-const mainWidth = computed(() => displayStore.mainWidth)
+const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const headerHeight = computed(() => displayStore.headerHeight)
-const footerHeight = computed(() => displayStore.footerHeight)
 </script>
 
 <style scoped>
@@ -135,9 +94,5 @@ const footerHeight = computed(() => displayStore.footerHeight)
   grid-template-rows: auto 1fr auto;
   height: 100vh;
   overflow: hidden;
-}
-
-button:hover {
-  cursor: pointer;
 }
 </style>

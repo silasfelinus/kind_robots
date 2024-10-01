@@ -1,13 +1,15 @@
 <template>
-  <div class="animation-tester-container">
-    <h2 class="text-2xl font-bold mb-4">Animation Tester</h2>
+  <div
+    class="animation-tester-container bg-base-200 p-8 rounded-lg max-w-lg mx-auto"
+  >
+    <h2 class="text-4xl font-bold mb-6 text-primary">Animation Tester</h2>
 
     <!-- Buttons to trigger specific animations -->
     <div class="flex flex-col space-y-4">
       <button
         v-for="effect in effects"
         :key="effect.id"
-        class="btn btn-primary"
+        class="btn bg-secondary hover:bg-secondary-focus text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 active:scale-95"
         @click="startAnimation(effect.id)"
       >
         Start {{ effect.label }} Animation
@@ -15,21 +17,27 @@
     </div>
 
     <!-- Button to start a random animation -->
-    <div class="mt-4">
-      <button class="btn btn-secondary" @click="startRandomAnimation">
+    <div class="mt-6">
+      <button
+        class="btn bg-accent hover:bg-accent-focus text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 active:scale-95"
+        @click="startRandomAnimation"
+      >
         Start Random Animation
       </button>
     </div>
 
     <!-- Button to stop the animation -->
-    <div class="mt-4">
-      <button class="btn btn-danger" @click="stopAnimation">
+    <div class="mt-6">
+      <button
+        class="btn bg-error hover:bg-error-focus text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 active:scale-95"
+        @click="stopAnimation"
+      >
         Stop Animation
       </button>
     </div>
 
     <!-- Display any errors encountered -->
-    <div v-if="errorMessage" class="mt-4 text-red-500 text-sm">
+    <div v-if="errorMessage" class="mt-6 text-error text-lg font-semibold">
       {{ errorMessage }}
     </div>
   </div>
@@ -115,6 +123,7 @@ const reportError = (contextMessage: string, error: unknown) => {
 </script>
 
 <style scoped>
+/* Adding global spacing for buttons and text, and utility classes */
 .animation-tester-container {
   padding: 2rem;
   background-color: var(--bg-base-200);
@@ -123,35 +132,12 @@ const reportError = (contextMessage: string, error: unknown) => {
   margin: auto;
 }
 
-/* Tailwind or DaisyUI utility classes for buttons */
+.text-error {
+  color: var(--error);
+}
+
+/* Additional classes for hover and button interactions using DaisyUI and Tailwind */
 .btn {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 0.375rem;
-}
-
-.btn-primary {
-  background-color: var(--bg-primary);
-  color: white;
-}
-
-.btn-secondary {
-  background-color: var(--bg-secondary);
-  color: white;
-}
-
-.btn-danger {
-  background-color: var(--bg-warning);
-  color: white;
-}
-
-/* Error message styling */
-.text-red-500 {
-  color: #f56565;
-}
-
-.text-sm {
-  font-size: 0.875rem;
+  @apply py-2 px-4 font-bold rounded-lg transition-transform transform hover:scale-105 active:scale-95;
 }
 </style>

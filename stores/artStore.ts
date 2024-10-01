@@ -1,8 +1,28 @@
 import { defineStore } from 'pinia'
 import type { Art, Reaction, ArtImage, Tag } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
+import { usePromptStore } from '@/stores/promptStore'
+import { useUserStore } from '@/stores/userStore'
 
 const isClient = typeof window !== 'undefined'; // Check if running in a browser environment
+
+export interface GenerateArtData {
+  title?: string;
+  promptString: string;
+  userId?: number;
+  pitchId?: number;
+  galleryId?: number;
+  channelId?: number;
+  checkpoint?: string;
+  sampler?: string;
+  steps?: number;
+  designer?: string;
+  cfg?: number;
+  cfgHalf?: boolean;
+  isMature?: boolean;
+  isPublic?: boolean;
+  pitch?: string;
+}
 
 export const useArtStore = defineStore({
   id: 'artStore',
@@ -88,6 +108,7 @@ export const useArtStore = defineStore({
       );
     },
 
+    // Fetch all art entries
     async fetchAllArt(): Promise<void> {
       const errorStore = useErrorStore();
       return errorStore.handleError(
@@ -111,13 +132,16 @@ export const useArtStore = defineStore({
       );
     },
 
+    // Select a specific art piece by ID
     selectArt(artId: number) {
       const foundArt = this.art.find((art: Art) => art.id === artId)
       this.currentArt = foundArt || null
       if (!foundArt) {
-        console.warn(`Art with id ${artId} not found.`)
+        console.warn(`Art with id ${artId} not found.`);
       }
     },
+
+    // Fetch art by user ID
     async fetchArtByUserId(userId: number): Promise<void> {
       const errorStore = useErrorStore();
       try {
@@ -135,8 +159,6 @@ export const useArtStore = defineStore({
         );
       }
     },
-
-
 
     // Add an art piece to the user's collection
     async addArtToCollection(userId: number, artId: number): Promise<void> {
@@ -226,14 +248,11 @@ export const useArtStore = defineStore({
           }
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to delete art.',
+        'Failed to delete art.'
       );
     },
 
-    getArtByPitchId(pitchId: number): Art[] {
-      return this.art.filter((art: Art) => art.pitchId === pitchId)
-    },
-
+    // Fetch art by ID
     async fetchArtById(id: number): Promise<Art | null> {
       const errorStore = useErrorStore();
       return errorStore.handleError(
@@ -249,46 +268,60 @@ export const useArtStore = defineStore({
         'Failed to fetch art by ID.',
       );
     },
+       // Initialize the artStore and load data from localStorage if available
+       extractPitch(promptString: string): string {
+        return promptString.split(',')[0].trim() || 'Untitled Pitch';
+      },
 
     // Validate the prompt string for invalid characters or patterns
-const validatePromptString = (prompt: string): boolean => {
-  // Simple validation: Ensure the prompt is not empty and doesn't contain special characters.
-  const validPattern = /^[a-zA-Z0-9 ,]+$/; // Adjust the pattern as necessary
-  return validPattern.test(prompt);
-}
-
-// Generate art based on the prompt
-const generateArt = async () => {
-  const pitch = extractPitch(promptStore.promptField);
-  
-  // Log the prompt and pitch for debugging
-  console.log("Generating art with prompt:", promptStore.promptField);
-  console.log("Using pitch:", pitch);
-
-  // Validate the prompt before proceeding
-  if (!validatePromptString(promptStore.promptField)) {
-    console.error("Invalid prompt string:", promptStore.promptField);
-    errorStore.setError(ErrorType.VALIDATION_ERROR, "Invalid characters in prompt.");
-    return;
-  }
-
-  await errorStore.handleError(
-    async () => {
-      const result = await artStore.generateArt({
-        promptString: promptStore.promptField,
-        pitch: pitch, // Include pitch
-        userId: 10, // Example user ID
-      });
-
-      if (!result.success) {
-        throw new Error(result.message || 'Unknown error occurred.');
-      }
+    validatePromptString(prompt: string): boolean {
+      const validPattern = /^[a-zA-Z0-9 ,]+$/; // Adjust the pattern as necessary
+      return validPattern.test(prompt);
     },
-    ErrorType.GENERAL_ERROR,
-    'Failed to generate art.',
-  );
-},
+
+    // Generate art based on the prompt
+    async generateArt(): Promise<{ success: boolean; message?: string; newArt?: Art }> {
+      const errorStore = useErrorStore();
+      const userStore = useUserStore(); // Get the user store
+      const promptStore = usePromptStore(); // Get the prompt store
+
+      const pitch = this.extractPitch(promptStore.promptField); // Extract pitch
+
+      // Validate the prompt before proceeding
+      if (!this.validatePromptString(promptStore.promptField)) {
+        errorStore.setError(ErrorType.VALIDATION_ERROR, 'Invalid characters in prompt.');
+        return { success: false, message: 'Invalid prompt' };
+      }
+
+      return errorStore.handleError(
+        async () => {
+          const data: GenerateArtData = {
+            promptString: promptStore.promptField,
+            pitch,
+            userId: userStore.user?.id, // Use the user ID from userStore
+          };
+
+          const response = await fetch('/api/art/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            return { success: true, newArt: result.art };
+          } else {
+            const errorResponse = await response.json();
+            return { success: false, message: errorResponse.message };
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to generate art.'
+      );
+    },
   },
 });
 
-export type { Art, ArtImage }
+export type { Art, ArtImage };

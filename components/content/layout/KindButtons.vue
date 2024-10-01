@@ -26,7 +26,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 
 const fullScreenButtonText = computed(() =>
-  displayStore.isFullScreen ? 'Show Two Columns' : 'Show Full Screen',
+  displayStore.isFullScreen ? '1 Column' : '2 Columns',
 )
 
 const showTutorial = computed(() => displayStore.showTutorial)

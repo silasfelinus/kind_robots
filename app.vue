@@ -17,7 +17,7 @@
         <nav-links class="hidden sm:flex space-x-4"></nav-links>
       </div>
 
-      <!-- Kind Buttons (Fullscreen/Two-column and Tutorial/NuxtPage) -->
+      <!-- Kind Buttons -->
       <kind-buttons></kind-buttons>
     </header>
 

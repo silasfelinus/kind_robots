@@ -11,7 +11,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, resolveComponent } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
+
+// Fetch the display store
+const displayStore = useDisplayStore()
 
 type EffectId =
   | 'bubble-effect'
@@ -27,7 +31,17 @@ const componentsMap = {
   'butterfly-animation': resolveComponent('LazyButterflyAnimation'),
 }
 
-// Effect data, each with a unique ID, label, icon, tooltip, and active state
+// Watch for changes in the isAnimating state and ensure the active animation is up to date
+watch(
+  () => displayStore.currentAnimation,
+  (newAnimation) => {
+    effects.value.forEach((effect) => {
+      effect.isActive = effect.id === newAnimation && displayStore.isAnimating
+    })
+  },
+)
+
+// Effect data, each with a unique ID, label, and active state
 const effects = ref<Array<{ id: EffectId; label: string; isActive: boolean }>>([
   {
     id: 'fizzy-bubbles',

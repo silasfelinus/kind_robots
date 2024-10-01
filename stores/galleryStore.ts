@@ -29,6 +29,7 @@ export const useGalleryStore = defineStore({
       return state.currentImage ? state.currentImage : null
     },
 
+
     randomGallery(state: GalleryState): Gallery | null {
       const otherGalleries = state.galleries.filter(
         (g) => g.name !== state.currentGallery?.name,

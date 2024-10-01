@@ -15,6 +15,7 @@ export const useBotStore = defineStore({
     _initialized: false,
     page: 1,
     pageSize: 100,
+    botPrompt: '',  
   }),
 
   actions: {
@@ -32,6 +33,10 @@ export const useBotStore = defineStore({
       }
       this.$patch({})
     },
+        // Action to reset botPrompt
+        resetBotPrompt() {
+          this.botPrompt = '';
+        },
 
     async fetchBots(): Promise<void> {
       const errorStore = useErrorStore()

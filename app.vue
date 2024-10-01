@@ -1,6 +1,7 @@
 <template>
   <div class="main-layout absolute inset-0 bg-base-300">
     <kind-loader></kind-loader>
+    <animation-loader></animation-loader>
 
     <!-- Header with Sidebar Toggle, Nav Links, and Kind Buttons -->
     <header

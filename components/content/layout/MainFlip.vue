@@ -1,11 +1,28 @@
 <template>
-  <div class="w-full md:border-accent-200 md:border-2 rounded-2xl bg-base-300 relative shadow-lg" :style="{ height: mainHeight }">
-    <!-- Handle full-screen or non-large viewports with flip-card layout -->
-    <div v-if="!displayStore.isLargeViewport || displayStore.isFullScreen" class="flip-card-inner" :class="{ 'is-flipped': !displayStore.showTutorial }" @transitionend="handleTransitionEnd">
-      <div class="flip-card-front" :class="{ invisible: !displayStore.showTutorial && !isFlippedComplete }">
+  <div
+    class="w-full md:border-accent-200 md:border-2 rounded-2xl bg-base-300 relative shadow-lg"
+    :style="{ height: mainHeight }"
+  >
+    <!-- Flip-card Layout: For full-screen mode or non-large viewports -->
+    <div
+      v-if="!displayStore.isLargeViewport || displayStore.isFullScreen"
+      class="flip-card-inner"
+      :class="{ 'is-flipped': !displayStore.showTutorial }"
+      @transitionend="handleTransitionEnd"
+    >
+      <div
+        class="flip-card-front"
+        :class="{ invisible: !displayStore.showTutorial && !isFlippedComplete }"
+        @transitionend="onFlipOut('splash')"
+      >
         <splash-tutorial />
       </div>
-      <div class="flip-card-back overflow-y-auto" :class="{ invisible: displayStore.showTutorial && !isFlippedComplete }">
+
+      <div
+        class="flip-card-back overflow-y-auto"
+        :class="{ invisible: displayStore.showTutorial && !isFlippedComplete }"
+        @transitionend="onFlipOut('nuxt')"
+      >
         <NuxtPage />
       </div>
     </div>
@@ -20,22 +37,21 @@
       </div>
     </div>
   </div>
-
-  <!-- Full-Screen Control Button (optional) -->
-  <button v-if="displayStore.isFullScreen" class="bg-secondary text-base-100 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 fixed bottom-4 right-4 p-3" @click="displayStore.showTutorial = !displayStore.showTutorial">
-    {{ displayStore.showTutorial ? 'Launch' : 'Show Instructions' }}
-  </button>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Initialize the display store
 const displayStore = useDisplayStore()
 const mainHeight = computed(() => displayStore.mainHeight)
+
+// Track if the flip animation has completed
 const isFlippedComplete = ref(false)
 
 const handleTransitionEnd = () => {
+  // Allow the new side to become interactive after the flip completes
   isFlippedComplete.value = true
 }
 
@@ -48,16 +64,13 @@ const onFlipOut = (side: string) => {
 }
 </script>
 
-
-
 <style scoped>
 /* Add a simple fade-in effect */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter,
-.fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
   opacity: 0;
 }
 

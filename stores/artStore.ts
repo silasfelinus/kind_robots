@@ -40,7 +40,7 @@ export const useArtStore = defineStore({
   }),
   actions: {
     // Initialize the artStore and load data from localStorage if available
-    async initialize(userId: number) {
+    async initialize() {
       const errorStore = useErrorStore();
 
       if (this.isInitialized) return;
@@ -53,6 +53,8 @@ export const useArtStore = defineStore({
           if (storedArt) this.art = JSON.parse(storedArt);
           if (storedCollectedArt) this.collectedArt = JSON.parse(storedCollectedArt);
         }
+        const userStore = useUserStore()
+        const userId = userStore.user?.id || 10
         await this.fetchCollectedArt(userId);
         if (this.art.length === 0) await this.fetchAllArt();
         this.isInitialized = true;

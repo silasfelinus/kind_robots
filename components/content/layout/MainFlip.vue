@@ -1,5 +1,5 @@
 <template>
-  <div :class="viewportClass">
+  <div>
     <!-- For small viewports, display only one section -->
     <div v-if="isMobileViewport" class="single-column">
       <div v-if="showTutorial" class="instructions">
@@ -12,7 +12,10 @@
 
     <!-- For medium viewports, show flip animation -->
     <div v-if="viewportSize === 'medium'" class="flip-card">
-      <div v-if="flipState === 'tutorial' || flipState === 'toTutorial'" class="flip-side splash">
+      <div
+        v-if="flipState === 'tutorial' || flipState === 'toTutorial'"
+        class="flip-side splash"
+      >
         <SplashTutorial />
       </div>
       <div v-else class="flip-side nuxt-page">
@@ -36,30 +39,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useDisplayStore } from '@/stores/displayStore';
-
+import { computed } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
 
 // Get access to displayStore
-const displayStore = useDisplayStore();
+const displayStore = useDisplayStore()
 const {
   flipState,
   isMobileViewport,
   viewportSize,
   isLargeViewport,
   isFullScreen,
-  showTutorial
-} = displayStore;
+  showTutorial,
+} = displayStore
 
 // Computed value for button text based on full-screen toggle
 const fullScreenButtonText = computed(() =>
-  displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen'
-);
+  displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen',
+)
 
 // Toggle full screen mode
 const toggleFullScreen = () => {
-  displayStore.toggleFullScreen();
-};
+  displayStore.toggleFullScreen()
+}
 </script>
 
 <style scoped>
@@ -76,7 +78,8 @@ const toggleFullScreen = () => {
   height: 100%;
 }
 
-.left-column, .right-column {
+.left-column,
+.right-column {
   padding: 1rem;
 }
 

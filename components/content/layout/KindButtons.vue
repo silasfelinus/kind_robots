@@ -8,8 +8,9 @@
       {{ fullScreenButtonText }}
     </button>
 
-    <!-- Tutorial / NuxtPage Toggle -->
+    <!-- Tutorial / NuxtPage Toggle Don't show if we're already showing both -->
     <button
+      v-if="!displayStore.isFullScreen"
       class="bg-accent text-base-200 rounded-lg shadow-md hover:bg-accent-focus transition duration-300 p-2"
       @click="toggleTutorial"
     >

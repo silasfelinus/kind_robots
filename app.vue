@@ -54,7 +54,18 @@
   >
     {{ fullScreenButtonText }}
   </button>
+
+  <!-- Additional Buttons (Example for handling overlap) -->
+  <!-- Adjust bottom and right positioning to avoid overlap -->
+  <button
+    class="additional-btn fixed bottom-20 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-2"
+    @click="someOtherAction"
+  >
+    Other Action
+  </button>
+
 </template>
+
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
@@ -135,5 +146,24 @@ onMounted(async () => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Adjust button positioning to prevent overlap */
+.flip-btn {
+  bottom: 4rem; /* Adjust bottom margin to avoid overlap with other buttons */
+}
+
+.additional-btn {
+  bottom: 1rem; /* Positioned slightly above the main fullscreen button */
+}
+
+button {
+  position: fixed;
+  z-index: 50;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  cursor: pointer;
 }
 </style>

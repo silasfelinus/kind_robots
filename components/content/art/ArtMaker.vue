@@ -14,14 +14,15 @@
     </div>
 
     <!-- Generate Art Button -->
-    <button
-      class="bg-primary rounded-2xl p-3 text-white w-full hover:bg-primary-dark disabled:bg-gray-400"
-      :disabled="loading || !promptStore.promptField"
-      @click="generateArt"
-    >
-      <span v-if="loading">🖌️ Making Art...</span>
-      <span v-else>🖌️ Create Art</span>
-    </button>
+<button
+  class="bg-primary text-white rounded-2xl p-3 w-full transition-colors duration-300 ease-in-out 
+         hover:bg-info active:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark disabled:bg-gray-400"
+  :disabled="loading || !promptStore.promptField"
+  @click="generateArt"
+>
+  <span v-if="loading">🖌️ Making Art...</span>
+  <span v-else>🖌️ Create Art</span>
+</button>
 
     <!-- Error Message -->
     <p v-if="error" class="text-red-500 mt-4">{{ error }}</p>

@@ -38,10 +38,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useDisplayStore } from '@/stores/displayStore';
-import SplashScreen from '@/components/SplashScreen.vue';
-import InstructionsScreen from '@/components/InstructionsScreen.vue';
-import LaunchScreen from '@/components/LaunchScreen.vue';
-import NuxtPage from '@/components/NuxtPage.vue';
+
 
 // Manage state
 const displayStore = useDisplayStore();

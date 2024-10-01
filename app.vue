@@ -111,8 +111,8 @@ onMounted(async () => {
 .content-area {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0; /* No gap to respect height boundaries */
-  overflow: hidden; /* Prevents double scrollbars */
+  gap: 0;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -122,35 +122,18 @@ onMounted(async () => {
   }
 }
 
-.header-overlay,
-.sidebar-left-overlay,
-.sidebar-right-overlay,
-.main-content-overlay,
-.footer-overlay {
-  position: relative;
-  padding: 0;
-}
-
 .main-content-overlay {
-  overflow-y: auto; /* Ensure scrolling only within the main content */
+  overflow-y: auto;
 }
 
 .sidebar-left-overlay,
 .sidebar-right-overlay {
-  overflow-y: auto; /* Allow scrolling within sidebars if content overflows */
+  overflow-y: auto;
 }
 
 .footer-overlay {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-/* Flip button styling */
-.flip-btn {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  z-index: 50;
 }
 </style>

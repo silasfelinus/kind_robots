@@ -24,7 +24,7 @@ interface DisplayStoreState {
 }
 
 // Define the valid effect IDs
-type EffectId = 'bubble-effect' | 'fizzy-bubbles' | 'rain-effect' | 'butterfly-animation';
+export type EffectId = 'bubble-effect' | 'fizzy-bubbles' | 'rain-effect' | 'butterfly-animation';
 
 
 export const useDisplayStore = defineStore('display', {

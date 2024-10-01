@@ -43,42 +43,21 @@ export const useArtStore = defineStore({
     async initialize(userId: number) {
       const errorStore = useErrorStore();
 
-      // Skip if already initialized
       if (this.isInitialized) return;
 
       this.loading = true;
-
       try {
-        // Check if we're running in a browser environment
         if (isClient) {
-          // Load art from localStorage if available
           const storedArt = localStorage.getItem('art');
-          if (storedArt) {
-            this.art = JSON.parse(storedArt);
-          }
-
-          // Load collected art from localStorage if available
           const storedCollectedArt = localStorage.getItem('collectedArt');
-          if (storedCollectedArt) {
-            this.collectedArt = JSON.parse(storedCollectedArt);
-          }
+          if (storedArt) this.art = JSON.parse(storedArt);
+          if (storedCollectedArt) this.collectedArt = JSON.parse(storedCollectedArt);
         }
-
-        // Fetch user's collected art from API
         await this.fetchCollectedArt(userId);
-
-        // Fetch all art if not loaded from localStorage
-        if (this.art.length === 0) {
-          await this.fetchAllArt();
-        }
-
-        this.isInitialized = true; // Mark the store as initialized
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          errorStore.setError(ErrorType.STORE_ERROR, error.message);
-        } else {
-          errorStore.setError(ErrorType.STORE_ERROR, 'An error occurred during initialization.');
-        }
+        if (this.art.length === 0) await this.fetchAllArt();
+        this.isInitialized = true;
+      } catch (error) {
+        errorStore.setError(ErrorType.STORE_ERROR, error instanceof Error ? error.message : 'Initialization failed.');
       } finally {
         this.loading = false;
       }
@@ -280,32 +259,27 @@ export const useArtStore = defineStore({
     },
 
     // Generate art based on the prompt
-    async generateArt(): Promise<{ success: boolean; message?: string; newArt?: Art }> {
+    async generateArt(): Promise<{ success: boolean; message?: string }> {
+      const promptStore = usePromptStore();
+      const userStore = useUserStore();
       const errorStore = useErrorStore();
-      const userStore = useUserStore(); // Get the user store
-      const promptStore = usePromptStore(); // Get the prompt store
 
-      const pitch = this.extractPitch(promptStore.promptField); // Extract pitch
-
-      // Validate the prompt before proceeding
+      const pitch = this.extractPitch(promptStore.promptField);
       if (!this.validatePromptString(promptStore.promptField)) {
-        errorStore.setError(ErrorType.VALIDATION_ERROR, 'Invalid characters in prompt.');
         return { success: false, message: 'Invalid prompt' };
       }
 
       return errorStore.handleError(
         async () => {
-          const data: GenerateArtData = {
+          const data = {
             promptString: promptStore.promptField,
             pitch,
-            userId: userStore.user?.id, // Use the user ID from userStore
+            userId: userStore.user?.id,
           };
 
           const response = await fetch('/api/art/generate', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
           });
 

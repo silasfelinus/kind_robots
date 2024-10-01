@@ -10,12 +10,22 @@
       </div>
     </div>
 
+    <!-- For medium viewports, display centered content -->
+    <div v-if="isMediumViewport" class="center-content">
+      <div class="tutorial-section" v-if="showTutorial">
+        <SplashTutorial />
+      </div>
+      <div v-else class="launch-section">
+        <NuxtPage />
+      </div>
+    </div>
+
     <!-- For large viewports, display two columns -->
     <div v-if="isLargeViewport && !isFullScreen" class="two-column">
       <div class="left-column">
         <SplashTutorial />
       </div>
-      <div class="right-column">
+      <div class="right-column overflow-y-auto">
         <NuxtPage />
       </div>
     </div>
@@ -61,6 +71,7 @@ const displayStore = useDisplayStore()
 
 // Viewport conditions
 const isMobileViewport = computed(() => displayStore.isMobileViewport)
+const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
 const isLargeViewport = computed(() => displayStore.isLargeViewport)
 const showTutorial = computed(() => displayStore.showTutorial)
 const isFullScreen = computed(() => displayStore.isFullScreen)
@@ -97,10 +108,27 @@ const toggleTutorial = () => {
   height: 100vh;
 }
 
+.center-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
 .two-column {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 100%;
+  height: 100vh;
+  overflow: hidden; /* Prevent the entire page from scrolling */
+}
+
+.left-column {
+  padding: 1rem;
+}
+
+.right-column {
+  padding: 1rem;
+  overflow-y: auto; /* Allow scrolling only within the NuxtPage */
 }
 
 .fullscreen-content {
@@ -108,11 +136,6 @@ const toggleTutorial = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.left-column,
-.right-column {
-  padding: 1rem;
 }
 
 .full-screen-toggle {

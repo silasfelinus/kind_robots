@@ -19,7 +19,13 @@ interface DisplayStoreState {
   flipState: FlipState;
   isFullScreen: boolean;
   isMobileViewport: boolean;
+  isAnimating: boolean;
+  currentAnimation: string;
 }
+
+// Define the valid effect IDs
+type EffectId = 'bubble-effect' | 'fizzy-bubbles' | 'rain-effect' | 'butterfly-animation';
+
 
 export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
@@ -36,6 +42,8 @@ export const useDisplayStore = defineStore('display', {
     flipState: 'tutorial',
     isFullScreen: false,
     isMobileViewport: true,
+    isAnimating: false,
+    currentAnimation: '',
   }),
 
   getters: {
@@ -109,7 +117,7 @@ export const useDisplayStore = defineStore('display', {
     sidebarRightWidth(): string {
       return `${this.sidebarRightVw}vw`;
     },
-gridColumns() {
+    gridColumns() {
       if (this.isFullScreen) {
         return `${this.sidebarLeftVw}vw calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) ${this.sidebarRightVw}vw`;
       } else {
@@ -179,6 +187,25 @@ gridColumns() {
       this.isFullScreen = !this.isFullScreen;
       this.saveState(); // Optionally, save state to localStorage
     },
+ // Function to toggle animation by ID
+ toggleAnimationById(animationId: EffectId) {
+  this.isAnimating = true;
+  this.currentAnimation = animationId;
+},
+
+// Function to toggle a random animation
+toggleRandomAnimation() {
+  const animations: EffectId[] = ['bubble-effect', 'fizzy-bubbles', 'rain-effect', 'butterfly-animation'];
+  const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+  this.isAnimating = true;
+  this.currentAnimation = randomAnimation;
+},
+
+// Function to stop the animation
+stopAnimation() {
+  this.isAnimating = false;
+  this.currentAnimation = '';
+},
     updateViewport() {
       try {
         this.setCustomVh(); 

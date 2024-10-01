@@ -65,8 +65,8 @@
           </div>
         </div>
 
-        <!-- Medium view: Centered content -->
-        <div v-if="isMediumViewport" class="flex justify-center items-center w-full h-full">
+        <!-- Medium view: Single column centered content -->
+        <div v-else-if="isMediumViewport" class="flex justify-center items-center w-full h-full">
           <div v-if="showTutorial" class="tutorial-section">
             <SplashTutorial />
           </div>
@@ -76,7 +76,7 @@
         </div>
 
         <!-- Large view: Two-column layout -->
-        <div v-if="isLargeViewport && !isFullScreen" class="grid grid-cols-[auto_1fr] w-full h-full">
+        <div v-else-if="isLargeViewport && !isFullScreen" class="grid grid-cols-[auto_1fr] w-full h-full">
           <div class="left-column p-4" :style="{ width: sidebarLeftWidth }">
             <SplashTutorial />
           </div>
@@ -86,7 +86,7 @@
         </div>
 
         <!-- Fullscreen view: Full content area -->
-        <div v-if="isFullScreen" class="flex justify-center items-center w-full h-full">
+        <div v-else-if="isFullScreen" class="flex justify-center items-center w-full h-full">
           <div v-if="showTutorial">
             <SplashTutorial />
           </div>
@@ -161,7 +161,6 @@ const toggleTutorial = () => {
   overflow-y: auto;
 }
 
-/* Fullscreen view */
 button {
   pointer-events: auto;
   transition: background-color 0.3s ease;

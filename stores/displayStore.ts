@@ -111,14 +111,18 @@ export const useDisplayStore = defineStore('display', {
     },
     
     gridColumns(): string {
-      if (this.isFullScreen) {
-        // Full-screen layout: sidebars still present, but main content spans the available space.
+      if (this.isLargeViewport && !this.isFullScreen) {
+        // Two-column layout: No sidebars, just two equal columns for content.
+        return 'repeat(2, 1fr)';
+      } else if (this.isFullScreen) {
+        // Full-screen layout with sidebars.
         return `${this.sidebarLeftVw}vw calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) ${this.sidebarRightVw}vw`;
       } else {
-        // Split layout: sidebars and main content divided into two sections.
-        return `${this.sidebarLeftVw}vw calc((100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) / 2) calc((100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) / 2) ${this.sidebarRightVw}vw`;
+        // Default layout logic (for mobile or non-large viewports).
+        return `100%`;  // Full width if not in large viewport or in full-screen
       }
     },
+    
     
   
     

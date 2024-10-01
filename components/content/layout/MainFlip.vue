@@ -1,10 +1,12 @@
 <template>
   <div
     class="w-full md:border-accent-200 md:border-2 rounded-2xl bg-base-300 relative shadow-lg"
-    :style="{ height: mainHeight }"
+    :style="{
+      height: mainHeight,
+      gridTemplateColumns: displayStore.gridColumns,
+    }"
     :class="{
-      'grid grid-cols-2 gap-4':
-        displayStore.isLargeViewport && !displayStore.isFullScreen,
+      'grid gap-4': displayStore.isLargeViewport && !displayStore.isFullScreen,
       'flip-card': !displayStore.isLargeViewport || displayStore.isFullScreen,
     }"
   >
@@ -39,7 +41,7 @@
     </div>
 
     <!-- Two-column layout for large viewports and not in full-screen mode -->
-    <div v-else class="grid grid-cols-2 gap-4" :style="{ height: '100%' }">
+    <div v-else class="grid gap-4" :style="{ height: '100%' }">
       <!-- First column: SplashTutorial -->
       <div class="flex flex-col overflow-y-auto h-full">
         <splash-tutorial />
@@ -50,24 +52,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Full-Screen Control Button -->
-  <button
-    v-if="displayStore.isFullScreen"
-    class="bg-secondary text-base-100 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 fixed bottom-4 right-4 p-3"
-    @click="displayStore.showTutorial = !displayStore.showTutorial"
-  >
-    {{ displayStore.showTutorial ? 'Launch' : 'Show Instructions' }}
-  </button>
-
-  <!-- Full Screen Toggle Button for Large Viewports -->
-  <button
-    v-if="displayStore.isLargeViewport"
-    class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"
-    @click="displayStore.toggleFullScreen"
-  >
-    {{ displayStore.isFullScreen ? 'Exit Full Screen' : 'Enter Full Screen' }}
-  </button>
 </template>
 
 <script setup lang="ts">

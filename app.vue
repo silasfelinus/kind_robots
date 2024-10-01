@@ -4,7 +4,7 @@
 
     <!-- Header with Sidebar Toggle, Nav Links, and Kind Buttons -->
     <header
-      class="bg-base-300 flex items-center justify-between w-full p-2"
+      class="bg-base-300 flex items-center justify-between w-full p-2 h-auto"
       :style="{ height: headerHeight }"
     >
       <!-- Sidebar Toggle -->
@@ -18,41 +18,23 @@
       </div>
 
       <!-- Kind Buttons (Fullscreen/Two-column and Tutorial/NuxtPage) -->
-      <div class="flex items-center space-x-2">
-        <!-- Fullscreen / Two-column Toggle -->
-        <button
-          class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 p-2"
-          @click="toggleFullScreen"
-        >
-          {{ fullScreenButtonText }}
-        </button>
-
-        <!-- Tutorial / NuxtPage Toggle -->
-        <button
-          class="bg-accent text-base-200 rounded-lg shadow-md hover:bg-accent-focus transition duration-300 p-2"
-          @click="toggleTutorial"
-        >
-          Show {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}
-        </button>
-      </div>
+      <kind-buttons></kind-buttons>
     </header>
 
     <!-- Main content area -->
-    <div
-      class="grid"
-      :class="isFullScreen ? 'grid-cols-1' : 'lg:grid-cols-2'"
-      :style="{ height: mainHeight }"
-    >
-      <!-- Sidebar left -->
+    <div class="grid h-full" :class="{ 'grid-cols-1': isFullScreen, 'lg:grid-cols-2': !isFullScreen }" :style="{ height: mainHeight }">
+      <!-- Sidebar left (based on displayStore width) -->
       <kind-sidebar-simple
+        v-if="sidebarLeftWidth > 0"
         class="overflow-y-auto bg-base-300"
+        :class="{ hidden: sidebarLeftWidth === 0 }"
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
       ></kind-sidebar-simple>
 
       <!-- Main content view -->
       <main
         class="rounded-2xl bg-base-300 overflow-y-auto"
-        :style="{ height: mainHeight, width: isFullScreen ? '100%' : mainWidth }"
+        :style="{ height: mainHeight, width: mainWidth }"
       >
         <!-- Mobile view: Single column layout -->
         <div v-if="isMobileViewport" class="flex flex-col w-full h-full">
@@ -74,8 +56,8 @@
           </div>
         </div>
 
-        <!-- Large view: Two-column layout (if not full screen) -->
-        <div v-else-if="isLargeViewport && !isFullScreen" class="grid grid-cols-2 w-full h-full">
+        <!-- Large/Extra-large view: Two-column layout (if not full screen) -->
+        <div v-else-if="isLargeOrMore && !isFullScreen" class="grid grid-cols-2 w-full h-full">
           <div class="left-column p-4">
             <SplashTutorial />
           </div>
@@ -95,9 +77,11 @@
         </div>
       </main>
 
-      <!-- Sidebar right -->
+      <!-- Sidebar right (based on displayStore width) -->
       <aside
+        v-if="sidebarRightWidth > 0"
         class="overflow-y-auto"
+        :class="{ hidden: sidebarRightWidth === 0 }"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>
@@ -116,33 +100,26 @@ const displayStore = useDisplayStore()
 // Viewport conditions
 const isMobileViewport = computed(() => displayStore.isMobileViewport)
 const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
-const isLargeViewport = computed(() => displayStore.viewportSize === 'large')
+const isLargeOrMore = computed(() => ['large', 'extraLarge'].includes(displayStore.viewportSize))
 const showTutorial = computed(() => displayStore.showTutorial)
 const isFullScreen = computed(() => displayStore.isFullScreen)
-const footerHeight = computed(() => displayStore.footerHeight)
 
 // Main height and width calculations based on available space
 const mainHeight = computed(() => displayStore.mainHeight)
 const mainWidth = computed(() => displayStore.mainWidth)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-
-// Fullscreen / Two-column toggle button
-const fullScreenButtonText = computed(() =>
-  displayStore.isFullScreen ? 'Show Two Columns' : 'Show Full Screen'
-)
-
-const toggleFullScreen = () => {
-  displayStore.toggleFullScreen()
-}
-
-// Tutorial / NuxtPage toggle button
-const toggleTutorial = () => {
-  displayStore.toggleTutorial()
-}
+const footerHeight = computed(() => displayStore.footerHeight)
 </script>
 
 <style scoped>
+.main-layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+  overflow: hidden;
+}
+
 button:hover {
   cursor: pointer;
 }

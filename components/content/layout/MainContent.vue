@@ -43,7 +43,7 @@
     <!-- Full-Screen Toggle Button for Large/Medium Viewports -->
     <button
       v-if="isLargeViewport || isMediumViewport"
-      class="full-screen-toggle bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 p-2 fixed bottom-4 right-4"
+      class="full-screen-toggle bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 p-2 fixed top-4 right-4"
       @click="toggleFullScreen"
     >
       {{ fullScreenButtonText }}

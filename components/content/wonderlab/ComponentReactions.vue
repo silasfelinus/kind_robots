@@ -106,7 +106,7 @@ import { ref, watch, computed, onMounted } from 'vue'
 import { useComponentStore } from './../../../stores/componentStore'
 import {
   useReactionStore,
-  type ReactionType,
+  type ReactionTypeEnum as ReactionType,
 } from './../../../stores/reactionStore'
 import { useUserStore } from './../../../stores/userStore'
 import CommentDisplay from './CommentDisplay.vue'

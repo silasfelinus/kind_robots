@@ -9,8 +9,46 @@ export const useChatStore = defineStore({
   state: () => ({
     chatExchanges: [] as ChatExchange[],
     currentPrompt: '' as string, // For keeping track of user's input
+    isInitialized: false, // Track if the store has been initialized
   }),
+  getters: {
+    // Computed property to get chat exchanges by the current user
+    chatExchangesByUserId: (state) => {
+      const userStore = useUserStore();
+      return state.chatExchanges.filter((exchange: ChatExchange) => exchange.userId === userStore.user?.id);
+    },
+        // Get public chat exchanges (excluding the user's own)
+        publicChatExchanges(state) {
+          const userStore = useUserStore()
+          return state.chatExchanges.filter(
+            (exchange: ChatExchange) => exchange.isPublic && exchange.userId !== userStore.user?.id
+          )
+        },
+  },
   actions: {
+    // Initialization method to load chat exchanges from localStorage or fetch from backend
+    async initialize() {
+      if (this.isInitialized) return; // Avoid multiple initializations
+
+      const errorStore = useErrorStore();
+      try {
+        if (typeof window !== 'undefined' && localStorage.getItem('chatExchanges')) {
+          // Load from localStorage
+          this.chatExchanges = JSON.parse(localStorage.getItem('chatExchanges') as string);
+        } else {
+          // Fetch from backend (assuming userStore is already initialized)
+          const userStore = useUserStore();
+          if (userStore.user?.id) {
+            await this.fetchChatExchangesByUserId(userStore.user.id);
+          }
+        }
+        this.saveToLocalStorage(); // Save loaded data to localStorage
+        this.isInitialized = true; // Mark as initialized
+      } catch (error) {
+        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to initialize chat exchanges.' + error);
+      }
+    },
+
     // Fetch helper
     async fetch(url: string, options: RequestInit = {}) {
       const errorStore = useErrorStore()
@@ -59,9 +97,42 @@ export const useChatStore = defineStore({
       if (data.success) {
         const newExchange = data.newExchange
         this.chatExchanges.push(newExchange)
+        this.saveToLocalStorage(); // Save updated chats to localStorage
         return newExchange
       } else {
         this.handleError(ErrorType.VALIDATION_ERROR, `Failed to add or update exchange: ${data.message}`)
+      }
+    },
+    async getPublic() {
+      await this.fetchChatExchanges() // Fetch all chat exchanges
+    },
+
+    // Toggle public/private status of a chat exchange
+    async togglePublic(exchangeId: number) {
+      const exchange = this.getExchangeById(exchangeId)
+      if (exchange) {
+        const newPublicState = !exchange.isPublic // Toggle current state
+
+        try {
+          await this.fetch(`/api/chats/${exchangeId}/togglePublic`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ isPublic: newPublicState }),
+          })
+          exchange.isPublic = newPublicState // Update local state
+        } catch (error) {
+          this.handleError(ErrorType.NETWORK_ERROR, 'Failed to toggle public state' + error)
+        }
+      }
+    },
+    async fetchChatExchanges() {
+      try {
+        const data = await this.fetch('/api/chats')
+        this.chatExchanges = data.chatExchanges // Populate all chat exchanges
+      } catch (error) {
+        this.handleError(ErrorType.NETWORK_ERROR, 'Failed to fetch chat exchanges' + error)
       }
     },
 
@@ -89,6 +160,7 @@ export const useChatStore = defineStore({
       if (data.success) {
         const updatedExchange = data.newExchange
         this.chatExchanges.push(updatedExchange)
+        this.saveToLocalStorage(); // Save updated chats to localStorage
         return updatedExchange
       } else {
         this.handleError(ErrorType.VALIDATION_ERROR, `Failed to send follow-up message: ${data.message}`)
@@ -115,9 +187,19 @@ export const useChatStore = defineStore({
       }
     },
 
+    // Fetch all chat exchanges for a specific user
+    async fetchChatExchangesByUserId(userId: number) {
+      const data = await this.fetch(`/api/chats/user/${userId}`)
+      if (data.success) {
+        this.setChatExchanges(data.chatExchanges)
+      } else {
+        this.handleError(ErrorType.VALIDATION_ERROR, `Failed to fetch exchanges for user ${userId}: ${data.message}`)
+      }
+    },
+
     // Load chat exchanges from localStorage (when client)
     loadFromLocalStorage() {
-      if (window ) {
+      if (typeof window !== 'undefined') {
         const savedExchanges = localStorage.getItem('chatExchanges')
         if (savedExchanges) {
           this.chatExchanges = JSON.parse(savedExchanges)
@@ -127,7 +209,7 @@ export const useChatStore = defineStore({
 
     // Save exchanges to localStorage
     saveToLocalStorage() {
-     if (typeof window !== 'undefined' && window.localStorage)  {
+      if (typeof window !== 'undefined') {
         localStorage.setItem('chatExchanges', JSON.stringify(this.chatExchanges))
       }
     },

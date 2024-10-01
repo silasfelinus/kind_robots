@@ -112,6 +112,7 @@ export const useArtStore = defineStore({
         'Failed to fetch art.'
       );
     },
+    
 
     // Select a specific art piece by ID
     selectArt(artId: number) {
@@ -259,44 +260,81 @@ export const useArtStore = defineStore({
       const validPattern = /^[a-zA-Z0-9 ,]+$/; // Adjust the pattern as necessary
       return validPattern.test(prompt);
     },
+       // New uploadImage action
+       async uploadImage(formData: FormData): Promise<void> {
+        const errorStore = useErrorStore()
+        return errorStore.handleError(
+          async () => {
+            const response = await fetch('/api/utils/UploadArtImage', {
+              method: 'POST',
+              body: formData, // Send the FormData object with the image file
+            })
+  
+            if (response.ok) {
+              const data = await response.json()
+              console.log('Image uploaded successfully:', data)
+              // You can now push the uploaded image details to your state if needed
+              this.artImages.push(data)
+            } else {
+              const errorResponse = await response.json()
+              throw new Error(errorResponse.message)
+            }
+          },
+          ErrorType.NETWORK_ERROR,
+          'Failed to upload image.',
+        )
+      },
 
-    // Generate art based on the prompt
-    async generateArt(): Promise<{ success: boolean; message?: string }> {
-      const promptStore = usePromptStore();
-      const userStore = useUserStore();
-      const errorStore = useErrorStore();
+// Generate art based on the prompt, optionally accepts artData
+async generateArt(artData?: GenerateArtData): Promise<{ success: boolean; message?: string; newArt?: Art }> {
+  const promptStore = usePromptStore();
+  const userStore = useUserStore();
+  const errorStore = useErrorStore();
 
-      const pitch = this.extractPitch(promptStore.promptField);
-      if (!this.validatePromptString(promptStore.promptField)) {
-        return { success: false, message: 'Invalid prompt' };
+  // Use artData if provided, otherwise fall back to defaults
+  const data = {
+    promptString: artData?.promptString || promptStore.promptField,
+    pitch: artData?.pitch || this.extractPitch(promptStore.promptField),
+    userId: artData?.userId || userStore.user?.id,
+    galleryId: artData?.galleryId,
+    checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4', // Default checkpoint if not provided
+    sampler: artData?.sampler || 'k_lms', // Default sampler
+    steps: artData?.steps || 50, // Default steps value
+    designer: artData?.designer || 'AI Art Designer', // Default designer name
+    cfg: artData?.cfg || 7, // Default cfg value
+    cfgHalf: artData?.cfgHalf || false, // Default cfgHalf value
+    isMature: artData?.isMature || false, // Default isMature value
+    isPublic: artData?.isPublic || true, // Default public visibility
+  };
+
+  // Validate the prompt string before sending
+  if (!this.validatePromptString(data.promptString)) {
+    return { success: false, message: 'Invalid prompt' };
+  }
+
+  return errorStore.handleError(
+    async () => {
+      const response = await fetch('/api/art/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return { success: true, newArt: result.art };
+      } else {
+        const errorResponse = await response.json();
+        return { success: false, message: errorResponse.message };
       }
-
-      return errorStore.handleError(
-        async () => {
-          const data = {
-            promptString: promptStore.promptField,
-            pitch,
-            userId: userStore.user?.id,
-          };
-
-          const response = await fetch('/api/art/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          });
-
-          if (response.ok) {
-            const result = await response.json();
-            return { success: true, newArt: result.art };
-          } else {
-            const errorResponse = await response.json();
-            return { success: false, message: errorResponse.message };
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to generate art.'
-      );
     },
+    ErrorType.NETWORK_ERROR,
+    'Failed to generate art.'
+  );
+}
+
+
+
   },
 });
 

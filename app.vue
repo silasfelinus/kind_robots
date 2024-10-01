@@ -4,7 +4,7 @@
 
     <!-- Header -->
     <header
-      class="header-overlay bg-base-300 flex items-center justify-between w-full px-4"
+      class="header-overlay bg-base-300 flex items-center justify-between w-full"
       :style="{ height: headerHeight }"
     >
       <div class="p-1 z-40 text-white">

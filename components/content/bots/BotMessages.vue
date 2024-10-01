@@ -66,7 +66,7 @@ const filteredMessages = computed(() => {
   if (!chatExchanges || chatExchanges.length === 0) return []
 
   return selectedBotId
-    ? chatExchanges.filter((exchange) => exchange.botId === selectedBotId)
+    ? chatExchanges.filter((exchange: ChatExchange) => exchange.botId === selectedBotId)
     : chatExchanges
 })
 </script>

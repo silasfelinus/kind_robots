@@ -167,12 +167,12 @@
 
         <!-- Image Prompt for Generating Avatar -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="imagePrompt" class="block text-sm font-medium"
-            >Avatar Image Prompt:</label
-          >
+          <label for="botPrompt" class="block text-sm font-medium">
+            Avatar Image Prompt:
+          </label>
           <input
-            id="imagePrompt"
-            v-model="imagePrompt"
+            id="botPrompt"
+            v-model="botStore.botPrompt"
             type="text"
             class="w-full p-2 rounded border"
             placeholder="Enter an image prompt to generate the avatar"
@@ -294,7 +294,6 @@ function loadBotData() {
   }
 }
 
-// Reset the form to default values
 function resetForm() {
   name.value = ''
   subtitle.value = ''
@@ -302,11 +301,13 @@ function resetForm() {
   description.value = ''
   botIntro.value = ''
   userIntro.value = ''
-  imagePrompt.value = ''
   personality.value = ''
   sampleResponse.value = ''
   isPublic.value = true
   underConstruction.value = false
+
+  // Reset botPrompt from the botStore
+  botStore.resetBotPrompt()
 }
 
 // Handle form submission
@@ -345,16 +346,25 @@ async function handleSubmit(e: Event) {
   }
 }
 
-// Send image prompt to art generator store
 async function sendImagePromptToGenerator() {
   try {
     isLoading.value = true
-    const artData = {
-      promptString: imagePrompt.value,
+
+    // Use botStore.botPrompt instead of imagePrompt
+    const artData: GenerateArtData = {
+      promptString: botStore.botPrompt, // Now using botPrompt from store
       userId: userId.value,
       galleryId: selectedGallery.value
         ? parseInt(selectedGallery.value)
         : undefined,
+      checkpoint: 'stable-diffusion-v1-4',
+      sampler: 'k_lms',
+      steps: 50,
+      designer: 'AI Art Designer',
+      cfg: 7,
+      cfgHalf: false,
+      isMature: false,
+      isPublic: isPublic.value,
     }
 
     const { success, message, newArt } = await artStore.generateArt(artData)

@@ -98,9 +98,6 @@ import { ref, computed } from 'vue'
 import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
 import { useWindowSize } from '@vueuse/core'
-import { useDisplayStore } from '../../../stores/displayStore'
-
-const displayStore = useDisplayStore()
 
 const { width, height } = useWindowSize()
 
@@ -197,7 +194,6 @@ let firstSelected: GalleryImage | null = null
 async function generateMemoryGameImages() {
   try {
     isLoading.value = true
-    displayStore.changeState('sidebarLeftState', 'hidden')
     gameWon.value = false
 
     const response = await fetch(

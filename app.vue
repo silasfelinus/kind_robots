@@ -16,6 +16,9 @@
       <div class="flex flex-grow justify-center">
         <nav-links class="hidden sm:flex space-x-4"></nav-links>
       </div>
+
+      <!-- Kind Buttons (for Fullscreen/Two-column and Tutorial/NuxtPage) -->
+      <kind-buttons />
     </header>
 
     <!-- Main content area -->
@@ -51,10 +54,7 @@
     </div>
 
     <!-- Footer -->
-    <footer
-      class="footer-overlay flex justify-center items-center"
-      :style="{ height: footerHeight }"
-    ></footer>
+    <footer class="footer-overlay flex justify-center items-center" :style="{ height: footerHeight }"></footer>
   </div>
 </template>
 
@@ -73,7 +73,9 @@ const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const mainWidth = computed(() => displayStore.mainWidth)
-const isFullScreen = computed(() => displayStore.isFullScreen)
+
+// Track the state of full-screen mode for the main content
+const isFullScreen = computed(() => displayStore.isFullScreenMainContent)
 
 onMounted(async () => {
   try {

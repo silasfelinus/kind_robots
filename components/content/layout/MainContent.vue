@@ -12,7 +12,7 @@
 
     <!-- For medium viewports, display centered content -->
     <div v-if="isMediumViewport" class="center-content">
-      <div class="tutorial-section" v-if="showTutorial">
+      <div v-if="showTutorial" class="tutorial-section">
         <SplashTutorial />
       </div>
       <div v-else class="launch-section">
@@ -91,12 +91,16 @@ const showTutorial = computed(() => displayStore.showTutorial)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 
 // Button visibility logic
-const showLaunchButton = computed(() =>
-  !displayStore.showTutorial && ['small', 'medium'].includes(displayStore.viewportSize),
+const showLaunchButton = computed(
+  () =>
+    !displayStore.showTutorial &&
+    ['small', 'medium'].includes(displayStore.viewportSize),
 )
 
-const showInstructionsButton = computed(() =>
-  displayStore.showTutorial && ['small', 'medium'].includes(displayStore.viewportSize),
+const showInstructionsButton = computed(
+  () =>
+    displayStore.showTutorial &&
+    ['small', 'medium'].includes(displayStore.viewportSize),
 )
 
 // Button text for fullscreen toggle

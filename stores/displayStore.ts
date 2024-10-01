@@ -112,16 +112,17 @@ export const useDisplayStore = defineStore('display', {
     
     gridColumns(): string {
       if (this.isLargeViewport && !this.isFullScreen) {
-        // Two-column layout: No sidebars, just two equal columns for content.
-        return 'repeat(2, 1fr)';
+        // Two-column layout for large/extra-large viewports
+        return '1fr 1fr';  // Two equal columns for splash tutorial and NuxtPage
       } else if (this.isFullScreen) {
-        // Full-screen layout with sidebars.
+        // Full-screen layout: Sidebar columns and full-width content in between
         return `${this.sidebarLeftVw}vw calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) ${this.sidebarRightVw}vw`;
       } else {
-        // Default layout logic (for mobile or non-large viewports).
-        return `100%`;  // Full width if not in large viewport or in full-screen
+        // Single-column layout for small/medium viewports
+        return '1fr';  // Full-width content (toggle between splash and NuxtPage)
       }
     },
+    
     
     
   

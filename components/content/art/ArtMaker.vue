@@ -68,7 +68,7 @@ const errorStore = useErrorStore()
 // Computed properties for state
 const loading = computed(() => artStore.loading)
 const art = computed(() => artStore.currentArt)
-const error = computed(() => errorStore.getError)
+const error = computed(() => errorStore.getError || '')
 const collectedArt = computed(() => artStore.collectedArt)
 
 // Save the prompt when the input changes

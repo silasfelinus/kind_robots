@@ -4,16 +4,20 @@
 
     <!-- Header -->
     <header
-      class="header-overlay bg-base-300 flex items-center justify-between w-full"
+      class="header-overlay bg-base-300 flex items-center justify-between w-full h-auto p-2"
       :style="{ height: headerHeight }"
     >
+      <!-- Sidebar Toggle -->
       <div class="p-1 z-40 text-white">
         <sidebar-toggle class="text-4xl"></sidebar-toggle>
       </div>
 
-      <div class="flex-grow">
-        <nav-links class="hidden sm:flex justify-center"></nav-links>
+      <!-- Navigation Links (Centered) -->
+      <div class="flex flex-grow justify-center">
+        <nav-links class="hidden sm:flex space-x-4"></nav-links>
       </div>
+      
+      <!-- Add additional elements like user profile or actions here if needed -->
     </header>
 
     <!-- Main content area -->
@@ -49,7 +53,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer-overlay" :style="{ height: footerHeight }"></footer>
+    <footer class="footer-overlay flex justify-center items-center" :style="{ height: footerHeight }"></footer>
   </div>
 
   <!-- Full-Screen Toggle Button -->
@@ -130,15 +134,8 @@ onMounted(async () => {
   overflow-y: auto;
 }
 
-.footer-overlay {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Button styling */
 .flip-btn {
-  bottom: 4rem; /* Positioned correctly to avoid any layout overlap */
+  bottom: 4rem;
 }
 
 button {

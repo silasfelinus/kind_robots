@@ -16,22 +16,30 @@
       v-if="page && page.underConstruction"
       class="absolute top-2 left-2 z-10 opacity-90 md:w-12 md:h-12 lg:w-16 lg:h-16"
     >
-      <Icon name="construction" class="object-cover w-full h-full text-warning" />
+      <Icon
+        name="construction"
+        class="object-cover w-full h-full text-warning"
+      />
     </div>
 
     <!-- Main Content Section (flexible, responsive space) -->
-    <div class="flex-1 flex flex-col items-center justify-start space-y-2 overflow-hidden p-2">
+    <div
+      class="flex-1 flex flex-col items-center justify-start space-y-2 overflow-hidden p-2"
+    >
       <!-- Main Image with max height to prevent overflow -->
       <img
         v-if="page && page.image"
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[30vh] lg:max-h-[40vh]"
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[30vh] md:max-h-[45vh] lg:max-h-[60vh]"
       />
 
       <!-- Title, Description, and Subtitle Section -->
       <div class="text-center w-full space-y-1 lg:space-y-2 overflow-hidden">
-        <h1 v-if="page && page.title" class="text-2xl lg:text-4xl font-bold truncate">
+        <h1
+          v-if="page && page.title"
+          class="text-2xl lg:text-4xl font-bold truncate"
+        >
           {{ page.title }}
         </h1>
 
@@ -51,15 +59,15 @@
       </div>
     </div>
 
-    <!-- Bot Messages Section (controlled height to avoid overflow) -->
+    <!-- Bot Messages Section (centered chat bubbles with left/right indent) -->
     <div
       v-if="page && page.dottitip && page.amitip"
-      class="flex flex-col space-y-2 md:space-y-4 w-full max-w-3xl px-4 py-1 lg:py-2 overflow-hidden"
+      class="flex flex-col space-y-4 w-full max-w-3xl px-4 py-1 lg:py-2 mx-auto"
     >
-      <!-- DottiBot Message (Left-Aligned) -->
+      <!-- DottiBot Message (Left-Aligned with indent) -->
       <div class="flex justify-start">
         <div
-          class="flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-tl-none rounded-tr-2xl rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pr-4 lg:text-lg lg:px-6"
+          class="flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-tl-none rounded-tr-2xl rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pr-4 lg:text-lg lg:px-6 ml-4"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -68,15 +76,15 @@
           />
           <div class="flex flex-col">
             <span class="text-xs font-semibold">DottiBot</span>
-            <p class="text-xs md:text-md lg:text-lg">{{ page.dottitip }}</p>
+            <p class="text-xs md:text-lg lg:text-xl">{{ page.dottitip }}</p>
           </div>
         </div>
       </div>
 
-      <!-- AMIbot Message (Right-Aligned) -->
+      <!-- AMIbot Message (Right-Aligned with indent) -->
       <div class="flex justify-end">
         <div
-          class="flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-tl-2xl rounded-tr-none rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pl-4 lg:text-lg lg:px-6"
+          class="flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-tl-2xl rounded-tr-none rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pl-4 lg:text-lg lg:px-6 mr-4"
         >
           <div class="flex flex-col">
             <span class="text-xs font-semibold">AMIbot</span>
@@ -101,24 +109,3 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 const { page } = useContent()
 </script>
-
-<style scoped>
-/* Prevent overflow and ensure the layout fits within the container */
-.flex-1 {
-  flex-grow: 1;
-  overflow-y: hidden; /* Adjust to fit content */
-}
-
-.flex-col {
-  display: flex;
-  flex-direction: column;
-}
-
-.overflow-hidden {
-  overflow: hidden;
-}
-
-.overflow-y-auto {
-  overflow-y: auto;
-}
-</style>

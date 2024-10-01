@@ -16,7 +16,7 @@
       </div>
     </header>
 
-    <!-- Main content area (Grid column layout based on viewport and fullscreen status) -->
+    <!-- Main content area -->
     <div
       class="content-area grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-4"
       :style="{ height: mainHeight }"
@@ -29,7 +29,7 @@
 
       <!-- Main content -->
       <main
-        class="main-content-overlay rounded-2xl bg-base-300 flex items-center justify-center"
+        class="main-content-overlay rounded-2xl bg-base-300 flex items-center justify-center overflow-auto"
         :style="{ height: mainHeight, width: mainWidth }"
       >
         <main-content />
@@ -42,6 +42,7 @@
       ></aside>
     </div>
 
+    <!-- Footer -->
     <footer class="footer-overlay" :style="{ height: footerHeight }"></footer>
   </div>
 </template>
@@ -92,12 +93,13 @@ onMounted(async () => {
 .content-area {
   display: grid;
   grid-template-columns: 1fr;
-  grid-gap: 1rem;
+  gap: 1rem;
 }
 
 @media (min-width: 768px) {
   .content-area {
     grid-template-columns: auto 1fr auto;
+    gap: 1.5rem; /* More spacing for larger screens */
   }
 }
 
@@ -107,7 +109,6 @@ onMounted(async () => {
 .main-content-overlay,
 .footer-overlay {
   position: relative;
-  text-align: center;
   padding: 0;
 }
 
@@ -115,5 +116,18 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: auto; /* Ensure scrolling works within the main content */
+}
+
+.sidebar-left-overlay,
+.sidebar-right-overlay {
+  overflow-y: auto; /* Allow scrolling within sidebars if content overflows */
+}
+
+/* Styling for footer and other elements */
+.footer-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

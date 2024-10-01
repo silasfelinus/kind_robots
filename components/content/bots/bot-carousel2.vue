@@ -7,9 +7,11 @@
       class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     />
 
-    <!-- Header -->
-    <h1 class="mt-8 text-3xl font-semibold text-center">
-      Welcome to Kind Robots
+    <h1
+      v-if="currentBot"
+      class="mt-4 text-4xl text-dark font-semibold text-center"
+    >
+      {{ currentBot.name }}
     </h1>
 
     <!-- Carousel Container -->
@@ -45,11 +47,7 @@
       </div>
 
       <!-- Current Bot Information -->
-      <div
-        v-if="currentBot"
-        class="mt-4 text-2xl text-dark font-semibold text-center"
-      >
-        {{ currentBot.name }}
+      <div v-if="currentBot">
         <p class="mt-2 text-xl text-dark text-center">
           {{ currentBot.description }}
         </p>

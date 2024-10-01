@@ -109,17 +109,11 @@ export const useDisplayStore = defineStore('display', {
     sidebarRightWidth(): string {
       return `${this.sidebarRightVw}vw`;
     },
-    
-    gridColumns(): string {
-      if (this.isLargeViewport && !this.isFullScreen) {
-        // Two-column layout for large/extra-large viewports
-        return '1fr 1fr';  // Two equal columns for splash tutorial and NuxtPage
-      } else if (this.isFullScreen) {
-        // Full-screen layout: Sidebar columns and full-width content in between
+gridColumns() {
+      if (this.isFullScreen) {
         return `${this.sidebarLeftVw}vw calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) ${this.sidebarRightVw}vw`;
       } else {
-        // Single-column layout for small/medium viewports
-        return '1fr';  // Full-width content (toggle between splash and NuxtPage)
+        return `100%`; // Full width if not in full-screen mode
       }
     },
     

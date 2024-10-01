@@ -1,6 +1,10 @@
 <template>
-  <div class="bg-base-300 shadow-xl rounded-3xl border border-base-200 p-6 text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105">
-    <h1 class="text-3xl font-bold m-6 text-center text-primary">🎨 Welcome to the Art-Maker</h1>
+  <div
+    class="bg-base-300 shadow-xl rounded-3xl border border-base-200 p-6 text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105"
+  >
+    <h1 class="text-3xl font-bold m-6 text-center text-primary">
+      🎨 Welcome to the Art-Maker
+    </h1>
 
     <!-- Prompt Input -->
     <div class="mb-6">
@@ -15,8 +19,7 @@
 
     <!-- Generate Art Button -->
     <button
-      class="bg-primary text-white font-semibold rounded-3xl p-4 w-full transition-all duration-300 ease-in-out 
-             hover:bg-info hover:shadow-lg active:bg-secondary focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed"
+      class="bg-primary text-white font-semibold rounded-3xl p-4 w-full transition-all duration-300 ease-in-out hover:bg-info hover:shadow-lg active:bg-secondary focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed"
       :disabled="loading || !promptStore.promptField"
       @click="generateArt"
     >
@@ -25,7 +28,9 @@
     </button>
 
     <!-- Error Message -->
-    <p v-if="error" class="text-red-500 mt-4 text-center font-medium">{{ error }}</p>
+    <p v-if="error" class="text-red-500 mt-4 text-center font-medium">
+      {{ error }}
+    </p>
 
     <!-- Generated Art Display -->
     <div v-if="art && !loading" class="mt-8">
@@ -34,7 +39,9 @@
 
     <!-- User's Collected Art Display -->
     <div v-if="collectedArt.length > 0" class="mt-10">
-      <h2 class="text-xl text-center mb-6 font-semibold text-primary">🖼️ Your Art Collection</h2>
+      <h2 class="text-xl text-center mb-6 font-semibold text-primary">
+        🖼️ Your Art Collection
+      </h2>
       <div class="grid grid-cols-1 gap-6">
         <ArtCard
           v-for="artItem in collectedArt"
@@ -69,43 +76,32 @@ const savePrompt = () => {
   promptStore.savePromptField()
 }
 
-// Validate the prompt string for invalid characters or patterns
-const validatePromptString = (prompt: string): boolean => {
-  // Simple validation: Ensure the prompt is not empty and doesn't contain special characters.
-  const validPattern = /^[a-zA-Z0-9 ,]+$/; // Adjust the pattern as necessary
-  return validPattern.test(prompt);
-}
-
 // Generate art based on the prompt
 const generateArt = async () => {
-  const pitch = extractPitch(promptStore.promptField);
-  
-  // Log the prompt and pitch for debugging
-  console.log("Generating art with prompt:", promptStore.promptField);
-  console.log("Using pitch:", pitch);
+  // Clear any previous error before generating new art
+  errorStore.clearError()
 
-  // Validate the prompt before proceeding
-  if (!validatePromptString(promptStore.promptField)) {
-    console.error("Invalid prompt string:", promptStore.promptField);
-    errorStore.setError(ErrorType.VALIDATION_ERROR, "Invalid characters in prompt.");
-    return;
+  // Validate the prompt string before proceeding
+  if (!artStore.validatePromptString(promptStore.promptField)) {
+    errorStore.setError(
+      ErrorType.VALIDATION_ERROR,
+      'Invalid characters in prompt.',
+    )
+    return
   }
 
+  // Generate the art and handle any errors
   await errorStore.handleError(
     async () => {
-      const result = await artStore.generateArt({
-        promptString: promptStore.promptField,
-        pitch: pitch, // Include pitch
-        userId: 10, // Example user ID
-      });
+      const result = await artStore.generateArt()
 
       if (!result.success) {
-        throw new Error(result.message || 'Unknown error occurred.');
+        throw new Error(result.message || 'Unknown error occurred.')
       }
     },
     ErrorType.GENERAL_ERROR,
     'Failed to generate art.',
-  );
+  )
 }
 
 // Initialize the artStore and promptStore when the component is mounted

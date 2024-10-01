@@ -16,9 +16,6 @@
       <div class="flex flex-grow justify-center">
         <nav-links class="hidden sm:flex space-x-4"></nav-links>
       </div>
-
-      <!-- Kind Buttons (for Fullscreen/Two-column and Tutorial/NuxtPage) -->
-      <kind-buttons />
     </header>
 
     <!-- Main content area -->
@@ -54,7 +51,10 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer-overlay flex justify-center items-center" :style="{ height: footerHeight }"></footer>
+    <footer
+      class="footer-overlay flex justify-center items-center"
+      :style="{ height: footerHeight }"
+    ></footer>
   </div>
 </template>
 

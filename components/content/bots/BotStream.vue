@@ -56,8 +56,10 @@
         <div class="reaction-buttons mt-2 flex space-x-2">
           <button
             class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'LOVED') }"
-            @click="toggleReaction(index, 'LOVED')"
+            :class="{
+              'bg-primary': isReactionActive(index, ReactionTypeEnum.LOVED),
+            }"
+            @click="toggleReaction(index, ReactionTypeEnum.LOVED)"
           >
             ❤️
           </button>
@@ -70,8 +72,10 @@
 
           <button
             class="hover:bg-gray-200"
-            :class="{ 'bg-primary': isReactionActive(index, 'HATED') }"
-            @click="toggleReaction(index, 'HATED')"
+            :class="{
+              'bg-primary': isReactionActive(index, ReactionTypeEnum.HATED),
+            }"
+            @click="toggleReaction(index, ReactionTypeEnum.HATED)"
           >
             👎
           </button>
@@ -91,8 +95,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
-import { useReactionStore } from '../../../stores/reactionStore'
-import type { ReactionType } from '../../../stores/reactionStore'
+import {
+  useReactionStore,
+  ReactionTypeEnum,
+} from '../../../stores/reactionStore'
 
 let userKey: string | null = null
 
@@ -135,7 +141,7 @@ const userId = computed(() => userStore.userId) // Default to 10 if userId is un
 
 const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
 
-const isReactionActive = (index: number, reactionType: ReactionType) => {
+const isReactionActive = (index: number, reactionType: ReactionTypeEnum) => {
   const conversationId = conversations.value[index]?.[0]?.id ?? 0
 
   const reaction = reactionStore.getUserReactionForComponent(
@@ -146,7 +152,10 @@ const isReactionActive = (index: number, reactionType: ReactionType) => {
   return reaction?.reactionType === reactionType // Compare reactionType directly
 }
 
-const toggleReaction = async (index: number, reactionType: ReactionType) => {
+const toggleReaction = async (
+  index: number,
+  reactionType: ReactionTypeEnum,
+) => {
   const conversation = conversations.value[index]
   const conversationId = conversation?.[0]?.id
 
@@ -163,7 +172,7 @@ const toggleReaction = async (index: number, reactionType: ReactionType) => {
   const reactionData: {
     userId: number
     componentId: number
-    reactionType: ReactionType // Ensure reactionType is always defined here
+    reactionType: ReactionTypeEnum // Ensure reactionType is always defined here
     pitchId?: number | null
   } = {
     userId: userId.value ?? 10, // Ensure userId is a number (default to 10)

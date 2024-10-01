@@ -246,7 +246,7 @@ export const useReactionStore = defineStore('reactionStore', {
     async createReaction(reactionData: {
       pitchId?: number | null
       userId: number
-      reactionType: ReactionType
+      reactionType: ReactionTypeEnum
       artId?: number
       componentId?: number
       channelId?: number

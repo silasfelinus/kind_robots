@@ -1,123 +1,127 @@
 <template>
-  <div
-    class="w-full md:border-accent-200 md:border-2 rounded-2xl bg-base-300 relative shadow-lg"
-    :style="{ height: mainHeight }"
-  >
-    <!-- Flip-card Layout: For full-screen mode or non-large viewports -->
-    <div
-      v-if="!displayStore.isLargeViewport || displayStore.isFullScreen"
-      class="flip-card-inner"
-      :class="{ 'is-flipped': !displayStore.showTutorial }"
-      @transitionend="handleTransitionEnd"
-    >
-      <div
-        class="flip-card-front"
-        :class="{ invisible: !displayStore.showTutorial && !isFlippedComplete }"
-        @transitionend="onFlipOut('splash')"
-      >
-        <splash-tutorial />
+  <div :class="viewportClass">
+    <!-- For small viewports, display only one section -->
+    <div v-if="isSmall" class="single-column">
+      <div v-if="showInstructions" class="instructions">
+        <SplashTutorial />
       </div>
-
-      <div
-        class="flip-card-back overflow-y-auto"
-        :class="{ invisible: displayStore.showTutorial && !isFlippedComplete }"
-        @transitionend="onFlipOut('nuxt')"
-      >
+      <div v-else class="launch">
         <NuxtPage />
       </div>
     </div>
 
-    <!-- Two-column mode for large viewports -->
-    <div v-else class="grid grid-cols-2 gap-4" :style="{ height: '100%' }">
-      <div class="flex flex-col overflow-y-auto h-full">
-        <splash-tutorial />
+    <!-- For medium viewports, show flip animation -->
+    <div v-if="isMedium" class="flip-card">
+      <div v-if="currentView === 'splash'" class="flip-side splash">
+        <SplashTutorial />
       </div>
-      <div class="flex flex-col overflow-y-auto h-full border rounded-2xl">
+      <div v-else class="flip-side nuxt-page">
         <NuxtPage />
+      </div>
+    </div>
+
+    <!-- For large/extra large viewports, display two columns -->
+    <div v-if="isLarge || isXLarge" class="two-column">
+      <div class="left-column">
+        <SplashTutorial />
+      </div>
+      <div class="right-column">
+        <NuxtPage />
+      </div>
+      <div v-if="fullScreenToggle" class="full-screen-toggle">
+        <button @click="toggleFullScreen">{{ fullScreenButtonText }}</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
+import { ref, computed, onMounted } from 'vue';
+import { useDisplayStore } from '@/stores/displayStore';
+import SplashScreen from '@/components/SplashScreen.vue';
+import InstructionsScreen from '@/components/InstructionsScreen.vue';
+import LaunchScreen from '@/components/LaunchScreen.vue';
+import NuxtPage from '@/components/NuxtPage.vue';
 
-// Initialize the display store
-const displayStore = useDisplayStore()
-const mainHeight = computed(() => displayStore.mainHeight)
+// Manage state
+const displayStore = useDisplayStore();
+const showInstructions = computed(() => displayStore.showInstructions);
+const currentView = ref('splash'); // Toggle between 'splash' and 'nuxt'
 
-// Track if the flip animation has completed
-const isFlippedComplete = ref(false)
+// Responsive breakpoints
+const viewportWidth = ref(window.innerWidth);
+const isSmall = computed(() => viewportWidth.value < 640); // Small screen
+const isMedium = computed(() => viewportWidth.value >= 640 && viewportWidth.value < 1024); // Medium
+const isLarge = computed(() => viewportWidth.value >= 1024 && viewportWidth.value < 1280); // Large
+const isXLarge = computed(() => viewportWidth.value >= 1280); // Extra Large
 
-const handleTransitionEnd = () => {
-  // Allow the new side to become interactive after the flip completes
-  isFlippedComplete.value = true
-}
+// Toggle between full screen and default
+const fullScreenToggle = ref(false);
+const fullScreenButtonText = computed(() =>
+  fullScreenToggle.value ? 'Exit Full Screen' : 'Full Screen'
+);
 
-const onFlipOut = (side: string) => {
-  if (side === 'splash' && !displayStore.showTutorial) {
-    isFlippedComplete.value = false
-  } else if (side === 'nuxt' && displayStore.showTutorial) {
-    isFlippedComplete.value = false
-  }
-}
+// Function to toggle full screen inside main container
+const toggleFullScreen = () => {
+  fullScreenToggle.value = !fullScreenToggle.value;
+};
+
+// Watch for viewport changes
+window.addEventListener('resize', () => {
+  viewportWidth.value = window.innerWidth;
+});
+
+onMounted(() => {
+  // Optionally handle mounted logic if needed
+});
 </script>
 
 <style scoped>
-/* Add a simple fade-in effect */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
-  opacity: 0;
-}
-
-/* Flip card container */
-.flip-card {
-  width: 100%;
-  height: 100%; /* Match the height of its parent container */
-  perspective: 1000px; /* 3D perspective for the flip */
-}
-
-.flip-card-inner {
-  width: 100%;
-  height: 100%; /* Ensure it stays within the parent height */
-  transition: transform 0.6s ease-in-out; /* Smooth flip animation */
-  transform-style: preserve-3d; /* 3D space for the flip */
-  position: relative;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg); /* Flip the card */
-}
-
-.flip-card-front,
-.flip-card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden; /* Hide the back during the flip */
-  -webkit-backface-visibility: hidden; /* Ensure hidden backface on WebKit browsers */
-  border-radius: 12px;
+.single-column {
   display: flex;
-  flex-direction: column;
-  /* Ensure visibility and pointer-events are handled properly */
-  transition:
-    visibility 0s linear 0.6s,
-    pointer-events 0s linear 0.6s;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-/* Ensure the outgoing side is invisible after its flip animation ends */
-.flip-card-front.invisible,
-.flip-card-back.invisible {
-  visibility: hidden; /* The non-visible side is hidden after the animation */
-  pointer-events: none; /* The non-visible side is non-interactive */
+.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100vh;
 }
 
-.flip-card-back {
-  transform: rotateY(180deg); /* Back side of the card */
-  overflow-y: auto; /* Scrollable content if needed */
+.left-column, .right-column {
+  padding: 1rem;
+}
+
+.flip-card {
+  perspective: 1000px;
+  height: 100vh;
+}
+
+.flip-side {
+  backface-visibility: hidden;
+  transition: transform 0.6s;
+}
+
+.splash {
+  transform: rotateY(0deg);
+}
+
+.nuxt-page {
+  transform: rotateY(180deg);
+}
+
+.full-screen-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+@media (max-width: 640px) {
+  /* Adjust for small viewports */
+  .single-column {
+    flex-direction: column;
+  }
 }
 </style>

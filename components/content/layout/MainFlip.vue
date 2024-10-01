@@ -1,8 +1,8 @@
 <template>
   <div :class="viewportClass">
     <!-- For small viewports, display only one section -->
-    <div v-if="isSmall" class="single-column">
-      <div v-if="showInstructions" class="instructions">
+    <div v-if="isMobileViewport" class="single-column">
+      <div v-if="showTutorial" class="instructions">
         <SplashTutorial />
       </div>
       <div v-else class="launch">
@@ -11,8 +11,8 @@
     </div>
 
     <!-- For medium viewports, show flip animation -->
-    <div v-if="isMedium" class="flip-card">
-      <div v-if="currentView === 'splash'" class="flip-side splash">
+    <div v-if="viewportSize === 'medium'" class="flip-card">
+      <div v-if="flipState === 'tutorial' || flipState === 'toTutorial'" class="flip-side splash">
         <SplashTutorial />
       </div>
       <div v-else class="flip-side nuxt-page">
@@ -21,14 +21,14 @@
     </div>
 
     <!-- For large/extra large viewports, display two columns -->
-    <div v-if="isLarge || isXLarge" class="two-column">
+    <div v-if="isLargeViewport" class="two-column">
       <div class="left-column">
         <SplashTutorial />
       </div>
       <div class="right-column">
         <NuxtPage />
       </div>
-      <div v-if="fullScreenToggle" class="full-screen-toggle">
+      <div v-if="isFullScreen" class="full-screen-toggle">
         <button @click="toggleFullScreen">{{ fullScreenButtonText }}</button>
       </div>
     </div>
@@ -36,41 +36,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { computed } from 'vue';
 import { useDisplayStore } from '@/stores/displayStore';
+import SplashTutorial from '@/components/SplashTutorial.vue';
+import NuxtPage from '@/components/NuxtPage.vue';
 
-
-// Manage state
+// Get access to displayStore
 const displayStore = useDisplayStore();
-const showInstructions = computed(() => displayStore.showInstructions);
-const currentView = ref('splash'); // Toggle between 'splash' and 'nuxt'
+const {
+  flipState,
+  isMobileViewport,
+  viewportSize,
+  isLargeViewport,
+  isFullScreen,
+  showTutorial
+} = displayStore;
 
-// Responsive breakpoints
-const viewportWidth = ref(window.innerWidth);
-const isSmall = computed(() => viewportWidth.value < 640); // Small screen
-const isMedium = computed(() => viewportWidth.value >= 640 && viewportWidth.value < 1024); // Medium
-const isLarge = computed(() => viewportWidth.value >= 1024 && viewportWidth.value < 1280); // Large
-const isXLarge = computed(() => viewportWidth.value >= 1280); // Extra Large
-
-// Toggle between full screen and default
-const fullScreenToggle = ref(false);
+// Computed value for button text based on full-screen toggle
 const fullScreenButtonText = computed(() =>
-  fullScreenToggle.value ? 'Exit Full Screen' : 'Full Screen'
+  displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen'
 );
 
-// Function to toggle full screen inside main container
+// Toggle full screen mode
 const toggleFullScreen = () => {
-  fullScreenToggle.value = !fullScreenToggle.value;
+  displayStore.toggleFullScreen();
 };
-
-// Watch for viewport changes
-window.addEventListener('resize', () => {
-  viewportWidth.value = window.innerWidth;
-});
-
-onMounted(() => {
-  // Optionally handle mounted logic if needed
-});
 </script>
 
 <style scoped>
@@ -113,12 +103,5 @@ onMounted(() => {
   position: absolute;
   top: 10px;
   right: 10px;
-}
-
-@media (max-width: 640px) {
-  /* Adjust for small viewports */
-  .single-column {
-    flex-direction: column;
-  }
 }
 </style>

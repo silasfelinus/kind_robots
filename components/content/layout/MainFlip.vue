@@ -1,24 +1,14 @@
 <template>
   <div
     class="w-full md:border-accent-200 md:border-2 rounded-2xl bg-base-300 relative shadow-lg"
-    :style="{
-      height: mainHeight,
-      gridTemplateColumns: displayStore.gridColumns,
-    }"
+    :style="{ height: mainHeight }"
     :class="{
-      'grid gap-4': displayStore.isLargeViewport && !displayStore.isFullScreen,
       'flip-card': !displayStore.isLargeViewport || displayStore.isFullScreen,
     }"
   >
-    <!-- Mobile Viewport: Show either SplashTutorial or NuxtPage -->
-    <div v-if="displayStore.isMobileViewport">
-      <splash-tutorial v-show="displayStore.showTutorial" />
-      <NuxtPage v-show="!displayStore.showTutorial" />
-    </div>
-
     <!-- Flip-card Layout: For full-screen mode or non-large viewports -->
     <div
-      v-else-if="!displayStore.isLargeViewport || displayStore.isFullScreen"
+      v-if="!displayStore.isLargeViewport || displayStore.isFullScreen"
       class="flip-card-inner"
       :class="{ 'is-flipped': !displayStore.showTutorial }"
       @transitionend="handleTransitionEnd"
@@ -40,36 +30,16 @@
       </div>
     </div>
 
-    <!-- Two-column layout for large viewports and not in full-screen mode -->
-    <div v-else class="grid gap-4" :style="{ height: '100%' }">
-      <!-- First column: SplashTutorial -->
-      <div class="flex flex-col overflow-y-auto h-full">
-        <splash-tutorial />
-      </div>
-      <!-- Second column: NuxtPage -->
-      <div class="flex flex-col overflow-y-auto h-full border rounded-2xl">
-        <NuxtPage />
-      </div>
-    </div>
+    <!-- Two-column mode is handled outside in App.vue, so no need for extra layout logic here -->
   </div>
 
-  <!-- Move the buttons outside the grid container -->
-  <!-- Full-Screen Control Button -->
+  <!-- Full-Screen Control Button (optional, can be outside main-flip) -->
   <button
     v-if="displayStore.isFullScreen"
     class="bg-secondary text-base-100 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 fixed bottom-4 right-4 p-3"
     @click="displayStore.showTutorial = !displayStore.showTutorial"
   >
     {{ displayStore.showTutorial ? 'Launch' : 'Show Instructions' }}
-  </button>
-
-  <!-- Full Screen Toggle Button for Large Viewports -->
-  <button
-    v-if="displayStore.isLargeViewport"
-    class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 fixed bottom-4 left-4 p-1 ml-4"
-    @click="displayStore.toggleFullScreen"
-  >
-    {{ displayStore.isFullScreen ? 'Exit Full Screen' : 'Enter Full Screen' }}
   </button>
 </template>
 
@@ -153,12 +123,5 @@ const onFlipOut = (side: string) => {
 .flip-card-back {
   transform: rotateY(180deg); /* Back side of the card */
   overflow-y: auto; /* Scrollable content if needed */
-}
-
-/* Two-column layout should respect height */
-.grid-cols-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  height: 100%; /* Ensure the two-column layout respects the container height */
 }
 </style>

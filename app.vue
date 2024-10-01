@@ -2,7 +2,7 @@
   <div class="main-layout absolute inset-0 bg-base-300">
     <kind-loader></kind-loader>
 
-    <!-- Header -->
+    <!-- Header with Sidebar Toggle, Nav Links, and Kind Buttons -->
     <header
       class="header-overlay bg-base-300 flex items-center justify-between w-full h-auto p-2"
       :style="{ height: headerHeight }"
@@ -16,6 +16,9 @@
       <div class="flex flex-grow justify-center">
         <nav-links class="hidden sm:flex space-x-4"></nav-links>
       </div>
+
+      <!-- Kind Buttons (for Fullscreen/Two-column and Tutorial/NuxtPage) -->
+      <kind-buttons />
     </header>
 
     <!-- Main content area -->
@@ -53,15 +56,6 @@
     <!-- Footer -->
     <footer class="footer-overlay flex justify-center items-center" :style="{ height: footerHeight }"></footer>
   </div>
-
-  <!-- Full-Screen Toggle Button -->
-  <button
-    v-if="isLargeViewport"
-    class="fixed bottom-4 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-50 p-2 w-auto h-auto"
-    @click="toggleFullScreen"
-  >
-    {{ fullScreenButtonText }}
-  </button>
 </template>
 
 <script setup lang="ts">
@@ -79,18 +73,8 @@ const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const mainWidth = computed(() => displayStore.mainWidth)
-const isLargeViewport = computed(() => displayStore.viewportSize === 'large')
 const isFullScreen = computed(() => displayStore.isFullScreen)
-const fullScreenButtonText = computed(() =>
-  displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen',
-)
 
-// Toggle Fullscreen
-const toggleFullScreen = () => {
-  displayStore.toggleFullScreen()
-}
-
-// Initialization and error handling
 onMounted(async () => {
   try {
     if (!displayStore.isInitialized) {
@@ -130,15 +114,5 @@ onMounted(async () => {
 .sidebar-left-overlay,
 .sidebar-right-overlay {
   overflow-y: auto;
-}
-
-button {
-  position: fixed;
-  z-index: 50;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  cursor: pointer;
 }
 </style>

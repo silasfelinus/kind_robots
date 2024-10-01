@@ -1,6 +1,7 @@
 <template>
   <div
-    class="kind-buttons fixed bottom-0 right-0 flex flex-col items-end p-4 z-50"
+    class="kind-buttons fixed bottom-4 right-4 flex flex-col items-end p-4 z-50"
+    style="max-height: auto; max-width: auto"
   >
     <!-- Fullscreen / Two-column Toggle -->
     <button
@@ -44,6 +45,8 @@ const toggleTutorial = () => {
 <style scoped>
 .kind-buttons {
   pointer-events: none; /* This ensures that the component doesn't interfere with other elements */
+  max-height: auto; /* Ensure it doesn't stretch vertically */
+  max-width: auto; /* Ensure it doesn't stretch horizontally */
 }
 
 button {

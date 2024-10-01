@@ -75,7 +75,7 @@ const componentsMap: ComponentMapType = {
   'bubble-effect': resolveComponent('LazyBubbleEffect'),
   'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
   'rain-effect': resolveComponent('LazyRainEffect'),
-  'talking-butterflies': resolveComponent('LazyTalkingButterflies'),
+  'buterfly-animation': resolveComponent('LazyButterflyAnimation'),
 }
 
 const effects = ref([
@@ -110,7 +110,6 @@ const effects = ref([
     Icon: 'ph:butterfly-light',
     tooltip: 'Release AMI 🦋',
     reveal: 'Happy butterflies',
-    route: '/fundraiser',
     isActive: false,
   },
 ])

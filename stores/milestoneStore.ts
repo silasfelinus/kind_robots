@@ -43,7 +43,7 @@ export const useMilestoneStore = defineStore({
         try {
           await this.fetchMilestones()
         } catch (error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch milestones from database' + error)
+          errorStore.setError(ErrorType.NETWORK_ERROR, `Failed to fetch milestones from database: ${error instanceof Error ? error.message : 'Unknown error'}`)
         }
       }
 
@@ -52,12 +52,39 @@ export const useMilestoneStore = defineStore({
         try {
           await this.fetchMilestoneRecords()
         } catch (error) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch milestone records from database' + error)
+          errorStore.setError(ErrorType.NETWORK_ERROR, `Failed to fetch milestone records from database: ${error instanceof Error ? error.message : 'Unknown error'}`)
         }
       }
 
       this.isInitialized = true
       console.log('Milestone initialization complete')
+    },
+
+    async fetchMilestoneById(id: number) {
+      const errorStore = useErrorStore()
+
+      try {
+        const response = await fetch(`/api/milestones/${id}`)
+        const data = await response.json()
+
+        if (data.success && data.milestone) {
+          return {
+            success: true,
+            message: 'Milestone fetched successfully',
+            data: data.milestone as Milestone,
+          }
+        } else {
+          const message = `Failed to fetch milestone by ID ${id}: ${data.message}`
+          errorStore.setError(ErrorType.VALIDATION_ERROR, message)
+          console.error(message)
+          return { success: false, message: data.message }
+        }
+      } catch (error) {
+        const message = `Error fetching milestone by ID ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        errorStore.setError(ErrorType.NETWORK_ERROR, message)
+        console.error(message)
+        return { success: false, message }
+      }
     },
 
     // Fetch milestones from the API
@@ -209,6 +236,7 @@ export const useMilestoneStore = defineStore({
         return { success: false, message: `Error adding milestone record: ${error}` }
       }
     },
+    
 
     // Check if a user has a specific milestone
     hasMilestone(userId: number, milestoneId: number) {

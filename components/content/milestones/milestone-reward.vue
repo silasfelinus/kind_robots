@@ -59,20 +59,6 @@ const milestoneStore = useMilestoneStore()
 const errorStore = useErrorStore() // Initialize errorStore
 const milestone = ref<Milestone | null>(null)
 
-const fetchMilestoneById = async (id: number) => {
-  try {
-    const result = await milestoneStore.fetchMilestoneById(id)
-    if (result.success && result.data) {
-      milestone.value = result.data
-    } else {
-      throw new Error(result.message || 'Data is undefined')
-    }
-  } catch (error: unknown) {
-    errorStore.setError(ErrorType.GENERAL_ERROR, error) // Use errorStore for error handling
-    console.error('Failed to fetch milestone', errorStore.message)
-  }
-}
-
 const showPopup = ref(false)
 
 const togglePopup = () => {
@@ -126,7 +112,7 @@ const validateUserRecord = async () => {
 }
 
 onMounted(async () => {
-  await fetchMilestoneById(props.id || 10)
+  await milestoneStore.fetchMilestoneById(props.id || 10)
   showPopup.value = true
   if (userStore.userId !== 0) {
     await Promise.all([validateMilestoneRecord(), validateUserRecord()])

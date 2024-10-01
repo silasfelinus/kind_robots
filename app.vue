@@ -18,23 +18,26 @@
 
     <!-- Main content area (Grid column layout based on viewport and fullscreen status) -->
     <div
-      class="content-area"
-      :style="{ gridTemplateColumns: gridColumns, height: mainHeight }"
+      class="content-area grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-4"
+      :style="{ height: mainHeight }"
     >
+      <!-- Sidebar left -->
       <kind-sidebar-simple
-        class="sidebar-left-overlay overflow-y-auto bg-base-300"
+        class="sidebar-left-overlay overflow-y-auto bg-base-300 hidden md:block"
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
       ></kind-sidebar-simple>
 
+      <!-- Main content -->
       <main
-        class="main-content-overlay rounded-2xl bg-base-300"
+        class="main-content-overlay rounded-2xl bg-base-300 flex items-center justify-center"
         :style="{ height: mainHeight, width: mainWidth }"
       >
-        <main-content></main-content>
+        <main-content />
       </main>
 
+      <!-- Sidebar right -->
       <aside
-        class="sidebar-right-overlay"
+        class="sidebar-right-overlay hidden md:block"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>
@@ -51,14 +54,15 @@ import { useErrorStore, ErrorType } from './stores/errorStore'
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 
+// Computed layout properties
 const headerHeight = computed(() => displayStore.headerHeight)
 const mainHeight = computed(() => displayStore.mainHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
-const gridColumns = computed(() => displayStore.gridColumns)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const mainWidth = computed(() => displayStore.mainWidth)
 
+// Initialization and error handling
 onMounted(async () => {
   try {
     if (!displayStore.isInitialized) {
@@ -87,7 +91,14 @@ onMounted(async () => {
 
 .content-area {
   display: grid;
-  overflow: hidden;
+  grid-template-columns: 1fr;
+  grid-gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .content-area {
+    grid-template-columns: auto 1fr auto;
+  }
 }
 
 .header-overlay,
@@ -98,5 +109,11 @@ onMounted(async () => {
   position: relative;
   text-align: center;
   padding: 0;
+}
+
+.main-content-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

@@ -19,42 +19,42 @@
       <Icon name="construction" class="object-cover w-full h-full text-warning" />
     </div>
 
-    <!-- Main Content Section -->
-    <div class="flex-1 flex flex-col items-center justify-start space-y-2 overflow-y-auto p-2">
-      <!-- Main Image -->
+    <!-- Main Content Section (flexible, responsive space) -->
+    <div class="flex-1 flex flex-col items-center justify-start space-y-2 overflow-hidden p-2">
+      <!-- Main Image with max height to prevent overflow -->
       <img
         v-if="page && page.image"
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[35vh] lg:max-h-[45vh]"
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[30vh] lg:max-h-[40vh]"
       />
 
       <!-- Title, Description, and Subtitle Section -->
-      <div class="text-center w-full space-y-1 lg:space-y-2">
-        <h1 v-if="page && page.title" class="text-2xl lg:text-4xl font-bold">
+      <div class="text-center w-full space-y-1 lg:space-y-2 overflow-hidden">
+        <h1 v-if="page && page.title" class="text-2xl lg:text-4xl font-bold truncate">
           {{ page.title }}
         </h1>
 
         <h2
           v-if="page && page.subtitle"
-          class="text-xs md:text-md font-medium text-accent"
+          class="text-xs md:text-md font-medium text-accent truncate"
         >
           {{ page.subtitle }}
         </h2>
 
         <h3
           v-if="page && page.description"
-          class="text-sm lg:text-md font-medium px-2 md:px-4"
+          class="text-sm lg:text-md font-medium px-2 md:px-4 truncate"
         >
           {{ page.description }}
         </h3>
       </div>
     </div>
 
-    <!-- Bot Messages Section -->
+    <!-- Bot Messages Section (controlled height to avoid overflow) -->
     <div
       v-if="page && page.dottitip && page.amitip"
-      class="flex flex-col space-y-2 md:space-y-4 w-full max-w-3xl px-4 py-1 lg:py-2 overflow-y-auto"
+      class="flex flex-col space-y-2 md:space-y-4 w-full max-w-3xl px-4 py-1 lg:py-2 overflow-hidden"
     >
       <!-- DottiBot Message (Left-Aligned) -->
       <div class="flex justify-start">
@@ -101,3 +101,24 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 const { page } = useContent()
 </script>
+
+<style scoped>
+/* Prevent overflow and ensure the layout fits within the container */
+.flex-1 {
+  flex-grow: 1;
+  overflow-y: hidden; /* Adjust to fit content */
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
+}
+</style>

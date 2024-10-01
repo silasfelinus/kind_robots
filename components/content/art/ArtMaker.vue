@@ -1,6 +1,6 @@
 <template>
   <div class="bg-base-300 rounded-2xl border p-6 text-lg max-w-lg mx-auto">
-    <h1 class="text-2xl mb-4 text-center">🎨 Welcome to the Art-Maker</h1>
+    <h1 class="text-2xl m-4 text-center">🎨 Welcome to the Art-Maker</h1>
 
     <!-- Prompt Input -->
     <div class="mb-4">

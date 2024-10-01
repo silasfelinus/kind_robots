@@ -15,6 +15,7 @@
         <nav-links class="hidden sm:flex justify-center"></nav-links>
       </div>
 
+      <!-- Full-Screen Toggle Button for Large Viewports -->
       <button
         v-if="isLargeViewport"
         class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"
@@ -23,6 +24,7 @@
         {{ displayStore.isFullScreen ? 'Two Columns' : 'Full Screen' }}
       </button>
 
+      <!-- Launch and Instructions Button (for Small/Medium Viewports) -->
       <button
         v-if="showLaunchButton"
         class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 p-1 ml-4 mr-4"
@@ -40,7 +42,7 @@
       </button>
     </header>
 
-    <!-- Main content area -->
+    <!-- Main content area (Grid column layout based on viewport and fullscreen status) -->
     <div
       class="content-area"
       :style="{ gridTemplateColumns: gridColumns, height: mainHeight }"

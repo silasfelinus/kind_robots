@@ -21,7 +21,7 @@
     </div>
 
     <!-- For large viewports, display two columns -->
-    <div v-if="isLargeViewport && !isFullScreen" class="two-column">
+    <div v-if="isLargeViewport && !isFullScreen" class="two-column" :style="{ height: contentHeight }">
       <div class="left-column">
         <SplashTutorial />
       </div>
@@ -31,7 +31,7 @@
     </div>
 
     <!-- Fullscreen view -->
-    <div v-if="isLargeViewport && isFullScreen" class="fullscreen-content">
+    <div v-if="isLargeViewport && isFullScreen" class="fullscreen-content" :style="{ height: contentHeight }">
       <div v-if="showTutorial">
         <SplashTutorial />
       </div>
@@ -104,6 +104,13 @@ const fullScreenButtonText = computed(() =>
   isFullScreen.value ? 'Exit Full Screen' : 'Full Screen',
 )
 
+// Calculate the height for the main content area between the header and footer
+const contentHeight = computed(() => {
+  const headerHeight = displayStore.headerHeight
+  const footerHeight = displayStore.footerHeight
+  return `calc(100vh - ${headerHeight}px - ${footerHeight}px)`
+})
+
 // Methods to toggle full screen and tutorial
 const toggleFullScreen = () => {
   displayStore.toggleFullScreen()
@@ -118,15 +125,14 @@ const toggleTutorial = () => {
 /* Layout Styles */
 .single-column,
 .center-content,
-.two-column,
 .fullscreen-content {
-  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
 }
 
+/* For two-column layout */
 .two-column {
   display: grid;
   grid-template-columns: 1fr 1fr;

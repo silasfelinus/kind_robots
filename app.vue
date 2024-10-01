@@ -29,7 +29,7 @@
 
       <!-- Main content -->
       <main
-        class="main-content-overlay rounded-2xl bg-base-300 overflow-auto"
+        class="main-content-overlay rounded-2xl bg-base-300 overflow-y-auto"
         :style="{ height: mainHeight, width: mainWidth }"
       >
         <main-content />
@@ -37,7 +37,7 @@
 
       <!-- Sidebar right -->
       <aside
-        class="sidebar-right-overlay hidden md:block"
+        class="sidebar-right-overlay hidden md:block overflow-y-auto"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>
@@ -46,9 +46,9 @@
     <footer class="footer-overlay" :style="{ height: footerHeight }"></footer>
   </div>
 
-  <!-- Flip Button (visible on medium screens) -->
+  <!-- Full-Screen Toggle Button -->
   <button
-    v-if="isMediumViewport"
+    v-if="isLargeViewport"
     class="flip-btn fixed bottom-4 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-50 p-2"
     @click="toggleFullScreen"
   >
@@ -71,8 +71,10 @@ const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const mainWidth = computed(() => displayStore.mainWidth)
-const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
-const fullScreenButtonText = computed(() => displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen')
+const isLargeViewport = computed(() => displayStore.viewportSize === 'large')
+const fullScreenButtonText = computed(() =>
+  displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen',
+)
 
 // Toggle Fullscreen
 const toggleFullScreen = () => {
@@ -110,12 +112,13 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0; /* No gap to respect height boundaries */
+  overflow: hidden; /* Prevents double scrollbars */
 }
 
 @media (min-width: 768px) {
   .content-area {
     grid-template-columns: auto 1fr auto;
-    gap: 0; /* No gap for medium+ screens */
+    gap: 0;
   }
 }
 
@@ -129,7 +132,7 @@ onMounted(async () => {
 }
 
 .main-content-overlay {
-  overflow: auto; /* Ensure scrolling works within the main content */
+  overflow-y: auto; /* Ensure scrolling only within the main content */
 }
 
 .sidebar-left-overlay,

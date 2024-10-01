@@ -39,10 +39,10 @@
     <!-- Main content area with dynamic grid -->
     <div
       class="grid overflow-hidden"
-      :class="isTwoColumnMode ? 'grid-cols-[auto_1fr_auto]' : 'grid-cols-1'"
+      :class="isTwoColumnMode ? 'grid-cols-[1fr_auto]' : 'grid-cols-1'"
       :style="{ height: mainHeight }"
     >
-      <!-- Sidebar left (always visible in two-column mode) -->
+      <!-- Sidebar left (visible in two-column mode) -->
       <kind-sidebar-simple
         v-if="isTwoColumnMode"
         class="hidden md:block bg-base-300 overflow-y-auto"
@@ -77,15 +77,12 @@
           </div>
         </div>
 
-        <!-- Large view: Two-column layout (no full-screen mode toggle visible) -->
-        <div
-          v-else-if="isTwoColumnMode"
-          class="grid grid-cols-[auto_1fr] w-full h-full"
-        >
-          <div class="p-4" :style="{ width: sidebarLeftWidth }">
+        <!-- Large view: Two-column layout (main content divided into two columns) -->
+        <div v-else-if="isTwoColumnMode" class="grid grid-cols-2 w-full h-full">
+          <div class="p-4">
             <SplashTutorial />
           </div>
-          <div class="overflow-y-auto p-4" :style="{ width: mainWidth }">
+          <div class="overflow-y-auto p-4">
             <NuxtPage />
           </div>
         </div>
@@ -104,10 +101,10 @@
         </div>
       </main>
 
-      <!-- Sidebar right (always visible in two-column mode) -->
+      <!-- Right Sidebar (space reserved, but no interaction with the main content) -->
       <aside
         v-if="isTwoColumnMode"
-        class="hidden md:block overflow-y-auto bg-base-300"
+        class="hidden md:block bg-base-300"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>

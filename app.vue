@@ -15,25 +15,8 @@
         <nav-links class="hidden sm:flex space-x-4"></nav-links>
       </div>
 
-      <!-- Fullscreen / Tutorial Toggle Buttons -->
-      <div
-        v-if="!isLargeViewport || isFullScreen"
-        class="flex items-center space-x-2"
-      >
-        <button
-          class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition-colors duration-300 p-2"
-          @click="toggleFullScreen"
-        >
-          {{ fullScreenButtonText }}
-        </button>
-        <button
-          v-if="!isTwoColumnMode"
-          class="bg-accent text-base-200 rounded-lg shadow-md hover:bg-accent-focus transition-colors duration-300 p-2"
-          @click="toggleTutorial"
-        >
-          Switch to {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}
-        </button>
-      </div>
+      <!-- Kind Buttons for Fullscreen / Tutorial Toggle -->
+      <kind-buttons class="flex items-center space-x-2" />
     </header>
 
     <!-- Main content area with dynamic grid -->
@@ -145,18 +128,4 @@ const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const mainWidth = computed(() => displayStore.mainWidth)
-
-// Fullscreen button text
-const fullScreenButtonText = computed(() =>
-  displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen',
-)
-
-// Toggle functions
-const toggleFullScreen = () => {
-  displayStore.toggleFullScreen()
-}
-
-const toggleTutorial = () => {
-  displayStore.toggleTutorial()
-}
 </script>

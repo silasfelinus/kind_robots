@@ -1,11 +1,7 @@
 <template>
-  <div
-    class="kind-buttons fixed bottom-4 right-4 flex flex-col items-end p-4 z-50"
-    style="max-height: auto; max-width: auto"
-  >
+  <div class="kind-buttons fixed inset-0 flex items-end justify-end p-4 z-50">
     <!-- Fullscreen / Two-column Toggle -->
     <button
-      v-if="isLargeViewport || isMediumViewport"
       class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 p-2 m-2"
       @click="toggleFullScreen"
     >
@@ -19,23 +15,6 @@
     >
       Switch to {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}
     </button>
-
-    <!-- Launch and Instructions Buttons for Small/Medium Viewports -->
-    <button
-      v-if="showLaunchButton"
-      class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 p-2 m-2"
-      @click="toggleTutorial"
-    >
-      Launch
-    </button>
-
-    <button
-      v-if="showInstructionsButton"
-      class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 p-2 m-2"
-      @click="toggleTutorial"
-    >
-      Instructions
-    </button>
   </div>
 </template>
 
@@ -45,31 +24,16 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Button visibility logic
-const showLaunchButton = computed(
-  () =>
-    !displayStore.showTutorial &&
-    ['small', 'medium'].includes(displayStore.viewportSize),
-)
-
-const showInstructionsButton = computed(
-  () =>
-    displayStore.showTutorial &&
-    ['small', 'medium'].includes(displayStore.viewportSize),
-)
-
+// Fullscreen / Two-column toggle button
+const isFullScreen = computed(() => displayStore.isFullScreenMainContent)
 const fullScreenButtonText = computed(() =>
-  displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen',
+  displayStore.isFullScreenMainContent ? 'Exit Full Screen' : 'Full Screen'
 )
 
 // Tutorial / NuxtPage toggle button
 const showTutorial = computed(() => displayStore.showTutorial)
-const isLargeViewport = computed(() => displayStore.isLargeViewport)
-const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
-
-// Methods
 const toggleFullScreen = () => {
-  displayStore.toggleFullScreen()
+  displayStore.toggleFullScreenMainContent() // Adjust logic to toggle full-screen mode only for the main content
 }
 
 const toggleTutorial = () => {
@@ -79,12 +43,14 @@ const toggleTutorial = () => {
 
 <style scoped>
 .kind-buttons {
-  pointer-events: none; /* This ensures that the component doesn't interfere with other elements */
-  max-height: auto; /* Ensure it doesn't stretch vertically */
-  max-width: auto; /* Ensure it doesn't stretch horizontally */
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* Ensure the component doesn't interfere with other elements */
 }
 
 button {
   pointer-events: auto; /* Ensures buttons themselves are clickable */
+  position: relative;
+  z-index: 50;
 }
 </style>

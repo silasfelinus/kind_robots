@@ -17,8 +17,8 @@
         <nav-links class="hidden sm:flex space-x-4"></nav-links>
       </div>
 
-      <!-- Kind Buttons -->
-      <div class="flex flex-grow justify-right">
+      <!-- Kind Buttons (Aligned to the right) -->
+      <div class="flex items-center space-x-2">
         <kind-buttons></kind-buttons>
       </div>
     </header>
@@ -29,7 +29,6 @@
       <kind-sidebar-simple
         v-if="sidebarLeftWidth > 0"
         class="overflow-y-auto bg-base-300"
-        :class="{ hidden: sidebarLeftWidth === 0 }"
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
       ></kind-sidebar-simple>
 
@@ -83,7 +82,6 @@
       <aside
         v-if="sidebarRightWidth > 0"
         class="overflow-y-auto"
-        :class="{ hidden: sidebarRightWidth === 0 }"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>

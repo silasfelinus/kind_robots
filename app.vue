@@ -18,7 +18,7 @@
 
     <!-- Main content area -->
     <div
-      class="content-area grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-4"
+      class="content-area grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-0"
       :style="{ height: mainHeight }"
     >
       <!-- Sidebar left -->
@@ -29,7 +29,7 @@
 
       <!-- Main content -->
       <main
-        class="main-content-overlay rounded-2xl bg-base-300 flex items-center justify-center overflow-auto"
+        class="main-content-overlay rounded-2xl bg-base-300 overflow-auto"
         :style="{ height: mainHeight, width: mainWidth }"
       >
         <main-content />
@@ -45,6 +45,15 @@
     <!-- Footer -->
     <footer class="footer-overlay" :style="{ height: footerHeight }"></footer>
   </div>
+
+  <!-- Flip Button (visible on medium screens) -->
+  <button
+    v-if="isMediumViewport"
+    class="flip-btn fixed bottom-4 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-50 p-2"
+    @click="toggleFullScreen"
+  >
+    {{ fullScreenButtonText }}
+  </button>
 </template>
 
 <script setup lang="ts">
@@ -62,6 +71,13 @@ const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const mainWidth = computed(() => displayStore.mainWidth)
+const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
+const fullScreenButtonText = computed(() => displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen')
+
+// Toggle Fullscreen
+const toggleFullScreen = () => {
+  displayStore.toggleFullScreen()
+}
 
 // Initialization and error handling
 onMounted(async () => {
@@ -93,13 +109,13 @@ onMounted(async () => {
 .content-area {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: 0; /* No gap to respect height boundaries */
 }
 
 @media (min-width: 768px) {
   .content-area {
     grid-template-columns: auto 1fr auto;
-    gap: 1.5rem; /* More spacing for larger screens */
+    gap: 0; /* No gap for medium+ screens */
   }
 }
 
@@ -113,9 +129,6 @@ onMounted(async () => {
 }
 
 .main-content-overlay {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: auto; /* Ensure scrolling works within the main content */
 }
 
@@ -124,10 +137,17 @@ onMounted(async () => {
   overflow-y: auto; /* Allow scrolling within sidebars if content overflows */
 }
 
-/* Styling for footer and other elements */
 .footer-overlay {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Flip button styling */
+.flip-btn {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 50;
 }
 </style>

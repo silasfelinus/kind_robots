@@ -26,7 +26,7 @@
     <!-- Main content area -->
     <div
       class="grid h-full"
-      :class="isFullScreen ? 'grid-cols-1' : 'grid-cols-[auto_1fr_auto]'"
+      :class="isFullScreen ? 'grid-cols-2' : 'grid-cols-[auto_1fr_auto]'"
       :style="{ height: mainHeight }"
     >
       <!-- Sidebar left -->
@@ -39,11 +39,11 @@
       <main class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full">
         <!-- Fullscreen mode: Two-column layout showing both tutorial and page -->
         <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">
-          <div class="h-full">
-            <SplashTutorial class="h-full" />
+          <div class="h-full w-full">
+            <SplashTutorial class="h-full w-full" />
           </div>
-          <div class="h-full">
-            <NuxtPage class="h-full" />
+          <div class="h-full w-full">
+            <NuxtPage class="h-full w-full" />
           </div>
         </div>
 
@@ -60,7 +60,7 @@
 
       <!-- Sidebar right -->
       <aside
-        class="bg-base-300 h-full"
+        class="bg-base-300 overflow-y-auto"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>
@@ -100,18 +100,12 @@ const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
   overflow: hidden;
 }
 
-.main-content-overlay,
-.instructions,
-.launch {
-  height: 100%;
-}
-
-.grid-cols-1 {
-  grid-template-columns: 1fr;
-}
-
 .grid-cols-2 {
   grid-template-columns: 1fr 1fr;
+}
+
+.grid-cols-[auto_1fr_auto] {
+  grid-template-columns: auto 1fr auto;
 }
 
 button:hover {

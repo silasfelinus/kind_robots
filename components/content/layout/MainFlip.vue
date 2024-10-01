@@ -38,8 +38,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useDisplayStore } from '@/stores/displayStore';
-import SplashTutorial from '@/components/SplashTutorial.vue';
-import NuxtPage from '@/components/NuxtPage.vue';
+
 
 // Get access to displayStore
 const displayStore = useDisplayStore();

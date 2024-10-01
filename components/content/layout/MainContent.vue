@@ -1,121 +1,101 @@
 <template>
-  <div class="main-layout absolute inset-0 bg-base-300">
-    <kind-loader></kind-loader>
-
-    <!-- Header with Sidebar Toggle and Nav Links -->
-    <header
-      class="header-overlay bg-base-300 flex items-center justify-between w-full h-auto p-2"
-      :style="{ height: headerHeight }"
-    >
-      <!-- Sidebar Toggle -->
-      <div class="p-1 z-40 text-white">
-        <sidebar-toggle class="text-4xl"></sidebar-toggle>
+  <div class="rounded-2xl border-2 border-accent-200">
+    <!-- For small viewports, display only one section -->
+    <div v-if="isMobileViewport" class="single-column">
+      <div v-if="showTutorial" class="instructions">
+        <SplashTutorial />
       </div>
-
-      <!-- Navigation Links (Centered) -->
-      <div class="flex flex-grow justify-center">
-        <nav-links class="hidden sm:flex space-x-4"></nav-links>
+      <div v-else class="launch">
+        <NuxtPage />
       </div>
-
-      <!-- Kind Buttons (Moved here for Fullscreen/Two-column and Tutorial/NuxtPage) -->
-      <kind-buttons />
-    </header>
-
-    <!-- Main content area -->
-    <div
-      class="content-area grid"
-      :class="isFullScreen ? 'grid-cols-1' : 'md:grid-cols-[auto_1fr_auto]'"
-      :style="{ height: mainHeight }"
-    >
-      <!-- Sidebar left (only visible in two-column mode) -->
-      <kind-sidebar-simple
-        v-if="!isFullScreen"
-        class="sidebar-left-overlay overflow-y-auto bg-base-300 hidden md:block"
-        :style="{ width: sidebarLeftWidth, height: mainHeight }"
-      ></kind-sidebar-simple>
-
-      <!-- Main content -->
-      <main
-        class="main-content-overlay rounded-2xl bg-base-300 overflow-y-auto"
-        :style="{
-          height: mainHeight,
-          width: isFullScreen ? '100%' : mainWidth,
-        }"
-      >
-        <main-content />
-      </main>
-
-      <!-- Sidebar right (only visible in two-column mode) -->
-      <aside
-        v-if="!isFullScreen"
-        class="sidebar-right-overlay hidden md:block overflow-y-auto"
-        :style="{ width: sidebarRightWidth, height: mainHeight }"
-      ></aside>
     </div>
 
-    <!-- Footer -->
-    <footer
-      class="footer-overlay flex justify-center items-center"
-      :style="{ height: footerHeight }"
-    ></footer>
+    <!-- For medium viewports, display centered content -->
+    <div
+      v-if="isMediumViewport"
+      class="center-content"
+      :style="{ height: mainHeight }"
+    >
+      <div v-if="showTutorial" class="tutorial-section">
+        <SplashTutorial />
+      </div>
+      <div v-else class="launch-section">
+        <NuxtPage />
+      </div>
+    </div>
+
+    <!-- For large viewports, display two columns -->
+    <div
+      v-if="isLargeViewport && !isFullScreen"
+      class="two-column"
+      :style="{ height: mainHeight, gridTemplateColumns: gridColumns }"
+    >
+      <div class="left-column" :style="{ width: sidebarLeftWidth }">
+        <SplashTutorial />
+      </div>
+      <div class="right-column overflow-y-auto" :style="{ width: mainWidth }">
+        <NuxtPage />
+      </div>
+    </div>
+
+    <!-- Fullscreen view -->
+    <div
+      v-if="isLargeViewport && isFullScreen"
+      class="fullscreen-content"
+      :style="{ height: mainHeight }"
+    >
+      <div v-if="showTutorial">
+        <SplashTutorial />
+      </div>
+      <div v-else>
+        <NuxtPage />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useDisplayStore } from './../../../stores/displayStore'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { computed } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-const errorStore = useErrorStore()
 
-// Computed layout properties
-const headerHeight = computed(() => displayStore.headerHeight)
-const mainHeight = computed(() => displayStore.mainHeight)
-const footerHeight = computed(() => displayStore.footerHeight)
-const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
-const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const mainWidth = computed(() => displayStore.mainWidth)
+// Viewport conditions
+const isMobileViewport = computed(() => displayStore.isMobileViewport)
+const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
+const isLargeViewport = computed(() => displayStore.isLargeViewport)
+const showTutorial = computed(() => displayStore.showTutorial)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 
-onMounted(async () => {
-  try {
-    if (!displayStore.isInitialized) {
-      await errorStore.handleError(
-        async () => displayStore.initialize(),
-        ErrorType.STORE_ERROR,
-        'Error initializing display store',
-      )
-    }
-  } catch (error) {
-    errorStore.setError(
-      ErrorType.STORE_ERROR,
-      error instanceof Error ? error.message : 'Unknown error during mounting',
-    )
-  }
-})
+// Calculating dynamic heights and widths from displayStore
+const mainHeight = computed(() => displayStore.mainHeight)
+const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
+const mainWidth = computed(() => displayStore.mainWidth)
+const gridColumns = computed(() => displayStore.gridColumns)
 </script>
 
 <style scoped>
-.main-layout {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  height: 100vh;
+/* Layout Styles */
+.single-column,
+.center-content,
+.fullscreen-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
 }
 
-.content-area {
+/* For two-column layout */
+.two-column {
   display: grid;
-  gap: 0;
-  overflow: hidden;
 }
 
-.main-content-overlay {
-  overflow-y: auto;
+.left-column,
+.right-column {
+  padding: 1rem;
 }
 
-.sidebar-left-overlay,
-.sidebar-right-overlay {
-  overflow-y: auto;
+.right-column {
+  overflow-y: auto; /* Allow scrolling only within the NuxtPage */
 }
 </style>

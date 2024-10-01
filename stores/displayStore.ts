@@ -197,7 +197,7 @@ gridColumns() {
           } else if (width >= 1024 && width < 1440) {
             this.viewportSize = 'large'
             this.isMobileViewport = false;
-            this.fullScreen = true;
+            this.isFullScreen = true;
           } else {
             this.viewportSize = 'extraLarge'
             this.isMobileViewport = false;

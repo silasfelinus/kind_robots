@@ -2,9 +2,6 @@
   <div
     class="w-full md:border-accent-200 md:border-2 rounded-2xl bg-base-300 relative shadow-lg"
     :style="{ height: mainHeight }"
-    :class="{
-      'flip-card': !displayStore.isLargeViewport || displayStore.isFullScreen,
-    }"
   >
     <!-- Flip-card Layout: For full-screen mode or non-large viewports -->
     <div
@@ -30,17 +27,12 @@
       </div>
     </div>
 
-    <!-- Two-column mode is handled outside in App.vue, so no need for extra layout logic here -->
+    <!-- Two-column mode is handled outside in App.vue, but we still need to show the content -->
+    <div v-else>
+      <!-- No special layout needed for two-column mode here -->
+      <NuxtPage />
+    </div>
   </div>
-
-  <!-- Full-Screen Control Button (optional, can be outside main-flip) -->
-  <button
-    v-if="displayStore.isFullScreen"
-    class="bg-secondary text-base-100 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 fixed bottom-4 right-4 p-3"
-    @click="displayStore.showTutorial = !displayStore.showTutorial"
-  >
-    {{ displayStore.showTutorial ? 'Launch' : 'Show Instructions' }}
-  </button>
 </template>
 
 <script setup lang="ts">

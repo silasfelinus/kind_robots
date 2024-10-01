@@ -16,8 +16,6 @@
       <div class="flex flex-grow justify-center">
         <nav-links class="hidden sm:flex space-x-4"></nav-links>
       </div>
-      
-      <!-- Add additional elements like user profile or actions here if needed -->
     </header>
 
     <!-- Main content area -->
@@ -59,7 +57,7 @@
   <!-- Full-Screen Toggle Button -->
   <button
     v-if="isLargeViewport"
-    class="flip-btn fixed bottom-4 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-50 p-2"
+    class="fixed bottom-4 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-50 p-2 w-auto h-auto"
     @click="toggleFullScreen"
   >
     {{ fullScreenButtonText }}
@@ -132,10 +130,6 @@ onMounted(async () => {
 .sidebar-left-overlay,
 .sidebar-right-overlay {
   overflow-y: auto;
-}
-
-.flip-btn {
-  bottom: 4rem;
 }
 
 button {

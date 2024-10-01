@@ -89,26 +89,12 @@ const handleTransitionEnd = () => {
   isFlippedComplete.value = true
 }
 
-const forceReflow = () => {
-  const element = document.querySelector('.flip-card-inner')
-  if (element instanceof HTMLElement) {
-    // Force reflow by accessing offsetHeight
-    void element.offsetHeight
-  }
-}
-
 const onFlipOut = (side: string) => {
-  // Trigger reflow at the start
-  forceReflow()
-
   if (side === 'splash' && !displayStore.showTutorial) {
     isFlippedComplete.value = false
   } else if (side === 'nuxt' && displayStore.showTutorial) {
     isFlippedComplete.value = false
   }
-
-  // Trigger reflow at the end to ensure the transition is applied
-  forceReflow()
 }
 </script>
 

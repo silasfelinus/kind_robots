@@ -304,24 +304,62 @@ gridColumns() {
       this[section] = newState
       this.saveState()
     },
+    resetInitialization() {
+      this.isInitialized = false;
+    },
 
 
     saveState() {
       try {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('sidebarLeftState', this.sidebarLeftState)
-          localStorage.setItem('sidebarRightState', this.sidebarRightState)
-          localStorage.setItem('headerState', this.headerState)
-          localStorage.setItem('footerState', this.footerState)
-          localStorage.setItem('showTutorial', String(this.showTutorial))
-          localStorage.setItem('isFullScreen', String(this.isFullScreen))
-          localStorage.setItem('showIntro', String(this.showIntro))
-          localStorage.setItem('flipState', this.flipState)
+        if (typeof window !== 'undefined' && window.localStorage) {
+          // Check and update sidebarLeftState
+          if (localStorage.getItem('sidebarLeftState') !== this.sidebarLeftState) {
+            localStorage.setItem('sidebarLeftState', this.sidebarLeftState);
+          }
+          
+          // Check and update sidebarRightState
+          if (localStorage.getItem('sidebarRightState') !== this.sidebarRightState) {
+            localStorage.setItem('sidebarRightState', this.sidebarRightState);
+          }
+    
+          // Check and update headerState
+          if (localStorage.getItem('headerState') !== this.headerState) {
+            localStorage.setItem('headerState', this.headerState);
+          }
+    
+          // Check and update footerState
+          if (localStorage.getItem('footerState') !== this.footerState) {
+            localStorage.setItem('footerState', this.footerState);
+          }
+    
+          // Check and update showTutorial
+          const storedShowTutorial = localStorage.getItem('showTutorial');
+          if (storedShowTutorial !== String(this.showTutorial)) {
+            localStorage.setItem('showTutorial', String(this.showTutorial));
+          }
+    
+          // Check and update isFullScreen
+          const storedIsFullScreen = localStorage.getItem('isFullScreen');
+          if (storedIsFullScreen !== String(this.isFullScreen)) {
+            localStorage.setItem('isFullScreen', String(this.isFullScreen));
+          }
+    
+          // Check and update showIntro
+          const storedShowIntro = localStorage.getItem('showIntro');
+          if (storedShowIntro !== String(this.showIntro)) {
+            localStorage.setItem('showIntro', String(this.showIntro));
+          }
+    
+          // Check and update flipState
+          if (localStorage.getItem('flipState') !== this.flipState) {
+            localStorage.setItem('flipState', this.flipState);
+          }
         }
       } catch (error) {
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+        const errorStore = useErrorStore();
+        errorStore.setError(ErrorType.GENERAL_ERROR, error);
       }
     },
+    
   },
 })

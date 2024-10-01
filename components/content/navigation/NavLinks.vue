@@ -45,7 +45,7 @@
     </div>
 
     <!-- Horizontal Links for Larger Screens -->
-    <div class="hidden md:flex items-center gap-4">
+    <div class="hidden md:flex items-center gap-4 flex-wrap">
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"

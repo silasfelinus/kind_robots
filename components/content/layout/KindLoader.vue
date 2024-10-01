@@ -1,8 +1,5 @@
 <template>
-  <div class="main-loader-container">
-    <ami-loader />
-    <animation-loader></animation-loader>
-  </div>
+  <ami-loader />
 </template>
 
 <script setup lang="ts">
@@ -73,11 +70,3 @@ onBeforeUnmount(() => {
   displayStore.removeViewportWatcher() // Clean up the watcher
 })
 </script>
-<style scoped>
-.main-loader-container {
-  position: relative;
-  z-index: 10; /* Ensure this is above the animations */
-  height: 100vh;
-  width: 100vw;
-}
-</style>

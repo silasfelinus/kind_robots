@@ -1,12 +1,12 @@
 <template>
   <div
-    class="art-viewer bg-primary rounded-2xl p-4 transition-shadow hover:shadow-lg cursor-pointer"
+    class="bg-primary rounded-2xl p-4 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer"
     @click="selectArt"
   >
     <h3 class="text-lg font-semibold mb-2 truncate" title="Prompt">
       {{ prompt?.prompt || 'No prompt available' }}
     </h3>
-    <div class="image-wrapper relative">
+    <div class="relative overflow-hidden max-h-[200px]">
       <img
         :src="art.path ?? '/placeholder.jpg'"
         alt="Artwork"
@@ -14,7 +14,7 @@
         loading="lazy"
       />
     </div>
-    <div class="art-details mt-2">
+    <div class="mt-2">
       <p class="text-base truncate" title="Pitch">
         {{ selectedPitch?.pitch || 'No pitch available' }}
       </p>
@@ -71,26 +71,3 @@ const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 </script>
-
-<style scoped>
-.art-viewer {
-  @apply transition-all ease-in-out duration-300;
-}
-
-.image-wrapper {
-  @apply overflow-hidden;
-  max-height: 200px;
-}
-
-.art-details {
-  @apply mt-2;
-}
-
-.art-viewer:hover {
-  @apply shadow-lg;
-}
-
-h3 {
-  @apply truncate;
-}
-</style>

@@ -4,7 +4,7 @@
     class="kind-footer w-full bg-primary text-white flex justify-center items-center transition-all duration-500"
     :style="{
       height: `${displayStore.footerVh}vh`,
-      width: `${displayStore.footerVw}%`,
+      width: `100%`,
     }"
   >
     <p class="text-center text-sm flex items-center space-x-2">

@@ -189,15 +189,19 @@ gridColumns() {
           if (width < 768) {
             this.viewportSize = 'small'
             this.isMobileViewport = true;
+            this.isFullScreen = false;
           } else if (width >= 768 && width < 1024) {
             this.viewportSize = 'medium'
             this.isMobileViewport = false;
+            this.isFullScreen = false;
           } else if (width >= 1024 && width < 1440) {
             this.viewportSize = 'large'
             this.isMobileViewport = false;
+            this.fullScreen = true;
           } else {
             this.viewportSize = 'extraLarge'
             this.isMobileViewport = false;
+            this.isFullScreen = true;
           }
         }
       } catch (error) {

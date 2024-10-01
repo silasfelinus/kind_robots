@@ -18,7 +18,9 @@
       </div>
 
       <!-- Kind Buttons -->
-      <kind-buttons></kind-buttons>
+      <div class="flex flex-grow justify-right">
+        <kind-buttons></kind-buttons>
+      </div>
     </header>
 
     <!-- Main content area -->

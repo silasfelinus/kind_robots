@@ -73,7 +73,7 @@ const toggleFullScreen = () => {
 .two-column {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 100vh;
+  height: 100%;
 }
 
 .left-column, .right-column {
@@ -82,7 +82,7 @@ const toggleFullScreen = () => {
 
 .flip-card {
   perspective: 1000px;
-  height: 100vh;
+  height: 100%;
 }
 
 .flip-side {

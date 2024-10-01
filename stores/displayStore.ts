@@ -113,14 +113,10 @@ gridColumns() {
       if (this.isFullScreen) {
         return `${this.sidebarLeftVw}vw calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) ${this.sidebarRightVw}vw`;
       } else {
-        return `100%`; // Full width if not in full-screen mode
+        return `100%`; 
       }
     },
-    
-    
-    
   
-    
     isLargeViewport: (state): boolean => ['large', 'extraLarge'].includes(state.viewportSize),
 
     iconSize: (state): number => {
@@ -318,7 +314,7 @@ gridColumns() {
           localStorage.setItem('headerState', this.headerState)
           localStorage.setItem('footerState', this.footerState)
           localStorage.setItem('showTutorial', String(this.showTutorial))
-          localStorage.setItem('isFullScreenl', String(this.isFullScreen))
+          localStorage.setItem('isFullScreen', String(this.isFullScreen))
           localStorage.setItem('showIntro', String(this.showIntro))
           localStorage.setItem('flipState', this.flipState)
         }

@@ -1,113 +1,99 @@
 <template>
   <div
-    class="bg-base-300 shadow-xl rounded-3xl border border-base-200 p-6 text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105"
+    class="art-viewer bg-primary rounded-2xl p-4 transition-shadow hover:shadow-lg cursor-pointer"
+    @click="selectArt"
   >
-    <h1 class="text-3xl font-bold m-6 text-center text-primary">
-      🎨 Welcome to the Art-Maker
-    </h1>
-
-    <!-- Prompt Input -->
-    <div class="mb-6">
-      <input
-        v-model="promptStore.promptField"
-        placeholder="Enter your creative prompt..."
-        class="rounded-3xl p-4 w-full text-lg bg-base-200 placeholder-gray-500 focus:ring-4 focus:ring-info focus:outline-none shadow-inner transition-all"
-        :disabled="loading"
-        @input="savePrompt"
-      />
-    </div>
-
-    <!-- Generate Art Button -->
-    <button
-      class="bg-primary text-white font-semibold rounded-3xl p-4 w-full transition-all duration-300 ease-in-out hover:bg-info hover:shadow-lg active:bg-secondary focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed"
-      :disabled="loading || !promptStore.promptField"
-      @click="generateArt"
-    >
-      <span v-if="loading">🖌️ Making Art...</span>
-      <span v-else>🖌️ Create Art</span>
-    </button>
-
-    <!-- Error Message -->
-    <p v-if="error" class="text-red-500 mt-4 text-center font-medium">
-      {{ error }}
-    </p>
-
-    <!-- Generated Art Display -->
-    <div v-if="art && !loading" class="mt-8">
-      <ArtCard :art="art" />
-    </div>
-
-    <!-- User's Collected Art Display -->
-    <div v-if="collectedArt.length > 0" class="mt-10">
-      <h2 class="text-xl text-center mb-6 font-semibold text-primary">
-        🖼️ Your Art Collection
-      </h2>
-      <div class="grid grid-cols-1 gap-6">
-        <ArtCard
-          v-for="artItem in collectedArt"
-          :key="artItem.id"
-          :art="artItem"
+    <h3 class="text-lg font-semibold mb-2 truncate" title="Prompt">
+      {{ prompt?.prompt || 'No prompt available' }}
+    </h3>
+    <div class="image-wrapper relative overflow-hidden max-h-48">
+      <!-- Handle both path and imageData -->
+      <template v-if="artImageData">
+        <img
+          :src="artImageData"
+          alt="Artwork"
+          class="rounded-2xl transition-transform duration-300 ease-in-out hover:scale-105 w-full h-auto object-cover"
+          loading="lazy"
         />
+      </template>
+      <template v-else>
+        <img
+          :src="art.path ?? 'default-image-path.jpg'"
+          alt="Artwork"
+          class="rounded-2xl transition-transform duration-300 ease-in-out hover:scale-105 w-full h-auto object-cover"
+          loading="lazy"
+        />
+      </template>
+    </div>
+    <div class="art-details mt-2">
+      <p class="text-base truncate" title="Pitch">
+        {{ selectedPitch?.pitch || 'No pitch available' }}
+      </p>
+      <div class="flex justify-between items-center mt-2">
+        <p class="text-base">Claps: {{ reactions.length || 0 }}</p>
+        <p class="text-base">
+          isPublic?:
+          <span class="font-semibold">{{ art.isPublic ? 'Yes' : 'No' }}</span>
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useArtStore } from './../../../stores/artStore'
+import { usePromptStore, type Prompt } from './../../../stores/promptStore'
+import { usePitchStore } from './../../../stores/pitchStore'
+import { useReactionStore } from './../../../stores/reactionStore'
 import { computed, onMounted } from 'vue'
-import { useArtStore } from '@/stores/artStore'
-import { usePromptStore } from '@/stores/promptStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import ArtCard from './ArtCard.vue' // Import the reusable ArtCard component
 
-// Access the artStore, promptStore, and errorStore
+// Define props with type Art
+const props = defineProps<{
+  art: Art
+}>()
+
+// Initialize stores
 const artStore = useArtStore()
 const promptStore = usePromptStore()
-const errorStore = useErrorStore()
+const pitchStore = usePitchStore()
+const reactionStore = useReactionStore()
 
-// Computed properties for state
-const loading = computed(() => artStore.loading)
-const art = computed(() => artStore.currentArt)
-const error = computed(() => errorStore.getError || '')
-const collectedArt = computed(() => artStore.collectedArt)
+// Compute prompt based on art ID
+const prompt = computed<Prompt | null>(() =>
+  props.art.promptId ? promptStore.fetchedPrompts[props.art.promptId] : null,
+)
 
-// Save the prompt when the input changes
-const savePrompt = () => {
-  promptStore.savePromptField()
+// Use the selected pitch from the pitch store
+const selectedPitch = computed(() => pitchStore.selectedPitch)
+
+// Filter reactions for the current art
+const reactions = computed(() =>
+  reactionStore.reactions.filter(
+    (r: { artId: number | null }) => r.artId === props.art.id,
+  ),
+)
+
+// Handle selecting art
+const selectArt = () => {
+  artStore.selectArt(props.art.id)
 }
 
-// Generate art based on the prompt
-const generateArt = async () => {
-  // Clear any previous error before generating new art
-  errorStore.clearError()
-
-  // Validate the prompt string before proceeding
-  if (!artStore.validatePromptString(promptStore.promptField)) {
-    errorStore.setError(
-      ErrorType.VALIDATION_ERROR,
-      'Invalid characters in prompt.',
-    )
-    return
+// Compute the image source: either from art path or artImage.imageData
+const artImageData = computed(() => {
+  const artImages = artStore.getArtImagesById(props.art.id)
+  if (artImages.length > 0 && artImages[0].imageData) {
+    // Convert imageData to base64 if available
+    return `data:image/jpeg;base64,${artImages[0].imageData}`
   }
+  // Fallback to art path if available
+  return props.art.path || null
+})
 
-  // Generate the art and handle any errors
-  await errorStore.handleError(
-    async () => {
-      const result = await artStore.generateArt()
-
-      if (!result.success) {
-        throw new Error(result.message || 'Unknown error occurred.')
-      }
-    },
-    ErrorType.GENERAL_ERROR,
-    'Failed to generate art.',
-  )
-}
-
-// Initialize the artStore and promptStore when the component is mounted
-onMounted(async () => {
-  const userId = 10 // Example user ID
-  await artStore.initialize(userId)
-  await promptStore.initialize()
+// Fetch prompt and reactions on mount
+onMounted(() => {
+  if (props.art.promptId) promptStore.fetchPromptById(props.art.promptId)
+  reactionStore.fetchReactionsByArtId(props.art.id)
 })
 </script>
+
+<!-- No scoped style section, using Tailwind only -->

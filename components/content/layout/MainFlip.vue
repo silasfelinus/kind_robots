@@ -10,6 +10,7 @@
       :class="{ 'is-flipped': !displayStore.showTutorial }"
       @transitionend="handleTransitionEnd"
     >
+      <!-- Front side: SplashTutorial -->
       <div
         class="flip-card-front"
         :class="{ invisible: !displayStore.showTutorial && !isFlippedComplete }"
@@ -18,6 +19,7 @@
         <splash-tutorial />
       </div>
 
+      <!-- Back side: NuxtPage -->
       <div
         class="flip-card-back overflow-y-auto"
         :class="{ invisible: displayStore.showTutorial && !isFlippedComplete }"
@@ -27,12 +29,28 @@
       </div>
     </div>
 
-    <!-- Two-column mode is handled outside in App.vue, but we still need to show the content -->
-    <div v-else>
-      <!-- No special layout needed for two-column mode here -->
-      <NuxtPage />
+    <!-- Two-column mode: Show both SplashTutorial and NuxtPage side by side -->
+    <div v-else class="grid grid-cols-2 gap-4" :style="{ height: '100%' }">
+      <!-- First column: SplashTutorial -->
+      <div class="flex flex-col overflow-y-auto h-full">
+        <splash-tutorial />
+      </div>
+
+      <!-- Second column: NuxtPage -->
+      <div class="flex flex-col overflow-y-auto h-full border rounded-2xl">
+        <NuxtPage />
+      </div>
     </div>
   </div>
+
+  <!-- Full-Screen Control Button (optional, can be outside main-flip) -->
+  <button
+    v-if="displayStore.isFullScreen"
+    class="bg-secondary text-base-100 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 fixed bottom-4 right-4 p-3"
+    @click="displayStore.showTutorial = !displayStore.showTutorial"
+  >
+    {{ displayStore.showTutorial ? 'Launch' : 'Show Instructions' }}
+  </button>
 </template>
 
 <script setup lang="ts">
@@ -66,7 +84,8 @@ const onFlipOut = (side: string) => {
 .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+.fade-enter,
+.fade-leave-to /* .fade-leave-active in <2.1.8 */ {
   opacity: 0;
 }
 

@@ -4,7 +4,7 @@
 
     <!-- Header with Sidebar Toggle, Nav Links, and Kind Buttons -->
     <header
-      class="header-overlay bg-base-300 flex items-center justify-between w-full h-auto p-2"
+      class="bg-base-300 flex items-center justify-between w-full p-2"
       :style="{ height: headerHeight }"
     >
       <!-- Sidebar Toggle -->
@@ -39,20 +39,19 @@
 
     <!-- Main content area -->
     <div
-      class="content-area grid"
-      :class="isFullScreen ? 'grid-cols-1' : 'md:grid-cols-1 lg:grid-cols-2'"
+      class="grid"
+      :class="isFullScreen ? 'grid-cols-1' : 'lg:grid-cols-2'"
       :style="{ height: mainHeight }"
     >
-      <!-- Sidebar left (only visible in two-column mode) -->
+      <!-- Sidebar left -->
       <kind-sidebar-simple
-        v-if="!isFullScreen"
-        class="sidebar-left-overlay overflow-y-auto bg-base-300 hidden md:block"
+        class="overflow-y-auto bg-base-300"
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
       ></kind-sidebar-simple>
 
       <!-- Main content view -->
       <main
-        class="main-content-overlay rounded-2xl bg-base-300 overflow-y-auto"
+        class="rounded-2xl bg-base-300 overflow-y-auto"
         :style="{ height: mainHeight, width: isFullScreen ? '100%' : mainWidth }"
       >
         <!-- Mobile view: Single column layout -->
@@ -96,15 +95,15 @@
         </div>
       </main>
 
-      <!-- Sidebar right (just a placeholder space) -->
+      <!-- Sidebar right -->
       <aside
-        class="sidebar-right-overlay md:block overflow-y-auto"
+        class="overflow-y-auto"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>
 
     <!-- Footer -->
-    <footer class="footer-overlay flex justify-center items-center" :style="{ height: footerHeight }"></footer>
+    <footer class="flex justify-center items-center" :style="{ height: footerHeight }"></footer>
   </div>
 </template>
 
@@ -117,10 +116,10 @@ const displayStore = useDisplayStore()
 // Viewport conditions
 const isMobileViewport = computed(() => displayStore.isMobileViewport)
 const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
-const isLargeViewport = computed(() => displayStore.isLargeViewport)
+const isLargeViewport = computed(() => displayStore.viewportSize === 'large')
 const showTutorial = computed(() => displayStore.showTutorial)
 const isFullScreen = computed(() => displayStore.isFullScreen)
-const footerHeight = computed (() => displayStore.footerHeight)
+const footerHeight = computed(() => displayStore.footerHeight)
 
 // Main height and width calculations based on available space
 const mainHeight = computed(() => displayStore.mainHeight)
@@ -144,28 +143,6 @@ const toggleTutorial = () => {
 </script>
 
 <style scoped>
-.main-layout {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.content-area {
-  display: grid;
-  gap: 0;
-  overflow: hidden;
-}
-
-.main-content-overlay {
-  overflow-y: auto;
-}
-
-button {
-  pointer-events: auto;
-  transition: background-color 0.3s ease;
-}
-
 button:hover {
   cursor: pointer;
 }

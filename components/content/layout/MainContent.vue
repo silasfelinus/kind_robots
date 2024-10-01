@@ -162,4 +162,13 @@ const toggleTutorial = () => {
   right: 1rem;
   z-index: 40;
 }
+
+/* Smart button styles */
+button {
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  cursor: pointer;
+}
 </style>

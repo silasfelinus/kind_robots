@@ -32,13 +32,18 @@
 
     <!-- Fullscreen view -->
     <div v-if="isLargeViewport && isFullScreen" class="fullscreen-content">
-      <NuxtPage />
+      <div v-if="showTutorial">
+        <SplashTutorial />
+      </div>
+      <div v-else>
+        <NuxtPage />
+      </div>
     </div>
 
     <!-- Full-Screen Toggle Button for Large Viewports -->
     <button
       v-if="isLargeViewport"
-      class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"
+      class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-2 fixed bottom-4 right-4"
       @click="toggleFullScreen"
     >
       {{ fullScreenButtonText }}
@@ -47,7 +52,7 @@
     <!-- Launch and Instructions Button (for Small/Medium Viewports) -->
     <button
       v-if="showLaunchButton"
-      class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 p-1 ml-4 mr-4"
+      class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 p-2 ml-4"
       @click="toggleTutorial"
     >
       Launch
@@ -55,10 +60,19 @@
 
     <button
       v-if="showInstructionsButton"
-      class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-40 p-1 ml-4"
+      class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-40 p-2 ml-4"
       @click="toggleTutorial"
     >
       Instructions
+    </button>
+
+    <!-- Button to toggle between SplashTutorial and NuxtPage in fullscreen mode -->
+    <button
+      v-if="isFullScreen"
+      class="bg-accent text-base-200 rounded-lg shadow-md hover:bg-accent-focus transition duration-300 z-40 p-2 fixed bottom-16 right-4"
+      @click="toggleTutorial"
+    >
+      Switch to {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}
     </button>
   </div>
 </template>
@@ -139,8 +153,9 @@ const toggleTutorial = () => {
 }
 
 .full-screen-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 40;
 }
 </style>

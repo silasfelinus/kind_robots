@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="rounded-2xl border-accent-200">
     <!-- For small viewports, display only one section -->
     <div v-if="isMobileViewport" class="single-column">
       <div v-if="showTutorial" class="instructions">

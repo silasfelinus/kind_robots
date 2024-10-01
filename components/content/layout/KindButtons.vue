@@ -24,21 +24,16 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Fullscreen / Two-column toggle button text
 const fullScreenButtonText = computed(() =>
   displayStore.isFullScreen ? 'Show Two Columns' : 'Show Full Screen'
 )
 
-// Access fullscreen and tutorial state from displayStore
-const isFullScreen = computed(() => displayStore.isFullScreen)
 const showTutorial = computed(() => displayStore.showTutorial)
 
-// Toggle fullscreen mode
 const toggleFullScreen = () => {
   displayStore.toggleFullScreen()
 }
 
-// Toggle tutorial / NuxtPage mode
 const toggleTutorial = () => {
   displayStore.toggleTutorial()
 }
@@ -46,7 +41,7 @@ const toggleTutorial = () => {
 
 <style scoped>
 .kind-buttons {
-  pointer-events: auto; /* Ensure buttons are clickable */
+  pointer-events: auto;
 }
 
 button:hover {

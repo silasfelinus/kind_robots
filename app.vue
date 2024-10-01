@@ -14,32 +14,6 @@
       <div class="flex-grow">
         <nav-links class="hidden sm:flex justify-center"></nav-links>
       </div>
-
-      <!-- Full-Screen Toggle Button for Large Viewports -->
-      <button
-        v-if="isLargeViewport"
-        class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"
-        @click="displayStore.toggleFullScreen"
-      >
-        {{ displayStore.isFullScreen ? 'Two Columns' : 'Full Screen' }}
-      </button>
-
-      <!-- Launch and Instructions Button (for Small/Medium Viewports) -->
-      <button
-        v-if="showLaunchButton"
-        class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 p-1 ml-4 mr-4"
-        @click="displayStore.toggleTutorial"
-      >
-        Launch
-      </button>
-
-      <button
-        v-if="showInstructionsButton"
-        class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-40 p-1 ml-4"
-        @click="displayStore.toggleTutorial"
-      >
-        Instructions
-      </button>
     </header>
 
     <!-- Main content area (Grid column layout based on viewport and fullscreen status) -->
@@ -77,7 +51,6 @@ import { useErrorStore, ErrorType } from './stores/errorStore'
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 
-const isLargeViewport = computed(() => displayStore.isLargeViewport)
 const headerHeight = computed(() => displayStore.headerHeight)
 const mainHeight = computed(() => displayStore.mainHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
@@ -85,18 +58,6 @@ const gridColumns = computed(() => displayStore.gridColumns)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const mainWidth = computed(() => displayStore.mainWidth)
-
-// Button visibility
-const showLaunchButton = computed(
-  () =>
-    displayStore.showTutorial &&
-    ['small', 'medium'].includes(displayStore.viewportSize),
-)
-const showInstructionsButton = computed(
-  () =>
-    !displayStore.showTutorial &&
-    ['small', 'medium'].includes(displayStore.viewportSize),
-)
 
 onMounted(async () => {
   try {

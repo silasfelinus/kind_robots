@@ -36,6 +36,31 @@
       </div>
     </div>
   </div>
+  <!-- Full-Screen Toggle Button for Large Viewports -->
+  <button
+    v-if="isLargeViewport"
+    class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"
+    @click="displayStore.toggleFullScreen"
+  >
+    {{ displayStore.isFullScreen ? 'Two Columns' : 'Full Screen' }}
+  </button>
+
+  <!-- Launch and Instructions Button (for Small/Medium Viewports) -->
+  <button
+    v-if="showLaunchButton"
+    class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 p-1 ml-4 mr-4"
+    @click="displayStore.toggleTutorial"
+  >
+    Launch
+  </button>
+
+  <button
+    v-if="showInstructionsButton"
+    class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-40 p-1 ml-4"
+    @click="displayStore.toggleTutorial"
+  >
+    Instructions
+  </button>
 </template>
 
 <script setup lang="ts">
@@ -48,10 +73,22 @@ const {
   flipState,
   isMobileViewport,
   viewportSize,
-  isLargeViewport,
   isFullScreen,
   showTutorial,
 } = displayStore
+
+const isLargeViewport = computed(() => displayStore.isLargeViewport)
+// Button visibility
+const showLaunchButton = computed(
+  () =>
+    displayStore.showTutorial &&
+    ['small', 'medium'].includes(displayStore.viewportSize),
+)
+const showInstructionsButton = computed(
+  () =>
+    !displayStore.showTutorial &&
+    ['small', 'medium'].includes(displayStore.viewportSize),
+)
 
 // Computed value for button text based on full-screen toggle
 const fullScreenButtonText = computed(() =>

@@ -5,6 +5,7 @@
   >
     <!-- Fullscreen / Two-column Toggle -->
     <button
+      v-if="isLargeViewport || isMediumViewport"
       class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 p-2 m-2"
       @click="toggleFullScreen"
     >
@@ -18,6 +19,23 @@
     >
       Switch to {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}
     </button>
+
+    <!-- Launch and Instructions Buttons for Small/Medium Viewports -->
+    <button
+      v-if="showLaunchButton"
+      class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 p-2 m-2"
+      @click="toggleTutorial"
+    >
+      Launch
+    </button>
+
+    <button
+      v-if="showInstructionsButton"
+      class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 p-2 m-2"
+      @click="toggleTutorial"
+    >
+      Instructions
+    </button>
   </div>
 </template>
 
@@ -27,12 +45,29 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
+// Button visibility logic
+const showLaunchButton = computed(
+  () =>
+    !displayStore.showTutorial &&
+    ['small', 'medium'].includes(displayStore.viewportSize),
+)
+
+const showInstructionsButton = computed(
+  () =>
+    displayStore.showTutorial &&
+    ['small', 'medium'].includes(displayStore.viewportSize),
+)
+
 const fullScreenButtonText = computed(() =>
   displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen',
 )
 
 // Tutorial / NuxtPage toggle button
 const showTutorial = computed(() => displayStore.showTutorial)
+const isLargeViewport = computed(() => displayStore.isLargeViewport)
+const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
+
+// Methods
 const toggleFullScreen = () => {
   displayStore.toggleFullScreen()
 }

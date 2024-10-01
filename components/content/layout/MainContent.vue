@@ -11,7 +11,7 @@
     </div>
 
     <!-- For medium viewports, display centered content -->
-    <div v-if="isMediumViewport" class="center-content">
+    <div v-if="isMediumViewport" class="center-content" :style="{ height: mainHeight }">
       <div v-if="showTutorial" class="tutorial-section">
         <SplashTutorial />
       </div>
@@ -21,17 +21,17 @@
     </div>
 
     <!-- For large viewports, display two columns -->
-    <div v-if="isLargeViewport && !isFullScreen" class="two-column" :style="{ height: contentHeight }">
-      <div class="left-column">
+    <div v-if="isLargeViewport && !isFullScreen" class="two-column" :style="{ height: mainHeight, gridTemplateColumns: gridColumns }">
+      <div class="left-column" :style="{ width: sidebarLeftWidth }">
         <SplashTutorial />
       </div>
-      <div class="right-column overflow-y-auto">
+      <div class="right-column overflow-y-auto" :style="{ width: mainWidth }">
         <NuxtPage />
       </div>
     </div>
 
     <!-- Fullscreen view -->
-    <div v-if="isLargeViewport && isFullScreen" class="fullscreen-content" :style="{ height: contentHeight }">
+    <div v-if="isLargeViewport && isFullScreen" class="fullscreen-content" :style="{ height: mainHeight }">
       <div v-if="showTutorial">
         <SplashTutorial />
       </div>
@@ -104,12 +104,11 @@ const fullScreenButtonText = computed(() =>
   isFullScreen.value ? 'Exit Full Screen' : 'Full Screen',
 )
 
-// Calculate the height for the main content area between the header and footer
-const contentHeight = computed(() => {
-  const headerHeight = displayStore.headerHeight
-  const footerHeight = displayStore.footerHeight
-  return `calc(100vh - ${headerHeight}px - ${footerHeight}px)`
-})
+// Calculating dynamic heights and widths from displayStore
+const mainHeight = computed(() => displayStore.mainHeight)
+const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
+const mainWidth = computed(() => displayStore.mainWidth)
+const gridColumns = computed(() => displayStore.gridColumns)
 
 // Methods to toggle full screen and tutorial
 const toggleFullScreen = () => {
@@ -135,7 +134,6 @@ const toggleTutorial = () => {
 /* For two-column layout */
 .two-column {
   display: grid;
-  grid-template-columns: 1fr 1fr;
 }
 
 .left-column,

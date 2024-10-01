@@ -12,20 +12,39 @@
           class="art-image"
         />
         <div class="button-container">
-          <button class="gallery-button" @click="vote('hate')">Hate</button>
-          <button class="gallery-button" @click="vote('love')">Love</button>
-          <button class="gallery-button" @click="vote('not')">Not</button>
-          <button class="gallery-button" @click="vote('hot')">Hot</button>
+          <button class="gallery-button" @click="vote(ReactionTypeEnum.HATED)">
+            Hate
+            <Icon name="mdi-delete" />
+          </button>
+          <button class="gallery-button" @click="vote(ReactionTypeEnum.LOVED)">
+            Love
+            <Icon name="mdi-heart" />
+          </button>
+          <button class="gallery-button" @click="vote(ReactionTypeEnum.BOOED)">
+            Boo
+            <Icon name="mdi-thumb-down-outline" />
+          </button>
+          <button
+            class="gallery-button"
+            @click="vote(ReactionTypeEnum.FLAGGED)"
+          >
+            Flag
+            <Icon name="mdi-flag" />
+          </button>
         </div>
         <Icon v-if="activeIcon" :name="activeIcon" class="vote-icon" />
       </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import { useGalleryStore } from './../../../stores/galleryStore'
-import { useReactionStore } from './../../../stores/reactionStore'
+import {
+  useReactionStore,
+  ReactionTypeEnum,
+} from './../../../stores/reactionStore'
 
 const showSplash = ref(true)
 const galleryStore = useGalleryStore()
@@ -42,53 +61,14 @@ const activeIcon = ref<string | null>(null)
 // Assume userId is available in the session or store
 const userId = 1 // Replace with actual logic to get the logged-in user ID
 
-// Touch coordinates
-let touchstartX = 0
-let touchendX = 0
-let touchstartY = 0
-let touchendY = 0
-
-// Define the touch start function
-const handleTouchStart = (event: TouchEvent) => {
-  touchstartX = event.touches[0].screenX
-  touchstartY = event.touches[0].screenY
-}
-
-// Define the touch end function
-const handleTouchEnd = (event: TouchEvent) => {
-  touchendX = event.changedTouches[0].screenX
-  touchendY = event.changedTouches[0].screenY
-  handleSwipeGesture()
-}
-
-// Swipe logic to determine action based on swipe direction
-const handleSwipeGesture = () => {
-  const deltaX = touchendX - touchstartX
-  const deltaY = touchendY - touchstartY
-
-  if (deltaX > 0) {
-    vote('hot')
-  } else {
-    vote('not')
-  }
-
-  if (deltaY > 0) {
-    vote('hate')
-  } else {
-    vote('love')
-  }
-}
-
 // Vote function to handle reactions
-type VoteChoice = 'hate' | 'love' | 'not' | 'hot'
-
-const vote = async (choice: VoteChoice) => {
+const vote = async (reactionType: ReactionTypeEnum) => {
   if (currentImage.value) {
     try {
-      // Call the reactionStore to create a reaction
+      // Call the reactionStore to create a reaction using ReactionTypeEnum
       await reactionStore.createReaction({
         userId,
-        reactionType: getReactionType(choice),
+        reactionType,
         artId: currentImage.value.id,
         reactionCategory: 'ART',
       })
@@ -97,18 +77,18 @@ const vote = async (choice: VoteChoice) => {
       await galleryStore.changeToRandomImage()
 
       // Update active icon based on vote choice
-      switch (choice) {
-        case 'hot':
-          activeIcon.value = 'mdi-fire'
-          break
-        case 'love':
+      switch (reactionType) {
+        case ReactionTypeEnum.LOVED:
           activeIcon.value = 'mdi-heart'
           break
-        case 'not':
+        case ReactionTypeEnum.HATED:
+          activeIcon.value = 'mdi-delete'
+          break
+        case ReactionTypeEnum.BOOED:
           activeIcon.value = 'mdi-thumb-down-outline'
           break
-        case 'hate':
-          activeIcon.value = 'mdi-delete'
+        case ReactionTypeEnum.FLAGGED:
+          activeIcon.value = 'mdi-flag'
           break
       }
 
@@ -119,47 +99,6 @@ const vote = async (choice: VoteChoice) => {
     }
   }
 }
-
-// Helper function to map vote choices to reaction types
-const getReactionType = (choice: VoteChoice) => {
-  switch (choice) {
-    case 'hot':
-      return 'LOVED'
-    case 'love':
-      return 'LOVED'
-    case 'not':
-      return 'BOOED'
-    case 'hate':
-      return 'HATED'
-    default:
-      return 'NEUTRAL'
-  }
-}
-
-onMounted(() => {
-  const imageElement = document.querySelector('.art-image') as HTMLImageElement
-  if (imageElement) {
-    imageElement.addEventListener(
-      'touchstart',
-      handleTouchStart as EventListener,
-    )
-    imageElement.addEventListener('touchend', handleTouchEnd as EventListener)
-  }
-})
-
-onUnmounted(() => {
-  const imageElement = document.querySelector('.art-image') as HTMLImageElement
-  if (imageElement) {
-    imageElement.removeEventListener(
-      'touchstart',
-      handleTouchStart as EventListener,
-    )
-    imageElement.removeEventListener(
-      'touchend',
-      handleTouchEnd as EventListener,
-    )
-  }
-})
 </script>
 
 <style scoped>

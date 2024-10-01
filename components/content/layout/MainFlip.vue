@@ -52,6 +52,25 @@
       </div>
     </div>
   </div>
+
+  <!-- Move the buttons outside the grid container -->
+  <!-- Full-Screen Control Button -->
+  <button
+    v-if="displayStore.isFullScreen"
+    class="bg-secondary text-base-100 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-50 fixed bottom-4 right-4 p-3"
+    @click="displayStore.showTutorial = !displayStore.showTutorial"
+  >
+    {{ displayStore.showTutorial ? 'Launch' : 'Show Instructions' }}
+  </button>
+
+  <!-- Full Screen Toggle Button for Large Viewports -->
+  <button
+    v-if="displayStore.isLargeViewport"
+    class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 fixed bottom-4 left-4 p-1 ml-4"
+    @click="displayStore.toggleFullScreen"
+  >
+    {{ displayStore.isFullScreen ? 'Exit Full Screen' : 'Enter Full Screen' }}
+  </button>
 </template>
 
 <script setup lang="ts">

@@ -24,10 +24,13 @@
     </header>
 
     <!-- Main content area -->
-    <div class="grid h-full" :class="{ 'grid-cols-1': isFullScreen, 'lg:grid-cols-2': !isFullScreen }" :style="{ height: mainHeight }">
+    <div
+      class="grid h-full"
+      :class="{ 'grid-cols-1': isFullScreen, 'lg:grid-cols-2': !isFullScreen }"
+      :style="{ height: mainHeight }"
+    >
       <!-- Sidebar left (based on displayStore width) -->
       <kind-sidebar-simple
-        v-if="sidebarLeftWidth > 0"
         class="overflow-y-auto bg-base-300"
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
       ></kind-sidebar-simple>
@@ -48,7 +51,10 @@
         </div>
 
         <!-- Medium view: Single column centered content -->
-        <div v-else-if="isMediumViewport" class="flex justify-center items-center w-full h-full">
+        <div
+          v-else-if="isMediumViewport"
+          class="flex justify-center items-center w-full h-full"
+        >
           <div v-if="showTutorial" class="tutorial-section">
             <SplashTutorial />
           </div>
@@ -58,7 +64,10 @@
         </div>
 
         <!-- Large/Extra-large view: Two-column layout (if not full screen) -->
-        <div v-else-if="isLargeOrMore && !isFullScreen" class="grid grid-cols-2 w-full h-full">
+        <div
+          v-else-if="isLargeOrMore && !isFullScreen"
+          class="grid grid-cols-2 w-full h-full"
+        >
           <div class="left-column p-4">
             <SplashTutorial />
           </div>
@@ -68,7 +77,10 @@
         </div>
 
         <!-- Fullscreen view: Full content area -->
-        <div v-else-if="isFullScreen" class="flex justify-center items-center w-full h-full">
+        <div
+          v-else-if="isFullScreen"
+          class="flex justify-center items-center w-full h-full"
+        >
           <div v-if="showTutorial">
             <SplashTutorial />
           </div>
@@ -80,14 +92,16 @@
 
       <!-- Sidebar right (based on displayStore width) -->
       <aside
-        v-if="sidebarRightWidth > 0"
         class="overflow-y-auto"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>
 
     <!-- Footer -->
-    <footer class="flex justify-center items-center" :style="{ height: footerHeight }"></footer>
+    <footer
+      class="flex justify-center items-center"
+      :style="{ height: footerHeight }"
+    ></footer>
   </div>
 </template>
 
@@ -100,7 +114,9 @@ const displayStore = useDisplayStore()
 // Viewport conditions
 const isMobileViewport = computed(() => displayStore.isMobileViewport)
 const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
-const isLargeOrMore = computed(() => ['large', 'extraLarge'].includes(displayStore.viewportSize))
+const isLargeOrMore = computed(() =>
+  ['large', 'extraLarge'].includes(displayStore.viewportSize),
+)
 const showTutorial = computed(() => displayStore.showTutorial)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 
@@ -109,6 +125,7 @@ const mainHeight = computed(() => displayStore.mainHeight)
 const mainWidth = computed(() => displayStore.mainWidth)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 </script>
 

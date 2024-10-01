@@ -30,7 +30,7 @@
         class="main-content-overlay rounded-2xl bg-base-300"
         :style="{ height: mainHeight, width: mainWidth }"
       >
-        <main-flip></main-flip>
+        <main-content></main-content>
       </main>
 
       <aside

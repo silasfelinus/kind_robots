@@ -1,31 +1,31 @@
 <template>
-  <div class="bg-base-300 rounded-2xl border p-6 text-lg max-w-lg mx-auto">
-    <h1 class="text-2xl m-4 text-center">🎨 Welcome to the Art-Maker</h1>
+  <div class="bg-base-300 shadow-xl rounded-3xl border border-base-200 p-6 text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105">
+    <h1 class="text-3xl font-bold m-6 text-center text-primary">🎨 Welcome to the Art-Maker</h1>
 
     <!-- Prompt Input -->
-    <div class="mb-4">
+    <div class="mb-6">
       <input
         v-model="promptStore.promptField"
         placeholder="Enter your creative prompt..."
-        class="rounded-2xl p-3 w-full text-lg bg-base-200 placeholder-gray-500"
+        class="rounded-3xl p-4 w-full text-lg bg-base-200 placeholder-gray-500 focus:ring-4 focus:ring-info focus:outline-none shadow-inner transition-all"
         :disabled="loading"
         @input="savePrompt"
       />
     </div>
 
     <!-- Generate Art Button -->
-<button
-  class="bg-primary text-white rounded-2xl p-3 w-full transition-colors duration-300 ease-in-out 
-         hover:bg-info active:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark disabled:bg-gray-400"
-  :disabled="loading || !promptStore.promptField"
-  @click="generateArt"
->
-  <span v-if="loading">🖌️ Making Art...</span>
-  <span v-else>🖌️ Create Art</span>
-</button>
+    <button
+      class="bg-primary text-white font-semibold rounded-3xl p-4 w-full transition-all duration-300 ease-in-out 
+             hover:bg-info hover:shadow-lg active:bg-secondary focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed"
+      :disabled="loading || !promptStore.promptField"
+      @click="generateArt"
+    >
+      <span v-if="loading">🖌️ Making Art...</span>
+      <span v-else>🖌️ Create Art</span>
+    </button>
 
     <!-- Error Message -->
-    <p v-if="error" class="text-red-500 mt-4">{{ error }}</p>
+    <p v-if="error" class="text-red-500 mt-4 text-center font-medium">{{ error }}</p>
 
     <!-- Generated Art Display -->
     <div v-if="art && !loading" class="mt-8">
@@ -33,9 +33,9 @@
     </div>
 
     <!-- User's Collected Art Display -->
-    <div v-if="collectedArt.length > 0" class="mt-8">
-      <h2 class="text-xl text-center mb-4">🖼️ Your Art Collection</h2>
-      <div class="grid grid-cols-1 gap-4">
+    <div v-if="collectedArt.length > 0" class="mt-10">
+      <h2 class="text-xl text-center mb-6 font-semibold text-primary">🖼️ Your Art Collection</h2>
+      <div class="grid grid-cols-1 gap-6">
         <ArtCard
           v-for="artItem in collectedArt"
           :key="artItem.id"

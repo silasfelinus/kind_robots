@@ -18,11 +18,13 @@
 
     <!-- Main content area -->
     <div
-      class="content-area grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-0"
+      class="content-area grid"
+      :class="isFullScreen ? 'grid-cols-1' : 'md:grid-cols-[auto_1fr_auto]'"
       :style="{ height: mainHeight }"
     >
-      <!-- Sidebar left -->
+      <!-- Sidebar left (only visible in two-column mode) -->
       <kind-sidebar-simple
+        v-if="!isFullScreen"
         class="sidebar-left-overlay overflow-y-auto bg-base-300 hidden md:block"
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
       ></kind-sidebar-simple>
@@ -30,13 +32,17 @@
       <!-- Main content -->
       <main
         class="main-content-overlay rounded-2xl bg-base-300 overflow-y-auto"
-        :style="{ height: mainHeight, width: mainWidth }"
+        :style="{
+          height: mainHeight,
+          width: isFullScreen ? '100%' : mainWidth,
+        }"
       >
         <main-content />
       </main>
 
-      <!-- Sidebar right -->
+      <!-- Sidebar right (only visible in two-column mode) -->
       <aside
+        v-if="!isFullScreen"
         class="sidebar-right-overlay hidden md:block overflow-y-auto"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
@@ -54,18 +60,7 @@
   >
     {{ fullScreenButtonText }}
   </button>
-
-  <!-- Additional Buttons (Example for handling overlap) -->
-  <!-- Adjust bottom and right positioning to avoid overlap -->
-  <button
-    class="additional-btn fixed bottom-20 right-4 bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-50 p-2"
-    @click="someOtherAction"
-  >
-    Other Action
-  </button>
-
 </template>
-
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
@@ -83,6 +78,7 @@ const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const mainWidth = computed(() => displayStore.mainWidth)
 const isLargeViewport = computed(() => displayStore.viewportSize === 'large')
+const isFullScreen = computed(() => displayStore.isFullScreen)
 const fullScreenButtonText = computed(() =>
   displayStore.isFullScreen ? 'Exit Full Screen' : 'Full Screen',
 )
@@ -121,16 +117,8 @@ onMounted(async () => {
 
 .content-area {
   display: grid;
-  grid-template-columns: 1fr;
   gap: 0;
   overflow: hidden;
-}
-
-@media (min-width: 768px) {
-  .content-area {
-    grid-template-columns: auto 1fr auto;
-    gap: 0;
-  }
 }
 
 .main-content-overlay {
@@ -148,13 +136,9 @@ onMounted(async () => {
   align-items: center;
 }
 
-/* Adjust button positioning to prevent overlap */
+/* Button styling */
 .flip-btn {
-  bottom: 4rem; /* Adjust bottom margin to avoid overlap with other buttons */
-}
-
-.additional-btn {
-  bottom: 1rem; /* Positioned slightly above the main fullscreen button */
+  bottom: 4rem; /* Positioned correctly to avoid any layout overlap */
 }
 
 button {

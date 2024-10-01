@@ -40,19 +40,19 @@
       </div>
     </div>
 
-    <!-- Full-Screen Toggle Button for Large Viewports -->
+    <!-- Full-Screen Toggle Button for Large/Medium Viewports -->
     <button
-      v-if="isLargeViewport"
-      class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-2 fixed bottom-4 right-4"
+      v-if="isLargeViewport || isMediumViewport"
+      class="full-screen-toggle bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 p-2 fixed bottom-4 right-4"
       @click="toggleFullScreen"
     >
       {{ fullScreenButtonText }}
     </button>
 
-    <!-- Launch and Instructions Button (for Small/Medium Viewports) -->
+    <!-- Launch and Instructions Buttons for Small/Medium Viewports -->
     <button
       v-if="showLaunchButton"
-      class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 z-40 p-2 ml-4"
+      class="bg-info text-base-200 rounded-lg shadow-md hover:bg-info-focus transition duration-300 p-2 fixed bottom-16 right-4"
       @click="toggleTutorial"
     >
       Launch
@@ -60,7 +60,7 @@
 
     <button
       v-if="showInstructionsButton"
-      class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 z-40 p-2 ml-4"
+      class="bg-secondary text-base-200 rounded-lg shadow-md hover:bg-secondary-focus transition duration-300 p-2 fixed bottom-16 right-4"
       @click="toggleTutorial"
     >
       Instructions
@@ -69,7 +69,7 @@
     <!-- Button to toggle between SplashTutorial and NuxtPage in fullscreen mode -->
     <button
       v-if="isFullScreen"
-      class="bg-accent text-base-200 rounded-lg shadow-md hover:bg-accent-focus transition duration-300 z-40 p-2 fixed bottom-16 right-4"
+      class="bg-accent text-base-200 rounded-lg shadow-md hover:bg-accent-focus transition duration-300 p-2 fixed bottom-16 right-4"
       @click="toggleTutorial"
     >
       Switch to {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}
@@ -91,16 +91,12 @@ const showTutorial = computed(() => displayStore.showTutorial)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 
 // Button visibility logic
-const showLaunchButton = computed(
-  () =>
-    !displayStore.showTutorial &&
-    ['small', 'medium'].includes(displayStore.viewportSize),
+const showLaunchButton = computed(() =>
+  !displayStore.showTutorial && ['small', 'medium'].includes(displayStore.viewportSize),
 )
 
-const showInstructionsButton = computed(
-  () =>
-    displayStore.showTutorial &&
-    ['small', 'medium'].includes(displayStore.viewportSize),
+const showInstructionsButton = computed(() =>
+  displayStore.showTutorial && ['small', 'medium'].includes(displayStore.viewportSize),
 )
 
 // Button text for fullscreen toggle
@@ -119,52 +115,39 @@ const toggleTutorial = () => {
 </script>
 
 <style scoped>
-.single-column {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.center-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.two-column {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  overflow: hidden; /* Prevent the entire page from scrolling */
-}
-
-.left-column {
-  padding: 1rem;
-}
-
-.right-column {
-  padding: 1rem;
-  overflow-y: auto; /* Allow scrolling only within the NuxtPage */
-}
-
+/* Layout Styles */
+.single-column,
+.center-content,
+.two-column,
 .fullscreen-content {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
 
-.full-screen-toggle {
+.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.left-column,
+.right-column {
+  padding: 1rem;
+}
+
+.right-column {
+  overflow-y: auto; /* Allow scrolling only within the NuxtPage */
+}
+
+/* Button Styles */
+.full-screen-toggle,
+button {
   position: fixed;
+  z-index: 40;
   bottom: 1rem;
   right: 1rem;
-  z-index: 40;
-}
-
-/* Smart button styles */
-button {
   transition: background-color 0.3s ease;
 }
 

@@ -175,10 +175,4 @@ const onFlipOut = (side: string) => {
   grid-template-columns: repeat(2, 1fr);
   height: 100%; /* Ensure the two-column layout respects the container height */
 }
-
-/* Ensure border for main content */
-.w-full.border-accent {
-  border-color: var(--tw-border-opacity) var(--tw-border-opacity);
-  border-width: 2px;
-}
 </style>

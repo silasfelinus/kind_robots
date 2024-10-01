@@ -56,10 +56,10 @@
       v-if="page && page.dottitip && page.amitip"
       class="flex flex-col space-y-2 md:space-y-4 w-full max-w-3xl px-4 py-1 lg:py-2 overflow-y-auto"
     >
-      <!-- DottiBot Message -->
+      <!-- DottiBot Message (Left-Aligned) -->
       <div class="flex justify-start">
         <div
-          class="flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-tl-none rounded-tr-2xl rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pr-4"
+          class="flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-tl-none rounded-tr-2xl rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pr-4 lg:text-lg lg:px-6"
         >
           <img
             src="/images/avatars/dottie1.webp"
@@ -73,10 +73,10 @@
         </div>
       </div>
 
-      <!-- AMIbot Message -->
+      <!-- AMIbot Message (Right-Aligned) -->
       <div class="flex justify-end">
         <div
-          class="flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-tl-2xl rounded-tr-none rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pl-4"
+          class="flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-tl-2xl rounded-tr-none rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pl-4 lg:text-lg lg:px-6"
         >
           <div class="flex flex-col">
             <span class="text-xs font-semibold">AMIbot</span>

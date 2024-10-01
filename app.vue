@@ -17,7 +17,7 @@
         <nav-links class="hidden sm:flex space-x-4"></nav-links>
       </div>
 
-      <!-- Kind Buttons (for Fullscreen/Two-column and Tutorial/NuxtPage) -->
+      <!-- Kind Buttons (Fullscreen/Two-column and Tutorial/NuxtPage) -->
       <div class="flex items-center space-x-2">
         <!-- Fullscreen / Two-column Toggle -->
         <button
@@ -55,45 +55,43 @@
         class="main-content-overlay rounded-2xl bg-base-300 overflow-y-auto"
         :style="{ height: mainHeight, width: isFullScreen ? '100%' : mainWidth }"
       >
-        <div class="main-content" :style="{ height: mainHeight, width: mainWidth }">
-          <!-- Mobile view: Single column layout -->
-          <div v-if="isMobileViewport" class="single-column">
-            <div v-if="showTutorial" class="instructions">
-              <SplashTutorial />
-            </div>
-            <div v-else class="launch">
-              <NuxtPage />
-            </div>
+        <!-- Mobile view: Single column layout -->
+        <div v-if="isMobileViewport" class="flex flex-col w-full h-full">
+          <div v-if="showTutorial" class="instructions">
+            <SplashTutorial />
           </div>
-
-          <!-- Medium view: Centered content -->
-          <div v-if="isMediumViewport" class="center-content">
-            <div v-if="showTutorial" class="tutorial-section">
-              <SplashTutorial />
-            </div>
-            <div v-else class="launch-section">
-              <NuxtPage />
-            </div>
+          <div v-else class="launch">
+            <NuxtPage />
           </div>
+        </div>
 
-          <!-- Large view: Two-column layout -->
-          <div v-if="isLargeViewport && !isFullScreen" class="two-column">
-            <div class="left-column" :style="{ width: sidebarLeftWidth }">
-              <SplashTutorial />
-            </div>
-            <div class="right-column overflow-y-auto" :style="{ width: mainWidth }">
-              <NuxtPage />
-            </div>
+        <!-- Medium view: Centered content -->
+        <div v-if="isMediumViewport" class="flex justify-center items-center w-full h-full">
+          <div v-if="showTutorial" class="tutorial-section">
+            <SplashTutorial />
           </div>
+          <div v-else class="launch-section">
+            <NuxtPage />
+          </div>
+        </div>
 
-          <!-- Full-screen view: Full content area -->
-          <div v-if="isFullScreen" class="fullscreen-content">
-            <div v-if="showTutorial">
-              <SplashTutorial />
-            </div>
-            <div v-else>
-              <NuxtPage />
-            </div>
+        <!-- Large view: Two-column layout -->
+        <div v-if="isLargeViewport && !isFullScreen" class="grid grid-cols-[auto_1fr] w-full h-full">
+          <div class="left-column p-4" :style="{ width: sidebarLeftWidth }">
+            <SplashTutorial />
+          </div>
+          <div class="right-column overflow-y-auto p-4" :style="{ width: mainWidth }">
+            <NuxtPage />
+          </div>
+        </div>
+
+        <!-- Fullscreen view: Full content area -->
+        <div v-if="isFullScreen" class="flex justify-center items-center w-full h-full">
+          <div v-if="showTutorial">
+            <SplashTutorial />
+          </div>
+          <div v-else>
+            <NuxtPage />
           </div>
         </div>
       </main>
@@ -163,60 +161,13 @@ const toggleTutorial = () => {
   overflow-y: auto;
 }
 
-.main-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-/* Layout for small viewports */
-.single-column {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-}
-
-/* Center content layout */
-.center-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-}
-
-/* Two-column layout for large viewports */
-.two-column {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  width: 100%;
-  height: 100%;
-}
-
-.left-column {
-  padding: 1rem;
-}
-
-.right-column {
-  padding: 1rem;
-  overflow-y: auto;
-}
-
 /* Fullscreen view */
-.fullscreen-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-}
-
 button {
-  position: relative;
-  z-index: 50;
   pointer-events: auto;
   transition: background-color 0.3s ease;
+}
+
+button:hover {
+  cursor: pointer;
 }
 </style>

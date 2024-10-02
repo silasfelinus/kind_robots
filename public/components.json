@@ -44,6 +44,8 @@
       "GeneratorTest",
       "HotOrNot",
       "PrivateGenerator",
+      "art-collection",
+      "art-lab",
       "mature-toggle"
     ]
   },

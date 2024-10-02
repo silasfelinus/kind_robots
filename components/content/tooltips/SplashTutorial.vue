@@ -3,21 +3,22 @@
     class="relative flex flex-col h-full w-full rounded-2xl overflow-hidden shadow-lg"
     :style="{ height: displayStore.mainVh + 'vh' }"
   >
-    <!-- Floating Background Icons Above Bot Messages (Larger, Centered) -->
+    <!-- Floating Background Icons Above Bot Messages (More Transparent, Floating) -->
     <div
       v-if="page && page.icon"
-      class="hidden md:flex justify-center items-center opacity-20"
+      class="absolute flex justify-center items-center opacity-2 z-10"
+      :style="{ top: '40%', left: '50%', transform: 'translate(-50%, -50%)' }"
     >
       <Icon
         :name="page.icon"
-        class="absolute top-1/2 left-1/2 w-24 h-24 lg:w-32 lg:h-32 z-0"
+        class="w-24 h-24 lg:w-32 lg:h-32 z-10"
       />
     </div>
 
     <!-- Under Construction Icon (only visible if page.underConstruction is true) -->
     <div
       v-if="page && page.underConstruction"
-      class="absolute top-2 left-2 z-10 opacity-90 md:w-12 md:h-12 lg:w-16 lg:h-16"
+      class="absolute top-2 left-2 z-20 opacity-90 md:w-12 md:h-12 lg:w-16 lg:h-16"
     >
       <Icon
         name="construction"

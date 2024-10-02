@@ -5,7 +5,7 @@
   >
     <!-- Art Information -->
     <h3 class="text-lg font-semibold mb-2 truncate" title="Prompt">
-      {{ prompt?.prompt || 'No prompt available' }}
+      {{ art?.promptString || 'No prompt available' }}
     </h3>
     <div class="relative overflow-hidden max-h-[200px]">
       <!-- Use art.path or fallback to imageData from artImage or placeholder -->
@@ -18,7 +18,7 @@
     </div>
     <div class="mt-2">
       <p class="text-base truncate" title="Pitch">
-        {{ selectedPitch?.pitch || 'No pitch available' }}
+        {{ art?.pitchId || 'No pitch available' }}
       </p>
       <div class="flex justify-between items-center mt-2">
         <p class="text-base">Claps: {{ reactions.length || 0 }}</p>
@@ -49,7 +49,6 @@
 <script setup lang="ts">
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
-import { usePitchStore } from '@/stores/pitchStore'
 import { useReactionStore } from '@/stores/reactionStore'
 import { computed, ref, onMounted } from 'vue'
 
@@ -62,7 +61,6 @@ const props = defineProps<{
 // Initialize stores
 const artStore = useArtStore()
 const promptStore = usePromptStore()
-const pitchStore = usePitchStore()
 const reactionStore = useReactionStore()
 
 // Local state for toggling details visibility
@@ -70,14 +68,6 @@ const showDetails = ref(false)
 
 // Art data to display in the toggle box
 const artData = computed(() => props.art)
-
-// Compute the prompt based on art ID
-const prompt = computed(() =>
-  props.art.promptId ? promptStore.fetchedPrompts[props.art.promptId] : null,
-)
-
-// Selected pitch from the pitch store
-const selectedPitch = computed(() => pitchStore.selectedPitch)
 
 // Filter reactions for the current art
 const reactions = computed(() =>

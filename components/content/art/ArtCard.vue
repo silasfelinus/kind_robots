@@ -8,7 +8,7 @@
       {{ prompt?.prompt || 'No prompt available' }}
     </h3>
     <div class="relative overflow-hidden max-h-[200px]">
-      <!-- Use either the art's path or the passed artImage, fallback to placeholder -->
+      <!-- Use art.path or fallback to imageData from artImage or placeholder -->
       <img
         :src="art.path || getArtImage()"
         alt="Artwork"
@@ -95,8 +95,12 @@ const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 
-// Get the image path, fallback to placeholder if artImage or path is missing
+// Get the image path, fallback to artImage.imageData if path is missing
 const getArtImage = () => {
-  return props.artImage?.url || '/placeholder.jpg';
+  if (props.artImage && props.artImage.imageData) {
+    // Assuming the imageData is base64, construct the data URL
+    return `data:image/jpeg;base64,${props.artImage.imageData}`
+  }
+  return '/placeholder.jpg'; // Fallback to a placeholder image
 }
 </script>

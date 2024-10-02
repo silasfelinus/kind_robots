@@ -27,9 +27,9 @@
       <span v-else>🖌️ Create Art</span>
     </button>
 
-    <!-- Error Message -->
-    <p v-if="error" class="text-red-500 mt-4 text-center font-medium">
-      {{ error }}
+    <!-- Local Error Message -->
+    <p v-if="localError" class="text-red-500 mt-4 text-center font-medium">
+      {{ localError }}
     </p>
 
     <!-- Generated Art Display -->
@@ -40,21 +40,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import ArtCard from './ArtCard.vue' // Import the reusable ArtCard component
 
-// Access the artStore, promptStore, errorStore, and userStore
+// Access the artStore and promptStore
 const artStore = useArtStore()
 const promptStore = usePromptStore()
-const errorStore = useErrorStore()
+
+// Local error state specific to this component
+const localError = ref<string | null>(null)
 
 // Computed properties for state
 const loading = computed(() => artStore.loading)
 const art = computed(() => artStore.currentArt)
-const error = computed(() => errorStore.getError || '')
 
 // Save the prompt when the input changes
 const savePrompt = () => {
@@ -63,30 +63,26 @@ const savePrompt = () => {
 
 // Generate art based on the prompt
 const generateArt = async () => {
-  // Clear any previous error before generating new art
-  errorStore.clearError()
+  // Clear any previous local error before generating new art
+  localError.value = null
 
   // Validate the prompt string before proceeding
   if (!artStore.validatePromptString(promptStore.promptField)) {
-    errorStore.setError(
-      ErrorType.VALIDATION_ERROR,
-      'Invalid characters in prompt.',
-    )
+    localError.value = 'Invalid characters in prompt.'
     return
   }
 
-  // Generate the art and handle any errors
-  await errorStore.handleError(
-    async () => {
-      const result = await artStore.generateArt()
+  // Attempt to generate art and catch any errors
+  try {
+    const result = await artStore.generateArt()
 
-      if (!result.success) {
-        throw new Error(result.message || 'Unknown error occurred.')
-      }
-    },
-    ErrorType.GENERAL_ERROR,
-    'Failed to generate art.',
-  )
+    if (!result.success) {
+      localError.value = result.message || 'Unknown error occurred.'
+    }
+  } catch (error) {
+    localError.value =
+      error instanceof Error ? error.message : 'Failed to generate art.'
+  }
 }
 
 // Initialize the artStore and promptStore when the component is mounted

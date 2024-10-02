@@ -44,31 +44,23 @@ export const useErrorStore = defineStore('error', {
      * @param {unknown} message - The error message or error object.
      */
     setError(type: ErrorType, message: unknown): void {
-      let errorMessage: string
-
+      let errorMessage: string = 'An unknown error occurred'
+    
       if (message instanceof Error) {
         errorMessage = message.message
-      } else if (typeof message === 'string') {
+      } else if (typeof message === 'string' && message !== undefined) {
         errorMessage = message
-      } else {
-        errorMessage = 'An unknown error occurred'
       }
-
-      const errorEntry: ErrorHistoryEntry = {
-        type,
-        message: errorMessage,
-        timestamp: new Date(),
-      }
-
+    
       this.message = errorMessage
       this.type = type
-      this.history.push(errorEntry)
-
-      // Trim history if it exceeds the maximum allowed size
+      this.history.push({ type, message: errorMessage, timestamp: new Date() })
+    
       if (this.history.length > MAX_HISTORY) {
         this.history.shift()
       }
     },
+    
 
     addError(type: ErrorType, message: unknown): void {
       this.setError(type, message) // Use the existing setError function

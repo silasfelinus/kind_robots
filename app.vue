@@ -26,7 +26,7 @@
           <nav-links></nav-links>
         </div>
 
-        <div class="flex items-center space-x-2">
+        <div class="flex items-right space-x-2">
           <kind-buttons></kind-buttons>
         </div>
       </header>
@@ -39,7 +39,7 @@
 
       <!-- Main content area: Flip-card or fullscreen layout -->
       <main
-        :class="{ 'flip-card': !isFullScreen }"
+        :class="{ 'flip-card': !isFullScreen && !isMobile }"
         class="bg-base-300 overflow-y-hidden p-4 z-40 rounded-2xl"
         :style="{
           gridRow: '2 / 3',
@@ -47,9 +47,15 @@
           height: mainHeight,
         }"
       >
-        <!-- Fullscreen mode -->
+        <!-- Mobile View (no flip card) -->
+        <div v-if="isMobile">
+          <SplashTutorial v-if="showTutorial" :style="{ height: '100%', width: '100%' }" />
+          <NuxtPage v-else :style="{ height: '100%', width: '100%' }" />
+        </div>
+
+        <!-- Fullscreen mode (Desktop) -->
         <div
-          v-if="isFullScreen"
+          v-else-if="isFullScreen"
           class="grid grid-cols-2 gap-4 rounded-2xl w-full h-full"
         >
           <div class="h-full rounded-2xl">
@@ -60,7 +66,7 @@
           </div>
         </div>
 
-        <!-- Flip-card mode -->
+        <!-- Flip-card mode (Desktop) -->
         <div
           v-else
           class="flip-card-inner"
@@ -91,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access display store
@@ -107,6 +113,15 @@ const mainHeight = computed(() => displayStore.mainHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+
+// Mobile detection
+const isMobile = ref(false)
+onMounted(() => {
+  isMobile.value = window.innerWidth <= 768
+  window.addEventListener('resize', () => {
+    isMobile.value = window.innerWidth <= 768
+  })
+})
 </script>
 
 <style scoped>

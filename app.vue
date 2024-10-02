@@ -39,11 +39,11 @@
       <!-- Main content view -->
       <main class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full">
         <!-- Fullscreen mode: Two-column layout showing both tutorial and page -->
-        <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">
-          <div class="h-full w-full">
+        <div v-if="isFullScreen" class="flex gap-4 w-full h-full">
+          <div class="h-full w-1/2">
             <SplashTutorial class="h-full w-full" />
           </div>
-          <div class="h-full w-full">
+          <div class="h-full w-1/2">
             <NuxtPage class="h-full w-full" />
           </div>
         </div>

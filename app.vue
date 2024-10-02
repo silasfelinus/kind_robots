@@ -48,21 +48,21 @@
         }"
       >
         <!-- Fullscreen mode -->
-        <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">
-          <div class="h-full">
+        <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 rounded-2xl w-full h-full">
+          <div class="h-full rounded-2xl">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
-          <div class="h-full">
+          <div class="h-full rounded-2xl">
             <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
         </div>
 
         <!-- Flip-card mode -->
         <div v-else class="flip-card-inner" :class="{ 'is-flipped': showTutorial }">
-          <div class="flip-card-front">
+          <div class="flip-card-front rounded-2xl">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
-          <div class="flip-card-back">
+          <div class="flip-card-back rounded-2xl">
             <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
         </div>

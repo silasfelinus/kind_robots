@@ -40,7 +40,7 @@
       <!-- Main content area: Flip-card or fullscreen layout -->
       <main
         :class="{ 'flip-card': !isFullScreen }"
-        class="bg-base-300 overflow-y-auto p-4 z-40 rounded-2xl"
+        class="bg-base-300 overflow-y-hidden p-4 z-40 rounded-2xl"
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
@@ -52,7 +52,7 @@
           <div class="h-full rounded-2xl">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
-          <div class="h-full rounded-2xl">
+          <div class="h-full overflow-y-auto rounded-2xl ">
             <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
         </div>
@@ -62,7 +62,7 @@
           <div class="flip-card-front rounded-2xl">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
-          <div class="flip-card-back rounded-2xl">
+          <div class="flip-card-back overflow-y-auto rounded-2xl">
             <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
         </div>

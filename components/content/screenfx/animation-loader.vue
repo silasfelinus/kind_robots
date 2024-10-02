@@ -5,7 +5,7 @@
       :is="activeComponent.component"
       v-for="activeComponent in activeComponents"
       :key="activeComponent.id"
-      class="absolute inset-0 z-20"
+      class="absolute inset-0 z-40"
     />
   </div>
 </template>
@@ -98,7 +98,7 @@ const activeComponents = computed(() => {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 20;
+  z-index: 40;
   pointer-events: none;
   transition: opacity 1s;
 }

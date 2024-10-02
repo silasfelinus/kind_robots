@@ -58,7 +58,7 @@
         </div>
 
         <!-- Flip-card mode -->
-        <div v-else class="flip-card-inner" :class="{ 'is-flipped': isFlipped }">
+        <div v-else class="flip-card-inner" :class="{ 'is-flipped': showTutorial }">
           <div class="flip-card-front">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access display store
@@ -101,16 +101,8 @@ const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 
-// Flip state
-const isFlipped = ref(false)
-
 // Check for mobile screens
 const isMobile = computed(() => displayStore.isMobileViewport)
-
-// Trigger flip action based on certain conditions
-function toggleFlip() {
-  isFlipped.value = !isFlipped.value
-}
 </script>
 
 <style scoped>
@@ -145,14 +137,5 @@ function toggleFlip() {
 
 .flip-card-back {
   transform: rotateY(180deg);
-}
-
-/* Header and Navigation Styles */
-header .nav-links {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  space-x-4: true;
 }
 </style>

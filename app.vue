@@ -21,7 +21,7 @@
       </div>
     </header>
 
-    <!-- Main content area with flip effect -->
+    <!-- Main content area -->
     <div class="grid grid-cols-3 z-40 h-full">
       <!-- Sidebar left -->
       <kind-sidebar-simple
@@ -29,8 +29,26 @@
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
       ></kind-sidebar-simple>
 
-      <!-- Flip-card for main content (applied only on non-mobile devices) -->
+      <!-- Main content: Fullscreen or flip-card based on isFullScreen -->
       <main
+        v-if="isFullScreen"
+        class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full z-40"
+        :style="{ width: mainWidth, height: mainHeight }"
+      >
+        <!-- Fullscreen mode: Two-column layout -->
+        <div class="grid grid-cols-2 gap-4 w-full h-full">
+          <div class="h-full">
+            <SplashTutorial :style="{ height: mainHeight, width: '100%' }" />
+          </div>
+          <div class="h-full">
+            <NuxtPage :style="{ height: mainHeight, width: '100%' }" />
+          </div>
+        </div>
+      </main>
+
+      <!-- Main content: Flip-card in non-fullscreen mode -->
+      <main
+        v-else
         class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full z-40 flip-card"
         :class="{ 'is-flipped': isFlipped && !isMobile }"
         :style="{ width: mainWidth, height: mainHeight }"

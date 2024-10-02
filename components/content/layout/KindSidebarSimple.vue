@@ -55,9 +55,8 @@ const hardcodedLinks = [
     path: '/pitch',
     icon: 'fluent:chat-bubbles-question-16-regular',
   },
-  { title: 'Art Maker', path: '/artmaker', icon: 'game-icons:easel' },
+  { title: 'Art Lab', path: '/artmaker', icon: 'game-icons:easel' },
   { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
-  { title: 'Art Gallery', path: '/artgallery', icon: 'mdi:palette' },
   {
     title: 'Art Challenge',
     path: '/artchallenge',

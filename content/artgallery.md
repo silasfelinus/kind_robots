@@ -12,6 +12,7 @@ tooltip: This is a collection of user art. It will hopefully springboard into a 
 dottitip: "There is a lot of talk about whether what we do is making 'art'."
 amitip: I just like looking at the pictures.
 sort: highlight
+underConstruction: true
 ---
 
 :photoprism-folders

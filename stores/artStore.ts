@@ -287,7 +287,7 @@ export const useArtStore = defineStore({
       },
 
 // Generate art based on the prompt, optionally accepts artData
-async generateArt(artData?: GenerateArtData): Promise<{ success: boolean; message?: string; newArt?: Art }> {
+async generateArt(artData?: GenerateArtData): Promise<{ success: boolean; message?: string; newArt?: Art; newArtImage?: ArtImage }> {
   const promptStore = usePromptStore();
   const userStore = useUserStore();
   const errorStore = useErrorStore();
@@ -327,8 +327,14 @@ async generateArt(artData?: GenerateArtData): Promise<{ success: boolean; messag
         // Add the new art to the generatedArt array
         if (result.art) {
           this.generatedArt.push(result.art);
+
+          // Also add the new art image to the artImages array
+          if (result.artImage) {
+            this.artImages.push(result.artImage);
+          }
         }
-        return { success: true, newArt: result.art };
+
+        return { success: true, newArt: result.art, newArtImage: result.artImage };
       } else {
         const errorResponse = await response.json();
         return { success: false, message: errorResponse.message };

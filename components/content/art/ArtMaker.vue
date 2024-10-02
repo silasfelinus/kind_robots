@@ -39,12 +39,13 @@
     </div>
 
     <!-- Generated Art Display -->
-    <div v-if="localArt && !loading" class="mt-8">
-      <ArtCard :art="localArt" />
+    <div v-if="artStore.generatedArt.length > 0" class="mt-8">
+      <div v-for="art in artStore.generatedArt" :key="art.id" class="mb-6">
+        <ArtCard :art="art" />
+      </div>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
@@ -62,9 +63,6 @@ const errorStore = useErrorStore()
 // Local error state specific to this component
 const localError = ref<string | null>(null)
 
-// Local state for storing the generated art
-const localArt = ref<Art | null>(null)
-
 // Computed properties for state
 const loading = computed(() => artStore.loading)
 
@@ -80,7 +78,6 @@ const savePrompt = () => {
 const generateArt = async () => {
   // Clear any previous local error before generating new art
   localError.value = null
-  localArt.value = null // Clear previous art
   displayStore.toggleRandomAnimation()
 
   // Validate the prompt string before proceeding
@@ -97,10 +94,7 @@ const generateArt = async () => {
     // Stop animation when generation is complete
     displayStore.stopAnimation()
 
-    if (result.success && result.newArt) {
-      // Populate localArt with the generated art result
-      localArt.value = result.newArt
-    } else {
+    if (!result.success) {
       localError.value = result.message || 'Unknown error occurred.'
       errorStore.addError(ErrorType.GENERAL_ERROR, localError.value) // Log error
     }

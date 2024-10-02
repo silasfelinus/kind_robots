@@ -189,6 +189,7 @@ export default defineEventHandler(async (event) => {
       art: newArt,
       artId: newArt.id,
       imageId: imageId,
+artImage: updatedArtImage,
     }
   } catch (error: unknown) {
     console.error('Art Generation Error:', error)

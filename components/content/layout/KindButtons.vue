@@ -1,19 +1,17 @@
 <template>
-  <div
-    class="kind-buttons flex flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0 z-50"
-  >
-    <!-- Fullscreen / Two-column Toggle -->
+  <div class="kind-buttons z-50">
+    <!-- Fullscreen / Two-column Toggle (Top-right corner) -->
     <button
-      class="hidden lg:flex bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 p-2"
+      class="fixed top-4 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 p-2"
       @click="toggleFullScreen"
     >
       {{ fullScreenButtonText }}
     </button>
 
-    <!-- Tutorial / NuxtPage Toggle Don't show if we're already showing both -->
+    <!-- Tutorial / NuxtPage Toggle (Bottom-center of the screen) -->
     <button
       v-if="!displayStore.isFullScreen"
-      class="bg-accent text-base-200 rounded-lg shadow-md hover:bg-accent-focus transition duration-300 p-2"
+      class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-accent text-base-200 rounded-lg shadow-md hover:bg-accent-focus transition duration-300 p-2"
       @click="toggleTutorial"
     >
       Show {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}
@@ -45,7 +43,6 @@ const toggleTutorial = () => {
 <style scoped>
 .kind-buttons {
   pointer-events: auto;
-  align-items: flex-end; /* Align the buttons to the right */
 }
 
 button:hover {

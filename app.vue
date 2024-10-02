@@ -105,19 +105,6 @@
         class="flex justify-center items-center"
         :style="{ gridRow: '3 / 4', height: footerHeight }"
       ></footer>
-
-      <!-- Fixed Buttons -->
-      <!-- Top corner button -->
-      <button class="fixed top-4 right-4 bg-accent p-2 rounded-xl z-50">
-        Top Button
-      </button>
-
-      <!-- Bottom center button -->
-      <button
-        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-secondary p-2 rounded-xl z-50"
-      >
-        Bottom Button
-      </button>
     </div>
   </div>
 </template>

@@ -1,5 +1,9 @@
 <template>
-  <div class="effect-container" :class="{ 'fade-out': fadeOut }">
+  <div
+    class="effect-container"
+    :class="{ 'fade-out': fadeOut }"
+    :style="containerStyles"
+  >
     <!-- Loop over active components and render them dynamically based on currentAnimation -->
     <component
       :is="currentComponent"
@@ -19,21 +23,61 @@ const displayStore = useDisplayStore()
 
 const fadeOut = ref(false) // Controls fade-out for the container
 
-// Map of animation components that can be toggled on
+// Map of animation components and their corresponding display type (fullscreen or main)
 const componentsMap: Record<
   EffectId,
-  string | ReturnType<typeof resolveComponent>
+  {
+    component: string | ReturnType<typeof resolveComponent>
+    isFullscreen: boolean
+  }
 > = {
-  'bubble-effect': resolveComponent('LazyBubbleEffect'),
-  'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
-  'rain-effect': resolveComponent('LazyRainEffect'),
-  'butterfly-animation': resolveComponent('LazyButterflyAnimation'),
+  'bubble-effect': {
+    component: resolveComponent('LazyBubbleEffect'),
+    isFullscreen: true,
+  },
+  'fizzy-bubbles': {
+    component: resolveComponent('LazyFizzyBubbles'),
+    isFullscreen: true,
+  },
+  'rain-effect': {
+    component: resolveComponent('LazyRainEffect'),
+    isFullscreen: true,
+  },
+  'butterfly-animation': {
+    component: resolveComponent('LazyButterflyAnimation'),
+    isFullscreen: false,
+  },
 }
 
 // Computed property to get the active component based on the current animation
 const currentComponent = computed(() => {
   const animationId = displayStore.currentAnimation as EffectId
-  return componentsMap[animationId] || null
+  return componentsMap[animationId]?.component || null
+})
+
+// Computed property to check if the current animation should be fullscreen or not
+const isFullscreen = computed(() => {
+  const animationId = displayStore.currentAnimation as EffectId
+  return componentsMap[animationId]?.isFullscreen ?? true // Default to fullscreen if not defined
+})
+
+// Dynamic container styles based on whether the animation is fullscreen or constrained to main content
+const containerStyles = computed(() => {
+  if (!isFullscreen.value) {
+    // Constrain to the main content area
+    return {
+      width: displayStore.mainWidth + 'px',
+      height: displayStore.mainHeight + 'px',
+      top: displayStore.headerHeight + 'px',
+      left: displayStore.sidebarLeftWidth + 'px',
+    }
+  } else {
+    // Fullscreen
+    return {
+      width: '100vw',
+      height: '100vh',
+    }
+  }
 })
 
 // Watch for changes in the isAnimating state from displayStore
@@ -41,12 +85,10 @@ watch(
   () => displayStore.isAnimating,
   (newValue) => {
     if (newValue) {
-      // When animation starts, reset fade-out and display the current animation
-      fadeOut.value = false
+      fadeOut.value = false // Reset fade-out when animation starts
     } else {
-      // When animation stops, trigger the fade-out
       setTimeout(() => {
-        fadeOut.value = true // Fade out after a small delay
+        fadeOut.value = true // Trigger fade-out after a small delay
       }, 1000)
     }
   },

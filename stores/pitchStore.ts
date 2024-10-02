@@ -23,7 +23,7 @@ export enum PitchTypeEnum {
 }
 
 // Assuming Prisma PitchType is something like 'ARTPITCH', 'BRAINSTORM', etc.
-const pitchTypeMap: Record<string, PitchTypeEnum> = {
+export const pitchTypeMap: Record<string, PitchTypeEnum> = {
   'ARTPITCH': PitchTypeEnum.ARTPITCH,
   'BRAINSTORM': PitchTypeEnum.BRAINSTORM,
   'BOT': PitchTypeEnum.BOT,
@@ -50,6 +50,9 @@ export const usePitchStore = defineStore('pitch', {
   }),
 
   getters: {
+    pitchTypes: () => {
+      return Object.values(PitchTypeEnum);
+    },
     // Get selected pitch, which is the first in the selectedPitches array
     selectedPitch: (state) => {
       return state.selectedPitches.length ? state.selectedPitches[0] : null

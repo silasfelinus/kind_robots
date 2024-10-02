@@ -23,9 +23,10 @@
           <sidebar-toggle class="text-4xl"></sidebar-toggle>
         </div>
 
-        <!-- Nav Links centered for larger screens -->
+        <!-- Nav Links: centered for medium and larger screens, and on small screens as well -->
         <div
-          class="hidden md:flex flex-grow justify-center items-center space-x-4"
+          class="flex-grow flex justify-center items-center space-x-4"
+          :class="isMobile ? 'flex' : 'hidden md:flex'"
         >
           <nav-links></nav-links>
         </div>
@@ -45,7 +46,7 @@
       <!-- Main content area: Flip-card or fullscreen layout -->
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-300 overflow-y-hidden p-4 z-40 rounded-2xl"
+        class="bg-base-300 overflow-y-hidden p-4 z-40 rounded-2xl border-3 border-accent-200"
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
@@ -53,18 +54,22 @@
         }"
       >
         <!-- Mobile View (no flip card) -->
-        <div v-if="isMobile">
+        <div v-if="isMobile" class="rounded-2xl border-3 border-accent-200">
           <SplashTutorial
             v-if="showTutorial"
             :style="{ height: '100%', width: '100%' }"
           />
-          <NuxtPage v-else class="overflow-y-auto" :style="{ height: '100%', width: '100%' }" />
+          <NuxtPage
+            v-else
+            class="overflow-y-auto"
+            :style="{ height: '100%', width: '100%' }"
+          />
         </div>
 
         <!-- Fullscreen mode (Desktop) -->
         <div
           v-else-if="isFullScreen"
-          class="grid grid-cols-2 gap-4 rounded-2xl w-full h-full"
+          class="grid grid-cols-2 gap-4 rounded-2xl border-3 border-accent-200 w-full h-full"
         >
           <div class="h-full rounded-2xl">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
@@ -80,10 +85,12 @@
           class="flip-card-inner"
           :class="{ 'is-flipped': showTutorial }"
         >
-          <div class="flip-card-front rounded-2xl">
+          <div class="flip-card-front rounded-2xl border-3 border-accent-200">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
-          <div class="flip-card-back overflow-y-auto rounded-2xl">
+          <div
+            class="flip-card-back overflow-y-auto rounded-2xl border-3 border-accent-200"
+          >
             <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
         </div>
@@ -100,6 +107,19 @@
         class="flex justify-center items-center"
         :style="{ gridRow: '3 / 4', height: footerHeight }"
       ></footer>
+
+      <!-- Fixed Buttons -->
+      <!-- Top corner button -->
+      <button class="fixed top-4 right-4 bg-accent p-2 rounded-xl z-50">
+        Top Button
+      </button>
+
+      <!-- Bottom center button -->
+      <button
+        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-secondary p-2 rounded-xl z-50"
+      >
+        Bottom Button
+      </button>
     </div>
   </div>
 </template>

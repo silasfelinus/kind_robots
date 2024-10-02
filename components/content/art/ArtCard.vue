@@ -32,7 +32,7 @@
     <!-- Toggle Button for Detailed Info -->
     <div class="mt-4">
       <label class="flex items-center">
-        <input type="checkbox" v-model="showDetails" class="mr-2" />
+        <input v-model="showDetails" type="checkbox" class="mr-2" />
         <span>Show Art Details</span>
       </label>
     </div>
@@ -101,6 +101,6 @@ const getArtImage = () => {
     // Assuming the imageData is base64, construct the data URL
     return `data:image/jpeg;base64,${props.artImage.imageData}`
   }
-  return '/placeholder.jpg'; // Fallback to a placeholder image
+  return '/placeholder.jpg' // Fallback to a placeholder image
 }
 </script>

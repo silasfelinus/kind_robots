@@ -22,7 +22,8 @@
     </header>
 
     <!-- Main content area with flip effect -->
-    <div :class="['h-full grid', isMobile ? 'grid-cols-1' : 'grid-cols-3', 'z-40']">
+    <div class="grid grid-cols-3 z-40 h-full">
+      <!-- Sidebar left -->
       <kind-sidebar-simple
         class="overflow-y-auto bg-base-300"
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
@@ -34,33 +35,28 @@
         :class="{ 'is-flipped': isFlipped && !isMobile }"
         :style="{ width: mainWidth, height: mainHeight }"
       >
-        <!-- Fullscreen mode: Two-column inner layout (SplashTutorial + NuxtPage) -->
-        <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">
-          <div class="h-full">
+        <!-- Flip-card inner content, toggles between SplashTutorial and NuxtPage -->
+        <div class="flip-card-inner">
+          <!-- Front side (SplashTutorial) -->
+          <div v-if="showTutorial" class="flip-card-front">
             <SplashTutorial :style="{ height: mainHeight, width: '100%' }" />
           </div>
-          <div class="h-full">
-            <NuxtPage :style="{ height: mainHeight, width: '100%' }" />
-          </div>
-        </div>
 
-        <!-- Non-fullscreen mode: Single column -->
-        <div v-else class="w-full h-full flex justify-center items-center">
-          <div v-if="showTutorial" :style="{ height: mainHeight, width: '100%' }">
-            <SplashTutorial :style="{ height: mainHeight, width: '100%' }" />
-          </div>
-          <div v-else :style="{ height: mainHeight, width: '100%' }">
+          <!-- Back side (NuxtPage) -->
+          <div v-else class="flip-card-back">
             <NuxtPage :style="{ height: mainHeight, width: '100%' }" />
           </div>
         </div>
       </main>
 
+      <!-- Sidebar right -->
       <aside
         class="bg-base-300 overflow-y-auto"
         :style="{ width: sidebarRightWidth, height: mainHeight }"
       ></aside>
     </div>
 
+    <!-- Footer -->
     <footer
       class="flex justify-center items-center"
       :style="{ height: footerHeight }"
@@ -102,8 +98,29 @@ const isMobile = computed(() => displayStore.isMobileViewport)
   transition: transform 0.6s;
   transform-style: preserve-3d;
 }
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
 
-.flip-card.is-flipped {
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border: 2px solid var(--bg-base);
+  border-radius: 5px;
+}
+
+.flip-card-back {
   transform: rotateY(180deg);
 }
 </style>

@@ -134,7 +134,7 @@ export const useArtStore = defineStore({
       const data = {
         promptString: artData?.promptString || promptStore.promptField,
         pitch: artData?.pitch || this.extractPitch(promptStore.promptField),
-        userId: artData?.userId || userStore.user?.id || 10,
+        userId: artData?.userId || userStore.user?.id,
         galleryId: artData?.galleryId,
         checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4',
         sampler: artData?.sampler || 'k_lms',

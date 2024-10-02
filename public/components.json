@@ -381,6 +381,7 @@
       "ComponentCount",
       "ComponentReactions",
       "ComponentScreen",
+      "LabChooser",
       "LabGallery",
       "WonderLab"
     ]

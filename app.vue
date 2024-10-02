@@ -1,50 +1,54 @@
 <template>
   <div class="main-layout h-screen overflow-hidden bg-base-300">
+    <!-- Loaders -->
     <kind-loader></kind-loader>
     <animation-loader></animation-loader>
 
-    <!-- Header with Sidebar Toggle, Nav Links, and Kind Buttons -->
-    <header
-      class="bg-base-300 flex items-center justify-between w-full p-2 z-40"
-      :style="{ height: headerHeight }"
-    >
-      <div class="p-1 z-40 text-white">
-        <sidebar-toggle class="text-4xl"></sidebar-toggle>
-      </div>
-
-      <div class="flex flex-grow justify-center">
-        <nav-links class="hidden sm:flex space-x-4"></nav-links>
-      </div>
-
-      <div class="flex items-center space-x-2">
-        <kind-buttons></kind-buttons>
-      </div>
-    </header>
-
-    <!-- Main content area with dynamic grid layout -->
+    <!-- Grid Container: Starts right after loaders -->
     <div
-      class="z-40 h-full"
+      class="grid"
       :style="{
-        display: 'grid',
-        gridTemplateColumns: `${sidebarLeftWidth} ${mainWidth} ${sidebarRightWidth}`,
-        gridTemplateRows: `${headerHeight} auto ${footerHeight}`,  // Adjust grid rows to account for header/footer
-        height: '100vh' // Use the full viewport height
+        gridTemplateRows: `${headerHeight} auto ${footerHeight}`,
+        gridTemplateColumns: `${sidebarLeftWidth} 1fr ${sidebarRightWidth}`,
+        height: '100vh'  // Full viewport height
       }"
     >
+      <!-- Header -->
+      <header
+        class="bg-base-300 flex items-center justify-between w-full p-2 z-40"
+        :style="{ gridRow: '1 / 2', height: headerHeight }"
+      >
+        <div class="p-1 text-white">
+          <sidebar-toggle class="text-4xl"></sidebar-toggle>
+        </div>
+
+        <div class="flex flex-grow justify-center">
+          <nav-links class="hidden sm:flex space-x-4"></nav-links>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <kind-buttons></kind-buttons>
+        </div>
+      </header>
+
       <!-- Sidebar left -->
       <kind-sidebar-simple
-        class="overflow-y-auto bg-base-300"
-        :style="{ width: sidebarLeftWidth }"
+        class="bg-base-300 overflow-y-auto"
+        :style="{ gridRow: '2 / 3', width: sidebarLeftWidth }"
       ></kind-sidebar-simple>
 
-      <!-- Main content: Fullscreen or flip-card based on isFullScreen -->
+      <!-- Main content area: Flip-card or fullscreen layout -->
       <main
-        v-if="isFullScreen"
-        class="rounded-2xl bg-base-300 overflow-y-auto p-4 z-40 flex flex-col"
-        :style="{ height: mainHeight }"
+        :class="{ 'flip-card': !isFullScreen }"
+        class="bg-base-300 overflow-y-auto p-4 z-40 rounded-2xl"
+        :style="{
+          gridRow: '2 / 3',
+          gridColumn: '2 / 3',
+          height: mainHeight
+        }"
       >
-        <!-- Fullscreen mode: Two-column layout -->
-        <div class="grid grid-cols-2 gap-4 w-full h-full">
+        <!-- Fullscreen mode -->
+        <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">
           <div class="h-full">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
@@ -52,23 +56,12 @@
             <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
         </div>
-      </main>
 
-      <!-- Main content: Flip-card in non-fullscreen mode -->
-      <main
-        v-else
-        class="rounded-2xl bg-base-300 overflow-y-auto p-4 z-40 flip-card flex flex-col"
-        :class="{ 'is-flipped': isFlipped && !isMobile }"
-        :style="{ height: mainHeight }"
-      >
-        <!-- Flip-card inner content, toggles between SplashTutorial and NuxtPage -->
-        <div class="flip-card-inner">
-          <!-- Front side (SplashTutorial) -->
+        <!-- Flip-card mode -->
+        <div v-else class="flip-card-inner">
           <div v-if="showTutorial" class="flip-card-front">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
-
-          <!-- Back side (NuxtPage) -->
           <div v-else class="flip-card-back">
             <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
@@ -78,15 +71,15 @@
       <!-- Sidebar right -->
       <aside
         class="bg-base-300 overflow-y-auto"
-        :style="{ width: sidebarRightWidth }"
+        :style="{ gridRow: '2 / 3', width: sidebarRightWidth }"
       ></aside>
-    </div>
 
-    <!-- Footer -->
-    <footer
-      class="flex justify-center items-center"
-      :style="{ height: footerHeight }"
-    ></footer>
+      <!-- Footer -->
+      <footer
+        class="flex justify-center items-center"
+        :style="{ gridRow: '3 / 4', height: footerHeight }"
+      ></footer>
+    </div>
   </div>
 </template>
 
@@ -107,7 +100,6 @@ const mainHeight = computed(() => displayStore.mainHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const mainWidth = computed(() => displayStore.mainWidth)
 
 // Flip state
 const isFlipped = ref(false)
@@ -124,6 +116,7 @@ const isMobile = computed(() => displayStore.isMobileViewport)
   transition: transform 0.6s;
   transform-style: preserve-3d;
 }
+
 .flip-card-inner {
   position: relative;
   width: 100%;

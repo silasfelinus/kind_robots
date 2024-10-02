@@ -22,8 +22,8 @@
           <sidebar-toggle class="text-4xl"></sidebar-toggle>
         </div>
 
-        <div class="flex flex-grow justify-center">
-          <nav-links class="hidden sm:flex space-x-4"></nav-links>
+        <div class="flex flex-grow justify-center space-x-4">
+          <nav-links class="flex space-x-4"></nav-links> <!-- Nav links in a row -->
         </div>
 
         <div class="flex items-center space-x-2">
@@ -39,7 +39,7 @@
 
       <!-- Main content area: Flip-card or fullscreen layout -->
       <main
-        :class="{ 'flip-card': !isFullScreen }"
+        :class="[{ 'flip-card': !isFullScreen }, { 'is-flipped': isFlipped && !isMobile }]"
         class="bg-base-300 overflow-y-auto p-4 z-40 rounded-2xl"
         :style="{
           gridRow: '2 / 3',
@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access display store
@@ -106,6 +106,11 @@ const isFlipped = ref(false)
 
 // Check for mobile screens
 const isMobile = computed(() => displayStore.isMobileViewport)
+
+// Watch tutorial state and flip card when necessary
+watch(showTutorial, (newVal) => {
+  isFlipped.value = !newVal
+})
 </script>
 
 <style scoped>
@@ -113,7 +118,7 @@ const isMobile = computed(() => displayStore.isMobileViewport)
   perspective: 1000px;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s;
+  transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
 }
 
@@ -121,11 +126,11 @@ const isMobile = computed(() => displayStore.isMobileViewport)
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s;
+  transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
 }
 
-.flip-card-inner.is-flipped {
+.flip-card.is-flipped .flip-card-inner {
   transform: rotateY(180deg);
 }
 

@@ -10,7 +10,7 @@
       :style="{
         gridTemplateRows: `${headerHeight} auto ${footerHeight}`,
         gridTemplateColumns: `${sidebarLeftWidth} 1fr ${sidebarRightWidth}`,
-        height: '100vh'  // Full viewport height
+        height: '100vh'
       }"
     >
       <!-- Header -->
@@ -22,8 +22,8 @@
           <sidebar-toggle class="text-4xl"></sidebar-toggle>
         </div>
 
-        <div class="flex flex-grow justify-center space-x-4">
-          <nav-links class="flex space-x-4"></nav-links> <!-- Nav links in a row -->
+        <div class="flex flex-grow justify-center items-center space-x-4">
+          <nav-links></nav-links>
         </div>
 
         <div class="flex items-center space-x-2">
@@ -39,7 +39,7 @@
 
       <!-- Main content area: Flip-card or fullscreen layout -->
       <main
-        :class="[{ 'flip-card': !isFullScreen }, { 'is-flipped': isFlipped && !isMobile }]"
+        :class="{ 'flip-card': !isFullScreen }"
         class="bg-base-300 overflow-y-auto p-4 z-40 rounded-2xl"
         :style="{
           gridRow: '2 / 3',
@@ -58,11 +58,11 @@
         </div>
 
         <!-- Flip-card mode -->
-        <div v-else class="flip-card-inner">
-          <div v-if="showTutorial" class="flip-card-front">
+        <div v-else class="flip-card-inner" :class="{ 'is-flipped': isFlipped }">
+          <div class="flip-card-front">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
-          <div v-else class="flip-card-back">
+          <div class="flip-card-back">
             <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
         </div>
@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access display store
@@ -107,30 +107,29 @@ const isFlipped = ref(false)
 // Check for mobile screens
 const isMobile = computed(() => displayStore.isMobileViewport)
 
-// Watch tutorial state and flip card when necessary
-watch(showTutorial, (newVal) => {
-  isFlipped.value = !newVal
-})
+// Trigger flip action based on certain conditions
+function toggleFlip() {
+  isFlipped.value = !isFlipped.value
+}
 </script>
 
 <style scoped>
+/* Flip-card style */
 .flip-card {
   perspective: 1000px;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s ease-in-out;
-  transform-style: preserve-3d;
 }
 
 .flip-card-inner {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s ease-in-out;
+  transition: transform 0.6s;
   transform-style: preserve-3d;
 }
 
-.flip-card.is-flipped .flip-card-inner {
+.flip-card-inner.is-flipped {
   transform: rotateY(180deg);
 }
 
@@ -146,5 +145,14 @@ watch(showTutorial, (newVal) => {
 
 .flip-card-back {
   transform: rotateY(180deg);
+}
+
+/* Header and Navigation Styles */
+header .nav-links {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  space-x-4: true;
 }
 </style>

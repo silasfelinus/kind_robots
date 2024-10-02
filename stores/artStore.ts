@@ -127,7 +127,10 @@ export const useArtStore = defineStore({
       const promptStore = usePromptStore();
       const userStore = useUserStore();
       const errorStore = useErrorStore();
-
+      
+      // Set loading to true before starting the generation process
+      this.loading = true;
+      
       const data = {
         promptString: artData?.promptString || promptStore.promptField,
         pitch: artData?.pitch || this.extractPitch(promptStore.promptField),
@@ -179,9 +182,11 @@ export const useArtStore = defineStore({
         },
         ErrorType.NETWORK_ERROR,
         'Failed to generate art.'
-      );
+      ).finally(() => {
+        // Ensure loading is set to false after completion
+        this.loading = false;
+      });
     },
-    
 
     // Select a specific art piece by ID
     selectArt(artId: number) {

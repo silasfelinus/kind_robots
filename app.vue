@@ -1,11 +1,11 @@
 <template>
-  <div class="main-layout absolute inset-0 bg-base-300">
+  <div class="main-layout h-screen overflow-hidden bg-base-300">
     <kind-loader></kind-loader>
     <animation-loader></animation-loader>
 
     <!-- Header with Sidebar Toggle, Nav Links, and Kind Buttons -->
     <header
-      class="bg-base-300 flex items-center justify-between w-full p-2 h-auto"
+      class="bg-base-300 flex items-center justify-between w-full p-2"
       :style="{ height: headerHeight }"
     >
       <!-- Sidebar Toggle -->
@@ -19,16 +19,15 @@
       </div>
 
       <!-- Kind Buttons (Aligned to the right inside the header) -->
-      <div class="flex items-center lg:flex-row space-x-2">
-        <kind-buttons class="kind-buttons"></kind-buttons>
+      <div class="flex items-center space-x-2">
+        <kind-buttons></kind-buttons>
       </div>
     </header>
 
     <!-- Main content area -->
     <div
-      class="grid h-full"
+      class="h-full grid"
       :class="isFullScreen ? 'grid-cols-2' : 'grid-cols-[auto_1fr_auto]'"
-      :style="{ height: mainHeight }"
     >
       <!-- Sidebar left -->
       <kind-sidebar-simple
@@ -92,24 +91,3 @@ const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 </script>
-
-<style scoped>
-.main-layout {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.grid-cols-2 {
-  grid-template-columns: 1fr 1fr;
-}
-
-.grid-cols-[auto_1fr_auto] {
-  grid-template-columns: auto 1fr auto;
-}
-
-button:hover {
-  cursor: pointer;
-}
-</style>

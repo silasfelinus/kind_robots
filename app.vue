@@ -21,8 +21,14 @@
       </div>
     </header>
 
-    <!-- Main content area -->
-    <div class="grid grid-cols-3 z-40 h-full">
+    <!-- Main content area with dynamic grid layout -->
+    <div
+      class="z-40 h-full"
+      :style="{
+        display: 'grid',
+        gridTemplateColumns: `${sidebarLeftWidth} ${mainWidth} ${sidebarRightWidth}`,
+      }"
+    >
       <!-- Sidebar left -->
       <kind-sidebar-simple
         class="overflow-y-auto bg-base-300"

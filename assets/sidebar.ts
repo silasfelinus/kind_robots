@@ -9,7 +9,6 @@ export const sidebarLinks = [
   },
   { title: 'Art Maker', path: '/artmaker', icon: 'game-icons:easel' },
   { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
-  { title: 'Art Gallery', path: '/artgallery', icon: 'mdi:palette' },
   {
     title: 'Art Challenge',
     path: '/artchallenge',

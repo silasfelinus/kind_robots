@@ -38,7 +38,7 @@
       <!-- Main content area: Flip-card or fullscreen layout -->
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-300 overflow-y-hidden p-4 z-40 rounded-2xl"
+        class="bg-base-300 p-4 z-40 rounded-2xl overflow-y-auto" 
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
@@ -49,12 +49,11 @@
         <div v-if="isMobile">
           <SplashTutorial
             v-if="showTutorial"
-            :style="{ height: '100%', width: '100%' }"
+            class="h-full w-full" 
           />
           <NuxtPage
             v-else
-            class="overflow-y-auto"
-            :style="{ height: '100%', width: '100%' }"
+            class="h-full w-full" 
           />
         </div>
 
@@ -64,11 +63,10 @@
           class="grid grid-cols-2 gap-4 rounded-2xl w-full h-full"
         >
           <div class="h-full rounded-2xl">
-            <SplashTutorial :style="{ height: '100%', width: '100%' }" />
+            <SplashTutorial class="h-full w-full" /> 
           </div>
           <div class="h-full overflow-y-auto rounded-2xl">
-            <NuxtPage :style="{ height: '100%', width: '100%' }" />
-          </div>
+            <NuxtPage class="h-full w-full" />
         </div>
 
         <!-- Flip-card mode (Desktop) -->
@@ -78,10 +76,10 @@
           :class="{ 'is-flipped': showTutorial }"
         >
           <div class="flip-card-front rounded-2xl">
-            <SplashTutorial :style="{ height: '100%', width: '100%' }" />
+            <SplashTutorial class="h-full w-full" /> <!-- Set to full height and width -->
           </div>
           <div class="flip-card-back overflow-y-auto rounded-2xl">
-            <NuxtPage :style="{ height: '100%', width: '100%' }" />
+            <NuxtPage class="h-full w-full" /> <!-- Set to full height and width -->
           </div>
         </div>
       </main>

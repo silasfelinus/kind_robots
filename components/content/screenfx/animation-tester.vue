@@ -4,12 +4,25 @@
   >
     <h2 class="text-4xl font-bold mb-6 text-primary">Animation Tester</h2>
 
+    <!-- Current Animation State -->
+    <div class="text-lg mb-4 font-bold text-info">
+      Current Animation:
+      <span v-if="isAnimating">{{ currentAnimationLabel }}</span>
+      <span v-else>None</span>
+    </div>
+
     <!-- Buttons to trigger specific animations -->
     <div class="flex flex-col space-y-4">
       <button
         v-for="effect in effects"
         :key="effect.id"
-        class="btn bg-secondary hover:bg-secondary-focus text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 active:scale-95"
+        class="btn text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 active:scale-95"
+        :class="{
+          'bg-secondary hover:bg-secondary-focus':
+            currentAnimation !== effect.id,
+          'bg-primary hover:bg-primary-focus':
+            currentAnimation === effect.id && isAnimating,
+        }"
         @click="startAnimation(effect.id)"
       >
         Start {{ effect.label }} Animation
@@ -44,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import type { EffectId } from '@/stores/displayStore' // Importing the EffectId type
@@ -58,27 +71,23 @@ const errorMessage = ref<string | null>(null)
 
 // Define the available effects
 const effects = ref<Array<{ id: EffectId; label: string }>>([
-  {
-    id: 'bubble-effect',
-    label: 'Bubble Fiesta',
-  },
-  {
-    id: 'fizzy-bubbles',
-    label: 'Fizzy Lifting',
-  },
-  {
-    id: 'rain-effect',
-    label: 'Rainmaker',
-  },
-  {
-    id: 'butterfly-animation',
-    label: 'Butterfly Scouts',
-  },
+  { id: 'bubble-effect', label: 'Bubble Fiesta' },
+  { id: 'fizzy-bubbles', label: 'Fizzy Lifting' },
+  { id: 'rain-effect', label: 'Rainmaker' },
+  { id: 'butterfly-animation', label: 'Butterfly Scouts' },
 ])
+
+// Computed properties to track the current animation state
+const isAnimating = computed(() => displayStore.isAnimating)
+const currentAnimation = computed(() => displayStore.currentAnimation)
+const currentAnimationLabel = computed(() => {
+  const effect = effects.value.find((e) => e.id === currentAnimation.value)
+  return effect ? effect.label : 'None'
+})
 
 // Watch the error store for any new errors
 watch(
-  () => errorStore.getError, // Correct getter for error message
+  () => errorStore.getError,
   (newError) => {
     if (newError) {
       errorMessage.value = `Error: ${newError}`

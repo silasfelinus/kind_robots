@@ -4,7 +4,7 @@
     <component
       :is="currentComponent"
       v-if="currentComponent"
-      class="absolute inset-0 z-40"
+      class="absolute inset-0 z-30"
     />
   </div>
 </template>

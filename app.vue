@@ -10,7 +10,7 @@
       :style="{
         gridTemplateRows: `${headerHeight} auto ${footerHeight}`,
         gridTemplateColumns: `${sidebarLeftWidth} 1fr ${sidebarRightWidth}`,
-        height: '100vh'
+        height: '100vh',
       }"
     >
       <!-- Header -->
@@ -44,21 +44,28 @@
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
-          height: mainHeight
+          height: mainHeight,
         }"
       >
         <!-- Fullscreen mode -->
-        <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 rounded-2xl w-full h-full">
+        <div
+          v-if="isFullScreen"
+          class="grid grid-cols-2 gap-4 rounded-2xl w-full h-full"
+        >
           <div class="h-full rounded-2xl">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
-          <div class="h-full overflow-y-auto rounded-2xl ">
+          <div class="h-full overflow-y-auto rounded-2xl">
             <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
         </div>
 
         <!-- Flip-card mode -->
-        <div v-else class="flip-card-inner" :class="{ 'is-flipped': showTutorial }">
+        <div
+          v-else
+          class="flip-card-inner"
+          :class="{ 'is-flipped': showTutorial }"
+        >
           <div class="flip-card-front rounded-2xl">
             <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
@@ -100,9 +107,6 @@ const mainHeight = computed(() => displayStore.mainHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-
-// Check for mobile screens
-const isMobile = computed(() => displayStore.isMobileViewport)
 </script>
 
 <style scoped>

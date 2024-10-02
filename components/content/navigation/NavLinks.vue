@@ -12,7 +12,7 @@
       >
         <!-- Hamburger Icon -->
         <svg
-          class="w-5 h-5"
+          class="w-6 h-6"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -31,13 +31,13 @@
     <!-- Hidden Menu on Small Screens -->
     <div
       v-if="isMenuOpen"
-      class="absolute top-10 left-0 w-full bg-base-300 shadow-lg md:hidden flex flex-col items-center"
+      class="absolute top-12 left-0 w-full bg-base-300 shadow-lg md:hidden flex flex-col items-center"
     >
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
-        class="block text-accent text-base py-1 hover:bg-secondary hover:text-base-100 w-full text-center"
+        class="block text-accent text-lg py-2 hover:bg-secondary hover:text-base-100 w-full text-center"
         @click="closeMenu"
       >
         {{ link.text }}
@@ -45,12 +45,12 @@
     </div>
 
     <!-- Horizontal Links for Larger Screens -->
-    <div class="hidden md:flex items-center gap-4 flex-wrap">
+    <div class="hidden md:flex items-center gap-6">
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
-        class="text-accent text-lg hover:underline whitespace-nowrap"
+        class="text-accent text-lg md:text-xl lg:text-2xl hover:underline whitespace-nowrap"
       >
         {{ link.text }}
       </nuxt-link>
@@ -79,9 +79,3 @@ const navLinks = [
   { text: 'AMI', url: '/amibot' },
 ]
 </script>
-
-<style scoped>
-nav {
-  position: relative;
-}
-</style>

@@ -1,8 +1,17 @@
 <template>
   <div class="kind-buttons">
-    <!-- Fullscreen / Two-column Toggle (Top-right corner) -->
+    <!-- Tutorial / NuxtPage Toggle (Top-right corner) -->
+    <button
+      v-if="!isFullScreen"
+      class="fixed top-4 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-accent transition duration-300 z-50 p-1"
+      @click="toggleTutorial"
+    >
+      Show {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}
+    </button>
+
+    <!-- Fullscreen / Two-column Toggle (Bottom-right corner) -->
     <div
-      class="fixed hidden lg:flex top-4 right-4 items-center space-x-2 bg-accent text-base-200 rounded-lg shadow-md p-2 transition duration-300"
+      class="fixed lg:flex bottom-4 right-4 items-center space-x-2 bg-accent text-base-200 rounded-lg shadow-md p-2 transition duration-300 transform rotate-180"
     >
       <!-- Two-column layout button -->
       <button
@@ -27,15 +36,6 @@
         <Icon name="mdi-monitor" class="w-6 h-6" />
       </button>
     </div>
-
-    <!-- Tutorial / NuxtPage Toggle (Bottom-center of the screen) -->
-    <button
-      v-if="!isFullScreen"
-      class="fixed bottom-4 right-4 transform -translate-x-1/2 bg-primary text-base-200 rounded-lg shadow-md hover:bg-accent transition duration-300 z-50 p-1"
-      @click="toggleTutorial"
-    >
-      Show {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}
-    </button>
   </div>
 </template>
 

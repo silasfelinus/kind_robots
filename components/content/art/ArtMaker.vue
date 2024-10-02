@@ -57,32 +57,25 @@ import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import ArtCard from './ArtCard.vue' // Import the reusable ArtCard component
+import ArtCard from './ArtCard.vue' 
 
-// Access the stores
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 
-// Local error state specific to this component
 const localError = ref<string | null>(null)
 
-// Computed properties for state
 const loading = computed(() => artStore.loading)
-
-// Get the last error from errorStore
 const lastError = computed(() => errorStore.getError)
 
-// Save the prompt when the input changes
 const savePrompt = () => {
   promptStore.savePromptField()
 }
 
-// Computed property for generated art and its images
 const generatedArtWithImages = computed(() => {
   return artStore.generatedArt.map((art) => {
-    const artImage = artStore.getArtImagesById(art.id)[0] // Get the first image or handle accordingly
+    const artImage = artStore.getArtImagesById(art.id)[0] 
     return {
       art,
       artImage,
@@ -90,39 +83,33 @@ const generatedArtWithImages = computed(() => {
   })
 })
 
-// Generate art based on the prompt
 const generateArt = async () => {
-  // Clear any previous local error before generating new art
   localError.value = null
   displayStore.toggleRandomAnimation()
 
-  // Validate the prompt string before proceeding
   if (!artStore.validatePromptString(promptStore.promptField)) {
     localError.value = 'Invalid characters in prompt.'
-    errorStore.addError(ErrorType.VALIDATION_ERROR, localError.value) // Log error
+    errorStore.addError(ErrorType.VALIDATION_ERROR, localError.value)
     return
   }
 
-  // Attempt to generate art and catch any errors
   try {
     const result = await artStore.generateArt()
 
-    // Stop animation when generation is complete
     displayStore.stopAnimation()
 
     if (!result.success) {
       localError.value = result.message || 'Unknown error occurred.'
-      errorStore.addError(ErrorType.GENERAL_ERROR, localError.value) // Log error
+      errorStore.addError(ErrorType.GENERAL_ERROR, localError.value)
     }
   } catch (error) {
     displayStore.stopAnimation()
     localError.value =
       error instanceof Error ? error.message : 'Failed to generate art.'
-    errorStore.addError(ErrorType.NETWORK_ERROR, localError.value) // Log error
+    errorStore.addError(ErrorType.NETWORK_ERROR, localError.value)
   }
 }
 
-// Initialize the artStore and promptStore when the component is mounted
 onMounted(async () => {
   await artStore.initialize()
   await promptStore.initialize()

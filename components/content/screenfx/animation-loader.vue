@@ -8,7 +8,7 @@
     <component
       :is="currentComponent"
       v-if="currentComponent"
-      class="absolute inset-0 z-40"
+      class="absolute inset-0 z-[100]"
     />
   </div>
 </template>
@@ -102,7 +102,6 @@ watch(
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 40;
   pointer-events: none;
   transition: opacity 1s;
 }

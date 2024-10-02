@@ -28,10 +28,15 @@
       <span v-else>🖌️ Create Art</span>
     </button>
 
-    <!-- Local Error Message -->
-    <p v-if="localError" class="text-red-500 mt-4 text-center font-medium">
-      {{ localError }}
-    </p>
+    <!-- Local and Error Store Messages -->
+    <div v-if="localError" class="mt-4">
+      <p v-if="localError" class="text-red-500 text-center font-medium">
+        {{ localError }}
+      </p>
+      <p v-if="lastError" class="text-red-500 text-center font-medium">
+        {{ lastError }}
+      </p>
+    </div>
 
     <!-- Generated Art Display -->
     <div v-if="localArt && !loading" class="mt-8">
@@ -45,21 +50,26 @@ import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import ArtCard from './ArtCard.vue' // Import the reusable ArtCard component
 
-// Access the artStore and promptStore
+// Access the stores
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
+const errorStore = useErrorStore()
 
 // Local error state specific to this component
 const localError = ref<string | null>(null)
 
 // Local state for storing the generated art
-const localArt = ref(null)
+const localArt = ref<Art | null>(null)
 
 // Computed properties for state
 const loading = computed(() => artStore.loading)
+
+// Get the last error from errorStore
+const lastError = computed(() => errorStore.getError)
 
 // Save the prompt when the input changes
 const savePrompt = () => {
@@ -70,12 +80,13 @@ const savePrompt = () => {
 const generateArt = async () => {
   // Clear any previous local error before generating new art
   localError.value = null
-  const localArt = ref<Art | null>(null)
+  localArt.value = null // Clear previous art
   displayStore.toggleRandomAnimation()
 
   // Validate the prompt string before proceeding
   if (!artStore.validatePromptString(promptStore.promptField)) {
     localError.value = 'Invalid characters in prompt.'
+    errorStore.addError(ErrorType.VALIDATION_ERROR, localError.value) // Log error
     return
   }
 
@@ -91,11 +102,13 @@ const generateArt = async () => {
       localArt.value = result.newArt
     } else {
       localError.value = result.message || 'Unknown error occurred.'
+      errorStore.addError(ErrorType.GENERAL_ERROR, localError.value) // Log error
     }
   } catch (error) {
     displayStore.stopAnimation()
     localError.value =
       error instanceof Error ? error.message : 'Failed to generate art.'
+    errorStore.addError(ErrorType.NETWORK_ERROR, localError.value) // Log error
   }
 }
 

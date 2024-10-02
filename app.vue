@@ -18,15 +18,20 @@
         class="bg-base-300 flex items-center justify-between w-full p-2 z-40"
         :style="{ gridRow: '1 / 2', height: headerHeight }"
       >
-        <div class="p-1 text-white">
+        <!-- Sidebar Toggle (Hamburger Menu) -->
+        <div class="p-1 text-white md:hidden flex-grow flex justify-center">
           <sidebar-toggle class="text-4xl"></sidebar-toggle>
         </div>
 
-        <div class="flex flex-grow justify-center items-center space-x-4">
+        <!-- Nav Links centered for larger screens -->
+        <div
+          class="hidden md:flex flex-grow justify-center items-center space-x-4"
+        >
           <nav-links></nav-links>
         </div>
 
-        <div class="flex items-right space-x-2">
+        <!-- Kind Buttons (Always aligned right, no overlap) -->
+        <div class="flex items-center space-x-2 ml-auto">
           <kind-buttons></kind-buttons>
         </div>
       </header>

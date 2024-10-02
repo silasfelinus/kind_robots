@@ -36,72 +36,25 @@
     <div v-if="art && !loading" class="mt-8">
       <ArtCard :art="art" />
     </div>
-
-    <!-- Toggle for showing User's Own Art -->
-    <div class="flex justify-center items-center mt-6">
-      <label class="text-lg font-semibold text-primary mr-2"
-        >Show Your Art</label
-      >
-      <input
-        v-model="showUserArt"
-        type="checkbox"
-        class="form-checkbox h-6 w-6 text-primary"
-      />
-    </div>
-
-    <!-- User's Art Display -->
-    <div v-if="showUserArt && userArt.length > 0" class="mt-10">
-      <h2 class="text-xl text-center mb-6 font-semibold text-primary">
-        🖼️ Your Created Art
-      </h2>
-      <div class="grid grid-cols-1 gap-6">
-        <ArtCard v-for="artItem in userArt" :key="artItem.id" :art="artItem" />
-      </div>
-    </div>
-
-    <!-- User's Collected Art Display -->
-    <div v-if="collectedArt.length > 0" class="mt-10">
-      <h2 class="text-xl text-center mb-6 font-semibold text-primary">
-        🖼️ Your Art Collection
-      </h2>
-      <div class="grid grid-cols-1 gap-6">
-        <ArtCard
-          v-for="artItem in collectedArt"
-          :key="artItem.id"
-          :art="artItem"
-        />
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { useUserStore } from '@/stores/userStore'
 import ArtCard from './ArtCard.vue' // Import the reusable ArtCard component
 
 // Access the artStore, promptStore, errorStore, and userStore
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const errorStore = useErrorStore()
-const userStore = useUserStore()
-
-// Toggle for showing user's own created art
-const showUserArt = ref(false)
 
 // Computed properties for state
 const loading = computed(() => artStore.loading)
 const art = computed(() => artStore.currentArt)
 const error = computed(() => errorStore.getError || '')
-const collectedArt = computed(() => artStore.collectedArt)
-
-// Filter userArt based on the logged-in user ID
-const userArt = computed(() =>
-  artStore.art.filter((artItem) => artItem.userId === userStore.user?.id),
-)
 
 // Save the prompt when the input changes
 const savePrompt = () => {

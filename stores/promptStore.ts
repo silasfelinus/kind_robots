@@ -17,7 +17,7 @@ export const usePromptStore = defineStore('promptStore', {
     artByPromptId: [],
     selectedPrompt: null,
     fetchedPrompts: {}, // Initialize fetched prompts as an empty object
-    promptField: ' ',
+    promptField: 'kind robots',
     isInitialized: false, 
   }),
 

@@ -49,7 +49,10 @@
       >
         <!-- Mobile View (no flip card) -->
         <div v-if="isMobile">
-          <SplashTutorial v-if="showTutorial" :style="{ height: '100%', width: '100%' }" />
+          <SplashTutorial
+            v-if="showTutorial"
+            :style="{ height: '100%', width: '100%' }"
+          />
           <NuxtPage v-else :style="{ height: '100%', width: '100%' }" />
         </div>
 

@@ -22,7 +22,7 @@
     </header>
 
     <!-- Main content area with flip effect -->
-    <div class="h-full grid grid-cols-3 z-40">
+    <div :class="['h-full grid', isMobile ? 'grid-cols-1' : 'grid-cols-3', 'z-40']">
       <kind-sidebar-simple
         class="overflow-y-auto bg-base-300"
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
@@ -32,25 +32,25 @@
       <main
         class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full z-40 flip-card"
         :class="{ 'is-flipped': isFlipped && !isMobile }"
-                :style="{ width: mainWidth, height: mainHeight }"
+        :style="{ width: mainWidth, height: mainHeight }"
       >
         <!-- Fullscreen mode: Two-column inner layout (SplashTutorial + NuxtPage) -->
         <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">
           <div class="h-full">
-            <SplashTutorial class="h-full w-full" />
+            <SplashTutorial :style="{ height: mainHeight, width: '100%' }" />
           </div>
           <div class="h-full">
-            <NuxtPage class="h-full w-full" />
+            <NuxtPage :style="{ height: mainHeight, width: '100%' }" />
           </div>
         </div>
 
         <!-- Non-fullscreen mode: Single column -->
         <div v-else class="w-full h-full flex justify-center items-center">
-          <div v-if="showTutorial" class="h-full w-full">
-            <SplashTutorial class="h-full w-full" />
+          <div v-if="showTutorial" :style="{ height: mainHeight, width: '100%' }">
+            <SplashTutorial :style="{ height: mainHeight, width: '100%' }" />
           </div>
-          <div v-else class="h-full w-full">
-            <NuxtPage class="h-full w-full" />
+          <div v-else :style="{ height: mainHeight, width: '100%' }">
+            <NuxtPage :style="{ height: mainHeight, width: '100%' }" />
           </div>
         </div>
       </main>
@@ -85,6 +85,7 @@ const mainHeight = computed(() => displayStore.mainHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+const mainWidth = computed(() => displayStore.mainWidth)
 
 // Flip state
 const isFlipped = ref(false)

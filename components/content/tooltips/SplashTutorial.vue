@@ -6,13 +6,10 @@
     <!-- Floating Background Icons Above Bot Messages (More Transparent, Floating) -->
     <div
       v-if="page && page.icon"
-      class="absolute flex justify-center items-center opacity-2 z-10"
-      :style="{ top: '40%', left: '50%', transform: 'translate(-50%, -50%)' }"
+      class="absolute flex justify-center items-center opacity-8 z-10"
+      :style="{ top: '90%', left: '50%', transform: 'translate(-50%, -50%)' }"
     >
-      <Icon
-        :name="page.icon"
-        class="w-24 h-24 lg:w-32 lg:h-32 z-10"
-      />
+      <Icon :name="page.icon" class="w-24 h-24 lg:w-32 lg:h-32 z-10" />
     </div>
 
     <!-- Under Construction Icon (only visible if page.underConstruction is true) -->

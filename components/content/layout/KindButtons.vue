@@ -11,7 +11,7 @@
 
     <!-- Fullscreen / Two-column Toggle (Bottom-right corner) -->
     <div
-      class="fixed lg:flex bottom-4 right-4 items-center space-x-2 bg-accent text-base-200 rounded-lg shadow-md p-2 transition duration-300 transform rotate-180"
+      class="fixed lg:flex bottom-4 right-4 items-center space-x-2 text-base-200 rounded-lg shadow-md p-2 transition duration-300 z-50"
     >
       <!-- Two-column layout button -->
       <button

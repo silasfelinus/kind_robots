@@ -45,91 +45,82 @@ type RequestData = {
 }
 
 export default defineEventHandler(async (event) => {
+  let imageId: number | null = null;
+  let newArt: any = null;
+
   try {
-    console.log('🌟 Event triggered! Reading request body...')
-    const requestData: RequestData = await readBody(event)
+    console.log('🌟 Event triggered! Reading request body...');
+    const requestData: RequestData = await readBody(event);
 
     // Debugging: Print out request data to verify pitchName
-    console.log('📬 Request data received:', requestData)
+    console.log('📬 Request data received:', requestData);
 
     if (!requestData.promptString) {
-      throw new Error('Missing prompt in request data.')
+      throw new Error('Missing prompt in request data.');
     }
 
     // Validate user, prompt, and pitch
-    const validatedData: Partial<RequestData> = {}
+    const validatedData: Partial<RequestData> = {};
 
-    validatedData.userId = await validateAndLoadUserId(
-      requestData,
-      validatedData,
-    )
+    validatedData.userId = await validateAndLoadUserId(requestData, validatedData);
     if (!validatedData.userId) {
-      throw new Error('User validation failed.')
+      throw new Error('User validation failed.');
     }
 
-    validatedData.promptId = await validateAndLoadPromptId(
-      requestData,
-      validatedData,
-    )
+    validatedData.promptId = await validateAndLoadPromptId(requestData, validatedData);
     if (!validatedData.promptId) {
-      throw new Error('Prompt validation failed.')
+      throw new Error('Prompt validation failed.');
     }
 
-    validatedData.pitchId = await validateAndLoadPitchId(requestData)
+    validatedData.pitchId = await validateAndLoadPitchId(requestData);
     if (!validatedData.pitchId) {
-      throw new Error('Pitch validation failed.')
+      throw new Error('Pitch validation failed.');
     }
 
-    validatedData.galleryId = await validateAndLoadGalleryId(requestData)
-    validatedData.designer = validateAndLoadDesignerName(requestData)
+    validatedData.galleryId = await validateAndLoadGalleryId(requestData);
+    validatedData.designer = validateAndLoadDesignerName(requestData);
 
     // Calculate the final cfg value programmatically
-    const cfgValue = calculateCfg(
-      requestData.cfg ?? 3,
-      requestData.cfgHalf ?? false,
-    )
+    const cfgValue = calculateCfg(requestData.cfg ?? 3, requestData.cfgHalf ?? false);
 
-    console.log('🎉 All validations passed! Generating image...')
-    console.log('Sending steps:', requestData.steps) // Add this line to check the value
+    console.log('🎉 All validations passed! Generating image...');
+    console.log('Sending steps:', requestData.steps);
 
-    // 2. Generate Image Using Modeler
+    // Generate Image Using Modeler
     const response: GenerateImageResponse = await generateImage(
       requestData.promptString,
       validatedData.designer || 'kindguest',
       cfgValue || 3,
       requestData.seed || -1,
       requestData.steps || 20,
-    )
+    );
 
     if (!response || !response.images?.length) {
-      console.error('Image generation failed:', response?.error)
-      throw new Error(
-        `Image generation failed: ${response?.error || 'No images generated.'}`,
-      )
+      throw new Error(`Image generation failed: ${response?.error || 'No images generated.'}`);
     }
 
-    console.log('🖼 Image generated! Response:', response)
+    console.log('🖼 Image generated! Response:', response);
 
-    // 3. Save Generated Image to the database
-    const base64Image = response.images[0]
-    const { id: imageId, fileName: imagePath } = await saveImage(
+    // Save Generated Image to the database
+    const base64Image = response.images[0];
+    const savedImage = await saveImage(
       base64Image,
       requestData.galleryName || 'cafefred',
       validatedData.userId,
       validatedData.galleryId,
-    )
+    );
 
+    imageId = savedImage.id;  // Save the imageId for later use
     if (!imageId) {
-      throw new Error('Failed to save generated image.')
+      throw new Error('Failed to save generated image.');
     }
 
-    console.log('📁 Image saved successfully with imageId:', imageId)
+    console.log('📁 Image saved successfully with imageId:', imageId);
 
-    // 4. Create Art Entry in Database and link the imageId
-    console.log('🎨 Creating new Art entry...')
-    const newArt = await prisma.art.create({
+    // Create Art Entry in Database and link the imageId
+    newArt = await prisma.art.create({
       data: {
-        path: imagePath,
+        path: savedImage.fileName,
         cfg: requestData.cfg,
         cfgHalf: requestData.cfgHalf,
         checkpoint: requestData.checkpoint,
@@ -145,34 +136,17 @@ export default defineEventHandler(async (event) => {
         pitchId: validatedData.pitchId,
         galleryId: validatedData.galleryId,
       },
-    })
-
-    console.log('🎉 Art entry created successfully:', newArt)
-      try {
-    // Check if imageId exists before proceeding
-    const existingArtImage = await prisma.artImage.findUnique({
-      where: { id: imageId },
     });
 
-    if (!existingArtImage) {
-      throw new Error(`ArtImage with ID ${imageId} not found`);
-    }
+    console.log('🎉 Art entry created successfully:', newArt);
 
-    // Check if newArt exists before proceeding
-    if (!newArt?.id) {
-      throw new Error(`newArt ID is invalid or not found`);
-    }
-
-    // Proceed to link the artId back to artImage
-    console.log('🔗 Linking artId back to artImage...');
+    // Link the artId back to the artImage
     const updatedArtImage = await prisma.artImage.update({
       where: { id: imageId },
       data: { artId: newArt.id },
     });
 
-    console.log(
-      `🔗 Successfully linked artId ${newArt.id} to artImage ${updatedArtImage.id}`,
-    );
+    console.log(`🔗 Successfully linked artId ${newArt.id} to artImage ${updatedArtImage.id}`);
 
     // Return success response
     return {
@@ -181,18 +155,25 @@ export default defineEventHandler(async (event) => {
       art: newArt,
       artId: newArt.id,
       imageId: imageId,
-      artImage: updatedArtImage || null,  // Ensure artImage is defined or return null
+      artImage: updatedArtImage || null,
     };
   } catch (error) {
-    console.error('❌ Error linking artId back to artImage:', error.message);
+    console.error('Art Generation Error:', error);
     return errorHandler({
       error,
-      context: `Art Generation - Linking artId back to artImage: ${event.req.url}`,
-    })
+      context: `Art Generation - Prompt: ${event.req.url}`,
+    });
+  } finally {
+    // This block executes regardless of success or failure
+    console.log('🎬 Art generation process completed.');
+    if (imageId) {
+      console.log(`Image ID ${imageId} has been processed.`);
+    }
+    if (newArt) {
+      console.log(`Art ID ${newArt.id} has been created.`);
+    }
   }
-
-    
-})
+});
 
 async function validateAndLoadUserId(
   data: RequestData,

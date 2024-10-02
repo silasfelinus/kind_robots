@@ -28,16 +28,16 @@
       </button>
     </div>
 
-    <!-- Hidden Menu on Small Screens -->
+    <!-- Hidden Menu on Small Screens, centered links -->
     <div
       v-if="isMenuOpen"
-      class="absolute top-12 left-0 w-full bg-base-300 shadow-lg md:hidden flex flex-col items-center"
+      class="absolute top-12 left-0 w-full bg-base-300 shadow-lg md:hidden flex flex-col items-center z-50"
     >
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
-        class="block text-accent text-lg py-2 hover:bg-secondary hover:text-base-100 w-full text-center"
+        class="block text-accent text-lg py-2 hover:bg-secondary hover:text-base-100 w-full text-center transition-colors duration-300"
         @click="closeMenu"
       >
         {{ link.text }}
@@ -45,12 +45,12 @@
     </div>
 
     <!-- Horizontal Links for Larger Screens -->
-    <div class="hidden md:flex items-center gap-6">
+    <div class="hidden md:flex items-center justify-center w-full gap-6">
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
-        class="text-accent text-lg md:text-xl lg:text-2xl hover:underline whitespace-nowrap"
+        class="text-accent text-lg md:text-xl lg:text-2xl hover:underline whitespace-nowrap transition-colors duration-300 hover:text-primary"
       >
         {{ link.text }}
       </nuxt-link>

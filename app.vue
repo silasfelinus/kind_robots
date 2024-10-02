@@ -27,27 +27,29 @@
       :style="{
         display: 'grid',
         gridTemplateColumns: `${sidebarLeftWidth} ${mainWidth} ${sidebarRightWidth}`,
+        gridTemplateRows: `${headerHeight} auto ${footerHeight}`,  // Adjust grid rows to account for header/footer
+        height: '100vh' // Use the full viewport height
       }"
     >
       <!-- Sidebar left -->
       <kind-sidebar-simple
         class="overflow-y-auto bg-base-300"
-        :style="{ width: sidebarLeftWidth, height: mainHeight }"
+        :style="{ width: sidebarLeftWidth }"
       ></kind-sidebar-simple>
 
       <!-- Main content: Fullscreen or flip-card based on isFullScreen -->
       <main
         v-if="isFullScreen"
-        class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full z-40"
-        :style="{ width: mainWidth, height: mainHeight }"
+        class="rounded-2xl bg-base-300 overflow-y-auto p-4 z-40 flex flex-col"
+        :style="{ height: mainHeight }"
       >
         <!-- Fullscreen mode: Two-column layout -->
         <div class="grid grid-cols-2 gap-4 w-full h-full">
           <div class="h-full">
-            <SplashTutorial :style="{ height: mainHeight, width: '100%' }" />
+            <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
           <div class="h-full">
-            <NuxtPage :style="{ height: mainHeight, width: '100%' }" />
+            <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
         </div>
       </main>
@@ -55,20 +57,20 @@
       <!-- Main content: Flip-card in non-fullscreen mode -->
       <main
         v-else
-        class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full z-40 flip-card"
+        class="rounded-2xl bg-base-300 overflow-y-auto p-4 z-40 flip-card flex flex-col"
         :class="{ 'is-flipped': isFlipped && !isMobile }"
-        :style="{ width: mainWidth, height: mainHeight }"
+        :style="{ height: mainHeight }"
       >
         <!-- Flip-card inner content, toggles between SplashTutorial and NuxtPage -->
         <div class="flip-card-inner">
           <!-- Front side (SplashTutorial) -->
           <div v-if="showTutorial" class="flip-card-front">
-            <SplashTutorial :style="{ height: mainHeight, width: '100%' }" />
+            <SplashTutorial :style="{ height: '100%', width: '100%' }" />
           </div>
 
           <!-- Back side (NuxtPage) -->
           <div v-else class="flip-card-back">
-            <NuxtPage :style="{ height: mainHeight, width: '100%' }" />
+            <NuxtPage :style="{ height: '100%', width: '100%' }" />
           </div>
         </div>
       </main>
@@ -76,7 +78,7 @@
       <!-- Sidebar right -->
       <aside
         class="bg-base-300 overflow-y-auto"
-        :style="{ width: sidebarRightWidth, height: mainHeight }"
+        :style="{ width: sidebarRightWidth }"
       ></aside>
     </div>
 

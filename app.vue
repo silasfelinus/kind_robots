@@ -38,7 +38,7 @@
       <!-- Main content area: Flip-card or fullscreen layout -->
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-300 p-4 z-40 rounded-2xl overflow-y-auto" <!-- Enable vertical scrolling here -->
+        class="bg-base-300 p-4 z-40 rounded-2xl overflow-y-auto" 
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
@@ -49,11 +49,11 @@
         <div v-if="isMobile">
           <SplashTutorial
             v-if="showTutorial"
-            class="h-full w-full" <!-- Set to full height and width -->
+            class="h-full w-full" 
           />
           <NuxtPage
             v-else
-            class="h-full w-full" <!-- Set to full height and width -->
+            class="h-full w-full" 
           />
         </div>
 
@@ -63,11 +63,10 @@
           class="grid grid-cols-2 gap-4 rounded-2xl w-full h-full"
         >
           <div class="h-full rounded-2xl">
-            <SplashTutorial class="h-full w-full" /> <!-- Set to full height and width -->
+            <SplashTutorial class="h-full w-full" /> 
           </div>
           <div class="h-full overflow-y-auto rounded-2xl">
-            <NuxtPage class="h-full w-full" /> <!-- Set to full height and width -->
-          </div>
+            <NuxtPage class="h-full w-full" />
         </div>
 
         <!-- Flip-card mode (Desktop) -->

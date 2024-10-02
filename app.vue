@@ -58,7 +58,7 @@
             v-if="showTutorial"
             :style="{ height: '100%', width: '100%' }"
           />
-          <NuxtPage v-else :style="{ height: '100%', width: '100%' }" />
+          <NuxtPage v-else class="overflow-y-auto" :style="{ height: '100%', width: '100%' }" />
         </div>
 
         <!-- Fullscreen mode (Desktop) -->

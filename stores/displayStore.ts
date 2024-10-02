@@ -62,7 +62,7 @@ export const useDisplayStore = defineStore('display', {
 
     footerVh: (state): number => {
       const sizes = {
-        small: { open: 5, compact: 4, hidden: 3, disabled: 0 },
+        small: { open: 5, compact: 4, hidden: 2, disabled: 0 },
         medium: { open: 6, compact: 4, hidden: 3, disabled: 0 },
         large: { open: 7, compact: 4, hidden: 3, disabled: 0 },
         extraLarge: { open: 8, compact: 4, hidden: 3, disabled: 0 },

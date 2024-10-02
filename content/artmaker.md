@@ -1,5 +1,5 @@
 ---
-title: 'Art Studio'
+title: 'Art Lab'
 subtitle: AI-Assisted Art Extravaganza
 description: 'Where imagination and algorithms tango!'
 gallery: 'cafepurr'

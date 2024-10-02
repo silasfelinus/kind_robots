@@ -19,7 +19,7 @@
       </div>
 
       <!-- Kind Buttons (Aligned to the right inside the header) -->
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center lg:flex-row space-x-2">
         <kind-buttons class="kind-buttons"></kind-buttons>
       </div>
     </header>

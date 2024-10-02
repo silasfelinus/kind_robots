@@ -49,6 +49,7 @@
         <div v-if="isMobile">
           <SplashTutorial
             v-if="showTutorial"
+            class="overflow-y-auto"
             :style="{ height: '100%', width: '100%' }"
           />
           <NuxtPage

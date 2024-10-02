@@ -9,7 +9,7 @@
       Loading...
     </div>
 
-    <!-- Show content when not loading and no errors -->
+    <!-- Show content when not loading -->
     <transition name="flip">
       <div v-if="!isLoading" class="flex-grow">
         <!-- Art Section Buttons (Fixed at the top) -->
@@ -50,7 +50,7 @@
             @close="handleSectionClose"
           ></lazy-art-collection>
 
-          <!-- Art Gallery Screen (Ensure it's a different component or manages state differently) -->
+          <!-- Art Gallery Screen -->
           <lazy-art-gallery
             v-show="selectedArtSection === 'art-gallery'"
             @close="handleSectionClose"
@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useDisplayStore } from './../../../stores/displayStore'
 
 // State variables
@@ -75,10 +75,10 @@ const isLoading = ref(true)
 const debugMessage = ref<string | null>(null) // For debugging the initialization process
 const selectedArtSection = ref<string | null>(null) // Track selected section (art-maker, art-collection, art-gallery)
 
-// Access the stores
+// Access the display store
 const displayStore = useDisplayStore()
 
-// Watch for selected section and adjust layout as needed
+// Watch for selected section and update the debug message
 watch(
   () => selectedArtSection.value,
   (section) => {
@@ -95,6 +95,13 @@ const handleSectionClose = () => {
 const selectArtSection = (section: string) => {
   selectedArtSection.value = section
 }
+
+// Simulate initialization process (e.g., loading content)
+onMounted(() => {
+  setTimeout(() => {
+    isLoading.value = false // Set loading to false after 1 second
+  }, 1000)
+})
 </script>
 
 <style scoped>

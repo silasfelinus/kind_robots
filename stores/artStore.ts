@@ -37,6 +37,7 @@ export const useArtStore = defineStore({
     pitch: '',
     collectedArt: [] as Art[], // Store user's collected art
     isInitialized: false, // Boolean to ensure initialization happens once
+    generatedArt: [] as Art[]
   }),
   actions: {
     // Initialize the artStore and load data from localStorage if available
@@ -322,6 +323,11 @@ async generateArt(artData?: GenerateArtData): Promise<{ success: boolean; messag
 
       if (response.ok) {
         const result = await response.json();
+
+        // Add the new art to the generatedArt array
+        if (result.art) {
+          this.generatedArt.push(result.art);
+        }
         return { success: true, newArt: result.art };
       } else {
         const errorResponse = await response.json();

@@ -1,9 +1,9 @@
 <template>
   <div
-    class="relative flex flex-col h-full w-full overflow-hidden shadow-lg"
+    class="relative flex flex-col h-full w-full rounded-2xl overflow-hidden shadow-lg"
     :style="{ height: displayStore.mainVh + 'vh' }"
   >
-    <!-- Floating Background Icon (now smaller and in the top-right corner) -->
+    <!-- Floating Background Icon  -->
     <div
       v-if="page && page.icon"
       class="absolute top-2 right-2 z-0 opacity-30 md:w-12 md:h-12 lg:w-16 lg:h-16"

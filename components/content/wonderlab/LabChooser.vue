@@ -1,8 +1,6 @@
 <template>
-  <div class="flex flex-col items-center min-h-screen bg-base-200 p-8">
-    <h1 class="text-5xl font-bold mb-10 text-primary">
-      Your Friendly Launcher
-    </h1>
+  <div class="flex flex-col items-center min-h-screen bg-base-200 p-2">
+    <h1 class="text-5xl font-bold mb-3 text-primary">Wonderlab</h1>
 
     <!-- Tabs for toggling components (Always at the top) -->
     <div

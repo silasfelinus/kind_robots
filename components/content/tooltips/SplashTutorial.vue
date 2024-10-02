@@ -34,7 +34,7 @@
         v-if="page && page.image"
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[30vh] md:max-h-[45vh] lg:max-h-[60vh]"
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[30vh] md:max-h-[40vh] lg:max-h-[50vh]"
       />
 
       <!-- Title, Description, and Subtitle Section -->

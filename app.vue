@@ -32,6 +32,7 @@
       <main
         class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full z-40 flip-card"
         :class="{ 'is-flipped': isFlipped && !isMobile }"
+                :style="{ width: mainWidth, height: mainHeight }"
       >
         <!-- Fullscreen mode: Two-column inner layout (SplashTutorial + NuxtPage) -->
         <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">

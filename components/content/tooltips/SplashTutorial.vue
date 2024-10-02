@@ -3,12 +3,39 @@
     class="relative flex flex-col h-full w-full rounded-2xl overflow-hidden shadow-lg"
     :style="{ height: displayStore.mainVh + 'vh' }"
   >
-    <!-- Floating Background Icon  -->
+    <!-- Floating Background Icons in Corners (Small) -->
+    <div v-if="page && page.icon">
+      <Icon
+        :name="page.icon"
+        class="fixed top-2 left-2 opacity-20 w-8 h-8 z-0"
+      />
+      <Icon
+        :name="page.icon"
+        class="fixed top-2 right-2 opacity-20 w-8 h-8 z-0"
+      />
+      <Icon
+        :name="page.icon"
+        class="fixed bottom-2 left-2 opacity-20 w-8 h-8 z-0"
+      />
+      <Icon
+        :name="page.icon"
+        class="fixed bottom-2 right-2 opacity-20 w-8 h-8 z-0"
+      />
+    </div>
+
+    <!-- Floating Background Icons Above Bot Messages (Larger, Centered) -->
     <div
       v-if="page && page.icon"
-      class="absolute top-2 right-2 z-0 md:hidden opacity-30 md:w-12 md:h-12 lg:w-16 lg:h-16"
+      class="hidden md:flex justify-center items-center opacity-20"
     >
-      <Icon :name="page.icon" class="object-cover w-full h-full" />
+      <Icon
+        :name="page.icon"
+        class="absolute top-1/2 left-1/4 w-24 h-24 lg:w-32 lg:h-32 z-0"
+      />
+      <Icon
+        :name="page.icon"
+        class="absolute top-1/2 right-1/4 w-24 h-24 lg:w-32 lg:h-32 z-0"
+      />
     </div>
 
     <!-- Under Construction Icon (only visible if page.underConstruction is true) -->
@@ -56,57 +83,35 @@
         >
           {{ page.description }}
         </h3>
-
-<!-- Floating Background Icon  -->
-    <div
-      v-if="page && page.icon"
-      class="opacity-30 hidden md:flex md:w-12 md:h-12 lg:w-16 lg:h-16"
-    >
-      <Icon :name="page.icon" class="object-cover w-full h-full" />
-    </div>
       </div>
     </div>
 
-    
-
-    <!-- Bot Messages Section (centered chat bubbles with left/right indent) -->
+    <!-- Bot Messages Section (using DaisyUI chat bubbles) -->
     <div
       v-if="page && page.dottitip && page.amitip"
       class="flex flex-col space-y-4 w-full max-w-3xl px-4 py-1 lg:py-2 mx-auto"
     >
-      <!-- DottiBot Message (Left-Aligned with indent) -->
-      <div class="flex justify-start">
-        <div
-          class="flex items-center space-x-2 p-3 bg-primary border border-secondary text-base-200 rounded-tl-none rounded-tr-2xl rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pr-4 lg:text-lg lg:px-6 ml-4"
-        >
-          <img
-            src="/images/avatars/dottie1.webp"
-            alt="DottiBot Avatar"
-            class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
-          />
-          <div class="flex flex-col">
-            <span class="text-xs font-semibold">DottiBot</span>
-            <p class="text-xs md:text-lg lg:text-xl">{{ page.dottitip }}</p>
+      <!-- DottiBot Message (Left-Aligned with DaisyUI chat-bubble) -->
+      <div class="chat chat-start">
+        <div class="chat-image avatar">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-full">
+            <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
           </div>
+        </div>
+        <div class="chat-bubble chat-bubble-primary">
+          <span class="font-semibold">DottiBot:</span> {{ page.dottitip }}
         </div>
       </div>
 
-      <!-- AMIbot Message (Right-Aligned with indent) -->
-      <div class="flex justify-end">
-        <div
-          class="flex items-center space-x-2 p-3 bg-secondary border border-primary text-base-200 rounded-tl-2xl rounded-tr-none rounded-bl-2xl rounded-br-2xl shadow-lg max-w-full lg:max-w-2/3 pl-4 lg:text-lg lg:px-6 mr-4"
-        >
-          <div class="flex flex-col">
-            <span class="text-xs font-semibold">AMIbot</span>
-            <p class="text-xs md:text-md lg:text-lg text-white">
-              {{ page.amitip }}
-            </p>
+      <!-- AMIbot Message (Right-Aligned with DaisyUI chat-bubble) -->
+      <div class="chat chat-end">
+        <div class="chat-image avatar">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-full">
+            <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
           </div>
-          <img
-            src="/images/amibotsquare1.webp"
-            alt="AMIbot Avatar"
-            class="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md"
-          />
+        </div>
+        <div class="chat-bubble chat-bubble-secondary">
+          <span class="font-semibold">AMIbot:</span> {{ page.amitip }}
         </div>
       </div>
     </div>

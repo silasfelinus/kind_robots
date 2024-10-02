@@ -2,7 +2,7 @@
   <div class="kind-buttons z-50">
     <!-- Fullscreen / Two-column Toggle (Top-right corner) -->
     <button
-      class="fixed top-4 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 p-2"
+      class="fixed top-4 right-4 bg-accent text-base-200 rounded-lg shadow-md hover:bg-primary transition duration-300 p-1"
       @click="toggleFullScreen"
     >
       {{ fullScreenButtonText }}
@@ -11,7 +11,7 @@
     <!-- Tutorial / NuxtPage Toggle (Bottom-center of the screen) -->
     <button
       v-if="!displayStore.isFullScreen"
-      class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-accent text-base-200 rounded-lg shadow-md hover:bg-accent-focus transition duration-300 p-2"
+      class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-primary text-base-200 rounded-lg shadow-md hover:bg-accent transition duration-300 p-1"
       @click="toggleTutorial"
     >
       Show {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}

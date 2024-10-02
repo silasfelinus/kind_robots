@@ -37,7 +37,7 @@
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
-        class="block text-accent text-lg py-2 hover:bg-secondary hover:text-base-100 w-full text-center transition-colors duration-300"
+        class="block text-accent text-lg py-4 w-full text-center transition-colors duration-300 hover:bg-secondary hover:text-base-100 whitespace-normal break-words"
         @click="closeMenu"
       >
         {{ link.text }}

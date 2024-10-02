@@ -5,7 +5,7 @@
 
     <!-- Header with Sidebar Toggle, Nav Links, and Kind Buttons -->
     <header
-      class="bg-base-300 flex items-center justify-between w-full p-2"
+      class="bg-base-300 flex items-center justify-between w-full p-2 z-40"
       :style="{ height: headerHeight }"
     >
       <!-- Sidebar Toggle -->
@@ -25,7 +25,7 @@
     </header>
 
     <!-- Main content area with 3 columns: Sidebar Left, Center Content, Sidebar Right -->
-    <div class="h-full grid grid-cols-3">
+    <div class="h-full grid grid-cols-3 z-40">
       <!-- Sidebar left -->
       <kind-sidebar-simple
         class="overflow-y-auto bg-base-300"
@@ -33,7 +33,7 @@
       ></kind-sidebar-simple>
 
       <!-- Main content view (conditionally 1 or 2 columns) -->
-      <main class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full">
+      <main class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full z-40">
         <!-- Fullscreen mode: Two-column inner layout (SplashTutorial + NuxtPage) -->
         <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">
           <div class="h-full">

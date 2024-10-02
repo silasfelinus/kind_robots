@@ -18,16 +18,13 @@
         class="bg-base-300 flex items-center justify-between w-full p-2 z-40"
         :style="{ gridRow: '1 / 2', height: headerHeight }"
       >
-        <!-- Sidebar Toggle (Hamburger Menu) -->
-        <div class="p-1 text-white md:hidden flex-grow flex justify-center">
+        <!-- Sidebar Toggle -->
+        <div class="p-1 text-white flex-grow flex justify-center">
           <sidebar-toggle class="text-4xl"></sidebar-toggle>
         </div>
 
         <!-- Nav Links: centered for medium and larger screens, and on small screens as well -->
-        <div
-          class="flex-grow flex justify-center items-center space-x-4"
-          :class="isMobile ? 'flex' : 'hidden md:flex'"
-        >
+        <div class="flex-grow flex justify-center items-center space-x-4">
           <nav-links></nav-links>
         </div>
       </header>

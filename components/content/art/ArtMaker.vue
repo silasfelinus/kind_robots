@@ -19,7 +19,8 @@
 
     <!-- Generate Art Button -->
     <button
-      class="bg-primary text-white font-semibold rounded-3xl p-4 w-full transition-all duration-300 ease-in-out hover:bg-info hover:shadow-lg active:bg-secondary focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed"
+      :class="loading ? 'bg-secondary text-white' : 'bg-primary text-white'"
+      class="font-semibold rounded-3xl p-4 w-full transition-all duration-300 ease-in-out hover:bg-info hover:shadow-lg active:bg-secondary focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed"
       :disabled="loading || !promptStore.promptField"
       @click="generateArt"
     >
@@ -33,8 +34,8 @@
     </p>
 
     <!-- Generated Art Display -->
-    <div v-if="art && !loading" class="mt-8">
-      <ArtCard :art="art" />
+    <div v-if="localArt && !loading" class="mt-8">
+      <ArtCard :art="localArt" />
     </div>
   </div>
 </template>
@@ -54,9 +55,11 @@ const displayStore = useDisplayStore()
 // Local error state specific to this component
 const localError = ref<string | null>(null)
 
+// Local state for storing the generated art
+const localArt = ref(null)
+
 // Computed properties for state
 const loading = computed(() => artStore.loading)
-const art = computed(() => artStore.currentArt)
 
 // Save the prompt when the input changes
 const savePrompt = () => {
@@ -67,6 +70,7 @@ const savePrompt = () => {
 const generateArt = async () => {
   // Clear any previous local error before generating new art
   localError.value = null
+  const localArt = ref<Art | null>(null)
   displayStore.toggleRandomAnimation()
 
   // Validate the prompt string before proceeding
@@ -79,8 +83,13 @@ const generateArt = async () => {
   try {
     const result = await artStore.generateArt()
 
-    if (!result.success) {
-      displayStore.stopAnimation()
+    // Stop animation when generation is complete
+    displayStore.stopAnimation()
+
+    if (result.success && result.newArt) {
+      // Populate localArt with the generated art result
+      localArt.value = result.newArt
+    } else {
       localError.value = result.message || 'Unknown error occurred.'
     }
   } catch (error) {

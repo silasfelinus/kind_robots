@@ -3,26 +3,6 @@
     class="relative flex flex-col h-full w-full rounded-2xl overflow-hidden shadow-lg"
     :style="{ height: displayStore.mainVh + 'vh' }"
   >
-    <!-- Floating Background Icons in Corners (Small) -->
-    <div v-if="page && page.icon">
-      <Icon
-        :name="page.icon"
-        class="fixed top-2 left-2 opacity-20 w-8 h-8 z-0"
-      />
-      <Icon
-        :name="page.icon"
-        class="fixed top-2 right-2 opacity-20 w-8 h-8 z-0"
-      />
-      <Icon
-        :name="page.icon"
-        class="fixed bottom-2 left-2 opacity-20 w-8 h-8 z-0"
-      />
-      <Icon
-        :name="page.icon"
-        class="fixed bottom-2 right-2 opacity-20 w-8 h-8 z-0"
-      />
-    </div>
-
     <!-- Floating Background Icons Above Bot Messages (Larger, Centered) -->
     <div
       v-if="page && page.icon"
@@ -30,11 +10,7 @@
     >
       <Icon
         :name="page.icon"
-        class="absolute top-1/2 left-1/4 w-24 h-24 lg:w-32 lg:h-32 z-0"
-      />
-      <Icon
-        :name="page.icon"
-        class="absolute top-1/2 right-1/4 w-24 h-24 lg:w-32 lg:h-32 z-0"
+        class="absolute top-1/2 left-1/2 w-24 h-24 lg:w-32 lg:h-32 z-0"
       />
     </div>
 

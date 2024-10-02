@@ -3,13 +3,7 @@
     class="relative flex flex-col h-full w-full rounded-2xl overflow-hidden shadow-lg"
     :style="{ height: displayStore.mainVh + 'vh' }"
   >
-    <!-- Floating Background Icon  -->
-    <div
-      v-if="page && page.icon"
-      class="absolute top-2 right-2 z-0 opacity-30 md:w-12 md:h-12 lg:w-16 lg:h-16"
-    >
-      <Icon :name="page.icon" class="object-cover w-full h-full" />
-    </div>
+
 
     <!-- Under Construction Icon (only visible if page.underConstruction is true) -->
     <div
@@ -57,6 +51,14 @@
           {{ page.description }}
         </h3>
       </div>
+    </div>
+
+    <!-- Floating Background Icon  -->
+    <div
+      v-if="page && page.icon"
+      class="absolute top-2 right-2 z-0 opacity-30 md:w-12 md:h-12 lg:w-16 lg:h-16"
+    >
+      <Icon :name="page.icon" class="object-cover w-full h-full" />
     </div>
 
     <!-- Bot Messages Section (centered chat bubbles with left/right indent) -->

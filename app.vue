@@ -30,11 +30,6 @@
         >
           <nav-links></nav-links>
         </div>
-
-        <!-- Kind Buttons (Always aligned right, no overlap) -->
-        <div class="flex items-center space-x-2 ml-auto">
-          <kind-buttons></kind-buttons>
-        </div>
       </header>
 
       <!-- Sidebar left -->
@@ -107,6 +102,7 @@
       ></footer>
     </div>
   </div>
+  <kind-buttons></kind-buttons>
 </template>
 
 <script setup lang="ts">

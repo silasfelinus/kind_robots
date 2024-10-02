@@ -5,6 +5,7 @@ import { useErrorStore, ErrorType } from './../stores/errorStore'
 export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 
+
 interface DisplayStoreState {
   headerState: DisplayState;
   sidebarLeftState: DisplayState;
@@ -21,6 +22,7 @@ interface DisplayStoreState {
   isMobileViewport: boolean;
   isAnimating: boolean;
   currentAnimation: string;
+  resizeTimeout: ReturnType<typeof setTimeout> | null;
 }
 
 // Define the valid effect IDs
@@ -44,6 +46,7 @@ export const useDisplayStore = defineStore('display', {
     isMobileViewport: true,
     isAnimating: false,
     currentAnimation: '',
+    resizeTimeout: null,
   }),
 
   getters: {
@@ -187,61 +190,81 @@ export const useDisplayStore = defineStore('display', {
       this.isFullScreen = !this.isFullScreen;
       this.saveState(); // Optionally, save state to localStorage
     },
- // Function to toggle animation by ID
- toggleAnimationById(animationId: EffectId) {
-  this.isAnimating = true;
-  this.currentAnimation = animationId;
-},
 
-// Function to toggle a random animation
-toggleRandomAnimation() {
-  const animations: EffectId[] = ['bubble-effect', 'fizzy-bubbles', 'rain-effect', 'butterfly-animation'];
-  const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
-  this.isAnimating = true;
-  this.currentAnimation = randomAnimation;
-},
-
-// Function to stop the animation
-stopAnimation() {
-  this.isAnimating = false;
-  this.currentAnimation = '';
-},
-    updateViewport() {
-      try {
-        this.setCustomVh(); 
-        if (typeof window !== 'undefined') {
-          this.isVertical = window.innerHeight > window.innerWidth
-          this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-          const width = window.innerWidth
-          if (width < 768) {
-            this.viewportSize = 'small'
-            this.isMobileViewport = true;
-            this.isFullScreen = false;
-          } else if (width >= 768 && width < 1024) {
-            this.viewportSize = 'medium'
-            this.isMobileViewport = false;
-            this.isFullScreen = false;
-          } else if (width >= 1024 && width < 1440) {
-            this.viewportSize = 'large'
-            this.isMobileViewport = false;
-            this.isFullScreen = true;
-          } else {
-            this.viewportSize = 'extraLarge'
-            this.isMobileViewport = false;
-            this.isFullScreen = true;
-          }
-        }
-      } catch (error) {
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
-      }
+    // Function to toggle animation by ID
+    toggleAnimationById(animationId: EffectId) {
+      this.isAnimating = true;
+      this.currentAnimation = animationId;
     },
+
+    // Function to toggle a random animation
+    toggleRandomAnimation() {
+      const animations: EffectId[] = ['bubble-effect', 'fizzy-bubbles', 'rain-effect', 'butterfly-animation'];
+      const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+      this.isAnimating = true;
+      this.currentAnimation = randomAnimation;
+    },
+
+    // Function to stop the animation
+    stopAnimation() {
+      this.isAnimating = false;
+      this.currentAnimation = '';
+    },
+
+    updateViewport() {
+      if (this.resizeTimeout) {
+        clearTimeout(this.resizeTimeout); // Clear previous timeout
+      }
+      this.resizeTimeout = setTimeout(() => {
+        try {
+          // Set custom viewport height for mobile devices
+          this.setCustomVh();
+
+          // Check if we are in a browser environment
+          if (typeof window !== 'undefined') {
+            // Check if the viewport is vertical
+            this.isVertical = window.innerHeight > window.innerWidth;
+
+            // Check if the device is a touch device
+            this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+            // Adjust viewport size based on window width
+            const width = window.innerWidth;
+
+            if (width < 768) {
+              this.viewportSize = 'small';
+              this.isMobileViewport = true;
+              this.isFullScreen = false;
+            } else if (width >= 768 && width < 1024) {
+              this.viewportSize = 'medium';
+              this.isMobileViewport = false;
+              this.isFullScreen = false;
+            } else if (width >= 1024 && width < 1440) {
+              this.viewportSize = 'large';
+              this.isMobileViewport = false;
+              this.isFullScreen = true;
+            } else {
+              this.viewportSize = 'extraLarge';
+              this.isMobileViewport = false;
+              this.isFullScreen = true;
+            }
+          }
+        } catch (error) {
+          const errorStore = useErrorStore();
+          errorStore.setError(ErrorType.GENERAL_ERROR, error);
+        } finally {
+          this.resizeTimeout = null; // Reset timeout after execution
+        }
+      }, 200); // 200ms debounce delay
+    },
+
     setCustomVh() {
       if (typeof window !== 'undefined') {
         const vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
       }
     },
+
     toggleFlipState() {
       // Manage the flip transition based on current state
       if (this.flipState === 'tutorial') {
@@ -251,6 +274,7 @@ stopAnimation() {
       }
       this.saveState()
     },
+
     setFlipState(newState: FlipState) {
       // Validate if the new state is one of the allowed flip states
       const validStates: FlipState[] = ['tutorial', 'main', 'toTutorial', 'toMain'];
@@ -264,7 +288,6 @@ stopAnimation() {
       }
     },
     
-
     completeFlip() {
       // Called when the flip animation completes
       if (this.flipState === 'toMain') {
@@ -274,6 +297,7 @@ stopAnimation() {
       }
       this.saveState()
     },
+
     removeViewportWatcher() {
       try {
         window.removeEventListener('resize', this.updateViewport)
@@ -283,23 +307,17 @@ stopAnimation() {
       }
     },
 
-
     toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
-      try {
-        const stateCycle: Record<DisplayState, DisplayState> = {
-          hidden: 'open',
-          compact: 'hidden',
-          open: 'compact',
-          disabled: 'hidden',
-        }
-        this[side] = stateCycle[this[side]]
-        this.saveState()
-      } catch (error) {
-        const errorStore = useErrorStore()
-        errorStore.setError(ErrorType.GENERAL_ERROR, error)
+      const stateCycle: Record<DisplayState, DisplayState> = {
+        hidden: 'open',
+        compact: 'hidden',
+        open: 'compact',
+        disabled: 'hidden',
       }
+      this[side] = stateCycle[this[side]]; // Simplified state update
+      this.saveState(); 
     },
-
+    
     toggleFooter() {
       try {
         const stateCycle: Record<DisplayState, DisplayState> = {
@@ -335,10 +353,10 @@ stopAnimation() {
       this[section] = newState
       this.saveState()
     },
+
     resetInitialization() {
       this.isInitialized = false;
     },
-
 
     saveState() {
       try {
@@ -391,6 +409,5 @@ stopAnimation() {
         errorStore.setError(ErrorType.GENERAL_ERROR, error);
       }
     },
-    
   },
 })

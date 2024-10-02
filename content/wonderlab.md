@@ -16,6 +16,4 @@ dottitip: AMI, is it safe to let people poke around in the lab?
 layout: 'vertical-scroll'
 ---
 
-:wonder-lab
-
-:store-tester
+:lab-chooser

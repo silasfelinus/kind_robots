@@ -8,6 +8,7 @@
       {{ prompt?.prompt || 'No prompt available' }}
     </h3>
     <div class="relative overflow-hidden max-h-[200px]">
+      <!-- Use either the art's path or the passed artImage, fallback to placeholder -->
       <img
         :src="art.path || getArtImage()"
         alt="Artwork"
@@ -44,49 +45,6 @@
     </div>
   </div>
 </template>
- 
-<script setup lang="ts">
-import { useArtStore } from '@/stores/artStore'
-import { usePromptStore } from '@/stores/promptStore'
-import { usePitchStore } from '@/stores/pitchStore'
-import { useReactionStore } from '@/stores/reactionStore'
-import { computed, onMounted } from 'vue'
-
-// Props
-const props = defineProps<{
-  art: Art
-}>()
-
-// Initialize stores
-const artStore = useArtStore()
-const promptStore = usePromptStore()
-const pitchStore = usePitchStore()
-const reactionStore = useReactionStore()
-
-// Compute the prompt based on art ID
-const prompt = computed(() =>
-  props.art.promptId ? promptStore.fetchedPrompts[props.art.promptId] : null,
-)
-
-// Selected pitch from the pitch store
-const selectedPitch = computed(() => pitchStore.selectedPitch)
-
-// Filter reactions for the current art
-const reactions = computed(() =>
-  reactionStore.reactions.filter((r) => r.artId === props.art.id),
-)
-
-// Fetch prompt and reactions on mount
-onMounted(() => {
-  if (props.art.promptId) promptStore.fetchPromptById(props.art.promptId)
-  reactionStore.fetchReactionsByArtId(props.art.id)
-})
-
-// Handle art selection
-const selectArt = () => {
-  artStore.selectArt(props.art.id)
-}
-</script>
 
 <script setup lang="ts">
 import { useArtStore } from '@/stores/artStore'
@@ -95,9 +53,10 @@ import { usePitchStore } from '@/stores/pitchStore'
 import { useReactionStore } from '@/stores/reactionStore'
 import { computed, ref, onMounted } from 'vue'
 
-// Props
+// Props: art is required, artImage is optional
 const props = defineProps<{
   art: Art
+  artImage?: ArtImage
 }>()
 
 // Initialize stores
@@ -136,9 +95,8 @@ const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 
-// Get the image path, fallback to placeholder or artImages if path is missing
+// Get the image path, fallback to placeholder if artImage or path is missing
 const getArtImage = () => {
-  return props.art.artImage?.url || '/placeholder.jpg';
+  return props.artImage?.url || '/placeholder.jpg';
 }
 </script>
-

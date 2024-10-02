@@ -40,8 +40,12 @@
 
     <!-- Generated Art Display -->
     <div v-if="generatedArtWithImages.length > 0" class="mt-8">
-      <div v-for="item in generatedArtWithImages" :key="item.art.id" class="mb-6">
-        <ArtCard :art="item.art" :imageData="item.artImage" />
+      <div
+        v-for="item in generatedArtWithImages"
+        :key="item.art.id"
+        class="mb-6"
+      >
+        <ArtCard :art="item.art" :image-data="item.artImage" />
       </div>
     </div>
   </div>
@@ -81,7 +85,7 @@ const generatedArtWithImages = computed(() => {
     const artImage = artStore.getArtImagesById(art.id)[0] // Get the first image or handle accordingly
     return {
       art,
-      artImage
+      artImage,
     }
   })
 })

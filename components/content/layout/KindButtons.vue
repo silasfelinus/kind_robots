@@ -1,5 +1,7 @@
 <template>
-  <div class="kind-buttons flex flex-col space-y-2 z-50">
+  <div
+    class="kind-buttons flex flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0 z-50"
+  >
     <!-- Fullscreen / Two-column Toggle -->
     <button
       class="hidden lg:flex bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 p-2"

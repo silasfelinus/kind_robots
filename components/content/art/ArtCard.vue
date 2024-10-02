@@ -3,12 +3,13 @@
     class="bg-primary border-1 border-accent rounded-2xl p-1 m-1 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer"
     @click="selectArt"
   >
+    <!-- Art Information -->
     <h3 class="text-lg font-semibold mb-2 truncate" title="Prompt">
       {{ prompt?.prompt || 'No prompt available' }}
     </h3>
     <div class="relative overflow-hidden max-h-[200px]">
       <img
-        :src="art.path ?? '/placeholder.jpg'"
+        :src="art.path || getArtImage()"
         alt="Artwork"
         class="rounded-2xl transition-transform ease-in-out hover:scale-105 w-full h-auto object-cover"
         loading="lazy"
@@ -26,9 +27,24 @@
         </p>
       </div>
     </div>
+
+    <!-- Toggle Button for Detailed Info -->
+    <div class="mt-4">
+      <label class="flex items-center">
+        <input type="checkbox" v-model="showDetails" class="mr-2" />
+        <span>Show Art Details</span>
+      </label>
+    </div>
+
+    <!-- Art Details Toggle Section -->
+    <div v-if="showDetails" class="mt-4 p-4 bg-base-200 rounded-xl">
+      <pre class="text-sm whitespace-pre-wrap">
+        {{ artData }}
+      </pre>
+    </div>
   </div>
 </template>
-
+ 
 <script setup lang="ts">
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
@@ -71,3 +87,58 @@ const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 </script>
+
+<script setup lang="ts">
+import { useArtStore } from '@/stores/artStore'
+import { usePromptStore } from '@/stores/promptStore'
+import { usePitchStore } from '@/stores/pitchStore'
+import { useReactionStore } from '@/stores/reactionStore'
+import { computed, ref, onMounted } from 'vue'
+
+// Props
+const props = defineProps<{
+  art: Art
+}>()
+
+// Initialize stores
+const artStore = useArtStore()
+const promptStore = usePromptStore()
+const pitchStore = usePitchStore()
+const reactionStore = useReactionStore()
+
+// Local state for toggling details visibility
+const showDetails = ref(false)
+
+// Art data to display in the toggle box
+const artData = computed(() => props.art)
+
+// Compute the prompt based on art ID
+const prompt = computed(() =>
+  props.art.promptId ? promptStore.fetchedPrompts[props.art.promptId] : null,
+)
+
+// Selected pitch from the pitch store
+const selectedPitch = computed(() => pitchStore.selectedPitch)
+
+// Filter reactions for the current art
+const reactions = computed(() =>
+  reactionStore.reactions.filter((r) => r.artId === props.art.id),
+)
+
+// Fetch prompt and reactions on mount
+onMounted(() => {
+  if (props.art.promptId) promptStore.fetchPromptById(props.art.promptId)
+  reactionStore.fetchReactionsByArtId(props.art.id)
+})
+
+// Handle art selection
+const selectArt = () => {
+  artStore.selectArt(props.art.id)
+}
+
+// Get the image path, fallback to placeholder or artImages if path is missing
+const getArtImage = () => {
+  return props.art.artImage?.url || '/placeholder.jpg';
+}
+</script>
+

@@ -2,7 +2,7 @@
   <div class="flex flex-col items-center justify-start w-full p-2 h-2/3">
     <!-- Chat window -->
     <div
-      class="chat-window w-full max-w-md rounded-2xl border overflow-y-auto bg-base-300"
+      class="chat-window w-full max-w-md rounded-2xl md:mb-10 border overflow-y-auto bg-base-300"
     >
       <!-- Silas' Message -->
       <div class="flex flex-row justify-start p-4">

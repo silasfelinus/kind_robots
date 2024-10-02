@@ -49,12 +49,13 @@
         </div>
       </div>
 
-      <!-- Fast-forward button -->
+      <!-- Fast-forward button with Skip label -->
       <NuxtLink
         to="/"
-        class="absolute bottom-4 right-4 bg-accent p-4 rounded-full text-white shadow-lg hover:bg-accent-focus z-60"
+        class="absolute bottom-4 right-4 bg-accent p-4 rounded-full text-white shadow-lg hover:bg-accent-focus z-60 flex flex-col items-center"
       >
         <Icon name="material-symbols:fast-forward-rounded" class="w-6 h-6" />
+        <span class="text-sm mt-1">Skip</span>
       </NuxtLink>
     </div>
   </transition>

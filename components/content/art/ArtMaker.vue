@@ -43,11 +43,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
+import { useDisplayStore } from '@/stores/displayStore'
 import ArtCard from './ArtCard.vue' // Import the reusable ArtCard component
 
 // Access the artStore and promptStore
 const artStore = useArtStore()
 const promptStore = usePromptStore()
+const displayStore = useDisplayStore()
 
 // Local error state specific to this component
 const localError = ref<string | null>(null)
@@ -65,6 +67,7 @@ const savePrompt = () => {
 const generateArt = async () => {
   // Clear any previous local error before generating new art
   localError.value = null
+  displayStore.toggleRandomAnimation()
 
   // Validate the prompt string before proceeding
   if (!artStore.validatePromptString(promptStore.promptField)) {
@@ -77,9 +80,11 @@ const generateArt = async () => {
     const result = await artStore.generateArt()
 
     if (!result.success) {
+      displayStore.stopAnimation()
       localError.value = result.message || 'Unknown error occurred.'
     }
   } catch (error) {
+    displayStore.stopAnimation()
     localError.value =
       error instanceof Error ? error.message : 'Failed to generate art.'
   }

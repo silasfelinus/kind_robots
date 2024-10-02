@@ -24,20 +24,17 @@
       </div>
     </header>
 
-    <!-- Main content area -->
-    <div
-      class="h-full grid"
-      :class="isFullScreen ? 'grid-cols-4' : 'grid-cols-3'"
-    >
+    <!-- Main content area with 3 columns: Sidebar Left, Center Content, Sidebar Right -->
+    <div class="h-full grid grid-cols-3">
       <!-- Sidebar left -->
       <kind-sidebar-simple
         class="overflow-y-auto bg-base-300"
         :style="{ width: sidebarLeftWidth, height: mainHeight }"
       ></kind-sidebar-simple>
 
-      <!-- Main content view -->
+      <!-- Main content view (conditionally 1 or 2 columns) -->
       <main class="rounded-2xl bg-base-300 overflow-y-auto p-4 h-full">
-        <!-- Fullscreen mode: Four-column layout showing both tutorial and page -->
+        <!-- Fullscreen mode: Two-column inner layout (SplashTutorial + NuxtPage) -->
         <div v-if="isFullScreen" class="grid grid-cols-2 gap-4 w-full h-full">
           <div class="h-full">
             <SplashTutorial class="h-full w-full" />
@@ -47,8 +44,8 @@
           </div>
         </div>
 
-        <!-- Non-fullscreen mode: Single-column showing either tutorial or page -->
-        <div v-else class="flex justify-center items-center w-full h-full">
+        <!-- Non-fullscreen mode: Single column, show either SplashTutorial or NuxtPage -->
+        <div v-else class="w-full h-full flex justify-center items-center">
           <div v-if="showTutorial" class="h-full w-full">
             <SplashTutorial class="h-full w-full" />
           </div>

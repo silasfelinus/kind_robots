@@ -1,7 +1,7 @@
 <template>
   <nav
     role="navigation"
-    class="relative flex items-center justify-between w-full py-4 bg-base-100"
+    class="relative flex items-center justify-between w-full py-4"
   >
     <!-- Hamburger Icon for Small Screens -->
     <div class="md:hidden">

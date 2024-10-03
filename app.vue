@@ -23,7 +23,7 @@
           <sidebar-toggle class="text-4xl"></sidebar-toggle>
         </div>
 
-        <!-- Nav Links: centered for medium and larger screens, and on small screens as well -->
+        <!-- Nav Links -->
         <div class="flex-grow flex justify-center items-center space-x-4">
           <nav-links></nav-links>
         </div>

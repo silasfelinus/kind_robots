@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Display channels (comments) associated with the component -->
-    <div v-if="channels.length === 0" class="text-center p-4">
+    <div v-if="channels.length === 0" class="text-center p-4 text-gray-500">
       No comments available for this component yet.
     </div>
 
@@ -11,12 +11,12 @@
       class="mb-4 p-4 border border-gray-300 rounded-lg bg-white shadow-md"
     >
       <h2 class="text-lg font-bold">{{ channel.title }}</h2>
-      <p>{{ channel.description }}</p>
+      <p class="text-gray-700 mb-4">{{ channel.description }}</p>
 
       <!-- Display messages for each channel -->
       <div
         v-if="!messages[channel.id] || messages[channel.id].length === 0"
-        class="text-center p-4"
+        class="text-center p-4 text-gray-500"
       >
         No messages in this channel yet.
       </div>
@@ -24,7 +24,7 @@
         <li
           v-for="message in messages[channel.id]"
           :key="message.id"
-          class="p-2 border-b"
+          class="p-2 border-b border-gray-200"
         >
           {{ message.content }}
         </li>
@@ -61,16 +61,20 @@ watch(
   () => props.componentId,
   async (newId) => {
     if (newId) {
-      // Fetch channels for the component
-      await channelStore.fetchChannelByComponentId(newId)
-      channels.value = channelStore.getChannelsForComponent(newId)
+      try {
+        // Fetch channels for the component
+        await channelStore.fetchChannelByComponentId(newId)
+        channels.value = channelStore.getChannelsForComponent(newId)
 
-      // Fetch messages for each channel
-      for (const channel of channels.value) {
-        await channelStore.fetchMessagesByChannelId(channel.id)
-        messages.value[channel.id] = channelStore.getMessagesForChannel(
-          channel.id,
-        )
+        // Fetch messages for each channel
+        for (const channel of channels.value) {
+          await channelStore.fetchMessagesByChannelId(channel.id)
+          messages.value[channel.id] = channelStore.getMessagesForChannel(
+            channel.id,
+          )
+        }
+      } catch (error) {
+        console.error('Error fetching channels or messages:', error)
       }
     }
   },

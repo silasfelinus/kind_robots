@@ -3,12 +3,12 @@
     <!-- Folder View -->
     <div
       v-if="folderNames.length && !selectedComponents.length"
-      class="grid grid-cols-4 gap-2"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
     >
       <div
         v-for="folder in folderNames"
         :key="folder"
-        class="p-4 rounded-lg hover:bg-primary hover:text-default cursor-pointer transition"
+        class="p-4 rounded-lg hover:bg-primary hover:text-default cursor-pointer transition-transform transform hover:scale-105"
         @click="fetchComponentsFromFolder(folder)"
       >
         <div class="text-center">
@@ -19,10 +19,14 @@
     </div>
 
     <!-- Component List View -->
-    <div v-if="selectedComponents.length" class="grid grid-cols-4 gap-2">
+    <div
+      v-if="selectedComponents.length"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
+    >
       <div
         v-for="component in selectedComponents"
         :key="component.id"
+        class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition-transform transform hover:scale-105"
         @click="selectComponent(component)"
       >
         <div class="text-center">
@@ -67,17 +71,17 @@ const fetchComponentsFromFolder = (folderName: string) => {
 
 // Select a component and update the store
 const selectComponent = (component: Component) => {
-  componentStore.selectedComponent = component // Directly update the selectedComponent in the store
+  componentStore.selectedComponent = component
 }
 
 // Initial fetch from store on component mount
 onMounted(() => {
   if (!componentStore.components.length) {
-    componentStore.initializeComponents() // Ensure we load components if not already loaded
+    componentStore.initializeComponents()
   }
 })
 </script>
 
 <style scoped>
-/* Basic styling */
+/* Add custom styling if needed */
 </style>

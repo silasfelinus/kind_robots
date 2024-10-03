@@ -46,7 +46,7 @@ type RequestData = {
 
 export default defineEventHandler(async (event) => {
   let imageId: number | null = null;
-  let newArt: any = null;
+  let newArt: Art | null = null;
 
   try {
     console.log('🌟 Event triggered! Reading request body...');

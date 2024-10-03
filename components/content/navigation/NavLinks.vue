@@ -31,7 +31,7 @@
     <!-- Hidden Menu on Small Screens, centered links -->
     <div
       v-if="isMenuOpen"
-      class="absolute top-12 left-0 w-full bg-base-300 shadow-lg md:hidden flex flex-col items-center z-50"
+      class="absolute top-12 left-0 w-full bg-base-300 shadow-lg md:hidden flex flex-col items-center"
     >
       <nuxt-link
         v-for="link in navLinks"

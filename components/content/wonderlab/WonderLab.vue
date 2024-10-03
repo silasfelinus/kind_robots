@@ -8,85 +8,81 @@
 
     <!-- Show content when not loading and no errors -->
     <transition name="flip">
-      <div v-if="!isLoading && !errorMessages.length">
-        <!-- Title Screen or Reactions Section -->
-        <div class="title-or-reactions-section">
-          <transition name="fade">
-            <!-- Title Screen (when no component is selected) -->
-            <div
-              v-if="!componentStore.selectedComponent"
-              class="title-screen flex justify-center items-center h-1/4 bg-gray-100"
-            >
-              <h1 class="text-3xl font-bold">Welcome to the WonderLab</h1>
-              <p class="text-lg mt-2">
-                Explore, select components, and add your reactions!
-              </p>
+      <div v-if="!isLoading && !errorMessages.length" class="flex h-screen">
+        <!-- Left 2/3 for the welcome message or component screen -->
+        <div class="w-2/3 p-4 flex justify-center items-center">
+          <!-- Welcome message when no component is selected -->
+          <div
+            v-if="!componentStore.selectedComponent"
+            class="welcome-screen text-center"
+          >
+            <h1 class="text-4xl font-bold">Welcome to the WonderLab</h1>
+            <p class="text-lg mt-4">
+              Select a folder to view components or interact with them!
+            </p>
+          </div>
+
+          <!-- Component Screen when a component is selected -->
+          <div v-else>
+            <component-screen
+              :component="componentStore.selectedComponent"
+              class="component-screen"
+              @close="handleComponentClose"
+            />
+          </div>
+        </div>
+
+        <!-- Right 1/3, split into top 1/2 for folder view and bottom 1/2 for count/reactions -->
+        <div class="w-1/3 flex flex-col">
+          <!-- Folder view in the top half -->
+          <div class="folder-view h-1/2 p-4 bg-gray-100 overflow-y-auto">
+            <div v-if="componentStore.selectedFolder" class="text-lg px-4">
+              Viewing components in folder: {{ componentStore.selectedFolder }}
             </div>
 
-            <!-- Reactions (when a component is selected) -->
-            <div v-else class="reactions-screen p-4 bg-base-200">
-              <h2 class="text-2xl font-semibold">
-                Reactions for {{ componentStore.selectedComponent.title }}
-              </h2>
-              <component-reactions
-                :component="componentStore.selectedComponent"
+            <!-- Folder gallery when no folder is selected -->
+            <div v-if="!componentStore.selectedFolder" class="lab-gallery">
+              <lab-gallery @select-folder="handleFolderSelect" />
+            </div>
+
+            <!-- Folder components -->
+            <div
+              v-if="componentStore.selectedFolder"
+              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4"
+            >
+              <component-card
+                v-for="component in folderComponents"
+                :key="component.id"
+                :component="component"
+                class="component-card p-4 bg-white shadow rounded-lg transition-transform transform hover:scale-105 hover:shadow-lg"
+                @select="handleComponentSelect"
               />
             </div>
-          </transition>
-        </div>
+          </div>
 
-        <!-- Component counter and folder view section -->
-        <div
-          v-if="!componentStore.selectedFolder"
-          class="intro-section text-center"
-        >
-          <div class="relative">
-            <!-- Top section with component counter -->
-            <div
-              class="component-counter absolute top-0 left-0 w-full h-1/4 bg-gray-100"
-            >
-              <component-count />
-            </div>
-            <!-- Folders view occupies the rest of the screen -->
-            <lab-gallery
-              v-if="!componentStore.selectedComponent"
-              class="lab-gallery pt-1/4"
-              @select-folder="handleFolderSelect"
-            />
+          <!-- Component count or reactions in the bottom half -->
+          <div class="h-1/2 p-4 bg-gray-200">
+            <transition name="flip">
+              <!-- Component Count (when no component is selected) -->
+              <div
+                v-if="!componentStore.selectedComponent"
+                class="component-counter flex justify-center items-center h-full"
+              >
+                <component-count />
+              </div>
+
+              <!-- Reactions (when a component is selected) -->
+              <div v-else class="reactions-screen p-4 bg-base-200 h-full">
+                <h2 class="text-2xl font-semibold">
+                  Reactions for {{ componentStore.selectedComponent.title }}
+                </h2>
+                <component-reactions
+                  :component="componentStore.selectedComponent"
+                />
+              </div>
+            </transition>
           </div>
         </div>
-
-        <!-- Folder Components Screen (inside folder) -->
-        <div
-          v-if="
-            componentStore.selectedFolder && !componentStore.selectedComponent
-          "
-          class="folder-view"
-        >
-          <p class="text-lg px-4">
-            Viewing components in folder: {{ componentStore.selectedFolder }}
-          </p>
-
-          <!-- Folder components -->
-          <div
-            class="folder-components grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4"
-          >
-            <component-card
-              v-for="component in folderComponents"
-              :key="component.id"
-              :component="component"
-              class="component-card p-4 bg-white shadow rounded-lg transition-transform transform hover:scale-105 hover:shadow-lg"
-              @select="handleComponentSelect"
-            />
-          </div>
-        </div>
-
-        <!-- Component Screen (once a component is selected) -->
-        <component-screen
-          v-if="componentStore.selectedComponent"
-          :component="componentStore.selectedComponent"
-          @close="handleComponentClose"
-        />
       </div>
     </transition>
 
@@ -150,16 +146,24 @@ const handleComponentClose = () => {
 </script>
 
 <style scoped>
-/* Title or Reactions Section */
-.title-or-reactions-section {
-  margin-bottom: 1rem;
+/* Folder components with hover effects */
+.folder-components .component-card {
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
-.title-screen {
+.folder-components .component-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Welcome Screen Styling */
+.welcome-screen {
   text-align: center;
-  background-color: #f9fafb;
 }
 
+/* Title or Reactions Section */
 .reactions-screen {
   background-color: #f3f4f6;
   padding: 1rem;
@@ -176,24 +180,21 @@ const handleComponentClose = () => {
   opacity: 0;
 }
 
-/* Folder components with hover effects */
-.folder-components .component-card {
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+/* Transition for flipping between count and reactions */
+.flip-enter-active,
+.flip-leave-active {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+.flip-enter,
+.flip-leave-to {
+  transform: rotateY(180deg);
 }
 
-.folder-components .component-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Top section counter styling */
-.component-counter {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 25vh;
-  background-color: #f9fafb;
+/* Lab gallery view styling */
+.lab-gallery {
+  max-height: 75vh;
+  overflow-y: auto;
+  padding: 1rem;
 }
 </style>

@@ -120,7 +120,7 @@ const isMobile = computed(() => displayStore.isMobileViewport)
 <style scoped>
 /* Flip-card style */
 .flip-card {
-  perspective: 1000px;
+  perspective: 1500px; /* Increased perspective for a more pronounced flip effect */
   width: 100%;
   height: 100%;
 }
@@ -142,12 +142,18 @@ const isMobile = computed(() => displayStore.isMobileViewport)
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
+  backface-visibility: hidden; /* Ensures the backface is not visible */
   border: 2px solid var(--bg-base);
   border-radius: 5px;
 }
 
+.flip-card-front {
+  z-index: 2; /* Ensure the front side is on top when flipped */
+}
+
 .flip-card-back {
   transform: rotateY(180deg);
+  z-index: 1; /* Keep back side behind the front side */
 }
+
 </style>

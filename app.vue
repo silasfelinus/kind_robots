@@ -15,7 +15,7 @@
     >
       <!-- Header -->
       <header
-        class="bg-base-300 flex items-center justify-between w-full p-2 z-40"
+        class="bg-base-300 flex items-center justify-between w-full p-2"
         :style="{ gridRow: '1 / 2', height: headerHeight }"
       >
         <!-- Sidebar Toggle -->
@@ -37,7 +37,7 @@
 
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-300 p-4 z-40 rounded-2xl overflow-y-auto"
+        class="bg-base-300 p-4 rounded-2xl overflow-y-auto"
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',

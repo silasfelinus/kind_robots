@@ -1,7 +1,7 @@
 <template>
   <nav
     role="navigation"
-    class="relative flex items-center justify-between w-full"
+    class="relative flex items-center justify-between w-full py-4 bg-base-100"
   >
     <!-- Hamburger Icon for Small Screens -->
     <div class="md:hidden">
@@ -31,13 +31,13 @@
     <!-- Hidden Menu on Small Screens, centered links with padding -->
     <div
       v-if="isMenuOpen"
-      class="absolute top-12 left-0 w-full bg-base-300 shadow-lg md:hidden flex flex-col items-center px-6"
+      class="absolute top-12 left-0 w-full bg-base-200 shadow-lg md:hidden flex flex-col items-center px-6 z-50"
     >
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
-        class="block text-accent text-lg py-4 w-full text-center transition-colors duration-300 hover:bg-secondary hover:text-base-100 whitespace-normal break-words"
+        :class="getLinkClass(link.url)"
         @click="closeMenu"
       >
         {{ link.text }}
@@ -50,7 +50,7 @@
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
-        class="text-accent text-lg md:text-xl lg:text-2xl hover:underline whitespace-nowrap transition-colors duration-300 hover:text-primary"
+        :class="getLinkClass(link.url)"
       >
         {{ link.text }}
       </nuxt-link>
@@ -58,8 +58,10 @@
   </nav>
 </template>
 
-<script setup lang="ts">
 import { ref } from 'vue'
+import { useContent } from '@/stores/contentStore'
+
+const { page } = useContent()
 
 const isMenuOpen = ref(false)
 
@@ -78,4 +80,12 @@ const navLinks = [
   { text: 'PromptBots', url: '/botcafe' },
   { text: 'AMI', url: '/amibot' },
 ]
-</script>
+
+// Function to return the correct class based on the current page
+const getLinkClass = (url: string) => {
+  const baseClass = 'block text-accent text-lg py-4 w-full text-center transition-colors duration-300 hover:bg-secondary hover:text-base-100'
+  const selectedClass = 'text-primary border-b-2 border-primary'
+
+  return page.path === url ? `${baseClass} ${selectedClass}` : baseClass
+}
+

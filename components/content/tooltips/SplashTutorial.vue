@@ -15,17 +15,17 @@
     </div>
 
     <!-- Main Content Section (flexible, responsive space) -->
-    <div class="flex-1 flex flex-col items-center justify-start space-y-2 overflow-hidden p-2">
+    <div class="flex-1 flex flex-col items-center justify-between p-4 space-y-2">
       <!-- Main Image with max height to prevent overflow -->
       <img
         v-if="page && page.image"
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[30vh] md:max-h-[40vh] lg:max-h-[50vh]"
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[25vh] md:max-h-[35vh] lg:max-h-[40vh]"
       />
 
       <!-- Title, Description, and Subtitle Section -->
-      <div class="text-center w-full space-y-1 lg:space-y-2 overflow-hidden">
+      <div class="text-center w-full space-y-1 lg:space-y-2">
         <h1
           v-if="page && page.title"
           class="text-2xl lg:text-4xl font-bold truncate"
@@ -88,10 +88,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { useDisplayStore } from '@/stores/displayStore'
-
-const displayStore = useDisplayStore()
-const { page } = useContent()
-</script>

@@ -67,7 +67,7 @@
         <div
           v-else
           class="flip-card-inner"
-          :class="{ 'is-flipped': showTutorial }"
+          :class="{ 'is-flipped': !showTutorial }"
         >
           <div class="flip-card-front rounded-2xl">
             <SplashTutorial class="h-full w-full" />
@@ -113,13 +113,8 @@ const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 
 // Mobile detection
-const isMobile = ref(false)
-onMounted(() => {
-  isMobile.value = window.innerWidth <= 768
-  window.addEventListener('resize', () => {
-    isMobile.value = window.innerWidth <= 768
-  })
-})
+const isMobile = computed(() => displayStore.isMobileViewport)
+
 </script>
 
 <style scoped>

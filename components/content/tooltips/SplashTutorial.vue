@@ -88,3 +88,10 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useDisplayStore } from '@/stores/displayStore'
+
+const displayStore = useDisplayStore()
+const { page } = useContent()
+</script>

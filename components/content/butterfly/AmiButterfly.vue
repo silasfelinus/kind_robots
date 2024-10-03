@@ -144,7 +144,7 @@ onUnmounted(() => {
 <template>
   <div
     v-if="hydrated"
-    class="butterfly"
+    class="butterfly z-50"
     :style="{
       left: butterfly.goal.x + 'px',
       top: butterfly.goal.y + 'px',

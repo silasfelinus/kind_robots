@@ -95,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access display store

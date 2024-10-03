@@ -61,11 +61,8 @@
 </template>
 
 <script setup lang="ts">
-
 import { ref } from 'vue'
-
-
-const { page } = useContent()
+import { useRoute } from 'vue-router' // Import useRoute to access the current route
 
 const isMenuOpen = ref(false)
 
@@ -85,11 +82,15 @@ const navLinks = [
   { text: 'AMI', url: '/amibot' },
 ]
 
-// Function to return the correct class based on the current page
+// Use the route to determine the current path
+const route = useRoute()
+
+// Function to return the correct class based on the current route
 const getLinkClass = (url: string) => {
-  const baseClass = 'block text-accent text-lg py-3 transition-colors duration-300'
+  const baseClass =
+    'block text-accent text-lg py-3 transition-colors duration-300'
   const selectedClass = 'text-primary border-b-2 border-primary'
 
-  return page.path === url ? `${baseClass} ${selectedClass}` : baseClass
+  return route.path === url ? `${baseClass} ${selectedClass}` : baseClass
 }
 </script>

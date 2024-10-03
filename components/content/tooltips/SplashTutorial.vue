@@ -3,15 +3,6 @@
     class="relative flex flex-col h-full w-full rounded-2xl overflow-hidden shadow-lg"
     :style="{ height: displayStore.mainVh + 'vh' }"
   >
-    <!-- Floating Background Icons Above Bot Messages (More Transparent, Floating) -->
-    <div
-      v-if="page && page.icon"
-      class="fixed flex justify-center items-center opacity-1 z-0"
-      :style="{ top: '90%', left: '50%' }"
-    >
-      <Icon :name="page.icon" class="w-24 h-24 lg:w-32 lg:h-32 z-10" />
-    </div>
-
     <!-- Under Construction Icon (only visible if page.underConstruction is true) -->
     <div
       v-if="page && page.underConstruction"
@@ -24,9 +15,7 @@
     </div>
 
     <!-- Main Content Section (flexible, responsive space) -->
-    <div
-      class="flex-1 flex flex-col items-center justify-start space-y-2 overflow-hidden p-2"
-    >
+    <div class="flex-1 flex flex-col items-center justify-start space-y-2 overflow-hidden p-2">
       <!-- Main Image with max height to prevent overflow -->
       <img
         v-if="page && page.image"
@@ -57,6 +46,14 @@
         >
           {{ page.description }}
         </h3>
+      </div>
+
+      <!-- Floating Background Icon (Placed under description and above bot messages) -->
+      <div
+        v-if="page && page.icon"
+        class="flex justify-center items-center opacity-30 z-10"
+      >
+        <Icon :name="page.icon" class="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32" />
       </div>
     </div>
 

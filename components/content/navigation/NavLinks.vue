@@ -28,15 +28,16 @@
       </button>
     </div>
 
-    <!-- Hidden Menu on Small Screens, centered links with padding -->
+    <!-- Hidden Menu on Small Screens -->
     <div
       v-if="isMenuOpen"
-      class="absolute top-12 left-0 w-full bg-base-200 shadow-lg md:hidden flex flex-col items-center px-6 z-50"
+      class="absolute top-12 left-0 w-full bg-base-200 shadow-lg md:hidden flex flex-col items-center z-50"
     >
       <nuxt-link
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
+        class="w-full text-center py-3"
         :class="getLinkClass(link.url)"
         @click="closeMenu"
       >
@@ -50,6 +51,7 @@
         v-for="link in navLinks"
         :key="link.text"
         :to="link.url"
+        class="text-lg md:text-xl lg:text-2xl text-accent hover:text-primary hover:underline transition-colors duration-300"
         :class="getLinkClass(link.url)"
       >
         {{ link.text }}
@@ -57,6 +59,8 @@
     </div>
   </nav>
 </template>
+
+<script setup lang="ts">
 
 import { ref } from 'vue'
 import { useContent } from '@/stores/contentStore'
@@ -83,9 +87,9 @@ const navLinks = [
 
 // Function to return the correct class based on the current page
 const getLinkClass = (url: string) => {
-  const baseClass = 'block text-accent text-lg py-4 w-full text-center transition-colors duration-300 hover:bg-secondary hover:text-base-100'
+  const baseClass = 'block text-accent text-lg py-3 transition-colors duration-300'
   const selectedClass = 'text-primary border-b-2 border-primary'
 
   return page.path === url ? `${baseClass} ${selectedClass}` : baseClass
 }
-
+</script>

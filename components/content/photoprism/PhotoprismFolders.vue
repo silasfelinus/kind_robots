@@ -43,19 +43,40 @@ const folders = ref<Folder[]>([])
 const errorMessage = ref('')
 const loading = ref(false)
 
-// Fetch folders from the PhotoPrism API
+// Fetch folders from the PhotoPrism WebDAV API
 const fetchFolders = async () => {
   loading.value = true
   errorMessage.value = ''
 
   try {
-    const response = await fetch('/api/photoprism')
-    const data = await response.json()
+    const response = await fetch(
+      `${import.meta.env.PHOTOPRISM_WEBDAV_URL}/remote.php/webdav/`,
+      {
+        method: 'PROPFIND', // WebDAV uses PROPFIND to list directories
+        headers: {
+          Authorization: `Basic ${btoa(import.meta.env.PHOTOPRISM_USER + ':' + import.meta.env.PHOTOPRISM_PASSWORD)}`,
+          Depth: '1', // Adjust depth depending on how deep you want to fetch folders
+        },
+      },
+    )
 
-    if (data.success) {
-      folders.value = data.data as Folder[] // Ensure the response data is typed correctly
+    if (response.ok) {
+      const textData = await response.text() // WebDAV returns XML, parse it manually or use an XML parser
+      const parser = new DOMParser()
+      const xmlDoc = parser.parseFromString(textData, 'application/xml')
+      const folderElements = Array.from(
+        xmlDoc.getElementsByTagName('d:response'),
+      )
+
+      // Extract folder details from XML
+      folders.value = folderElements.map((folder) => ({
+        filename: folder.getElementsByTagName('d:href')[0].textContent || '',
+        basename:
+          folder.getElementsByTagName('d:displayname')[0]?.textContent ||
+          'Unnamed Folder',
+      }))
     } else {
-      errorMessage.value = data.message || 'Failed to retrieve folders.'
+      errorMessage.value = 'Failed to retrieve folders.'
     }
   } catch (error) {
     errorMessage.value = `An error occurred while fetching the folders: ${error}`

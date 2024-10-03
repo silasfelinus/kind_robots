@@ -117,3 +117,8 @@ export const loadTodoStore = async () => {
   const { useTodoStore } = await import('@/stores/todoStore');
   return useTodoStore();
 };
+
+export const loadPhotoprismStore = async () => {
+  const { usePhotoprismStore } = await import('@/stores/photoprismStore');
+  return usePhotoprismStore();
+};

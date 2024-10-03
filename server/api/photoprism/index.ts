@@ -5,7 +5,7 @@ export default defineEventHandler(async () => {
   // Retrieve the WebDAV login and server info from environment variables
   const webdavUrl =
     process.env.PHOTOPRISM_WEBDAV_URL || 'https://photos.acrocatranch.com'
-  const username = process.env.PHOTOPRISM_USERNAME
+  const username = process.env.PHOTOPRISM_USER
   const password = process.env.PHOTOPRISM_PASSWORD
 
   try {

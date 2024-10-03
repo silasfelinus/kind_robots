@@ -37,7 +37,7 @@
 
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-300 p-4 rounded-2xl overflow-y-auto"
+        class="bg-base-300 p-4 rounded-2xl overflow-y-auto z-10"
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',

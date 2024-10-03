@@ -6,12 +6,14 @@ import type { Component } from '@prisma/client'
 interface Folder {
   folderName: string
   components: string[]
+  
 }
 
 export const useComponentStore = defineStore('componentStore', {
   state: () => ({
     components: [] as Component[], // Flat list of all Component objects for ease of lookup
     selectedComponent: null as Component | null, // Full Component object for the selected component
+    selectedFolder: null as string | null, 
   }),
 
   getters: {
@@ -19,6 +21,7 @@ export const useComponentStore = defineStore('componentStore', {
     allComponents(state) {
       return state.components
     },
+    getSelectedFolder: (state) => state.selectedFolder,
   },
 
   actions: {
@@ -50,6 +53,14 @@ export const useComponentStore = defineStore('componentStore', {
         'Error fetching components from API',
       )
     },
+       // Function to set the selected folder
+       setSelectedFolder(folderName: string) {
+        this.selectedFolder = folderName;
+      },
+  
+      clearSelectedFolder() {
+        this.selectedFolder = null;
+      },
 
     // Sync components from components.json to the database
     async syncComponents() {

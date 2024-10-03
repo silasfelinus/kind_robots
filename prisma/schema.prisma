@@ -404,6 +404,7 @@ model Reaction {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime?         @updatedAt @default(now())
   reactionType      ReactionType      
+  rating            Int               @default(0)         
   comment           String?           @db.Text
   userId            Int               @default(10)
   User              User              @relation(fields: [userId], references: [id])

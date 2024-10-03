@@ -9,22 +9,22 @@
       class="absolute top-2 left-2 z-20 opacity-90 md:w-12 md:h-12 lg:w-16 lg:h-16"
     >
       <Icon
-        name="construction"
+        name="emojione:construction"
         class="object-cover w-full h-full text-warning"
       />
     </div>
 
-    <!-- Main Content Section (flexible, responsive space) -->
-    <div class="flex-1 flex flex-col items-center justify-between p-4 space-y-2">
-      <!-- Main Image with max height to prevent overflow -->
+    <!-- Main Content Section -->
+    <div class="flex-1 flex flex-col items-center justify-between p-4 space-y-1">
+      <!-- Main Image -->
       <img
         v-if="page && page.image"
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[25vh] md:max-h-[35vh] lg:max-h-[40vh]"
+        class="rounded-2xl border border-base-300 shadow-md object-contain max-w-full max-h-[25vh] md:max-h-[30vh] lg:max-h-[35vh] flex-shrink"
       />
 
-      <!-- Title, Description, and Subtitle Section -->
+      <!-- Title, Description, and Subtitle -->
       <div class="text-center w-full space-y-1 lg:space-y-2">
         <h1
           v-if="page && page.title"
@@ -48,7 +48,7 @@
         </h3>
       </div>
 
-      <!-- Floating Background Icon (Placed under description and above bot messages) -->
+      <!-- Floating Background Icon -->
       <div
         v-if="page && page.icon"
         class="flex justify-center items-center opacity-30 z-10"
@@ -57,12 +57,12 @@
       </div>
     </div>
 
-    <!-- Bot Messages Section (using DaisyUI chat bubbles) -->
+    <!-- Bot Messages Section -->
     <div
       v-if="page && page.dottitip && page.amitip"
-      class="flex flex-col space-y-4 w-full max-w-3xl px-4 py-1 lg:py-2 mx-auto"
+      class="flex flex-col space-y-4 w-full max-w-3xl px-4 py-1 lg:py-2 mx-auto flex-shrink"
     >
-      <!-- DottiBot Message (Left-Aligned with DaisyUI chat-bubble) -->
+      <!-- DottiBot Message -->
       <div class="chat chat-start">
         <div class="chat-image avatar">
           <div class="w-10 h-10 md:w-12 md:h-12 rounded-full">
@@ -74,7 +74,7 @@
         </div>
       </div>
 
-      <!-- AMIbot Message (Right-Aligned with DaisyUI chat-bubble) -->
+      <!-- AMIbot Message -->
       <div class="chat chat-end">
         <div class="chat-image avatar">
           <div class="w-10 h-10 md:w-12 md:h-12 rounded-full">
@@ -88,6 +88,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { useDisplayStore } from '@/stores/displayStore'

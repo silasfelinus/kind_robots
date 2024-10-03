@@ -28,10 +28,10 @@
       </button>
     </div>
 
-    <!-- Hidden Menu on Small Screens, centered links -->
+    <!-- Hidden Menu on Small Screens, centered links with padding -->
     <div
       v-if="isMenuOpen"
-      class="absolute top-12 left-0 w-full bg-base-300 shadow-lg md:hidden flex flex-col items-center"
+      class="absolute top-12 left-0 w-full bg-base-300 shadow-lg md:hidden flex flex-col items-center px-6"
     >
       <nuxt-link
         v-for="link in navLinks"

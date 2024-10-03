@@ -37,6 +37,11 @@ onMounted(async () => {
   try {
     const response = await fetch(
       'https://photos.acrocatranch.com/api/v1/albums',
+      {
+        headers: {
+          Authorization: `Basic ${btoa(import.meta.env.PHOTOPRISM_USER + ':' + import.meta.env.PHOTOPRISM_PASSWORD)}`,
+        },
+      },
     )
     if (response.ok) {
       const data = await response.json()
@@ -54,6 +59,11 @@ const fetchImages = async () => {
   try {
     const response = await fetch(
       `https://photos.acrocatranch.com/api/v1/photos?album=${selectedFolder.value}`,
+      {
+        headers: {
+          Authorization: `Basic ${btoa(import.meta.env.PHOTOPRISM_USER + ':' + import.meta.env.PHOTOPRISM_PASSWORD)}`,
+        },
+      },
     )
     if (response.ok) {
       const data = await response.json()
@@ -67,7 +77,7 @@ const fetchImages = async () => {
 }
 
 const imageUrl = (image: Image) => {
-  return `https://photos.acrocatranch.com/photoprism/originals/${image.Path}`
+  return `${import.meta.env.PHOTOPRISM_WEBDAV_URL}/originals/${image.Path}`
 }
 </script>
 

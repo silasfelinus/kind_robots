@@ -23,10 +23,10 @@
           </div>
 
           <!-- Component Screen when a component is selected -->
-          <div v-else>
+          <div v-else class="w-full h-full overflow-auto">
             <component-screen
               :component="componentStore.selectedComponent"
-              class="component-screen"
+              class="component-screen w-full h-full"
               @close="handleComponentClose"
             />
           </div>
@@ -41,14 +41,17 @@
             </div>
 
             <!-- Folder gallery when no folder is selected -->
-            <div v-if="!componentStore.selectedFolder" class="lab-gallery">
+            <div
+              v-if="!componentStore.selectedFolder"
+              class="lab-gallery h-full"
+            >
               <lab-gallery @select-folder="handleFolderSelect" />
             </div>
 
             <!-- Folder components -->
             <div
               v-if="componentStore.selectedFolder"
-              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4"
+              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4 h-full overflow-auto"
             >
               <component-card
                 v-for="component in folderComponents"
@@ -72,7 +75,10 @@
               </div>
 
               <!-- Reactions (when a component is selected) -->
-              <div v-else class="reactions-screen p-4 bg-base-200 h-full">
+              <div
+                v-else
+                class="reactions-screen p-4 bg-base-200 h-full overflow-auto"
+              >
                 <h2 class="text-2xl font-semibold">
                   Reactions for {{ componentStore.selectedComponent.title }}
                 </h2>
@@ -161,9 +167,10 @@ const handleComponentClose = () => {
 /* Welcome Screen Styling */
 .welcome-screen {
   text-align: center;
+  max-width: 100%;
 }
 
-/* Title or Reactions Section */
+/* Reactions Section */
 .reactions-screen {
   background-color: #f3f4f6;
   padding: 1rem;

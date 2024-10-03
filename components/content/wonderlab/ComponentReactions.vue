@@ -1,49 +1,58 @@
 <template>
   <div class="relative w-full max-w-3xl bg-white p-6 rounded-lg shadow-md">
     <!-- Display component information dynamically -->
-    <h2 v-if="selectedComponent">
+    <h2 v-if="selectedComponent" class="text-2xl font-semibold">
       Edit Component: {{ selectedComponent?.componentName }}
     </h2>
-    <p v-else>Loading component...</p>
+    <p v-else class="text-lg">Loading component...</p>
 
     <!-- Display form fields for title, notes, and boolean toggles -->
     <div v-if="selectedComponent" class="mt-4">
-      <label class="block mb-2">Title:</label>
+      <label class="block mb-2 text-sm font-medium">Title:</label>
       <input
         v-model="selectedComponent.title"
         type="text"
-        class="w-full p-2 border rounded"
+        class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-primary focus:border-primary"
         @input="updateComponent"
       />
 
-      <label class="block mt-4 mb-2">Notes:</label>
+      <label class="block mt-4 mb-2 text-sm font-medium">Notes:</label>
       <textarea
         v-model="selectedComponent.notes"
-        class="w-full p-2 border rounded"
+        class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-primary focus:border-primary"
         @input="updateComponent"
       ></textarea>
 
-      <div class="mt-4">
-        <label class="mr-2">Is Working:</label>
-        <input
-          v-model="selectedComponent.isWorking"
-          type="checkbox"
-          @change="updateComponent"
-        />
+      <div class="mt-4 flex items-center space-x-4">
+        <label class="flex items-center space-x-2">
+          <input
+            v-model="selectedComponent.isWorking"
+            type="checkbox"
+            class="form-checkbox"
+            @change="updateComponent"
+          />
+          <span>Is Working</span>
+        </label>
 
-        <label class="ml-4 mr-2">Under Construction:</label>
-        <input
-          v-model="selectedComponent.underConstruction"
-          type="checkbox"
-          @change="updateComponent"
-        />
+        <label class="flex items-center space-x-2">
+          <input
+            v-model="selectedComponent.underConstruction"
+            type="checkbox"
+            class="form-checkbox"
+            @change="updateComponent"
+          />
+          <span>Under Construction</span>
+        </label>
 
-        <label class="ml-4 mr-2">Is Broken:</label>
-        <input
-          v-model="selectedComponent.isBroken"
-          type="checkbox"
-          @change="updateComponent"
-        />
+        <label class="flex items-center space-x-2">
+          <input
+            v-model="selectedComponent.isBroken"
+            type="checkbox"
+            class="form-checkbox"
+            @change="updateComponent"
+          />
+          <span>Is Broken</span>
+        </label>
       </div>
     </div>
 
@@ -53,43 +62,46 @@
     >
       <Icon
         name="mdi:thumb-up-outline"
-        class="text-6xl cursor-pointer"
+        class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
         :class="{ 'text-green-500': reactionType === 'CLAPPED' }"
         @click="toggleReaction('CLAPPED')"
       />
       <Icon
         name="mdi:thumb-down-outline"
-        class="text-6xl cursor-pointer"
+        class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
         :class="{ 'text-red-500': reactionType === 'BOOED' }"
         @click="toggleReaction('BOOED')"
       />
       <Icon
         name="mdi:heart-outline"
-        class="text-6xl cursor-pointer"
+        class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
         :class="{ 'text-pink-500': reactionType === 'LOVED' }"
         @click="toggleReaction('LOVED')"
       />
       <Icon
         name="mdi:emoticon-angry-outline"
-        class="text-6xl cursor-pointer"
+        class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
         :class="{ 'text-yellow-500': reactionType === 'HATED' }"
         @click="toggleReaction('HATED')"
       />
     </div>
 
     <!-- Comment Section -->
-    <div class="mt-4 p-4 bg-gray-100">
+    <div class="mt-4 p-4 bg-gray-100 rounded-lg shadow-sm">
       <textarea
         v-model="commentTitle"
         placeholder="Title"
-        class="w-full mb-2 p-2 border border-gray-300 rounded"
+        class="w-full mb-2 p-2 border border-gray-300 rounded focus:ring focus:ring-primary"
       ></textarea>
       <textarea
         v-model="commentDescription"
         placeholder="Add your comment..."
-        class="w-full p-2 border border-gray-300 rounded"
+        class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-primary"
       ></textarea>
-      <button class="btn btn-primary mt-2 w-full" @click="submitComment">
+      <button
+        class="btn btn-primary mt-2 w-full text-white bg-primary hover:bg-primary-focus"
+        @click="submitComment"
+      >
         Submit Comment
       </button>
     </div>

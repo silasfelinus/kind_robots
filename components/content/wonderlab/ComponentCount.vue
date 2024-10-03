@@ -1,7 +1,13 @@
 <template>
-  <div class="component-count">
-    <h1 class="count-title">🗃️ Total Components in Database:</h1>
-    <h2 class="count-number">{{ componentCount }}</h2>
+  <div
+    class="component-count flex flex-col items-center justify-center bg-gray-200 p-10 border-4 border-gray-800 rounded-lg"
+  >
+    <h1 class="count-title text-4xl font-mono text-gray-800 mb-4">
+      🗃️ Total Components in Database:
+    </h1>
+    <h2 class="count-number text-6xl font-bold text-red-500 font-mono">
+      {{ componentCount }}
+    </h2>
   </div>
 </template>
 
@@ -15,30 +21,3 @@ const componentStore = useComponentStore()
 // Compute the total number of components
 const componentCount = computed(() => componentStore.allComponents.length)
 </script>
-
-<style scoped>
-.component-count {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #f0f0f0; /* Light background for contrast */
-  padding: 50px;
-  border: 2px solid #333; /* Brutalist border */
-  border-radius: 8px; /* Optional: Rounded corners */
-}
-
-.count-title {
-  font-size: 48px; /* Big friendly letters */
-  font-family: 'Courier New', Courier, monospace; /* Monospace for a brutalist look */
-  color: #333; /* Dark color for contrast */
-  margin-bottom: 20px;
-}
-
-.count-number {
-  font-size: 72px; /* Even bigger for emphasis */
-  font-weight: bold;
-  color: #e63946; /* Bright color for visibility */
-  font-family: 'Courier New', Courier, monospace; /* Monospace for consistency */
-}
-</style>

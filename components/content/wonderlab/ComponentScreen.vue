@@ -2,7 +2,7 @@
   <div class="p-6 bg-base-300 min-h-screen flex flex-col items-center relative">
     <!-- Back button as overlay at the top of the screen -->
     <button
-      class="absolute top-4 left-4 bg-blue-500 text-white px-4 py-2 rounded"
+      class="absolute top-4 left-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition"
       @click="handleBackButton"
     >
       Back
@@ -22,13 +22,13 @@
     <component
       :is="selectedComponentName"
       v-if="selectedComponentName"
-      class="mb-6"
+      class="mb-6 w-full"
     />
 
     <!-- Display a message if no component is selected -->
     <div
       v-if="!selectedComponentName && !loadingStatus"
-      class="text-center text-lg text-gray-500"
+      class="text-center text-lg text-gray-500 mt-10"
     >
       No component selected.
     </div>
@@ -37,6 +37,7 @@
     <component-reaction
       v-if="selectedComponent"
       :component-id="selectedComponent.id"
+      class="mt-6 w-full"
     />
   </div>
 </template>
@@ -64,6 +65,8 @@ const selectedComponentName = computed(() => {
 watch(selectedComponent, (newComponent) => {
   if (!newComponent) {
     errorMessage.value = 'No component selected.'
+  } else {
+    errorMessage.value = null // Clear error message if a component is selected
   }
 })
 

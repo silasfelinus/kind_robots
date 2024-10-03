@@ -57,6 +57,7 @@ const hardcodedLinks = [
   },
   { title: 'Art Lab', path: '/artmaker', icon: 'game-icons:easel' },
   { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
+  { title: 'Art Gallery', path: '/artgallery', icon: 'game-icons:easel' },
   {
     title: 'Art Challenge',
     path: '/artchallenge',
@@ -72,10 +73,10 @@ const hardcodedLinks = [
     path: '/memory',
     icon: 'material-symbols:art-track-outline-rounded',
   },
-  { title: 'Dashboard', path: '/dashboard', icon: 'mingcute:settings-6-fill' },
   { title: 'Mature Content', path: '/mature', icon: 'fxemoji:lips' },
   { title: 'Wonderlab', path: '/wonderlab', icon: 'game-icons:gear-hammer' },
   { title: 'About', path: '/about', icon: 'game-icons:abstract-037' },
+  { title: 'Dashboard', path: '/dashboard', icon: 'mingcute:settings-6-fill' },
 ]
 
 // Access router to handle navigation

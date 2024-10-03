@@ -15,5 +15,5 @@ sort: highlight
 underConstruction: true
 ---
 
-:photoprism-folders
+:photo-launcher
 :user-galleries

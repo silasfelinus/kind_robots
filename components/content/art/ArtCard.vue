@@ -89,7 +89,7 @@ const selectArt = () => {
 const getArtImage = () => {
   if (props.artImage && props.artImage.imageData) {
     // Assuming the imageData is base64, construct the data URL
-    return `data:image/jpeg;base64,${props.artImage.imageData}`
+    return `data:image/png;base64,${props.artImage.imageData}`
   }
   return '/images/backtree.webp' // Fallback to a placeholder image
 }

@@ -22,12 +22,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRandomColor } from './../../../utils/useRandomColor'
 
 // Define Bubble interface to type bubble objects
 interface Bubble {
   id: number
   x: number
-  y: number
   size: number
   speed: number
   color: string
@@ -35,37 +35,28 @@ interface Bubble {
 
 // Array of bubbles typed as Bubble[]
 const bubbles = ref<Bubble[]>([])
-const MAX_BUBBLES = 30 // Increased number of bubbles
-const MAX_SIZE = 120 // Larger bubble size
-
-// DaisyUI color palette excluding bg-base-300
-const daisyColors = [
-  'var(--b-info)', // bg-info
-  'var(--b-accent)', // bg-accent
-  'var(--b-primary)', // bg-primary
-  'var(--b-secondary)', // bg-secondary
-]
+const MAX_BUBBLES = 20
 
 // Function to create a new bubble
 const createBubble = () => {
   if (bubbles.value.length < MAX_BUBBLES) {
-    const size = Math.random() * (MAX_SIZE - 30) + 30 // Larger bubble sizes
+    const size = Math.random() * 50 + 10
     const x = Math.random() * 100
-    const y = Math.random() * 100 // Random Y start positions
-    const speed = Math.random() * 8 + 4 // Slow down speed for better visibility
-    const color = daisyColors[Math.floor(Math.random() * daisyColors.length)] // Random DaisyUI color
+    const speed = Math.random() * 6 + 4
+    const { randomColor } = useRandomColor()
+    const color = randomColor.value
 
-    bubbles.value.push({ id: Date.now(), x, y, size, speed, color }) // Push new bubble into bubbles array
+    bubbles.value.push({ id: Date.now(), x, size, speed, color }) // Push new bubble into bubbles array
   }
 }
 
 // Bubble style computation with typed bubble parameter
 const bubbleStyle = (bubble: Bubble) => ({
-  left: `${bubble.x}vw`,
-  top: `${bubble.y}vh`, // Bubbles start at random Y positions
-  width: `${bubble.size}px`,
-  height: `${bubble.size}px`,
-  animationDuration: `${bubble.speed}s`,
+  left: ${bubble.x}vw,
+  bottom: '-10vw', // bubbles start off-screen
+  width: ${bubble.size}vw,
+  height: ${bubble.size}vw,
+  animationDuration: ${bubble.speed}s,
 })
 
 // Type for bubbleCreationInterval, explicitly cast setInterval to number
@@ -75,7 +66,7 @@ onMounted(() => {
   for (let i = 0; i < MAX_BUBBLES; i++) {
     createBubble()
   }
-  bubbleCreationInterval = setInterval(createBubble, 2000) as unknown as number // Speed up bubble creation
+  bubbleCreationInterval = setInterval(createBubble, 3000) as unknown as number
 })
 
 onBeforeUnmount(() => {
@@ -112,7 +103,7 @@ onBeforeUnmount(() => {
     transform: translateY(0);
   }
   100% {
-    transform: translateY(-200vh); /* Increased translation for longer travel */
+    transform: translateY(-100vh);
   }
 }
 

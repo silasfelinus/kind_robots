@@ -82,9 +82,10 @@ const displayStore = useDisplayStore()
 watch(
   () => selectedArtSection.value,
   (section) => {
-    debugMessage.value = section ? ${section} selected : 'No section selected'
-  },
+    debugMessage.value = section ? `${section} selected` : 'No section selected'
+  }
 )
+
 
 // Handle when a section is closed
 const handleSectionClose = () => {

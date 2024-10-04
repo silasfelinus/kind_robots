@@ -1,7 +1,7 @@
 <template>
   <div
     class="bot-factory-container flex flex-col z-10"
-    :style="{ height: displayStore.mainHeight, width: displayStore.
+    :style="{ height: displayStore.mainHeight, width: displayStore.mainWidth }"
     <transition name="flip">
 
       <div class="flex-grow">
@@ -30,19 +30,19 @@
         <div class="bot-sections flex-grow overflow-auto">
           <!-- Add Bot Screen -->
           <lazy-add-bot
-            v-show="selectedBotSection === 'add-bot'"
+            v-if="selectedBotSection === 'add-bot'"
             @close="handleSectionClose"
           ></lazy-add-bot>
 
           <!-- Kind Robot Screen -->
           <lazy-kind-robot
-            v-show="selectedBotSection === 'kind-robot'"
+            v-if="selectedBotSection === 'kind-robot'"
             @close="handleSectionClose"
           ></lazy-kind-robot>
 
           <!-- Bot Gallery Screen -->
           <lazy-bot-gallery
-            v-show="selectedBotSection === 'bot-gallery'"
+            v-if="selectedBotSection === 'bot-gallery'"
             @close="handleSectionClose"
           ></lazy-bot-gallery>
         </div>

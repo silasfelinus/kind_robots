@@ -2,18 +2,19 @@
   <div
     class="bot-factory-container flex flex-col z-10"
     :style="{ height: displayStore.mainHeight, width: displayStore.mainWidth }"
+  >
     <transition name="flip">
-
       <div class="flex-grow">
         <!-- Bot Factory Section Titles (Fixed at the top) -->
         <div class="flex justify-center space-x-1 mb-2">
-          <button class="btn btn-primary" @click="selectBotSection('add-bot')">
+          <button class="btn btn-primary" @click="selectBotSection('add-bot')" :aria-selected="selectedBotSection === 'add-bot'">
             Add Bot
           </button>
 
           <button
             class="btn btn-secondary"
             @click="selectBotSection('kind-robot')"
+            :aria-selected="selectedBotSection === 'kind-robot'"
           >
             Kind Robot
           </button>
@@ -21,6 +22,7 @@
           <button
             class="btn btn-accent"
             @click="selectBotSection('bot-gallery')"
+            :aria-selected="selectedBotSection === 'bot-gallery'"
           >
             Bot Gallery
           </button>
@@ -55,12 +57,10 @@
 import { ref, onMounted, watch } from 'vue'
 import { useDisplayStore } from './../../../stores/displayStore'
 
-
 const selectedBotSection = ref<string | null>(null) // Track selected section (add-bot, kind-robot, bot-gallery)
 
 // Access the display store
 const displayStore = useDisplayStore()
-
 
 // Handle when a section is closed
 const handleSectionClose = () => {
@@ -71,7 +71,6 @@ const handleSectionClose = () => {
 const selectBotSection = (section: string) => {
   selectedBotSection.value = section
 }
-
 </script>
 
 <style scoped>

@@ -91,6 +91,6 @@ const getArtImage = () => {
     // Assuming the imageData is base64, construct the data URL
     return `data:image/jpeg;base64,${props.artImage.imageData}`
   }
-  return '/placeholder.jpg' // Fallback to a placeholder image
+  return '/images/backtree.webp' // Fallback to a placeholder image
 }
 </script>

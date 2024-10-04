@@ -1,19 +1,12 @@
 <template>
   <div
     class="bot-factory-container flex flex-col z-10"
-    :style="{ height: displayStore.mainHeight, width: displayStore.mainWidth}"
-  >
-    <!-- Loading State -->
-    <div v-if="isLoading" class="flex justify-center items-center h-full">
-      <Icon name="mdi:loading" class="animate-spin text-4xl" />
-      Loading...
-    </div>
-
-    <!-- Show content when not loading -->
+    :style="{ height: displayStore.mainHeight, width: displayStore.
     <transition name="flip">
-      <div v-if="!isLoading" class="flex-grow">
+
+      <div class="flex-grow">
         <!-- Bot Factory Section Titles (Fixed at the top) -->
-        <div class="flex justify-center space-x-4 mb-4">
+        <div class="flex justify-center space-x-1 mb-2">
           <button class="btn btn-primary" @click="selectBotSection('add-bot')">
             Add Bot
           </button>
@@ -55,11 +48,6 @@
         </div>
       </div>
     </transition>
-
-    <!-- Debug Message -->
-    <div v-if="debugMessage" class="text-blue-500 mt-4">
-      {{ debugMessage }}
-    </div>
   </div>
 </template>
 
@@ -67,21 +55,12 @@
 import { ref, onMounted, watch } from 'vue'
 import { useDisplayStore } from './../../../stores/displayStore'
 
-// State variables
-const isLoading = ref(true)
-const debugMessage = ref<string | null>(null) // For debugging the initialization process
+
 const selectedBotSection = ref<string | null>(null) // Track selected section (add-bot, kind-robot, bot-gallery)
 
 // Access the display store
 const displayStore = useDisplayStore()
 
-// Watch for selected section and update the debug message
-watch(
-  () => selectedBotSection.value,
-  (section) => {
-    debugMessage.value = section ? `${section} selected` : 'No section selected'
-  },
-)
 
 // Handle when a section is closed
 const handleSectionClose = () => {
@@ -93,12 +72,6 @@ const selectBotSection = (section: string) => {
   selectedBotSection.value = section
 }
 
-// Simulate initialization process (e.g., loading content)
-onMounted(() => {
-  setTimeout(() => {
-    isLoading.value = false // Set loading to false after 1 second
-  }, 1000)
-})
 </script>
 
 <style scoped>
@@ -119,7 +92,6 @@ onMounted(() => {
 
 .bot-sections {
   padding: 1rem;
-  max-height: 80vh; /* Adjust as needed */
 }
 
 @media (max-width: 600px) {

@@ -48,8 +48,7 @@ import { useRouter } from 'vue-router'
 // Hardcoded sidebar links
 const hardcodedLinks = [
   { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
-  { title: 'Add Bot', path: '/addbot', icon: 'fluent:bot-add-20-regular' },
-  { title: 'Bot Cafe', path: '/botcafe', icon: 'mdi:chat-processing' },
+  { title: 'Bot Factory', path: '/botcafe', icon: 'fluent:bot-add-20-regular' },
   {
     title: 'Pitch Manager',
     path: '/pitch',

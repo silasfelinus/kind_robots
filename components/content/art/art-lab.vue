@@ -1,6 +1,6 @@
 <template>
   <div
-    class="art-lab-container flex flex-col"
+    class="art-lab-container flex flex-col z-10"
     :style="{ height: displayStore.mainHeight }"
   >
     <!-- Loading State -->

@@ -18,7 +18,7 @@ export async function uploadArtImage(
     const fileName = `${galleryName}-${timestamp}${extension}`
 
     // Save to the local filesystem (if not in production)
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.APP_ENV !== 'production') {
       const dirPath = path.join(
         process.env.IMAGES_PATH || './public/images',
         galleryName,

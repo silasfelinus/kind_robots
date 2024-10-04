@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-primary border-1 border-accent rounded-2xl p-1 m-1 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer"
+    class="bg-primary border-1 border-accent overflow-y-auto rounded-2xl p-1 m-1 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer"
     @click="selectArt"
   >
     <!-- Art Information -->

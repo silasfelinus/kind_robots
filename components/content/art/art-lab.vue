@@ -11,7 +11,7 @@
 
     <!-- Show content when not loading -->
     <transition name="flip">
-      <div v-if="!isLoading" class="flex-grow">
+      <div v-if="!isLoading" class="flex flex-col h-full">
         <!-- Art Section Buttons (Fixed at the top) -->
         <div class="flex justify-center space-x-4 mb-4">
           <button
@@ -37,7 +37,7 @@
         </div>
 
         <!-- Art Sections -->
-        <div class="art-sections flex-grow overflow-auto">
+        <div class="art-sections flex-grow overflow-y-auto">
           <!-- Art Maker Screen -->
           <lazy-art-maker
             v-show="selectedArtSection === 'art-maker'"
@@ -66,44 +66,6 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { useDisplayStore } from './../../../stores/displayStore'
-
-// State variables
-const isLoading = ref(true)
-const debugMessage = ref<string | null>(null) // For debugging the initialization process
-const selectedArtSection = ref<string | null>(null) // Track selected section (art-maker, art-collection, art-gallery)
-
-// Access the display store
-const displayStore = useDisplayStore()
-
-// Watch for selected section and update the debug message
-watch(
-  () => selectedArtSection.value,
-  (section) => {
-    debugMessage.value = section ? `${section} selected` : 'No section selected'
-  },
-)
-
-// Handle when a section is closed
-const handleSectionClose = () => {
-  selectedArtSection.value = null
-}
-
-// Select the section (art-maker, art-collection, art-gallery)
-const selectArtSection = (section: string) => {
-  selectedArtSection.value = section
-}
-
-// Simulate initialization process (e.g., loading content)
-onMounted(() => {
-  setTimeout(() => {
-    isLoading.value = false // Set loading to false after 1 second
-  }, 1000)
-})
-</script>
-
 <style scoped>
 .art-lab-container {
   width: 100%;
@@ -121,8 +83,9 @@ onMounted(() => {
 }
 
 .art-sections {
+  height: 100%; /* Ensures it respects the parent's height */
+  overflow-y: auto; /* Allow scrolling inside */
   padding: 1rem;
-  max-height: 80vh; /* Adjust as needed */
 }
 
 @media (max-width: 600px) {

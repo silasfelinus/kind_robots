@@ -52,12 +52,13 @@ const createBubble = () => {
 
 // Bubble style computation with typed bubble parameter
 const bubbleStyle = (bubble: Bubble) => ({
-  left: ${bubble.x}vw,
-  bottom: '-10vw', // bubbles start off-screen
-  width: ${bubble.size}vw,
-  height: ${bubble.size}vw,
-  animationDuration: ${bubble.speed}s,
+  left: `${bubble.x}vw`,   // Add backticks around interpolations
+  bottom: '-10vw',         // This one is fine as it's a string
+  width: `${bubble.size}vw`, // Add backticks
+  height: `${bubble.size}vw`, // Add backticks
+  animationDuration: `${bubble.speed}s`, // Add backticks
 })
+
 
 // Type for bubbleCreationInterval, explicitly cast setInterval to number
 let bubbleCreationInterval: number | null = null

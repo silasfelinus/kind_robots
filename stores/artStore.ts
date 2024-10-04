@@ -122,71 +122,75 @@ export const useArtStore = defineStore({
           'Failed to fetch art.'
         );
       },
-       // Add art to localStorage for generatedArt
-    async generateArt(artData?: GenerateArtData): Promise<{ success: boolean; message?: string; newArt?: Art; newArtImage?: ArtImage }> {
-      const promptStore = usePromptStore();
-      const userStore = useUserStore();
-      const errorStore = useErrorStore();
+      async generateArt(artData?: GenerateArtData): Promise<{ success: boolean; message?: string; newArt?: Art; newArtImage?: ArtImage }> {
+        const promptStore = usePromptStore();
+        const userStore = useUserStore();
+        const errorStore = useErrorStore();
+        
+        // Set loading to true before starting the generation process
+        this.loading = true;
+        
+        const data = {
+          promptString: artData?.promptString || promptStore.promptField,
+          pitch: artData?.pitch || this.extractPitch(promptStore.promptField),
+          userId: artData?.userId || userStore.user?.id || 10,
+          galleryId: artData?.galleryId,
+          checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4',
+          sampler: artData?.sampler || 'k_lms',
+          steps: artData?.steps || 50,
+          designer: artData?.designer || 'AI Art Designer',
+          cfg: artData?.cfg || 7,
+          cfgHalf: artData?.cfgHalf || false,
+          isMature: artData?.isMature || false,
+          isPublic: artData?.isPublic || true
+        };
       
-      // Set loading to true before starting the generation process
-      this.loading = true;
+        if (!this.validatePromptString(data.promptString)) {
+          return { success: false, message: 'Invalid prompt' };
+        }
       
-      const data = {
-        promptString: artData?.promptString || promptStore.promptField,
-        pitch: artData?.pitch || this.extractPitch(promptStore.promptField),
-        userId: artData?.userId || userStore.user?.id || 10,
-        galleryId: artData?.galleryId,
-        checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4',
-        sampler: artData?.sampler || 'k_lms',
-        steps: artData?.steps || 50,
-        designer: artData?.designer || 'AI Art Designer',
-        cfg: artData?.cfg || 7,
-        cfgHalf: artData?.cfgHalf || false,
-        isMature: artData?.isMature || false,
-        isPublic: artData?.isPublic || true
-      };
-
-      if (!this.validatePromptString(data.promptString)) {
-        return { success: false, message: 'Invalid prompt' };
-      }
-
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch('/api/art/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-
-          if (response.ok) {
-            const result = await response.json();
-
-            if (result.art) {
-              this.generatedArt.push(result.art);
-
-              // Store updated generatedArt in localStorage
-              if (isClient) {
-                localStorage.setItem('generatedArt', JSON.stringify(this.generatedArt));
+        return errorStore.handleError(
+          async () => {
+            const response = await fetch('/api/art/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+      
+            if (response.ok) {
+              const result = await response.json();
+      
+              if (result.art) {
+                // Push the new art into the art array
+                this.art.push(result.art);
+                this.generatedArt.push(result.art);
+      
+                // Update localStorage to persist changes
+                if (isClient) {
+                  localStorage.setItem('art', JSON.stringify(this.art));
+                  localStorage.setItem('generatedArt', JSON.stringify(this.generatedArt));
+                }
+      
+                // Handle any new art image
+                if (result.artImage) {
+                  this.artImages.push(result.artImage);
+                }
               }
-
-              if (result.artImage) {
-                this.artImages.push(result.artImage);
-              }
+      
+              return { success: true, newArt: result.art, newArtImage: result.artImage };
+            } else {
+              const errorResponse = await response.json();
+              return { success: false, message: errorResponse.message };
             }
-
-            return { success: true, newArt: result.art, newArtImage: result.artImage };
-          } else {
-            const errorResponse = await response.json();
-            return { success: false, message: errorResponse.message };
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to generate art.'
-      ).finally(() => {
-        // Ensure loading is set to false after completion
-        this.loading = false;
-      });
-    },
+          },
+          ErrorType.NETWORK_ERROR,
+          'Failed to generate art.'
+        ).finally(() => {
+          // Ensure loading is set to false after completion
+          this.loading = false;
+        });
+      },
+      
 
     // Select a specific art piece by ID
     selectArt(artId: number) {

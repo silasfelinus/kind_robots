@@ -1,5 +1,5 @@
 <template>
-  <div class="main-layout h-screen overflow-hidden bg-base-300">
+  <div class="main-layout h-screen bg-base-300">
     <!-- Loaders -->
     <kind-loader></kind-loader>
     <animation-loader></animation-loader>
@@ -15,7 +15,7 @@
     >
       <!-- Header -->
       <header
-        class="bg-base-300 flex items-center justify-between w-full p-2"
+        class="bg-base-300 flex items-center fixed justify-between w-full p-2"
         :style="{ gridRow: '1 / 2', height: headerHeight }"
       >
         <!-- Sidebar Toggle -->
@@ -31,13 +31,13 @@
 
       <!-- Sidebar left -->
       <kind-sidebar-simple
-        class="bg-base-300 overflow-y-auto"
+        class="bg-base-300 overflow-y-hidden"
         :style="{ gridRow: '2 / 3', width: sidebarLeftWidth }"
       ></kind-sidebar-simple>
 
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-300 p-4 rounded-2xl overflow-y-auto z-10"
+        class="bg-base-300 p-4 rounded-2xl z-10"
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
@@ -58,7 +58,7 @@
           <div class="h-full rounded-2xl">
             <SplashTutorial class="h-full w-full" />
           </div>
-          <div class="h-full overflow-y-auto rounded-2xl">
+          <div class="h-full rounded-2xl">
             <NuxtPage class="h-full w-full" />
           </div>
         </div>
@@ -80,7 +80,7 @@
 
       <!-- Sidebar right -->
       <aside
-        class="bg-base-300 overflow-y-auto"
+        class="bg-base-300"
         :style="{ gridRow: '2 / 3', width: sidebarRightWidth }"
       ></aside>
 
@@ -114,7 +114,6 @@ const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 
 // Mobile detection
 const isMobile = computed(() => displayStore.isMobileViewport)
-
 </script>
 
 <style scoped>
@@ -155,5 +154,4 @@ const isMobile = computed(() => displayStore.isMobileViewport)
   transform: rotateY(180deg);
   z-index: 1; /* Keep back side behind the front side */
 }
-
 </style>

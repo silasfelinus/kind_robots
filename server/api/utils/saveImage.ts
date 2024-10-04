@@ -26,7 +26,7 @@ export async function saveImage(
     })
 
     // Optionally save to the local filesystem in development
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.APP_ENV !== 'production') {
       const dirPath = path.join(
         process.env.IMAGES_PATH || './public/images',
         galleryName,

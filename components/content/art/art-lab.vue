@@ -66,6 +66,43 @@
   </div>
 </template>
 
+<script setup lang="ts">
+import { ref, onMounted, watch } from 'vue'
+import { useDisplayStore } from './../../../stores/displayStore'
+
+// State variables
+const isLoading = ref(true)
+const debugMessage = ref<string | null>(null) // For debugging the initialization process
+const selectedArtSection = ref<string | null>(null) // Track selected section (art-maker, art-collection, art-gallery)
+
+// Access the display store
+const displayStore = useDisplayStore()
+
+// Watch for selected section and update the debug message
+watch(
+  () => selectedArtSection.value,
+  (section) => {
+    debugMessage.value = section ? ${section} selected : 'No section selected'
+  },
+)
+
+// Handle when a section is closed
+const handleSectionClose = () => {
+  selectedArtSection.value = null
+}
+
+// Select the section (art-maker, art-collection, art-gallery)
+const selectArtSection = (section: string) => {
+  selectedArtSection.value = section
+}
+
+// Simulate initialization process (e.g., loading content)
+onMounted(() => {
+  setTimeout(() => {
+    isLoading.value = false // Set loading to false after 1 second
+  }, 1000)
+})
+</script>
 <style scoped>
 .art-lab-container {
   width: 100%;

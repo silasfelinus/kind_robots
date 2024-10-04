@@ -1,7 +1,7 @@
 <template>
   <div
     class="bot-factory-container flex flex-col z-10"
-    :style="{ height: displayStore.mainHeight }"
+    :style="{ height: displayStore.mainHeight, width: displayStore.mainWidth}"
   >
     <!-- Loading State -->
     <div v-if="isLoading" class="flex justify-center items-center h-full">

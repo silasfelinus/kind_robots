@@ -42,7 +42,13 @@
           >
             Send
           </button>
-          <span v-if="error" class="text-red-500 text-sm">{{ error }}</span>
+          <span v-if="error" class="text-red-500 text-sm">
+            {{
+              error === 'Failed to send the message. Please try again.'
+                ? 'Could not connect to the chatbot API. Please check your internet connection or try again later.'
+                : error
+            }}
+          </span>
         </div>
       </div>
 

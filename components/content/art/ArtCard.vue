@@ -38,7 +38,7 @@
     </div>
 
     <!-- Art Details Toggle Section -->
-    <div v-if="showDetails" class="mt-4 p-4 bg-base-200 rounded-xl">
+    <div v-if="showDetails" class="mt-4 p-4 bg-base-200 overflow-y-auto rounded-xl">
       <pre class="text-sm whitespace-pre-wrap">
         {{ artData }}
       </pre>

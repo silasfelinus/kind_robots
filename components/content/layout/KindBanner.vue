@@ -23,7 +23,6 @@
 </template>
 
 <script setup>
-import { useContent } from '@/stores/contentStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Get page data and display size from the stores

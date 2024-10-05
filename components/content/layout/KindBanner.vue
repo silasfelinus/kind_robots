@@ -4,7 +4,8 @@
   >
     <!-- Display the image if it exists, otherwise use default -->
     <img
-      :src="imageUrl"
+      v-if="page && page.image"
+      :src="'/images/' + page.image"
       alt="Page banner image"
       class="banner-image object-cover rounded-lg mr-4"
     />
@@ -23,11 +24,6 @@
 
 <script setup>
 const { page } = useContent()
-
-// Computed property to handle image URL dynamically
-const imageUrl = computed(() =>
-  page.image ? `/images/${page.image}` : '/images/botcafe.webp',
-)
 </script>
 
 <style scoped>

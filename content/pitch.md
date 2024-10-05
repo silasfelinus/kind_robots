@@ -3,7 +3,7 @@ title: 'Prompt Factory'
 subtitle: 'Organize and share your AI-prompts'
 description: 'Prompt Factory is a user-friendly organizer for adding, editing, and sharing AI art and text prompts.'
 gallery: 'cafepurr'
-image: 'botcat.webp'
+image: 'weirdlandia/weird1.png'
 tags: ['home']
 layout: 'vertical-scroll'
 icon: fluent:chat-bubbles-question-16-regular

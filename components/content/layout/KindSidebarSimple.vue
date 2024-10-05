@@ -50,7 +50,7 @@ const hardcodedLinks = [
   { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
   { title: 'Bot Factory', path: '/botcafe', icon: 'fluent:bot-add-20-regular' },
   {
-    title: 'Pitch Manager',
+    title: 'Prompt Collector',
     path: '/pitch',
     icon: 'fluent:chat-bubbles-question-16-regular',
   },

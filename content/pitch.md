@@ -14,5 +14,5 @@ amitip: 'Short? Fun? Open-Ended?'
 sort: highlight
 ---
 
-:pitch-factory
+:prompt-factory
 

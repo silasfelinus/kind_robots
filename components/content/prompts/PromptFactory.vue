@@ -1,9 +1,9 @@
 <template>
   <div
-    class="prompt-factory-container flex flex-col items-center min-h-screen p-4"
+    class="prompt-factory-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
   >
-    <!-- Prompt Factory Header -->
-    <h1 class="text-5xl font-bold mb-4 text-primary">Prompt Factory</h1>
+    <!-- Kind Banner for consistent styling across components -->
+    <kind-banner />
 
     <!-- Tabs for toggling components -->
     <div
@@ -26,27 +26,12 @@
 
     <!-- Components section with scrollable content -->
     <div
-      class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-4 sm:p-2"
+      class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6"
     >
-      <!-- Pitch Gallery Screen -->
-      <div v-if="activeTab === 'pitch-gallery'">
-        <LazyPitchGallery />
-      </div>
-
-      <!-- Add Pitch Screen -->
-      <div v-if="activeTab === 'add-pitch'">
-        <LazyAddPitch />
-      </div>
-
-      <!-- Art Challenge Screen -->
-      <div v-if="activeTab === 'art-challenge'">
-        <LazyArtChallenge />
-      </div>
-
-      <!-- Brainstorm Screen -->
-      <div v-if="activeTab === 'brainstorm-game'">
-        <LazyBrainstormGame />
-      </div>
+      <LazyPitchGallery v-if="activeTab === 'pitch-gallery'" />
+      <LazyAddPitch v-if="activeTab === 'add-pitch'" />
+      <LazyArtChallenge v-if="activeTab === 'art-challenge'" />
+      <LazyBrainstormGame v-if="activeTab === 'brainstorm-game'" />
     </div>
   </div>
 </template>
@@ -64,35 +49,3 @@ const tabs = [
 
 const activeTab = ref('pitch-gallery') // Default to the first tab
 </script>
-
-<style scoped>
-.prompt-factory-container {
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Responsive padding and scroll adjustments for the components section */
-.components-section {
-  height: 100%;
-  overflow-y: auto;
-}
-
-/* Responsive adjustments for spacing and padding */
-@media (max-width: 600px) {
-  .components-section {
-    padding: 0.5rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .components-section {
-    padding: 1rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .components-section {
-    padding: 1.5rem;
-  }
-}
-</style>

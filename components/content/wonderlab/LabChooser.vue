@@ -1,20 +1,19 @@
 <template>
   <div
-    class="wonderlab-container flex flex-col items-center min-h-screen bg-base-200 p-4"
+    class="wonderlab-container flex flex-col items-center min-h-screen p-4 w-full overflow-hidden"
   >
-    <!-- Wonderlab Header -->
-    <h1 class="text-5xl font-bold mb-4 text-primary">Wonderlab</h1>
+    <!-- Wonderlab Banner -->
+    <kind-banner />
 
-    <!-- Tabs for toggling components (Always at the top) -->
+    <!-- Tabs for toggling components -->
     <div
-      class="flex justify-center space-x-2 sm:space-x-1 md:space-x-4 lg:space-x-6 w-full max-w-4xl mb-6"
-      :style="{ height: headerHeight }"
+      class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full mb-3"
     >
       <button
         v-for="tab in tabs"
         :key="tab.name"
         :class="[
-          'px-4 py-2 sm:px-2 md:px-4 lg:px-6 text-lg font-semibold rounded-lg',
+          'px-2 md:px-4 lg:px-6 text-lg font-semibold border-accent rounded-lg',
           tab.name === activeTab
             ? 'bg-primary text-white'
             : 'bg-accent hover:bg-secondary text-white',
@@ -27,71 +26,24 @@
 
     <!-- Components section with scrollable content -->
     <div
-      class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-4 sm:p-2"
-      :style="{ height: mainHeight }"
+      class="flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6 h-full"
     >
-      <div v-show="activeTab === 'store-tester'">
-        <LazyStoreTester />
-      </div>
-      <div v-show="activeTab === 'animation-tester'">
-        <LazyAnimationTester />
-      </div>
-      <div v-show="activeTab === 'wonder-lab'">
-        <LazyWonderLab />
-      </div>
+      <LazyStoreTester v-if="activeTab === 'store-tester'" />
+      <LazyAnimationTester v-if="activeTab === 'animation-tester'" />
+      <LazyWonderLab v-if="activeTab === 'wonder-lab'" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
+import { ref } from 'vue'
 
-// Access the display store for dynamic header and main content height
-const displayStore = useDisplayStore()
-
-// Tabs setup
+// Tabs setup for Wonderlab
 const tabs = [
   { name: 'store-tester', label: 'Store Tester' },
   { name: 'animation-tester', label: 'Animation Tester' },
   { name: 'wonder-lab', label: 'Wonder Lab' },
 ]
 
-const activeTab = ref('store-tester')
-
-// Compute the header and main content heights from the display store
-const headerHeight = computed(() => displayStore.headerHeight)
-const mainHeight = computed(() => displayStore.mainHeight)
+const activeTab = ref('store-tester') // Default to the first tab
 </script>
-
-<style scoped>
-.wonderlab-container {
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Responsive padding and scroll adjustments for the components section */
-.components-section {
-  height: 100%;
-  overflow-y: auto;
-}
-
-/* Responsive adjustments for spacing and padding */
-@media (max-width: 600px) {
-  .components-section {
-    padding: 0.5rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .components-section {
-    padding: 1rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .components-section {
-    padding: 1.5rem;
-  }
-}
-</style>

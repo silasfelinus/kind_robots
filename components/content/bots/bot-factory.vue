@@ -1,104 +1,49 @@
 <template>
   <div
-    class="bot-factory-container flex flex-col z-10"
-    :style="{ height: displayStore.mainHeight, width: displayStore.mainWidth }"
+    class="bot-factory-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
   >
-    <!-- Bot Factory Section Titles -->
-    <div class="flex justify-center space-x-2 mb-4 lg:space-x-4 md:space-x-3 sm:space-x-1">
-      <button
-        class="btn btn-primary border-1 border-accent px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6"
-        :aria-selected="selectedBotSection === 'add-bot'"
-        @click="selectBotSection('add-bot')"
-      >
-        Add Bot
-      </button>
+    <!-- Bot Factory Header -->
+    <kind-banner />
 
+    <!-- Section Buttons -->
+    <div
+      class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full mb-3"
+    >
       <button
-        class="btn btn-secondary border-1 border-accent px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6"
-        :aria-selected="selectedBotSection === 'kind-robot'"
-        @click="selectBotSection('kind-robot')"
+        v-for="tab in tabs"
+        :key="tab.name"
+        :class="[
+          'px-2 md:px-4 lg:px-6 text-lg font-semibold border-accent rounded-lg',
+          tab.name === activeTab
+            ? 'bg-primary text-white'
+            : 'bg-info hover:bg-secondary text-white',
+        ]"
+        @click="activeTab = tab.name"
       >
-        Kind Robot
-      </button>
-
-      <button
-        class="btn btn-info border-1 border-accent px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6"
-        :aria-selected="selectedBotSection === 'bot-gallery'"
-        @click="selectBotSection('bot-gallery')"
-      >
-        Bot Gallery
+        {{ tab.label }}
       </button>
     </div>
 
     <!-- Bot Sections -->
-    <div class="bot-sections flex-grow overflow-y-auto">
-      <!-- Add Bot Screen -->
-      <lazy-add-bot
-        v-if="selectedBotSection === 'add-bot'"
-        @close="handleSectionClose"
-      ></lazy-add-bot>
-
-      <!-- Kind Robot Screen -->
-      <lazy-kind-robot
-        v-if="selectedBotSection === 'kind-robot'"
-        @close="handleSectionClose"
-      ></lazy-kind-robot>
-
-      <!-- Bot Gallery Screen -->
-      <lazy-bot-gallery
-        v-if="selectedBotSection === 'bot-gallery'"
-        @close="handleSectionClose"
-      ></lazy-bot-gallery>
+    <div
+      class="bot-sections flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6"
+    >
+      <lazy-add-bot v-if="activeTab === 'add-bot'" />
+      <lazy-kind-robot v-if="activeTab === 'kind-robot'" />
+      <lazy-bot-gallery v-if="activeTab === 'bot-gallery'" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDisplayStore } from './../../../stores/displayStore'
 
-const selectedBotSection = ref<string | null>(null) // Track selected section (add-bot, kind-robot, bot-gallery)
+// Tabs setup for Bot Factory
+const tabs = [
+  { name: 'add-bot', label: 'Add Bot' },
+  { name: 'kind-robot', label: 'Kind Robot' },
+  { name: 'bot-gallery', label: 'Bot Gallery' },
+]
 
-// Access the display store
-const displayStore = useDisplayStore()
-
-// Handle when a section is closed
-const handleSectionClose = () => {
-  selectedBotSection.value = null
-}
-
-// Select the section (add-bot, kind-robot, bot-gallery)
-const selectBotSection = (section: string) => {
-  selectedBotSection.value = section
-}
+const activeTab = ref('add-bot') // Default to the first tab
 </script>
-
-<style scoped>
-.bot-factory-container {
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Bot Sections Padding */
-.bot-sections {
-  padding: 1rem;
-}
-
-/* Responsive Padding */
-@media (max-width: 600px) {
-  .bot-sections {
-    padding: 0.5rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .bot-sections {
-    padding: 1.5rem;
-  }
-}
-@media (min-width: 1024px) {
-  .bot-sections {
-    padding: 2rem;
-  }
-}
-</style>

@@ -1,7 +1,6 @@
 <template>
   <div
-    class="banner-container flex items-center bg-primary text-white px-4 py-3 rounded-lg shadow-lg w-full mb-6"
-    :style="{ maxHeight: `${displayStore.mainHeight / 15}px` }"
+    class="banner-container flex items-center h-1/4 border-accent border-1 bg-primary text-white px-4 py-3 rounded-lg shadow-lg w-full mb-6"
   >
     <!-- Display the image if it exists, otherwise use default -->
     <img
@@ -23,11 +22,8 @@
 </template>
 
 <script setup>
-import { useDisplayStore } from '@/stores/displayStore'
-
 // Get page data and display size from the stores
 const { page } = useContent()
-const displayStore = useDisplayStore()
 
 // Set the default image path and handle page.image prefix logic
 const imageUrl = page.image ? `/images/${page.image}` : '/images/botcafe.webp'

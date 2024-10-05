@@ -22,11 +22,6 @@
         <div class="p-1 text-white flex-grow flex justify-center">
           <sidebar-toggle class="text-4xl"></sidebar-toggle>
         </div>
-
-        <!-- Nav Links -->
-        <div class="flex-grow flex justify-center items-center w-2/3 space-x-4">
-          <nav-links></nav-links>
-        </div>
       </header>
 
       <!-- Sidebar left -->
@@ -37,7 +32,7 @@
 
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-100 p-2 rounded-2xl z-10 overflow-y-auto" 
+        class="bg-base-100 p-2 rounded-2xl z-10 overflow-y-auto"
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
@@ -50,7 +45,10 @@
             v-if="showTutorial"
             class="h-full w-full z-10 rounded-2xl"
           />
-          <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
+          <NuxtPage
+            v-else
+            class="h-full w-full z-10 overflow-y-auto rounded-2xl"
+          />
         </div>
 
         <!-- Fullscreen mode (Desktop) -->
@@ -96,7 +94,6 @@
   </div>
   <kind-buttons></kind-buttons>
 </template>
-
 
 <script setup lang="ts">
 import { computed } from 'vue'

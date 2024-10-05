@@ -29,17 +29,17 @@
       class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-4 sm:p-2"
     >
       <!-- Pitch Gallery Screen -->
-      <div v-show="activeTab === 'pitch-gallery'">
+      <div v-if="activeTab === 'pitch-gallery'">
         <LazyPitchGallery />
       </div>
 
       <!-- Add Pitch Screen -->
-      <div v-show="activeTab === 'add-pitch'">
+      <div v-if="activeTab === 'add-pitch'">
         <LazyAddPitch />
       </div>
 
       <!-- Art Challenge Screen -->
-      <div v-show="activeTab === 'art-challenge'">
+      <div v-if="activeTab === 'art-challenge'">
         <LazyArtChallenge />
       </div>
     </div>

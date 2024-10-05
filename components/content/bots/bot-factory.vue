@@ -95,7 +95,7 @@ const selectBotSection = (section: string) => {
   .bot-sections {
     padding: 1.5rem;
   }
-
+}
 @media (min-width: 1024px) {
   .bot-sections {
     padding: 2rem;

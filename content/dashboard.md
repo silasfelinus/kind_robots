@@ -14,5 +14,4 @@ amitip: "Even I've got a bungalo in the cloud where I unwind."
 sort: highlight
 ---
 
-:user-dashboard
-:jellybean-counter
+:dashboard-chooser

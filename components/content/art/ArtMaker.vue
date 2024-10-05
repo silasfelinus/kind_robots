@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-base-300 shadow-xl rounded-3xl border border-base-200 z-10 p-6 text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105"
+    class="bg-base-300 shadow-xl rounded-3xl border overflow-y-auto border-base-200 z-10 p-6 text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105"
   >
     <h1 class="text-3xl font-bold m-6 text-center text-primary">
       🎨 Welcome to the Art-Maker

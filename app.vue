@@ -23,7 +23,6 @@
           <sidebar-toggle class="text-4xl"></sidebar-toggle>
         </div>
         <header-upgrade />
-        <kind-banner />
       </header>
 
       <!-- Sidebar left -->

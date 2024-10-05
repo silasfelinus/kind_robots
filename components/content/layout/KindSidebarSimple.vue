@@ -67,7 +67,6 @@ const hardcodedLinks = [
     path: '/memory',
     icon: 'material-symbols:art-track-outline-rounded',
   },
-  { title: 'Mature Content', path: '/mature', icon: 'fxemoji:lips' },
   { title: 'Wonderlab', path: '/wonderlab', icon: 'game-icons:gear-hammer' },
   { title: 'Dashboard', path: '/dashboard', icon: 'mingcute:settings-6-fill' },
 ]

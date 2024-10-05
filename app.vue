@@ -50,7 +50,7 @@
             v-if="showTutorial"
             class="h-full w-full z-10 rounded-2xl"
           />
-          <NuxtPage v-else class="h-full w-full z-10 rounded-2xl" />
+          <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
         </div>
 
         <!-- Fullscreen mode (Desktop) -->
@@ -62,7 +62,7 @@
             <SplashTutorial class="h-full w-full" />
           </div>
           <div class="h-full rounded-2xl z-10">
-            <NuxtPage class="h-full w-full" />
+            <NuxtPage class="h-full w-full overflow-y-auto" />
           </div>
         </div>
 
@@ -75,8 +75,8 @@
           <div class="flip-card-front rounded-2xl">
             <SplashTutorial class="h-full w-full" />
           </div>
-          <div class="flip-card-back overflow-y-auto rounded-2xl">
-            <NuxtPage class="h-full w-full" />
+          <div class="flip-card-back  rounded-2xl">
+            <NuxtPage class="h-full w-full overflow-y-auto" />
           </div>
         </div>
       </main>

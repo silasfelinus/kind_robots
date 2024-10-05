@@ -22,6 +22,7 @@
         <div class="p-1 text-white flex-grow flex justify-center">
           <sidebar-toggle class="text-4xl"></sidebar-toggle>
         </div>
+        <header-upgrade />
       </header>
 
       <!-- Sidebar left -->

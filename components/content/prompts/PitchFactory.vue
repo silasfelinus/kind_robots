@@ -42,6 +42,11 @@
       <div v-if="activeTab === 'art-challenge'">
         <LazyArtChallenge />
       </div>
+
+      <!-- Brainstorm Screen -->
+      <div v-if="activeTab === 'brainstorm-game'">
+        <LazyBrainstormGame />
+      </div>
     </div>
   </div>
 </template>
@@ -54,6 +59,7 @@ const tabs = [
   { name: 'pitch-gallery', label: 'Pitch Gallery' },
   { name: 'add-pitch', label: 'Add Pitch' },
   { name: 'art-challenge', label: 'Art Challenge' },
+{ name: 'brainstorm-game', label: 'Brainstorm!' },
 ]
 
 const activeTab = ref('pitch-gallery') // Default to the first tab

@@ -31,7 +31,7 @@
     </div>
 
     <!-- Bot Sections -->
-    <div class="bot-sections flex-grow overflow-auto">
+    <div class="bot-sections flex-grow overflow-y-auto">
       <!-- Add Bot Screen -->
       <lazy-add-bot
         v-if="selectedBotSection === 'add-bot'"

@@ -37,7 +37,7 @@
 
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-100 p-2 rounded-2xl z-10"
+        class="bg-base-100 p-2 rounded-2xl z-10 overflow-y-auto" <!-- Add overflow-y-auto here for scrolling -->
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
@@ -61,8 +61,8 @@
           <div class="h-full rounded-2xl z-10">
             <SplashTutorial class="h-full w-full" />
           </div>
-          <div class="h-full rounded-2xl z-10">
-            <NuxtPage class="h-full w-full overflow-y-auto" />
+          <div class="h-full rounded-2xl z-10 overflow-y-auto">
+            <NuxtPage class="h-full w-full" />
           </div>
         </div>
 
@@ -75,8 +75,8 @@
           <div class="flip-card-front rounded-2xl">
             <SplashTutorial class="h-full w-full" />
           </div>
-          <div class="flip-card-back  rounded-2xl">
-            <NuxtPage class="h-full w-full overflow-y-auto" />
+          <div class="flip-card-back rounded-2xl overflow-y-auto">
+            <NuxtPage class="h-full w-full" />
           </div>
         </div>
       </main>
@@ -96,6 +96,7 @@
   </div>
   <kind-buttons></kind-buttons>
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

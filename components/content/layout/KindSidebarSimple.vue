@@ -56,11 +56,6 @@ const hardcodedLinks = [
   },
   { title: 'Art Lab', path: '/artmaker', icon: 'game-icons:easel' },
   {
-    title: 'Brainstorm',
-    path: '/brainstorm',
-    icon: 'game-icons:robot-antennas',
-  },
-  {
     title: 'Memory Match',
     path: '/memory',
     icon: 'material-symbols:art-track-outline-rounded',

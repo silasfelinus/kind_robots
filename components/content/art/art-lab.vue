@@ -2,19 +2,19 @@
   <div class="art-lab-container flex flex-col z-10" :style="{ height: displayStore.mainHeight }">
     <!-- Art Section Buttons (Fixed at the top) -->
     <div class="flex justify-center space-x-2 sm:space-x-1 md:space-x-4 lg:space-x-6 mb-4">
-      <button class="btn btn-primary px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('art-maker')">
+      <button class="btn btn-primary border-accent border-1 px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('art-maker')">
         Art Maker
       </button>
 
-      <button class="btn btn-secondary px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('art-collection')">
+      <button class="btn  btn-primary border-accent border-1 px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('art-collection')">
         Art Collection
       </button>
 
-      <button class="btn btn-accent px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('art-gallery')">
+      <button class="btn  btn-primary border-accent border-1 px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('art-gallery')">
         Art Gallery
       </button>
 
-      <button class="btn btn-warning px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('hot-or-not')">
+      <button class="btn  btn-primary border-accent border-1 px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('hot-or-not')">
         Hot or Not
       </button>
     </div>
@@ -22,16 +22,16 @@
     <!-- Art Sections -->
     <div class="art-sections flex-grow overflow-y-auto">
       <!-- Art Maker Screen -->
-      <lazy-art-maker v-show="selectedArtSection === 'art-maker'" @close="handleSectionClose"></lazy-art-maker>
+      <lazy-art-maker v-if="selectedArtSection === 'art-maker'" @close="handleSectionClose"></lazy-art-maker>
 
       <!-- Art Collection Screen -->
-      <lazy-art-collection v-show="selectedArtSection === 'art-collection'" @close="handleSectionClose"></lazy-art-collection>
+      <lazy-art-collection v-if="selectedArtSection === 'art-collection'" @close="handleSectionClose"></lazy-art-collection>
 
       <!-- Art Gallery Screen -->
-      <lazy-art-gallery v-show="selectedArtSection === 'art-gallery'" @close="handleSectionClose"></lazy-art-gallery>
+      <lazy-art-gallery v-if="selectedArtSection === 'art-gallery'" @close="handleSectionClose"></lazy-art-gallery>
 
       <!-- Hot or Not Screen -->
-      <lazy-hot-or-not v-show="selectedArtSection === 'hot-or-not'" @close="handleSectionClose"></lazy-hot-or-not>
+      <lazy-hot-or-not v-if="selectedArtSection === 'hot-or-not'" @close="handleSectionClose"></lazy-hot-or-not>
     </div>
 
     <!-- Debug Message -->

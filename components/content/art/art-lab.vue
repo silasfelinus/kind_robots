@@ -1,53 +1,37 @@
 <template>
-  <div
-    class="art-lab-container flex flex-col z-10"
-    :style="{ height: displayStore.mainHeight }"
-  >
+  <div class="art-lab-container flex flex-col z-10" :style="{ height: displayStore.mainHeight }">
     <!-- Art Section Buttons (Fixed at the top) -->
-    <div
-      class="flex justify-center space-x-2 sm:space-x-1 md:space-x-4 lg:space-x-6 mb-4"
-    >
-      <button
-        class="btn btn-primary px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6"
-        @click="selectArtSection('art-maker')"
-      >
+    <div class="flex justify-center space-x-2 sm:space-x-1 md:space-x-4 lg:space-x-6 mb-4">
+      <button class="btn btn-primary px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('art-maker')">
         Art Maker
       </button>
 
-      <button
-        class="btn btn-secondary px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6"
-        @click="selectArtSection('art-collection')"
-      >
+      <button class="btn btn-secondary px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('art-collection')">
         Art Collection
       </button>
 
-      <button
-        class="btn btn-accent px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6"
-        @click="selectArtSection('art-gallery')"
-      >
+      <button class="btn btn-accent px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('art-gallery')">
         Art Gallery
+      </button>
+
+      <button class="btn btn-warning px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6" @click="selectArtSection('hot-or-not')">
+        Hot or Not
       </button>
     </div>
 
     <!-- Art Sections -->
     <div class="art-sections flex-grow overflow-y-auto">
       <!-- Art Maker Screen -->
-      <lazy-art-maker
-        v-show="selectedArtSection === 'art-maker'"
-        @close="handleSectionClose"
-      ></lazy-art-maker>
+      <lazy-art-maker v-show="selectedArtSection === 'art-maker'" @close="handleSectionClose"></lazy-art-maker>
 
       <!-- Art Collection Screen -->
-      <lazy-art-collection
-        v-show="selectedArtSection === 'art-collection'"
-        @close="handleSectionClose"
-      ></lazy-art-collection>
+      <lazy-art-collection v-show="selectedArtSection === 'art-collection'" @close="handleSectionClose"></lazy-art-collection>
 
       <!-- Art Gallery Screen -->
-      <lazy-art-gallery
-        v-show="selectedArtSection === 'art-gallery'"
-        @close="handleSectionClose"
-      ></lazy-art-gallery>
+      <lazy-art-gallery v-show="selectedArtSection === 'art-gallery'" @close="handleSectionClose"></lazy-art-gallery>
+
+      <!-- Hot or Not Screen -->
+      <lazy-hot-or-not v-show="selectedArtSection === 'hot-or-not'" @close="handleSectionClose"></lazy-hot-or-not>
     </div>
 
     <!-- Debug Message -->
@@ -63,7 +47,7 @@ import { useDisplayStore } from './../../../stores/displayStore'
 
 // State variables
 const debugMessage = ref<string | null>(null) // For debugging the section selection
-const selectedArtSection = ref<string | null>(null) // Track selected section (art-maker, art-collection, art-gallery)
+const selectedArtSection = ref<string | null>(null) // Track selected section (art-maker, art-collection, art-gallery, hot-or-not)
 
 // Access the display store
 const displayStore = useDisplayStore()
@@ -81,7 +65,7 @@ const handleSectionClose = () => {
   selectedArtSection.value = null
 }
 
-// Select the section (art-maker, art-collection, art-gallery)
+// Select the section (art-maker, art-collection, art-gallery, hot-or-not)
 const selectArtSection = (section: string) => {
   selectedArtSection.value = section
 }

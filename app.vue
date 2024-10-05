@@ -24,7 +24,7 @@
         </div>
 
         <!-- Nav Links -->
-        <div class="flex-grow flex justify-center items-center space-x-4">
+        <div class="flex-grow flex justify-center items-center w-2/3 space-x-4">
           <nav-links></nav-links>
         </div>
       </header>

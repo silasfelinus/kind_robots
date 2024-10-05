@@ -3,26 +3,33 @@
     class="bot-factory-container flex flex-col z-10"
     :style="{ height: displayStore.mainHeight, width: displayStore.mainWidth }"
   >
+    <!-- Transition Wrapper -->
     <transition name="flip">
-      <div class="flex-grow">
-        <!-- Bot Factory Section Titles (Fixed at the top) -->
-        <div class="flex justify-center space-x-1 mb-2">
-          <button class="btn btn-primary" @click="selectBotSection('add-bot')" :aria-selected="selectedBotSection === 'add-bot'">
+      <div v-if="selectedBotSection" class="flex-grow">
+        <!-- Bot Factory Section Titles -->
+        <div
+          class="flex justify-center space-x-2 mb-4 lg:space-x-4 md:space-x-3 sm:space-x-1"
+        >
+          <button
+            class="btn btn-primary border-1 border-accent px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6"
+            :aria-selected="selectedBotSection === 'add-bot'"
+            @click="selectBotSection('add-bot')"
+          >
             Add Bot
           </button>
 
           <button
-            class="btn btn-secondary"
-            @click="selectBotSection('kind-robot')"
+            class="btn btn-secondary border-1 border-accent px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6"
             :aria-selected="selectedBotSection === 'kind-robot'"
+            @click="selectBotSection('kind-robot')"
           >
             Kind Robot
           </button>
 
           <button
-            class="btn btn-accent"
-            @click="selectBotSection('bot-gallery')"
+            class="btn btn-info border-1 border-accent px-4 py-2 sm:px-2 sm:py-1 md:px-3 lg:px-6"
             :aria-selected="selectedBotSection === 'bot-gallery'"
+            @click="selectBotSection('bot-gallery')"
           >
             Bot Gallery
           </button>
@@ -54,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref } from 'vue'
 import { useDisplayStore } from './../../../stores/displayStore'
 
 const selectedBotSection = ref<string | null>(null) // Track selected section (add-bot, kind-robot, bot-gallery)
@@ -79,6 +86,7 @@ const selectBotSection = (section: string) => {
   overflow: hidden;
 }
 
+/* Flip Animation */
 .flip-enter-active,
 .flip-leave-active {
   transition: transform 0.6s;
@@ -89,13 +97,27 @@ const selectBotSection = (section: string) => {
   transform: rotateY(180deg);
 }
 
+/* Bot Sections Padding */
 .bot-sections {
   padding: 1rem;
 }
 
+/* Responsive Padding */
 @media (max-width: 600px) {
   .bot-sections {
     padding: 0.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .bot-sections {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bot-sections {
+    padding: 2rem;
   }
 }
 </style>

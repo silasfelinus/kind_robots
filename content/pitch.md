@@ -1,5 +1,5 @@
 ---
-title: 'Pitch Manager'
+title: 'Pitch Factory'
 subtitle: 'Create and View Pitches for AI Art Challenge'
 description: 'Pitch Manager'
 gallery: 'cafepurr'
@@ -14,5 +14,5 @@ amitip: 'Short? Fun? Open-Ended?'
 sort: highlight
 ---
 
-:pitch-selector
+:pitch-factory
 

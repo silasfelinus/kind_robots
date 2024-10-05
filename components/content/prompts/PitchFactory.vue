@@ -1,14 +1,13 @@
 <template>
   <div
-    class="wonderlab-container flex flex-col items-center min-h-screen bg-base-200 p-4"
+    class="prompt-factory-container flex flex-col items-center min-h-screen bg-base-200 p-4"
   >
-    <!-- Wonderlab Header -->
-    <h1 class="text-5xl font-bold mb-4 text-primary">Wonderlab</h1>
+    <!-- Prompt Factory Header -->
+    <h1 class="text-5xl font-bold mb-4 text-primary">Prompt Factory</h1>
 
-    <!-- Tabs for toggling components (Always at the top) -->
+    <!-- Tabs for toggling components -->
     <div
       class="flex justify-center space-x-2 sm:space-x-1 md:space-x-4 lg:space-x-6 w-full max-w-4xl mb-6"
-      :style="{ height: headerHeight }"
     >
       <button
         v-for="tab in tabs"
@@ -28,44 +27,40 @@
     <!-- Components section with scrollable content -->
     <div
       class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-4 sm:p-2"
-      :style="{ height: mainHeight }"
     >
-      <div v-show="activeTab === 'store-tester'">
-        <LazyStoreTester />
+      <!-- Pitch Gallery Screen -->
+      <div v-show="activeTab === 'pitch-gallery'">
+        <LazyPitchGallery />
       </div>
-      <div v-show="activeTab === 'animation-tester'">
-        <LazyAnimationTester />
+
+      <!-- Add Pitch Screen -->
+      <div v-show="activeTab === 'add-pitch'">
+        <LazyAddPitch />
       </div>
-      <div v-show="activeTab === 'wonder-lab'">
-        <LazyWonderLab />
+
+      <!-- Art Challenge Screen -->
+      <div v-show="activeTab === 'art-challenge'">
+        <LazyArtChallenge />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
+import { ref } from 'vue'
 
-// Access the display store for dynamic header and main content height
-const displayStore = useDisplayStore()
-
-// Tabs setup
+// Tabs setup for Prompt Factory
 const tabs = [
-  { name: 'store-tester', label: 'Store Tester' },
-  { name: 'animation-tester', label: 'Animation Tester' },
-  { name: 'wonder-lab', label: 'Wonder Lab' },
+  { name: 'pitch-gallery', label: 'Pitch Gallery' },
+  { name: 'add-pitch', label: 'Add Pitch' },
+  { name: 'art-challenge', label: 'Art Challenge' },
 ]
 
-const activeTab = ref('store-tester')
-
-// Compute the header and main content heights from the display store
-const headerHeight = computed(() => displayStore.headerHeight)
-const mainHeight = computed(() => displayStore.mainHeight)
+const activeTab = ref('pitch-gallery') // Default to the first tab
 </script>
 
 <style scoped>
-.wonderlab-container {
+.prompt-factory-container {
   width: 100%;
   overflow: hidden;
 }

@@ -3,7 +3,7 @@
     <!-- Left Sidebar -->
     <aside
       v-if="displayStore.sidebarLeftState !== 'hidden'"
-      class="transition-all duration-300 bg-base-300 rounded-2xl hide-scrollbar p-1"
+      class="transition-all duration-300 rounded-2xl hide-scrollbar p-1"
       :style="{
         width: displayStore.sidebarLeftVw + 'vw',
         maxHeight: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`,
@@ -58,11 +58,6 @@ const hardcodedLinks = [
   { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
   { title: 'Art Gallery', path: '/artgallery', icon: 'game-icons:easel' },
   {
-    title: 'Art Challenge',
-    path: '/artchallenge',
-    icon: 'game-icons:tabletop-players',
-  },
-  {
     title: 'Brainstorm',
     path: '/brainstorm',
     icon: 'game-icons:robot-antennas',
@@ -74,7 +69,6 @@ const hardcodedLinks = [
   },
   { title: 'Mature Content', path: '/mature', icon: 'fxemoji:lips' },
   { title: 'Wonderlab', path: '/wonderlab', icon: 'game-icons:gear-hammer' },
-  { title: 'About', path: '/about', icon: 'game-icons:abstract-037' },
   { title: 'Dashboard', path: '/dashboard', icon: 'mingcute:settings-6-fill' },
 ]
 

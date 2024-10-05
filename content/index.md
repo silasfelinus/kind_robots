@@ -13,7 +13,6 @@ dottitip: Hi! I'm Dotti, Bot Builder extraordinaire!  Welcome to my experiential
 amitip: And I'm AMI, lab hostess with the mostess, fluttering around to make your day a zillion times better! Stop by our Bot Cafe and say hi!
 category: settings
 sort: highlight
-dottitip: Hi! I'm Dotti, Bot Builder extraordinaire!  Welcome to my experiential laboratory.
 ---
 
 :navigation-trimmed

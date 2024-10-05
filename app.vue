@@ -37,7 +37,7 @@
 
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-100 p-2 rounded-2xl z-10 overflow-y-auto" <!-- Add overflow-y-auto here for scrolling -->
+        class="bg-base-100 p-2 rounded-2xl z-10 overflow-y-auto" 
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',

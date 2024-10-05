@@ -20,7 +20,7 @@
     </div>
 
     <!-- User Navigation View -->
-    <div class="flex flex-wrap">
+    <div class="flex flex-wrap overflow-y-auto">
       <nuxt-link
         v-for="item in userNavigation"
         :key="item.path"

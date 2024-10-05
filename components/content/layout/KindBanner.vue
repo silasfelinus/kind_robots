@@ -16,7 +16,7 @@
         {{ page.title || 'Kind Robots' }}
       </h1>
       <p class="text-md md:text-lg font-medium mt-1">
-        {{ page.subtitle || 'Create your universe.' }}
+        {{ page.subtitle || 'Craft your universe.' }}
       </p>
     </div>
   </div>

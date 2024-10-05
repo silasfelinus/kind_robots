@@ -1,16 +1,16 @@
 ---
-title: 'Pitch Factory'
-subtitle: 'Create and View Pitches for AI Art Challenge'
-description: 'Pitch Manager'
+title: 'Prompt Factory'
+subtitle: 'Organize and share your AI-prompts'
+description: 'Prompt Factory is a user-friendly organizer for adding, editing, and sharing AI art and text prompts.'
 gallery: 'cafepurr'
 image: 'botcat.webp'
 tags: ['home']
 layout: 'vertical-scroll'
 icon: fluent:chat-bubbles-question-16-regular
 category: user
-tooltip: Create and Explore Pitches for Art Challenge
-dottitip: 'What makes a great pitch?'
-amitip: 'Short? Fun? Open-Ended?'
+tooltip: Organize and share your text and art prompts
+dottitip: "What's the secret to a perfect prompt, AMI"
+amitip: 'Keep it short and let the AI do the heavy lifting!'
 sort: highlight
 ---
 

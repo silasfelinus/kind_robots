@@ -48,9 +48,9 @@ import { useRouter } from 'vue-router'
 // Hardcoded sidebar links
 const hardcodedLinks = [
   { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
-  { title: 'Bot Factory', path: '/botcafe', icon: 'fluent:bot-add-20-regular' },
+  { title: 'Bot Cafe', path: '/botcafe', icon: 'fluent:bot-add-20-regular' },
   {
-    title: 'Prompt Collector',
+    title: 'Prompt Factory',
     path: '/pitch',
     icon: 'fluent:chat-bubbles-question-16-regular',
   },

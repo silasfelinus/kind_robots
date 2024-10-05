@@ -30,7 +30,6 @@
     >
       <LazyPitchGallery v-if="activeTab === 'pitch-gallery'" />
       <LazyAddPitch v-if="activeTab === 'add-pitch'" />
-      <LazyArtChallenge v-if="activeTab === 'art-challenge'" />
       <LazyBrainstormGame v-if="activeTab === 'brainstorm-game'" />
     </div>
   </div>
@@ -43,7 +42,6 @@ import { ref } from 'vue'
 const tabs = [
   { name: 'pitch-gallery', label: 'Pitch Gallery' },
   { name: 'add-pitch', label: 'Add Pitch' },
-  { name: 'art-challenge', label: 'Art Challenge' },
   { name: 'brainstorm-game', label: 'Brainstorm!' },
 ]
 

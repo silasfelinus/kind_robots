@@ -56,7 +56,6 @@ const hardcodedLinks = [
   },
   { title: 'Art Lab', path: '/artmaker', icon: 'game-icons:easel' },
   { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
-  { title: 'Art Gallery', path: '/artgallery', icon: 'game-icons:easel' },
   {
     title: 'Brainstorm',
     path: '/brainstorm',

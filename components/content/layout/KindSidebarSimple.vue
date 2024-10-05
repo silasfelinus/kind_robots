@@ -55,7 +55,6 @@ const hardcodedLinks = [
     icon: 'fluent:chat-bubbles-question-16-regular',
   },
   { title: 'Art Lab', path: '/artmaker', icon: 'game-icons:easel' },
-  { title: 'Hot or Not?', path: '/hotornot', icon: 'emojione-monotone:fire' },
   {
     title: 'Brainstorm',
     path: '/brainstorm',

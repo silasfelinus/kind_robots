@@ -22,11 +22,12 @@
 </template>
 
 <script setup>
-// Get page data and display size from the stores
 const { page } = useContent()
 
-// Set the default image path and handle page.image prefix logic
-const imageUrl = page.image ? `/images/${page.image}` : '/images/botcafe.webp'
+// Computed property to handle image URL dynamically
+const imageUrl = computed(() =>
+  page.image ? `/images/${page.image}` : '/images/botcafe.webp',
+)
 </script>
 
 <style scoped>

@@ -1,17 +1,17 @@
 <template>
   <div
-    class="banner-container flex items-center h-1/4 border-accent border-1 bg-primary text-white px-4 py-3 rounded-lg shadow-lg w-full mb-6"
+    class="banner-container flex flex-col lg:flex-row items-center h-1/4 border-accent border-1 bg-primary text-white px-4 py-3 rounded-lg shadow-lg w-full mb-6"
   >
     <!-- Display the image if it exists, otherwise use default -->
     <img
       v-if="page && page.image"
       :src="'/images/' + page.image"
       alt="Page banner image"
-      class="banner-image object-cover rounded-lg mr-4"
+      class="banner-image object-cover rounded-lg mb-4 lg:mb-0 lg:mr-4"
     />
 
     <!-- Title and Subtitle -->
-    <div class="flex flex-col justify-center w-full">
+    <div class="flex flex-col justify-center w-full text-center lg:text-left">
       <h1 class="text-2xl md:text-4xl font-extrabold">
         {{ page.title || 'Kind Robots' }}
       </h1>

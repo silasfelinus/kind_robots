@@ -1,6 +1,7 @@
 <template>
   <header
-    class="relative flex items-center fixed justify-between rounded-2xl border p-2 bg-base-300 z-20 h-[calc(var(--vh,1vh)*10)] space-x-2"
+    class="flex items-center fixed justify-between rounded-2xl border p-2 bg-base-300 z-20 space-x-2"
+    :style="{ height: displayStore.headerHeight + 'vh' }"
   >
     <!-- Avatar and Title Section -->
     <div class="flex items-center space-x-3 flex-grow">
@@ -10,10 +11,14 @@
       />
       <!-- Title and Subtitle Column -->
       <div class="flex flex-col items-center justify-center flex-grow">
-        <h1 class="text-lg font-semibold text-center truncate w-full max-w-xs sm:max-w-sm lg:max-w-md">
+        <h1
+          class="text-lg font-semibold text-center truncate w-full max-w-xs sm:max-w-sm lg:max-w-md"
+        >
           The {{ page.title || 'Room' }} Room
         </h1>
-        <h2 class="text-sm text-accent italic text-center truncate w-full max-w-xs sm:max-w-sm lg:max-w-md">
+        <h2
+          class="text-sm text-accent italic text-center truncate w-full max-w-xs sm:max-w-sm lg:max-w-md"
+        >
           {{ subtitle }}
         </h2>
       </div>
@@ -27,6 +32,7 @@
     </div>
   </header>
 </template>
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'

@@ -2,8 +2,7 @@
   <div
     class="dashboard-chooser-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
   >
-    <!-- Dashboard Banner -->
-    <kind-banner />
+    
 
     <!-- Tabs for toggling components -->
     <div

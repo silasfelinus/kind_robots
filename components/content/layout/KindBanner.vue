@@ -1,6 +1,6 @@
 <template>
   <div
-    class="banner-container flex flex-col lg:flex-row items-center justify-center h-[15vh] lg:h-[20vh] border-accent border bg-primary text-white px-4 py-3 rounded-lg shadow-lg w-full mb-6"
+    class="banner-container flex flex-col lg:flex-row items-center justify-center h-[10vh] lg:h-[15vh] border-accent border bg-primary text-white px-4 py-3 rounded-lg shadow-lg w-full mb-6"
   >
     <!-- Display the image if it exists, otherwise use default -->
     <img

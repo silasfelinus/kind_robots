@@ -35,12 +35,18 @@
         }"
       />
 
-      <!-- Main Content Component with gridColumn set here -->
-      <main-content
-        :gridColumn="'2 / 3'"
-        :headerHeight="headerHeight"
-        :footerHeight="footerHeight"
-      />
+      <!-- Main Content (Now App.vue defines gridColumn) -->
+      <main
+        class="bg-base-100 p-2 rounded-2xl z-10 overflow-hidden"
+        :style="{
+          gridColumn: '2 / 3',
+          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
+          paddingTop: headerHeight,
+          paddingBottom: footerHeight,
+        }"
+      >
+        <main-content />
+      </main>
 
       <!-- Sidebar right (Scrollable if content overflows) -->
       <aside
@@ -70,10 +76,10 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Access display store
+// Access layout-related data from displayStore
 const displayStore = useDisplayStore()
 
-// Layout and state
+// Layout dimensions
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)

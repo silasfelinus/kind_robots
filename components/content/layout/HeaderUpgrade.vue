@@ -7,7 +7,7 @@
     <div class="flex items-center rounded-2xl space-x-3 flex-grow">
       <avatar-image
         alt="User Avatar"
-        class="max-h-full flex-grow min-h-4 aspect-square m-1 rounded-2xl"
+        class="max-h-full flex-grow min-h-14 aspect-square m-1 rounded-2xl"
       />
       <!-- Title and Subtitle Column -->
       <div class="flex flex-col items-center justify-center m-1 flex-grow">

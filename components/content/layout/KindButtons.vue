@@ -3,7 +3,7 @@
     <!-- Tutorial / NuxtPage Toggle (Top-right corner) -->
     <button
       v-if="!isFullScreen"
-      class="fixed top-14 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-accent transition duration-300 z-50 p-1"
+      class="fixed top-30 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-accent transition duration-300 z-50 p-1"
       @click="toggleTutorial"
     >
       Show {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}

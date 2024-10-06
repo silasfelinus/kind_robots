@@ -1,5 +1,5 @@
 <template>
-  <div class="theme-selector flex flex-col items-center">
+  <div class="theme-selector flex flex-col items-center relative">
     <div class="flex flex-row items-center justify-center space-x-2 w-full">
       <button
         ref="buttonRef"
@@ -16,13 +16,13 @@
       <div
         v-show="open"
         :style="modalPosition"
-        class="theme-menu grid grid-cols-2 md:grid-cols-3 gap-2 bg-base-300 border p-4 rounded-2xl z-10 transition-opacity duration-200"
-        style="min-width: 200px"
+        class="theme-menu fixed bg-base-300 border p-4 rounded-2xl z-50 shadow-lg transition-opacity duration-200"
+        style="min-width: 250px; max-width: 400px"
       >
         <button
           v-for="(theme, index) in themeStore.themes"
           :key="index"
-          class="theme-item flex items-center justify-center cursor-pointer p-2 rounded-lg"
+          class="theme-item flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-base-200 transition-all"
           :class="theme === themeStore.currentTheme ? 'ring-2 ring-accent' : ''"
           role="menuitem"
           tabindex="0"
@@ -34,6 +34,7 @@
     </transition>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'

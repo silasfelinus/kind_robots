@@ -42,7 +42,7 @@
 
         <h3
           v-if="page && page.description"
-          class="text-sm lg:text-md font-medium px-2 md:px-4 truncate"
+          class="text-sm lg:text-md font-medium px-2"
         >
           {{ page.description }}
         </h3>

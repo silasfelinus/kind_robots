@@ -9,11 +9,10 @@
       <Icon name="emojione:artist-palette" class="w-6 h-6" />
     </button>
 
-    <!-- Floating icon for mobile (responsive and dynamic) -->
+    <!-- Floating icon for mobile (fixed position near the corner) -->
     <button
       v-else
-      class="fixed z-50 flex items-center justify-center bg-primary text-white p-2 rounded-full shadow-lg hover:bg-secondary"
-      :class="buttonPositionClass"
+      class="fixed z-50 flex items-center justify-center bg-primary text-white p-2 rounded-full shadow-lg hover:bg-secondary bottom-4 left-4"
       @click="toggleSidebarLeft"
     >
       <!-- Dynamically change the icon based on the sidebar state -->
@@ -45,15 +44,12 @@ const iconName = computed(() => {
   }
 })
 
-// Dynamically adjust button position (floating over sidebar for mobile)
-const buttonPositionClass = computed(() => {
-  return displayStore.sidebarLeftState === 'hidden'
-    ? 'bottom-4 left-4'
-    : 'bottom-4 left-24'
-})
-
 // Toggle the left sidebar
 const toggleSidebarLeft = () => {
   displayStore.toggleSidebar('sidebarLeftState') // Use the correct state name
 }
 </script>
+
+<style scoped>
+/* No additional styles needed, using Tailwind CSS classes */
+</style>

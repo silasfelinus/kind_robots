@@ -14,7 +14,7 @@
       }"
     >
       <!-- Header -->
-      <header
+      <header-upgrade
         class="bg-base-100 flex items-center fixed justify-between w-full p-2 z-10"
         :style="{ gridRow: '1 / 2', height: headerHeight }"
       >

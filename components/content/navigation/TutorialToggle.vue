@@ -1,17 +1,18 @@
 <template>
   <div
-    class="absolute -bottom-5 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-accent transition duration-300 cursor-pointer rounded-lg shadow-md p-1"
+    class="absolute left-1/2 transform -translate-x-1/2 bg-primary hover:bg-accent transition duration-300 cursor-pointer rounded-lg shadow-md p-3"
     :style="{ bottom: footerHeight }"
     @click="toggleTutorial"
   >
     <Icon
       v-if="showTutorial"
       name="mdi-information-outline"
-      class="text-base-200 w-6 h-6"
+      class="text-base-200 w-8 h-8"
     />
-    <Icon v-else :name="pageIcon" class="text-base-200 w-6 h-6" />
+    <Icon v-else :name="pageIcon" class="text-base-200 w-8 h-8" />
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

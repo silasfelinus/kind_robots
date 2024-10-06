@@ -18,7 +18,7 @@
         class="bg-base-100 flex items-center fixed w-full p-2 z-20"
         :style="{
           gridRow: '1 / 2',
-          gridColumn: '1 / 3', /* Spans left sidebar + main content */,
+          gridColumn: '1 / 4', /* Spans left sidebar, main content, right sidebar */,
           height: headerHeight,
         }"
       >
@@ -36,7 +36,7 @@
       <!-- Sidebar left -->
       <kind-sidebar-simple
         class="bg-base-100 fixed"
-        :style="{ gridRow: '2 / 3', width: sidebarLeftWidth }"
+        :style="{ gridRow: '2 / 3', gridColumn: '1 / 2', width: sidebarLeftWidth }"
       ></kind-sidebar-simple>
 
       <!-- Main content -->
@@ -79,6 +79,8 @@
       <aside
         class="bg-base-100 fixed right-0 z-10"
         :style="{
+          gridRow: '2 / 3',
+          gridColumn: '3 / 4',
           top: headerHeight,
           height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
           width: sidebarRightWidth,
@@ -101,7 +103,6 @@
   <fullscreen-toggle />
 </template>
 
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -122,3 +123,43 @@ const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 // Mobile detection
 const isMobile = computed(() => displayStore.isMobileViewport)
 </script>
+
+<style scoped>
+/* Flip-card style */
+.flip-card {
+  perspective: 1500px; /* Increased perspective for a more pronounced flip effect */
+  width: 100%;
+  height: 100%;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* Ensures the backface is not visible */
+  border: 2px solid var(--bg-base);
+  border-radius: 5px;
+}
+
+.flip-card-front {
+  z-index: 2; /* Ensure the front side is on top when flipped */
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+  z-index: 1; /* Keep back side behind the front side */
+}
+</style>

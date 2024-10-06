@@ -32,18 +32,25 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-
 // Access the display store
 const displayStore = useDisplayStore()
 
 // Access the content, including page.icon
 const { page } = useContent()
 
-// Footer height from displayStore
-const footerHeight = computed(() => displayStore.footerHeight)
-
-// Compute the tutorial and icon state
+// Fullscreen and tutorial state
 const showTutorial = computed(() => displayStore.showTutorial)
+const isFullScreen = computed(() => displayStore.isFullScreen)
+
+// Layout dimensions
+const headerHeight = computed(() => displayStore.headerHeight)
+const mainHeight = computed(() => displayStore.mainHeight)
+const footerHeight = computed(() => displayStore.footerHeight)
+const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
+const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+
+// Mobile detection
+const isMobile = computed(() => displayStore.isMobileViewport)
 
 // Toggle the tutorial state
 const toggleTutorial = () => {
@@ -51,7 +58,10 @@ const toggleTutorial = () => {
 }
 
 // Use a computed value to get the page icon from useContent
-const pageIcon = computed(() => page.icon || 'mdi-page-layout-sidebar-right')
+// Ensure page.icon is a string and provide a fallback to avoid the startsWith error
+const pageIcon = computed(() => {
+  return typeof page.icon === 'string' ? page.icon : 'mdi-page-layout-sidebar-right'
+})
 </script>
 
 <style scoped>

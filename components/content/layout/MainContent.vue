@@ -1,11 +1,10 @@
 <template>
   <!-- Content of MainContent.vue focuses only on its content -->
   <div class="h-full flex flex-col">
-    <!-- Kind Banner at the top -->
-    <kind-banner class="flex-shrink-0" />
+
 
     <!-- Mobile View (no flip card) -->
-    <div v-if="isMobile" class="flex-grow">
+    <div v-if="isMobile" class="flex-grow overflow-y-auto"> <!-- Add overflow-y-auto here -->
       <SplashTutorial
         v-if="showTutorial"
         class="h-full w-full z-10 rounded-2xl"

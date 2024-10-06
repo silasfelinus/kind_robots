@@ -187,9 +187,17 @@ export const useDisplayStore = defineStore('display', {
     },
 
     toggleFullScreen() {
-      this.isFullScreen = !this.isFullScreen;
-      this.saveState(); // Optionally, save state to localStorage
-    },
+  this.isFullScreen = !this.isFullScreen;
+  
+  if (this.isFullScreen) {
+    this.sidebarRightState = 'open'; 
+  } else {
+    this.sidebarRightState = 'hidden'; 
+  }
+
+  this.saveState(); 
+},
+
 
     // Function to toggle animation by ID
     toggleAnimationById(animationId: EffectId) {

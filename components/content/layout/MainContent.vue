@@ -1,115 +1,96 @@
 <template>
-  <!-- Main content view that adjusts to available height and width -->
-  <div class="main-content" :style="{ height: mainHeight, width: mainWidth }">
-    <!-- Mobile view: Single column layout -->
-    <div v-if="isMobileViewport" class="single-column">
-      <div v-if="showTutorial" class="instructions">
-        <SplashTutorial />
+  <!-- Main Content (Scrollable only if needed) -->
+  <main
+    class="bg-base-100 p-2 rounded-2xl z-10 overflow-hidden"
+    :style="{
+      gridColumn: '2 / 3',
+      height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
+    }"
+  >
+    <div class="h-full">
+      <!-- Mobile View (no flip card) -->
+      <div v-if="isMobile">
+        <SplashTutorial
+          v-if="showTutorial"
+          class="h-full w-full z-10 rounded-2xl"
+        />
+        <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
       </div>
-      <div v-else class="launch">
-        <NuxtPage />
-      </div>
-    </div>
 
-    <!-- Medium view: Centered content -->
-    <div v-if="isMediumViewport" class="center-content">
-      <div v-if="showTutorial" class="tutorial-section">
-        <SplashTutorial />
+      <!-- Fullscreen mode (Desktop) -->
+      <div v-else-if="isFullScreen" class="h-full rounded-2xl z-10 overflow-y-auto">
+        <NuxtPage class="h-full w-full" />
       </div>
-      <div v-else class="launch-section">
-        <NuxtPage />
-      </div>
-    </div>
 
-    <!-- Large view: Two-column layout -->
-    <div v-if="isLargeViewport && !isFullScreen" class="two-column">
-      <div class="left-column" :style="{ width: sidebarLeftWidth }">
-        <SplashTutorial />
+      <!-- Flip-card mode (Desktop) -->
+      <div
+        v-else
+        class="flip-card-inner h-full z-10"
+        :class="{ 'is-flipped': !showTutorial }"
+      >
+        <div class="flip-card-front rounded-2xl h-full">
+          <SplashTutorial class="h-full w-full" />
+        </div>
+        <div class="flip-card-back rounded-2xl overflow-y-auto z-10">
+          <NuxtPage class="h-full w-full" />
+        </div>
       </div>
-      <div class="right-column overflow-y-auto" :style="{ width: mainWidth }">
-        <NuxtPage />
-      </div>
+      <tutorial-toggle />
     </div>
-
-    <!-- Full-screen view: Full content area -->
-    <div v-if="isFullScreen" class="fullscreen-content">
-      <div v-if="showTutorial">
-        <SplashTutorial />
-      </div>
-      <div v-else>
-        <NuxtPage />
-      </div>
-    </div>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Access display store
 const displayStore = useDisplayStore()
 
-// Viewport conditions
-const isMobileViewport = computed(() => displayStore.isMobileViewport)
-const isMediumViewport = computed(() => displayStore.viewportSize === 'medium')
-const isLargeViewport = computed(() => displayStore.isLargeViewport)
-const showTutorial = computed(() => displayStore.showTutorial)
+// Layout and state from store
+const headerHeight = computed(() => displayStore.headerHeight)
+const footerHeight = computed(() => displayStore.footerHeight)
+const isMobile = computed(() => displayStore.isMobileViewport)
 const isFullScreen = computed(() => displayStore.isFullScreen)
-
-// Main height and width calculations based on available space
-const mainHeight = computed(() => displayStore.mainHeight)
-const mainWidth = computed(() => displayStore.mainWidth)
-const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
+const showTutorial = computed(() => displayStore.showTutorial)
 </script>
 
 <style scoped>
-.main-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-/* Layout for small viewports */
-.single-column {
-  display: flex;
-  flex-direction: column;
+/* Flip-card style */
+.flip-card {
+  perspective: 1500px;
   width: 100%;
   height: 100%;
 }
 
-/* Center content layout */
-.center-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.flip-card-inner {
+  position: relative;
   width: 100%;
   height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
 }
 
-/* Two-column layout for large viewports */
-.two-column {
-  display: grid;
-  grid-template-columns: auto 1fr;
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
   width: 100%;
   height: 100%;
+  backface-visibility: hidden;
+  border: 2px solid var(--bg-base);
+  border-radius: 5px;
 }
 
-.left-column {
-  padding: 1rem;
+.flip-card-front {
+  z-index: 2;
 }
 
-.right-column {
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-/* Fullscreen view */
-.fullscreen-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
+.flip-card-back {
+  transform: rotateY(180deg);
+  z-index: 1;
 }
 </style>

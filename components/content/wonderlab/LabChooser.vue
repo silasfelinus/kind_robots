@@ -2,9 +2,7 @@
   <div
     class="wonderlab-container flex flex-col items-center min-h-screen p-4 w-full overflow-hidden"
   >
-    <!-- Wonderlab Banner -->
-    <kind-banner />
-
+    
     <!-- Tabs for toggling components -->
     <div
       class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full mb-3"

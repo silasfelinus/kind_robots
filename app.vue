@@ -15,7 +15,7 @@
     >
       <!-- Header -->
       <header
-        class="bg-base-100 flex items-center fixed w-full p-2 z-10"
+        class="bg-base-100 flex items-center fixed w-full p-2 z-20"
         :style="{
           gridRow: '1 / 2',
           gridColumn: '1 / 3' /* Spans left sidebar + main content */,
@@ -47,6 +47,7 @@
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
           height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
+          width: mainWidth,
         }"
       >
         <!-- Mobile View (no flip card) -->
@@ -63,7 +64,7 @@
         <!-- Fullscreen mode (Desktop) -->
         <div v-else-if="isFullScreen" class="rounded-2xl w-full h-full">
           <div class="h-full rounded-2xl z-30 overflow-y-auto">
-            <SplashTutorial class="h-full w-full" />
+            <NuxtPage class="h-full w-full" />
           </div>
         </div>
 
@@ -73,15 +74,14 @@
           class="flip-card-inner"
           :class="{ 'is-flipped': !showTutorial }"
         >
-          <div class="flip-card-front rounded-2xl z-30">
+          <div class="flip-card-front rounded-2xl z-10">
             <SplashTutorial class="h-full w-full" />
           </div>
           <div class="flip-card-back rounded-2xl overflow-y-auto">
-            <NuxtPage class="h-full w-full z-20" />
+            <NuxtPage class="h-full w-full z-10" />
           </div>
         </div>
 
-        <!-- Tutorial Toggle: Centered at the bottom of main content -->
         <tutorial-toggle />
       </main>
 
@@ -96,7 +96,7 @@
       >
         <!-- Display second column content in sidebar when fullscreen -->
         <div v-if="isFullScreen" class="h-full w-full overflow-y-auto">
-          <NuxtPage class="h-full w-full" />
+          <SplashTutorial class="h-full w-full" />
         </div>
       </aside>
 

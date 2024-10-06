@@ -33,7 +33,7 @@
         <login-button
           class="flex-1 max-w-[90px] sm:max-w-[110px] md:max-w-[130px] lg:max-w-[150px]"
         />
-        <theme-toggle
+        <theme-icon
           class="flex-1 max-w-[90px] sm:max-w-[110px] md:max-w-[130px] lg:max-w-[150px]"
         />
         <butterfly-toggle

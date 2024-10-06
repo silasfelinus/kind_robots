@@ -7,7 +7,7 @@
       v-if="page && page.image"
       :src="'/images/' + page.image"
       alt="Page banner image"
-      class="banner-image object-cover rounded-lg lg:w-1/4 w-3/4 mb-4 lg:mb-0 lg:mr-4"
+      class="banner-image object-cover rounded-lg h-[9vh] lg:h-[14vh] mb-4 lg:mb-0 lg:mr-4"
     />
 
     <!-- Title and Subtitle -->

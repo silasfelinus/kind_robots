@@ -105,7 +105,7 @@
     </div>
   </div>
   <fullscreen-toggle />
-<layout-toggle />
+<tutorial-toggle />
 </template>
 
 <script setup lang="ts">

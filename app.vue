@@ -35,8 +35,12 @@
         }"
       />
 
-      <!-- Main Content Component -->
-      <main-content />
+      <!-- Main Content Component with gridColumn set here -->
+      <main-content
+        :gridColumn="'2 / 3'"
+        :headerHeight="headerHeight"
+        :footerHeight="footerHeight"
+      />
 
       <!-- Sidebar right (Scrollable if content overflows) -->
       <aside

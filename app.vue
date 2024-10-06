@@ -13,11 +13,11 @@
         height: '100vh',
       }"
     >
+      <!-- Header -->
       <header
         class="bg-base-100 flex items-center fixed w-full p-2 z-10"
         :style="{ gridRow: '1 / 2', height: headerHeight }"
       >
-        <!-- Sidebar Toggle and Banner -->
         <div class="flex items-center justify-start space-x-4 w-full">
           <!-- Sidebar Toggle -->
           <div class="p-1 text-white flex-shrink-0">
@@ -35,6 +35,7 @@
         :style="{ gridRow: '2 / 3', width: sidebarLeftWidth }"
       ></kind-sidebar-simple>
 
+      <!-- Main content -->
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
         class="bg-base-100 p-2 rounded-2xl z-10 overflow-y-auto"
@@ -50,10 +51,9 @@
             v-if="showTutorial"
             class="h-full w-full z-10 rounded-2xl"
           />
-          <NuxtPage
-            v-else
-            class="h-full w-full z-10 overflow-y-auto rounded-2xl"
-          />
+          <div v-else class="overflow-y-auto h-full w-full rounded-2xl">
+            <NuxtPage class="h-full w-full" />
+          </div>
         </div>
 
         <!-- Fullscreen mode (Desktop) -->
@@ -125,7 +125,7 @@ const isMobile = computed(() => displayStore.isMobileViewport)
 <style scoped>
 /* Flip-card style */
 .flip-card {
-  perspective: 1500px; /* Increased perspective for a more pronounced flip effect */
+  perspective: 1500px;
   width: 100%;
   height: 100%;
 }
@@ -147,17 +147,17 @@ const isMobile = computed(() => displayStore.isMobileViewport)
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden; /* Ensures the backface is not visible */
+  backface-visibility: hidden;
   border: 2px solid var(--bg-base);
   border-radius: 5px;
 }
 
 .flip-card-front {
-  z-index: 2; /* Ensure the front side is on top when flipped */
+  z-index: 2;
 }
 
 .flip-card-back {
   transform: rotateY(180deg);
-  z-index: 1; /* Keep back side behind the front side */
+  z-index: 1;
 }
 </style>

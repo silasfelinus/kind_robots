@@ -1,21 +1,32 @@
 <template>
-  <div
-    class="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-accent transition duration-300 cursor-pointer rounded-lg shadow-md p-1"
-    :style="{ bottom: footerHeight }"
-    @click="toggleTutorial"
-  >
-    <Icon
-      v-if="showTutorial"
-      name="mdi-information-outline"
-      class="text-base-200 w-6 h-6"
-    />
-    <Icon
-      v-else
-      :name="pageIcon"
-      class="text-base-200 w-6 h-6"
-    />
+  <div class="relative h-full w-full">
+    <!-- Other Main Content -->
+
+    <!-- Tutorial Toggle: Centered at the bottom of the main content -->
+    <div
+      class="flex justify-center items-center w-full"
+      :style="{ paddingBottom: footerHeight }"
+    >
+      <div
+        class="bg-primary hover:bg-accent transition duration-300 cursor-pointer rounded-lg shadow-md p-2 flex items-center justify-center"
+        @click="toggleTutorial"
+      >
+        <Icon
+          v-if="showTutorial"
+          name="mdi-information-outline"
+          class="text-base-200 w-6 h-6"
+        />
+        <Icon
+          v-else
+          :name="pageIcon"
+          class="text-base-200 w-6 h-6"
+        />
+      </div>
+    </div>
   </div>
 </template>
+
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

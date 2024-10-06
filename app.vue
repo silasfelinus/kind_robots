@@ -31,7 +31,7 @@
 
       <!-- Sidebar left -->
       <kind-sidebar-simple
-        class="bg-base-100 overflow-y-hidden"
+        class="bg-base-100 fixed"
         :style="{ gridRow: '2 / 3', width: sidebarLeftWidth }"
       ></kind-sidebar-simple>
 

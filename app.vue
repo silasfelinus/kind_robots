@@ -18,7 +18,7 @@
         class="bg-base-100 flex items-center fixed w-full p-2 z-20"
         :style="{
           gridRow: '1 / 2',
-          gridColumn: '1 / 3' /* Spans left sidebar + main content */,
+          gridColumn: '1 / 3', /* Spans left sidebar + main content */,
           height: headerHeight,
         }"
       >
@@ -47,41 +47,31 @@
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
           height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
-          width: mainWidth,
         }"
       >
         <!-- Mobile View (no flip card) -->
         <div v-if="isMobile">
-          <SplashTutorial
-            v-if="showTutorial"
-            class="h-full w-full z-30 rounded-2xl"
-          />
-          <div v-else class="overflow-y-auto h-full w-full rounded-2xl">
-            <NuxtPage class="h-full w-full" />
-          </div>
+          <SplashTutorial v-if="showTutorial" class="h-full w-full z-30 rounded-2xl" />
+          <NuxtPage v-else class="h-full w-full z-30 rounded-2xl" />
         </div>
 
         <!-- Fullscreen mode (Desktop) -->
         <div v-else-if="isFullScreen" class="rounded-2xl w-full h-full">
-          <div class="h-full rounded-2xl z-30 overflow-y-auto">
+          <SplashTutorial v-if="showTutorial" class="h-full w-full z-30 rounded-2xl" />
+          <NuxtPage v-else class="h-full w-full z-30 rounded-2xl" />
+        </div>
+
+        <!-- Flip-card mode (Desktop) -->
+        <div v-else class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
+          <div class="flip-card-front rounded-2xl z-10">
+            <SplashTutorial class="h-full w-full" />
+          </div>
+          <div class="flip-card-back rounded-2xl overflow-y-auto z-10">
             <NuxtPage class="h-full w-full" />
           </div>
         </div>
 
-        <!-- Flip-card mode (Desktop) -->
-        <div
-          v-else
-          class="flip-card-inner"
-          :class="{ 'is-flipped': !showTutorial }"
-        >
-          <div class="flip-card-front rounded-2xl z-10">
-            <SplashTutorial class="h-full w-full" />
-          </div>
-          <div class="flip-card-back rounded-2xl overflow-y-auto">
-            <NuxtPage class="h-full w-full z-10" />
-          </div>
-        </div>
-
+        <!-- Tutorial toggle button -->
         <tutorial-toggle />
       </main>
 
@@ -96,7 +86,8 @@
       >
         <!-- Display second column content in sidebar when fullscreen -->
         <div v-if="isFullScreen" class="h-full w-full overflow-y-auto">
-          <SplashTutorial class="h-full w-full" />
+          <SplashTutorial v-if="showTutorial" class="h-full w-full" />
+          <NuxtPage v-else class="h-full w-full" />
         </div>
       </aside>
 
@@ -109,6 +100,7 @@
   </div>
   <fullscreen-toggle />
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

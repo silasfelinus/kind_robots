@@ -8,95 +8,87 @@
     <div
       class="grid"
       :style="{
-        gridTemplateRows: `${headerHeight} 1fr ${footerHeight}`,
+        gridTemplateRows: `${headerHeight} auto ${footerHeight}`,
         gridTemplateColumns: `${sidebarLeftWidth} 1fr ${sidebarRightWidth}`,
         height: '100vh',
       }"
     >
       <!-- Header -->
       <header
-        class="bg-base-100 flex items-center fixed w-full p-2 z-20"
-        :style="{
-          gridRow: '1 / 2',
-          gridColumn: '1 / 4', /* Spans left sidebar, main content, right sidebar */,
-          height: headerHeight,
-        }"
+        class="bg-base-100 flex items-center fixed justify-between w-full p-2 z-10"
+        :style="{ gridRow: '1 / 2', height: headerHeight }"
       >
-        <div class="flex items-center justify-start space-x-4 w-full">
-          <!-- Sidebar Toggle -->
-          <div class="p-1 text-white flex-shrink-0">
-            <sidebar-toggle class="text-4xl"></sidebar-toggle>
-          </div>
+        <!-- Sidebar Toggle -->
+        <div class="p-1 text-white flex-grow flex justify-center">
+          <sidebar-toggle class="text-4xl"></sidebar-toggle>
+        </div>
 
-          <!-- Banner -->
-          <header-upgrade class="flex-grow"></header-upgrade>
+        <!-- Nav Links -->
+        <div class="flex-grow flex justify-center items-center w-2/3 space-x-4">
+          <nav-links></nav-links>
         </div>
       </header>
 
       <!-- Sidebar left -->
       <kind-sidebar-simple
-        class="bg-base-100 fixed"
-        :style="{ gridRow: '2 / 3', gridColumn: '1 / 2', width: sidebarLeftWidth }"
+        class="bg-base-100 overflow-y-hidden"
+        :style="{ gridRow: '2 / 3', width: sidebarLeftWidth }"
       ></kind-sidebar-simple>
 
-      <!-- Main content -->
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-100 p-2 rounded-2xl z-20 overflow-y-auto relative"
+        class="bg-base-100 p-2 rounded-2xl z-10 overflow-y-auto" 
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
-          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
+          height: mainHeight,
         }"
       >
         <!-- Mobile View (no flip card) -->
         <div v-if="isMobile">
-          <SplashTutorial v-if="showTutorial" class="h-full w-full z-30 rounded-2xl" />
-          <NuxtPage v-else class="h-full w-full z-30 rounded-2xl" />
+          <SplashTutorial
+            v-if="showTutorial"
+            class="h-full w-full z-10 rounded-2xl"
+          />
+          <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
         </div>
 
         <!-- Fullscreen mode (Desktop) -->
-        <div v-else-if="isFullScreen" class="rounded-2xl w-full h-full">
-          <SplashTutorial v-if="showTutorial" class="h-full w-full z-30 rounded-2xl" />
-          <NuxtPage v-else class="h-full w-full z-30 rounded-2xl" />
+        <div v-else-if="isFullScreen" class="h-full rounded-2xl z-10 overflow-y-auto">
+          <NuxtPage class="h-full w-full" />
         </div>
 
         <!-- Flip-card mode (Desktop) -->
-        <div v-else class="flip-card-inner" :class="{ 'is-flipped': !showTutorial }">
-          <div class="flip-card-front rounded-2xl z-10">
+        <div
+          v-else
+          class="flip-card-inner"
+          :class="{ 'is-flipped': !showTutorial }"
+        >
+          <div class="flip-card-front rounded-2xl">
             <SplashTutorial class="h-full w-full" />
           </div>
-          <div class="flip-card-back rounded-2xl overflow-y-auto z-10">
+          <div class="flip-card-back rounded-2xl overflow-y-auto">
             <NuxtPage class="h-full w-full" />
           </div>
         </div>
-
-        <!-- Tutorial toggle button -->
         <tutorial-toggle />
       </main>
 
-      <!-- Sidebar right -->
+      <!-- Sidebar right (Second column in fullscreen/large viewports) -->
       <aside
-        class="bg-base-100 fixed right-0 z-10"
-        :style="{
-          gridRow: '2 / 3',
-          gridColumn: '3 / 4',
-          top: headerHeight,
-          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
-          width: sidebarRightWidth,
-        }"
+        class="bg-base-100 overflow-y-auto"
+        :style="{ gridRow: '2 / 3', width: sidebarRightWidth }"
       >
-        <!-- Display second column content in sidebar when fullscreen -->
-        <div v-if="isFullScreen" class="h-full w-full overflow-y-auto">
-          <SplashTutorial v-if="showTutorial" class="h-full w-full" />
-          <NuxtPage v-else class="h-full w-full" />
+        <!-- Place second column content here when fullscreen -->
+        <div v-if="isFullScreen" class="h-full w-full">
+          <NuxtPage class="h-full w-full" />
         </div>
       </aside>
 
       <!-- Footer -->
       <footer
         class="flex justify-center items-center"
-        :style="{ gridRow: '3 / 4', gridColumn: '1 / 4', height: footerHeight }"
+        :style="{ gridRow: '3 / 4', height: footerHeight }"
       ></footer>
     </div>
   </div>

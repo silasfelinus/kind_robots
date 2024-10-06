@@ -45,6 +45,7 @@
         }"
       >
         <main-content />
+        <tutorial-toggle v-if="!displayStore.isFullScreen" />
       </main>
 
       <!-- Sidebar right (Fixed, full height, scrollable if content overflows) -->

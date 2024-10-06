@@ -89,7 +89,7 @@
       >
         <!-- Place second column content here when fullscreen -->
         <div v-if="isFullScreen" class="h-full w-full">
-          <NuxtPage class="h-full w-full" />
+          <SplashTutorial class="h-full w-full" />
         </div>
       </aside>
 

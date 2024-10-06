@@ -1,54 +1,45 @@
 <template>
-  <!-- Main Content (Scrollable only if needed) -->
-  <main
-    class="bg-base-100 p-2 rounded-2xl z-10"
-    :style="{
-      height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
-    }"
-  >
-    <div class="h-full">
-      <!-- Mobile View (no flip card) -->
-      <div v-if="isMobile" class="h-full w-full">
-        <SplashTutorial
-          v-if="showTutorial"
-          class="h-full w-full z-10 rounded-2xl"
-        />
-        <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
-      </div>
+  <!-- Content of MainContent.vue focuses only on its content -->
+  <div class="h-full">
+    <!-- Mobile View (no flip card) -->
+    <div v-if="isMobile">
+      <SplashTutorial
+        v-if="showTutorial"
+        class="h-full w-full z-10 rounded-2xl"
+      />
+      <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
+    </div>
 
-      <!-- Fullscreen mode (Desktop) -->
-      <div v-else-if="isFullScreen" class="h-full w-full rounded-2xl z-10 overflow-y-auto">
+    <!-- Fullscreen mode (Desktop) -->
+    <div v-else-if="isFullScreen" class="h-full rounded-2xl z-10 overflow-y-auto">
+      <NuxtPage class="h-full w-full" />
+    </div>
+
+    <!-- Flip-card mode (Desktop) -->
+    <div
+      v-else
+      class="flip-card-inner h-full z-10"
+      :class="{ 'is-flipped': !showTutorial }"
+    >
+      <div class="flip-card-front rounded-2xl h-full">
+        <SplashTutorial class="h-full w-full" />
+      </div>
+      <div class="flip-card-back rounded-2xl overflow-y-auto z-10">
         <NuxtPage class="h-full w-full" />
       </div>
-
-      <!-- Flip-card mode (Desktop) -->
-      <div
-        v-else
-        class="flip-card-inner h-full z-10"
-        :class="{ 'is-flipped': !showTutorial }"
-      >
-        <div class="flip-card-front rounded-2xl h-full">
-          <SplashTutorial class="h-full w-full" />
-        </div>
-        <div class="flip-card-back rounded-2xl overflow-y-auto z-10">
-          <NuxtPage class="h-full w-full" />
-        </div>
-      </div>
-      <tutorial-toggle />
     </div>
-  </main>
+    <tutorial-toggle />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Access display store
+// Access layout-related data and state from displayStore
 const displayStore = useDisplayStore()
 
-// Layout and state from store
-const headerHeight = computed(() => displayStore.headerHeight)
-const footerHeight = computed(() => displayStore.footerHeight)
+// Layout dimensions and state
 const isMobile = computed(() => displayStore.isMobileViewport)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 const showTutorial = computed(() => displayStore.showTutorial)

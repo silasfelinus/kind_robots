@@ -18,7 +18,7 @@
         class="bg-base-100 flex items-center fixed w-full p-2 z-10"
         :style="{
           gridRow: '1 / 2',
-          gridColumn: '1 / 3', /* Spans left sidebar + main content */
+          gridColumn: '1 / 3' /* Spans left sidebar + main content */,
           height: headerHeight,
         }"
       >
@@ -82,23 +82,7 @@
         </div>
 
         <!-- Tutorial Toggle: Centered at the bottom of main content -->
-        <div class="flex justify-center items-center w-full absolute bottom-0">
-          <div
-            class="bg-primary hover:bg-accent transition duration-300 cursor-pointer rounded-lg shadow-md p-2 flex items-center justify-center"
-            @click="toggleTutorial"
-          >
-            <Icon
-              v-if="showTutorial"
-              name="mdi-information-outline"
-              class="text-base-200 w-6 h-6"
-            />
-            <Icon
-              v-else
-              :name="pageIcon"
-              class="text-base-200 w-6 h-6"
-            />
-          </div>
-        </div>
+        <tutorial-toggle />
       </main>
 
       <!-- Sidebar right -->
@@ -126,8 +110,6 @@
   <fullscreen-toggle />
 </template>
 
-
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -141,7 +123,6 @@ const isFullScreen = computed(() => displayStore.isFullScreen)
 
 // Layout dimensions
 const headerHeight = computed(() => displayStore.headerHeight)
-const mainHeight = computed(() => displayStore.mainHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)

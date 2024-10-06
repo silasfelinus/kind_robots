@@ -13,9 +13,18 @@
         height: '100vh',
       }"
     >
-      <!-- Header -->
+      <!-- Sidebar left (Fixed, no scrolling) -->
+      <kind-sidebar-simple
+        class="bg-base-100 fixed top-0 left-0 z-10"
+        :style="{
+          width: sidebarLeftWidth,
+          height: `calc(100vh - ${footerHeight})`,
+        }"
+      />
+
+      <!-- Header (Spans the grid columns, placed inside the sidebar region) -->
       <div
-        class="bg-base-100 flex items-left justify-between w-full p-2 z-30"
+        class="bg-base-100 flex items-left justify-between w-full p-2 z-30 col-start-1 col-end-4"
         :style="{ height: headerHeight }"
       >
         <!-- Sidebar Toggle -->
@@ -24,16 +33,6 @@
         </div>
         <header-upgrade />
       </div>
-
-      <!-- Sidebar left (Fixed, no scrolling) -->
-      <kind-sidebar-simple
-        class="bg-base-100 fixed top-0 left-0 z-10"
-        :style="{
-          width: sidebarLeftWidth,
-          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
-          top: headerHeight
-        }"
-      />
 
       <!-- Main Content (Now App.vue defines gridColumn) -->
       <main
@@ -53,8 +52,7 @@
         class="bg-base-100 fixed top-0 right-0 z-20 overflow-y-auto"
         :style="{
           width: sidebarRightWidth,
-          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
-          top: headerHeight
+          height: `calc(100vh - ${footerHeight})`,
         }"
       >
         <div v-if="isFullScreen" class="h-full w-full">
@@ -64,11 +62,13 @@
 
       <!-- Footer (Static, no scrolling) -->
       <footer
-        class="flex justify-center items-center bg-base-100 z-20"
-        :style="{ gridRow: '3 / 4', height: footerHeight }"
+        class="flex justify-center items-center bg-base-100 z-20 col-start-1 col-end-4"
+        :style="{ height: footerHeight }"
       >
         <!-- Minimalistic Tutorial Toggle -->
-        <fullscreen-toggle class="text-sm px-2 py-1 rounded-lg bg-primary text-white" />
+        <fullscreen-toggle
+          class="text-sm px-2 py-1 rounded-lg bg-primary text-white"
+        />
       </footer>
     </div>
   </div>
@@ -126,4 +126,4 @@ const isFullScreen = computed(() => displayStore.isFullScreen)
   transform: rotateY(180deg);
   z-index: 1;
 }
-</style> 
+</style>

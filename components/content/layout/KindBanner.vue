@@ -8,14 +8,13 @@
         v-if="page && page.image"
         :src="'/images/' + page.image"
         alt="Page banner image"
-        class="object-contain rounded-lg max-h-full"
-        :style="{ height: '100%', width: 'auto' }"
+        class="object-contain rounded-lg max-h-24 lg:max-h-32"
       />
     </div>
 
     <!-- Title and Subtitle -->
     <div
-      class="flex flex-col justify-center text-center lg:text-left lg:w-3/4 ml-4"
+      class="flex flex-col justify-center text-center lg:text-left lg:w-3/4 mt-3 lg:mt-0 lg:ml-4"
     >
       <h1 class="text-2xl md:text-4xl font-extrabold">
         {{ page.title || 'Kind Robots' }}

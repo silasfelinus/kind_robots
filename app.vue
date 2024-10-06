@@ -42,10 +42,8 @@
         :style="{
           gridColumn: '2 / 3',
           height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
-          paddingTop: headerHeight,
         }"
       >
-        <!-- Flip-card mode (Desktop) -->
         <div class="h-full overflow-y-auto">
           <!-- Mobile View (no flip card) -->
           <div v-if="isMobile">

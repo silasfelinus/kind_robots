@@ -42,7 +42,7 @@
       <!-- Main content -->
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-100 p-2 rounded-2xl z-20 overflow-y-auto"
+        class="bg-base-100 p-2 rounded-2xl z-20 overflow-y-auto relative"
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
@@ -80,6 +80,25 @@
             <NuxtPage class="h-full w-full z-20" />
           </div>
         </div>
+
+        <!-- Tutorial Toggle: Centered at the bottom of main content -->
+        <div class="flex justify-center items-center w-full absolute bottom-0">
+          <div
+            class="bg-primary hover:bg-accent transition duration-300 cursor-pointer rounded-lg shadow-md p-2 flex items-center justify-center"
+            @click="toggleTutorial"
+          >
+            <Icon
+              v-if="showTutorial"
+              name="mdi-information-outline"
+              class="text-base-200 w-6 h-6"
+            />
+            <Icon
+              v-else
+              :name="pageIcon"
+              class="text-base-200 w-6 h-6"
+            />
+          </div>
+        </div>
       </main>
 
       <!-- Sidebar right -->
@@ -105,8 +124,8 @@
     </div>
   </div>
   <fullscreen-toggle />
-  <tutorial-toggle />
 </template>
+
 
 
 <script setup lang="ts">

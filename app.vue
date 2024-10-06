@@ -42,7 +42,7 @@
       <!-- Main content -->
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-100 p-2 rounded-2xl z-10 overflow-y-auto"
+        class="bg-base-100 p-2 rounded-2xl z-20 overflow-y-auto"
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
@@ -53,7 +53,7 @@
         <div v-if="isMobile">
           <SplashTutorial
             v-if="showTutorial"
-            class="h-full w-full z-10 rounded-2xl"
+            class="h-full w-full z-30 rounded-2xl"
           />
           <div v-else class="overflow-y-auto h-full w-full rounded-2xl">
             <NuxtPage class="h-full w-full" />
@@ -62,7 +62,7 @@
 
         <!-- Fullscreen mode (Desktop) -->
         <div v-else-if="isFullScreen" class="rounded-2xl w-full h-full">
-          <div class="h-full rounded-2xl z-10 overflow-y-auto">
+          <div class="h-full rounded-2xl z-30 overflow-y-auto">
             <SplashTutorial class="h-full w-full" />
           </div>
         </div>
@@ -73,11 +73,11 @@
           class="flip-card-inner"
           :class="{ 'is-flipped': !showTutorial }"
         >
-          <div class="flip-card-front rounded-2xl">
+          <div class="flip-card-front rounded-2xl z-30">
             <SplashTutorial class="h-full w-full" />
           </div>
           <div class="flip-card-back rounded-2xl overflow-y-auto">
-            <NuxtPage class="h-full w-full" />
+            <NuxtPage class="h-full w-full z-20" />
           </div>
         </div>
       </main>
@@ -105,8 +105,9 @@
     </div>
   </div>
   <fullscreen-toggle />
-<tutorial-toggle />
+  <tutorial-toggle />
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

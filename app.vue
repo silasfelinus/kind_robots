@@ -66,10 +66,10 @@
       <footer
         class="flex justify-center items-center"
         :style="{ gridRow: '3 / 4', height: footerHeight }"
+          <fullscreen-toggle />
       />
     </div>
   </div>
-  <fullscreen-toggle />
 </template>
 
 <script setup lang="ts">

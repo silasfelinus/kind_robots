@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-accent transition duration-300 cursor-pointer rounded-lg shadow-md p-1"
+    class="absolute -bottom-5 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-accent transition duration-300 cursor-pointer rounded-lg shadow-md p-1"
     :style="{ bottom: footerHeight }"
     @click="toggleTutorial"
   >
@@ -9,18 +9,13 @@
       name="mdi-information-outline"
       class="text-base-200 w-6 h-6"
     />
-    <Icon
-      v-else
-      :name="pageIcon"
-      class="text-base-200 w-6 h-6"
-    />
+    <Icon v-else :name="pageIcon" class="text-base-200 w-6 h-6" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-
 
 // Access the display store
 const displayStore = useDisplayStore()
@@ -39,8 +34,10 @@ const toggleTutorial = () => {
   displayStore.toggleTutorial()
 }
 
-// Use a computed value to get the page icon from useContent
-const pageIcon = computed(() => page.icon || 'mdi-page-layout-sidebar-right')
+const pageIcon = computed(() => {
+  const content = page as { icon?: string }
+  return content.icon ? content.icon : 'mdi-page-layout-sidebar-right'
+})
 </script>
 
 <style scoped>

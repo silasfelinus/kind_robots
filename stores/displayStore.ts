@@ -82,10 +82,10 @@ export const useDisplayStore = defineStore('display', {
 
     sidebarRightVw: (state): number => {
       const sizes = {
-        small: { open: 3, compact: 2, hidden: 1, disabled: 0 },
-        medium: { open: 3, compact: 2, hidden: 1, disabled: 0 },
-        large: { open: 3, compact: 2, hidden: 1, disabled: 0 },
-        extraLarge: { open: 3, compact: 2, hidden: 1, disabled: 0 },
+        small: { open: 30, compact: 2, hidden: 1, disabled: 0 },
+        medium: { open: 30, compact: 2, hidden: 1, disabled: 0 },
+        large: { open: 30, compact: 2, hidden: 1, disabled: 0 },
+        extraLarge: { open: 30, compact: 2, hidden: 1, disabled: 0 },
       }[state.viewportSize]
       return sizes[state.sidebarRightState] || 2
     },

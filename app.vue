@@ -4,7 +4,7 @@
     <kind-loader />
     <animation-loader />
 
-    <!-- Grid Container: Starts right after loaders -->
+    <!-- Grid Container: Structure follows Sidebar (Left), Content (Header, Main, Footer), Sidebar (Right) -->
     <div
       class="grid"
       :style="{
@@ -13,19 +13,19 @@
         height: '100vh',
       }"
     >
-      <!-- Sidebar left (Fixed, no scrolling) -->
+      <!-- Sidebar left (Fixed, full height) -->
       <kind-sidebar-simple
         class="bg-base-100 fixed top-0 left-0 z-10"
         :style="{
           width: sidebarLeftWidth,
-          height: `calc(100vh - ${footerHeight})`,
+          height: '100%',
         }"
       />
 
-      <!-- Header (Spans the grid columns, placed inside the sidebar region) -->
+      <!-- Header (Sits above the main content and footer in one column) -->
       <div
-        class="bg-base-100 flex items-left justify-between w-full p-2 z-30 col-start-1 col-end-4"
-        :style="{ height: headerHeight }"
+        class="bg-base-100 flex items-center justify-between p-2 z-30"
+        :style="{ gridColumn: '2 / 3', height: headerHeight }"
       >
         <!-- Sidebar Toggle -->
         <div class="p-1 text-white flex-grow flex justify-center">
@@ -34,7 +34,7 @@
         <header-upgrade />
       </div>
 
-      <!-- Main Content (Now App.vue defines gridColumn) -->
+      <!-- Main Content (Located below the header and above the footer) -->
       <main
         class="bg-base-100 p-2 rounded-2xl z-10 overflow-hidden"
         :style="{
@@ -47,12 +47,12 @@
         <main-content />
       </main>
 
-      <!-- Sidebar right (Scrollable if content overflows) -->
+      <!-- Sidebar right (Fixed, full height, scrollable if content overflows) -->
       <aside
         class="bg-base-100 fixed top-0 right-0 z-20 overflow-y-auto"
         :style="{
           width: sidebarRightWidth,
-          height: `calc(100vh - ${footerHeight})`,
+          height: '100%',
         }"
       >
         <div v-if="isFullScreen" class="h-full w-full">
@@ -60,10 +60,10 @@
         </div>
       </aside>
 
-      <!-- Footer (Static, no scrolling) -->
+      <!-- Footer (Below main content, shares the same column as header and main content) -->
       <footer
-        class="flex justify-center items-center bg-base-100 z-20 col-start-1 col-end-4"
-        :style="{ height: footerHeight }"
+        class="flex justify-center items-center bg-base-100 z-20"
+        :style="{ gridColumn: '2 / 3', height: footerHeight }"
       >
         <!-- Minimalistic Tutorial Toggle -->
         <fullscreen-toggle

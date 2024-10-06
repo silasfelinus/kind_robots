@@ -15,7 +15,7 @@
     >
       <!-- Header -->
       <div
-        class="bg-base-100 flex items-left fixed justify-between w-full p-2 z-10"
+        class="bg-base-100 flex items-left fixed justify-between w-full p-2 z-30"
         :style="{ height: headerHeight }"
       >
         <!-- Sidebar Toggle -->
@@ -64,13 +64,13 @@
           <!-- Flip-card mode (Desktop) -->
           <div
             v-else
-            class="flip-card-inner h-full"
+            class="flip-card-inner h-full z-10"
             :class="{ 'is-flipped': !showTutorial }"
           >
             <div class="flip-card-front rounded-2xl h-full">
               <SplashTutorial class="h-full w-full" />
             </div>
-            <div class="flip-card-back rounded-2xl overflow-y-auto">
+            <div class="flip-card-back rounded-2xl overflow-y-auto z-10">
               <NuxtPage class="h-full w-full" />
             </div>
           </div>
@@ -80,7 +80,7 @@
 
       <!-- Sidebar right (Fixed) -->
       <aside
-        class="bg-base-100 fixed top-0 right-0 z-10"
+        class="bg-base-100 fixed top-0 right-0 z-20"
         :style="{
           width: sidebarRightWidth,
           height: `calc(100vh - ${headerHeight} - ${footerHeight})`,

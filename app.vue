@@ -27,7 +27,7 @@
         <div class="flex-grow flex justify-center items-center w-2/3 space-x-4">
           <nav-links></nav-links>
         </div>
-      </header>
+      </header-upgrade>
 
       <!-- Sidebar left -->
       <kind-sidebar-simple

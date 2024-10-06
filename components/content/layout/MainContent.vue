@@ -1,33 +1,43 @@
 <template>
   <!-- Content of MainContent.vue focuses only on its content -->
-  <div class="h-full">
+  <div class="h-full flex flex-col">
+    <!-- Kind Banner at the top -->
+    <kind-banner class="flex-shrink-0" />
+
     <!-- Mobile View (no flip card) -->
-    <div v-if="isMobile">
+    <div v-if="isMobile" class="flex-grow">
       <SplashTutorial
         v-if="showTutorial"
         class="h-full w-full z-10 rounded-2xl"
       />
-      <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
+      <NuxtPage
+        v-else
+        class="h-full w-full z-10 overflow-y-auto rounded-2xl"
+      />
     </div>
 
     <!-- Fullscreen mode (Desktop) -->
-    <div v-else-if="isFullScreen" class="h-full rounded-2xl z-10 overflow-y-auto">
+    <div
+      v-else-if="isFullScreen"
+      class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow"
+    >
       <NuxtPage class="h-full w-full" />
     </div>
 
     <!-- Flip-card mode (Desktop) -->
     <div
       v-else
-      class="flip-card-inner h-full z-10"
+      class="flip-card-inner h-full z-10 flex-grow"
       :class="{ 'is-flipped': !showTutorial }"
     >
-      <div class="flip-card-front rounded-2xl h-full">
+      <div class="flip-card-front rounded-2xl h-full w-full">
         <SplashTutorial class="h-full w-full" />
       </div>
-      <div class="flip-card-back rounded-2xl overflow-y-auto z-10">
+      <div class="flip-card-back rounded-2xl overflow-y-auto h-full w-full">
         <NuxtPage class="h-full w-full" />
       </div>
     </div>
+
     <tutorial-toggle />
   </div>
 </template>
@@ -71,7 +81,6 @@ const showTutorial = computed(() => displayStore.showTutorial)
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border: 2px solid var(--bg-base);
   border-radius: 5px;
 }
 

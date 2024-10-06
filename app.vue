@@ -16,16 +16,14 @@
       <!-- Header -->
       <div
         class="bg-base-100 flex items-left fixed justify-between w-full p-2 z-10"
-        :style="{ gridRow: '1 / 2', height: headerHeight }"
+        :style="{ height: headerHeight }"
       >
-
         <!-- Sidebar Toggle -->
         <div class="p-1 text-white flex-grow flex justify-center">
           <sidebar-toggle class="text-xl"></sidebar-toggle>
         </div>
-<header-upgrade />
-
-</div>
+        <header-upgrade />
+      </div>
 
       <!-- Sidebar left -->
       <kind-sidebar-simple
@@ -40,6 +38,7 @@
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
           height: mainHeight,
+          paddingTop: headerHeight, /* Ensuring content starts below header */
         }"
       >
         <!-- Mobile View (no flip card) -->

@@ -2,8 +2,7 @@
   <div
     class="prompt-factory-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
   >
-    <!-- Kind Banner for consistent styling across components -->
-    <kind-banner />
+    
 
     <!-- Tabs for toggling components -->
     <div

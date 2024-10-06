@@ -25,56 +25,67 @@
         <header-upgrade />
       </div>
 
-      <!-- Sidebar left -->
+      <!-- Sidebar left (Fixed) -->
       <kind-sidebar-simple
-        class="bg-base-100 overflow-y-hidden"
-        :style="{ gridRow: '2 / 3', width: sidebarLeftWidth }"
+        class="bg-base-100 fixed top-0 left-0 z-10"
+        :style="{
+          width: sidebarLeftWidth,
+          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
+          top: headerHeight
+        }"
       ></kind-sidebar-simple>
 
+      <!-- Main Content (Scrollable within its boundaries) -->
       <main
         :class="{ 'flip-card': !isFullScreen && !isMobile }"
-        class="bg-base-100 p-2 rounded-2xl z-10 overflow-y-auto" 
+        class="bg-base-100 p-2 rounded-2xl z-10 overflow-hidden" 
         :style="{
-          gridRow: '2 / 3',
           gridColumn: '2 / 3',
-          height: mainHeight,
-          paddingTop: headerHeight, /* Ensuring content starts below header */
+          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
+          paddingTop: headerHeight,
         }"
       >
-        <!-- Mobile View (no flip card) -->
-        <div v-if="isMobile">
-          <SplashTutorial
-            v-if="showTutorial"
-            class="h-full w-full z-10 rounded-2xl"
-          />
-          <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
-        </div>
-
-        <!-- Fullscreen mode (Desktop) -->
-        <div v-else-if="isFullScreen" class="h-full rounded-2xl z-10 overflow-y-auto">
-          <NuxtPage class="h-full w-full" />
-        </div>
-
         <!-- Flip-card mode (Desktop) -->
-        <div
-          v-else
-          class="flip-card-inner"
-          :class="{ 'is-flipped': !showTutorial }"
-        >
-          <div class="flip-card-front rounded-2xl">
-            <SplashTutorial class="h-full w-full" />
+        <div class="h-full overflow-y-auto">
+          <!-- Mobile View (no flip card) -->
+          <div v-if="isMobile">
+            <SplashTutorial
+              v-if="showTutorial"
+              class="h-full w-full z-10 rounded-2xl"
+            />
+            <NuxtPage v-else class="h-full w-full z-10 rounded-2xl" />
           </div>
-          <div class="flip-card-back rounded-2xl overflow-y-auto">
+
+          <!-- Fullscreen mode (Desktop) -->
+          <div v-else-if="isFullScreen" class="h-full rounded-2xl z-10">
             <NuxtPage class="h-full w-full" />
           </div>
+
+          <!-- Flip-card mode (Desktop) -->
+          <div
+            v-else
+            class="flip-card-inner h-full"
+            :class="{ 'is-flipped': !showTutorial }"
+          >
+            <div class="flip-card-front rounded-2xl h-full">
+              <SplashTutorial class="h-full w-full" />
+            </div>
+            <div class="flip-card-back rounded-2xl overflow-y-auto">
+              <NuxtPage class="h-full w-full" />
+            </div>
+          </div>
+          <tutorial-toggle />
         </div>
-        <tutorial-toggle />
       </main>
 
-      <!-- Sidebar right (Second column in fullscreen/large viewports) -->
+      <!-- Sidebar right (Fixed) -->
       <aside
-        class="bg-base-100 overflow-y-auto"
-        :style="{ gridRow: '2 / 3', width: sidebarRightWidth }"
+        class="bg-base-100 fixed top-0 right-0 z-10"
+        :style="{
+          width: sidebarRightWidth,
+          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
+          top: headerHeight
+        }"
       >
         <!-- Place second column content here when fullscreen -->
         <div v-if="isFullScreen" class="h-full w-full">
@@ -116,7 +127,7 @@ const isMobile = computed(() => displayStore.isMobileViewport)
 <style scoped>
 /* Flip-card style */
 .flip-card {
-  perspective: 1500px; /* Increased perspective for a more pronounced flip effect */
+  perspective: 1500px;
   width: 100%;
   height: 100%;
 }
@@ -138,17 +149,17 @@ const isMobile = computed(() => displayStore.isMobileViewport)
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden; /* Ensures the backface is not visible */
+  backface-visibility: hidden;
   border: 2px solid var(--bg-base);
   border-radius: 5px;
 }
 
 .flip-card-front {
-  z-index: 2; /* Ensure the front side is on top when flipped */
+  z-index: 2;
 }
 
 .flip-card-back {
   transform: rotateY(180deg);
-  z-index: 1; /* Keep back side behind the front side */
+  z-index: 1;
 }
 </style>

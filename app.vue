@@ -65,7 +65,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import MainContent from './components/MainContent.vue'
 
 // Access display store
 const displayStore = useDisplayStore()

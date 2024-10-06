@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import { useContent } from '@/composables/useContent'
+
 
 // Access the display store
 const displayStore = useDisplayStore()

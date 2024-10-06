@@ -1,15 +1,14 @@
 <template>
   <!-- Main Content (Scrollable only if needed) -->
   <main
-    class="bg-base-100 p-2 rounded-2xl z-10 overflow-hidden"
+    class="bg-base-100 p-2 rounded-2xl z-10"
     :style="{
-      gridColumn: '2 / 3',
       height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
     }"
   >
     <div class="h-full">
       <!-- Mobile View (no flip card) -->
-      <div v-if="isMobile">
+      <div v-if="isMobile" class="h-full w-full">
         <SplashTutorial
           v-if="showTutorial"
           class="h-full w-full z-10 rounded-2xl"
@@ -18,7 +17,7 @@
       </div>
 
       <!-- Fullscreen mode (Desktop) -->
-      <div v-else-if="isFullScreen" class="h-full rounded-2xl z-10 overflow-y-auto">
+      <div v-else-if="isFullScreen" class="h-full w-full rounded-2xl z-10 overflow-y-auto">
         <NuxtPage class="h-full w-full" />
       </div>
 

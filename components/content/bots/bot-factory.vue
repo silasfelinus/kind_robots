@@ -2,8 +2,7 @@
   <div
     class="bot-factory-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
   >
-    <!-- Bot Factory Header -->
-    <kind-banner />
+    
 
     <!-- Section Buttons -->
     <div

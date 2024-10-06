@@ -13,16 +13,20 @@
         height: '100vh',
       }"
     >
-      <!-- Header -->
       <header
-        class="bg-base-100 flex items-left fixed w-full p-2 z-10"
+        class="bg-base-100 flex items-center fixed w-full p-2 z-10"
         :style="{ gridRow: '1 / 2', height: headerHeight }"
       >
-        <!-- Sidebar Toggle -->
-        <div class="p-1 text-white flex-grow flex justify-center">
-          <sidebar-toggle class="text-4xl"></sidebar-toggle>
+        <!-- Sidebar Toggle and Banner -->
+        <div class="flex items-center justify-start space-x-4 w-full">
+          <!-- Sidebar Toggle -->
+          <div class="p-1 text-white flex-shrink-0">
+            <sidebar-toggle class="text-4xl"></sidebar-toggle>
+          </div>
+
+          <!-- Banner -->
+          <header-upgrade class="flex-grow"></header-upgrade>
         </div>
-        <header-upgrade />
       </header>
 
       <!-- Sidebar left -->

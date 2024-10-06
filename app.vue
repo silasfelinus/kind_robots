@@ -8,7 +8,7 @@
     <div
       class="grid"
       :style="{
-        gridTemplateRows: `${headerHeight} auto ${footerHeight}`,
+        gridTemplateRows: `${headerHeight} 1fr ${footerHeight}`,
         gridTemplateColumns: `${sidebarLeftWidth} 1fr ${sidebarRightWidth}`,
         height: '100vh',
       }"
@@ -42,7 +42,7 @@
         :style="{
           gridRow: '2 / 3',
           gridColumn: '2 / 3',
-          height: mainHeight,
+          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
         }"
       >
         <!-- Mobile View (no flip card) -->
@@ -121,43 +121,3 @@ const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 // Mobile detection
 const isMobile = computed(() => displayStore.isMobileViewport)
 </script>
-
-<style scoped>
-/* Flip-card style */
-.flip-card {
-  perspective: 1500px;
-  width: 100%;
-  height: 100%;
-}
-
-.flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
-}
-
-.flip-card-front,
-.flip-card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border: 2px solid var(--bg-base);
-  border-radius: 5px;
-}
-
-.flip-card-front {
-  z-index: 2;
-}
-
-.flip-card-back {
-  transform: rotateY(180deg);
-  z-index: 1;
-}
-</style>

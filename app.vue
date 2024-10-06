@@ -64,10 +64,12 @@
 
       <!-- Footer (Static, no scrolling) -->
       <footer
-        class="flex justify-center items-center"
+        class="flex justify-center items-center bg-base-100 z-20"
         :style="{ gridRow: '3 / 4', height: footerHeight }"
-          <fullscreen-toggle />
-      />
+      >
+        <!-- Minimalistic Tutorial Toggle -->
+        <fullscreen-toggle class="text-sm px-2 py-1 rounded-lg bg-primary text-white" />
+      </footer>
     </div>
   </div>
 </template>
@@ -86,3 +88,42 @@ const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 </script>
+
+<style scoped>
+/* Flip-card style */
+.flip-card {
+  perspective: 1500px;
+  width: 100%;
+  height: 100%;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 5px;
+}
+
+.flip-card-front {
+  z-index: 2;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+  z-index: 1;
+}
+</style> 

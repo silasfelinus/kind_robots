@@ -16,7 +16,11 @@
       <!-- Header -->
       <header
         class="bg-base-100 flex items-center fixed w-full p-2 z-10"
-        :style="{ gridRow: '1 / 2', height: headerHeight }"
+        :style="{
+          gridRow: '1 / 2',
+          gridColumn: '1 / 3', /* Spans left sidebar + main content */
+          height: headerHeight,
+        }"
       >
         <div class="flex items-center justify-start space-x-4 w-full">
           <!-- Sidebar Toggle -->
@@ -57,15 +61,9 @@
         </div>
 
         <!-- Fullscreen mode (Desktop) -->
-        <div
-          v-else-if="isFullScreen"
-          class="grid grid-cols-2 gap-4 rounded-2xl w-full h-full"
-        >
-          <div class="h-full rounded-2xl z-10">
-            <SplashTutorial class="h-full w-full" />
-          </div>
+        <div v-else-if="isFullScreen" class="rounded-2xl w-full h-full">
           <div class="h-full rounded-2xl z-10 overflow-y-auto">
-            <NuxtPage class="h-full w-full" />
+            <SplashTutorial class="h-full w-full" />
           </div>
         </div>
 
@@ -86,14 +84,23 @@
 
       <!-- Sidebar right -->
       <aside
-        class="bg-base-100"
-        :style="{ gridRow: '2 / 3', width: sidebarRightWidth }"
-      ></aside>
+        class="bg-base-100 fixed right-0 z-10"
+        :style="{
+          top: headerHeight,
+          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
+          width: sidebarRightWidth,
+        }"
+      >
+        <!-- Display second column content in sidebar when fullscreen -->
+        <div v-if="isFullScreen" class="h-full w-full overflow-y-auto">
+          <NuxtPage class="h-full w-full" />
+        </div>
+      </aside>
 
       <!-- Footer -->
       <footer
         class="flex justify-center items-center"
-        :style="{ gridRow: '3 / 4', height: footerHeight }"
+        :style="{ gridRow: '3 / 4', gridColumn: '1 / 4', height: footerHeight }"
       ></footer>
     </div>
   </div>

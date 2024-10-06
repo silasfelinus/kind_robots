@@ -104,7 +104,8 @@
       ></footer>
     </div>
   </div>
-  <kind-buttons></kind-buttons>
+  <fullscreen-toggle />
+<layout-toggle />
 </template>
 
 <script setup lang="ts">

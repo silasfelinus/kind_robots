@@ -14,20 +14,18 @@
       }"
     >
       <!-- Header -->
-      <header-upgrade
-        class="bg-base-100 flex items-center fixed justify-between w-full p-2 z-10"
+      <div
+        class="bg-base-100 flex items-left fixed justify-between w-full p-2 z-10"
         :style="{ gridRow: '1 / 2', height: headerHeight }"
       >
+
         <!-- Sidebar Toggle -->
         <div class="p-1 text-white flex-grow flex justify-center">
-          <sidebar-toggle class="text-4xl"></sidebar-toggle>
+          <sidebar-toggle class="text-xl"></sidebar-toggle>
         </div>
+<header-upgrade />
 
-        <!-- Nav Links -->
-        <div class="flex-grow flex justify-center items-center w-2/3 space-x-4">
-          <nav-links></nav-links>
-        </div>
-      </header-upgrade>
+</div>
 
       <!-- Sidebar left -->
       <kind-sidebar-simple

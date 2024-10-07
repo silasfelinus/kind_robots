@@ -50,12 +50,7 @@
       <aside
         class="bg-secondary fixed z-20 transition-all duration-500 ease-in-out"
         :style="{
-          height: '100vh',
           width: sidebarRightWidth,
-          transform:
-            sidebarRightState === 'hidden'
-              ? 'translateX(100%)'
-              : 'translateX(0)',
         }"
       >
         <div v-if="isFullScreen" class="h-full w-full">
@@ -90,8 +85,7 @@ const headerWidth = '90vw' // Set header width to 90vw as requested
 const mainHeight = computed(() => displayStore.mainHeight)
 const mainWidth = computed(() => displayStore.mainWidth)
 
-const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const sidebarRightState = computed(() => displayStore.sidebarRightState)
+const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth) 
 
 const footerHeight = computed(() => displayStore.footerHeight)
 

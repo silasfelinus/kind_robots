@@ -6,39 +6,46 @@
 
     <!-- Grid Container: Sidebar (Left), Content (Header, Main, Footer), Sidebar (Right) -->
     <div
-      class="grid"
+      class="relative grid"
       :style="{
         gridTemplateRows: `${headerHeight} auto ${footerHeight}`,
         gridTemplateColumns: `${sidebarLeftWidth} 1fr ${sidebarRightWidth}`,
         height: '100vh',
       }"
     >
-      <!-- Sidebar left (Fixed, full height) -->
+      <!-- Sidebar left (Fixed, full height, positioned absolutely) -->
       <kind-sidebar-simple
-        class="bg-base-100"
+        class="bg-base-100 fixed"
         :style="{
+          left: '0px',
+          top: headerHeight,
           width: sidebarLeftWidth,
-          height: '100%',
+          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
         }"
       />
 
-      <!-- Header (Using header-upgrade component) -->
+      <!-- Header (Fixed at the top of the screen, full width except sidebars) -->
       <div
-        class="bg-base-100 flex items-center justify-between p-2 z-30"
-        :style="{ gridColumn: '2 / 3', height: headerHeight }"
+        class="bg-base-100 flex items-center justify-between p-2 z-30 fixed"
+        :style="{
+          left: sidebarLeftWidth,
+          right: sidebarRightWidth,
+          top: '0px',
+          height: headerHeight,
+        }"
       >
         <!-- Keep header content in header-upgrade component -->
         <header-upgrade />
       </div>
 
-      <!-- Main Content (Located below the header and above the footer) -->
+      <!-- Main Content (Fixed below the header and above the footer) -->
       <main
-        class="bg-base-100 p-2 rounded-2xl z-10 overflow-hidden"
+        class="bg-base-100 p-2 rounded-2xl z-10 fixed"
         :style="{
-          gridColumn: '2 / 3',
-          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
-          paddingTop: headerHeight,
-          paddingBottom: footerHeight,
+          left: sidebarLeftWidth,
+          right: sidebarRightWidth,
+          top: headerHeight,
+          bottom: footerHeight,
         }"
       >
         <main-content />
@@ -48,8 +55,10 @@
       <aside
         class="bg-base-100 fixed"
         :style="{
+          right: '0px',
+          top: headerHeight,
           width: sidebarRightWidth,
-          height: '100%',
+          height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
         }"
       >
         <div v-if="isFullScreen" class="h-full w-full">
@@ -57,15 +66,16 @@
         </div>
       </aside>
 
-      <!-- Footer (Below main content, shares the same column as header and main content) -->
+      <!-- Footer (Fixed at the bottom of the screen, full width except sidebars) -->
       <footer
         class="flex fixed justify-center items-center bg-base-100 z-20"
-        :style="{ gridColumn: '2 / 3', height: footerHeight }"
-      >
-        <fullscreen-toggle
-          class="text-sm px-2 py-1 rounded-lg bg-primary text-white"
-        />
-      </footer>
+        :style="{
+          left: sidebarLeftWidth,
+          right: sidebarRightWidth,
+          bottom: '0px',
+          height: footerHeight,
+        }"
+      ></footer>
     </div>
   </div>
 </template>

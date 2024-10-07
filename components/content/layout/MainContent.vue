@@ -1,5 +1,4 @@
 <template>
-  <!-- Content of MainContent.vue focuses only on its content -->
   <div class="relative h-full flex flex-col">
     <!-- Left Sidebar Toggle -->
     <div
@@ -11,13 +10,18 @@
       <span v-if="displayStore.sidebarLeftState === 'hidden'"> &#8250; </span>
     </div>
 
-    <!-- Right Sidebar Toggle -->
+    <!-- Right Sidebar Toggle (Mobile: Also toggles tutorial) -->
     <div
       class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 p-2 bg-secondary text-white rounded-l-lg cursor-pointer"
-      @click="toggleRightSidebar"
+      @click="isMobile ? toggleTutorial() : toggleRightSidebar()"
     >
-      <span v-if="displayStore.sidebarRightState === 'open'"> &#8250; </span>
-      <span v-if="displayStore.sidebarRightState === 'hidden'"> &#8249; </span>
+      <span v-if="displayStore.sidebarRightState === 'open' && !isMobile">
+        &#8250;
+      </span>
+      <span v-if="displayStore.sidebarRightState === 'hidden' && !isMobile">
+        &#8249;
+      </span>
+      <span v-if="isMobile"> &#x1F4D6; <!-- Tutorial icon for mobile --> </span>
     </div>
 
     <!-- Mobile View (no flip card) -->
@@ -50,91 +54,5 @@
         <NuxtPage class="h-full w-full" />
       </div>
     </div>
-
-    <!-- Small Tutorial Toggle Button on Mobile -->
-    <div
-      v-if="!displayStore.isFullScreen && isMobile"
-      class="fixed bottom-4 right-4 z-50"
-    >
-      <button
-        class="p-2 bg-primary text-white rounded-full shadow-lg hover:bg-secondary transition"
-        @click="toggleTutorial"
-      >
-        <Icon name="mdi-help-circle-outline" class="w-6 h-6" />
-      </button>
-    </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
-
-const displayStore = useDisplayStore()
-
-// Layout dimensions and state
-const isMobile = computed(() => displayStore.isMobileViewport)
-const isFullScreen = computed(() => displayStore.isFullScreen)
-const showTutorial = computed(() => displayStore.showTutorial)
-
-// Function to toggle the left sidebar
-const toggleLeftSidebar = () => {
-  if (displayStore.sidebarLeftState === 'open') {
-    displayStore.sidebarLeftState = 'compact'
-  } else if (displayStore.sidebarLeftState === 'compact') {
-    displayStore.sidebarLeftState = 'hidden'
-  } else {
-    displayStore.sidebarLeftState = 'open'
-  }
-}
-
-// Function to toggle the right sidebar
-const toggleRightSidebar = () => {
-  displayStore.sidebarRightState =
-    displayStore.sidebarRightState === 'open' ? 'hidden' : 'open'
-}
-
-// Function to toggle the tutorial
-const toggleTutorial = () => {
-  displayStore.showTutorial = !displayStore.showTutorial
-}
-</script>
-
-<style scoped>
-/* Flip-card style */
-.flip-card {
-  perspective: 1500px;
-  width: 100%;
-  height: 100%;
-}
-
-.flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
-}
-
-.flip-card-front,
-.flip-card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 5px;
-}
-
-.flip-card-front {
-  z-index: 2;
-}
-
-.flip-card-back {
-  transform: rotateY(180deg);
-  z-index: 1;
-}
-</style>

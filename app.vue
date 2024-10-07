@@ -66,7 +66,7 @@
 
       <!-- Footer -->
       <footer
-        class="bg-primary text-white flex justify-center items-center p-4"
+        class="justify-center items-center"
         :style="{
           height: footerHeight,
           gridArea: 'footer',

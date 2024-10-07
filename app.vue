@@ -86,7 +86,7 @@ const isFullScreen = computed(() => displayStore.isFullScreen)
 </script>
 
 <style scoped>
-/* Flip-card style */
+/* Additional necessary styles for flip card interaction or specific layout handling */
 .flip-card {
   perspective: 1500px;
   width: 100%;

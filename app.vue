@@ -15,7 +15,11 @@
     >
       <!-- Sidebar left (Fixed, full height, positioned under the header) -->
       <kind-sidebar-simple
-        class="bg-base-100 fixed"
+        class="bg-base-100 fixed transition-all duration-300"
+        :class="{
+          'transform -translate-x-full':
+            displayStore.sidebarLeftState === 'hidden',
+        }"
         :style="{
           left: '0px',
           top: headerHeight,
@@ -24,11 +28,11 @@
         }"
       />
 
-      <!-- Header (Full width across all columns) -->
+      <!-- Header (Centered over Main Content, after Left Sidebar) -->
       <div
-        class="bg-base-100 flex items-center justify-between p-2 z-30"
+        class="bg-base-100 flex items-center justify-between p-2 z-30 transition-all duration-300"
         :style="{
-          gridColumn: '1 / -1' /* Span across all columns, left to right */,
+          gridColumn: '2' /* Span only over main content */,
           height: headerHeight,
         }"
       >
@@ -47,9 +51,13 @@
         <main-content />
       </main>
 
-      <!-- Sidebar right (Fixed, full height, scrollable if content overflows) -->
+      <!-- Sidebar right (Fixed, full height, scrollable if content overflows, open by default on large displays) -->
       <aside
-        class="bg-base-100 fixed"
+        class="bg-base-100 fixed transition-all duration-300"
+        :class="{
+          'transform translate-x-full':
+            displayStore.sidebarRightState === 'hidden',
+        }"
         :style="{
           right: '0px',
           top: headerHeight,

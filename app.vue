@@ -23,13 +23,6 @@
       >
         <!-- Header Content -->
         <header-upgrade class="flex-grow text-center text-white" />
-        <!-- Tutorial Toggle -->
-        <button
-          class="text-xl font-bold text-secondary hover:bg-primary p-2 rounded"
-          @click="toggleTutorial"
-        >
-          Tutorial
-        </button>
       </header>
 
       <!-- Left Sidebar -->
@@ -39,10 +32,7 @@
           width: sidebarLeftWidth,
           gridArea: 'sidebar-left',
         }"
-      >
-        <!-- Sidebar Content -->
-        <LeftSidebarComponent />
-      </aside>
+      ></aside>
 
       <!-- Main Content -->
       <main
@@ -108,11 +98,6 @@ const gridRows = computed(() => {
 })
 
 const isFullScreen = computed(() => displayStore.isFullScreen)
-
-// Toggle tutorial view
-const toggleTutorial = () => {
-  displayStore.toggleTutorial()
-}
 </script>
 
 <style scoped>

@@ -73,7 +73,7 @@
         }"
       >
         <!-- Footer Content -->
-        Footer Content Here
+        <horizontal-nav />
       </footer>
     </div>
   </div>

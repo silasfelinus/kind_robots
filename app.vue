@@ -6,10 +6,11 @@
 
     <!-- Grid Container: Header, Content, Footer, Sidebar (Right) -->
     <div
-      class="relative grid h-screen"
+      class="grid h-screen"
       :style="{
         'grid-template-columns': gridColumns,
         'grid-template-rows': gridRows,
+        'grid-template-areas': gridAreas,
       }"
     >
       <!-- Header (Spans full width) -->
@@ -18,7 +19,6 @@
         :style="{
           height: headerHeight,
           gridArea: 'header',
-          width: '100%',
         }"
       >
         <!-- Header Content -->
@@ -32,7 +32,9 @@
           width: sidebarLeftWidth,
           gridArea: 'sidebar-left',
         }"
-      ></aside>
+      >
+        <!-- Sidebar Left Content Here -->
+      </aside>
 
       <!-- Main Content -->
       <main
@@ -68,7 +70,6 @@
         :style="{
           height: footerHeight,
           gridArea: 'footer',
-          width: '100%',
         }"
       >
         <!-- Footer Content -->
@@ -96,6 +97,15 @@ const gridColumns = computed(() => displayStore.gridColumns)
 const gridRows = computed(() => {
   return `${headerHeight.value} 1fr ${footerHeight.value}` // Header row, main row, footer row
 })
+
+// Set grid areas to ensure each section is explicitly placed in the layout
+const gridAreas = computed(
+  () => `
+  "header header header"
+  "sidebar-left main sidebar-right"
+  "footer footer footer"
+`,
+)
 
 const isFullScreen = computed(() => displayStore.isFullScreen)
 </script>

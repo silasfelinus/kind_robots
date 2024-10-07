@@ -27,6 +27,7 @@
     <div class="flex items-center justify-between space-x-2 flex-grow">
       <login-button class="flex-grow" />
       <theme-icon class="flex-grow" />
+      <tutorial-toggle class="flex-grow" />
       <butterfly-toggle class="flex-grow" />
     </div>
   </header>

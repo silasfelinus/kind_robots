@@ -70,68 +70,73 @@ export const useChatStore = defineStore({
       }
     },
 
-    // Add or update ChatExchange and return it
-    async addOrUpdateExchange(prompt: string, userId: number, botId: number) {
-      const userStore = useUserStore();
-      const botStore = useBotStore();
-      const promptStore = usePromptStore();
-    
-      // Check that all required values are present
-      if (!prompt || !userId || !botId) {
-        this.handleError(ErrorType.VALIDATION_ERROR, 'Required data missing: prompt, userId, or botId.');
-        return;
-      }
-    
-      try {
-        // Add prompt to the promptStore first
-        const promptData = await promptStore.addPrompt(prompt, userId, botId);
-        if (!promptData || !promptData.id) {
-          throw new Error('Failed to add the prompt to the promptStore.');
-        }
-    
-        const exchange: ChatExchange = {
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          username: userStore.username ?? 'Unknown User',
-          previousEntryId: null, // Set for follow-ups, if any
-          botName: botStore.currentBot?.name ?? 'Unknown Bot',
-          userPrompt: prompt,
-          botResponse: '', // Placeholder, populated after AI response
-          isPublic: false,
-          userId,
-          botId,
-          promptId: promptData.id, // Link to the new prompt
-        };
-    
-        // Send the chat exchange to the backend for processing
-        const response = await this.fetch('/api/chats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(exchange),
-        });
-    
-        if (!response.success) {
-          // More specific error handling
-          throw new Error(`Failed to add/update exchange: ${response.message || 'Unknown error'}`);
-        }
-    
-        const newExchange = response.newExchange;
-        if (!newExchange) {
-          throw new Error('Backend returned invalid data. No new exchange found.');
-        }
-    
-        // Successfully added the exchange
-        this.chatExchanges.push(newExchange);
-        this.saveToLocalStorage(); // Save updated chats to localStorage
-    
-        return newExchange;
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        console.error('Error in addOrUpdateExchange:', errorMessage);
-        this.handleError(ErrorType.NETWORK_ERROR, errorMessage);
-        throw error; // Rethrow error if needed for further handling
-      }
-    },
+// Add or update ChatExchange and return it
+async addOrUpdateExchange(prompt: string, userId: number, botId?: number) {
+  const userStore = useUserStore();
+  const botStore = useBotStore();
+  const promptStore = usePromptStore();
+
+  // Check that required values are present (botId is now optional)
+  if (!prompt || !userId) {
+    this.handleError(ErrorType.VALIDATION_ERROR, 'Required data missing: prompt or userId.');
+    return;
+  }
+
+  try {
+    // Add prompt to the promptStore first, optionally passing botId
+    const promptData = await promptStore.addPrompt(prompt, userId, botId ?? 1);
+
+    if (!promptData || !promptData.id) {
+      throw new Error('Failed to add the prompt to the promptStore.');
+    }
+
+    // Set botName based on whether botId is provided
+    const botName = botId ? botStore.currentBot?.name ?? 'Unknown Bot' : 'No Bot Assigned';
+
+    const exchange: ChatExchange = {
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      username: userStore.username ?? 'Unknown User',
+      previousEntryId: null, // Set for follow-ups, if any
+      botName: botName, // Use botName variable
+      userPrompt: prompt,
+      botResponse: '', // Placeholder, populated after AI response
+      isPublic: false,
+      userId,
+      botId: botId ?? null, // Optionally include botId
+      promptId: promptData.id, // Link to the new prompt
+    };
+
+    // Send the chat exchange to the backend for processing
+    const response = await this.fetch('/api/chats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(exchange),
+    });
+
+    if (!response.success) {
+      // More specific error handling
+      throw new Error(`Failed to add/update exchange: ${response.message || 'Unknown error'}`);
+    }
+
+    const newExchange = response.newExchange;
+    if (!newExchange) {
+      throw new Error('Backend returned invalid data. No new exchange found.');
+    }
+
+    // Successfully added the exchange
+    this.chatExchanges.push(newExchange);
+    this.saveToLocalStorage(); // Save updated chats to localStorage
+
+    return newExchange;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error('Error in addOrUpdateExchange:', errorMessage);
+    this.handleError(ErrorType.NETWORK_ERROR, errorMessage);
+    throw error; // Rethrow error if needed for further handling
+  }
+},
+
     
     async getPublic() {
       await this.fetchChatExchanges() // Fetch all chat exchanges

@@ -1,13 +1,15 @@
 <template>
-  <div class="main-layout h-screen">
-    <gradient-background class="relative" />
+  <div class="main-layout h-screen relative">
+    <!-- Gradient Background (Full screen, absolute) -->
+    <gradient-background class="absolute inset-0 z-0" />
+    
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
 
     <!-- Grid Container: Sidebar (Left), Content (Header, Main, Footer), Sidebar (Right) -->
     <div
-      class="relative grid"
+      class="relative grid z-10"  <!-- Ensure the grid is above the background -->
       :style="{
         gridTemplateRows: `${headerHeight} auto ${footerHeight}`,
         gridTemplateColumns: `${sidebarLeftWidth} 1fr ${sidebarRightWidth}`,
@@ -92,40 +94,11 @@ const isFullScreen = computed(() => displayStore.isFullScreen)
 </script>
 
 <style scoped>
-/* Flip-card interaction or specific layout handling */
-.flip-card {
-  perspective: 1500px;
-  width: 100%;
-  height: 100%;
-}
-
-.flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
-}
-
-.flip-card-front,
-.flip-card-back {
+/* Gradient Background Styling */
+.gradient-background {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 5px;
-}
-
-.flip-card-front {
-  z-index: 2;
-}
-
-.flip-card-back {
-  transform: rotateY(180deg);
-  z-index: 1;
+  height: 100vh;
+  width: 100vw;
+  z-index: 0;
 }
 </style>

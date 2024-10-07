@@ -26,7 +26,7 @@
     <!-- Second Row for Smaller Icons -->
     <div class="flex justify-center flex-wrap space-x-2 w-full">
       <login-button class="w-8 h-8" />
-      <theme-icon class="w-8 h-8" />
+      <theme-toggle class="w-8 h-8" />
       <tutorial-toggle class="w-8 h-8" />
       <butterfly-toggle class="w-8 h-8" />
       

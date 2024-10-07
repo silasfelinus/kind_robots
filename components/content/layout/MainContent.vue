@@ -21,7 +21,10 @@
       <span v-if="displayStore.sidebarRightState === 'hidden' && !isMobile">
         &#8249;
       </span>
-      <span v-if="isMobile"> &#x1F4D6; <!-- Tutorial icon for mobile --> </span>
+      <span v-if="isMobile">
+        &#x1F4D6;
+        <!-- Tutorial icon for mobile -->
+      </span>
     </div>
 
     <!-- Mobile View (no flip card) -->
@@ -56,3 +59,77 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
+
+// Access layout-related data and state from displayStore
+const displayStore = useDisplayStore()
+
+// Layout dimensions and state
+const isMobile = computed(() => displayStore.isMobileViewport)
+const isFullScreen = computed(() => displayStore.isFullScreen)
+const showTutorial = computed(() => displayStore.showTutorial)
+
+// Function to toggle the left sidebar
+const toggleLeftSidebar = () => {
+  if (displayStore.sidebarLeftState === 'open') {
+    displayStore.sidebarLeftState = 'compact'
+  } else if (displayStore.sidebarLeftState === 'compact') {
+    displayStore.sidebarLeftState = 'hidden'
+  } else {
+    displayStore.sidebarLeftState = 'open'
+  }
+}
+
+// Function to toggle the right sidebar
+const toggleRightSidebar = () => {
+  displayStore.sidebarRightState =
+    displayStore.sidebarRightState === 'open' ? 'hidden' : 'open'
+}
+
+// Function to toggle the tutorial
+const toggleTutorial = () => {
+  displayStore.showTutorial = !displayStore.showTutorial
+}
+</script>
+
+<style scoped>
+/* Flip-card style */
+.flip-card {
+  perspective: 1500px;
+  width: 100%;
+  height: 100%;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 5px;
+}
+
+.flip-card-front {
+  z-index: 2;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+  z-index: 1;
+}
+</style>

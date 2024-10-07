@@ -32,7 +32,7 @@ export const useDisplayStore = defineStore('display', {
     headerState: 'open',
     sidebarLeftState: 'open',
     sidebarRightState: 'hidden', // Default to hidden right sidebar
-    footerState: 'hidden',
+    footerState: 'open',
     isVertical: false,
     viewportSize: 'large',
     isTouchDevice: false,
@@ -60,10 +60,10 @@ export const useDisplayStore = defineStore('display', {
 
     footerVh(state): number {
       const sizes = {
-        small: { open: 5, compact: 4, hidden: 2, disabled: 0 },
-        medium: { open: 6, compact: 4, hidden: 3, disabled: 0 },
-        large: { open: 7, compact: 4, hidden: 3, disabled: 0 },
-        extraLarge: { open: 8, compact: 4, hidden: 3, disabled: 0 },
+        small: { open: 9, compact: 4, hidden: 2, disabled: 0 },
+        medium: { open: 9, compact: 4, hidden: 3, disabled: 0 },
+        large: { open: 9, compact: 4, hidden: 3, disabled: 0 },
+        extraLarge: { open: 9, compact: 4, hidden: 3, disabled: 0 },
       }[state.viewportSize];
       return sizes[state.footerState] || 3;
     },

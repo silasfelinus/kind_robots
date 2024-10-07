@@ -1,33 +1,34 @@
 <template>
   <header
-    class="flex flex-col md:flex-row fixed justify-between rounded-2xl border p-2 bg-base-300 z-20 space-y-2 md:space-y-0"
+    class="flex items-center justify-between fixed rounded-2xl border p-2 bg-base-300 z-20"
     :style="{
       height: displayStore.headerHeight + 'vh',
       width: '90%',
     }"
   >
-    <!-- Avatar, Title, Subtitle, and Login Button Section (Vertical on small screens) -->
-    <div class="flex flex-col md:flex-row items-center justify-between w-full space-y-2 md:space-y-0">
-      <!-- Avatar -->
+    <!-- Avatar, Title, Subtitle, and Login Button Section -->
+    <div class="flex items-center justify-between w-full">
+      <!-- Avatar Image, setting height to be the same as header height minus padding -->
       <avatar-image
         alt="User Avatar"
-        class="max-h-full min-h-14 aspect-square rounded-2xl"
+        class="aspect-square rounded-2xl"
+        :style="{
+          height: 'calc(' + displayStore.headerHeight + 'vh - 1rem)', /* Adjust for padding */
+        }"
       />
       
       <!-- Title, Subtitle, and Login Button Column -->
-      <div class="flex flex-col items-center justify-center flex-grow text-center md:flex-row md:space-x-3">
-        <div class="flex flex-col items-center">
-          <h1 class="text-sm md:text-lg text-primary font-semibold truncate">
-            The {{ page.title || 'Room' }} Room
-          </h1>
-          <h2 class="text-xs md:text-sm text-accent italic truncate">
-            {{ subtitle }}
-          </h2>
-        </div>
-
-        <!-- Login Button -->
-        <login-button class="w-8 h-8 md:ml-4" />
+      <div class="flex flex-col items-center justify-center flex-grow text-center space-x-3">
+        <h1 class="text-[16px] md:text-[15px] lg:text-[14px] xl:text-[13px] text-primary font-semibold truncate">
+          The {{ page.title || 'Room' }} Room
+        </h1>
+        <h2 class="text-[12px] md:text-[11px] lg:text-[10px] xl:text-[9px] text-accent italic truncate">
+          {{ subtitle }}
+        </h2>
       </div>
+
+      <!-- Login Button -->
+      <login-button class="w-8 h-8" />
     </div>
 
     <!-- Non-login Icons (Vertical on small screens, horizontal on medium and larger screens) -->

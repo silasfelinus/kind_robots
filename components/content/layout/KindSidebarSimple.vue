@@ -38,6 +38,10 @@
       </div>
     </aside>
   </div>
+  <!-- Sidebar Toggle -->
+  <div class="p-1 text-white flex-grow flex justify-center">
+    <sidebar-toggle class="text-xl" />
+  </div>
 </template>
 
 <script setup lang="ts">

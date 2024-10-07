@@ -12,12 +12,6 @@
       <div
         class="bg-primary flex items-center justify-between p-4 z-30 row-span-1 col-span-2"
       >
-        <!-- Vertical Navigation (inside the header, left-aligned) -->
-        <vertical-nav
-          v-if="displayStore.isLargeViewport"
-          class="flex items-center space-x-4 text-white"
-        />
-
         <!-- Header Upgrade Component (center-aligned) -->
         <header-upgrade class="flex-grow text-center text-white" />
 

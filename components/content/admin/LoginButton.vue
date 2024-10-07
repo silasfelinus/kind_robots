@@ -10,7 +10,7 @@
       </div>
       <div v-else>
         <button
-          class="bg-primary p-2 rounded-lg text-white text-lg w-full"
+          class="p-2 rounded-lg text-primary text-lg w-full"
           @click="toggleLogin"
         >
           Login

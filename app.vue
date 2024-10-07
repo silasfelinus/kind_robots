@@ -14,18 +14,14 @@
         height: '100vh',
       }"
     >
-      <!-- Header (Fixed at the top, spans entire width except sidebars) -->
+      <!-- Header (Full width, not fixed) -->
       <div
-        class="bg-base-100 flex items-center justify-between p-2 z-30 fixed"
+        class="bg-base-100 flex items-center justify-between p-2 z-30"
         :style="{
           gridColumn: '1 / -1', /* Span across all columns */
-          left: '0px', /* Full width including sidebars */
-          right: '0px',
-          top: '0px',
           height: headerHeight,
         }"
       >
-        <!-- Keep header content in header-upgrade component -->
         <header-upgrade />
       </div>
 
@@ -40,9 +36,9 @@
         }"
       />
 
-      <!-- Main Content (Fixed below the header and above the footer) -->
+      <!-- Main Content (Scrollable on Y-axis only) -->
       <main
-        class="bg-base-100 p-2 rounded-2xl z-10 fixed"
+        class="bg-base-100 p-2 z-10 overflow-y-auto"
         :style="{
           left: sidebarLeftWidth,
           right: sidebarRightWidth,
@@ -68,12 +64,11 @@
         </div>
       </aside>
 
-      <!-- Footer (Fixed at the bottom of the screen, full width except sidebars) -->
+      <!-- Footer (Full width except sidebars) -->
       <footer
-        class="flex fixed justify-center items-center bg-base-100 z-20"
+        class="flex justify-center items-center bg-base-100 z-20"
         :style="{
-          left: sidebarLeftWidth,
-          right: sidebarRightWidth,
+          gridColumn: '2', /* Between sidebars */
           bottom: '0px',
           height: footerHeight,
         }"
@@ -86,7 +81,6 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Access layout-related data from displayStore
 const displayStore = useDisplayStore()
 
 // Layout dimensions
@@ -98,7 +92,7 @@ const isFullScreen = computed(() => displayStore.isFullScreen)
 </script>
 
 <style scoped>
-/* Additional necessary styles for flip card interaction or specific layout handling */
+/* Flip-card interaction or specific layout handling */
 .flip-card {
   perspective: 1500px;
   width: 100%;

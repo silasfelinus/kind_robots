@@ -4,7 +4,7 @@
   >
     <!-- Splash Image -->
     <img
-      src="/images/weirdlandia-logo.png"
+      src="/images/weirdlandia/weird1.png"
       alt="Weirdlandia"
       class="h-48 w-auto mb-8"
     />

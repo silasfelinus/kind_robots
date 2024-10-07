@@ -5,7 +5,7 @@
   >
     <!-- Sidebar Toggle -->
     <div class="p-1 z-40 text-white ml-2">
-      <sidebar-toggle class="text-4xl" />
+      <left-toggle class="text-4xl" />
     </div>
 
     <!-- Navigation Links -->

@@ -1,9 +1,10 @@
 <template>
+  <!-- Parent Container for Tutorial Toggle -->
   <div
-    class="absolute left-1/2 transform -translate-x-1/2 bg-primary hover:bg-accent transition duration-300 cursor-pointer rounded-lg shadow-md p-3"
-    :style="{ bottom: footerHeight }"
+    class="flex justify-center items-center bg-primary hover:bg-accent transition duration-300 cursor-pointer rounded-lg shadow-md p-3"
     @click="toggleTutorial"
   >
+    <!-- Toggle Icon -->
     <Icon
       v-if="showTutorial"
       name="mdi-information-outline"
@@ -12,7 +13,6 @@
     <Icon v-else :name="pageIcon" class="text-base-200 w-8 h-8" />
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { computed } from 'vue'
@@ -23,9 +23,6 @@ const displayStore = useDisplayStore()
 
 // Access the content, including page.icon
 const { page } = useContent()
-
-// Footer height from displayStore
-const footerHeight = computed(() => displayStore.footerHeight)
 
 // Compute the tutorial and icon state
 const showTutorial = computed(() => displayStore.showTutorial)
@@ -42,8 +39,5 @@ const pageIcon = computed(() => {
 </script>
 
 <style scoped>
-div {
-  display: inline-block;
-  position: absolute;
-}
+/* No positioning needed for the toggle since it's now in a natural flow */
 </style>

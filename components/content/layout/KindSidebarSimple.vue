@@ -3,21 +3,22 @@
     <!-- Left Sidebar -->
     <aside
       v-if="displayStore.sidebarLeftState !== 'hidden'"
-      class="transition-all duration-300 rounded-2xl hide-scrollbar p-1"
+      class="transition-all duration-300 rounded-2xl hide-scrollbar p-1 fixed top-0 left-0 overflow-y-auto"
+      :class="{
+        'w-1/6': displayStore.sidebarLeftState === 'open',
+        'w-1/12': displayStore.sidebarLeftState === 'compact',
+      }"
       :style="{
-        width: displayStore.sidebarLeftVw + 'vw',
-        maxHeight: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`,
-        overflowY: 'auto',
+        height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`,
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->
       <div
         v-for="link in hardcodedLinks"
         :key="link.title"
-        :style="{ height: iconHeight + 'px', margin: '1px 0' }"
-        class="Icon-link-container flex items-center space-x-1 md:space-x-2 hover:bg-primary hover:scale-110 rounded-xl mt-1 mb-1 p-1 md:p-2"
+        class="Icon-link-container flex items-center space-x-2 hover:bg-primary hover:scale-110 rounded-xl p-2"
       >
-        <!-- Use a click event with router.push for navigation -->
+        <!-- Navigation click event -->
         <a
           class="flex items-center cursor-pointer"
           @click.prevent="navigate(link.path)"
@@ -38,14 +39,9 @@
       </div>
     </aside>
   </div>
-  <!-- Sidebar Toggle -->
-  <div class="p-1 text-white flex-grow flex justify-center">
-    <sidebar-toggle class="text-xl" />
-  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useRouter } from 'vue-router'
 
@@ -74,31 +70,10 @@ const router = useRouter()
 // Access the display store for the sidebar state
 const displayStore = useDisplayStore()
 
-// Adjust height calculations based on window size and available space
-const availableSidebarHeight = computed(() => displayStore.mainVh) // Adjust for header and footer
-const iconHeight = ref(0)
-
+// Function to navigate to a route
 const navigate = (path: string) => {
   router.push(path)
 }
-
-onMounted(() => {
-  const calculateIconHeight = () => {
-    const totalLinks = hardcodedLinks.length
-    const marginSpace = 4 * totalLinks // Adjust for link margins
-    const sidebarHeightInPx =
-      (availableSidebarHeight.value * window.innerHeight) / 100
-    iconHeight.value = (sidebarHeightInPx - marginSpace) / totalLinks
-  }
-
-  calculateIconHeight()
-
-  window.addEventListener('resize', calculateIconHeight)
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', calculateIconHeight)
-  })
-})
 </script>
 
 <style scoped>

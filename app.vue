@@ -1,5 +1,6 @@
 <template>
-  <div class="main-layout h-screen bg-base-100">
+  <div class="main-layout h-screen">
+    <gradient-background />
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />

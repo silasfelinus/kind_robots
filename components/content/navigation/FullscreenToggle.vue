@@ -1,9 +1,10 @@
 <template>
+  <!-- Slim, floating flip icon for desktop viewports -->
   <div
     v-if="!displayStore.isMobileViewport"
-    class="fixed lg:flex bottom-4 right-4 items-center space-x-2 text-base-200 rounded-lg shadow-md p-2 transition duration-300 z-50"
+    class="fixed bottom-4 left-4 flex items-center space-x-2 z-50"
   >
-    <!-- Two-column layout button -->
+    <!-- Fullscreen/Two-column button -->
     <button
       class="icon-button"
       :class="{
@@ -12,18 +13,7 @@
       }"
       @click="toggleFullScreen"
     >
-      <Icon name="mdi-view-column" class="w-6 h-6" />
-    </button>
-    <!-- One-column layout button -->
-    <button
-      class="icon-button"
-      :class="{
-        'bg-info text-base-200': !isFullScreen,
-        'bg-gray-400 text-gray-700': isFullScreen,
-      }"
-      @click="toggleFullScreen"
-    >
-      <Icon name="mdi-monitor" class="w-6 h-6" />
+      <Icon :name="isFullScreen ? 'mdi-monitor' : 'mdi-view-column'" class="w-5 h-5" />
     </button>
   </div>
 </template>
@@ -44,9 +34,10 @@ const toggleFullScreen = () => {
 <style scoped>
 .icon-button {
   cursor: pointer;
-  padding: 8px;
+  padding: 0.5rem;
   border-radius: 9999px;
   transition: background-color 0.3s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .icon-button:hover {

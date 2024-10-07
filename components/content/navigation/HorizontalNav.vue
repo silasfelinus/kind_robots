@@ -26,6 +26,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 // Hardcoded sidebar links
 const hardcodedLinks = ref([
@@ -51,9 +52,12 @@ const hardcodedLinks = ref([
   }, // Added Weirder Game
 ])
 
+// Access Vue Router
+const router = useRouter()
+
 // Navigation function
 const navigateTo = (path: string) => {
-  window.location.href = path // Replace with Nuxt's navigateTo if using Nuxt
+  router.push(path) // Use Vue Router for navigation to avoid page refresh
 }
 </script>
 

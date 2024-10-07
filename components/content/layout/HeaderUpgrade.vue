@@ -3,7 +3,7 @@
     class="flex flex-col fixed justify-between rounded-2xl border p-2 bg-base-300 z-20 space-y-2"
     :style="{
       height: displayStore.headerHeight + 'vh',
-      width: 90%,
+      width: '90%',
     }"
   >
     <!-- Avatar, Title, and Subtitle Section -->

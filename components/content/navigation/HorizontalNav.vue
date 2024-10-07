@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-between p-4 bg-base-100 shadow-lg">
+  <div class="flex items-center justify-between p-4 shadow-lg">
     <!-- Horizontal Nav Icons -->
     <div class="flex space-x-6">
       <div

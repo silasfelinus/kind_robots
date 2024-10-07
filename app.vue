@@ -4,7 +4,7 @@
     <kind-loader />
     <animation-loader />
 
-    <!-- Grid Container: Structure follows Sidebar (Left), Content (Header, Main, Footer), Sidebar (Right) -->
+    <!-- Grid Container: Sidebar (Left), Content (Header, Main, Footer), Sidebar (Right) -->
     <div
       class="grid"
       :style="{
@@ -15,22 +15,19 @@
     >
       <!-- Sidebar left (Fixed, full height) -->
       <kind-sidebar-simple
-        class="bg-base-100 fixed top-0 left-0 z-10"
+        class="bg-base-100"
         :style="{
           width: sidebarLeftWidth,
           height: '100%',
         }"
       />
 
-      <!-- Header (Sits above the main content and footer in one column) -->
+      <!-- Header (Using header-upgrade component) -->
       <div
         class="bg-base-100 flex items-center justify-between p-2 z-30"
         :style="{ gridColumn: '2 / 3', height: headerHeight }"
       >
-        <!-- Sidebar Toggle -->
-        <div class="p-1 text-white flex-grow flex justify-center">
-          <sidebar-toggle class="text-xl" />
-        </div>
+        <!-- Keep header content in header-upgrade component -->
         <header-upgrade />
       </div>
 
@@ -45,12 +42,11 @@
         }"
       >
         <main-content />
-        <tutorial-toggle v-if="!displayStore.isFullScreen" />
       </main>
 
       <!-- Sidebar right (Fixed, full height, scrollable if content overflows) -->
       <aside
-        class="bg-base-100 fixed top-0 right-0 z-20 overflow-y-auto"
+        class="bg-base-100 overflow-y-auto"
         :style="{
           width: sidebarRightWidth,
           height: '100%',
@@ -66,7 +62,6 @@
         class="flex justify-center items-center bg-base-100 z-20"
         :style="{ gridColumn: '2 / 3', height: footerHeight }"
       >
-        <!-- Minimalistic Tutorial Toggle -->
         <fullscreen-toggle
           class="text-sm px-2 py-1 rounded-lg bg-primary text-white"
         />

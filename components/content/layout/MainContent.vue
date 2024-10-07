@@ -1,18 +1,14 @@
 <template>
   <!-- Content of MainContent.vue focuses only on its content -->
   <div class="h-full flex flex-col">
-
-
     <!-- Mobile View (no flip card) -->
-    <div v-if="isMobile" class="flex-grow overflow-y-auto"> <!-- Add overflow-y-auto here -->
+    <div v-if="isMobile" class="flex-grow overflow-y-auto">
+      <!-- Add overflow-y-auto here -->
       <SplashTutorial
         v-if="showTutorial"
         class="h-full w-full z-10 rounded-2xl"
       />
-      <NuxtPage
-        v-else
-        class="h-full w-full z-10 overflow-y-auto rounded-2xl"
-      />
+      <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
     </div>
 
     <!-- Fullscreen mode (Desktop) -->
@@ -37,7 +33,7 @@
       </div>
     </div>
 
-    <tutorial-toggle />
+    <tutorial-toggle v-if="!displayStore.isFullScreen" />
   </div>
 </template>
 

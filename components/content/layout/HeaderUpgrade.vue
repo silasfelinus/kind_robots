@@ -1,29 +1,35 @@
 <template>
   <header
-    class="flex items-center fixed justify-between rounded-2xl border p-2 bg-base-300 z-20 space-x-2"
+    class="flex items-center justify-between fixed rounded-2xl border p-2 bg-base-300 z-20 space-x-2"
     :style="{
       height: displayStore.headerHeight + 'vh',
-      width: displayStore.mainWidth + 'vh',
+      width: displayStore.mainWidth + 'vw',
+      left: sidebarLeftWidth,
+      right: sidebarRightWidth,
+      top: '0px',
     }"
   >
-    <!-- Avatar and Title Section -->
-    <div class="flex items-center space-x-3 flex-grow">
+    <!-- Avatar Section -->
+    <div class="flex items-center space-x-3">
       <avatar-image
         alt="User Avatar"
         class="max-h-full min-h-14 aspect-square rounded-2xl"
       />
-      <!-- Title and Subtitle Column -->
-      <div class="flex flex-col items-center justify-center flex-grow">
-        <h1 class="text-lg font-semibold text-center truncate w-full">
-          The {{ page.title || 'Room' }} Room
-        </h1>
-        <h2 class="text-sm text-accent italic text-center truncate w-full">
-          {{ subtitle }}
-        </h2>
-      </div>
     </div>
 
-    <!-- Buttons Section -->
+    <!-- Title and Subtitle Section (Centered) -->
+    <div
+      class="flex flex-col items-center justify-center flex-grow text-center"
+    >
+      <h1 class="text-lg lg:text-xl font-semibold truncate w-full">
+        The {{ page.title || 'Room' }} Room
+      </h1>
+      <h2 class="text-sm lg:text-md text-accent italic truncate w-full">
+        {{ subtitle }}
+      </h2>
+    </div>
+
+    <!-- Buttons Section (Right Aligned) -->
     <div class="flex items-center justify-end space-x-2">
       <login-button class="w-1/5" />
       <theme-icon class="w-1/5" />
@@ -43,4 +49,7 @@ const { page } = useContent()
 const subtitle = computed(
   () => page.value?.subtitle ?? 'Welcome to Kind Robots',
 )
+
+const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
+const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 </script>

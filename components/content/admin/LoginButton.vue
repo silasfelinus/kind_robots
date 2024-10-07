@@ -1,8 +1,8 @@
 <template>
-  <div class="relative flex items-center">
+  <div class="relative flex items-center space-x-4">
     <!-- Button column -->
     <div class="ml-4">
-      <div v-if="isLoggedIn">
+      <div v-if="isLoggedIn" class="flex flex-col items-start">
         <router-link to="/dashboard" class="cursor-pointer hover:underline">
           {{ username }}!
         </router-link>
@@ -10,7 +10,7 @@
       </div>
       <div v-else>
         <button
-          class="bg-primary p-2 rounded-lg text-white text-lg"
+          class="bg-primary p-2 rounded-lg text-white text-lg w-full"
           @click="toggleLogin"
         >
           Login

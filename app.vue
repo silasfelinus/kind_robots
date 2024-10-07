@@ -2,14 +2,14 @@
   <div class="main-layout h-screen relative">
     <!-- Gradient Background (Full screen, absolute) -->
     <gradient-background class="absolute inset-0 z-0" />
-    
+
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
 
     <!-- Grid Container: Sidebar (Left), Content (Header, Main, Footer), Sidebar (Right) -->
     <div
-      class="relative grid z-10"  <!-- Ensure the grid is above the background -->
+      class="relative grid z-10"
       :style="{
         gridTemplateRows: `${headerHeight} auto ${footerHeight}`,
         gridTemplateColumns: `${sidebarLeftWidth} 1fr ${sidebarRightWidth}`,
@@ -20,7 +20,7 @@
       <div
         class="bg-base-100 flex items-center justify-between p-2 z-30"
         :style="{
-          gridColumn: '1 / -1', /* Span across all columns */
+          gridColumn: '1 / -1' /* Span across all columns */,
           height: headerHeight,
         }"
       >
@@ -70,7 +70,7 @@
       <footer
         class="flex justify-center items-center bg-base-100 z-20"
         :style="{
-          gridColumn: '2', /* Between sidebars */
+          gridColumn: '2' /* Between sidebars */,
           bottom: '0px',
           height: footerHeight,
         }"

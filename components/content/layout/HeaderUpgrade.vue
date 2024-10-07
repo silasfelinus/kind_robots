@@ -1,9 +1,9 @@
 <template>
   <header
     class="flex items-center fixed justify-between rounded-2xl border p-2 bg-base-300 z-20 space-x-2"
-    :style="{ 
-      height: displayStore.headerHeight + 'vh', 
-      width: displayStore.headerWidth + '%' 
+    :style="{
+      height: displayStore.headerHeight + 'vh',
+      width: displayStore.mainWidth + '%',
     }"
   >
     <!-- Avatar and Title Section -->

@@ -1,9 +1,9 @@
 <template>
   <header
     class="flex items-center fixed justify-between rounded-2xl border p-2 bg-base-300 z-20 space-x-2"
-    :style="{ 
-      height: displayStore.headerHeight + 'vh', 
-      width: displayStore.headerWidth + '%' 
+    :style="{
+      height: displayStore.headerHeight + 'vh',
+      width: displayStore.mainWidth + 'vh',
     }"
   >
     <!-- Avatar and Title Section -->
@@ -14,14 +14,10 @@
       />
       <!-- Title and Subtitle Column -->
       <div class="flex flex-col items-center justify-center flex-grow">
-        <h1
-          class="text-lg font-semibold text-center truncate w-full"
-        >
+        <h1 class="text-lg font-semibold text-center truncate w-full">
           The {{ page.title || 'Room' }} Room
         </h1>
-        <h2
-          class="text-sm text-accent italic text-center truncate w-full"
-        >
+        <h2 class="text-sm text-accent italic text-center truncate w-full">
           {{ subtitle }}
         </h2>
       </div>
@@ -35,7 +31,6 @@
     </div>
   </header>
 </template>
-
 
 <script setup lang="ts">
 import { computed } from 'vue'

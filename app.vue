@@ -46,7 +46,7 @@
 
       <!-- Sidebar right (Fixed, full height, scrollable if content overflows) -->
       <aside
-        class="bg-base-100 overflow-y-auto"
+        class="bg-base-100 fixed"
         :style="{
           width: sidebarRightWidth,
           height: '100%',
@@ -59,7 +59,7 @@
 
       <!-- Footer (Below main content, shares the same column as header and main content) -->
       <footer
-        class="flex justify-center items-center bg-base-100 z-20"
+        class="flex fixed justify-center items-center bg-base-100 z-20"
         :style="{ gridColumn: '2 / 3', height: footerHeight }"
       >
         <fullscreen-toggle

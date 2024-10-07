@@ -388,7 +388,9 @@ model Prompt {
   Game              Game[]
   Art               Art[]
   Chats             ChatExchange[]
-  Bots              Bot[]
+  botId             Int?   
+  Bot               Bot?          @relation(fields: [botId], references: [id])
+
 }
 
 model RandomList {

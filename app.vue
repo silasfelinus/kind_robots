@@ -1,7 +1,6 @@
 <template>
   <div class="main-layout h-screen relative">
     <!-- Gradient Background (Full screen, absolute) -->
-    <gradient-background class="absolute inset-0 z-0" />
 
     <!-- Loaders -->
     <kind-loader />

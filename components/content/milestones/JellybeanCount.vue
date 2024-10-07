@@ -7,7 +7,7 @@
     <Icon name="tdesign:bean" />
 
     <!-- Conditionally show the full text or just the count -->
-    <div class="flex items-center">
+    <div class="flex items-center text-primary">
       <span class="whitespace-nowrap mr-1"> {{ user?.mana || 0 }} /9 </span>
       <span class="hidden lg:inline">Jellybeans</span>
     </div>

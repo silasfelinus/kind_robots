@@ -14,7 +14,9 @@
       />
       <!-- Title and Subtitle Column -->
       <div class="flex flex-col items-center justify-center flex-grow">
-        <h1 class="text-lg font-semibold text-center truncate w-full">
+        <h1
+          class="text-lg text-primary font-semibold text-center truncate w-full"
+        >
           The {{ page.title || 'Room' }} Room
         </h1>
         <h2 class="text-sm text-accent italic text-center truncate w-full">

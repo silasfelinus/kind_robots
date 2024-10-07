@@ -5,7 +5,7 @@
         tabindex="0"
         aria-haspopup="true"
         aria-label="Change theme"
-        class="theme-btn p-2 rounded-full border border-accent focus:outline-none focus:ring focus:ring-accent transform hover:scale-110 transition-all ease-in-out duration-200 text-lg"
+        class="theme-btn p-2 rounded-full border border-primary focus:outline-none focus:ring focus:ring-primary transform hover:scale-110 transition-all ease-in-out duration-200 text-lg text-primary"
         @click="goToThemePage"
       >
         theme: {{ themeStore.currentTheme }}

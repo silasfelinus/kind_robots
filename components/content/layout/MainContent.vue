@@ -1,14 +1,32 @@
 <template>
   <!-- Content of MainContent.vue focuses only on its content -->
-  <div class="h-full flex flex-col">
+  <div class="relative h-full flex flex-col">
+    <!-- Left Sidebar Toggle -->
+    <div
+      class="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 p-2 bg-secondary text-white rounded-r-lg cursor-pointer"
+      @click="toggleLeftSidebar"
+    >
+      <span v-if="displayStore.sidebarLeftState === 'open'"> &#8249; </span>
+      <span v-if="displayStore.sidebarLeftState === 'compact'"> &#8810; </span>
+      <span v-if="displayStore.sidebarLeftState === 'hidden'"> &#8250; </span>
+    </div>
+
+    <!-- Right Sidebar Toggle -->
+    <div
+      class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 p-2 bg-secondary text-white rounded-l-lg cursor-pointer"
+      @click="toggleRightSidebar"
+    >
+      <span v-if="displayStore.sidebarRightState === 'open'"> &#8250; </span>
+      <span v-if="displayStore.sidebarRightState === 'hidden'"> &#8249; </span>
+    </div>
+
     <!-- Mobile View (no flip card) -->
     <div v-if="isMobile" class="flex-grow overflow-y-auto">
-      <!-- Add overflow-y-auto here -->
       <SplashTutorial
         v-if="showTutorial"
         class="h-full w-full z-10 rounded-2xl"
       />
-      <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
+      <NuxtPage v-else class="h-full w-full z-10 rounded-2xl" />
     </div>
 
     <!-- Fullscreen mode (Desktop) -->
@@ -41,13 +59,29 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Access layout-related data and state from displayStore
 const displayStore = useDisplayStore()
 
 // Layout dimensions and state
 const isMobile = computed(() => displayStore.isMobileViewport)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 const showTutorial = computed(() => displayStore.showTutorial)
+
+// Function to toggle the left sidebar
+const toggleLeftSidebar = () => {
+  if (displayStore.sidebarLeftState === 'open') {
+    displayStore.sidebarLeftState = 'compact'
+  } else if (displayStore.sidebarLeftState === 'compact') {
+    displayStore.sidebarLeftState = 'hidden'
+  } else {
+    displayStore.sidebarLeftState = 'open'
+  }
+}
+
+// Function to toggle the right sidebar
+const toggleRightSidebar = () => {
+  displayStore.sidebarRightState =
+    displayStore.sidebarRightState === 'open' ? 'hidden' : 'open'
+}
 </script>
 
 <style scoped>

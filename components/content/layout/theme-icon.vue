@@ -1,6 +1,6 @@
 <template>
   <div class="theme-selector flex flex-col items-center relative">
-    <div class="flex flex-row items-center justify-center space-x-2 w-full">
+    <div class="flex flex-row items-center justify-center space-x-4 w-full">
       <button
         tabindex="0"
         aria-haspopup="true"

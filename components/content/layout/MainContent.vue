@@ -1,14 +1,6 @@
 <template>
   <div class="relative h-full flex flex-col">
     <!-- Left Sidebar Toggle -->
-    <div
-      class="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 p-2 bg-secondary text-white rounded-r-lg cursor-pointer"
-      @click="toggleLeftSidebar"
-    >
-      <span v-if="displayStore.sidebarLeftState === 'open'"> &#8249; </span>
-      <span v-if="displayStore.sidebarLeftState === 'compact'"> &#8810; </span>
-      <span v-if="displayStore.sidebarLeftState === 'hidden'"> &#8250; </span>
-    </div>
 
     <!-- Right Sidebar Toggle (Mobile: Also toggles tutorial) -->
     <div
@@ -71,17 +63,6 @@ const displayStore = useDisplayStore()
 const isMobile = computed(() => displayStore.isMobileViewport)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 const showTutorial = computed(() => displayStore.showTutorial)
-
-// Function to toggle the left sidebar
-const toggleLeftSidebar = () => {
-  if (displayStore.sidebarLeftState === 'open') {
-    displayStore.sidebarLeftState = 'compact'
-  } else if (displayStore.sidebarLeftState === 'compact') {
-    displayStore.sidebarLeftState = 'hidden'
-  } else {
-    displayStore.sidebarLeftState = 'open'
-  }
-}
 
 // Function to toggle the right sidebar
 const toggleRightSidebar = () => {

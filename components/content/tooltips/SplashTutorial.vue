@@ -1,13 +1,6 @@
 <template>
   <div
     class="relative flex flex-col h-full w-full rounded-2xl overflow-hidden shadow-lg border-4"
-    :class="[
-      'border-accent',
-      'bg-gradient-to-br',
-      'from-primary',
-      'via-secondary',
-      'to-base-100',
-    ]"
     :style="{ height: displayStore.mainHeight + 'vh' }"
   >
     <!-- Under Construction Icon -->

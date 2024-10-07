@@ -28,11 +28,12 @@
         }"
       />
 
-      <!-- Header (Centered over Main Content, after Left Sidebar) -->
+      <!-- Header (Centered over the full width, including sidebars) -->
       <div
-        class="bg-base-100 flex items-center justify-between p-2 z-30 transition-all duration-300"
+        class="bg-base-100 flex items-center justify-center p-2 z-30 transition-all duration-300"
         :style="{
-          gridColumn: '2' /* Span only over main content */,
+          gridColumn:
+            '1 / span 3' /* Span across left sidebar to right sidebar */,
           height: headerHeight,
         }"
       >

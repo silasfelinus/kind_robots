@@ -24,11 +24,12 @@
     </div>
 
     <!-- Buttons Section -->
-    <div class="flex items-center justify-between space-x-2 flex-grow">
-      <login-button class="flex-grow" />
-      <theme-icon class="flex-grow" />
-      <tutorial-toggle class="flex-grow" />
-      <butterfly-toggle class="flex-grow" />
+    <div class="flex items-center space-x-2">
+      <login-button class="w-auto" />
+      <theme-icon class="w-auto" />
+      <tutorial-toggle class="w-auto" />
+      <butterfly-toggle class="w-auto" />
+      <horizontal-nav class="w-auto" />
     </div>
   </header>
 </template>
@@ -45,3 +46,7 @@ const subtitle = computed(
   () => page.value?.subtitle ?? 'Welcome to Kind Robots',
 )
 </script>
+
+<style scoped>
+/* Additional styling if needed */
+</style>

@@ -17,7 +17,7 @@
         :style="{
           height: headerHeight,
           width: headerWidth,
-          margin: '0 auto',
+          margin: '0 auto', // Center the header
         }"
       >
         <!-- Header Upgrade Component (center-aligned) -->
@@ -48,9 +48,10 @@
 
       <!-- Sidebar Right (Fixed, full height, scrollable) -->
       <aside
-        class="bg-secondary fixed z-20 transition-all duration-500 ease-in-out"
+        class="bg-secondary fixed z-20 transition-all duration-500 ease-in-out h-full"
         :style="{
           width: sidebarRightWidth,
+          right: '0', // Ensure the sidebar is positioned on the right
         }"
       >
         <div v-if="isFullScreen" class="h-full w-full">
@@ -85,7 +86,7 @@ const headerWidth = '90vw' // Set header width to 90vw as requested
 const mainHeight = computed(() => displayStore.mainHeight)
 const mainWidth = computed(() => displayStore.mainWidth)
 
-const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth) 
+const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 
 const footerHeight = computed(() => displayStore.footerHeight)
 

@@ -120,9 +120,14 @@ export const useDisplayStore = defineStore('display', {
     },
 
     gridColumns(): string {
-      // Ensure we always display three columns, even in fullscreen
-      return `${this.sidebarLeftVw}vw calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw) ${this.sidebarRightVw}vw`;
+      // Sidebar sizes for 'hidden' state remain small, but 'disabled' means no space should be allocated
+      const rightSidebarWidth = this.sidebarRightState === 'disabled' ? 0 : this.sidebarRightVw;
+      const leftSidebarWidth = this.sidebarLeftState === 'disabled' ? 0 : this.sidebarLeftVw;
+    
+      // Return the grid columns, ensuring hidden sidebars still take up small space
+      return `${leftSidebarWidth}vw calc(100vw - ${leftSidebarWidth}vw - ${rightSidebarWidth}vw) ${rightSidebarWidth}vw`;
     },
+    
 
     isLargeViewport(state): boolean {
       return ['large', 'extraLarge'].includes(state.viewportSize);

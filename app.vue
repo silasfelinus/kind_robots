@@ -9,35 +9,47 @@
       class="relative grid h-screen"
       :style="{
         'grid-template-columns': gridColumns,
+        'grid-template-rows': gridRows,
       }"
     >
-      <!-- Header (Spans full width, contains nav and tutorial toggle) -->
-      <div
+      <!-- Header (Spans full width) -->
+      <header
         class="bg-primary flex items-center justify-between p-4 z-30"
         :style="{
           height: headerHeight,
-          width: headerWidth,
-          margin: '0 auto', // Center the header
+          gridArea: 'header',
+          width: '100%',
         }"
       >
-        <!-- Header Upgrade Component (center-aligned) -->
+        <!-- Header Content -->
         <header-upgrade class="flex-grow text-center text-white" />
-
-        <!-- Tutorial Toggle (inside the header, right-aligned) -->
+        <!-- Tutorial Toggle -->
         <button
           class="text-xl font-bold text-secondary hover:bg-primary p-2 rounded"
           @click="toggleTutorial"
         >
           Tutorial
         </button>
-      </div>
+      </header>
 
-      <!-- Main Content (Scrollable on Y-axis only) -->
+      <!-- Left Sidebar -->
+      <aside
+        class="bg-secondary z-20 transition-all duration-500 ease-in-out"
+        :style="{
+          width: sidebarLeftWidth,
+          gridArea: 'sidebar-left',
+        }"
+      >
+        <!-- Sidebar Content -->
+        <LeftSidebarComponent />
+      </aside>
+
+      <!-- Main Content -->
       <main
         class="bg-base-100 p-4 z-10 overflow-y-auto"
         :style="{
+          gridArea: 'main',
           height: mainHeight,
-          width: mainWidth,
         }"
         :class="{
           'transition-all duration-300': true,
@@ -46,28 +58,31 @@
         <main-content />
       </main>
 
-      <!-- Sidebar Right (Fixed, full height, scrollable) -->
+      <!-- Right Sidebar -->
       <aside
-        class="bg-secondary fixed z-20 transition-all duration-500 ease-in-out h-full"
+        class="bg-secondary z-20 transition-all duration-500 ease-in-out"
         :style="{
           width: sidebarRightWidth,
-          right: '0', // Ensure the sidebar is positioned on the right
+          gridArea: 'sidebar-right',
         }"
       >
+        <!-- Sidebar Content (e.g., Tutorial) -->
         <div v-if="isFullScreen" class="h-full w-full">
           <SplashTutorial class="h-full w-full" />
         </div>
       </aside>
 
-      <!-- Footer (Full width except sidebars) -->
+      <!-- Footer -->
       <footer
-        class="flex justify-center items-center bg-primary text-white p-4"
+        class="bg-primary text-white flex justify-center items-center p-4"
         :style="{
           height: footerHeight,
+          gridArea: 'footer',
           width: '100%',
         }"
       >
-        <!-- Add footer content here -->
+        <!-- Footer Content -->
+        Footer Content Here
       </footer>
     </div>
   </div>
@@ -79,18 +94,18 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Computed values for layout dimensions based on displayStore
+// Computed values for layout dimensions
 const headerHeight = computed(() => displayStore.headerHeight)
-const headerWidth = '90vw' // Set header width to 90vw as requested
-
-const mainHeight = computed(() => displayStore.mainHeight)
-const mainWidth = computed(() => displayStore.mainWidth)
-
+const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-
+const mainHeight = computed(() => displayStore.mainHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 
+// Grid columns and rows setup based on store dimensions
 const gridColumns = computed(() => displayStore.gridColumns)
+const gridRows = computed(() => {
+  return `${headerHeight.value} 1fr ${footerHeight.value}` // Header row, main row, footer row
+})
 
 const isFullScreen = computed(() => displayStore.isFullScreen)
 
@@ -101,7 +116,7 @@ const toggleTutorial = () => {
 </script>
 
 <style scoped>
-/* Smooth transition effects */
+/* Additional transitions or effects can be added here */
 .transition-all {
   transition: all 0.3s ease-in-out;
 }

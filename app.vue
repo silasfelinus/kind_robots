@@ -13,7 +13,22 @@
         height: '100vh',
       }"
     >
-      <!-- Sidebar left (Fixed, full height, positioned absolutely) -->
+      <!-- Header (Fixed at the top, spans entire width except sidebars) -->
+      <div
+        class="bg-base-100 flex items-center justify-between p-2 z-30 fixed"
+        :style="{
+          gridColumn: '1 / -1', /* Span across all columns */
+          left: '0px', /* Full width including sidebars */
+          right: '0px',
+          top: '0px',
+          height: headerHeight,
+        }"
+      >
+        <!-- Keep header content in header-upgrade component -->
+        <header-upgrade />
+      </div>
+
+      <!-- Sidebar left (Fixed, full height, positioned under the header) -->
       <kind-sidebar-simple
         class="bg-base-100 fixed"
         :style="{
@@ -23,20 +38,6 @@
           height: `calc(100vh - ${headerHeight} - ${footerHeight})`,
         }"
       />
-
-      <!-- Header (Fixed at the top of the screen, full width except sidebars) -->
-      <div
-        class="bg-base-100 flex items-center justify-between p-2 z-30 fixed"
-        :style="{
-          left: sidebarLeftWidth,
-          right: sidebarRightWidth,
-          top: '0px',
-          height: headerHeight,
-        }"
-      >
-        <!-- Keep header content in header-upgrade component -->
-        <header-upgrade />
-      </div>
 
       <!-- Main Content (Fixed below the header and above the footer) -->
       <main

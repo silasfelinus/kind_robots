@@ -3,7 +3,7 @@
     class="flex flex-col fixed justify-between rounded-2xl border p-2 bg-base-300 z-20 space-y-2"
     :style="{
       height: displayStore.headerHeight + 'vh',
-      width: displayStore.mainWidth + '%',
+      width: 90%,
     }"
   >
     <!-- Avatar, Title, and Subtitle Section -->
@@ -29,7 +29,7 @@
       <theme-icon class="w-8 h-8" />
       <tutorial-toggle class="w-8 h-8" />
       <butterfly-toggle class="w-8 h-8" />
-      <horizontal-nav class="w-8 h-8" />
+      
     </div>
   </header>
 </template>

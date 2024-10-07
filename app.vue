@@ -1,6 +1,6 @@
 <template>
   <div class="main-layout h-screen">
-    <gradient-background />
+    <gradient-background class="relative" />
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />

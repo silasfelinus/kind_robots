@@ -51,7 +51,18 @@
       </div>
     </div>
 
-    <tutorial-toggle v-if="!displayStore.isFullScreen" />
+    <!-- Small Tutorial Toggle Button on Mobile -->
+    <div
+      v-if="!displayStore.isFullScreen && isMobile"
+      class="fixed bottom-4 right-4 z-50"
+    >
+      <button
+        class="p-2 bg-primary text-white rounded-full shadow-lg hover:bg-secondary transition"
+        @click="toggleTutorial"
+      >
+        <Icon name="mdi-help-circle-outline" class="w-6 h-6" />
+      </button>
+    </div>
   </div>
 </template>
 
@@ -81,6 +92,11 @@ const toggleLeftSidebar = () => {
 const toggleRightSidebar = () => {
   displayStore.sidebarRightState =
     displayStore.sidebarRightState === 'open' ? 'hidden' : 'open'
+}
+
+// Function to toggle the tutorial
+const toggleTutorial = () => {
+  displayStore.showTutorial = !displayStore.showTutorial
 }
 </script>
 

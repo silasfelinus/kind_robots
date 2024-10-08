@@ -6,17 +6,19 @@
     }"
   >
     <!-- Avatar, Title, Subtitle, and Login Button Section -->
-    <div class="flex items-center justify-start space-x-4 flex-grow">
-      <!-- Avatar Image -->
+    <div class="flex items-center justify-between w-full">
+      <!-- Avatar Image, setting height to be the same as header height minus padding -->
       <avatar-image
         alt="User Avatar"
         class="aspect-square rounded-2xl"
         :style="{
-          height: 'calc(' + displayStore.headerHeight + 'vh - 1rem)', // Adjust for padding
+          height:
+            'calc(' +
+            displayStore.headerHeight +
+            'vh - 1rem)' /* Adjust for padding */,
         }"
         @click="toggleSidebar"
       />
-
       <!-- Title, Subtitle, and Login Button Column -->
       <div
         class="flex flex-col items-center justify-center flex-grow text-center"

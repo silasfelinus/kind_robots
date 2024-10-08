@@ -14,6 +14,7 @@
         :style="{
           height: 'calc(' + displayStore.headerHeight + 'vh - 1rem)', // Adjust for padding
         }"
+        @click="toggleSidebar"
       />
 
       <!-- Title, Subtitle, and Login Button Column -->
@@ -60,6 +61,10 @@ const { page } = useContent()
 const subtitle = computed(
   () => page.value?.subtitle ?? 'Welcome to Kind Robots',
 )
+// Toggle the left sidebar
+const toggleSidebar = () => {
+  displayStore.toggleSidebar('sidebarLeftState')
+}
 </script>
 
 <style scoped>

@@ -64,24 +64,29 @@
         </div>
       </aside>
 
-      <!-- Footer -->
+      <!-- Footer (Optional, sliding in from the bottom) -->
       <footer
-        class="justify-center items-center"
+        v-if="displayStore.footerState === 'open'"
+        class="fixed bottom-0 w-full bg-base-100 transition-transform duration-500 ease-in-out"
         :style="{
           height: footerHeight,
-          gridArea: 'footer',
+          transform: displayStore.footerState === 'open' ? 'translateY(0)' : 'translateY(100%)',
         }"
       >
         <!-- Footer Content -->
         <horizontal-nav />
       </footer>
     </div>
+
+    <!-- Footer Toggle Icon Component -->
+    <FooterIcon />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
+import FooterIcon from '@/components/FooterIcon.vue'
 
 const displayStore = useDisplayStore()
 
@@ -112,7 +117,4 @@ const isFullScreen = computed(() => displayStore.isFullScreen)
 
 <style scoped>
 /* Additional transitions or effects can be added here */
-.transition-all {
-  transition: all 0.3s ease-in-out;
-}
 </style>

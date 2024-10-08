@@ -1,34 +1,30 @@
 <template>
   <button
-    class="text-primary hover:text-secondary transition-colors flex items-center space-x-1 w-full h-auto"
+    class="text-primary hover:text-secondary transition-all flex items-center space-x-2 w-auto"
     @click="goToThemePage"
-    @mouseover="showThemeOnHover"
-    @mouseleave="hideThemeOnHover"
   >
+    <!-- Icon with Scale Hover Effect -->
     <Icon
       name="mdi-brush"
-      class="w-auto h-auto max-w-full min-h-4 min-w-4 max-h-full"
+      class="w-6 h-6 transition-transform text-accent hover:text-info hover:scale-110"
     />
 
-    <span v-if="showCurrentTheme" class="text-sm">{{ currentTheme }}</span>
+    <!-- Always Visible Theme Name -->
+    <span class="text-sm transition-colors">{{ currentTheme }}</span>
   </button>
 </template>
 
 <script setup lang="ts">
 import { useThemeStore } from '@/stores/themeStore'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const themeStore = useThemeStore()
 
-const showCurrentTheme = ref(false)
 const currentTheme = computed(() => themeStore.currentTheme)
 
 const goToThemePage = () => {
   router.push('/theme')
 }
-
-const showThemeOnHover = () => (showCurrentTheme.value = true)
-const hideThemeOnHover = () => (showCurrentTheme.value = false)
 </script>

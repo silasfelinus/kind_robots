@@ -5,7 +5,10 @@
     @mouseover="showThemeOnHover"
     @mouseleave="hideThemeOnHover"
   >
-    <Icon name="mdi-brush" class="w-auto h-auto max-w-full max-h-full" />
+    <Icon
+      name="mdi-brush"
+      class="w-auto h-auto max-w-full min-h-4 min-w-4 max-h-full"
+    />
 
     <span v-if="showCurrentTheme" class="text-sm">{{ currentTheme }}</span>
   </button>

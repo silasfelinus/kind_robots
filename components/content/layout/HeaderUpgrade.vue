@@ -21,12 +21,12 @@
         class="flex flex-col items-center justify-center flex-grow text-center"
       >
         <h1
-          class="text-[16px] md:text-[15px] lg:text-[14px] xl:text-[13px] text-primary font-semibold truncate"
+          class="text-[13px] md:text-[20px] lg:text-[25px] xl:text-[30px] text-primary font-semibold truncate"
         >
           The {{ page.title || 'Room' }} Room
         </h1>
         <h2
-          class="text-[12px] md:text-[11px] lg:text-[10px] xl:text-[9px] text-accent italic truncate"
+          class="text-[12px] md:text-[15px] lg:text-[17px] xl:text-[20px] text-accent italic truncate"
         >
           {{ subtitle }}
         </h2>

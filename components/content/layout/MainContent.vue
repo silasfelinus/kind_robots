@@ -2,6 +2,7 @@
   <div class="relative h-full flex flex-col">
     <!-- Right Sidebar Toggle (Mobile & Desktop) -->
     <div
+      v-if="isFullScreen"
       class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 p-2 bg-secondary text-white rounded-l-lg cursor-pointer"
       @click="toggleSidebarAndTutorial"
     >
@@ -14,6 +15,15 @@
       </span>
       <!-- Book icon for mobile (represents tutorial toggle) -->
       <span v-if="isMobile"> &#x1F4D6; </span>
+    </div>
+
+    <!-- Floating Tutorial Toggle (Non-Fullscreen) -->
+    <div
+      v-else
+      class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-20 p-2 bg-secondary text-white rounded-full cursor-pointer"
+      @click="toggleSidebarAndTutorial"
+    >
+      <span>&#x1F4D6;</span>
     </div>
 
     <!-- Mobile View (Tutorial or Content) -->
@@ -35,18 +45,27 @@
 
     <!-- Flip-card Mode (Desktop with Sidebar for Tutorial) -->
     <div v-else class="relative flex-grow z-10">
-      <!-- Main Content (NuxtPage) -->
-      <div class="flip-card-back rounded-2xl overflow-y-auto h-full w-full">
-        <NuxtPage class="h-full w-full" />
+      <div class="flip-card">
+        <div
+          class="flip-card-inner"
+          :class="{ flipped: showTutorial }"
+        >
+          <!-- Main Content (NuxtPage) -->
+          <div class="flip-card-front rounded-2xl overflow-y-auto h-full w-full">
+            <NuxtPage class="h-full w-full" />
+          </div>
+
+          <!-- Splash Tutorial -->
+          <div class="flip-card-back rounded-2xl overflow-y-auto h-full w-full">
+            <SplashTutorial class="h-full w-full" />
+          </div>
+        </div>
       </div>
 
       <!-- Right Sidebar (Tutorial) -->
       <aside
         class="bg-secondary fixed top-0 right-0 h-full transition-all duration-500 ease-in-out"
-        :class="{
-          'w-0': displayStore.sidebarRightState === 'hidden',
-          'w-80': displayStore.sidebarRightState === 'open',
-        }"
+        :style="{ width: sidebarRightWidth }"
       >
         <SplashTutorial class="h-full w-full" />
       </aside>
@@ -75,6 +94,9 @@ const toggleSidebarAndTutorial = () => {
   displayStore.sidebarRightState =
     displayStore.sidebarRightState === 'open' ? 'hidden' : 'open'
 }
+
+// Computed function to get the sidebar width from the store
+const sidebarRightWidth = computed(() => `${displayStore.sidebarRightVw}vw`)
 </script>
 
 <style scoped>
@@ -111,16 +133,20 @@ const toggleSidebarAndTutorial = () => {
   z-index: 1;
 }
 
+/* Add the flipped class to trigger the flip animation */
+.flip-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
 /* Sidebar transition and width handling */
 aside {
-  width: 80px; /* Default closed width */
+  transition: width 0.5s ease-in-out;
 }
 
-aside.w-0 {
-  width: 0;
-}
-
-aside.w-80 {
-  width: 20rem; /* Opened sidebar width */
+/* Floating tutorial toggle icon */
+.fixed-bottom-toggle {
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 </style>

@@ -1,34 +1,31 @@
 <template>
   <button
+    class="text-primary hover:text-secondary transition-colors flex items-center space-x-1 w-full h-auto"
     @click="goToThemePage"
-    class="text-primary hover:text-secondary transition-colors flex items-center space-x-1"
+    @mouseover="showThemeOnHover"
+    @mouseleave="hideThemeOnHover"
   >
-    <icon name="mdi-brush" class="w-8 h-8" /> <!-- Paintbrush Icon -->
+    <Icon name="mdi-brush" class="w-auto h-auto max-w-full max-h-full" />
+
     <span v-if="showCurrentTheme" class="text-sm">{{ currentTheme }}</span>
   </button>
 </template>
 
 <script setup lang="ts">
-import { useThemeStore } from '@/stores/themeStore'
+import { useThemeStore } from './../../../stores/themeStore'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const themeStore = useThemeStore()
 
-// Optionally show the current theme name
 const showCurrentTheme = ref(false)
-const currentTheme = computed(() => themeStore.currentTheme) // Get current theme
+const currentTheme = computed(() => themeStore.currentTheme)
 
 const goToThemePage = () => {
-  router.push('/themes') // Direct user to the theme page
+  router.push('/theme')
 }
 
-// Optionally show the current theme on hover
 const showThemeOnHover = () => (showCurrentTheme.value = true)
 const hideThemeOnHover = () => (showCurrentTheme.value = false)
 </script>
-
-<style scoped>
-/* No circular background, just the icon */
-</style>

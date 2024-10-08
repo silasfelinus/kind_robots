@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex items-center justify-between fixed rounded-2xl border-1 border-accent p-2 bg-base-300 z-20 w-full"
+    class="flex items-center justify-between fixed rounded-2xl border-1 border-accent p-2 bg-base-300 z-20 mx-2 my-2 max-w-full"
     :style="{
       height: displayStore.headerHeight + 'vh',
     }"

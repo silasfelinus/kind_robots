@@ -67,7 +67,6 @@
 
       <!-- Footer (Optional, sliding in from the bottom) -->
       <footer
-        v-if="displayStore.footerState === 'open'"
         class="fixed bottom-0 w-full transition-transform duration-500 ease-in-out"
         :style="{
           height: footerHeight,

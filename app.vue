@@ -27,13 +27,20 @@
 
       <!-- Left Sidebar -->
       <aside
-        class="z-20 transition-all duration-500 ease-in-out overflow-hidden"
+        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden"
         :style="{
           width: sidebarLeftWidth,
           height: mainHeight,
           gridArea: 'sidebar-left',
         }"
       >
+        <!-- Toggle always visible -->
+        <left-toggle
+          class="absolute -right-4 top-1/2 transform -translate-y-1/2 z-50"
+          min-w-5
+          h-5
+          w-5
+        />
         <kind-sidebar-simple class="flex-grow" />
       </aside>
 

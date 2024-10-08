@@ -27,14 +27,15 @@
 
       <!-- Left Sidebar -->
       <aside
-        class="z-20 transition-all duration-500 ease-in-out"
+        class="z-20 transition-all duration-500 ease-in-out overflow-hidden"
         :style="{
           width: sidebarLeftWidth,
+          height: mainHeight,
           gridArea: 'sidebar-left',
         }"
       >
         <left-toggle />
-        <kind-sidebar-simple class="flex-grow" />/>>
+        <kind-sidebar-simple class="flex-grow" />
       </aside>
 
       <!-- Main Content -->
@@ -53,9 +54,10 @@
 
       <!-- Right Sidebar -->
       <aside
-        class="z-20 transition-all duration-500 ease-in-out"
+        class="z-20 transition-all duration-500 ease-in-out overflow-hidden"
         :style="{
           width: sidebarRightWidth,
+          height: mainHeight,
           gridArea: 'sidebar-right',
         }"
       >
@@ -92,8 +94,12 @@ const displayStore = useDisplayStore()
 const headerHeight = computed(() => displayStore.headerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const mainHeight = computed(() => displayStore.mainHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
+
+// Main height dynamically calculated based on screen size minus header and footer heights
+const mainHeight = computed(() => {
+  return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
+})
 
 // Grid columns and rows setup based on store dimensions
 const gridColumns = computed(() => displayStore.gridColumns)

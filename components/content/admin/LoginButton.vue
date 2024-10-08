@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex items-center space-x-4">
+  <div class="relative flex items-center space-x-4 lg:ml-10">
     <!-- Button column -->
     <div class="ml-4">
       <div v-if="isLoggedIn" class="flex flex-col items-start">

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="Icon-container flex items-center justify-center space-x-1 rounded-lg bg-accent-100 flex-col"
+    class="Icon-container relative flex items-center justify-center space-x-1 rounded-lg bg-accent-100 flex-col"
   >
     <!-- Butterfly Icon Box -->
     <div
@@ -25,10 +25,10 @@
       />
     </div>
 
-    <!-- Label Below Icon -->
+    <!-- Absolutely Positioned Label (No Layout Shifting) -->
     <div
-      v-show="fxStore.showAmiSwarm"
-      class="label-container mt-1 text-default font-bold"
+      v-if="fxStore.showAmiSwarm"
+      class="label-container absolute top-full mt-2 text-default font-bold text-center"
     >
       We're Free!
     </div>

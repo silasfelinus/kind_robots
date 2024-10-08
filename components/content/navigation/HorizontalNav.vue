@@ -11,7 +11,7 @@
           class="text-primary hover:scale-110 transition-transform"
           @click="navigateTo(item.path)"
         >
-          <icon :name="item.icon" class="w-8 h-8" />
+          <icon :name="item.icon" class="w-8 h-8 text-accent" />
         </button>
         <!-- Hover Text -->
         <span

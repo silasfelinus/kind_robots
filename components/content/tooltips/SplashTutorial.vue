@@ -65,7 +65,7 @@
     <!-- Bot Messages Section -->
     <div
       v-if="page && page.dottitip && page.amitip"
-      class="flex flex-col w-full max-w-3xl px-4 py-1 lg:py-2 mx-auto flex-shrink-0"
+      class="flex flex-col w-full max-w-3xl px-4 py-1 mx-auto flex-shrink-0"
       :style="{ height: displayStore.mainHeight + 'vh' }"
     >
       <!-- DottiBot Message -->

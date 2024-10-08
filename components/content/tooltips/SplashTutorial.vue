@@ -1,7 +1,6 @@
 <template>
   <div
     class="relative flex flex-col h-full w-full rounded-2xl overflow-hidden shadow-lg border-4"
-    :style="{ height: displayStore.mainHeight + 'vh' }"
   >
     <!-- Under Construction Icon -->
     <div
@@ -17,6 +16,7 @@
     <!-- Main Content Section -->
     <div
       class="flex-1 flex flex-col items-center justify-between p-4 space-y-1 overflow-hidden"
+      :style="{ height: displayStore.mainHeight + 'vh' }"
     >
       <!-- Main Image -->
       <img
@@ -66,6 +66,7 @@
     <div
       v-if="page && page.dottitip && page.amitip"
       class="flex flex-col w-full max-w-3xl px-4 py-1 lg:py-2 mx-auto flex-shrink-0"
+      :style="{ height: displayStore.mainHeight + 'vh' }"
     >
       <!-- DottiBot Message -->
       <div class="chat chat-start">

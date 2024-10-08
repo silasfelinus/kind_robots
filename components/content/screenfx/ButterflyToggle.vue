@@ -27,12 +27,9 @@
 
     <!-- Label Below Icon -->
     <div
-      v-if="!fxStore.showAmiSwarm"
+      v-show="fxStore.showAmiSwarm"
       class="label-container mt-1 text-default font-bold"
     >
-      Click Me!
-    </div>
-    <div v-else class="label-container mt-1 text-default font-bold">
       We're Free!
     </div>
   </div>

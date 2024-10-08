@@ -1,39 +1,48 @@
 <template>
   <header
-    class="flex items-center justify-between fixed rounded-2xl border p-2 bg-base-300 z-20"
+    class="flex items-center justify-between fixed rounded-2xl border p-2 bg-base-300 z-20 w-full"
     :style="{
       height: displayStore.headerHeight + 'vh',
-      width: '90%',
     }"
   >
     <!-- Avatar, Title, Subtitle, and Login Button Section -->
-    <div class="flex items-center justify-between w-full">
-      <!-- Avatar Image, setting height to be the same as header height minus padding -->
+    <div class="flex items-center justify-start space-x-4 flex-grow">
+      <!-- Avatar Image -->
       <avatar-image
         alt="User Avatar"
         class="aspect-square rounded-2xl"
         :style="{
-          height: 'calc(' + displayStore.headerHeight + 'vh - 1rem)', /* Adjust for padding */
+          height: 'calc(' + displayStore.headerHeight + 'vh - 1rem)', // Adjust for padding
         }"
       />
-      
+
       <!-- Title, Subtitle, and Login Button Column -->
-      <div class="flex flex-col items-center justify-center flex-grow text-center space-x-3">
-        <h1 class="text-[16px] md:text-[15px] lg:text-[14px] xl:text-[13px] text-primary font-semibold truncate">
+      <div
+        class="flex flex-col items-center justify-center flex-grow text-center"
+      >
+        <h1
+          class="text-[16px] md:text-[15px] lg:text-[14px] xl:text-[13px] text-primary font-semibold truncate"
+        >
           The {{ page.title || 'Room' }} Room
         </h1>
-        <h2 class="text-[12px] md:text-[11px] lg:text-[10px] xl:text-[9px] text-accent italic truncate">
+        <h2
+          class="text-[12px] md:text-[11px] lg:text-[10px] xl:text-[9px] text-accent italic truncate"
+        >
           {{ subtitle }}
         </h2>
       </div>
 
-      <!-- Login Button -->
-      <login-button class="w-8 h-8" />
+      <!-- Login Button Column -->
+      <div class="ml-auto">
+        <login-button class="w-full max-w-[120px]" />
+      </div>
     </div>
 
-    <!-- Non-login Icons (Vertical on small screens, horizontal on medium and larger screens) -->
-    <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-      <theme-toggle class="w-8 h-8" />
+    <!-- Non-login Icons (Vertical on small screens, horizontal on larger screens) -->
+    <div
+      class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2"
+    >
+      <theme-icon class="w-8 h-8" />
       <tutorial-toggle class="w-8 h-8" />
       <butterfly-toggle class="w-8 h-8" />
     </div>

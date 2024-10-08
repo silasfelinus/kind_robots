@@ -1,28 +1,31 @@
 <template>
-  <div class="theme-selector flex flex-col items-center relative">
-    <div class="flex flex-row items-center justify-center space-x-4 w-full">
-      <button
-        tabindex="0"
-        aria-haspopup="true"
-        aria-label="Change theme"
-        class="theme-btn p-2 rounded-full border border-primary focus:outline-none focus:ring focus:ring-primary transform hover:scale-110 transition-all ease-in-out duration-200 text-lg text-primary"
-        @click="goToThemePage"
-      >
-        theme: {{ themeStore.currentTheme }}
-      </button>
-    </div>
-  </div>
+  <button
+    class="text-primary hover:text-secondary transition-colors flex items-center space-x-1 w-full h-auto"
+    @click="goToThemePage"
+    @mouseover="showThemeOnHover"
+    @mouseleave="hideThemeOnHover"
+  >
+    <Icon name="mdi-brush" class="w-auto h-auto max-w-full max-h-full" />
+
+    <span v-if="showCurrentTheme" class="text-sm">{{ currentTheme }}</span>
+  </button>
 </template>
 
 <script setup lang="ts">
 import { useThemeStore } from '@/stores/themeStore'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const themeStore = useThemeStore()
 const router = useRouter()
+const themeStore = useThemeStore()
 
-// Function to navigate to the /theme page
+const showCurrentTheme = ref(false)
+const currentTheme = computed(() => themeStore.currentTheme)
+
 const goToThemePage = () => {
   router.push('/theme')
 }
+
+const showThemeOnHover = () => (showCurrentTheme.value = true)
+const hideThemeOnHover = () => (showCurrentTheme.value = false)
 </script>

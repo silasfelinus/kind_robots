@@ -34,7 +34,6 @@
           gridArea: 'sidebar-left',
         }"
       >
-        <left-toggle />
         <kind-sidebar-simple class="flex-grow" />
       </aside>
 

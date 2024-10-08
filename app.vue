@@ -6,7 +6,7 @@
 
     <!-- Grid Container: Header, Content, Footer, Sidebar (Right) -->
     <div
-      class="grid h-screen"
+      class="grid h-screen bg-base-100"
       :style="{
         'grid-template-columns': gridColumns,
         'grid-template-rows': gridRows,
@@ -15,7 +15,7 @@
     >
       <!-- Header (Spans full width) -->
       <header
-        class="bg-primary flex items-center justify-between p-4 z-30"
+        class="flex items-center justify-between p-4 z-30"
         :style="{
           height: headerHeight,
           gridArea: 'header',
@@ -27,7 +27,7 @@
 
       <!-- Left Sidebar -->
       <aside
-        class="bg-secondary z-20 transition-all duration-500 ease-in-out"
+        class="z-20 transition-all duration-500 ease-in-out"
         :style="{
           width: sidebarLeftWidth,
           gridArea: 'sidebar-left',
@@ -38,7 +38,7 @@
 
       <!-- Main Content -->
       <main
-        class="bg-base-100 p-4 z-10 overflow-y-auto"
+        class="p-4 z-10 overflow-y-auto"
         :style="{
           gridArea: 'main',
           height: mainHeight,
@@ -52,7 +52,7 @@
 
       <!-- Right Sidebar -->
       <aside
-        class="bg-secondary z-20 transition-all duration-500 ease-in-out"
+        class="z-20 transition-all duration-500 ease-in-out"
         :style="{
           width: sidebarRightWidth,
           gridArea: 'sidebar-right',
@@ -67,26 +67,26 @@
       <!-- Footer (Optional, sliding in from the bottom) -->
       <footer
         v-if="displayStore.footerState === 'open'"
-        class="fixed bottom-0 w-full bg-base-100 transition-transform duration-500 ease-in-out"
+        class="fixed bottom-0 w-full transition-transform duration-500 ease-in-out"
         :style="{
           height: footerHeight,
           transform: displayStore.footerState === 'open' ? 'translateY(0)' : 'translateY(100%)',
         }"
       >
         <!-- Footer Content -->
-        <horizontal-nav />
+    <FooterIcon />
       </footer>
     </div>
 
     <!-- Footer Toggle Icon Component -->
-    <FooterIcon />
+
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import FooterIcon from '@/components/FooterIcon.vue'
+
 
 const displayStore = useDisplayStore()
 

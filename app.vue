@@ -33,7 +33,8 @@
           gridArea: 'sidebar-left',
         }"
       >
-        <!-- Sidebar Left Content Here -->
+        <left-toggle v-if="!isMobile" />
+        <kind-sidebar-simple class="flex-grow" />/>>
       </aside>
 
       <!-- Main Content -->
@@ -93,6 +94,7 @@ const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const mainHeight = computed(() => displayStore.mainHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
+const isMobile = computed(() => displayStore.isMobileViewport)
 
 // Grid columns and rows setup based on store dimensions
 const gridColumns = computed(() => displayStore.gridColumns)

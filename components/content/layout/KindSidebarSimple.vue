@@ -2,14 +2,14 @@
   <div class="flex">
     <!-- Left Sidebar -->
     <aside
-      v-if="displayStore.sidebarLeftState !== 'hidden'"
-      class="transition-all duration-300 rounded-2xl hide-scrollbar p-1 fixed top-0 left-0 overflow-y-auto"
+      class="transition-all duration-300 rounded-2xl hide-scrollbar p-1 fixed left-0 overflow-y-auto"
       :class="{
         'w-1/6': displayStore.sidebarLeftState === 'open',
         'w-1/12': displayStore.sidebarLeftState === 'compact',
       }"
       :style="{
-        height: `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`,
+        top: `${displayStore.headerHeight}vh`,
+        height: `calc(100vh - ${displayStore.headerHeight}vh)`,
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->

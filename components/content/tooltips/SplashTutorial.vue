@@ -57,7 +57,7 @@
       >
         <Icon
           :name="page.icon"
-          class="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32"
+          class="w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15"
         />
       </div>
     </div>

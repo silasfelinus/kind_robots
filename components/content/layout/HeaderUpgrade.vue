@@ -44,7 +44,6 @@
       class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2"
     >
       <theme-icon class="w-8 h-8" />
-      <tutorial-toggle class="w-8 h-8" />
       <butterfly-toggle class="w-8 h-8" />
     </div>
   </header>

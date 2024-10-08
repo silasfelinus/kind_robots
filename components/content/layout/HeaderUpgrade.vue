@@ -41,9 +41,12 @@
 
     <!-- Non-login Icons (Vertical on small screens, horizontal on larger screens) -->
     <div
-      class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2"
+      class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2 flex-shrink-0"
     >
+      <!-- Theme Icon -->
       <theme-icon class="w-8 h-8" />
+
+      <!-- Butterfly Toggle Icon -->
       <butterfly-toggle class="w-8 h-8" />
     </div>
   </header>

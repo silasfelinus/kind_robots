@@ -13,16 +13,16 @@
         'grid-template-areas': gridAreas,
       }"
     >
-      <!-- Header (Spans full width) -->
+      <!-- Header (Spans full width, centered content) -->
       <header
-        class="flex items-center justify-between p-4 z-30"
+        class="flex items-center justify-center z-30"
         :style="{
           height: headerHeight,
           gridArea: 'header',
         }"
       >
-        <!-- Header Content -->
-        <header-upgrade class="flex-grow text-center text-white" />
+        <!-- Header Content centered with equal horizontal spacing -->
+        <header-upgrade class="flex-grow text-center" />
       </header>
 
       <!-- Left Sidebar -->
@@ -58,7 +58,6 @@
           gridArea: 'sidebar-right',
         }"
       >
-        <!-- Sidebar Content (e.g., Tutorial) -->
         <div v-if="isFullScreen" class="h-full w-full">
           <SplashTutorial class="h-full w-full" />
         </div>
@@ -70,23 +69,21 @@
         class="fixed bottom-0 w-full transition-transform duration-500 ease-in-out"
         :style="{
           height: footerHeight,
-          transform: displayStore.footerState === 'open' ? 'translateY(0)' : 'translateY(100%)',
+          transform:
+            displayStore.footerState === 'open'
+              ? 'translateY(0)'
+              : 'translateY(100%)',
         }"
       >
-        <!-- Footer Content -->
-    <FooterIcon />
+        <FooterIcon />
       </footer>
     </div>
-
-    <!-- Footer Toggle Icon Component -->
-
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-
 
 const displayStore = useDisplayStore()
 

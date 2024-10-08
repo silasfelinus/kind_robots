@@ -14,4 +14,4 @@ dottitip: AMI, is the simulation room prepared? We've let visitors pick items bu
 layout: 'vertical-scroll'
 ---
 
-:weird-window
+:weirder-game

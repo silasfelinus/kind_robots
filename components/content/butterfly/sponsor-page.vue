@@ -104,13 +104,13 @@
                 class="w-16 h-16 rounded-full shadow"
               />
               <span>Hair by Superkate: Bespoke Hair-Colouring Services</span>
-              <a
-                href="https://www.instagram.com/hairbysuperkate/"
-                target="_blank"
-                class="text-accent hover:text-accent-dark ml-2"
-              >
-                (Instagram)
-              </a>
+            </a>
+            <a
+              href="https://www.instagram.com/hairbysuperkate/"
+              target="_blank"
+              class="text-accent hover:text-accent-dark ml-2"
+            >
+              (Instagram)
             </a>
           </li>
         </ul>

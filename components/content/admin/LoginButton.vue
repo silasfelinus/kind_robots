@@ -17,9 +17,12 @@
         </button>
       </div>
     </div>
-    <!-- Login Form -->
+
+    <!-- Login Form Overlay -->
     <transition name="fade">
-      <login-form v-if="showLogin" @close="showLogin = false" />
+      <div v-if="showLogin" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <login-form @close="showLogin = false" class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md" />
+      </div>
     </transition>
   </div>
 </template>
@@ -40,3 +43,13 @@ const toggleLogin = () => {
   showLogin.value = !showLogin.value
 }
 </script>
+
+<style scoped>
+/* Fade transition for login form overlay */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
+}
+</style>

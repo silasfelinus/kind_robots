@@ -34,7 +34,7 @@
         v-else-if="isFullScreen"
         class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow box-border"
       >
-        <NuxtPage class="h-full w-full box-border" />
+        <NuxtPage class="h-full w-full overflow-y-auto box-border" />
       </div>
 
       <!-- Flip-card Mode (Desktop with Sidebar for Tutorial) -->
@@ -48,14 +48,14 @@
             <div
               class="flip-card-front rounded-2xl overflow-y-auto h-full w-full box-border"
             >
-              <NuxtPage class="h-full w-full box-border" />
+              <NuxtPage class="h-full w-full overflow-y-auto box-border" />
             </div>
 
             <!-- Splash Tutorial -->
             <div
               class="flip-card-back rounded-2xl overflow-y-auto h-full w-full box-border"
             >
-              <SplashTutorial class="h-full w-full box-border" />
+              <SplashTutorial class="h-full w-full overflow-y-auto box-border" />
             </div>
           </div>
         </div>

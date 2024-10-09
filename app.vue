@@ -59,7 +59,7 @@
           gridArea: 'sidebar-right',
         }"
       >
-        <kind-sidebar-right class="h-full w-full" />
+        <splash-tutorial class="h-full w-full" />
       </aside>
 
       <!-- Footer (Center-bottom cell) -->

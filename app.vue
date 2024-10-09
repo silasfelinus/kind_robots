@@ -34,13 +34,6 @@
           gridArea: 'sidebar-left',
         }"
       >
-        <!-- Toggle always visible -->
-        <left-toggle
-          class="absolute -right-4 top-1/2 transform -translate-y-1/2 z-50"
-          min-w-5
-          h-5
-          w-5
-        />
         <kind-sidebar-simple class="flex-grow" />
       </aside>
 

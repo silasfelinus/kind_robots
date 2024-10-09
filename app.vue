@@ -4,7 +4,7 @@
     <kind-loader />
     <animation-loader />
 
-    <!-- Grid Container: Header, Content, Footer, Sidebar (Right) -->
+    <!-- Grid Container: Header, Content, Sidebar (Left/Right) -->
     <div
       class="grid h-screen bg-base-100"
       :style="{
@@ -21,7 +21,6 @@
           gridArea: 'header',
         }"
       >
-        <!-- Header Content centered with equal horizontal spacing -->
         <header-upgrade class="flex-grow text-center" />
       </header>
 
@@ -64,21 +63,21 @@
           <SplashTutorial class="h-full w-full" />
         </div>
       </aside>
-
-      <!-- Footer (Optional, sliding in from the bottom) -->
-      <footer
-        class="fixed bottom-0 w-full transition-transform duration-500 ease-in-out"
-        :style="{
-          height: footerHeight,
-          transform:
-            displayStore.footerState === 'open'
-              ? 'translateY(0)'
-              : 'translateY(100%)',
-        }"
-      >
-        <FooterIcon />
-      </footer>
     </div>
+
+    <!-- Footer (Positioned below main content, not sidebars) -->
+    <footer
+      class="fixed bottom-0 left-0 w-full transition-transform duration-500 ease-in-out"
+      :style="{
+        height: footerHeight,
+        transform:
+          displayStore.footerState === 'open'
+            ? 'translateY(0)'
+            : 'translateY(100%)',
+      }"
+    >
+      <FooterIcon />
+    </footer>
   </div>
 </template>
 
@@ -86,37 +85,38 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Access the displayStore for managing the layout state
 const displayStore = useDisplayStore()
 
-// Computed values for layout dimensions
+// Compute layout heights and widths based on store state
 const headerHeight = computed(() => displayStore.headerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const footerHeight = computed(() => displayStore.footerHeight)
 
-// Main height dynamically calculated based on screen size minus header and footer heights
+// Calculate the height of the main content area dynamically based on the viewport
 const mainHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
 })
 
-// Grid columns and rows setup based on store dimensions
-const gridColumns = computed(() => displayStore.gridColumns)
-const gridRows = computed(() => {
-  return `${headerHeight.value} 1fr ${footerHeight.value}` // Header row, main row, footer row
+// Define grid structure with explicit areas for the header, sidebars, and main content
+const gridColumns = computed(() => {
+  return `${sidebarLeftWidth.value} 1fr ${sidebarRightWidth.value}` // Left sidebar, main content, right sidebar
 })
 
-// Set grid areas to ensure each section is explicitly placed in the layout
-const gridAreas = computed(
-  () => `
+const gridRows = computed(() => {
+  return `${headerHeight.value} 1fr` // Header row, main content row (footer excluded)
+})
+
+// Define grid areas for the layout
+const gridAreas = computed(() => `
   "header header header"
   "sidebar-left main sidebar-right"
-  "footer footer footer"
-`,
-)
+`)
 
 const isFullScreen = computed(() => displayStore.isFullScreen)
 </script>
 
 <style scoped>
-/* Additional transitions or effects can be added here */
+/* Additional styles for transition and effects */
 </style>

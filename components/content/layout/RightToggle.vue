@@ -16,18 +16,21 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Determine the icon based on the sidebarRightState (open or closed)
+// Determine the icon based on the sidebarRightState (open or hidden)
 const iconName = computed(() => {
-  return displayStore.sidebarRightState === 'open' ? 'mdi:chevron-right' : 'mdi:chevron-left'
+  return displayStore.sidebarRightState === 'open'
+    ? 'mdi:chevron-right'
+    : 'mdi:chevron-left'
 })
 
-// Function to toggle both the right sidebar and the tutorial visibility
+// Function to toggle the right sidebar and the tutorial visibility
 const toggleSidebarRightAndTutorial = () => {
-  // Toggle the right sidebar
-  displayStore.toggleSidebar('sidebarRightState')
+  // Directly toggle between 'open' and 'hidden' for the right sidebar
+  displayStore.sidebarRightState =
+    displayStore.sidebarRightState === 'open' ? 'hidden' : 'open'
 
   // Toggle the showTutorial state
-  displayStore.showTutorial = !displayStore.showTutorial
+  displayStore.toggleTutorial()
 }
 </script>
 

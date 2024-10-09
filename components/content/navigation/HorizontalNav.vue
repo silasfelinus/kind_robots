@@ -5,10 +5,14 @@
       <div
         v-for="(item, index) in hardcodedLinks"
         :key="index"
-        class="group flex flex-col items-center space-y-2"
+        class="group flex flex-col items-center"
+        style="min-width: 60px;" <!-- Ensure minimum width to keep icons aligned -->
       >
         <!-- Always Visible Text Above Icon -->
-        <span class="text-sm text-primary">
+        <span
+          class="text-sm text-primary whitespace-nowrap text-center overflow-hidden"
+          style="max-width: 60px;" <!-- Fix the text size and prevent it from affecting the layout -->
+        >
           {{ item.title }}
         </span>
         <button
@@ -63,5 +67,17 @@ const navigateTo = (path: string) => {
 /* Hover effect for scaling the icons */
 .group:hover button {
   transform: scale(1.1);
+}
+
+/* Additional styles to ensure consistent icon and text alignment */
+.group {
+  width: 60px; /* Ensure all items have the same width */
+}
+
+span {
+  max-width: 60px; /* Fix text width to avoid affecting the layout */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 </style>

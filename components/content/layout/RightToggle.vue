@@ -3,7 +3,7 @@
     <!-- Toggle button for larger displays (controlled by parent container) -->
     <button
       class="flex items-center justify-center p-2 text-accent rounded-lg shadow-lg hover:bg-secondary"
-      @click="toggleSidebarRightAndTutorial"
+      @click="toggleTutorial"
     >
       <Icon :name="iconName" class="w-8 h-8" />
     </button>
@@ -24,7 +24,7 @@ const iconName = computed(() => {
 })
 
 // Function to toggle the right sidebar and the tutorial visibility
-const toggleSidebarRightAndTutorial = () => {
+const toggleTutorial = () => {
   displayStore.toggleTutorial()
 }
 </script>

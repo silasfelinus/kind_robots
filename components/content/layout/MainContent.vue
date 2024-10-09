@@ -15,7 +15,6 @@
       <!-- Right Sidebar Toggle (inside content) -->
       <right-toggle
         class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
-        @click="toggleSidebarAndTutorial"
       />
 
       <!-- Main Content (Tutorial or Content) -->
@@ -83,16 +82,6 @@ const displayStore = useDisplayStore()
 const isMobile = computed(() => displayStore.isMobileViewport)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 const showTutorial = computed(() => displayStore.showTutorial)
-
-// Function to toggle both the right sidebar and the tutorial
-const toggleSidebarAndTutorial = () => {
-  // Toggle the tutorial visibility
-  displayStore.showTutorial = !displayStore.showTutorial
-
-  // Toggle the sidebar state
-  displayStore.sidebarRightState =
-    displayStore.sidebarRightState === 'open' ? 'hidden' : 'open'
-}
 
 // Computed function to get the sidebar width from the store
 const sidebarRightWidth = computed(() => `${displayStore.sidebarRightVw}vw`)

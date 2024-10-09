@@ -1,11 +1,13 @@
 <template>
-  <button
-    class="flex items-center justify-center p-1 hover:bg-secondary rounded-lg"
-    :style="buttonStyle"
-    @click="toggleFooter"
-  >
-    <Icon name="simple-icons:circle" class="toggle-icon" />
-  </button>
+  <div class="flex justify-center items-end h-full">
+    <button
+      class="flex items-center justify-center p-1 hover:bg-secondary rounded-lg"
+      :style="buttonStyle"
+      @click="toggleFooter"
+    >
+      <Icon name="simple-icons:circle" class="toggle-icon" />
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -71,7 +71,9 @@
           gridArea: 'footer',
         }"
       >
-        <horizontal-nav />
+        <horizontal-nav 
+          v-if="footerOpen"
+         />
       </footer>
     </div>
   </div>
@@ -90,6 +92,7 @@ const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const footerHeight = computed(() => displayStore.footerHeight)
 
+const footerOpen = computed (() => displayStore.footerState==='open')
 // Calculate the height of the main content area dynamically based on the viewport
 const mainHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`

@@ -25,11 +25,6 @@ const iconName = computed(() => {
 
 // Function to toggle the right sidebar and the tutorial visibility
 const toggleSidebarRightAndTutorial = () => {
-  // Directly toggle between 'open' and 'hidden' for the right sidebar
-  displayStore.sidebarRightState =
-    displayStore.sidebarRightState === 'open' ? 'hidden' : 'open'
-
-  // Toggle the showTutorial state
   displayStore.toggleTutorial()
 }
 </script>

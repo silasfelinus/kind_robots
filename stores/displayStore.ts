@@ -31,7 +31,7 @@ export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
     headerState: 'open',
     sidebarLeftState: 'open',
-    sidebarRightState: 'hidden', // Default to hidden right sidebar
+    sidebarRightState: 'hidden',
     footerState: 'open',
     isVertical: false,
     viewportSize: 'large',
@@ -87,48 +87,50 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize];
       return sizes[state.sidebarRightState] || 2;
     },
+    mainHeight(): string {
+      return `calc(100vh - ${this.headerVh}vh - ${this.footerVh}vh)`;
+    },
+
+    mainWidth(): string {
+      return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
+    },
 
     mainVh(): number {
       return 100 - this.headerVh - this.footerVh;
     },
+    
     mainVw(): number {
       return 100 - this.sidebarLeftVw - this.sidebarRightVw;
     },
-
+    
     headerHeight(): string {
-      return `calc(var(--vh, 1vh) * ${this.headerVh})`;
-    },
-
-    mainHeight(): string {
-      return `calc(var(--vh, 1vh) * ${this.mainVh})`;
-    },
-
-    mainWidth(): string {
-      return `calc(var(--vw, 1vw) * ${this.mainVw})`;
+      return `${this.headerVh}vh`
     },
 
     footerHeight(): string {
-      return `calc(var(--vh, 1vh) * ${this.footerVh})`;
+      return `${this.footerVh}vh`
     },
 
     sidebarLeftWidth(): string {
-      return `${this.sidebarLeftVw}vw`;
+      return `${this.sidebarLeftVw}vw`
     },
 
     sidebarRightWidth(): string {
-      return `${this.sidebarRightVw}vw`;
+      return `${this.sidebarRightVw}vw`
     },
 
     gridColumns(): string {
-      // Sidebar sizes for 'hidden' state remain small, but 'disabled' means no space should be allocated
-      const rightSidebarWidth = this.sidebarRightState === 'disabled' ? 0 : this.sidebarRightVw;
-      const leftSidebarWidth = this.sidebarLeftState === 'disabled' ? 0 : this.sidebarLeftVw;
-    
-      // Return the grid columns, ensuring hidden sidebars still take up small space
-      return `${leftSidebarWidth}vw calc(100vw - ${leftSidebarWidth}vw - ${rightSidebarWidth}vw) ${rightSidebarWidth}vw`;
+      return `${this.sidebarLeftVw}vw 1fr ${this.sidebarRightVw}vw`
     },
-    
 
+
+    gridRows(): string {
+      return `${this.headerHeight} 1fr`;
+    },
+
+    footerWidth(): string {
+      return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
+    },
     isLargeViewport(state): boolean {
       return ['large', 'extraLarge'].includes(state.viewportSize);
     },

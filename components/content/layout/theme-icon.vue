@@ -8,7 +8,7 @@
 
     <!-- Icon with Scale Hover Effect -->
     <Icon
-      name="mdi-brush"
+      name="bi:brush"
       class="w-6 h-6 transition-transform text-accent hover:text-info hover:scale-110"
     />
 

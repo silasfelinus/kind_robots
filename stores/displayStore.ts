@@ -338,7 +338,20 @@ export const useDisplayStore = defineStore('display', {
       this.saveState();
     },
 
+      // Function to set the right sidebar state (open/hidden) without toggling compact
+    setSidebarRight(isOpen: boolean) {
+      if (isOpen) {
+        this.sidebarRightState = 'open';
+        this.isFullScreen = false;  // Disable fullscreen if the sidebar is opened
+      } else {
+        this.sidebarRightState = 'hidden';
+      }
+      this.saveState();
+    },
+
     toggleTutorial() {
+      // Toggle the sidebar right state between open and hidden
+      this.setSidebarRight(this.sidebarRightState === 'hidden');
 
       if (this.flipState === 'tutorial' || this.flipState === 'toTutorial') {
         console.log('Setting flipState to "toMain"');

@@ -3,11 +3,8 @@
     <!-- Left Sidebar -->
     <aside
       class="transition-all duration-300 rounded-2xl hide-scrollbar p-1 fixed left-0 overflow-y-auto"
-      :class="{
-        'w-1/6': displayStore.sidebarLeftState === 'open',
-        'w-1/12': displayStore.sidebarLeftState === 'compact',
-      }"
       :style="{
+        width: displayStore.sidebarLeftWidth,
         top: `${displayStore.headerHeight}vh`,
         height: `calc(100vh - ${displayStore.headerHeight}vh)`,
       }"

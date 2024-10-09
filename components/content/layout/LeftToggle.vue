@@ -2,10 +2,10 @@
   <div>
     <!-- Toggle button for larger displays (controlled by parent container) -->
     <button
-      class="flex items-center justify-center p-2 bg-primary text-white rounded-lg shadow-lg hover:bg-secondary"
+      class="flex items-center justify-center p-2 text-accent rounded-lg shadow-lg hover:bg-secondary"
       @click="toggleSidebarLeft"
     >
-      <Icon :name="iconName" class="w-6 h-6" />
+      <Icon :name="iconName" class="w-8 h-8" />
     </button>
   </div>
 </template>

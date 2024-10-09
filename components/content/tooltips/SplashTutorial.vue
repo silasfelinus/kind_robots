@@ -35,12 +35,7 @@
           {{ page.title }}
         </h1>
 
-        <h2
-          v-if="page && page.subtitle"
-          class="text-xs md:text-md font-medium text-accent truncate bg-secondary rounded-xl p-1"
-        >
-          {{ page.subtitle }}
-        </h2>
+       
 
         <h3
           v-if="page && page.description"

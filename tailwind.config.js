@@ -18,7 +18,7 @@ export default {
       pattern: /game-icons:easel/,
     },
     {
-      pattern: /material-symbols:art-track-outline-rounded/,
+      pattern: /mdi:brain/,
     },
     {
       pattern: /game-icons:gear-hammer/,

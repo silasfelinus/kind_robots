@@ -1,7 +1,7 @@
 <template>
-  <div class="flex items-center justify-between p-2 shadow-lg">
+  <div class="flex justify-center p-4 bg-base-200">
     <!-- Horizontal Nav Icons with Words Above -->
-    <div class="flex space-x-2">
+    <div class="flex justify-evenly w-full max-w-screen-lg space-x-4">
       <div
         v-for="(item, index) in hardcodedLinks"
         :key="index"
@@ -62,22 +62,3 @@ const navigateTo = (path: string) => {
   router.push(path) // Use Vue Router for navigation to avoid page refresh
 }
 </script>
-
-<style scoped>
-/* Hover effect for scaling the icons */
-.group:hover button {
-  transform: scale(1.1);
-}
-
-/* Additional styles to ensure consistent icon and text alignment */
-.group {
-  width: 60px; /* Ensure all items have the same width */
-}
-
-span {
-  max-width: 60px; /* Fix text width to avoid affecting the layout */
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-</style>

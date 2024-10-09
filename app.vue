@@ -4,7 +4,7 @@
     <kind-loader />
     <animation-loader />
 
-    <!-- Grid Container: Header, Content, Sidebar (Left/Right) -->
+    <!-- Grid Container: Header, Content, Sidebar (Left/Right), Footer -->
     <div
       class="grid h-screen bg-base-100"
       :style="{
@@ -13,7 +13,7 @@
         'grid-template-areas': gridAreas,
       }"
     >
-      <!-- Header (Spans full width, centered content) -->
+      <!-- Header (Top row, spans all columns) -->
       <header
         class="flex items-center justify-center z-30"
         :style="{
@@ -24,19 +24,19 @@
         <header-upgrade class="flex-grow text-center" />
       </header>
 
-      <!-- Left Sidebar (Subtract only the header height) -->
+      <!-- Left Sidebar (Center and Bottom-Left cells) -->
       <aside
         class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden"
         :style="{
           width: sidebarLeftWidth,
-          height: sidebarHeight, // Use sidebarHeight instead of mainHeight
+          height: sidebarHeight,
           gridArea: 'sidebar-left',
         }"
       >
         <kind-sidebar-simple class="flex-grow" />
       </aside>
 
-      <!-- Main Content (Subtract both header and footer heights) -->
+      <!-- Main Content (Center-middle cell) -->
       <main
         class="p-4 z-10 overflow-y-auto"
         :style="{
@@ -50,7 +50,7 @@
         <main-content />
       </main>
 
-      <!-- Right Sidebar (Subtract only the header height) -->
+      <!-- Right Sidebar (Center and Bottom-Right cells) -->
       <aside
         class="z-20 transition-all duration-500 ease-in-out overflow-hidden"
         :style="{
@@ -59,24 +59,20 @@
           gridArea: 'sidebar-right',
         }"
       >
-        <div v-if="isFullScreen" class="h-full w-full">
-          <SplashTutorial class="h-full w-full" />
-        </div>
+        <kind-sidebar-right class="h-full w-full" />
       </aside>
+
+      <!-- Footer (Center-bottom cell) -->
+      <footer
+        class="transition-transform duration-500 ease-in-out"
+        :style="{
+          height: footerHeight,
+          gridArea: 'footer',
+        }"
+      >
+        <horizontal-nav />
+      </footer>
     </div>
-    <footer
-      class="fixed bottom-0 left-0 transition-transform duration-500 ease-in-out"
-      :style="{
-        height: footerHeight,
-        width: footerWidth, // Use computed footerWidth
-        transform:
-          displayStore.footerState === 'open'
-            ? 'translateY(0)'
-            : 'translateY(100%)',
-      }"
-    >
-      <horizontal-nav v-if="displayStore.footerState === 'open'" />
-    </footer>
   </div>
 </template>
 
@@ -103,18 +99,13 @@ const sidebarHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value})`
 })
 
-// Calculate the width of the footer by subtracting the left and right sidebar widths
-const footerWidth = computed(() => {
-  return `calc(100vw - ${sidebarLeftWidth.value} - ${sidebarRightWidth.value})`
-})
-
-// Define grid structure with explicit areas for the header, sidebars, and main content
+// Define grid structure for 3x3 layout
 const gridColumns = computed(() => {
   return `${sidebarLeftWidth.value} 1fr ${sidebarRightWidth.value}` // Left sidebar, main content, right sidebar
 })
 
 const gridRows = computed(() => {
-  return `${headerHeight.value} 1fr` // Header row, main content row (footer excluded)
+  return `${headerHeight.value} 1fr ${footerHeight.value}` // Header row, main content row, footer row
 })
 
 // Define grid areas for the layout
@@ -122,10 +113,9 @@ const gridAreas = computed(
   () => `
   "header header header"
   "sidebar-left main sidebar-right"
+  "sidebar-left footer sidebar-right"
 `,
 )
-
-const isFullScreen = computed(() => displayStore.isFullScreen)
 </script>
 
 <style scoped>

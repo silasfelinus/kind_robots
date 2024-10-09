@@ -4,17 +4,17 @@
     <div class="relative flex-grow h-full flex flex-col">
       <!-- Fullscreen Toggle (Top Center) -->
       <fullscreen-toggle
-        class="absolute top-2 right-2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
+        class="absolute top-0 right-2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
       />
 
       <!-- Left Toggle Button (inside content) -->
       <left-toggle
-        class="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
+        class="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
       />
 
       <!-- Right Sidebar Toggle (inside content) -->
       <right-toggle
-        class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
+        class="absolute right-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
       />
 
       <!-- Main Content (Tutorial or Content) -->
@@ -65,7 +65,7 @@
 
       <!-- Footer Toggle (Bottom Center) -->
       <footer-toggle
-        class="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
+        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
       />
     </div>
   </div>

@@ -2,18 +2,21 @@
   <!-- Slim, floating flip icon for desktop viewports -->
   <div
     v-if="!displayStore.isMobileViewport"
-    class="fixed bottom-4 left-4 flex items-center space-x-2 z-50"
+    class="flex items-center space-x-2 z-50"
   >
     <!-- Fullscreen/Two-column button -->
     <button
       class="icon-button"
       :class="{
-        'bg-info text-base-200': isFullScreen,
-        'bg-gray-400 text-gray-700': !isFullScreen,
+        'text-accent': isFullScreen,
+        ' text-info': !isFullScreen,
       }"
       @click="toggleFullScreen"
     >
-      <Icon :name="isFullScreen ? 'mdi-monitor' : 'mdi-view-column'" class="w-5 h-5" />
+      <Icon
+        :name="isFullScreen ? 'mdi-monitor' : 'mdi-view-column'"
+        class="w-5 h-5"
+      />
     </button>
   </div>
 </template>

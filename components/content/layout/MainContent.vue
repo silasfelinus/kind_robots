@@ -26,16 +26,20 @@
     <div v-if="isMobile" class="flex-grow overflow-y-auto">
       <SplashTutorial v-if="showTutorial" class="h-full w-full z-10 rounded-2xl" />
       <NuxtPage v-else class="h-full w-full z-10 rounded-2xl" />
+      <!-- Footer Toggle for Mobile View -->
+      <footer-toggle class="mt-4" />
     </div>
 
     <!-- Fullscreen Mode (Desktop, Content Only) -->
     <div v-else-if="isFullScreen" class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow">
       <NuxtPage class="h-full w-full" />
+      <!-- Footer Toggle for Fullscreen Mode -->
+      <footer-toggle class="mt-4" />
     </div>
 
     <!-- Flip-card Mode (Desktop with Sidebar for Tutorial) -->
-    <div v-else class="relative flex-grow z-10">
-      <div class="flip-card">
+    <div v-else class="relative flex-grow z-10 flex flex-col">
+      <div class="flip-card flex-grow">
         <div class="flip-card-inner" :class="{ flipped: showTutorial }">
           <!-- Main Content (NuxtPage) -->
           <div class="flip-card-front rounded-2xl overflow-y-auto h-full w-full">
@@ -56,6 +60,9 @@
       >
         <SplashTutorial class="h-full w-full" />
       </aside>
+      
+      <!-- Footer Toggle at the bottom of the main content -->
+      <footer-toggle class="mt-4 self-end" />
     </div>
   </div>
 </template>

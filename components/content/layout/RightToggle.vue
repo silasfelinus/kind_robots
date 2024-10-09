@@ -26,16 +26,7 @@ const iconName = computed(() => {
 
 // Function to toggle the right sidebar and the tutorial visibility
 const toggleTutorialWithLogs = () => {
-  console.log(
-    'Before toggle, sidebarRightState:',
-    displayStore.sidebarRightState,
-  )
   displayStore.toggleTutorial()
-  console.log(
-    'After toggle, sidebarRightState:',
-    displayStore.sidebarRightState,
-  )
-  console.log('Tutorial state:', displayStore.showTutorial)
 }
 </script>
 

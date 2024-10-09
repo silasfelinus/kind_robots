@@ -53,20 +53,15 @@
 
             <!-- Splash Tutorial -->
             <div
-              class="flip-card-back rounded-2xl overflow-y-auto h-full w-full box-border"
+              class="flip-card-back rounded-2xl h-full w-full box-border"
+              :style="{ height: splashTutorialHeight }"
             >
-              <SplashTutorial class="h-full w-full overflow-y-auto box-border" />
+              <SplashTutorial class="h-full w-full box-border" />
             </div>
           </div>
         </div>
 
-        <!-- Right Sidebar (Tutorial) -->
-        <aside
-          class="bg-secondary fixed top-0 right-0 h-full transition-all duration-500 ease-in-out box-border"
-          :style="{ width: sidebarRightWidth }"
-        >
-          <SplashTutorial class="h-full w-full box-border" />
-        </aside>
+        
       </div>
 
       <!-- Footer Toggle (Bottom Center) -->
@@ -76,7 +71,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -89,8 +83,7 @@ const isMobile = computed(() => displayStore.isMobileViewport)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 const showTutorial = computed(() => displayStore.showTutorial)
 
-// Computed function to get the sidebar width from the store
-const sidebarRightWidth = computed(() => `${displayStore.sidebarRightVw}vw`)
+
 
 // Calculate main content width (subtract sidebar widths)
 const mainContentWidth = computed(() => {
@@ -100,5 +93,10 @@ const mainContentWidth = computed(() => {
 // Calculate main content height (subtract header and footer heights)
 const mainContentHeight = computed(() => {
   return `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`
+})
+
+// Calculate height for SplashTutorial (covers main content and footer height, but respects header)
+const splashTutorialHeight = computed(() => {
+  return `calc(100vh - ${displayStore.headerVh}vh)`
 })
 </script>

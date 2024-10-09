@@ -2,7 +2,7 @@
   <div class="flex">
     <!-- Left Sidebar -->
     <aside
-      class="transition-all duration-300 rounded-2xl hide-scrollbar p-1 fixed left-0 overflow-y-auto"
+      class="transition-all duration-300 rounded-2xl hide-scrollbar p-1 fixed left-0 overflow-y-auto flex flex-col justify-between"
       :style="{
         width: displayStore.sidebarLeftWidth,
         top: `${displayStore.headerHeight}vh`,
@@ -10,35 +10,37 @@
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->
-      <div
-        v-for="link in hardcodedLinks"
-        :key="link.title"
-        class="Icon-link-container flex items-center space-x-2 hover:bg-primary hover:scale-110 rounded-xl p-2"
-      >
-        <!-- Navigation click event -->
-        <a
-          v-if="displayStore.sidebarLeftState !== 'hidden'"
-          class="flex items-center cursor-pointer"
-          @click.prevent="navigate(link.path)"
+      <div class="flex flex-col flex-grow justify-between">
+        <div
+          v-for="link in hardcodedLinks"
+          :key="link.title"
+          class="Icon-link-container flex items-center space-x-2 hover:bg-primary hover:scale-110 rounded-xl p-2"
         >
-          <!-- Only show icon if sidebar is open or compact -->
-          <Icon
-            v-if="
-              displayStore.sidebarLeftState === 'open' ||
-              displayStore.sidebarLeftState === 'compact'
-            "
-            :name="link.icon"
-            class="h-6 w-6 md:h-12 md:w-12 transition-all duration-300 ease-in-out text-accent"
-          />
-
-          <!-- Only show the link title when the sidebar is fully open -->
-          <span
-            v-if="displayStore.sidebarLeftState === 'open'"
-            class="text-xs md:text-md lg:text-lg font-semibold ml-2 transition-opacity duration-300"
+          <!-- Navigation click event -->
+          <a
+            v-if="displayStore.sidebarLeftState !== 'hidden'"
+            class="flex items-center cursor-pointer"
+            @click.prevent="navigate(link.path)"
           >
-            {{ link.title }}
-          </span>
-        </a>
+            <!-- Only show icon if sidebar is open or compact -->
+            <Icon
+              v-if="
+                displayStore.sidebarLeftState === 'open' ||
+                displayStore.sidebarLeftState === 'compact'
+              "
+              :name="link.icon"
+              class="h-6 w-6 md:h-12 md:w-12 transition-all duration-300 ease-in-out text-accent"
+            />
+
+            <!-- Only show the link title when the sidebar is fully open -->
+            <span
+              v-if="displayStore.sidebarLeftState === 'open'"
+              class="text-xs md:text-md lg:text-lg font-semibold ml-2 transition-opacity duration-300"
+            >
+              {{ link.title }}
+            </span>
+          </a>
+        </div>
       </div>
     </aside>
   </div>

@@ -6,10 +6,11 @@
 
     <!-- Grid Container: Header, Content, Sidebar (Left/Right), Footer -->
     <div
-      class="grid h-screen bg-base-100"
+      class="grid h-screen w-screen"
+      :class="{
+        'grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto]': true,
+      }"
       :style="{
-        'grid-template-columns': gridColumns,
-        'grid-template-rows': gridRows,
         'grid-template-areas': gridAreas,
       }"
     >
@@ -99,25 +100,10 @@ const sidebarHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value})`
 })
 
-// Define grid structure for 3x3 layout
-const gridColumns = computed(() => {
-  return `${sidebarLeftWidth.value} 1fr ${sidebarRightWidth.value}` // Left sidebar, main content, right sidebar
-})
-
-const gridRows = computed(() => {
-  return `${headerHeight.value} 1fr ${footerHeight.value}` // Header row, main content row, footer row
-})
-
 // Define grid areas for the layout
-const gridAreas = computed(
-  () => `
+const gridAreas = computed(() => `
   "header header header"
   "sidebar-left main sidebar-right"
   "sidebar-left footer sidebar-right"
-`,
-)
+`)
 </script>
-
-<style scoped>
-/* Additional styles for transition and effects */
-</style>

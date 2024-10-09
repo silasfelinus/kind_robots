@@ -16,9 +16,13 @@
     >
       <!-- Header (Top row, spans all columns) -->
       <header
-        class="flex items-center justify-center z-30"
+        class="flex items-center justify-center z-30 w-full"
+        :class="{
+          'px-4': true // Add padding if needed
+        }"
         :style="{
           height: headerHeight,
+          width: '100vw', // Ensure it spans the full viewport width minus padding
           gridArea: 'header',
         }"
       >
@@ -65,19 +69,19 @@
 
       <!-- Footer (Center-bottom cell) -->
       <footer
-        class="transition-transform duration-500 ease-in-out"
+        class="transition-transform duration-500 ease-in-out overflow-y-auto"
         :style="{
           height: footerHeight,
           gridArea: 'footer',
+          maxWidth: 'calc(100vw - ' + sidebarLeftWidth + ' - ' + sidebarRightWidth + ')', // Constrain width to the remaining space between sidebars
         }"
       >
-        <horizontal-nav 
-          v-if="footerOpen"
-         />
+        <horizontal-nav v-if="footerOpen" />
       </footer>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

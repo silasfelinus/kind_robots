@@ -67,9 +67,10 @@
 
     <!-- Footer (Positioned below main content, not sidebars) -->
     <footer
-      class="fixed bottom-0 left-0 w-full transition-transform duration-500 ease-in-out"
+      class="fixed bottom-0 left-0 transition-transform duration-500 ease-in-out"
       :style="{
         height: footerHeight,
+        width: footerWidth, // Adjust the width of the footer to account for the sidebar widths
         transform:
           displayStore.footerState === 'open'
             ? 'translateY(0)'
@@ -102,6 +103,11 @@ const mainHeight = computed(() => {
 // Calculate the height of the sidebars (subtract only the header height)
 const sidebarHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value})`
+})
+
+// Calculate the width of the footer by subtracting the left and right sidebar widths
+const footerWidth = computed(() => {
+  return `calc(100vw - ${sidebarLeftWidth.value} - ${sidebarRightWidth.value})`
 })
 
 // Define grid structure with explicit areas for the header, sidebars, and main content

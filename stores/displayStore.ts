@@ -67,6 +67,14 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize];
       return sizes[state.footerState] || 3;
     },
+    setSidebarRight(isOpen: boolean) {
+      if (isOpen) {
+        this.sidebarRightState = 'open';
+        this.isFullScreen = false; // Disable fullscreen when sidebar is opened
+      } else {
+        this.sidebarRightState = 'hidden';
+      }
+    },
 
     sidebarLeftVw(state): number {
       const sizes = {
@@ -331,10 +339,7 @@ export const useDisplayStore = defineStore('display', {
     },
 
     toggleTutorial() {
-      console.log('Before toggle:');
-      console.log('flipState:', this.flipState);
-      console.log('showTutorial:', this.showTutorial);
-    
+
       if (this.flipState === 'tutorial' || this.flipState === 'toTutorial') {
         console.log('Setting flipState to "toMain"');
         this.flipState = 'toMain';

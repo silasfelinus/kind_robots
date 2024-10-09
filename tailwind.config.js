@@ -32,6 +32,12 @@ export default {
     {
       pattern: /mdi-brush/,
     },
+    {
+      pattern: /mdi:chevron-left/,
+    },
+    {
+      pattern: /mdi:chevron-right/,
+    },
   ],
   theme: {
     extend: {},

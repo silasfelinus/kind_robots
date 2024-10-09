@@ -1,11 +1,11 @@
 <template>
   <div>
-    <!-- Toggle button for larger displays (controlled by parent container) -->
+    <!-- Toggle button for right sidebar and tutorial -->
     <button
       class="flex items-center justify-center p-2 text-accent rounded-lg shadow-lg hover:bg-secondary"
-      @click="toggleTutorialWithLogs"
+      @click="toggleTutorialWithSidebar"
     >
-      <Icon :name="iconName" class="w-8 h-8" />
+      {{ rightIconText }}
     </button>
   </div>
 </template>
@@ -16,18 +16,14 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Determine the icon based on the sidebarRightState (open or hidden)
-const iconName = computed(() => {
-  console.log('Current sidebarRightState:', displayStore.sidebarRightState) // Log current state
-  return displayStore.sidebarRightState === 'open'
-    ? 'mdi:chevron-right'
-    : 'mdi:chevron-left'
+// Determine the icon text based on the sidebarRightState (hidden or open)
+const rightIconText = computed(() => {
+  return displayStore.sidebarRightState === 'hidden' ? '<' : '>'
 })
 
-// Function to toggle the right sidebar and the tutorial visibility
-const toggleTutorialWithLogs = () => {
-  displayStore.toggleTutorial()
-
+// Call the toggleTutorial action, which also manages the right sidebar state
+const toggleTutorialWithSidebar = () => {
+  displayStore.toggleTutorial();
 }
 </script>
 

@@ -6,12 +6,12 @@
         v-for="(item, index) in hardcodedLinks"
         :key="index"
         class="group flex flex-col items-center"
-        style="min-width: 60px;" <!-- Ensure minimum width to keep icons aligned -->
+        style="min-width: 60px"
       >
         <!-- Always Visible Text Above Icon -->
         <span
           class="text-sm text-primary whitespace-nowrap text-center overflow-hidden"
-          style="max-width: 60px;" <!-- Fix the text size and prevent it from affecting the layout -->
+          style="max-width: 60px"
         >
           {{ item.title }}
         </span>

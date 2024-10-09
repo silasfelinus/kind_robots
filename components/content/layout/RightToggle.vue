@@ -27,6 +27,7 @@ const iconName = computed(() => {
 // Function to toggle the right sidebar and the tutorial visibility
 const toggleTutorialWithLogs = () => {
   displayStore.toggleTutorial()
+
 }
 </script>
 

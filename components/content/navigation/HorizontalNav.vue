@@ -10,7 +10,7 @@
       >
         <!-- Always Visible Text Above Icon -->
         <span
-          class="text-sm text-primary whitespace-nowrap text-center overflow-hidden"
+          class="text-sm whitespace-nowrap text-center overflow-hidden"
           style="max-width: 60px"
         >
           {{ item.title }}

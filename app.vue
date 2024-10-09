@@ -18,7 +18,7 @@
       <header
         class="flex items-center justify-center z-30 w-full"
         :class="{
-          'px-4': true // Add padding if needed
+          'px-4': true, // Add padding if needed
         }"
         :style="{
           height: headerHeight,
@@ -69,11 +69,16 @@
 
       <!-- Footer (Center-bottom cell) -->
       <footer
-        class="transition-transform duration-500 ease-in-out overflow-y-auto"
+        class="transition-transform duration-500 ease-in-out overflow-x-auto"
         :style="{
           height: footerHeight,
           gridArea: 'footer',
-          maxWidth: 'calc(100vw - ' + sidebarLeftWidth + ' - ' + sidebarRightWidth + ')', // Constrain width to the remaining space between sidebars
+          maxWidth:
+            'calc(100vw - ' +
+            sidebarLeftWidth +
+            ' - ' +
+            sidebarRightWidth +
+            ')',
         }"
       >
         <horizontal-nav v-if="footerOpen" />
@@ -81,7 +86,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { computed } from 'vue'
@@ -96,7 +100,7 @@ const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const footerHeight = computed(() => displayStore.footerHeight)
 
-const footerOpen = computed (() => displayStore.footerState==='open')
+const footerOpen = computed(() => displayStore.footerState === 'open')
 // Calculate the height of the main content area dynamically based on the viewport
 const mainHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
@@ -108,9 +112,11 @@ const sidebarHeight = computed(() => {
 })
 
 // Define grid areas for the layout
-const gridAreas = computed(() => `
+const gridAreas = computed(
+  () => `
   "header header header"
   "sidebar-left main sidebar-right"
   "sidebar-left footer sidebar-right"
-`)
+`,
+)
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-full flex flex-col">
+  <div class="relative h-full flex flex-col rounded-2xl ">
     <!-- Main Content Area -->
     <div
       class="relative flex-grow h-full flex flex-col"

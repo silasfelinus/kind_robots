@@ -366,6 +366,11 @@ export const useDisplayStore = defineStore('display', {
     resetInitialization() {
       this.isInitialized = false;
     },
+    removeViewportWatcher() {
+      console.log('Removing viewport watcher...');
+      window.removeEventListener('resize', this.updateViewport);
+    },
+
 
     saveState() {
       try {

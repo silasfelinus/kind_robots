@@ -14,7 +14,6 @@
         :style="{
           height: '100%', // Fills the available height of the header
         }"
-        @click="toggleSidebar"
       />
       <!-- Title, Subtitle, and Login Button Column -->
       <div
@@ -62,10 +61,6 @@ const { page } = useContent()
 const subtitle = computed(
   () => page.value?.subtitle ?? 'Welcome to Kind Robots',
 )
-// Toggle the left sidebar
-const toggleSidebar = () => {
-  displayStore.toggleSidebar('sidebarLeftState')
-}
 </script>
 
 <style scoped>

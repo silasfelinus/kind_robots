@@ -24,19 +24,19 @@
         <header-upgrade class="flex-grow text-center" />
       </header>
 
-      <!-- Left Sidebar -->
+      <!-- Left Sidebar (Subtract only the header height) -->
       <aside
         class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden"
         :style="{
           width: sidebarLeftWidth,
-          height: mainHeight,
+          height: sidebarHeight, // Use sidebarHeight instead of mainHeight
           gridArea: 'sidebar-left',
         }"
       >
         <kind-sidebar-simple class="flex-grow" />
       </aside>
 
-      <!-- Main Content -->
+      <!-- Main Content (Subtract both header and footer heights) -->
       <main
         class="p-4 z-10 overflow-y-auto"
         :style="{
@@ -50,12 +50,12 @@
         <main-content />
       </main>
 
-      <!-- Right Sidebar -->
+      <!-- Right Sidebar (Subtract only the header height) -->
       <aside
         class="z-20 transition-all duration-500 ease-in-out overflow-hidden"
         :style="{
           width: sidebarRightWidth,
-          height: mainHeight,
+          height: sidebarHeight, // Use sidebarHeight instead of mainHeight
           gridArea: 'sidebar-right',
         }"
       >
@@ -99,6 +99,11 @@ const mainHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
 })
 
+// Calculate the height of the sidebars (subtract only the header height)
+const sidebarHeight = computed(() => {
+  return `calc(100vh - ${headerHeight.value})`
+})
+
 // Define grid structure with explicit areas for the header, sidebars, and main content
 const gridColumns = computed(() => {
   return `${sidebarLeftWidth.value} 1fr ${sidebarRightWidth.value}` // Left sidebar, main content, right sidebar
@@ -109,10 +114,12 @@ const gridRows = computed(() => {
 })
 
 // Define grid areas for the layout
-const gridAreas = computed(() => `
+const gridAreas = computed(
+  () => `
   "header header header"
   "sidebar-left main sidebar-right"
-`)
+`,
+)
 
 const isFullScreen = computed(() => displayStore.isFullScreen)
 </script>

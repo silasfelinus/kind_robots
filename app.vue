@@ -43,7 +43,7 @@
 
       <!-- Main Content (Center-middle cell) -->
       <main
-        class="p-4 z-10 overflow-y-auto"
+        class="p-4 z-10 overflow-hidden"
         :style="{
           gridArea: 'main',
           height: mainHeight,

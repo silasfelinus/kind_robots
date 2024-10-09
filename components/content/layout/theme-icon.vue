@@ -1,8 +1,11 @@
 <template>
   <button
-    class="text-primary hover:text-secondary transition-all flex items-center space-x-2 w-auto"
+    class="text-primary hover:text-secondary transition-all flex flex-col items-center space-y-2 w-auto"
     @click="goToThemePage"
   >
+    <!-- Theme Label -->
+    <span class="text-sm">Theme</span>
+
     <!-- Icon with Scale Hover Effect -->
     <Icon
       name="mdi-brush"

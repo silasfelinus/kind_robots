@@ -9,7 +9,7 @@
     <!-- Icon with Scale Hover Effect -->
     <Icon
       name="bi:brush"
-      class="w-6 h-6 transition-transform hover:scale-110"
+      class="w-6 h-6 text-accent transition-transform hover:scale-110"
     />
 
     <!-- Always Visible Theme Name -->

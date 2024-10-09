@@ -331,15 +331,28 @@ export const useDisplayStore = defineStore('display', {
     },
 
     toggleTutorial() {
+      console.log('Before toggle:');
+      console.log('flipState:', this.flipState);
+      console.log('showTutorial:', this.showTutorial);
+    
       if (this.flipState === 'tutorial' || this.flipState === 'toTutorial') {
+        console.log('Setting flipState to "toMain"');
         this.flipState = 'toMain';
       } else {
+        console.log('Setting flipState to "toTutorial"');
         this.flipState = 'toTutorial';
       }
+    
+      // Toggle the showTutorial state
       this.showTutorial = !this.showTutorial;
+    
+      console.log('After toggle:');
+      console.log('flipState:', this.flipState);
+      console.log('showTutorial:', this.showTutorial);
+    
       this.saveState();
     },
-
+    
     toggleIntro() {
       this.showIntro = !this.showIntro;
       this.saveState();

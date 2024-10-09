@@ -55,7 +55,7 @@
         class="z-20 transition-all duration-500 ease-in-out overflow-hidden"
         :style="{
           width: sidebarRightWidth,
-          height: sidebarHeight, // Use sidebarHeight instead of mainHeight
+          height: sidebarHeight,
           gridArea: 'sidebar-right',
         }"
       >

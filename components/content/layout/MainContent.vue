@@ -1,28 +1,17 @@
 <template>
   <div class="relative h-full flex flex-col">
-        <left-toggle
-          class="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 p-2 text-accent rounded-l-lg cursor-pointer"
+    <!-- Left Toggle Button -->
+    <left-toggle
+      class="absolute left-0 top-1/2 w-5 h-5 transform -translate-y-1/2 z-20 p-2 text-accent rounded-l-lg cursor-pointer"
+    />
     
-          min-w-5
-          h-5
-          w-5
-        />
     <!-- Right Sidebar Toggle (Mobile & Desktop) -->
-    <div 
-      class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 p-2 text-accent rounded-l-lg cursor-pointer"
+    <right-toggle
       v-if="isFullScreen"
-       @click="toggleSidebarAndTutorial"
+      class="absolute right-0 top-1/2 w-5 h-5 transform -translate-y-1/2 z-20 p-2 text-accent rounded-l-lg cursor-pointer"
+      @click="toggleSidebarAndTutorial"
     >
-      <!-- Arrow icon for desktop -->
-      <span v-if="!isMobile && displayStore.sidebarRightState === 'open'">
-        &#8250;
-      </span>
-      <span v-if="!isMobile && displayStore.sidebarRightState === 'hidden'">
-        &#8249;
-      </span>
-      <!-- Book icon for mobile (represents tutorial toggle) -->
-      <span v-if="isMobile"> &#x1F4D6; </span>
-    </div>
+    </right-toggle>
 
     <!-- Floating Tutorial Toggle (Non-Fullscreen) -->
     <div
@@ -35,28 +24,19 @@
 
     <!-- Mobile View (Tutorial or Content) -->
     <div v-if="isMobile" class="flex-grow overflow-y-auto">
-      <SplashTutorial
-        v-if="showTutorial"
-        class="h-full w-full z-10 rounded-2xl"
-      />
+      <SplashTutorial v-if="showTutorial" class="h-full w-full z-10 rounded-2xl" />
       <NuxtPage v-else class="h-full w-full z-10 rounded-2xl" />
     </div>
 
     <!-- Fullscreen Mode (Desktop, Content Only) -->
-    <div
-      v-else-if="isFullScreen"
-      class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow"
-    >
+    <div v-else-if="isFullScreen" class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow">
       <NuxtPage class="h-full w-full" />
     </div>
 
     <!-- Flip-card Mode (Desktop with Sidebar for Tutorial) -->
     <div v-else class="relative flex-grow z-10">
       <div class="flip-card">
-        <div
-          class="flip-card-inner"
-          :class="{ flipped: showTutorial }"
-        >
+        <div class="flip-card-inner" :class="{ flipped: showTutorial }">
           <!-- Main Content (NuxtPage) -->
           <div class="flip-card-front rounded-2xl overflow-y-auto h-full w-full">
             <NuxtPage class="h-full w-full" />

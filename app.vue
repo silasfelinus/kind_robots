@@ -1,12 +1,12 @@
 <template>
-  <div class="main-layout h-screen relative">
+  <div class="main-layout h-screen relative box-border">
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
 
     <!-- Grid Container: Header, Content, Sidebar (Left/Right), Footer -->
     <div
-      class="grid h-screen w-screen"
+      class="grid h-screen w-screen box-border"
       :class="{
         'grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto]': true,
       }"
@@ -16,13 +16,10 @@
     >
       <!-- Header (Top row, spans all columns) -->
       <header
-        class="flex items-center justify-center z-30 w-full"
-        :class="{
-          'px-4': true, // Add padding if needed
-        }"
+        class="flex items-center justify-center z-30 w-full px-4 box-border"
         :style="{
           height: headerHeight,
-          width: '100vw', // Ensure it spans the full viewport width minus padding
+          width: '100vw', // Ensure it spans the full viewport width
           gridArea: 'header',
         }"
       >
@@ -31,7 +28,7 @@
 
       <!-- Left Sidebar (Center and Bottom-Left cells) -->
       <aside
-        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden"
+        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border"
         :style="{
           width: sidebarLeftWidth,
           height: sidebarHeight,
@@ -43,7 +40,7 @@
 
       <!-- Main Content (Center-middle cell) -->
       <main
-        class="p-4 z-10 overflow-hidden"
+        class="p-4 z-10 overflow-hidden box-border"
         :style="{
           gridArea: 'main',
           height: mainHeight,
@@ -57,7 +54,7 @@
 
       <!-- Right Sidebar (Center and Bottom-Right cells) -->
       <aside
-        class="z-20 transition-all duration-500 ease-in-out overflow-hidden"
+        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border"
         :style="{
           width: sidebarRightWidth,
           height: sidebarHeight,
@@ -69,7 +66,7 @@
 
       <!-- Footer (Center-bottom cell) -->
       <footer
-        class="transition-transform duration-500 ease-in-out overflow-x-auto"
+        class="transition-transform duration-500 ease-in-out overflow-x-auto box-border"
         :style="{
           height: footerHeight,
           gridArea: 'footer',

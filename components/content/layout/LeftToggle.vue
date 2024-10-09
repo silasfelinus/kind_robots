@@ -18,21 +18,18 @@ const displayStore = useDisplayStore()
 
 // Determine the icon based on the sidebarLeftState (compact, hidden, open)
 const iconName = computed(() => {
-  switch (displayStore.sidebarLeftState) {
-    case 'compact':
-      return 'mdi:chevron-left'
-    case 'hidden':
-      return 'mdi:chevron-right'
-    case 'open':
-      return 'mdi:chevron-left'
-    default:
-      return 'mdi:menu'
+  console.log('Current sidebarLeftState:', displayStore.sidebarLeftState)
+  if (displayStore.sidebarLeftState === 'hidden') {
+    return 'mdi:chevron-right'
   }
+  return 'mdi:chevron-left'
 })
 
 // Toggle the left sidebar
 const toggleSidebarLeft = () => {
+  console.log('Before toggle sidebarLeftState:', displayStore.sidebarLeftState)
   displayStore.toggleSidebar('sidebarLeftState')
+  console.log('After toggle sidebarLeftState:', displayStore.sidebarLeftState)
 }
 </script>
 

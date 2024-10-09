@@ -1,7 +1,10 @@
 <template>
   <div class="relative h-full flex flex-col">
     <!-- Main Content Area -->
-    <div class="relative flex-grow h-full flex flex-col">
+    <div
+      class="relative flex-grow h-full flex flex-col"
+      :style="{ width: mainContentWidth, height: mainContentHeight }"
+    >
       <!-- Fullscreen Toggle (Top Center) -->
       <fullscreen-toggle
         class="absolute top-0 right-2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
@@ -85,44 +88,14 @@ const showTutorial = computed(() => displayStore.showTutorial)
 
 // Computed function to get the sidebar width from the store
 const sidebarRightWidth = computed(() => `${displayStore.sidebarRightVw}vw`)
+
+// Calculate main content width (subtract sidebar widths)
+const mainContentWidth = computed(() => {
+  return `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`
+})
+
+// Calculate main content height (subtract header and footer heights)
+const mainContentHeight = computed(() => {
+  return `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`
+})
 </script>
-
-<style scoped>
-/* Flip-card style */
-.flip-card {
-  perspective: 1500px;
-  width: 100%;
-  height: 100%;
-}
-
-.flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.flip-card-front,
-.flip-card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 5px;
-}
-
-.flip-card-front {
-  z-index: 2;
-}
-
-.flip-card-back {
-  transform: rotateY(180deg);
-  z-index: 1;
-}
-
-/* Add the flipped class to trigger the flip animation */
-.flip-card-inner.flipped {
-  transform: rotateY(180deg);
-}
-</style>

@@ -5,7 +5,8 @@
       :style="buttonStyle"
       @click="toggleFooter"
     >
-      <Icon name="simple-icons:circle" class="toggle-icon" />
+      <!-- Conditionally render the icon based on footer state -->
+      <Icon :name="footerIcon" class="toggle-icon" />
     </button>
   </div>
 </template>
@@ -16,13 +17,18 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Compute the icon size based on the header height
+// Compute the icon size
 const buttonStyle = computed(() => {
-  const iconSize = Math.max(5, displayStore.headerVh - 3)
+  const iconSize = 5
   return {
     width: `${iconSize}vh`,
     height: `${iconSize}vh`,
   }
+})
+
+// Determine the footer icon based on whether the footer is open or closed
+const footerIcon = computed(() => {
+  return displayStore.footerState === 'open' ? 'mdi:chevron-down' : 'mdi:chevron-up'
 })
 
 // Toggle footer

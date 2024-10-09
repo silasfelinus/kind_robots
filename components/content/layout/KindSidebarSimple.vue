@@ -64,7 +64,7 @@ const hardcodedLinks = [
   {
     title: 'Memory Match',
     path: '/memory',
-    icon: 'material-symbols:art-track-outline-rounded',
+    icon: 'mdi:brain',
   },
   { title: 'Wonderlab', path: '/wonderlab', icon: 'game-icons:gear-hammer' },
   { title: 'Dashboard', path: '/dashboard', icon: 'mingcute:settings-6-fill' },

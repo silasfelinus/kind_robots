@@ -5,7 +5,7 @@ description: Experience the serendipity of art and memory in this card match gam
 image: 'acrocats/acrocats-24.webp'
 gallery: 'memoryland'
 tags: ['games', 'art', 'AI']
-icon: icon-park-solid:key-two
+icon: mdi:brain
 layout: 'vertical-scroll'
 tooltip: This uses AI art created with our art modelers.
 amitip: 🤖 These pictures are so pretty!

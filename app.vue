@@ -10,7 +10,7 @@
       <!-- Avatar Image, automatically fills available height -->
       <avatar-image
         alt="User Avatar"
-        class="aspect-square rounded-2xl flex-shrink-0"
+        class="aspect-square min-h-8 min-w-8 rounded-2xl flex-shrink-0"
         :style="{
           height: '100%', // Fills the available height of the header
         }"

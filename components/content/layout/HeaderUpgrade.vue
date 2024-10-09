@@ -19,12 +19,12 @@
     <!-- Column 2: Title and Subtitle -->
     <div class="flex flex-col text-center">
       <h1
-        class="text-[13px] md:text-[20px] lg:text-[25px] xl:text-[30px] text-primary font-semibold truncate"
+        class="text-[13px] md:text-[20px] lg:text-[25px] xl:text-[30px] font-semibold truncate"
       >
         The {{ page.title || 'Room' }} Room
       </h1>
       <h2
-        class="text-[12px] md:text-[15px] lg:text-[17px] xl:text-[20px] text-accent italic truncate"
+        class="text-[12px] md:text-[15px] lg:text-[17px] xl:text-[20px] italic truncate"
       >
         {{ subtitle }}
       </h2>

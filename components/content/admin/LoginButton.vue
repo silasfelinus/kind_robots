@@ -1,8 +1,8 @@
 <template>
-  <div class="relative flex items-center space-x-4 lg:ml-10">
+  <div class="relative flex items-center space-x-4 lg:ml-10 box-border">
     <!-- Button column -->
-    <div class="ml-4">
-      <div v-if="isLoggedIn" class="flex flex-col items-start">
+    <div class="ml-4 box-border">
+      <div v-if="isLoggedIn" class="flex flex-col items-start box-border">
         <router-link to="/dashboard" class="cursor-pointer hover:underline">
           {{ username }}!
         </router-link>
@@ -10,7 +10,7 @@
       </div>
       <div v-else>
         <button
-          class="p-2 rounded-lg text-primary text-lg w-full"
+          class="p-2 rounded-lg text-primary text-lg w-full box-border"
           @click="toggleLogin"
         >
           Login
@@ -22,10 +22,10 @@
     <transition name="fade">
       <div
         v-if="showLogin"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 box-border"
       >
         <login-form
-          class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
+          class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md box-border"
           @close="showLogin = false"
         />
       </div>

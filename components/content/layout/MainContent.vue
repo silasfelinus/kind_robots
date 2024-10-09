@@ -1,74 +1,77 @@
 <template>
-  <div class="relative h-full flex flex-col rounded-2xl ">
+  <div class="relative h-full flex flex-col rounded-2xl box-border">
     <!-- Main Content Area -->
     <div
-      class="relative flex-grow h-full flex flex-col"
+      class="relative flex-grow h-full flex flex-col box-border"
       :style="{ width: mainContentWidth, height: mainContentHeight }"
     >
       <!-- Fullscreen Toggle (Top Center) -->
       <fullscreen-toggle
-        class="absolute top-0 right-2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
+        class="absolute top-0 right-2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
       />
 
       <!-- Left Toggle Button (inside content) -->
       <left-toggle
-        class="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
+        class="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
       />
 
       <!-- Right Sidebar Toggle (inside content) -->
       <right-toggle
-        class="absolute right-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
+        class="absolute right-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
       />
 
       <!-- Main Content (Tutorial or Content) -->
-      <div v-if="isMobile" class="flex-grow overflow-y-auto">
+      <div v-if="isMobile" class="flex-grow overflow-y-auto box-border">
         <SplashTutorial
           v-if="showTutorial"
-          class="h-full w-full z-10 rounded-2xl"
+          class="h-full w-full z-10 rounded-2xl box-border"
         />
-        <NuxtPage v-else class="h-full w-full z-10 rounded-2xl" />
+        <NuxtPage v-else class="h-full w-full z-10 rounded-2xl box-border" />
       </div>
 
       <!-- Fullscreen Mode (Desktop, Content Only) -->
       <div
         v-else-if="isFullScreen"
-        class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow"
+        class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow box-border"
       >
-        <NuxtPage class="h-full w-full" />
+        <NuxtPage class="h-full w-full box-border" />
       </div>
 
       <!-- Flip-card Mode (Desktop with Sidebar for Tutorial) -->
-      <div v-else class="relative flex-grow z-10 flex flex-col">
-        <div class="flip-card flex-grow">
-          <div class="flip-card-inner" :class="{ flipped: showTutorial }">
+      <div v-else class="relative flex-grow z-10 flex flex-col box-border">
+        <div class="flip-card flex-grow box-border">
+          <div
+            class="flip-card-inner box-border"
+            :class="{ flipped: showTutorial }"
+          >
             <!-- Main Content (NuxtPage) -->
             <div
-              class="flip-card-front rounded-2xl overflow-y-auto h-full w-full"
+              class="flip-card-front rounded-2xl overflow-y-auto h-full w-full box-border"
             >
-              <NuxtPage class="h-full w-full" />
+              <NuxtPage class="h-full w-full box-border" />
             </div>
 
             <!-- Splash Tutorial -->
             <div
-              class="flip-card-back rounded-2xl overflow-y-auto h-full w-full"
+              class="flip-card-back rounded-2xl overflow-y-auto h-full w-full box-border"
             >
-              <SplashTutorial class="h-full w-full" />
+              <SplashTutorial class="h-full w-full box-border" />
             </div>
           </div>
         </div>
 
         <!-- Right Sidebar (Tutorial) -->
         <aside
-          class="bg-secondary fixed top-0 right-0 h-full transition-all duration-500 ease-in-out"
+          class="bg-secondary fixed top-0 right-0 h-full transition-all duration-500 ease-in-out box-border"
           :style="{ width: sidebarRightWidth }"
         >
-          <SplashTutorial class="h-full w-full" />
+          <SplashTutorial class="h-full w-full box-border" />
         </aside>
       </div>
 
       <!-- Footer Toggle (Bottom Center) -->
       <footer-toggle
-        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer"
+        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
       />
     </div>
   </div>

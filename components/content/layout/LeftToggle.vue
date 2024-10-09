@@ -5,7 +5,7 @@
       class="flex items-center justify-center p-2 text-accent rounded-lg shadow-lg hover:bg-secondary"
       @click="toggleSidebarLeft"
     >
-      <Icon :name="iconName" class="w-8 h-8" />
+      {{ iconText }}
     </button>
   </div>
 </template>
@@ -16,13 +16,13 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Determine the icon based on the sidebarLeftState (compact, hidden, open)
-const iconName = computed(() => {
+// Determine the icon text based on the sidebarLeftState (compact, hidden, open)
+const iconText = computed(() => {
   console.log('Current sidebarLeftState:', displayStore.sidebarLeftState)
   if (displayStore.sidebarLeftState === 'hidden') {
-    return 'mdi:chevron-right'
+    return '>'
   }
-  return 'mdi:chevron-left'
+  return '<'
 })
 
 // Toggle the left sidebar

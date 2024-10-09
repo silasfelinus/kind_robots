@@ -20,14 +20,20 @@
       >
         <!-- Navigation click event -->
         <a
+          v-if="displayStore.sidebarLeftState !== 'hidden'"
           class="flex items-center cursor-pointer"
           @click.prevent="navigate(link.path)"
         >
-          <!-- Icon for each link -->
+          <!-- Only show icon if sidebar is open or compact -->
           <Icon
+            v-if="
+              displayStore.sidebarLeftState === 'open' ||
+              displayStore.sidebarLeftState === 'compact'
+            "
             :name="link.icon"
             class="h-6 w-6 md:h-12 md:w-12 transition-all duration-300 ease-in-out text-accent"
           />
+
           <!-- Only show the link title when the sidebar is fully open -->
           <span
             v-if="displayStore.sidebarLeftState === 'open'"

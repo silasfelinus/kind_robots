@@ -1,16 +1,14 @@
 <template>
   <div class="flex items-center justify-between p-4 shadow-lg">
-    <!-- Horizontal Nav Icons -->
+    <!-- Horizontal Nav Icons with Words Above -->
     <div class="flex space-x-6">
       <div
         v-for="(item, index) in hardcodedLinks"
         :key="index"
-        class="group relative"
+        class="group flex flex-col items-center space-y-2"
       >
-        <!-- Hover Text -->
-        <span
-          class="absolute top-10 left-1/2 transform -translate-x-1/2 bg-gray-700 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-        >
+        <!-- Always Visible Text Above Icon -->
+        <span class="text-sm text-primary">
           {{ item.title }}
         </span>
         <button
@@ -62,7 +60,8 @@ const navigateTo = (path: string) => {
 </script>
 
 <style scoped>
-.group:hover .icon {
-  transform: scale(1.1); /* Hover scale effect */
+/* Hover effect for scaling the icons */
+.group:hover button {
+  transform: scale(1.1);
 }
 </style>

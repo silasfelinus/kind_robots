@@ -76,7 +76,7 @@
             : 'translateY(100%)',
       }"
     >
-      <FooterIcon />
+      <horizontal-nav v-if="displayStore.footerState === 'open'" />
     </footer>
   </div>
 </template>

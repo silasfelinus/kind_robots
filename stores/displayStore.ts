@@ -67,14 +67,6 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize];
       return sizes[state.footerState] || 3;
     },
-    setSidebarRight(isOpen: boolean) {
-      if (isOpen) {
-        this.sidebarRightState = 'open';
-        this.isFullScreen = false; // Disable fullscreen when sidebar is opened
-      } else {
-        this.sidebarRightState = 'hidden';
-      }
-    },
 
     sidebarLeftVw(state): number {
       const sizes = {

@@ -1,10 +1,17 @@
 <template>
   <div class="relative h-full flex flex-col">
+        <left-toggle
+          class="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 p-2 text-accent rounded-l-lg cursor-pointer"
+    
+          min-w-5
+          h-5
+          w-5
+        />
     <!-- Right Sidebar Toggle (Mobile & Desktop) -->
-    <div
+    <div 
+      class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 p-2 text-accent rounded-l-lg cursor-pointer"
       v-if="isFullScreen"
-      class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 p-2 bg-secondary text-white rounded-l-lg cursor-pointer"
-      @click="toggleSidebarAndTutorial"
+       @click="toggleSidebarAndTutorial"
     >
       <!-- Arrow icon for desktop -->
       <span v-if="!isMobile && displayStore.sidebarRightState === 'open'">

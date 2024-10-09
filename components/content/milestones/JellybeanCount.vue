@@ -7,7 +7,7 @@
     <Icon name="tdesign:bean" />
 
     <!-- Conditionally show the full text or just the count -->
-    <div class="flex items-center text-primary">
+    <div class="flex items-center">
       <span class="whitespace-nowrap mr-1"> {{ user?.mana || 0 }} /9 </span>
     </div>
   </router-link>

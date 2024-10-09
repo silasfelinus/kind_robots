@@ -45,7 +45,7 @@ const hardcodedLinks = ref([
   { title: 'Dashboard', path: '/dashboard', icon: 'mingcute:settings-6-fill' },
   {
     title: 'Weirder Game',
-    path: '/weirder-game',
+    path: '/weirdlandia',
     icon: 'game-icons:alien-stare',
   }, // Added Weirder Game
 ])

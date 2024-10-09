@@ -20,9 +20,9 @@ const displayStore = useDisplayStore()
 const iconName = computed(() => {
   switch (displayStore.sidebarLeftState) {
     case 'compact':
-      return 'emojione:artist-palette'
+      return 'mdi:chevron-left'
     case 'hidden':
-      return 'mdi:menu'
+      return 'mdi:chevron-right'
     case 'open':
       return 'mdi:chevron-left'
     default:

@@ -7,17 +7,13 @@
   >
     <!-- Avatar, Title, Subtitle, and Login Button Section -->
     <div class="flex items-center justify-between w-full">
-      <!-- Avatar Image, setting height to be the same as header height minus padding -->
+      <!-- Avatar Image, automatically fills available height -->
       <avatar-image
         alt="User Avatar"
-        class="aspect-square rounded-2xl"
+        class="aspect-square min-h-8 min-w-8 rounded-2xl flex-shrink-0"
         :style="{
-          height:
-            'calc(' +
-            displayStore.headerHeight +
-            'vh - 1rem)' /* Adjust for padding */,
+          height: '100%', // Fills the available height of the header
         }"
-        @click="toggleSidebar"
       />
       <!-- Title, Subtitle, and Login Button Column -->
       <div
@@ -65,10 +61,6 @@ const { page } = useContent()
 const subtitle = computed(
   () => page.value?.subtitle ?? 'Welcome to Kind Robots',
 )
-// Toggle the left sidebar
-const toggleSidebar = () => {
-  displayStore.toggleSidebar('sidebarLeftState')
-}
 </script>
 
 <style scoped>

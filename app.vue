@@ -1,68 +1,129 @@
 <template>
-  <header
-    class="flex items-center justify-between fixed rounded-2xl border-1 border-accent p-2 bg-base-300 z-20 mx-2 my-2 max-w-full"
-    :style="{
-      height: displayStore.headerHeight + 'vh',
-    }"
-  >
-    <!-- Avatar, Title, Subtitle, and Login Button Section -->
-    <div class="flex items-center justify-between w-full">
-      <!-- Avatar Image, automatically fills available height -->
-      <avatar-image
-        alt="User Avatar"
-        class="aspect-square min-h-8 min-w-8 rounded-2xl flex-shrink-0"
-        :style="{
-          height: '100%', // Fills the available height of the header
-        }"
-      />
-      <!-- Title, Subtitle, and Login Button Column -->
-      <div
-        class="flex flex-col items-center justify-center flex-grow text-center"
-      >
-        <h1
-          class="text-[13px] md:text-[20px] lg:text-[25px] xl:text-[30px] text-primary font-semibold truncate"
-        >
-          The {{ page.title || 'Room' }} Room
-        </h1>
-        <h2
-          class="text-[12px] md:text-[15px] lg:text-[17px] xl:text-[20px] text-accent italic truncate"
-        >
-          {{ subtitle }}
-        </h2>
-      </div>
+  <div class="main-layout h-screen relative">
+    <!-- Loaders -->
+    <kind-loader />
+    <animation-loader />
 
-      <!-- Login Button Column -->
-      <div class="ml-auto">
-        <login-button class="w-full max-w-[120px]" />
-      </div>
-    </div>
-
-    <!-- Non-login Icons (Vertical on small screens, horizontal on larger screens) -->
+    <!-- Grid Container: Header, Content, Footer, Sidebar (Right) -->
     <div
-      class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2 flex-shrink-0"
+      class="grid h-screen bg-base-100"
+      :style="{
+        'grid-template-columns': gridColumns,
+        'grid-template-rows': gridRows,
+        'grid-template-areas': gridAreas,
+      }"
     >
-      <!-- Theme Icon -->
-      <theme-icon class="w-8 h-8" />
+      <!-- Header (Spans full width, centered content) -->
+      <header
+        class="flex items-center justify-center z-30"
+        :style="{
+          height: headerHeight,
+          gridArea: 'header',
+        }"
+      >
+        <!-- Header Content centered with equal horizontal spacing -->
+        <header-upgrade class="flex-grow text-center" />
+      </header>
 
-      <!-- Butterfly Toggle Icon -->
-      <butterfly-toggle class="w-8 h-8" />
+      <!-- Left Sidebar -->
+      <aside
+        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden"
+        :style="{
+          width: sidebarLeftWidth,
+          height: mainHeight,
+          gridArea: 'sidebar-left',
+        }"
+      >
+        <!-- Toggle always visible -->
+        <left-toggle
+          class="absolute -right-4 top-1/2 transform -translate-y-1/2 z-50"
+          min-w-5
+          h-5
+          w-5
+        />
+        <kind-sidebar-simple class="flex-grow" />
+      </aside>
+
+      <!-- Main Content -->
+      <main
+        class="p-4 z-10 overflow-y-auto"
+        :style="{
+          gridArea: 'main',
+          height: mainHeight,
+        }"
+        :class="{
+          'transition-all duration-300': true,
+        }"
+      >
+        <main-content />
+      </main>
+
+      <!-- Right Sidebar -->
+      <aside
+        class="z-20 transition-all duration-500 ease-in-out overflow-hidden"
+        :style="{
+          width: sidebarRightWidth,
+          height: mainHeight,
+          gridArea: 'sidebar-right',
+        }"
+      >
+        <div v-if="isFullScreen" class="h-full w-full">
+          <SplashTutorial class="h-full w-full" />
+        </div>
+      </aside>
+
+      <!-- Footer (Optional, sliding in from the bottom) -->
+      <footer
+        class="fixed bottom-0 w-full transition-transform duration-500 ease-in-out"
+        :style="{
+          height: footerHeight,
+          transform:
+            displayStore.footerState === 'open'
+              ? 'translateY(0)'
+              : 'translateY(100%)',
+        }"
+      >
+        <FooterIcon />
+      </footer>
     </div>
-  </header>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Access display store
 const displayStore = useDisplayStore()
 
-const { page } = useContent()
-const subtitle = computed(
-  () => page.value?.subtitle ?? 'Welcome to Kind Robots',
+// Computed values for layout dimensions
+const headerHeight = computed(() => displayStore.headerHeight)
+const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
+const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+const footerHeight = computed(() => displayStore.footerHeight)
+
+// Main height dynamically calculated based on screen size minus header and footer heights
+const mainHeight = computed(() => {
+  return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
+})
+
+// Grid columns and rows setup based on store dimensions
+const gridColumns = computed(() => displayStore.gridColumns)
+const gridRows = computed(() => {
+  return `${headerHeight.value} 1fr ${footerHeight.value}` // Header row, main row, footer row
+})
+
+// Set grid areas to ensure each section is explicitly placed in the layout
+const gridAreas = computed(
+  () => `
+  "header header header"
+  "sidebar-left main sidebar-right"
+  "footer footer footer"
+`,
 )
+
+const isFullScreen = computed(() => displayStore.isFullScreen)
 </script>
 
 <style scoped>
-/* Additional styling if needed */
+/* Additional transitions or effects can be added here */
 </style>

@@ -1,12 +1,12 @@
 <template>
-  <div class="flex items-center justify-between p-4 shadow-lg">
+  <div class="flex items-center justify-between p-2 shadow-lg">
     <!-- Horizontal Nav Icons with Words Above -->
-    <div class="flex space-x-6">
+    <div class="flex space-x-2">
       <div
         v-for="(item, index) in hardcodedLinks"
         :key="index"
         class="group flex flex-col items-center"
-        style="min-width: 60px"
+        style="min-width: 30px"
       >
         <!-- Always Visible Text Above Icon -->
         <span

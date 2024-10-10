@@ -56,10 +56,10 @@ const hardcodedLinks = ref([
     path: '/memory',
     icon: 'mdi:brain',
   },
-  { title: 'Wonderlab', path: '/wonderlab', icon: 'game-icons:gear-hammer' },
-  { title: 'Dashboard', path: '/dashboard', icon: 'mingcute:settings-6-fill' },
+  { title: 'Wonder Lab', path: '/wonderlab', icon: 'game-icons:gear-hammer' },
+  { title: 'Dash', path: '/dashboard', icon: 'mingcute:settings-6-fill' },
   {
-    title: 'Weirder Game',
+    title: 'Weird Land',
     path: '/weirdlandia',
     icon: 'game-icons:alien-stare',
   }, // Added Weirder Game

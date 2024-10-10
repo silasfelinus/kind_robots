@@ -17,8 +17,7 @@
       <header
         class="flex items-center justify-center z-30 w-full box-border"
         :style="{
-          height: headerHeight,
-          width: '100vw',
+          height: headerHeight + 'px',
           gridArea: 'header',
         }"
       >
@@ -29,8 +28,8 @@
       <aside
         class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border bg-info"
         :style="{
-          width: sidebarLeftWidth,
-          height: sidebarHeight,
+          width: sidebarLeftWidth + 'px',
+          height: sidebarHeight + 'px',
           gridArea: 'sidebar-left',
         }"
       >
@@ -41,8 +40,8 @@
       <main
         class="p-4 z-10 overflow-hidden box-border bg-primary"
         :style="{
+          height: mainHeight + 'px',
           gridArea: 'main',
-          height: mainHeight,
         }"
         :class="{
           'transition-all duration-300': true,
@@ -55,8 +54,8 @@
       <aside
         class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border bg-info"
         :style="{
-          width: sidebarRightWidth,
-          height: sidebarHeight,
+          width: sidebarRightWidth + 'px',
+          height: sidebarHeight + 'px',
           gridArea: 'sidebar-right',
         }"
       >
@@ -67,14 +66,14 @@
       <footer
         class="transition-transform duration-500 ease-in-out overflow-x-auto box-border bg-secondary"
         :style="{
-          height: footerHeight,
+          height: footerHeight + 'px',
           gridArea: 'footer',
           maxWidth:
             'calc(100vw - ' +
             sidebarLeftWidth +
-            ' - ' +
+            'px - ' +
             sidebarRightWidth +
-            ')',
+            'px)',
         }"
       >
         <horizontal-nav v-if="footerOpen" />
@@ -112,34 +111,28 @@ const sidebarLeftOpen = computed(
 
 // Calculate the height of the main content area dynamically based on the viewport
 const mainHeight = computed(() => {
-  return calc(100vh - ${headerHeight.value} - ${footerHeight.value})
+  return window.innerHeight - headerHeight.value - footerHeight.value
 })
 
 // Calculate the height of the sidebars (subtract only the header height)
 const sidebarHeight = computed(() => {
-  return calc(100vh - ${headerHeight.value})
+  return window.innerHeight - headerHeight.value
 })
 
 // Define grid areas for the layout
-const gridAreas = computed(
-  () => 
-  "header header header"
-  "sidebar-left main sidebar-right"
-  "navbar-toggle footer sidebar-right"
-,
+const gridAreas = computed(() => 
+  `"header header header"
+   "sidebar-left main sidebar-right"
+   "navbar-toggle footer sidebar-right"`
 )
 
 // Define explicit grid rows and columns
-const gridRows = computed(
-  () => 
-  ${headerHeight.value} 1fr ${footerHeight.value}
-,
+const gridRows = computed(() => 
+  `${headerHeight.value}px 1fr ${footerHeight.value}px`
 )
 
-const gridColumns = computed(
-  () => 
-  ${sidebarLeftWidth.value} 1fr ${sidebarRightWidth.value}
-,
+const gridColumns = computed(() => 
+  `${sidebarLeftWidth.value}px 1fr ${sidebarRightWidth.value}px`
 )
 </script>
 

@@ -1,5 +1,8 @@
 <template>
-  <div class="flex justify-center p-2 bg-base-200 box-border h-screen">
+  <div
+    class="flex justify-center p-2 bg-base-200 box-border"
+    :style="{ height: footerHeight }"
+  >
     <!-- Horizontal Nav Icons with Words Above -->
     <div class="flex justify-evenly w-full space-x-3 box-border items-end">
       <div
@@ -28,8 +31,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDisplayStore } from '@/stores/displayStore'
+
+// Access the displayStore for managing the layout state
+const displayStore = useDisplayStore()
+
+// Use the footerHeight from the display store for height
+const footerHeight = computed(() => displayStore.footerHeight)
 
 // Hardcoded sidebar links
 const hardcodedLinks = ref([
@@ -55,10 +65,10 @@ const hardcodedLinks = ref([
   }, // Added Weirder Game
 ])
 
-// Access Vue Router
+// Access Vue Router for navigation
 const router = useRouter()
 
-// Navigation function
+// Navigation function to handle navigation
 const navigateTo = (path: string) => {
   router.push(path) // Use Vue Router for navigation to avoid page refresh
 }

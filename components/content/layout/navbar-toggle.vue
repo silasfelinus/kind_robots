@@ -10,20 +10,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore to manage state
 const displayStore = useDisplayStore()
 
-// The available DisplayState types as per your existing types
+// The available DisplayState types
 type DisplayState = 'hidden' | 'compact' | 'open'
-
-// Current state for cycling between sidebar and footer visibility
-
-const _sidebarLeftState = computed(() => displayStore.sidebarLeftState)
-
-const _footerState = computed(() => displayStore.footerState)
 
 // States cycle: "all closed" -> "sidebarLeft compact" -> "sidebarLeft open" -> "sidebarLeft closed, footer open" -> "footer compact" -> "all closed"
 const stateCycle = [
@@ -54,19 +48,18 @@ const stateCycle = [
   }, // Footer compact
 ]
 
-// Keep track of current state index in the cycle
-let currentIndex = 0
+// Use `ref` to make the current index reactive
+const currentIndex = ref(0)
 
 // Chevron icon based on current state
-const chevronIcon = computed(() => {
-  return stateCycle[currentIndex].icon
-})
+const chevronIcon = computed(() => stateCycle[currentIndex.value].icon)
 
 // Cycle through the states on click
 const cycleState = () => {
-  currentIndex = (currentIndex + 1) % stateCycle.length // Cycle through states
-  displayStore.sidebarLeftState = stateCycle[currentIndex].sidebarLeftState
-  displayStore.footerState = stateCycle[currentIndex].footerState
+  currentIndex.value = (currentIndex.value + 1) % stateCycle.length // Cycle through states
+  displayStore.sidebarLeftState =
+    stateCycle[currentIndex.value].sidebarLeftState
+  displayStore.footerState = stateCycle[currentIndex.value].footerState
   displayStore.saveState() // Save the updated state
 }
 </script>

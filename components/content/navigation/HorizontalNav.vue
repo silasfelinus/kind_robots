@@ -1,9 +1,7 @@
 <template>
   <div class="flex justify-center p-2 bg-base-200 box-border h-screen">
     <!-- Horizontal Nav Icons with Words Above -->
-    <div
-      class="flex justify-evenly w-full max-w-screen-lg space-x-3 box-border items-end"
-    >
+    <div class="flex justify-evenly w-full space-x-3 box-border items-end">
       <div
         v-for="(item, index) in hardcodedLinks"
         :key="index"
@@ -19,7 +17,7 @@
         </span>
         <!-- Icon Positioned at the Bottom -->
         <button
-          class="text-primary hover:scale-110 transition-transform mt-auto box-border"
+          class="hover:scale-110 transition-transform mt-auto box-border"
           @click="navigateTo(item.path)"
         >
           <icon :name="item.icon" class="w-8 h-8 text-accent" />

@@ -14,7 +14,7 @@
         <div
           v-for="link in hardcodedLinks"
           :key="link.title"
-          class="Icon-link-container flex items-center space-x-2 hover:bg-primary hover:scale-110 rounded-xl p-2"
+          class="Icon-link-container flex items-center space-x-1 md:space-x-2 hover:bg-primary hover:scale-110 rounded-xl p-1 md:p-2"
         >
           <!-- Navigation click event -->
           <a

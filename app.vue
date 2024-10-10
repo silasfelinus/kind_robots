@@ -4,14 +4,13 @@
     <kind-loader />
     <animation-loader />
 
-    <!-- Grid Container: Header, Content, Sidebar (Left/Right), Footer -->
+    <!-- Grid Container: Header, Content, Right Sidebar, Footer, Navbar-Toggle -->
     <div
       class="grid h-screen w-screen box-border"
-      :class="{
-        'grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto]': true,
-      }"
       :style="{
         'grid-template-areas': gridAreas,
+        'grid-template-columns': gridColumns,
+        'grid-template-rows': gridRows,
       }"
     >
       <!-- Header (Top row, spans all columns) -->
@@ -19,14 +18,14 @@
         class="flex items-center justify-center z-30 w-full px-4 box-border"
         :style="{
           height: headerHeight,
-          width: '100vw', // Ensure it spans the full viewport width
+          width: '100vw',
           gridArea: 'header',
         }"
       >
         <header-upgrade class="flex-grow text-center" />
       </header>
 
-      <!-- Left Sidebar (Center and Bottom-Left cells) -->
+      <!-- Left Sidebar (Center-left cell) -->
       <aside
         class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border bg-info"
         :style="{
@@ -35,7 +34,7 @@
           gridArea: 'sidebar-left',
         }"
       >
-        <kind-sidebar-simple class="flex-grow" />
+        <kind-sidebar-simple v-if="sidebarLeftOpen" />
       </aside>
 
       <!-- Main Content (Center-middle cell) -->
@@ -61,9 +60,7 @@
           gridArea: 'sidebar-right',
         }"
       >
-        <splash-tutorial 
-        v-if="showTutorial"
-        class="h-full w-full" />
+        <splash-tutorial v-if="showTutorial" class="h-full w-full" />
       </aside>
 
       <!-- Footer (Center-bottom cell) -->
@@ -82,6 +79,14 @@
       >
         <horizontal-nav v-if="footerOpen" />
       </footer>
+
+      <!-- Navbar Toggle (Bottom-Left Corner) -->
+      <div
+        class="absolute bottom-4 left-4 p-2 bg-accent rounded-full box-border shadow-lg z-30"
+        :style="{ gridArea: 'navbar-toggle' }"
+      >
+        <navbar-toggle />
+      </div>
     </div>
   </div>
 </template>
@@ -98,9 +103,13 @@ const headerHeight = computed(() => displayStore.headerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const footerHeight = computed(() => displayStore.footerHeight)
-const showTutorial = computed (()=> displayStore.showTutorial)
+const showTutorial = computed(() => displayStore.showTutorial)
 
 const footerOpen = computed(() => displayStore.footerState === 'open')
+const sidebarLeftOpen = computed(
+  () => displayStore.sidebarLeftState !== 'hidden',
+)
+
 // Calculate the height of the main content area dynamically based on the viewport
 const mainHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
@@ -116,7 +125,24 @@ const gridAreas = computed(
   () => `
   "header header header"
   "sidebar-left main sidebar-right"
-  "sidebar-left footer sidebar-right"
+  "navbar-toggle footer sidebar-right"
+`,
+)
+
+// Define explicit grid rows and columns
+const gridRows = computed(
+  () => `
+  ${headerHeight.value} 1fr ${footerHeight.value}
+`,
+)
+
+const gridColumns = computed(
+  () => `
+  ${sidebarLeftWidth.value} 1fr ${sidebarRightWidth.value}
 `,
 )
 </script>
+
+<style scoped>
+/* Additional styles if needed */
+</style>

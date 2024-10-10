@@ -1,12 +1,12 @@
 <template>
   <header
-    class="grid grid-cols-4 items-center fixed rounded-2xl border-1 border-accent p-2 bg-base-300 z-20 mx-2 my-2 max-w-full box-border"
+    class="flex items-center justify-between rounded-2xl border border-accent p-2 bg-base-300 z-20 mx-2 my-2 max-w-full box-border"
     :style="{
       height: displayStore.headerHeight + 'vh',
     }"
   >
-    <!-- Column 1: Avatar Image -->
-    <div class="flex items-center justify-start box-border">
+    <!-- Left Section: Avatar -->
+    <div class="flex items-center box-border">
       <avatar-image
         alt="User Avatar"
         class="aspect-square min-h-8 min-w-8 rounded-2xl flex-shrink-0"
@@ -16,8 +16,10 @@
       />
     </div>
 
-    <!-- Column 2: Title and Subtitle -->
-    <div class="flex flex-col text-center box-border">
+    <!-- Middle Section: Title and Subtitle, with flex-grow to take up more space -->
+    <div
+      class="flex-grow flex flex-col items-center justify-center text-center mx-4 box-border"
+    >
       <h1
         class="text-[13px] md:text-[20px] lg:text-[25px] xl:text-[30px] font-semibold text-ellipsis overflow-hidden whitespace-nowrap max-w-full"
       >
@@ -30,13 +32,10 @@
       </h2>
     </div>
 
-    <!-- Column 3: Login Button -->
-    <div class="flex justify-center box-border">
+    <!-- Right Section: Icons and Login -->
+    <div class="flex items-center space-x-4 box-border">
+      <!-- Login Button -->
       <login-button class="w-full max-w-[120px] box-border" />
-    </div>
-
-    <!-- Column 4: Icons (Theme and Butterfly) -->
-    <div class="flex justify-end items-center space-x-2 box-border">
       <!-- Theme Icon -->
       <theme-icon class="w-8 h-8 box-border" />
       <!-- Butterfly Toggle Icon -->
@@ -52,6 +51,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 // Access display store
 const displayStore = useDisplayStore()
 
+// Access page content and subtitle
 const { page } = useContent()
 const subtitle = computed(
   () => page.value?.subtitle ?? 'Welcome to Kind Robots',

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col h-full w-full rounded-2xl overflow-hidden shadow-lg border-4"
+    class="relative flex flex-col h-full w-full rounded-2xl overflow-hidden shadow-lg bg-base-100 p-1 box-border border-4"
   >
     <!-- Under Construction Icon -->
     <div
@@ -34,8 +34,6 @@
         >
           {{ page.title }}
         </h1>
-
-       
 
         <h3
           v-if="page && page.description"

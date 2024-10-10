@@ -334,7 +334,6 @@ export const useDisplayStore = defineStore('display', {
     setSidebarRight(isOpen: boolean) {
       if (isOpen) {
         this.sidebarRightState = 'open';
-        this.isFullScreen = false;  // Disable fullscreen if the sidebar is opened
       } else {
         this.sidebarRightState = 'hidden';
       }

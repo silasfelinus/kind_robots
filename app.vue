@@ -4,7 +4,7 @@
     <kind-loader />
     <animation-loader />
 
-    <!-- Grid Container: Header, Content, Right Sidebar, Footer, Navbar-Toggle -->
+    <!-- Grid Container: Header, Content, Right Sidebar -->
     <div
       class="grid h-screen w-screen box-border"
       :style="{
@@ -70,24 +70,15 @@
       >
         <navbar-toggle />
       </div>
-
-      <!-- Footer (Center-bottom cell) -->
-      <footer
-        class="transition-transform duration-500 ease-in-out overflow-x-auto box-border"
-        :style="{
-          height: footerHeight,
-          gridArea: 'footer',
-          maxWidth:
-            'calc(100vw - ' +
-            sidebarLeftWidth +
-            ' - ' +
-            sidebarRightWidth +
-            ')',
-        }"
-      >
-        <horizontal-nav v-if="footerOpen" />
-      </footer>
     </div>
+
+    <!-- Fixed Footer (Independent of the grid) -->
+    <footer
+      class="fixed bottom-0 left-0 w-full z-30 box-border bg-base-200"
+      :style="{ height: footerHeight }"
+    >
+      <horizontal-nav v-if="footerOpen" />
+    </footer>
   </div>
 </template>
 
@@ -112,7 +103,7 @@ const sidebarLeftOpen = computed(
 
 // Calculate the height of the main content area dynamically based on the viewport
 const mainHeight = computed(() => {
-  return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
+  return `calc(100vh - ${headerHeight.value})`
 })
 
 // Calculate the height of the sidebars (subtract only the header height)
@@ -125,14 +116,13 @@ const gridAreas = computed(
   () => `
   "header header header"
   "sidebar-left main sidebar-right"
-  "navbar-toggle footer sidebar-right"
 `,
 )
 
 // Define explicit grid rows and columns
 const gridRows = computed(
   () => `
-  ${headerHeight.value} 1fr ${footerHeight.value}
+  ${headerHeight.value} 1fr
 `,
 )
 

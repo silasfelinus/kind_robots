@@ -13,8 +13,8 @@
       >
         <!-- Text Above Icon -->
         <span
-          class="text-sm text-center whitespace-normal break-all box-border"
-          style="max-width: 60px"
+          class="text-sm text-center whitespace-normal box-border"
+          style="max-width: 60px; word-break: keep-all"
         >
           {{ item.title }}
         </span>

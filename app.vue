@@ -1,5 +1,5 @@
 <template>
-  <div class="main-layout h-screen relative box-border">
+  <div class="main-layout h-screen relative box-border bg-primary">
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />

@@ -50,10 +50,10 @@ export const useDisplayStore = defineStore('display', {
   getters: {
     headerVh(state): number {
       const sizes = {
-        small: { open: 16, compact: 6, hidden: 1, disabled: 0 },
-        medium: { open: 14, compact: 5, hidden: 1, disabled: 0 },
-        large: { open: 12, compact: 4, hidden: 1, disabled: 0 },
-        extraLarge: { open: 13, compact: 3, hidden: 1, disabled: 0 },
+        small: { open: 12, compact: 6, hidden: 1, disabled: 0 },
+        medium: { open: 9, compact: 5, hidden: 1, disabled: 0 },
+        large: { open: 8, compact: 4, hidden: 1, disabled: 0 },
+        extraLarge: { open: 7, compact: 3, hidden: 1, disabled: 0 },
       }[state.viewportSize];
       return sizes[state.headerState] || 6;
     },

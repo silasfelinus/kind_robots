@@ -27,7 +27,7 @@
 
       <!-- Left Sidebar (Center-left cell) -->
       <aside
-        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border bg-info"
+        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border"
         :style="{
           width: sidebarLeftWidth,
           height: sidebarHeight,
@@ -53,7 +53,7 @@
 
       <!-- Right Sidebar (Center and Bottom-Right cells) -->
       <aside
-        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border bg-info"
+        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border"
         :style="{
           width: sidebarRightWidth,
           height: sidebarHeight,
@@ -65,7 +65,7 @@
 
       <!-- Footer (Center-bottom cell) -->
       <footer
-        class="transition-transform duration-500 ease-in-out overflow-x-auto box-border bg-secondary"
+        class="transition-transform duration-500 ease-in-out overflow-x-auto box-border"
         :style="{
           height: footerHeight,
           gridArea: 'footer',

@@ -44,6 +44,10 @@ const toggleTutorialWithSidebar = () => {
       displayStore.setSidebarRight(false); // Close the right sidebar
       displayStore.showTutorial = true;
       displayStore.isFullScreen = false;
+     } else if (displayStore.sidebarRightState === 'open' && !displayStore.isFullScreen) {
+      // Move to state 3: Close right sidebar, show tutorial, exit fullscreen
+      displayStore.setSidebarRight(false); // Close the right sidebar
+      displayStore.showTutorial = !displayStore.showTutorial;
     } else if (displayStore.sidebarRightState === 'hidden' && displayStore.showTutorial && !displayStore.isFullScreen) {
       // Move to state 1: Close right sidebar, hide tutorial, exit fullscreen
       displayStore.setSidebarRight(false); // Keep sidebar closed

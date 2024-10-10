@@ -1,24 +1,25 @@
 <template>
-  <div class="flex justify-center p-4 bg-base-200 box-border">
+  <div class="flex justify-center p-2 bg-base-200 box-border h-screen">
     <!-- Horizontal Nav Icons with Words Above -->
     <div
-      class="flex justify-evenly w-full max-w-screen-lg space-x-4 box-border"
+      class="flex justify-evenly w-full max-w-screen-lg space-x-3 box-border items-end"
     >
       <div
         v-for="(item, index) in hardcodedLinks"
         :key="index"
-        class="group flex flex-col items-center box-border"
+        class="group flex flex-col items-center box-border justify-end"
         style="min-width: 30px"
       >
-        <!-- Always Visible Text Above Icon -->
+        <!-- Text Above Icon -->
         <span
-          class="text-sm whitespace-nowrap text-center overflow-hidden box-border"
+          class="text-sm text-center whitespace-normal break-all box-border"
           style="max-width: 60px"
         >
           {{ item.title }}
         </span>
+        <!-- Icon Positioned at the Bottom -->
         <button
-          class="text-primary hover:scale-110 transition-transform box-border"
+          class="text-primary hover:scale-110 transition-transform mt-auto box-border"
           @click="navigateTo(item.path)"
         >
           <icon :name="item.icon" class="w-8 h-8 text-accent" />

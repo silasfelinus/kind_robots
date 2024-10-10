@@ -6,7 +6,7 @@
     }"
   >
     <!-- Left Section: Avatar -->
-    <div class="flex items-center box-border">
+    <div class="flex items-center box-border relative">
       <avatar-image
         alt="User Avatar"
         class="aspect-square min-h-8 min-w-8 rounded-2xl flex-shrink-0"
@@ -14,6 +14,14 @@
           height: '100%', // Fills the available height of the header
         }"
       />
+
+      <!-- Special Overlay: Shows viewportSize from displayStore -->
+      <div
+        class="absolute top-0 left-10 p-2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
+        style="transform: translateY(-50%)"
+      >
+        {{ displayStore.viewportSize }}
+      </div>
     </div>
 
     <!-- Middle Section: Title and Subtitle, with flex-grow to take up more space -->

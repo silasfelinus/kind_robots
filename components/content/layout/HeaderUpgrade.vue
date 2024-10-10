@@ -17,7 +17,7 @@
 
       <!-- Special Overlay: Shows viewportSize from displayStore -->
       <div
-        class="absolute top-0 left-10 p-2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
+        class="absolute top-3 left-10 p-2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
         style="transform: translateY(-50%)"
       >
         {{ displayStore.viewportSize }}

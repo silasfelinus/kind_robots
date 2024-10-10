@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="flex justify-center p-2 bg-base-200 box-border"
-    :style="{ height: footerHeight }"
-  >
+  <div class="flex justify-center p-1 bg-base-200 box-border">
     <!-- Horizontal Nav Icons with Words Above -->
     <div class="flex justify-evenly w-full space-x-3 box-border items-end">
       <div
@@ -31,15 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useDisplayStore } from '@/stores/displayStore'
-
-// Access the displayStore for managing the layout state
-const displayStore = useDisplayStore()
-
-// Use the footerHeight from the display store for height
-const footerHeight = computed(() => displayStore.footerHeight)
 
 // Hardcoded sidebar links
 const hardcodedLinks = ref([
@@ -51,25 +40,21 @@ const hardcodedLinks = ref([
     icon: 'fluent:chat-bubbles-question-16-regular',
   },
   { title: 'Art Lab', path: '/artmaker', icon: 'game-icons:easel' },
-  {
-    title: 'Memory Match',
-    path: '/memory',
-    icon: 'mdi:brain',
-  },
+  { title: 'Memory Match', path: '/memory', icon: 'mdi:brain' },
   { title: 'Wonder Lab', path: '/wonderlab', icon: 'game-icons:gear-hammer' },
   { title: 'Dash', path: '/dashboard', icon: 'mingcute:settings-6-fill' },
   {
     title: 'Weird Land',
     path: '/weirdlandia',
     icon: 'game-icons:alien-stare',
-  }, // Added Weirder Game
+  },
 ])
 
 // Access Vue Router for navigation
 const router = useRouter()
 
-// Navigation function to handle navigation
+// Navigation function
 const navigateTo = (path: string) => {
-  router.push(path) // Use Vue Router for navigation to avoid page refresh
+  router.push(path) // Navigate using Vue Router
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-4 flex justify-center items-center bg-accent text-white rounded-full cursor-pointer select-none transition-transform duration-500"
+    class="p-4 flex justify-center box-border items-center bg-accent text-white rounded-full cursor-pointer select-none transition-transform duration-500"
     @click="cycleState"
   >
     <div class="text-4xl">

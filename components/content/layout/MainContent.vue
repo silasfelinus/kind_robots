@@ -5,11 +5,6 @@
       class="relative flex-grow h-full flex flex-col box-border"
       :style="{ width: mainContentWidth, height: mainContentHeight }"
     >
-      <!-- Fullscreen Toggle (Top Center) -->
-      <fullscreen-toggle
-        class="absolute top-0 right-2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
-      />
-
       <!-- Left Toggle Button (inside content) -->
       <left-toggle
         class="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
@@ -60,8 +55,6 @@
             </div>
           </div>
         </div>
-
-        
       </div>
 
       <!-- Footer Toggle (Bottom Center) -->
@@ -82,8 +75,6 @@ const displayStore = useDisplayStore()
 const isMobile = computed(() => displayStore.isMobileViewport)
 const isFullScreen = computed(() => displayStore.isFullScreen)
 const showTutorial = computed(() => displayStore.showTutorial)
-
-
 
 // Calculate main content width (subtract sidebar widths)
 const mainContentWidth = computed(() => {

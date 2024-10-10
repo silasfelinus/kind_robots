@@ -4,6 +4,7 @@ import { useErrorStore, ErrorType } from './../stores/errorStore';
 // Define the types for state values and other variables
 export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled';
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain';
+export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash';
 
 interface DisplayStoreState {
   headerState: DisplayState;
@@ -22,6 +23,7 @@ interface DisplayStoreState {
   isAnimating: boolean;
   currentAnimation: string;
   resizeTimeout: ReturnType<typeof setTimeout> | null;
+  fullscreenState: FullscreenState;
 }
 
 // Define the valid effect IDs
@@ -45,6 +47,7 @@ export const useDisplayStore = defineStore('display', {
     isAnimating: false,
     currentAnimation: '',
     resizeTimeout: null,
+    fullscreenState: 'nuxt',
   }),
 
   getters: {
@@ -191,16 +194,24 @@ export const useDisplayStore = defineStore('display', {
     },
 
     toggleFullScreen() {
-      this.isFullScreen = !this.isFullScreen;
-
-      // Ensure right sidebar is open when entering fullscreen
-      if (this.isFullScreen) {
-        this.sidebarRightState = 'open';
+      if (this.fullscreenState === 'nuxt') {
+        // Move to fullscreen state
+        this.fullscreenState = 'fullscreen';
+        this.isFullScreen = true;
+        this.sidebarRightState = 'open'; 
+      } else if (this.fullscreenState === 'fullscreen') {
+        // Move to splash state
+        this.fullscreenState = 'splash';
+        this.isFullScreen = false;
+        this.showTutorial = true;
       } else {
+        // Move back to nuxt state
+        this.fullscreenState = 'nuxt';
+        this.isFullScreen = false;
         this.sidebarRightState = 'hidden';
       }
 
-      this.saveState();
+      this.saveState(); 
     },
 
     // Function to toggle animation by ID

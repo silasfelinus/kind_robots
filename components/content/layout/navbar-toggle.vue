@@ -19,7 +19,7 @@ const displayStore = useDisplayStore()
 // The available DisplayState types
 type DisplayState = 'hidden' | 'compact' | 'open'
 
-// States cycle: "all closed" -> "sidebarLeft compact" -> "sidebarLeft open" -> "sidebarLeft closed, footer open" -> "footer compact" -> "all closed"
+// States cycle: "all closed" -> "sidebarLeft compact" -> "sidebarLeft open" -> "sidebarLeft closed, footer open" -> "all closed"
 const stateCycle = [
   {
     sidebarLeftState: 'hidden' as DisplayState,
@@ -41,11 +41,7 @@ const stateCycle = [
     footerState: 'open' as DisplayState,
     icon: '↘️',
   }, // Sidebar left closed, footer open
-  {
-    sidebarLeftState: 'hidden' as DisplayState,
-    footerState: 'compact' as DisplayState,
-    icon: '➡️',
-  }, // Footer compact
+  
 ]
 
 // Use `ref` to make the current index reactive

@@ -39,7 +39,7 @@
 
       <!-- Main Content (Center-middle cell) -->
       <main
-        class="p-1 z-10 overflow-hidden box-border bg-primary"
+        class="p-1 z-10 overflow-hidden box-border rounded-2xl, border-4 bg-primary"
         :style="{
           gridArea: 'main',
           height: mainHeight,
@@ -63,7 +63,7 @@
         <splash-tutorial v-if="showTutorial" class="h-full w-full" />
       </aside>
 
-<!-- Navbar Toggle (Bottom-Left Corner) -->
+      <!-- Navbar Toggle (Bottom-Left Corner) -->
       <div
         class="absolute bottom-4 left-4 p-2 bg-accent rounded-full box-border shadow-lg z-30"
         :style="{ gridArea: 'navbar-toggle' }"
@@ -87,8 +87,6 @@
       >
         <horizontal-nav v-if="footerOpen" />
       </footer>
-
-      
     </div>
   </div>
 </template>

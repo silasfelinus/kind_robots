@@ -14,71 +14,81 @@
       }"
     >
       <!-- Header (Top row, spans all columns) -->
-      <header
-        class="flex items-center justify-center z-30 w-full box-border"
-        :style="{
-          height: headerHeight,
-          width: '100vw',
-          gridArea: 'header',
-        }"
-      >
-        <header-upgrade class="flex-grow text-center" />
-      </header>
+      <SpecialContainer>
+        <header
+          class="flex items-center justify-center z-30 w-full box-border"
+          :style="{
+            height: headerHeight,
+            width: '100vw',
+            gridArea: 'header',
+          }"
+        >
+          <header-upgrade class="flex-grow text-center" />
+        </header>
+      </SpecialContainer>
 
       <!-- Left Sidebar (Center-left cell) -->
-      <aside
-        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border bg-info"
-        :style="{
-          width: sidebarLeftWidth,
-          height: sidebarHeight,
-          gridArea: 'sidebar-left',
-        }"
-      >
-        <kind-sidebar-simple v-if="sidebarLeftOpen" />
-      </aside>
+      <SpecialContainer>
+        <aside
+          class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border bg-info"
+          :style="{
+            width: sidebarLeftWidth,
+            height: sidebarHeight,
+            gridArea: 'sidebar-left',
+          }"
+        >
+          <kind-sidebar-simple v-if="sidebarLeftOpen" />
+        </aside>
+      </SpecialContainer>
 
       <!-- Main Content (Center-middle cell) -->
-      <main
-        class="p-4 z-10 overflow-hidden box-border bg-primary"
-        :style="{
-          gridArea: 'main',
-          height: mainHeight,
-        }"
-        :class="{
-          'transition-all duration-300': true,
-        }"
-      >
-        <main-content />
-      </main>
+      <SpecialContainer>
+        <main
+          class="p-4 z-10 overflow-hidden box-border bg-primary"
+          :style="{
+            gridArea: 'main',
+            height: mainHeight,
+          }"
+          :class="{
+            'transition-all duration-300': true,
+          }"
+        >
+          <main-content />
+        </main>
+      </SpecialContainer>
 
       <!-- Right Sidebar (Center and Bottom-Right cells) -->
-      <aside
-        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border bg-info"
-        :style="{
-          width: sidebarRightWidth,
-          height: sidebarHeight,
-          gridArea: 'sidebar-right',
-        }"
-      >
-        <splash-tutorial v-if="showTutorial" class="h-full w-full" />
-      </aside>
+      <SpecialContainer>
+        <aside
+          class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border bg-info"
+          :style="{
+            width: sidebarRightWidth,
+            height: sidebarHeight,
+            gridArea: 'sidebar-right',
+          }"
+        >
+          <splash-tutorial v-if="showTutorial" class="h-full w-full" />
+        </aside>
+      </SpecialContainer>
 
       <!-- Footer (Center-bottom cell) -->
-      <footer
-        class="transition-transform duration-500 ease-in-out overflow-x-auto box-border bg-secondary"
-        :style="{
-          height: footerHeight,
-          gridArea: 'footer',
-          maxWidth:
-            'calc(100vw - ' +
-            sidebarLeftWidth +
-            ' - ' +
-            sidebarRightWidth +
-            ')',
-        }"
-      >
-        <horizontal-nav v-if="footerOpen" />
-      </footer>
+      <SpecialContainer>
+        <footer
+          class="transition-transform duration-500 ease-in-out overflow-x-auto box-border bg-secondary"
+          :style="{
+            height: footerHeight,
+            gridArea: 'footer',
+            maxWidth:
+              'calc(100vw - ' +
+              sidebarLeftWidth +
+              ' - ' +
+              sidebarRightWidth +
+              ')',
+          }"
+        >
+          <horizontal-nav v-if="footerOpen" />
+        </footer>
+      </SpecialContainer>
 
       <!-- Navbar Toggle (Bottom-Left Corner) -->
       <div

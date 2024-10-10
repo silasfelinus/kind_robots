@@ -61,7 +61,9 @@
           gridArea: 'sidebar-right',
         }"
       >
-        <splash-tutorial class="h-full w-full" />
+        <splash-tutorial 
+        v-if="showTutorial"
+        class="h-full w-full" />
       </aside>
 
       <!-- Footer (Center-bottom cell) -->
@@ -96,6 +98,7 @@ const headerHeight = computed(() => displayStore.headerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const footerHeight = computed(() => displayStore.footerHeight)
+const showTutorial = computed (()=> displayStore.showTutorial)
 
 const footerOpen = computed(() => displayStore.footerState === 'open')
 // Calculate the height of the main content area dynamically based on the viewport

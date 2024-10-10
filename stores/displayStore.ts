@@ -51,8 +51,8 @@ export const useDisplayStore = defineStore('display', {
     headerVh(state): number {
       const sizes = {
         small: { open: 16, compact: 6, hidden: 1, disabled: 0 },
-        medium: { open: 15, compact: 5, hidden: 1, disabled: 0 },
-        large: { open: 14, compact: 4, hidden: 1, disabled: 0 },
+        medium: { open: 14, compact: 5, hidden: 1, disabled: 0 },
+        large: { open: 12, compact: 4, hidden: 1, disabled: 0 },
         extraLarge: { open: 13, compact: 3, hidden: 1, disabled: 0 },
       }[state.viewportSize];
       return sizes[state.headerState] || 6;
@@ -60,30 +60,30 @@ export const useDisplayStore = defineStore('display', {
 
     footerVh(state): number {
       const sizes = {
-        small: { open: 12, compact: 1, hidden: 1, disabled: 0 },
+        small: { open: 16, compact: 1, hidden: 1, disabled: 0 },
         medium: { open: 13, compact: 1, hidden: 1, disabled: 0 },
         large: { open: 14, compact: 1, hidden: 1, disabled: 0 },
-        extraLarge: { open: 15, compact: 1, hidden: 1, disabled: 0 },
+        extraLarge: { open: 12, compact: 1, hidden: 1, disabled: 0 },
       }[state.viewportSize];
       return sizes[state.footerState] || 3;
     },
 
     sidebarLeftVw(state): number {
       const sizes = {
-        small: { open: 24, compact: 12, hidden: 1, disabled: 0 },
-        medium: { open: 17, compact: 7, hidden: 1, disabled: 0 },
-        large: { open: 16, compact: 8, hidden: 1, disabled: 0 },
-        extraLarge: { open: 13, compact: 6, hidden: 1, disabled: 0 },
+        small: { open: 22, compact: 10, hidden: 1, disabled: 0 },
+        medium: { open: 15, compact: 7, hidden: 1, disabled: 0 },
+        large: { open: 15, compact: 6, hidden: 1, disabled: 0 },
+        extraLarge: { open: 10, compact: 3, hidden: 1, disabled: 0 },
       }[state.viewportSize];
       return sizes[state.sidebarLeftState] || 16;
     },
 
     sidebarRightVw(state): number {
       const sizes = {
-        small: { open: 30, compact: 2, hidden: 1, disabled: 0 },
-        medium: { open: 30, compact: 2, hidden: 1, disabled: 0 },
-        large: { open: 30, compact: 2, hidden: 1, disabled: 0 },
-        extraLarge: { open: 30, compact: 2, hidden: 1, disabled: 0 },
+        small: { open: 1, compact: 1, hidden: 1, disabled: 0 },
+        medium: { open: 33, compact: 1, hidden: 1, disabled: 0 },
+        large: { open: 25, compact: 1, hidden: 1, disabled: 0 },
+        extraLarge: { open: 30, compact: 1, hidden: 1, disabled: 0 },
       }[state.viewportSize];
       return sizes[state.sidebarRightState] || 2;
     },

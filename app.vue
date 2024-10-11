@@ -31,8 +31,8 @@
       class="relative z-10 box-border overflow-hidden transition-all duration-300"
       :style="{
         height: mainHeight,
-        paddingTop: headerHeight,
-        paddingBottom: footerHeight,
+        top: headerHeight,
+        bottom: footerHeight,
         marginLeft: sidebarLeftWidth,
         marginRight: sidebarRightWidth,
       }"
@@ -42,7 +42,7 @@
 
     <!-- Right Sidebar -->
     <aside
-      class="fixed top-0 right-0 z-20 box-border transition-all duration-500 ease-in-out"
+      class="fixed top-0 right-0 z-20 box-border transition-all duration-500 ease-in-out bg-base-300"
       :class="{ 'overflow-hidden': !showTutorial }"
       :style="{
         width: sidebarRightWidth,

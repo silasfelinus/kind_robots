@@ -15,7 +15,7 @@
     >
       <!-- Header (Top row, spans all columns) -->
       <header
-        class="flex items-center justify-center z-30 w-full box-border p-1"
+        class="flex items-center justify-center z-30 w-full box-border p-1 overflow-y-hidden"
         :style="{
           height: headerHeight,
           width: '100vw',

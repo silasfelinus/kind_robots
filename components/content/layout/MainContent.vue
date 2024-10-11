@@ -2,7 +2,7 @@
   <div class="relative h-full flex flex-col rounded-2xl p-1 box-border">
     <!-- Main Content Area -->
     <div
-      class="relative flex-grow h-full flex flex-col box-border"
+      class="relative flex-grow h-full flex flex-col box-border overflow-y-auto"
       :style="{ width: mainContentWidth, height: mainContentHeight }"
     >
       <!-- Left Toggle Button (inside content) -->

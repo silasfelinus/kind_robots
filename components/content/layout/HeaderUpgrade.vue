@@ -2,14 +2,14 @@
   <header
     class="flex items-center h-full justify-between bg-base-300 rounded-2xl border-4 p-1 z-30 max-w-full box-border"
     :style="{
-      height: displayStore.headerHeight + 'vh',
+      height: displayStore.headerHeight,
     }"
   >
     <!-- Left Section: Avatar -->
     <div class="flex items-center box-border relative">
       <avatar-image
         alt="User Avatar"
-        class="aspect-square rounded-2xl"
+        class="aspect-square min-h-8 min-w-8 rounded"
         :style="{
           height: '100%', // Fills the available height of the header
         }"

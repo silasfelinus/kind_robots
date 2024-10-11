@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-full flex flex-col">
+  <div class="relative h-full flex flex-col border-4 rounded-2xl bg-base-300">
     <!-- Main Content Area -->
     <div
       class="relative flex-grow h-full flex flex-col box-border overflow-hidden"

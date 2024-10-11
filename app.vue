@@ -33,7 +33,7 @@
         marginTop: headerHeight,
         marginLeft: sidebarLeftWidth,
         marginRight: sidebarRightWidth,
-        paddingBottom: footerHeight,  // Add padding at the bottom for the footer
+        marginBottom: footerHeight,  // Add padding at the bottom for the footer
       }"
     >
       <main-content />

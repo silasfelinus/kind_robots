@@ -83,7 +83,7 @@ const mainHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
 })
 
-// Calculate the height of the sidebars (subtract only the header and footer height)
+// Calculate the height of the sidebars (subtract both header and footer height)
 const sidebarHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
 })

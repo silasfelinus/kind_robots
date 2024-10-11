@@ -40,7 +40,7 @@
 
     <!-- Right Sidebar -->
     <aside
-      class="fixed right-0 z-20 box-border transition-all duration-500 ease-in-out bg-base-300 overflow-hidden"
+      class="fixed right-0 z-20 box-border transition-all duration-500 ease-in-out bg-primary overflow-hidden"
       :style="{
         width: sidebarRightWidth,
         top: headerHeight,
@@ -92,4 +92,3 @@ const sidebarLeftOpen = computed(
   () => displayStore.sidebarLeftState !== 'hidden',
 )
 </script>
-

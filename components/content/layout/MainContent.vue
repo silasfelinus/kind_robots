@@ -1,8 +1,8 @@
 <template>
-  <div class="relative h-full flex flex-col rounded-2xl p-1 box-border">
+  <div class="relative h-full flex flex-col">
     <!-- Main Content Area -->
     <div
-      class="relative flex-grow h-full flex flex-col box-border overflow-y-auto"
+      class="relative flex-grow h-full flex flex-col box-border overflow-hidden"
       :style="{ width: mainContentWidth, height: mainContentHeight }"
     >
       <!-- Left Toggle Button (inside content) -->
@@ -27,9 +27,9 @@
       <!-- Fullscreen Mode (Desktop, Content Only) -->
       <div
         v-else-if="isFullScreen"
-        class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow box-border"
+        class="h-full w-full overflow-y-auto hide-scrollbar rounded-2xl z-10 flex-grow box-border"
       >
-        <NuxtPage class="h-full w-full overflow-y-auto box-border" />
+        <NuxtPage class="h-full w-full box-border" />
       </div>
 
       <!-- Flip-card Mode (Desktop with Sidebar for Tutorial) -->
@@ -41,9 +41,9 @@
           >
             <!-- Main Content (NuxtPage) -->
             <div
-              class="flip-card-front rounded-2xl overflow-y-auto h-full w-full box-border"
+              class="flip-card-front rounded-2xl overflow-y-auto hide-scrollbar h-full w-full box-border"
             >
-              <NuxtPage class="h-full w-full overflow-y-auto box-border" />
+              <NuxtPage class="h-full w-full box-border" />
             </div>
 
             <!-- Splash Tutorial -->
@@ -64,6 +64,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -77,17 +78,13 @@ const isFullScreen = computed(() => displayStore.isFullScreen)
 const showTutorial = computed(() => displayStore.showTutorial)
 
 // Calculate main content width (subtract sidebar widths)
-const mainContentWidth = computed(() => {
-  return `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`
-})
+const mainContentWidth = computed(() => displayStore.mainWidth)
 
 // Calculate main content height (subtract header and footer heights)
-const mainContentHeight = computed(() => {
-  return `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`
-})
+const mainContentHeight = computed(() => displayStore.mainHeight)
 
 // Calculate height for SplashTutorial (covers main content and footer height, but respects header)
 const splashTutorialHeight = computed(() => {
-  return `calc(100vh - ${displayStore.headerVh}vh)`
+  return `calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)`
 })
 </script>

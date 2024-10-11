@@ -55,7 +55,7 @@ export const useDisplayStore = defineStore('display', {
       const sizes = {
         small: { open: 12, compact: 6, hidden: 1, disabled: 0 },
         medium: { open: 9, compact: 5, hidden: 1, disabled: 0 },
-        large: { open: 8, compact: 4, hidden: 1, disabled: 0 },
+        large: { open: 10, compact: 4, hidden: 1, disabled: 0 },
         extraLarge: { open: 7, compact: 3, hidden: 1, disabled: 0 },
       }[state.viewportSize];
       return sizes[state.headerState] || 6;
@@ -65,7 +65,7 @@ export const useDisplayStore = defineStore('display', {
       const sizes = {
         small: { open: 10, compact: 1, hidden: 1, disabled: 0 },
         medium: { open: 9, compact: 1, hidden: 1, disabled: 0 },
-        large: { open: 8, compact: 1, hidden: 1, disabled: 0 },
+        large: { open: 10, compact: 1, hidden: 1, disabled: 0 },
         extraLarge: { open: 7, compact: 1, hidden: 1, disabled: 0 },
       }[state.viewportSize];
       return sizes[state.footerState] || 3;

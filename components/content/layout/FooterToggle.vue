@@ -5,8 +5,8 @@
       :style="buttonStyle"
       @click="toggleFooter"
     >
-      <!-- Conditionally render the icon based on footer state -->
-      <Icon :name="footerIcon" class="toggle-icon" />
+      <!-- Conditionally render the text character based on footer state -->
+      <span class="toggle-character">{{ footerCharacter }}</span>
     </button>
   </div>
 </template>
@@ -17,20 +17,18 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Compute the icon size
+// Compute the button size
 const buttonStyle = computed(() => {
-  const iconSize = 5
+  const iconSize = 6
   return {
     width: `${iconSize}vh`,
     height: `${iconSize}vh`,
   }
 })
 
-// Determine the footer icon based on whether the footer is open or closed
-const footerIcon = computed(() => {
-  return displayStore.footerState === 'open'
-    ? 'mdi:chevron-down'
-    : 'mdi:chevron-up'
+// Determine the footer character based on whether the footer is open or closed
+const footerCharacter = computed(() => {
+  return displayStore.footerState === 'open' ? '▼' : '▲'
 })
 
 // Toggle footer
@@ -40,15 +38,9 @@ const toggleFooter = () => {
 </script>
 
 <style scoped>
-.toggle-icon {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.toggle-character {
+  font-size: 2rem; /* Adjust the size as needed */
+  line-height: 1;
+  display: inline-block;
 }
 </style>

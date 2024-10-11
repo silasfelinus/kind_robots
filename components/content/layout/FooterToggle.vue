@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center items-end h-full">
     <button
-      class="flex items-center justify-center p-1 hover:bg-secondary rounded-lg"
+      class="flex items-center justify-center p-1 hover:bg-secondary rounded-lg z-50"
       :style="buttonStyle"
       @click="toggleFooter"
     >
@@ -28,7 +28,9 @@ const buttonStyle = computed(() => {
 
 // Determine the footer icon based on whether the footer is open or closed
 const footerIcon = computed(() => {
-  return displayStore.footerState === 'open' ? 'mdi:chevron-down' : 'mdi:chevron-up'
+  return displayStore.footerState === 'open'
+    ? 'mdi:chevron-down'
+    : 'mdi:chevron-up'
 })
 
 // Toggle footer

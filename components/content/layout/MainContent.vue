@@ -64,10 +64,7 @@
         </div>
       </div>
 
-      <!-- Footer Toggle (Bottom Center) -->
-      <footer-toggle
-        class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-7 h-7 z-20 text-accent cursor-pointer box-border"
-      />
+      
     </div>
   </div>
 </template>

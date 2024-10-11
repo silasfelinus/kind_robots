@@ -53,10 +53,10 @@
 
     <!-- Footer -->
     <footer
-      class="fixed bottom-0 left-0 right-0 z-30 box-border p-1"
+      class="fixed bottom-0 left-0 right-0 z-30 box-border bg-info p-1"
       :style="{ height: footerHeight }"
     >
-      <avatar-image v-if="footerOpen" />
+    
     </footer>
   </div>
 </template>

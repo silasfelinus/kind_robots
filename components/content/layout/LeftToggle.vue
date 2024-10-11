@@ -2,7 +2,7 @@
   <div>
     <!-- Toggle button for larger displays (controlled by parent container) -->
     <button
-      class="flex items-center justify-center text-accent rounded-lg shadow-lg hover:bg-secondary"
+      class="flex items-center justify-center text-accent rounded-lg shadow-lg hover:bg-secondary text-lg"
       @click="toggleSidebarLeft"
     >
       {{ iconText }}

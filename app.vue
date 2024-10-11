@@ -4,7 +4,7 @@
     <kind-loader />
     <animation-loader />
 
-    <!-- Grid Container: Header, Content, Right Sidebar -->
+    <!-- Grid Container: Header, Content, Right Sidebar, Footer -->
     <div
       class="grid h-screen w-screen box-border"
       :style="{
@@ -15,7 +15,7 @@
     >
       <!-- Header (Top row, spans all columns) -->
       <header
-        class="fixed flex items-center justify-center z-30 w-full box-border"
+        class="flex items-center justify-center z-30 w-full box-border"
         :style="{
           height: headerHeight,
           width: '100vw',
@@ -51,7 +51,7 @@
         <main-content />
       </main>
 
-      <!-- Right Sidebar (Center and Bottom-Right cells) -->
+      <!-- Right Sidebar (Center-right cell) -->
       <aside
         class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border"
         :style="{
@@ -62,15 +62,15 @@
       >
         <splash-tutorial v-if="showTutorial" class="h-full w-full" />
       </aside>
-    </div>
 
-    <!-- Fixed Footer (Independent of the grid) -->
-    <footer
-      class="fixed bottom-0 left-0 w-full z-30 box-border border-4 p-1 bg-base-200"
-      :style="{ height: footerHeight }"
-    >
-      <horizontal-nav v-if="footerOpen" />
-    </footer>
+      <!-- Footer (Bottom row, spans all columns) -->
+      <footer
+        class="z-30 box-border border-4 p-1 bg-base-200"
+        :style="{ height: footerHeight, gridArea: 'footer' }"
+      >
+        <horizontal-nav v-if="footerOpen" />
+      </footer>
+    </div>
   </div>
 </template>
 
@@ -100,7 +100,7 @@ const mainHeight = computed(() => {
 
 // Calculate the height of the sidebars (subtract only the header height)
 const sidebarHeight = computed(() => {
-  return `calc(100vh - ${headerHeight.value})`
+  return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
 })
 
 // Define grid areas for the layout
@@ -108,13 +108,14 @@ const gridAreas = computed(
   () => `
   "header header header"
   "sidebar-left main sidebar-right"
+  "footer footer footer"
 `,
 )
 
 // Define explicit grid rows and columns
 const gridRows = computed(
   () => `
-  ${headerHeight.value} 1fr
+  ${headerHeight.value} 1fr ${footerHeight.value}
 `,
 )
 

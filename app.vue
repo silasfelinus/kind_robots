@@ -18,8 +18,8 @@
       :class="{ 'overflow-hidden': !sidebarLeftOpen }"
       :style="{
         width: sidebarLeftWidth,
-        top: headerHeight, 
-        bottom: footerHeight
+        top: headerHeight,
+        bottom: footerHeight,
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -45,10 +45,10 @@
       :style="{
         width: sidebarRightWidth,
         top: headerHeight,
-        bottom: footerHeight
+        bottom: footerHeight,
       }"
     >
-      <splash-tutorial v-if="showTutorial" class="h-full w-full" />
+      <splash-tutorial v-if="showTutorial" class="h-full w-full bg-primary" />
     </aside>
 
     <!-- Footer -->
@@ -68,14 +68,18 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 
 // Compute header height
-const headerHeight = computed(() => `calc(var(--vh) * ${displayStore.headerVh})`)
+const headerHeight = computed(
+  () => `calc(var(--vh) * ${displayStore.headerVh})`,
+)
 
 // Sidebar widths for left and right
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 
 // Footer height
-const footerHeight = computed(() => `calc(var(--vh) * ${displayStore.footerVh})`)
+const footerHeight = computed(
+  () => `calc(var(--vh) * ${displayStore.footerVh})`,
+)
 
 // Control for tutorial visibility
 const showTutorial = computed(() => displayStore.showTutorial)
@@ -84,5 +88,7 @@ const showTutorial = computed(() => displayStore.showTutorial)
 const footerOpen = computed(() => displayStore.footerState === 'open')
 
 // Check if the left sidebar is open
-const sidebarLeftOpen = computed(() => displayStore.sidebarLeftState !== 'hidden')
+const sidebarLeftOpen = computed(
+  () => displayStore.sidebarLeftState !== 'hidden',
+)
 </script>

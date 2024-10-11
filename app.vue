@@ -27,12 +27,13 @@
 
     <!-- Main Content -->
     <main
-      class="fixed top-0 left-0 right-0 z-10 box-border p-1 overflow-hidden transition-all duration-300"
+      class="relative z-10 box-border p-1 overflow-hidden transition-all duration-300"
       :style="{
         height: mainHeight,
         marginTop: headerHeight,
         marginLeft: sidebarLeftWidth,
         marginRight: sidebarRightWidth,
+        paddingBottom: footerHeight,  // Add padding at the bottom for the footer
       }"
     >
       <main-content />
@@ -56,7 +57,7 @@
       class="fixed bottom-0 left-0 right-0 z-30 box-border bg-info p-1"
       :style="{ height: footerHeight }"
     >
-    
+      <horizontal-nav v-if="footerOpen" />
     </footer>
   </div>
 </template>

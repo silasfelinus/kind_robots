@@ -7,12 +7,12 @@
     >
       <!-- Left Toggle Button (inside content) -->
       <left-toggle
-        class="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
+        class="absolute left-0 top-1/2 transform -translate-y-1/2 w-10 h-10 z-40 text-accent cursor-pointer box-border"
       />
 
       <!-- Right Sidebar Toggle (inside content) -->
       <right-toggle
-        class="absolute right-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
+        class="absolute right-0 top-1/2 transform -translate-y-1/2 w-10 h-10 z-40 text-accent cursor-pointer box-border"
       />
 
       <!-- Main Content (Tutorial or Content) -->

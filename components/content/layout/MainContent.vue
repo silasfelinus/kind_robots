@@ -52,7 +52,7 @@
             <!-- Splash Tutorial -->
             <div
               class="flip-card-back rounded-2xl h-full w-full box-border"
-              :style="{ height: splashTutorialHeight }"
+              :style="{ height: mainContentHeight }"
             >
               <SplashTutorial class="h-full w-full box-border" />
             </div>
@@ -86,8 +86,4 @@ const mainContentWidth = computed(() => displayStore.mainWidth)
 // Calculate main content height (subtract header and footer heights)
 const mainContentHeight = computed(() => displayStore.mainHeight)
 
-// Calculate height for SplashTutorial (covers main content and footer height, but respects header)
-const splashTutorialHeight = computed(() => {
-  return calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)
-})
 </script>

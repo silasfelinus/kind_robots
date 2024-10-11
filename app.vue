@@ -39,7 +39,7 @@
 
       <!-- Main Content (Center-middle cell) -->
       <main
-        class="p-1 z-10 overflow-hidden box-border rounded-2xl border-4 bg-primary"
+        class="p-1 z-10 overflow-hidden box-border rounded-2xl border-4 bg-primary fixed"
         :style="{
           gridArea: 'main',
           height: mainHeight,

@@ -6,7 +6,7 @@
       :style="{
         width: displayStore.sidebarLeftWidth,
         top: `${displayStore.headerHeight}vh`,
-        height: `calc(100vh - ${displayStore.headerHeight}vh - ${displayStore.footerHeight}vh)`,
+        height: `calc(100vh - ${displayStore.headerHeight} - ${displayStore.footerHeight})`,
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->

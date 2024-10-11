@@ -15,8 +15,8 @@
 
     <!-- Main Content Section -->
     <div
-      class="flex-1 flex flex-col items-center justify-between p-4 space-y-1 overflow-hidden"
-      :style="{ height: displayStore.mainHeight + 'vh' }"
+      class="flex-1 flex flex-col items-center justify-between p-4 box-border overflow-hidden"
+      :style="{ height: displayStore.mainHeight }"
     >
       <!-- Main Image -->
       <img
@@ -30,7 +30,7 @@
       <div class="text-center w-full space-y-1 lg:space-y-2 flex-shrink-0">
         <h1
           v-if="page && page.title"
-          class="text-2xl lg:text-4xl font-bold truncate bg-primary text-white rounded-xl p-1"
+          class="text-2xl lg:text-4xl font-bold truncate bg-primary text-white rounded-xl p-1 box-border"
         >
           {{ page.title }}
         </h1>

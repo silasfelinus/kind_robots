@@ -62,14 +62,6 @@
       >
         <splash-tutorial v-if="showTutorial" class="h-full w-full" />
       </aside>
-
-      <!-- Navbar Toggle (Bottom-Left Corner) -->
-      <div
-        class="absolute bottom-4 left-4 p-2 bg-accent rounded-full box-border shadow-lg z-30"
-        :style="{ gridArea: 'navbar-toggle' }"
-      >
-        <navbar-toggle />
-      </div>
     </div>
 
     <!-- Fixed Footer (Independent of the grid) -->

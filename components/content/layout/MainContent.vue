@@ -1,63 +1,70 @@
 <template>
-  <div class="main-layout h-screen relative bg-primary box-border">
-    <!-- Loaders -->
-    <kind-loader />
-    <animation-loader />
-
-    <!-- Header -->
-    <header
-      class="fixed top-0 left-0 w-full z-30 flex items-center justify-center box-border p-1"
-      :style="{ height: headerHeight }"
+  <div class="relative h-full flex flex-col border-4 rounded-2xl bg-base-300">
+    <!-- Main Content Area -->
+    <div
+      class="relative flex-grow h-full flex flex-col box-border overflow-hidden"
+      :style="{ width: mainContentWidth, height: mainContentHeight }"
     >
-      <header-upgrade class="flex-grow text-center" />
-    </header>
+      <!-- Left Toggle Button (inside content) -->
+      <left-toggle
+        class="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
+      />
 
-    <!-- Left Sidebar -->
-    <aside
-      class="fixed top-0 left-0 z-20 box-border p-1 transition-all duration-500 ease-in-out"
-      :class="{ 'overflow-hidden': !sidebarLeftOpen }"
-      :style="{ 
-        width: sidebarLeftWidth, 
-        height: sidebarHeight, 
-        marginTop: headerHeight 
-      }"
-    >
-      <kind-sidebar-simple v-if="sidebarLeftOpen" />
-    </aside>
+      <!-- Right Sidebar Toggle (inside content) -->
+      <right-toggle
+        class="absolute right-0 top-1/2 transform -translate-y-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
+      />
 
-    <!-- Main Content -->
-    <main
-      class="fixed top-0 left-0 right-0 z-10 box-border p-1 overflow-hidden transition-all duration-300"
-      :style="{
-        height: mainHeight,
-        marginTop: headerHeight,
-        marginLeft: sidebarLeftWidth,
-        marginRight: sidebarRightWidth,
-      }"
-    >
-      <main-content />
-    </main>
+      <!-- Main Content (Tutorial or Content) -->
+      <div v-if="isMobile" class="flex-grow box-border">
+        <SplashTutorial
+          v-if="showTutorial"
+          class="h-full w-full z-10 rounded-2xl box-border"
+        />
+        <NuxtPage
+          v-else
+          class="overflow-y-auto h-full w-full z-10 rounded-2xl box-border"
+        />
+      </div>
 
-    <!-- Right Sidebar -->
-    <aside
-      class="fixed top-0 right-0 z-20 box-border p-1 transition-all duration-500 ease-in-out"
-      :class="{ 'overflow-hidden': !showTutorial }"
-      :style="{ 
-        width: sidebarRightWidth, 
-        height: sidebarHeight, 
-        marginTop: headerHeight 
-      }"
-    >
-      <splash-tutorial v-if="showTutorial" class="h-full w-full" />
-    </aside>
+      <!-- Fullscreen Mode (Desktop, Content Only) -->
+      <div
+        v-else-if="isFullScreen"
+        class="h-full w-full overflow-y-auto hide-scrollbar rounded-2xl z-10 flex-grow box-border"
+      >
+        <NuxtPage class="overflow-y-auto h-full w-full box-border" />
+      </div>
 
-    <!-- Footer -->
-    <footer
-      class="fixed bottom-0 left-0 right-0 z-30 box-border p-1"
-      :style="{ height: footerHeight }"
-    >
-      <horizontal-nav v-if="footerOpen" />
-    </footer>
+      <!-- Flip-card Mode (Desktop with Sidebar for Tutorial) -->
+      <div v-else class="relative flex-grow z-10 flex flex-col box-border">
+        <div class="flip-card flex-grow box-border">
+          <div
+            class="flip-card-inner box-border"
+            :class="{ flipped: showTutorial }"
+          >
+            <!-- Main Content (NuxtPage) -->
+            <div
+              class="flip-card-front rounded-2xl hide-scrollbar h-full w-full box-border"
+            >
+              <NuxtPage class="overflow-y-auto h-full w-full box-border" />
+            </div>
+
+            <!-- Splash Tutorial -->
+            <div
+              class="flip-card-back rounded-2xl h-full w-full box-border"
+              :style="{ height: splashTutorialHeight }"
+            >
+              <SplashTutorial class="h-full w-full box-border" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Toggle (Bottom Center) -->
+      <footer-toggle
+        class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-7 h-7 z-20 text-accent cursor-pointer box-border"
+      />
+    </div>
   </div>
 </template>
 
@@ -65,30 +72,22 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Access the displayStore for managing the layout state
+// Access layout-related data and state from displayStore
 const displayStore = useDisplayStore()
 
-// Compute layout heights and widths based on store state
-const headerHeight = computed(() => displayStore.headerHeight)
-const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
-const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const footerHeight = computed(() => displayStore.footerHeight)
+// Layout dimensions and state
+const isMobile = computed(() => displayStore.isMobileViewport)
+const isFullScreen = computed(() => displayStore.isFullScreen)
 const showTutorial = computed(() => displayStore.showTutorial)
 
-const footerOpen = computed(() => displayStore.footerState === 'open')
-const sidebarLeftOpen = computed(() => displayStore.sidebarLeftState !== 'hidden')
+// Calculate main content width (subtract sidebar widths)
+const mainContentWidth = computed(() => displayStore.mainWidth)
 
-// Calculate the height of the main content area dynamically based on the viewport
-const mainHeight = computed(() => {
-  return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
-})
+// Calculate main content height (subtract header and footer heights)
+const mainContentHeight = computed(() => displayStore.mainHeight)
 
-// Calculate the height of the sidebars (subtract both header and footer height)
-const sidebarHeight = computed(() => {
-  return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
+// Calculate height for SplashTutorial (covers main content and footer height, but respects header)
+const splashTutorialHeight = computed(() => {
+  return calc(100vh - ${displayStore.headerVh}vh - ${displayStore.footerVh}vh)
 })
 </script>
-
-<style scoped>
-/* Additional styles if needed */
-</style>

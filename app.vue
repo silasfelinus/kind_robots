@@ -6,7 +6,7 @@
 
     <!-- Header -->
     <header
-      class="fixed top-0 left-0 w-full z-30 flex items-center justify-center box-border p-1"
+      class="fixed top-0 left-0 w-full z-30 flex items-center justify-center bg-primary box-border p-1"
       :style="{ height: headerHeight }"
     >
       <header-upgrade class="flex-grow text-center" />

@@ -90,14 +90,6 @@ export const useDisplayStore = defineStore('display', {
       }[state.viewportSize];
       return sizes[state.sidebarRightState] || 2;
     },
-    mainHeight(): string {
-      return `calc(100vh - ${this.headerVh}vh - ${this.footerVh}vh)`;
-    },
-
-    mainWidth(): string {
-      return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
-    },
-
     mainVh(): number {
       return 100 - this.headerVh - this.footerVh;
     },
@@ -107,21 +99,33 @@ export const useDisplayStore = defineStore('display', {
     },
     
     headerHeight(): string {
-      return `${this.headerVh}vh`
+      return `calc(var(--vh) * ${this.headerVh})`;
     },
-
+    
     footerHeight(): string {
-      return `${this.footerVh}vh`
+      return `calc(var(--vh) * ${this.footerVh})`;
     },
-
+    
+    footerWidth(): string {
+      return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
+    },
+    
+    mainWidth(): string {
+      return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
+    },
+    
+    mainHeight(): string {
+      return `calc(var(--vh) * 100 - var(--vh) * ${this.headerVh} - var(--vh) * ${this.footerVh})`;
+    },
+    
     sidebarLeftWidth(): string {
-      return `${this.sidebarLeftVw}vw`
+      return `${this.sidebarLeftVw}vw`;
     },
-
+    
     sidebarRightWidth(): string {
-      return `${this.sidebarRightVw}vw`
+      return `${this.sidebarRightVw}vw`;
     },
-
+    
     gridColumns(): string {
       return `${this.sidebarLeftVw}vw 1fr ${this.sidebarRightVw}vw`
     },
@@ -131,9 +135,7 @@ export const useDisplayStore = defineStore('display', {
       return `${this.headerHeight} 1fr`;
     },
 
-    footerWidth(): string {
-      return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
-    },
+
     isLargeViewport(state): boolean {
       return ['large', 'extraLarge'].includes(state.viewportSize);
     },
@@ -289,6 +291,7 @@ export const useDisplayStore = defineStore('display', {
         document.documentElement.style.setProperty('--vh', `${vh}px`);
       }
     },
+    
 
     toggleFlipState() {
       // Manage the flip transition based on current state

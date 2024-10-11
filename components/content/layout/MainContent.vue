@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-full flex flex-col border-4 rounded-2xl bg-base-300">
+  <div class="relative h-full flex flex-col rounded-2xl bg-base-300">
     <!-- Main Content Area -->
     <div
       class="relative flex-grow h-full flex flex-col box-border overflow-hidden"
@@ -85,5 +85,4 @@ const mainContentWidth = computed(() => displayStore.mainWidth)
 
 // Calculate main content height (subtract header and footer heights)
 const mainContentHeight = computed(() => displayStore.mainHeight)
-
 </script>

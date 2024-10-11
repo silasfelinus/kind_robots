@@ -71,14 +71,14 @@ import { useDisplayStore } from '@/stores/displayStore'
 // Access the displayStore for managing the layout state
 const displayStore = useDisplayStore()
 
-// Compute header height
+// Compute header height using modified vh
 const headerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.headerVh})`,
 )
 
 // Sidebar widths for left and right
-const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
-const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+const sidebarLeftWidth = computed(() => `${displayStore.sidebarLeftVw}vw`)
+const sidebarRightWidth = computed(() => `${displayStore.sidebarRightVw}vw`)
 
 // Footer height
 const footerHeight = computed(

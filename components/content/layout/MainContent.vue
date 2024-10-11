@@ -59,7 +59,7 @@
 
       <!-- Footer Toggle (Bottom Center) -->
       <footer-toggle
-        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-8 z-20 text-accent cursor-pointer box-border"
+        class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-7 h-7 z-20 text-accent cursor-pointer box-border"
       />
     </div>
   </div>

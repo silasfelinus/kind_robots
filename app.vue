@@ -27,7 +27,7 @@
 
       <!-- Left Sidebar (Center-left cell) -->
       <aside
-        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border bg-base-300 p-1"
+        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border p-1"
         :style="{
           width: sidebarLeftWidth,
           height: sidebarHeight,

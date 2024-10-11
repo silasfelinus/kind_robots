@@ -6,11 +6,11 @@
       :style="{
         width: displayStore.sidebarLeftWidth,
         top: `${displayStore.headerHeight}vh`,
-        height: `calc(100vh - ${displayStore.headerHeight}vh)`,
+        height: `calc(100vh - ${displayStore.headerHeight}vh - ${displayStore.footerHeight}vh)`,
       }"
     >
       <!-- Sidebar Links with Icons and Titles -->
-      <div class="flex flex-col flex-grow justify-between">
+      <div class="flex flex-col justify-between flex-grow">
         <div
           v-for="link in hardcodedLinks"
           :key="link.title"
@@ -19,7 +19,7 @@
           <!-- Navigation click event -->
           <a
             v-if="displayStore.sidebarLeftState !== 'hidden'"
-            class="flex items-center cursor-pointer"
+            class="flex items-center cursor-pointer w-full"
             @click.prevent="navigate(link.path)"
           >
             <!-- Only show icon if sidebar is open or compact -->

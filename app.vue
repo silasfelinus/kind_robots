@@ -15,7 +15,7 @@
     >
       <!-- Header (Top row, spans all columns) -->
       <header
-        class="flex items-center justify-center z-30 w-full box-border"
+        class="fixed flex items-center justify-center z-30 w-full box-border"
         :style="{
           height: headerHeight,
           width: '100vw',
@@ -39,7 +39,7 @@
 
       <!-- Main Content (Center-middle cell) -->
       <main
-        class="p-1 z-10 overflow-hidden box-border rounded-2xl, border-4 bg-primary"
+        class="p-1 z-10 overflow-hidden box-border rounded-2xl border-4 bg-primary"
         :style="{
           gridArea: 'main',
           height: mainHeight,
@@ -53,7 +53,7 @@
 
       <!-- Right Sidebar (Center and Bottom-Right cells) -->
       <aside
-        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border"
+        class="z-20 transition-all duration-500 ease-in-out overflow-hidden fixed box-border"
         :style="{
           width: sidebarRightWidth,
           height: sidebarHeight,
@@ -74,7 +74,7 @@
 
     <!-- Fixed Footer (Independent of the grid) -->
     <footer
-      class="fixed bottom-0 left-0 w-full z-30 box-border bg-base-200"
+      class="fixed bottom-0 left-0 w-full z-30 box-border border-4 p-1 bg-base-200"
       :style="{ height: footerHeight }"
     >
       <horizontal-nav v-if="footerOpen" />
@@ -103,7 +103,7 @@ const sidebarLeftOpen = computed(
 
 // Calculate the height of the main content area dynamically based on the viewport
 const mainHeight = computed(() => {
-  return `calc(100vh - ${headerHeight.value})`
+  return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
 })
 
 // Calculate the height of the sidebars (subtract only the header height)

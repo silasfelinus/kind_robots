@@ -1,7 +1,7 @@
 <template>
   <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
     <button
-      class="flex items-center justify-center p-1 hover:bg-secondary rounded-lg"
+      class="flex items-center justify-center hover:bg-secondary rounded-lg"
       :style="buttonStyle"
       @click="toggleFooter"
     >

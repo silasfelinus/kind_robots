@@ -21,24 +21,16 @@ const rightIconText = computed(() => {
   return displayStore.sidebarRightState === 'hidden' ? '<' : '>'
 })
 
-// Function to toggle tutorial and sidebar logic based on screen size
+// Function to toggle tutorial and sidebar
 const toggleTutorialWithSidebar = () => {
-  const isLargeOrExtraLarge =
-    displayStore.viewportSize === 'large' ||
-    displayStore.viewportSize === 'extraLarge'
-  const isSmallOrMedium =
-    displayStore.viewportSize === 'small' ||
-    displayStore.viewportSize === 'medium'
-
-  // If screen is small or medium, just toggle the tutorial
-  if (isSmallOrMedium) {
-    displayStore.toggleTutorial()
-    return
-  }
-
-  // On large or extra-large screens, simply call the toggleFullScreen action from the store
-  if (isLargeOrExtraLarge) {
-    displayStore.toggleFullScreen()
+  // If the sidebar is hidden, we open it and show the tutorial
+  if (displayStore.sidebarRightState === 'hidden') {
+    displayStore.sidebarRightState = 'open'
+    displayStore.showTutorial = true
+  } else {
+    // If the sidebar is open, we close it and hide the tutorial
+    displayStore.sidebarRightState = 'hidden'
+    displayStore.showTutorial = false
   }
 }
 </script>

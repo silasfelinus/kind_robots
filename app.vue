@@ -50,7 +50,7 @@
         margin: '1px',
       }"
     >
-      <splash-tutorial v-if="showTutorial" class="h-full w-full bg-primary" />
+      <splash-tutorial v-if="showTutorial" class="h-full w-full" />
     </aside>
 
     <!-- Footer -->

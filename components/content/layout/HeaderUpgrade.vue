@@ -8,11 +8,6 @@
     <!-- Left Section: Avatar -->
     <div class="flex items-center box-border relative">
       <avatar-image
-        alt="User Avatar"
-        class="aspect-square min-h-8 min-w-8 rounded-2xl"
-        :style="{
-          height: '100%', // Fills the available height of the header
-        }"
       />
 
       <!-- Special Overlay: Shows viewportSize from displayStore -->

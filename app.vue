@@ -93,35 +93,3 @@ const sidebarLeftOpen = computed(
 )
 </script>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
-
-// Access the displayStore for managing the layout state
-const displayStore = useDisplayStore()
-
-// Compute header height
-const headerHeight = computed(
-  () => `calc(var(--vh) * ${displayStore.headerVh})`,
-)
-
-// Sidebar widths for left and right
-const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
-const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-
-// Footer height
-const footerHeight = computed(
-  () => `calc(var(--vh) * ${displayStore.footerVh})`,
-)
-
-// Control for tutorial visibility
-const showTutorial = computed(() => displayStore.showTutorial)
-
-// Check if the footer is open
-const footerOpen = computed(() => displayStore.footerState === 'open')
-
-// Check if the left sidebar is open
-const sidebarLeftOpen = computed(
-  () => displayStore.sidebarLeftState !== 'hidden',
-)
-</script>

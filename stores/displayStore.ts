@@ -199,16 +199,19 @@ export const useDisplayStore = defineStore('display', {
         this.fullscreenState = 'fullscreen';
         this.isFullScreen = true;
         this.sidebarRightState = 'open'; 
+        this.showTutorial = true;
       } else if (this.fullscreenState === 'fullscreen') {
         // Move to splash state
         this.fullscreenState = 'splash';
+        this.sidebarRightState = 'hidden'; 
         this.isFullScreen = false;
         this.showTutorial = true;
       } else {
         // Move back to nuxt state
         this.fullscreenState = 'nuxt';
         this.isFullScreen = false;
-        this.sidebarRightState = 'hidden';
+        this.sidebarRightState = 'hidden'
+        this.showTutorial = false;
       }
 
       this.saveState(); 

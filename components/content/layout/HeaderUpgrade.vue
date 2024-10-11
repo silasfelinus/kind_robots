@@ -2,7 +2,7 @@
   <header
     class="flex items-center h-full justify-between bg-base-300 rounded-2xl border-4 p-1 z-30 max-w-full box-border"
     :style="{
-      height: displayStore.headerHeight + 'vh',
+      height: displayStore.headerHeight,
     }"
   >
     <!-- Left Section: Avatar -->

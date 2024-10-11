@@ -39,7 +39,7 @@
 
       <!-- Main Content (Center-middle cell) -->
       <main
-        class="z-10 overflow-hidden box-border p-1 bg-base-300"
+        class="z-10 overflow-hidden box-border p-1"
         :style="{
           gridArea: 'main',
           height: mainHeight,
@@ -53,7 +53,7 @@
 
       <!-- Right Sidebar (Center-right cell) -->
       <aside
-        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border p-1 bg-base-300"
+        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border p-1"
         :style="{
           width: sidebarRightWidth,
           height: sidebarHeight,
@@ -65,7 +65,7 @@
 
       <!-- Footer (Bottom row, spans all columns) -->
       <footer
-        class="z-30 box-border p-1 bg-base-300"
+        class="z-30 box-border p-1"
         :style="{ height: footerHeight, gridArea: 'footer' }"
       >
         <horizontal-nav v-if="footerOpen" />

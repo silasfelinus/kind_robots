@@ -16,12 +16,15 @@
       />
 
       <!-- Main Content (Tutorial or Content) -->
-      <div v-if="isMobile" class="flex-grow overflow-y-auto box-border">
+      <div v-if="isMobile" class="flex-grow box-border">
         <SplashTutorial
           v-if="showTutorial"
           class="h-full w-full z-10 rounded-2xl box-border"
         />
-        <NuxtPage v-else class="h-full w-full z-10 rounded-2xl box-border" />
+        <NuxtPage
+          v-else
+          class="overflow-y-auto h-full w-full z-10 rounded-2xl box-border"
+        />
       </div>
 
       <!-- Fullscreen Mode (Desktop, Content Only) -->
@@ -29,7 +32,7 @@
         v-else-if="isFullScreen"
         class="h-full w-full overflow-y-auto hide-scrollbar rounded-2xl z-10 flex-grow box-border"
       >
-        <NuxtPage class="h-full w-full box-border" />
+        <NuxtPage class="overflow-y-auto h-full w-full box-border" />
       </div>
 
       <!-- Flip-card Mode (Desktop with Sidebar for Tutorial) -->
@@ -41,9 +44,9 @@
           >
             <!-- Main Content (NuxtPage) -->
             <div
-              class="flip-card-front rounded-2xl overflow-y-auto hide-scrollbar h-full w-full box-border"
+              class="flip-card-front rounded-2xl hide-scrollbar h-full w-full box-border"
             >
-              <NuxtPage class="h-full w-full box-border" />
+              <NuxtPage class="overflow-y-auto h-full w-full box-border" />
             </div>
 
             <!-- Splash Tutorial -->

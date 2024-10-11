@@ -7,7 +7,7 @@
     <!-- Header -->
     <header
       class="fixed top-0 left-0 w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden"
-      :style="{ height: headerHeight }"
+      :style="{ height: `calc(${headerHeight} - 2px)`, margin: '1px' }"
     >
       <header-upgrade class="flex-grow text-center" />
     </header>
@@ -17,9 +17,10 @@
       class="fixed left-0 z-20 box-border transition-all duration-500 ease-in-out overflow-hidden"
       :class="{ 'overflow-hidden': !sidebarLeftOpen }"
       :style="{
-        width: sidebarLeftWidth,
-        top: headerHeight,
-        bottom: footerHeight,
+        width: `calc(${sidebarLeftWidth} - 2px)`,
+        top: `calc(${headerHeight} + 1px)`,
+        bottom: `calc(${footerHeight} + 1px)`,
+        margin: '1px',
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -29,10 +30,11 @@
     <main
       class="absolute z-10 box-border overflow-hidden transition-all duration-300"
       :style="{
-        top: headerHeight,
-        bottom: footerHeight,
-        marginLeft: sidebarLeftWidth,
-        marginRight: sidebarRightWidth,
+        top: `calc(${headerHeight} + 1px)`,
+        bottom: `calc(${footerHeight} + 1px)`,
+        marginLeft: `calc(${sidebarLeftWidth} + 1px)`,
+        marginRight: `calc(${sidebarRightWidth} + 1px)`,
+        margin: '1px',
       }"
     >
       <main-content />
@@ -42,9 +44,10 @@
     <aside
       class="fixed right-0 z-20 box-border transition-all duration-500 ease-in-out bg-primary overflow-hidden"
       :style="{
-        width: sidebarRightWidth,
-        top: headerHeight,
-        bottom: footerHeight,
+        width: `calc(${sidebarRightWidth} - 2px)`,
+        top: `calc(${headerHeight} + 1px)`,
+        bottom: `calc(${footerHeight} + 1px)`,
+        margin: '1px',
       }"
     >
       <splash-tutorial v-if="showTutorial" class="h-full w-full bg-primary" />
@@ -53,13 +56,14 @@
     <!-- Footer -->
     <footer
       class="fixed bottom-0 left-0 right-0 z-30 box-border overflow-hidden"
-      :style="{ height: footerHeight }"
+      :style="{ height: `calc(${footerHeight} - 2px)`, margin: '1px' }"
     >
       <footer-toggle />
       <horizontal-nav v-if="footerOpen" />
     </footer>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'

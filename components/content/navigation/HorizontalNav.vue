@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center p-1 bg-base-200 box-border">
+  <div class="flex justify-center bg-base-200">
     <!-- Horizontal Nav Icons with Words Above -->
     <div class="flex justify-evenly w-full space-x-3 box-border items-end">
       <div

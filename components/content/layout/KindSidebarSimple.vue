@@ -2,7 +2,7 @@
   <div class="flex">
     <!-- Left Sidebar -->
     <aside
-      class="transition-all duration-300 rounded-2xl border-4 box-border bg-base-300 hide-scrollbar p-1 fixed left-0 overflow-y-auto flex flex-col justify-between"
+      class="transition-all duration-300 bg-base-300 cfixed left-0 overflow-y-auto flex flex-col justify-between"
       :style="{
         width: displayStore.sidebarLeftWidth,
         top: `${displayStore.headerHeight}vh`,

@@ -15,7 +15,7 @@
     >
       <!-- Header (Top row, spans all columns) -->
       <header
-        class="flex items-center justify-center z-30 w-full box-border"
+        class="flex items-center justify-center z-30 w-full box-border border-4 rounded-2xl m-1 p-1"
         :style="{
           height: headerHeight,
           width: '100vw',
@@ -27,7 +27,7 @@
 
       <!-- Left Sidebar (Center-left cell) -->
       <aside
-        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border"
+        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border border-4 rounded-2xl m-1 p-1"
         :style="{
           width: sidebarLeftWidth,
           height: sidebarHeight,
@@ -39,7 +39,7 @@
 
       <!-- Main Content (Center-middle cell) -->
       <main
-        class="p-1 z-10 overflow-hidden box-border rounded-2xl border-4 bg-primary"
+        class="z-10 overflow-hidden box-border border-4 rounded-2xl m-1 p-1 bg-primary"
         :style="{
           gridArea: 'main',
           height: mainHeight,
@@ -53,7 +53,7 @@
 
       <!-- Right Sidebar (Center-right cell) -->
       <aside
-        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border"
+        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border border-4 rounded-2xl m-1 p-1"
         :style="{
           width: sidebarRightWidth,
           height: sidebarHeight,
@@ -65,7 +65,7 @@
 
       <!-- Footer (Bottom row, spans all columns) -->
       <footer
-        class="z-30 box-border border-4 p-1 bg-base-200"
+        class="z-30 box-border border-4 rounded-2xl m-1 p-1 bg-base-200"
         :style="{ height: footerHeight, gridArea: 'footer' }"
       >
         <horizontal-nav v-if="footerOpen" />

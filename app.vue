@@ -1,76 +1,63 @@
 <template>
-  <div class="main-layout h-screen relative box-border bg-primary">
+  <div class="main-layout h-screen relative bg-primary box-border">
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
 
-    <!-- Grid Container: Header, Content, Right Sidebar, Footer -->
-    <div
-      class="grid h-screen w-screen gap-2 box-border"
-      :style="{
-        'grid-template-areas': gridAreas,
-        'grid-template-columns': gridColumns,
-        'grid-template-rows': gridRows,
+    <!-- Header -->
+    <header
+      class="fixed top-0 left-0 w-full z-30 flex items-center justify-center box-border p-1"
+      :style="{ height: headerHeight }"
+    >
+      <header-upgrade class="flex-grow text-center" />
+    </header>
+
+    <!-- Left Sidebar -->
+    <aside
+      class="fixed top-0 left-0 z-20 box-border p-1 transition-all duration-500 ease-in-out"
+      :class="{ 'overflow-hidden': !sidebarLeftOpen }"
+      :style="{ 
+        width: sidebarLeftWidth, 
+        height: sidebarHeight, 
+        marginTop: headerHeight 
       }"
     >
-      <!-- Header (Top row, spans all columns) -->
-      <header
-        class="flex items-center justify-center z-30 w-full box-border p-1 overflow-y-hidden"
-        :style="{
-          height: headerHeight,
-          width: '100vw',
-          gridArea: 'header',
-        }"
-      >
-        <header-upgrade class="flex-grow text-center" />
-      </header>
+      <kind-sidebar-simple v-if="sidebarLeftOpen" />
+    </aside>
 
-      <!-- Left Sidebar (Center-left cell) -->
-      <aside
-        class="relative z-20 transition-all duration-500 ease-in-out overflow-hidden box-border p-1"
-        :style="{
-          width: sidebarLeftWidth,
-          height: sidebarHeight,
-          gridArea: 'sidebar-left',
-        }"
-      >
-        <kind-sidebar-simple v-if="sidebarLeftOpen" />
-      </aside>
+    <!-- Main Content -->
+    <main
+      class="fixed top-0 left-0 right-0 z-10 box-border p-1 overflow-hidden transition-all duration-300"
+      :style="{
+        height: mainHeight,
+        marginTop: headerHeight,
+        marginLeft: sidebarLeftWidth,
+        marginRight: sidebarRightWidth,
+      }"
+    >
+      <main-content />
+    </main>
 
-      <!-- Main Content (Center-middle cell) -->
-      <main
-        class="z-10 overflow-hidden box-border p-1"
-        :style="{
-          gridArea: 'main',
-          height: mainHeight,
-        }"
-        :class="{
-          'transition-all duration-300': true,
-        }"
-      >
-        <main-content />
-      </main>
+    <!-- Right Sidebar -->
+    <aside
+      class="fixed top-0 right-0 z-20 box-border p-1 transition-all duration-500 ease-in-out"
+      :class="{ 'overflow-hidden': !showTutorial }"
+      :style="{ 
+        width: sidebarRightWidth, 
+        height: sidebarHeight, 
+        marginTop: headerHeight 
+      }"
+    >
+      <splash-tutorial v-if="showTutorial" class="h-full w-full" />
+    </aside>
 
-      <!-- Right Sidebar (Center-right cell) -->
-      <aside
-        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border p-1"
-        :style="{
-          width: sidebarRightWidth,
-          height: sidebarHeight,
-          gridArea: 'sidebar-right',
-        }"
-      >
-        <splash-tutorial v-if="showTutorial" class="h-full w-full" />
-      </aside>
-
-      <!-- Footer (Bottom row, spans all columns) -->
-      <footer
-        class="z-30 box-border p-1"
-        :style="{ height: footerHeight, gridArea: 'footer' }"
-      >
-        <horizontal-nav v-if="footerOpen" />
-      </footer>
-    </div>
+    <!-- Footer -->
+    <footer
+      class="fixed bottom-0 left-0 right-0 z-30 box-border p-1"
+      :style="{ height: footerHeight }"
+    >
+      <horizontal-nav v-if="footerOpen" />
+    </footer>
   </div>
 </template>
 
@@ -89,41 +76,17 @@ const footerHeight = computed(() => displayStore.footerHeight)
 const showTutorial = computed(() => displayStore.showTutorial)
 
 const footerOpen = computed(() => displayStore.footerState === 'open')
-const sidebarLeftOpen = computed(
-  () => displayStore.sidebarLeftState !== 'hidden',
-)
+const sidebarLeftOpen = computed(() => displayStore.sidebarLeftState !== 'hidden')
 
 // Calculate the height of the main content area dynamically based on the viewport
 const mainHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
 })
 
-// Calculate the height of the sidebars (subtract only the header height)
+// Calculate the height of the sidebars (subtract only the header and footer height)
 const sidebarHeight = computed(() => {
   return `calc(100vh - ${headerHeight.value} - ${footerHeight.value})`
 })
-
-// Define grid areas for the layout
-const gridAreas = computed(
-  () => `
-  "header header header"
-  "sidebar-left main sidebar-right"
-  "footer footer footer"
-`,
-)
-
-// Define explicit grid rows and columns
-const gridRows = computed(
-  () => `
-  ${headerHeight.value} 1fr ${footerHeight.value}
-`,
-)
-
-const gridColumns = computed(
-  () => `
-  ${sidebarLeftWidth.value} 1fr ${sidebarRightWidth.value}
-`,
-)
 </script>
 
 <style scoped>

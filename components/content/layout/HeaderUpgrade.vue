@@ -9,7 +9,7 @@
     <div class="flex items-center box-border relative">
       <avatar-image
         alt="User Avatar"
-        class="aspect-square min-h-8 min-w-8 rounded-2xl"
+        class="aspect-square rounded-2xl"
         :style="{
           height: '100%', // Fills the available height of the header
         }"
@@ -17,7 +17,7 @@
 
       <!-- Special Overlay: Shows viewportSize from displayStore -->
       <div
-        class="absolute top-3 left-10 p-2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
+        class="absolute top-3 left-10 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
         style="transform: translateY(-50%)"
       >
         {{ displayStore.viewportSize }}

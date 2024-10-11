@@ -16,10 +16,10 @@
     <aside
       class="fixed top-0 left-0 z-20 box-border p-1 transition-all duration-500 ease-in-out"
       :class="{ 'overflow-hidden': !sidebarLeftOpen }"
-      :style="{
-        width: sidebarLeftWidth,
-        height: sidebarHeight,
-        marginTop: headerHeight,
+      :style="{ 
+        width: sidebarLeftWidth, 
+        height: sidebarHeight, 
+        marginTop: headerHeight 
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -33,7 +33,7 @@
         marginTop: headerHeight,
         marginLeft: sidebarLeftWidth,
         marginRight: sidebarRightWidth,
-        marginBottom: footerHeight, // Add padding at the bottom for the footer
+        paddingBottom: footerHeight, // Use padding to account for the footer height when open
       }"
     >
       <main-content />
@@ -43,10 +43,10 @@
     <aside
       class="fixed top-0 right-0 z-20 box-border p-1 transition-all duration-500 ease-in-out"
       :class="{ 'overflow-hidden': !showTutorial }"
-      :style="{
-        width: sidebarRightWidth,
-        height: sidebarHeight,
-        marginTop: headerHeight,
+      :style="{ 
+        width: sidebarRightWidth, 
+        height: sidebarHeight, 
+        marginTop: headerHeight 
       }"
     >
       <splash-tutorial v-if="showTutorial" class="h-full w-full" />
@@ -54,8 +54,11 @@
 
     <!-- Footer -->
     <footer
-      class="fixed bottom-0 left-0 right-0 z-30 box-border p-1"
-      :style="{ height: footerHeight }"
+      class="fixed bottom-0 left-0 right-0 z-30 box-border bg-info p-1"
+      :style="{ 
+        height: footerHeight, 
+        bottom: '0px', // Ensure footer stays at the bottom 
+      }"
     >
       <horizontal-nav v-if="footerOpen" />
     </footer>
@@ -77,9 +80,7 @@ const footerHeight = computed(() => displayStore.footerHeight)
 const showTutorial = computed(() => displayStore.showTutorial)
 
 const footerOpen = computed(() => displayStore.footerState === 'open')
-const sidebarLeftOpen = computed(
-  () => displayStore.sidebarLeftState !== 'hidden',
-)
+const sidebarLeftOpen = computed(() => displayStore.sidebarLeftState !== 'hidden')
 
 // Calculate the height of the main content area dynamically based on the viewport
 const mainHeight = computed(() => {

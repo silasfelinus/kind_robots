@@ -16,7 +16,7 @@
     <!-- Main Content Section -->
     <div
       class="flex-1 flex flex-col items-center justify-between p-4 box-border overflow-hidden"
-      :style="{ height: displayStore.mainHeight }"
+      :style="{ height: mainHeight }"
     >
       <!-- Main Image -->
       <img
@@ -98,4 +98,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 // Access the page content
 const displayStore = useDisplayStore()
 const { page } = useContent()
+
+const mainHeight = computed(() => displayStore.mainHeight)
 </script>

@@ -1,12 +1,12 @@
 <template>
-  <div class="main-layout h-screen relative bg-primary box-border">
+  <div class="main-layout h-screen w-screen relative bg-primary box-border">
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
 
     <!-- Header -->
     <header
-      class="fixed top-0 left-0 w-full z-30 flex items-center justify-center bg-primary box-border"
+      class="fixed top-0 left-0 w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden"
       :style="{ height: headerHeight }"
     >
       <header-upgrade class="flex-grow text-center" />
@@ -14,7 +14,7 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed left-0 z-20 box-border transition-all duration-500 ease-in-out"
+      class="fixed left-0 z-20 box-border transition-all duration-500 ease-in-out overflow-hidden"
       :class="{ 'overflow-hidden': !sidebarLeftOpen }"
       :style="{
         width: sidebarLeftWidth,
@@ -40,8 +40,7 @@
 
     <!-- Right Sidebar -->
     <aside
-      class="fixed right-0 z-20 box-border transition-all duration-500 ease-in-out bg-base-300"
-      :class="{ 'overflow-hidden': !showTutorial }"
+      class="fixed right-0 z-20 box-border transition-all duration-500 ease-in-out bg-base-300 overflow-hidden"
       :style="{
         width: sidebarRightWidth,
         top: headerHeight,
@@ -53,7 +52,7 @@
 
     <!-- Footer -->
     <footer
-      class="fixed bottom-0 left-0 right-0 z-30 box-border"
+      class="fixed bottom-0 left-0 right-0 z-30 box-border overflow-hidden"
       :style="{ height: footerHeight }"
     >
       <horizontal-nav v-if="footerOpen" />

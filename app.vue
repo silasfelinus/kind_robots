@@ -53,7 +53,7 @@
 
       <!-- Right Sidebar (Center and Bottom-Right cells) -->
       <aside
-        class="z-20 transition-all duration-500 ease-in-out overflow-hidden fixed box-border"
+        class="z-20 transition-all duration-500 ease-in-out overflow-hidden box-border"
         :style="{
           width: sidebarRightWidth,
           height: sidebarHeight,

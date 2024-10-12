@@ -101,40 +101,40 @@ headerVh(state): number {
     return sizes[state.sidebarRightState] || 2;
   },
 
-  mainVh(state): number {
-    return 100 - state.headerVh - state.footerVh;
+  mainVh(): number {
+    return 100 - this.headerVh - this.footerVh;
   },
 
-  mainVw(state): number {
-    return 100 - state.sidebarLeftVw - state.sidebarRightVw;
+  mainVw(): number {
+    return 100 - this.sidebarLeftVw - this.sidebarRightVw;
   },
 
-  headerHeight(state): string {
-    return `calc(var(--vh) * ${state.headerVh})`;
+  headerHeight(): string {
+    return `calc(var(--vh) * ${this.headerVh})`;
   },
 
-  footerHeight(state): string {
-    return `calc(var(--vh) * ${state.footerVh})`;
+  footerHeight(): string {
+    return `calc(var(--vh) * ${this.footerVh})`;
   },
 
-  footerWidth(state): string {
-    return `calc(100vw - ${state.sidebarLeftVw}vw - ${state.sidebarRightVw}vw)`;
+  footerWidth(): string {
+    return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
   },
 
-  mainWidth(state): string {
-    return `calc(100vw - ${state.sidebarLeftVw}vw - ${state.sidebarRightVw}vw)`;
+  mainWidth(): string {
+    return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
   },
 
-  mainHeight(state): string {
-    return `calc(var(--vh) * 100 - var(--vh) * ${state.headerVh} - var(--vh) * ${state.footerVh})`;
+  mainHeight(): string {
+    return `calc(var(--vh) * 100 - var(--vh) * ${this.headerVh} - var(--vh) * ${this.footerVh})`;
   },
 
-  sidebarLeftWidth(state): string {
-    return `${state.sidebarLeftVw}vw`;
+  sidebarLeftWidth(): string {
+    return `${this.sidebarLeftVw}vw`;
   },
 
-  sidebarRightWidth(state): string {
-    return `${state.sidebarRightVw}vw`;
+  sidebarRightWidth(): string {
+    return `${this.sidebarRightVw}vw`;
   },
 
   isLargeViewport(state): boolean {

@@ -3,11 +3,11 @@
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
-<debug-launcher />
+    <debug-launcher />
 
     <!-- Header -->
     <header
-      class="fixed w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden"
+      class="fixed w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden transition-all duration-500 ease-in-out"
       :style="{
         height: headerHeight,
         width: `calc(100vw - ${sectionPadding} * 2)`,
@@ -21,7 +21,7 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-20 box-border transition-all duration-500 ease-in-out"
+      class="fixed z-20 box-border transition-all duration-500 ease-in-out bg-secondary"
       :style="{
         width: sidebarLeftWidth,
         left: sectionPadding,
@@ -34,7 +34,7 @@
 
     <!-- Main Content -->
     <main
-      class="fixed z-10 box-border overflow-hidden transition-all duration-300"
+      class="fixed z-10 box-border overflow-hidden transition-all duration-500 ease-in-out"
       :style="{
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
@@ -47,7 +47,7 @@
 
     <!-- Right Sidebar -->
     <aside
-      class="fixed z-20 box-border transition-all duration-500 ease-in-out bg-primary"
+      class="fixed z-20 box-border transition-all duration-500 ease-in-out bg-secondary"
       :style="{
         width: sidebarRightWidth,
         right: sectionPadding,
@@ -55,15 +55,12 @@
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
-      <splash-tutorial
-        v-if="showTutorial && !isMobile"
-        class="h-full w-full"
-      />
+      <splash-tutorial v-if="showTutorial && !isMobile" class="h-full w-full" />
     </aside>
 
     <!-- Footer -->
     <footer
-      class="fixed z-30 box-border overflow-hidden"
+      class="fixed z-30 box-border overflow-hidden transition-all duration-500 ease-in-out"
       :style="{
         height: footerHeight,
         width: `calc(100vw - ${sectionPadding} * 2)`,
@@ -85,13 +82,12 @@ import { useDisplayStore } from '@/stores/displayStore'
 // Access the displayStore for managing the layout state
 const displayStore = useDisplayStore()
 
-const isMobile = computed (() => displayStore.isMobileViewport)
-
 // Compute header height using custom vh
 const headerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.headerVh})`,
 )
 
+// Main content dimensions
 const mainHeight = computed(() => displayStore.mainHeight)
 const mainWidth = computed(() => displayStore.mainWidth)
 
@@ -109,6 +105,7 @@ const sectionPadding = '16px'
 
 // Control for tutorial visibility
 const showTutorial = computed(() => displayStore.showTutorial)
+const isMobile = computed(() => displayStore.isMobileViewport)
 
 // Check if the footer is open
 const footerOpen = computed(() => displayStore.footerState === 'open')
@@ -126,8 +123,6 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'hidden' &&
     displayStore.sidebarRightState !== 'disabled',
 )
-
-
 
 // Calculate sidebar and main content multipliers based on footer and sidebar state
 const footerMultiplier = computed(() => (footerOpen.value ? 2 : 1))

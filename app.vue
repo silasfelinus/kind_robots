@@ -25,7 +25,7 @@
         width: sidebarLeftWidth,
         left: sectionPadding,
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-        height: `calc(${mainHeight} - (${sectionPadding} * ${footerMultiplier} + 2))`,
+        height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -51,7 +51,7 @@
         width: sidebarRightWidth,
         right: sectionPadding,
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-        height: `calc(${mainHeight} - (${sectionPadding} * ${footerMultiplier} + 2))`,
+        height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
       <splash-tutorial

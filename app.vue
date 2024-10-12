@@ -7,7 +7,7 @@
     <!-- Header -->
     <header
       class="fixed top-0 left-0 w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden"
-      :style="{ height: `calc(${headerHeight} - 2px)`, margin: '1px' }"
+      :style="{ height: `calc(${headerHeight} - 4px)`, margin: '2px' }"
     >
       <header-upgrade class="flex-grow text-center" />
     </header>
@@ -17,7 +17,7 @@
       class="fixed left-0 z-20 box-border transition-all duration-500 ease-in-out overflow-hidden"
       :class="{ 'overflow-hidden': !sidebarLeftOpen }"
       :style="{
-        width: `calc(${sidebarLeftWidth} - 2px)`,
+        width: sidebarLeftWidth,
         top: `calc(${headerHeight} + 1px)`,
         bottom: `calc(${footerHeight} + 1px)`,
         margin: '1px',
@@ -44,7 +44,7 @@
     <aside
       class="fixed right-0 z-20 box-border transition-all duration-500 ease-in-out bg-primary overflow-hidden"
       :style="{
-        width: `calc(${sidebarRightWidth} - 2px)`,
+        width: sidebarRightWidth,
         top: `calc(${headerHeight} + 1px)`,
         bottom: `calc(${footerHeight} + 1px)`,
         margin: '1px',
@@ -56,7 +56,7 @@
     <!-- Footer -->
     <footer
       class="fixed bottom-0 left-0 right-0 z-30 box-border overflow-hidden"
-      :style="{ height: `calc(${footerHeight} - 2px)`, margin: '1px' }"
+      :style="{ height: `calc(${footerHeight} - 4px)`, margin: '2px' }"
     >
       <footer-toggle />
       <horizontal-nav v-if="footerOpen" />

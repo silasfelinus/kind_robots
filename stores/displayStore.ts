@@ -332,7 +332,6 @@ export const useDisplayStore = defineStore('display', {
         disabled: 'hidden',
       };
       this[side] = stateCycle[this[side]];
-      console.log(side + "sidebar is now " + stateCycle)
       this.saveState();
     },
 

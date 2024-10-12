@@ -6,7 +6,7 @@
 
     <!-- Header -->
     <header
-      class="fixed left-0 w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden"
+      class="fixed w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden"
       :style="{
         height: headerHeight,
         top: sectionPadding,
@@ -62,7 +62,7 @@
 
     <!-- Footer -->
     <footer
-      class="fixed bottom-0 left-0 right-0 z-30 box-border overflow-hidden"
+      class="fixed z-30 box-border overflow-hidden"
       :style="{
         height: footerHeight,
         left: sectionPadding,

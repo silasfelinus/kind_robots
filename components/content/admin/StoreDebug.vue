@@ -1,5 +1,5 @@
 <template>
-  <div class="screen-debug fixed inset-0 pointer-events-none">
+  <div class="display-debug fixed inset-0 pointer-events-none">
     <!-- Header -->
     <header
       class="header-overlay debug-box"

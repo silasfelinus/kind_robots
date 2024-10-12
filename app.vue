@@ -8,7 +8,7 @@
     <header
       class="fixed top-0 left-0 w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden"
       :style="{
-        height: `calc(${headerHeight} - 4px)`,
+        height: `calc(${headerHeight} - (${sectionMargin} * 2))`, // Adjust for top and bottom margins
         margin: sectionMargin,
       }"
     >
@@ -20,9 +20,9 @@
       class="fixed left-0 z-20 box-border transition-all duration-500 ease-in-out"
       :class="{ 'overflow-hidden': !sidebarLeftOpen }"
       :style="{
-        width: sidebarLeftWidth,
-        top: `calc(${headerHeight} + 1px)`,
-        bottom: `calc(${footerHeight} + 1px)`,
+        width: `calc(${sidebarLeftWidth} - (${sectionMargin} * 2))`, // Adjust for left and right margins
+        top: `calc(${headerHeight} + ${sectionMargin})`, // Account for header and its margin
+        bottom: `calc(${footerHeight} + ${sectionMargin})`, // Account for footer and its margin
         margin: sectionMargin,
       }"
     >
@@ -33,10 +33,10 @@
     <main
       class="absolute z-10 box-border overflow-hidden transition-all duration-300"
       :style="{
-        top: `calc(${headerHeight} + 1px)`,
-        bottom: `calc(${footerHeight} + 1px)`,
-        left: `calc(${sidebarLeftWidth} + 1px)`,
-        right: `calc(${sidebarRightWidth} + 1px)`,
+        top: `calc(${headerHeight} + ${sectionMargin})`, // Account for header and margin
+        bottom: `calc(${footerHeight} + ${sectionMargin})`, // Account for footer and margin
+        left: `calc(${sidebarLeftWidth} + ${sectionMargin})`, // Account for left sidebar and margin
+        right: `calc(${sidebarRightWidth} + ${sectionMargin})`, // Account for right sidebar and margin
         margin: sectionMargin,
       }"
     >
@@ -47,9 +47,9 @@
     <aside
       class="fixed right-0 z-20 box-border transition-all duration-500 ease-in-out bg-primary"
       :style="{
-        width: sidebarRightWidth,
-        top: `calc(${headerHeight} + 1px)`,
-        bottom: `calc(${footerHeight} + 1px)`,
+        width: `calc(${sidebarRightWidth} - (${sectionMargin} * 2))`, // Adjust for right margin
+        top: `calc(${headerHeight} + ${sectionMargin})`, // Account for header and margin
+        bottom: `calc(${footerHeight} + ${sectionMargin})`, // Account for footer and margin
         margin: sectionMargin,
       }"
     >
@@ -60,7 +60,7 @@
     <footer
       class="fixed bottom-0 left-0 right-0 z-30 box-border overflow-hidden"
       :style="{
-        height: `calc(${footerHeight} - 4px)`,
+        height: `calc(${footerHeight} - (${sectionMargin} * 2))`, // Adjust for bottom and top margins
         margin: sectionMargin,
       }"
     >

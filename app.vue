@@ -23,8 +23,8 @@
       :style="{
         width: sidebarLeftWidth,
         left: sectionPadding,
-        top: `calc(${headerHeight} + ${sectionPadding} * 2)`, // Correct calculation
-        bottom: `calc(${footerHeight} + ${sectionPadding} * 2)`,
+        top: `calc(${headerHeight} + ${sectionPadding} * ${leftSidebarMultiplier})`,
+        bottom: `calc(${footerHeight} + ${sectionPadding} * ${leftSidebarMultiplier})`,
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -34,10 +34,10 @@
     <main
       class="absolute z-10 box-border overflow-hidden transition-all duration-300"
       :style="{
-        top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-        bottom: `calc(${footerHeight} + ${sectionPadding} * 2)`,
-        left: `calc(${sidebarLeftWidth} + ${sectionPadding} * 2)`,
-        right: `calc(${sidebarRightWidth} + ${sectionPadding} * 2)`,
+        top: `calc(${headerHeight} + ${sectionPadding} * ${mainMultiplier})`,
+        bottom: `calc(${footerHeight} + ${sectionPadding} * ${mainMultiplier})`,
+        left: `calc(${sidebarLeftWidth} + ${sectionPadding} * ${mainMultiplier})`,
+        right: `calc(${sidebarRightWidth} + ${sectionPadding} * ${mainMultiplier})`,
       }"
     >
       <main-content />
@@ -49,8 +49,8 @@
       :style="{
         width: sidebarRightWidth,
         right: sectionPadding,
-        top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-        bottom: `calc(${footerHeight} + ${sectionPadding} * 2)`,
+        top: `calc(${headerHeight} + ${sectionPadding} * ${rightSidebarMultiplier})`,
+        bottom: `calc(${footerHeight} + ${sectionPadding} * ${rightSidebarMultiplier})`,
       }"
     >
       <splash-tutorial
@@ -112,4 +112,20 @@ const sidebarLeftOpen = computed(
 
 // Check if it's a large viewport
 const isLargeScreen = computed(() => displayStore.isLargeViewport)
+
+// Calculate sidebar and main content multipliers based on footer and sidebar state
+const footerMultiplier = computed(() => (footerOpen.value ? 2 : 1))
+const sidebarLeftMultiplier = computed(() => (sidebarLeftOpen.value ? 2 : 1))
+const sidebarRightMultiplier = computed(() => (showTutorial.value ? 2 : 1))
+
+// Combine the multipliers for calculating dynamic top/bottom and left/right spaces
+const mainMultiplier = computed(() => {
+  return Math.max(footerMultiplier.value, sidebarLeftMultiplier.value, sidebarRightMultiplier.value)
+})
+const leftSidebarMultiplier = computed(() => sidebarLeftMultiplier.value)
+const rightSidebarMultiplier = computed(() => sidebarRightMultiplier.value)
 </script>
+
+<style scoped>
+/* No additional styles needed, using Tailwind CSS classes */
+</style>

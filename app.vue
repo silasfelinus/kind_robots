@@ -85,11 +85,7 @@ const headerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.headerVh})`,
 )
 
-const isLargeScreen = computed(
-  () =>
-    displayStore.viewportSize === 'large' ||
-    displayStore.viewportSize === 'extraLarge',
-)
+const isLargeScreen = computed(() => displayStore.isLargeViewport)
 
 // Sidebar widths for left and right
 const sidebarLeftWidth = computed(() => `${displayStore.sidebarLeftVw}vw`)

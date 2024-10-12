@@ -76,11 +76,7 @@ const displayStore = useDisplayStore()
 
 // Layout dimensions and state
 const isMobile = computed(() => displayStore.isMobileViewport)
-const isLargeScreen = computed(
-  () =>
-    displayStore.viewportSize === 'large' ||
-    displayStore.viewportSize === 'extraLarge',
-)
+const isLargeScreen = computed(() => displayStore.isLargeViewport)
 const showTutorial = computed(() => displayStore.showTutorial)
 
 // Calculate main content width (subtract sidebar widths)

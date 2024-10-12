@@ -280,7 +280,7 @@ function loadBotData() {
   if (bot) {
     name.value = bot.name || ''
     subtitle.value = bot.subtitle || ''
-    avatarImage.value = bot.avatarImage || '/images/default-avatar.png'
+    avatarImage.value = bot.avatarImage || '/images/bot.webp'
     description.value = bot.description || ''
     botIntro.value = bot.botIntro || ''
     userIntro.value = bot.userIntro || ''
@@ -318,7 +318,7 @@ async function handleSubmit(e: Event) {
     const botData = {
       name: name.value,
       subtitle: subtitle.value ?? '',
-      avatarImage: avatarImage.value ?? '/images/default-avatar.png',
+      avatarImage: avatarImage.value ?? '/images/bot.webp',
       description: description.value ?? '',
       botIntro: botIntro.value ?? '',
       userIntro: userIntro.value ?? '',

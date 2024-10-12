@@ -23,7 +23,7 @@
       :style="{
         width: sidebarLeftWidth,
         left: sectionPadding,
-        top: `calc(${headerHeight} + ${sectionPadding} * 2`,
+        top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
         bottom: `calc(${footerHeight} + ${sectionPadding} * ${footerMultiplier})`,
       }"
     >
@@ -49,8 +49,8 @@
       :style="{
         width: sidebarRightWidth,
         right: sectionPadding,
-        top: `calc(${headerHeight} + ${sectionPadding})`,
-        bottom: `calc(${footerHeight} + ${sectionPadding * ${footerMultiplier})`,
+        top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
+        bottom: `calc(${footerHeight} + ${sectionPadding} * ${footerMultiplier})`,
       }"
     >
       <splash-tutorial
@@ -105,14 +105,14 @@ const showTutorial = computed(() => displayStore.showTutorial)
 // Check if the footer is open
 const footerOpen = computed(() => displayStore.footerState === 'open')
 
-// Check if the left sidebar is open
+// Check if the left sidebar is open (and not hidden/disabled)
 const sidebarLeftOpen = computed(
-  () => displayStore.sidebarLeftState !== 'hidden',
+  () => displayStore.sidebarLeftState !== 'hidden' && displayStore.sidebarLeftState !== 'disabled',
 )
 
-// Check if the right sidebar is open
+// Check if the right sidebar is open (and not hidden/disabled)
 const sidebarRightOpen = computed(
-  () => displayStore.sidebarRightState !== 'hidden',
+  () => displayStore.sidebarRightState !== 'hidden' && displayStore.sidebarRightState !== 'disabled',
 )
 
 // Check if it's a large viewport
@@ -122,7 +122,6 @@ const isLargeScreen = computed(() => displayStore.isLargeViewport)
 const footerMultiplier = computed(() => (footerOpen.value ? 2 : 1))
 const sidebarLeftMultiplier = computed(() => (sidebarLeftOpen.value ? 2 : 1))
 const sidebarRightMultiplier = computed(() => (sidebarRightOpen.value ? 2 : 1))
-
 
 </script>
 

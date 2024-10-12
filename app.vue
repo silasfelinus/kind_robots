@@ -23,8 +23,8 @@
       :style="{
         width: sidebarLeftWidth,
         left: sectionPadding,
-        top: `calc(${headerHeight} + ${sectionPadding} * ${leftSidebarMultiplier})`,
-        bottom: `calc(${footerHeight} + ${sectionPadding} * ${leftSidebarMultiplier})`,
+        top: `calc(${headerHeight} + ${sectionPadding} * 2`,
+        bottom: `calc(${footerHeight} + ${sectionPadding} * ${footerMultiplier})`,
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -34,10 +34,10 @@
     <main
       class="absolute z-10 box-border overflow-hidden transition-all duration-300"
       :style="{
-        top: `calc(${headerHeight} + ${sectionPadding} * ${mainMultiplier})`,
-        bottom: `calc(${footerHeight} + ${sectionPadding} * ${mainMultiplier})`,
-        left: `calc(${sidebarLeftWidth} + ${sectionPadding} * ${mainMultiplier})`,
-        right: `calc(${sidebarRightWidth} + ${sectionPadding} * ${mainMultiplier})`,
+        top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
+        bottom: `calc(${footerHeight} + ${sectionPadding} * ${footerMultiplier})`,
+        left: `calc(${sidebarLeftWidth} + ${sectionPadding} * ${leftSidebarMultiplier})`,
+        right: `calc(${sidebarRightWidth} + ${sectionPadding} * ${rightSidebarMultiplier})`,
       }"
     >
       <main-content />
@@ -49,8 +49,8 @@
       :style="{
         width: sidebarRightWidth,
         right: sectionPadding,
-        top: `calc(${headerHeight} + ${sectionPadding} * ${rightSidebarMultiplier})`,
-        bottom: `calc(${footerHeight} + ${sectionPadding} * ${rightSidebarMultiplier})`,
+        top: `calc(${headerHeight} + ${sectionPadding})`,
+        bottom: `calc(${footerHeight} + ${sectionPadding * ${footerMultiplier})`,
       }"
     >
       <splash-tutorial
@@ -97,7 +97,7 @@ const footerHeight = computed(
 )
 
 // Padding for all sections (consistent)
-const sectionPadding = '16px' // This can be customized based on your need
+const sectionPadding = '16px'
 
 // Control for tutorial visibility
 const showTutorial = computed(() => displayStore.showTutorial)
@@ -110,20 +110,20 @@ const sidebarLeftOpen = computed(
   () => displayStore.sidebarLeftState !== 'hidden',
 )
 
+// Check if the right sidebar is open
+const sidebarRightOpen = computed(
+  () => displayStore.sidebarRightState !== 'hidden',
+)
+
 // Check if it's a large viewport
 const isLargeScreen = computed(() => displayStore.isLargeViewport)
 
 // Calculate sidebar and main content multipliers based on footer and sidebar state
 const footerMultiplier = computed(() => (footerOpen.value ? 2 : 1))
 const sidebarLeftMultiplier = computed(() => (sidebarLeftOpen.value ? 2 : 1))
-const sidebarRightMultiplier = computed(() => (showTutorial.value ? 2 : 1))
+const sidebarRightMultiplier = computed(() => (sidebarRightOpen.value ? 2 : 1))
 
-// Combine the multipliers for calculating dynamic top/bottom and left/right spaces
-const mainMultiplier = computed(() => {
-  return Math.max(footerMultiplier.value, sidebarLeftMultiplier.value, sidebarRightMultiplier.value)
-})
-const leftSidebarMultiplier = computed(() => sidebarLeftMultiplier.value)
-const rightSidebarMultiplier = computed(() => sidebarRightMultiplier.value)
+
 </script>
 
 <style scoped>

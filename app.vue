@@ -25,7 +25,7 @@
         width: sidebarLeftWidth,
         left: sectionPadding,
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-        bottom: `calc(${footerHeight} + ${sectionPadding} * ${footerMultiplier})`,
+        height: `calc(${mainHeight} - (${sectionPadding} * ${footerMultiplier} + 1))`,
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -36,7 +36,7 @@
       class="absolute z-10 box-border overflow-hidden transition-all duration-300"
       :style="{
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-        bottom: `calc(${footerHeight} + ${sectionPadding} * ${footerMultiplier})`,
+        height: `calc(${mainHeight} - (${sectionPadding} * ${footerMultiplier} + 1))`,
         left: `calc(${sidebarLeftWidth} + ${sectionPadding} * ${leftSidebarMultiplier})`,
         right: `calc(${sidebarRightWidth} + ${sectionPadding} * ${rightSidebarMultiplier})`,
       }"
@@ -51,7 +51,7 @@
         width: sidebarRightWidth,
         right: sectionPadding,
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-        bottom: `calc(${footerHeight} + ${sectionPadding} * ${footerMultiplier})`,
+        height: `calc(${mainHeight} - (${sectionPadding} * ${footerMultiplier} + 1))`,
       }"
     >
       <splash-tutorial
@@ -89,6 +89,7 @@ const headerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.headerVh})`,
 )
 
+const mainHeight = computed (()=> displayStore.mainHeight)
 const mainWidth = computed (()=> displayStore.mainWidth)
 
 // Sidebar widths for left and right
@@ -99,6 +100,7 @@ const sidebarRightWidth = computed(() => `${displayStore.sidebarRightVw}vw`)
 const footerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.footerVh})`,
 )
+
 
 // Padding for all sections (consistent)
 const sectionPadding = '16px'

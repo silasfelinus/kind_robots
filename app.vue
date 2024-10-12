@@ -37,7 +37,7 @@
       :style="{
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
-        left: `calc(${sidebarLeftWidth} + (${sectionPadding} * ${sidebarLeftMultiplier}))`,
+        right: `calc(${sidebarRightWidth} + (${sectionPadding} * ${sidebarRightMultiplier}))`,
         width: `calc(${mainWidth} - (${sectionPadding} * ${sidebarLeftMultiplier}) - (${sectionPadding} * ${sidebarRightMultiplier}))`,
       }"
     >

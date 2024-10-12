@@ -32,7 +32,7 @@
               class="mt-4 p-4 bg-gray-100 rounded-lg shadow-md"
             >
               <img
-                :src="currentBot?.avatarImage || '/images/default-avatar.png'"
+                :src="currentBot?.avatarImage || '/images/bot.webp'"
                 alt="Bot Avatar"
                 class="w-24 h-24 rounded-full mx-auto"
               />

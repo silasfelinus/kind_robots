@@ -34,7 +34,7 @@ export async function addBot(
       name: botData.name,
       subtitle: botData.subtitle || null,
       description: botData.description || null,
-      avatarImage: botData.avatarImage || '/images/default-avatar.png',
+      avatarImage: botData.avatarImage || '/images/bot.webp',
       botIntro: botData.botIntro ?? '',
       userIntro: botData.userIntro ?? '',
       prompt: botData.prompt ?? '',

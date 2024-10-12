@@ -8,8 +8,8 @@
     <header
       class="fixed top-0 left-0 w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden"
       :style="{
-        height: `calc(${headerHeight} - (${sectionMargin} * 2))`, // Adjust for top and bottom margins
-        margin: sectionMargin,
+        height: `calc(${headerHeight} - ${sectionPadding})`, // Adjust for top and bottom padding
+        padding: sectionPadding,
       }"
     >
       <header-upgrade class="flex-grow text-center" />
@@ -20,10 +20,10 @@
       class="fixed left-0 z-20 box-border transition-all duration-500 ease-in-out"
       :class="{ 'overflow-hidden': !sidebarLeftOpen }"
       :style="{
-        width: `calc(${sidebarLeftWidth} - (${sectionMargin} * 2))`, // Adjust for left and right margins
-        top: `calc(${headerHeight} + ${sectionMargin})`, // Account for header and its margin
-        bottom: `calc(${footerHeight} + ${sectionMargin})`, // Account for footer and its margin
-        margin: sectionMargin,
+        width: `calc(${sidebarLeftWidth} - ${sectionPadding})`, // Adjust for left and right padding
+        top: `calc(${headerHeight} + ${sectionPadding})`, // Account for header and its padding
+        bottom: `calc(${footerHeight} + ${sectionPadding})`, // Account for footer and its padding
+        padding: sectionPadding,
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -33,11 +33,11 @@
     <main
       class="absolute z-10 box-border overflow-hidden transition-all duration-300"
       :style="{
-        top: `calc(${headerHeight} + ${sectionMargin})`, // Account for header and margin
-        bottom: `calc(${footerHeight} + ${sectionMargin})`, // Account for footer and margin
-        left: `calc(${sidebarLeftWidth} + ${sectionMargin})`, // Account for left sidebar and margin
-        right: `calc(${sidebarRightWidth} + ${sectionMargin})`, // Account for right sidebar and margin
-        margin: sectionMargin,
+        top: `calc(${headerHeight} + ${sectionPadding})`, // Account for header and padding
+        bottom: `calc(${footerHeight} + ${sectionPadding})`, // Account for footer and padding
+        left: `calc(${sidebarLeftWidth} + ${sectionPadding})`, // Account for left sidebar and padding
+        right: `calc(${sidebarRightWidth} + ${sectionPadding})`, // Account for right sidebar and padding
+        padding: sectionPadding,
       }"
     >
       <main-content />
@@ -47,10 +47,10 @@
     <aside
       class="fixed right-0 z-20 box-border transition-all duration-500 ease-in-out bg-primary"
       :style="{
-        width: `calc(${sidebarRightWidth} - (${sectionMargin} * 2))`, // Adjust for right margin
-        top: `calc(${headerHeight} + ${sectionMargin})`, // Account for header and margin
-        bottom: `calc(${footerHeight} + ${sectionMargin})`, // Account for footer and margin
-        margin: sectionMargin,
+        width: `calc(${sidebarRightWidth} - ${sectionPadding})`, // Adjust for right padding
+        top: `calc(${headerHeight} + ${sectionPadding})`, // Account for header and padding
+        bottom: `calc(${footerHeight} + ${sectionPadding})`, // Account for footer and padding
+        padding: sectionPadding,
       }"
     >
       <splash-tutorial
@@ -63,8 +63,8 @@
     <footer
       class="fixed bottom-0 left-0 right-0 z-30 box-border overflow-hidden"
       :style="{
-        height: `calc(${footerHeight} - (${sectionMargin} * 2))`, // Adjust for bottom and top margins
-        margin: sectionMargin,
+        height: `calc(${footerHeight} - ${sectionPadding})`, // Adjust for bottom and top padding
+        padding: sectionPadding,
       }"
     >
       <footer-toggle />
@@ -96,8 +96,8 @@ const footerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.footerVh})`,
 )
 
-// Margin for all sections (consistent and large)
-const sectionMargin = '16px' // You can adjust this to any large value you want
+// Padding for all sections (consistent and large)
+const sectionPadding = '16px' // You can adjust this to any large value you want
 
 // Control for tutorial visibility
 const showTutorial = computed(() => displayStore.showTutorial)

@@ -43,7 +43,7 @@
     <!-- Right Section: Icons and Login -->
     <div class="flex items-center space-x-4 box-border">
       <!-- Login Button -->
-      <login-button class="w-full max-w-[120px] box-border" />
+      <login-path class="w-full max-w-[120px] box-border" />
       <!-- Theme Icon -->
       <theme-icon class="w-8 h-8 box-border" />
       <!-- Butterfly Toggle Icon -->

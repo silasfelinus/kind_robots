@@ -29,7 +29,7 @@
 
       <!-- Fullscreen Mode (Desktop, Content Only) -->
       <div
-        v-else-if="isFullScreen"
+        v-else-if="isLargeScreen"
         class="h-full w-full overflow-y-auto hide-scrollbar rounded-2xl z-10 flex-grow box-border"
       >
         <NuxtPage
@@ -76,7 +76,11 @@ const displayStore = useDisplayStore()
 
 // Layout dimensions and state
 const isMobile = computed(() => displayStore.isMobileViewport)
-const isFullScreen = computed(() => displayStore.isFullScreen)
+const isLargeScreen = computed(
+  () =>
+    displayStore.viewportSize === 'large' ||
+    displayStore.viewportSize === 'extraLarge',
+)
 const showTutorial = computed(() => displayStore.showTutorial)
 
 // Calculate main content width (subtract sidebar widths)

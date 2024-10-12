@@ -53,7 +53,10 @@
         margin: sectionMargin,
       }"
     >
-      <splash-tutorial v-if="showTutorial" class="h-full w-full" />
+      <splash-tutorial
+        v-if="showTutorial && isLargeScreen"
+        class="h-full w-full"
+      />
     </aside>
 
     <!-- Footer -->
@@ -80,6 +83,12 @@ const displayStore = useDisplayStore()
 // Compute header height using modified vh
 const headerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.headerVh})`,
+)
+
+const isLargeScreen = computed(
+  () =>
+    displayStore.viewportSize === 'large' ||
+    displayStore.viewportSize === 'extraLarge',
 )
 
 // Sidebar widths for left and right

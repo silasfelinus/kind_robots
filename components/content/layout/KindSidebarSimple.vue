@@ -5,7 +5,7 @@
       class="transition-all duration-300 bg-base-300 border-4 rounded-2xl left-0 overflow-y-auto flex flex-col justify-between"
       :style="{
         width: displayStore.sidebarLeftWidth,
-        top: `${displayStore.headerHeight}vh`,
+        top: displayStore.headerHeight,
         height: `calc(100vh - ${displayStore.headerHeight} - ${displayStore.footerHeight})`,
       }"
     >

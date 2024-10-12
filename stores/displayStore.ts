@@ -52,7 +52,6 @@ export const useDisplayStore = defineStore('display', {
 
 getters: {
 headerVh(state): number {
-  console.log('viewportSize:', state.viewportSize, 'headerState:', state.headerState);
 
   const sizes = {
     small: { open: 12, compact: 6, hidden: 1, disabled: 0 },
@@ -60,12 +59,6 @@ headerVh(state): number {
     large: { open: 10, compact: 4, hidden: 1, disabled: 0 },
     extraLarge: { open: 7, compact: 3, hidden: 1, disabled: 0 },
   }[state.viewportSize];
-
-  // Fallback if state.headerState or state.viewportSize is invalid
-  if (!sizes) {
-    console.warn('Invalid viewportSize or headerState, returning default value.');
-    return 6;
-  }
 
   return sizes[state.headerState] || 6;
 },
@@ -76,7 +69,7 @@ headerVh(state): number {
       small: { open: 13, compact: 1, hidden: 0, disabled: 0 },
       medium: { open: 9, compact: 1, hidden: 0, disabled: 0 },
       large: { open: 12, compact: 1, hidden: 0, disabled: 0 },
-      extraLarge: { open: 8, compact: 1, hidden: 0, disabled: 0 },
+      extraLarge: { open: 8, compact: 1, hidden: 1, disabled: 0 },
     }[state.viewportSize];
     return sizes[state.footerState] || 3;
   },

@@ -32,8 +32,8 @@
       :style="{
         top: `calc(${headerHeight} + 1px)`,
         bottom: `calc(${footerHeight} + 1px)`,
-        marginLeft: `calc(${sidebarLeftWidth} + 1px)`,
-        marginRight: `calc(${sidebarRightWidth} + 1px)`,
+        left: `calc(${sidebarLeftWidth} + 1px)`,
+        right: `calc(${sidebarRightWidth} + 1px)`,
         margin: '1px',
       }"
     >

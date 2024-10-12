@@ -55,7 +55,7 @@
       }"
     >
       <splash-tutorial
-        v-if="showTutorial && isLargeScreen"
+        v-if="showTutorial && !isMobile"
         class="h-full w-full"
       />
     </aside>
@@ -83,6 +83,8 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore for managing the layout state
 const displayStore = useDisplayStore()
+
+const isMobile = computed (() => displayStore.isMobileViewport)
 
 // Compute header height using custom vh
 const headerHeight = computed(
@@ -124,8 +126,7 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'disabled',
 )
 
-// Check if it's a large viewport
-const isLargeScreen = computed(() => displayStore.isLargeViewport)
+
 
 // Calculate sidebar and main content multipliers based on footer and sidebar state
 const footerMultiplier = computed(() => (footerOpen.value ? 2 : 1))

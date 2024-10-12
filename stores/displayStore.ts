@@ -50,98 +50,98 @@ export const useDisplayStore = defineStore('display', {
     fullscreenState: 'nuxt',
   }),
 
-  getters: {
-    headerVh(state): number {
-      const sizes = {
-        small: { open: 12, compact: 6, hidden: 1, disabled: 0 },
-        medium: { open: 9, compact: 5, hidden: 1, disabled: 0 },
-        large: { open: 10, compact: 4, hidden: 1, disabled: 0 },
-        extraLarge: { open: 7, compact: 3, hidden: 1, disabled: 0 },
-      }[state.viewportSize];
-      return sizes[state.headerState] || 6;
-    },
-
-    footerVh(state): number {
-      const sizes = {
-        small: { open: 13, compact: 1, hidden: 0, disabled: 0 },
-        medium: { open: 9, compact: 1, hidden: 0, disabled: 0 },
-        large: { open: 12, compact: 1, hidden: 0, disabled: 0 },
-        extraLarge: { open: 8, compact: 1, hidden: 0, disabled: 0 },
-      }[state.viewportSize];
-      return sizes[state.footerState] || 3;
-    },
-
-    sidebarLeftVw(state): number {
-      const sizes = {
-        small: { open: 22, compact: 10, hidden: 0, disabled: 0 },
-        medium: { open: 16, compact: 9, hidden: 0, disabled: 0 },
-        large: { open: 13, compact: 7, hidden: 0, disabled: 0 },
-        extraLarge: { open: 10, compact: 3, hidden: 0, disabled: 0 },
-      }[state.viewportSize];
-      return sizes[state.sidebarLeftState] || 16;
-    },
-
-    sidebarRightVw(state): number {
-      const sizes = {
-        small: { open: 1, compact: 1, hidden: 0, disabled: 0 },
-        medium: { open: 33, compact: 1, hidden: 0, disabled: 0 },
-        large: { open: 25, compact: 1, hidden: 0, disabled: 0 },
-        extraLarge: { open: 30, compact: 1, hidden: 0, disabled: 0 },
-      }[state.viewportSize];
-      return sizes[state.sidebarRightState] || 2;
-    },
-    mainVh(): number {
-      return 100 - this.headerVh - this.footerVh;
-    },
-    
-    mainVw(): number {
-      return 100 - this.sidebarLeftVw - this.sidebarRightVw;
-    },
-    
-    headerHeight(): string {
-      return `calc(var(--vh) * ${this.headerVh})`;
-    },
-    
-    footerHeight(): string {
-      return `calc(var(--vh) * ${this.footerVh})`;
-    },
-    
-    footerWidth(): string {
-      return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
-    },
-    
-    mainWidth(): string {
-      return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
-    },
-    
-    mainHeight(): string {
-      return `calc(var(--vh) * 100 - var(--vh) * ${this.headerVh} - var(--vh) * ${this.footerVh})`;
-    },
-    
-    sidebarLeftWidth(): string {
-      return `${this.sidebarLeftVw}vw`;
-    },
-    
-    sidebarRightWidth(state): string {
-      return `${state.sidebarRightVw}vw`;
-    },
-
-
-
-    isLargeViewport(state): boolean {
-      return ['large', 'extraLarge'].includes(state.viewportSize);
-    },
-
-    iconSize(state): number {
-      const sizes = {
-        small: { open: 18, compact: 16, hidden: 14, disabled: 14 },
-        medium: { open: 24, compact: 20, hidden: 18, disabled: 18 },
-        large: { open: 28, compact: 24, hidden: 20, disabled: 20 },
-        extraLarge: { open: 32, compact: 28, hidden: 24, disabled: 24 },
-      }[state.viewportSize];
-      return sizes[state.headerState] || 24;
-    },
+getters: {
+  headerVh(state): number {
+    const sizes = {
+      small: { open: 12, compact: 6, hidden: 1, disabled: 0 },
+      medium: { open: 9, compact: 5, hidden: 1, disabled: 0 },
+      large: { open: 10, compact: 4, hidden: 1, disabled: 0 },
+      extraLarge: { open: 7, compact: 3, hidden: 1, disabled: 0 },
+    }[state.viewportSize];
+    return sizes[state.headerState] || 6;
   },
+
+  footerVh(state): number {
+    const sizes = {
+      small: { open: 13, compact: 1, hidden: 0, disabled: 0 },
+      medium: { open: 9, compact: 1, hidden: 0, disabled: 0 },
+      large: { open: 12, compact: 1, hidden: 0, disabled: 0 },
+      extraLarge: { open: 8, compact: 1, hidden: 0, disabled: 0 },
+    }[state.viewportSize];
+    return sizes[state.footerState] || 3;
+  },
+
+  sidebarLeftVw(state): number {
+    const sizes = {
+      small: { open: 22, compact: 10, hidden: 0, disabled: 0 },
+      medium: { open: 16, compact: 9, hidden: 0, disabled: 0 },
+      large: { open: 13, compact: 7, hidden: 0, disabled: 0 },
+      extraLarge: { open: 10, compact: 3, hidden: 0, disabled: 0 },
+    }[state.viewportSize];
+    return sizes[state.sidebarLeftState] || 16;
+  },
+
+  sidebarRightVw(state): number {
+    const sizes = {
+      small: { open: 1, compact: 1, hidden: 0, disabled: 0 },
+      medium: { open: 33, compact: 1, hidden: 0, disabled: 0 },
+      large: { open: 25, compact: 1, hidden: 0, disabled: 0 },
+      extraLarge: { open: 30, compact: 1, hidden: 0, disabled: 0 },
+    }[state.viewportSize];
+    return sizes[state.sidebarRightState] || 2;
+  },
+
+  mainVh(state): number {
+    return 100 - state.headerVh - state.footerVh;
+  },
+
+  mainVw(state): number {
+    return 100 - state.sidebarLeftVw - state.sidebarRightVw;
+  },
+
+  headerHeight(state): string {
+    return `calc(var(--vh) * ${state.headerVh})`;
+  },
+
+  footerHeight(state): string {
+    return `calc(var(--vh) * ${state.footerVh})`;
+  },
+
+  footerWidth(state): string {
+    return `calc(100vw - ${state.sidebarLeftVw}vw - ${state.sidebarRightVw}vw)`;
+  },
+
+  mainWidth(state): string {
+    return `calc(100vw - ${state.sidebarLeftVw}vw - ${state.sidebarRightVw}vw)`;
+  },
+
+  mainHeight(state): string {
+    return `calc(var(--vh) * 100 - var(--vh) * ${state.headerVh} - var(--vh) * ${state.footerVh})`;
+  },
+
+  sidebarLeftWidth(state): string {
+    return `${state.sidebarLeftVw}vw`;
+  },
+
+  sidebarRightWidth(state): string {
+    return `${state.sidebarRightVw}vw`;
+  },
+
+  isLargeViewport(state): boolean {
+    return ['large', 'extraLarge'].includes(state.viewportSize);
+  },
+
+  iconSize(state): number {
+    const sizes = {
+      small: { open: 18, compact: 16, hidden: 14, disabled: 14 },
+      medium: { open: 24, compact: 20, hidden: 18, disabled: 18 },
+      large: { open: 28, compact: 24, hidden: 20, disabled: 20 },
+      extraLarge: { open: 32, compact: 28, hidden: 24, disabled: 24 },
+    }[state.viewportSize];
+    return sizes[state.headerState] || 24;
+  },
+},
+
 
   actions: {
     initialize() {

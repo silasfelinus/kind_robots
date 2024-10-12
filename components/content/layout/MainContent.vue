@@ -1,8 +1,8 @@
 <template>
-  <div class="relative h-full flex flex-col rounded-2xl bg-base-300">
+  <div class="relative h-full w-full flex flex-col rounded-2xl bg-base-300">
     <!-- Main Content Area -->
     <div
-      class="relative flex-grow h-full flex flex-col box-border overflow-hidden"
+      class="relative flex-grow h-full w-full flex flex-col box-border overflow-hidden"
       :style="{ width: mainContentWidth, height: mainContentHeight }"
     >
       <!-- Left Toggle Button (inside content) -->

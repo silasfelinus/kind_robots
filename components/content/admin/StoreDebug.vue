@@ -1,8 +1,8 @@
 <template>
-  <div class="main-layout absolute inset-0 pointer-events-none">
+  <div class="screen-debug fixed inset-0 pointer-events-none">
     <!-- Header -->
     <header
-      class="header-overlay debug-box pointer-events-none"
+      class="header-overlay debug-box"
       :style="{
         height: 'calc(var(--vh, 1vh) * ' + displayStore.headerVh + ')',
       }"
@@ -10,22 +10,24 @@
 
     <!-- Main content area with sidebars and main content -->
     <div
-      class="content-area"
+      class="content-area grid"
       :style="{
         gridTemplateColumns: `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
         height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
       }"
     >
+      <!-- Left Sidebar -->
       <aside
-        class="sidebar-left-overlay debug-box pointer-events-none"
+        class="sidebar-left-overlay debug-box"
         :style="{
           width: displayStore.sidebarLeftVw + 'vw',
           height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
         }"
       ></aside>
 
+      <!-- Main Content -->
       <main
-        class="main-content-overlay debug-box pointer-events-none"
+        class="main-content-overlay debug-box"
         :style="{
           height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
           width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
@@ -33,7 +35,7 @@
       >
         <!-- Floating color-coded key in the center -->
         <div
-          class="color-key absolute inset-0 flex justify-center items-center pointer-events-none"
+          class="color-key absolute inset-0 flex justify-center items-center"
         >
           <div class="key-container bg-white p-4 rounded-lg shadow-md">
             <p>
@@ -75,8 +77,9 @@
         </div>
       </main>
 
+      <!-- Right Sidebar -->
       <aside
-        class="sidebar-right-overlay debug-box pointer-events-none"
+        class="sidebar-right-overlay debug-box"
         :style="{
           width: displayStore.sidebarRightVw + 'vw',
           height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
@@ -86,14 +89,14 @@
 
     <!-- Footer -->
     <footer
-      class="footer-overlay debug-box pointer-events-none"
+      class="footer-overlay debug-box"
       :style="{
         height: 'calc(var(--vh, 1vh) * ' + displayStore.footerVh + ')',
       }"
     ></footer>
 
     <!-- Tick Overlay for every 20vh/20vw -->
-    <div class="tick-overlay pointer-events-none"></div>
+    <div class="tick-overlay"></div>
   </div>
 </template>
 
@@ -107,7 +110,6 @@ const displayStore = useDisplayStore()
 // Function to set a custom --vh CSS variable to handle mobile devices like iPads
 const setCustomVh = () => {
   if (typeof window !== 'undefined') {
-    // Check if we're in the browser
     const vh = window.innerHeight * 0.01
     document.documentElement.style.setProperty('--vh', `${vh}px`)
   }
@@ -115,33 +117,30 @@ const setCustomVh = () => {
 
 // Initialize the viewport state and load previous states
 onMounted(() => {
-  setCustomVh() // Set custom vh on mount if in the browser
-  window.addEventListener('resize', setCustomVh) // Update custom vh on resize if in the browser
+  setCustomVh() // Set custom vh on mount
+  window.addEventListener('resize', setCustomVh) // Update on resize
   displayStore.initialize() // Initialize store settings
 })
 
 // Remove the viewport watcher on component unmount
 onBeforeUnmount(() => {
-  if (typeof window !== 'undefined') {
-    // Only clean up in the browser
-    window.removeEventListener('resize', setCustomVh) // Clean up the listener
-  }
-  displayStore.removeViewportWatcher()
+  window.removeEventListener('resize', setCustomVh) // Clean up listener
 })
 </script>
 
 <style scoped>
-.main-layout {
-  display: grid;
-  grid-template-rows: auto 1fr auto; /* Header, Main Content, Footer */
-  height: calc(var(--vh, 1vh) * 100); /* Custom height using var(--vh) */
-  overflow: hidden; /* Prevent any overflow */
+.screen-debug {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* Prevent interaction with debug */
 }
 
 .content-area {
   display: grid;
   grid-template-columns: 1fr; /* Dynamically handled by inline styles */
-  overflow: hidden; /* Prevent horizontal scrolling */
 }
 
 .header-overlay,
@@ -151,32 +150,31 @@ onBeforeUnmount(() => {
 .footer-overlay {
   position: relative;
   text-align: center;
-  padding: 0; /* Ensure no padding */
+  padding: 0;
 }
 
 .header-overlay {
-  background-color: #ff6f61; /* Red for header */
+  background-color: #ff6f61;
 }
 
 .sidebar-left-overlay {
-  background-color: #6fa8dc; /* Blue for left sidebar */
+  background-color: #6fa8dc;
 }
 
 .main-content-overlay {
-  background-color: #76dd71; /* Green for main content */
-  position: relative;
+  background-color: #76dd71;
 }
 
 .sidebar-right-overlay {
-  background-color: #f4d03f; /* Yellow for right sidebar */
+  background-color: #f4d03f;
 }
 
 .footer-overlay {
-  background-color: #f39c12; /* Orange for footer */
+  background-color: #f39c12;
 }
 
 .debug-box {
-  border: 2px dashed rgba(255, 255, 255, 0.8); /* Visible debug border */
+  border: 2px dashed rgba(255, 255, 255, 0.8);
 }
 
 .tick-overlay {
@@ -195,9 +193,8 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-/* Floating color-coded key */
 .color-key {
-  pointer-events: none; /* Ensure it doesn't block interactions */
+  pointer-events: none;
 }
 
 .key-container {

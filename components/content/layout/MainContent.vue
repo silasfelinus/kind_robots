@@ -45,10 +45,10 @@
           >
             <!-- Main Content (NuxtPage) -->
             <div
-              class="flip-card-front rounded-2xl hide-scrollbar h-full w-full box-border"
+              class="flip-card-front overflow-y-auto hide-scrollbar h-full w-full box-border"
             >
               <NuxtPage
-                class="overflow-y-auto h-full w-full border-4 box-border"
+                class="h-full w-full rounded-2xl border-4 box-border"
               />
             </div>
 

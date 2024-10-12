@@ -8,8 +8,7 @@
     <header
       class="fixed top-0 left-0 w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden"
       :style="{
-        height: `calc(${headerHeight} - ${sectionPadding})`, // Adjust for top and bottom padding
-        padding: sectionPadding,
+        height: headerHeight, // Directly set header height
       }"
     >
       <header-upgrade class="flex-grow text-center" />
@@ -17,13 +16,13 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed left-0 z-20 box-border transition-all duration-500 ease-in-out"
+      class="fixed z-20 box-border transition-all duration-500 ease-in-out"
       :class="{ 'overflow-hidden': !sidebarLeftOpen }"
       :style="{
-        width: `calc(${sidebarLeftWidth} - ${sectionPadding})`, // Adjust for left and right padding
-        top: `calc(${headerHeight} + ${sectionPadding})`, // Account for header and its padding
-        bottom: `calc(${footerHeight} + ${sectionPadding})`, // Account for footer and its padding
-        padding: sectionPadding,
+        width: sidebarLeftWidth,
+        left: 0, // Align to the left side
+        top: headerHeight, // Start below the header
+        bottom: footerHeight, // End above the footer
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -33,11 +32,11 @@
     <main
       class="absolute z-10 box-border overflow-hidden transition-all duration-300"
       :style="{
-        top: `calc(${headerHeight} + ${sectionPadding})`, // Account for header and padding
-        bottom: `calc(${footerHeight} + ${sectionPadding})`, // Account for footer and padding
-        left: `calc(${sidebarLeftWidth} + ${sectionPadding})`, // Account for left sidebar and padding
-        right: `calc(${sidebarRightWidth} + ${sectionPadding})`, // Account for right sidebar and padding
-        padding: sectionPadding,
+        top: headerHeight, // Start below the header
+        bottom: footerHeight, // End above the footer
+        left: sidebarLeftWidth, // Start after left sidebar
+        right: sidebarRightWidth, // End before right sidebar
+        padding: sectionPadding, // Padding only for content area
       }"
     >
       <main-content />
@@ -45,12 +44,12 @@
 
     <!-- Right Sidebar -->
     <aside
-      class="fixed right-0 z-20 box-border transition-all duration-500 ease-in-out bg-primary"
+      class="fixed z-20 box-border transition-all duration-500 ease-in-out bg-primary"
       :style="{
-        width: `calc(${sidebarRightWidth} - ${sectionPadding})`, // Adjust for right padding
-        top: `calc(${headerHeight} + ${sectionPadding})`, // Account for header and padding
-        bottom: `calc(${footerHeight} + ${sectionPadding})`, // Account for footer and padding
-        padding: sectionPadding,
+        width: sidebarRightWidth,
+        right: 0, // Align to the right side
+        top: headerHeight, // Start below the header
+        bottom: footerHeight, // End above the footer
       }"
     >
       <splash-tutorial
@@ -63,8 +62,7 @@
     <footer
       class="fixed bottom-0 left-0 right-0 z-30 box-border overflow-hidden"
       :style="{
-        height: `calc(${footerHeight} - ${sectionPadding})`, // Adjust for bottom and top padding
-        padding: sectionPadding,
+        height: footerHeight, // Directly set footer height
       }"
     >
       <footer-toggle />
@@ -84,8 +82,6 @@ const displayStore = useDisplayStore()
 const headerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.headerVh})`,
 )
-
-const isLargeScreen = computed(() => displayStore.isLargeViewport)
 
 // Sidebar widths for left and right
 const sidebarLeftWidth = computed(() => `${displayStore.sidebarLeftVw}vw`)
@@ -109,4 +105,7 @@ const footerOpen = computed(() => displayStore.footerState === 'open')
 const sidebarLeftOpen = computed(
   () => displayStore.sidebarLeftState !== 'hidden',
 )
+
+// Check if it's a large viewport
+const isLargeScreen = computed(() => displayStore.isLargeViewport)
 </script>

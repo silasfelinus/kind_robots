@@ -1,7 +1,7 @@
 <template>
   <div
     class="fixed z-50 bg-opacity-90 bg-black text-white p-4 rounded-lg"
-    style="top: 50%; left: 50%; transform: translate(-50%, -50%);"
+    style="top: 50%; left: 50%; transform: translate(-50%, -50%)"
   >
     <h2 class="text-lg font-bold">Debug Info</h2>
     <ul class="text-sm space-y-2">
@@ -9,15 +9,37 @@
       <li><strong>Sidebar Right State:</strong> {{ sidebarRightState }}</li>
       <li><strong>Footer State:</strong> {{ footerState }}</li>
       <li><strong>Is Mobile:</strong> {{ isMobile }}</li>
-      <li><strong>Main Width:</strong> {{ mainWidth }}</li>
-      <li><strong>Main Height:</strong> {{ mainHeight }}</li>
-      <li><strong>Sidebar Left Width:</strong> {{ sidebarLeftWidth }}</li>
-      <li><strong>Sidebar Right Width:</strong> {{ sidebarRightWidth }}</li>
-      <li><strong>Header Height:</strong> {{ headerHeight }}</li>
-      <li><strong>Footer Height:</strong> {{ footerHeight }}</li>
+
+      <!-- Display numerical and string versions for dimensions -->
+      <li><strong>Main Width (num):</strong> {{ mainVw }}vw</li>
+      <li><strong>Main Width (str):</strong> {{ mainWidth }}</li>
+      <li><strong>Main Height (num):</strong> {{ mainVh }}vh</li>
+      <li><strong>Main Height (str):</strong> {{ mainHeight }}</li>
+
+      <li><strong>Sidebar Left Width (num):</strong> {{ sidebarLeftVw }}vw</li>
+      <li><strong>Sidebar Left Width (str):</strong> {{ sidebarLeftWidth }}</li>
+
+      <li>
+        <strong>Sidebar Right Width (num):</strong> {{ sidebarRightVw }}vw
+      </li>
+      <li>
+        <strong>Sidebar Right Width (str):</strong> {{ sidebarRightWidth }}
+      </li>
+
+      <li><strong>Header Height (num):</strong> {{ headerVh }}vh</li>
+      <li><strong>Header Height (str):</strong> {{ headerHeight }}</li>
+
+      <li><strong>Footer Height (num):</strong> {{ footerVh }}vh</li>
+      <li><strong>Footer Height (str):</strong> {{ footerHeight }}</li>
+
+      <!-- Additional debug info -->
       <li><strong>Padding:</strong> {{ sectionPadding }}</li>
-      <li><strong>Left Sidebar Multiplier:</strong> {{ sidebarLeftMultiplier }}</li>
-      <li><strong>Right Sidebar Multiplier:</strong> {{ sidebarRightMultiplier }}</li>
+      <li>
+        <strong>Left Sidebar Multiplier:</strong> {{ sidebarLeftMultiplier }}
+      </li>
+      <li>
+        <strong>Right Sidebar Multiplier:</strong> {{ sidebarRightMultiplier }}
+      </li>
     </ul>
   </div>
 </template>
@@ -29,19 +51,44 @@ import { useDisplayStore } from '@/stores/displayStore'
 // Access the displayStore for the values to debug
 const displayStore = useDisplayStore()
 
+// Accessing the states
 const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
 const sidebarRightState = computed(() => displayStore.sidebarRightState)
 const footerState = computed(() => displayStore.footerState)
 const isMobile = computed(() => displayStore.isMobileViewport)
+
+// Numerical values
+const mainVw = computed(() => displayStore.mainVw)
+const mainVh = computed(() => displayStore.mainVh)
+const sidebarLeftVw = computed(() => displayStore.sidebarLeftVw)
+const sidebarRightVw = computed(() => displayStore.sidebarRightVw)
+const headerVh = computed(() => displayStore.headerVh)
+const footerVh = computed(() => displayStore.footerVh)
+
+// String values for dimensions
 const mainWidth = computed(() => displayStore.mainWidth)
 const mainHeight = computed(() => displayStore.mainHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const headerHeight = computed(() => `calc(var(--vh) * ${displayStore.headerVh})`)
-const footerHeight = computed(() => `calc(var(--vh) * ${displayStore.footerVh})`)
+const headerHeight = computed(() => displayStore.headerHeight)
+const footerHeight = computed(() => displayStore.footerHeight)
+
+// Other variables
 const sectionPadding = '16px'
-const sidebarLeftMultiplier = computed(() => (displayStore.sidebarLeftState !== 'hidden' && displayStore.sidebarLeftState !== 'disabled') ? 2 : 1)
-const sidebarRightMultiplier = computed(() => (displayStore.sidebarRightState !== 'hidden' && displayStore.sidebarRightState !== 'disabled') ? 2 : 1)
+
+// Multiplier values
+const sidebarLeftMultiplier = computed(() =>
+  displayStore.sidebarLeftState !== 'hidden' &&
+  displayStore.sidebarLeftState !== 'disabled'
+    ? 2
+    : 1,
+)
+const sidebarRightMultiplier = computed(() =>
+  displayStore.sidebarRightState !== 'hidden' &&
+  displayStore.sidebarRightState !== 'disabled'
+    ? 2
+    : 1,
+)
 </script>
 
 <style scoped>

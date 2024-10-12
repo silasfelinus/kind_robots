@@ -3,7 +3,6 @@
     <!-- Main Content Area -->
     <div
       class="relative flex-grow h-full w-full flex flex-col box-border overflow-hidden"
-      :style="{ width: mainContentWidth, height: mainContentHeight }"
     >
       <!-- Left Toggle Button (inside content) -->
       <left-toggle
@@ -54,10 +53,7 @@
             </div>
 
             <!-- Splash Tutorial -->
-            <div
-              class="flip-card-back rounded-2xl h-full w-full box-border"
-              :style="{ height: mainContentHeight }"
-            >
+            <div class="flip-card-back rounded-2xl h-full w-full box-border">
               <SplashTutorial class="h-full w-full box-border" />
             </div>
           </div>
@@ -74,14 +70,10 @@ import { useDisplayStore } from '@/stores/displayStore'
 // Access layout-related data and state from displayStore
 const displayStore = useDisplayStore()
 
-// Layout dimensions and state
+// Determine mobile or large screen state
 const isMobile = computed(() => displayStore.isMobileViewport)
 const isLargeScreen = computed(() => displayStore.isLargeViewport)
+
+// Tutorial visibility
 const showTutorial = computed(() => displayStore.showTutorial)
-
-// Calculate main content width (subtract sidebar widths)
-const mainContentWidth = computed(() => displayStore.mainWidth)
-
-// Calculate main content height (subtract header and footer heights)
-const mainContentHeight = computed(() => displayStore.mainHeight)
 </script>

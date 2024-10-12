@@ -9,6 +9,7 @@
       class="fixed w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden"
       :style="{
         height: headerHeight,
+        width: `calc(100vw - ${sectionPadding} * 2)`,
         top: sectionPadding,
         left: sectionPadding,
         right: sectionPadding,
@@ -64,6 +65,7 @@
       class="fixed z-30 box-border overflow-hidden"
       :style="{
         height: footerHeight,
+width: mainWidth,
         left: sectionPadding,
         right: sectionPadding,
         bottom: sectionPadding,
@@ -86,6 +88,8 @@ const displayStore = useDisplayStore()
 const headerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.headerVh})`,
 )
+
+const mainWidth = computed (()=> displayStore.mainWidth)
 
 // Sidebar widths for left and right
 const sidebarLeftWidth = computed(() => `${displayStore.sidebarLeftVw}vw`)

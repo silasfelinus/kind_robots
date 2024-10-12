@@ -122,18 +122,10 @@ export const useDisplayStore = defineStore('display', {
       return `${this.sidebarLeftVw}vw`;
     },
     
-    sidebarRightWidth(): string {
-      return `${this.sidebarRightVw}vw`;
-    },
-    
-    gridColumns(): string {
-      return `${this.sidebarLeftVw}vw 1fr ${this.sidebarRightVw}vw`
+    sidebarRightWidth(state): string {
+      return `${state.sidebarRightVw}vw`;
     },
 
-
-    gridRows(): string {
-      return `${this.headerHeight} 1fr`;
-    },
 
 
     isLargeViewport(state): boolean {

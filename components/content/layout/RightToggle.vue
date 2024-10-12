@@ -2,7 +2,7 @@
   <div>
     <!-- Toggle button for right sidebar and tutorial -->
     <button
-      class="flex items-center justify-center text-accent rounded-lg shadow-lg hover:bg-secondary tet-lg"
+      class="flex items-center justify-center text-accent rounded-lg shadow-lg hover:bg-secondary text-lg h-10 w-10"
       @click="toggleTutorialWithSidebar"
     >
       {{ rightIconText }}

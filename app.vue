@@ -25,7 +25,7 @@
         width: sidebarLeftWidth,
         left: sectionPadding,
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-        height: `calc(${mainHeight} - (${sectionPadding} * ${footerMultiplier} + 1))`,
+        height: `calc(${mainHeight} - (${sectionPadding} * ${footerMultiplier} + 2))`,
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -33,12 +33,12 @@
 
     <!-- Main Content -->
     <main
-      class="absolute z-10 box-border overflow-hidden transition-all duration-300"
+      class="fixed z-10 box-border overflow-hidden transition-all duration-300"
       :style="{
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-        height: `calc(${mainHeight} - (${sectionPadding} * ${footerMultiplier} + 1))`,
+        height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
         left: `calc(${sidebarLeftWidth} + ${sectionPadding} * ${leftSidebarMultiplier})`,
-        right: `calc(${sidebarRightWidth} + ${sectionPadding} * ${rightSidebarMultiplier})`,
+        width: `calc(${mainWidth} - (${sectionPadding} * ${leftSidebarMultiplier}) - (${sectionPadding} * ${rightSidebarMultiplier}))`,
       }"
     >
       <main-content />
@@ -51,7 +51,7 @@
         width: sidebarRightWidth,
         right: sectionPadding,
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-        height: `calc(${mainHeight} - (${sectionPadding} * ${footerMultiplier} + 1))`,
+        height: `calc(${mainHeight} - (${sectionPadding} * ${footerMultiplier} + 2))`,
       }"
     >
       <splash-tutorial
@@ -65,7 +65,7 @@
       class="fixed z-30 box-border overflow-hidden"
       :style="{
         height: footerHeight,
-width: mainWidth,
+        width: calc(100vw - ${sectionPadding} * 2)`,
         left: sectionPadding,
         right: sectionPadding,
         bottom: sectionPadding,
@@ -93,8 +93,8 @@ const mainHeight = computed (()=> displayStore.mainHeight)
 const mainWidth = computed (()=> displayStore.mainWidth)
 
 // Sidebar widths for left and right
-const sidebarLeftWidth = computed(() => `${displayStore.sidebarLeftVw}vw`)
-const sidebarRightWidth = computed(() => `${displayStore.sidebarRightVw}vw`)
+const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
+const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 
 // Footer height
 const footerHeight = computed(

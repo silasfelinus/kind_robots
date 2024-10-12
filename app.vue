@@ -65,7 +65,7 @@
       class="fixed z-30 box-border overflow-hidden"
       :style="{
         height: footerHeight,
-        width: calc(100vw - ${sectionPadding} * 2)`,
+        width: `calc(100vw - ${sectionPadding} * 2)`,
         left: sectionPadding,
         right: sectionPadding,
         bottom: sectionPadding,

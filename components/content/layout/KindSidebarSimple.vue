@@ -1,13 +1,8 @@
 <template>
-  <div class="flex">
+  <div class="flex h-full">
     <!-- Left Sidebar -->
     <aside
-      class="transition-all duration-300 bg-base-300 border-4 rounded-2xl left-0 overflow-y-auto flex flex-col justify-between"
-      :style="{
-        width: displayStore.sidebarLeftWidth,
-        top: displayStore.headerHeight,
-        height: `calc(100vh - ${displayStore.headerHeight} - ${displayStore.footerHeight})`,
-      }"
+      class="transition-all duration-300 bg-base-300 border-4 rounded-2xl left-0 overflow-y-auto flex flex-col justify-between flex-grow"
     >
       <!-- Sidebar Links with Icons and Titles -->
       <div class="flex flex-col justify-between flex-grow">

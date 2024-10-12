@@ -1,7 +1,8 @@
 <template>
   <div>
+    <!-- Toggle button for larger displays (controlled by parent container) -->
     <button
-      class="flex items-center justify-center text-accent rounded-lg shadow-lg hover:bg-secondary text-lg"
+      class="flex items-center justify-center p-2 text-accent text-lg h-10 w-10 rounded-lg shadow-lg hover:bg-secondary"
       @click="toggleSidebarLeft"
     >
       {{ iconText }}
@@ -26,7 +27,9 @@ const iconText = computed(() => {
 
 // Toggle the left sidebar
 const toggleSidebarLeft = () => {
+  console.log('Before toggle sidebarLeftState:', displayStore.sidebarLeftState)
   displayStore.toggleSidebar('sidebarLeftState')
+  console.log('After toggle sidebarLeftState:', displayStore.sidebarLeftState)
 }
 </script>
 

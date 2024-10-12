@@ -15,7 +15,7 @@
 
     <!-- Main Content Section -->
     <div
-      class="flex-1 flex flex-col items-center justify-between p-4 box-border overflow-hidden"
+      class="flex-1 flex flex-col items-center justify-between p-1 box-border overflow-hidden"
       :style="{ height: mainHeight }"
     >
       <!-- Main Image -->

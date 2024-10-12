@@ -46,7 +46,7 @@
           <ResponseEntry
             :role="msg.role"
             :content="msg.content ?? ''"
-            :avatar-image="msg.avatarImage ?? '/images/default-avatar.webp'"
+            :avatar-image="msg.avatarImage ?? '/images/bot.webp'"
             :bot-name="msg.botName ?? 'Kind Robot'"
             :subtitle="msg.subtitle ?? 'Your friendly neighborhood AI'"
           />

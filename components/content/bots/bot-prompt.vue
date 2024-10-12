@@ -82,7 +82,7 @@ const sendReply = async (updatedMessages: Message[]) => {
     >
       <div class="flex flex-col md:flex-row items-center">
         <img
-          :src="currentBot?.avatarImage || '/images/default-avatar.png'"
+          :src="currentBot?.avatarImage || '/images/bot.webp'"
           alt="Bot Avatar"
           class="avatar-img md:w-1/4 rounded-full border-4 border-theme shadow-md"
         />

@@ -20,12 +20,11 @@
     <!-- Left Sidebar -->
     <aside
       class="fixed z-20 box-border transition-all duration-500 ease-in-out"
-      :class="{ 'overflow-hidden': !sidebarLeftOpen }"
       :style="{
         width: sidebarLeftWidth,
         left: sectionPadding,
-        top: `calc(${headerHeight} + ${sectionPadding})`, // Correct calculation
-        bottom: `calc(${footerHeight} + ${sectionPadding})`,
+        top: `calc(${headerHeight} + ${sectionPadding} * 2)`, // Correct calculation
+        bottom: `calc(${footerHeight} + ${sectionPadding} * 2)`,
       }"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
@@ -35,10 +34,10 @@
     <main
       class="absolute z-10 box-border overflow-hidden transition-all duration-300"
       :style="{
-        top: `calc(${headerHeight} + ${sectionPadding})`,
-        bottom: `calc(${footerHeight} + ${sectionPadding})`,
-        left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
-        right: `calc(${sidebarRightWidth} + ${sectionPadding})`,
+        top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
+        bottom: `calc(${footerHeight} + ${sectionPadding} * 2)`,
+        left: `calc(${sidebarLeftWidth} + ${sectionPadding} * 2)`,
+        right: `calc(${sidebarRightWidth} + ${sectionPadding} * 2)`,
       }"
     >
       <main-content />
@@ -50,8 +49,8 @@
       :style="{
         width: sidebarRightWidth,
         right: sectionPadding,
-        top: `calc(${headerHeight} + ${sectionPadding})`,
-        bottom: `calc(${footerHeight} + ${sectionPadding})`,
+        top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
+        bottom: `calc(${footerHeight} + ${sectionPadding} * 2)`,
       }"
     >
       <splash-tutorial

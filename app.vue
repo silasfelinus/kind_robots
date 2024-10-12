@@ -3,7 +3,7 @@
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
-<store-debug />
+<debug-launcher />
 
     <!-- Header -->
     <header

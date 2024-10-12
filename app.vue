@@ -37,7 +37,7 @@
       :style="{
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
-        left: `calc(${sidebarLeftWidth} + (${sectionPadding} * ${leftSidebarMultiplier}))`,
+        left: `calc(${sidebarLeftWidth} + (${sectionPadding} * ${sidebarLeftMultiplier}))`,
         width: `calc(${mainWidth} - (${sectionPadding} * ${sidebarLeftMultiplier}) - (${sectionPadding} * ${sidebarRightMultiplier}))`,
       }"
     >
@@ -89,8 +89,8 @@ const headerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.headerVh})`,
 )
 
-const mainHeight = computed (()=> displayStore.mainHeight)
-const mainWidth = computed (()=> displayStore.mainWidth)
+const mainHeight = computed(() => displayStore.mainHeight)
+const mainWidth = computed(() => displayStore.mainWidth)
 
 // Sidebar widths for left and right
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
@@ -100,7 +100,6 @@ const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const footerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.footerVh})`,
 )
-
 
 // Padding for all sections (consistent)
 const sectionPadding = '16px'
@@ -113,12 +112,16 @@ const footerOpen = computed(() => displayStore.footerState === 'open')
 
 // Check if the left sidebar is open (and not hidden/disabled)
 const sidebarLeftOpen = computed(
-  () => displayStore.sidebarLeftState !== 'hidden' && displayStore.sidebarLeftState !== 'disabled',
+  () =>
+    displayStore.sidebarLeftState !== 'hidden' &&
+    displayStore.sidebarLeftState !== 'disabled',
 )
 
 // Check if the right sidebar is open (and not hidden/disabled)
 const sidebarRightOpen = computed(
-  () => displayStore.sidebarRightState !== 'hidden' && displayStore.sidebarRightState !== 'disabled',
+  () =>
+    displayStore.sidebarRightState !== 'hidden' &&
+    displayStore.sidebarRightState !== 'disabled',
 )
 
 // Check if it's a large viewport
@@ -128,7 +131,6 @@ const isLargeScreen = computed(() => displayStore.isLargeViewport)
 const footerMultiplier = computed(() => (footerOpen.value ? 2 : 1))
 const sidebarLeftMultiplier = computed(() => (sidebarLeftOpen.value ? 2 : 1))
 const sidebarRightMultiplier = computed(() => (sidebarRightOpen.value ? 2 : 1))
-
 </script>
 
 <style scoped>

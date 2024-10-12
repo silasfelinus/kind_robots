@@ -1,16 +1,18 @@
 <template>
-  <div class="fixed bottom-10 right-10 z-50 p-4 bg-gray-800 rounded-lg shadow-lg">
+  <div
+    class="fixed bottom-10 right-10 z-50 p-4 bg-gray-800 rounded-lg shadow-lg"
+  >
     <h2 class="text-lg text-white font-bold mb-2">Debug Launcher</h2>
     <div class="flex flex-col space-y-2">
-      <button 
-        @click="showStoreDebug = !showStoreDebug" 
+      <button
         class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+        @click="showStoreDebug = !showStoreDebug"
       >
         Toggle Store Debug
       </button>
-      <button 
-        @click="showScreenDebug = !showScreenDebug" 
+      <button
         class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+        @click="showScreenDebug = !showScreenDebug"
       >
         Toggle Screen Debug
       </button>

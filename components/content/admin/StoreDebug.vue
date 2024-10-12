@@ -154,23 +154,23 @@ onBeforeUnmount(() => {
 }
 
 .header-overlay {
-  background-color: #ff6f61;
+  background-color: rgba(255, 111, 97, 0.5); /* Red with 50% opacity */
 }
 
 .sidebar-left-overlay {
-  background-color: #6fa8dc;
+  background-color: rgba(111, 168, 220, 0.5); /* Blue with 50% opacity */
 }
 
 .main-content-overlay {
-  background-color: #76dd71;
+  background-color: rgba(118, 221, 113, 0.5); /* Green with 50% opacity */
 }
 
 .sidebar-right-overlay {
-  background-color: #f4d03f;
+  background-color: rgba(244, 208, 63, 0.5); /* Yellow with 50% opacity */
 }
 
 .footer-overlay {
-  background-color: #f39c12;
+  background-color: rgba(243, 156, 18, 0.5); /* Orange with 50% opacity */
 }
 
 .debug-box {

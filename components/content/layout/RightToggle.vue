@@ -16,6 +16,8 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
+const isMobile = computed(() => displayStore.isMobileViewport)
+
 // Determine the icon text based on the sidebarRightState (hidden or open)
 const rightIconText = computed(() => {
   return displayStore.sidebarRightState === 'hidden' ? '<' : '>'
@@ -23,14 +25,17 @@ const rightIconText = computed(() => {
 
 // Function to toggle tutorial and sidebar
 const toggleTutorialWithSidebar = () => {
-  // If the sidebar is hidden, we open it and show the tutorial
-  if (displayStore.sidebarRightState === 'hidden') {
-    displayStore.sidebarRightState = 'open'
-    displayStore.showTutorial = true
+  if (!isMobile.value) {
+    if (displayStore.sidebarRightState === 'hidden') {
+      displayStore.sidebarRightState = 'open'
+      displayStore.showTutorial = true
+    } else {
+      displayStore.sidebarRightState = 'hidden'
+      displayStore.showTutorial = false
+    }
   } else {
-    // If the sidebar is open, we close it and hide the tutorial
-    displayStore.sidebarRightState = 'hidden'
-    displayStore.showTutorial = false
+    // Handle mobile-specific behavior here if necessary
+    console.log('Mobile mode, sidebar state remains unchanged.')
   }
 }
 </script>

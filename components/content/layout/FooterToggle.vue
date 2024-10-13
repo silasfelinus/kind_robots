@@ -1,11 +1,11 @@
 <template>
-  <div class="flex flex-grow z-50">
+  <div class="relative z-50">
     <button
-      class="flex items-center justify-center hover:bg-secondary rounded-lg"
+      class="footer-arc-button shadow-lg bg-accent hover:bg-secondary border-2 border-solid border-gray-300 text-lg text-white flex items-center justify-center"
       :style="buttonStyle"
       @click="toggleFooter"
     >
-      <!-- Conditionally render the text character based on footer state -->
+      <!-- Footer toggle character (▼ or ▲) -->
       <span class="toggle-character">{{ footerCharacter }}</span>
     </button>
   </div>
@@ -17,7 +17,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Compute the button size
+// Compute the button size dynamically
 const buttonStyle = computed(() => {
   const iconSize = 6
   return {
@@ -26,20 +26,33 @@ const buttonStyle = computed(() => {
   }
 })
 
-// Determine the footer character based on whether the footer is open or closed
+// Determine the footer character based on footer state
 const footerCharacter = computed(() => {
   return displayStore.footerState === 'open' ? '▼' : '▲'
 })
 
-// Toggle footer
+// Toggle the footer's open/closed state
 const toggleFooter = () => {
   displayStore.toggleFooter()
 }
 </script>
 
 <style scoped>
+.footer-arc-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 100% 0 0 0; /* Quarter arc effect for bottom-left corner */
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transform: translate(
+    -25%,
+    25%
+  ); /* Adjusts the button slightly into the corner */
+}
+
 .toggle-character {
-  font-size: 2rem; /* Adjust the size as needed */
+  font-size: 2rem; /* Matches the icon size you want */
   line-height: 1;
   display: inline-block;
 }

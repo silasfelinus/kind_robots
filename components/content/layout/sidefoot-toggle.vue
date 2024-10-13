@@ -1,14 +1,13 @@
 <template>
-  <div :class="togglePosition">
+  <div class="relative">
     <button
-      class="flex items-center justify-center hover:bg-secondary rounded-lg w-[6vh] h-[6vh]"
+      class="bottom-arc-button shadow-lg bg-accent hover:bg-secondary border-2 border-solid border-gray-300 text-lg text-white flex items-center justify-center"
       @click="toggleState"
     >
       <span class="text-2xl leading-none">{{ toggleCharacter }}</span>
     </button>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -27,51 +26,46 @@ const toggleState = () => {
   const sidebarLeftState = displayStore.sidebarLeftState
   const footerState = displayStore.footerState
 
-  // Case 1: Both are hidden
+  // Handle the sidebar and footer toggle logic
   if (sidebarLeftState === 'hidden' && footerState === 'hidden') {
-    // Open the footer and leave the sidebar hidden
     displayStore.footerState = 'open'
-  }
-
-  // Case 2: Both are exposed (sidebar is 'open' or 'compact' and footer is 'open')
-  if (
+  } else if (
     (sidebarLeftState === 'open' || sidebarLeftState === 'compact') &&
     footerState === 'open'
   ) {
-    // Hide the sidebar
     displayStore.sidebarLeftState = 'hidden'
   }
 }
 
-// Inline Tailwind for position, handling positioning based on footer state
-const togglePosition = computed(() =>
-  displayStore.footerState === 'open'
-    ? 'fixed bottom-[calc(var(--footer-height)+32px)] left-1/2 transform -translate-x-1/2 z-50'
-    : 'fixed bottom-16 left-[calc(var(--sidebar-width)+32px)] z-50',
-)
-
-// OnMounted lifecycle hook to check the states of the sidebar and footer
+// Lifecycle hook to ensure proper initial states
 onMounted(() => {
   const sidebarLeftState = displayStore.sidebarLeftState
   const footerState = displayStore.footerState
 
-  // Case 1: Both are hidden
   if (sidebarLeftState === 'hidden' && footerState === 'hidden') {
-    // Open the footer and leave the sidebar hidden
     displayStore.footerState = 'open'
-  }
-
-  // Case 2: Both are exposed (sidebar is 'open' or 'compact' and footer is 'open')
-  if (
+  } else if (
     (sidebarLeftState === 'open' || sidebarLeftState === 'compact') &&
     footerState === 'open'
   ) {
-    // Hide the sidebar
     displayStore.sidebarLeftState = 'hidden'
   }
 })
 </script>
 
 <style scoped>
-/* No extra custom styles needed, Tailwind classes handle positioning */
+.bottom-arc-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 0 0 0 100%; /* Quarter arc for bottom-left corner */
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transform: translate(-25%, 25%); /* Adjusts the button to fit the corner */
+}
+
+.text-2xl {
+  font-size: 2rem;
+  line-height: 1;
+}
 </style>

@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <!-- Toggle button for right sidebar and tutorial -->
+  <div class="relative">
+    <!-- Arc-style toggle button for right sidebar and tutorial -->
     <button
-      class="flex items-center justify-center text-accent rounded-lg shadow-lg hover:bg-secondary text-lg h-10 w-10"
+      class="arc-button shadow-lg bg-accent hover:bg-secondary border-2 border-solid border-gray-300 text-lg text-white flex items-center justify-center"
       @click="toggleTutorialSidebar"
     >
       {{ rightIconText }}
@@ -38,5 +38,16 @@ const toggleTutorialSidebar = () => {
 </script>
 
 <style scoped>
-/* No additional styles needed, using Tailwind CSS classes */
+.arc-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 100% 0 0 0; /* Creates the quarter arc */
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(
+    25%,
+    -25%
+  ); /* Adjusts the button position off the corner */
+}
 </style>

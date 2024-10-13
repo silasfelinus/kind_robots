@@ -18,9 +18,8 @@
       <header-upgrade class="flex-grow text-center" />
     </header>
 
-    <!-- Left Sidebar (conditionally rendered based on state) -->
+    <!-- Left Sidebar -->
     <aside
-      v-if="sidebarLeftOpen"
       class="fixed z-20 box-border transition-all duration-300 ease-in-out"
       :style="{
         width: sidebarLeftWidth,
@@ -29,17 +28,17 @@
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
+      <!-- Left toggle button (top-left corner of the sidebar) -->
       <left-toggle
-        v-if="!footerOpen"
-        class="fixed z-40 transition-all duration-600 ease-in-out"
+        class="absolute z-40 transition-all duration-600 ease-in-out"
         :style="{
           top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-          left: `calc(${sidebarLeftWidth} + ${sectionPadding} * (${sidebarLeftMultiplier})`,
+          left: `calc(${sidebarLeftWidth} + ${sectionPadding} * ${sidebarLeftMultiplier})`,
         }"
       />
+      <!-- Sidefoot toggle button (bottom-right corner of the sidebar) -->
       <sidefoot-toggle
-        v-if="sidebarLeftOpen || footerOpen"
-        class="fixed z-40 transition-all duration-600 ease-in-out"
+        class="absolute z-40 transition-all duration-600 ease-in-out"
         :style="{
           bottom: `calc(${footerHeight} + ${sectionPadding})`,
           left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
@@ -48,7 +47,7 @@
       <kind-sidebar-simple />
     </aside>
 
-    <!-- Main Content (adjusted based on the state of sidebars and footer) -->
+    <!-- Main Content -->
     <main
       class="fixed z-10 box-border transition-all duration-600 ease-in-out"
       :style="{
@@ -66,9 +65,8 @@
       <main-content />
     </main>
 
-    <!-- Right Sidebar (conditionally rendered based on state) -->
+    <!-- Right Sidebar -->
     <aside
-      v-if="sidebarRightOpen"
       class="fixed z-20 box-border transition-all duration-600 ease-in-out"
       :style="{
         width: sidebarRightWidth,
@@ -77,19 +75,19 @@
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
+      <!-- Right toggle button (top-right corner of the sidebar) -->
       <right-toggle
-        class="fixed z-40 transition-all duration-600 ease-in-out"
+        class="absolute z-40 transition-all duration-600 ease-in-out"
         :style="{
           top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-          right: `calc(${sidebarRightWidth} + ${sectionPadding} * (${sidebarRightMultiplier})`,
+          right: `calc(${sidebarRightWidth} + ${sectionPadding} * ${sidebarRightMultiplier})`,
         }"
       />
       <splash-tutorial v-if="showTutorial" class="h-full w-full" />
     </aside>
 
-    <!-- Footer (conditionally rendered based on state) -->
+    <!-- Footer -->
     <footer
-      v-if="footerOpen"
       class="fixed z-30 box-border overflow-hidden transition-all duration-600 ease-in-out"
       :style="{
         height: footerHeight,
@@ -99,17 +97,16 @@
         bottom: sectionPadding,
       }"
     >
+      <!-- Footer toggle button (bottom-left corner of the footer) -->
+      <footer-toggle
+        class="absolute z-40 transition-all duration-600 ease-in-out"
+        :style="{
+          bottom: `calc(${footerHeight} + ${sectionPadding})`,
+          left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
+        }"
+      />
       <horizontal-nav />
     </footer>
-
-    <footer-toggle
-      v-if="!sidebarLeftOpen"
-      class="fixed z-40 transition-all duration-600 ease-in-out"
-      :style="{
-        bottom: `calc(${footerHeight} + ${sectionPadding})`,
-        right: `calc(${sidebarRightWidth} + ${sectionPadding})`,
-      }"
-    />
   </div>
 </template>
 

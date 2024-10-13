@@ -29,7 +29,7 @@
 
             <!-- Show the link title below the icon in compact state -->
             <span
-              v-if="displayStore.sidebarLeftState === 'compact'"
+              v-if="(displayStore.sidebarLeftState === 'compact' && !isMobile)"
               class="text-xs md:text-md lg:text-lg font-semibold mt-1 text-center bg-secondary text-white px-2 py-1 rounded-lg"
             >
               {{ link.title }}
@@ -82,6 +82,8 @@ const displayStore = useDisplayStore()
 const navigate = (path: string) => {
   router.push(path)
 }
+
+const isMobile = computed (()=> displayStore.isMobileViewport)
 </script>
 
 <style scoped>

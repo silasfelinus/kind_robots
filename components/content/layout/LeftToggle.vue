@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <button
-      class="left-arc-button shadow-lg bg-accent hover:bg-secondary border-2 border-solid border-gray-300 text-lg text-white flex items-center justify-center"
+      class="left-arc-button shadow-lg bg-accent hover:bg-secondary border-2 border-solid border-gray-300 text-lg text-white flex items-center justify-center z-10"
       @click="toggleSidebarLeft"
     >
       <!-- Conditionally render the icon based on the sidebar state -->
@@ -40,9 +40,9 @@ const toggleSidebarLeft = () => {
 
 <style scoped>
 .left-arc-button {
-  width: 50px;
-  height: 50px;
-  border-radius: 0 0 100% 0; /* Quarter arc effect for top-left corner */
+  width: 100px;
+  height: 100px;
+  border-radius: 100% 0 0 0; /* Quarter circle effect for the top-left corner */
   position: absolute;
   top: 0;
   left: 0;
@@ -50,6 +50,7 @@ const toggleSidebarLeft = () => {
     -25%,
     -25%
   ); /* Adjusts the button slightly into the corner */
+  z-index: 10; /* Ensures the button is above other content */
 }
 
 .toggle-character {

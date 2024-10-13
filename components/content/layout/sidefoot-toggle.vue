@@ -41,10 +41,10 @@ onMounted(() => {
   // If both are hidden or both are open/compact, adjust the states accordingly
   if (
     (sidebarLeftState === 'hidden' && footerState === 'hidden') ||
-    (sidebarLeftState !== 'hidden' && footerState !== 'open')
+    (sidebarLeftState !== 'hidden' && footerState !== 'hidden')
   ) {
     // Open the footer and close the sidebar
-    displayStore.footerState = 'open'
+    displayStore.footerState = 'compact'
     displayStore.sidebarLeftState = 'hidden'
   }
 })

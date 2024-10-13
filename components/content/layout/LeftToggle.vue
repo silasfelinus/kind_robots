@@ -1,10 +1,11 @@
 <template>
-  <div>
+  <div class="relative">
     <button
-      class="flex items-center justify-center text-accent text-lg h-10 w-10 rounded-lg shadow-lg hover:bg-secondary"
+      class="left-arc-button shadow-lg bg-accent hover:bg-secondary border-2 border-solid border-gray-300 text-lg text-white flex items-center justify-center"
       @click="toggleSidebarLeft"
     >
-      {{ iconText }}
+      <!-- Conditionally render the icon based on the sidebar state -->
+      <span class="toggle-character">{{ iconText }}</span>
     </button>
   </div>
 </template>
@@ -38,5 +39,22 @@ const toggleSidebarLeft = () => {
 </script>
 
 <style scoped>
-/* No additional styles needed, using Tailwind CSS classes */
+.left-arc-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 0 0 100% 0; /* Quarter arc effect for top-left corner */
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(
+    -25%,
+    -25%
+  ); /* Adjusts the button slightly into the corner */
+}
+
+.toggle-character {
+  font-size: 2rem; /* Matches the size of the text icon */
+  line-height: 1;
+  display: inline-block;
+}
 </style>

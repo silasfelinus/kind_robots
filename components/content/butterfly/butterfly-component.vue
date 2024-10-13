@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Butterfly } from './../../../stores/butterflyStore'
+import type { Butterfly } from '../../../stores/butterflyStore'
 
 // Define the props and specify the type for 'butterfly'
 const props = defineProps<{ butterfly: Butterfly }>()

@@ -5,17 +5,17 @@
     <div v-if="isMobile" class="flex-grow overflow-y-auto">
       <SplashTutorial
         v-if="showTutorial"
-        class="h-full w-full z-10 rounded-2xl"
+        class="h-full w-full z-10 rounded-2xl border-4"
       />
-      <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
+      <NuxtPage
+        v-else
+        class="h-full w-full z-10 overflow-y-auto rounded-2xl border-4"
+      />
     </div>
 
     <!-- Fullscreen Mode (Desktop) -->
-    <div
-      v-else
-      class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow"
-    >
-      <NuxtPage class="h-full w-full" />
+    <div v-else class="h-full w-full overflow-y-auto z-10 flex-grow">
+      <NuxtPage class="h-full w-full border-4 rounded-2xl" />
     </div>
   </div>
 </template>

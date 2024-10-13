@@ -5,14 +5,14 @@
         <img
           :src="selectImage"
           alt="Avatar"
-          class="avatar-img rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105"
+          class="avatar-img shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105"
         />
       </div>
       <div class="flip-card-back">
         <img
           :src="currentBot?.avatarImage || selectImage"
           alt="New Avatar"
-          class="avatar-img rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105"
+          class="avatar-img shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105"
         />
       </div>
     </div>
@@ -24,10 +24,12 @@ import { ref, computed, watch } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 import { useLayoutStore } from './../../../stores/layoutStore'
 import { useErrorStore } from './../../../stores/errorStore'
+import { useDisplayStore } from './../../../stores/displayStore'
 
-// Content and Bot stores
+// Stores
 const layoutStore = useLayoutStore()
 const errorStore = useErrorStore()
+const displayStore = useDisplayStore() // Add displayStore to handle the sidebar and tutorial toggles
 const flipped = ref(false)
 
 const { page } = useContent()
@@ -55,7 +57,11 @@ const handleAvatarClick = () => {
     // Flip the avatar image
     flipped.value = !flipped.value
 
-    // Toggle the sidebar state using layoutStore
+    // Toggle the sidebar and tutorial using displayStore
+    displayStore.toggleSidebar('sidebarLeftState')
+    displayStore.toggleTutorial()
+
+    // Optionally, if you still need to toggle other things in layoutStore
     layoutStore.toggleSidebar()
   } catch (error) {
     const errorMessage =
@@ -64,6 +70,7 @@ const handleAvatarClick = () => {
   }
 }
 </script>
+
 <style scoped>
 .flip-card {
   perspective: 1000px;

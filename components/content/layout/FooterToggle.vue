@@ -17,16 +17,16 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Compute the button size dynamically
+// Compute the button size dynamically based on viewport height (vh)
 const buttonStyle = computed(() => {
-  const iconSize = 6
+  const iconSize = 6 // Adjust the icon size in vh units
   return {
     width: `${iconSize}vh`,
     height: `${iconSize}vh`,
   }
 })
 
-// Determine the footer character based on footer state
+// Determine the footer character based on footer state (▼ for open, ▲ for closed)
 const footerCharacter = computed(() => {
   return displayStore.footerState === 'open' ? '▼' : '▲'
 })
@@ -39,8 +39,6 @@ const toggleFooter = () => {
 
 <style scoped>
 .footer-arc-button {
-  width: 50px;
-  height: 50px;
   border-radius: 100% 0 0 0; /* Quarter arc effect for bottom-left corner */
   position: absolute;
   bottom: 0;
@@ -48,11 +46,11 @@ const toggleFooter = () => {
   transform: translate(
     -25%,
     25%
-  ); /* Adjusts the button slightly into the corner */
+  ); /* Adjusts the button to fit snugly into the corner */
 }
 
 .toggle-character {
-  font-size: 2rem; /* Matches the icon size you want */
+  font-size: 2rem; /* Size of the arrow (▲ or ▼) */
   line-height: 1;
   display: inline-block;
 }

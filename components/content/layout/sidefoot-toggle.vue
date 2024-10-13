@@ -4,10 +4,12 @@
       class="bottom-arc-button shadow-lg bg-accent hover:bg-secondary border-2 border-solid border-gray-300 text-lg text-white flex items-center justify-center"
       @click="toggleState"
     >
+      <!-- Simple up and down caret characters -->
       <span class="text-2xl leading-none">{{ toggleCharacter }}</span>
     </button>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'

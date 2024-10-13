@@ -40,8 +40,8 @@
       <sidefoot-toggle
         class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="{
-          bottom: `calc(${footerHeight} + ${sectionPadding})`,
-          left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
+          bottom: `calc(${footerHeight} + (${sectionPadding} * ${footerMultiplier}))`,
+          left: `calc(${sidebarLeftWidth} + (${sectionPadding} * ${sidebarLeftMultiplier}))`,
         }"
       />
       <kind-sidebar-simple />
@@ -80,7 +80,7 @@
         class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="{
           top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-          right: `calc(${sidebarRightWidth} + ${sectionPadding} * ${sidebarRightMultiplier})`,
+          right: `calc(${sidebarRightWidth} + (${sectionPadding} * ${sidebarRightMultiplier}))`,
         }"
       />
       <splash-tutorial v-if="showTutorial" class="h-full w-full" />

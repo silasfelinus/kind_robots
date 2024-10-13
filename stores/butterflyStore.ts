@@ -17,17 +17,18 @@ export interface Butterfly {
 interface ButterflyState {
   butterflies: Butterfly[]
   scaleModifier: number // Global scale modifier
-  noise2D: (x: number, y: number) => number // Noise generator for movement
   animationFrameId: number | null // Store the animation frame ID
   t: number // Time for noise generation
 }
+
+// Move noise2D outside the state
+const noise2D = makeNoise2D(Date.now()) // Noise generator for movement
 
 export const useButterflyStore = defineStore({
   id: 'butterfly',
   state: (): ButterflyState => ({
     butterflies: [],
     scaleModifier: 1, // Default modifier to 1x
-    noise2D: makeNoise2D(Date.now()), // Noise generator for movement
     animationFrameId: null,
     t: 0
   }),
@@ -54,7 +55,7 @@ export const useButterflyStore = defineStore({
     // Update butterfly position using noise
     updateButterflyPosition(butterfly: Butterfly) {
       this.t += 0.01
-      const angle = this.noise2D(butterfly.x * 0.01, butterfly.y * 0.01 + this.t) * Math.PI * 2
+      const angle = noise2D(butterfly.x * 0.01, butterfly.y * 0.01 + this.t) * Math.PI * 2
       const dx = Math.cos(angle) * butterfly.speed
       const dy = Math.sin(angle) * butterfly.speed
 

@@ -20,7 +20,7 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-20 box-border transition-all duration-500 ease-in-out"
+      class="fixed z-20 box-border transition-all duration-300 ease-in-out"
       :style="{
         width: sidebarLeftWidth,
         left: sectionPadding,
@@ -30,7 +30,7 @@
     >
       <left-toggle
         v-if="!footerOpen"
-        class="fixed z-40 transition-all duration-500 ease-in-out"
+        class="fixed z-40 transition-all duration-300 ease-in-out"
         :style="{
           top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
           left: `calc(${sidebarLeftWidth} + ${sectionPadding} * (${sidebarLeftMultiplier})`,
@@ -39,7 +39,7 @@
 
       <sidefoot-toggle
         v-if="sidebarLeftOpen || footerOpen"
-        class="fixed z-40 transition-all duration-500 ease-in-out"
+        class="fixed z-40 transition-all duration-300 ease-in-out"
         :style="{
           bottom: `calc(${footerHeight} + ${sectionPadding})`,
           left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
@@ -51,7 +51,7 @@
 
     <!-- Main Content -->
     <main
-      class="fixed z-10 box-border transition-all duration-500 ease-in-out"
+      class="fixed z-10 box-border transition-all duration-300 ease-in-out"
       :style="{
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
@@ -64,7 +64,7 @@
 
     <!-- Right Sidebar -->
     <aside
-      class="fixed z-20 box-border transition-all duration-500 ease-in-out"
+      class="fixed z-20 box-border transition-all duration-300 ease-in-out"
       :style="{
         width: sidebarRightWidth,
         right: sectionPadding,
@@ -73,7 +73,7 @@
       }"
     >
       <right-toggle
-        class="fixed z-40 transition-all duration-500 ease-in-out"
+        class="fixed z-40 transition-all duration-300 ease-in-out"
         :style="{
           top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
           right: `calc(${sidebarRightWidth} + ${sectionPadding} * (${sidebarRightMultiplier})`,
@@ -88,7 +88,7 @@
 
     <!-- Footer -->
     <footer
-      class="fixed z-30 box-border overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed z-30 box-border overflow-hidden transition-all duration-300 ease-in-out"
       :style="{
         height: footerHeight,
         width: `calc(100vw - ${sectionPadding} * 2)`,
@@ -99,7 +99,7 @@
     >
       <footer-toggle
         v-if="!sidebarLeftOpen"
-        class="fixed z-40 transition-all duration-500 ease-in-out"
+        class="fixed z-40 transition-all duration-300 ease-in-out"
         :style="{
           bottom: `calc(${footerHeight} + ${sectionPadding})`,
           right: `calc(${sidebarRightWidth} + ${sectionPadding})`,

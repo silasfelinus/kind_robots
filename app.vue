@@ -18,8 +18,9 @@
       <header-upgrade class="flex-grow text-center" />
     </header>
 
-    <!-- Left Sidebar -->
+    <!-- Left Sidebar (conditionally rendered based on state) -->
     <aside
+      v-if="sidebarLeftOpen"
       class="fixed z-20 box-border transition-all duration-300 ease-in-out"
       :style="{
         width: sidebarLeftWidth,
@@ -36,7 +37,6 @@
           left: `calc(${sidebarLeftWidth} + ${sectionPadding} * (${sidebarLeftMultiplier})`,
         }"
       />
-
       <sidefoot-toggle
         v-if="sidebarLeftOpen || footerOpen"
         class="fixed z-40 transition-all duration-600 ease-in-out"
@@ -45,25 +45,30 @@
           left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
         }"
       />
-
-      <kind-sidebar-simple v-if="sidebarLeftOpen" />
+      <kind-sidebar-simple />
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main Content (adjusted based on the state of sidebars and footer) -->
     <main
       class="fixed z-10 box-border transition-all duration-600 ease-in-out"
       :style="{
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
-        right: `calc(${sidebarRightWidth} + (${sectionPadding} * ${sidebarRightMultiplier}))`,
-        width: `calc(${mainWidth} - (${sectionPadding} * ${sidebarLeftMultiplier}) - (${sectionPadding} * ${sidebarRightMultiplier}))`,
+        right: sidebarRightOpen
+          ? `calc(${sidebarRightWidth} + (${sectionPadding} * ${sidebarRightMultiplier}))`
+          : sectionPadding,
+        left: sidebarLeftOpen
+          ? `calc(${sidebarLeftWidth} + (${sectionPadding} * ${sidebarLeftMultiplier}))`
+          : sectionPadding,
+        width: `calc(100vw - (${sectionPadding} * (${sidebarLeftMultiplier} + ${sidebarRightMultiplier}) + ${sidebarLeftOpen ? sidebarLeftWidth : 0} + ${sidebarRightOpen ? sidebarRightWidth : 0}))`,
       }"
     >
       <main-content />
     </main>
 
-    <!-- Right Sidebar -->
+    <!-- Right Sidebar (conditionally rendered based on state) -->
     <aside
+      v-if="sidebarRightOpen"
       class="fixed z-20 box-border transition-all duration-600 ease-in-out"
       :style="{
         width: sidebarRightWidth,
@@ -79,15 +84,12 @@
           right: `calc(${sidebarRightWidth} + ${sectionPadding} * (${sidebarRightMultiplier})`,
         }"
       />
-
-      <splash-tutorial
-        v-if="sidebarRightOpen && showTutorial"
-        class="h-full w-full"
-      />
+      <splash-tutorial v-if="showTutorial" class="h-full w-full" />
     </aside>
 
-    <!-- Footer -->
+    <!-- Footer (conditionally rendered based on state) -->
     <footer
+      v-if="footerOpen"
       class="fixed z-30 box-border overflow-hidden transition-all duration-600 ease-in-out"
       :style="{
         height: footerHeight,
@@ -97,17 +99,17 @@
         bottom: sectionPadding,
       }"
     >
-      <footer-toggle
-        v-if="!sidebarLeftOpen"
-        class="fixed z-40 transition-all duration-600 ease-in-out"
-        :style="{
-          bottom: `calc(${footerHeight} + ${sectionPadding})`,
-          right: `calc(${sidebarRightWidth} + ${sectionPadding})`,
-        }"
-      />
-
-      <horizontal-nav v-if="footerOpen" />
+      <horizontal-nav />
     </footer>
+
+    <footer-toggle
+      v-if="!sidebarLeftOpen"
+      class="fixed z-40 transition-all duration-600 ease-in-out"
+      :style="{
+        bottom: `calc(${footerHeight} + ${sectionPadding})`,
+        right: `calc(${sidebarRightWidth} + ${sectionPadding})`,
+      }"
+    />
   </div>
 </template>
 
@@ -125,7 +127,6 @@ const headerHeight = computed(
 
 // Main content dimensions
 const mainHeight = computed(() => displayStore.mainHeight)
-const mainWidth = computed(() => displayStore.mainWidth)
 
 // Sidebar widths for left and right
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
@@ -162,7 +163,3 @@ const footerMultiplier = computed(() => (footerOpen.value ? 2 : 1))
 const sidebarLeftMultiplier = computed(() => (sidebarLeftOpen.value ? 2 : 1))
 const sidebarRightMultiplier = computed(() => (sidebarRightOpen.value ? 2 : 1))
 </script>
-
-<style scoped>
-/* No additional styles needed, using Tailwind CSS classes */
-</style>

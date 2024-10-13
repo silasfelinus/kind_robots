@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Arc-style toggle button for right sidebar and tutorial -->
     <button
-      class="arc-button shadow-lg bg-accent hover:bg-secondary border-2 border-solid border-gray-300 text-lg text-white flex items-center justify-center"
+      class="right-arc-button shadow-lg bg-accent hover:bg-secondary border-2 border-solid border-gray-300 text-lg text-white flex items-center justify-center z-10"
       @click="toggleTutorialSidebar"
     >
       {{ rightIconText }}
@@ -19,7 +19,7 @@ const displayStore = useDisplayStore()
 const isMobile = computed(() => displayStore.isMobileViewport)
 
 const rightIconText = computed(() => {
-  return displayStore.sidebarRightState === 'hidden' ? '<' : '>'
+  return displayStore.sidebarRightState === 'hidden' ? '>' : '<'
 })
 
 // Toggle the right sidebar and tutorial
@@ -38,16 +38,17 @@ const toggleTutorialSidebar = () => {
 </script>
 
 <style scoped>
-.arc-button {
-  width: 50px;
-  height: 50px;
-  border-radius: 100% 0 0 0; /* Creates the quarter arc */
+.right-arc-button {
+  width: 100px;
+  height: 100px;
+  border-radius: 0 100% 0 0; /* Quarter circle effect for the top-right corner */
   position: absolute;
   top: 0;
   right: 0;
   transform: translate(
     25%,
     -25%
-  ); /* Adjusts the button position off the corner */
+  ); /* Adjusts the button slightly off the corner */
+  z-index: 10; /* Ensures the button is above other content */
 }
 </style>

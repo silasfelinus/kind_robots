@@ -21,7 +21,7 @@
       v-if="showSwarm"
       class="full-page inset-0 overflow-hidden z-50 pointer-events-none"
     >
-      <store-swarm
+      <butterfly-component
         v-for="butterfly in butterflyStore.butterflies"
         :key="butterfly.id"
         :butterfly="butterfly"
@@ -51,7 +51,7 @@ const showSwarm = computed(() => butterflyStore.butterflies.length > 0)
 // Add or remove butterflies and start/stop animation
 const toggleAmiSwarm = () => {
   if (showSwarm.value) {
-    butterflyStore.butterflies = []
+    butterflyStore.clearButterflies() // Use a store action to clear butterflies
     butterflyStore.stopAnimation()
   } else {
     const butterflyCount = 15

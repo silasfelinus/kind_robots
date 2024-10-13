@@ -29,6 +29,7 @@
       }"
     >
       <left-toggle />
+      <sidefoot-toggle />
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
     </aside>
 

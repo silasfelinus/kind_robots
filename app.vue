@@ -56,7 +56,7 @@
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
-      <right-toggle />
+      <right-toggle v-if="!footerOpen" />
       <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full" />
     </aside>
 
@@ -71,7 +71,7 @@
         bottom: sectionPadding,
       }"
     >
-      <footer-toggle />
+      <footer-toggle v-if="!sidebarRightOpen" />
       <horizontal-nav v-if="footerOpen" />
     </footer>
   </div>

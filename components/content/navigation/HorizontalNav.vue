@@ -6,17 +6,20 @@
         :key="index"
         class="group flex flex-col items-center justify-end w-20"
       >
-        <span class="text-sm text-center whitespace-normal w-full">
+        <!-- Title below the icon in a stylized format -->
+        <span class="text-sm text-center whitespace-normal w-full bg-secondary text-white px-2 py-1 rounded-lg mb-2">
           {{ item.title }}
         </span>
+
+        <!-- Stylized button with hover and transition effects -->
         <button
           :aria-label="item.title"
-          class="hover:scale-110 transition-transform mt-auto"
+          class="hover:scale-110 transition-transform mt-auto rounded-full p-2 bg-accent text-white"
           @click="navigateTo(item.path)"
         >
           <icon
             :name="item.icon"
-            class="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 text-accent"
+            class="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12"
           />
         </button>
       </div>

@@ -54,7 +54,7 @@
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
-      <splash-tutorial v-if="showTutorial && !isMobile" class="h-full w-full" />
+      <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full" />
     </aside>
 
     <!-- Footer -->

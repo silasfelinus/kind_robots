@@ -16,8 +16,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-const isLargeScreen = computed(() => displayStore.isLargeViewport)
-
+const isMobile = computed(() => displayStore.isMobileViewport)
 
 const rightIconText = computed(() => {
   return displayStore.sidebarRightState === 'hidden' ? '<' : '>'
@@ -26,9 +25,8 @@ const rightIconText = computed(() => {
 const toggleTutorialSidebar = () => {
   displayStore.toggleTutorial()
 
-  if (isLargeScreen.value) {
-    
-    displayStore.sidebarRightState = 
+  if (!isMobile.value) {
+    displayStore.sidebarRightState =
       displayStore.sidebarRightState === 'hidden' ? 'open' : 'hidden'
   }
 }

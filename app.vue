@@ -32,12 +32,13 @@
         v-if="!footerOpen"
         class="fixed z-40 transition-all duration-500 ease-in-out"
         :style="{
-          top: `calc(50vh - ${sidebarLeftWidth} / 2 + ${sectionPadding} * ${sidebarLeftMultiplier})`,
-          left: sectionPadding,
+          top: `calc(50vh - ${mainHeight} / 2)`,
+          left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
         }"
       />
 
       <sidefoot-toggle
+        v-if="sidebarLeftOpen || footerOpen"
         class="fixed z-40 transition-all duration-500 ease-in-out"
         :style="{
           bottom: `calc(${footerHeight} + ${sectionPadding})`,
@@ -74,7 +75,7 @@
       <right-toggle
         class="fixed z-40 transition-all duration-500 ease-in-out"
         :style="{
-          top: `calc(50vh - ${sidebarRightWidth} / 2)`,
+          top: `calc(50vh - ${mainHeight} / 2)`,
           right: `calc(${sidebarRightWidth} + ${sectionPadding})`,
         }"
       />

@@ -34,7 +34,7 @@ export const useDisplayStore = defineStore('display', {
     headerState: 'open',
     sidebarLeftState: 'open',
     sidebarRightState: 'hidden',
-    footerState: 'open',
+    footerState: 'hidden',
     isVertical: false,
     viewportSize: 'large',
     isTouchDevice: false,

@@ -67,7 +67,7 @@ export const useDisplayStore = defineStore('display', {
     footerVh(state): number {
       const sizes = {
         small: { open: 13, compact: 1, hidden: 0, disabled: 0 },
-        medium: { open: 9, compact: 1, hidden: 0, disabled: 0 },
+        medium: { open: 12, compact: 1, hidden: 0, disabled: 0 },
         large: { open: 12, compact: 1, hidden: 0, disabled: 0 },
         extraLarge: { open: 8, compact: 1, hidden: 0, disabled: 0 },
       }[state.viewportSize];

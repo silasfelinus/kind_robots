@@ -98,7 +98,7 @@
         class="fixed z-40 transition-all duration-500 ease-in-out"
         :style="{
           bottom: `calc(${footerHeight} + ${sectionPadding})`,
-          left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
+          right: `calc(${sidebarRightWidth} + ${sectionPadding})`,
         }"
       />
 

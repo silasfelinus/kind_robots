@@ -20,10 +20,10 @@
     <div v-else class="flip-card-inner h-full z-10 flex-grow transition-transform duration-700" 
          :class="{ 'rotate-y-180': !showTutorial }">
       <div class="flip-card-front rounded-2xl h-full w-full backface-hidden">
-        <SplashTutorial class="h-full w-full" />
+        <NuxtPage class="h-full w-full" />
       </div>
       <div class="flip-card-back rounded-2xl overflow-y-auto h-full w-full backface-hidden rotate-y-180">
-        <NuxtPage class="h-full w-full" />
+        <SplashTutorial class="h-full w-full" />
       </div>
     </div>
 

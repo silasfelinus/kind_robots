@@ -16,12 +16,16 @@
       />
     </div>
 
-    <!-- Butterfly Swarm Animation -->
-    <div v-if="fxStore.showAmiSwarm">
+    <!-- Butterfly Swarm Animation Covering the Screen -->
+    <div
+      v-if="fxStore.showAmiSwarm"
+      class="absolute inset-0 overflow-hidden z-50 pointer-events-none"
+    >
       <ami-butterfly
         v-for="i in butterflyCount"
         :key="i"
         :style="{ '--animation-delay': i * 0.01 + 's' }"
+        class="absolute animate-fly"
       />
     </div>
 
@@ -78,5 +82,21 @@ const butterflyCount = 15
   display: flex;
   align-items: center;
   color: var(--text-accent);
+}
+
+/* Butterfly Animation */
+.ami-butterfly {
+  width: 50px;
+  height: 50px;
+  animation: fly 5s linear infinite;
+}
+
+@keyframes fly {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(calc(100vw - 50px), calc(100vh - 50px));
+  }
 }
 </style>

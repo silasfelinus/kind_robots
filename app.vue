@@ -20,7 +20,7 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-20 box-border transition-all duration-500 ease-in-out bg-secondary"
+      class="fixed z-20 box-border transition-all duration-500 ease-in-out"
       :style="{
         width: sidebarLeftWidth,
         left: sectionPadding,
@@ -46,7 +46,7 @@
 
     <!-- Right Sidebar -->
     <aside
-      class="fixed z-20 box-border transition-all duration-500 ease-in-out bg-secondary"
+      class="fixed z-20 box-border transition-all duration-500 ease-in-out"
       :style="{
         width: sidebarRightWidth,
         right: sectionPadding,

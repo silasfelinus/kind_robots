@@ -1,9 +1,9 @@
 <template>
-  <!-- Content of MainContent.vue focuses only on its content -->
+  <!-- Main container -->
   <div class="h-full flex flex-col">
+    
     <!-- Mobile View (no flip card) -->
     <div v-if="isMobile" class="flex-grow overflow-y-auto">
-      <!-- Add overflow-y-auto here -->
       <SplashTutorial
         v-if="showTutorial"
         class="h-full w-full z-10 rounded-2xl"
@@ -11,31 +11,25 @@
       <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
     </div>
 
-    <!-- Fullscreen mode (Desktop) -->
-    <div
-      v-else-if="isFullScreen"
-      class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow"
-    >
+    <!-- Fullscreen Mode (Desktop) -->
+    <div v-else-if="isFullScreen" class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow">
       <NuxtPage class="h-full w-full" />
     </div>
 
-    <!-- Flip-card mode (Desktop) -->
-    <div
-      v-else
-      class="flip-card-inner h-full z-10 flex-grow"
-      :class="{ 'is-flipped': !showTutorial }"
-    >
-      <div class="flip-card-front rounded-2xl h-full w-full">
+    <!-- Flip-card Mode (Medium Screens) -->
+    <div v-else class="flip-card-inner h-full z-10 flex-grow transition-transform duration-700" 
+         :class="{ 'rotate-y-180': !showTutorial }">
+      <div class="flip-card-front rounded-2xl h-full w-full backface-hidden">
         <SplashTutorial class="h-full w-full" />
       </div>
-      <div class="flip-card-back rounded-2xl overflow-y-auto h-full w-full">
+      <div class="flip-card-back rounded-2xl overflow-y-auto h-full w-full backface-hidden rotate-y-180">
         <NuxtPage class="h-full w-full" />
       </div>
     </div>
 
-    <tutorial-toggle v-if="!displayStore.isFullScreen" />
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'
@@ -46,9 +40,10 @@ const displayStore = useDisplayStore()
 
 // Layout dimensions and state
 const isMobile = computed(() => displayStore.isMobileViewport)
-const isFullScreen = computed(() => displayStore.isFullScreen)
+const isFullScreen = computed(() => displayStore.isLargeViewport)
 const showTutorial = computed(() => displayStore.showTutorial)
 </script>
+
 
 <style scoped>
 /* Flip-card style */

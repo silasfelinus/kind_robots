@@ -19,7 +19,7 @@ const displayStore = useDisplayStore()
 // Determine the icon text based on the sidebarLeftState (open, compact, hidden)
 const iconText = computed(() => {
   if (displayStore.sidebarLeftState === 'open') {
-    return '×' // Icon for open state
+    return '<' // Icon for open state
   } else if (displayStore.sidebarLeftState === 'compact') {
     return '<' // Icon for compact state
   }

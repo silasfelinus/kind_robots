@@ -14,10 +14,10 @@
           <!-- Navigation click event -->
           <a
             v-if="displayStore.sidebarLeftState !== 'hidden'"
-            class="flex items-center cursor-pointer w-full"
+            class="flex flex-col items-center cursor-pointer w-full"
             @click.prevent="navigate(link.path)"
           >
-            <!-- Only show icon if sidebar is open or compact -->
+            <!-- Show icon in all states except hidden -->
             <Icon
               v-if="
                 displayStore.sidebarLeftState === 'open' ||
@@ -27,7 +27,15 @@
               class="h-6 w-6 md:h-12 md:w-12 transition-all duration-300 ease-in-out text-accent"
             />
 
-            <!-- Only show the link title when the sidebar is fully open -->
+            <!-- Show the link title below the icon in compact state -->
+            <span
+              v-if="displayStore.sidebarLeftState === 'compact'"
+              class="text-xs md:text-md lg:text-lg font-semibold mt-1 text-center bg-secondary text-white px-2 py-1 rounded-lg"
+            >
+              {{ link.title }}
+            </span>
+
+            <!-- Only show the link title to the right in fully open state -->
             <span
               v-if="displayStore.sidebarLeftState === 'open'"
               class="text-xs md:text-md lg:text-lg font-semibold ml-2 transition-opacity duration-300"

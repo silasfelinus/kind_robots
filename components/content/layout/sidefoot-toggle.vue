@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
@@ -32,6 +32,22 @@ const togglePosition = computed(() =>
     ? 'fixed bottom-[calc(var(--footer-height)+32px)] left-1/2 transform -translate-x-1/2 z-50'
     : 'fixed bottom-16 left-[calc(var(--sidebar-width)+32px)] z-50',
 )
+
+// OnMounted lifecycle hook to check the states of the sidebar and footer
+onMounted(() => {
+  const sidebarLeftState = displayStore.sidebarLeftState
+  const footerState = displayStore.footerState
+
+  // If both are hidden or both are open/compact, adjust the states accordingly
+  if (
+    (sidebarLeftState === 'hidden' && footerState === 'hidden') ||
+    (sidebarLeftState !== 'hidden' && footerState !== 'open')
+  ) {
+    // Open the footer and close the sidebar
+    displayStore.footerState = 'open'
+    displayStore.sidebarLeftState = 'hidden'
+  }
+})
 </script>
 
 <style scoped>

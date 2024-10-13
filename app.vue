@@ -101,7 +101,7 @@
       <footer-toggle
         class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="{
-          bottom: `calc(${footerHeight} + ${sectionPadding})`,
+          bottom: `calc(${footerHeight} + ${sectionPadding} * ${footerMultiplier})`,
           left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
         }"
       />

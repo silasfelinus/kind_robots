@@ -18,7 +18,9 @@
       v-else
       class="h-full w-full overflow-y-auto no-scrollbar z-10 flex-grow"
     >
-      <NuxtPage class="h-full w-full border-4 no-scrollbar rounded-2xl" />
+      <NuxtPage
+        class="h-full w-full border-4 no-scrollbar rounded-2xl bg-base-300"
+      />
     </div>
   </div>
 </template>

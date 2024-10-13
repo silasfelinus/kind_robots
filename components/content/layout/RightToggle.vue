@@ -16,16 +16,21 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
+const isLargeScreen = computed(() => displayStore.isLargeViewport)
 
-// Determine the icon text based on the sidebarRightState (hidden or open)
+
 const rightIconText = computed(() => {
   return displayStore.sidebarRightState === 'hidden' ? '<' : '>'
 })
 
-
 const toggleTutorialSidebar = () => {
-displayStore.toggleTutorial()
-  
+  displayStore.toggleTutorial()
+
+  if (isLargeScreen.value) {
+    
+    displayStore.sidebarRightState = 
+      displayStore.sidebarRightState === 'hidden' ? 'open' : 'hidden'
+  }
 }
 </script>
 

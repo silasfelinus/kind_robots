@@ -40,6 +40,11 @@ export const useButterflyStore = defineStore({
       return `hsl(${h},${s}%,${l}%)`
     },
 
+    // Clear all butterflies
+    clearButterflies() {
+      this.butterflies = []
+    },
+
     // Add a new butterfly with scale adjustment
     addButterfly(butterfly: Butterfly) {
       butterfly.z = butterfly.z * this.scaleModifier // Apply scale modifier

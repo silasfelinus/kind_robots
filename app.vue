@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div class="main-layout h-screen w-screen relative bg-primary box-border">
     <!-- Loaders -->
     <kind-loader />
@@ -32,16 +32,16 @@
       <left-toggle
         class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="{
-          top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-          left: `calc(${sidebarLeftWidth} + ${sectionPadding} * ${sidebarLeftMultiplier})`,
+          top: `calc(${headerHeight} + ${sectionPadding} * 3)`,
+          left: `calc(${sidebarLeftWidth} + ${sectionPadding} * (${sidebarLeftMultiplier} + 1))`,
         }"
       />
       <!-- Sidefoot toggle button (bottom-right corner of the sidebar) -->
       <sidefoot-toggle
         class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="{
-          bottom: `calc(${footerHeight} + (${sectionPadding} * ${footerMultiplier}))`,
-          left: `calc(${sidebarLeftWidth} + (${sectionPadding} * ${sidebarLeftMultiplier}))`,
+          bottom: `calc(${footerHeight} + (${sectionPadding} * (${footerMultiplier} + 2))`,
+          left: `calc(${sidebarLeftWidth} + (${sectionPadding} * (${sidebarLeftMultiplier} + 2))`,
         }"
       />
       <kind-sidebar-simple />
@@ -102,7 +102,7 @@
         class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="{
           bottom: `calc(${footerHeight} + ${sectionPadding} * ${footerMultiplier})`,
-          left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
+          right: `calc(${sidebarRightWidth} + ${sectionPadding} * (${sidebarRightMultiplier} + 1))`,
         }"
       />
       <horizontal-nav />

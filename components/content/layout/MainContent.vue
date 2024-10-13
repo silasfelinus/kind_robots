@@ -1,57 +1,39 @@
 <template>
-  <div class="relative h-full w-full flex flex-col rounded-2xl bg-base-300">
-    <!-- Main Content Area -->
+  <!-- Content of MainContent.vue focuses only on its content -->
+  <div class="h-full flex flex-col">
+    <!-- Mobile View (no flip card) -->
+    <div v-if="isMobile" class="flex-grow overflow-y-auto">
+      <!-- Add overflow-y-auto here -->
+      <SplashTutorial
+        v-if="showTutorial"
+        class="h-full w-full z-10 rounded-2xl"
+      />
+      <NuxtPage v-else class="h-full w-full z-10 overflow-y-auto rounded-2xl" />
+    </div>
+
+    <!-- Fullscreen mode (Desktop) -->
     <div
-      class="relative flex-grow h-full w-full flex flex-col box-border overflow-hidden"
+      v-else-if="isFullScreen"
+      class="h-full w-full overflow-y-auto rounded-2xl z-10 flex-grow"
     >
-      
+      <NuxtPage class="h-full w-full" />
+    </div>
 
-      <!-- Main Content (Tutorial or Content) -->
-      <div v-if="isMobile" class="flex-grow box-border">
-        <SplashTutorial
-          v-if="showTutorial"
-          class="h-full w-full z-10 rounded-2xl box-border"
-        />
-        <NuxtPage
-          v-else
-          class="overflow-y-auto h-full w-full z-10 rounded-2xl border-4 box-border"
-        />
+    <!-- Flip-card mode (Desktop) -->
+    <div
+      v-else
+      class="flip-card-inner h-full z-10 flex-grow"
+      :class="{ 'is-flipped': !showTutorial }"
+    >
+      <div class="flip-card-front rounded-2xl h-full w-full">
+        <SplashTutorial class="h-full w-full" />
       </div>
-
-      <!-- Fullscreen Mode (Desktop, Content Only) -->
-      <div
-        v-else-if="isLargeScreen"
-        class="h-full w-full overflow-y-auto hide-scrollbar rounded-2xl z-10 flex-grow box-border"
-      >
-        <NuxtPage
-          class="overflow-y-auto h-full w-full rounded-2xl border-4 box-border"
-        />
-      </div>
-
-      <!-- Flip-card Mode (Desktop with Sidebar for Tutorial) -->
-      <div v-else class="relative flex-grow z-10 flex flex-col box-border">
-        <div class="flip-card flex-grow box-border">
-          <div
-            class="flip-card-inner box-border"
-            :class="{ flipped: showTutorial }"
-          >
-            <!-- Main Content (NuxtPage) -->
-            <div
-              class="flip-card-front overflow-y-auto hide-scrollbar h-full w-full box-border"
-            >
-              <NuxtPage
-                class="h-full w-full rounded-2xl border-4 box-border"
-              />
-            </div>
-
-            <!-- Splash Tutorial -->
-            <div class="flip-card-back rounded-2xl h-full w-full box-border">
-              <SplashTutorial class="h-full w-full box-border" />
-            </div>
-          </div>
-        </div>
+      <div class="flip-card-back rounded-2xl overflow-y-auto h-full w-full">
+        <NuxtPage class="h-full w-full" />
       </div>
     </div>
+
+    <tutorial-toggle v-if="!displayStore.isFullScreen" />
   </div>
 </template>
 
@@ -62,10 +44,47 @@ import { useDisplayStore } from '@/stores/displayStore'
 // Access layout-related data and state from displayStore
 const displayStore = useDisplayStore()
 
-// Determine mobile or large screen state
+// Layout dimensions and state
 const isMobile = computed(() => displayStore.isMobileViewport)
-const isLargeScreen = computed(() => displayStore.isLargeViewport)
-
-// Tutorial visibility
+const isFullScreen = computed(() => displayStore.isFullScreen)
 const showTutorial = computed(() => displayStore.showTutorial)
 </script>
+
+<style scoped>
+/* Flip-card style */
+.flip-card {
+  perspective: 1500px;
+  width: 100%;
+  height: 100%;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 5px;
+}
+
+.flip-card-front {
+  z-index: 2;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+  z-index: 1;
+}
+</style>

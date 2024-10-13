@@ -24,6 +24,23 @@ const toggleCharacter = computed(() =>
 const toggleState = () => {
   displayStore.toggleSidebar('sidebarLeftState')
   displayStore.toggleFooter()
+  const sidebarLeftState = displayStore.sidebarLeftState
+  const footerState = displayStore.footerState
+
+  // Case 1: Both are hidden
+  if (sidebarLeftState === 'hidden' && footerState === 'hidden') {
+    // Open the footer and leave the sidebar hidden
+    displayStore.footerState = 'open'
+  }
+
+  // Case 2: Both are exposed (sidebar is 'open' or 'compact' and footer is 'open')
+  if (
+    (sidebarLeftState === 'open' || sidebarLeftState === 'compact') &&
+    footerState === 'open'
+  ) {
+    // Hide the sidebar
+    displayStore.sidebarLeftState = 'hidden'
+  }
 }
 
 // Inline Tailwind for position, handling positioning based on footer state

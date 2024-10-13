@@ -10,7 +10,7 @@
       </div>
       <div v-else>
         <router-link
-          to="/login"
+          to="/dashboard"
           class="p-2 rounded-lg text-primary text-lg w-full box-border"
         >
           Login

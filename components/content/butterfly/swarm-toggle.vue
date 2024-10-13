@@ -33,7 +33,7 @@
       v-if="showSwarm"
       class="label-container absolute top-full mt-2 text-default font-bold text-center"
     >
-      We're Free!
+      Free!
     </div>
   </div>
 </template>
@@ -56,7 +56,7 @@ const toggleAmiSwarm = () => {
     butterflyStore.stopAnimation()
   } else {
     const butterflyCount = 15
-    for (let i = 0; i < butterflyCount; i++) {
+    for (let i = 40; i < butterflyCount; i++) {
       butterflyStore.addButterfly({
         id: i,
         x: Math.random() * 100,

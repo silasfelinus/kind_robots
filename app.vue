@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="main-layout h-screen w-screen relative bg-primary box-border">
     <!-- Loaders -->
     <kind-loader />
@@ -28,22 +28,6 @@
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
-      <!-- Left toggle button (top-left corner of the sidebar) -->
-      <left-toggle
-        class="fixed z-40 transition-all duration-600 ease-in-out"
-        :style="{
-          top: `calc(${headerHeight} + ${sectionPadding} * 3)`,
-          left: `calc(${sidebarLeftWidth} + ${sectionPadding} * (${sidebarLeftMultiplier} + 1))`,
-        }"
-      />
-      <!-- Sidefoot toggle button (bottom-right corner of the sidebar) -->
-      <sidefoot-toggle
-        class="fixed z-40 transition-all duration-600 ease-in-out"
-        :style="{
-          bottom: `calc(${footerHeight} + (${sectionPadding} * (${footerMultiplier} + 2))`,
-          left: `calc(${sidebarLeftWidth} + (${sectionPadding} * (${sidebarLeftMultiplier} + 2))`,
-        }"
-      />
       <kind-sidebar-simple />
     </aside>
 
@@ -62,6 +46,22 @@
         width: `calc(100vw - (${sectionPadding} * (${sidebarLeftMultiplier} + ${sidebarRightMultiplier}) + ${sidebarLeftOpen ? sidebarLeftWidth : 0} + ${sidebarRightOpen ? sidebarRightWidth : 0}))`,
       }"
     >
+      <!-- Left toggle button (top-left corner of the sidebar) -->
+      <left-toggle
+        class="absolute top=0 left-0 z-50 transition-all duration-600 ease-in-out"
+      />
+      <!-- Right toggle button (top-right corner of the sidebar) -->
+      <right-toggle
+        class="absolute top-0 right-0 z-50 transition-all duration-600 ease-in-out"
+      />
+      <!-- Footer toggle button (bottom-left corner of the footer) -->
+      <footer-toggle
+        class="absolute bottom-0 right-0 z-50 transition-all duration-600 ease-in-out"
+      />
+      <!-- Sidefoot toggle button (bottom-right corner of the sidebar) -->
+      <sidefoot-toggle
+        class="absolute bottom-0 left-0 z-50 transition-all duration-600 ease-in-out"
+      />
       <main-content />
     </main>
 
@@ -75,14 +75,6 @@
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
-      <!-- Right toggle button (top-right corner of the sidebar) -->
-      <right-toggle
-        class="fixed z-40 transition-all duration-600 ease-in-out"
-        :style="{
-          top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
-          right: `calc(${sidebarRightWidth} + (${sectionPadding} * ${sidebarRightMultiplier}))`,
-        }"
-      />
       <splash-tutorial v-if="showTutorial" class="h-full w-full" />
     </aside>
 
@@ -97,14 +89,6 @@
         bottom: sectionPadding,
       }"
     >
-      <!-- Footer toggle button (bottom-left corner of the footer) -->
-      <footer-toggle
-        class="fixed z-40 transition-all duration-600 ease-in-out"
-        :style="{
-          bottom: `calc(${footerHeight} + ${sectionPadding} * ${footerMultiplier})`,
-          right: `calc(${sidebarRightWidth} + ${sectionPadding} * (${sidebarRightMultiplier} + 1))`,
-        }"
-      />
       <horizontal-nav />
     </footer>
   </div>

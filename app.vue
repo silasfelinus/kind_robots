@@ -28,6 +28,7 @@
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
+      <left-toggle />
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
     </aside>
 
@@ -54,6 +55,7 @@
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
+      <right-toggle />
       <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full" />
     </aside>
 

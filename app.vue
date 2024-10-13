@@ -33,7 +33,7 @@
 
     <!-- Main Content -->
     <main
-      class="fixed z-10 box-border overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed z-10 box-border overflow-y-auto transition-all duration-500 ease-in-out"
       :style="{
         top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,

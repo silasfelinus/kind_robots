@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="flex items-center justify-center p-2 text-accent text-lg h-10 w-10 rounded-lg shadow-lg hover:bg-secondary"
+      class="flex items-center justify-center text-accent text-lg h-10 w-10 rounded-lg shadow-lg hover:bg-secondary"
       @click="toggleSidebarLeft"
     >
       {{ iconText }}

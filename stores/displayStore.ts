@@ -361,8 +361,6 @@ export const useDisplayStore = defineStore('display', {
     },
 
     toggleTutorial() {
-      // Toggle the sidebar right state between open and hidden
-      this.setSidebarRight(this.sidebarRightState === 'hidden');
 
       if (this.flipState === 'tutorial' || this.flipState === 'toTutorial') {
         this.flipState = 'toMain';
@@ -372,8 +370,6 @@ export const useDisplayStore = defineStore('display', {
     
       // Toggle the showTutorial state
       this.showTutorial = !this.showTutorial;
-    
-
     
       this.saveState();
     },

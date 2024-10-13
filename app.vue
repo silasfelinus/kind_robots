@@ -30,7 +30,7 @@
     >
       <!-- Left toggle button (top-left corner of the sidebar) -->
       <left-toggle
-        class="absolute z-40 transition-all duration-600 ease-in-out"
+        class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="{
           top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
           left: `calc(${sidebarLeftWidth} + ${sectionPadding} * ${sidebarLeftMultiplier})`,
@@ -38,7 +38,7 @@
       />
       <!-- Sidefoot toggle button (bottom-right corner of the sidebar) -->
       <sidefoot-toggle
-        class="absolute z-40 transition-all duration-600 ease-in-out"
+        class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="{
           bottom: `calc(${footerHeight} + ${sectionPadding})`,
           left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
@@ -77,7 +77,7 @@
     >
       <!-- Right toggle button (top-right corner of the sidebar) -->
       <right-toggle
-        class="absolute z-40 transition-all duration-600 ease-in-out"
+        class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="{
           top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
           right: `calc(${sidebarRightWidth} + ${sectionPadding} * ${sidebarRightMultiplier})`,
@@ -99,7 +99,7 @@
     >
       <!-- Footer toggle button (bottom-left corner of the footer) -->
       <footer-toggle
-        class="absolute z-40 transition-all duration-600 ease-in-out"
+        class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="{
           bottom: `calc(${footerHeight} + ${sectionPadding})`,
           left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,

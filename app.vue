@@ -105,10 +105,6 @@ const footerHeight = computed(
 // Padding for all sections (consistent)
 const sectionPadding = '16px'
 
-// Control for tutorial visibility
-const showTutorial = computed(() => displayStore.showTutorial)
-const isMobile = computed(() => displayStore.isMobileViewport)
-
 // Check if the footer is open
 const footerOpen = computed(() => displayStore.footerState === 'open')
 

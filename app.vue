@@ -79,7 +79,10 @@
         }"
       />
 
-      <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full" />
+      <splash-tutorial
+        v-if="sidebarRightOpen && showTutorial"
+        class="h-full w-full"
+      />
     </aside>
 
     <!-- Footer -->
@@ -126,6 +129,7 @@ const mainWidth = computed(() => displayStore.mainWidth)
 // Sidebar widths for left and right
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+const showTutorial = computed(() => displayStore.showTutorial)
 
 // Footer height
 const footerHeight = computed(

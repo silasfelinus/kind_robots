@@ -22,7 +22,7 @@
       class="full-page inset-0 overflow-hidden z-50 pointer-events-none"
     >
       <butterfly-component
-        v-for="butterfly in butterflyStore.butterflies"
+        v-for="butterfly in butterflies"
         :key="butterfly.id"
         :butterfly="butterfly"
       />
@@ -45,13 +45,14 @@ import { computed } from 'vue'
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
 
+const butterflies = computed(() => butterflyStore.butterflies)
+
 // Watch for the swarm toggle
 const showSwarm = computed(() => butterflyStore.butterflies.length > 0)
 
-// Add or remove butterflies and start/stop animation
 const toggleAmiSwarm = () => {
   if (showSwarm.value) {
-    butterflyStore.clearButterflies() // Use a store action to clear butterflies
+    butterflyStore.clearButterflies() // Just call the store method
     butterflyStore.stopAnimation()
   } else {
     const butterflyCount = 15

@@ -46,27 +46,30 @@
         width: `calc(100vw - (${sectionPadding} * (${sidebarLeftMultiplier} + ${sidebarRightMultiplier}) + ${sidebarLeftOpen ? sidebarLeftWidth : 0} + ${sidebarRightOpen ? sidebarRightWidth : 0}))`,
       }"
     >
-      <!-- Left toggle button (top-left corner) -->
-      <left-toggle
-        class="absolute top-0 left-0 z-50 transition-all duration-600 ease-in-out"
-      />
+      <!-- New Relative Wrapper Inside Main -->
+      <div class="relative w-full h-full">
+        <!-- Left toggle button (top-left corner) -->
+        <left-toggle
+          class="absolute top-0 left-0 z-50 transition-all duration-600 ease-in-out"
+        />
 
-      <!-- Right toggle button (top-right corner) -->
-      <right-toggle
-        class="absolute top-0 right-0 z-50 transition-all duration-600 ease-in-out"
-      />
+        <!-- Right toggle button (top-right corner) -->
+        <right-toggle
+          class="absolute top-0 right-0 z-50 transition-all duration-600 ease-in-out"
+        />
 
-      <!-- Footer toggle button (bottom-left corner) -->
-      <footer-toggle
-        class="absolute bottom-0 left-0 z-50 transition-all duration-600 ease-in-out"
-      />
+        <!-- Footer toggle button (bottom-left corner) -->
+        <footer-toggle
+          class="absolute bottom-0 left-0 z-50 transition-all duration-600 ease-in-out"
+        />
 
-      <!-- Sidefoot toggle button (bottom-right corner) -->
-      <sidefoot-toggle
-        class="absolute bottom-0 right-0 z-50 transition-all duration-600 ease-in-out"
-      />
+        <!-- Sidefoot toggle button (bottom-right corner) -->
+        <sidefoot-toggle
+          class="absolute bottom-0 right-0 z-50 transition-all duration-600 ease-in-out"
+        />
 
-      <main-content />
+        <main-content />
+      </div>
     </main>
 
     <!-- Right Sidebar -->

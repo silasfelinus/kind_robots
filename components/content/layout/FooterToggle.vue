@@ -40,13 +40,9 @@ const toggleFooter = () => {
 <style scoped>
 .footer-arc-button {
   border-radius: 100% 0 0 0; /* Quarter arc effect for bottom-left corner */
-  position: absolute;
+  position: fixed; /* Fixed positioning to stay at the bottom-left corner */
   bottom: 0;
   left: 0;
-  transform: translate(
-    -25%,
-    25%
-  ); /* Adjusts the button to fit snugly into the bottom-left corner */
   transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
 }
 
@@ -59,16 +55,12 @@ const toggleFooter = () => {
 
 /* Hover effects to add interaction feedback */
 .footer-arc-button:hover {
-  transform: translate(-25%, 25%) scale(1.1); /* Grows slightly on hover */
+  transform: scale(1.1); /* Grows slightly on hover */
 }
 
 /* Subtle gradient background for depth */
 .bg-gradient-to-tr {
-  background: linear-gradient(
-    to top right,
-    var(--tw-gradient-from),
-    var(--tw-gradient-to)
-  );
+  background: linear-gradient(to top right, var(--tw-gradient-from), var(--tw-gradient-to));
 }
 
 /* Toggle character styles */

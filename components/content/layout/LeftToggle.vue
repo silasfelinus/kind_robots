@@ -40,13 +40,14 @@ const toggleSidebarLeft = () => {
 
 <style scoped>
 .left-arc-button {
-  width: 60px; /* Slightly larger for more emphasis */
+  width: 60px; /* Slightly larger for emphasis */
   height: 60px;
   border-radius: 0 0 100% 0; /* Quarter arc effect for top-left corner */
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translate(-25%, -25%);
+  position: fixed; /* Fixed positioning to stay at the top-left corner of the viewport */
+  top: calc(
+    var(--vh) * 8
+  ); /* Adjust this value based on where you want it relative to the header */
+  left: 16px; /* Align to the left edge with padding */
   transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
 }
 
@@ -59,7 +60,7 @@ const toggleSidebarLeft = () => {
 
 /* Hover effects to add interaction feedback */
 .left-arc-button:hover {
-  transform: translate(-25%, -25%) scale(1.1); /* Grows slightly on hover */
+  transform: scale(1.1); /* Grows slightly on hover */
 }
 
 /* Subtle gradient background for depth */

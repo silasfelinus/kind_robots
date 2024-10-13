@@ -60,13 +60,9 @@ onMounted(() => {
   width: 60px;
   height: 60px;
   border-radius: 0 0 0 100%; /* Quarter arc for bottom-left corner */
-  position: absolute;
+  position: fixed; /* Fixed to stay at the bottom-left corner */
   bottom: 0;
   left: 0;
-  transform: translate(
-    -25%,
-    25%
-  ); /* Adjusts the button to fit snugly into the corner */
   transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
 }
 
@@ -79,7 +75,7 @@ onMounted(() => {
 
 /* Hover effects to add interaction feedback */
 .bottom-arc-button:hover {
-  transform: translate(-25%, 25%) scale(1.1); /* Grows slightly on hover */
+  transform: scale(1.1); /* Grows slightly on hover */
 }
 
 /* Subtle gradient background for depth */

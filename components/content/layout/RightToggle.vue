@@ -2,10 +2,14 @@
   <div class="relative">
     <!-- Arc-style toggle button for right sidebar and tutorial -->
     <button
-      class="right-arc-button shadow-3d bg-gradient-to-bl from-accent to-accent-dark hover:bg-secondary border-double border-2 border-gray-300 text-lg text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
+      class="w-16 h-16 rounded-tl-full fixed top-0 right-0 z-10 shadow-lg bg-gradient-to-bl from-accent to-accent-dark hover:bg-secondary border-2 border-double border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
       @click="toggleTutorialSidebar"
     >
-      {{ rightIconText }}
+      <span
+        class="toggle-character"
+        style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3)"
+        >{{ rightIconText }}</span
+      >
     </button>
   </div>
 </template>
@@ -38,45 +42,3 @@ const toggleTutorialSidebar = () => {
   }
 }
 </script>
-
-<style scoped>
-.right-arc-button {
-  width: 60px;
-  height: 60px;
-  border-radius: 0 100% 0 0; /* Quarter-circle effect for top-right corner */
-  position: fixed; /* Fixed positioning to stay at the top-right corner of the viewport */
-  top: 0;
-  right: 0;
-  z-index: 10; /* Ensures the button is on top of other content */
-  transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
-}
-
-/* Enhanced shadow to create a layered effect */
-.shadow-3d {
-  box-shadow:
-    0px 4px 6px rgba(0, 0, 0, 0.3),
-    0px 8px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Hover effects to add interaction feedback */
-.right-arc-button:hover {
-  transform: scale(1.1); /* Grows slightly on hover */
-}
-
-/* Subtle gradient background for depth */
-.bg-gradient-to-bl {
-  background: linear-gradient(
-    to bottom left,
-    var(--tw-gradient-from),
-    var(--tw-gradient-to)
-  );
-}
-
-/* Toggle character styles */
-.toggle-character {
-  font-size: 2rem; /* Matches the size of the text icon */
-  line-height: 1;
-  display: inline-block;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Adds a bit of depth to the text */
-}
-</style>

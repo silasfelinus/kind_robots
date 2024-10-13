@@ -16,25 +16,24 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 
 // Compute the character to display based on footer state
-const toggleCharacter = computed(() => 
-  displayStore.footerState === 'open' ? '▲' : '←'
+const toggleCharacter = computed(() =>
+  displayStore.footerState === 'open' ? '▲' : '←',
 )
 
-// Inline Tailwind for position, fallback to minimal CSS for custom values
-const togglePosition = computed(() => 
+// Define a method to toggle the sidebar and footer state
+const toggleState = () => {
+  displayStore.toggleSidebar('sidebarLeftState')
+  displayStore.toggleFooter()
+}
+
+// Inline Tailwind for position, handling positioning based on footer state
+const togglePosition = computed(() =>
   displayStore.footerState === 'open'
     ? 'fixed bottom-[calc(var(--footer-height)+32px)] left-1/2 transform -translate-x-1/2 z-50'
-    : 'fixed bottom-16 left-[calc(var(--sidebar-width)+32px)] z-50'
+    : 'fixed bottom-16 left-[calc(var(--sidebar-width)+32px)] z-50',
 )
 </script>
 
 <style scoped>
-/* Minimal custom CSS to handle calc() with variables */
-.fixed.bottom-[calc(var(--footer-height)+32px)] {
-  bottom: calc(var(--footer-height) + 32px);
-}
-
-.fixed.left-[calc(var(--sidebar-width)+32px)] {
-  left: calc(var(--sidebar-width) + 32px);
-}
+/* No extra custom styles needed, Tailwind classes handle positioning */
 </style>

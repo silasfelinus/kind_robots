@@ -81,7 +81,7 @@ export const useDisplayStore = defineStore('display', {
         small: { open: 22, compact: 10, hidden: 0, disabled: 0 },
         medium: { open: 16, compact: 9, hidden: 0, disabled: 0 },
         large: { open: 13, compact: 10, hidden: 0, disabled: 0 },
-        extraLarge: { open: 10, compact: 5, hidden: 0, disabled: 0 },
+        extraLarge: { open: 10, compact: 6, hidden: 0, disabled: 0 },
       }[state.viewportSize];
   
       const value = sizes[state.sidebarLeftState];

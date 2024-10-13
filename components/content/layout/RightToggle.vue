@@ -44,13 +44,9 @@ const toggleTutorialSidebar = () => {
   width: 60px;
   height: 60px;
   border-radius: 0 100% 0 0; /* Quarter-circle effect for top-right corner */
-  position: absolute;
+  position: fixed; /* Fixed positioning to stay at the top-right corner of the viewport */
   top: 0;
   right: 0;
-  transform: translate(
-    25%,
-    -25%
-  ); /* Adjusts the button to fit snugly in the top-right corner */
   z-index: 10; /* Ensures the button is on top of other content */
   transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
 }
@@ -64,7 +60,7 @@ const toggleTutorialSidebar = () => {
 
 /* Hover effects to add interaction feedback */
 .right-arc-button:hover {
-  transform: translate(25%, -25%) scale(1.1); /* Grows slightly on hover */
+  transform: scale(1.1); /* Grows slightly on hover */
 }
 
 /* Subtle gradient background for depth */

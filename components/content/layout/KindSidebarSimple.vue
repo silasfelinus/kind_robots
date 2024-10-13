@@ -83,7 +83,7 @@ const navigate = (path: string) => {
   router.push(path)
 }
 
-const isMobile = computed (()=> displayStore.isMobileViewport)
+const isMobile = computed(() => displayStore.isMobileViewport)
 </script>
 
 <style scoped>

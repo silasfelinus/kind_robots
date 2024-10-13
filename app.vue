@@ -28,22 +28,22 @@
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
-     <left-toggle
-v-if="footerOpen"
-  class="fixed z-40 transition-all duration-500 ease-in-out"
-  :style="{
-    top: `calc(50vh - ${sidebarLeftWidth} / 2 + ${sectionPadding} * ${sidebarLeftMultiplier})`,
-    left: sectionPadding
-  }"
-/>
+      <left-toggle
+        v-if="footerOpen"
+        class="fixed z-40 transition-all duration-500 ease-in-out"
+        :style="{
+          top: `calc(50vh - ${sidebarLeftWidth} / 2 + ${sectionPadding} * ${sidebarLeftMultiplier})`,
+          left: sectionPadding,
+        }"
+      />
 
       <sidefoot-toggle
-  class="fixed z-40 transition-all duration-500 ease-in-out"
-  :style="{
-    bottom: `calc(${footerHeight} + ${sectionPadding})`,
-    left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
-  }"
-/>
+        class="fixed z-40 transition-all duration-500 ease-in-out"
+        :style="{
+          bottom: `calc(${footerHeight} + ${sectionPadding})`,
+          left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
+        }"
+      />
 
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
     </aside>
@@ -71,13 +71,13 @@ v-if="footerOpen"
         height: `calc(${mainHeight} - (${sectionPadding} * (${footerMultiplier} + 2)))`,
       }"
     >
-<right-toggle
-  class="fixed z-40 transition-all duration-500 ease-in-out"
-  :style="{
-    top: `calc(50vh - ${sidebarRightWidth} / 2)`,
-    right: `calc(${sidebarRightWidth} + ${sectionPadding})`,
-  }"
-/>
+      <right-toggle
+        class="fixed z-40 transition-all duration-500 ease-in-out"
+        :style="{
+          top: `calc(50vh - ${sidebarRightWidth} / 2)`,
+          right: `calc(${sidebarRightWidth} + ${sectionPadding})`,
+        }"
+      />
 
       <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full" />
     </aside>
@@ -94,13 +94,13 @@ v-if="footerOpen"
       }"
     >
       <footer-toggle
-v-if="!sidebarLeftOpen"
-  class="fixed z-40 transition-all duration-500 ease-in-out"
-  :style="{
-    bottom: `calc(${footerHeight} + ${sectionPadding})`,
-    left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
-  }"
-/>
+        v-if="!sidebarLeftOpen"
+        class="fixed z-40 transition-all duration-500 ease-in-out"
+        :style="{
+          bottom: `calc(${footerHeight} + ${sectionPadding})`,
+          left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
+        }"
+      />
 
       <horizontal-nav v-if="footerOpen" />
     </footer>
@@ -134,10 +134,6 @@ const footerHeight = computed(
 
 // Padding for all sections (consistent)
 const sectionPadding = '16px'
-
-// Control for tutorial visibility
-const showTutorial = computed(() => displayStore.showTutorial)
-const isMobile = computed(() => displayStore.isMobileViewport)
 
 // Check if the footer is open
 const footerOpen = computed(() => displayStore.footerState === 'open')

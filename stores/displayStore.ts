@@ -32,7 +32,7 @@ export type EffectId = 'bubble-effect' | 'fizzy-bubbles' | 'rain-effect' | 'butt
 export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
     headerState: 'open',
-    sidebarLeftState: 'open',
+    sidebarLeftState: 'compact',
     sidebarRightState: 'hidden',
     footerState: 'hidden',
     isVertical: false,
@@ -330,9 +330,9 @@ export const useDisplayStore = defineStore('display', {
 
     toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
       const stateCycle: Record<DisplayState, DisplayState> = {
-        hidden: 'open',
+        hidden: 'compact',
         compact: 'hidden',
-        open: 'compact',
+        open: 'hidden',
         disabled: 'hidden',
       };
       this[side] = stateCycle[this[side]];

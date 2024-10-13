@@ -19,7 +19,7 @@
     <!-- Butterfly Swarm Animation Covering the Screen -->
     <div
       v-if="fxStore.showAmiSwarm"
-      class="absolute inset-0 overflow-hidden z-50 pointer-events-none"
+      class="full-page inset-0 overflow-hidden z-50 pointer-events-none"
     >
       <ami-butterfly
         v-for="i in butterflyCount"
@@ -83,6 +83,16 @@ const butterflyCount = 15
   align-items: center;
   color: var(--text-accent);
 }
+
+
+.full-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
 
 /* Butterfly Animation */
 .ami-butterfly {

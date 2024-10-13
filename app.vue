@@ -29,7 +29,7 @@
       }"
     >
       <left-toggle
-        v-if="footerOpen"
+        v-if="!footerOpen"
         class="fixed z-40 transition-all duration-500 ease-in-out"
         :style="{
           top: `calc(50vh - ${sidebarLeftWidth} / 2 + ${sectionPadding} * ${sidebarLeftMultiplier})`,

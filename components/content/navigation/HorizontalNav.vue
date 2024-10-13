@@ -4,10 +4,12 @@
       <div
         v-for="(item, index) in hardcodedLinks"
         :key="index"
-        class="group flex flex-col items-center justify-end w-20"
+        class="group flex flex-col lg:flex-row items-center justify-end w-20 lg:w-auto lg:space-x-2"
       >
-        <!-- Title below the icon in a stylized format -->
-        <span class="text-sm text-center whitespace-normal w-full bg-secondary text-white px-2 py-1 rounded-lg mb-2">
+        <!-- Title below icon on small screens, inline with icon on large screens -->
+        <span
+          class="text-sm text-center whitespace-normal w-full bg-secondary text-white px-2 py-1 rounded-lg mb-2 lg:mb-0 lg:w-auto"
+        >
           {{ item.title }}
         </span>
 

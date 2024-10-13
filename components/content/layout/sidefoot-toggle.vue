@@ -17,7 +17,7 @@ const displayStore = useDisplayStore()
 
 // Compute the character to display based on footer state
 const toggleCharacter = computed(() =>
-  displayStore.footerState === 'open' ? '▲' : '←',
+  displayStore.footerState === 'open' ? '▲' : '▼',
 )
 
 // Define a method to toggle the sidebar and footer state

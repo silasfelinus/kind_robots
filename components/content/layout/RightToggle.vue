@@ -22,12 +22,17 @@ const rightIconText = computed(() => {
   return displayStore.sidebarRightState === 'hidden' ? '<' : '>'
 })
 
+// Toggle the right sidebar and tutorial
 const toggleTutorialSidebar = () => {
   displayStore.toggleTutorial()
 
   if (!isMobile.value) {
-    displayStore.sidebarRightState =
-      displayStore.sidebarRightState === 'hidden' ? 'open' : 'hidden'
+    // Toggle between 'open' and 'hidden' state
+    if (displayStore.sidebarRightState === 'hidden') {
+      displayStore.setSidebarRight(true) // Open the sidebar
+    } else {
+      displayStore.setSidebarRight(false) // Close the sidebar
+    }
   }
 }
 </script>

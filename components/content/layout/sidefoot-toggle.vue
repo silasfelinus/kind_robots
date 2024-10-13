@@ -1,15 +1,19 @@
 <template>
   <div class="relative">
     <button
-      class="bottom-arc-button shadow-3d bg-gradient-to-tl from-accent to-accent-dark hover:bg-secondary border-double border-2 border-gray-300 text-lg text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
+      class="w-16 h-16 rounded-tl-full fixed bottom-0 left-0 shadow-lg bg-gradient-to-tl from-accent to-accent-dark hover:bg-secondary border-2 border-double border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
       @click="toggleState"
     >
       <!-- Simple up and down caret characters -->
-      <span class="text-2xl leading-none">{{ toggleCharacter }}</span>
+      <span
+        class="toggle-character"
+        style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3)"
+      >
+        {{ toggleCharacter }}
+      </span>
     </button>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -54,44 +58,3 @@ onMounted(() => {
   }
 })
 </script>
-
-<style scoped>
-.bottom-arc-button {
-  width: 60px;
-  height: 60px;
-  border-radius: 0 0 0 100%; /* Quarter arc for bottom-left corner */
-  position: fixed; /* Fixed to stay at the bottom-left corner */
-  bottom: 0;
-  left: 0;
-  transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
-}
-
-/* Enhanced shadow to create a layered effect */
-.shadow-3d {
-  box-shadow:
-    0px 4px 6px rgba(0, 0, 0, 0.3),
-    0px 8px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Hover effects to add interaction feedback */
-.bottom-arc-button:hover {
-  transform: scale(1.1); /* Grows slightly on hover */
-}
-
-/* Subtle gradient background for depth */
-.bg-gradient-to-tl {
-  background: linear-gradient(
-    to top left,
-    var(--tw-gradient-from),
-    var(--tw-gradient-to)
-  );
-}
-
-/* Toggle character styles */
-.toggle-character {
-  font-size: 2rem; /* Size of the arrow (▲ or ▼) */
-  line-height: 1;
-  display: inline-block;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Adds depth to the arrow icon */
-}
-</style>

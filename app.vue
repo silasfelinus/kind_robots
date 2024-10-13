@@ -33,7 +33,7 @@
         class="fixed z-40 transition-all duration-500 ease-in-out"
         :style="{
           top: `calc(50vh - ${mainHeight} / 2)`,
-          left: `calc(${sidebarLeftWidth} + ${sectionPadding})`,
+          left: `calc(${sidebarLeftWidth} + ${sectionPadding} * (${sidebarLeftMultiplier})`,
         }"
       />
 
@@ -76,7 +76,7 @@
         class="fixed z-40 transition-all duration-500 ease-in-out"
         :style="{
           top: `calc(50vh - ${mainHeight} / 2)`,
-          right: `calc(${sidebarRightWidth} + ${sectionPadding})`,
+          right: `calc(${sidebarRightWidth} + ${sectionPadding} * (${sidebarRightMultiplier})`,
         }"
       />
 

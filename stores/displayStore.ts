@@ -56,7 +56,7 @@ export const useDisplayStore = defineStore('display', {
         small: { open: 12, compact: 6, hidden: 1, disabled: 0 },
         medium: { open: 9, compact: 5, hidden: 1, disabled: 0 },
         large: { open: 10, compact: 4, hidden: 1, disabled: 0 },
-        extraLarge: { open: 7, compact: 3, hidden: 1, disabled: 0 },
+        extraLarge: { open: 10, compact: 3, hidden: 1, disabled: 0 },
       }[state.viewportSize];
   
       // Explicitly check if the value is undefined

@@ -32,7 +32,7 @@
         v-if="!footerOpen"
         class="fixed z-40 transition-all duration-500 ease-in-out"
         :style="{
-          top: `calc(50vh - ${mainHeight} / 2)`,
+          top: `calc(${headerHeight} + ${sectionPadding} * 2)`,
           left: `calc(${sidebarLeftWidth} + ${sectionPadding} * (${sidebarLeftMultiplier})`,
         }"
       />

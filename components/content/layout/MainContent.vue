@@ -9,13 +9,16 @@
       />
       <NuxtPage
         v-else
-        class="h-full w-full z-10 overflow-y-auto rounded-2xl border-4"
+        class="h-full w-full z-10 overflow-y-auto rounded-2xl border-4 bg-base-300"
       />
     </div>
 
     <!-- Fullscreen Mode (Desktop) -->
-    <div v-else class="h-full w-full overflow-y-auto z-10 flex-grow">
-      <NuxtPage class="h-full w-full border-4 rounded-2xl" />
+    <div
+      v-else
+      class="h-full w-full overflow-y-auto no-scrollbar z-10 flex-grow"
+    >
+      <NuxtPage class="h-full w-full border-4 no-scrollbar rounded-2xl" />
     </div>
   </div>
 </template>

@@ -38,13 +38,18 @@ onMounted(() => {
   const sidebarLeftState = displayStore.sidebarLeftState
   const footerState = displayStore.footerState
 
-  // If both are hidden or both are open/compact, adjust the states accordingly
+  // Case 1: Both are hidden
+  if (sidebarLeftState === 'hidden' && footerState === 'hidden') {
+    // Open the footer and leave the sidebar hidden
+    displayStore.footerState = 'open'
+  }
+
+  // Case 2: Both are exposed (sidebar is 'open' or 'compact' and footer is 'open')
   if (
-    (sidebarLeftState === 'hidden' && footerState === 'hidden') ||
-    (sidebarLeftState !== 'hidden' && footerState !== 'hidden')
+    (sidebarLeftState === 'open' || sidebarLeftState === 'compact') &&
+    footerState === 'open'
   ) {
-    // Open the footer and close the sidebar
-    displayStore.footerState = 'compact'
+    // Hide the sidebar
     displayStore.sidebarLeftState = 'hidden'
   }
 })

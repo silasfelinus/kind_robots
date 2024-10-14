@@ -31,41 +31,6 @@
       <main-content />
     </main>
 
-    <!-- Toggle buttons section -->
-    <div class="fixed z-50 pointer-events-none">
-      <!-- Left Toggle -->
-      <div
-        class="pointer-events-auto bg-red-500 w-12 h-12"
-        :style="leftToggleStyle"
-      >
-        <!-- Placeholder for left-toggle -->
-      </div>
-
-      <!-- Sidefoot Toggle -->
-      <div
-        class="pointer-events-auto bg-blue-500 w-12 h-12"
-        :style="sidefootToggleStyle"
-      >
-        <!-- Placeholder for sidefoot-toggle -->
-      </div>
-
-      <!-- Right Toggle -->
-      <div
-        class="pointer-events-auto bg-green-500 w-12 h-12"
-        :style="rightToggleStyle"
-      >
-        <!-- Placeholder for right-toggle -->
-      </div>
-
-      <!-- Footer Toggle -->
-      <div
-        class="pointer-events-auto bg-yellow-500 w-12 h-12"
-        :style="footerToggleStyle"
-      >
-        <!-- Placeholder for footer-toggle -->
-      </div>
-    </div>
-
     <!-- Right Sidebar -->
     <aside
       class="fixed z-10 box-border transition-all duration-600 ease-in-out"
@@ -81,6 +46,32 @@
     >
       <horizontal-nav v-if="footerOpen" class="h-full w-full" />
     </footer>
+
+    <!-- Isolated Toggle buttons section as a separate layer -->
+    <div class="fixed z-50 pointer-events-auto">
+      <!-- Left Toggle -->
+      <div class="bg-red-500 w-16 h-16 fixed" style="top: 64px; left: 64px">
+        <left-toggle />
+      </div>
+
+      <!-- Sidefoot Toggle -->
+      <div class="bg-blue-500 w-16 h-16 fixed" style="bottom: 64px; left: 64px">
+        <sidefoot-toggle />
+      </div>
+
+      <!-- Right Toggle -->
+      <div class="bg-green-500 w-16 h-16 fixed" style="top: 64px; right: 64px">
+        <right-toggle />
+      </div>
+
+      <!-- Footer Toggle -->
+      <div
+        class="bg-yellow-500 w-16 h-16 fixed"
+        style="bottom: 64px; right: 64px"
+      >
+        <footer-toggle />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -104,7 +95,7 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'disabled',
 )
 
-// Computed styles from the displayStore
+// Computed styles for layout elements
 const headerStyle = computed(() => ({
   height: `${displayStore.headerVh}vh`,
   width: displayStore.footerWidth,
@@ -142,26 +133,5 @@ const footerStyle = computed(() => ({
   bottom: displayStore.sectionPadding,
   left: displayStore.sectionPadding,
   right: displayStore.sectionPadding,
-}))
-
-// Toggle button styles
-const leftToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
-  left: `calc(${displayStore.sidebarLeftVw}vw + (${displayStore.sectionPadding} * ${displayStore.sidebarLeftMultiplier} ))`,
-}))
-
-const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerVh}vh + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier} ))`,
-  left: `calc(${displayStore.sidebarLeftVw}vw + (${displayStore.sectionPadding} * ${displayStore.sidebarLeftMultiplier} ))`,
-}))
-
-const rightToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
-  right: `calc(${displayStore.sidebarRightVw}vw + (${displayStore.sectionPadding} * ${displayStore.sidebarRightMultiplier} ))`,
-}))
-
-const footerToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerVh}vh + ${displayStore.sectionPadding})`,
-  right: `calc(${displayStore.sidebarRightVw}vw + (${displayStore.sectionPadding} * ${displayStore.sidebarRightMultiplier} ))`,
 }))
 </script>

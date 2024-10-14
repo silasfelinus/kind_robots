@@ -66,10 +66,10 @@ const containerStyles = computed(() => {
   if (!isFullscreen.value) {
     // Constrain to the main content area
     return {
-      width: displayStore.mainWidth + 'px',
-      height: displayStore.mainHeight + 'px',
-      top: displayStore.headerHeight + 'px',
-      left: displayStore.sidebarLeftWidth + 'px',
+      width: displayStore.mainVw + 'vw',
+      height: displayStore.mainVh + 'vh',
+      top: displayStore.headerHeight,
+      left: displayStore.sidebarLeftWidth,
     }
   } else {
     // Fullscreen

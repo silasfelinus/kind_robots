@@ -1,5 +1,5 @@
 <template>
-  <div class="main-layout h-screen w-screen relative bg-primary box-border">
+  <div class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border">
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
@@ -7,7 +7,7 @@
 
     <!-- Header -->
     <header
-      class="fixed w-full z-10 flex items-center justify-center bg-primary box-border overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed w-full h-full z-10 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
       :style="headerStyle"
     >
       <header-upgrade class="flex-grow text-center" />
@@ -15,7 +15,7 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-10 box-border transition-all duration-300 ease-in-out"
+      class="fixed z-10 w-full h-full box-border transition-all duration-300 ease-in-out"
       :style="leftSidebarStyle"
     >
       <kind-sidebar-simple />
@@ -23,7 +23,7 @@
 
     <!-- Main Content -->
     <main
-      class="fixed z-10 box-border transition-all duration-600 ease-in-out"
+      class="fixed z-10 w-full h-full border-4 rounded-2xl overflow-hidden box-border transition-all duration-600 ease-in-out"
       :style="mainContentStyle"
     >
       <main-content />
@@ -64,7 +64,7 @@
 
     <!-- Footer -->
     <footer
-      class="fixed z-10 box-border overflow-hidden transition-all duration-600 ease-in-out"
+      class="fixed z-10 w-full h-full box-border overflow-hidden transition-all duration-600 ease-in-out"
       :style="footerStyle"
     >
       <horizontal-nav />

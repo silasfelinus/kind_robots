@@ -105,12 +105,12 @@ const leftSidebarStyle = computed(() => ({
 }))
 
 const leftToggleStyle = computed(() => ({
-  top: `calc(${headerHeight.value} + ${sectionPadding} * 3)`,
+  top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
   left: `calc(${sidebarLeftWidth.value} + ${sectionPadding} * (${sidebarLeftMultiplier.value} + 1))`,
 }))
 
 const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${footerHeight.value} + (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
+  bottom: `calc(${footerHeight.value} + (${sectionPadding} * ${footerMultiplier.value}))`,
   left: `calc(${sidebarLeftWidth.value} + (${sectionPadding} * (${sidebarLeftMultiplier.value} + 2)))`,
 }))
 
@@ -147,7 +147,7 @@ const footerStyle = computed(() => ({
 }))
 
 const footerToggleStyle = computed(() => ({
-  bottom: `calc(${footerHeight.value} + ${sectionPadding} * ${footerMultiplier.value})`,
-  right: `calc(${sidebarRightWidth.value} + ${sectionPadding} * (${sidebarRightMultiplier.value} + 1))`,
+  bottom: `calc(${footerHeight.value} + (${sectionPadding} * ${footerMultiplier.value}))`,
+  right: `calc(${sidebarRightWidth.value} + ${sectionPadding} * ${sidebarRightMultiplier.value})`,
 }))
 </script>

@@ -93,7 +93,7 @@ const headerStyle = computed(() => ({
 const leftSidebarStyle = computed(() => ({
   height: displayStore.centerHeight,
   width: displayStore.sidebarLeftWidth,
-  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPadding} * 2)`,
+  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2))`,
   left: displayStore.sectionPadding,
 }))
 
@@ -101,12 +101,8 @@ const mainContentStyle = computed(() => ({
   height: displayStore.centerHeight,
   width: displayStore.centerWidth,
   top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPadding} * 2)`,
-  right: displayStore.sidebarRightWidth
-    ? `calc(${displayStore.sidebarRightWidth} + ${displayStore.sectionPadding})`
-    : displayStore.sectionPadding,
-  left: displayStore.sidebarLeftWidth
-    ? `calc(${displayStore.sidebarLeftWidth} + ${displayStore.sectionPadding})`
-    : displayStore.sectionPadding,
+  right: `calc(${displayStore.sidebarRightWidth} + ${displayStore.sectionPadding} * ${displayStore.sidebarRightMultiplier})`,
+  left: `calc(${displayStore.sidebarLeftWidth} + ${displayStore.sectionPadding} * ${displayStore.sidebarLeftMultiplier} )`,
 }))
 
 const rightSidebarStyle = computed(() => ({

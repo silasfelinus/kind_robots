@@ -56,13 +56,19 @@ export const useDisplayStore = defineStore('display', {
     },
 
     sectionPaddingVh(): string {
-      const vh = (16 / window.innerHeight) * 100;
-      return `${vh}vh`;
+      if (typeof window !== 'undefined') { // Check if window is available
+        const vh = (16 / window.innerHeight) * 100;
+        return `${vh}vh`;
+      }
+      return '16px'; // Fallback if window is not available (e.g., during SSR)
     },
 
     sectionPaddingVw(): string {
-      const vw = (16 / window.innerWidth) * 100;
-      return `${vw}vw`;
+      if (typeof window !== 'undefined') { // Check if window is available
+        const vw = (16 / window.innerWidth) * 100;
+        return `${vw}vw`;
+      }
+      return '16px'; // Fallback if window is not available (e.g., during SSR)
     },
 
     sectionPaddingInteger(): number {

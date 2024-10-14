@@ -2,14 +2,15 @@
   <div class="relative">
     <!-- Arc-style toggle button for right sidebar and tutorial -->
     <button
-      class="w-16 h-16 rounded-tl-full shadow-lg bg-gradient-to-bl from-accent to-accent-dark hover:bg-secondary border-2 border-double border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
+      class="w-16 h-16 rounded-tr-2xl rounded-bl-full shadow-lg bg-gradient-to-bl from-accent to-accent-dark hover:bg-secondary border-t-4 border-r-4 border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out absolute right-0"
       @click="toggleTutorialSidebar"
     >
       <span
         class="toggle-character"
         style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3)"
-        >{{ rightIconText }}</span
       >
+        {{ rightIconText }}
+      </span>
     </button>
   </div>
 </template>

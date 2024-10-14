@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <button
-      class="w-16 h-16 rounded-tl-full shadow-lg bg-gradient-to-tl from-accent to-accent-dark hover:bg-secondary border-2 border-double border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
+      class="w-16 h-16 rounded-tl-2xl shadow-lg bg-gradient-to-tl from-accent to-accent-dark hover:bg-secondary border-t-4 border-l-4 border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out absolute bottom-0 left-0"
       @click="toggleState"
     >
       <!-- Simple up and down caret characters -->

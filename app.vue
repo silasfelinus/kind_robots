@@ -71,7 +71,6 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -80,16 +79,28 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 
 // Compute header height using custom vh
-const headerHeight = computed(() => `calc(var(--vh) * ${displayStore.headerVh})`)
+const headerHeight = computed(
+  () => `calc(var(--vh) * ${displayStore.headerVh})`,
+)
 const mainHeight = computed(() => displayStore.mainHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const footerHeight = computed(() => `calc(var(--vh) * ${displayStore.footerVh})`)
+const footerHeight = computed(
+  () => `calc(var(--vh) * ${displayStore.footerVh})`,
+)
 const sectionPadding = '16px'
 const showTutorial = computed(() => displayStore.showTutorial)
 const footerOpen = computed(() => displayStore.footerState === 'open')
-const sidebarLeftOpen = computed(() => displayStore.sidebarLeftState !== 'hidden' && displayStore.sidebarLeftState !== 'disabled')
-const sidebarRightOpen = computed(() => displayStore.sidebarRightState !== 'hidden' && displayStore.sidebarRightState !== 'disabled')
+const sidebarLeftOpen = computed(
+  () =>
+    displayStore.sidebarLeftState !== 'hidden' &&
+    displayStore.sidebarLeftState !== 'disabled',
+)
+const sidebarRightOpen = computed(
+  () =>
+    displayStore.sidebarRightState !== 'hidden' &&
+    displayStore.sidebarRightState !== 'disabled',
+)
 const footerMultiplier = computed(() => (footerOpen.value ? 2 : 1))
 const sidebarLeftMultiplier = computed(() => (sidebarLeftOpen.value ? 2 : 1))
 const sidebarRightMultiplier = computed(() => (sidebarRightOpen.value ? 2 : 1))
@@ -110,8 +121,6 @@ const leftSidebarStyle = computed(() => ({
   height: `calc(${mainHeight.value} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
 }))
 
-
-
 const mainContentStyle = computed(() => ({
   top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
   height: `calc(${mainHeight.value} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
@@ -130,8 +139,6 @@ const rightSidebarStyle = computed(() => ({
   top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
   height: `calc(${mainHeight.value} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
 }))
-
-
 
 const footerStyle = computed(() => ({
   height: footerHeight.value,

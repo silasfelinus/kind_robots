@@ -52,32 +52,34 @@ export const useDisplayStore = defineStore('display', {
 
   getters: {
     sectionPadding(): string {
-      return '4';
+      return '16px';
     },
+
     sectionPaddingVh(): string {
-      return '4vh';
+      const vh = (16 / window.innerHeight) * 100;
+      return `${vh}vh`;
     },
+
     sectionPaddingVw(): string {
-      return '4vw';
+      const vw = (16 / window.innerWidth) * 100;
+      return `${vw}vw`;
     },
+
     sectionPaddingInteger(): number {
-      return 4;
+      return 16; 
     },
-    // Return multiplier for footer
     footerMultiplier(state): number {
       return state.footerState === 'open' ? 2 : 1;
     },
 
-    // Return multiplier for left sidebar
     sidebarLeftMultiplier(state): number {
       return ['open', 'compact'].includes(state.sidebarLeftState) ? 2 : 1;
     },
 
-    // Return multiplier for right sidebar
     sidebarRightMultiplier(state): number {
       return ['open', 'compact'].includes(state.sidebarRightState) ? 2 : 1;
     },
-    // Combined multiplier for sectionPadding
+    
     sectionPaddingMultiplier(): number {
       return (
         this.sidebarLeftMultiplier +
@@ -91,8 +93,7 @@ export const useDisplayStore = defineStore('display', {
         large: { open: 10, compact: 4, hidden: 1, disabled: 0 },
         extraLarge: { open: 10, compact: 3, hidden: 1, disabled: 0 },
       }[state.viewportSize];
-  
-      // Explicitly check if the value is undefined
+
       const value = sizes[state.headerState];
       return value !== undefined ? value : 6;
     },
@@ -134,25 +135,24 @@ export const useDisplayStore = defineStore('display', {
     },
   
     mainVh(): number {
-    return 100 - this.headerVh - this.footerVh - (this.sectionPaddingInteger * (this.footerMultiplier + 2));
+      return 100 - this.headerVh - this.footerVh - (this.sectionPaddingInteger * (this.footerMultiplier + 2));
     },
 
     mainVw(): number {
-    return 100 - this.sidebarLeftVw - this.sidebarRightVw - (this.sectionPaddingInteger * this.sectionPaddingMultiplier);
+      return 100 - this.sidebarLeftVw - this.sidebarRightVw - (this.sectionPaddingInteger * this.sectionPaddingMultiplier);
     },
-  
+
     headerHeight(): string {
       return `calc(var(--vh) * ${this.headerVh})`;
     },
-  
+
     footerHeight(): string {
       return `calc(var(--vh) * ${this.footerVh})`;
     },
-  
+
     footerWidth(): string {
       return `calc(100vw - ${this.sectionPaddingVw} * 2)`;
     },
-  
 
     centerHeight(): string {
       // Center height is the remaining height after header and footer, minus padding
@@ -163,15 +163,17 @@ export const useDisplayStore = defineStore('display', {
       // Center width is the remaining width after sidebars, minus padding
       return `calc(${this.mainVw}vw)`;
     },
-  
+
     sidebarLeftWidth(): string {
       return `${this.sidebarLeftVw}vw`;
     },
-  
+
     sidebarRightWidth(): string {
       return `${this.sidebarRightVw}vw`;
     },
   
+
+    //everything after here is probably good
     isLargeViewport(state): boolean {
       return ['large', 'extraLarge'].includes(state.viewportSize);
     },

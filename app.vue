@@ -70,7 +70,6 @@
     </footer>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -108,15 +107,15 @@ const leftSidebarStyle = computed(() => ({
 }))
 
 const mainContentStyle = computed(() => ({
-  top: `calc(${headerHeight.value} + ${sectionPadding})`,  // Use sectionPadding directly
-  height: adjustedMainHeight.value,  // Adjusted main height
-  width: adjustedMainWidth.value,    // Adjusted main width
+  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
+  height: displayStore.centerHeight,
+  width: displayStore.centerWidth,
   right: sidebarRightOpen.value
-    ? `calc(${sidebarRightWidth.value} + ${sectionPadding})`
-    : sectionPadding,
+    ? `calc(${displayStore.sidebarRightWidth} + ${displayStore.sectionPaddingVw})`
+    : displayStore.sectionPaddingVw,
   left: sidebarLeftOpen.value
-    ? `calc(${sidebarLeftWidth.value} + ${sectionPadding})`
-    : sectionPadding,
+    ? `calc(${displayStore.sidebarLeftWidth} + ${displayStore.sectionPaddingVw})`
+    : displayStore.sectionPaddingVw,
 }))
 
 const rightSidebarStyle = computed(() => ({
@@ -138,20 +137,24 @@ const footerStyle = computed(() => ({
 const leftToggleStyle = computed(() => ({
   top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
   left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarLeftMultiplier}))`,
+  zIndex: 100, // Ensure visibility
 }))
 
 const sidefootToggleStyle = computed(() => ({
   bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPaddingVh} * ${displayStore.footerMultiplier}))`,
   left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarLeftMultiplier}))`,
+  zIndex: 100, // Ensure visibility
 }))
 
 const rightToggleStyle = computed(() => ({
   top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
   right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarRightMultiplier}))`,
+  zIndex: 100, // Ensure visibility
 }))
 
 const footerToggleStyle = computed(() => ({
   bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPaddingVh} * ${displayStore.footerMultiplier}))`,
   right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarRightMultiplier}))`,
+  zIndex: 100, // Ensure visibility
 }))
 </script>

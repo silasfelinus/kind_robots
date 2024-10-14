@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <button
-      class="w-16 h-16 rounded-tl-2xl border-l-4 border-t-4 border-gray-300 shadow-lg bg-gradient-to-br from-accent to-accent-dark hover:bg-secondary transition-all duration-300 ease-in-out text-2xl font-semibold text-white flex items-center justify-center"
+      class="w-16 h-16 rounded-tl-2xl border-l-4 border-t-4 shadow-lg bg-gradient-to-br from-accent to-accent-dark hover:bg-secondary transition-all duration-300 ease-in-out text-2xl font-semibold text-white flex items-center justify-center"
       @click="toggleSidebarLeft"
     >
       <span

@@ -133,22 +133,22 @@ const footerStyle = computed(() => ({
 
 // Toggle button styles
 const leftToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
-  left: `calc(${displayStore.sidebarLeftVw}vw + (${displayStore.sectionPadding} * ${displayStore.sidebarLeftMultiplier} ))`,
+  top: displayStore.sectionPadding,
+  left: displayStore.sectionPadding,
 }))
 
 const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerVh}vh + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier} ))`,
-  left: `calc(${displayStore.sidebarLeftVw}vw + (${displayStore.sectionPadding} * ${displayStore.sidebarLeftMultiplier} ))`,
+  bottom: displayStore.sectionPadding,
+  left: displayStore.sectionPadding,
 }))
 
 const rightToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
-  right: `calc(${displayStore.sidebarRightVw}vw + (${displayStore.sectionPadding} * ${displayStore.sidebarRightMultiplier} ))`,
+  top: displayStore.sectionPadding,
+  right: displayStore.sectionPadding,
 }))
 
 const footerToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerVh}vh + ${displayStore.sectionPadding})`,
-  right: `calc(${displayStore.sidebarRightVw}vw + (${displayStore.sectionPadding} * ${displayStore.sidebarRightMultiplier} ))`,
+  bottom: displayStore.sectionPadding,
+  right: displayStore.sectionPadding,
 }))
 </script>

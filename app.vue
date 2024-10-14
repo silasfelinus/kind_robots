@@ -4,7 +4,6 @@
     <kind-loader />
     <animation-loader />
 
-
     <!-- Header -->
     <header
       class="fixed w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden transition-all duration-500 ease-in-out"
@@ -18,8 +17,6 @@
       class="fixed z-20 box-border transition-all duration-300 ease-in-out"
       :style="leftSidebarStyle"
     >
-      
-      
       <kind-sidebar-simple />
     </aside>
 
@@ -28,40 +25,39 @@
       class="fixed z-10 box-border transition-all duration-600 ease-in-out"
       :style="mainContentStyle"
     >
-  <main-content />
-      
-    
+      <main-content />
     </main>
 
-<!-- Left toggle button (top-left corner of the sidebar) -->
-      <left-toggle
-        class="fixed z-40 transition-all duration-600 ease-in-out"
-        :style="leftToggleStyle"
-      />
+    <!-- Toggle buttons outside fixed elements -->
+    <!-- Left toggle button (top-left corner of the sidebar) -->
+    <left-toggle
+      class="fixed z-40 transition-all duration-600 ease-in-out"
+      :style="leftToggleStyle"
+    />
 
-      <!-- Sidefoot toggle button (bottom-right corner of the sidebar) -->
-      <sidefoot-toggle
-        class="fixed z-40 transition-all duration-600 ease-in-out"
-        :style="sidefootToggleStyle"
-      />
-<!-- Right toggle button (top-right corner of the sidebar) -->
-      <right-toggle
-        class="fixed z-40 transition-all duration-600 ease-in-out"
-        :style="rightToggleStyle"
-      />
+    <!-- Sidefoot toggle button (bottom-right corner of the sidebar) -->
+    <sidefoot-toggle
+      class="fixed z-40 transition-all duration-600 ease-in-out"
+      :style="sidefootToggleStyle"
+    />
 
-   <!-- Footer toggle button (bottom-left corner of the footer) -->
-      <footer-toggle
-        class="fixed z-40 transition-all duration-600 ease-in-out"
-        :style="footerToggleStyle"
-      />
+    <!-- Right toggle button (top-right corner of the sidebar) -->
+    <right-toggle
+      class="fixed z-40 transition-all duration-600 ease-in-out"
+      :style="rightToggleStyle"
+    />
+
+    <!-- Footer toggle button (bottom-left corner of the footer) -->
+    <footer-toggle
+      class="fixed z-40 transition-all duration-600 ease-in-out"
+      :style="footerToggleStyle"
+    />
 
     <!-- Right Sidebar -->
     <aside
       class="fixed z-20 box-border transition-all duration-600 ease-in-out"
       :style="rightSidebarStyle"
     >
-      
       <splash-tutorial v-if="showTutorial" class="h-full w-full" />
     </aside>
 
@@ -70,11 +66,11 @@
       class="fixed z-30 box-border overflow-hidden transition-all duration-600 ease-in-out"
       :style="footerStyle"
     >
-   
       <horizontal-nav />
     </footer>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

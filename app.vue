@@ -1,5 +1,7 @@
 <template>
-  <div class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border">
+  <div
+    class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border"
+  >
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
@@ -85,13 +87,13 @@ const headerHeight = computed(
 )
 
 const adjustedMainHeight = computed(
-  () => `calc(var(--vh) * ${displayStore.mainHeight} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
+  () =>
+    `calc(var(--vh) * ${displayStore.mainHeight} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
 )
 
 const adjustedMainWidth = computed(() => {
   return `calc(100vw - (${sectionPadding} * (${sidebarLeftMultiplier.value} + ${sidebarRightMultiplier.value}) + ${sidebarLeftOpen.value ? sidebarLeftWidth.value : 0} + ${sidebarRightOpen.value ? sidebarRightWidth.value : 0}))`
 })
-
 
 const mainHeight = computed(
   () => `calc(var(--vh) * ${displayStore.mainHeight})`,
@@ -143,19 +145,19 @@ const mainContentStyle = computed(() => ({
   left: sidebarLeftOpen.value
     ? `calc(${sidebarLeftWidth.value} + (${sectionPadding} * ${sidebarLeftMultiplier.value}))`
     : sectionPadding,
-  width: `calc(100vw - (${sectionPadding} * (${sidebarLeftMultiplier.value} + ${sidebarRightMultiplier.value}) + ${sidebarLeftOpen.value ? sidebarLeftWidth.value : 0} + ${sidebarRightOpen.value ? sidebarRightWidth.value : 0}))`,
+  width: adjustedMainWidth.value,
 }))
 
 const rightSidebarStyle = computed(() => ({
   width: sidebarRightWidth.value,
   right: sectionPadding,
-  top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
+  top: `calc(${headerHeight.value} + (${sectionPadding} * 2))`,
   height: adjustedMainHeight.value,
 }))
 
 const footerStyle = computed(() => ({
   height: footerHeight.value,
-  width: `calc(100vw - ${sectionPadding} * 2)`,
+  width: `calc(100vw - (${sectionPadding} * 2))`,
   left: sectionPadding,
   right: sectionPadding,
   bottom: sectionPadding,
@@ -163,7 +165,7 @@ const footerStyle = computed(() => ({
 
 const leftToggleStyle = computed(() => ({
   top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
-  left: `calc(${sidebarLeftWidth.value} + ${sectionPadding} * ${sidebarLeftMultiplier.value})`,
+  left: `calc(${sidebarLeftWidth.value} + (${sectionPadding} * ${sidebarLeftMultiplier.value}))`,
 }))
 
 const sidefootToggleStyle = computed(() => ({
@@ -178,6 +180,6 @@ const rightToggleStyle = computed(() => ({
 
 const footerToggleStyle = computed(() => ({
   bottom: `calc(${footerHeight.value} + (${sectionPadding} * ${footerMultiplier.value}))`,
-  right: `calc(${sidebarRightWidth.value} + ${sectionPadding} * ${sidebarRightMultiplier.value})`,
+  right: `calc(${sidebarRightWidth.value} + (${sectionPadding} * ${sidebarRightMultiplier.value}))`,
 }))
 </script>

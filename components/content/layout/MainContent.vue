@@ -9,7 +9,7 @@
       />
       <NuxtPage
         v-else
-        class="h-full w-full z-10 overflow-y-auto rounded-2xl border-4 bg-base-300"
+        class="h-full w-full z-10 no-scrollbar rounded-2xl bg-base-300"
       />
     </div>
 
@@ -19,7 +19,7 @@
       class="h-full w-full overflow-y-auto no-scrollbar z-10 flex-grow"
     >
       <NuxtPage
-        class="h-full w-full border-4 no-scrollbar rounded-2xl bg-base-300"
+        class="h-full w-full rounded-2xl bg-base-300"
       />
     </div>
   </div>

@@ -88,7 +88,7 @@ const leftSidebarStyle = computed(() => ({
   height: displayStore.centerHeight,
   width: displayStore.sidebarLeftWidth,
   top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPaddingVh} * 2))`,
-  left: `calc(${displayStore.sectionPaddingVw} * ${displayStore.sidebarLeftMultiplier})`,
+  left: displayStore.sectionPaddingVw,
 }))
 
 const mainContentStyle = computed(() => ({
@@ -96,20 +96,19 @@ const mainContentStyle = computed(() => ({
   width: displayStore.centerWidth,
   top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
   right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarRightMultiplier}))`,
-  left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarLeftMultiplier}))`,
 }))
 
 const rightSidebarStyle = computed(() => ({
   height: displayStore.centerHeight,
   width: displayStore.sidebarRightWidth,
   top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
-  right: `calc(${displayStore.sectionPaddingVw} * ${displayStore.sidebarRightMultiplier})`,
+  right: displayStore.sectionPaddingVw,
 }))
 
 const footerStyle = computed(() => ({
   height: displayStore.footerHeight,
   width: displayStore.footerWidth,
-  bottom: `calc(${displayStore.sectionPaddingVh})`,
+  bottom: displayStore.sectionPaddingVh,
   left: displayStore.sectionPaddingVw,
   right: displayStore.sectionPaddingVw,
 }))

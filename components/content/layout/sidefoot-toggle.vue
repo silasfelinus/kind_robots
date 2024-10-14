@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <button
-      class="w-16 h-16 rounded-tl-full fixed bottom-0 left-0 shadow-lg bg-gradient-to-tl from-accent to-accent-dark hover:bg-secondary border-2 border-double border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
+      class="w-16 h-16 rounded-tl-full shadow-lg bg-gradient-to-tl from-accent to-accent-dark hover:bg-secondary border-2 border-double border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
       @click="toggleState"
     >
       <!-- Simple up and down caret characters -->
@@ -14,6 +14,7 @@
     </button>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'

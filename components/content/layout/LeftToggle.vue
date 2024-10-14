@@ -1,14 +1,15 @@
 <template>
   <div class="relative">
     <button
-      class="w-16 h-16 rounded-br-full shadow-lg bg-gradient-to-br from-accent to-accent-dark hover:bg-secondary border-2 border-double border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
+      class="w-16 h-16 rounded-tl-2xl border-l-4 border-t-4 border-gray-300 shadow-lg bg-gradient-to-br from-accent to-accent-dark hover:bg-secondary transition-all duration-300 ease-in-out text-2xl font-semibold text-white flex items-center justify-center"
       @click="toggleSidebarLeft"
     >
       <span
         class="toggle-character"
         style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3)"
-        >{{ iconText }}</span
       >
+        {{ iconText }}
+      </span>
     </button>
   </div>
 </template>

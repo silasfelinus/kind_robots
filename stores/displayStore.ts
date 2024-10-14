@@ -141,11 +141,11 @@ export const useDisplayStore = defineStore('display', {
     },
   
     mainVh(): number {
-      return 100 - this.headerVh - this.footerVh - (this.sectionPaddingInteger * (this.footerMultiplier + 2));
+      return 100 - this.headerVh - this.footerVh - (this.sectionPaddingVh * (this.footerMultiplier + 2));
     },
 
     mainVw(): number {
-      return 100 - this.sidebarLeftVw - this.sidebarRightVw - (this.sectionPaddingInteger * this.sectionPaddingMultiplier);
+      return 100 - this.sidebarLeftVw - this.sidebarRightVw - (this.sectionPaddingVw * this.sectionPaddingMultiplier);
     },
 
     headerHeight(): string {

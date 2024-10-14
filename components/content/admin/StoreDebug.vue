@@ -4,7 +4,7 @@
     <header
       class="header-overlay debug-box"
       :style="{
-        height: 'calc(var(--vh, 1vh) * ' + displayStore.headerVh + ')',
+        height: displayStore.headerHeight,
       }"
     ></header>
 
@@ -12,16 +12,16 @@
     <div
       class="content-area grid"
       :style="{
-        gridTemplateColumns: `${displayStore.sidebarLeftVw}vw calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw) ${displayStore.sidebarRightVw}vw`,
-        height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
+        gridTemplateColumns: `${displayStore.sidebarLeftWidth} calc(100vw - ${displayStore.sidebarLeftWidth} - ${displayStore.sidebarRightWidth}) ${displayStore.sidebarRightWidth}`,
+        height: displayStore.centerHeight,
       }"
     >
       <!-- Left Sidebar -->
       <aside
         class="sidebar-left-overlay debug-box"
         :style="{
-          width: displayStore.sidebarLeftVw + 'vw',
-          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
+          width: displayStore.sidebarLeftWidth,
+          height: displayStore.centerHeight,
         }"
       ></aside>
 
@@ -29,8 +29,8 @@
       <main
         class="main-content-overlay debug-box"
         :style="{
-          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
-          width: `calc(100vw - ${displayStore.sidebarLeftVw}vw - ${displayStore.sidebarRightVw}vw)`,
+          height: displayStore.centerHeight,
+          width: `calc(100vw - ${displayStore.sidebarLeftWidth} - ${displayStore.sidebarRightWidth})`,
         }"
       >
         <!-- Floating color-coded key in the center -->
@@ -81,8 +81,8 @@
       <aside
         class="sidebar-right-overlay debug-box"
         :style="{
-          width: displayStore.sidebarRightVw + 'vw',
-          height: 'calc(var(--vh, 1vh) * ' + displayStore.mainVh + ')',
+          width: displayStore.sidebarRightWidth,
+          height: displayStore.centerHeight,
         }"
       ></aside>
     </div>
@@ -91,7 +91,7 @@
     <footer
       class="footer-overlay debug-box"
       :style="{
-        height: 'calc(var(--vh, 1vh) * ' + displayStore.footerVh + ')',
+        height: displayStore.footerHeight,
       }"
     ></footer>
 

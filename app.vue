@@ -9,7 +9,7 @@
 
     <!-- Header -->
     <header
-      class="fixed w-full h-full z-10 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed z-10 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
       :style="headerStyle"
     >
       <header-upgrade class="flex-grow text-center" />
@@ -17,15 +17,15 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-10 w-full h-full box-border transition-all duration-300 ease-in-out"
+      class="fixed z-10 box-border transition-all duration-300 ease-in-out"
       :style="leftSidebarStyle"
     >
-      <kind-sidebar-simple />
+      <kind-sidebar-simple v-if="sidebarLeftOpen" />
     </aside>
 
     <!-- Main Content -->
     <main
-      class="fixed z-10 w-full h-full border-4 rounded-2xl overflow-hidden box-border transition-all duration-600 ease-in-out"
+      class="fixed z-10 border-4 rounded-2xl overflow-hidden box-border transition-all duration-600 ease-in-out"
       :style="mainContentStyle"
     >
       <main-content />
@@ -49,15 +49,15 @@
       class="fixed z-10 box-border transition-all duration-600 ease-in-out"
       :style="rightSidebarStyle"
     >
-      <splash-tutorial v-if="showTutorial" class="h-full w-full" />
+      <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full" />
     </aside>
 
     <!-- Footer -->
     <footer
-      class="fixed z-10 w-full h-full box-border overflow-hidden transition-all duration-600 ease-in-out"
+      class="fixed z-10 box-border overflow-hidden transition-all duration-600 ease-in-out"
       :style="footerStyle"
     >
-      <horizontal-nav />
+      <horizontal-nav v-if="footerOpen" class="h-full w-full" />
     </footer>
   </div>
 </template>
@@ -68,32 +68,8 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore for managing the layout state
 const displayStore = useDisplayStore()
-
-// Compute header height using custom vh
-const headerHeight = computed(
-  () => `calc(var(--vh) * ${displayStore.headerVh})`,
-)
-
-const adjustedMainHeight = computed(
-  () =>
-    `calc(var(--vh) * ${displayStore.mainHeight} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
-)
-
-const adjustedMainWidth = computed(() => {
-  return `calc(100vw - (${sectionPadding} * (${sidebarLeftMultiplier.value} + ${sidebarRightMultiplier.value}) + ${sidebarLeftOpen.value ? sidebarLeftWidth.value : 0} + ${sidebarRightOpen.value ? sidebarRightWidth.value : 0}))`
-})
-
-const mainHeight = computed(
-  () => `calc(var(--vh) * ${displayStore.mainHeight})`,
-)
-const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
-const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const footerHeight = computed(
-  () => `calc(var(--vh) * ${displayStore.footerVh})`,
-)
-const sectionPadding = '16px'
-const showTutorial = computed(() => displayStore.showTutorial)
 const footerOpen = computed(() => displayStore.footerState === 'open')
+
 const sidebarLeftOpen = computed(
   () =>
     displayStore.sidebarLeftState !== 'hidden' &&
@@ -104,70 +80,67 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'hidden' &&
     displayStore.sidebarRightState !== 'disabled',
 )
-const footerMultiplier = computed(() => (footerOpen.value ? 2 : 1))
-const sidebarLeftMultiplier = computed(() => (sidebarLeftOpen.value ? 2 : 1))
-const sidebarRightMultiplier = computed(() => (sidebarRightOpen.value ? 2 : 1))
 
-// Computed styles
+// Computed styles from the displayStore directly
 const headerStyle = computed(() => ({
-  height: headerHeight.value,
-  width: `calc(100vw - ${sectionPadding} * 2)`,
-  top: sectionPadding,
-  left: sectionPadding,
-  right: sectionPadding,
+  height: displayStore.headerHeight,
+  width: displayStore.footerWidth,
+  top: displayStore.sectionPadding,
+  left: displayStore.sectionPadding,
+  right: displayStore.sectionPadding,
 }))
 
 const leftSidebarStyle = computed(() => ({
-  width: sidebarLeftWidth.value,
-  left: sectionPadding,
-  top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
-  height: `calc(${mainHeight.value} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
+  height: displayStore.centerHeight,
+  width: displayStore.sidebarLeftWidth,
+  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPadding} * 2)`,
+  left: displayStore.sectionPadding,
 }))
 
 const mainContentStyle = computed(() => ({
-  top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
-  height: adjustedMainHeight.value,
-  right: sidebarRightOpen.value
-    ? `calc(${sidebarRightWidth.value} + (${sectionPadding} * ${sidebarRightMultiplier.value}))`
-    : sectionPadding,
-  left: sidebarLeftOpen.value
-    ? `calc(${sidebarLeftWidth.value} + (${sectionPadding} * ${sidebarLeftMultiplier.value}))`
-    : sectionPadding,
-  width: adjustedMainWidth.value,
+  height: displayStore.centerHeight,
+  width: displayStore.centerWidth,
+  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPadding} * 2)`,
+  right: displayStore.sidebarRightWidth
+    ? `calc(${displayStore.sidebarRightWidth} + ${displayStore.sectionPadding})`
+    : displayStore.sectionPadding,
+  left: displayStore.sidebarLeftWidth
+    ? `calc(${displayStore.sidebarLeftWidth} + ${displayStore.sectionPadding})`
+    : displayStore.sectionPadding,
 }))
 
 const rightSidebarStyle = computed(() => ({
-  width: sidebarRightWidth.value,
-  right: sectionPadding,
-  top: `calc(${headerHeight.value} + (${sectionPadding} * 2))`,
-  height: adjustedMainHeight.value,
+  height: displayStore.centerHeight,
+  width: displayStore.sidebarRightWidth,
+  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPadding} * 2)`,
+  right: displayStore.sectionPadding,
 }))
 
 const footerStyle = computed(() => ({
-  height: footerHeight.value,
-  width: `calc(100vw - (${sectionPadding} * 2))`,
-  left: sectionPadding,
-  right: sectionPadding,
-  bottom: sectionPadding,
+  height: displayStore.footerHeight,
+  width: displayStore.footerWidth,
+  bottom: displayStore.sectionPadding,
+  left: displayStore.sectionPadding,
+  right: displayStore.sectionPadding,
 }))
 
 const leftToggleStyle = computed(() => ({
-  top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
-  left: `calc(${sidebarLeftWidth.value} + (${sectionPadding} * ${sidebarLeftMultiplier.value}))`,
+  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2))`,
+  left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPadding} * ${displayStore.sidebarLeftMultiplier}))`,
 }))
 
 const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${footerHeight.value} + (${sectionPadding} * ${footerMultiplier.value}))`,
-  left: `calc(${sidebarLeftWidth.value} + (${sectionPadding} * ${sidebarLeftMultiplier.value}))`,
+  bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier}))`,
+  left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPadding} * ${displayStore.sidebarLeftMultiplier}))`,
 }))
 
 const rightToggleStyle = computed(() => ({
-  top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
-  right: `calc(${sidebarRightWidth.value} + (${sectionPadding} * ${sidebarRightMultiplier.value}))`,
+  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPadding} * 2)`,
+  right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPadding} * ${displayStore.sidebarRightMultiplier}))`,
 }))
 
 const footerToggleStyle = computed(() => ({
-  bottom: `calc(${footerHeight.value} + (${sectionPadding} * ${footerMultiplier.value}))`,
-  right: `calc(${sidebarRightWidth.value} + (${sectionPadding} * ${sidebarRightMultiplier.value}))`,
+  bottom: `calc(${displayStore.footerHeight} + ${displayStore.sectionPadding} * ${displayStore.footerMultiplier})`,
+  right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPadding} * ${displayStore.sidebarRightMultiplier}))`,
 }))
 </script>

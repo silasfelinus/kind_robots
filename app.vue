@@ -93,62 +93,62 @@ const sidebarRightOpen = computed(
 
 // Computed styles from the displayStore
 const headerStyle = computed(() => ({
-  height: displayStore.headerHeight,
-  width: displayStore.footerWidth,
-  top: `calc(${displayStore.sectionPaddingVh})`,
-  left: displayStore.sectionPaddingVw,
-  right: displayStore.sectionPaddingVw,
+  height: `${displayStore.headerVh}vh`, // 'vh' for height
+  width: displayStore.footerWidth, // assuming footerWidth returns 'px'
+  top: displayStore.sectionPadding, // 'px'
+  left: displayStore.sectionPadding, // 'px'
+  right: displayStore.sectionPadding, // 'px'
 }))
 
 const leftSidebarStyle = computed(() => ({
-  height: displayStore.centerHeight,
-  width: displayStore.sidebarLeftWidth,
-  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPaddingVh} * 2))`,
-  left: displayStore.sectionPaddingVw,
+  height: `${displayStore.centerHeight}vh`, // 'vh'
+  width: `${displayStore.sidebarLeftVw}vw`, // 'vw'
+  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
+  left: displayStore.sectionPadding, // 'px'
 }))
 
 const mainContentStyle = computed(() => ({
-  height: displayStore.centerHeight,
-  width: displayStore.centerWidth,
-  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
+  height: `${displayStore.centerHeight}vh`, // 'vh'
+  width: `${displayStore.centerWidth}vw`, // 'vw'
+  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
   right: sidebarRightOpen.value
-    ? `calc(${displayStore.sidebarRightWidth} + ${displayStore.sectionPaddingVw})`
-    : displayStore.sectionPaddingVw,
+    ? `calc(${displayStore.sidebarRightVw}vw + ${displayStore.sectionPadding})` // 'vw' and 'px'
+    : displayStore.sectionPadding, // 'px'
 }))
 
 const rightSidebarStyle = computed(() => ({
-  height: displayStore.centerHeight,
-  width: displayStore.sidebarRightWidth,
-  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
-  right: displayStore.sectionPaddingVw,
+  height: `${displayStore.centerHeight}vh`, // 'vh'
+  width: `${displayStore.sidebarRightVw}vw`, // 'vw'
+  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
+  right: displayStore.sectionPadding, // 'px'
 }))
 
 const footerStyle = computed(() => ({
-  height: displayStore.footerHeight,
-  width: displayStore.footerWidth,
-  bottom: displayStore.sectionPaddingVh,
-  left: displayStore.sectionPaddingVw,
-  right: displayStore.sectionPaddingVw,
+  height: `${displayStore.footerVh}vh`, // 'vh'
+  width: `calc(100vw - ${displayStore.sectionPadding} * 2)`, // 'vw' and 'px'
+  bottom: displayStore.sectionPadding, // 'px'
+  left: displayStore.sectionPadding, // 'px'
+  right: displayStore.sectionPadding, // 'px'
 }))
 
 // Toggle button styles
 const leftToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
-  left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarLeftMultiplier}))`,
+  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
+  left: `calc(${displayStore.sidebarLeftVw}vw + ${displayStore.sectionPadding})`, // 'vw' and 'px'
 }))
 
 const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPaddingVh} * ${displayStore.footerMultiplier}))`,
-  left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarLeftMultiplier}))`,
+  bottom: `calc(${displayStore.footerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
+  left: `calc(${displayStore.sidebarLeftVw}vw + ${displayStore.sectionPadding})`, // 'vw' and 'px'
 }))
 
 const rightToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
-  right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarRightMultiplier}))`,
+  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
+  right: `calc(${displayStore.sidebarRightVw}vw + ${displayStore.sectionPadding})`, // 'vw' and 'px'
 }))
 
 const footerToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPaddingVh} * ${displayStore.footerMultiplier}))`,
-  right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarRightMultiplier}))`,
+  bottom: `calc(${displayStore.footerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
+  right: `calc(${displayStore.sidebarRightVw}vw + ${displayStore.sectionPadding})`, // 'vw' and 'px'
 }))
 </script>

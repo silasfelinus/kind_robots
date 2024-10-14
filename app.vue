@@ -31,11 +31,36 @@
       <main-content />
     </main>
 
-    <!-- Toggle buttons -->
-    <left-toggle class="fixed z-50" :style="leftToggleStyle" />
-    <sidefoot-toggle class="fixed z-50" :style="sidefootToggleStyle" />
-    <right-toggle class="fixed z-50" :style="rightToggleStyle" />
-    <footer-toggle class="fixed z-50" :style="footerToggleStyle" />
+    <!-- Toggle buttons section -->
+    <div class="fixed z-50 pointer-events-none">
+      <!-- Left Toggle -->
+      <div class="pointer-events-auto" :style="leftToggleStyle">
+        <left-toggle />
+        <!-- Placeholder for Left Toggle position -->
+        <div class="w-6 h-6 bg-red-500 rounded-full"></div>
+      </div>
+
+      <!-- Sidefoot Toggle -->
+      <div class="pointer-events-auto" :style="sidefootToggleStyle">
+        <sidefoot-toggle />
+        <!-- Placeholder for Sidefoot Toggle position -->
+        <div class="w-6 h-6 bg-green-500 rounded-full"></div>
+      </div>
+
+      <!-- Right Toggle -->
+      <div class="pointer-events-auto" :style="rightToggleStyle">
+        <right-toggle />
+        <!-- Placeholder for Right Toggle position -->
+        <div class="w-6 h-6 bg-blue-500 rounded-full"></div>
+      </div>
+
+      <!-- Footer Toggle -->
+      <div class="pointer-events-auto" :style="footerToggleStyle">
+        <footer-toggle />
+        <!-- Placeholder for Footer Toggle position -->
+        <div class="w-6 h-6 bg-yellow-500 rounded-full"></div>
+      </div>
+    </div>
 
     <!-- Right Sidebar -->
     <aside

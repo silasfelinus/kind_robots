@@ -124,31 +124,31 @@ const rightSidebarStyle = computed(() => ({
 }))
 
 const footerStyle = computed(() => ({
-  height: `${displayStore.footerVh}vh`, // 'vh'
-  width: `calc(100vw - ${displayStore.sectionPadding} * 2)`, // 'vw' and 'px'
-  bottom: displayStore.sectionPadding, // 'px'
-  left: displayStore.sectionPadding, // 'px'
-  right: displayStore.sectionPadding, // 'px'
+  height: displayStore.footerHeight,
+  width: `calc(100vw - (${displayStore.sectionPadding} * 2))`,
+  bottom: displayStore.sectionPadding,
+  left: displayStore.sectionPadding,
+  right: displayStore.sectionPadding,
 }))
 
 // Toggle button styles
 const leftToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
-  left: `calc(${displayStore.sidebarLeftVw}vw + ${displayStore.sectionPadding})`, // 'vw' and 'px'
+  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`,
+  left: `calc(${displayStore.sidebarLeftVw}vw + ${displayStore.sectionPadding})`,
 }))
 
 const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
-  left: `calc(${displayStore.sidebarLeftVw}vw + ${displayStore.sectionPadding})`, // 'vw' and 'px'
+  bottom: `calc(${displayStore.footerVh}vh + ${displayStore.sectionPadding})`,
+  left: `calc(${displayStore.sidebarLeftVw}vw + ${displayStore.sectionPadding})`,
 }))
 
 const rightToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
-  right: `calc(${displayStore.sidebarRightVw}vw + ${displayStore.sectionPadding})`, // 'vw' and 'px'
+  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`,
+  right: `calc(${displayStore.sidebarRightVw}vw + ${displayStore.sectionPadding})`,
 }))
 
 const footerToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
-  right: `calc(${displayStore.sidebarRightVw}vw + ${displayStore.sectionPadding})`, // 'vw' and 'px'
+  bottom: `calc(${displayStore.footerVh}vh + ${displayStore.sectionPadding})`,
+  right: `calc(${displayStore.sidebarRightVw}vw + ${displayStore.sectionPadding})`,
 }))
 </script>

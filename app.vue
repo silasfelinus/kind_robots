@@ -83,6 +83,16 @@ const displayStore = useDisplayStore()
 const headerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.headerVh})`,
 )
+
+const adjustedMainHeight = computed(
+  () => `calc(var(--vh) * ${displayStore.mainHeight} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
+)
+
+const adjustedMainWidth = computed(() => {
+  return `calc(100vw - (${sectionPadding} * (${sidebarLeftMultiplier.value} + ${sidebarRightMultiplier.value}) + ${sidebarLeftOpen.value ? sidebarLeftWidth.value : 0} + ${sidebarRightOpen.value ? sidebarRightWidth.value : 0}))`
+})
+
+
 const mainHeight = computed(
   () => `calc(var(--vh) * ${displayStore.mainHeight})`,
 )
@@ -126,7 +136,7 @@ const leftSidebarStyle = computed(() => ({
 
 const mainContentStyle = computed(() => ({
   top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
-  height: `calc(${mainHeight.value} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
+  height: adjustedMainHeight.value,
   right: sidebarRightOpen.value
     ? `calc(${sidebarRightWidth.value} + (${sectionPadding} * ${sidebarRightMultiplier.value}))`
     : sectionPadding,
@@ -140,7 +150,7 @@ const rightSidebarStyle = computed(() => ({
   width: sidebarRightWidth.value,
   right: sectionPadding,
   top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
-  height: `calc(${mainHeight.value} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
+  height: adjustedMainHeight.value,
 }))
 
 const footerStyle = computed(() => ({

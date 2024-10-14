@@ -47,28 +47,25 @@
       <horizontal-nav v-if="footerOpen" class="h-full w-full" />
     </footer>
 
-    <!-- Isolated Toggle buttons section as a separate layer -->
+    <!-- Toggle buttons section as a separate layer -->
     <div class="fixed z-50 pointer-events-auto">
       <!-- Left Toggle -->
-      <div class="bg-red-500 w-16 h-16 fixed" style="top: 64px; left: 64px">
+      <div class="w-16 h-16 fixed" style="top: 64px; left: 64px">
         <left-toggle />
       </div>
 
       <!-- Sidefoot Toggle -->
-      <div class="bg-blue-500 w-16 h-16 fixed" style="bottom: 64px; left: 64px">
+      <div class="w-16 h-16 fixed" style="bottom: 64px; left: 64px">
         <sidefoot-toggle />
       </div>
 
       <!-- Right Toggle -->
-      <div class="bg-green-500 w-16 h-16 fixed" style="top: 64px; right: 64px">
+      <div class="w-16 h-16 fixed" style="top: 64px; right: 64px">
         <right-toggle />
       </div>
 
       <!-- Footer Toggle -->
-      <div
-        class="bg-yellow-500 w-16 h-16 fixed"
-        style="bottom: 64px; right: 64px"
-      >
+      <div class="w-16 h-16 fixed" style="bottom: 64px; right: 64px">
         <footer-toggle />
       </div>
     </div>

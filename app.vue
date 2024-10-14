@@ -103,17 +103,17 @@ const headerStyle = computed(() => ({
 const leftSidebarStyle = computed(() => ({
   height: displayStore.centerHeight,
   width: `${displayStore.sidebarLeftVw}vw`,
-  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding} * 2 )`,
+  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
   left: displayStore.sectionPadding,
 }))
 
 const mainContentStyle = computed(() => ({
-  height: `${displayStore.centerHeight}vh`, // 'vh'
-  width: `${displayStore.centerWidth}vw`, // 'vw'
-  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
+  height: displayStore.centerHeight,
+  width: displayStore.centerWidth,
+  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
   right: sidebarRightOpen.value
-    ? `calc(${displayStore.sidebarRightVw}vw + ${displayStore.sectionPadding})` // 'vw' and 'px'
-    : displayStore.sectionPadding, // 'px'
+    ? `calc(${displayStore.sidebarRightVw}vw + (${displayStore.sectionPadding} * 2 ))`
+    : displayStore.sectionPadding,
 }))
 
 const rightSidebarStyle = computed(() => ({

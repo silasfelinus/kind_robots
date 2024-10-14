@@ -33,28 +33,16 @@
 
     <!-- Toggle buttons outside fixed elements -->
     <!-- Left toggle button (top-left corner of the sidebar) -->
-    <left-toggle
-      class="fixed z-50 transition-all duration-600 ease-in-out"
-      :style="leftToggleStyle"
-    />
+    <left-toggle class="fixed z-50" :style="leftToggleStyle" />
 
     <!-- Sidefoot toggle button (bottom-right corner of the sidebar) -->
-    <sidefoot-toggle
-      class="fixed z-50 transition-all duration-600 ease-in-out"
-      :style="sidefootToggleStyle"
-    />
+    <sidefoot-toggle class="fixed z-50" :style="sidefootToggleStyle" />
 
     <!-- Right toggle button (top-right corner of the sidebar) -->
-    <right-toggle
-      class="fixed z-50 transition-all duration-600 ease-in-out"
-      :style="rightToggleStyle"
-    />
+    <right-toggle class="fixed z-50" :style="rightToggleStyle" />
 
     <!-- Footer toggle button (bottom-left corner of the footer) -->
-    <footer-toggle
-      class="fixed z-50 transition-all duration-600 ease-in-out"
-      :style="footerToggleStyle"
-    />
+    <footer-toggle class="fixed z-50" :style="footerToggleStyle" />
 
     <!-- Right Sidebar -->
     <aside

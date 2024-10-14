@@ -29,6 +29,29 @@
       :style="mainContentStyle"
     >
       <main-content />
+
+      <!-- Toggle buttons section inside Main Content -->
+      <div class="pointer-events-auto">
+        <!-- Left Toggle -->
+        <div class="w-16 h-16 fixed" :style="leftToggleStyle">
+          <left-toggle />
+        </div>
+
+        <!-- Sidefoot Toggle -->
+        <div class="w-16 h-16 fixed" :style="sidefootToggleStyle">
+          <sidefoot-toggle />
+        </div>
+
+        <!-- Right Toggle -->
+        <div class="w-16 h-16 fixed" :style="rightToggleStyle">
+          <right-toggle />
+        </div>
+
+        <!-- Footer Toggle -->
+        <div class="w-16 h-16 fixed" :style="footerToggleStyle">
+          <footer-toggle />
+        </div>
+      </div>
     </main>
 
     <!-- Right Sidebar -->
@@ -46,29 +69,6 @@
     >
       <horizontal-nav v-if="footerOpen" class="h-full w-full" />
     </footer>
-
-    <!-- Toggle buttons section as a separate layer -->
-    <div class="fixed z-50 pointer-events-auto">
-      <!-- Left Toggle -->
-      <div class="w-16 h-16 fixed" style="top: 64px; left: 64px">
-        <left-toggle />
-      </div>
-
-      <!-- Sidefoot Toggle -->
-      <div class="w-16 h-16 fixed" style="bottom: 64px; left: 64px">
-        <sidefoot-toggle />
-      </div>
-
-      <!-- Right Toggle -->
-      <div class="w-16 h-16 fixed" style="top: 64px; right: 64px">
-        <right-toggle />
-      </div>
-
-      <!-- Footer Toggle -->
-      <div class="w-16 h-16 fixed" style="bottom: 64px; right: 64px">
-        <footer-toggle />
-      </div>
-    </div>
   </div>
 </template>
 
@@ -130,5 +130,26 @@ const footerStyle = computed(() => ({
   bottom: displayStore.sectionPadding,
   left: displayStore.sectionPadding,
   right: displayStore.sectionPadding,
+}))
+
+// Toggle button styles fed from script
+const leftToggleStyle = computed(() => ({
+  top: `64px`,
+  left: `64px`,
+}))
+
+const sidefootToggleStyle = computed(() => ({
+  bottom: `64px`,
+  left: `64px`,
+}))
+
+const rightToggleStyle = computed(() => ({
+  top: `64px`,
+  right: `64px`,
+}))
+
+const footerToggleStyle = computed(() => ({
+  bottom: `64px`,
+  right: `64px`,
 }))
 </script>

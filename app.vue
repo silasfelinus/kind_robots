@@ -6,7 +6,7 @@
 
     <!-- Header -->
     <header
-      class="fixed w-full z-30 flex items-center justify-center bg-primary box-border overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed w-full z-10 flex items-center justify-center bg-primary box-border overflow-hidden transition-all duration-500 ease-in-out"
       :style="headerStyle"
     >
       <header-upgrade class="flex-grow text-center" />
@@ -14,7 +14,7 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-20 box-border transition-all duration-300 ease-in-out"
+      class="fixed z-10 box-border transition-all duration-300 ease-in-out"
       :style="leftSidebarStyle"
     >
       <kind-sidebar-simple />
@@ -31,31 +31,31 @@
     <!-- Toggle buttons outside fixed elements -->
     <!-- Left toggle button (top-left corner of the sidebar) -->
     <left-toggle
-      class="fixed z-40 transition-all duration-600 ease-in-out"
+      class="fixed z-50 transition-all duration-600 ease-in-out"
       :style="leftToggleStyle"
     />
 
     <!-- Sidefoot toggle button (bottom-right corner of the sidebar) -->
     <sidefoot-toggle
-      class="fixed z-40 transition-all duration-600 ease-in-out"
+      class="fixed z-50 transition-all duration-600 ease-in-out"
       :style="sidefootToggleStyle"
     />
 
     <!-- Right toggle button (top-right corner of the sidebar) -->
     <right-toggle
-      class="fixed z-40 transition-all duration-600 ease-in-out"
+      class="fixed z-50 transition-all duration-600 ease-in-out"
       :style="rightToggleStyle"
     />
 
     <!-- Footer toggle button (bottom-left corner of the footer) -->
     <footer-toggle
-      class="fixed z-40 transition-all duration-600 ease-in-out"
+      class="fixed z-50 transition-all duration-600 ease-in-out"
       :style="footerToggleStyle"
     />
 
     <!-- Right Sidebar -->
     <aside
-      class="fixed z-20 box-border transition-all duration-600 ease-in-out"
+      class="fixed z-10 box-border transition-all duration-600 ease-in-out"
       :style="rightSidebarStyle"
     >
       <splash-tutorial v-if="showTutorial" class="h-full w-full" />
@@ -63,7 +63,7 @@
 
     <!-- Footer -->
     <footer
-      class="fixed z-30 box-border overflow-hidden transition-all duration-600 ease-in-out"
+      class="fixed z-10 box-border overflow-hidden transition-all duration-600 ease-in-out"
       :style="footerStyle"
     >
       <horizontal-nav />

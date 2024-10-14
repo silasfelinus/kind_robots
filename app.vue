@@ -93,11 +93,11 @@ const sidebarRightOpen = computed(
 
 // Computed styles from the displayStore
 const headerStyle = computed(() => ({
-  height: `${displayStore.headerVh}vh`, // 'vh' for height
-  width: displayStore.footerWidth, // assuming footerWidth returns 'px'
-  top: displayStore.sectionPadding, // 'px'
-  left: displayStore.sectionPadding, // 'px'
-  right: displayStore.sectionPadding, // 'px'
+  height: `${displayStore.headerVh}vh`,
+  width: displayStore.footerWidth,
+  top: displayStore.sectionPadding,
+  left: displayStore.sectionPadding,
+  right: displayStore.sectionPadding,
 }))
 
 const leftSidebarStyle = computed(() => ({

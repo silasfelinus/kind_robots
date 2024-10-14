@@ -1,22 +1,22 @@
 <template>
   <div class="pointer-events-auto">
     <!-- Left Toggle -->
-    <div class="w-16 h-16 fixed Z-50" :style="leftToggleStyle">
+    <div class="w-16 h-16 fixed z-50" :style="leftToggleStyle">
       <left-toggle />
     </div>
 
     <!-- Sidefoot Toggle -->
-    <div class="w-16 h-16 fixed Z-50" :style="sidefootToggleStyle">
+    <div class="w-16 h-16 fixed z-50" :style="sidefootToggleStyle">
       <sidefoot-toggle />
     </div>
 
     <!-- Right Toggle -->
-    <div class="w-16 h-16 fixed Z-50" :style="rightToggleStyle">
+    <div class="w-16 h-16 fixed z-50" :style="rightToggleStyle">
       <right-toggle />
     </div>
 
     <!-- Footer Toggle -->
-    <div class="w-16 h-16 fixed Z-50" :style="footerToggleStyle">
+    <div class="w-16 h-16 fixed z-50" :style="footerToggleStyle">
       <footer-toggle />
     </div>
   </div>

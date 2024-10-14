@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed bottom-30 right-30 z-50 p-4 bg-gray-800 rounded-lg shadow-lg"
+    class="fixed bottom-11 right-11 z-50 p-4 bg-gray-800 rounded-lg shadow-lg"
   >
     <h2 class="text-lg text-white font-bold mb-2">Debug Launcher</h2>
     <div class="flex flex-col space-y-2">

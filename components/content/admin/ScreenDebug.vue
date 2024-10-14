@@ -40,6 +40,16 @@
       <li>
         <strong>Right Sidebar Multiplier:</strong> {{ sidebarRightMultiplier }}
       </li>
+
+      <!-- Toggle Element Positions -->
+      <li><strong>Left Toggle Position:</strong> {{ leftTogglePosition }}</li>
+      <li><strong>Right Toggle Position:</strong> {{ rightTogglePosition }}</li>
+      <li>
+        <strong>Footer Toggle Position:</strong> {{ footerTogglePosition }}
+      </li>
+      <li>
+        <strong>Sidefoot Toggle Position:</strong> {{ sidefootTogglePosition }}
+      </li>
     </ul>
   </div>
 </template>
@@ -89,6 +99,24 @@ const sidebarRightMultiplier = computed(() =>
     ? 2
     : 1,
 )
+const footerMultiplier = computed(() => (footerState.value === 'open' ? 2 : 1))
+
+// Toggle element positions (including calculations)
+const leftTogglePosition = computed(() => {
+  return `Top: calc(${headerHeight.value} + ${sectionPadding} * 2), Left: calc(${sidebarLeftWidth.value} + ${sectionPadding} * ${sidebarLeftMultiplier.value})`
+})
+
+const rightTogglePosition = computed(() => {
+  return `Top: calc(${headerHeight.value} + ${sectionPadding} * 2), Right: calc(${sidebarRightWidth.value} + ${sectionPadding} * ${sidebarRightMultiplier.value})`
+})
+
+const footerTogglePosition = computed(() => {
+  return `Bottom: calc(${footerHeight.value} + ${sectionPadding} * ${footerMultiplier.value}), Left: calc(${sidebarLeftWidth.value} + ${sectionPadding})`
+})
+
+const sidefootTogglePosition = computed(() => {
+  return `Bottom: calc(${footerHeight.value} + ${sectionPadding} * ${footerMultiplier.value}), Right: calc(${sidebarRightWidth.value} + ${sectionPadding} * ${sidebarRightMultiplier.value})`
+})
 </script>
 
 <style scoped>

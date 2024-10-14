@@ -52,10 +52,16 @@ export const useDisplayStore = defineStore('display', {
 
   getters: {
     sectionPadding(): string {
-      return '16px';
+      return '4';
+    },
+    sectionPaddingVh(): string {
+      return '4vh';
+    },
+    sectionPaddingVw(): string {
+      return '4vw';
     },
     sectionPaddingInteger(): number {
-      return 16;
+      return 4;
     },
     // Return multiplier for footer
     footerMultiplier(state): number {
@@ -127,14 +133,14 @@ export const useDisplayStore = defineStore('display', {
       return value !== undefined ? value : 2;
     },
   
-    // we add 2 to accomodate for the header, which will always need two padding segments
-    mainVh(): number {
-      return 100 - this.headerVh - this.footerVh - (this.sectionPaddingInteger * (this.footerMultiplier + 2));
-    },
-  
-    mainVw(): number {
-      return 100 - this.sidebarLeftVw - this.sidebarRightVw - (this.sectionPaddingInteger * this.sectionPaddingMultiplier);
-    },
+  // we add 2 to account for the header, which will always need two padding segments
+  mainVh(): string {
+    return `calc(100vh - ${this.headerHeight} - ${this.footerHeight} - ${this.sectionPaddingVh})`;
+  },
+
+  mainVw(): string {
+    return `calc(100vw - ${this.sidebarLeftWidth} - ${this.sidebarRightWidth} - ${this.sectionPaddingVw})`;
+  },
   
     headerHeight(): string {
       return `calc(var(--vh) * ${this.headerVh})`;
@@ -145,7 +151,7 @@ export const useDisplayStore = defineStore('display', {
     },
   
     footerWidth(): string {
-      return `calc(100vw - ${this.sectionPadding} * 2)`;
+      return `calc(100vw - ${this.sectionPaddingVw} * 2)`;
     },
   
 

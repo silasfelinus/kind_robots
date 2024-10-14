@@ -117,10 +117,10 @@ const mainContentStyle = computed(() => ({
 }))
 
 const rightSidebarStyle = computed(() => ({
-  height: `${displayStore.centerHeight}vh`, // 'vh'
-  width: `${displayStore.sidebarRightVw}vw`, // 'vw'
-  top: `calc(${displayStore.headerVh}vh + ${displayStore.sectionPadding})`, // 'vh' and 'px'
-  right: displayStore.sectionPadding, // 'px'
+  height: displayStore.centerHeight,
+  width: `${displayStore.sidebarRightVw}vw`,
+  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
+  right: displayStore.sectionPadding,
 }))
 
 const footerStyle = computed(() => ({

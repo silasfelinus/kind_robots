@@ -5,6 +5,7 @@
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
+    <debug-launcher />
 
     <!-- Header -->
     <header
@@ -137,24 +138,24 @@ const footerStyle = computed(() => ({
 const leftToggleStyle = computed(() => ({
   top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
   left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarLeftMultiplier}))`,
-  zIndex: 100, // Ensure visibility
+  zIndex: 50,
 }))
 
 const sidefootToggleStyle = computed(() => ({
   bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPaddingVh} * ${displayStore.footerMultiplier}))`,
   left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarLeftMultiplier}))`,
-  zIndex: 100, // Ensure visibility
+  zIndex: 50,
 }))
 
 const rightToggleStyle = computed(() => ({
   top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
   right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarRightMultiplier}))`,
-  zIndex: 100, // Ensure visibility
+  zIndex: 50,
 }))
 
 const footerToggleStyle = computed(() => ({
   bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPaddingVh} * ${displayStore.footerMultiplier}))`,
   right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarRightMultiplier}))`,
-  zIndex: 100, // Ensure visibility
+  zIndex: 50,
 }))
 </script>

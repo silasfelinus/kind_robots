@@ -35,29 +35,21 @@
       <!-- Left Toggle -->
       <div class="pointer-events-auto" :style="leftToggleStyle">
         <left-toggle />
-        <!-- Placeholder for Left Toggle position -->
-        <div class="w-6 h-6 bg-red-500 rounded-full"></div>
       </div>
 
       <!-- Sidefoot Toggle -->
       <div class="pointer-events-auto" :style="sidefootToggleStyle">
         <sidefoot-toggle />
-        <!-- Placeholder for Sidefoot Toggle position -->
-        <div class="w-6 h-6 bg-green-500 rounded-full"></div>
       </div>
 
       <!-- Right Toggle -->
       <div class="pointer-events-auto" :style="rightToggleStyle">
         <right-toggle />
-        <!-- Placeholder for Right Toggle position -->
-        <div class="w-6 h-6 bg-blue-500 rounded-full"></div>
       </div>
 
       <!-- Footer Toggle -->
       <div class="pointer-events-auto" :style="footerToggleStyle">
         <footer-toggle />
-        <!-- Placeholder for Footer Toggle position -->
-        <div class="w-6 h-6 bg-yellow-500 rounded-full"></div>
       </div>
     </div>
 

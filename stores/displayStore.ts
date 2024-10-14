@@ -162,12 +162,10 @@ export const useDisplayStore = defineStore('display', {
     },
 
     centerHeight(): string {
-      // Center height is the remaining height after header and footer, minus padding
       return `calc(var(--vh) * ${this.mainVh})`;
     },
 
     centerWidth(): string {
-      // Center width is the remaining width after sidebars, minus padding
       return `calc(${this.mainVw}vw)`;
     },
 

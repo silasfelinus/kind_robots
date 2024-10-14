@@ -1,7 +1,7 @@
 <template>
   <div class="relative z-50">
     <button
-      class="w-5 h-5 rounded-tr-full shadow-lg bg-gradient-to-tr from-accent to-accent-dark hover:bg-secondary border-2 border-double text-2xl text-white flex items-center justify-center transition-transform duration-300 ease-in-out absolute bottom-0 right-0"
+      class="w-5 h-5 rounded-tr-full border-b-4 border-r-4 shadow-lg bg-gradient-to-tr from-accent to-accent-dark hover:bg-secondary border-2 border-double text-2xl text-white flex items-center justify-center transition-transform duration-300 ease-in-out absolute bottom-0 right-0"
       @click="toggleFooter"
     >
       <!-- Footer toggle character (▼ or ▲) -->

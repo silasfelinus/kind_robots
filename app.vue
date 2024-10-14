@@ -31,17 +31,10 @@
       <main-content />
     </main>
 
-    <!-- Toggle buttons outside fixed elements -->
-    <!-- Left toggle button (top-left corner of the sidebar) -->
+    <!-- Toggle buttons -->
     <left-toggle class="fixed z-50" :style="leftToggleStyle" />
-
-    <!-- Sidefoot toggle button (bottom-right corner of the sidebar) -->
     <sidefoot-toggle class="fixed z-50" :style="sidefootToggleStyle" />
-
-    <!-- Right toggle button (top-right corner of the sidebar) -->
     <right-toggle class="fixed z-50" :style="rightToggleStyle" />
-
-    <!-- Footer toggle button (bottom-left corner of the footer) -->
     <footer-toggle class="fixed z-50" :style="footerToggleStyle" />
 
     <!-- Right Sidebar -->
@@ -68,8 +61,9 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the displayStore for managing the layout state
 const displayStore = useDisplayStore()
-const footerOpen = computed(() => displayStore.footerState === 'open')
 
+// Sidebar and footer states
+const footerOpen = computed(() => displayStore.footerState === 'open')
 const sidebarLeftOpen = computed(
   () =>
     displayStore.sidebarLeftState !== 'hidden' &&
@@ -81,62 +75,63 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'disabled',
 )
 
-// Computed styles from the displayStore directly
+// Computed styles
 const headerStyle = computed(() => ({
   height: displayStore.headerHeight,
   width: displayStore.footerWidth,
-  top: displayStore.sectionPadding,
-  left: displayStore.sectionPadding,
-  right: displayStore.sectionPadding,
+  top: `calc(${displayStore.sectionPaddingVh})`,
+  left: displayStore.sectionPaddingVw,
+  right: displayStore.sectionPaddingVw,
 }))
 
 const leftSidebarStyle = computed(() => ({
   height: displayStore.centerHeight,
   width: displayStore.sidebarLeftWidth,
-  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2))`,
-  left: displayStore.sectionPadding,
+  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh})`,
+  left: displayStore.sectionPaddingVw,
 }))
 
 const mainContentStyle = computed(() => ({
   height: displayStore.centerHeight,
   width: displayStore.centerWidth,
-  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPadding} * 2)`,
-  right: `calc(${displayStore.sidebarRightWidth} + ${displayStore.sectionPadding} * ${displayStore.sidebarRightMultiplier})`,
-  left: `calc(${displayStore.sidebarLeftWidth} + ${displayStore.sectionPadding} * ${displayStore.sidebarLeftMultiplier} )`,
+  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh})`,
+  right: `calc(${displayStore.sidebarRightWidth} + ${displayStore.sectionPaddingVw})`,
+  left: `calc(${displayStore.sidebarLeftWidth} + ${displayStore.sectionPaddingVw})`,
 }))
 
 const rightSidebarStyle = computed(() => ({
   height: displayStore.centerHeight,
   width: displayStore.sidebarRightWidth,
-  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPadding} * 2)`,
-  right: displayStore.sectionPadding,
+  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh})`,
+  right: displayStore.sectionPaddingVw,
 }))
 
 const footerStyle = computed(() => ({
   height: displayStore.footerHeight,
   width: displayStore.footerWidth,
-  bottom: displayStore.sectionPadding,
-  left: displayStore.sectionPadding,
-  right: displayStore.sectionPadding,
+  bottom: displayStore.sectionPaddingVh,
+  left: displayStore.sectionPaddingVw,
+  right: displayStore.sectionPaddingVw,
 }))
 
+// Toggle button styles
 const leftToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2))`,
-  left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPadding} * ${displayStore.sidebarLeftMultiplier}))`,
+  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh})`,
+  left: `calc(${displayStore.sidebarLeftWidth} + ${displayStore.sectionPaddingVw})`,
 }))
 
 const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier}))`,
-  left: `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPadding} * ${displayStore.sidebarLeftMultiplier}))`,
+  bottom: `calc(${displayStore.footerHeight} + ${displayStore.sectionPaddingVh})`,
+  left: `calc(${displayStore.sidebarLeftWidth} + ${displayStore.sectionPaddingVw})`,
 }))
 
 const rightToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPadding} * 2)`,
-  right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPadding} * ${displayStore.sidebarRightMultiplier}))`,
+  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh})`,
+  right: `calc(${displayStore.sidebarRightWidth} + ${displayStore.sectionPaddingVw})`,
 }))
 
 const footerToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerHeight} + ${displayStore.sectionPadding} * ${displayStore.footerMultiplier})`,
-  right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPadding} * ${displayStore.sidebarRightMultiplier}))`,
+  bottom: `calc(${displayStore.footerHeight} + ${displayStore.sectionPaddingVh})`,
+  right: `calc(${displayStore.sidebarRightWidth} + ${displayStore.sectionPaddingVw})`,
 }))
 </script>

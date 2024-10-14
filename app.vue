@@ -108,10 +108,15 @@ const leftSidebarStyle = computed(() => ({
 }))
 
 const mainContentStyle = computed(() => ({
-  height: displayStore.centerHeight,
-  width: displayStore.centerWidth,
-  top: `calc(${displayStore.headerHeight} + ${displayStore.sectionPaddingVh} * 2)`,
-  right: `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPaddingVw} * ${displayStore.sidebarRightMultiplier}))`,
+  top: `calc(${headerHeight.value} + ${sectionPadding})`,  // Use sectionPadding directly
+  height: adjustedMainHeight.value,  // Adjusted main height
+  width: adjustedMainWidth.value,    // Adjusted main width
+  right: sidebarRightOpen.value
+    ? `calc(${sidebarRightWidth.value} + ${sectionPadding})`
+    : sectionPadding,
+  left: sidebarLeftOpen.value
+    ? `calc(${sidebarLeftWidth.value} + ${sectionPadding})`
+    : sectionPadding,
 }))
 
 const rightSidebarStyle = computed(() => ({

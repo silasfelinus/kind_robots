@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Arc-style toggle button for right sidebar and tutorial -->
     <button
-      class="w-16 h-16 rounded-tl-full fixed top-0 right-0 z-10 shadow-lg bg-gradient-to-bl from-accent to-accent-dark hover:bg-secondary border-2 border-double border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
+      class="w-16 h-16 rounded-tl-full shadow-lg bg-gradient-to-bl from-accent to-accent-dark hover:bg-secondary border-2 border-double border-gray-300 text-2xl font-semibold text-white flex items-center justify-center transition-transform duration-300 ease-in-out"
       @click="toggleTutorialSidebar"
     >
       <span

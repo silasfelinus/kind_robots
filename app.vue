@@ -34,23 +34,35 @@
     <!-- Toggle buttons section -->
     <div class="fixed z-50 pointer-events-none">
       <!-- Left Toggle -->
-      <div class="pointer-events-auto" :style="leftToggleStyle">
-        <left-toggle />
+      <div
+        class="pointer-events-auto bg-red-500 w-12 h-12"
+        :style="leftToggleStyle"
+      >
+        <!-- Placeholder for left-toggle -->
       </div>
 
       <!-- Sidefoot Toggle -->
-      <div class="pointer-events-auto" :style="sidefootToggleStyle">
-        <sidefoot-toggle />
+      <div
+        class="pointer-events-auto bg-blue-500 w-12 h-12"
+        :style="sidefootToggleStyle"
+      >
+        <!-- Placeholder for sidefoot-toggle -->
       </div>
 
       <!-- Right Toggle -->
-      <div class="pointer-events-auto" :style="rightToggleStyle">
-        <right-toggle />
+      <div
+        class="pointer-events-auto bg-green-500 w-12 h-12"
+        :style="rightToggleStyle"
+      >
+        <!-- Placeholder for right-toggle -->
       </div>
 
       <!-- Footer Toggle -->
-      <div class="pointer-events-auto" :style="footerToggleStyle">
-        <footer-toggle />
+      <div
+        class="pointer-events-auto bg-yellow-500 w-12 h-12"
+        :style="footerToggleStyle"
+      >
+        <!-- Placeholder for footer-toggle -->
       </div>
     </div>
 
@@ -71,6 +83,7 @@
     </footer>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'

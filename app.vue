@@ -29,28 +29,7 @@
     >
       <main-content />
 
-      <!-- Toggle buttons section inside Main Content -->
-      <div class="pointer-events-auto">
-        <!-- Left Toggle -->
-        <div class="w-16 h-16 fixed Z-50" :style="leftToggleStyle">
-          <left-toggle />
-        </div>
-
-        <!-- Sidefoot Toggle -->
-        <div class="w-16 h-16 fixed Z-50" :style="sidefootToggleStyle">
-          <sidefoot-toggle />
-        </div>
-
-        <!-- Right Toggle -->
-        <div class="w-16 h-16 fixed Z-50" :style="rightToggleStyle">
-          <right-toggle />
-        </div>
-
-        <!-- Footer Toggle -->
-        <div class="w-16 h-16 fixed Z-50" :style="footerToggleStyle">
-          <footer-toggle />
-        </div>
-      </div>
+      <main-toggles />
     </main>
 
     <!-- Right Sidebar -->
@@ -129,34 +108,5 @@ const footerStyle = computed(() => ({
   bottom: displayStore.sectionPadding,
   left: displayStore.sectionPadding,
   right: displayStore.sectionPadding,
-}))
-
-// Toggle button styles fed from script
-const leftToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
-  left: sidebarLeftOpen.value
-    ? `calc(${displayStore.sidebarLeftVw}vw + (${displayStore.sectionPadding} * 2 ))`
-    : displayStore.sectionPadding,
-}))
-
-const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerVh}vh + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier} ))`,
-  left: sidebarLeftOpen.value
-    ? `calc(${displayStore.sidebarLeftVw}vw + (${displayStore.sectionPadding} * 2 ))`
-    : displayStore.sectionPadding,
-}))
-
-const rightToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
-  right: sidebarRightOpen.value
-    ? `calc(${displayStore.sidebarRightVw}vw + (${displayStore.sectionPadding} * 2 ))`
-    : displayStore.sectionPadding,
-}))
-
-const footerToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerVh}vh + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier} ))`,
-  right: sidebarRightOpen.value
-    ? `calc(${displayStore.sidebarRightVw}vw + (${displayStore.sectionPadding} * 2 ))`
-    : displayStore.sectionPadding,
 }))
 </script>

@@ -133,14 +133,13 @@ export const useDisplayStore = defineStore('display', {
       return value !== undefined ? value : 2;
     },
   
-  // we add 2 to account for the header, which will always need two padding segments
-  mainVh(): string {
-    return `calc(100vh - ${this.headerHeight} - ${this.footerHeight} - ${this.sectionPaddingVh})`;
-  },
+    mainVh(): number {
+    return 100 - this.headerVh - this.footerVh - (this.sectionPaddingInteger * 2);
+    },
 
-  mainVw(): string {
-    return `calc(100vw - ${this.sidebarLeftWidth} - ${this.sidebarRightWidth} - ${this.sectionPaddingVw})`;
-  },
+    mainVw(): number {
+    return 100 - this.sidebarLeftVw - this.sidebarRightVw - (this.sectionPaddingInteger * this.sectionPaddingMultiplier);
+    },
   
     headerHeight(): string {
       return `calc(var(--vh) * ${this.headerVh})`;
@@ -193,6 +192,10 @@ export const useDisplayStore = defineStore('display', {
 
 
   actions: {
+    handleError(error: unknown) {
+      const errorStore = useErrorStore();
+      errorStore.setError(ErrorType.GENERAL_ERROR, error);
+    },
     initialize() {
       if (this.isInitialized) {
         return; // Skip initialization if already initialized
@@ -204,8 +207,7 @@ export const useDisplayStore = defineStore('display', {
         window.addEventListener('resize', this.updateViewport);
         this.isInitialized = true;
       } catch (error) {
-        const errorStore = useErrorStore();
-        errorStore.setError(ErrorType.GENERAL_ERROR, error);
+        this.handleError(error);
       }
     },
 
@@ -231,8 +233,7 @@ export const useDisplayStore = defineStore('display', {
           if (storedShowIntro) this.showIntro = storedShowIntro === 'true';
         }
       } catch (error) {
-        const errorStore = useErrorStore();
-        errorStore.setError(ErrorType.GENERAL_ERROR, error);
+        this.handleError(error);
       }
     },
 
@@ -318,8 +319,7 @@ export const useDisplayStore = defineStore('display', {
             }
           }
         } catch (error) {
-          const errorStore = useErrorStore();
-          errorStore.setError(ErrorType.GENERAL_ERROR, error);
+          this.handleError(error);
         } finally {
           this.resizeTimeout = null; // Reset timeout after execution
         }
@@ -443,8 +443,7 @@ export const useDisplayStore = defineStore('display', {
           localStorage.setItem('flipState', this.flipState);
         }
       } catch (error) {
-        const errorStore = useErrorStore();
-        errorStore.setError(ErrorType.GENERAL_ERROR, error);
+        this.handleError(error);
       }
     },
   },

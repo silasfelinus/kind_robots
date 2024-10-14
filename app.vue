@@ -5,7 +5,6 @@
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
-    <debug-launcher />
 
     <!-- Header -->
     <header
@@ -134,7 +133,7 @@ const footerStyle = computed(() => ({
 
 // Toggle button styles fed from script
 const leftToggleStyle = computed(() => ({
-  top: `64px`,
+  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
   left: `64px`,
 }))
 
@@ -144,7 +143,7 @@ const sidefootToggleStyle = computed(() => ({
 }))
 
 const rightToggleStyle = computed(() => ({
-  top: `64px`,
+  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
   right: `64px`,
 }))
 

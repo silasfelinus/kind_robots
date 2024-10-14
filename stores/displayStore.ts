@@ -51,29 +51,30 @@ export const useDisplayStore = defineStore('display', {
   }),
 
   getters: {
-    sectionPadding(): string {
+        sectionPadding(): string {
       return '16px';
     },
 
     sectionPaddingVh(): string {
-      if (typeof window !== 'undefined') { 
+      if (typeof window !== 'undefined' && window.innerHeight) {
         const vh = (16 / window.innerHeight) * 100;
-        return `${vh}vh`;
+        return `${vh.toFixed(2)}vh`;  // Limit decimal places for precision
       }
-      return '16px'; 
+      return '16px';  // Fallback to pixels if `window` is unavailable
     },
 
     sectionPaddingVw(): string {
-      if (typeof window !== 'undefined') { 
+      if (typeof window !== 'undefined' && window.innerWidth) {
         const vw = (16 / window.innerWidth) * 100;
-        return `${vw}vw`;
+        return `${vw.toFixed(2)}vw`;  // Limit decimal places for precision
       }
-      return '16px'; 
+      return '16px';  // Fallback to pixels if `window` is unavailable
     },
 
     sectionPaddingInteger(): number {
       return 16; 
     },
+
     footerMultiplier(state): number {
       return state.footerState === 'open' ? 2 : 1;
     },

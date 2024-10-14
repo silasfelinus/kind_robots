@@ -51,6 +51,33 @@ export const useDisplayStore = defineStore('display', {
   }),
 
   getters: {
+    sectionPadding(): string {
+      return '16px';
+    },
+    sectionPaddingInteger(): number {
+      return 16;
+    },
+    // Return multiplier for footer
+    footerMultiplier(state): number {
+      return state.footerState === 'open' ? 2 : 1;
+    },
+
+    // Return multiplier for left sidebar
+    sidebarLeftMultiplier(state): number {
+      return ['open', 'compact'].includes(state.sidebarLeftState) ? 2 : 1;
+    },
+
+    // Return multiplier for right sidebar
+    sidebarRightMultiplier(state): number {
+      return ['open', 'compact'].includes(state.sidebarRightState) ? 2 : 1;
+    },
+    // Combined multiplier for sectionPadding
+    sectionPaddingMultiplier(): number {
+      return (
+        this.sidebarLeftMultiplier +
+        this.sidebarRightMultiplier
+      )
+    },
     headerVh(state): number {
       const sizes = {
         small: { open: 12, compact: 6, hidden: 1, disabled: 0 },
@@ -100,12 +127,13 @@ export const useDisplayStore = defineStore('display', {
       return value !== undefined ? value : 2;
     },
   
+    // we add 2 to accomodate for the header, which will always need two padding segments
     mainVh(): number {
-      return 100 - this.headerVh - this.footerVh;
+      return 100 - this.headerVh - this.footerVh - (this.sectionPaddingInteger * (this.footerMultiplier + 2));
     },
   
     mainVw(): number {
-      return 100 - this.sidebarLeftVw - this.sidebarRightVw;
+      return 100 - this.sidebarLeftVw - this.sidebarRightVw - (this.sectionPaddingInteger * this.sectionPaddingMultiplier);
     },
   
     headerHeight(): string {
@@ -117,15 +145,18 @@ export const useDisplayStore = defineStore('display', {
     },
   
     footerWidth(): string {
-      return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
+      return `calc(100vw - ${this.sectionPadding} * 2)`;
     },
   
-    mainWidth(): string {
-      return `calc(100vw - ${this.sidebarLeftVw}vw - ${this.sidebarRightVw}vw)`;
+
+    centerHeight(): string {
+      // Center height is the remaining height after header and footer, minus padding
+      return `calc(var(--vh) * ${this.mainVh})`;
     },
-  
-    mainHeight(): string {
-      return `calc(var(--vh) * 100 - var(--vh) * ${this.headerVh} - var(--vh) * ${this.footerVh})`;
+
+    centerWidth(): string {
+      // Center width is the remaining width after sidebars, minus padding
+      return `calc(${this.mainVw}vw)`;
     },
   
     sidebarLeftWidth(): string {

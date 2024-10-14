@@ -82,7 +82,9 @@ const displayStore = useDisplayStore()
 const headerHeight = computed(
   () => `calc(var(--vh) * ${displayStore.headerVh})`,
 )
-const mainHeight = computed(() => displayStore.mainHeight)
+const mainHeight = computed(
+  () => `calc(var(--vh) * ${displayStore.mainHeight})`,
+)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const footerHeight = computed(

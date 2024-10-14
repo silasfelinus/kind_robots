@@ -59,7 +59,7 @@
     <div
       v-if="page && page.dottitip && page.amitip"
       class="flex flex-col w-full max-w-3xl px-4 py-1 mx-auto flex-shrink-0"
-      :style="{ height: displayStore.mainHeight + 'vh' }"
+      :style="{ height: displayStore.mainVh + 'vh' }"
     >
       <!-- DottiBot Message -->
       <div class="chat chat-start">
@@ -99,5 +99,5 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 const { page } = useContent()
 
-const mainHeight = computed(() => displayStore.mainHeight)
+const mainHeight = computed(() => displayStore.mainVh)
 </script>

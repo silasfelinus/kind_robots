@@ -29,7 +29,11 @@
       :style="mainContentStyle"
     >
   <main-content />
-      <!-- Left toggle button (top-left corner of the sidebar) -->
+      
+    
+    </main>
+
+<!-- Left toggle button (top-left corner of the sidebar) -->
       <left-toggle
         class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="leftToggleStyle"
@@ -51,8 +55,6 @@
         class="fixed z-40 transition-all duration-600 ease-in-out"
         :style="footerToggleStyle"
       />
-    
-    </main>
 
     <!-- Right Sidebar -->
     <aside

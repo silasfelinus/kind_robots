@@ -110,15 +110,7 @@ const leftSidebarStyle = computed(() => ({
   height: `calc(${mainHeight.value} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
 }))
 
-const leftToggleStyle = computed(() => ({
-  top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
-  left: `calc(${sidebarLeftWidth.value} + ${sectionPadding} * (${sidebarLeftMultiplier.value} + 1))`,
-}))
 
-const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${footerHeight.value} + (${sectionPadding} * ${footerMultiplier.value}))`,
-  left: `calc(${sidebarLeftWidth.value} + (${sectionPadding} * (${sidebarLeftMultiplier.value} + 2)))`,
-}))
 
 const mainContentStyle = computed(() => ({
   top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
@@ -139,10 +131,7 @@ const rightSidebarStyle = computed(() => ({
   height: `calc(${mainHeight.value} - (${sectionPadding} * (${footerMultiplier.value} + 2)))`,
 }))
 
-const rightToggleStyle = computed(() => ({
-  top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
-  right: `calc(${sidebarRightWidth.value} + (${sectionPadding} * ${sidebarRightMultiplier.value}))`,
-}))
+
 
 const footerStyle = computed(() => ({
   height: footerHeight.value,
@@ -150,6 +139,21 @@ const footerStyle = computed(() => ({
   left: sectionPadding,
   right: sectionPadding,
   bottom: sectionPadding,
+}))
+
+const leftToggleStyle = computed(() => ({
+  top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
+  left: `calc(${sidebarLeftWidth.value} + ${sectionPadding} * ${sidebarLeftMultiplier.value})`,
+}))
+
+const sidefootToggleStyle = computed(() => ({
+  bottom: `calc(${footerHeight.value} + (${sectionPadding} * ${footerMultiplier.value}))`,
+  left: `calc(${sidebarLeftWidth.value} + (${sectionPadding} * ${sidebarLeftMultiplier.value}))`,
+}))
+
+const rightToggleStyle = computed(() => ({
+  top: `calc(${headerHeight.value} + ${sectionPadding} * 2)`,
+  right: `calc(${sidebarRightWidth.value} + (${sectionPadding} * ${sidebarRightMultiplier.value}))`,
 }))
 
 const footerToggleStyle = computed(() => ({

@@ -76,8 +76,8 @@ const headerVh = computed(() => displayStore.headerVh)
 const footerVh = computed(() => displayStore.footerVh)
 
 // String values for dimensions
-const mainWidth = computed(() => displayStore.mainWidth)
-const mainHeight = computed(() => displayStore.mainHeight)
+const mainWidth = computed(() => displayStore.centerWidth)
+const mainHeight = computed(() => displayStore.centerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const headerHeight = computed(() => displayStore.headerHeight)

@@ -33,30 +33,30 @@ const iconText = computed(() => {
 
 // Compute the position for the left-footer toggle button
 const leftFooterToggleStyle = computed(() => {
-  const consistentWidth = '20px' // Define a consistent width for the toggle positioning
+  const consistentWidth = '20px'
   if (displayStore.sidebarLeftState === 'hidden') {
-    // Sidebar is hidden, so place the toggle outside (on the padding)
     return {
       left: `${displayStore.sectionPadding}`,
-      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`, // Centered vertically in the viewport
+      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`,
     }
   } else {
-    // Sidebar is either open or compact, place the toggle at the end of the sidebar
     return {
       left: `calc(${displayStore.sidebarLeftWidth} - ${consistentWidth})`,
-      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`, // Centered vertically in the viewport
+      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`,
     }
   }
 })
 
-// Toggle the left sidebar between 'open', 'compact', and 'hidden'
+// Toggle the left sidebar, and close the footer if sidebar is opened
 const toggleSidebarLeft = () => {
-  if (displayStore.sidebarLeftState === 'open') {
-    displayStore.sidebarLeftState = 'compact'
-  } else if (displayStore.sidebarLeftState === 'compact') {
+  if (
+    displayStore.sidebarLeftState === 'open' ||
+    displayStore.sidebarLeftState === 'compact'
+  ) {
     displayStore.sidebarLeftState = 'hidden'
   } else {
     displayStore.sidebarLeftState = 'open'
+    displayStore.footerState = 'hidden' // Close the footer when the left sidebar is opened
   }
 }
 </script>

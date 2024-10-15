@@ -1,5 +1,5 @@
 <template>
-  <div class="relative z-50 border-4 border-black rounded-2xl p-2">
+  <div class="relative z-50 p-2">
     <button
       class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-400 to-yellow-400 text-2xl font-semibold text-white flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out animate-bounce"
       @click="toggleSidebarLeft"

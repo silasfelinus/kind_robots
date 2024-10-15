@@ -1,8 +1,7 @@
 <template>
-  <div class="relative z-50">
-    <!-- Arc-style toggle button for right sidebar and tutorial -->
+  <div class="fixed z-50 p-1">
     <button
-      class="p-1 fixed w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 to-yellow-400 text-2xl font-semibold text-white flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
+      class="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 to-yellow-400 text-2xl font-semibold text-white flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
       :style="rightToggleStyle"
       @click="toggleTutorialSidebar"
     >
@@ -20,24 +19,31 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Access the displayStore for managing the layout state
 const displayStore = useDisplayStore()
 
-// Right toggle style, dynamic based on main-toggles positioning
-const rightToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2 ))`,
-  right:
-    displayStore.sidebarRightState !== 'hidden'
-      ? `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPadding} * 2 ))`
-      : displayStore.sectionPadding,
-}))
+// Right toggle style, based on whether the right sidebar is open or hidden
+const rightToggleStyle = computed(() => {
+  if (displayStore.sidebarRightState === 'hidden') {
+    // When the sidebar is hidden, place the toggle outside with padding
+    return {
+      top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2))`,
+      right: `${displayStore.sectionPadding}`,
+    }
+  } else {
+    // When the sidebar is open, place the toggle inside the sidebar
+    return {
+      top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2))`,
+      right: `calc(${displayStore.sidebarRightWidth} - (${displayStore.sectionPadding} * 2))`,
+    }
+  }
+})
 
 // Determine the icon text based on the right sidebar's state
 const rightIconText = computed(() => {
-  return displayStore.sidebarRightState === 'hidden' ? '>' : '<'
+  return displayStore.sidebarRightState === 'hidden' ? '<' : '>'
 })
 
-// Toggle the right sidebar and tutorial
+// Toggle the right sidebar
 const toggleTutorialSidebar = () => {
   displayStore.toggleTutorial()
 

@@ -1,8 +1,8 @@
 <template>
   <div class="relative z-50">
     <button
-      class="rounded-tl-full rounded-br-2xl border-t-2 border-l-2 border-double border-accent shadow-lg bg-gradient-to-tr from-accent to-accent-dark hover:bg-secondary text-2xl text-white flex items-center justify-center"
-      @click="toggleFooter"
+      class="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-400 to-yellow-400 text-2xl font-semibold text-white flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
+       @click="toggleFooter"
     >
       <!-- Footer toggle character (▼ or ▲) -->
       <span

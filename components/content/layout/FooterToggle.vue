@@ -4,7 +4,7 @@
     :style="footerToggleStyle"
   >
     <button
-      class="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-400 to-yellow-400 text-2xl font-semibold text-white flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
+      class="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 to-yellow-400 text-xl font-semibold text-white flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
       @click="toggleFooter"
     >
       <!-- Footer toggle character (▼ or ▲) -->

@@ -32,15 +32,13 @@ const displayStore = useDisplayStore()
 
 // Compute the style for the footer toggle based on footer state
 const footerToggleStyle = computed(() => {
-  const consistentHeightOffset = '20px'
-
   if (displayStore.footerState === 'open') {
     return {
-      bottom: `calc(${displayStore.footerHeight} - ${consistentHeightOffset})`, // Inside the footer
+      bottom: `${displayStore.sectionPadding}`, // Positioned inside the footer when open
     }
   } else {
     return {
-      bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPadding} * 2))`, // Just above the footer
+      bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPadding} * 2))`, // Just above the footer when closed
     }
   }
 })

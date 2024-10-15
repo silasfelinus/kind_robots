@@ -54,30 +54,34 @@ const sidebarRightOpen = computed(
 
 // Toggle button styles fed from script
 const leftToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
+  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2 ))`,
   left: sidebarLeftOpen.value
-    ? `calc(${displayStore.sidebarLeftVw}vw + (${displayStore.sectionPadding} * 2 ))`
+    ? `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPadding} * 2 ))`
     : displayStore.sectionPadding,
+  transformOrigin: 'top left',
 }))
 
 const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerVh}vh + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier} ))`,
+  bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier} ))`,
   left: sidebarLeftOpen.value
-    ? `calc(${displayStore.sidebarLeftVw}vw + (${displayStore.sectionPadding} * 2 ))`
+    ? `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPadding} * 2 ))`
     : displayStore.sectionPadding,
+  transformOrigin: 'bottom left',
 }))
 
 const rightToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
+  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2 ))`,
   right: sidebarRightOpen.value
-    ? `calc(${displayStore.sidebarRightVw}vw + (${displayStore.sectionPadding} * 2 ))`
+    ? `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPadding} * 2 ))`
     : displayStore.sectionPadding,
+  transformOrigin: 'top right',
 }))
 
 const footerToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerVh}vh + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier} ))`,
+  bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier} ))`,
   right: sidebarRightOpen.value
-    ? `calc(${displayStore.sidebarRightVw}vw + (${displayStore.sectionPadding} * 2 ))`
+    ? `calc(${displayStore.sidebarRightWidth}vw + (${displayStore.sectionPadding} * 2 ))`
     : displayStore.sectionPadding,
+  transformOrigin: 'bottom right',
 }))
 </script>

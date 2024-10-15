@@ -32,15 +32,13 @@ const displayStore = useDisplayStore()
 
 // Compute the style for the footer toggle based on footer state
 const footerToggleStyle = computed(() => {
-  const consistentHeightOffset = '20px' // Define a consistent height offset for the toggle
+  const consistentHeightOffset = '20px'
 
   if (displayStore.footerState === 'open') {
-    // When the footer is open, place the toggle inside the footer
     return {
       bottom: `calc(${displayStore.footerHeight} - ${consistentHeightOffset})`, // Inside the footer
     }
   } else {
-    // When the footer is closed, place the toggle just above the footer
     return {
       bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPadding} * 2))`, // Just above the footer
     }
@@ -52,8 +50,13 @@ const footerCharacter = computed(() => {
   return displayStore.footerState === 'open' ? '▼' : '▲'
 })
 
-// Toggle the footer's open/closed state
+// Toggle the footer's open/closed state, and close the left sidebar if footer is opened
 const toggleFooter = () => {
-  displayStore.toggleFooter()
+  if (displayStore.footerState === 'hidden') {
+    displayStore.footerState = 'open'
+    displayStore.sidebarLeftState = 'hidden' // Close left sidebar when footer is opened
+  } else {
+    displayStore.footerState = 'hidden'
+  }
 }
 </script>

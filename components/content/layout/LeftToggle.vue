@@ -28,7 +28,9 @@ const displayStore = useDisplayStore()
 
 // Determine the icon text based on the sidebarLeftState (open, compact, hidden)
 const iconText = computed(() => {
-  return displayStore.sidebarLeftState === 'hidden' ? '>' : '<'
+  if (displayStore.sidebarLeftState === 'hidden') return '>'
+  if (displayStore.sidebarLeftState === 'compact') return '<'
+  return '<' // Icon for both 'open' and 'compact'
 })
 
 // Compute the position for the left-footer toggle button
@@ -37,25 +39,24 @@ const leftFooterToggleStyle = computed(() => {
   if (displayStore.sidebarLeftState === 'hidden') {
     return {
       left: `${displayStore.sectionPadding}`,
-      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`,
+      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`, // Centered vertically in the viewport
     }
   } else {
     return {
       left: `calc(${displayStore.sidebarLeftWidth} - ${consistentWidth})`,
-      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`,
+      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`, // Centered vertically in the viewport
     }
   }
 })
 
-// Toggle the left sidebar, and close the footer if sidebar is opened
+// Toggle the left sidebar between 'open', 'compact', and 'hidden'
 const toggleSidebarLeft = () => {
-  if (
-    displayStore.sidebarLeftState === 'open' ||
-    displayStore.sidebarLeftState === 'compact'
-  ) {
-    displayStore.sidebarLeftState = 'hidden'
+  if (displayStore.sidebarLeftState === 'open') {
+    displayStore.sidebarLeftState = 'compact' // Move to 'compact' from 'open'
+  } else if (displayStore.sidebarLeftState === 'compact') {
+    displayStore.sidebarLeftState = 'hidden' // Move to 'hidden' from 'compact'
   } else {
-    displayStore.sidebarLeftState = 'open'
+    displayStore.sidebarLeftState = 'open' // Move to 'open' from 'hidden'
     displayStore.footerState = 'hidden' // Close the footer when the left sidebar is opened
   }
 }

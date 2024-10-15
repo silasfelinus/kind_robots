@@ -1,83 +1,16 @@
 <template>
   <div class="pointer-events-auto">
     <!-- Left Toggle -->
-    <div
-      class="w-7 h-7 z-50 fixed transition-all duration-600 ease-in-out"
-      :style="leftToggleStyle"
-    >
+    <div class="w-7 h-7 z-50 transition-all duration-600 ease-in-out">
       <left-toggle />
     </div>
 
-    <!-- Sidefoot Toggle -->
-    <div
-      class="w-7 h-7 z-50 fixed transition-all duration-600 ease-in-out"
-      :style="sidefootToggleStyle"
-    >
-      <sidefoot-toggle />
-    </div>
-
     <!-- Right Toggle -->
-    <div
-      class="w-7 h-7 z-50 fixed transition-all duration-600 ease-in-out"
-      :style="rightToggleStyle"
-    >
+    <div class="w-7 h-7 z-50 transition-all duration-600 ease-in-out">
       <right-toggle />
     </div>
 
-    <!-- Footer Toggle -->
-    <div
-      class="w-7 h-7 z-50 fixed transition-all duration-600 ease-in-out"
-      :style="footerToggleStyle"
-    >
-      <footer-toggle />
-    </div>
+    <!-- Footer Toggle (Centered at Bottom) -->
+    <footer-toggle />
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
-
-// Access the displayStore for managing the layout state
-const displayStore = useDisplayStore()
-
-const sidebarLeftOpen = computed(
-  () =>
-    displayStore.sidebarLeftState !== 'hidden' &&
-    displayStore.sidebarLeftState !== 'disabled',
-)
-const sidebarRightOpen = computed(
-  () =>
-    displayStore.sidebarRightState !== 'hidden' &&
-    displayStore.sidebarRightState !== 'disabled',
-)
-
-// Toggle button styles fed from script
-const leftToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2 ))`,
-  left: sidebarLeftOpen.value
-    ? `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPadding} * 2 ))`
-    : displayStore.sectionPadding,
-}))
-
-const sidefootToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier} ))`,
-  left: sidebarLeftOpen.value
-    ? `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPadding} * 2 ))`
-    : displayStore.sectionPadding,
-}))
-
-const rightToggleStyle = computed(() => ({
-  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2 ))`,
-  right: sidebarRightOpen.value
-    ? `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPadding} * 2 ))`
-    : displayStore.sectionPadding,
-}))
-
-const footerToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.footerHeight} + (${displayStore.sectionPadding} * ${displayStore.footerMultiplier} ))`,
-  right: sidebarRightOpen.value
-    ? `calc(${displayStore.sidebarRightWidth}vw + (${displayStore.sectionPadding} * 2 ))`
-    : displayStore.sectionPadding,
-}))
-</script>

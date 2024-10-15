@@ -34,7 +34,7 @@ const rightToggleStyle = computed(() => {
     // When the sidebar is hidden, place the toggle outside with consistent padding
     return {
       top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2))`,
-      right: `${displayStore.sectionPadding}`, // Position outside
+      right: `${displayStore.sectionPadding}`, // Position outside the sidebar
     }
   } else {
     // When the sidebar is open, place the toggle inside the sidebar

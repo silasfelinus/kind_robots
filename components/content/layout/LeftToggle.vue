@@ -22,32 +22,21 @@ const displayStore = useDisplayStore()
 
 // Determine the icon text based on the sidebarLeftState (open, compact, hidden)
 const iconText = computed(() => {
-  if (displayStore.sidebarLeftState === 'open') {
-    return '<' // Icon for open state
-  } else if (displayStore.sidebarLeftState === 'compact') {
-    return '<' // Icon for compact state
-  }
-  return '>' // Icon for hidden state
+  return displayStore.sidebarLeftState === 'hidden' ? '>' : '<'
 })
 
 // Compute the position for the left-footer toggle button
 const leftFooterToggleStyle = computed(() => {
-  if (displayStore.sidebarLeftState === 'open') {
-    // Place the toggle inside the open sidebar
-    return {
-      left: `calc(${displayStore.sidebarLeftWidth} - ${displayStore.sectionPadding})`,
-      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`, // Centered vertically in the viewport
-    }
-  } else if (displayStore.sidebarLeftState === 'compact') {
-    // Place the toggle just outside the compact sidebar
-    return {
-      left: `calc(${displayStore.sidebarLeftWidth} + ${displayStore.sectionPadding})`,
-      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`, // Centered vertically in the viewport
-    }
-  } else {
+  if (displayStore.sidebarLeftState === 'hidden') {
     // Sidebar is hidden, so place the toggle outside (on the padding)
     return {
       left: `${displayStore.sectionPadding}`,
+      top: `calc(50vh - (${displayStore.sectionPadding} * 2))`, // Centered vertically in the viewport
+    }
+  } else {
+    // Sidebar is either open or compact, place the toggle inside the sidebar
+    return {
+      left: `calc(${displayStore.sidebarLeftWidth} - (${displayStore.sectionPadding} * 2))`,
       top: `calc(50vh - (${displayStore.sectionPadding} * 2))`, // Centered vertically in the viewport
     }
   }

@@ -58,7 +58,6 @@ const leftToggleStyle = computed(() => ({
   left: sidebarLeftOpen.value
     ? `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPadding} * 2 ))`
     : displayStore.sectionPadding,
-  transformOrigin: 'top left',
 }))
 
 const sidefootToggleStyle = computed(() => ({
@@ -66,7 +65,6 @@ const sidefootToggleStyle = computed(() => ({
   left: sidebarLeftOpen.value
     ? `calc(${displayStore.sidebarLeftWidth} + (${displayStore.sectionPadding} * 2 ))`
     : displayStore.sectionPadding,
-  transformOrigin: 'bottom left',
 }))
 
 const rightToggleStyle = computed(() => ({
@@ -74,7 +72,6 @@ const rightToggleStyle = computed(() => ({
   right: sidebarRightOpen.value
     ? `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPadding} * 2 ))`
     : displayStore.sectionPadding,
-  transformOrigin: 'top right',
 }))
 
 const footerToggleStyle = computed(() => ({
@@ -82,6 +79,5 @@ const footerToggleStyle = computed(() => ({
   right: sidebarRightOpen.value
     ? `calc(${displayStore.sidebarRightWidth}vw + (${displayStore.sectionPadding} * 2 ))`
     : displayStore.sectionPadding,
-  transformOrigin: 'bottom right',
 }))
 </script>

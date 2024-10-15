@@ -1,5 +1,8 @@
 <template>
-  <div class="fixed z-50 p-1" :style="footerToggleStyle">
+  <div
+    class="fixed left-1/2 transform -translate-x-1/2 z-50 p-1"
+    :style="footerToggleStyle"
+  >
     <button
       class="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-400 to-yellow-400 text-2xl font-semibold text-white flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
       @click="toggleFooter"
@@ -21,14 +24,20 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Handle positioning for the footer toggle in bottom-right
-const footerToggleStyle = computed(() => ({
-  bottom: `calc(${displayStore.sectionPadding} * 2)`, // Stay close to the bottom
-  right:
-    displayStore.sidebarRightState !== 'hidden'
-      ? `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPadding} * 2 ))`
-      : displayStore.sectionPadding,
-}))
+// Compute the style for footer toggle based on footer state
+const footerToggleStyle = computed(() => {
+  if (displayStore.footerState === 'open') {
+    // When footer is open, position the toggle above the footer
+    return {
+      bottom: `calc(${displayStore.footerHeight} + ${displayStore.sectionPadding} * ${displayStore.footerMultiplier})`,
+    }
+  } else {
+    // When footer is closed, center it at the bottom of the screen
+    return {
+      bottom: `${displayStore.sectionPadding} * 2`,
+    }
+  }
+})
 
 // Determine the footer character based on footer state (▼ for open, ▲ for closed)
 const footerCharacter = computed(() => {

@@ -27,6 +27,7 @@ const iconText = computed(() => {
 
 // Compute the position for the left-footer toggle button
 const leftFooterToggleStyle = computed(() => {
+  const consistentWidth = '20px' // Define a consistent width for the toggle positioning
   if (displayStore.sidebarLeftState === 'hidden') {
     // Sidebar is hidden, so place the toggle outside (on the padding)
     return {
@@ -34,9 +35,9 @@ const leftFooterToggleStyle = computed(() => {
       top: `calc(50vh - (${displayStore.sectionPadding} * 2))`, // Centered vertically in the viewport
     }
   } else {
-    // Sidebar is either open or compact, place the toggle inside the sidebar
+    // Sidebar is either open or compact, place the toggle at the end of the sidebar
     return {
-      left: `calc(${displayStore.sidebarLeftWidth} - (${displayStore.sectionPadding} * 2))`,
+      left: `calc(${displayStore.sidebarLeftWidth} - ${consistentWidth})`,
       top: `calc(50vh - (${displayStore.sectionPadding} * 2))`, // Centered vertically in the viewport
     }
   }

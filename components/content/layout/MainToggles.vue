@@ -2,7 +2,7 @@
   <div class="pointer-events-auto">
     <!-- Left Toggle -->
     <div
-      class="w-7 h-7 fixed z-50 transition-all duration-600 ease-in-out"
+      class="w-7 h-7 fixed transition-all duration-600 ease-in-out"
       :style="leftToggleStyle"
     >
       <left-toggle />
@@ -10,7 +10,7 @@
 
     <!-- Sidefoot Toggle -->
     <div
-      class="w-7 h-7 fixed z-50 transition-all duration-600 ease-in-out"
+      class="w-7 h-7 fixed transition-all duration-600 ease-in-out"
       :style="sidefootToggleStyle"
     >
       <sidefoot-toggle />
@@ -18,7 +18,7 @@
 
     <!-- Right Toggle -->
     <div
-      class="w-7 h-7 fixed z-50 transition-all duration-600 ease-in-out"
+      class="w-7 h-7 fixed transition-all duration-600 ease-in-out"
       :style="rightToggleStyle"
     >
       <right-toggle />
@@ -26,7 +26,7 @@
 
     <!-- Footer Toggle -->
     <div
-      class="w-7 h-7 fixed z-50 transition-all duration-600 ease-in-out"
+      class="w-7 h-7 fixed transition-all duration-600 ease-in-out"
       :style="footerToggleStyle"
     >
       <footer-toggle />

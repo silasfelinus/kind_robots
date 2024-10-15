@@ -1,7 +1,7 @@
 <template>
   <div class="relative z-50 p-1">
     <button
-      class="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-400 to-yellow-400 text-2xl font-semibold text-white flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
+      class="fixed bottom-0 left-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-400 to-yellow-400 text-2xl font-semibold text-white flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
       @click="toggleState"
     >
       <!-- Simple up and down caret characters -->
@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
@@ -28,12 +28,10 @@ const toggleCharacter = computed(() =>
 
 // Define a method to toggle the sidebar and footer state
 const toggleState = () => {
-  displayStore.toggleSidebar('sidebarLeftState')
-  displayStore.toggleFooter()
   const sidebarLeftState = displayStore.sidebarLeftState
   const footerState = displayStore.footerState
 
-  // Handle the sidebar and footer toggle logic
+  // Toggle the sidebar and footer states
   if (sidebarLeftState === 'hidden' && footerState === 'hidden') {
     displayStore.footerState = 'open'
   } else if (
@@ -41,6 +39,10 @@ const toggleState = () => {
     footerState === 'open'
   ) {
     displayStore.sidebarLeftState = 'hidden'
+  } else {
+    // Toggle footer and sidebar states
+    displayStore.toggleFooter()
+    displayStore.toggleSidebar('sidebarLeftState')
   }
 }
 

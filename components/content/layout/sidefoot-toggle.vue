@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="relative z-50">
     <button
       class="rounded-tr-2xl rounded-bl-2xl shadow-lg bg-gradient-to-tl from-accent to-accent-dark hover:bg-secondary text-2xl font-semibold text-white flex items-center justify-center"
       @click="toggleState"

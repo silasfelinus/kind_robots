@@ -1,7 +1,7 @@
 ---
 title: 'Kind Robots'
 subtitle: 'Craft your universe'
-description: Welcome to the Kind Robots, a consortium of AI-assisted tools to generate text and art, and share your creations with others.
+description: Welcome to the Kind Robots, a consortium of AI-assisted tools to generate and share your creations with others.
 image: botcafe.webp
 gallery: wonderbot
 tags: ['home']

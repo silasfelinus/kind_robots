@@ -42,6 +42,7 @@ const toggleTutorialSidebar = () => {
     } else {
       displayStore.setSidebarRight(false) // Close the sidebar
     }
+    displayStore.saveState()
   }
 }
 </script>

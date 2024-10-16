@@ -39,5 +39,6 @@ const toggleFooter = () => {
   } else {
     displayStore.footerState = 'hidden'
   }
+  displayStore.saveState()
 }
 </script>

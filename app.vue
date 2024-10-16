@@ -51,11 +51,11 @@
       class="fixed z-10 box-border transition-all duration-600 ease-in-out"
       :style="footerStyle"
     >
+      <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
       <!-- Footer Toggle (Centered within the footer) -->
       <div class="absolute left-1/2 transform -translate-x-1/2 z-50 p-1">
         <footer-toggle />
       </div>
-      <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
     </footer>
   </div>
 </template>
@@ -92,23 +92,23 @@ const headerStyle = computed(() => ({
 const leftSidebarStyle = computed(() => ({
   height: displayStore.centerHeight,
   width: displayStore.sidebarLeftWidth,
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
+  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2 ))`,
   left: displayStore.sectionPadding,
 }))
 
 const mainContentStyle = computed(() => ({
   height: displayStore.centerHeight,
   width: displayStore.centerWidth,
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
+  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2 ))`,
   right: sidebarRightOpen.value
-    ? `calc(${displayStore.sidebarRightVw}vw + (${displayStore.sectionPadding} * 2 ))`
+    ? `calc(${displayStore.sidebarRightWidth} + (${displayStore.sectionPadding} * 2 ))`
     : displayStore.sectionPadding,
 }))
 
 const rightSidebarStyle = computed(() => ({
   height: displayStore.centerHeight,
-  width: `${displayStore.sidebarRightVw}vw`,
-  top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
+  width: displayStore.sidebarRightWidth,
+  top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2 ))`,
   right: displayStore.sectionPadding,
 }))
 
@@ -118,6 +118,5 @@ const footerStyle = computed(() => ({
   bottom: displayStore.sectionPadding,
   left: displayStore.sectionPadding,
   right: displayStore.sectionPadding,
-  backgroundColor: 'rgba(0, 0, 0, 0.1)',
 }))
 </script>

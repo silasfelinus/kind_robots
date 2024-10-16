@@ -19,7 +19,7 @@
       class="fixed z-10 box-border transition-all duration-300 ease-in-out"
       :style="leftSidebarStyle"
     >
-      <kind-sidebar-simple v-if="sidebarLeftOpen" />
+      <kind-sidebar-simple v-if="sidebarLeftOpen" class="h-full w-full z-10" />
       <div class="absolute top-0 left-0 p-1 z-50">
         <left-toggle />
       </div>
@@ -82,7 +82,7 @@ const sidebarRightOpen = computed(
 
 // Computed styles for layout elements
 const headerStyle = computed(() => ({
-  height: `${displayStore.headerVh}vh`,
+  height: displayStore.headerHeight,
   width: displayStore.footerWidth,
   top: displayStore.sectionPadding,
   left: displayStore.sectionPadding,
@@ -91,7 +91,7 @@ const headerStyle = computed(() => ({
 
 const leftSidebarStyle = computed(() => ({
   height: displayStore.centerHeight,
-  width: `${displayStore.sidebarLeftVw}vw`,
+  width: displayStore.sidebarLeftWidth,
   top: `calc(${displayStore.headerVh}vh + (${displayStore.sectionPadding} * 2 ))`,
   left: displayStore.sectionPadding,
 }))

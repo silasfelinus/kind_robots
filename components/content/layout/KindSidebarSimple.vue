@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full">
     <!-- Left Sidebar -->
-    <aside
+    <div
       class="transition-all duration-300 bg-base-300 border-4 rounded-2xl left-0 overflow-y-auto no-scrollbar flex flex-col justify-between flex-grow"
     >
       <!-- Sidebar Links with Icons and Titles -->
@@ -45,7 +45,7 @@
           </a>
         </div>
       </div>
-    </aside>
+    </div>
   </div>
 </template>
 

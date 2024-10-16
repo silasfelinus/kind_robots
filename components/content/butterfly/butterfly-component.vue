@@ -1,6 +1,6 @@
 <template>
   <div
-    class="butterfly z-50"
+    class="butterfly z-50 absolute"
     :style="{
       left: props.butterfly.x + '%',
       top: props.butterfly.y + '%',
@@ -37,12 +37,38 @@
 </template>
 
 <script setup lang="ts">
-import type { Butterfly } from '../../../stores/butterflyStore'
+import type { Butterfly } from '@/stores/butterflyStore'
 
-// Define the props and specify the type for 'butterfly'
 const props = defineProps<{ butterfly: Butterfly }>()
 </script>
 
 <style scoped>
-/* Styling for butterfly component */
+/* Position butterflies absolutely */
+.butterfly {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+}
+
+/* Custom styles for wings */
+.left-wing,
+.right-wing {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.left-wing .top,
+.right-wing .top {
+  width: 100%;
+  height: 50%;
+  border-radius: 50%;
+}
+
+.left-wing .bottom,
+.right-wing .bottom {
+  width: 100%;
+  height: 50%;
+  border-radius: 50%;
+}
 </style>

@@ -16,7 +16,7 @@
     <!-- Debug Info (Number of Butterflies and Animation Status) -->
     <div
       v-if="showSwarm"
-      class="debug-info absolute top-12 text-xs bg-white p-2 rounded-lg shadow-md"
+      class="debug-info absolute top-1 text-xs bg-white p-2 rounded-lg shadow-md z-50"
     >
       <p>Butterflies: {{ butterflyCount }}</p>
       <p>Animation: {{ animationStatus }}</p>
@@ -43,6 +43,7 @@
       v-if="showSwarm"
       class="fixed inset-0 overflow-hidden z-50 pointer-events-none"
     >
+      <butterfly-animation />
       <butterfly-component
         v-for="butterfly in butterflies"
         :key="butterfly.id"

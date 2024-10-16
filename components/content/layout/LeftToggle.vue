@@ -26,38 +26,35 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Determine the icon text based on the sidebarLeftState (open, compact, hidden)
 const iconText = computed(() => {
   if (displayStore.sidebarLeftState === 'hidden') return '>'
   if (displayStore.sidebarLeftState === 'compact') return '<'
-  return '<' // Icon for both 'open' and 'compact'
+  return '<'
 })
 
-// Compute the position for the left-footer toggle button inside the sidebar
 const leftFooterToggleStyle = computed(() => {
-  const consistentPadding = `${displayStore.sectionPadding}` // Use section padding for consistency
+  const consistentPadding = `${displayStore.sectionPadding}`
   if (displayStore.sidebarLeftState === 'hidden') {
     return {
-      left: `${consistentPadding}`, // Position outside when hidden
-      top: `calc(${consistentPadding} * 2)`, // Adjust top with consistent padding
+      left: `${consistentPadding}`,
+      top: `calc(${displayStore.headerHeight} + ${consistentPadding} * 2)`,
     }
   } else {
     return {
-      left: `calc(${displayStore.sidebarLeftWidth} - ${consistentPadding})`, // Position inside the sidebar when open/compact
-      top: `calc(${consistentPadding})`, // Top aligned with padding
+      left: `calc(${displayStore.sidebarLeftWidth} + ${consistentPadding} * 2 )`,
+      top: `calc(${displayStore.headerHeight} + ${consistentPadding} * 2)`,
     }
   }
 })
 
-// Toggle the left sidebar between 'open', 'compact', and 'hidden'
 const toggleSidebarLeft = () => {
   if (displayStore.sidebarLeftState === 'open') {
-    displayStore.sidebarLeftState = 'compact' // Move to 'compact' from 'open'
+    displayStore.sidebarLeftState = 'compact'
   } else if (displayStore.sidebarLeftState === 'compact') {
-    displayStore.sidebarLeftState = 'hidden' // Move to 'hidden' from 'compact'
+    displayStore.sidebarLeftState = 'hidden'
   } else {
-    displayStore.sidebarLeftState = 'open' // Move to 'open' from 'hidden'
-    displayStore.footerState = 'hidden' // Close the footer when the left sidebar is opened
+    displayStore.sidebarLeftState = 'open'
+    displayStore.footerState = 'hidden'
   }
 }
 </script>

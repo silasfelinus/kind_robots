@@ -11,6 +11,8 @@
     </div>
 
     <!-- Footer Toggle (Centered at Bottom) -->
-    <footer-toggle />
+    <div class="w-7 h-7 z-50 transition-all duration-600 ease-in-out">
+      <footer-toggle />
+    </div>
   </div>
 </template>

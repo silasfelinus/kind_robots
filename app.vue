@@ -53,12 +53,13 @@
       :style="footerStyle"
       style="background-color: rgba(0, 0, 0, 0.2)"
     >
-      <!-- Footer Toggle (Centered within the footer) -->
-      <div class="absolute left-1/2 transform -translate-x-1/2 z-50 p-1">
-        <footer-toggle />
-      </div>
       <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
     </footer>
+
+    <!-- Footer Toggle (Fixed to the bottom center of the screen) -->
+    <div class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 p-1">
+      <footer-toggle />
+    </div>
   </div>
 </template>
 

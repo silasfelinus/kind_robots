@@ -46,16 +46,19 @@
       </div>
     </aside>
 
-    <!-- Footer -->
-    <footer
-      class="fixed z-10 box-border transition-all duration-600 ease-in-out"
-      :style="footerStyle"
-    >
-      <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
-      <!-- Footer Toggle (Centered within the footer) -->
-      <div class="absolute left-1/2 transform -translate-x-1/2 z-50 p-1">
-        <footer-toggle />
-      </div>
+ <!-- Footer -->
+<footer
+  class="fixed z-50 box-border overflow-visible transition-all duration-600 ease-in-out"
+  :style="footerStyle"
+  style="background-color: rgba(0, 0, 0, 0.2);"
+>
+  <!-- Footer Toggle (Centered within the footer) -->
+  <div class="absolute left-1/2 transform -translate-x-1/2 z-50 p-1">
+    <footer-toggle />
+  </div>
+  <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
+</footer>
+
     </footer>
   </div>
 </template>

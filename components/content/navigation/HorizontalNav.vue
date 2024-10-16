@@ -8,15 +8,15 @@
         :key="index"
         class="group flex flex-col lg:flex-row items-center justify-end w-20 lg:w-auto lg:space-x-2"
       >
-        <!-- Container to make both title and icon clickable -->
+        <!-- Entire button acts as a clickable container -->
         <button
           :aria-label="item.title"
-          class="group flex flex-col rounded-2xl border-accent bg-info lg:flex-row items-center justify-center w-full lg:w-auto space-y-2 lg:space-y-0 lg:space-x-2 text-center"
+          class="group flex flex-col lg:flex-row items-center justify-center w-full lg:w-auto space-y-2 lg:space-y-0 lg:space-x-2 text-center transition-all transform rounded-2xl p-4 hover:scale-105 hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
           @click="navigateTo(item.path)"
         >
           <!-- Title below icon on small screens, inline with icon on large screens -->
           <span
-            class="text-sm whitespace-normal w-full bg-secondary text-white px-2 py-1 rounded-lg"
+            class="text-sm whitespace-normal w-full bg-secondary text-white px-2 py-1 rounded-lg lg:bg-transparent group-hover:bg-transparent group-hover:text-white transition-colors"
           >
             {{ item.title }}
           </span>
@@ -24,7 +24,7 @@
           <!-- Stylized icon with hover and transition effects -->
           <icon
             :name="item.icon"
-            class="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 hover:scale-110 transition-transform rounded-full p-2 bg-accent text-white"
+            class="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 transition-transform group-hover:scale-110"
           />
         </button>
       </div>

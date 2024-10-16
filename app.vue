@@ -37,7 +37,7 @@
       class="fixed z-10 box-border transition-all duration-600 ease-in-out"
       :style="rightSidebarStyle"
     >
-      <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full" />
+      <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full z-10" />
     </aside>
 
     <!-- Footer -->

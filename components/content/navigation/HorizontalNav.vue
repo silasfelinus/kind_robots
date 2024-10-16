@@ -11,7 +11,7 @@
         <!-- Container to make both title and icon clickable -->
         <button
           :aria-label="item.title"
-          class="group flex flex-col lg:flex-row items-center justify-center w-full lg:w-auto space-y-2 lg:space-y-0 lg:space-x-2 text-center"
+          class="group flex flex-col rounded-2xl border-accent bg-info lg:flex-row items-center justify-center w-full lg:w-auto space-y-2 lg:space-y-0 lg:space-x-2 text-center"
           @click="navigateTo(item.path)"
         >
           <!-- Title below icon on small screens, inline with icon on large screens -->

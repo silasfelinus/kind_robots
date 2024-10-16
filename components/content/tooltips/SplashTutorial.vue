@@ -22,7 +22,7 @@
         v-if="page && page.image"
         :src="'/images/' + page.image"
         alt="Main Image"
-        class="rounded-2xl border border-accent shadow-md object-contain w-full h-auto max-h-[50%]"
+        class="rounded-2xl shadow-md object-contain w-full h-auto max-h-[50%]"
       />
 
       <!-- Title, Description, and Subtitle -->

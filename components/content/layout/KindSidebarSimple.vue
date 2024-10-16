@@ -2,7 +2,7 @@
   <div class="flex h-full">
     <!-- Left Sidebar -->
     <aside
-      class="transition-all duration-300 bg-base-300 border-4 rounded-2xl left-0 overflow-y-auto flex flex-col justify-between flex-grow"
+      class="transition-all duration-300 bg-base-300 border-4 rounded-2xl left-0 overflow-y-auto no-scrollbar flex flex-col justify-between flex-grow"
     >
       <!-- Sidebar Links with Icons and Titles -->
       <div class="flex flex-col justify-between flex-grow">
@@ -29,7 +29,7 @@
 
             <!-- Show the link title below the icon in compact state -->
             <span
-              v-if="(displayStore.sidebarLeftState === 'compact' && !isMobile)"
+              v-if="displayStore.sidebarLeftState === 'compact' && !isMobile"
               class="text-xs md:text-md lg:text-lg font-semibold mt-1 text-center bg-secondary text-white px-2 py-1 rounded-lg"
             >
               {{ link.title }}

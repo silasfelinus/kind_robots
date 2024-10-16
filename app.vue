@@ -45,7 +45,7 @@
       class="fixed z-10 box-border overflow-hidden transition-all duration-600 ease-in-out"
       :style="footerStyle"
     >
-      <horizontal-nav v-if="footerOpen" class="h-full w-full" />
+      <horizontal-nav v-if="footerOpen" class="h-full w-full z-10" />
     </footer>
   </div>
 </template>

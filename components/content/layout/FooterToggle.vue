@@ -37,7 +37,7 @@ const footerToggleStyle = computed(() => {
 
   if (displayStore.footerState === 'open') {
     return {
-      bottom: `calc(${footerHeight} - ${sectionPadding})`,
+      bottom: footerHeight,
     }
   } else {
     return {

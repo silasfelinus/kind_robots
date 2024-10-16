@@ -41,7 +41,7 @@ const leftFooterToggleStyle = computed(() => {
     }
   } else {
     return {
-      left: `calc(${displayStore.sidebarLeftWidth})`,
+      left: `calc(${displayStore.sidebarLeftWidth} - (${consistentPadding}))`,
       top: `calc(${displayStore.headerHeight} + ${consistentPadding} * 2)`,
     }
   }

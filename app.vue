@@ -51,7 +51,9 @@
       :style="footerStyle"
     >
       <!-- Footer Toggle (Centered within the footer) -->
-      <div class="absolute left-1/2 transform -translate-x-1/2 z-50 p-1">
+      <div
+        class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-1"
+      >
         <footer-toggle />
       </div>
       <horizontal-nav v-if="footerOpen" class="h-full w-full z-10" />
@@ -117,5 +119,6 @@ const footerStyle = computed(() => ({
   bottom: displayStore.sectionPadding,
   left: displayStore.sectionPadding,
   right: displayStore.sectionPadding,
+  backgroundColor: 'rgba(0, 0, 0, 0.1)',
 }))
 </script>

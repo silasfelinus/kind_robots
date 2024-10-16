@@ -41,5 +41,6 @@ const toggleSidebarLeft = () => {
     displayStore.sidebarLeftState = 'open'
     displayStore.footerState = 'hidden'
   }
+  displayStore.saveState()
 }
 </script>

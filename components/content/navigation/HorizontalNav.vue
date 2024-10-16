@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex justify-center bg-base-300 border-4 rounded-2xl z-10"
+    class="relative flex justify-center bg-base-300 border-4 rounded-2xl z-5"
   >
     <div class="flex justify-evenly w-full space-x-4 items-end">
       <div

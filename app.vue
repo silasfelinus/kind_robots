@@ -20,6 +20,9 @@
       :style="leftSidebarStyle"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" />
+      <div class="absolute top-0 left-0 p-1 z-50">
+        <left-toggle />
+      </div>
     </aside>
 
     <!-- Main Content -->
@@ -28,8 +31,6 @@
       :style="mainContentStyle"
     >
       <main-content />
-
-      <main-toggles />
     </main>
 
     <!-- Right Sidebar -->

@@ -40,7 +40,7 @@ const rightToggleStyle = computed(() => {
     // When the sidebar is open, place the toggle inside the sidebar
     return {
       top: `calc(${displayStore.headerHeight} + (${displayStore.sectionPadding} * 2))`,
-      right: `calc(${displayStore.sidebarRightWidth} + ${consistentPadding.value} * 2 )`,
+      right: `calc(${displayStore.sidebarRightWidth} + ${consistentPadding.value})`,
     }
   }
 })

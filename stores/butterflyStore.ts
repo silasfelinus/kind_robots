@@ -3,37 +3,35 @@ import { makeNoise2D } from 'open-simplex-noise'
 
 export interface Butterfly {
   id: number
-  x: number // Position in percentage of container width
-  y: number // Position in percentage of container height
-  z: number // Scale for visual size
-  zIndex: number // Z-index for visual stacking order
-  rotation: number // Current rotation angle
+  x: number
+  y: number
+  z: number
+  zIndex: number
+  rotation: number
   wingTopColor: string
   wingBottomColor: string
-  speed: number // Movement speed
+  speed: number
   status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
 }
 
 interface ButterflyState {
   butterflies: Butterfly[]
-  scaleModifier: number // Global scale modifier
-  animationFrameId: number | null // Store the animation frame ID
-  t: number // Time for noise generation
+  scaleModifier: number
+  animationFrameId: number | null
+  t: number
 }
 
-// Move noise2D outside the state
-const noise2D = makeNoise2D(Date.now()) // Noise generator for movement
+const noise2D = makeNoise2D(Date.now())
 
 export const useButterflyStore = defineStore({
   id: 'butterfly',
   state: (): ButterflyState => ({
     butterflies: [],
-    scaleModifier: 1, // Default modifier to 1x
+    scaleModifier: 1,
     animationFrameId: null,
     t: 0
   }),
   actions: {
-    // Utility function for generating random colors
     randomColor(): string {
       const h = Math.floor(Math.random() * 360)
       const s = Math.floor(Math.random() * 50 + 50)
@@ -41,18 +39,37 @@ export const useButterflyStore = defineStore({
       return `hsl(${h},${s}%,${l}%)`
     },
 
-    // Clear all butterflies
     clearButterflies() {
       this.butterflies = []
     },
 
-    // Add a new butterfly with scale adjustment
     addButterfly(butterfly: Butterfly) {
-      butterfly.z = butterfly.z * this.scaleModifier // Apply scale modifier
+      butterfly.z = butterfly.z * this.scaleModifier
       this.butterflies.push(butterfly)
     },
 
-    // Update butterfly position using noise
+    removeButterfly(id: number) {
+      this.butterflies = this.butterflies.filter(b => b.id !== id)
+    },
+
+    // This is the new method to generate a specific number of initial butterflies
+    generateInitialButterflies(count: number) {
+      for (let i = 0; i < count; i++) {
+        this.addButterfly({
+          id: Date.now() + i,
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          z: Math.random() * 0.5 + 0.75,
+          zIndex: i,
+          rotation: Math.random() * 360,
+          wingTopColor: this.randomColor(),
+          wingBottomColor: this.randomColor(),
+          speed: Math.random() * 2 + 1,
+          status: 'random'
+        })
+      }
+    },
+
     updateButterflyPosition(butterfly: Butterfly) {
       this.t += 0.01
       const angle = noise2D(butterfly.x * 0.01, butterfly.y * 0.01 + this.t) * Math.PI * 2
@@ -62,15 +79,12 @@ export const useButterflyStore = defineStore({
       butterfly.x = (butterfly.x + dx) % 100
       butterfly.y = (butterfly.y + dy) % 100
 
-      // Ensure the butterfly stays within boundaries
       butterfly.x = Math.max(Math.min(butterfly.x, 100), 0)
       butterfly.y = Math.max(Math.min(butterfly.y, 100), 0)
 
-      // Update rotation based on movement direction
       butterfly.rotation = dx >= 0 ? 120 : 30
     },
 
-    // Animate all butterflies
     animateButterflies() {
       const animate = () => {
         this.butterflies.forEach(butterfly => {
@@ -78,38 +92,20 @@ export const useButterflyStore = defineStore({
         })
         this.animationFrameId = requestAnimationFrame(animate)
       }
-
-      // Start the animation
       animate()
     },
 
-    // Stop animation
     stopAnimation() {
       if (this.animationFrameId !== null) {
         cancelAnimationFrame(this.animationFrameId)
         this.animationFrameId = null
       }
-    },
-
-    // Set a new scale modifier
-    setScaleModifier(modifier: number) {
-      this.scaleModifier = modifier
-    },
-
-    // Remove a butterfly by id
-    removeButterfly(id: number) {
-      this.butterflies = this.butterflies.filter(b => b.id !== id)
     }
   },
   getters: {
-    // Get all butterflies
     getAllButterflies: (state) => state.butterflies,
-
-    // Get a specific butterfly by id
     getButterflyById: (state) => (id: number) =>
       state.butterflies.find(b => b.id === id),
-
-    // Get the scale modifier
     getScaleModifier: (state) => state.scaleModifier
   }
 })

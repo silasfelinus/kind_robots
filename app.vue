@@ -16,8 +16,9 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-10 box-border transition-all duration-300 ease-in-out"
+      class="fixed z-50 box-border transition-all duration-300 ease-in-out overflow-visible"
       :style="leftSidebarStyle"
+      style="background-color: rgba(0, 0, 0, 0.1)"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" class="h-full w-full z-10" />
       <div class="absolute top-0 left-0 p-1 z-50">
@@ -46,19 +47,17 @@
       </div>
     </aside>
 
- <!-- Footer -->
-<footer
-  class="fixed z-50 box-border overflow-visible transition-all duration-600 ease-in-out"
-  :style="footerStyle"
-  style="background-color: rgba(0, 0, 0, 0.2);"
->
-  <!-- Footer Toggle (Centered within the footer) -->
-  <div class="absolute left-1/2 transform -translate-x-1/2 z-50 p-1">
-    <footer-toggle />
-  </div>
-  <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
-</footer>
-
+    <!-- Footer -->
+    <footer
+      class="fixed z-50 box-border overflow-visible transition-all duration-600 ease-in-out"
+      :style="footerStyle"
+      style="background-color: rgba(0, 0, 0, 0.2)"
+    >
+      <!-- Footer Toggle (Centered within the footer) -->
+      <div class="absolute left-1/2 transform -translate-x-1/2 z-50 p-1">
+        <footer-toggle />
+      </div>
+      <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
     </footer>
   </div>
 </template>

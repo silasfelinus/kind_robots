@@ -38,6 +38,11 @@
       :style="rightSidebarStyle"
     >
       <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full z-10" />
+
+      <!-- Right Toggle (Top-right corner of the sidebar) -->
+      <div class="absolute top-0 right-0 p-1 z-50">
+        <right-toggle />
+      </div>
     </aside>
 
     <!-- Footer -->
@@ -45,6 +50,10 @@
       class="fixed z-10 box-border overflow-hidden transition-all duration-600 ease-in-out"
       :style="footerStyle"
     >
+      <!-- Footer Toggle (Centered within the footer) -->
+      <div class="absolute left-1/2 transform -translate-x-1/2 z-50 p-1">
+        <footer-toggle />
+      </div>
       <horizontal-nav v-if="footerOpen" class="h-full w-full z-10" />
     </footer>
   </div>

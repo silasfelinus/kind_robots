@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="fixed left-1/2 transform -translate-x-1/2 z-50 p-1"
-    :style="footerToggleStyle"
-  >
+  <div class="z-50 p-1">
     <button
       class="w-6 h-6 z-50 rounded-2xl font-semibold text-transparent flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
       @click="toggleFooter"
@@ -29,22 +26,6 @@ import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-
-// Compute the style for the footer toggle based on footer state
-const footerToggleStyle = computed(() => {
-  const sectionPadding = displayStore.sectionPadding
-  const footerHeight = displayStore.footerHeight
-
-  if (displayStore.footerState === 'open') {
-    return {
-      bottom: footerHeight,
-    }
-  } else {
-    return {
-      bottom: sectionPadding, // Just above the footer when closed
-    }
-  }
-})
 
 // Determine the footer character based on footer state (▼ for open, ▲ for closed)
 const footerCharacter = computed(() => {

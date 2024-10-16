@@ -48,7 +48,7 @@
 
     <!-- Footer -->
     <footer
-      class="fixed z-10 box-border overflow-hidden transition-all duration-600 ease-in-out"
+      class="fixed z-10 box-border transition-all duration-600 ease-in-out"
       :style="footerStyle"
     >
       <!-- Footer Toggle (Centered within the footer) -->

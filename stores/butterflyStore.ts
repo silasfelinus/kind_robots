@@ -12,7 +12,7 @@ export interface Butterfly {
   wingBottomColor: string
   speed: number
   wingSpeed: number // Flutter speed
-  sway: boolean // For swaying effect
+  sway: number // 0 to 1, for swaying effect
   status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
 }
 
@@ -28,6 +28,12 @@ interface ButterflyState {
     maxSpeed: number
     minRotation: number
     maxRotation: number
+    minWingSpeed: number // Range 1-5
+    maxWingSpeed: number
+    minSway: number // Range 0-1
+    maxSway: number
+    minZIndex: number // zIndex range 1-50
+    maxZIndex: number
     colorScheme: 'random' | 'complementary' | 'analogous' | 'same'
   }
   presets: {
@@ -37,6 +43,12 @@ interface ButterflyState {
     maxSpeed: number
     minRotation: number
     maxRotation: number
+    minWingSpeed: number
+    maxWingSpeed: number
+    minSway: number
+    maxSway: number
+    minZIndex: number
+    maxZIndex: number
     colorScheme: 'random' | 'complementary' | 'analogous' | 'same'
   }[]
 }
@@ -81,6 +93,12 @@ export const useButterflyStore = defineStore({
       maxSpeed: 3,
       minRotation: 0,
       maxRotation: 360,
+      minWingSpeed: 1, // Flutter speed range 1-5
+      maxWingSpeed: 5,
+      minSway: 0, // Sway range 0-1
+      maxSway: 1,
+      minZIndex: 1, // zIndex range 1-50
+      maxZIndex: 50,
       colorScheme: 'random', // New option for color scheme
     },
     presets: [], // Stored presets, can be loaded from localStorage
@@ -112,21 +130,21 @@ export const useButterflyStore = defineStore({
       this.butterflies = this.butterflies.filter(b => b.id !== id)
     },
 
-    // Generate butterflies using min/max settings and color scheme
+    // Generate butterflies using the range values from user presets
     generateInitialButterflies(count: number) {
       for (let i = 0; i < count; i++) {
         this.addButterfly({
           id: Date.now() + i,
-          x: Math.random() * 100,
+          x: Math.random() * 100, // Use random x and y between 0 and 100 (viewport)
           y: Math.random() * 100,
-          z: Math.random() * (this.newButterflySettings.maxSize - this.newButterflySettings.minSize) + this.newButterflySettings.minSize,
-          zIndex: i,
-          rotation: Math.random() * (this.newButterflySettings.maxRotation - this.newButterflySettings.minRotation) + this.newButterflySettings.minRotation,
-          wingTopColor: '',
+          z: Math.random() * (this.newButterflySettings.maxSize - this.newButterflySettings.minSize) + this.newButterflySettings.minSize, // Butterfly size
+          zIndex: Math.floor(Math.random() * (this.newButterflySettings.maxZIndex - this.newButterflySettings.minZIndex + 1)) + this.newButterflySettings.minZIndex, // Random zIndex
+          rotation: Math.random() * (this.newButterflySettings.maxRotation - this.newButterflySettings.minRotation) + this.newButterflySettings.minRotation, // Rotation based on preset
+          wingTopColor: '', // Color will be assigned in addButterfly
           wingBottomColor: '',
-          speed: Math.random() * (this.newButterflySettings.maxSpeed - this.newButterflySettings.minSpeed) + this.newButterflySettings.minSpeed,
-          wingSpeed: Math.floor(Math.random() * 3), // Wing speed randomness
-          sway: Math.random() > 0.5, // Random sway
+          speed: Math.random() * (this.newButterflySettings.maxSpeed - this.newButterflySettings.minSpeed) + this.newButterflySettings.minSpeed, // Speed based on preset
+          wingSpeed: Math.random() * (this.newButterflySettings.maxWingSpeed - this.newButterflySettings.minWingSpeed) + this.newButterflySettings.minWingSpeed, // Flutter speed
+          sway: Math.random() * (this.newButterflySettings.maxSway - this.newButterflySettings.minSway) + this.newButterflySettings.minSway, // Sway range
           status: 'random',
         })
       }
@@ -164,7 +182,7 @@ export const useButterflyStore = defineStore({
       }
     },
 
-    // Save settings as a preset
+    // Save settings as a preset (called automatically when settings are updated)
     savePreset() {
       this.presets.push({ ...this.newButterflySettings })
       localStorage.setItem('butterflyPresets', JSON.stringify(this.presets))
@@ -184,11 +202,33 @@ export const useButterflyStore = defineStore({
         this.newButterflySettings = { ...this.presets[index] }
       }
     },
+
+    // Update the newButterflySettings when the user changes values in the sliders
+    updateButterflySettings(newSettings: Partial<ButterflyState['newButterflySettings']>) {
+      this.newButterflySettings = {
+        ...this.newButterflySettings,
+        ...newSettings,
+      }
+      this.savePreset() // Automatically save the updated settings
+    },
   },
-  getters: {
+    getters: {
+    // Return all butterflies
     getAllButterflies: (state) => state.butterflies,
+
+    // Find a butterfly by id
     getButterflyById: (state) => (id: number) =>
       state.butterflies.find(b => b.id === id),
+
+    // Return the current scale modifier
     getScaleModifier: (state) => state.scaleModifier,
-  },
+
+    // Return the current butterfly settings
+    getNewButterflySettings: (state) => state.newButterflySettings,
+
+    // Return available presets
+    getPresets: (state) => state.presets,
+  }
 })
+
+   

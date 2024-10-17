@@ -1,9 +1,13 @@
 <template>
   <!-- Main container that fits to the screen -->
-  <div class="relative h-screen w-screen bg-cover bg-center border-4 border-white" :style="{ backgroundImage: 'url(/images/backtree.webp)' }">
-    
+  <div
+    class="relative h-screen w-screen bg-cover bg-center border-4 border-white"
+    :style="{ backgroundImage: 'url(/images/backtree.webp)' }"
+  >
     <!-- Butterfly Counter in the top right corner -->
-    <div class="absolute top-2 right-4 text-white text-xl bg-black bg-opacity-50 p-2 rounded-lg z-50">
+    <div
+      class="absolute top-2 right-4 text-white text-xl bg-black bg-opacity-50 p-2 rounded-lg z-50"
+    >
       Butterflies: {{ butterflyCount }}
     </div>
 
@@ -21,37 +25,27 @@
     </div>
 
     <!-- Control Panel -->
-    <div class="absolute bottom-0 left-0 w-full flex justify-center bg-black bg-opacity-50 p-4 z-50">
+    <div
+      class="absolute bottom-0 left-0 w-full flex justify-center bg-black bg-opacity-50 p-4 z-50"
+    >
       <!-- Start/Stop Animation Button -->
-      <button
-        class="control-btn"
-        @click="toggleAmiSwarm"
-      >
+      <button class="control-btn" @click="toggleAmiSwarm">
         {{ showSwarm ? 'Stop' : 'Start' }} Animation
       </button>
 
       <!-- Add Butterfly Button -->
-      <button
-        class="control-btn mx-2"
-        @click="addButterfly"
-      >
+      <button class="control-btn mx-2" @click="addButterfly">
         Add Butterfly
       </button>
 
       <!-- Remove Butterfly Button -->
-      <button
-        class="control-btn"
-        @click="removeButterfly"
-      >
+      <button class="control-btn" @click="removeButterfly">
         Remove Butterfly
       </button>
 
       <!-- Display Mode Selector -->
       <div class="flex mx-2">
-        <button
-          class="control-btn mx-1"
-          @click="setDisplayMode('viewport')"
-        >
+        <button class="control-btn mx-1" @click="setDisplayMode('viewport')">
           Viewport
         </button>
         <button
@@ -60,10 +54,7 @@
         >
           Main Container
         </button>
-        <button
-          class="control-btn mx-1"
-          @click="setDisplayMode('full-screen')"
-        >
+        <button class="control-btn mx-1" @click="setDisplayMode('full-screen')">
           Full Screen
         </button>
       </div>
@@ -121,7 +112,9 @@ const addButterfly = () => {
 // Remove the last butterfly
 const removeButterfly = () => {
   if (butterflyCount.value > 0) {
-    butterflyStore.removeButterfly(butterflyStore.butterflies[butterflyCount.value - 1].id)
+    butterflyStore.removeButterfly(
+      butterflyStore.butterflies[butterflyCount.value - 1].id,
+    )
   }
 }
 
@@ -129,8 +122,8 @@ const removeButterfly = () => {
 const displayMode = ref('viewport')
 
 // Access the main container dimensions from DisplayStore
-const mainHeight = computed(() => displayStore.mainHeight)
-const mainWidth = computed(() => displayStore.mainWidth)
+const mainHeight = computed(() => displayStore.centerHeight)
+const mainWidth = computed(() => displayStore.centerWidth)
 
 // Update the display mode and set the container class accordingly
 const butterflyContainerClass = computed(() => {
@@ -142,6 +135,9 @@ const butterflyContainerClass = computed(() => {
   } else if (displayMode.value === 'full-screen') {
     return 'fixed inset-0 h-full w-full' // Covers the entire screen
   }
+
+  // Default return to avoid ESLint warning
+  return ''
 })
 
 const setDisplayMode = (mode: string) => {

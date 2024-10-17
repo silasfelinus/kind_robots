@@ -34,7 +34,7 @@
         The {{ page.title || 'Room' }} Room
       </h1>
       <h2
-        class="text-[12px] md:text-[15px] lg:text-[17px] xl:text-[20px] italic text-ellipsis overflow-hidden whitespace-nowrap max-w-full"
+        class="text-xs md:text-sm lg:text-lg xl:text-xl italic text-ellipsis overflow-hidden whitespace-nowrap max-w-full"
       >
         {{ subtitle }}
       </h2>

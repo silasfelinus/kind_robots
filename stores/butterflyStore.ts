@@ -166,6 +166,23 @@ export const useButterflyStore = defineStore({
         this.butterflies.pop() // Remove the last butterfly in the array
       }
     },
+    getColorSchemeColor(colorScheme: string): string {
+      const primaryColor = randomColor()
+
+      switch (colorScheme) {
+        case 'complementary':
+          return complementaryColor(primaryColor)
+        case 'analogous':
+          return analogousColor(primaryColor)
+        case 'primary':
+          return randomPrimaryColor()
+        case 'same':
+          return primaryColor
+        case 'random':
+        default:
+          return primaryColor
+      }
+    },
     
     
     

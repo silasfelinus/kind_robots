@@ -15,6 +15,7 @@ export interface Butterfly {
   wingSpeed: number
   sway: number
   status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
+  scale: number
 }
 
 interface ButterflyState {
@@ -58,9 +59,7 @@ const randomColor = (): string => {
 
 const analogousColor = (hsl: string): string => {
   const hslMatch = hsl.match(/\d+/g)
-  if (!hslMatch) {
-    throw new Error('Invalid color format')
-  }
+  if (!hslMatch) throw new Error('Invalid color format')
   const [h, s, l] = hslMatch.map(Number)
   const newH = (h + 30) % 360
   return `hsl(${newH},${s}%,${l}%)`
@@ -117,28 +116,59 @@ export const useButterflyStore = defineStore({
       const errorStore = useErrorStore()
       errorStore.addError(type, message)
     },
-
-    addButterfly(butterfly: Butterfly) {
+    addButterfly(butterfly?: Butterfly) {
+      if (!butterfly) {
+        butterfly = {
+          id: Date.now(),
+          x: Math.random() * (this.newButterflySettings.maxX - this.newButterflySettings.minX) + this.newButterflySettings.minX,
+          y: Math.random() * (this.newButterflySettings.maxY - this.newButterflySettings.minY) + this.newButterflySettings.minY,
+          z: Math.random() * (this.newButterflySettings.maxSize - this.newButterflySettings.minSize) + this.newButterflySettings.minSize,
+          zIndex: this.butterflies.length + 1,
+          rotation: Math.random() * (this.newButterflySettings.maxRotation - this.newButterflySettings.minRotation) + this.newButterflySettings.minRotation,
+          wingTopColor: '',
+          wingBottomColor: '',
+          speed: Math.random() * (this.newButterflySettings.maxSpeed - this.newButterflySettings.minSpeed) + this.newButterflySettings.minSpeed,
+          wingSpeed: Math.random() * (this.newButterflySettings.maxWingSpeed - this.newButterflySettings.minWingSpeed) + this.newButterflySettings.minWingSpeed,
+          sway: Math.random() * (this.newButterflySettings.maxSway - this.newButterflySettings.minSway) + this.newButterflySettings.minSway,
+          scale: Math.random() * 0.5 + 0.75,
+          status: this.newButterflySettings.status,
+        }
+      }
+      
+      // Assign colors based on settings
       let primaryColor = randomColor()
       let secondaryColor = primaryColor
-
-      try {
-        if (this.newButterflySettings.colorScheme === 'complementary') {
+    
+      // Color scheme logic (complementary, analogous, etc.)
+      switch (this.newButterflySettings.colorScheme) {
+        case 'complementary':
           secondaryColor = complementaryColor(primaryColor)
-        } else if (this.newButterflySettings.colorScheme === 'analogous') {
+          break
+        case 'analogous':
           secondaryColor = analogousColor(primaryColor)
-        } else if (this.newButterflySettings.colorScheme === 'primary') {
+          break
+        case 'primary':
           primaryColor = randomPrimaryColor()
-          secondaryColor = this.newButterflySettings.colorScheme === 'same' ? primaryColor : randomPrimaryColor()
-        }
-      } catch (error) {
-        this.addError(ErrorType.STORE_ERROR, error)
+          secondaryColor = randomPrimaryColor()
+          break
+        case 'same':
+          secondaryColor = primaryColor
+          break
       }
-
+    
       butterfly.wingTopColor = primaryColor
       butterfly.wingBottomColor = secondaryColor
+    
       this.butterflies.push(butterfly)
     },
+    removeLastButterfly() {
+      if (this.butterflies.length > 0) {
+        this.butterflies.pop() // Remove the last butterfly in the array
+      }
+    },
+    
+    
+    
 
     generateInitialButterflies(count: number) {
       try {
@@ -146,7 +176,6 @@ export const useButterflyStore = defineStore({
           this.addButterfly({
             id: Date.now() + i,
             x: Math.random() * (this.newButterflySettings.maxX - this.newButterflySettings.minX) + this.newButterflySettings.minX,
-            y: Math.random() * (this.newButterflySettings.maxY - this.newButterflySettings.minY) + this.newButterflySettings.min
             y: Math.random() * (this.newButterflySettings.maxY - this.newButterflySettings.minY) + this.newButterflySettings.minY,
             z: Math.random() * (this.newButterflySettings.maxSize - this.newButterflySettings.minSize) + this.newButterflySettings.minSize,
             zIndex: Math.floor(Math.random() * (this.newButterflySettings.maxZIndex - this.newButterflySettings.minZIndex + 1)) + this.newButterflySettings.minZIndex,
@@ -156,6 +185,7 @@ export const useButterflyStore = defineStore({
             speed: Math.random() * (this.newButterflySettings.maxSpeed - this.newButterflySettings.minSpeed) + this.newButterflySettings.minSpeed,
             wingSpeed: Math.random() * (this.newButterflySettings.maxWingSpeed - this.newButterflySettings.minWingSpeed) + this.newButterflySettings.minWingSpeed,
             sway: Math.random() * (this.newButterflySettings.maxSway - this.newButterflySettings.minSway) + this.newButterflySettings.minSway,
+            scale: Math.random() * 0.5 + 0.75,
             status: this.newButterflySettings.status,
           })
         }
@@ -164,7 +194,35 @@ export const useButterflyStore = defineStore({
       }
     },
 
-    // New Action: Pause the animation
+    // Update butterfly positions using noise2D
+    updateButterflyPosition(butterfly: Butterfly) {
+      this.t += 0.01
+      const angle = noise2D(butterfly.x * 0.01, butterfly.y * 0.01 + this.t) * Math.PI * 2
+      const dx = Math.cos(angle) * butterfly.speed
+      const dy = Math.sin(angle) * butterfly.speed
+
+      butterfly.x = (butterfly.x + dx) % 100
+      butterfly.y = (butterfly.y + dy) % 100
+
+      butterfly.x = Math.max(Math.min(butterfly.x, 100), 0)
+      butterfly.y = Math.max(Math.min(butterfly.y, 100), 0)
+
+      butterfly.rotation = dx >= 0 ? 120 : 30
+      butterfly.scale =
+        0.33 +
+        ((2 - (butterfly.x / window.innerWidth + butterfly.y / window.innerHeight)) / 2) * 0.67
+    },
+
+    animateButterflies() {
+      const animate = () => {
+        this.butterflies.forEach(butterfly => {
+          this.updateButterflyPosition(butterfly)
+        })
+        this.animationFrameId = requestAnimationFrame(animate)
+      }
+      animate()
+    },
+
     pauseAnimation() {
       if (this.animationFrameId !== null) {
         cancelAnimationFrame(this.animationFrameId)
@@ -173,7 +231,6 @@ export const useButterflyStore = defineStore({
       }
     },
 
-    // New Action: Resume the animation from the paused state
     resumeAnimation() {
       if (this.animationPaused) {
         this.animationPaused = false
@@ -181,57 +238,11 @@ export const useButterflyStore = defineStore({
       }
     },
 
-    // New Action: Reset all butterflies to their default state without removing them
-    resetButterflyState() {
-      this.butterflies.forEach(butterfly => {
-        butterfly.x = Math.random() * 100
-        butterfly.y = Math.random() * 100
-        butterfly.z = Math.random() * (this.newButterflySettings.maxSize - this.newButterflySettings.minSize) + this.newButterflySettings.minSize
-        butterfly.speed = Math.random() * (this.newButterflySettings.maxSpeed - this.newButterflySettings.minSpeed) + this.newButterflySettings.minSpeed
-        butterfly.rotation = Math.random() * (this.newButterflySettings.maxRotation - this.newButterflySettings.minRotation) + this.newButterflySettings.minRotation
-        butterfly.wingSpeed = Math.random() * (this.newButterflySettings.maxWingSpeed - this.newButterflySettings.minWingSpeed) + this.newButterflySettings.minWingSpeed
-        butterfly.sway = Math.random() * (this.newButterflySettings.maxSway - this.newButterflySettings.minSway) + this.newButterflySettings.minSway
-      })
-    },
-
-    // New Action: Smoothly remove all butterflies with transitions (pseudo-code, would require front-end)
-    smoothlyRemoveAllButterflies() {
-      this.butterflies.forEach(butterfly => {
-        // Use front-end transitions or CSS animations to fade out or remove butterflies
-        // Example: butterfly.fadeOut = true
-      })
-      setTimeout(() => this.clearButterflies(), 500) // Delay the clear action to allow for transitions
-    },
-
-    // Save the current butterflies in localStorage to allow the user to restore them later
-    saveButterfliesToLocalStorage() {
-      try {
-        const savedButterflies = JSON.stringify(this.butterflies)
-        localStorage.setItem('butterflies', savedButterflies)
-      } catch (error) {
-        this.addError(ErrorType.STORE_ERROR, error)
-      }
-    },
-
-    // Load butterflies from localStorage
-    loadButterfliesFromLocalStorage() {
-      try {
-        const storedButterflies = localStorage.getItem('butterflies')
-        if (storedButterflies) {
-          this.butterflies = JSON.parse(storedButterflies)
-        }
-      } catch (error) {
-        this.addError(ErrorType.STORE_ERROR, error)
-      }
-    },
-
-    // Save settings as a preset (called automatically when settings are updated)
     savePreset() {
       this.presets.push({ ...this.newButterflySettings })
       localStorage.setItem('butterflyPresets', JSON.stringify(this.presets))
     },
 
-    // Load presets from localStorage
     loadPresets() {
       const storedPresets = localStorage.getItem('butterflyPresets')
       if (storedPresets) {
@@ -239,50 +250,37 @@ export const useButterflyStore = defineStore({
       }
     },
 
-    // Apply a preset by index
     applyPreset(index: number) {
       if (index >= 0 && index < this.presets.length) {
         this.newButterflySettings = { ...this.presets[index] }
       }
     },
 
-    // Update the newButterflySettings when the user changes values in the sliders
     updateButterflySettings(newSettings: Partial<ButterflyState['newButterflySettings']>) {
       this.newButterflySettings = {
         ...this.newButterflySettings,
         ...newSettings,
       }
-      this.savePreset() // Automatically save the updated settings
+      this.savePreset()
     },
   },
   getters: {
-    // Return all butterflies
     getAllButterflies: (state) => state.butterflies,
 
-    // Find a butterfly by id
     getButterflyById: (state) => (id: number) =>
       state.butterflies.find(b => b.id === id),
 
-    // Return the current scale modifier
     getScaleModifier: (state) => state.scaleModifier,
 
-    // Return the current butterfly settings
     getNewButterflySettings: (state) => state.newButterflySettings,
 
-    // Return available presets
     getPresets: (state) => state.presets,
 
-    // Return the total number of butterflies
     getButterflyCount: (state) => state.butterflies.length,
 
-    // Check if the animation is currently running or paused
     getActiveAnimationState: (state) => (state.animationFrameId !== null ? 'running' : state.animationPaused ? 'paused' : 'stopped'),
 
-    // Get butterflies by a specific status
     getButterfliesByStatus: (state) => (status: Butterfly['status']) =>
       state.butterflies.filter(b => b.status === status),
-
-    // Get the current preset name or index for reference
-    getCurrentPresetName: (state) => (index: number) => (state.presets[index] ? `Preset ${index + 1}` : 'No Preset Selected'),
   },
 })

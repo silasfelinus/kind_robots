@@ -24,7 +24,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, defineProps } from 'vue'
 
 // Props to customize tab names
@@ -46,11 +46,9 @@ const isFlipped = ref(false)
 const setTab = (tab) => {
   isFlipped.value = tab === 'back'
 }
-
 </script>
 
-<style>
-
+<style scoped>
 .flip-card {
   perspective: 1000px;
   width: 200px;
@@ -104,5 +102,4 @@ const setTab = (tab) => {
   font-weight: bold;
   background-color: var(--bg-primary); /* Tailwind's bg-primary */
 }
-
 </style>

@@ -14,4 +14,4 @@ amitip: "That's the beauty of digital pseudo-intelligences, we can be in many pl
 sort: highlight
 ---
 
-:swarm-toggle
+:butterfly-sanctuary

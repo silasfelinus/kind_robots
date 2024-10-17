@@ -1,6 +1,6 @@
 <template>
-  <!-- Main container that takes up the entire viewport -->
-  <div class="relative h-screen w-screen bg-cover bg-center" :style="{ backgroundImage: 'url(/images/backtree.webp)' }">
+  <!-- Main container that fits to the screen -->
+  <div class="relative h-screen w-screen bg-cover bg-center border-4 border-white" :style="{ backgroundImage: 'url(/images/backtree.webp)' }">
     
     <!-- Butterfly Counter in the top right corner -->
     <div class="absolute top-2 right-4 text-white text-xl bg-black bg-opacity-50 p-2 rounded-lg z-50">
@@ -22,7 +22,7 @@
 
     <!-- Control Panel -->
     <div class="absolute bottom-0 left-0 w-full flex justify-center bg-black bg-opacity-50 p-4 z-50">
-      <!-- Start Animation Button -->
+      <!-- Start/Stop Animation Button -->
       <button
         class="control-btn"
         @click="toggleAmiSwarm"
@@ -129,11 +129,11 @@ const displayMode = ref('viewport')
 // Update the display mode and set the container class accordingly
 const butterflyContainerClass = computed(() => {
   if (displayMode.value === 'viewport') {
-    return 'h-full w-full'
+    return 'absolute inset-0 w-full h-full' // Matches the background image area
   } else if (displayMode.value === 'main-container') {
-    return 'h-2/3 w-full'
+    return 'relative h-2/3 w-full' // Stays within the main container
   } else if (displayMode.value === 'full-screen') {
-    return 'fixed inset-0 h-full w-full'
+    return 'fixed inset-0 h-full w-full' // Covers the entire screen
   }
 })
 
@@ -159,9 +159,10 @@ const setDisplayMode = (mode: string) => {
   transform: scale(1.1);
 }
 
-/* Full-screen background */
+/* Background image with a stylish border */
 .bg-cover {
   background-size: cover;
   background-position: center;
+  border: 5px solid #fff; /* Adds the stylish white border */
 }
 </style>

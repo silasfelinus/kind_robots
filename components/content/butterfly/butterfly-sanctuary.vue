@@ -1,69 +1,50 @@
 <template>
-  <!-- Main container that fits to the screen -->
   <div
-    class="relative h-screen w-screen border-4 border-white bg-gray-800"
+    class="relative bg-cover bg-center border-4 border-white"
+    :style="{ height: mainHeight, width: mainWidth, backgroundImage: 'url(/images/backtree.webp)' }"
   >
-    <!-- Background Image with Nuxt Image -->
-    <nuxt-img
-      src="/images/backtree.webp"
-      alt="Background Tree"
-      class="absolute inset-0 h-full w-full object-cover"
-    />
-
-    <!-- Error message in case something goes wrong -->
-    <div v-if="errorMessage" class="absolute top-2 left-2 bg-red-500 text-white p-2 rounded-lg z-50">
-      {{ errorMessage }}
-    </div>
-
     <!-- Butterfly Counter in the top right corner -->
-    <div
-      class="absolute top-2 right-4 text-white text-xl bg-black bg-opacity-50 p-2 rounded-lg z-50"
-    >
+    <div class="absolute top-2 right-2 text-white text-xl bg-black bg-opacity-50 p-2 rounded-lg">
       Butterflies: {{ butterflyCount }}
     </div>
 
-    <!-- Butterfly Display Area -->
-    <div
-      v-if="showSwarm"
-      class="relative overflow-hidden z-40 pointer-events-none"
-      :style="butterflyContainerStyle"
-    >
-      <butterfly-component
-        v-for="butterfly in butterflies"
-        :key="butterfly.id"
-        :butterfly="butterfly"
-      />
+    <!-- Image Area (Left side, 70% of available height/width) -->
+    <div class="absolute top-0 left-0 h-[70%] w-[70%] overflow-hidden">
+      <div class="relative h-full w-full">
+        <butterfly-component
+          v-for="butterfly in butterflies"
+          :key="butterfly.id"
+          :butterfly="butterfly"
+          class="absolute"
+        />
+      </div>
     </div>
 
-    <!-- Control Panel -->
-    <div class="absolute bottom-0 left-0 w-full flex justify-center bg-black bg-opacity-50 p-4 z-50">
-      <!-- Start/Stop Animation Button -->
-      <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition-transform transform hover:scale-105" @click="toggleAmiSwarm">
+    <!-- Control Panel (Bottom side with button controls) -->
+    <div class="absolute bottom-0 w-full flex justify-center bg-black bg-opacity-50 p-4">
+      <button class="control-btn" @click="toggleAmiSwarm">
         {{ showSwarm ? 'Stop' : 'Start' }} Animation
       </button>
+      <button class="control-btn mx-2" @click="addButterfly">Add Butterfly</button>
+      <button class="control-btn" @click="removeButterfly">Remove Butterfly</button>
+    </div>
 
-      <!-- Add Butterfly Button -->
-      <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm mx-2 transition-transform transform hover:scale-105" @click="addButterfly">
-        Add Butterfly
-      </button>
+    <!-- Right side control section (for the flip-card UI) -->
+    <div class="absolute top-2 right-2 flex flex-col items-center">
+      <div class="bg-black text-white w-10 h-10 mb-4 text-center">Butterfly Counter: {{ butterflyCount }}</div>
 
-      <!-- Remove Butterfly Button -->
-      <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition-transform transform hover:scale-105" @click="removeButterfly">
-        Remove Butterfly
-      </button>
+      <!-- Flip-Card Section -->
+      <butterfly-flip>
+        <!-- Component front for new butterfly settings -->
+        <template #front>
+          <butterfly-front />
+        </template>
 
-      <!-- Display Mode Selector -->
-      <div class="flex mx-2">
-        <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm mx-1 transition-transform transform hover:scale-105" @click="setDisplayMode('viewport')">
-          Viewport
-        </button>
-        <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm mx-1 transition-transform transform hover:scale-105" @click="setDisplayMode('main-container')">
-          Main Container
-        </button>
-        <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm mx-1 transition-transform transform hover:scale-105" @click="setDisplayMode('full-screen')">
-          Full Screen
-        </button>
-      </div>
+        <!-- Component back for existing butterfly settings -->
+        <template #back>
+          <butterfly-back />
+        </template>
+      </butterfly-flip>
     </div>
   </div>
 </template>
@@ -73,35 +54,25 @@ import { ref, computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Error message state
-const errorMessage = ref('')
-
-// Access the butterfly store (with error handling)
-let butterflyStore
-let displayStore
-try {
-  butterflyStore = useButterflyStore()
-  displayStore = useDisplayStore()
-} catch (error) {
-  errorMessage.value = 'Failed to load required stores or components.'
-}
+// Access the butterfly store
+const butterflyStore = useButterflyStore()
+const displayStore = useDisplayStore()
 
 // Get butterflies from the store
-const butterflies = computed(() => (butterflyStore ? butterflyStore.butterflies : []))
+const butterflies = computed(() => butterflyStore.butterflies)
 
 // Watch for the swarm toggle
 const showSwarm = ref(false)
 
 // Get the number of butterflies
-const butterflyCount = computed(() => (butterflyStore ? butterflyStore.butterflies.length : 0))
+const butterflyCount = computed(() => butterflyStore.butterflies.length)
 
 // Toggle the butterfly swarm on and off
 const toggleAmiSwarm = () => {
-  if (!butterflyStore) return
   showSwarm.value = !showSwarm.value
 
   if (showSwarm.value) {
-    butterflyStore.generateInitialButterflies(15) // Start with 15 butterflies
+    butterflyStore.generateInitialButterflies(15)
     butterflyStore.animateButterflies()
   } else {
     butterflyStore.clearButterflies()
@@ -111,7 +82,6 @@ const toggleAmiSwarm = () => {
 
 // Add a new butterfly
 const addButterfly = () => {
-  if (!butterflyStore) return
   butterflyStore.addButterfly({
     id: Date.now(),
     x: Math.random() * 100,
@@ -128,34 +98,29 @@ const addButterfly = () => {
 
 // Remove the last butterfly
 const removeButterfly = () => {
-  if (!butterflyStore || butterflyCount.value === 0) return
-  butterflyStore.removeButterfly(butterflyStore.butterflies[butterflyCount.value - 1].id)
-}
-
-// Display mode state (viewport, main-container, full-screen)
-const displayMode = ref('viewport')
-
-// Get dimensions from DisplayStore
-const mainHeight = computed(() => (displayStore ? displayStore.centerHeight : '100vh'))
-const mainWidth = computed(() => (displayStore ? displayStore.centerWidth : '100vw'))
-
-// Update the display mode and set the container style accordingly
-const butterflyContainerStyle = computed(() => {
-  if (!displayStore) return { height: '100vh', width: '100vw' }
-
-  if (displayMode.value === 'viewport') {
-    return { height: '100%', width: '100%' }
-  } else if (displayMode.value === 'main-container') {
-    return { height: mainHeight.value, width: mainWidth.value }
+  if (butterflyCount.value > 0) {
+    butterflyStore.removeButterfly(butterflyStore.butterflies[butterflyCount.value - 1].id)
   }
-  return { height: '100vh', width: '100vw' } // Full screen as default
-})
-
-const setDisplayMode = (mode: string) => {
-  displayMode.value = mode
 }
+
+// Get main height and width from displayStore
+const mainHeight = computed(() => displayStore.centerHeight)
+const mainWidth = computed(() => displayStore.centerWidth)
 </script>
 
 <style scoped>
-/* No custom CSS required, using Tailwind for styling */
+.control-btn {
+  background-color: #ff9800;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.control-btn:hover {
+  transform: scale(1.1);
+}
 </style>

@@ -51,7 +51,9 @@
 
     <!-- Right side control section (Flip-Card) -->
     <div class="absolute top-16 right-2 flex flex-col items-center z-20">
-      <div class="bg-black text-white w-16 h-16 mb-4 text-center p-2 rounded-md">Count: {{ butterflyCount }}</div>
+      <div class="bg-black text-white w-16 h-16 mb-4 text-center p-2 rounded-md">
+        Count: {{ butterflyCount }}
+      </div>
 
       <!-- Flip-Card Section -->
       <butterfly-flip>
@@ -100,20 +102,9 @@ const toggleAmiSwarm = () => {
   }
 }
 
-// Add a new butterfly
+// Add a new butterfly using the store's presets
 const addButterfly = () => {
-  butterflyStore.addButterfly({
-    id: Date.now(),
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    z: Math.random() * 0.5 + 0.75,
-    zIndex: butterflyCount.value + 1,
-    rotation: Math.random() * 360,
-    wingTopColor: butterflyStore.randomColor(),
-    wingBottomColor: butterflyStore.randomColor(),
-    speed: Math.random() * 2 + 1,
-    status: 'random',
-  })
+  butterflyStore.generateInitialButterflies(1) // Uses store's settings for new butterfly creation
 }
 
 // Remove the last butterfly
@@ -127,7 +118,3 @@ const removeButterfly = () => {
 const mainHeight = computed(() => displayStore.centerHeight)
 const mainWidth = computed(() => displayStore.centerWidth)
 </script>
-
-<style scoped>
-/* Removed the button styling from here */
-</style>

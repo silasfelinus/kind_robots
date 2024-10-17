@@ -50,24 +50,25 @@
     </div>
 
     <!-- Right side control section (Flip-Card) -->
-    <div class="absolute top-16 right-2 flex flex-col items-center z-20">
-      <div class="bg-black text-white w-16 h-16 mb-4 text-center p-2 rounded-md">
-        Count: {{ butterflyCount }}
-      </div>
+<div class="absolute top-16 right-2 flex flex-col items-center z-20">
+  <div class="bg-black text-white w-16 h-16 mb-4 text-center p-2 rounded-md">
+    Count: {{ butterflyCount }}
+  </div>
 
-      <!-- Flip-Card Section -->
-      <butterfly-flip>
-        <!-- Component front for new butterfly settings -->
-        <template #front>
-          <butterfly-front />
-        </template>
+  <!-- Flip-Card Section with custom titles -->
+  <butterfly-flip front-tab-name="Global Presets" back-tab-name="Butterfly Manager">
+    <!-- Component front for new butterfly settings -->
+    <template #front>
+      <butterfly-front />
+    </template>
 
-        <!-- Component back for existing butterfly settings -->
-        <template #back>
-          <butterfly-back />
-        </template>
-      </butterfly-flip>
-    </div>
+    <!-- Component back for existing butterfly settings -->
+    <template #back>
+      <butterfly-back />
+    </template>
+  </butterfly-flip>
+</div>
+
   </div>
 </template>
 

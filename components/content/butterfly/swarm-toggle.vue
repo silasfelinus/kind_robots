@@ -13,10 +13,10 @@
       />
     </div>
 
-    <!-- Debug Info (Number of Butterflies and Animation Status) -->
+    <!-- Debug Info (Number of Butterflies and Animation Status) centered on the screen -->
     <div
       v-if="showSwarm"
-      class="debug-info absolute top-1 text-xs bg-white p-2 rounded-lg shadow-md z-50"
+      class="debug-info fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs bg-white p-2 rounded-lg shadow-md z-50"
     >
       <p>Butterflies: {{ butterflyCount }}</p>
       <p>Animation: {{ animationStatus }}</p>
@@ -56,9 +56,12 @@
 <script setup lang="ts">
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
+const router = useRouter()
+const route = useRoute()
 
 // Get butterflies from the store
 const butterflies = computed(() => butterflyStore.butterflies)
@@ -68,12 +71,14 @@ const showSwarm = computed(() => butterflyStore.butterflies.length > 0)
 
 // Get the number of butterflies and animation status
 const butterflyCount = computed(() => butterflyStore.butterflies.length)
-const animationStatus = computed(() =>
-  butterflyStore.animationFrameId !== null ? 'Running' : 'Stopped',
-)
+const animationStatus = computed(() => butterflyStore.animationFrameId !== null ? 'Running' : 'Stopped')
 
 // Toggle the butterfly swarm on and off
 const toggleAmiSwarm = () => {
+  if (route.path !== '/butterflies') {
+    router.push('/butterflies') // Navigate to /butterflies if not already there
+  }
+  
   if (showSwarm.value) {
     butterflyStore.clearButterflies()
     butterflyStore.stopAnimation()
@@ -123,6 +128,7 @@ const removeButterfly = () => {
   pointer-events: none;
 }
 
+/* Center the debug info in the middle of the screen */
 .debug-info {
   text-align: center;
 }

@@ -29,7 +29,7 @@
       class="flex-grow flex flex-col items-center justify-center text-center mx-4 box-border"
     >
       <h1
-        class="text-[13px] md:text-[20px] lg:text-[25px] xl:text-[30px] font-semibold text-ellipsis overflow-hidden whitespace-nowrap max-w-full"
+        class="text-xs md:text-sm lg:text-md xl:text-xl font-semibold text-ellipsis overflow-hidden whitespace-nowrap max-w-full"
       >
         The {{ page.title || 'Room' }} Room
       </h1>

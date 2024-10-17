@@ -73,10 +73,12 @@
 
 <script setup lang="ts">
 import { useButterflyStore } from '@/stores/butterflyStore'
+import { useDisplayStore } from '@/stores/displayStore' // Assuming you have a DisplayStore
 import { computed, ref } from 'vue'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
+const displayStore = useDisplayStore()
 
 // Get butterflies from the store
 const butterflies = computed(() => butterflyStore.butterflies)
@@ -126,12 +128,17 @@ const removeButterfly = () => {
 // Display mode state (viewport, main-container, full-screen)
 const displayMode = ref('viewport')
 
+// Access the main container dimensions from DisplayStore
+const mainHeight = computed(() => displayStore.mainHeight)
+const mainWidth = computed(() => displayStore.mainWidth)
+
 // Update the display mode and set the container class accordingly
 const butterflyContainerClass = computed(() => {
   if (displayMode.value === 'viewport') {
     return 'absolute inset-0 w-full h-full' // Matches the background image area
   } else if (displayMode.value === 'main-container') {
-    return 'relative h-2/3 w-full' // Stays within the main container
+    // Uses the exact height and width from DisplayStore
+    return `absolute h-[${mainHeight.value}px] w-[${mainWidth.value}px]`
   } else if (displayMode.value === 'full-screen') {
     return 'fixed inset-0 h-full w-full' // Covers the entire screen
   }

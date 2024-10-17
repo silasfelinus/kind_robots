@@ -47,7 +47,7 @@
       <!-- Theme Icon -->
       <theme-icon class="w-8 h-8 box-border" />
       <!-- Butterfly Toggle Icon -->
-      <swarm-toggle class="w-8 h-8 box-border" />
+      <swarm-icon class="w-8 h-8 box-border" />
     </div>
   </header>
 </template>

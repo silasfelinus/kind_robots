@@ -1,9 +1,20 @@
 <template>
   <!-- Main container that fits to the screen -->
   <div
-    class="relative h-screen w-screen bg-cover bg-center border-4 border-white"
-    :style="{ backgroundImage: 'url(/images/backtree.webp)' }"
+    class="relative h-screen w-screen border-4 border-white bg-gray-800"
   >
+    <!-- Background Image with Nuxt Image -->
+    <nuxt-img
+      src="/images/backtree.webp"
+      alt="Background Tree"
+      class="absolute inset-0 h-full w-full object-cover"
+    />
+
+    <!-- Error message in case something goes wrong -->
+    <div v-if="errorMessage" class="absolute top-2 left-2 bg-red-500 text-white p-2 rounded-lg z-50">
+      {{ errorMessage }}
+    </div>
+
     <!-- Butterfly Counter in the top right corner -->
     <div
       class="absolute top-2 right-4 text-white text-xl bg-black bg-opacity-50 p-2 rounded-lg z-50"
@@ -25,36 +36,31 @@
     </div>
 
     <!-- Control Panel -->
-    <div
-      class="absolute bottom-0 left-0 w-full flex justify-center bg-black bg-opacity-50 p-4 z-50"
-    >
+    <div class="absolute bottom-0 left-0 w-full flex justify-center bg-black bg-opacity-50 p-4 z-50">
       <!-- Start/Stop Animation Button -->
-      <button class="control-btn" @click="toggleAmiSwarm">
+      <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition-transform transform hover:scale-105" @click="toggleAmiSwarm">
         {{ showSwarm ? 'Stop' : 'Start' }} Animation
       </button>
 
       <!-- Add Butterfly Button -->
-      <button class="control-btn mx-2" @click="addButterfly">
+      <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm mx-2 transition-transform transform hover:scale-105" @click="addButterfly">
         Add Butterfly
       </button>
 
       <!-- Remove Butterfly Button -->
-      <button class="control-btn" @click="removeButterfly">
+      <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition-transform transform hover:scale-105" @click="removeButterfly">
         Remove Butterfly
       </button>
 
       <!-- Display Mode Selector -->
       <div class="flex mx-2">
-        <button class="control-btn mx-1" @click="setDisplayMode('viewport')">
+        <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm mx-1 transition-transform transform hover:scale-105" @click="setDisplayMode('viewport')">
           Viewport
         </button>
-        <button
-          class="control-btn mx-1"
-          @click="setDisplayMode('main-container')"
-        >
+        <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm mx-1 transition-transform transform hover:scale-105" @click="setDisplayMode('main-container')">
           Main Container
         </button>
-        <button class="control-btn mx-1" @click="setDisplayMode('full-screen')">
+        <button class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm mx-1 transition-transform transform hover:scale-105" @click="setDisplayMode('full-screen')">
           Full Screen
         </button>
       </div>
@@ -63,25 +69,35 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { computed, ref } from 'vue'
 
-// Access the butterfly store
-const butterflyStore = useButterflyStore()
-const displayStore = useDisplayStore()
+// Error message state
+const errorMessage = ref('')
+
+// Access the butterfly store (with error handling)
+let butterflyStore
+let displayStore
+try {
+  butterflyStore = useButterflyStore()
+  displayStore = useDisplayStore()
+} catch (error) {
+  errorMessage.value = 'Failed to load required stores or components.'
+}
 
 // Get butterflies from the store
-const butterflies = computed(() => butterflyStore.butterflies)
+const butterflies = computed(() => (butterflyStore ? butterflyStore.butterflies : []))
 
 // Watch for the swarm toggle
 const showSwarm = ref(false)
 
 // Get the number of butterflies
-const butterflyCount = computed(() => butterflyStore.butterflies.length)
+const butterflyCount = computed(() => (butterflyStore ? butterflyStore.butterflies.length : 0))
 
 // Toggle the butterfly swarm on and off
 const toggleAmiSwarm = () => {
+  if (!butterflyStore) return
   showSwarm.value = !showSwarm.value
 
   if (showSwarm.value) {
@@ -95,6 +111,7 @@ const toggleAmiSwarm = () => {
 
 // Add a new butterfly
 const addButterfly = () => {
+  if (!butterflyStore) return
   butterflyStore.addButterfly({
     id: Date.now(),
     x: Math.random() * 100,
@@ -111,30 +128,28 @@ const addButterfly = () => {
 
 // Remove the last butterfly
 const removeButterfly = () => {
-  if (butterflyCount.value > 0) {
-    butterflyStore.removeButterfly(butterflyStore.butterflies[butterflyCount.value - 1].id)
-  }
+  if (!butterflyStore || butterflyCount.value === 0) return
+  butterflyStore.removeButterfly(butterflyStore.butterflies[butterflyCount.value - 1].id)
 }
 
 // Display mode state (viewport, main-container, full-screen)
 const displayMode = ref('viewport')
 
-// Access the main container dimensions from DisplayStore
-const mainHeight = computed(() => displayStore.centerHeight)
-const mainWidth = computed(() => displayStore.centerWidth)
+// Get dimensions from DisplayStore
+const mainHeight = computed(() => (displayStore ? displayStore.centerHeight : '100vh'))
+const mainWidth = computed(() => (displayStore ? displayStore.centerWidth : '100vw'))
 
 // Update the display mode and set the container style accordingly
 const butterflyContainerStyle = computed(() => {
+  if (!displayStore) return { height: '100vh', width: '100vw' }
+
   if (displayMode.value === 'viewport') {
-    return { height: '100%', width: '100%' } // Matches the background image area
+    return { height: '100%', width: '100%' }
   } else if (displayMode.value === 'main-container') {
-    // Uses the exact height and width from DisplayStore
     return { height: mainHeight.value, width: mainWidth.value }
-  } 
-  // Default to full-screen if no display mode is selected or for 'full-screen'
+  }
   return { height: '100vh', width: '100vw' } // Full screen as default
 })
-
 
 const setDisplayMode = (mode: string) => {
   displayMode.value = mode
@@ -142,26 +157,5 @@ const setDisplayMode = (mode: string) => {
 </script>
 
 <style scoped>
-/* Control button styles */
-.control-btn {
-  background-color: #ff9800;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.control-btn:hover {
-  transform: scale(1.1);
-}
-
-/* Background image with a stylish border */
-.bg-cover {
-  background-size: cover;
-  background-position: center;
-  border: 5px solid #fff; /* Adds the stylish white border */
-}
+/* No custom CSS required, using Tailwind for styling */
 </style>

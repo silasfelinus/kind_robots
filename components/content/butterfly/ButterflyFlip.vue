@@ -1,5 +1,12 @@
 <template>
   <div class="flip-card">
+    <!-- Clickable top tab -->
+    <div class="flip-card-controls top-controls">
+      <button @click="setTab('front')" :class="{ active: !isFlipped }" class="flip-tab">
+        {{ frontTabName }}
+      </button>
+    </div>
+
     <!-- Non-clickable area (front/back content) -->
     <div class="flip-card-inner" :class="{ 'flipped': isFlipped }">
       <div class="flip-card-front">
@@ -10,13 +17,8 @@
       </div>
     </div>
 
-    <!-- Clickable top and bottom areas for flipping -->
-    <div class="flip-card-controls">
-      <!-- Top clickable tab -->
-      <button @click="setTab('front')" :class="{ active: !isFlipped }" class="flip-tab">
-        {{ frontTabName }}
-      </button>
-      <!-- Bottom clickable tab -->
+    <!-- Clickable bottom tab -->
+    <div class="flip-card-controls bottom-controls">
       <button @click="setTab('back')" :class="{ active: isFlipped }" class="flip-tab">
         {{ backTabName }}
       </button>
@@ -84,9 +86,15 @@ const setTab = (tab) => {
   position: absolute;
   width: 100%;
   display: flex;
-  justify-content: space-between;
-  bottom: -40px;
-  left: 0;
+  justify-content: center;
+}
+
+.top-controls {
+  top: -40px; /* Position the top control above the card */
+}
+
+.bottom-controls {
+  bottom: -40px; /* Position the bottom control below the card */
 }
 
 .flip-tab {

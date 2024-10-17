@@ -14,8 +14,8 @@
     <!-- Butterfly Display Area -->
     <div
       v-if="showSwarm"
-      :class="butterflyContainerClass"
       class="relative overflow-hidden z-40 pointer-events-none"
+      :style="butterflyContainerStyle"
     >
       <butterfly-component
         v-for="butterfly in butterflies"
@@ -64,7 +64,7 @@
 
 <script setup lang="ts">
 import { useButterflyStore } from '@/stores/butterflyStore'
-import { useDisplayStore } from '@/stores/displayStore' // Assuming you have a DisplayStore
+import { useDisplayStore } from '@/stores/displayStore'
 import { computed, ref } from 'vue'
 
 // Access the butterfly store
@@ -112,9 +112,7 @@ const addButterfly = () => {
 // Remove the last butterfly
 const removeButterfly = () => {
   if (butterflyCount.value > 0) {
-    butterflyStore.removeButterfly(
-      butterflyStore.butterflies[butterflyCount.value - 1].id,
-    )
+    butterflyStore.removeButterfly(butterflyStore.butterflies[butterflyCount.value - 1].id)
   }
 }
 
@@ -125,20 +123,18 @@ const displayMode = ref('viewport')
 const mainHeight = computed(() => displayStore.centerHeight)
 const mainWidth = computed(() => displayStore.centerWidth)
 
-// Update the display mode and set the container class accordingly
-const butterflyContainerClass = computed(() => {
+// Update the display mode and set the container style accordingly
+const butterflyContainerStyle = computed(() => {
   if (displayMode.value === 'viewport') {
-    return 'absolute inset-0 w-full h-full' // Matches the background image area
+    return { height: '100%', width: '100%' } // Matches the background image area
   } else if (displayMode.value === 'main-container') {
     // Uses the exact height and width from DisplayStore
-    return `absolute h-[${mainHeight.value}px] w-[${mainWidth.value}px]`
-  } else if (displayMode.value === 'full-screen') {
-    return 'fixed inset-0 h-full w-full' // Covers the entire screen
-  }
-
-  // Default return to avoid ESLint warning
-  return ''
+    return { height: mainHeight.value, width: mainWidth.value }
+  } 
+  // Default to full-screen if no display mode is selected or for 'full-screen'
+  return { height: '100vh', width: '100vw' } // Full screen as default
 })
+
 
 const setDisplayMode = (mode: string) => {
   displayMode.value = mode

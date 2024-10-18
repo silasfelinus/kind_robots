@@ -2,16 +2,9 @@
   <div
     class="relative w-full h-full flex items-center justify-center bg-gray-200"
   >
-    <!-- Refresh button in the top-right corner -->
-    <button
-      class="absolute top-4 right-4 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-400 transition-all"
-      @click="refreshButterfly"
-    >
-      Refresh
-    </button>
-
-    <!-- Butterfly demo section -->
+    <!-- Butterfly demo section for selected butterfly -->
     <div
+      v-if="currentButterfly"
       class="butterfly-container relative"
       :style="{ transform: 'scale(' + currentButterfly.scale + ')' }"
     >
@@ -43,15 +36,8 @@ import { useButterflyStore } from '@/stores/butterflyStore'
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
 
-// Computed property to always get the latest butterfly
-const currentButterfly = computed(
-  () => butterflyStore.butterflies[butterflyStore.butterflies.length - 1],
-)
-
-// Function to refresh the butterfly by generating a new one
-const refreshButterfly = () => {
-  butterflyStore.addButterfly() // Add a new butterfly to the store
-}
+// Computed property to get the selected butterfly from the store
+const currentButterfly = computed(() => butterflyStore.getSelectedButterfly)
 </script>
 
 <style scoped>

@@ -1,5 +1,7 @@
 <template>
-  <div class="relative w-full h-full flex items-center justify-center bg-gray-200">
+  <div
+    class="relative w-full h-full flex items-center justify-center bg-gray-200"
+  >
     <!-- Refresh button in the top-right corner -->
     <button
       class="absolute top-4 right-4 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-400 transition-all"
@@ -11,27 +13,44 @@
     <!-- Butterfly demo section -->
     <div
       class="butterfly-container relative"
-      :style="{ transform: 'scale(' + butterfly.value.scale + ')' }"
+      :style="{ transform: 'scale(' + currentButterfly.scale + ')' }"
     >
-      <div class="left-wing" :style="{ background: butterfly.value.wingTopColor }"></div>
-      <div class="right-wing" :style="{ background: butterfly.value.wingBottomColor }"></div>
+      <!-- Butterfly wings -->
+      <div
+        class="left-wing"
+        :style="{ background: currentButterfly.wingTopColor }"
+      ></div>
+      <div
+        class="right-wing"
+        :style="{ background: currentButterfly.wingBottomColor }"
+      ></div>
+
+      <!-- Conditionally show the butterfly's name -->
+      <div
+        v-if="butterflyStore.showNames"
+        class="absolute top-20 w-full text-center text-lg text-gray-700"
+      >
+        {{ currentButterfly.id }}
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
 
-// Create a butterfly object with default values from the store
-const butterfly = ref(butterflyStore.createButterfly())
+// Computed property to always get the latest butterfly
+const currentButterfly = computed(
+  () => butterflyStore.butterflies[butterflyStore.butterflies.length - 1],
+)
 
 // Function to refresh the butterfly by generating a new one
 const refreshButterfly = () => {
-  butterfly.value = butterflyStore.createButterfly()
+  butterflyStore.addButterfly() // Add a new butterfly to the store
 }
 </script>
 
@@ -51,7 +70,6 @@ const refreshButterfly = () => {
   width: 40px;
   height: 60px;
   border-radius: 20px;
-  background: blue;
   top: 20px;
   animation: flap 0.4s infinite;
   transform-origin: top center;

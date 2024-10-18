@@ -4,7 +4,7 @@ import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { generateFunnyName } from '@/utils/generateButterflyNames'
 
 export interface Butterfly {
-  id: atring
+  id: string
   x: number
   y: number
   z: number
@@ -18,37 +18,29 @@ export interface Butterfly {
   status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
   scale: number
 }
-
-
-
 interface ButterflyState {
   butterflies: Butterfly[]
   scaleModifier: number
   animationFrameId: number | null
   t: number
   animationPaused: boolean
+  showNames: boolean
+  lastUpdatedButterflyId: string
   newButterflySettings: {
-    minSize: number
-    maxSize: number
-    minSpeed: number
-    maxSpeed: number
-    minRotation: number
-    maxRotation: number
-    minWingSpeed: number
-    maxWingSpeed: number
-    minSway: number
-    maxSway: number
-    minZIndex: number
-    maxZIndex: number
-    minX: number
-    maxX: number
-    minY: number
-    maxY: number
+    sizeRange: { min: number; max: number }
+    speedRange: { min: number; max: number }
+    rotationRange: { min: number; max: number }
+    wingSpeedRange: { min: number; max: number }
+    xRange: { min: number; max: number }
+    yRange: { min: number; max: number }
+    swayRange: { min: number; max: number } 
+    zIndexRange: { min: number; max: number }
     status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
     colorScheme: 'random' | 'complementary' | 'analogous' | 'same' | 'primary'
   }
   presets: Array<ButterflyState['newButterflySettings']>
 }
+
 
 const noise2D = makeNoise2D(Date.now())
 
@@ -88,6 +80,8 @@ state: (): ButterflyState => ({
     animationFrameId: null,
     t: 0,
     animationPaused: false,
+    showNames: true,
+    lastUpdatedButterflyId: '',
     newButterflySettings: {
       sizeRange: { min: 0.5, max: 1.5 },
       speedRange: { min: 1, max: 3 },
@@ -95,6 +89,8 @@ state: (): ButterflyState => ({
       wingSpeedRange: { min: 1, max: 5 },
       xRange: { min: 0, max: 100 },
       yRange: { min: 0, max: 100 },
+      swayRange: {min: 0.0, max: 1.0 },
+      zIndexRange: { min: 0,  max: 50  },
       status: 'random',
       colorScheme: 'random',
     },
@@ -104,30 +100,33 @@ state: (): ButterflyState => ({
     clearButterflies() {
       this.butterflies = []
     },
-
+    toggleShowNames() {
+      this.showNames = !this.showNames
+    },
     addError(type: ErrorType, message: unknown) {
       const errorStore = useErrorStore()
       errorStore.addError(type, message)
     },
     addButterfly(butterfly?: Butterfly) {
       if (!butterfly) {
+
         butterfly = {
-          id: generateFunnyName(),
-          x: Math.random() * (this.newButterflySettings.maxX - this.newButterflySettings.minX) + this.newButterflySettings.minX,
-          y: Math.random() * (this.newButterflySettings.maxY - this.newButterflySettings.minY) + this.newButterflySettings.minY,
-          z: Math.random() * (this.newButterflySettings.maxSize - this.newButterflySettings.minSize) + this.newButterflySettings.minSize,
-          zIndex: this.butterflies.length + 1,
-          rotation: Math.random() * (this.newButterflySettings.maxRotation - this.newButterflySettings.minRotation) + this.newButterflySettings.minRotation,
+          id: generateFunnyName(this.usedNames),
+          x: Math.random() * (this.newButterflySettings.xRange.max - this.newButterflySettings.xRange.min) + this.newButterflySettings.xRange.min,
+          y: Math.random() * (this.newButterflySettings.yRange.max - this.newButterflySettings.yRange.min) + this.newButterflySettings.yRange.min,
+          z: Math.random() * (this.newButterflySettings.sizeRange.max - this.newButterflySettings.sizeRange.min) + this.newButterflySettings.sizeRange.min,
+          zIndex: Math.floor(Math.random() * (this.newButterflySettings.zIndexRange.max - this.newButterflySettings.zIndexRange.min + 1)) + this.newButterflySettings.zIndexRange.min, // Updated zIndexRange
+          rotation: Math.random() * (this.newButterflySettings.rotationRange.max - this.newButterflySettings.rotationRange.min) + this.newButterflySettings.rotationRange.min,
           wingTopColor: '',
           wingBottomColor: '',
-          speed: Math.random() * (this.newButterflySettings.maxSpeed - this.newButterflySettings.minSpeed) + this.newButterflySettings.minSpeed,
-          wingSpeed: Math.random() * (this.newButterflySettings.maxWingSpeed - this.newButterflySettings.minWingSpeed) + this.newButterflySettings.minWingSpeed,
-          sway: Math.random() * (this.newButterflySettings.maxSway - this.newButterflySettings.minSway) + this.newButterflySettings.minSway,
+          speed: Math.random() * (this.newButterflySettings.speedRange.max - this.newButterflySettings.speedRange.min) + this.newButterflySettings.speedRange.min,
+          wingSpeed: Math.random() * (this.newButterflySettings.wingSpeedRange.max - this.newButterflySettings.wingSpeedRange.min) + this.newButterflySettings.wingSpeedRange.min,
+          sway: Math.random() * (this.newButterflySettings.swayRange.max - this.newButterflySettings.swayRange.min) + this.newButterflySettings.swayRange.min, // Updated swayRange
           scale: Math.random() * 0.5 + 0.75,
           status: this.newButterflySettings.status,
         }
       }
-      
+    
       // Assign colors based on settings
       let primaryColor = randomColor()
       let secondaryColor = primaryColor
@@ -153,7 +152,10 @@ state: (): ButterflyState => ({
       butterfly.wingBottomColor = secondaryColor
     
       this.butterflies.push(butterfly)
+      this.lastUpdatedButterflyId = butterfly.id;
     },
+    
+    
     removeLastButterfly() {
       if (this.butterflies.length > 0) {
         this.butterflies.pop() // Remove the last butterfly in the array
@@ -182,24 +184,22 @@ state: (): ButterflyState => ({
         butterfly.id = newId
       }
     },
-    
-    
 
     generateInitialButterflies(count: number) {
       try {
         for (let i = 0; i < count; i++) {
           this.addButterfly({
-            id: Date.now() + i,
-            x: Math.random() * (this.newButterflySettings.maxX - this.newButterflySettings.minX) + this.newButterflySettings.minX,
-            y: Math.random() * (this.newButterflySettings.maxY - this.newButterflySettings.minY) + this.newButterflySettings.minY,
-            z: Math.random() * (this.newButterflySettings.maxSize - this.newButterflySettings.minSize) + this.newButterflySettings.minSize,
-            zIndex: Math.floor(Math.random() * (this.newButterflySettings.maxZIndex - this.newButterflySettings.minZIndex + 1)) + this.newButterflySettings.minZIndex,
-            rotation: Math.random() * (this.newButterflySettings.maxRotation - this.newButterflySettings.minRotation) + this.newButterflySettings.minRotation,
+            id: generateFunnyName(this.usedNames),
+            x: Math.random() * (this.newButterflySettings.xRange.max - this.newButterflySettings.xRange.min) + this.newButterflySettings.xRange.min,
+            y: Math.random() * (this.newButterflySettings.yRange.max - this.newButterflySettings.yRange.min) + this.newButterflySettings.yRange.min,
+            z: Math.random() * (this.newButterflySettings.sizeRange.max - this.newButterflySettings.sizeRange.min) + this.newButterflySettings.sizeRange.min,
+            zIndex: Math.floor(Math.random() * (this.newButterflySettings.zIndexRange.max - this.newButterflySettings.zIndexRange.min + 1)) + this.newButterflySettings.zIndexRange.min, // Updated to use zIndexRange
+            rotation: Math.random() * (this.newButterflySettings.rotationRange.max - this.newButterflySettings.rotationRange.min) + this.newButterflySettings.rotationRange.min,
             wingTopColor: '',
             wingBottomColor: '',
-            speed: Math.random() * (this.newButterflySettings.maxSpeed - this.newButterflySettings.minSpeed) + this.newButterflySettings.minSpeed,
-            wingSpeed: Math.random() * (this.newButterflySettings.maxWingSpeed - this.newButterflySettings.minWingSpeed) + this.newButterflySettings.minWingSpeed,
-            sway: Math.random() * (this.newButterflySettings.maxSway - this.newButterflySettings.minSway) + this.newButterflySettings.minSway,
+            speed: Math.random() * (this.newButterflySettings.speedRange.max - this.newButterflySettings.speedRange.min) + this.newButterflySettings.speedRange.min,
+            wingSpeed: Math.random() * (this.newButterflySettings.wingSpeedRange.max - this.newButterflySettings.wingSpeedRange.min) + this.newButterflySettings.wingSpeedRange.min,
+            sway: Math.random() * (this.newButterflySettings.swayRange.max - this.newButterflySettings.swayRange.min) + this.newButterflySettings.swayRange.min, // Updated sway
             scale: Math.random() * 0.5 + 0.75,
             status: this.newButterflySettings.status,
           })
@@ -208,6 +208,7 @@ state: (): ButterflyState => ({
         this.addError(ErrorType.STORE_ERROR, error)
       }
     },
+    
 
     // Update butterfly positions using noise2D
     updateButterflyPosition(butterfly: Butterfly) {
@@ -280,9 +281,12 @@ state: (): ButterflyState => ({
     },
   },
   getters: {
+    usedNames: (state) => state.butterflies.map(butterfly => butterfly.id),
+  
+
     getAllButterflies: (state) => state.butterflies,
 
-    getButterflyById: (state) => (id: number) =>
+    getButterflyById: (state) => (id: string) =>
       state.butterflies.find(b => b.id === id),
 
     getScaleModifier: (state) => state.scaleModifier,

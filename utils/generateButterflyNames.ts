@@ -1,10 +1,23 @@
-// funnyNameGenerator.ts
+// generateButterflyNames.ts
 
 const presetNames = [
   'Spike', 'Lawrence', 'Tiffany', 'Grognar', 'Grover', 'Lemmon', 'Penelope', 'Princess Buzzsaw',
-  'Madame Fifi', 'Amanpreet', 'Mitch', 'Curly', 'Bozo', 'Serendipity', 'AMI', 'Teddy',
-  'Lemonade', 'Tinkerblaze', 'Aaaaaagh'
-]
+  'Madame Fifi', 'Amanpreet', 'Mitch', 'Curly', 'Bozo', 'Serendipity', 'AMI', 'Teddy', 'Lemonade', 
+  'Tinkerblaze', 'Aaaaaagh', 'Captain Fizz', 'Dizzy McTwist', 'Professor Bubbles', 'Sir Wigglesworth', 
+  'Lady Fluffernutter', 'Major Giggles', 'Ziggy Stardust', 'Whiskers the Brave', 'Flapjack', 'Bamboozle', 
+  'Funky Doodle', 'Captain Cuddles', 'Lord Hoppington', 'Princess Buttercup', 'Dr. Zoom', 'Squeezy', 
+  'Frizzle', 'Sunny Daze', 'Gigglepotamus', 'Sir Fuzzyboots', 'Wobblebottom', 'Quasar', 'Chuckleberry', 
+  'Zapper', 'Squiggle', 'Fluffy Toes', 'Captain Whiskers', 'Fizzletop', 'Sir Nibbles', 'Sprinkles', 
+  'Whizbang', 'Snicker Doodle', 'Fuzzbucket', 'Zippy', 'Puffin', 'Glitterbug', 'Razzle Dazzle', 
+  'Sir Fluffernoodle', 'Tater Tot', 'Chewy McChomp', 'Twinkle Toes', 'Wiggly Wompus', 'Chubby Cheeks', 
+  'Noodle', 'Cuddle Muffin', 'Sprinkle Star', 'Wobblebutt', 'Gizmo', 'Sparky McGlow', 'Captain Boombox', 
+  'Lollipop', 'Peaches', 'Buzz Lightwing', 'Fizzy Pop', 'Sir Snugglepuff', 'Doodlebug', 'Tater Muffin', 
+  'Waffles', 'Mister Wiggles', 'Glitter Pants', 'Boogaloo', 'Jellybean', 'Dinky', 'Sir Snuggles', 
+  'Popcorn', 'Bumblebee', 'Rumble McThunder', 'Squishy', 'Sir Swoosh', 'Captain Featherpants', 
+  'Zigzag', 'Twisty', 'Bubbles', 'Frodo Fluff', 'Tango', 'Blip', 'Captain Sparklepants', 'Zappy', 
+  'Sprout', 'Frisbee', 'Hopper', 'Wiggle Muffin'
+];
+
 
 // Track used names to avoid duplication
 const usedNames = new Set<string>()

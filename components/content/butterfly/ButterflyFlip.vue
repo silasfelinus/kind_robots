@@ -1,12 +1,7 @@
 <template>
-  <div
-    class="flip-card relative min-w-70 min-h-100 flex flex-col justify-between"
-  >
-    <!-- Non-clickable area (front/back content) -->
-    <div
-      class="flip-card-inner w-full h-full flex-grow"
-      :class="{ flipped: isFlipped }"
-    >
+  <div class="flip-card relative w-full h-full flex flex-col justify-between">
+    <!-- Flip card content (front/back) -->
+    <div class="flip-card-inner w-full h-full" :class="{ flipped: isFlipped }">
       <div
         class="flip-card-front w-full h-full backface-hidden overflow-y-auto"
       >
@@ -56,12 +51,13 @@ const setTab = (tab) => {
 
 <style scoped>
 .flip-card {
-  perspective: 1000px;
+  perspective: 1500px; /* Slightly increased perspective for a smoother 3D effect */
 }
 
 .flip-card-inner {
-  transition: transform 0.6s ease-in-out;
+  transition: transform 0.8s ease-in-out; /* Smoother, slower transition */
   transform-style: preserve-3d;
+  position: relative; /* Ensure front/back layers are properly positioned */
 }
 
 .flipped {
@@ -70,14 +66,18 @@ const setTab = (tab) => {
 
 .flip-card-front,
 .flip-card-back {
-  backface-visibility: hidden;
+  backface-visibility: hidden; /* Ensure only the front or back is visible */
   position: absolute;
   width: 100%;
   height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1; /* Ensure proper stacking of front and back */
 }
 
-.transform-back {
+.flip-card-back {
   transform: rotateY(180deg);
+  z-index: 0; /* Ensure back is behind front before flipping */
 }
 
 .cursor-pointer:hover {

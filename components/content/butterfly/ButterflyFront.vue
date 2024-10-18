@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-200 p-4 rounded-lg">
+  <div class="bg-gray-200 p-4 rounded-lg h-full overflow-y-auto">
     <h3 class="text-center mb-4">Adjust New Butterfly Presets</h3>
 
     <!-- Size range slider -->
@@ -143,5 +143,12 @@ const newStatus = computed({
 </script>
 
 <style scoped>
-/* Style adjustments can go here if needed */
+.bg-gray-200 {
+  height: 100%; /* Ensure full height for the container */
+}
+
+.overflow-y-auto {
+  max-height: 100vh; /* Ensure it scrolls if content overflows vertically */
+  overflow-y: auto;
+}
 </style>

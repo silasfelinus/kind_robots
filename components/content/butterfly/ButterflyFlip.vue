@@ -1,7 +1,7 @@
 <template>
   <div class="flip-card">
     <!-- Non-clickable area (front/back content) -->
-    <div class="flip-card-inner" :class="{ 'flipped': isFlipped }">
+    <div class="flip-card-inner" :class="{ flipped: isFlipped }">
       <div class="flip-card-front">
         <slot name="front"></slot>
       </div>
@@ -12,7 +12,7 @@
 
     <!-- Clickable triangle areas -->
     <div class="triangle top-left" @click="setTab('front')"></div>
-    <div class="triangle bottom-right" @click="setTab('back')"></div>
+    <div class="triangle top-right" @click="setTab('back')"></div>
   </div>
 </template>
 
@@ -75,14 +75,14 @@ const setTab = (tab) => {
   top: 0;
   left: 0;
   border-width: 0 40px 40px 0;
-  border-color: transparent var(--go-accent) transparent transparent;
+  border-color: transparent var(--bg-accent) transparent transparent;
 }
 
 /* Bottom-right triangle */
-.bottom-right {
-  bottom: 0;
+.top-right {
+  top: 0;
   right: 0;
   border-width: 40px 0 0 40px;
-  border-color: transparent transparent transparent var(--go-accent);
+  border-color: transparent transparent transparent var(--bg-accent);
 }
 </style>

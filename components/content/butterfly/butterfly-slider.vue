@@ -77,14 +77,16 @@ const maxValue = ref(props.modelValue.max)
 // Emit updated values when min or max is changed
 const updateMinValue = () => {
   if (minValue.value > maxValue.value) {
-    minValue.value = maxValue.value
+    // Seamlessly swap min and max values if min exceeds max
+    [minValue.value, maxValue.value] = [maxValue.value, minValue.value]
   }
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
 }
 
 const updateMaxValue = () => {
   if (maxValue.value < minValue.value) {
-    maxValue.value = minValue.value
+    // Seamlessly swap min and max values if max is lower than min
+    [minValue.value, maxValue.value] = [maxValue.value, minValue.value]
   }
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
 }

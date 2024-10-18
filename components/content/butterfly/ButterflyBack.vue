@@ -5,7 +5,7 @@
       <h3 class="text-center mb-4">Select and Adjust Butterfly Settings</h3>
 
       <!-- Butterfly Selection -->
-      <div class="mb-6">
+      <div v-if="butterflies.length > 0" class="mb-6">
         <label for="selectedButterfly" class="block mb-2">Select Butterfly:</label>
         <select v-model="selectedButterflyId" class="w-full p-2 rounded" @change="selectButterfly">
           <option v-for="butterfly in butterflies" :key="butterfly.id" :value="butterfly.id">
@@ -108,7 +108,7 @@
 
     <!-- Butterfly Demo always visible at the bottom -->
     <div class="mt-4">
-      <butterfly-demo />
+      <butterfly-demo v-if="selectedButterfly" :butterfly="selectedButterfly" />
     </div>
   </div>
 </template>

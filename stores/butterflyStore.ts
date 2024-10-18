@@ -3,7 +3,7 @@ import { makeNoise2D } from 'open-simplex-noise'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 export interface Butterfly {
-  id: number
+  id: atring
   x: number
   y: number
   z: number
@@ -17,6 +17,17 @@ export interface Butterfly {
   status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
   scale: number
 }
+
+const generateFunnyId = (): string => {
+  const adjectives = ['Silly', 'Happy', 'Wiggly', 'Fluffy', 'Dizzy', 'Lazy', 'Spunky', 'Sparky']
+  const animals = ['Panda', 'Koala', 'Unicorn', 'Dolphin', 'Tiger', 'Sloth', 'Dragon', 'Phoenix']
+  
+  const adjective = adjectives[Math.floor(Math.random() * adjectives.length)]
+  const animal = animals[Math.floor(Math.random() * animals.length)]
+  
+  return `${adjective}${animal}${Date.now()}`
+}
+
 
 interface ButterflyState {
   butterflies: Butterfly[]
@@ -109,7 +120,7 @@ state: (): ButterflyState => ({
     addButterfly(butterfly?: Butterfly) {
       if (!butterfly) {
         butterfly = {
-          id: Date.now(),
+          id: generateFunnyId(),
           x: Math.random() * (this.newButterflySettings.maxX - this.newButterflySettings.minX) + this.newButterflySettings.minX,
           y: Math.random() * (this.newButterflySettings.maxY - this.newButterflySettings.minY) + this.newButterflySettings.minY,
           z: Math.random() * (this.newButterflySettings.maxSize - this.newButterflySettings.minSize) + this.newButterflySettings.minSize,
@@ -173,7 +184,12 @@ state: (): ButterflyState => ({
           return primaryColor
       }
     },
-    
+    updateButterflyId(id: string, newId: string) {
+      const butterfly = this.butterflies.find((b) => b.id === id)
+      if (butterfly) {
+        butterfly.id = newId
+      }
+    },
     
     
 

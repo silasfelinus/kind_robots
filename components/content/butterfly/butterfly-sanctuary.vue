@@ -47,14 +47,17 @@
     </div>
 
     <!-- Right side control section (Flip-Card) -->
-    <div class="absolute top-16 right-2 flex flex-col items-center z-20">
+    <div
+      class="absolute top-16 right-2 flex flex-col items-center w-[15rem] z-20"
+    >
+      <!-- Adjust width here -->
       <div
         class="bg-black text-white w-16 h-16 mb-4 text-center p-2 rounded-md"
       >
         Count: {{ butterflyCount }}
       </div>
 
-      <butterfly-flip>
+      <butterfly-flip class="w-full">
         <template #front>
           <butterfly-front />
         </template>

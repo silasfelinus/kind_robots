@@ -1,5 +1,7 @@
 <template>
-  <div class="flip-card relative w-70 h-100 flex flex-col justify-between">
+  <div
+    class="flip-card relative min-w-70 min-h-100 flex flex-col justify-between"
+  >
     <!-- Non-clickable area (front/back content) -->
     <div
       class="flip-card-inner w-full h-full flex-grow"

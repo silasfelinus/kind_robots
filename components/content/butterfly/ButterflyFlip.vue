@@ -1,38 +1,41 @@
 <template>
-  <div class="flip-card relative w-70 h-100">
+  <div class="flip-card relative w-70 h-100 flex flex-col justify-between">
     <!-- Non-clickable area (front/back content) -->
     <div
-      class="flip-card-inner absolute w-full h-full"
+      class="flip-card-inner w-full h-full flex-grow"
       :class="{ flipped: isFlipped }"
     >
       <div
-        class="flip-card-front absolute w-full h-full backface-hidden overflow-y-auto"
+        class="flip-card-front w-full h-full backface-hidden overflow-y-auto"
       >
         <slot name="front"></slot>
       </div>
       <div
-        class="flip-card-back absolute w-full h-full backface-hidden transform-back overflow-y-auto"
+        class="flip-card-back w-full h-full backface-hidden transform-back overflow-y-auto"
       >
         <slot name="back"></slot>
       </div>
     </div>
 
-    <!-- Clickable Butterfly Icon for flipping between front and back -->
-    <div
-      v-if="isFlipped"
-      class="absolute top-4 left-4 text-2xl bg-yellow-500 rounded-full w-12 h-12 flex items-center justify-center cursor-pointer z-10"
-      @click="setTab('front')"
-    >
-      <!-- Butterfly Icon for Back to Front -->
-      <Icon name="ph:butterfly-light" class="text-purple-600 text-3xl" />
-    </div>
-    <div
-      v-if="!isFlipped"
-      class="absolute top-4 right-4 text-2xl bg-green-500 rounded-full w-12 h-12 flex items-center justify-center cursor-pointer z-10"
-      @click="setTab('back')"
-    >
-      <!-- Butterfly Icon for Front to Back -->
-      <Icon name="ph:butterfly-fill" class="text-blue-600 text-3xl" />
+    <!-- Butterfly Icon Toggles - Using Flexbox for Proper Placement -->
+    <div class="w-full flex justify-between items-center mt-2 px-4">
+      <!-- Back to Front Icon -->
+      <div
+        v-if="isFlipped"
+        class="text-2xl bg-yellow-500 rounded-full w-12 h-12 flex items-center justify-center cursor-pointer"
+        @click="setTab('front')"
+      >
+        <Icon name="ph:butterfly-light" class="text-purple-600 text-3xl" />
+      </div>
+
+      <!-- Front to Back Icon -->
+      <div
+        v-if="!isFlipped"
+        class="text-2xl bg-green-500 rounded-full w-12 h-12 flex items-center justify-center cursor-pointer"
+        @click="setTab('back')"
+      >
+        <Icon name="ph:butterfly-fill" class="text-blue-600 text-3xl" />
+      </div>
     </div>
   </div>
 </template>

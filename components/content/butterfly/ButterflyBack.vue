@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-200 p-4 rounded-lg flex flex-col justify-between h-full">
+  <div class="bg-gray-200 p-4 rounded-lg flex flex-col h-full">
     <!-- Scrollable settings area -->
     <div class="overflow-y-auto flex-grow pr-4">
       <h3 class="text-center mb-4">Select and Adjust Butterfly Settings</h3>
@@ -9,11 +9,7 @@
         <label for="selectedButterfly" class="block mb-2"
           >Select Butterfly:</label
         >
-        <select
-          v-model="selectedButterflyId"
-          class="w-full p-2 rounded"
-          @change="selectButterfly"
-        >
+        <select v-model="selectedButterflyId" class="w-full p-2 rounded">
           <option
             v-for="butterfly in butterflies"
             :key="butterfly.id"
@@ -47,6 +43,7 @@
         :max="2"
         :step="0.1"
         slider-id="sizeSlider"
+        class="mb-4"
       />
 
       <!-- Speed range slider -->
@@ -58,6 +55,7 @@
         :max="5"
         :step="0.1"
         slider-id="speedSlider"
+        class="mb-4"
       />
 
       <!-- Wing Speed range slider -->
@@ -69,6 +67,7 @@
         :max="5"
         :step="0.1"
         slider-id="wingSpeedSlider"
+        class="mb-4"
       />
 
       <!-- Sway range slider -->
@@ -80,15 +79,17 @@
         :max="2"
         :step="0.1"
         slider-id="swaySlider"
+        class="mb-4"
       />
     </div>
 
     <!-- Butterfly Demo always visible at the bottom -->
-    <div class="mt-4">
+    <div class="mt-4 sticky bottom-0 bg-gray-300 p-4 rounded-lg shadow-lg">
       <butterfly-demo v-if="selectedButterfly" :butterfly="selectedButterfly" />
     </div>
   </div>
 </template>
+
 <script setup>
 import { computed, ref } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
@@ -99,18 +100,27 @@ const butterflies = computed(() => butterflyStore.getAllButterflies)
 
 // Selected butterfly ID and reactive object for selected butterfly
 const selectedButterflyId = ref(
-  butterflies.value.length ? butterflies.value[0].id : null,
+  butterflyStore.butterflies.length ? butterflyStore.butterflies[0].id : null,
 )
+
+// Computed value to get the selected butterfly
 const selectedButterfly = computed(() =>
-  butterflies.value.find(
+  butterflyStore.butterflies.find(
     (butterfly) => butterfly.id === selectedButterflyId.value,
   ),
 )
 
-// Create a reactive property for the new butterfly ID (used for editing)
-const newButterflyId = ref(selectedButterfly.value?.id || '')
+// New butterfly ID for editing purposes
+const newButterflyId = computed({
+  get: () => selectedButterfly.value?.id || '',
+  set: (val) => {
+    if (selectedButterfly.value) {
+      selectedButterfly.value.id = val
+    }
+  },
+})
 
-// Update the selected butterfly's ID
+// Update the butterfly's ID in the store when edited
 const updateButterflyId = () => {
   if (selectedButterfly.value) {
     butterflyStore.updateButterflyId(
@@ -120,12 +130,7 @@ const updateButterflyId = () => {
   }
 }
 
-// Handle selecting a new butterfly
-const selectButterfly = () => {
-  newButterflyId.value = selectedButterfly.value?.id || ''
-}
-
-// Compute and bind individual butterfly properties like size, speed, etc.
+// Computed and bind individual butterfly properties like size, speed, etc.
 const selectedButterflySize = computed({
   get: () => selectedButterfly.value?.scale || 0.5,
   set: (val) => {

@@ -3,7 +3,7 @@
     <label :for="sliderId" class="block mb-2">{{ label }} (Min-Max):</label>
     <div class="flex items-center justify-between mb-2">
       <!-- Displaying min value -->
-      <span>{{ minValue }}</span>
+      <span>{{ modelValue.min }}</span>
 
       <!-- Dual range slider -->
       <div class="relative w-4/5 mx-2">
@@ -13,7 +13,7 @@
           :max="max"
           :step="step"
           v-model="minValue"
-          class="absolute w-full slider-thumb"
+          class="absolute w-full"
           @input="updateMinValue"
         />
         <input
@@ -22,13 +22,13 @@
           :max="max"
           :step="step"
           v-model="maxValue"
-          class="absolute w-full slider-thumb"
+          class="absolute w-full"
           @input="updateMaxValue"
         />
       </div>
 
       <!-- Displaying max value -->
-      <span>{{ maxValue }}</span>
+      <span>{{ modelValue.max }}</span>
     </div>
     <div class="text-center">
       Chosen {{ label }} Range: {{ minValue }} - {{ maxValue }}
@@ -37,6 +37,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
+
 // Props for min, max, step, and label values
 const props = defineProps({
   min: {
@@ -100,32 +102,29 @@ watch(
 
 <style scoped>
 /* Basic styles for dual-range slider */
-.slider-thumb {
-  appearance: none;
-  background: transparent;
-  position: relative;
-  z-index: 1;
-  pointer-events: none;
-}
-
 input[type='range'] {
-  pointer-events: all;
-  z-index: 2;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
   -webkit-appearance: none;
-  background-color: transparent;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  background: #ddd;
+  border-radius: 5px;
 }
 
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  background-color: #4a90e2;
-  height: 15px;
   width: 15px;
+  height: 15px;
+  background-color: #4a90e2;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  background-color: #4a90e2;
   border-radius: 50%;
   cursor: pointer;
 }

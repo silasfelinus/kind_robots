@@ -1,11 +1,11 @@
 <template>
   <div class="flip-card relative w-52 h-72">
     <!-- Non-clickable area (front/back content) -->
-    <div class="flip-card-inner absolute w-full h-full transition-transform duration-600 ease-in-out" :class="{ flipped: isFlipped }">
+    <div class="flip-card-inner absolute w-full h-full" :class="{ flipped: isFlipped }">
       <div class="flip-card-front absolute w-full h-full backface-hidden">
         <slot name="front"></slot>
       </div>
-      <div class="flip-card-back absolute w-full h-full backface-hidden transform rotate-y-180">
+      <div class="flip-card-back absolute w-full h-full backface-hidden transform-back">
         <slot name="back"></slot>
       </div>
     </div>
@@ -37,15 +37,28 @@ const setTab = (tab) => {
 </script>
 
 <style scoped>
-.backface-hidden {
-  backface-visibility: hidden;
+.flip-card {
+  perspective: 1000px;
 }
 
-.flip-card-inner.flipped {
+.flip-card-inner {
+  transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
+}
+
+.flipped {
   transform: rotateY(180deg);
 }
 
-.rotate-y-180 {
+.flip-card-front,
+.flip-card-back {
+  backface-visibility: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.transform-back {
   transform: rotateY(180deg);
 }
 </style>

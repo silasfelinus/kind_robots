@@ -11,8 +11,16 @@
     </div>
 
     <!-- Clickable triangle areas -->
-    <div class="triangle top-left" @click="setTab('front')"></div>
-    <div class="triangle top-right" @click="setTab('back')"></div>
+    <div
+      v-if="!isFlipped"
+      class="triangle top-left"
+      @click="setTab('front')"
+    ></div>
+    <div
+      v-if="isFlipped"
+      class="triangle top-right"
+      @click="setTab('back')"
+    ></div>
   </div>
 </template>
 

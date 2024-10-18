@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { makeNoise2D } from 'open-simplex-noise'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { generateFunnyName } from '@/utils/generateButterflyName'
 
 export interface Butterfly {
   id: atring
@@ -18,15 +19,6 @@ export interface Butterfly {
   scale: number
 }
 
-const generateFunnyId = (): string => {
-  const adjectives = ['Silly', 'Happy', 'Wiggly', 'Fluffy', 'Dizzy', 'Lazy', 'Spunky', 'Sparky']
-  const animals = ['Panda', 'Koala', 'Unicorn', 'Dolphin', 'Tiger', 'Sloth', 'Dragon', 'Phoenix']
-  
-  const adjective = adjectives[Math.floor(Math.random() * adjectives.length)]
-  const animal = animals[Math.floor(Math.random() * animals.length)]
-  
-  return `${adjective}${animal}${Date.now()}`
-}
 
 
 interface ButterflyState {
@@ -120,7 +112,7 @@ state: (): ButterflyState => ({
     addButterfly(butterfly?: Butterfly) {
       if (!butterfly) {
         butterfly = {
-          id: generateFunnyId(),
+          id: generateFunnyName(),
           x: Math.random() * (this.newButterflySettings.maxX - this.newButterflySettings.minX) + this.newButterflySettings.minX,
           y: Math.random() * (this.newButterflySettings.maxY - this.newButterflySettings.minY) + this.newButterflySettings.minY,
           z: Math.random() * (this.newButterflySettings.maxSize - this.newButterflySettings.minSize) + this.newButterflySettings.minSize,

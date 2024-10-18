@@ -1,12 +1,14 @@
 <template>
-  <!-- Fallback Image -->
+  <!-- Transparent Overlay with Button Instruction -->
   <div class="relative w-full h-full">
-    <img
+    <div
       v-if="!butterfliesExist"
-      src="/images/art1.webp"
-      alt="Fallback Image"
-      class="absolute inset-0 object-cover w-full h-full z-0"
-    />
+      class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10"
+    >
+      <p class="text-white text-lg text-center">
+        Press the button to start animations
+      </p>
+    </div>
 
     <!-- Canvas Element -->
     <canvas

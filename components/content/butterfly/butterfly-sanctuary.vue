@@ -19,8 +19,7 @@
 
     <!-- Image Area with Fallback, and toggle for canvas and demo -->
     <div class="absolute top-0 left-0 h-[70%] w-[70%] overflow-hidden z-10">
-      <butterfly-canvas v-if="showCanvas" :fallback-image="'/images/fallback-image.png'" />
-      <butterfly-demo v-else />
+      <butterfly-canvas :fallback-image="'/images/art1.webp'" />
     </div>
 
     <!-- Control Panel -->
@@ -46,13 +45,7 @@
         Remove Butterfly
       </button>
 
-      <!-- Toggle between canvas and demo -->
-      <button
-        class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-300 mx-2"
-        @click="toggleCanvasDemo"
-      >
-        {{ showCanvas ? 'Switch to Demo' : 'Switch to Canvas' }}
-      </button>
+      
     </div>
 
     <!-- Right side control section (Flip-Card) -->
@@ -87,11 +80,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 const butterflyStore = useButterflyStore()
 const displayStore = useDisplayStore()
 
-// Toggle between canvas and demo
-const showCanvas = ref(true)
-const toggleCanvasDemo = () => {
-  showCanvas.value = !showCanvas.value
-}
+
 
 // Get butterflies count from the store
 const butterflyCount = computed(() => butterflyStore.butterflies.length)

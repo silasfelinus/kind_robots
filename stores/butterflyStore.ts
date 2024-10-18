@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { makeNoise2D } from 'open-simplex-noise'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { generateFunnyName } from '@/utils/generateButterflyName'
+import { generateFunnyName } from '@/utils/generateButterflyNames'
 
 export interface Butterfly {
   id: atring

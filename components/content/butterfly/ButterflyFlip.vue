@@ -1,12 +1,5 @@
 <template>
   <div class="flip-card">
-    <!-- Clickable top tab -->
-    <div class="flip-card-controls top-controls">
-      <button @click="setTab('front')" :class="{ active: !isFlipped }" class="flip-tab">
-        {{ frontTabName }}
-      </button>
-    </div>
-
     <!-- Non-clickable area (front/back content) -->
     <div class="flip-card-inner" :class="{ 'flipped': isFlipped }">
       <div class="flip-card-front">
@@ -17,29 +10,14 @@
       </div>
     </div>
 
-    <!-- Clickable bottom tab -->
-    <div class="flip-card-controls bottom-controls">
-      <button @click="setTab('back')" :class="{ active: isFlipped }" class="flip-tab">
-        {{ backTabName }}
-      </button>
-    </div>
+    <!-- Clickable triangle areas -->
+    <div class="triangle top-left" @click="setTab('front')"></div>
+    <div class="triangle bottom-right" @click="setTab('back')"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, defineProps } from 'vue'
-
-// Props to customize tab names
-const props = defineProps({
-  frontTabName: {
-    type: String,
-    default: 'Front'
-  },
-  backTabName: {
-    type: String,
-    default: 'Back'
-  }
-})
+import { ref } from 'vue'
 
 // Flip state
 const isFlipped = ref(false)
@@ -82,32 +60,29 @@ const setTab = (tab) => {
   transform: rotateY(180deg);
 }
 
-.flip-card-controls {
+/* Triangle CSS for flipping */
+.triangle {
   position: absolute;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.top-controls {
-  top: -40px; /* Position the top control above the card */
-}
-
-.bottom-controls {
-  bottom: -40px; /* Position the bottom control below the card */
-}
-
-.flip-tab {
-  width: 50%;
-  background-color: var(--bg-base-200); /* Tailwind's bg-base-200 */
-  padding: 10px;
+  width: 0;
+  height: 0;
+  border-style: solid;
   cursor: pointer;
-  border: none;
-  text-align: center;
+  z-index: 10;
 }
 
-.flip-tab.active {
-  font-weight: bold;
-  background-color: var(--bg-primary); /* Tailwind's bg-primary */
+/* Top-left triangle */
+.top-left {
+  top: 0;
+  left: 0;
+  border-width: 0 40px 40px 0;
+  border-color: transparent var(--go-accent) transparent transparent;
+}
+
+/* Bottom-right triangle */
+.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-width: 40px 0 0 40px;
+  border-color: transparent transparent transparent var(--go-accent);
 }
 </style>

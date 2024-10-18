@@ -3,7 +3,7 @@
   <div class="relative w-full h-full">
     <img
       v-if="!butterfliesExist"
-      src="/images/art1.web"
+      src="/images/art1.webp"
       alt="Fallback Image"
       class="absolute inset-0 object-cover w-full h-full"
     />

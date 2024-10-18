@@ -115,7 +115,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
-import ButterflyDemo from '@/components/butterfly-demo.vue'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()

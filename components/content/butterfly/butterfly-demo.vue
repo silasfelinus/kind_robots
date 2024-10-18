@@ -11,10 +11,10 @@
     <!-- Butterfly demo section -->
     <div
       class="butterfly-container relative"
-      :style="{ transform: 'scale(' + butterfly.scale + ')' }"
+      :style="{ transform: 'scale(' + butterfly.value.scale + ')' }"
     >
-      <div class="left-wing" :style="{ background: butterfly.wingTopColor }"></div>
-      <div class="right-wing" :style="{ background: butterfly.wingBottomColor }"></div>
+      <div class="left-wing" :style="{ background: butterfly.value.wingTopColor }"></div>
+      <div class="right-wing" :style="{ background: butterfly.value.wingBottomColor }"></div>
     </div>
   </div>
 </template>
@@ -26,7 +26,7 @@ import { useButterflyStore } from '@/stores/butterflyStore'
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
 
-// Create a butterfly object that will hold a randomly generated butterfly
+// Create a butterfly object with default values from the store
 const butterfly = ref(butterflyStore.createButterfly())
 
 // Function to refresh the butterfly by generating a new one
@@ -36,14 +36,17 @@ const refreshButterfly = () => {
 </script>
 
 <style scoped>
+/* Container for the butterfly */
 .butterfly-container {
   width: 100px;
   height: 100px;
   position: relative;
-  animation: flutter-wings 0.4s infinite;
+  animation: flutter-wings 1s infinite ease-in-out;
 }
 
-.left-wing, .right-wing {
+/* Left and right wings styling */
+.left-wing,
+.right-wing {
   position: absolute;
   width: 40px;
   height: 60px;
@@ -91,7 +94,7 @@ const refreshButterfly = () => {
   }
 }
 
-/* Fluttering effect for the wings */
+/* Fluttering effect for the butterfly container */
 @keyframes flutter-wings {
   0% {
     transform: scale(1);

@@ -98,7 +98,6 @@
 <script setup>
 import { computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
-import ButterflySlider from '@/components/butterfly-slider.vue'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()

@@ -102,13 +102,20 @@
       "AmiLinkIframe",
       "AmiLoader",
       "BaseButterfly",
+      "ButterflyBack",
+      "ButterflyFlip",
+      "ButterflyFront",
       "ButterflyLoader",
       "ButterflyMascot",
       "ButterflySwarm",
       "ButterflyToggle",
+      "SwarmIcon",
+      "butterfly-canvas",
       "butterfly-component",
-      "sponsor-page",
-      "swarm-toggle"
+      "butterfly-demo",
+      "butterfly-sanctuary",
+      "butterfly-slider",
+      "sponsor-page"
     ]
   },
   {
@@ -170,6 +177,7 @@
       "MainFlip",
       "MainHeader",
       "MainScreen",
+      "MainToggles",
       "NotificationCard",
       "RightToggle",
       "StatusNotifier",
@@ -372,6 +380,7 @@
       "SplashTutorial",
       "StreamingTooltip",
       "TutorialCards",
+      "TutorialSidebar",
       "chat-tips",
       "icon-section",
       "new-tooltip",

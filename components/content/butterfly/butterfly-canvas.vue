@@ -5,7 +5,7 @@
       v-if="!butterfliesExist"
       src="/images/art1.webp"
       alt="Fallback Image"
-      class="absolute inset-0 object-cover w-full h-full"
+      class="absolute inset-0 object-cover w-full h-full z-0"
     />
 
     <!-- Canvas Element -->
@@ -88,16 +88,3 @@ onMounted(() => {
   renderButterflies()
 })
 </script>
-
-<style scoped>
-canvas {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 1;
-}
-
-img {
-  z-index: 0; /* Set behind the canvas */
-}
-</style>

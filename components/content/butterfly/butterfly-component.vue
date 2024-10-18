@@ -13,6 +13,7 @@
       zIndex: props.butterfly.zIndex,
     }"
   >
+    <!-- Left Wing -->
     <div class="left-wing">
       <div
         class="top"
@@ -23,6 +24,8 @@
         :style="{ background: props.butterfly.wingBottomColor }"
       ></div>
     </div>
+
+    <!-- Right Wing -->
     <div class="right-wing">
       <div
         class="top"
@@ -33,13 +36,31 @@
         :style="{ background: props.butterfly.wingBottomColor }"
       ></div>
     </div>
+
+    <!-- Conditionally show butterfly's name -->
+    <div
+      v-if="showName"
+      class="absolute text-center text-xs text-gray-700 w-full"
+      :style="{ top: '50px' }"
+    >
+      {{ props.butterfly.id }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Butterfly } from '@/stores/butterflyStore'
 
+// Access the store (if you need to conditionally show names from the store)
+import { useButterflyStore } from '@/stores/butterflyStore'
+
+// Props for the butterfly object
 const props = defineProps<{ butterfly: Butterfly }>()
+const butterflyStore = useButterflyStore()
+
+// Compute whether to show the name
+const showName = computed(() => butterflyStore.showNames)
 </script>
 
 <style scoped>

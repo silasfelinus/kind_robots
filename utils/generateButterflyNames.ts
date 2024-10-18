@@ -1,20 +1,23 @@
+// funnyNameGenerator.ts
+
 const presetNames = [
   'Spike', 'Lawrence', 'Tiffany', 'Grognar', 'Grover', 'Lemmon', 'Penelope', 'Princess Buzzsaw',
   'Madame Fifi', 'Amanpreet', 'Mitch', 'Curly', 'Bozo', 'Serendipity', 'AMI', 'Teddy',
   'Lemonade', 'Tinkerblaze', 'Aaaaaagh'
 ]
 
-// Track used names in a set to avoid duplication
+// Track used names to avoid duplication
 const usedNames = new Set<string>()
 
-// Fallback generator using adjectives and animals (from the original system)
+// Fallback generator using adjectives and animals
 const adjectives = ['Silly', 'Happy', 'Wiggly', 'Fluffy', 'Dizzy', 'Lazy', 'Spunky', 'Sparky']
 const animals = ['Panda', 'Koala', 'Unicorn', 'Dolphin', 'Tiger', 'Sloth', 'Dragon', 'Phoenix']
 
+// Function to generate a new funny name (fallback when preset names are exhausted)
 const generateNewFunnyName = (): string => {
   const adjective = adjectives[Math.floor(Math.random() * adjectives.length)]
   const animal = animals[Math.floor(Math.random() * animals.length)]
-  return `${adjective}${animal}${Date.now()}`
+  return `${adjective} ${animal} ${Date.now()}`
 }
 
 // Function to generate a funny name

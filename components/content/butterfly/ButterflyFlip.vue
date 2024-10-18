@@ -15,20 +15,22 @@
       </div>
     </div>
 
-    <!-- Clickable arrows for flipping between front and back -->
+    <!-- Clickable Butterfly Icon for flipping between front and back -->
     <div
       v-if="isFlipped"
-      class="absolute top-4 left-4 text-2xl text-white bg-blue-500 rounded-full w-10 h-10 flex items-center justify-center cursor-pointer z-10"
+      class="absolute top-4 left-4 text-2xl bg-yellow-500 rounded-full w-12 h-12 flex items-center justify-center cursor-pointer z-10"
       @click="setTab('front')"
     >
-      ←
+      <!-- Butterfly Icon for Back to Front -->
+      <Icon name="ph:butterfly-light" class="text-purple-600 text-3xl" />
     </div>
     <div
       v-if="!isFlipped"
-      class="absolute top-4 right-4 text-2xl text-white bg-blue-500 rounded-full w-10 h-10 flex items-center justify-center cursor-pointer z-10"
+      class="absolute top-4 right-4 text-2xl bg-green-500 rounded-full w-12 h-12 flex items-center justify-center cursor-pointer z-10"
       @click="setTab('back')"
     >
-      →
+      <!-- Butterfly Icon for Front to Back -->
+      <Icon name="ph:butterfly-fill" class="text-blue-600 text-3xl" />
     </div>
   </div>
 </template>
@@ -69,19 +71,6 @@ const setTab = (tab) => {
 
 .transform-back {
   transform: rotateY(180deg);
-}
-
-/* Optional style tweaks for better presentation */
-.text-2xl {
-  font-size: 1.5rem;
-}
-
-.bg-blue-500 {
-  background-color: #3b82f6;
-}
-
-.rounded-full {
-  border-radius: 9999px;
 }
 
 .cursor-pointer:hover {

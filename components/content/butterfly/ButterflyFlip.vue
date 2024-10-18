@@ -10,15 +10,15 @@
       </div>
     </div>
 
-    <!-- Clickable triangle areas -->
+    <!-- Clickable triangle areas with better visibility -->
     <div
       v-if="isFlipped"
-      class="absolute top-0 left-0 w-0 h-0 border-r-[30px] border-b-[30px] border-transparent border-r-[var(--bg-accent,#ff9800)] cursor-pointer z-10"
+      class="absolute top-0 left-0 w-0 h-0 border-r-[50px] border-b-[50px] border-transparent border-r-blue-500 cursor-pointer z-10"
       @click="setTab('front')"
     ></div>
     <div
       v-if="!isFlipped"
-      class="absolute top-0 right-0 w-0 h-0 border-l-[30px] border-b-[30px] border-transparent border-l-[var(--bg-accent,#ff9800)] cursor-pointer z-10"
+      class="absolute top-0 right-0 w-0 h-0 border-l-[50px] border-b-[50px] border-transparent border-l-blue-500 cursor-pointer z-10"
       @click="setTab('back')"
     ></div>
   </div>

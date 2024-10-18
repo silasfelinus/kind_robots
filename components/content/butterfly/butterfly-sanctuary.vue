@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative bg-cover bg-center box-border border-8 border-white overflow-hidden"
+    class="relative bg-info bg-opacity-90 bg-cover bg-center box-border border-8 border-white overflow-hidden"
     :style="{ height: mainHeight, width: mainWidth }"
   >
     <!-- Background Image with Nuxt Image -->
@@ -50,21 +50,29 @@
     <div
       class="absolute top-16 right-2 flex flex-col items-center w-[15rem] z-20"
     >
-      <!-- Adjust width here -->
+      <!-- Butterfly Count Section (10% height) -->
       <div
-        class="bg-black text-white w-16 h-16 mb-4 text-center p-2 rounded-md"
+        class="bg-black text-white w-full h-[10%] mb-4 text-center p-2 rounded-md"
       >
         Count: {{ butterflyCount }}
       </div>
 
-      <butterfly-flip class="w-full">
-        <template #front>
-          <butterfly-front />
-        </template>
-        <template #back>
-          <butterfly-back />
-        </template>
-      </butterfly-flip>
+      <!-- Flip-Card Section (65% height) -->
+      <div class="w-full h-[65%] bg-info bg-opacity-70 p-4 rounded-md">
+        <butterfly-flip class="w-full h-full">
+          <template #front>
+            <butterfly-front />
+          </template>
+          <template #back>
+            <butterfly-back />
+          </template>
+        </butterfly-flip>
+      </div>
+
+      <!-- Butterfly Demo Section (25% height) -->
+      <div class="w-full h-[25%] bg-info bg-opacity-80 p-2 mt-4 rounded-md">
+        <butterfly-demo />
+      </div>
     </div>
   </div>
 </template>

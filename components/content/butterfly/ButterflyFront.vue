@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-200 p-4 rounded-lg">
+  <div class="bg-gray-200 p-4 rounded-lg overflow-y-auto">
     <h3 class="text-center mb-4">Adjust New Butterfly Presets</h3>
 
     <!-- Size range slider -->

@@ -25,7 +25,7 @@ interface ButterflyState {
   t: number
   animationPaused: boolean
   showNames: boolean
-  lastUpdatedButterflyId: string
+  selectedButterflyId: string
   newButterflySettings: {
     sizeRange: { min: number; max: number }
     speedRange: { min: number; max: number }
@@ -81,7 +81,7 @@ state: (): ButterflyState => ({
     t: 0,
     animationPaused: false,
     showNames: true,
-    lastUpdatedButterflyId: '',
+    selectedButterflyId: '',
     newButterflySettings: {
       sizeRange: { min: 0.5, max: 1.5 },
       speedRange: { min: 1, max: 3 },
@@ -99,6 +99,7 @@ state: (): ButterflyState => ({
   actions: {
     clearButterflies() {
       this.butterflies = []
+      this.selectedButterflyId = ''
     },
     toggleShowNames() {
       this.showNames = !this.showNames
@@ -152,13 +153,21 @@ state: (): ButterflyState => ({
       butterfly.wingBottomColor = secondaryColor
     
       this.butterflies.push(butterfly)
-      this.lastUpdatedButterflyId = butterfly.id;
+      this.selectedButterflyId = butterfly.id
     },
-    
+    setSelectedButterfly(id: string) {
+      this.selectedButterflyId = id
+    },
     
     removeLastButterfly() {
       if (this.butterflies.length > 0) {
-        this.butterflies.pop() // Remove the last butterfly in the array
+        const removedButterfly = this.butterflies.pop()
+
+        if (removedButterfly?.id === this.selectedButterflyId) {
+          this.selectedButterflyId = this.butterflies.length
+            ? this.butterflies[this.butterflies.length - 1].id
+            : ''
+        }
       }
     },
     getColorSchemeColor(colorScheme: string): string {
@@ -299,6 +308,8 @@ state: (): ButterflyState => ({
 
     getActiveAnimationState: (state) => (state.animationFrameId !== null ? 'running' : state.animationPaused ? 'paused' : 'stopped'),
 
+    getSelectedButterfly: (state) => state.butterflies.find(b => b.id === state.selectedButterflyId),
+    
     getButterfliesByStatus: (state) => (status: Butterfly['status']) =>
       state.butterflies.filter(b => b.status === status),
   },

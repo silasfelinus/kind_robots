@@ -1,26 +1,35 @@
 <template>
-  <div class="flip-card relative w-52 h-72">
+  <div class="flip-card relative w-70 h-100">
     <!-- Non-clickable area (front/back content) -->
-    <div class="flip-card-inner absolute w-full h-full" :class="{ flipped: isFlipped }">
+    <div
+      class="flip-card-inner absolute w-full h-full"
+      :class="{ flipped: isFlipped }"
+    >
       <div class="flip-card-front absolute w-full h-full backface-hidden">
         <slot name="front"></slot>
       </div>
-      <div class="flip-card-back absolute w-full h-full backface-hidden transform-back">
+      <div
+        class="flip-card-back absolute w-full h-full backface-hidden transform-back"
+      >
         <slot name="back"></slot>
       </div>
     </div>
 
-    <!-- Clickable triangle areas with better visibility -->
+    <!-- Clickable arrows for flipping between front and back -->
     <div
       v-if="isFlipped"
-      class="absolute top-0 left-0 w-0 h-0 overflow-y-auto border-r-[50px] border-b-[50px] border-transparent border-r-blue-500 cursor-pointer z-10"
+      class="absolute top-4 left-4 text-2xl text-white bg-blue-500 rounded-full w-10 h-10 flex items-center justify-center cursor-pointer z-10"
       @click="setTab('front')"
-    ></div>
+    >
+      ←
+    </div>
     <div
       v-if="!isFlipped"
-      class="absolute top-0 right-0 w-0 h-0 overflow-y-auto border-l-[50px] border-b-[50px] border-transparent border-l-blue-500 cursor-pointer z-10"
+      class="absolute top-4 right-4 text-2xl text-white bg-blue-500 rounded-full w-10 h-10 flex items-center justify-center cursor-pointer z-10"
       @click="setTab('back')"
-    ></div>
+    >
+      →
+    </div>
   </div>
 </template>
 
@@ -60,5 +69,23 @@ const setTab = (tab) => {
 
 .transform-back {
   transform: rotateY(180deg);
+}
+
+/* Optional style tweaks for better presentation */
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.bg-blue-500 {
+  background-color: #3b82f6;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+.cursor-pointer:hover {
+  transform: scale(1.1);
+  background-color: #2563eb;
 }
 </style>

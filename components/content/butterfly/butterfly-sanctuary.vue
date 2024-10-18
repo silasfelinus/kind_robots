@@ -44,8 +44,6 @@
       >
         Remove Butterfly
       </button>
-
-      
     </div>
 
     <!-- Right side control section (Flip-Card) -->
@@ -56,7 +54,7 @@
         Count: {{ butterflyCount }}
       </div>
 
-      <butterfly-flip >
+      <butterfly-flip>
         <template #front>
           <butterfly-front />
         </template>
@@ -77,20 +75,19 @@ import { useDisplayStore } from '@/stores/displayStore'
 const butterflyStore = useButterflyStore()
 const displayStore = useDisplayStore()
 
-
-
 // Get butterflies count from the store
 const butterflyCount = computed(() => butterflyStore.butterflies.length)
 
 // Watch for the swarm toggle
 const showSwarm = ref(false)
+const swarmSize = ref(15) // Keeping track of the initial swarm size
 
 // Toggle the butterfly swarm on and off
 const toggleAmiSwarm = () => {
   showSwarm.value = !showSwarm.value
 
   if (showSwarm.value) {
-    butterflyStore.generateInitialButterflies(15)
+    butterflyStore.generateInitialButterflies(swarmSize.value) // Generate a swarm
     butterflyStore.animateButterflies()
   } else {
     butterflyStore.clearButterflies()
@@ -137,12 +134,5 @@ const mainWidth = computed(() => displayStore.centerWidth || '100vw')
   background-size: cover;
   background-position: center;
   border: 8px solid #fff; /* Increased border thickness */
-}
-
-/* Fixed demo element to the top right */
-.demo-fixed {
-  position: fixed;
-  top: 10px;
-  right: 10px;
 }
 </style>

@@ -1,165 +1,158 @@
 <template>
   <div class="bg-gray-200 p-4 rounded-lg">
-    <h3 class="text-center mb-4">Modify Butterflies</h3>
+    <h3 class="text-center mb-4">Select and Adjust Butterfly Settings</h3>
 
-    <!-- Butterfly ID Selection Bubbles -->
-    <div class="flex flex-wrap mb-4">
-      <div
-        v-for="butterfly in butterflies"
-        :key="butterfly.id"
-        class="butterfly-id-bubble cursor-pointer mx-2 mb-2"
-        :class="{
-          'bg-blue-400': selectedButterflies.includes(butterfly.id),
-          'bg-gray-400': !selectedButterflies.includes(butterfly.id),
-        }"
-        @click="toggleSelect(butterfly.id)"
-      >
-        {{ butterfly.id }}
-      </div>
+    <!-- Butterfly Selection -->
+    <div class="mb-6">
+      <label for="selectedButterfly" class="block mb-2">Select Butterfly:</label>
+      <select v-model="selectedButterflyId" class="w-full p-2 rounded" @change="selectButterfly">
+        <option v-for="butterfly in butterflies" :key="butterfly.id" :value="butterfly.id">
+          Butterfly {{ butterfly.id }}
+        </option>
+      </select>
     </div>
 
-    <!-- Select All Button -->
-    <button class="control-btn mb-4" @click="selectAllButterflies">
-      Select All
-    </button>
+    <!-- Size range slider -->
+    <butterfly-slider
+      v-if="selectedButterfly"
+      label="Size"
+      :min="0.5"
+      :max="2"
+      :step="0.1"
+      v-model="selectedButterflySize"
+      slider-id="sizeSlider"
+    />
 
-    <!-- Butterfly Settings Form -->
-    <div v-if="selectedButterflies.length > 0" class="settings-form">
-      <h4 class="mb-2">Modify Settings for Selected Butterflies</h4>
+    <!-- Speed range slider -->
+    <butterfly-slider
+      v-if="selectedButterfly"
+      label="Speed"
+      :min="0.5"
+      :max="5"
+      :step="0.1"
+      v-model="selectedButterflySpeed"
+      slider-id="speedSlider"
+    />
 
-      <!-- Size Slider -->
-      <div class="mb-4">
-        <label for="sizeRange" class="block mb-2">Size:</label>
-        <input
-          id="sizeRange"
-          v-model="groupSettings.size"
-          type="range"
-          min="0.5"
-          max="2"
-          step="0.1"
-          class="w-full"
-        />
-        <p>Size: {{ groupSettings.size }}</p>
-      </div>
+    <!-- Wing Speed slider -->
+    <butterfly-slider
+      v-if="selectedButterfly"
+      label="Wing Speed"
+      :min="1"
+      :max="5"
+      :step="1"
+      v-model="selectedButterflyWingSpeed"
+      slider-id="wingSpeedSlider"
+    />
 
-      <!-- Speed Slider -->
-      <div class="mb-4">
-        <label for="speedRange" class="block mb-2">Speed:</label>
-        <input
-          id="speedRange"
-          v-model="groupSettings.speed"
-          type="range"
-          min="0.5"
-          max="5"
-          step="0.1"
-          class="w-full"
-        />
-        <p>Speed: {{ groupSettings.speed }}</p>
-      </div>
+    <!-- Rotation slider -->
+    <butterfly-slider
+      v-if="selectedButterfly"
+      label="Rotation"
+      :min="0"
+      :max="360"
+      :step="10"
+      v-model="selectedButterflyRotation"
+      slider-id="rotationSlider"
+    />
 
-      <!-- Color Scheme Dropdown -->
-      <div class="mb-4">
-        <label for="colorScheme" class="block mb-2">Color Scheme:</label>
-        <select v-model="groupSettings.colorScheme" class="w-full p-2">
-          <option value="random">Random</option>
-          <option value="complementary">Complementary</option>
-          <option value="analogous">Analogous</option>
-          <option value="same">Same</option>
-          <option value="primary">Primary</option>
-        </select>
-      </div>
+    <!-- X Starting Range -->
+    <butterfly-slider
+      v-if="selectedButterfly"
+      label="Starting X Position"
+      :min="0"
+      :max="100"
+      :step="1"
+      v-model="selectedButterflyX"
+      slider-id="xPositionSlider"
+    />
 
-      <!-- Apply Changes Button -->
-      <button class="control-btn mt-4" @click="applyChangesToSelected">
-        Apply Changes
-      </button>
+    <!-- Y Starting Range -->
+    <butterfly-slider
+      v-if="selectedButterfly"
+      label="Starting Y Position"
+      :min="0"
+      :max="100"
+      :step="1"
+      v-model="selectedButterflyY"
+      slider-id="yPositionSlider"
+    />
+
+    <!-- Color Scheme selection -->
+    <div v-if="selectedButterfly" class="mb-6">
+      <label for="colorScheme" class="block mb-2">Color Scheme:</label>
+      <select v-model="selectedButterfly.colorScheme" class="w-full p-2 rounded">
+        <option value="random">Random</option>
+        <option value="complementary">Complementary</option>
+        <option value="analogous">Analogous</option>
+        <option value="same">Same</option>
+        <option value="primary">Primary</option>
+      </select>
+    </div>
+
+    <!-- Butterfly Status selection -->
+    <div v-if="selectedButterfly" class="mb-6">
+      <label for="status" class="block mb-2">Butterfly Status:</label>
+      <select v-model="selectedButterfly.status" class="w-full p-2 rounded">
+        <option value="random">Random</option>
+        <option value="float">Float</option>
+        <option value="mouse">Mouse</option>
+        <option value="spaz">Spaz</option>
+        <option value="flock">Flock</option>
+        <option value="clear">Clear</option>
+      </select>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue'
+<script setup>
+import { computed, ref } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
-
-// Get all butterflies from the store
 const butterflies = computed(() => butterflyStore.butterflies)
 
-// Array of selected butterfly IDs
-const selectedButterflies = ref<number[]>([])
+// Selected butterfly ID and reactive object for selected butterfly
+const selectedButterflyId = ref(butterflies.value.length ? butterflies.value[0].id : null)
+const selectedButterfly = computed(() => butterflies.value.find(butterfly => butterfly.id === selectedButterflyId.value))
 
-// Default group settings for the selected butterflies
-const groupSettings = ref({
-  size: 1,
-  speed: 1,
-  colorScheme: 'random',
+// Compute and bind individual butterfly properties
+const selectedButterflySize = computed({
+  get: () => selectedButterfly.value ? selectedButterfly.value.scale : 0,
+  set: (val) => { if (selectedButterfly.value) selectedButterfly.value.scale = val }
 })
 
-// Function to toggle selection of a butterfly ID
-const toggleSelect = (id: number) => {
-  if (selectedButterflies.value.includes(id)) {
-    selectedButterflies.value = selectedButterflies.value.filter(
-      (bId) => bId !== id,
-    )
-  } else {
-    selectedButterflies.value.push(id)
-  }
-}
+const selectedButterflySpeed = computed({
+  get: () => selectedButterfly.value ? selectedButterfly.value.speed : 0,
+  set: (val) => { if (selectedButterfly.value) selectedButterfly.value.speed = val }
+})
 
-// Select all butterflies
-const selectAllButterflies = () => {
-  if (selectedButterflies.value.length === butterflies.value.length) {
-    selectedButterflies.value = [] // Deselect all if already selected
-  } else {
-    selectedButterflies.value = butterflies.value.map((b) => b.id) // Select all
-  }
-}
+const selectedButterflyWingSpeed = computed({
+  get: () => selectedButterfly.value ? selectedButterfly.value.wingSpeed : 0,
+  set: (val) => { if (selectedButterfly.value) selectedButterfly.value.wingSpeed = val }
+})
 
-// Apply changes to the selected butterflies
-const applyChangesToSelected = () => {
-  selectedButterflies.value.forEach((id) => {
-    const butterfly = butterflyStore.getButterflyById(id)
+const selectedButterflyRotation = computed({
+  get: () => selectedButterfly.value ? selectedButterfly.value.rotation : 0,
+  set: (val) => { if (selectedButterfly.value) selectedButterfly.value.rotation = val }
+})
 
-    if (butterfly) {
-      butterfly.z = groupSettings.value.size
-      butterfly.speed = groupSettings.value.speed
-      butterfly.wingTopColor = butterflyStore.getColorSchemeColor(
-        groupSettings.value.colorScheme,
-      )
-      butterfly.wingBottomColor = butterflyStore.getColorSchemeColor(
-        groupSettings.value.colorScheme,
-      )
-    }
-  })
+const selectedButterflyX = computed({
+  get: () => selectedButterfly.value ? selectedButterfly.value.x : 0,
+  set: (val) => { if (selectedButterfly.value) selectedButterfly.value.x = val }
+})
+
+const selectedButterflyY = computed({
+  get: () => selectedButterfly.value ? selectedButterfly.value.y : 0,
+  set: (val) => { if (selectedButterfly.value) selectedButterfly.value.y = val }
+})
+
+const selectButterfly = () => {
+  selectedButterflyId.value = selectedButterflyId.value || butterflies.value[0].id
 }
 </script>
 
 <style scoped>
-.butterfly-id-bubble {
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  border-radius: 50%;
-  text-align: center;
-  background-color: gray;
-  color: white;
-  font-size: 12px;
-}
-
-.control-btn {
-  background-color: #ff9800;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.control-btn:hover {
-  transform: scale(1.05);
-}
+/* Style adjustments can go here if needed */
 </style>

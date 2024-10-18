@@ -56,10 +56,7 @@
         Count: {{ butterflyCount }}
       </div>
 
-      <butterfly-flip
-        front-tab-name="Global Presets"
-        back-tab-name="Butterfly Manager"
-      >
+      <butterfly-flip >
         <template #front>
           <butterfly-front />
         </template>

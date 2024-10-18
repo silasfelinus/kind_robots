@@ -12,12 +12,12 @@
 
     <!-- Clickable triangle areas -->
     <div
-      v-if="!isFlipped"
+      v-if="isFlipped"
       class="triangle top-left"
       @click="setTab('front')"
     ></div>
     <div
-      v-if="isFlipped"
+      v-if="!isFlipped"
       class="triangle top-right"
       @click="setTab('back')"
     ></div>

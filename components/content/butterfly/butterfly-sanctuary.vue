@@ -11,17 +11,21 @@
     />
 
     <!-- Butterfly Counter in the top right corner -->
-    <div class="absolute top-2 right-2 text-white text-xl bg-black bg-opacity-50 p-2 rounded-lg z-10">
+    <div
+      class="absolute top-2 right-2 text-white text-xl bg-black bg-opacity-50 p-2 rounded-lg z-10"
+    >
       Butterflies: {{ butterflyCount }}
     </div>
 
-    <!-- Image Area -->
+    <!-- Image Area with Fallback -->
     <div class="absolute top-0 left-0 h-[70%] w-[70%] overflow-hidden z-10">
-      <butterfly-canvas />
+      <butterfly-canvas :fallback-image="'/images/fallback-image.png'" />
     </div>
 
     <!-- Control Panel -->
-    <div class="absolute bottom-0 w-full flex justify-center bg-black bg-opacity-50 p-4 z-20">
+    <div
+      class="absolute bottom-0 w-full flex justify-center bg-black bg-opacity-50 p-4 z-20"
+    >
       <button
         class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 mx-2"
         @click="toggleAmiSwarm"
@@ -44,11 +48,16 @@
 
     <!-- Right side control section (Flip-Card) -->
     <div class="absolute top-16 right-2 flex flex-col items-center z-20">
-      <div class="bg-black text-white w-16 h-16 mb-4 text-center p-2 rounded-md">
+      <div
+        class="bg-black text-white w-16 h-16 mb-4 text-center p-2 rounded-md"
+      >
         Count: {{ butterflyCount }}
       </div>
 
-      <butterfly-flip front-tab-name="Global Presets" back-tab-name="Butterfly Manager">
+      <butterfly-flip
+        front-tab-name="Global Presets"
+        back-tab-name="Butterfly Manager"
+      >
         <template #front>
           <butterfly-front />
         </template>
@@ -104,3 +113,28 @@ const removeButterfly = () => {
 const mainHeight = computed(() => displayStore.centerHeight || '100vh')
 const mainWidth = computed(() => displayStore.centerWidth || '100vw')
 </script>
+
+<style scoped>
+/* Control button styles */
+.control-btn {
+  background-color: #ff9800;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.control-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Background image with a stylish border */
+.bg-cover {
+  background-size: cover;
+  background-position: center;
+  border: 5px solid #fff;
+}
+</style>

@@ -1,6 +1,7 @@
 <template>
   <div class="bg-gray-200 p-4 rounded-lg flex flex-col justify-between h-full">
-    <div>
+    <!-- Scrollable settings area -->
+    <div class="overflow-y-auto flex-grow pr-4">
       <h3 class="text-center mb-4">Select and Adjust Butterfly Settings</h3>
 
       <!-- Butterfly Selection -->
@@ -105,7 +106,7 @@
       </div>
     </div>
 
-    <!-- Butterfly Demo at the bottom -->
+    <!-- Butterfly Demo always visible at the bottom -->
     <div class="mt-4">
       <butterfly-demo />
     </div>

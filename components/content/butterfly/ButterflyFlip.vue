@@ -5,11 +5,13 @@
       class="flip-card-inner absolute w-full h-full"
       :class="{ flipped: isFlipped }"
     >
-      <div class="flip-card-front absolute w-full h-full backface-hidden">
+      <div
+        class="flip-card-front absolute w-full h-full backface-hidden overflow-y-auto"
+      >
         <slot name="front"></slot>
       </div>
       <div
-        class="flip-card-back absolute w-full h-full backface-hidden transform-back"
+        class="flip-card-back absolute w-full h-full backface-hidden transform-back overflow-y-auto"
       >
         <slot name="back"></slot>
       </div>

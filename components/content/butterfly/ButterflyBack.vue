@@ -9,7 +9,10 @@
         <label for="selectedButterfly" class="block mb-2"
           >Select Butterfly:</label
         >
-        <select v-model="selectedButterflyId" class="w-full p-2 rounded">
+        <select
+          v-model="butterflyStore.selectedButterflyId"
+          class="w-full p-2 rounded"
+        >
           <option
             v-for="butterfly in butterflies"
             :key="butterfly.id"
@@ -30,7 +33,6 @@
           v-model="newButterflyId"
           type="text"
           class="w-full p-2 rounded"
-          @blur="updateButterflyId"
         />
       </div>
 
@@ -91,46 +93,29 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
+
+// Get the list of butterflies from the store
 const butterflies = computed(() => butterflyStore.getAllButterflies)
 
-// Selected butterfly ID and reactive object for selected butterfly
-const selectedButterflyId = ref(
-  butterflyStore.butterflies.length ? butterflyStore.butterflies[0].id : null,
-)
-
-// Computed value to get the selected butterfly
-const selectedButterfly = computed(() =>
-  butterflyStore.butterflies.find(
-    (butterfly) => butterfly.id === selectedButterflyId.value,
-  ),
-)
+// Use the store's selected butterfly getter directly
+const selectedButterfly = computed(() => butterflyStore.getSelectedButterfly)
 
 // New butterfly ID for editing purposes
 const newButterflyId = computed({
   get: () => selectedButterfly.value?.id || '',
   set: (val) => {
     if (selectedButterfly.value) {
-      selectedButterfly.value.id = val
+      butterflyStore.updateButterflyId(selectedButterfly.value.id, val)
     }
   },
 })
 
-// Update the butterfly's ID in the store when edited
-const updateButterflyId = () => {
-  if (selectedButterfly.value) {
-    butterflyStore.updateButterflyId(
-      selectedButterfly.value.id,
-      newButterflyId.value,
-    )
-  }
-}
-
-// Computed and bind individual butterfly properties like size, speed, etc.
+// Butterfly property bindings
 const selectedButterflySize = computed({
   get: () => selectedButterfly.value?.scale || 0.5,
   set: (val) => {

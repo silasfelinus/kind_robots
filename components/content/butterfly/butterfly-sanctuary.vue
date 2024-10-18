@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative bg-cover bg-center border-4 border-white"
+    class="relative bg-cover bg-center box-border border-8 border-white overflow-hidden"
     :style="{ height: mainHeight, width: mainWidth }"
   >
     <!-- Background Image with Nuxt Image -->
@@ -65,6 +65,11 @@
           <butterfly-back />
         </template>
       </butterfly-flip>
+    </div>
+
+    <!-- Butterfly Demo (Fixed to Top Right Corner) -->
+    <div class="absolute top-2 right-2 z-30">
+      <butterfly-demo />
     </div>
   </div>
 </template>
@@ -135,6 +140,13 @@ const mainWidth = computed(() => displayStore.centerWidth || '100vw')
 .bg-cover {
   background-size: cover;
   background-position: center;
-  border: 5px solid #fff;
+  border: 8px solid #fff; /* Increased border thickness */
+}
+
+/* Fixed demo element to the top right */
+.demo-fixed {
+  position: fixed;
+  top: 10px;
+  right: 10px;
 }
 </style>

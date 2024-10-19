@@ -100,7 +100,6 @@ watch(
   { immediate: true },
 )
 </script>
-
 <style scoped>
 /* Track for the range slider */
 .range-track {
@@ -115,23 +114,30 @@ watch(
   z-index: 1;
 }
 
-/* Highlighted range between min and max */
-.min-slider {
+/* Dynamic fill for the range between min and max */
+.range-fill {
+  position: absolute;
+  top: 50%;
+  height: 8px;
+  background-color: var(--daisyui-colors-primary, #4a90e2);
+  border-radius: 5px;
   z-index: 2;
-  pointer-events: none;
-  /* Hide the bar but keep the knob */
-  appearance: none;
-  position: relative;
-  background: transparent;
+  transform: translateY(-50%);
+  transition:
+    left 0.2s,
+    width 0.2s;
 }
 
+/* Ensure both sliders are aligned correctly */
+.min-slider,
 .max-slider {
   z-index: 3;
-  pointer-events: none;
-  /* Hide the bar but keep the knob */
   appearance: none;
-  position: relative;
+  position: absolute;
+  top: 50%; /* Align both sliders with the range track */
+  transform: translateY(-50%);
   background: transparent;
+  width: 100%;
 }
 
 /* Grabbable knobs (circular) */
@@ -144,7 +150,6 @@ input[type='range']::-webkit-slider-thumb {
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid var(--daisyui-colors-base-100, #fff);
-  z-index: 4;
 }
 
 input[type='range']::-moz-range-thumb {
@@ -154,19 +159,5 @@ input[type='range']::-moz-range-thumb {
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid var(--daisyui-colors-base-100, #fff);
-  z-index: 4;
-}
-
-.range-fill {
-  position: absolute;
-  top: 50%;
-  height: 8px;
-  background-color: var(--daisyui-colors-primary, #4a90e2);
-  border-radius: 5px;
-  z-index: 2;
-  transform: translateY(-50%);
-  transition:
-    left 0.2s,
-    width 0.2s;
 }
 </style>

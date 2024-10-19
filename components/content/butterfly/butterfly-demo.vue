@@ -5,26 +5,42 @@
     <!-- Butterfly demo section for selected butterfly -->
     <div
       v-if="currentButterfly"
-      class="butterfly-container relative"
-      :style="{ transform: 'scale(' + currentButterfly.scale + ')' }"
+      class="butterfly z-50"
+      :style="{
+        transform:
+          'rotate3d(1, 1, 0, ' +
+          currentButterfly.rotation +
+          'deg) scale(' +
+          currentButterfly.scale +
+          ')',
+      }"
     >
-      <!-- Butterfly wings -->
-      <div
-        class="left-wing"
-        :style="{ background: currentButterfly.wingTopColor }"
-      ></div>
-      <div
-        class="right-wing"
-        :style="{ background: currentButterfly.wingBottomColor }"
-      ></div>
+      <div class="left-wing">
+        <div
+          class="top"
+          :style="{ background: currentButterfly.wingTopColor }"
+        ></div>
+        <div
+          class="bottom"
+          :style="{ background: currentButterfly.wingBottomColor }"
+        ></div>
+      </div>
+      <div class="right-wing">
+        <div
+          class="top"
+          :style="{ background: currentButterfly.wingTopColor }"
+        ></div>
+        <div
+          class="bottom"
+          :style="{ background: currentButterfly.wingBottomColor }"
+        ></div>
+      </div>
 
       <!-- Conditionally show the butterfly's name -->
       <div class="absolute top-20 w-full text-center text-lg text-gray-700">
         <p>{{ currentButterfly.id }}</p>
         <p>{{ currentButterfly.message }}</p>
       </div>
-
-      <div></div>
     </div>
   </div>
 </template>
@@ -41,73 +57,75 @@ const currentButterfly = computed(() => butterflyStore.getSelectedButterfly)
 </script>
 
 <style scoped>
-/* Container for the butterfly */
-.butterfly-container {
+.butterfly {
   width: 100px;
   height: 100px;
-  position: relative;
-  animation: flutter-wings 1s infinite ease-in-out;
+  position: absolute;
+  transform-style: preserve-3d;
+  pointer-events: none;
 }
 
-/* Left and right wings styling */
+/* Adjust wing animation for proper view */
+@keyframes flutter-left {
+  0% {
+    transform: rotate3d(0, 1, 0, 20deg);
+  }
+  50% {
+    transform: rotate3d(0, 1, 0, 70deg);
+  }
+  100% {
+    transform: rotate3d(0, 1, 0, 20deg);
+  }
+}
+
+@keyframes flutter-right {
+  0% {
+    transform: rotate3d(0, 1, 0, -20deg);
+  }
+  50% {
+    transform: rotate3d(0, 1, 0, -70deg);
+  }
+  100% {
+    transform: rotate3d(0, 1, 0, -20deg);
+  }
+}
+
 .left-wing,
 .right-wing {
+  width: 24px;
+  height: 42px;
   position: absolute;
-  width: 40px;
-  height: 60px;
-  border-radius: 20px;
-  top: 20px;
-  animation: flap 0.4s infinite;
-  transform-origin: top center;
+  top: 10px;
+  pointer-events: none;
 }
 
 .left-wing {
-  left: -20px;
-  transform: rotate3d(0, 1, 0, 20deg);
-  animation-name: left-wing-flap;
+  left: 10px;
+  transform-origin: 24px 50%;
+  animation: flutter-left 0.3s infinite;
 }
 
 .right-wing {
-  right: -20px;
-  transform: rotate3d(0, 1, 0, -20deg);
-  animation-name: right-wing-flap;
+  left: 34px;
+  transform-origin: 0px 50%;
+  animation: flutter-right 0.3s infinite;
 }
 
-/* Wing flap animation */
-@keyframes left-wing-flap {
-  0% {
-    transform: rotate3d(0, 1, 0, 20deg);
-  }
-  50% {
-    transform: rotate3d(0, 1, 0, 60deg);
-  }
-  100% {
-    transform: rotate3d(0, 1, 0, 20deg);
-  }
+.top,
+.bottom {
+  opacity: 0.7;
+  position: absolute;
 }
 
-@keyframes right-wing-flap {
-  0% {
-    transform: rotate3d(0, 1, 0, -20deg);
-  }
-  50% {
-    transform: rotate3d(0, 1, 0, -60deg);
-  }
-  100% {
-    transform: rotate3d(0, 1, 0, -20deg);
-  }
+.top {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
 }
-
-/* Fluttering effect for the butterfly container */
-@keyframes flutter-wings {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
+.bottom {
+  top: 18px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
 }
 </style>

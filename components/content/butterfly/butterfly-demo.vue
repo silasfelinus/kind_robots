@@ -4,7 +4,7 @@
   >
     <!-- Butterfly demo section for selected butterfly -->
     <div
-      v-if="currentButterfly"
+      v-if="currentButterfly && currentButterfly !== undefined"
       class="butterfly z-50"
       :style="{
         transform:
@@ -35,12 +35,15 @@
           :style="{ background: currentButterfly.wingBottomColor }"
         ></div>
       </div>
+    </div>
 
-      <!-- Conditionally show the butterfly's name -->
-      <div class="absolute top-20 w-full text-center text-lg text-gray-700">
-        <p>{{ currentButterfly.id }}</p>
-        <p>{{ currentButterfly.message }}</p>
-      </div>
+    <!-- Name and Message Section outside of butterfly transform -->
+    <div
+      v-if="currentButterfly && currentButterfly !== undefined"
+      class="absolute top-20 w-full text-center text-lg text-gray-700 transform-none"
+    >
+      <p>{{ currentButterfly.id }}</p>
+      <p>{{ currentButterfly.message }}</p>
     </div>
   </div>
 </template>

@@ -16,6 +16,8 @@
           :step="step"
           class="absolute w-full z-10 min-slider"
           @input="updateMinValue"
+          @mousedown="increaseZIndex('min')"
+          @touchstart="increaseZIndex('min')"
         />
         <!-- Max range slider -->
         <input
@@ -26,6 +28,8 @@
           :step="step"
           class="absolute w-full z-20 max-slider"
           @input="updateMaxValue"
+          @mousedown="increaseZIndex('max')"
+          @touchstart="increaseZIndex('max')"
         />
       </div>
 
@@ -41,59 +45,44 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-// Props for min, max, step, and label values
 const props = defineProps({
-  min: {
-    type: Number,
-    required: true,
-  },
-  max: {
-    type: Number,
-    required: true,
-  },
-  step: {
-    type: Number,
-    default: 1,
-  },
-  modelValue: {
-    type: Object,
-    required: true,
-  },
-  label: {
-    type: String,
-    required: true,
-  },
-  sliderId: {
-    type: String,
-    default: 'slider',
-  },
+  min: { type: Number, required: true },
+  max: { type: Number, required: true },
+  step: { type: Number, default: 1 },
+  modelValue: { type: Object, required: true },
+  label: { type: String, required: true },
+  sliderId: { type: String, default: 'slider' },
 })
 
-// Emit updated values to parent
 const emit = defineEmits(['update:modelValue'])
 
-// Internal state for the min and max values
 const minValue = ref(props.modelValue.min)
 const maxValue = ref(props.modelValue.max)
 
-// Emit updated values when min or max is changed
 const updateMinValue = () => {
   if (minValue.value > maxValue.value) {
-    // Seamlessly swap min and max values if min exceeds max
-    ;[minValue.value, maxValue.value] = [maxValue.value, minValue.value]
+    [minValue.value, maxValue.value] = [maxValue.value, minValue.value]
   }
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
 }
 
 const updateMaxValue = () => {
   if (maxValue.value < minValue.value) {
-    // Seamlessly swap min and max values if max is lower than min
-    ;[minValue.value, maxValue.value] = [maxValue.value, minValue.value]
+    [minValue.value, maxValue.value] = [maxValue.value, minValue.value]
   }
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
 }
 
-// Sync props with internal state if they change
+const increaseZIndex = (sliderType: 'min' | 'max') => {
+  if (sliderType === 'min') {
+    document.querySelector('.min-slider')!.style.zIndex = '30'
+    document.querySelector('.max-slider')!.style.zIndex = '20'
+  } else {
+    document.querySelector('.max-slider')!.style.zIndex = '30'
+    document.querySelector('.min-slider')!.style.zIndex = '20'
+  }
+}
+
 watch(
   () => props.modelValue,
   (newVal) => {
@@ -105,12 +94,11 @@ watch(
 </script>
 
 <style scoped>
-/* Basic styles for dual-range slider */
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 5px;
+  height: 10px;
   background: #ddd;
   border-radius: 5px;
 }
@@ -118,19 +106,21 @@ input[type='range'] {
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 15px;
-  height: 15px;
+  width: 25px;
+  height: 25px;
   background-color: #4a90e2;
   border-radius: 50%;
   cursor: pointer;
+  border: 2px solid #fff; /* Adds better visibility */
 }
 
 input[type='range']::-moz-range-thumb {
-  width: 15px;
-  height: 15px;
+  width: 25px;
+  height: 25px;
   background-color: #4a90e2;
   border-radius: 50%;
   cursor: pointer;
+  border: 2px solid #fff;
 }
 
 .min-slider {

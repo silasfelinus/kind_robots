@@ -1,4 +1,5 @@
 <template>
+<div class="relative h-full w-full">
   <div class="flip-card" @click="handleAvatarClick">
     <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
       <div class="flip-card-front">
@@ -17,6 +18,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup lang="ts">

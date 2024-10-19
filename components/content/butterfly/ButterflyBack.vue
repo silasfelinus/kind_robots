@@ -12,13 +12,13 @@
             >Select Butterfly:</label
           >
           <select
-            v-model="butterflyStore.selectedButterflyId"
+            v-model="butterflyStore.selectedButterflyRefId"
             class="w-full p-2 rounded"
           >
             <option
               v-for="butterfly in butterflies"
-              :key="butterfly.id"
-              :value="butterfly.id"
+              :key="butterfly.refId"
+              :value="butterfly.refId"
             >
               {{ butterfly.id }}
             </option>
@@ -38,6 +38,7 @@
           />
         </div>
 
+        <!-- Other Sliders and Inputs for Butterfly Settings -->
         <!-- Size slider -->
         <single-slider
           v-if="selectedButterfly"
@@ -73,6 +74,70 @@
           slider-id="wingSpeedSlider"
           class="mb-4"
         />
+
+        <!-- Rotation slider -->
+        <single-slider
+          v-if="selectedButterfly"
+          v-model="selectedButterflyRotation"
+          label="Rotation"
+          :min="0"
+          :max="360"
+          :step="1"
+          slider-id="rotationSlider"
+          class="mb-4"
+        />
+
+        <!-- zIndex slider -->
+        <single-slider
+          v-if="selectedButterfly"
+          v-model="selectedButterflyZIndex"
+          label="zIndex"
+          :min="0"
+          :max="100"
+          :step="1"
+          slider-id="zIndexSlider"
+          class="mb-4"
+        />
+
+        <!-- Wing Colors -->
+        <div class="mb-6">
+          <label for="wingTopColor" class="block mb-2">Wing Top Color:</label>
+          <input
+            id="wingTopColor"
+            v-model="selectedButterflyWingTopColor"
+            type="color"
+            class="w-full p-2 rounded"
+          />
+        </div>
+
+        <div class="mb-6">
+          <label for="wingBottomColor" class="block mb-2"
+            >Wing Bottom Color:</label
+          >
+          <input
+            id="wingBottomColor"
+            v-model="selectedButterflyWingBottomColor"
+            type="color"
+            class="w-full p-2 rounded"
+          />
+        </div>
+
+        <!-- Status Dropdown -->
+        <div class="mb-6">
+          <label for="butterflyStatus" class="block mb-2">Status:</label>
+          <select
+            id="butterflyStatus"
+            v-model="selectedButterflyStatus"
+            class="w-full p-2 rounded"
+          >
+            <option value="random">Random</option>
+            <option value="float">Float</option>
+            <option value="mouse">Mouse</option>
+            <option value="spaz">Spaz</option>
+            <option value="flock">Flock</option>
+            <option value="clear">Clear</option>
+          </select>
+        </div>
       </div>
 
       <!-- Fallback Message if Store or Selected Butterfly is Unavailable -->
@@ -82,7 +147,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
@@ -96,11 +160,20 @@ const butterflyStoreAvailable = computed(
     butterflyStore && butterflies.value.length > 0 && selectedButterfly.value,
 )
 
-// Get the list of butterflies from the store
-const butterflies = computed(() => butterflyStore.getAllButterflies)
+// Get the list of butterflies from the store (with internal refId)
+const butterflies = computed(() =>
+  butterflyStore.getAllButterflies.map((butterfly, index) => ({
+    ...butterfly,
+    refId: index, // Use the index or another internal identifier as refId
+  })),
+)
 
-// Use the store's selected butterfly getter directly
-const selectedButterfly = computed(() => butterflyStore.getSelectedButterfly)
+// Use the store's selected butterfly based on refId
+const selectedButterfly = computed(() =>
+  butterflies.value.find(
+    (b) => b.refId === butterflyStore.selectedButterflyRefId,
+  ),
+)
 
 // New butterfly ID for editing purposes
 const newButterflyId = computed({
@@ -112,7 +185,7 @@ const newButterflyId = computed({
   },
 })
 
-// Butterfly property bindings with fallback values
+// Computed properties for additional butterfly settings
 const selectedButterflySize = computed({
   get: () => selectedButterfly.value?.scale || 0.5,
   set: (val) => {
@@ -139,8 +212,49 @@ const selectedButterflyWingSpeed = computed({
     }
   },
 })
-</script>
 
-<style scoped>
-/* Add any necessary styles here */
-</style>
+const selectedButterflyRotation = computed({
+  get: () => selectedButterfly.value?.rotation || 0,
+  set: (val) => {
+    if (selectedButterfly.value) {
+      selectedButterfly.value.rotation = val
+    }
+  },
+})
+
+const selectedButterflyZIndex = computed({
+  get: () => selectedButterfly.value?.zIndex || 0,
+  set: (val) => {
+    if (selectedButterfly.value) {
+      selectedButterfly.value.zIndex = val
+    }
+  },
+})
+
+const selectedButterflyWingTopColor = computed({
+  get: () => selectedButterfly.value?.wingTopColor || '#ffffff',
+  set: (val) => {
+    if (selectedButterfly.value) {
+      selectedButterfly.value.wingTopColor = val
+    }
+  },
+})
+
+const selectedButterflyWingBottomColor = computed({
+  get: () => selectedButterfly.value?.wingBottomColor || '#ffffff',
+  set: (val) => {
+    if (selectedButterfly.value) {
+      selectedButterfly.value.wingBottomColor = val
+    }
+  },
+})
+
+const selectedButterflyStatus = computed({
+  get: () => selectedButterfly.value?.status || 'random',
+  set: (val) => {
+    if (selectedButterfly.value) {
+      selectedButterfly.value.status = val
+    }
+  },
+})
+</script>

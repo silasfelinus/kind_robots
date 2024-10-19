@@ -1,45 +1,46 @@
-<div class="mb-6">
-  <label :for="sliderId" class="block mb-2">{{ label }} (Min-Max):</label>
-  <div class="flex items-center justify-between mb-2">
-    <!-- Displaying min value -->
-    <span>{{ minValue }}</span>
+<template>
+  <div class="mb-6">
+    <label :for="sliderId" class="block mb-2">{{ label }} (Min-Max):</label>
+    <div class="flex items-center justify-between mb-2">
+      <!-- Displaying min value -->
+      <span>{{ minValue }}</span>
 
-    <!-- Dual range slider -->
-    <div class="relative w-4/5 mx-2">
-      <!-- Min range slider -->
-      <input
-        v-model="minValue"
-        type="range"
-        :min="min"
-        :max="max"
-        :step="step"
-        class="absolute w-full z-10 min-slider"
-        @input="updateMinValue"
-        @mousedown="increaseZIndex('min')"
-        @touchstart="increaseZIndex('min')"
-      />
-      <!-- Max range slider -->
-      <input
-        v-model="maxValue"
-        type="range"
-        :min="min"
-        :max="max"
-        :step="step"
-        class="absolute w-full z-20 max-slider"
-        @input="updateMaxValue"
-        @mousedown="increaseZIndex('max')"
-        @touchstart="increaseZIndex('max')"
-      />
+      <!-- Dual range slider -->
+      <div class="relative w-4/5 mx-2">
+        <!-- Min range slider -->
+        <input
+          v-model="minValue"
+          type="range"
+          :min="min"
+          :max="max"
+          :step="step"
+          class="absolute w-full z-10 min-slider"
+          @input="updateMinValue"
+          @mousedown="increaseZIndex('min')"
+          @touchstart="increaseZIndex('min')"
+        />
+        <!-- Max range slider -->
+        <input
+          v-model="maxValue"
+          type="range"
+          :min="min"
+          :max="max"
+          :step="step"
+          class="absolute w-full z-20 max-slider"
+          @input="updateMaxValue"
+          @mousedown="increaseZIndex('max')"
+          @touchstart="increaseZIndex('max')"
+        />
+      </div>
+
+      <!-- Displaying max value -->
+      <span>{{ maxValue }}</span>
     </div>
-
-    <!-- Displaying max value -->
-    <span>{{ maxValue }}</span>
+    <div class="text-center">
+      Chosen {{ label }} Range: {{ minValue }} - {{ maxValue }}
+    </div>
   </div>
-  <div class="text-center">
-    Chosen {{ label }} Range: {{ minValue }} - {{ maxValue }}
-  </div>
-</div>
-
+</template>
 
 <script setup lang="ts">
 const props = defineProps({
@@ -98,7 +99,7 @@ input[type='range']::-webkit-slider-thumb {
   background-color: #4a90e2;
   border-radius: 50%;
   cursor: pointer;
-  border: 2px solid #fff; /* Adds better visibility */
+  border: 2px solid #fff;
 }
 
 input[type='range']::-moz-range-thumb {

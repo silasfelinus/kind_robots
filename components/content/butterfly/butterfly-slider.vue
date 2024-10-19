@@ -1,13 +1,13 @@
 <template>
   <div class="mb-6">
     <label :for="sliderId" class="block mb-2">{{ label }} (Min-Max):</label>
-    <div class="flex items-center justify-between mb-2">
+    <div class="flex items-center justify-between mb-2 relative">
       <!-- Displaying min value -->
-      <span>{{ minValue }}</span>
+      <span class="badge badge-info">{{ minValue }}</span>
 
-      <!-- Dual range slider -->
+      <!-- Dual range slider with min slider visually lower -->
       <div class="relative w-4/5 mx-2">
-        <!-- Min range slider -->
+        <!-- Min range slider (lower than normal) -->
         <input
           v-model="minValue"
           type="range"
@@ -19,7 +19,8 @@
           @mousedown="increaseZIndex('min')"
           @touchstart="increaseZIndex('min')"
         />
-        <!-- Max range slider -->
+
+        <!-- Max range slider (normal alignment) -->
         <input
           v-model="maxValue"
           type="range"
@@ -34,10 +35,10 @@
       </div>
 
       <!-- Displaying max value -->
-      <span>{{ maxValue }}</span>
+      <span class="badge badge-info">{{ maxValue }}</span>
     </div>
     <div class="text-center">
-      Chosen {{ label }} Range: {{ minValue }} - {{ maxValue }}
+      Chosen {{ label }} Range: <span class="badge">{{ minValue }}</span> - <span class="badge">{{ maxValue }}</span>
     </div>
   </div>
 </template>
@@ -58,6 +59,7 @@ const minValue = ref(props.modelValue.min)
 const maxValue = ref(props.modelValue.max)
 const activeSlider = ref('')
 
+// Ensure minValue cannot be greater than maxValue (but can be equal)
 const updateMinValue = () => {
   if (minValue.value > maxValue.value) {
     minValue.value = maxValue.value
@@ -65,6 +67,7 @@ const updateMinValue = () => {
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
 }
 
+// Ensure maxValue cannot be less than minValue (but can be equal)
 const updateMaxValue = () => {
   if (maxValue.value < minValue.value) {
     maxValue.value = minValue.value
@@ -91,36 +94,19 @@ watch(
 </script>
 
 <style scoped>
-input[type='range'] {
+.range {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 10px;
-  background: #ddd;
-  border-radius: 5px;
+  height: 12px;
+  background: var(--daisyui-colors-base-300, #ddd);
+  border-radius: 6px;
 }
 
-input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  background-color: #4a90e2;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid #fff;
-}
-
-input[type='range']::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  background-color: #4a90e2;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid #fff;
-}
-
+/* Custom style for min slider, positioned below */
 .min-slider {
+  position: relative;
+  top: 25px; /* Move the min slider below the normal slider */
   z-index: 10;
 }
 
@@ -128,7 +114,31 @@ input[type='range']::-moz-range-thumb {
   z-index: 20;
 }
 
-input[type='range']:active {
-  z-index: 30;
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background-color: var(--daisyui-colors-primary, #4a90e2);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--daisyui-colors-base-100, #fff);
+}
+
+.range.range-secondary::-webkit-slider-thumb {
+  background-color: var(--daisyui-colors-secondary, #f6d860);
+}
+
+.range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: var(--daisyui-colors-primary, #4a90e2);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--daisyui-colors-base-100, #fff);
+}
+
+.range.range-secondary::-moz-range-thumb {
+  background-color: var(--daisyui-colors-secondary, #f6d860);
 }
 </style>

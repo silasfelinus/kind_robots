@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="hydrated"
     class="butterfly z-50 absolute"
     :style="{
       left: props.butterfly.x + '%',
@@ -49,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import type { Butterfly } from '@/stores/butterflyStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
@@ -57,6 +58,12 @@ const props = defineProps<{ butterfly: Butterfly }>()
 const butterflyStore = useButterflyStore()
 
 const showName = computed(() => butterflyStore.showNames)
+
+const hydrated = ref(false)
+
+onMounted(() => {
+  hydrated.value = true
+})
 </script>
 
 <style scoped>

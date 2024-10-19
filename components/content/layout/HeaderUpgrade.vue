@@ -9,7 +9,7 @@
     <div class="flex items-center box-border relative">
       <avatar-image
         alt="User Avatar"
-        class="aspect-square min-h-8 min-w-8 rounded"
+        class="aspect-square rounded-xl max-w-15%"
         :style="{
           height: '100%', // Fills the available height of the header
         }"
@@ -17,16 +17,15 @@
 
       <!-- Special Overlay: Shows viewportSize from displayStore -->
       <div
-        class="absolute top-3 left-10 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
-        style="transform: translateY(-50%)"
+        class="fixed bottom-1 left-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
       >
         {{ displayStore.viewportSize }}
       </div>
     </div>
 
-    <!-- Middle Section: Title and Subtitle, with flex-grow to take up more space -->
+    <!-- Second Section: Title and Subtitle, with flex-grow to take up more space -->
     <div
-      class="flex-grow flex flex-col items-center justify-center text-center mx-4 box-border"
+      class="max-w-40% flex-grow flex flex-col items-center justify-center text-center mx-1 box-border"
     >
       <h1
         class="text-xs md:text-sm lg:text-md xl:text-xl font-semibold text-ellipsis overflow-hidden whitespace-nowrap max-w-full"
@@ -41,13 +40,13 @@
     </div>
 
     <!-- Right Section: Icons and Login -->
-    <div class="flex items-center space-x-1 box-border">
+    <div class="w-50% flex items-center space-x-1 box-border">
       <!-- Login Button -->
-      <login-path class="w-4 h-4 md:w-8 md:w-8 box-border" />
+      <login-path class="w-1/3 h-100% box-border" />
       <!-- Theme Icon -->
-      <theme-icon class="w-4 h-4 md:w-8 md:w-8  box-border" />
+      <theme-icon class="w-1/3 h-100%  box-border" />
       <!-- Butterfly Toggle Icon -->
-      <swarm-icon class="w-4 h-4 md:w-8 md:w-8 box-border" />
+      <swarm-icon class="w-1/3 h-100% box-border" />
     </div>
   </header>
 </template>

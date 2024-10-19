@@ -1,7 +1,7 @@
 <template>
   <div
     class="relative grid grid-cols-2 gap-4 bg-info bg-opacity-90 border-8 border-white box-border"
-    :style="{ width: centerWidth + 'px', height: centerHeight + 'px' }"
+    :style="{ width: centerWidth, height: centerHeight }"
   >
     <!-- Left Column: Image Area (70%) and Buttons (30%) -->
     <div class="flex flex-col h-full p-4 bg-black bg-opacity-50">

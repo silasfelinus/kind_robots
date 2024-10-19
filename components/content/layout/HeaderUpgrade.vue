@@ -6,12 +6,17 @@
     }"
   >
     <!-- Left Section: Avatar -->
-    <div class="flex items-center box-border relative">
+    <div class="flex items-center box-border relative"
+      :style="{
+        width: '15%', // Ensures the avatar section only takes up 15% of the total width
+      }"
+    >
       <avatar-image
         alt="User Avatar"
-        class="aspect-square rounded-xl max-w-15%"
+        class="aspect-square rounded-xl"
         :style="{
-          height: '100%', // Fills the available height of the header
+          height: '100%',
+          width: 'auto', // Keeps aspect ratio
         }"
       />
 
@@ -23,9 +28,12 @@
       </div>
     </div>
 
-    <!-- Second Section: Title and Subtitle, with flex-grow to take up more space -->
+    <!-- Second Section: Title and Subtitle -->
     <div
-      class="max-w-40% flex-grow flex flex-col items-center justify-center text-center mx-1 box-border"
+      class="max-w-40% flex-grow flex flex-col items-center justify-center text-center mx-2 box-border"
+      :style="{
+        width: '40%', // Title and subtitle should take up 40% of the total width
+      }"
     >
       <h1
         class="text-xs md:text-sm lg:text-md xl:text-xl font-semibold text-ellipsis overflow-hidden whitespace-nowrap max-w-full"
@@ -40,13 +48,17 @@
     </div>
 
     <!-- Right Section: Icons and Login -->
-    <div class="w-50% flex items-center space-x-1 box-border">
+    <div class="flex items-center justify-end space-x-1 box-border"
+      :style="{
+        width: '45%', // This section takes 45% for three elements each taking 15%
+      }"
+    >
       <!-- Login Button -->
-      <login-path class="w-1/3 h-100% box-border" />
+      <login-path class="w-1/3 box-border" />
       <!-- Theme Icon -->
-      <theme-icon class="w-1/3 h-100%  box-border" />
+      <theme-icon class="w-1/3 box-border" />
       <!-- Butterfly Toggle Icon -->
-      <swarm-icon class="w-1/3 h-100% box-border" />
+      <swarm-icon class="w-1/3 box-border" />
     </div>
   </header>
 </template>

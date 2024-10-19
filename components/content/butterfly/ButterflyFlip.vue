@@ -1,14 +1,21 @@
 <template>
   <div class="flip-card relative w-full h-full flex flex-col justify-between">
-    <!-- Flip card content (front/back) -->
-    <div class="flip-card-inner w-full h-full" :class="{ flipped: isFlipped }">
+    <!-- Conditionally apply the flip effect or fade transition -->
+    <div
+      class="flip-card-inner w-full h-full"
+      :class="{ flipped: isFlipped, fadeEffect: !useFlipEffect }"
+    >
       <div
+        v-if="!isFlipped || !useFlipEffect"
         class="flip-card-front w-full h-full backface-hidden overflow-y-auto"
+        :class="{ fade: !useFlipEffect }"
       >
         <slot name="front"></slot>
       </div>
       <div
+        v-if="isFlipped || !useFlipEffect"
         class="flip-card-back w-full h-full backface-hidden transform-back overflow-y-auto"
+        :class="{ fade: !useFlipEffect }"
       >
         <slot name="back"></slot>
       </div>
@@ -40,6 +47,14 @@
 <script setup>
 import { ref } from 'vue'
 
+// Destructure the prop directly
+const { useFlipEffect } = defineProps({
+  useFlipEffect: {
+    type: Boolean,
+    default: true, // Default to using the flip effect
+  },
+})
+
 // Flip state
 const isFlipped = ref(false)
 
@@ -50,6 +65,7 @@ const setTab = (tab) => {
 </script>
 
 <style scoped>
+/* Flip card effect */
 .flip-card {
   perspective: 1500px; /* Slightly increased perspective for a smoother 3D effect */
 }
@@ -78,6 +94,21 @@ const setTab = (tab) => {
 .flip-card-back {
   transform: rotateY(180deg);
   z-index: 0; /* Ensure back is behind front before flipping */
+}
+
+/* Fade effect for toggling without 3D flip */
+.fadeEffect .flip-card-inner {
+  transform: none; /* Disable transform for the fade effect */
+}
+
+.fade {
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+}
+
+.flip-card-front.fade,
+.flip-card-back.fade {
+  opacity: 1;
 }
 
 .cursor-pointer:hover {

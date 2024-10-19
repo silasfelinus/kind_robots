@@ -17,6 +17,10 @@ export interface Butterfly {
   status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
   scale: number
   message: string
+  goal: {
+    x: number,
+    y: number,
+  },
 }
 
 const generateMessage = (): string => {
@@ -142,6 +146,7 @@ state: (): ButterflyState => ({
           scale: Math.random() * 0.5 + 0.75,
           status: this.newButterflySettings.status,
           message: generateMessage(),
+          goal: { x: Math.random() * 100 , y: Math.random() * 100 }
         }
       }
     
@@ -227,7 +232,8 @@ state: (): ButterflyState => ({
             wingSpeed: Math.random() * (this.newButterflySettings.wingSpeedRange.max - this.newButterflySettings.wingSpeedRange.min) + this.newButterflySettings.wingSpeedRange.min,
             scale: Math.random() * 0.5 + 0.75,
             status: this.newButterflySettings.status,
-            message: generateMessage()
+            message: generateMessage(),
+            goal: { x: Math.random() * 100 , y: Math.random() * 100 }
           })
         }
       } catch (error) {
@@ -238,21 +244,39 @@ state: (): ButterflyState => ({
 
     // Update butterfly positions using noise2D
     updateButterflyPosition(butterfly: Butterfly) {
-      this.t += 0.01
-      const angle = noise2D(butterfly.x * 0.01, butterfly.y * 0.01 + this.t) * Math.PI * 2
+      let t = 0
+      t += 0.01
+      const angle =
+        noise2D(butterfly.goal.x * 0.01, butterfly.goal.y * 0.01 + t) * Math.PI * 2
       const dx = Math.cos(angle) * butterfly.speed
       const dy = Math.sin(angle) * butterfly.speed
-
-      butterfly.x = (butterfly.x + dx) % 100
-      butterfly.y = (butterfly.y + dy) % 100
-
-      butterfly.x = Math.max(Math.min(butterfly.x, 100), 0)
-      butterfly.y = Math.max(Math.min(butterfly.y, 100), 0)
-
-      butterfly.rotation = dx >= 0 ? 120 : 30
+    
+      butterfly.goal.x += dx
+      butterfly.goal.y += dy
+    
+      if (butterfly.goal.x < 0 || butterfly.goal.x > window.innerWidth - 100) {
+        butterfly.goal.x = Math.max(
+          Math.min(butterfly.goal.x, window.innerWidth - 100),
+          0,
+        )
+      }
+    
+      if (butterfly.goal.y < 0 || butterfly.goal.y > window.innerHeight - 100) {
+        butterfly.goal.y = Math.max(
+          Math.min(butterfly.goal.y, window.innerHeight - 100),
+          0,
+        )
+      }
+    
       butterfly.scale =
         0.33 +
-        ((2 - (butterfly.x / window.innerWidth + butterfly.y / window.innerHeight)) / 2) * 0.67
+        ((2 -
+          (butterfly.goal.x / window.innerWidth +
+            butterfly.goal.y / window.innerHeight)) /
+          2) *
+          0.67
+    
+      butterfly.rotation = dx >= 0 ? 120 : 30
     },
 
     animateButterflies() {

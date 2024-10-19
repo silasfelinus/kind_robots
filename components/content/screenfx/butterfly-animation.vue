@@ -1,5 +1,5 @@
 <template>
-  <div class="loading-overlay">
+  <div class="loading-overlay z-50">
     <!-- Multiple Butterflies with Animation Delay -->
     <ami-butterfly v-for="i in butterflyCount" :key="i" />
   </div>

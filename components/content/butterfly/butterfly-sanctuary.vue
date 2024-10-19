@@ -1,64 +1,37 @@
 <template>
   <div
-    class="relative bg-info bg-opacity-90 bg-cover bg-center box-border border-8 border-white overflow-hidden"
-    :style="{ height: mainHeight, width: mainWidth }"
+    class="relative grid grid-cols-2 gap-4 h-full w-full bg-info bg-opacity-90 border-8 border-white box-border"
   >
-    <!-- Background Image with Nuxt Image -->
-    <nuxt-img
-      src="/images/backtree.webp"
-      alt="Background Tree"
-      class="absolute inset-0 h-full w-full object-cover z-0"
-    />
-
-    <!-- Butterfly Counter in the top right corner -->
-    <div
-      class="absolute top-2 right-2 text-white text-xl bg-black bg-opacity-50 p-2 rounded-lg z-10"
-    >
-      Butterflies: {{ butterflyCount }}
-    </div>
-
-    <!-- Image Area with Fallback, and toggle for canvas and demo -->
-    <div class="absolute top-0 left-0 h-[70%] w-[70%] overflow-hidden z-10">
-      <butterfly-canvas :fallback-image="'/images/art1.webp'" />
-    </div>
-
-    <!-- Control Panel -->
-    <div
-      class="absolute bottom-0 w-full flex justify-center bg-black bg-opacity-50 p-4 z-20"
-    >
-      <button
-        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 mx-2"
-        @click="toggleAmiSwarm"
-      >
-        {{ showSwarm ? 'Stop' : 'Start' }} Animation
-      </button>
-      <button
-        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 mx-2"
-        @click="addButterfly"
-      >
-        Add Butterfly
-      </button>
-      <button
-        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 mx-2"
-        @click="removeButterfly"
-      >
-        Remove Butterfly
-      </button>
-    </div>
-
-    <!-- Right side control section (Flip-Card) -->
-    <div
-      class="absolute top-16 right-2 flex flex-col items-center w-[15rem] z-20"
-    >
-      <!-- Butterfly Count Section (10% height) -->
-      <div
-        class="bg-black text-white w-full h-[10%] mb-4 text-center p-2 rounded-md"
-      >
-        Count: {{ butterflyCount }}
+    <!-- Left Column: Image Area (70%) and Buttons (30%) -->
+    <div class="flex flex-col h-full p-4 bg-black bg-opacity-50">
+      <!-- Image Area (70% of parent height) -->
+      <div class="w-full h-[70%] relative overflow-hidden">
+        <butterfly-canvas :fallback-image="'/images/art1.webp'" />
       </div>
 
-      <!-- Flip-Card Section (Longer Height, uses full space) -->
-      <div class="w-full flex-grow bg-info bg-opacity-70 p-4 rounded-md h-full">
+      <!-- Control Panel (30% of parent height) -->
+      <div class="w-full h-[30%] flex justify-center space-x-4 items-center">
+        <button class="control-btn" @click="toggleAmiSwarm">
+          {{ showSwarm ? 'Stop' : 'Start' }} Animation
+        </button>
+        <button class="control-btn" @click="addButterfly">Add Butterfly</button>
+        <button class="control-btn" @click="removeButterfly">
+          Remove Butterfly
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Column: Butterfly Count (10%), Flip-Card (65%), and Demo (25%) -->
+    <div class="flex flex-col items-center h-full p-4 bg-gray-200">
+      <!-- Butterfly Count Section (10% of parent height) -->
+      <div
+        class="w-full h-[10%] text-center bg-black text-white p-2 rounded-lg"
+      >
+        Butterflies: {{ butterflyCount }}
+      </div>
+
+      <!-- Flip-Card Section (65% of parent height) -->
+      <div class="w-full h-[65%] bg-info bg-opacity-70 p-4 rounded-md">
         <butterfly-flip class="w-full h-full" :use-flip-effect="false">
           <template #front>
             <butterfly-front />
@@ -69,8 +42,8 @@
         </butterfly-flip>
       </div>
 
-      <!-- Butterfly Demo Section (25% height) -->
-      <div class="w-full h-[25%] bg-info bg-opacity-80 p-2 mt-4 rounded-md">
+      <!-- Butterfly Demo Section (25% of parent height) -->
+      <div class="w-full h-[25%] bg-info bg-opacity-80 p-4 mt-4 rounded-md">
         <butterfly-demo />
       </div>
     </div>
@@ -80,11 +53,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
-import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
-const displayStore = useDisplayStore()
 
 // Get butterflies count from the store
 const butterflyCount = computed(() => butterflyStore.butterflies.length)
@@ -98,7 +69,7 @@ const toggleAmiSwarm = () => {
   showSwarm.value = !showSwarm.value
 
   if (showSwarm.value) {
-    butterflyStore.generateInitialButterflies(swarmSize.value) // Generate a swarm
+    butterflyStore.generateInitialButterflies(swarmSize.value)
     butterflyStore.animateButterflies()
   } else {
     butterflyStore.clearButterflies()
@@ -117,37 +88,22 @@ const removeButterfly = () => {
     butterflyStore.removeLastButterfly()
   }
 }
-
-// Get main height and width from displayStore
-const mainHeight = computed(() => displayStore.centerHeight || '100vh')
-const mainWidth = computed(() => displayStore.centerWidth || '100vw')
 </script>
 
 <style scoped>
 /* Control button styles */
 .control-btn {
-  background-color: #ff9800;
+  background-color: #1d4ed8;
   color: white;
   padding: 10px 20px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   transition: transform 0.2s;
 }
 
 .control-btn:hover {
-  transform: scale(1.1);
-}
-
-/* Background image with a stylish border */
-.bg-cover {
-  background-size: cover;
-  background-position: center;
-  border: 8px solid #fff; /* Increased border thickness */
-}
-
-.w-full.flex-grow {
-  min-height: 65vh; /* Force it to take up more space */
+  transform: scale(1.05);
 }
 </style>

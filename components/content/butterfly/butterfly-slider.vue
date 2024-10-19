@@ -56,19 +56,28 @@ const emit = defineEmits(['update:modelValue'])
 
 const minValue = ref(props.modelValue.min)
 const maxValue = ref(props.modelValue.max)
+const activeSlider = ref('')
 
 const updateMinValue = () => {
-  if (minValue.value >= maxValue.value) {
-    minValue.value = maxValue.value - props.step
+  if (minValue.value > maxValue.value) {
+    minValue.value = maxValue.value
   }
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
 }
 
 const updateMaxValue = () => {
-  if (maxValue.value <= minValue.value) {
-    maxValue.value = minValue.value + props.step
+  if (maxValue.value < minValue.value) {
+    maxValue.value = minValue.value
   }
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
+}
+
+const increaseZIndex = (slider: string) => {
+  if (slider === 'min') {
+    activeSlider.value = 'min'
+  } else if (slider === 'max') {
+    activeSlider.value = 'max'
+  }
 }
 
 watch(
@@ -117,5 +126,9 @@ input[type='range']::-moz-range-thumb {
 
 .max-slider {
   z-index: 20;
+}
+
+input[type='range']:active {
+  z-index: 30;
 }
 </style>

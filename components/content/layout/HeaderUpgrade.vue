@@ -6,14 +6,15 @@
     }"
   >
     <!-- Left Section: Avatar -->
-    <div class="flex items-center box-border relative"
+    <div
+      class="flex items-center box-border relative"
       :style="{
         width: '15%', // Ensures the avatar section only takes up 15% of the total width
       }"
     >
       <avatar-image
         alt="User Avatar"
-        class="aspect-square rounded-xl min-h-9 min-w-9"
+        class="aspect-square rounded-xl min-h-36 min-w-36"
         :style="{
           height: '100%',
           width: 'auto', // Keeps aspect ratio
@@ -48,7 +49,8 @@
     </div>
 
     <!-- Right Section: Icons and Login -->
-    <div class="flex items-center justify-end space-x-1 box-border"
+    <div
+      class="flex items-center justify-end space-x-1 box-border"
       :style="{
         width: '45%', // This section takes 45% for three elements each taking 15%
       }"

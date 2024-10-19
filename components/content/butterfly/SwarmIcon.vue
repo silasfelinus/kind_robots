@@ -16,7 +16,7 @@
     <!-- Full-screen Butterfly Swarm Animation -->
     <div
       v-if="showSwarm"
-      class="fixed inset-0 overflow-hidden z-50 pointer-events-none"
+      class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"
     >
       <butterfly-animation />
     </div>

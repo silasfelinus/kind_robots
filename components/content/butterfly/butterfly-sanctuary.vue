@@ -1,6 +1,7 @@
 <template>
   <div
-    class="relative grid grid-cols-2 gap-4 h-full w-full bg-info bg-opacity-90 border-8 border-white box-border"
+    class="relative grid grid-cols-2 gap-4 bg-info bg-opacity-90 border-8 border-white box-border"
+    :style="{ width: centerWidth + 'px', height: centerHeight + 'px' }"
   >
     <!-- Left Column: Image Area (70%) and Buttons (30%) -->
     <div class="flex flex-col h-full p-4 bg-black bg-opacity-50">
@@ -53,9 +54,15 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
+import { useDisplayStore } from '@/stores/displayStore'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
+
+// Access the display store for centerHeight and centerWidth
+const displayStore = useDisplayStore()
+const centerHeight = computed(() => displayStore.centerHeight)
+const centerWidth = computed(() => displayStore.centerWidth)
 
 // Get butterflies count from the store
 const butterflyCount = computed(() => butterflyStore.butterflies.length)

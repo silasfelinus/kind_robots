@@ -35,7 +35,7 @@ const showSwarm = ref(false)
 
 // Toggle the butterfly swarm on and off
 const toggleAmiSwarm = () => {
-  if (route.path !== '/butterflies') {
+  if (route.path !== '/butterflies' && showSwarm.value === false) {
     router.push('/butterflies') // Navigate to /butterflies if not already there
   }
 

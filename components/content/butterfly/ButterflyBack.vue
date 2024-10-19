@@ -86,7 +86,6 @@
 <script setup>
 import { computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
-import SingleSlider from '@/components/single-slider.vue' // Assuming this is the location of your single-slider component
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()

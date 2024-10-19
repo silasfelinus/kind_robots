@@ -40,7 +40,7 @@
     <!-- Name and Message Section outside of butterfly transform -->
     <div
       v-if="currentButterfly && currentButterfly !== undefined"
-      class="absolute top-20 w-full text-center text-lg text-gray-700 transform-none"
+      class="absolute bottom-4 w-full text-center text-lg text-gray-700 transform-none"
     >
       <p>{{ currentButterfly.id }}</p>
       <p>{{ currentButterfly.message }}</p>

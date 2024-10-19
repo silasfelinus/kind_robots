@@ -1,50 +1,47 @@
-<template>
-  <div class="mb-6">
-    <label :for="sliderId" class="block mb-2">{{ label }} (Min-Max):</label>
-    <div class="flex items-center justify-between mb-2">
-      <!-- Displaying min value -->
-      <span>{{ modelValue.min }}</span>
+<div class="mb-6">
+  <label :for="sliderId" class="block mb-2">{{ label }} (Min-Max):</label>
+  <div class="flex items-center justify-between mb-2">
+    <!-- Displaying min value -->
+    <span>{{ minValue }}</span>
 
-      <!-- Dual range slider -->
-      <div class="relative w-4/5 mx-2">
-        <!-- Min range slider -->
-        <input
-          v-model="minValue"
-          type="range"
-          :min="min"
-          :max="max"
-          :step="step"
-          class="absolute w-full z-10 min-slider"
-          @input="updateMinValue"
-          @mousedown="increaseZIndex('min')"
-          @touchstart="increaseZIndex('min')"
-        />
-        <!-- Max range slider -->
-        <input
-          v-model="maxValue"
-          type="range"
-          :min="min"
-          :max="max"
-          :step="step"
-          class="absolute w-full z-20 max-slider"
-          @input="updateMaxValue"
-          @mousedown="increaseZIndex('max')"
-          @touchstart="increaseZIndex('max')"
-        />
-      </div>
+    <!-- Dual range slider -->
+    <div class="relative w-4/5 mx-2">
+      <!-- Min range slider -->
+      <input
+        v-model="minValue"
+        type="range"
+        :min="min"
+        :max="max"
+        :step="step"
+        class="absolute w-full z-10 min-slider"
+        @input="updateMinValue"
+        @mousedown="increaseZIndex('min')"
+        @touchstart="increaseZIndex('min')"
+      />
+      <!-- Max range slider -->
+      <input
+        v-model="maxValue"
+        type="range"
+        :min="min"
+        :max="max"
+        :step="step"
+        class="absolute w-full z-20 max-slider"
+        @input="updateMaxValue"
+        @mousedown="increaseZIndex('max')"
+        @touchstart="increaseZIndex('max')"
+      />
+    </div>
 
-      <!-- Displaying max value -->
-      <span>{{ modelValue.max }}</span>
-    </div>
-    <div class="text-center">
-      Chosen {{ label }} Range: {{ minValue }} - {{ maxValue }}
-    </div>
+    <!-- Displaying max value -->
+    <span>{{ maxValue }}</span>
   </div>
-</template>
+  <div class="text-center">
+    Chosen {{ label }} Range: {{ minValue }} - {{ maxValue }}
+  </div>
+</div>
+
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-
 const props = defineProps({
   min: { type: Number, required: true },
   max: { type: Number, required: true },
@@ -60,27 +57,17 @@ const minValue = ref(props.modelValue.min)
 const maxValue = ref(props.modelValue.max)
 
 const updateMinValue = () => {
-  if (minValue.value > maxValue.value) {
-    [minValue.value, maxValue.value] = [maxValue.value, minValue.value]
+  if (minValue.value >= maxValue.value) {
+    minValue.value = maxValue.value - props.step
   }
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
 }
 
 const updateMaxValue = () => {
-  if (maxValue.value < minValue.value) {
-    [minValue.value, maxValue.value] = [maxValue.value, minValue.value]
+  if (maxValue.value <= minValue.value) {
+    maxValue.value = minValue.value + props.step
   }
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
-}
-
-const increaseZIndex = (sliderType: 'min' | 'max') => {
-  if (sliderType === 'min') {
-    document.querySelector('.min-slider')!.style.zIndex = '30'
-    document.querySelector('.max-slider')!.style.zIndex = '20'
-  } else {
-    document.querySelector('.max-slider')!.style.zIndex = '30'
-    document.querySelector('.min-slider')!.style.zIndex = '20'
-  }
 }
 
 watch(

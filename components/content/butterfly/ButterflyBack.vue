@@ -38,8 +38,8 @@
           />
         </div>
 
-        <!-- Size range slider -->
-        <butterfly-slider
+        <!-- Size slider -->
+        <single-slider
           v-if="selectedButterfly"
           v-model="selectedButterflySize"
           label="Size"
@@ -50,8 +50,8 @@
           class="mb-4"
         />
 
-        <!-- Speed range slider -->
-        <butterfly-slider
+        <!-- Speed slider -->
+        <single-slider
           v-if="selectedButterfly"
           v-model="selectedButterflySpeed"
           label="Speed"
@@ -62,8 +62,8 @@
           class="mb-4"
         />
 
-        <!-- Wing Speed range slider -->
-        <butterfly-slider
+        <!-- Wing Speed slider -->
+        <single-slider
           v-if="selectedButterfly"
           v-model="selectedButterflyWingSpeed"
           label="Wing Speed"
@@ -86,6 +86,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
+import SingleSlider from '@/components/single-slider.vue' // Assuming this is the location of your single-slider component
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
@@ -140,3 +141,7 @@ const selectedButterflyWingSpeed = computed({
   },
 })
 </script>
+
+<style scoped>
+/* Add any necessary styles here */
+</style>

@@ -1,13 +1,10 @@
 <template>
   <div class="mb-6">
     <label :for="sliderId" class="block mb-2">{{ label }} (Min-Max):</label>
-    <div class="flex items-center justify-between mb-2 relative">
-      <!-- Displaying min value -->
-      <span class="badge badge-info">{{ minValue }}</span>
-
-      <!-- Dual range slider with min slider visually lower -->
-      <div class="relative w-4/5 mx-2">
-        <!-- Min range slider (lower than normal) -->
+    <div class="relative w-4/5 mx-auto">
+      <!-- Single slider bar with two knobs -->
+      <div class="relative">
+        <!-- Min slider (knob visually below the bar) -->
         <input
           v-model="minValue"
           type="range"
@@ -20,7 +17,7 @@
           @touchstart="increaseZIndex('min')"
         />
 
-        <!-- Max range slider (normal alignment) -->
+        <!-- Max slider (aligned with the bar) -->
         <input
           v-model="maxValue"
           type="range"
@@ -34,11 +31,11 @@
         />
       </div>
 
-      <!-- Displaying max value -->
-      <span class="badge badge-info">{{ maxValue }}</span>
-    </div>
-    <div class="text-center">
-      Chosen {{ label }} Range: <span class="badge">{{ minValue }}</span> - <span class="badge">{{ maxValue }}</span>
+      <div class="flex justify-between mt-4">
+        <!-- Displaying min and max values below the slider -->
+        <span class="badge badge-info">{{ minValue }}</span>
+        <span class="badge badge-info">{{ maxValue }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -103,17 +100,20 @@ watch(
   border-radius: 6px;
 }
 
-/* Custom style for min slider, positioned below */
+/* Styling for the min slider knob (below the bar) */
 .min-slider {
   position: relative;
-  top: 25px; /* Move the min slider below the normal slider */
+  top: 20px; /* Move it visually below the slider */
   z-index: 10;
 }
 
+/* Styling for the max slider knob (aligned with the slider bar) */
 .max-slider {
+  position: relative;
   z-index: 20;
 }
 
+/* DaisyUI style for the slider knobs */
 .range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;

@@ -35,7 +35,6 @@ interface Butterfly {
   status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
   goal: { x: number; y: number }
   hasReachedGoal: boolean
-  sway: boolean
   wingSpeed: number
   scale: number
   countdown: number
@@ -71,7 +70,6 @@ const butterfly = reactive<Butterfly>({
     y: Math.random() * windowSize.height,
   },
   hasReachedGoal: false,
-  sway: false,
   wingSpeed: Math.floor(Math.random() * 3), // random initial wing speed
   scale: Math.random() * 0.5 + 0.75, // random initial scale between 0.75 and 1.25
   countdown: 0,

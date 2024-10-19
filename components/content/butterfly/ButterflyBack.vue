@@ -4,90 +4,81 @@
     <div class="overflow-y-auto flex-grow pr-4">
       <h3 class="text-center mb-4">Select and Adjust Butterfly Settings</h3>
 
-      <!-- Butterfly Selection -->
-      <div v-if="butterflies.length > 0" class="mb-6">
-        <label for="selectedButterfly" class="block mb-2"
-          >Select Butterfly:</label
-        >
-        <select
-          v-model="butterflyStore.selectedButterflyId"
-          class="w-full p-2 rounded"
-        >
-          <option
-            v-for="butterfly in butterflies"
-            :key="butterfly.id"
-            :value="butterfly.id"
+      <!-- Guard: Check if there are butterflies and selected butterfly is available -->
+      <div v-if="butterflyStoreAvailable">
+        <!-- Butterfly Selection -->
+        <div v-if="butterflies.length > 0" class="mb-6">
+          <label for="selectedButterfly" class="block mb-2"
+            >Select Butterfly:</label
           >
-            {{ butterfly.id }}
-          </option>
-        </select>
-      </div>
+          <select
+            v-model="butterflyStore.selectedButterflyId"
+            class="w-full p-2 rounded"
+          >
+            <option
+              v-for="butterfly in butterflies"
+              :key="butterfly.id"
+              :value="butterfly.id"
+            >
+              {{ butterfly.id }}
+            </option>
+          </select>
+        </div>
 
-      <!-- Butterfly ID Editing -->
-      <div v-if="selectedButterfly" class="mb-6">
-        <label for="editButterflyId" class="block mb-2"
-          >Edit Butterfly ID:</label
-        >
-        <input
-          id="editButterflyId"
-          v-model="newButterflyId"
-          type="text"
-          class="w-full p-2 rounded"
+        <!-- Butterfly ID Editing -->
+        <div v-if="selectedButterfly" class="mb-6">
+          <label for="editButterflyId" class="block mb-2"
+            >Edit Butterfly ID:</label
+          >
+          <input
+            id="editButterflyId"
+            v-model="newButterflyId"
+            type="text"
+            class="w-full p-2 rounded"
+          />
+        </div>
+
+        <!-- Size range slider -->
+        <butterfly-slider
+          v-if="selectedButterfly"
+          v-model="selectedButterflySize"
+          label="Size"
+          :min="0.5"
+          :max="2"
+          :step="0.1"
+          slider-id="sizeSlider"
+          class="mb-4"
+        />
+
+        <!-- Speed range slider -->
+        <butterfly-slider
+          v-if="selectedButterfly"
+          v-model="selectedButterflySpeed"
+          label="Speed"
+          :min="0.5"
+          :max="5"
+          :step="0.1"
+          slider-id="speedSlider"
+          class="mb-4"
+        />
+
+        <!-- Wing Speed range slider -->
+        <butterfly-slider
+          v-if="selectedButterfly"
+          v-model="selectedButterflyWingSpeed"
+          label="Wing Speed"
+          :min="0.5"
+          :max="5"
+          :step="0.1"
+          slider-id="wingSpeedSlider"
+          class="mb-4"
         />
       </div>
 
-      <!-- Size range slider -->
-      <butterfly-slider
-        v-if="selectedButterfly"
-        v-model="selectedButterflySize"
-        label="Size"
-        :min="0.5"
-        :max="2"
-        :step="0.1"
-        slider-id="sizeSlider"
-        class="mb-4"
-      />
-
-      <!-- Speed range slider -->
-      <butterfly-slider
-        v-if="selectedButterfly"
-        v-model="selectedButterflySpeed"
-        label="Speed"
-        :min="0.5"
-        :max="5"
-        :step="0.1"
-        slider-id="speedSlider"
-        class="mb-4"
-      />
-
-      <!-- Wing Speed range slider -->
-      <butterfly-slider
-        v-if="selectedButterfly"
-        v-model="selectedButterflyWingSpeed"
-        label="Wing Speed"
-        :min="0.5"
-        :max="5"
-        :step="0.1"
-        slider-id="wingSpeedSlider"
-        class="mb-4"
-      />
-
-      <!-- Sway range slider -->
-      <butterfly-slider
-        v-if="selectedButterfly"
-        v-model="selectedButterflySway"
-        label="Sway"
-        :min="0"
-        :max="2"
-        :step="0.1"
-        slider-id="swaySlider"
-        class="mb-4"
-      />
-    </div>
-
-    <!-- Butterfly Demo always visible at the bottom -->
-    <div class="mt-4 sticky bottom-0 bg-gray-300 p-4 rounded-lg shadow-lg">
-      <butterfly-demo v-if="selectedButterfly" :butterfly="selectedButterfly" />
+      <!-- Fallback Message if Store or Selected Butterfly is Unavailable -->
+      <div v-else class="text-red-500 text-center mt-4">
+        No butterfly selected or settings unavailable. Please check your data.
+      </div>
     </div>
   </div>
 </template>
@@ -98,6 +89,12 @@ import { useButterflyStore } from '@/stores/butterflyStore'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
+
+// Guard for store and selected butterfly availability
+const butterflyStoreAvailable = computed(
+  () =>
+    butterflyStore && butterflies.value.length > 0 && selectedButterfly.value,
+)
 
 // Get the list of butterflies from the store
 const butterflies = computed(() => butterflyStore.getAllButterflies)
@@ -115,7 +112,7 @@ const newButterflyId = computed({
   },
 })
 
-// Butterfly property bindings
+// Butterfly property bindings with fallback values
 const selectedButterflySize = computed({
   get: () => selectedButterfly.value?.scale || 0.5,
   set: (val) => {
@@ -139,15 +136,6 @@ const selectedButterflyWingSpeed = computed({
   set: (val) => {
     if (selectedButterfly.value) {
       selectedButterfly.value.wingSpeed = val
-    }
-  },
-})
-
-const selectedButterflySway = computed({
-  get: () => selectedButterfly.value?.sway || 0.1,
-  set: (val) => {
-    if (selectedButterfly.value) {
-      selectedButterfly.value.sway = val
     }
   },
 })

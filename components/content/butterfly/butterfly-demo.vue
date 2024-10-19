@@ -19,12 +19,12 @@
       ></div>
 
       <!-- Conditionally show the butterfly's name -->
-      <div
-        v-if="butterflyStore.showNames"
-        class="absolute top-20 w-full text-center text-lg text-gray-700"
-      >
-        {{ currentButterfly.id }}
+      <div class="absolute top-20 w-full text-center text-lg text-gray-700">
+        <p>{{ currentButterfly.id }}</p>
+        <p>{{ currentButterfly.message }}</p>
       </div>
+
+      <div></div>
     </div>
   </div>
 </template>

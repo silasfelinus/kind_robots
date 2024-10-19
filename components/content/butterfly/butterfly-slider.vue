@@ -7,22 +7,24 @@
 
       <!-- Dual range slider -->
       <div class="relative w-4/5 mx-2">
+        <!-- Min range slider -->
         <input
+          v-model="minValue"
           type="range"
           :min="min"
           :max="max"
           :step="step"
-          v-model="minValue"
-          class="absolute w-full"
+          class="absolute w-full z-10 min-slider"
           @input="updateMinValue"
         />
+        <!-- Max range slider -->
         <input
+          v-model="maxValue"
           type="range"
           :min="min"
           :max="max"
           :step="step"
-          v-model="maxValue"
-          class="absolute w-full"
+          class="absolute w-full z-20 max-slider"
           @input="updateMaxValue"
         />
       </div>
@@ -78,7 +80,7 @@ const maxValue = ref(props.modelValue.max)
 const updateMinValue = () => {
   if (minValue.value > maxValue.value) {
     // Seamlessly swap min and max values if min exceeds max
-    [minValue.value, maxValue.value] = [maxValue.value, minValue.value]
+    ;[minValue.value, maxValue.value] = [maxValue.value, minValue.value]
   }
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
 }
@@ -86,7 +88,7 @@ const updateMinValue = () => {
 const updateMaxValue = () => {
   if (maxValue.value < minValue.value) {
     // Seamlessly swap min and max values if max is lower than min
-    [minValue.value, maxValue.value] = [maxValue.value, minValue.value]
+    ;[minValue.value, maxValue.value] = [maxValue.value, minValue.value]
   }
   emit('update:modelValue', { min: minValue.value, max: maxValue.value })
 }
@@ -98,7 +100,7 @@ watch(
     minValue.value = newVal.min
     maxValue.value = newVal.max
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 
@@ -129,5 +131,13 @@ input[type='range']::-moz-range-thumb {
   background-color: #4a90e2;
   border-radius: 50%;
   cursor: pointer;
+}
+
+.min-slider {
+  z-index: 10;
+}
+
+.max-slider {
+  z-index: 20;
 }
 </style>

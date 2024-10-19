@@ -57,9 +57,9 @@
         Count: {{ butterflyCount }}
       </div>
 
-      <!-- Flip-Card Section (65% height) -->
-      <div class="w-full h-[65%] bg-info bg-opacity-70 p-4 rounded-md">
-        <butterfly-flip class="w-full h-full">
+      <!-- Flip-Card Section (Longer Height, uses full space) -->
+      <div class="w-full flex-grow bg-info bg-opacity-70 p-4 rounded-md h-full">
+        <butterfly-flip class="w-full h-full" :use-flip-effect="false">
           <template #front>
             <butterfly-front />
           </template>
@@ -145,5 +145,9 @@ const mainWidth = computed(() => displayStore.centerWidth || '100vw')
   background-size: cover;
   background-position: center;
   border: 8px solid #fff; /* Increased border thickness */
+}
+
+.w-full.flex-grow {
+  min-height: 65vh; /* Force it to take up more space */
 }
 </style>

@@ -14,10 +14,29 @@ export interface Butterfly {
   wingBottomColor: string
   speed: number
   wingSpeed: number
-  sway: number
   status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
   scale: number
+  message: string
 }
+
+const generateMessage = (): string => {
+  const messages = [
+    "I'm just fluttering by!",
+    "Did you know butterflies taste with their feet?",
+    "Check out our malaria donation page at /amibot!",
+    "Malaria kills hundreds of thousands of people each year.",
+    "Let's make a difference together! Visit /amibot",
+    "I might be tiny, but I have a big heart!",
+    "Time to flap these wings!",
+    "Supporting malaria prevention is a good idea!",
+    "Did you know that some butterflies can fly 37 miles per hour?",
+    "A day without butterflies is a day without sunshine!"
+  ]
+  
+  const randomIndex = Math.floor(Math.random() * messages.length)
+  return messages[randomIndex]
+}
+
 interface ButterflyState {
   butterflies: Butterfly[]
   scaleModifier: number
@@ -33,7 +52,6 @@ interface ButterflyState {
     wingSpeedRange: { min: number; max: number }
     xRange: { min: number; max: number }
     yRange: { min: number; max: number }
-    swayRange: { min: number; max: number } 
     zIndexRange: { min: number; max: number }
     status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
     colorScheme: 'random' | 'complementary' | 'analogous' | 'same' | 'primary'
@@ -45,14 +63,14 @@ interface ButterflyState {
 const noise2D = makeNoise2D(Date.now())
 
 // Utility functions for colors
-const randomColor = (): string => {
+export const randomColor = (): string => {
   const h = Math.floor(Math.random() * 360)
   const s = Math.floor(Math.random() * 50 + 50)
   const l = Math.floor(Math.random() * 40 + 30)
   return `hsl(${h},${s}%,${l}%)`
 }
 
-const analogousColor = (hsl: string): string => {
+export const analogousColor = (hsl: string): string => {
   const hslMatch = hsl.match(/\d+/g)
   if (!hslMatch) throw new Error('Invalid color format')
   const [h, s, l] = hslMatch.map(Number)
@@ -60,13 +78,13 @@ const analogousColor = (hsl: string): string => {
   return `hsl(${newH},${s}%,${l}%)`
 }
 
-const complementaryColor = (hsl: string): string => {
+export const complementaryColor = (hsl: string): string => {
   const [h, s, l] = hsl.replace('hsl(', '').replace(')', '').split(',')
   const newH = (parseInt(h) + 180) % 360
   return `hsl(${newH},${s},${l})`
 }
 
-const randomPrimaryColor = (): string => {
+export const randomPrimaryColor = (): string => {
   const rainbowHues = [0, 60, 120, 180, 240, 300]
   const randomHue = rainbowHues[Math.floor(Math.random() * rainbowHues.length)]
   return `hsl(${randomHue}, 100%, 50%)`
@@ -85,11 +103,10 @@ state: (): ButterflyState => ({
     newButterflySettings: {
       sizeRange: { min: 0.5, max: 1.5 },
       speedRange: { min: 1, max: 3 },
-      rotationRange: { min: 0, max: 360 },
+      rotationRange: { min: 110, max: 110 },
       wingSpeedRange: { min: 1, max: 5 },
       xRange: { min: 0, max: 100 },
       yRange: { min: 0, max: 100 },
-      swayRange: {min: 0.0, max: 1.0 },
       zIndexRange: { min: 0,  max: 50  },
       status: 'random',
       colorScheme: 'random',
@@ -122,9 +139,9 @@ state: (): ButterflyState => ({
           wingBottomColor: '',
           speed: Math.random() * (this.newButterflySettings.speedRange.max - this.newButterflySettings.speedRange.min) + this.newButterflySettings.speedRange.min,
           wingSpeed: Math.random() * (this.newButterflySettings.wingSpeedRange.max - this.newButterflySettings.wingSpeedRange.min) + this.newButterflySettings.wingSpeedRange.min,
-          sway: Math.random() * (this.newButterflySettings.swayRange.max - this.newButterflySettings.swayRange.min) + this.newButterflySettings.swayRange.min, // Updated swayRange
           scale: Math.random() * 0.5 + 0.75,
           status: this.newButterflySettings.status,
+          message: generateMessage(),
         }
       }
     
@@ -208,9 +225,9 @@ state: (): ButterflyState => ({
             wingBottomColor: '',
             speed: Math.random() * (this.newButterflySettings.speedRange.max - this.newButterflySettings.speedRange.min) + this.newButterflySettings.speedRange.min,
             wingSpeed: Math.random() * (this.newButterflySettings.wingSpeedRange.max - this.newButterflySettings.wingSpeedRange.min) + this.newButterflySettings.wingSpeedRange.min,
-            sway: Math.random() * (this.newButterflySettings.swayRange.max - this.newButterflySettings.swayRange.min) + this.newButterflySettings.swayRange.min, // Updated sway
             scale: Math.random() * 0.5 + 0.75,
             status: this.newButterflySettings.status,
+            message: generateMessage()
           })
         }
       } catch (error) {

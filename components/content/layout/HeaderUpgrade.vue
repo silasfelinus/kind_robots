@@ -13,7 +13,7 @@
     >
       <avatar-image
         alt="User Avatar"
-        class="aspect-square rounded-xl"
+        class="aspect-square rounded-xl min-h-7 min-w-7 p-1"
         :style="{
           height: '100%',
           width: 'auto', // Keeps aspect ratio

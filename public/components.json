@@ -109,12 +109,14 @@
       "ButterflyMascot",
       "ButterflySwarm",
       "ButterflyToggle",
+      "StoreButterfly",
       "SwarmIcon",
       "butterfly-canvas",
       "butterfly-component",
       "butterfly-demo",
       "butterfly-sanctuary",
       "butterfly-slider",
+      "single-slider",
       "sponsor-page"
     ]
   },

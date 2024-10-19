@@ -41,13 +41,13 @@
     </div>
 
     <!-- Right Section: Icons and Login -->
-    <div class="flex items-center space-x-4 box-border">
+    <div class="flex items-center space-x-1 box-border">
       <!-- Login Button -->
-      <login-path class="w-full max-w-[120px] box-border" />
+      <login-path class="w-4 h-4 md:w-8 md:w-8 box-border" />
       <!-- Theme Icon -->
-      <theme-icon class="w-8 h-8 box-border" />
+      <theme-icon class="w-4 h-4 md:w-8 md:w-8  box-border" />
       <!-- Butterfly Toggle Icon -->
-      <swarm-icon class="w-8 h-8 box-border" />
+      <swarm-icon class="w-4 h-4 md:w-8 md:w-8 box-border" />
     </div>
   </header>
 </template>

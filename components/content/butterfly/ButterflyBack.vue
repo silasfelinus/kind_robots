@@ -58,7 +58,7 @@
           label="Speed"
           :min="0.5"
           :max="5"
-          :step="0.1"
+          :step="1"
           slider-id="speedSlider"
           class="mb-4"
         />
@@ -70,7 +70,7 @@
           label="Wing Speed"
           :min="0.5"
           :max="5"
-          :step="0.1"
+          :step="1"
           slider-id="wingSpeedSlider"
           class="mb-4"
         />

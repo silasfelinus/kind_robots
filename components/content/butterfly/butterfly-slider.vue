@@ -36,6 +36,21 @@
         @touchstart="increaseZIndex('max')"
       />
 
+      <!-- Min and Max handle UI (circles with vertical lines when close together) -->
+      <div v-if="areValuesClose" class="absolute w-full flex justify-between pointer-events-none">
+        <!-- Min circle handle -->
+        <div class="absolute flex justify-center" :style="minHandleStyle">
+          <div class="w-5 h-5 rounded-full bg-primary"></div>
+          <div class="w-1 h-8 bg-primary"></div>
+        </div>
+
+        <!-- Max circle handle -->
+        <div class="absolute flex justify-center" :style="maxHandleStyle">
+          <div class="w-1 h-8 bg-primary"></div>
+          <div class="w-5 h-5 rounded-full bg-primary"></div>
+        </div>
+      </div>
+
       <!-- Display min and max values below the slider -->
       <div class="flex justify-between mt-4">
         <span class="badge badge-info">{{ minValue.toFixed(2) }}</span>
@@ -44,6 +59,8 @@
     </div>
   </div>
 </template>
+
+
 
 <script setup lang="ts">
 const props = defineProps({
@@ -73,13 +90,28 @@ const rangeFill = computed(() => {
   }
 })
 
-// Computed styles for slider knobs with dynamic z-index based on active slider
+// Styles for sliders when active (z-index handling)
 const minSliderStyle = computed(() => ({
   zIndex: activeSlider.value === 'min' ? 4 : 3,
 }))
 
 const maxSliderStyle = computed(() => ({
   zIndex: activeSlider.value === 'max' ? 4 : 3,
+}))
+
+// Styles for the handle UI when the values are close
+const areValuesClose = computed(() => {
+  return Math.abs(minValue.value - maxValue.value) < 5
+})
+
+const minHandleStyle = computed(() => ({
+  left: `${((minValue.value - props.min) / (props.max - props.min)) * 100}%`,
+  bottom: areValuesClose.value ? '-30px' : '0',
+}))
+
+const maxHandleStyle = computed(() => ({
+  left: `${((maxValue.value - props.min) / (props.max - props.min)) * 100}%`,
+  top: areValuesClose.value ? '-30px' : '0',
 }))
 
 // Ensure minValue cannot be greater than maxValue
@@ -112,68 +144,3 @@ watch(
   { immediate: true },
 )
 </script>
-
-
-<style scoped>
-/* Track for the range slider */
-.range-track {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 8px;
-  background: var(--bg-base-300);
-  border-radius: 5px;
-  transform: translateY(-50%);
-  z-index: 1;
-}
-
-/* Dynamic fill for the range between min and max */
-.range-fill {
-  position: absolute;
-  top: 50%;
-  height: 8px;
-  background-color: var(--bg-primary);
-  border-radius: 5px;
-  z-index: 2;
-  transform: translateY(-50%);
-  transition: left 0.2s, width 0.2s;
-}
-
-/* Ensure both sliders are aligned correctly */
-.min-slider,
-.max-slider {
-  appearance: none;
-  position: absolute;
-  top: 50%; /* Align both sliders with the range track */
-  transform: translateY(-50%);
-  background: transparent;
-  width: 100%;
-}
-
-/* Grabbable knobs (circular) */
-input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 24px;
-  height: 24px;
-  background-color: var(--bg-primary);
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid var(--bg-base-100);
-}
-
-input[type='range']::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
-  background-color: var(--bg-primary);
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid var(--bg-base-100);
-}
-
-/* Space for value badges */
-.mt-4 {
-  margin-top: 20px;
-}
-</style>

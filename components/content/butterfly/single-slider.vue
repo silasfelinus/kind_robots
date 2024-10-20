@@ -15,12 +15,12 @@
 
         <!-- Slider input -->
         <input
+          :id="sliderId"
           v-model="currentValue"
           type="range"
           :min="min"
           :max="max"
           :step="step"
-          :id="sliderId"
           class="w-full slider range range-primary"
           @input="updateValue"
         />

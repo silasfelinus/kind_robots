@@ -23,24 +23,6 @@ export interface Butterfly {
   },
 }
 
-const generateMessage = (): string => {
-  const messages = [
-    "I'm just fluttering by!",
-    "Did you know butterflies taste with their feet?",
-    "Check out our malaria donation page at /amibot!",
-    "Malaria kills hundreds of thousands of people each year.",
-    "Let's make a difference together! Visit /amibot",
-    "I might be tiny, but I have a big heart!",
-    "Time to flap these wings!",
-    "Supporting malaria prevention is a good idea!",
-    "Did you know that some butterflies can fly 37 miles per hour?",
-    "A day without butterflies is a day without sunshine!"
-  ]
-  
-  const randomIndex = Math.floor(Math.random() * messages.length)
-  return messages[randomIndex]
-}
-
 interface ButterflyState {
   butterflies: Butterfly[]
   scaleModifier: number
@@ -63,18 +45,38 @@ interface ButterflyState {
   presets: Array<ButterflyState['newButterflySettings']>
 }
 
-
 const noise2D = makeNoise2D(Date.now())
 
-// Utility functions for colors
-export const randomColor = (): string => {
+// Utility functions
+const clampToTwoDecimals = (value: number): number => Math.round(value * 100) / 100
+
+const generateMessage = (): string => {
+  const messages = [
+    "I'm just fluttering by!",
+    "Did you know butterflies taste with their feet?",
+    "Check out our malaria donation page at /amibot!",
+    "Malaria kills hundreds of thousands of people each year.",
+    "Let's make a difference together! Visit /amibot",
+    "I might be tiny, but I have a big heart!",
+    "Time to flap these wings!",
+    "Supporting malaria prevention is a good idea!",
+    "Did you know that some butterflies can fly 37 miles per hour?",
+    "A day without butterflies is a day without sunshine!"
+  ]
+  
+  const randomIndex = Math.floor(Math.random() * messages.length)
+  return messages[randomIndex]
+}
+
+// Color helpers (extracted for reusability)
+const randomColor = (): string => {
   const h = Math.floor(Math.random() * 360)
   const s = Math.floor(Math.random() * 50 + 50)
   const l = Math.floor(Math.random() * 40 + 30)
   return `hsl(${h},${s}%,${l}%)`
 }
 
-export const analogousColor = (hsl: string): string => {
+const analogousColor = (hsl: string): string => {
   const hslMatch = hsl.match(/\d+/g)
   if (!hslMatch) throw new Error('Invalid color format')
   const [h, s, l] = hslMatch.map(Number)
@@ -82,21 +84,62 @@ export const analogousColor = (hsl: string): string => {
   return `hsl(${newH},${s}%,${l}%)`
 }
 
-export const complementaryColor = (hsl: string): string => {
+const complementaryColor = (hsl: string): string => {
   const [h, s, l] = hsl.replace('hsl(', '').replace(')', '').split(',')
   const newH = (parseInt(h) + 180) % 360
   return `hsl(${newH},${s},${l})`
 }
 
-export const randomPrimaryColor = (): string => {
+const randomPrimaryColor = (): string => {
   const rainbowHues = [0, 60, 120, 180, 240, 300]
   const randomHue = rainbowHues[Math.floor(Math.random() * rainbowHues.length)]
   return `hsl(${randomHue}, 100%, 50%)`
 }
 
+const applyColorScheme = (scheme: string, primaryColor: string): string => {
+  switch (scheme) {
+    case 'complementary':
+      return complementaryColor(primaryColor)
+    case 'analogous':
+      return analogousColor(primaryColor)
+    case 'primary':
+      return randomPrimaryColor()
+    case 'same':
+      return primaryColor
+    default:
+      return primaryColor
+  }
+}
+
+const createNewButterfly = (settings: ButterflyState['newButterflySettings'], usedNames: string[]): Butterfly => {
+  const primaryColor = randomColor()
+  const secondaryColor = applyColorScheme(settings.colorScheme, primaryColor)
+
+  return {
+    id: generateFunnyName(usedNames),
+    x: clampToTwoDecimals(Math.random() * (settings.xRange.max - settings.xRange.min) + settings.xRange.min),
+    y: clampToTwoDecimals(Math.random() * (settings.yRange.max - settings.yRange.min) + settings.yRange.min),
+    z: clampToTwoDecimals(Math.random() * (settings.sizeRange.max - settings.sizeRange.min) + settings.sizeRange.min),
+    zIndex: Math.floor(Math.random() * (settings.zIndexRange.max - settings.zIndexRange.min + 1)) + settings.zIndexRange.min,
+    rotation: clampToTwoDecimals(Math.random() * (settings.rotationRange.max - settings.rotationRange.min) + settings.rotationRange.min),
+    wingTopColor: primaryColor,
+    wingBottomColor: secondaryColor,
+    speed: clampToTwoDecimals(Math.random() * (settings.speedRange.max - settings.speedRange.min) + settings.speedRange.min),
+    wingSpeed: clampToTwoDecimals(Math.random() * (settings.wingSpeedRange.max - settings.wingSpeedRange.min) + settings.wingSpeedRange.min),
+    scale: clampToTwoDecimals(Math.random() * 0.5 + 0.75),
+    status: settings.status,
+    message: generateMessage(),
+    goal: {
+      x: clampToTwoDecimals(Math.random() * 100),
+      y: clampToTwoDecimals(Math.random() * 100),
+    }    
+  }
+}
+
+
 export const useButterflyStore = defineStore({
   id: 'butterfly',
-state: (): ButterflyState => ({
+  state: (): ButterflyState => ({
     butterflies: [],
     scaleModifier: 1,
     animationFrameId: null,
@@ -111,7 +154,7 @@ state: (): ButterflyState => ({
       wingSpeedRange: { min: 1, max: 5 },
       xRange: { min: 0, max: 100 },
       yRange: { min: 0, max: 100 },
-      zIndexRange: { min: 0,  max: 50  },
+      zIndexRange: { min: 0, max: 50 },
       status: 'random',
       colorScheme: 'random',
     },
@@ -130,61 +173,17 @@ state: (): ButterflyState => ({
       errorStore.addError(type, message)
     },
     addButterfly(butterfly?: Butterfly) {
-      if (!butterfly) {
-
-        butterfly = {
-          id: generateFunnyName(this.usedNames),
-          x: Math.random() * (this.newButterflySettings.xRange.max - this.newButterflySettings.xRange.min) + this.newButterflySettings.xRange.min,
-          y: Math.random() * (this.newButterflySettings.yRange.max - this.newButterflySettings.yRange.min) + this.newButterflySettings.yRange.min,
-          z: Math.random() * (this.newButterflySettings.sizeRange.max - this.newButterflySettings.sizeRange.min) + this.newButterflySettings.sizeRange.min,
-          zIndex: Math.floor(Math.random() * (this.newButterflySettings.zIndexRange.max - this.newButterflySettings.zIndexRange.min + 1)) + this.newButterflySettings.zIndexRange.min, // Updated zIndexRange
-          rotation: Math.random() * (this.newButterflySettings.rotationRange.max - this.newButterflySettings.rotationRange.min) + this.newButterflySettings.rotationRange.min,
-          wingTopColor: '',
-          wingBottomColor: '',
-          speed: Math.random() * (this.newButterflySettings.speedRange.max - this.newButterflySettings.speedRange.min) + this.newButterflySettings.speedRange.min,
-          wingSpeed: Math.random() * (this.newButterflySettings.wingSpeedRange.max - this.newButterflySettings.wingSpeedRange.min) + this.newButterflySettings.wingSpeedRange.min,
-          scale: Math.random() * 0.5 + 0.75,
-          status: this.newButterflySettings.status,
-          message: generateMessage(),
-          goal: { x: Math.random() * 100 , y: Math.random() * 100 }
-        }
+      try {
+        const usedNames = this.usedNames
+        this.butterflies.push(butterfly || createNewButterfly(this.newButterflySettings, usedNames))
+      } catch (error) {
+        this.addError(ErrorType.STORE_ERROR, error)
       }
-    
-      // Assign colors based on settings
-      let primaryColor = randomColor()
-      let secondaryColor = primaryColor
-    
-      // Color scheme logic (complementary, analogous, etc.)
-      switch (this.newButterflySettings.colorScheme) {
-        case 'complementary':
-          secondaryColor = complementaryColor(primaryColor)
-          break
-        case 'analogous':
-          secondaryColor = analogousColor(primaryColor)
-          break
-        case 'primary':
-          primaryColor = randomPrimaryColor()
-          secondaryColor = randomPrimaryColor()
-          break
-        case 'same':
-          secondaryColor = primaryColor
-          break
-      }
-    
-      butterfly.wingTopColor = primaryColor
-      butterfly.wingBottomColor = secondaryColor
-    
-      this.butterflies.push(butterfly)
-      this.selectedButterflyId = butterfly.id
     },
-    setSelectedButterfly(id: string) {
-      this.selectedButterflyId = id
-    },
-    
     removeLastButterfly() {
       if (this.butterflies.length > 0) {
         const removedButterfly = this.butterflies.pop()
-
+    
         if (removedButterfly?.id === this.selectedButterflyId) {
           this.selectedButterflyId = this.butterflies.length
             ? this.butterflies[this.butterflies.length - 1].id
@@ -192,103 +191,36 @@ state: (): ButterflyState => ({
         }
       }
     },
-    getColorSchemeColor(colorScheme: string): string {
-      const primaryColor = randomColor()
-
-      switch (colorScheme) {
-        case 'complementary':
-          return complementaryColor(primaryColor)
-        case 'analogous':
-          return analogousColor(primaryColor)
-        case 'primary':
-          return randomPrimaryColor()
-        case 'same':
-          return primaryColor
-        case 'random':
-        default:
-          return primaryColor
-      }
-    },
-    updateButterflyId(id: string, newId: string) {
-      const butterfly = this.butterflies.find((b) => b.id === id)
-      if (butterfly) {
-        butterfly.id = newId
-      }
-    },
-
+       
     generateInitialButterflies(count: number) {
       try {
         for (let i = 0; i < count; i++) {
-          this.addButterfly({
-            id: generateFunnyName(this.usedNames),
-            x: Math.random() * (this.newButterflySettings.xRange.max - this.newButterflySettings.xRange.min) + this.newButterflySettings.xRange.min,
-            y: Math.random() * (this.newButterflySettings.yRange.max - this.newButterflySettings.yRange.min) + this.newButterflySettings.yRange.min,
-            z: Math.random() * (this.newButterflySettings.sizeRange.max - this.newButterflySettings.sizeRange.min) + this.newButterflySettings.sizeRange.min,
-            zIndex: Math.floor(Math.random() * (this.newButterflySettings.zIndexRange.max - this.newButterflySettings.zIndexRange.min + 1)) + this.newButterflySettings.zIndexRange.min, // Updated to use zIndexRange
-            rotation: Math.random() * (this.newButterflySettings.rotationRange.max - this.newButterflySettings.rotationRange.min) + this.newButterflySettings.rotationRange.min,
-            wingTopColor: '',
-            wingBottomColor: '',
-            speed: Math.random() * (this.newButterflySettings.speedRange.max - this.newButterflySettings.speedRange.min) + this.newButterflySettings.speedRange.min,
-            wingSpeed: Math.random() * (this.newButterflySettings.wingSpeedRange.max - this.newButterflySettings.wingSpeedRange.min) + this.newButterflySettings.wingSpeedRange.min,
-            scale: Math.random() * 0.5 + 0.75,
-            status: this.newButterflySettings.status,
-            message: generateMessage(),
-            goal: { x: Math.random() * 100 , y: Math.random() * 100 }
-          })
+          this.addButterfly()
         }
       } catch (error) {
         this.addError(ErrorType.STORE_ERROR, error)
       }
     },
-    
-
-    // Update butterfly positions using noise2D
     updateButterflyPosition(butterfly: Butterfly) {
       let t = 0
       t += 0.01
-      const angle =
-        noise2D(butterfly.goal.x * 0.01, butterfly.goal.y * 0.01 + t) * Math.PI * 2
+      const angle = noise2D(butterfly.goal.x * 0.01, butterfly.goal.y * 0.01 + t) * Math.PI * 2
       const dx = Math.cos(angle) * butterfly.speed
       const dy = Math.sin(angle) * butterfly.speed
-    
-      butterfly.goal.x += dx
-      butterfly.goal.y += dy
-    
-      if (butterfly.goal.x < 0 || butterfly.goal.x > window.innerWidth - 100) {
-        butterfly.goal.x = Math.max(
-          Math.min(butterfly.goal.x, window.innerWidth - 100),
-          0,
-        )
-      }
-    
-      if (butterfly.goal.y < 0 || butterfly.goal.y > window.innerHeight - 100) {
-        butterfly.goal.y = Math.max(
-          Math.min(butterfly.goal.y, window.innerHeight - 100),
-          0,
-        )
-      }
-    
-      butterfly.scale =
-        0.33 +
-        ((2 -
-          (butterfly.goal.x / window.innerWidth +
-            butterfly.goal.y / window.innerHeight)) /
-          2) *
-          0.67
-    
+
+      butterfly.goal.x = Math.max(Math.min(butterfly.goal.x + dx, window.innerWidth - 100), 0)
+      butterfly.goal.y = Math.max(Math.min(butterfly.goal.y + dy, window.innerHeight - 100), 0)
+
+      butterfly.scale = 0.33 + (2 - (butterfly.goal.x / window.innerWidth + butterfly.goal.y / window.innerHeight)) / 2 * 0.67
       butterfly.rotation = dx >= 0 ? 120 : 30
     },
-
     animateButterflies() {
       const animate = () => {
-        this.butterflies.forEach(butterfly => {
-          this.updateButterflyPosition(butterfly)
-        })
+        this.butterflies.forEach(butterfly => this.updateButterflyPosition(butterfly))
         this.animationFrameId = requestAnimationFrame(animate)
       }
       animate()
     },
-
     pauseAnimation() {
       if (this.animationFrameId !== null) {
         cancelAnimationFrame(this.animationFrameId)
@@ -296,62 +228,42 @@ state: (): ButterflyState => ({
         this.animationFrameId = null
       }
     },
-
     resumeAnimation() {
       if (this.animationPaused) {
         this.animationPaused = false
         this.animateButterflies()
       }
     },
-
     savePreset() {
       this.presets.push({ ...this.newButterflySettings })
       localStorage.setItem('butterflyPresets', JSON.stringify(this.presets))
     },
-
     loadPresets() {
       const storedPresets = localStorage.getItem('butterflyPresets')
       if (storedPresets) {
         this.presets = JSON.parse(storedPresets)
       }
     },
-
     applyPreset(index: number) {
       if (index >= 0 && index < this.presets.length) {
         this.newButterflySettings = { ...this.presets[index] }
       }
     },
-
     updateButterflySettings(newSettings: Partial<ButterflyState['newButterflySettings']>) {
-      this.newButterflySettings = {
-        ...this.newButterflySettings,
-        ...newSettings,
-      }
+      this.newButterflySettings = { ...this.newButterflySettings, ...newSettings }
       this.savePreset()
     },
   },
   getters: {
-    usedNames: (state) => state.butterflies.map(butterfly => butterfly.id),
-  
-
-    getAllButterflies: (state) => state.butterflies,
-
-    getButterflyById: (state) => (id: string) =>
-      state.butterflies.find(b => b.id === id),
-
-    getScaleModifier: (state) => state.scaleModifier,
-
-    getNewButterflySettings: (state) => state.newButterflySettings,
-
-    getPresets: (state) => state.presets,
-
-    getButterflyCount: (state) => state.butterflies.length,
-
-    getActiveAnimationState: (state) => (state.animationFrameId !== null ? 'running' : state.animationPaused ? 'paused' : 'stopped'),
-
-    getSelectedButterfly: (state) => state.butterflies.find(b => b.id === state.selectedButterflyId),
-    
-    getButterfliesByStatus: (state) => (status: Butterfly['status']) =>
-      state.butterflies.filter(b => b.status === status),
+    usedNames: state => state.butterflies.map(butterfly => butterfly.id),
+    getAllButterflies: state => state.butterflies,
+    getButterflyById: state => (id: string) => state.butterflies.find(b => b.id === id),
+    getScaleModifier: state => state.scaleModifier,
+    getNewButterflySettings: state => state.newButterflySettings,
+    getPresets: state => state.presets,
+    getButterflyCount: state => state.butterflies.length,
+    getActiveAnimationState: state => state.animationFrameId !== null ? 'running' : state.animationPaused ? 'paused' : 'stopped',
+    getSelectedButterfly: state => state.butterflies.find(b => b.id === state.selectedButterflyId),
+    getButterfliesByStatus: state => (status: Butterfly['status']) => state.butterflies.filter(b => b.status === status),
   },
 })

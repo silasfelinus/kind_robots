@@ -108,7 +108,7 @@ watch(
   left: 0;
   right: 0;
   height: 8px;
-  background: var(--daisyui-colors-base-300, #ddd);
+  background: var(--bg-base-300);
   border-radius: 5px;
   transform: translateY(-50%);
   z-index: 1;
@@ -119,7 +119,7 @@ watch(
   position: absolute;
   top: 50%;
   height: 8px;
-  background-color: var(--daisyui-colors-primary, #4a90e2);
+  background-color: var(--bg-primary);
   border-radius: 5px;
   z-index: 2;
   transform: translateY(-50%);
@@ -146,18 +146,18 @@ input[type='range']::-webkit-slider-thumb {
   appearance: none;
   width: 24px;
   height: 24px;
-  background-color: var(--daisyui-colors-primary, #4a90e2);
+  background-color: var(--bg-primary);
   border-radius: 50%;
   cursor: pointer;
-  border: 2px solid var(--daisyui-colors-base-100, #fff);
+  border: 2px solid var(--bg-base-100);
 }
 
 input[type='range']::-moz-range-thumb {
   width: 24px;
   height: 24px;
-  background-color: var(--daisyui-colors-primary, #4a90e2);
+  background-color: var(--bg-primary);
   border-radius: 50%;
   cursor: pointer;
-  border: 2px solid var(--daisyui-colors-base-100, #fff);
+  border: 2px solid var(--bg-base-100);
 }
 </style>

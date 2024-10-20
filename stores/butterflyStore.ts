@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { makeNoise2D } from 'open-simplex-noise'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { generateFunnyName } from '@/utils/generateButterflyNames'
+import { generateMessage } from '/@/utils/generateMessage'
 
 export interface Butterfly {
   id: string
@@ -50,23 +51,7 @@ const noise2D = makeNoise2D(Date.now())
 // Utility functions
 const clampToTwoDecimals = (value: number): number => Math.round(value * 100) / 100
 
-const generateMessage = (): string => {
-  const messages = [
-    "I'm just fluttering by!",
-    "Did you know butterflies taste with their feet?",
-    "Check out our malaria donation page at /amibot!",
-    "Malaria kills hundreds of thousands of people each year.",
-    "Let's make a difference together! Visit /amibot",
-    "I might be tiny, but I have a big heart!",
-    "Time to flap these wings!",
-    "Supporting malaria prevention is a good idea!",
-    "Did you know that some butterflies can fly 37 miles per hour?",
-    "A day without butterflies is a day without sunshine!"
-  ]
-  
-  const randomIndex = Math.floor(Math.random() * messages.length)
-  return messages[randomIndex]
-}
+
 
 // Color helpers (extracted for reusability)
 export const randomColor = (): string => {

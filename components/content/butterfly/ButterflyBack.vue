@@ -158,7 +158,7 @@ const butterflyStore = useButterflyStore()
 // Guard for store and selected butterfly availability
 const butterflyStoreAvailable = computed(
   () =>
-    butterflyStore && butterflies.value.length > 0 && selectedButterfly.value,
+    butterflyStore && butterflies.value.length > 0,
 )
 
 // Get the list of butterflies from the store

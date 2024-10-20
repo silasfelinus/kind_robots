@@ -25,19 +25,7 @@
           </select>
         </div>
 
-        <!-- Butterfly ID Display (not editable) -->
-        <div v-if="selectedButterfly" class="mb-6">
-          <label for="butterflyId" class="block mb-2"
-            >Butterfly ID (Uneditable):</label
-          >
-          <input
-            id="butterflyId"
-            v-model="selectedButterfly.id"
-            type="text"
-            class="w-full p-2 rounded bg-gray-400 text-gray-700 cursor-not-allowed"
-            disabled
-          />
-        </div>
+        
 
         <!-- Size slider -->
         <single-slider

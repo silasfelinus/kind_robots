@@ -20,7 +20,8 @@
           :min="min"
           :max="max"
           :step="step"
-          class="w-full slider"
+          :id="sliderId"
+          class="w-full slider range range-primary"
           @input="updateValue"
         />
       </div>
@@ -67,61 +68,20 @@ watch(
 </script>
 
 <style scoped>
-/* Track for the range slider */
 .range-track {
   position: absolute;
-  top: 50%;
+  top: 0;
   left: 0;
-  right: 0;
-  height: 8px;
-  background: var(--daisyui-colors-base-300, #ddd);
-  border-radius: 5px;
-  transform: translateY(-50%);
-  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background-color: #e0e0e0;
 }
 
-/* Dynamic fill for selected range */
 .range-fill {
   position: absolute;
-  top: 50%;
-  height: 8px;
-  background-color: var(--daisyui-colors-primary, #4a90e2);
-  border-radius: 5px;
-  z-index: 2;
-  transform: translateY(-50%);
-}
-
-/* Slider input styling */
-input[type='range'] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 10px;
-  background: transparent; /* The range track is managed by .range-track */
-  position: relative;
-  z-index: 3;
-}
-
-/* Grabbable slider knob (circular) */
-input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 24px;
-  height: 24px;
-  background-color: var(--daisyui-colors-primary, #4a90e2);
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid var(--daisyui-colors-base-100, #fff);
-  z-index: 4;
-}
-
-input[type='range']::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
-  background-color: var(--daisyui-colors-primary, #4a90e2);
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid var(--daisyui-colors-base-100, #fff);
-  z-index: 4;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #3b82f6;
 }
 </style>

@@ -166,6 +166,7 @@ export const useButterflyStore = defineStore({
           const usedNames = this.usedNames
           const newButterfly = butterfly || await createNewButterfly(this.newButterflySettings, usedNames)
           this.butterflies.push(newButterfly)
+          this.selectedButterflyId = newButterfly.id
         } catch (error) {
           this.addError(ErrorType.STORE_ERROR, error)
         }

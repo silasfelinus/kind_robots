@@ -20,7 +20,7 @@
         label="Speed"
         :min="0.5"
         :max="5"
-        :step="0.1"
+        :step="0.5"
         slider-id="speedSlider"
       />
 
@@ -40,7 +40,7 @@
         label="Rotation"
         :min="0"
         :max="360"
-        :step="10"
+        :step="1"
         slider-id="rotationSlider"
       />
 

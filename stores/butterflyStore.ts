@@ -69,14 +69,14 @@ const generateMessage = (): string => {
 }
 
 // Color helpers (extracted for reusability)
-const randomColor = (): string => {
+export const randomColor = (): string => {
   const h = Math.floor(Math.random() * 360)
   const s = Math.floor(Math.random() * 50 + 50)
   const l = Math.floor(Math.random() * 40 + 30)
   return `hsl(${h},${s}%,${l}%)`
 }
 
-const analogousColor = (hsl: string): string => {
+export const analogousColor = (hsl: string): string => {
   const hslMatch = hsl.match(/\d+/g)
   if (!hslMatch) throw new Error('Invalid color format')
   const [h, s, l] = hslMatch.map(Number)
@@ -84,19 +84,19 @@ const analogousColor = (hsl: string): string => {
   return `hsl(${newH},${s}%,${l}%)`
 }
 
-const complementaryColor = (hsl: string): string => {
+export const complementaryColor = (hsl: string): string => {
   const [h, s, l] = hsl.replace('hsl(', '').replace(')', '').split(',')
   const newH = (parseInt(h) + 180) % 360
   return `hsl(${newH},${s},${l})`
 }
 
-const randomPrimaryColor = (): string => {
+export const randomPrimaryColor = (): string => {
   const rainbowHues = [0, 60, 120, 180, 240, 300]
   const randomHue = rainbowHues[Math.floor(Math.random() * rainbowHues.length)]
   return `hsl(${randomHue}, 100%, 50%)`
 }
 
-const applyColorScheme = (scheme: string, primaryColor: string): string => {
+export const applyColorScheme = (scheme: string, primaryColor: string): string => {
   switch (scheme) {
     case 'complementary':
       return complementaryColor(primaryColor)
@@ -111,7 +111,7 @@ const applyColorScheme = (scheme: string, primaryColor: string): string => {
   }
 }
 
-const createNewButterfly = (settings: ButterflyState['newButterflySettings'], usedNames: string[]): Butterfly => {
+export const createNewButterfly = (settings: ButterflyState['newButterflySettings'], usedNames: string[]): Butterfly => {
   const primaryColor = randomColor()
   const secondaryColor = applyColorScheme(settings.colorScheme, primaryColor)
 

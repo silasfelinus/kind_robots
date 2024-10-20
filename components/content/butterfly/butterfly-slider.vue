@@ -16,7 +16,7 @@
         :min="min"
         :max="max"
         :step="step"
-        class="absolute w-full h-4 appearance-none pointer-events-auto"
+        class="absolute w-full h-0 appearance-none pointer-events-none"
         @input="updateMinValue"
       />
 
@@ -27,22 +27,26 @@
         :min="min"
         :max="max"
         :step="step"
-        class="absolute w-full h-4 appearance-none pointer-events-auto"
+        class="absolute w-full h-0 appearance-none pointer-events-none"
         @input="updateMaxValue"
       />
 
       <!-- Min Knob -->
       <div
-        class="absolute h-6 w-6 bg-primary rounded-full -top-1 cursor-pointer"
+        class="absolute h-8 w-8 bg-primary rounded-full -top-2 cursor-pointer pointer-events-auto"
         :style="minKnobStyle"
+        @mousedown.prevent
+        @touchstart.prevent
       >
         <div class="absolute -bottom-6 text-center w-full text-sm">{{ minValue }}</div>
       </div>
 
       <!-- Max Knob -->
       <div
-        class="absolute h-6 w-6 bg-primary rounded-full -top-1 cursor-pointer"
+        class="absolute h-8 w-8 bg-primary rounded-full -top-2 cursor-pointer pointer-events-auto"
         :style="maxKnobStyle"
+        @mousedown.prevent
+        @touchstart.prevent
       >
         <div class="absolute -bottom-6 text-center w-full text-sm">{{ maxValue }}</div>
       </div>
@@ -103,13 +107,13 @@ const updateMaxValue = () => {
 const minKnobStyle = computed(() => {
   const totalRange = props.max - props.min
   const left = ((minValue.value - props.min) / totalRange) * 100
-  return { left: `calc(${left}% - 12px)` } // Centering the knob
+  return { left: `calc(${left}% - 16px)` } // Adjusted for larger knob
 })
 
 const maxKnobStyle = computed(() => {
   const totalRange = props.max - props.min
   const left = ((maxValue.value - props.min) / totalRange) * 100
-  return { left: `calc(${left}% - 12px)` } // Centering the knob
+  return { left: `calc(${left}% - 16px)` } // Adjusted for larger knob
 })
 
 watch(
@@ -121,3 +125,19 @@ watch(
   { immediate: true },
 )
 </script>
+
+<style scoped>
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent; /* Make slider inputs transparent */
+  pointer-events: none; /* Ensure only the knob divs respond to pointer events */
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0; /* Hiding the default thumb */
+  height: 0;
+}
+</style>

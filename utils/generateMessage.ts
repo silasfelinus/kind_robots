@@ -1,12 +1,13 @@
 // utils/generateMessage.ts
 
-const importMessageCategories = async () => {
-  const messageModules = import.meta.glob('./messages/*.ts') // Adjust the path as per your structure
+const importMessageCategories = async (): Promise<Record<string, string[]>> => {
+  const messageModules = import.meta.glob('./messages/*.ts')  // Adjust the path as per your structure
   const messages: Record<string, string[]> = {}
 
   // Import all message files
   for (const path in messageModules) {
-    const module = await messageModules[path]()
+    const module = (await messageModules[path]()) as Record<string, string[]>
+    
     // Extract the category name (assumed to be the same as the file name)
     const categoryName = Object.keys(module)[0]
     messages[categoryName] = module[categoryName]

@@ -96,9 +96,12 @@ export const applyColorScheme = (scheme: string, primaryColor: string): string =
   }
 }
 
-export const createNewButterfly = (settings: ButterflyState['newButterflySettings'], usedNames: string[]): Butterfly => {
+export const createNewButterfly = async (settings: ButterflyState['newButterflySettings'], usedNames: string[]): Promise<Butterfly> => {
   const primaryColor = randomColor()
   const secondaryColor = applyColorScheme(settings.colorScheme, primaryColor)
+
+  // Await the message from the async generateMessage function
+  const message = await generateMessage()
 
   return {
     id: generateFunnyName(usedNames),
@@ -113,13 +116,14 @@ export const createNewButterfly = (settings: ButterflyState['newButterflySetting
     wingSpeed: clampToTwoDecimals(Math.random() * (settings.wingSpeedRange.max - settings.wingSpeedRange.min) + settings.wingSpeedRange.min),
     scale: clampToTwoDecimals(Math.random() * 0.5 + 0.75),
     status: settings.status,
-    message: generateMessage(),
+    message,  // Use the awaited message
     goal: {
       x: clampToTwoDecimals(Math.random() * 100),
       y: clampToTwoDecimals(Math.random() * 100),
-    }    
+    }
   }
 }
+
 
 
 export const useButterflyStore = defineStore({
@@ -157,14 +161,26 @@ export const useButterflyStore = defineStore({
       const errorStore = useErrorStore()
       errorStore.addError(type, message)
     },
-    addButterfly(butterfly?: Butterfly) {
-      try {
-        const usedNames = this.usedNames
-        this.butterflies.push(butterfly || createNewButterfly(this.newButterflySettings, usedNames))
-      } catch (error) {
-        this.addError(ErrorType.STORE_ERROR, error)
-      }
-    },
+      async addButterfly(butterfly?: Butterfly) {
+        try {
+          const usedNames = this.usedNames
+          const newButterfly = butterfly || await createNewButterfly(this.newButterflySettings, usedNames)
+          this.butterflies.push(newButterfly)
+        } catch (error) {
+          this.addError(ErrorType.STORE_ERROR, error)
+        }
+      },
+    
+      async generateInitialButterflies(count: number) {
+        try {
+          for (let i = 0; i < count; i++) {
+            await this.addButterfly()  // Ensure each butterfly is created asynchronously
+          }
+        } catch (error) {
+          this.addError(ErrorType.STORE_ERROR, error)
+        }
+      },
+    
     removeLastButterfly() {
       if (this.butterflies.length > 0) {
         const removedButterfly = this.butterflies.pop()
@@ -174,16 +190,6 @@ export const useButterflyStore = defineStore({
             ? this.butterflies[this.butterflies.length - 1].id
             : ''
         }
-      }
-    },
-       
-    generateInitialButterflies(count: number) {
-      try {
-        for (let i = 0; i < count; i++) {
-          this.addButterfly()
-        }
-      } catch (error) {
-        this.addError(ErrorType.STORE_ERROR, error)
       }
     },
     updateButterflyPosition(butterfly: Butterfly) {

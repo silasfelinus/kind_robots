@@ -12,13 +12,13 @@
             >Select Butterfly:</label
           >
           <select
-            v-model="butterflyStore.selectedButterflyRefId"
+            v-model="butterflyStore.selectedButterflyId"
             class="w-full p-2 rounded"
           >
             <option
               v-for="butterfly in butterflies"
-              :key="butterfly.refId"
-              :value="butterfly.refId"
+              :key="butterfly.id"
+              :value="butterfly.id"
             >
               {{ butterfly.id }}
             </option>
@@ -32,13 +32,13 @@
           >
           <input
             id="editButterflyId"
-            v-model="newButterflyId"
+            v-model="editableButterflyId"
+            @blur="updateButterflyId"
             type="text"
             class="w-full p-2 rounded"
           />
         </div>
 
-        <!-- Other Sliders and Inputs for Butterfly Settings -->
         <!-- Size slider -->
         <single-slider
           v-if="selectedButterfly"
@@ -147,8 +147,9 @@
     </div>
   </div>
 </template>
+
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
 // Access the butterfly store
@@ -160,30 +161,26 @@ const butterflyStoreAvailable = computed(
     butterflyStore && butterflies.value.length > 0 && selectedButterfly.value,
 )
 
-// Get the list of butterflies from the store (with internal refId)
-const butterflies = computed(() =>
-  butterflyStore.getAllButterflies.map((butterfly, index) => ({
-    ...butterfly,
-    refId: index, // Use the index or another internal identifier as refId
-  })),
-)
+// Get the list of butterflies from the store
+const butterflies = computed(() => butterflyStore.getAllButterflies)
 
-// Use the store's selected butterfly based on refId
-const selectedButterfly = computed(() =>
-  butterflies.value.find(
-    (b) => b.refId === butterflyStore.selectedButterflyRefId,
-  ),
-)
+// Use the store's selected butterfly
+const selectedButterfly = computed(() => butterflyStore.getSelectedButterfly)
 
-// New butterfly ID for editing purposes
-const newButterflyId = computed({
-  get: () => selectedButterfly.value?.id || '',
-  set: (val) => {
-    if (selectedButterfly.value) {
-      butterflyStore.updateButterflyId(selectedButterfly.value.id, val)
-    }
-  },
+// Make an editable copy of the selected butterfly's ID
+const editableButterflyId = ref(selectedButterfly.value?.id || '')
+
+// Watch for changes in the selected butterfly and update editable ID
+watch(selectedButterfly, (newButterfly) => {
+  editableButterflyId.value = newButterfly?.id || ''
 })
+
+// Function to update the butterfly's ID in the store
+const updateButterflyId = () => {
+  if (selectedButterfly.value && editableButterflyId.value !== selectedButterfly.value.id) {
+    butterflyStore.updateButterflyId(selectedButterfly.value.id, editableButterflyId.value)
+  }
+}
 
 // Computed properties for additional butterfly settings
 const selectedButterflySize = computed({

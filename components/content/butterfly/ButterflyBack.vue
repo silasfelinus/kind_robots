@@ -33,9 +33,9 @@
           <input
             id="editButterflyId"
             v-model="editableButterflyId"
-            @blur="updateButterflyId"
             type="text"
             class="w-full p-2 rounded"
+            @blur="updateButterflyId"
           />
         </div>
 
@@ -177,8 +177,14 @@ watch(selectedButterfly, (newButterfly) => {
 
 // Function to update the butterfly's ID in the store
 const updateButterflyId = () => {
-  if (selectedButterfly.value && editableButterflyId.value !== selectedButterfly.value.id) {
-    butterflyStore.updateButterflyId(selectedButterfly.value.id, editableButterflyId.value)
+  if (
+    selectedButterfly.value &&
+    editableButterflyId.value !== selectedButterfly.value.id
+  ) {
+    butterflyStore.updateButterflyId(
+      selectedButterfly.value.id,
+      editableButterflyId.value,
+    )
   }
 }
 

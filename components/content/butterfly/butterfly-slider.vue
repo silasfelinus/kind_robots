@@ -37,7 +37,10 @@
       />
 
       <!-- Min and Max handle UI (circles with vertical lines when close together) -->
-      <div v-if="areValuesClose" class="absolute w-full flex justify-between pointer-events-none">
+      <div
+        v-if="areValuesClose"
+        class="absolute w-full flex justify-between pointer-events-none"
+      >
         <!-- Min circle handle -->
         <div class="absolute flex justify-center" :style="minHandleStyle">
           <div class="w-5 h-5 rounded-full bg-primary"></div>
@@ -53,14 +56,12 @@
 
       <!-- Display min and max values below the slider -->
       <div class="flex justify-between mt-4">
-        <span class="badge badge-info">{{ minValue.toFixed(2) }}</span>
-        <span class="badge badge-info">{{ maxValue.toFixed(2) }}</span>
+        <span class="badge badge-info">{{ minValue }}</span>
+        <span class="badge badge-info">{{ maxValue }}</span>
       </div>
     </div>
   </div>
 </template>
-
-
 
 <script setup lang="ts">
 const props = defineProps({

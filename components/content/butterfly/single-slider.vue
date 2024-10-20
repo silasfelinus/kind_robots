@@ -26,9 +26,7 @@
         />
       </div>
     </div>
-    <div class="text-center">
-      Chosen {{ label }}: {{ currentValue.toFixed(2) }}
-    </div>
+    <div class="text-center">Chosen {{ label }}: {{ currentValue }}</div>
   </div>
 </template>
 

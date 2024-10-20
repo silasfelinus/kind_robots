@@ -6,8 +6,8 @@
       <!-- Range track (static background) -->
       <div class="range-track h-2 bg-gray-300 rounded-full"></div>
 
-      <!-- Range fill (dynamic background) -->
-      <div class="range-fill absolute h-2 bg-primary rounded-full" :style="rangeFill"></div>
+      <!-- Range fill (dynamic, thicker than track) -->
+      <div class="range-fill absolute h-4 bg-primary rounded-full" :style="rangeFill"></div>
 
       <!-- Min slider -->
       <input
@@ -16,7 +16,7 @@
         :min="min"
         :max="max"
         :step="step"
-        class="absolute w-full opacity-0 pointer-events-none"
+        class="absolute w-full h-4 appearance-none pointer-events-auto"
         @input="updateMinValue"
       />
 
@@ -27,13 +27,13 @@
         :min="min"
         :max="max"
         :step="step"
-        class="absolute w-full opacity-0 pointer-events-none"
+        class="absolute w-full h-4 appearance-none pointer-events-auto"
         @input="updateMaxValue"
       />
 
       <!-- Min Knob -->
       <div
-        class="absolute h-6 w-6 bg-primary rounded-full -top-2 cursor-pointer"
+        class="absolute h-6 w-6 bg-primary rounded-full -top-1 cursor-pointer"
         :style="minKnobStyle"
       >
         <div class="absolute -bottom-6 text-center w-full text-sm">{{ minValue }}</div>
@@ -41,7 +41,7 @@
 
       <!-- Max Knob -->
       <div
-        class="absolute h-6 w-6 bg-primary rounded-full -top-2 cursor-pointer"
+        class="absolute h-6 w-6 bg-primary rounded-full -top-1 cursor-pointer"
         :style="maxKnobStyle"
       >
         <div class="absolute -bottom-6 text-center w-full text-sm">{{ maxValue }}</div>

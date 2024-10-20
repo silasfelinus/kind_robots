@@ -6,8 +6,8 @@
       <!-- Range track (static background) -->
       <div class="range-track h-2 bg-gray-300 rounded-full"></div>
 
-      <!-- Range fill (dynamic, thicker than track) -->
-      <div class="range-fill absolute h-4 bg-primary rounded-full" :style="rangeFill"></div>
+      <!-- Range fill (dynamic, centered) -->
+      <div class="range-fill absolute h-2 bg-primary rounded-full top-0 transform translate-y-1/2" :style="rangeFill"></div>
 
       <!-- Min slider -->
       <input
@@ -16,7 +16,7 @@
         :min="min"
         :max="max"
         :step="step"
-        class="absolute w-full h-0 appearance-none pointer-events-none"
+        class="absolute w-full h-0 pointer-events-none appearance-none"
         @input="updateMinValue"
       />
 
@@ -27,13 +27,13 @@
         :min="min"
         :max="max"
         :step="step"
-        class="absolute w-full h-0 appearance-none pointer-events-none"
+        class="absolute w-full h-0 pointer-events-none appearance-none"
         @input="updateMaxValue"
       />
 
       <!-- Min Knob -->
       <div
-        class="absolute h-8 w-8 bg-primary rounded-full -top-2 cursor-pointer pointer-events-auto"
+        class="absolute h-8 w-8 bg-primary rounded-full -top-3 cursor-pointer pointer-events-auto"
         :style="minKnobStyle"
         @mousedown.prevent
         @touchstart.prevent
@@ -43,7 +43,7 @@
 
       <!-- Max Knob -->
       <div
-        class="absolute h-8 w-8 bg-primary rounded-full -top-2 cursor-pointer pointer-events-auto"
+        class="absolute h-8 w-8 bg-primary rounded-full -top-3 cursor-pointer pointer-events-auto"
         :style="maxKnobStyle"
         @mousedown.prevent
         @touchstart.prevent
@@ -127,11 +127,16 @@ watch(
 </script>
 
 <style scoped>
+/* Remove default range input styling */
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   background: transparent; /* Make slider inputs transparent */
-  pointer-events: none; /* Ensure only the knob divs respond to pointer events */
+  pointer-events: none;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 0; /* Ensure track is hidden */
 }
 
 input[type='range']::-webkit-slider-thumb {
@@ -139,5 +144,24 @@ input[type='range']::-webkit-slider-thumb {
   appearance: none;
   width: 0; /* Hiding the default thumb */
   height: 0;
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-track {
+  height: 0; /* Hide the default track */
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 0;
+  height: 0;
+}
+
+/* Hide original slider track */
+input[type='range']::-ms-track {
+  width: 100%;
+  cursor: pointer;
+  background: transparent; /* Transparent to hide */
+  border-color: transparent;
+  color: transparent;
 }
 </style>

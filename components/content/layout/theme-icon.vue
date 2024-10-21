@@ -8,7 +8,7 @@
 
     <!-- Icon with Scale Hover Effect -->
     <Icon
-      name="bi:brush"
+      name="kind-icon:paintbrush"
       class="h-8 w-8 transition-all duration-300 ease-in-out text-accent"
     />
 

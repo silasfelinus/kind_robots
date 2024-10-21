@@ -6,7 +6,7 @@
       @click="toggleAmiSwarm"
     >
       <Icon
-        name="emojione:butterfly"
+        name="kind-icon:butterfly"
         title="Kind Butterflies"
         :class="{ glow: showSwarm }"
         class="w-8 h-8 cursor-pointer transform transition-transform ease-in-out hover:scale-110"

@@ -15,7 +15,7 @@
         <!-- Default Guest Layout -->
         <router-link to="/dashboard">
           <button class="flex items-center justify-center space-x-2">
-            <Icon name="bi:person-fill" class="w-5 h-5" />
+            <Icon name="kind-icon:person" class="w-5 h-5" />
             <span>Login</span>
           </button>
         </router-link>

@@ -2,30 +2,32 @@
   <div
     class="relative flex justify-center bg-base-300 border-4 rounded-2xl z-5"
   >
-    <div class="flex justify-evenly w-full space-x-4 items-end">
+    <div
+      class="flex flex-wrap justify-center w-full space-y-2 space-x-0 sm:space-x-4 items-center"
+    >
       <div
         v-for="(item, index) in hardcodedLinks"
         :key="index"
-        class="group flex flex-col lg:flex-row items-center justify-end w-20 lg:w-auto lg:space-x-2"
+        class="group flex flex-col items-center justify-center w-1/3 sm:w-1/5 lg:w-auto"
       >
         <!-- Entire button acts as a clickable container -->
         <button
           :aria-label="item.title"
-          class="group flex flex-col lg:flex-row items-center justify-center w-full lg:w-auto space-y-2 lg:space-y-0 lg:space-x-2 text-center transition-all transform rounded-2xl p-4 hover:scale-105 hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+          class="group flex flex-col items-center justify-center w-full space-y-1 text-center transition-all transform p-2 hover:scale-105 hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
           @click="navigateTo(item.path)"
         >
-          <!-- Title below icon on small screens, inline with icon on large screens -->
-          <span
-            class="text-xs md:text-md lg:text-lg font-semibold mt-1 text-center bg-secondary text-white px-2 py-1 rounded-lg"
-          >
-            {{ item.title }}
-          </span>
-
           <!-- Stylized icon with hover and transition effects -->
           <icon
             :name="item.icon"
             class="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 text-accent transition-transform group-hover:scale-110"
           />
+
+          <!-- Title below icon on small screens, inline with icon on large screens -->
+          <span
+            class="text-xs md:text-sm lg:text-md font-semibold mt-1 text-center bg-secondary text-white px-2 py-1 rounded-lg"
+          >
+            {{ item.title }}
+          </span>
         </button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 <template>
   <div class="Icon-link-container">
     <NuxtLink
-      to="/publicwall"
+      to="/artgallery"
       :class="[
         'flex',
         'items-center',
@@ -14,7 +14,7 @@
       ]"
     >
       <Icon
-        name="fluent-emoji-high-contrast:brick"
+        name="kind-icon:palette-color-outline"
         class="w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
       />
     </NuxtLink>
@@ -23,11 +23,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useContentStore } from './../../../stores/contentStore'
+import { useContentStore } from '../../../stores/contentStore'
 
 const contentStore = useContentStore()
 const isCurrentPage = computed(
-  () => contentStore.currentPage?._path === '/publicwall',
+  () => contentStore.currentPage?._path === '/artgallery',
 )
 </script>
 

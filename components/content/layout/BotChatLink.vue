@@ -1,13 +1,12 @@
 <template>
   <div class="Icon-link-container">
     <NuxtLink
-      to="/hotornot"
+      to="/botcafe"
       :class="[
         'flex',
         'items-center',
         'justify-center',
         'rounded-2xl',
-        'bg-base-300',
         'text-center',
         'hover:scale-110',
         'hover:glow-animation',
@@ -15,7 +14,7 @@
       ]"
     >
       <Icon
-        name="kind-icon:fire"
+        name="ic:baseline-wechat"
         class="w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
       />
     </NuxtLink>
@@ -24,11 +23,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useContentStore } from './../../../stores/contentStore'
+import { useContentStore } from '../../../stores/contentStore'
 
 const contentStore = useContentStore()
 const isCurrentPage = computed(
-  () => contentStore.currentPage?._path === '/hotornot',
+  () => contentStore.currentPage?._path === '/botcafe',
 )
 </script>
 

@@ -6,14 +6,14 @@
         <img
           :src="selectImage"
           alt="Avatar"
-          class="avatar-img shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105"
+          class="avatar-img shadow-lg hover:shadow-xl rounded-2xl transition-transform duration-300 transform hover:scale-105"
         />
       </div>
       <div class="flip-card-back">
         <img
           :src="currentBot?.avatarImage || selectImage"
           alt="New Avatar"
-          class="avatar-img shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105"
+          class="avatar-img shadow-lg hover:shadow-xl rounded-2xl transition-transform duration-300 transform hover:scale-105"
         />
       </div>
     </div>

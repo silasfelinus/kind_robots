@@ -4,7 +4,7 @@
     @click="goToThemePage"
   >
     <!-- Theme Label -->
-    <span class="text-sm">Theme</span>
+    <span class="hidden md:block text-sm">Theme</span>
 
     <!-- Icon with Scale Hover Effect -->
     <Icon
@@ -12,8 +12,8 @@
       class="h-8 w-8 transition-all duration-300 ease-in-out text-accent"
     />
 
-    <!-- Always Visible Theme Name -->
-    <span class="text-sm transition-colors">{{ currentTheme }}</span>
+  
+    <span class="hidden md:block text-sm transition-colors">{{ currentTheme }}</span>
   </button>
 </template>
 

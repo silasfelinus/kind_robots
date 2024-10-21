@@ -31,6 +31,10 @@
         </div>
       </div>
     </div>
+
+    <p v-if="statusMessage" class="mt-4 text-xl">
+      {{ statusMessage }}
+    </p>
   </div>
 </template>
 
@@ -38,39 +42,38 @@
 import { ref } from 'vue'
 import { useGalleryStore } from '../../../stores/galleryStore'
 import { useErrorStore } from '../../../stores/errorStore'
-import { useStatusStore } from '../../../stores/statusStore'
 
 const errorStore = useErrorStore()
-const statusStore = useStatusStore()
 const galleryStore = useGalleryStore()
 const newGallery = ref({ name: '' })
 
 const galleries = galleryStore.$state.galleries
 
+// Local state for managing status messages and types
+const statusMessage = ref('')
+
+// Function to add a gallery
 const addGallery = async () => {
   try {
     const userId = 1 // Fetch this from the logged-in user's session/store
     await galleryStore.addGallery({ ...newGallery.value, userId })
     newGallery.value.name = ''
-    statusStore.addStatus({
-      message: 'Gallery added successfully',
-      type: 'success' as StatusType,
-    })
+    statusMessage.value = 'Gallery added successfully'
   } catch (error) {
     errorStore.addError(ErrorType.GENERAL_ERROR, error)
+    statusMessage.value = 'Failed to add gallery'
   }
 }
 
+// Function to delete a gallery
 const deleteGallery = async (id: number) => {
   try {
     const userId = 1 // Assuming you fetch this from the logged-in user's session/store
     await galleryStore.deleteGallery(id, userId)
-    statusStore.addStatus({
-      message: 'Gallery added successfully',
-      type: 'success' as StatusType, // Explicitly casting
-    })
+    statusMessage.value = 'Gallery deleted successfully'
   } catch (error) {
     errorStore.addError(ErrorType.GENERAL_ERROR, error)
+    statusMessage.value = 'Failed to delete gallery'
   }
 }
 </script>

@@ -5,7 +5,7 @@ description: 'Prompt Factory is a user-friendly organizer for adding, editing, a
 gallery: 'cafepurr'
 image: 'weirdlandia/weird1.png'
 tags: ['home']
-layout: 'vertical-scroll'
+layout: 'default'
 icon: kind-icon:chatbubbles
 category: user
 tooltip: Organize and share your text and art prompts

@@ -5,7 +5,7 @@ description: "This is your space for the artwork you've made with our modellers.
 gallery: 'cafepurr'
 image: 'botcat.webp'
 tags: ['home']
-layout: 'vertical-scroll'
+layout: 'default'
 icon: kind-icon:easel
 category: user
 tooltip: This is a collection of user art. It will hopefully springboard into a more fully-featured editor and image playground

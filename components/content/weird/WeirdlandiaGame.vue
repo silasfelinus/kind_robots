@@ -6,33 +6,20 @@
       <!-- Content Layer -->
       <div class="relative z-10">
         <!-- Introduction and About Content -->
-        <p
-          v-if="!gameStore.isGameStarted && !gameStore.showAbout"
-          class="text-lg leading-relaxed text-white font-medium"
-        >
+        <p class="text-lg leading-relaxed text-white font-medium">
           Welcome to "Weirdlandia", a realm where every choice brings a new,
           unexpected twist. Challenges await at every corner. Carve your own
           journey in this unpredictable realm.
         </p>
 
-        <p v-if="gameStore.showAbout" class="text-sm text-white font-semibold">
+        <p class="text-sm text-white font-semibold">
           Weirdlandia is under active development. For more information or to
           request a press packet, message weird@kindrobots.org
         </p>
 
         <!-- Game Content -->
-        <div v-if="gameStore.isGameStarted" class="text-default font-light">
+        <div class="text-default font-light">
           <p>Game has started! Adventure awaits...</p>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex justify-center space-x-6 mt-6">
-          <button
-            class="py-2 px-6 text-xl bg-primary hover:bg-primary-darkened focus:ring focus:ring-primary focus:ring-opacity-50 rounded-full shadow-lg transition-transform transform hover:scale-105"
-            @click="toggleGameAbout"
-          >
-            About Weirdlandia
-          </button>
         </div>
       </div>
     </div>
@@ -40,9 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { useChoiceStore } from '../../../stores/choiceStore'
-
-const gameStore = useChoiceStore()
 const bgImage = ref('')
 
 const fetchBackgroundImage = async () => {
@@ -58,10 +42,6 @@ const fetchBackgroundImage = async () => {
   } catch (error) {
     console.error('There was an error fetching the background image:', error)
   }
-}
-
-const toggleGameAbout = () => {
-  gameStore.toggleAbout()
 }
 
 onMounted(fetchBackgroundImage)

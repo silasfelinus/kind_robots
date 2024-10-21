@@ -5,7 +5,7 @@ description: 'This is your space!'
 gallery: 'cafepurr'
 image: 'botcat.webp'
 tags: ['home']
-layout: 'vertical-scroll'
+layout: 'default'
 icon: kind-icon:settings
 category: user
 tooltip: user customizations and art sharing settings here.

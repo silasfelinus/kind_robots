@@ -5,7 +5,7 @@ description: 'Create a new bot and share it with the community'
 gallery: 'botfactory'
 image: 'wonderbot/wonderbot-1448.webp'
 tags: ['home']
-layout: 'vertical-scroll'
+layout: 'default'
 icon: fa-solid:robot
 category: user
 tooltip: 'Create and manage bots that make our chatrooms lively and interactive.'

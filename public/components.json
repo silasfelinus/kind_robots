@@ -16,7 +16,6 @@
       "LoginToggle",
       "LoginWindow",
       "Mana-Counter",
-      "NewDashboard",
       "OldLogin",
       "OpenAiKey",
       "PrivacyPolicy",
@@ -47,6 +46,7 @@
       "EditableText",
       "GeneratorTest",
       "HotOrNot",
+      "ImageUpload",
       "PrivateGenerator",
       "art-collection",
       "art-lab",
@@ -108,7 +108,6 @@
       "ButterflyLoader",
       "ButterflyMascot",
       "ButterflySwarm",
-      "ButterflyToggle",
       "StoreButterfly",
       "SwarmIcon",
       "butterfly-canvas",
@@ -134,19 +133,6 @@
     ]
   },
   {
-    "folderName": "game",
-    "components": [
-      "ArtChallenge",
-      "ArtChooser",
-      "ArtCreator",
-      "ChatControl",
-      "GameControl",
-      "GameOver",
-      "PitchScreen",
-      "UserControl"
-    ]
-  },
-  {
     "folderName": "layout",
     "components": [
       "AmiTooltip",
@@ -155,7 +141,6 @@
       "ButterflyTooltip",
       "ButtonCard",
       "ChatToggle",
-      "ContainerManager",
       "DisplayToggler",
       "Drag-Card",
       "FlipCard",
@@ -165,16 +150,12 @@
       "KindButtons",
       "KindFooter",
       "KindLoader",
-      "KindSidebar",
-      "KindSidebarFull",
-      "KindSidebarRight",
       "KindSidebarSimple",
       "LayoutSelector",
       "LeftToggle",
       "LoadMessages",
       "LoadingBar",
       "Magic-Window",
-      "MagicContainer",
       "MainContent",
       "MainFlip",
       "MainHeader",
@@ -182,7 +163,6 @@
       "MainToggles",
       "NotificationCard",
       "RightToggle",
-      "StatusNotifier",
       "TextBubble",
       "ThickHeader",
       "ThinHeader",
@@ -223,18 +203,14 @@
       "BackLink",
       "BotChatLink",
       "BotMessagesLink",
-      "ConstructionNav",
       "DashboardLink",
       "FetchNav",
-      "FooterToggleOld",
       "ForwardLink",
       "FullscreenToggle",
-      "HighlightNav",
       "HighlightPages",
       "HomeLink",
       "HorizontalNav",
       "HotLink",
-      "IconNav",
       "LatestNav",
       "MainLinks",
       "MainNav",
@@ -252,15 +228,11 @@
       "SiteMap",
       "SmartLinks",
       "SortNav",
-      "SupportNav",
       "TestPageMature",
       "ToggleSwitch",
       "TutorialToggle",
       "VerticalNav",
-      "VerticalNavOld",
       "button-nav",
-      "deluxe-nav",
-      "nav-working",
       "navigation-row",
       "navigation-trimmed",
       "site-footer",
@@ -281,27 +253,6 @@
     ]
   },
   {
-    "folderName": "photoprism",
-    "components": [
-      "ApiFolders",
-      "ImageUpload",
-      "PhotoGallery",
-      "PhotoLauncher",
-      "PhotoStore",
-      "PhotoprismFolders"
-    ]
-  },
-  {
-    "folderName": "products",
-    "components": [
-      "CartItem",
-      "GiftShop",
-      "ProductCard",
-      "ProductGallery",
-      "ShoppingCart"
-    ]
-  },
-  {
     "folderName": "prompts",
     "components": [
       "AddPitch",
@@ -309,8 +260,6 @@
       "BrainstormGame",
       "BubblePrompt",
       "BubbleTest",
-      "DeforumManager",
-      "EnhancePicker",
       "PitchCard",
       "PitchCardActions",
       "PitchCardFront",
@@ -323,8 +272,7 @@
       "PitchTags",
       "PitchTypeSelector",
       "PitchViewer",
-      "PromptFactory",
-      "TodoManager"
+      "PromptFactory"
     ]
   },
   {
@@ -346,13 +294,11 @@
       "DreamStatus",
       "FizzyBubbles",
       "GradientBackground",
-      "MusicToggle",
       "RainEffect",
       "TalkingButterflies",
       "animation-loader",
       "animation-tester",
       "butterfly-animation",
-      "display-toggle",
       "kind-playlist",
       "kofi-link",
       "screen-fx"
@@ -377,7 +323,6 @@
       "Meta-Tips",
       "NavToggle",
       "PageInfo",
-      "RoomDashboard",
       "RoomMeta",
       "SplashTutorial",
       "StreamingTooltip",

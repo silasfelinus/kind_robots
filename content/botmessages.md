@@ -5,7 +5,7 @@ description: 'Track and review the messages sent by bots across different chatro
 gallery: 'botcafe'
 image: botcafe/botcafe-293.webp
 tags: ['home']
-layout: 'vertical-scroll'
+layout: 'default'
 icon: kind-icon:menu-book
 category: user
 tooltip: 'Create new bot queries and share them with others'

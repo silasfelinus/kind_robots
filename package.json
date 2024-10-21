@@ -57,7 +57,7 @@
     "jose": "^5.6.3",
     "nuxt": "^3.13.2",
     "open-simplex-noise": "^2.5.0",
-    "pinia": "^2.2.1",
+    "pinia": "^2.2.1"
   },
   "overrides": {
     "vue": "latest"

@@ -1,6 +1,6 @@
 <template>
   <button
-    class="transition-all flex flex-col items-center w-auto"
+    class="transition-all flex flex-col items-center w-auto space-y-1"
     @click="goToThemePage"
   >
     <!-- Theme Label -->
@@ -9,7 +9,7 @@
     <!-- Icon with Scale Hover Effect -->
     <Icon
       name="bi:brush"
-      class="h-full w-full transition-all duration-300 ease-in-out text-accent"
+      class="h-8 w-8 transition-all duration-300 ease-in-out text-accent"
     />
 
     <!-- Always Visible Theme Name -->

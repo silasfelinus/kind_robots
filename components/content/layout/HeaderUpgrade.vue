@@ -6,27 +6,17 @@
     }"
   >
     <!-- Left Section: Avatar -->
-    <div
-      class="flex items-center box-border relative"
-      :style="{
-        width: '15%', // Ensures the avatar section only takes up 15% of the total width
-      }"
-    >
+    <div class="flex items-center justify-center w-[15%] h-full">
       <avatar-image
         alt="User Avatar"
-        class="aspect-square rounded-xl min-h-36 min-w-36"
-        :style="{
-          height: '100%',
-          width: 'auto', // Keeps aspect ratio
-        }"
+        class="w-full h-full rounded-xl object-cover"
       />
-
-      <!-- Special Overlay: Shows viewportSize from displayStore -->
-      <div
-        class="fixed bottom-1 left-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
-      >
-        {{ displayStore.viewportSize }}
-      </div>
+    </div>
+    <!-- Special Overlay: Shows viewportSize from displayStore -->
+    <div
+      class="fixed bottom-1 left-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
+    >
+      {{ displayStore.viewportSize }}
     </div>
 
     <!-- Second Section: Title and Subtitle -->

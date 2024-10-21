@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-200 p-4 rounded-lg h-full overflow-y-auto">
+  <div class="bg-gray-200 p-1 md:p-4 rounded-lg h-full overflow-y-auto">
     <h3 class="text-center mb-4">Adjust New Butterfly Presets</h3>
 
     <!-- Guard: Check if the store and settings are available -->

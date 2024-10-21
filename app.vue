@@ -22,7 +22,7 @@
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" class="h-full w-full z-10" />
       <div
-        class="absolute -top-7 left-0 p-1 z-50 rounded-2xl border-1 bg-primary border-accent"
+        class="absolute -top-7 left-0 p-1 z-50 rounded-2xl border-1 border-accent"
       >
         <left-toggle />
       </div>
@@ -45,7 +45,7 @@
 
       <!-- Right Toggle (Top-right corner of the sidebar) -->
       <div
-        class="absolute -top-8 right-0 p-1 z-50 rounded-2xl border-1 bg-primary border-accent"
+        class="absolute -top-8 right-0 p-1 z-50 rounded-2xl border-1 border-accent"
       >
         <right-toggle />
       </div>

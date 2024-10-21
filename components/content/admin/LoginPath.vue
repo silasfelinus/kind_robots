@@ -7,16 +7,17 @@
         class="relative group flex flex-col items-start box-border"
       >
         <router-link to="/dashboard" class="cursor-pointer hover:underline">
-          {{ username }}!
-        </router-link>
+    <div class="hidden md:block">      {{ username }}! </div>
+   
         <jellybean-count />
+     </router-link>
       </div>
       <div v-else class="relative group">
         <!-- Default Guest Layout -->
         <router-link to="/dashboard">
           <button class="flex items-center justify-center space-x-2">
             <Icon name="kind-icon:person" class="w-5 h-5" />
-            <span>Login</span>
+            <span class="hidden md:block">Login</span>
           </button>
         </router-link>
       </div>

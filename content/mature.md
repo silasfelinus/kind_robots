@@ -5,7 +5,7 @@ description: private art modeler for members only
 image: amibotsquare1.webp
 gallery: weirdlandia
 tags: ['home']
-layout: 'vertical-scroll'
+layout: 'default'
 category: user
 icon: kind-icon:alien
 tooltip: This is the private art page.

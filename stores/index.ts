@@ -43,10 +43,7 @@ export const loadPitchStore = async () => {
   return usePitchStore();
 };
 
-export const loadCartStore = async () => {
-  const { useCartStore } = await import('@/stores/cartStore');
-  return useCartStore();
-};
+
 
 export const loadChannelStore = async () => {
   const { useChannelStore } = await import('@/stores/channelStore');
@@ -63,10 +60,7 @@ export const loadContentStore = async () => {
   return useContentStore();
 };
 
-export const loadCustomerStore = async () => {
-  const { useCustomerStore } = await import('@/stores/customerStore');
-  return useCustomerStore();
-};
+
 
 export const loadDreamStore = async () => {
   const { useDreamStore } = await import('@/stores/dreamStore');
@@ -78,20 +72,14 @@ export const loadErrorStore = async () => {
   return useErrorStore();
 };
 
-export const loadGameStore = async () => {
-  const { useGameStore } = await import('@/stores/gameStore');
-  return useGameStore();
-};
+
 
 export const loadMilestoneStore = async () => {
   const { useMilestoneStore } = await import('@/stores/milestoneStore');
   return useMilestoneStore();
 };
 
-export const loadProductStore = async () => {
-  const { useProductStore } = await import('@/stores/productStore');
-  return useProductStore();
-};
+
 
 export const loadReactionStore = async () => {
   const { useReactionStore } = await import('@/stores/reactionStore');
@@ -113,12 +101,3 @@ export const loadThemeStore = async () => {
   return useThemeStore();
 };
 
-export const loadTodoStore = async () => {
-  const { useTodoStore } = await import('@/stores/todoStore');
-  return useTodoStore();
-};
-
-export const loadPhotoprismStore = async () => {
-  const { usePhotoprismStore } = await import('@/stores/photoprismStore');
-  return usePhotoprismStore();
-};

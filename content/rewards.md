@@ -11,7 +11,7 @@ amitip: Oh, that sounds fun. I'll put together a page where they can choose item
 sort: highlight
 underConstruction: true
 dottitip: AMI, I have an idea! We let people pick an item, any item, then send them into the simulator and it'll generate a unique adventure.
-layout: 'vertical-scroll'
+layout: 'default'
 ---
 
 :rewards-gallery

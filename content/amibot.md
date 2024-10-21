@@ -5,7 +5,7 @@ description: about AMI and their fundraiser
 image: amibotsquare1.webp
 gallery: weirdlandia
 tags: ['home']
-layout: 'vertical-scroll'
+layout: 'default'
 category: user
 icon: kind-icon:alien
 tooltip: AMI, this is your fundraiser!  How's it going?

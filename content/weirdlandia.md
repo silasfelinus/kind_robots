@@ -11,7 +11,7 @@ tooltip: Are those eyeballs still looking at me?
 amitip: We're working on it, doc! Those eyeballs in the simulation room are so creepy though. One of them keeps looking at me.
 sort: highlight
 dottitip: AMI, is the simulation room prepared? We've let visitors pick items but we haven't given them anything to do with them.
-layout: 'vertical-scroll'
+layout: 'default'
 ---
 
 :weirder-game

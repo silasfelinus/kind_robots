@@ -14,7 +14,7 @@
     </div>
     <!-- Special Overlay: Shows viewportSize from displayStore -->
     <div
-      class="fixed top-14 left-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
+      class="fixed top-10 left-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
     >
       {{ displayStore.viewportSize }}
     </div>

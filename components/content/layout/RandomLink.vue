@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
-import { useContentStore } from './../../../stores/contentStore'
+import { useContentStore } from '../../../stores/contentStore'
 
 const contentStore = useContentStore()
 

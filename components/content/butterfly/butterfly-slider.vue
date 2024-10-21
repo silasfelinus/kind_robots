@@ -2,56 +2,65 @@
   <div class="mb-6">
     <label :for="sliderId" class="block mb-2">{{ label }} (Min-Max):</label>
 
-    <div class="relative w-4/5 mx-auto">
-      <!-- Range track (static background) -->
-      <div class="range-track h-2 bg-gray-300 rounded-full"></div>
+    <div class="relative w-4/5 mx-auto flex items-center">
+      <!-- Overall min value to the left of the track -->
+      <span class="mr-2">{{ min }}</span>
 
-      <!-- Range fill (dynamic, thicker than track) -->
-      <div class="range-fill absolute h-4 bg-primary rounded-full" :style="rangeFill"></div>
+      <div class="relative flex-grow">
+        <!-- Range track (static background) -->
+        <div class="range-track h-2 bg-gray-300 rounded-full"></div>
 
-      <!-- Min slider -->
-      <input
-        v-model="minValue"
-        type="range"
-        :min="min"
-        :max="max"
-        :step="step"
-        class="absolute w-full h-4 appearance-none pointer-events-auto"
-        @input="updateMinValue"
-      />
+        <!-- Range fill (dynamic, thicker than track) -->
+        <div
+          class="range-fill absolute h-2 bg-primary rounded-full"
+          :style="rangeFill"
+        ></div>
 
-      <!-- Max slider -->
-      <input
-        v-model="maxValue"
-        type="range"
-        :min="min"
-        :max="max"
-        :step="step"
-        class="absolute w-full h-4 appearance-none pointer-events-auto"
-        @input="updateMaxValue"
-      />
+        <!-- Min slider -->
+        <input
+          v-model="minValue"
+          type="range"
+          :min="min"
+          :max="max"
+          :step="step"
+          class="absolute w-full h-4 appearance-none pointer-events-auto"
+          @input="updateMinValue"
+        />
 
-      <!-- Min Knob -->
-      <div
-        class="absolute h-6 w-6 bg-primary rounded-full -top-1 cursor-pointer"
-        :style="minKnobStyle"
-      >
-        <div class="absolute -bottom-6 text-center w-full text-sm">{{ minValue }}</div>
+        <!-- Max slider -->
+        <input
+          v-model="maxValue"
+          type="range"
+          :min="min"
+          :max="max"
+          :step="step"
+          class="absolute w-full h-4 appearance-none pointer-events-auto"
+          @input="updateMaxValue"
+        />
+
+        <!-- Min Knob -->
+        <div
+          class="absolute h-6 w-6 bg-primary rounded-full -top-2 cursor-pointer"
+          :style="minKnobStyle"
+        >
+          <div class="absolute -bottom-6 text-center w-full text-sm">
+            {{ minValue }}
+          </div>
+        </div>
+
+        <!-- Max Knob -->
+        <div
+          class="absolute h-6 w-6 bg-primary rounded-full -top-2 cursor-pointer"
+          :style="maxKnobStyle"
+        >
+          <div class="absolute -bottom-6 text-center w-full text-sm">
+            {{ maxValue }}
+          </div>
+        </div>
       </div>
 
-      <!-- Max Knob -->
-      <div
-        class="absolute h-6 w-6 bg-primary rounded-full -top-1 cursor-pointer"
-        :style="maxKnobStyle"
-      >
-        <div class="absolute -bottom-6 text-center w-full text-sm">{{ maxValue }}</div>
-      </div>
-
-      <!-- Display the overall min and max values outside the track -->
-      <div class="flex justify-between mt-4">
-        <span>{{ min }}</span>
-        <span>{{ max }}</span>
-      </div>
+      <!-- Overall max value to the right of the track -->
+      <span class="ml-2">{{ max }}</span>
     </div>
   </div>
 </template>
@@ -121,3 +130,28 @@ watch(
   { immediate: true },
 )
 </script>
+
+<style scoped>
+.range-track {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.range-fill {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+input[type='range'] {
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0;
+  height: 0;
+}
+</style>

@@ -29,7 +29,10 @@
           <div class="karma-award flex flex-col items-center">
             <p class="text-lg font-semibold">Bonus: +{{ milestone.karma }}</p>
             <p class="text-lg">You Found 1 Jellybean!</p>
-            <Icon name="tdesign:bean" class="p-2 m-2 h-16 w-16 text-accent" />
+            <Icon
+              name="kind-icon:jellybean"
+              class="p-2 m-2 h-16 w-16 text-accent"
+            />
           </div>
           <button
             class="bg-primary text-white rounded-2xl border px-4 py-2 mt-4"

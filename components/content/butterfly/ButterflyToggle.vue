@@ -8,7 +8,7 @@
       @click="toggleAmiSwarm"
     >
       <Icon
-        name="emojione:butterfly"
+        name="kind-icon:butterfly"
         title="Kind Butterflies"
         :active="fxStore.showAmiSwarm"
         :class="{ glow: fxStore.showAmiSwarm }"
@@ -84,7 +84,6 @@ const butterflyCount = 15
   color: var(--text-accent);
 }
 
-
 .full-page {
   position: fixed;
   top: 0;
@@ -92,7 +91,6 @@ const butterflyCount = 15
   width: 100vw;
   height: 100vh;
 }
-
 
 /* Butterfly Animation */
 .ami-butterfly {

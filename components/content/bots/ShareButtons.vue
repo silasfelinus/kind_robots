@@ -13,7 +13,7 @@
       :href="`https://www.facebook.com/sharer/sharer.php?u=${url}`"
       target="_blank"
     >
-      <Icon name="bi:facebook" class="facebook-Icon" />
+      <Icon name="kind-icon:facebook" class="facebook-Icon" />
     </a>
   </div>
 </template>

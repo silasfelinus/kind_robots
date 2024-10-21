@@ -2,7 +2,7 @@
   <div class="flex items-center h-36 w-36">
     <WelcomeMessage />
     <Icon
-      name="tabler:user"
+      name="kind-icon:person"
       class="text-base-200 text-2xl ml-2 cursor-pointer"
       @click="toggleVisibility"
     />

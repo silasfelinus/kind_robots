@@ -7,7 +7,7 @@ gallery: wondershed
 tooltip: Here's the behind-the-scenes look at the components that make up our site.
 tags: ['home']
 admin: true
-icon: game-icons:gear-hammer
+icon: kind-icon:gearhammer
 category: admin
 sort: highlight
 underConstruction: true

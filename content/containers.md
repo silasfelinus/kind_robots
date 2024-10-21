@@ -9,7 +9,7 @@ amitip: People like boxes! They'd like it more if you let them decorate a user b
 tags: ['home']
 admin: true
 layout: 'vertical-scroll'
-icon: game-icons:archive-register
+icon: kind-icon:register
 category: admin
 sort: highlight
 underConstruction: true

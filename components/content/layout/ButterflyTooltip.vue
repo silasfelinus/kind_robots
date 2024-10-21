@@ -13,7 +13,8 @@
       <div v-if="page.tooltip">
         <span class="font-semibold">
           <butterfly-loader />
-          <Icon name="mdi:chat" class="text-default mr-2 text-2xl" />AMI Says:
+          <Icon name="kind-icon:chat" class="text-default mr-2 text-2xl" />AMI
+          Says:
           <!-- Display tooltip text -->
           <span class="text-default text-xl">{{ page.tooltip }}</span>
         </span>

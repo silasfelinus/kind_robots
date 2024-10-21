@@ -14,7 +14,7 @@
       ]"
     >
       <Icon
-        name="material-symbols:menu-book-outline"
+        name="kind-icon:menu-book"
         class="w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
       />
     </NuxtLink>

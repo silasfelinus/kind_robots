@@ -34,7 +34,7 @@
                 v-if="page._path === $route.path"
                 class="m-1 text-md bg-secondary rounded-2xl border p-1"
               >
-                <Icon name="line-md:download-outline-loop" class="text-lg" />
+                <Icon name="kind-icon:download" class="text-lg" />
                 You are here
               </div>
             </div>
@@ -63,7 +63,7 @@
                   v-if="page._path === $route.path"
                   class="mt-1 text-md text-secondary rounded-full border p-1"
                 >
-                  <Icon name="line-md:download-outline-loop" class="text-lg" />
+                  <Icon name="kind-icon:download" class="text-lg" />
                   You are here
                 </div>
               </div>
@@ -85,8 +85,8 @@
       <Icon
         :name="
           isExtended
-            ? 'line-md:chevron-small-double-down'
-            : 'line-md:chevron-small-double-up'
+            ? 'kind-icon:chevron-double-down'
+            : 'kind-icon:chevron-double-up'
         "
         class="w-6 h-6 text-default"
       />

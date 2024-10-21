@@ -13,7 +13,7 @@
         @click="setView('twoRow')"
       />
       <Icon
-        name="bi:fullscreen"
+        name="kind-icon:fullscreen"
         class="text-2xl cursor-pointer"
         @click="setView('single')"
       />

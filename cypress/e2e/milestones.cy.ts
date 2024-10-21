@@ -33,7 +33,7 @@ describe('Milestone Management API Tests', () => {
           label: 'Artist!',
           message: 'You made Art!',
           triggerCode: 'Artist',
-          icon: 'mdi:palette',
+          icon: 'kind-icon:palette-color',
           karma: 10,
           isRepeatable: true,
           tooltip: 'Make new Art for our Art Modeler',

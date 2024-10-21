@@ -14,7 +14,7 @@ const props = defineProps<{
   icon?: string
 }>()
 
-const Icon = props.icon || 'mdi:default-Icon' // Replace 'mdi:default-Icon' with your actual default Icon
+const Icon = props.icon || 'kind-icon:question' // Replace 'kind-icon:question' with your actual default Icon
 
 const pedestal = ref(null)
 const rotatingIcon = ref(null)

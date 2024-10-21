@@ -11,8 +11,8 @@
       <Icon
         :name="
           isExtended
-            ? 'line-md:chevron-small-double-down'
-            : 'line-md:chevron-small-double-up'
+            ? 'kind-icon:chevron-double-down'
+            : 'kind-icon:chevron-double-up'
         "
         class="w-6 h-6 text-default"
       />

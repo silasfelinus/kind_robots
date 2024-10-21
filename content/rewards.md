@@ -5,7 +5,7 @@ description: 'Step into the Infinite Vault, where game rewards become your uniqu
 gallery: 'cafepurr'
 image: chest1.webp
 tags: ['home']
-icon: game-icons:vortex
+icon: kind-icon:vortex
 tooltip: Imagine a game with no game over, only endless story twists. Welcome to Weirdlandia, where every item you bring spices up the narrative in unpredictable ways.
 amitip: Oh, that sounds fun. I'll put together a page where they can choose items. We just need to plug the simulator back in!
 sort: highlight

@@ -14,8 +14,8 @@
       <Icon
         :name="
           isExtended
-            ? 'line-md:chevron-small-double-down'
-            : 'line-md:chevron-small-double-up'
+            ? 'kind-icon:chevron-double-down'
+            : 'kind-icon:chevron-double-up'
         "
         class="w-6 h-6 text-default"
       />
@@ -67,7 +67,7 @@
             class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary"
           >
             You are here
-            <Icon name="line-md:download-outline-loop" class="text-lg mr-2" />
+            <Icon name="kind-icon:download" class="text-lg mr-2" />
           </div>
           <div class="flex flex-col items-start">
             <div

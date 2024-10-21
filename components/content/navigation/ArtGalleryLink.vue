@@ -14,7 +14,7 @@
       ]"
     >
       <Icon
-        name="mdi:palette-outline"
+        name="kind-icon:palette-color-outline"
         class="w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
       />
     </NuxtLink>

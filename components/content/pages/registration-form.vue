@@ -68,7 +68,7 @@
           />
           <div class="absolute inset-y-0 right-0 flex items-center pr-3">
             <Icon
-              name="tabler:eye"
+              name="kind-icon:eye"
               :class="
                 showPassword
                   ? 'text-base-300 cursor-pointer hover:text-warning'
@@ -97,7 +97,9 @@
           />
           <div class="absolute inset-y-0 right-0 flex items-center pr-3">
             <Icon
-              :name="showConfirmPassword ? 'tabler:eye-off' : 'tabler:eye'"
+              :name="
+                showConfirmPassword ? 'kind-icon:eye-off' : 'kind-icon:eye'
+              "
               :class="
                 showConfirmPassword
                   ? 'text-base-300 cursor-pointer hover:text-warning'
@@ -112,14 +114,14 @@
           v-if="status"
           class="my-2 px-4 py-2 text-lg text-info bg-info-light rounded"
         >
-          <Icon name="tabler:info-circle" class="mr-2" />
+          <Icon name="kind-icon:info-circle" class="mr-2" />
           {{ status }}
         </div>
         <div
           v-if="error"
           class="my-2 px-4 py-2 text-lg text-warning bg-warning-light rounded"
         >
-          <Icon name="tabler:alert-triangle" class="mr-2" />
+          <Icon name="kind-icon:alert-triangle" class="mr-2" />
           {{ error }}
         </div>
         <button

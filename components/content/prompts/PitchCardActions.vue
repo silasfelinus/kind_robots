@@ -22,7 +22,7 @@
       aria-label="Add Clap"
       @click="addClap"
     >
-      <Icon name="mdi:hand" class="w-6 h-6" />
+      <Icon name="kind-icon:hand" class="w-6 h-6" />
     </button>
   </div>
   <div v-else>
@@ -71,7 +71,7 @@ const matureIcon = computed(() =>
     : 'ri:bear-smile-line',
 )
 const publicIcon = computed(() =>
-  props.pitch?.isPublic ? 'mdi:earth' : 'mdi:earth-off',
+  props.pitch?.isPublic ? 'kind-icon:earth' : 'kind-icon:earth-off',
 )
 
 const toggleMature = async () => {

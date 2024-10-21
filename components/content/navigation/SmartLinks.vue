@@ -2,7 +2,7 @@
   <div class="smart-links-container flex justify-between items-center w-full">
     <!-- Navigation Links with Icons and Labels -->
     <NuxtLink v-if="prev" :to="prev._path" class="nav-link">
-      <Icon name="typcn:arrow-back-outline" class="hover:scale-125" />
+      <Icon name="kind-icon:back-arrow" class="hover:scale-125" />
       <span class="nav-text">{{ prev.title }}</span>
     </NuxtLink>
     <!-- Other Links... -->
@@ -11,7 +11,7 @@
       <span class="nav-text">{{ randomLinkText }}</span>
     </NuxtLink>
     <NuxtLink v-if="next" :to="next._path" class="nav-link">
-      <Icon name="typcn:arrow-forward-outline" class="hover:scale-125" />
+      <Icon name="kind-icon:forward-arrow" class="hover:scale-125" />
       <span class="nav-text">{{ next.title }}</span>
     </NuxtLink>
   </div>

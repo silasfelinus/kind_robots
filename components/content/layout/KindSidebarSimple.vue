@@ -55,7 +55,7 @@ import { useRouter } from 'vue-router'
 
 // Hardcoded sidebar links
 const hardcodedLinks = [
-  { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
+  { title: 'Home', path: '/', icon: 'kind-icon:home' },
   { title: 'Bot Cafe', path: '/botcafe', icon: 'fluent:bot-add-20-regular' },
   {
     title: 'Prompt Factory',

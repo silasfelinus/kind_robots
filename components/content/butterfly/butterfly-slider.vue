@@ -1,113 +1,53 @@
 <template>
-  <div class="mb-6">
-    <label :for="sliderId" class="block mb-2">{{ label }} (Min-Max):</label>
+  <div class="flex flex-col items-center">
+    <!-- Label and Min/Max Values -->
+    <label :for="sliderId" class="mb-2 text-lg font-semibold text-gray-700">
+      {{ label }}: {{ minValue }} - {{ maxValue }}
+    </label>
 
-    <div class="relative w-4/5 mx-auto flex items-center">
-      <!-- Overall min value to the left of the track -->
-      <span class="mr-2">{{ min }}</span>
+    <div class="relative w-full">
+      <!-- Grey Slider Track -->
+      <div class="h-2 bg-gray-300 rounded-full"></div>
 
-      <div class="relative flex-grow">
-        <!-- Range track (static background) -->
-        <div class="range-track h-2 bg-gray-300 rounded-full"></div>
+      <!-- Range Fill Line (colored bg-primary) -->
+      <div
+        class="absolute top-0 h-2 bg-primary rounded-full"
+        :style="{ left: rangeFill.left, width: rangeFill.width }"
+      ></div>
 
-        <!-- Range fill (dynamic, thicker than track) -->
-        <div
-          class="range-fill absolute h-2 bg-primary rounded-full"
-          :style="rangeFill"
-        ></div>
-        <!-- Range fill (dynamic, centered) -->
-        <div
-          class="range-fill absolute h-2 bg-primary rounded-full top-0 transform translate-y-1/2"
-          :style="rangeFill"
-        ></div>
+      <!-- Min Knob -->
+      <input
+        v-model="minValue"
+        type="range"
+        :min="props.min"
+        :max="props.max"
+        :step="props.step"
+        class="absolute w-full h-6 appearance-none pointer-events-none"
+        @input="updateMinValue"
+      />
+      <div
+        class="absolute w-6 h-6 bg-white border-2 border-primary rounded-full pointer-events-auto"
+        :style="minKnobStyle"
+      ></div>
 
-        <!-- Min slider -->
-        <input
-          v-model="minValue"
-          type="range"
-          :min="min"
-          :max="max"
-          :step="step"
-          class="absolute w-full h-4 appearance-none pointer-events-auto"
-          @input="updateMinValue"
-        />
-        <!-- Min slider -->
-        <input
-          v-model="minValue"
-          type="range"
-          :min="min"
-          :max="max"
-          :step="step"
-          class="absolute w-full h-0 pointer-events-none appearance-none"
-          @input="updateMinValue"
-        />
+      <!-- Max Knob -->
+      <input
+        v-model="maxValue"
+        type="range"
+        :min="props.min"
+        :max="props.max"
+        :step="props.step"
+        class="absolute w-full h-6 appearance-none pointer-events-none"
+        @input="updateMaxValue"
+      />
+      <div
+        class="absolute w-6 h-6 bg-white border-2 border-primary rounded-full pointer-events-auto"
+        :style="maxKnobStyle"
+      ></div>
 
-        <!-- Max slider -->
-        <input
-          v-model="maxValue"
-          type="range"
-          :min="min"
-          :max="max"
-          :step="step"
-          class="absolute w-full h-4 appearance-none pointer-events-auto"
-          @input="updateMaxValue"
-        />
-        <!-- Max slider -->
-        <input
-          v-model="maxValue"
-          type="range"
-          :min="min"
-          :max="max"
-          :step="step"
-          class="absolute w-full h-0 pointer-events-none appearance-none"
-          @input="updateMaxValue"
-        />
-
-        <!-- Min Knob -->
-        <div
-          class="absolute h-6 w-6 bg-primary rounded-full -top-2 cursor-pointer"
-          :style="minKnobStyle"
-        >
-          <div class="absolute -bottom-6 text-center w-full text-sm">
-            {{ minValue }}
-          </div>
-        </div>
-        <!-- Min Knob -->
-        <div
-          class="absolute h-8 w-8 bg-primary rounded-full -top-3 cursor-pointer pointer-events-auto"
-          :style="minKnobStyle"
-          @mousedown.prevent
-          @touchstart.prevent
-        >
-          <div class="absolute -bottom-6 text-center w-full text-sm">
-            {{ minValue }}
-          </div>
-        </div>
-
-        <!-- Max Knob -->
-        <div
-          class="absolute h-6 w-6 bg-primary rounded-full -top-2 cursor-pointer"
-          :style="maxKnobStyle"
-        >
-          <div class="absolute -bottom-6 text-center w-full text-sm">
-            {{ maxValue }}
-          </div>
-        </div>
-        <!-- Max Knob -->
-        <div
-          class="absolute h-8 w-8 bg-primary rounded-full -top-3 cursor-pointer pointer-events-auto"
-          :style="maxKnobStyle"
-          @mousedown.prevent
-          @touchstart.prevent
-        >
-          <div class="absolute -bottom-6 text-center w-full text-sm">
-            {{ maxValue }}
-          </div>
-        </div>
-
-        <!-- Overall max value to the right of the track -->
-        <span class="ml-2">{{ max }}</span>
-      </div>
+      <!-- Min/Max Value Markers -->
+      <div class="absolute -left-4 top-4 text-gray-600">{{ props.min }}</div>
+      <div class="absolute -right-4 top-4 text-gray-600">{{ props.max }}</div>
     </div>
   </div>
 </template>
@@ -159,13 +99,13 @@ const updateMaxValue = () => {
 const minKnobStyle = computed(() => {
   const totalRange = props.max - props.min
   const left = ((minValue.value - props.min) / totalRange) * 100
-  return { left: `calc(${left}% - 16px)` } // Adjusted for larger knob
+  return { left: `calc(${left}% - 12px)` } // Adjusted for larger knob
 })
 
 const maxKnobStyle = computed(() => {
   const totalRange = props.max - props.min
   const left = ((maxValue.value - props.min) / totalRange) * 100
-  return { left: `calc(${left}% - 16px)` } // Adjusted for larger knob
+  return { left: `calc(${left}% - 12px)` } // Adjusted for larger knob
 })
 
 watch(
@@ -177,68 +117,3 @@ watch(
   { immediate: true },
 )
 </script>
-
-<style scoped>
-.range-track {
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.range-fill {
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-input[type='range'] {
-  background: transparent;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 0;
-  height: 0;
-}
-</style>
-
-<style scoped>
-/* Remove default range input styling */
-input[type='range'] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent; /* Make slider inputs transparent */
-  pointer-events: none;
-}
-
-input[type='range']::-webkit-slider-runnable-track {
-  height: 0; /* Ensure track is hidden */
-}
-
-input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 0; /* Hiding the default thumb */
-  height: 0;
-}
-
-/* Firefox */
-input[type='range']::-moz-range-track {
-  height: 0; /* Hide the default track */
-}
-
-input[type='range']::-moz-range-thumb {
-  width: 0;
-  height: 0;
-}
-
-/* Hide original slider track */
-input[type='range']::-ms-track {
-  width: 100%;
-  cursor: pointer;
-  background: transparent; /* Transparent to hide */
-  border-color: transparent;
-  color: transparent;
-}
-</style>

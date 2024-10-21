@@ -32,18 +32,19 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useStatusStore, StatusType } from '../../../stores/statusStore'
+import { ref } from 'vue'
 import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 
 const userText = ref('')
-const statusStore = useStatusStore()
 const errorStore = useErrorStore()
 const imageData = ref<string | null>(null) // Explicitly set type to string | null
 const loading = ref(false) // Declare a ref for loading state
 
-const statusMessage = computed(() => statusStore.message)
+// Status message and type managed locally
+const statusMessage = ref('')
+const statusType = ref<'SUCCESS' | 'ERROR' | ''>('')
 
 const settings = ref({
   seed: -1,
@@ -59,7 +60,8 @@ const settings = ref({
 const submit = async () => {
   try {
     loading.value = true // Set loading to true when submitting
-    statusStore.setStatus(StatusType.INFO, 'Submitting your text...')
+    statusMessage.value = '' // Clear status message
+
     const body = {
       text: userText.value,
       settings: settings.value,
@@ -84,7 +86,8 @@ const submit = async () => {
     // Assuming the image data is in Base64 format and taking the first image from the array
     imageData.value = `data:image/png;base64,${result.images[0]}`
 
-    statusStore.setStatus(StatusType.SUCCESS, 'Successfully submitted!')
+    statusMessage.value = 'Successfully submitted!'
+    statusType.value = 'SUCCESS'
   } catch (err) {
     console.error(err) // Log the error to the console for debugging
 
@@ -98,7 +101,9 @@ const submit = async () => {
       ErrorType.NETWORK_ERROR,
       errorMessage,
     )
-    statusStore.setStatus(StatusType.ERROR, errorMessage)
+
+    statusMessage.value = errorMessage
+    statusType.value = 'ERROR'
   } finally {
     loading.value = false // Set loading to false when done or on error
   }

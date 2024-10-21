@@ -10,7 +10,7 @@ tags: ['home']
 icon: kind-icon:register
 sort: highlight
 dottitip: If people register for an account, then we can customize their experience.
-layout: 'vertical-scroll'
+layout: 'default'
 ---
 
 :registration-form

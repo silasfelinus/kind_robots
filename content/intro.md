@@ -5,7 +5,7 @@ description: 'An overview of our services'
 gallery: 'botcafe'
 image: botcafe/botcafe-293.webp
 tags: ['home']
-layout: 'vertical-scroll'
+layout: 'default'
 icon: kind-icon:menu-book
 category: user
 tooltip: 'Welcome to the Kind Robots'

@@ -5,7 +5,7 @@ description: Play around with AMIs digital recreations.
 image: backtree.webp
 gallery: weirdlandia
 tags: ['home']
-layout: 'vertical-scroll'
+layout: 'default'
 category: admin
 icon: kind-icon:alien
 tooltip: Our animation controller for AMI, our website's digital avatar

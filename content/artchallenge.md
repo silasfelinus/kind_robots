@@ -5,7 +5,7 @@ description: 'Can you create the art that best matches the challenge?'
 gallery: 'cafepurr'
 image: 'botcat.webp'
 tags: ['home']
-layout: 'vertical-scroll'
+layout: 'default'
 icon: kind-icon:players
 category: user
 tooltip: Challenge other players to create AI art based on your prompt.

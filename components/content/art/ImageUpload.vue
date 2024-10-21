@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { useArtStore } from './../../../stores/artStore'
+import { useArtStore } from '../../../stores/artStore'
 
 const artStore = useArtStore()
 

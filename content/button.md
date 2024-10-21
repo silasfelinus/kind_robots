@@ -4,7 +4,7 @@ subtitle: The Button You Can't Help but Press!
 description: For rebels and curious souls, each click delivers a surprise!
 image: wonderchest/wonderchest-1794.webp
 gallery: wonderbot
-layout: 'vertical-scroll'
+layout: 'default'
 tags: ['home']
 icon: kind-icon:button
 tooltip: This started as a morning coding exercise but has evolved into an leadboard race.

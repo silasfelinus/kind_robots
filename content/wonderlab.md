@@ -13,7 +13,7 @@ sort: highlight
 underConstruction: true
 dottitip: "AMI, is it safe to let people poke around in the lab?"
 amitip: "Don't worry about them breaking anything, it was probably broken before they touched it. Besides, there's always the button in the left corner that lets them head back to the main lab."
-layout: 'vertical-scroll'
+layout: 'default'
 ---
 
 :lab-chooser

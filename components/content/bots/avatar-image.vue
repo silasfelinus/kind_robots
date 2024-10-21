@@ -1,24 +1,24 @@
 <template>
-<div class="relative h-full w-full">
-  <div class="flip-card" @click="handleAvatarClick">
-    <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
-      <div class="flip-card-front">
-        <img
-          :src="selectImage"
-          alt="Avatar"
-          class="avatar-img shadow-lg hover:shadow-xl rounded-2xl transition-transform duration-300 transform hover:scale-105"
-        />
-      </div>
-      <div class="flip-card-back">
-        <img
-          :src="currentBot?.avatarImage || selectImage"
-          alt="New Avatar"
-          class="avatar-img shadow-lg hover:shadow-xl rounded-2xl transition-transform duration-300 transform hover:scale-105"
-        />
+  <div class="relative h-full w-full">
+    <div class="flip-card" @click="handleAvatarClick">
+      <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
+        <div class="flip-card-front">
+          <img
+            :src="selectImage"
+            alt="Avatar"
+            class="avatar-img shadow-lg hover:shadow-xl rounded-2xl transition-transform duration-300 transform hover:scale-105"
+          />
+        </div>
+        <div class="flip-card-back">
+          <img
+            :src="currentBot?.avatarImage || selectImage"
+            alt="New Avatar"
+            class="avatar-img shadow-lg hover:shadow-xl rounded-2xl transition-transform duration-300 transform hover:scale-105"
+          />
+        </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <script setup lang="ts">

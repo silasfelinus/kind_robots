@@ -6,15 +6,15 @@
     }"
   >
     <!-- Left Section: Avatar -->
-    <div class="flex items-center justify-center w-[15%] h-full">
+    <div class="flex items-center justify-center w-[15%] h-full rounded-2xl">
       <avatar-image
         alt="User Avatar"
-        class="w-full h-full rounded-xl object-cover"
+        class="w-full h-full rounded-2xl object-cover"
       />
     </div>
     <!-- Special Overlay: Shows viewportSize from displayStore -->
     <div
-      class="fixed bottom-1 left-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
+      class="fixed top-1 left-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
     >
       {{ displayStore.viewportSize }}
     </div>

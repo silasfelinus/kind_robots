@@ -1,8 +1,9 @@
 <template>
   <div class="flex flex-col items-center w-full">
-    <!-- Label and Min/Max Values -->
+    <!-- Label and Current/Original Min/Max Values -->
     <label :for="sliderId" class="mb-4 text-lg font-semibold text-gray-700">
-      {{ label }}: {{ minValue }} - {{ maxValue }}
+      {{ label }}: {{ minValue }} - {{ maxValue }} <br>
+      <small class="text-sm text-gray-500">Original: {{ originalMin }} - {{ originalMax }}</small> <!-- Display original min/max -->
     </label>
 
     <div class="relative w-full">
@@ -82,6 +83,8 @@ const props = defineProps({
   modelValue: { type: Object, required: true },
   label: { type: String, required: true },
   sliderId: { type: String, default: 'slider' },
+  originalMin: { type: Number, required: true }, // Add original min prop
+  originalMax: { type: Number, required: true }, // Add original max prop
 })
 
 const emit = defineEmits(['update:modelValue'])

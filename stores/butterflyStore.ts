@@ -270,15 +270,23 @@ export const useButterflyStore = defineStore({
         this.presets = JSON.parse(storedPresets)
       }
     },
+resetPresets() {
+  this.presets = []
+  localStorage.removeItem('butterflyPresets')
+},
     applyPreset(index: number) {
       if (index >= 0 && index < this.presets.length) {
         this.newButterflySettings = { ...this.presets[index] }
       }
     },
     updateButterflySettings(newSettings: Partial<ButterflyState['newButterflySettings']>) {
-      this.newButterflySettings = { ...this.newButterflySettings, ...newSettings }
-      this.savePreset()
-    },
+  this.newButterflySettings = { ...this.newButterflySettings, ...newSettings }
+  // Save preset automatically only if necessary
+  if (Object.keys(newSettings).length) {
+    this.savePreset()
+  }
+},
+
   },
   getters: {
     usedNames: state => state.butterflies.map(butterfly => butterfly.id),
@@ -292,5 +300,10 @@ export const useButterflyStore = defineStore({
     getSelectedButterfly: state => state.butterflies.find(b => b.id === state.selectedButterflyId),
     getButterfliesByStatus: state => (status: Butterfly['status']) => state.butterflies.filter(b => b.status === status),
 getOriginalButterflySettings: state => state.originalButterflySettings,
+getSettings: (state) => ({
+  current: state.newButterflySettings,
+  original: state.originalButterflySettings,
+}),
+
   },
 })

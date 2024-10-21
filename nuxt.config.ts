@@ -11,13 +11,13 @@ export default defineNuxtConfig({
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
   },
-  // Including the necessary modules/plugins
-  modules: [// Pinia state management
-  '@pinia/nuxt', // Tailwind CSS for styling
-  '@nuxtjs/tailwindcss', // Nuxt Content for Markdown, JSON, etc.
-  '@nuxt/content', // Stripe module for payments
-  '@unlok-co/nuxt-stripe', // ESLint module for linting
-  '@nuxt/eslint', // Automatic icon imports
+
+  modules: [
+  '@pinia/nuxt', 
+  '@nuxtjs/tailwindcss', 
+  '@nuxt/content', 
+  '@unlok-co/nuxt-stripe', 
+  '@nuxt/eslint', 
   '@nuxt/icon', '@nuxt/image'],
 
   // Vite configuration, specifically aliasing
@@ -48,7 +48,7 @@ icon: {
     customCollections: [
       {
         prefix: 'kind-icon',
-        dir: './assets/icons'
+        dir: './icons'
       },
     ],
   },

@@ -21,7 +21,9 @@
       style="background-color: rgba(0, 0, 0, 0.1)"
     >
       <kind-sidebar-simple v-if="sidebarLeftOpen" class="h-full w-full z-10" />
-      <div class="absolute -top-10 left-0 p-1 z-50">
+      <div
+        class="absolute -top-7 left-0 p-1 z-50 rounded-2xl border-1 bg-primary border-accent"
+      >
         <left-toggle />
       </div>
     </aside>
@@ -42,7 +44,9 @@
       <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full z-10" />
 
       <!-- Right Toggle (Top-right corner of the sidebar) -->
-      <div class="absolute -top-10 right-0 p-1 z-50">
+      <div
+        class="absolute -top-8 right-0 p-1 z-50 rounded-2xl border-1 bg-primary border-accent"
+      >
         <right-toggle />
       </div>
     </aside>

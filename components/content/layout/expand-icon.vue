@@ -1,7 +1,7 @@
 <template>
   <div class="absolute top-2 right-2 cursor-pointer" @click="expandParent">
     <!-- Your icon (adjust the name and style as needed) -->
-    <icon name="expand" class="text-lg" />
+    <icon name="kind-icon:expand" class="text-lg" />
   </div>
 </template>
 

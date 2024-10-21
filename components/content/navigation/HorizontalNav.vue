@@ -42,7 +42,7 @@ const hardcodedLinks = ref([
   {
     title: 'Prompt Factory',
     path: '/pitch',
-    icon: 'kind-icon:chatbubbles',
+    icon: 'kind-icon:chatbubble',
   },
   { title: 'Art Lab', path: '/artmaker', icon: 'kind-icon:easel' },
   { title: 'Memory Match', path: '/memory', icon: 'kind-icon:brain' },

@@ -4,7 +4,7 @@
     class="flex items-center space-x-2 no-underline text-current"
   >
     <!-- Always Show Jellybean Icon -->
-    <Icon name="tdesign:bean" />
+    <Icon name="kind-icon:jellybean" />
 
     <!-- Conditionally show the full text or just the count -->
     <div class="flex items-center">

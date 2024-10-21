@@ -6,25 +6,22 @@
     }"
   >
     <!-- Left Section: Avatar -->
-    <div class="flex items-center justify-center w-[15%] h-full rounded-2xl">
+    <div class="flex items-center justify-center w-[15%] h-full rounded-2xl relative">
       <avatar-image
         alt="User Avatar"
         class="w-full h-full rounded-2xl object-cover"
       />
-    </div>
-    <!-- Special Overlay: Shows viewportSize from displayStore -->
-    <div
-      class="fixed top-8 left-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base"
-    >
-      {{ displayStore.viewportSize }}
+      <!-- Special Overlay: Shows viewportSize from displayStore, positioned inside avatar-image -->
+      <div
+        class="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base p-1"
+      >
+        {{ displayStore.viewportSize }}
+      </div>
     </div>
 
     <!-- Second Section: Title and Subtitle -->
     <div
-      class="max-w-40% flex-grow flex flex-col items-center justify-center text-center mx-2 box-border"
-      :style="{
-        width: '40%', // Title and subtitle should take up 40% of the total width
-      }"
+      class="max-w-[40%] flex-grow flex flex-col items-center justify-center text-center mx-2 box-border"
     >
       <h1
         class="text-xs md:text-sm lg:text-md xl:text-xl font-semibold text-ellipsis overflow-hidden whitespace-nowrap max-w-full"

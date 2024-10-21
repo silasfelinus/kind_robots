@@ -11,7 +11,9 @@
         :min="0.5"
         :max="2"
         :step="0.1"
-        slider-id="sizeSlider"
+        :slider-id="'sizeSlider'"
+        :original-min="originalSizeRange.min"
+        :original-max="originalSizeRange.max"
       />
 
       <!-- Speed range slider -->
@@ -21,7 +23,9 @@
         :min="0.5"
         :max="5"
         :step="0.5"
-        slider-id="speedSlider"
+        :slider-id="'speedSlider'"
+        :original-min="originalSpeedRange.min"
+        :original-max="originalSpeedRange.max"
       />
 
       <!-- Wing Speed slider -->
@@ -31,7 +35,9 @@
         :min="1"
         :max="5"
         :step="1"
-        slider-id="wingSpeedSlider"
+        :slider-id="'wingSpeedSlider'"
+        :original-min="originalWingSpeedRange.min"
+        :original-max="originalWingSpeedRange.max"
       />
 
       <!-- Rotation slider -->
@@ -41,7 +47,9 @@
         :min="0"
         :max="360"
         :step="1"
-        slider-id="rotationSlider"
+        :slider-id="'rotationSlider'"
+        :original-min="originalRotationRange.min"
+        :original-max="originalRotationRange.max"
       />
 
       <!-- X Starting Range -->
@@ -51,7 +59,9 @@
         :min="0"
         :max="100"
         :step="1"
-        slider-id="xPositionSlider"
+        :slider-id="'xPositionSlider'"
+        :original-min="originalXRange.min"
+        :original-max="originalXRange.max"
       />
 
       <!-- Y Starting Range -->
@@ -61,7 +71,9 @@
         :min="0"
         :max="100"
         :step="1"
-        slider-id="yPositionSlider"
+        :slider-id="'yPositionSlider'"
+        :original-min="originalYRange.min"
+        :original-max="originalYRange.max"
       />
 
       <!-- Color Scheme selection -->
@@ -113,7 +125,7 @@ const butterflyStoreAvailable = computed(
   () => butterflyStore && butterflyStore.newButterflySettings,
 )
 
-// Bind individual properties for better reactivity with fallbacks
+// Access current and original settings for each range
 const newSizeRange = computed({
   get: () =>
     butterflyStore?.newButterflySettings?.sizeRange || { min: 0.5, max: 1.5 },
@@ -151,6 +163,14 @@ const newYRange = computed({
     butterflyStore?.newButterflySettings?.yRange || { min: 0, max: 100 },
   set: (val) => butterflyStore?.updateButterflySettings?.({ yRange: val }),
 })
+
+// Original ranges
+const originalSizeRange = computed(() => butterflyStore?.originalButterflySettings?.sizeRange || { min: 0.5, max: 1.5 })
+const originalSpeedRange = computed(() => butterflyStore?.originalButterflySettings?.speedRange || { min: 1, max: 3 })
+const originalWingSpeedRange = computed(() => butterflyStore?.originalButterflySettings?.wingSpeedRange || { min: 1, max: 5 })
+const originalRotationRange = computed(() => butterflyStore?.originalButterflySettings?.rotationRange || { min: 0, max: 360 })
+const originalXRange = computed(() => butterflyStore?.originalButterflySettings?.xRange || { min: 0, max: 100 })
+const originalYRange = computed(() => butterflyStore?.originalButterflySettings?.yRange || { min: 0, max: 100 })
 
 const newColorScheme = computed({
   get: () => butterflyStore?.newButterflySettings?.colorScheme || 'random',

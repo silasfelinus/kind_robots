@@ -48,7 +48,7 @@ icon: {
     customCollections: [
       {
         prefix: 'kind-icon',
-        dir: './icons'
+        dir: './assets/icons'
       },
     ],
   },

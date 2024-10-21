@@ -23,7 +23,6 @@
     "cypress:run": "cypress run"
   },
   "devDependencies": {
-    "@iconify-json/game-icons": "^1.1.10",
     "@interactjs/types": "^1.10.27",
     "@nuxt/icon": "^1.4.5",
     "@nuxt/types": "^2.18.1",

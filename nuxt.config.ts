@@ -16,9 +16,10 @@ export default defineNuxtConfig({
   '@pinia/nuxt', 
   '@nuxtjs/tailwindcss', 
   '@nuxt/content', 
-  '@unlok-co/nuxt-stripe', 
   '@nuxt/eslint', 
-  '@nuxt/icon', '@nuxt/image'],
+  '@nuxt/icon', 
+  '@nuxt/image'
+  ],
 
   // Vite configuration, specifically aliasing
   srcDir: '.',
@@ -30,19 +31,6 @@ export default defineNuxtConfig({
   // Setting a compatibility date for Nuxt features
   compatibilityDate: '2024-08-13',
 
-  // Stripe configuration for server and client sides
-  stripe: {
-    server: {
-      key: 'sk_test_123', // Server-side key
-      options: {
-        apiVersion: '2024-04-10', // API version
-      },
-    },
-    client: {
-      key: 'pk_test_123', // Client-side key
-      options: {},
-    },
-  },
 
 icon: {
     customCollections: [
@@ -57,9 +45,7 @@ icon: {
 
   // Runtime configuration for sensitive keys and secrets
   runtimeConfig: {
-    public: {
-      stripePublicKey: process.env.STRIPE_PUBLIC_KEY, // Public stripe key
-    },
+
     private: {
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
       GITHUB_ID: process.env.GITHUB_ID,

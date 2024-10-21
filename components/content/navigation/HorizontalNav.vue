@@ -16,7 +16,7 @@
         >
           <!-- Title below icon on small screens, inline with icon on large screens -->
           <span
-            class="text-sm whitespace-normal w-full bg-secondary text-white px-2 py-1 rounded-lg lg:bg-transparent group-hover:bg-transparent group-hover:text-white transition-colors"
+            class="text-xs md:text-md lg:text-lg font-semibold mt-1 text-center bg-secondary text-white px-2 py-1 rounded-lg"
           >
             {{ item.title }}
           </span>
@@ -24,7 +24,7 @@
           <!-- Stylized icon with hover and transition effects -->
           <icon
             :name="item.icon"
-            class="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 transition-transform group-hover:scale-110"
+            class="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 text-accent transition-transform group-hover:scale-110"
           />
         </button>
       </div>

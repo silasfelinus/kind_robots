@@ -6,7 +6,7 @@ image: weirdlandia/weird1.png
 gallery: weirdlandia
 tags: ['home']
 category: wip
-icon: game-icons:all-seeing-eye
+icon: kind-icon:alien
 tooltip: Are those eyeballs still looking at me?
 amitip: We're working on it, doc! Those eyeballs in the simulation room are so creepy though. One of them keeps looking at me.
 sort: highlight

@@ -4,7 +4,7 @@
     @click="toggleNav"
   >
     <Icon
-      name="gis:map-favorite"
+      name="kind-icon:map"
       class="Icon-effect w-16 h-16 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
     />
   </button>

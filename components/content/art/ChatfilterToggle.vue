@@ -11,7 +11,7 @@
     >
       <!-- Chat Icon -->
       <Icon
-        :name="isChatVisible ? 'mdi:chat' : 'mdi:chat-off'"
+        :name="isChatVisible ? 'kind-icon:chat' : 'kind-icon:chat-off'"
         :title="isChatVisible ? 'Hide Chat' : 'Show Chat'"
         class="w-full h-full"
       />

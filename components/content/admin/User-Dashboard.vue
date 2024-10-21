@@ -37,7 +37,7 @@
           </p>
           <div class="flex space-x-4 mt-2">
             <div class="flex items-center space-x-2">
-              <Icon name="tdesign:bean" class="text-lg" />
+              <Icon name="kind-icon:jellybean" class="text-lg" />
               <span>Jellybeans: {{ user?.mana || 0 }}</span>
             </div>
           </div>
@@ -75,7 +75,7 @@
       </div>
       <div class="flex flex-row items-center space-x-4">
         <div class="flex items-center space-x-2">
-          <Icon name="tdesign:bean" class="text-2xl" />
+          <Icon name="kind-icon:jellybean" class="text-2xl" />
           <span>{{ user?.mana || 0 }}</span>
         </div>
         <button

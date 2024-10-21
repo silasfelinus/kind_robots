@@ -9,7 +9,7 @@
         class="w-8 h-8 rounded-full mr-2"
         alt="Avatar"
       />
-      <Icon name="tabler:home" class="text-2xl" />
+      <Icon name="kind-icon:home" class="text-2xl" />
       <span class="ml-2">{{ welcomeMessage }}</span>
       <NuxtLink
         v-if="isLoggedIn && store.role === 'admin'"
@@ -30,7 +30,10 @@
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
-        <Icon name="tabler:loader" class="animate-spin text-lg mb-2" />
+        <Icon
+          name="kind-icon:bubble-loading"
+          class="animate-spin text-lg mb-2"
+        />
         <div>Loading, please wait...</div>
       </div>
 

@@ -6,7 +6,7 @@
       <div class="flex space-x-2 z-40">
         <!-- New Icon for showing the Site Map -->
         <Icon
-          name="bi:map"
+          name="kind-icon:map"
           class="text-2xl cursor-pointer"
           @click="toggleSiteMap"
         />
@@ -17,7 +17,7 @@
           @click="setView('fourRow')"
         />
         <Icon
-          name="mdi:view-dashboard-outline"
+          name="kind-icon:dashboard"
           class="text-2xl cursor-pointer"
           @click="setView('threeRow')"
         />
@@ -27,7 +27,7 @@
           @click="setView('twoRow')"
         />
         <Icon
-          name="bi:fullscreen"
+          name="kind-icon:fullscreen"
           class="text-2xl cursor-pointer"
           @click="setView('single')"
         />

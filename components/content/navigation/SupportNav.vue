@@ -22,7 +22,7 @@
         class="flex items-center m-2 p-1 text-xl rounded-2xl border bg-secondary"
       >
         You are here
-        <Icon name="line-md:download-outline-loop" class="text-lg m-2" />
+        <Icon name="kind-icon:download" class="text-lg m-2" />
       </div>
       <div class="flex flex-col items-start">
         <div class="text-lg font-bold bg-base-300 p-2 rounded-2xl border">

@@ -3,7 +3,7 @@
     <!-- Spotify Login -->
     <div v-if="!token" class="mb-8">
       <button class="btn btn-primary" @click="fetchSpotifyToken">
-        Login with Spotify <Icon name="mdi:spotify" class="text-lg" />
+        Login with Spotify <Icon name="kind-icon:spotify" class="text-lg" />
       </button>
     </div>
 
@@ -35,22 +35,22 @@
       <!-- Playback Controls -->
       <div class="flex justify-center space-x-4 mt-4">
         <button class="btn btn-accent" @click="previousTrack">
-          <Icon name="mdi:skip-previous" class="Icon-size" />
+          <Icon name="kind-icon:skip-previous" class="Icon-size" />
         </button>
         <button class="btn btn-accent" @click="togglePlay">
           <Icon
-            :name="isPlaying ? 'mdi:pause' : 'mdi:play'"
+            :name="isPlaying ? 'kind-icon:pause' : 'kind-icon:play'"
             class="Icon-size"
           />
         </button>
         <button class="btn btn-accent" @click="nextTrack">
-          <Icon name="mdi:skip-next" class="Icon-size" />
+          <Icon name="kind-icon:skip-next" class="Icon-size" />
         </button>
       </div>
 
       <!-- Volume Control -->
       <div class="mt-4 flex items-center justify-center">
-        <Icon name="mdi:volume-high" class="text-lg mr-2" />
+        <Icon name="kind-icon:volume-high" class="text-lg mr-2" />
         <input v-model="volume" type="range" class="w-full" min="0" max="100" />
       </div>
 

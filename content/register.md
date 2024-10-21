@@ -7,7 +7,7 @@ gallery: wondershed
 tooltip: 'Step through the gateway to a world of creativity and camaraderie!'
 amitip: And keep track of who tries to beat me on the leaderboards!
 tags: ['home']
-icon: game-icons:archive-register
+icon: kind-icon:register
 sort: highlight
 dottitip: If people register for an account, then we can customize their experience.
 layout: 'vertical-scroll'

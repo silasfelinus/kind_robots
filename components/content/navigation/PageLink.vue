@@ -32,7 +32,7 @@
         v-if="page._path === currentPath"
         class="mt-1 text-xl rounded-2xl border bg-accent p-1"
       >
-        <Icon name="line-md:download-outline-loop" class="text-lg" />
+        <Icon name="kind-icon:download" class="text-lg" />
         You are here
       </div>
     </div>

@@ -82,7 +82,7 @@ const effects = ref([
   {
     id: 'fizzy-bubbles',
     label: 'Fizzy Lifting',
-    Icon: 'mdi:bottle-soda-classic-outline',
+    Icon: 'kind-icon:soda',
     tooltip: 'Float away with fizzy bubbles 🍾',
     reveal: 'Carbonation!',
     isActive: false,
@@ -98,7 +98,7 @@ const effects = ref([
   {
     id: 'rain-effect',
     label: 'Rainmaker',
-    Icon: 'line-md:paint-drop-twotone',
+    Icon: 'kind-icon:raindrop',
     tooltip: `Rain doesn't have to be sad`,
     route: 'Summon a rainstorm 🌧️',
     reveal: 'Just a drizzle',

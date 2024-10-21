@@ -1,15 +1,15 @@
 export const sponsorPlea = [
   // Sponsor Phrases (10 Total for Mission Donation Page)
-  "It only takes $2 to provide a mosquito net and save a life. Visit [our sponsor](https://againstmalaria.com/amibot) to help.",
-  "For just $2, you can protect someone from malaria. Learn more at [our sponsor](https://againstmalaria.com/amibot).",
-  "Every $2 donation provides a life-saving mosquito net. Let's make a difference at [our sponsor](https://againstmalaria.com/amibot).",
-  "Saving lives from malaria is just $2 away. Donate now through [our sponsor](https://againstmalaria.com/amibot).",
-  "Did you know $2 is all it takes to buy a mosquito net and protect a family? Help at [our sponsor](https://againstmalaria.com/amibot).",
-  "A small $2 donation can prevent malaria. Make an impact at [our sponsor](https://againstmalaria.com/amibot).",
-  "Together, we can provide mosquito nets to those in need. Donate $2 at [our sponsor](https://againstmalaria.com/amibot) to help save lives.",
-  "For the price of a cup of coffee, you can provide a life-saving mosquito net. Learn more at [our sponsor](https://againstmalaria.com/amibot).",
-  "It only costs $2 to make a difference. Donate today and help prevent malaria at [our sponsor](https://againstmalaria.com/amibot).",
-  "Help us reach our goal of providing thousands of mosquito nets. Every $2 counts! Donate through [our sponsor](https://againstmalaria.com/amibot).",
+  "It only takes $2 to provide a mosquito net and save a life. Visit (https://againstmalaria.com/amibot) to help.",
+  "For just $2, you can protect someone from malaria. Learn more at (https://againstmalaria.com/amibot).",
+  "Every $2 donation provides a life-saving mosquito net. Let's make a difference at (https://againstmalaria.com/amibot).",
+  "Saving lives from malaria is just $2 away. Donate now through (https://againstmalaria.com/amibot).",
+  "Did you know $2 is all it takes to buy a mosquito net and protect a family? Help at (https://againstmalaria.com/amibot).",
+  "A small $2 donation can prevent malaria. Make an impact at (https://againstmalaria.com/amibot).",
+  "Together, we can provide mosquito nets to those in need. Donate $2 at (https://againstmalaria.com/amibot) to help save lives.",
+  "For the price of a cup of coffee, you can provide a life-saving mosquito net. Learn more at (https://againstmalaria.com/amibot).",
+  "It only costs $2 to make a difference. Donate today and help prevent malaria at (https://againstmalaria.com/amibot).",
+  "Help us reach our goal of providing thousands of mosquito nets. Every $2 counts! (https://againstmalaria.com/amibot).",
   
   // Website & Kind Robots Interaction References
   "Ready to make a difference? Tweet out your support and visit [our sponsor](https://againstmalaria.com/amibot) to help fight malaria.",

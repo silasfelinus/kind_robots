@@ -15,6 +15,11 @@
           class="range-fill absolute h-2 bg-primary rounded-full"
           :style="rangeFill"
         ></div>
+        <!-- Range fill (dynamic, centered) -->
+        <div
+          class="range-fill absolute h-2 bg-primary rounded-full top-0 transform translate-y-1/2"
+          :style="rangeFill"
+        ></div>
 
         <!-- Min slider -->
         <input
@@ -24,6 +29,16 @@
           :max="max"
           :step="step"
           class="absolute w-full h-4 appearance-none pointer-events-auto"
+          @input="updateMinValue"
+        />
+        <!-- Min slider -->
+        <input
+          v-model="minValue"
+          type="range"
+          :min="min"
+          :max="max"
+          :step="step"
+          class="absolute w-full h-0 pointer-events-none appearance-none"
           @input="updateMinValue"
         />
 
@@ -37,11 +52,32 @@
           class="absolute w-full h-4 appearance-none pointer-events-auto"
           @input="updateMaxValue"
         />
+        <!-- Max slider -->
+        <input
+          v-model="maxValue"
+          type="range"
+          :min="min"
+          :max="max"
+          :step="step"
+          class="absolute w-full h-0 pointer-events-none appearance-none"
+          @input="updateMaxValue"
+        />
 
         <!-- Min Knob -->
         <div
           class="absolute h-6 w-6 bg-primary rounded-full -top-2 cursor-pointer"
           :style="minKnobStyle"
+        >
+          <div class="absolute -bottom-6 text-center w-full text-sm">
+            {{ minValue }}
+          </div>
+        </div>
+        <!-- Min Knob -->
+        <div
+          class="absolute h-8 w-8 bg-primary rounded-full -top-3 cursor-pointer pointer-events-auto"
+          :style="minKnobStyle"
+          @mousedown.prevent
+          @touchstart.prevent
         >
           <div class="absolute -bottom-6 text-center w-full text-sm">
             {{ minValue }}
@@ -57,10 +93,21 @@
             {{ maxValue }}
           </div>
         </div>
-      </div>
+        <!-- Max Knob -->
+        <div
+          class="absolute h-8 w-8 bg-primary rounded-full -top-3 cursor-pointer pointer-events-auto"
+          :style="maxKnobStyle"
+          @mousedown.prevent
+          @touchstart.prevent
+        >
+          <div class="absolute -bottom-6 text-center w-full text-sm">
+            {{ maxValue }}
+          </div>
+        </div>
 
-      <!-- Overall max value to the right of the track -->
-      <span class="ml-2">{{ max }}</span>
+        <!-- Overall max value to the right of the track -->
+        <span class="ml-2">{{ max }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -112,13 +159,13 @@ const updateMaxValue = () => {
 const minKnobStyle = computed(() => {
   const totalRange = props.max - props.min
   const left = ((minValue.value - props.min) / totalRange) * 100
-  return { left: `calc(${left}% - 12px)` } // Centering the knob
+  return { left: `calc(${left}% - 16px)` } // Adjusted for larger knob
 })
 
 const maxKnobStyle = computed(() => {
   const totalRange = props.max - props.min
   const left = ((maxValue.value - props.min) / totalRange) * 100
-  return { left: `calc(${left}% - 12px)` } // Centering the knob
+  return { left: `calc(${left}% - 16px)` } // Adjusted for larger knob
 })
 
 watch(
@@ -153,5 +200,45 @@ input[type='range']::-webkit-slider-thumb {
   appearance: none;
   width: 0;
   height: 0;
+}
+</style>
+
+<style scoped>
+/* Remove default range input styling */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent; /* Make slider inputs transparent */
+  pointer-events: none;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 0; /* Ensure track is hidden */
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0; /* Hiding the default thumb */
+  height: 0;
+}
+
+/* Firefox */
+input[type='range']::-moz-range-track {
+  height: 0; /* Hide the default track */
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 0;
+  height: 0;
+}
+
+/* Hide original slider track */
+input[type='range']::-ms-track {
+  width: 100%;
+  cursor: pointer;
+  background: transparent; /* Transparent to hide */
+  border-color: transparent;
+  color: transparent;
 }
 </style>

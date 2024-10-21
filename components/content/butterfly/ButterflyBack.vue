@@ -25,19 +25,7 @@
           </select>
         </div>
 
-        <!-- Butterfly ID Display (not editable) -->
-        <div v-if="selectedButterfly" class="mb-6">
-          <label for="butterflyId" class="block mb-2"
-            >Butterfly ID (Uneditable):</label
-          >
-          <input
-            id="butterflyId"
-            v-model="selectedButterfly.id"
-            type="text"
-            class="w-full p-2 rounded bg-gray-400 text-gray-700 cursor-not-allowed"
-            disabled
-          />
-        </div>
+        
 
         <!-- Size slider -->
         <single-slider
@@ -56,7 +44,7 @@
           v-if="selectedButterfly"
           v-model="selectedButterflySpeed"
           label="Speed"
-          :min="0.5"
+          :min="1"
           :max="5"
           :step="1"
           slider-id="speedSlider"
@@ -68,7 +56,7 @@
           v-if="selectedButterfly"
           v-model="selectedButterflyWingSpeed"
           label="Wing Speed"
-          :min="0.5"
+          :min="1"
           :max="5"
           :step="1"
           slider-id="wingSpeedSlider"

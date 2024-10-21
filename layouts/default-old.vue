@@ -2,7 +2,7 @@
   <div class="flex flex-col h-screen w-screen relative">
     <!-- Toggle Navigation Button -->
     <button class="absolute top-[10vh] left-3 z-40" @click="toggleNav">
-      <icon name="fluent:row-triple-20-filled" class="text-2xl" />
+      <icon name="kind-icon:triple-row" class="text-2xl" />
     </button>
 
     <!-- Header Dashboard -->

@@ -6,7 +6,7 @@ gallery: 'cafepurr'
 image: 'botcat.webp'
 tags: ['home']
 layout: 'vertical-scroll'
-icon: game-icons:easel
+icon: kind-icon:easel
 category: user
 tooltip: This is a collection of user art. It will hopefully springboard into a more fully-featured editor and image playground
 dottitip: "People are asking if what we make counts as art."

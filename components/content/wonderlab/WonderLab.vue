@@ -2,7 +2,7 @@
   <div>
     <!-- Loading State -->
     <div v-if="isLoading" class="flex justify-center items-center h-full">
-      <Icon name="mdi:loading" class="animate-spin text-4xl" />
+      <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
       Loading...
     </div>
 

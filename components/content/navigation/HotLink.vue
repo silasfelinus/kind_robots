@@ -15,7 +15,7 @@
       ]"
     >
       <Icon
-        name="fxemoji:fire"
+        name="kind-icon:fire"
         class="w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
       />
     </NuxtLink>

@@ -6,7 +6,7 @@ gallery: 'botcafe'
 image: botcafe/botcafe-293.webp
 tags: ['home']
 layout: 'vertical-scroll'
-icon: material-symbols:menu-book-outline
+icon: kind-icon:menu-book
 category: user
 tooltip: 'Create new bot queries and share them with others'
 dottitip: 'This is a chronicle of kind robots interactions with humanity.'

@@ -5,7 +5,7 @@ description: 'Select a theme that resonates with you, and make this space truly 
 image: fantasycore/fantasycore-859.webp
 gallery: wondershed
 tags: ['home']
-icon: game-icons:tv-remote
+icon: kind-icon:remote
 tooltip: Fun fact, Cupcake was the in-utero name for our firstborn!
 amiold: That's so sweet, especially since he's now crushing your leaderboards!
 sort: highlight

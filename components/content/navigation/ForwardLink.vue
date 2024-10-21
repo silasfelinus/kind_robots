@@ -3,7 +3,7 @@
     <!-- Forward arrow Icon: Shown only if canGoForward is true -->
     <div v-if="canGoForward" @click="goForward">
       <Icon
-        :name="'typcn:arrow-forward-outline'"
+        :name="'kind-icon:forward-arrow'"
         :title="'Forward'"
         class="Icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
       />

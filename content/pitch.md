@@ -6,7 +6,7 @@ gallery: 'cafepurr'
 image: 'weirdlandia/weird1.png'
 tags: ['home']
 layout: 'vertical-scroll'
-icon: fluent:chat-bubbles-question-16-regular
+icon: kind-icon:chatbubbles
 category: user
 tooltip: Organize and share your text and art prompts
 dottitip: "What's the secret to a perfect prompt, AMI?"

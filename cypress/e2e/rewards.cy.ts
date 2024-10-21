@@ -14,7 +14,7 @@ describe('Reward Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        icon: 'mdi:star',
+        icon: 'kind-icon:star',
         text: 'Test Reward Text',
         power: 'Test Power',
         collection: 'Test Collection',

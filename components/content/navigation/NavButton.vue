@@ -18,7 +18,7 @@
       </div>
     </div>
     <div v-if="isCurrentPage" class="ml-2 text-md text-info">
-      <Icon name="line-md:download-outline-loop" class="text-lg" />
+      <Icon name="kind-icon:download" class="text-lg" />
       You are here
     </div>
   </div>
@@ -27,7 +27,7 @@
 <script setup lang="ts">
 const {
   title = 'Mysterious Portal',
-  icon = 'line-md:magic-stick',
+  icon = 'kind-icon:magic-stick',
   isCurrentPage = false,
   underConstruction = false,
   isExtended = false,

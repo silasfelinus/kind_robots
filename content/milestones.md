@@ -5,7 +5,7 @@ description: Embark on a delightful quest to discover jellybeans scattered acros
 image: weirdlandia/weird-69.png
 gallery: weirdlandia
 tags: ['home']
-icon: game-icons:mermaid
+icon: kind-icon:mermaid
 tooltip: Ready for a hunt? Find all 11 jellybeans hidden across the site to earn special karma. Note - 'Art Critic' and 'Social Activist' jellybeans are not currently earnable.
 amibot: Now you tell me!
 sort: highlight

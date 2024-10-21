@@ -5,7 +5,7 @@ description: Welcome to the Kind Robots, a consortium of AI-assisted tools to ge
 image: botcafe.webp
 gallery: wonderbot
 tags: ['home']
-icon: line-md:home-md-twotone
+icon: kind-icon:home
 status: home
 layout: 'vertical-scroll'
 tooltip: Hi! I'm Silas, human programmer for Kind Robots!

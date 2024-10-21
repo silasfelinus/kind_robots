@@ -49,7 +49,7 @@
       <!-- Jellybean Award -->
       <div>
         <div class="text-lg">You discovered 1 Jellybean!</div>
-        <Icon name="tdesign:bean" class="text-9xl" />
+        <Icon name="kind-icon:jellybean" class="text-9xl" />
       </div>
     </div>
   </div>

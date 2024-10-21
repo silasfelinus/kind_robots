@@ -9,7 +9,8 @@
         <div
           class="silas-chat bubble bg-primary text-white p-4 rounded-2xl shadow-lg mb-2"
         >
-          <Icon name="mdi:chat" class="text-white mr-2 text-2xl" />Silas Says:
+          <Icon name="kind-icon:chat" class="text-white mr-2 text-2xl" />Silas
+          Says:
           <span class="text-xl block">{{ streamedText }}</span>
         </div>
       </div>

@@ -9,7 +9,7 @@
     <!-- Text Container -->
     <div class="flex-grow ml-4">
       <span class="font-semibold flex items-center">
-        <Icon name="mdi:chat" class="text-default mr-2 text-2xl" />
+        <Icon name="kind-icon:chat" class="text-default mr-2 text-2xl" />
         <span class="text-default text-xl">{{ streamedText }}</span>
       </span>
     </div>

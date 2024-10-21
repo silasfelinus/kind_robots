@@ -15,7 +15,7 @@
         @click="toggleSidebarFunction"
       >
         <span class="text-lg">
-          <Icon :name="toggleSidebar ? 'fxemoji:eye' : 'nimbus:eye-off'" />
+          <Icon :name="toggleSidebar ? 'kind-icon:eye' : 'kind-icon:eye-off'" />
         </span>
       </button>
     </div>

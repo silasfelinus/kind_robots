@@ -6,7 +6,7 @@ gallery: 'cafepurr'
 image: 'botcat.webp'
 tags: ['home']
 layout: 'vertical-scroll'
-icon: game-icons:easel
+icon: kind-icon:easel
 category: user
 tooltip: Welcome to the Art Studio, where AI dreams in technicolor! Start with a "Pitch" phrase, add your own creative touch, then unleash the AI to complete your masterpiece. Who knows, you might find your inner Picasso—but you will always create something original and new.
 dottitip: Start with a Pitch, add your creative touch, and see what our ArtBots manifest. Every image is a unique collaboration between our AI and a human visitor!

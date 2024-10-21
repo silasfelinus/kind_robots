@@ -24,7 +24,7 @@
 <script setup lang="ts">
 const {
   image = '',
-  icon = 'line-md:information',
+  icon = 'kind-icon:info-circle',
   description = 'A New Page from Kind Robots',
   streaming = false,
   isHovered,

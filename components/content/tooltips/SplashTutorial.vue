@@ -8,7 +8,7 @@
       class="absolute top-2 left-2 z-20 opacity-90 md:w-12 md:h-12 lg:w-16 lg:h-16"
     >
       <Icon
-        name="emojione:construction"
+        name="kind-icon:construction"
         class="object-cover w-full h-full text-warning"
       />
     </div>

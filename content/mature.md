@@ -7,7 +7,7 @@ gallery: weirdlandia
 tags: ['home']
 layout: 'vertical-scroll'
 category: user
-icon: game-icons:all-seeing-eye
+icon: kind-icon:alien
 tooltip: This is the private art page.
 dottitip: this is our private art generator.
 amitip: 'Some of these pictures make me blush!'

@@ -3,7 +3,7 @@ title: 'About'
 subtitle: 'Unapologetically Optimistic'
 description: Where missions and elevator pitches go to socialize.
 layout: 'vertical-scroll'
-icon: game-icons:abstract-037
+icon: kind-icon:butterfly
 image: kindart.webp
 gallery: wondershed
 tags: ['home']

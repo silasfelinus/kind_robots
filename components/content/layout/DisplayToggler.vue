@@ -38,7 +38,7 @@
             ]"
             @click="changeState('headerState', 'hidden')"
           >
-            <Icon name="eye-off" class="mr-2" /> Hidden
+            <Icon name="kind-icon:eye-off" class="mr-2" /> Hidden
           </button>
         </div>
       </div>
@@ -80,7 +80,7 @@
             ]"
             @click="changeState('sidebarLeftState', 'hidden')"
           >
-            <Icon name="eye-off" class="mr-2" /> Hidden
+            <Icon name="kind-icon:eye-off" class="mr-2" /> Hidden
           </button>
         </div>
       </div>
@@ -126,7 +126,7 @@
             ]"
             @click="changeState('sidebarRightState', 'hidden')"
           >
-            <Icon name="eye-off" class="mr-2" /> Hidden
+            <Icon name="kind-icon:eye-off" class="mr-2" /> Hidden
           </button>
         </div>
       </div>
@@ -166,7 +166,7 @@
             ]"
             @click="changeState('footerState', 'hidden')"
           >
-            <Icon name="eye-off" class="mr-2" /> Hidden
+            <Icon name="kind-icon:eye-off" class="mr-2" /> Hidden
           </button>
         </div>
       </div>

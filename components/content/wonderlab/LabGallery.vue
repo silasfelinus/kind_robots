@@ -12,7 +12,7 @@
         @click="fetchComponentsFromFolder(folder)"
       >
         <div class="text-center">
-          <Icon name="bi:folder-fill" class="text-4xl" />
+          <Icon name="kind-icon:folder" class="text-4xl" />
           <p class="mt-2">{{ folder }}</p>
         </div>
       </div>

@@ -61,25 +61,25 @@
       class="fixed bottom-0 left-0 right-0 p-4 bg-gray-800 flex justify-around"
     >
       <Icon
-        name="mdi:thumb-up-outline"
+        name="kind-icon:thumbup"
         class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
         :class="{ 'text-green-500': reactionType === 'CLAPPED' }"
         @click="toggleReaction('CLAPPED')"
       />
       <Icon
-        name="mdi:thumb-down-outline"
+        name="kind-icon:thumbdown"
         class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
         :class="{ 'text-red-500': reactionType === 'BOOED' }"
         @click="toggleReaction('BOOED')"
       />
       <Icon
-        name="mdi:heart-outline"
+        name="kind-icon:heart"
         class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
         :class="{ 'text-pink-500': reactionType === 'LOVED' }"
         @click="toggleReaction('LOVED')"
       />
       <Icon
-        name="mdi:emoticon-angry-outline"
+        name="kind-icon:angry"
         class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
         :class="{ 'text-yellow-500': reactionType === 'HATED' }"
         @click="toggleReaction('HATED')"

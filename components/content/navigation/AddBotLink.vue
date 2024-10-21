@@ -14,7 +14,7 @@
       ]"
     >
       <Icon
-        name="fluent:bot-add-20-regular"
+        name="kind-icon:addbot"
         class="w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow"
       />
     </NuxtLink>

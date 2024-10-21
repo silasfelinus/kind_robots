@@ -2,7 +2,7 @@
   <div :class="layoutClass">
     <nav v-if="isSimpleLayout" class="simple-nav">
       <a href="/" class="home-link">
-        <Icon name="mdi:home" class="home-Icon" />
+        <Icon name="kind-icon:home" class="home-Icon" />
         Home
       </a>
     </nav>
@@ -43,7 +43,7 @@ const toggleLayout = () => {
 
 // Icon based on the layout
 const toggleIcon = computed(() =>
-  isSimpleLayout.value ? 'mdi:view-grid' : 'mdi:fullscreen',
+  isSimpleLayout.value ? 'kind-icon:view-grid' : 'kind-icon:fullscreen',
 )
 </script>
 

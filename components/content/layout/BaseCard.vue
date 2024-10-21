@@ -33,7 +33,7 @@ const props = defineProps({
   },
   iconName: {
     type: String,
-    default: 'mdi:robot',
+    default: 'kind-icon:robot-color',
   },
   content: {
     type: String,

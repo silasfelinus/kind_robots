@@ -12,7 +12,7 @@
       @mouseleave="showMatureTooltip = false"
     >
       <Icon
-        :name="'emojione-monotone:lipstick'"
+        :name="'kind-icon:lips'"
         :title="'Toggle Mature Content'"
         class="w-full h-full"
       />

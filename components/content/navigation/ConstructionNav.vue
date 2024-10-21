@@ -5,7 +5,7 @@
       class="flex items-center justify-center text-2xl font-extrabold border shadow-lg bg-secondary rounded-2xl mb-2 px-1"
     >
       Under Construction
-      <Icon name="line-md:construction" class="text-2xl ml-2" />
+      <Icon name="kind-icon:construction" class="text-2xl ml-2" />
     </div>
 
     <!-- Links -->
@@ -34,7 +34,7 @@
         class="flex items-center m-1 p-1 text-xl rounded-2xl border bg-secondary"
       >
         You are here
-        <Icon name="line-md:download-outline-loop" class="text-lg mr-2" />
+        <Icon name="kind-icon:download" class="text-lg mr-2" />
       </div>
       <!-- Page Title and Popup -->
       <div class="flex flex-col items-start">

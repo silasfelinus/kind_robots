@@ -7,7 +7,7 @@
       alt="Avatar"
     />
     <welcome-message />
-    <Icon name="tabler:home" class="text-base-200 text-2xl" />
+    <Icon name="kind-icon:home" class="text-base-200 text-2xl" />
     <div class="ml-2 flex items-center">
       <NuxtLink
         v-if="isLoggedIn"
@@ -26,7 +26,7 @@
       </button>
       <Icon
         v-else
-        name="tabler:user"
+        name="kind-icon:person"
         class="text-base-200 text-2xl ml-2 cursor-pointer"
         @click="toggleVisibility"
       />

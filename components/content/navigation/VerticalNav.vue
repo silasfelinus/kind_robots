@@ -19,21 +19,21 @@ const router = useRouter()
 
 // Hardcoded sidebar links
 const hardcodedLinks = [
-  { title: 'Home', path: '/', icon: 'line-md:home-md-twotone' },
-  { title: 'Bot Cafe', path: '/botcafe', icon: 'fluent:bot-add-20-regular' },
+  { title: 'Home', path: '/', icon: 'kind-icon:home' },
+  { title: 'Bot Cafe', path: '/botcafe', icon: 'kind-icon:addbot' },
   {
     title: 'Prompt Factory',
     path: '/pitch',
-    icon: 'fluent:chat-bubbles-question-16-regular',
+    icon: 'kind-icon:chatbubbles',
   },
-  { title: 'Art Lab', path: '/artmaker', icon: 'game-icons:easel' },
+  { title: 'Art Lab', path: '/artmaker', icon: 'kind-icon:easel' },
   {
     title: 'Memory Match',
     path: '/memory',
-    icon: 'material-symbols:art-track-outline-rounded',
+    icon: 'kind-icon:brain',
   },
-  { title: 'Wonderlab', path: '/wonderlab', icon: 'game-icons:gear-hammer' },
-  { title: 'Dashboard', path: '/dashboard', icon: 'mingcute:settings-6-fill' },
+  { title: 'Wonderlab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
+  { title: 'Dashboard', path: '/dashboard', icon: 'kind-icon:settings' },
 ]
 
 // Function to navigate to a route

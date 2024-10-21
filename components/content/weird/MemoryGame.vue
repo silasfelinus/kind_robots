@@ -1,96 +1,100 @@
 <template>
-  <div class="container mx-auto flex flex-col h-full space-y-4">
-    <!-- Top Section: Leaderboard and Difficulty Selection -->
-    <div class="flex justify-between w-full">
-      <!-- Leaderboard Section -->
-      <div class="leaderboard-container justify-center w-full md:w-1/2">
-        <match-leaderboard />
-      </div>
+  <expandable-container>
+    <div class="container mx-auto flex flex-col h-full space-y-4">
+      <!-- Top Section: Leaderboard and Difficulty Selection -->
+      <div class="flex justify-between w-full">
+        <!-- Leaderboard Section -->
+        <div class="leaderboard-container justify-center w-full md:w-1/2">
+          <match-leaderboard />
+        </div>
 
-      <!-- Game Controls Section -->
-      <div
-        class="controls-container w-full md:w-1/3 p-4 rounded-lg text-center"
-      >
-        <h1 class="text-lg font-bold mb-2">Kind Robots Memory Game</h1>
-        <p class="text-gray-600 mb-4">Match the images and test your memory!</p>
-
-        <label for="difficulty" class="block mb-2">Select Difficulty:</label>
-        <select
-          id="difficulty"
-          v-model="selectedDifficulty"
-          class="mb-2 p-2 w-full border border-gray-300 rounded"
-        >
-          <option
-            v-for="difficulty in difficulties"
-            :key="difficulty.label"
-            :value="difficulty"
-          >
-            {{ difficulty.label }}
-          </option>
-        </select>
-
-        <button
-          class="w-full p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
-          @click="resetGame"
-        >
-          Start New Game
-        </button>
-
-        <milestone-reward v-if="shouldShowMilestoneCheck" :id="5" />
-      </div>
-    </div>
-
-    <!-- Game Board Section: Takes up remaining space -->
-    <div
-      class="game-board-container flex-1 overflow-y-auto flex justify-center items-center"
-    >
-      <div class="game-board grid gap-4" :style="gameBoardStyle">
-        <div v-if="isLoading" class="loader"></div>
+        <!-- Game Controls Section -->
         <div
-          v-for="galleryImage in galleryImages"
-          :key="galleryImage.id"
-          class="gallery-display hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
-          :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
-          @click="handleGalleryClick(galleryImage)"
+          class="controls-container w-full md:w-1/3 p-4 rounded-lg text-center"
         >
-          <div
-            :class="{ flipped: galleryImage.flipped || galleryImage.matched }"
+          <h1 class="text-lg font-bold mb-2">Kind Robots Memory Game</h1>
+          <p class="text-gray-600 mb-4">
+            Match the images and test your memory!
+          </p>
+
+          <label for="difficulty" class="block mb-2">Select Difficulty:</label>
+          <select
+            id="difficulty"
+            v-model="selectedDifficulty"
+            class="mb-2 p-2 w-full border border-gray-300 rounded"
           >
-            <!-- Card Back -->
-            <img
-              class="card-back absolute inset-0 w-full h-full object-cover"
-              src="/images/kindtitle.webp"
-              alt="Memory Card"
-            />
-            <!-- Card Front -->
-            <img
-              class="card-front absolute inset-0 w-full h-full object-cover"
-              :src="galleryImage.imagePath"
-              :alt="galleryImage.galleryName"
-            />
+            <option
+              v-for="difficulty in difficulties"
+              :key="difficulty.label"
+              :value="difficulty"
+            >
+              {{ difficulty.label }}
+            </option>
+          </select>
+
+          <button
+            class="w-full p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
+            @click="resetGame"
+          >
+            Start New Game
+          </button>
+
+          <milestone-reward v-if="shouldShowMilestoneCheck" :id="5" />
+        </div>
+      </div>
+
+      <!-- Game Board Section: Takes up remaining space -->
+      <div
+        class="game-board-container flex-1 overflow-y-auto flex justify-center items-center"
+      >
+        <div class="game-board grid gap-4" :style="gameBoardStyle">
+          <div v-if="isLoading" class="loader"></div>
+          <div
+            v-for="galleryImage in galleryImages"
+            :key="galleryImage.id"
+            class="gallery-display hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
+            :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
+            @click="handleGalleryClick(galleryImage)"
+          >
+            <div
+              :class="{ flipped: galleryImage.flipped || galleryImage.matched }"
+            >
+              <!-- Card Back -->
+              <img
+                class="card-back absolute inset-0 w-full h-full object-cover"
+                src="/images/kindtitle.webp"
+                alt="Memory Card"
+              />
+              <!-- Card Front -->
+              <img
+                class="card-front absolute inset-0 w-full h-full object-cover"
+                :src="galleryImage.imagePath"
+                :alt="galleryImage.galleryName"
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Game End / Score Section -->
-    <div class="game-controls text-center p-4">
-      <div v-if="notification" :class="notificationClasses">
-        {{ notification.message }}
-      </div>
-      <div>Score: {{ score }}</div>
-      <div>High Score: {{ highScore }}</div>
-      <div v-if="gameWon" class="mt-4">
-        <p>Congratulations! You've won!</p>
-        <button
-          class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          @click="resetGame"
-        >
-          Play Again?
-        </button>
+      <!-- Game End / Score Section -->
+      <div class="game-controls text-center p-4">
+        <div v-if="notification" :class="notificationClasses">
+          {{ notification.message }}
+        </div>
+        <div>Score: {{ score }}</div>
+        <div>High Score: {{ highScore }}</div>
+        <div v-if="gameWon" class="mt-4">
+          <p>Congratulations! You've won!</p>
+          <button
+            class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            @click="resetGame"
+          >
+            Play Again?
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </expandable-container>
 </template>
 
 <script setup lang="ts">

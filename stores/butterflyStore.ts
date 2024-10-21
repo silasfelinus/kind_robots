@@ -32,6 +32,17 @@ interface ButterflyState {
   animationPaused: boolean
   showNames: boolean
   selectedButterflyId: string
+
+originalButterflySettings: {
+    sizeRange: { min: number; max: number }
+    speedRange: { min: number; max: number }
+    rotationRange: { min: number; max: number }
+    wingSpeedRange: { min: number; max: number }
+    xRange: { min: number; max: number }
+    yRange: { min: number; max: number }
+    zIndexRange: { min: number; max: number }
+  }
+
   newButterflySettings: {
     sizeRange: { min: number; max: number }
     speedRange: { min: number; max: number }
@@ -136,6 +147,18 @@ export const useButterflyStore = defineStore({
     animationPaused: false,
     showNames: true,
     selectedButterflyId: '',
+
+  // Original settings for reset purposes
+    originalButterflySettings: {
+      sizeRange: { min: 0.5, max: 1.5 },
+      speedRange: { min: 1, max: 3 },
+      rotationRange: { min: 110, max: 110 },
+      wingSpeedRange: { min: 1, max: 5 },
+      xRange: { min: 0, max: 100 },
+      yRange: { min: 0, max: 100 },
+      zIndexRange: { min: 0, max: 50 },
+    },
+
     newButterflySettings: {
       sizeRange: { min: 0.5, max: 1.5 },
       speedRange: { min: 1, max: 3 },
@@ -192,6 +215,17 @@ export const useButterflyStore = defineStore({
             : ''
         }
       }
+    },
+
+    // Reset all ranges back to the original values
+    resetButterflySettings() {
+      this.newButterflySettings.sizeRange = { ...this.originalButterflySettings.sizeRange }
+      this.newButterflySettings.speedRange = { ...this.originalButterflySettings.speedRange }
+      this.newButterflySettings.rotationRange = { ...this.originalButterflySettings.rotationRange }
+      this.newButterflySettings.wingSpeedRange = { ...this.originalButterflySettings.wingSpeedRange }
+      this.newButterflySettings.xRange = { ...this.originalButterflySettings.xRange }
+      this.newButterflySettings.yRange = { ...this.originalButterflySettings.yRange }
+      this.newButterflySettings.zIndexRange = { ...this.originalButterflySettings.zIndexRange }
     },
     updateButterflyPosition(butterfly: Butterfly) {
       let t = 0
@@ -257,5 +291,6 @@ export const useButterflyStore = defineStore({
     getActiveAnimationState: state => state.animationFrameId !== null ? 'running' : state.animationPaused ? 'paused' : 'stopped',
     getSelectedButterfly: state => state.butterflies.find(b => b.id === state.selectedButterflyId),
     getButterfliesByStatus: state => (status: Butterfly['status']) => state.butterflies.filter(b => b.status === status),
+getOriginalButterflySettings: state => state.originalButterflySettings,
   },
 })

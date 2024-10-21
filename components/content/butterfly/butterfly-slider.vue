@@ -1,13 +1,13 @@
 <template>
-  <div class="flex flex-col items-center">
+  <div class="flex flex-col items-center w-full">
     <!-- Label and Min/Max Values -->
-    <label :for="sliderId" class="mb-2 text-lg font-semibold text-gray-700">
+    <label :for="sliderId" class="mb-4 text-lg font-semibold text-gray-700">
       {{ label }}: {{ minValue }} - {{ maxValue }}
     </label>
 
     <div class="relative w-full">
       <!-- Grey Slider Track -->
-      <div class="h-2 bg-gray-300 rounded-full"></div>
+      <div class="h-2 bg-gray-200 rounded-full"></div>
 
       <!-- Range Fill Line (colored bg-primary) -->
       <div
@@ -26,9 +26,20 @@
         @input="updateMinValue"
       />
       <div
-        class="absolute w-6 h-6 bg-white border-2 border-primary rounded-full pointer-events-auto"
+        class="absolute w-6 h-6 bg-white border-2 border-primary rounded-full pointer-events-auto transition-all duration-200"
         :style="minKnobStyle"
+        @mouseenter="showMinTooltip = true"
+        @mouseleave="showMinTooltip = false"
       ></div>
+
+      <!-- Min Knob Tooltip on Hover -->
+      <div
+        v-if="showMinTooltip"
+        class="absolute px-2 py-1 text-white bg-gray-700 rounded-md -translate-x-1/2 transform -top-8"
+        :style="minKnobStyle"
+      >
+        {{ minValue }}
+      </div>
 
       <!-- Max Knob -->
       <input
@@ -41,13 +52,24 @@
         @input="updateMaxValue"
       />
       <div
-        class="absolute w-6 h-6 bg-white border-2 border-primary rounded-full pointer-events-auto"
+        class="absolute w-6 h-6 bg-white border-2 border-primary rounded-full pointer-events-auto transition-all duration-200"
         :style="maxKnobStyle"
+        @mouseenter="showMaxTooltip = true"
+        @mouseleave="showMaxTooltip = false"
       ></div>
 
+      <!-- Max Knob Tooltip on Hover -->
+      <div
+        v-if="showMaxTooltip"
+        class="absolute px-2 py-1 text-white bg-gray-700 rounded-md -translate-x-1/2 transform -top-8"
+        :style="maxKnobStyle"
+      >
+        {{ maxValue }}
+      </div>
+
       <!-- Min/Max Value Markers -->
-      <div class="absolute -left-4 top-4 text-gray-600">{{ props.min }}</div>
-      <div class="absolute -right-4 top-4 text-gray-600">{{ props.max }}</div>
+      <div class="absolute -left-6 top-4 text-gray-600">{{ props.min }}</div>
+      <div class="absolute -right-6 top-4 text-gray-600">{{ props.max }}</div>
     </div>
   </div>
 </template>
@@ -66,6 +88,8 @@ const emit = defineEmits(['update:modelValue'])
 
 const minValue = ref(props.modelValue.min)
 const maxValue = ref(props.modelValue.max)
+const showMinTooltip = ref(false)
+const showMaxTooltip = ref(false)
 
 // Update the range-fill style dynamically based on min and max values
 const rangeFill = computed(() => {

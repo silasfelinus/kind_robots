@@ -7,7 +7,7 @@
   >
     <!-- Dynamic Loading Message -->
     <div class="loading-message">{{ currentMessage }}</div>
-<Icon name="kind-icon:bubble-loading"
+<Icon name="kind-icon:bubble-loading" />
 
     <!-- Multiple Butterflies with Animation Delay -->
     <ami-butterfly v-for="i in butterflyCount" :key="i" :class="{ 'butterfly-fade-out': butterflyFadeOut }" />

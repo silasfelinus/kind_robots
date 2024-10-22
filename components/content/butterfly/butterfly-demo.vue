@@ -1,49 +1,50 @@
 <template>
-  <div
-    class="relative w-full h-full flex items-center justify-center bg-gray-200"
-  >
-    <!-- Butterfly demo section for selected butterfly -->
-    <div
-      v-if="currentButterfly && currentButterfly !== undefined"
-      class="butterfly z-50"
-      :style="{
-        transform:
-          'rotate3d(1, 1, 0, ' +
-          currentButterfly.rotation +
-          'deg) scale(' +
-          currentButterfly.scale +
-          ')',
-      }"
-    >
-      <div class="left-wing">
-        <div
-          class="top"
-          :style="{ background: currentButterfly.wingTopColor }"
-        ></div>
-        <div
-          class="bottom"
-          :style="{ background: currentButterfly.wingBottomColor }"
-        ></div>
+  <div class="relative w-full h-full flex items-center justify-center bg-gray-100">
+    <!-- Card container for the butterfly -->
+    <div class="butterfly-card bg-white shadow-lg rounded-xl p-4 border border-gray-300 relative">
+      <!-- Butterfly demo section for selected butterfly -->
+      <div
+        v-if="currentButterfly && currentButterfly !== undefined"
+        class="butterfly z-50 mx-auto"
+        :style="{
+          transform:
+            'rotate3d(1, 1, 0, ' +
+            currentButterfly.rotation +
+            'deg) scale(' +
+            currentButterfly.scale +
+            ')',
+        }"
+      >
+        <div class="left-wing">
+          <div
+            class="top"
+            :style="{ background: currentButterfly.wingTopColor }"
+          ></div>
+          <div
+            class="bottom"
+            :style="{ background: currentButterfly.wingBottomColor }"
+          ></div>
+        </div>
+        <div class="right-wing">
+          <div
+            class="top"
+            :style="{ background: currentButterfly.wingTopColor }"
+          ></div>
+          <div
+            class="bottom"
+            :style="{ background: currentButterfly.wingBottomColor }"
+          ></div>
+        </div>
       </div>
-      <div class="right-wing">
-        <div
-          class="top"
-          :style="{ background: currentButterfly.wingTopColor }"
-        ></div>
-        <div
-          class="bottom"
-          :style="{ background: currentButterfly.wingBottomColor }"
-        ></div>
-      </div>
-    </div>
 
-    <!-- Name and Message Section outside of butterfly transform -->
-    <div
-      v-if="currentButterfly && currentButterfly !== undefined"
-      class="absolute bottom-4 w-full text-center text-lg text-gray-700 transform-none"
-    >
-      <p>{{ currentButterfly.id }}</p>
-      <p>{{ currentButterfly.message }}</p>
+      <!-- Name and Message Section outside of butterfly transform -->
+      <div
+        v-if="currentButterfly && currentButterfly !== undefined"
+        class="w-full text-center mt-4 text-lg text-gray-700"
+      >
+        <p class="font-bold">{{ currentButterfly.id }}</p>
+        <p class="italic">{{ currentButterfly.message }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -60,12 +61,16 @@ const currentButterfly = computed(() => butterflyStore.getSelectedButterfly)
 </script>
 
 <style scoped>
-.butterfly {
-  width: 100px;
-  height: 100px;
-  position: absolute;
-  transform-style: preserve-3d;
-  pointer-events: none;
+.butterfly-card {
+  width: 300px;
+  height: 450px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  background-color: white;
 }
 
 /* Adjust wing animation for proper view */
@@ -125,6 +130,7 @@ const currentButterfly = computed(() => butterflyStore.getSelectedButterfly)
   height: 20px;
   border-radius: 10px;
 }
+
 .bottom {
   top: 18px;
   width: 24px;

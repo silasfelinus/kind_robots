@@ -1,202 +1,90 @@
 <template>
-  <div class="bg-gray-200 p-4 rounded-lg flex flex-col h-full">
-    <!-- Scrollable settings area -->
-    <div class="overflow-y-auto flex-grow pr-4">
-      <h3 class="text-center mb-4">Select and Adjust Butterfly Settings</h3>
-
-      <!-- Guard: Check if there are butterflies and selected butterfly is available -->
-      <div v-if="butterflyStoreAvailable">
-        <!-- Butterfly Selection -->
-        <div v-if="butterflies.length > 0" class="mb-6">
-          <label for="selectedButterfly" class="block mb-2">
-            Select Butterfly:
-          </label>
-          <select
-            v-model="butterflyStore.selectedButterflyId"
-            class="w-full p-2 rounded"
-          >
-            <option
-              v-for="butterfly in butterflies"
-              :key="butterfly.id"
-              :value="butterfly.id"
-            >
-              {{ butterfly.id }}
-            </option>
-          </select>
+  <div class="relative w-full h-full flex items-center justify-center bg-gray-100 p-6">
+    <!-- Card container for the butterfly -->
+    <div class="butterfly-card bg-white shadow-lg rounded-xl p-6 border border-gray-300 relative flex flex-col items-center">
+      <!-- Butterfly demo section for selected butterfly -->
+      <div
+        v-if="selectedButterfly"
+        class="butterfly z-50 mb-6"
+        :style="{
+          transform:
+            'rotate3d(1, 1, 0, ' +
+            selectedButterflyRotation +
+            'deg) scale(' +
+            selectedButterflySize +
+            ')',
+        }"
+      >
+        <div class="left-wing">
+          <div
+            class="top"
+            :style="{ background: selectedButterflyWingTopColor }"
+          ></div>
+          <div
+            class="bottom"
+            :style="{ background: selectedButterflyWingBottomColor }"
+          ></div>
         </div>
-
-        
-
-        <!-- Size slider -->
-        <single-slider
-          v-if="selectedButterfly"
-          v-model="selectedButterflySize"
-          label="Size"
-          :min="0.5"
-          :max="2"
-          :step="0.1"
-          slider-id="sizeSlider"
-          class="mb-4"
-        />
-
-        <!-- Speed slider -->
-        <single-slider
-          v-if="selectedButterfly"
-          v-model="selectedButterflySpeed"
-          label="Speed"
-          :min="1"
-          :max="5"
-          :step="1"
-          slider-id="speedSlider"
-          class="mb-4"
-        />
-
-        <!-- Wing Speed slider -->
-        <single-slider
-          v-if="selectedButterfly"
-          v-model="selectedButterflyWingSpeed"
-          label="Wing Speed"
-          :min="1"
-          :max="5"
-          :step="1"
-          slider-id="wingSpeedSlider"
-          class="mb-4"
-        />
-
-        <!-- Rotation slider -->
-        <single-slider
-          v-if="selectedButterfly"
-          v-model="selectedButterflyRotation"
-          label="Rotation"
-          :min="0"
-          :max="360"
-          :step="1"
-          slider-id="rotationSlider"
-          class="mb-4"
-        />
-
-        <!-- zIndex slider -->
-        <single-slider
-          v-if="selectedButterfly"
-          v-model="selectedButterflyZIndex"
-          label="zIndex"
-          :min="0"
-          :max="100"
-          :step="1"
-          slider-id="zIndexSlider"
-          class="mb-4"
-        />
-
-        <!-- Wing Colors -->
-        <div class="mb-6">
-          <label for="wingTopColor" class="block mb-2">Wing Top Color:</label>
-          <input
-            id="wingTopColor"
-            v-model="selectedButterflyWingTopColor"
-            type="color"
-            class="w-full p-2 rounded"
-          />
-        </div>
-
-        <div class="mb-6">
-          <label for="wingBottomColor" class="block mb-2"
-            >Wing Bottom Color:</label
-          >
-          <input
-            id="wingBottomColor"
-            v-model="selectedButterflyWingBottomColor"
-            type="color"
-            class="w-full p-2 rounded"
-          />
-        </div>
-
-        <!-- Status Dropdown -->
-        <div class="mb-6">
-          <label for="butterflyStatus" class="block mb-2">Status:</label>
-          <select
-            id="butterflyStatus"
-            v-model="selectedButterflyStatus"
-            class="w-full p-2 rounded"
-          >
-            <option value="random">Random</option>
-            <option value="float">Float</option>
-            <option value="mouse">Mouse</option>
-            <option value="spaz">Spaz</option>
-            <option value="flock">Flock</option>
-            <option value="clear">Clear</option>
-          </select>
+        <div class="right-wing">
+          <div
+            class="top"
+            :style="{ background: selectedButterflyWingTopColor }"
+          ></div>
+          <div
+            class="bottom"
+            :style="{ background: selectedButterflyWingBottomColor }"
+          ></div>
         </div>
       </div>
 
-      <!-- Fallback Message if Store or Selected Butterfly is Unavailable -->
-      <div v-else class="text-red-500 text-center mt-4">
-        No butterfly selected or settings unavailable. Please check your data.
+      <!-- Wing Colors -->
+      <div class="mb-4 w-full max-w-xs">
+        <label for="wingTopColor" class="block mb-2 text-center">Wing Top Color:</label>
+        <input
+          id="wingTopColor"
+          v-model="selectedButterflyWingTopColor"
+          type="color"
+          class="w-full p-2 rounded"
+        />
+      </div>
+
+      <div class="mb-4 w-full max-w-xs">
+        <label for="wingBottomColor" class="block mb-2 text-center"
+          >Wing Bottom Color:</label
+        >
+        <input
+          id="wingBottomColor"
+          v-model="selectedButterflyWingBottomColor"
+          type="color"
+          class="w-full p-2 rounded"
+        />
+      </div>
+
+      <!-- Name and Message Section -->
+      <div v-if="selectedButterfly" class="w-full text-center text-lg text-gray-700 mt-6">
+        <p class="font-bold">{{ selectedButterfly.id }}</p>
+        <p class="italic">{{ selectedButterfly.message }}</p>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
 // Access the butterfly store
 const butterflyStore = useButterflyStore()
 
-// Guard for store and selected butterfly availability
-const butterflyStoreAvailable = computed(
-  () =>
-    butterflyStore && butterflies.value.length > 0,
-)
-
-// Get the list of butterflies from the store
+// Computed properties for butterfly settings
 const butterflies = computed(() => butterflyStore.getAllButterflies)
-
-// Use the store's selected butterfly
 const selectedButterfly = computed(() => butterflyStore.getSelectedButterfly)
 
-// Computed properties for butterfly settings
 const selectedButterflySize = computed({
-  get: () => selectedButterfly.value?.scale || 0.5,
+  get: () => selectedButterfly.value?.scale || 1,
   set: (val) => {
     if (selectedButterfly.value) {
       selectedButterfly.value.scale = val
-    }
-  },
-})
-
-const selectedButterflySpeed = computed({
-  get: () => selectedButterfly.value?.speed || 1,
-  set: (val) => {
-    if (selectedButterfly.value) {
-      selectedButterfly.value.speed = val
-    }
-  },
-})
-
-const selectedButterflyWingSpeed = computed({
-  get: () => selectedButterfly.value?.wingSpeed || 1,
-  set: (val) => {
-    if (selectedButterfly.value) {
-      selectedButterfly.value.wingSpeed = val
-    }
-  },
-})
-
-const selectedButterflyRotation = computed({
-  get: () => selectedButterfly.value?.rotation || 0,
-  set: (val) => {
-    if (selectedButterfly.value) {
-      selectedButterfly.value.rotation = val
-    }
-  },
-})
-
-const selectedButterflyZIndex = computed({
-  get: () => selectedButterfly.value?.zIndex || 0,
-  set: (val) => {
-    if (selectedButterfly.value) {
-      selectedButterfly.value.zIndex = val
     }
   },
 })
@@ -219,12 +107,96 @@ const selectedButterflyWingBottomColor = computed({
   },
 })
 
-const selectedButterflyStatus = computed({
-  get: () => selectedButterfly.value?.status || 'random',
+const selectedButterflyRotation = computed({
+  get: () => selectedButterfly.value?.rotation || 0,
   set: (val) => {
     if (selectedButterfly.value) {
-      selectedButterfly.value.status = val
+      selectedButterfly.value.rotation = val
     }
   },
 })
 </script>
+
+<style scoped>
+.butterfly-card {
+  width: 320px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+}
+
+.butterfly {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.left-wing,
+.right-wing {
+  width: 32px;
+  height: 54px;
+  position: absolute;
+  top: 16px;
+  pointer-events: none;
+}
+
+.left-wing {
+  left: 12px;
+  transform-origin: 32px 50%;
+  animation: flutter-left 0.3s infinite;
+}
+
+.right-wing {
+  left: 46px;
+  transform-origin: 0px 50%;
+  animation: flutter-right 0.3s infinite;
+}
+
+.top,
+.bottom {
+  opacity: 0.8;
+  position: absolute;
+}
+
+.top {
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+}
+.bottom {
+  top: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+}
+
+@keyframes flutter-left {
+  0% {
+    transform: rotate3d(0, 1, 0, 20deg);
+  }
+  50% {
+    transform: rotate3d(0, 1, 0, 70deg);
+  }
+  100% {
+    transform: rotate3d(0, 1, 0, 20deg);
+  }
+}
+
+@keyframes flutter-right {
+  0% {
+    transform: rotate3d(0, 1, 0, -20deg);
+  }
+  50% {
+    transform: rotate3d(0, 1, 0, -70deg);
+  }
+  100% {
+    transform: rotate3d(0, 1, 0, -20deg);
+  }
+}
+</style>

@@ -31,20 +31,9 @@
         Butterflies: {{ butterflyCount }}
       </div>
 
-      <!-- Flip-Card Section (65% of parent height) -->
-      <div class="w-full h-[65%] bg-info bg-opacity-70 p-4 rounded-md">
-        <butterfly-flip class="w-full h-full" :use-flip-effect="false">
-          <template #front>
-            <butterfly-front />
-          </template>
-          <template #back>
-            <butterfly-back />
-          </template>
-        </butterfly-flip>
-      </div>
 
-      <!-- Butterfly Demo Section (25% of parent height) -->
-      <div class="w-full h-[25%] bg-info bg-opacity-80 p-4 mt-4 rounded-md">
+      <!-- Butterfly Demo Section ) -->
+      <div class="w-full h-[90%] bg-info bg-opacity-80 rounded-md">
         <butterfly-demo />
       </div>
     </div>

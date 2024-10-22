@@ -57,7 +57,7 @@
     <!-- Bot Messages Section -->
     <div
       v-if="page && page.dottitip && page.amitip"
-      class="flex flex-col w-full max-w-3xl px-4 py-2 mx-auto"
+      class="flex flex-col w-full max-w-3xl px-2 md:px-4 py-0 md:py-1 lg:py-2 mx-auto"
     >
       <!-- DottiBot Message -->
       <div class="chat chat-start">

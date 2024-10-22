@@ -13,7 +13,7 @@
       />
       <!-- Special Overlay: Shows viewportSize from displayStore, positioned inside avatar-image -->
       <div
-        class="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base p-1"
+        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-white bg-primary rounded-lg text-xs md:text-sm lg:text-base p-1"
       >
         {{ displayStore.viewportSize }}
       </div>

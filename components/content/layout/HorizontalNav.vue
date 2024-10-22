@@ -8,7 +8,7 @@
       <div
         v-for="(item, index) in hardcodedLinks"
         :key="index"
-        class="group flex flex-col items-center justify-center w-1/3 sm:w-1/5 lg:w-auto"
+        class="group flex flex-col items-center justify-center w-auto"
       >
         <!-- Entire button acts as a clickable container -->
         <button

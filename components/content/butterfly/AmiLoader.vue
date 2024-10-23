@@ -7,12 +7,15 @@
   >
     <!-- Dynamic Loading Message -->
     <div class="loading-message">{{ currentMessage }}</div>
-<Icon name="kind-icon:bubble-loading" />
+
+    <!-- Bubble Loader - Enlarged and Centered -->
+    <Icon name="kind-icon:bubble-loading" class="bubble-loader" />
 
     <!-- Multiple Butterflies with Animation Delay -->
     <ami-butterfly v-for="i in butterflyCount" :key="i" :class="{ 'butterfly-fade-out': butterflyFadeOut }" />
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'

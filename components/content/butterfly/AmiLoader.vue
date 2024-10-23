@@ -74,6 +74,10 @@ const handleTransitionEnd = () => {
   height: 100vh;
   background: #111;
   z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   transition: opacity 1s;
   pointer-events: auto;
 }
@@ -81,15 +85,19 @@ const handleTransitionEnd = () => {
   opacity: 0;
   pointer-events: none;
 }
+
 .loading-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   color: white;
-  font-size: 24px;
+  font-size: 32px; /* Increased font size */
   font-weight: bold;
   text-align: center;
+  margin-bottom: 20px; /* Space between message and loader */
+}
+
+/* Bubble Loader Styling */
+.bubble-loader {
+  font-size: 80px; /* Large size for the loader icon */
+  color: #fff; /* Ensure it's visible against the background */
 }
 
 /* Fade-out animation for butterflies */
@@ -106,4 +114,5 @@ const handleTransitionEnd = () => {
 .nuxt-wrapper.fade-in {
   opacity: 1;
 }
+
 </style>

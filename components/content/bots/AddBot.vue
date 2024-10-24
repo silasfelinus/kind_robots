@@ -1,14 +1,14 @@
 <template>
-  <div class="rounded-2xl border p-4 m-4 flex flex-col items-center bg-base-200">
-    <h1 class="text-3xl mb-4 text-center">Create or Edit a Bot</h1>
+  <div class="rounded-2xl border p-6 m-4 max-w-screen-lg mx-auto bg-base-200 space-y-6">
+    <h1 class="text-4xl mb-6 text-center">Create or Edit a Bot</h1>
 
     <!-- Bot Selection Dropdown -->
-    <div class="w-full max-w-4xl mx-auto mb-6">
-      <label for="selectBot" class="block text-sm font-medium">Select Existing Bot:</label>
+    <div class="w-full">
+      <label for="selectBot" class="block text-lg font-medium mb-2">Select Existing Bot:</label>
       <select
         id="selectBot"
         v-model="selectedBotId"
-        class="w-full p-2 rounded border"
+        class="w-full p-3 rounded-lg border"
         @change="loadBotData"
       >
         <option value="" disabled>Select a bot</option>
@@ -17,7 +17,7 @@
     </div>
 
     <!-- Feedback Message -->
-    <div v-if="botFeedbackMessage" :class="botFeedbackClass" class="p-3 rounded-lg mb-4 w-full max-w-4xl text-center">
+    <div v-if="botFeedbackMessage" :class="botFeedbackClass" class="p-3 rounded-lg w-full text-center">
       {{ botFeedbackMessage }}
     </div>
 
@@ -25,79 +25,79 @@
     <generate-avatar />
 
     <!-- Form for Bot Details -->
-    <form class="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl mx-auto" @submit.prevent="handleSubmit">
-      <div class="flex flex-wrap -mx-2">
+    <form class="bg-white shadow-md rounded-xl p-6 w-full" @submit.prevent="handleSubmit">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Name Field -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="name" class="block text-sm font-medium">Name:</label>
-          <input id="name" v-model="name" type="text" class="w-full p-2 rounded border" required />
+        <div>
+          <label for="name" class="block text-lg font-medium">Name:</label>
+          <input id="name" v-model="name" type="text" class="w-full p-3 rounded-lg border" required />
         </div>
 
         <!-- Subtitle Field -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="subtitle" class="block text-sm font-medium">Subtitle:</label>
-          <input id="subtitle" v-model="subtitle" type="text" class="w-full p-2 rounded border" />
+        <div>
+          <label for="subtitle" class="block text-lg font-medium">Subtitle:</label>
+          <input id="subtitle" v-model="subtitle" type="text" class="w-full p-3 rounded-lg border" />
         </div>
 
         <!-- Description Field -->
-        <div class="px-2 w-full mb-4">
-          <label for="description" class="block text-sm font-medium">Description:</label>
+        <div class="col-span-2">
+          <label for="description" class="block text-lg font-medium">Description:</label>
           <textarea
             id="description"
             v-model="description"
-            rows="3"
-            class="w-full p-2 rounded border"
+            rows="4"
+            class="w-full p-3 rounded-lg border"
             placeholder="Enter a short description for the bot"
           ></textarea>
         </div>
 
         <!-- Bot Intro -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="botIntro" class="block text-sm font-medium">Bot Intro:</label>
-          <input
+        <div class="col-span-2">
+          <label for="botIntro" class="block text-lg font-medium">Bot Intro:</label>
+          <textarea
             id="botIntro"
             v-model="botIntro"
-            type="text"
-            class="w-full p-2 rounded border"
+            rows="4"
+            class="w-full p-3 rounded-lg border"
             placeholder="Bot introduction message"
-          />
+          ></textarea>
         </div>
 
         <!-- User Intro -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="userIntro" class="block text-sm font-medium">User Intro:</label>
-          <input
+        <div class="col-span-2">
+          <label for="userIntro" class="block text-lg font-medium">User Intro:</label>
+          <textarea
             id="userIntro"
             v-model="userIntro"
-            type="text"
-            class="w-full p-2 rounded border"
+            rows="4"
+            class="w-full p-3 rounded-lg border"
             placeholder="Intro message for the user"
-          />
+          ></textarea>
         </div>
 
         <!-- Public Visibility -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="isPublic" class="block text-sm font-medium">Public Visibility:</label>
-          <select id="isPublic" v-model="isPublic" class="w-full p-2 rounded border">
+        <div>
+          <label for="isPublic" class="block text-lg font-medium">Public Visibility:</label>
+          <select id="isPublic" v-model="isPublic" class="w-full p-3 rounded-lg border">
             <option :value="true">Public</option>
             <option :value="false">Private</option>
           </select>
         </div>
 
         <!-- Under Construction -->
-        <div class="px-2 w-full md:w-1/2 mb-4 flex items-center">
+        <div class="flex items-center">
           <input id="underConstruction" v-model="underConstruction" type="checkbox" class="mr-2" />
-          <label for="underConstruction" class="block text-sm font-medium">Mark as under construction</label>
+          <label for="underConstruction" class="block text-lg font-medium">Mark as under construction</label>
         </div>
       </div>
 
       <!-- Form Feedback & Submit Buttons -->
-      <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
+      <div v-if="isLoading" class="loading loading-ring loading-lg"></div>
       <div v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</div>
       <div v-if="successMessage" class="text-green-500 mt-2">{{ successMessage }}</div>
 
       <!-- Two Buttons -->
-      <div class="flex space-x-4">
+      <div class="flex space-x-4 mt-6">
         <!-- Edit Bot Button (only if editing) -->
         <button v-if="selectedBotId && !isNameChanged" type="submit" class="btn btn-primary w-full" :disabled="isLoading">
           <span v-if="isLoading">Editing...</span>

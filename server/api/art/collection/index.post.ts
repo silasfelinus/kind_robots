@@ -7,9 +7,16 @@ import { errorHandler } from './../../utils/error'
 export default defineEventHandler(async (event) => {
   try {
     // Parse the request body
-    const { userId, artIds } = await readBody(event)
+    const body = await readBody(event)
 
-    // Validate the userId is provided and is a valid number
+    // Check if body is parsed correctly
+    if (!body || typeof body !== 'object') {
+      return { success: false, message: 'Invalid JSON body', statusCode: 400 }
+    }
+
+    // Validate the userId and ensure it's a valid number
+    const { userId, artIds = [] } = body // Default artIds to an empty array if not provided
+
     if (!userId || typeof userId !== 'number') {
       return { success: false, message: 'Invalid or missing userId', statusCode: 400 }
     }
@@ -21,11 +28,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Ensure all art IDs provided exist in the Art table
-    const artList = artIds ? await prisma.art.findMany({
+    const artList = artIds.length > 0 ? await prisma.art.findMany({
       where: { id: { in: artIds } }
     }) : []
 
-    if (artIds && artList.length !== artIds.length) {
+    if (artIds.length > 0 && artList.length !== artIds.length) {
       return { success: false, message: 'One or more provided art IDs do not exist', statusCode: 400 }
     }
 

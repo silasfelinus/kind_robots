@@ -1,5 +1,4 @@
 // server/api/art/collection/[id].patch.ts
-
 import { defineEventHandler, readBody } from 'h3'
 import prisma from './../../utils/prisma'
 import { errorHandler } from './../../utils/error'
@@ -18,12 +17,18 @@ export default defineEventHandler(async (event) => {
     const collection = await prisma.artCollection.findUnique({
       where: { id: collectionId },
       include: {
-        art: true,
+        art: true,  // Include the connected art pieces in the collection
       },
     })
 
     if (!collection) {
       return { success: false, message: `Collection with ID ${collectionId} not found.`, statusCode: 404 }
+    }
+
+    // Ensure the artId exists in the Art table before trying to connect/disconnect it
+    const art = await prisma.art.findUnique({ where: { id: artId } })
+    if (!art && action !== 'removeAll') {
+      return { success: false, message: `Art with ID ${artId} not found.`, statusCode: 404 }
     }
 
     // Handle the different actions
@@ -39,7 +44,7 @@ export default defineEventHandler(async (event) => {
           },
         },
         include: {
-          art: true,
+          art: true,  // Include the updated art entries
         },
       })
     } else if (action === 'remove') {
@@ -52,7 +57,7 @@ export default defineEventHandler(async (event) => {
           },
         },
         include: {
-          art: true,
+          art: true,  // Include the updated art entries
         },
       })
     } else if (action === 'removeAll') {
@@ -65,7 +70,7 @@ export default defineEventHandler(async (event) => {
           },
         },
         include: {
-          art: true,
+          art: true,  // Include the empty art entries
         },
       })
     }

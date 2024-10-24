@@ -91,15 +91,25 @@
         </div>
       </div>
 
-      <!-- Form Feedback & Submit Button -->
+      <!-- Form Feedback & Submit Buttons -->
       <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
       <div v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</div>
       <div v-if="successMessage" class="text-green-500 mt-2">{{ successMessage }}</div>
 
-      <button type="submit" class="btn btn-success w-full" :disabled="isLoading">
-        <span v-if="isLoading">Saving...</span>
-        <span v-else>{{ selectedBotId ? 'Edit Bot' : 'Save New Bot' }}</span>
-      </button>
+      <!-- Two Buttons -->
+      <div class="flex space-x-4">
+        <!-- Edit Bot Button (only if editing) -->
+        <button v-if="selectedBotId && !isNameChanged" type="submit" class="btn btn-primary w-full" :disabled="isLoading">
+          <span v-if="isLoading">Editing...</span>
+          <span v-else>Edit Bot</span>
+        </button>
+
+        <!-- Save as New Bot Button (if name is changed or no bot selected) -->
+        <button v-if="!selectedBotId || isNameChanged" type="button" class="btn btn-success w-full" @click="handleSaveNewBot" :disabled="isLoading">
+          <span v-if="isLoading">Saving...</span>
+          <span v-else>Save as New Bot</span>
+        </button>
+      </div>
     </form>
   </div>
 </template>
@@ -119,6 +129,7 @@ const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
 const selectedBotId = ref<number | null>(null)
+const originalBotName = ref<string | null>(null) // For name change tracking
 const botFeedbackMessage = ref<string | null>(null)
 const botFeedbackClass = ref<string>('')
 
@@ -132,10 +143,14 @@ const isPublic = ref(true)
 const underConstruction = ref(false)
 const userId = computed(() => userStore.userId)
 
+// Computed to track if the name has changed
+const isNameChanged = computed(() => originalBotName.value && originalBotName.value !== name.value)
+
 // Load the data of the selected bot into the form fields
 function loadBotData() {
   const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
   if (bot) {
+    originalBotName.value = bot.name // Store original name
     name.value = bot.name || ''
     subtitle.value = bot.subtitle || ''
     description.value = bot.description || ''
@@ -152,6 +167,7 @@ function loadBotData() {
 
 // Reset the form fields
 function resetForm() {
+  originalBotName.value = null
   name.value = ''
   subtitle.value = ''
   description.value = ''
@@ -172,7 +188,7 @@ watch(selectedBotId, (newBotId) => {
   }
 })
 
-// Handle form submission
+// Handle form submission (Edit bot)
 async function handleSubmit(e: Event) {
   e.preventDefault()
   isLoading.value = true
@@ -191,36 +207,37 @@ async function handleSubmit(e: Event) {
       userId: userId.value,
     }
 
-    let botToSave = null
-
-    // Check if a bot with the same name exists and belongs to the current user
-    const existingBot = botStore.bots.find(
-      (bot) => bot.name === name.value && bot.userId === userId.value
-    )
-
-    if (existingBot) {
-      // If we found an existing bot by the same name and ownership
-      botToSave = existingBot
-    } else if (selectedBotId.value) {
-      // If a bot was selected from the dropdown
-      const selectedBot = botStore.bots.find(
-        (bot) => bot.id === selectedBotId.value
-      )
-
-      if (selectedBot?.userId === userId.value) {
-        botToSave = selectedBot
-      }
-    }
-
-    if (botToSave) {
-      // Update the existing bot
-      await botStore.updateBot(botToSave.id, botData)
+    if (selectedBotId.value) {
+      await botStore.updateBot(selectedBotId.value, botData)
       successMessage.value = 'Bot updated successfully!'
-    } else {
-      // Create a new bot
-      await botStore.addBots([botData])
-      successMessage.value = 'New bot created successfully!'
     }
+  } catch (error) {
+    errorMessage.value = 'Error editing bot: ' + error
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Handle save as new bot
+async function handleSaveNewBot() {
+  isLoading.value = true
+  errorMessage.value = null
+  successMessage.value = null
+
+  try {
+    const botData = {
+      name: name.value,
+      subtitle: subtitle.value ?? '',
+      description: description.value ?? '',
+      botIntro: botIntro.value ?? '',
+      userIntro: userIntro.value ?? '',
+      isPublic: isPublic.value,
+      underConstruction: underConstruction.value,
+      userId: userId.value,
+    }
+
+    await botStore.addBots([botData])
+    successMessage.value = 'New bot created successfully!'
   } catch (error) {
     errorMessage.value = 'Error saving bot: ' + error
   } finally {

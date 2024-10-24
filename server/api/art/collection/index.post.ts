@@ -6,33 +6,45 @@ import { errorHandler } from './../../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Parse request body
-    const body = await readBody(event)
+    // Parse the request body
+    const { userId, artIds } = await readBody(event)
 
-    // Check if userId is present
-    const { userId, artIds = [] } = body  // artIds defaults to an empty array if not provided
-
-    if (!userId) {
-      return { success: false, message: 'Missing userId', statusCode: 400 }
+    // Validate the userId is provided and is a valid number
+    if (!userId || typeof userId !== 'number') {
+      return { success: false, message: 'Invalid or missing userId', statusCode: 400 }
     }
 
-    // Create the new art collection for the user
+    // Ensure the user exists in the database
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    if (!user) {
+      return { success: false, message: `User with ID ${userId} not found`, statusCode: 404 }
+    }
+
+    // Ensure all art IDs provided exist in the Art table
+    const artList = artIds ? await prisma.art.findMany({
+      where: { id: { in: artIds } }
+    }) : []
+
+    if (artIds && artList.length !== artIds.length) {
+      return { success: false, message: 'One or more provided art IDs do not exist', statusCode: 400 }
+    }
+
+    // Create the new art collection
     const newCollection = await prisma.artCollection.create({
       data: {
         userId,
         art: {
-          connect: artIds.length ? artIds.map((id: number) => ({ id })) : [], // Only connect if artIds is not empty
+          connect: artList.map(art => ({ id: art.id }))  // Connect existing art items
         },
       },
       include: {
-        art: true,
+        art: true,  // Include connected art in the response
       },
     })
 
-    // Return the new collection in the response
+    // Return the newly created collection
     return { success: true, collection: newCollection }
   } catch (error: unknown) {
-    return errorHandler(error)  // Handle errors with the custom error handler
+    return errorHandler(error)
   }
 })
-

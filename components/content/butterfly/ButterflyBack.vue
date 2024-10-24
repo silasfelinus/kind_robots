@@ -77,7 +77,6 @@ import { useButterflyStore } from '@/stores/butterflyStore'
 const butterflyStore = useButterflyStore()
 
 // Computed properties for butterfly settings
-const butterflies = computed(() => butterflyStore.getAllButterflies)
 const selectedButterfly = computed(() => butterflyStore.getSelectedButterfly)
 
 const selectedButterflySize = computed({

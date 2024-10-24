@@ -76,13 +76,13 @@
       <label for="imagePrompt" class="block text-sm font-medium"
         >Avatar Image Prompt:</label
       >
-      <input
-        id="imagePrompt"
-        v-model="imagePrompt"
-        type="text"
-        class="w-full p-2 rounded border"
-        placeholder="Enter an image prompt to generate the avatar"
-      />
+       <input
+            id="botPrompt"
+            v-model="botStore.botPrompt"
+            type="text"
+            class="w-full p-2 rounded border"
+            placeholder="Enter an image prompt to generate the avatar"
+          />
     </div>
 
     <button
@@ -165,47 +165,9 @@
           />
         </div>
 
-        <!-- Image Prompt for Generating Avatar -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="botPrompt" class="block text-sm font-medium">
-            Avatar Image Prompt:
-          </label>
-          <input
-            id="botPrompt"
-            v-model="botStore.botPrompt"
-            type="text"
-            class="w-full p-2 rounded border"
-            placeholder="Enter an image prompt to generate the avatar"
-          />
-        </div>
+        
 
-        <!-- Personality -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="personality" class="block text-sm font-medium"
-            >Personality:</label
-          >
-          <input
-            id="personality"
-            v-model="personality"
-            type="text"
-            class="w-full p-2 rounded border"
-            placeholder="Describe the bot's personality"
-          />
-        </div>
-
-        <!-- Sample Response -->
-        <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="sampleResponse" class="block text-sm font-medium"
-            >Sample Response:</label
-          >
-          <input
-            id="sampleResponse"
-            v-model="sampleResponse"
-            type="text"
-            class="w-full p-2 rounded border"
-            placeholder="Enter a sample response from the bot"
-          />
-        </div>
+    
 
         <!-- Public Visibility -->
         <div class="px-2 w-full md:w-1/2 mb-4">
@@ -287,7 +249,7 @@ function loadBotData() {
     imagePrompt.value = bot.prompt || ''
     isPublic.value = bot.isPublic ?? true
     underConstruction.value = bot.underConstruction ?? false
-    personality.value = bot.personality || ''
+    personality.value = bot.personality || 'kind'
     sampleResponse.value = bot.sampleResponse || ''
   } else {
     resetForm()
@@ -325,7 +287,7 @@ async function handleSubmit(e: Event) {
       prompt: imagePrompt.value ?? '',
       isPublic: isPublic.value,
       underConstruction: underConstruction.value,
-      personality: personality.value ?? '',
+      personality: personality.value ?? 'kind',
       sampleResponse: sampleResponse.value ?? '',
       userId: userId.value,
     }
@@ -352,14 +314,14 @@ async function sendImagePromptToGenerator() {
 
     // Use botStore.botPrompt instead of imagePrompt
     const artData: GenerateArtData = {
-      promptString: botStore.botPrompt, // Now using botPrompt from store
+      promptString: botStore.botPrompt, 
       userId: userId.value,
       galleryId: selectedGallery.value
         ? parseInt(selectedGallery.value)
         : undefined,
       checkpoint: 'stable-diffusion-v1-4',
       sampler: 'k_lms',
-      steps: 50,
+      steps: 20,
       designer: 'AI Art Designer',
       cfg: 7,
       cfgHalf: false,

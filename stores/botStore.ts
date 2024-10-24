@@ -118,7 +118,7 @@ export const useBotStore = defineStore({
         if (typeof window === 'undefined') return // Ensure this only runs on the client
 
         const response = await fetch(`/api/bot/id/${id}`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },

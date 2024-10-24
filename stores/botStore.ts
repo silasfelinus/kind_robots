@@ -19,20 +19,19 @@ export const useBotStore = defineStore({
   }),
 
   actions: {
-    selectBot(botId: number) {
-      console.log('Trying to select bot with ID:', botId)
-      if (this.selectedBotId === botId) {
-        console.log('Deselecting bot')
-        this.selectedBotId = null
-        this.currentBot = null
-      } else {
-        this.selectedBotId = botId
-        const foundBot = this.bots.find((bot) => bot.id === botId)
-        console.log('Found bot:', foundBot)
-        this.currentBot = foundBot || null
-      }
-      this.$patch({})
-    },
+selectBot(botId: number) {
+   console.log('Trying to select bot with ID:', botId)
+   if (this.selectedBotId === botId) {
+     console.log('Deselecting bot')
+     this.selectedBotId = null
+     this.currentBot = null
+   } else {
+     this.selectedBotId = botId
+     const foundBot = this.bots.find((bot) => bot.id === botId)
+     console.log('Found bot:', foundBot)
+     this.currentBot = foundBot || null
+   }
+ },
         // Action to reset botPrompt
         resetBotPrompt() {
           this.botPrompt = '';

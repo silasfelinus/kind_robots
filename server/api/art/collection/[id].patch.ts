@@ -6,9 +6,14 @@ import { errorHandler } from './../../utils/error'
 export default defineEventHandler(async (event) => {
   try {
     const collectionId = Number(event.context.params?.id)
-    const { artIds } = await readBody(event)  // Expect artIds as an array of art IDs
 
-    // Validate the input
+    // Log to check if the body is parsed correctly
+    const body = await readBody(event)
+    console.log('Received body:', body)  // Debugging: log the received body
+
+    const { artIds } = body  // Destructure artIds from the body
+
+    // Validate the input: check if artIds exists and is an array
     if (!artIds || !Array.isArray(artIds) || artIds.length === 0) {
       return { success: false, message: 'Invalid or missing art IDs.', statusCode: 400 }
     }

@@ -18,7 +18,13 @@ describe('Art Collection API Tests', () => {
         },
         body: {
           promptString: 'Testing, A serene lake in the evening',
-          steps: 10,
+          path: " ",
+          seed: null,
+          steps: null,
+          channelId: null,
+          galleryId: null,
+          promptId: null,
+          pitchId: null,
           isPublic: true,
         },
         failOnStatusCode: false,
@@ -57,6 +63,20 @@ describe('Art Collection API Tests', () => {
         }
       })
     })
+
+    it('Get All Art Collections', () => {
+      cy.request({
+        method: 'GET',
+        url: `${baseUrl}`, // Fetch all collections
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body.collections).to.be.an('array')
+      })
+    })
   
     it('Get Art Collection by ID', () => {
       cy.request({
@@ -74,24 +94,50 @@ describe('Art Collection API Tests', () => {
       })
     })
   
-    it('Add Art to Collection', () => {
-      // Adding another artId to the collection
+    it('Add a Different Art to Collection', () => {
+      // Create a new art entry to add to the collection
       cy.request({
-        method: 'PATCH',
-        url: `${baseUrl}/${collectionId}`,
+        method: 'POST',
+        url: 'https://kind-robots.vercel.app/api/art',
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
         body: {
-          action: 'add',
-          artId: artId,
+          promptString: 'Another beautiful sunset',
+          path: " ",
+          seed: null,
+          steps: null,
+          channelId: null,
+          galleryId: null,
+          promptId: null,
+          pitchId: null,
+          isPublic: true,
         },
+        failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body.collection.art).to.be.an('array').that.includes(artId)
+        const newArtId = response.body.art?.id
+    
+        // Now add the new artId to the collection
+        cy.request({
+          method: 'PATCH',
+          url: `${baseUrl}/${collectionId}`,
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+          },
+          body: {
+            action: 'add',
+            artId: newArtId, // Adding a new artId instead of the original one
+          },
+        }).then((response) => {
+          expect(response.status).to.eq(200)
+          expect(response.body.collection.art).to.be.an('array').that.includes(newArtId)
+        })
       })
     })
+    
   
     it('Remove Art from Collection', () => {
       cy.request({

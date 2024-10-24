@@ -10,8 +10,8 @@
       placeholder="Enter a custom avatar image URL"
     />
 
-<image-upload />
-    
+    <image-upload />
+
     <!-- Avatar Preview -->
     <div class="mt-2">
       <img
@@ -53,17 +53,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useGalleryStore } from './../../../stores/galleryStore'
+import { useBotStore } from './../../../stores/botStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
 const galleryStore = useGalleryStore()
+const botStore = useBotStore()
 const errorStore = useErrorStore()
 
 const isLoading = ref(false)
 const selectedGallery = ref<string | null>(null)
-const avatarImage = ref('/images/wonderchest/wonderchest-1630.webp')
 const defaultAvatar = '/images/wonderchest/wonderchest-1630.webp'
+
+// Avatar image is bound to the current bot's image path or the default
+const avatarImage = computed({
+  get() {
+    return botStore.currentImagePath || defaultAvatar
+  },
+  set(newValue) {
+    botStore.currentImagePath = newValue // Update the store's image path when changed
+  },
+})
 
 // Function to generate a random avatar from the selected gallery
 async function generateRandomAvatar() {
@@ -77,7 +88,7 @@ async function generateRandomAvatar() {
     await galleryStore.changeToRandomImage()
 
     if (galleryStore.currentImage) {
-      avatarImage.value = galleryStore.currentImage
+      avatarImage.value = galleryStore.currentImage // Update the avatar with the new random image
     } else {
       throw new Error('Failed to fetch a random avatar image.')
     }
@@ -95,5 +106,12 @@ async function generateRandomAvatar() {
 onMounted(async () => {
   await galleryStore.initializeStore()
 })
-</script>
 
+// Watch for changes in the selected bot
+watch(() => botStore.selectedBotId, (newBotId) => {
+  if (newBotId) {
+    // Update the avatar image when a new bot is selected
+    avatarImage.value = botStore.currentImagePath || defaultAvatar
+  }
+})
+</script>

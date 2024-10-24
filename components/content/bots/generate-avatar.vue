@@ -25,6 +25,7 @@
       />
       <p class="text-sm text-gray-500">Preview your avatar</p>
     </div>
+    <gallery-selector />
 
     <!-- Generate Random Avatar Button -->
     <button
@@ -67,26 +68,43 @@ const avatarImage = computed({
 // Function to generate a random avatar from the selected gallery
 async function generateRandomAvatar() {
   try {
+    console.log('Starting avatar generation...')
     if (!selectedGallery.value) {
-      throw new Error('Please select a gallery first.')
+      const errorMsg = 'Please select a gallery first.'
+      console.error(errorMsg)
+      throw new Error(errorMsg)
     }
 
     isLoading.value = true
+    console.log(`Selected gallery: ${selectedGallery.value}`)
+
+    // Set the gallery by name and try to change to a random image
     galleryStore.setGalleryByName(selectedGallery.value)
+    console.log('Gallery set. Now fetching random image...')
+
     await galleryStore.changeToRandomImage()
 
+    // Check if the current image was updated
     if (galleryStore.currentImage) {
+      console.log(
+        'Random avatar fetched successfully:',
+        galleryStore.currentImage,
+      )
       avatarImage.value = galleryStore.currentImage
     } else {
-      throw new Error('Failed to fetch a random avatar image.')
+      const errorMsg = 'Failed to fetch a random avatar image.'
+      console.error(errorMsg)
+      throw new Error(errorMsg)
     }
   } catch (error) {
+    console.error('Error generating or fetching avatar:', error)
     errorStore.setError(
       ErrorType.GENERAL_ERROR,
       'Error generating or fetching avatar: ' + error,
     )
   } finally {
     isLoading.value = false
+    console.log('Avatar generation complete.')
   }
 }
 

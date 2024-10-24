@@ -21,7 +21,6 @@
     <!-- Avatar Image and Generation Component -->
     <generate-avatar />
 
-    
     <!-- Form for Bot Details -->
     <form class="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl mx-auto" @submit.prevent="handleSubmit">
       <div class="flex flex-wrap -mx-2">
@@ -109,13 +108,11 @@ import { useBotStore } from './../../../stores/botStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import { useUserStore } from './../../../stores/userStore'
-import { useArtStore } from './../../../stores/artStore'
 
-
+// Removed artStore as it's not required
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()
 const userStore = useUserStore()
-const artStore = useArtStore()
 const errorStore = useErrorStore()
 
 const isLoading = ref(false)
@@ -190,8 +187,6 @@ async function handleSubmit(e: Event) {
     errorStore.setError(ErrorType.GENERAL_ERROR, 'Error saving bot: ' + error)
   }
 }
-
-
 
 // Watch for changes in selectedBotId to load bot data
 watch(selectedBotId, (newBotId) => {

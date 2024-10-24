@@ -142,16 +142,23 @@ describe('Art Collection API Tests', () => {
         },
       }).then((response) => {
         cy.log('Response after PATCH:', response.body) // Log the full response body
+  
+        // Extract the art IDs from the response to verify
+        const returnedArtIds = response.body.collection.art.map((art: { id: number }) => art.id)
+  
+        // Log the list of art IDs for clarity
+        cy.log('Art list in response:', returnedArtIds)
+  
         expect(response.status).to.eq(200)
-        expect(response.body.collection).to.have.property('art')
-        expect(response.body.collection.art).to.be.an('array').that.includes(newArtId)
+        expect(returnedArtIds).to.include(newArtId) // Verify the response array includes the new art ID
   
         // Update the existingArtIds with the newly added art
-        existingArtIds = response.body.collection.art.map((art: { id: number }) => art.id)
+        existingArtIds = returnedArtIds
         cy.log('Updated art IDs:', existingArtIds) // Log updated art IDs
       })
     })
   })
+  
   
   
   

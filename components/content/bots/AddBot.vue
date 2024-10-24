@@ -189,7 +189,7 @@ const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
 const selectedBotId = ref<number | null>(null)
-const originalBotName = ref<string | null>(null) // For name change tracking
+const originalBotName = ref<string | null>(null)
 const botFeedbackMessage = ref<string | null>(null)
 const botFeedbackClass = ref<string>('')
 

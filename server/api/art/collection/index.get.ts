@@ -1,8 +1,9 @@
+// server/api/art/collection/index.get.ts
 import { defineEventHandler } from 'h3'
 import prisma from './../../utils/prisma'
 import { errorHandler } from './../../utils/error'
 
-export default defineEventHandler(async (_event) => {  // Use `_event` to avoid ESLint error
+export default defineEventHandler(async () => { 
   try {
     const collections = await fetchAllCollections()
     
@@ -16,16 +17,14 @@ export default defineEventHandler(async (_event) => {  // Use `_event` to avoid 
 
     return { success: true, collections }
   } catch (error) {
-    // Use the provided error handler
-    return errorHandler(error)
+    return errorHandler(error) // Do not concatenate error with string
   }
 })
 
-// Function to fetch all Art collections
 export async function fetchAllCollections() {
   return await prisma.artCollection.findMany({
     include: {
-      art: true,  // Include associated art entries
+      art: true,  
     },
   })
 }

@@ -8,7 +8,6 @@ export default defineEventHandler(async (event) => {
   try {
     const collectionId = Number(event.context.params?.id)
 
-    // Ensure the collection exists
     const collection = await prisma.artCollection.findUnique({
       where: { id: collectionId },
     })
@@ -17,13 +16,13 @@ export default defineEventHandler(async (event) => {
       throw new Error(`Collection with ID ${collectionId} not found.`)
     }
 
-    // Delete the collection
     await prisma.artCollection.delete({
       where: { id: collectionId },
     })
 
     return { success: true, message: `Collection ${collectionId} deleted successfully.` }
   } catch (error: unknown) {
-    return errorHandler(error + 'Failed to delete art collection.')
+    return errorHandler(error) // Do not concatenate error with string
   }
 })
+

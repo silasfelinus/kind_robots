@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Art Collection API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/art/collection'
   const apiKey = Cypress.env('API_KEY')
@@ -92,14 +93,13 @@ describe('Art Collection API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.collection).to.be.an('object')
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+       
       expect(response.body.collection.art).to.be.an('array').and.not.empty
 
       // Update existingArtIds after fetching the collection
       existingArtIds = response.body.collection.art.map((art: { id: number }) => art.id)
     })
   })
-
   it('Add a Different Art to Collection', () => {
     // Create a new art entry to add to the collection
     cy.request({
@@ -125,6 +125,10 @@ describe('Art Collection API Tests', () => {
       expect(response.status).to.eq(200)
       const newArtId = response.body.art?.id
   
+      // Ensure the newArtId is valid
+      expect(newArtId).to.exist
+      cy.log('newArtId:', newArtId) // Log the new art ID
+  
       // Now add the new artId to the collection
       cy.request({
         method: 'PATCH',
@@ -137,20 +141,29 @@ describe('Art Collection API Tests', () => {
           artIds: [...existingArtIds, newArtId], // Add the new art to the existing ones
         },
       }).then((response) => {
+        cy.log('Response after PATCH:', response.body) // Log the full response body
         expect(response.status).to.eq(200)
         expect(response.body.collection).to.have.property('art')
         expect(response.body.collection.art).to.be.an('array').that.includes(newArtId)
   
         // Update the existingArtIds with the newly added art
         existingArtIds = response.body.collection.art.map((art: { id: number }) => art.id)
+        cy.log('Updated art IDs:', existingArtIds) // Log updated art IDs
       })
     })
   })
+  
+  
+  
 
   it('Remove Art from Collection', () => {
+    // Check that existingArtIds is not empty before removing
+    expect(existingArtIds).to.be.an('array').and.not.empty
+  
     // Set an artId to remove
     artIdToRemove = existingArtIds[0] // Assume the first art ID to remove
-
+    expect(artIdToRemove).to.exist // Ensure artIdToRemove is valid
+  
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${collectionId}`,
@@ -170,6 +183,7 @@ describe('Art Collection API Tests', () => {
       existingArtIds = response.body.collection.art.map((art: { id: number }) => art.id)
     })
   })
+  
 
   it('Delete Art Collection', () => {
     cy.request({

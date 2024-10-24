@@ -3,9 +3,9 @@
     class="w-full max-w-2xl mx-auto mb-6 flex flex-col items-center space-y-4"
   >
     <!-- Avatar Image URL Input -->
-    <label for="avatarImageInput" class="block text-sm font-medium"
-      >Avatar Image (URL):</label
-    >
+    <label for="avatarImageInput" class="block text-sm font-medium">
+      Avatar Image (URL):
+    </label>
     <input
       id="avatarImageInput"
       v-model="avatarImage"
@@ -25,6 +25,7 @@
       />
       <p class="text-sm text-gray-500">Preview your avatar</p>
     </div>
+
     <gallery-selector />
 
     <!-- Generate Random Avatar Button -->
@@ -50,7 +51,6 @@ const botStore = useBotStore()
 const errorStore = useErrorStore()
 
 const isLoading = ref(false)
-const selectedGallery = ref<string | null>(null)
 const defaultAvatar = '/images/wonderchest/wonderchest-1630.webp'
 
 // Bind avatarImage to currentImagePath from botStore
@@ -65,23 +65,20 @@ const avatarImage = computed({
   },
 })
 
-// Function to generate a random avatar from the selected gallery
+// Function to generate a random avatar from the current gallery
 async function generateRandomAvatar() {
   try {
     console.log('Starting avatar generation...')
-    if (!selectedGallery.value) {
+    if (!galleryStore.currentGallery) {
       const errorMsg = 'Please select a gallery first.'
       console.error(errorMsg)
       throw new Error(errorMsg)
     }
 
     isLoading.value = true
-    console.log(`Selected gallery: ${selectedGallery.value}`)
+    console.log(`Selected gallery: ${galleryStore.currentGallery.name}`)
 
-    // Set the gallery by name and try to change to a random image
-    galleryStore.setGalleryByName(selectedGallery.value)
-    console.log('Gallery set. Now fetching random image...')
-
+    // Change to a random image from the current gallery
     await galleryStore.changeToRandomImage()
 
     // Check if the current image was updated

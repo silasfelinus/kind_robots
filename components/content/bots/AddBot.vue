@@ -1,10 +1,14 @@
 <template>
-  <div class="rounded-2xl border p-4 m-4 flex flex-col items-center bg-base-200">
+  <div
+    class="rounded-2xl border p-4 m-4 flex flex-col items-center bg-base-200"
+  >
     <h1 class="text-3xl mb-4 text-center">Create or Edit a Bot</h1>
 
     <!-- Bot Selection Dropdown -->
     <div class="w-full max-w-4xl mx-auto mb-6">
-      <label for="selectBot" class="block text-sm font-medium">Select Existing Bot:</label>
+      <label for="selectBot" class="block text-sm font-medium"
+        >Select Existing Bot:</label
+      >
       <select
         id="selectBot"
         v-model="selectedBotId"
@@ -22,23 +26,41 @@
     <generate-avatar />
 
     <!-- Form for Bot Details -->
-    <form class="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl mx-auto" @submit.prevent="handleSubmit">
+    <form
+      class="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl mx-auto"
+      @submit.prevent="handleSubmit"
+    >
       <div class="flex flex-wrap -mx-2">
         <!-- Name Field -->
         <div class="px-2 w-full md:w-1/2 mb-4">
           <label for="name" class="block text-sm font-medium">Name:</label>
-          <input id="name" v-model="name" type="text" class="w-full p-2 rounded border" required />
+          <input
+            id="name"
+            v-model="name"
+            type="text"
+            class="w-full p-2 rounded border"
+            required
+          />
         </div>
 
         <!-- Subtitle Field -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="subtitle" class="block text-sm font-medium">Subtitle:</label>
-          <input id="subtitle" v-model="subtitle" type="text" class="w-full p-2 rounded border" />
+          <label for="subtitle" class="block text-sm font-medium"
+            >Subtitle:</label
+          >
+          <input
+            id="subtitle"
+            v-model="subtitle"
+            type="text"
+            class="w-full p-2 rounded border"
+          />
         </div>
 
         <!-- Description Field -->
         <div class="px-2 w-full mb-4">
-          <label for="description" class="block text-sm font-medium">Description:</label>
+          <label for="description" class="block text-sm font-medium"
+            >Description:</label
+          >
           <textarea
             id="description"
             v-model="description"
@@ -50,7 +72,9 @@
 
         <!-- Bot Intro -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="botIntro" class="block text-sm font-medium">Bot Intro:</label>
+          <label for="botIntro" class="block text-sm font-medium"
+            >Bot Intro:</label
+          >
           <input
             id="botIntro"
             v-model="botIntro"
@@ -62,7 +86,9 @@
 
         <!-- User Intro -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="userIntro" class="block text-sm font-medium">User Intro:</label>
+          <label for="userIntro" class="block text-sm font-medium"
+            >User Intro:</label
+          >
           <input
             id="userIntro"
             v-model="userIntro"
@@ -74,7 +100,9 @@
 
         <!-- Public Visibility -->
         <div class="px-2 w-full md:w-1/2 mb-4">
-          <label for="isPublic" class="block text-sm font-medium">Public Visibility:</label>
+          <label for="isPublic" class="block text-sm font-medium"
+            >Public Visibility:</label
+          >
           <select
             id="isPublic"
             v-model="isPublic"
@@ -87,17 +115,32 @@
 
         <!-- Under Construction -->
         <div class="px-2 w-full md:w-1/2 mb-4 flex items-center">
-          <input id="underConstruction" v-model="underConstruction" type="checkbox" class="mr-2" />
-          <label for="underConstruction" class="block text-sm font-medium">Mark as under construction</label>
+          <input
+            id="underConstruction"
+            v-model="underConstruction"
+            type="checkbox"
+            class="mr-2"
+          />
+          <label for="underConstruction" class="block text-sm font-medium"
+            >Mark as under construction</label
+          >
         </div>
       </div>
 
       <!-- Form Feedback & Submit Button -->
       <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
-      <div v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</div>
-      <div v-if="successMessage" class="text-green-500 mt-2">{{ successMessage }}</div>
-      
-      <button type="submit" class="btn btn-success w-full" :disabled="isLoading">
+      <div v-if="errorMessage" class="text-red-500 mt-2">
+        {{ errorMessage }}
+      </div>
+      <div v-if="successMessage" class="text-green-500 mt-2">
+        {{ successMessage }}
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-success w-full"
+        :disabled="isLoading"
+      >
         <span v-if="isLoading">Saving...</span>
         <span v-else>Save Bot</span>
       </button>
@@ -109,14 +152,12 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import { useUserStore } from './../../../stores/userStore'
 
 // Removed artStore as it's not required
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()
 const userStore = useUserStore()
-const errorStore = useErrorStore()
 
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)

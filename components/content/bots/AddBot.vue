@@ -1,10 +1,14 @@
 <template>
-  <div class="rounded-2xl border p-6 m-4 max-w-screen-lg mx-auto bg-base-200 space-y-6">
+  <div
+    class="rounded-2xl border p-6 m-4 max-w-screen-lg mx-auto bg-base-200 space-y-6"
+  >
     <h1 class="text-4xl mb-6 text-center">Create or Edit a Bot</h1>
 
     <!-- Bot Selection Dropdown -->
     <div class="w-full">
-      <label for="selectBot" class="block text-lg font-medium mb-2">Select Existing Bot:</label>
+      <label for="selectBot" class="block text-lg font-medium mb-2"
+        >Select Existing Bot:</label
+      >
       <select
         id="selectBot"
         v-model="selectedBotId"
@@ -12,12 +16,18 @@
         @change="loadBotData"
       >
         <option value="" disabled>Select a bot</option>
-        <option v-for="bot in botStore.bots" :key="bot.id" :value="bot.id">{{ bot.name }}</option>
+        <option v-for="bot in botStore.bots" :key="bot.id" :value="bot.id">
+          {{ bot.name }}
+        </option>
       </select>
     </div>
 
     <!-- Feedback Message -->
-    <div v-if="botFeedbackMessage" :class="botFeedbackClass" class="p-3 rounded-lg w-full text-center">
+    <div
+      v-if="botFeedbackMessage"
+      :class="botFeedbackClass"
+      class="p-3 rounded-lg w-full text-center"
+    >
       {{ botFeedbackMessage }}
     </div>
 
@@ -25,23 +35,41 @@
     <generate-avatar />
 
     <!-- Form for Bot Details -->
-    <form class="bg-white shadow-md rounded-xl p-6 w-full" @submit.prevent="handleSubmit">
+    <form
+      class="bg-white shadow-md rounded-xl p-6 w-full"
+      @submit.prevent="handleSubmit"
+    >
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Name Field -->
         <div>
           <label for="name" class="block text-lg font-medium">Name:</label>
-          <input id="name" v-model="name" type="text" class="w-full p-3 rounded-lg border" required />
+          <input
+            id="name"
+            v-model="name"
+            type="text"
+            class="w-full p-3 rounded-lg border"
+            required
+          />
         </div>
 
         <!-- Subtitle Field -->
         <div>
-          <label for="subtitle" class="block text-lg font-medium">Subtitle:</label>
-          <input id="subtitle" v-model="subtitle" type="text" class="w-full p-3 rounded-lg border" />
+          <label for="subtitle" class="block text-lg font-medium"
+            >Subtitle:</label
+          >
+          <input
+            id="subtitle"
+            v-model="subtitle"
+            type="text"
+            class="w-full p-3 rounded-lg border"
+          />
         </div>
 
         <!-- Description Field -->
         <div class="col-span-2">
-          <label for="description" class="block text-lg font-medium">Description:</label>
+          <label for="description" class="block text-lg font-medium"
+            >Description:</label
+          >
           <textarea
             id="description"
             v-model="description"
@@ -53,7 +81,9 @@
 
         <!-- Bot Intro -->
         <div class="col-span-2">
-          <label for="botIntro" class="block text-lg font-medium">Bot Intro:</label>
+          <label for="botIntro" class="block text-lg font-medium"
+            >Bot Intro:</label
+          >
           <textarea
             id="botIntro"
             v-model="botIntro"
@@ -65,7 +95,9 @@
 
         <!-- User Intro -->
         <div class="col-span-2">
-          <label for="userIntro" class="block text-lg font-medium">User Intro:</label>
+          <label for="userIntro" class="block text-lg font-medium"
+            >User Intro:</label
+          >
           <textarea
             id="userIntro"
             v-model="userIntro"
@@ -77,8 +109,14 @@
 
         <!-- Public Visibility -->
         <div>
-          <label for="isPublic" class="block text-lg font-medium">Public Visibility:</label>
-          <select id="isPublic" v-model="isPublic" class="w-full p-3 rounded-lg border">
+          <label for="isPublic" class="block text-lg font-medium"
+            >Public Visibility:</label
+          >
+          <select
+            id="isPublic"
+            v-model="isPublic"
+            class="w-full p-3 rounded-lg border"
+          >
             <option :value="true">Public</option>
             <option :value="false">Private</option>
           </select>
@@ -86,26 +124,48 @@
 
         <!-- Under Construction -->
         <div class="flex items-center">
-          <input id="underConstruction" v-model="underConstruction" type="checkbox" class="mr-2" />
-          <label for="underConstruction" class="block text-lg font-medium">Mark as under construction</label>
+          <input
+            id="underConstruction"
+            v-model="underConstruction"
+            type="checkbox"
+            class="mr-2"
+          />
+          <label for="underConstruction" class="block text-lg font-medium"
+            >Mark as under construction</label
+          >
         </div>
       </div>
 
       <!-- Form Feedback & Submit Buttons -->
       <div v-if="isLoading" class="loading loading-ring loading-lg"></div>
-      <div v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</div>
-      <div v-if="successMessage" class="text-green-500 mt-2">{{ successMessage }}</div>
+      <div v-if="errorMessage" class="text-red-500 mt-2">
+        {{ errorMessage }}
+      </div>
+      <div v-if="successMessage" class="text-green-500 mt-2">
+        {{ successMessage }}
+      </div>
 
       <!-- Two Buttons -->
       <div class="flex space-x-4 mt-6">
         <!-- Edit Bot Button (only if editing) -->
-        <button v-if="selectedBotId && !isNameChanged" type="submit" class="btn btn-primary w-full" :disabled="isLoading">
+        <button
+          v-if="selectedBotId && !isNameChanged"
+          type="submit"
+          class="btn btn-primary w-full"
+          :disabled="isLoading"
+        >
           <span v-if="isLoading">Editing...</span>
           <span v-else>Edit Bot</span>
         </button>
 
         <!-- Save as New Bot Button (if name is changed or no bot selected) -->
-        <button v-if="!selectedBotId || isNameChanged" type="button" class="btn btn-success w-full" @click="handleSaveNewBot" :disabled="isLoading">
+        <button
+          v-if="!selectedBotId || isNameChanged"
+          type="button"
+          class="btn btn-success w-full"
+          :disabled="isLoading"
+          @click="handleSaveNewBot"
+        >
           <span v-if="isLoading">Saving...</span>
           <span v-else>Save as New Bot</span>
         </button>
@@ -144,7 +204,9 @@ const underConstruction = ref(false)
 const userId = computed(() => userStore.userId)
 
 // Computed to track if the name has changed
-const isNameChanged = computed(() => originalBotName.value && originalBotName.value !== name.value)
+const isNameChanged = computed(
+  () => originalBotName.value && originalBotName.value !== name.value,
+)
 
 // Load the data of the selected bot into the form fields
 function loadBotData() {

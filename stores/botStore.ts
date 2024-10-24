@@ -13,7 +13,7 @@ export const useBotStore = defineStore({
     selectedBotId: null as number | null,
     currentImagePath: '', // Track the image path of the current bot
     loading: false,
-    _initialized: false,
+    isLoaded: false, // Track whether the store has been loaded
     page: 1,
     pageSize: 100,
     botPrompt: '',
@@ -24,19 +24,21 @@ export const useBotStore = defineStore({
     selectBot(botId: number) {
       console.log('Trying to select bot with ID:', botId)
       if (this.selectedBotId === botId) {
-        // If already selected, deselect
-        console.log('Deselecting bot')
-        this.selectedBotId = null
-        this.currentBot = null
-        this.currentImagePath = '' // Clear image path on deselect
+        this.deselectBot() // Use helper method for deselecting
       } else {
-        // Select the new bot
         this.selectedBotId = botId
         const foundBot = this.bots.find((bot) => bot.id === botId)
-        console.log('Found bot:', foundBot)
         this.currentBot = foundBot || null
         this.currentImagePath = foundBot?.avatarImage || '' 
       }
+    },
+
+    // Helper function to deselect bot
+    deselectBot() {
+      console.log('Deselecting bot')
+      this.selectedBotId = null
+      this.currentBot = null
+      this.currentImagePath = '' // Clear image path on deselect
     },
 
     // Reset botPrompt
@@ -44,52 +46,65 @@ export const useBotStore = defineStore({
       this.botPrompt = ''
     },
 
+    // Fetch bots only if not loaded already
     async fetchBots(): Promise<void> {
-      const errorStore = useErrorStore()
-      try {
-        if (typeof window === 'undefined') return
+      if (this.isLoaded) return // Skip if bots are already loaded
 
+      this.loading = true
+      try {
         const response = await fetch('/api/bots')
         if (!response.ok) {
           throw new Error(`Failed to fetch bots: ${response.statusText}`)
         }
         const data = await response.json()
         this.bots = data.bots
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            `An error occurred while fetching bots: ${err.message}`,
-          )
-        } else {
-          errorStore.setError(
-            ErrorType.UNKNOWN_ERROR,
-            'An unknown error occurred while fetching bots.',
-          )
-        }
-      }
-    },
-
-    async loadStore(): Promise<void> {
-      if (typeof window === 'undefined') return
-      this.loading = true
-      try {
-        await this.fetchBots()
+        this.totalBots = this.bots.length
+        this.isLoaded = true // Set loaded flag to true
+      } catch (err) {
+        this.handleError(err, 'fetching bots')
       } finally {
         this.loading = false
       }
     },
 
-    async updateBots(botsData: Partial<Bot>[]): Promise<void> {
-      const errorStore = useErrorStore()
-      try {
-        if (typeof window === 'undefined') return
+    // Universal error handler
+    handleError(err: unknown, action: string) {
+      const errorStore = useErrorStore();  // Directly call the error store
 
+      if (err instanceof Error) {
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `An error occurred while ${action}: ${err.message}`,
+        );
+      } else {
+        errorStore.setError(
+          ErrorType.UNKNOWN_ERROR,
+          `An unknown error occurred while ${action}.`,
+        );
+      }
+    },
+
+    // Load store, called during initial app launch
+    async loadStore(): Promise<void> {
+      if (typeof window === 'undefined' || this.isLoaded || this.loading) return
+      this.loading = true // Ensure no concurrent loading happens
+
+      try {
+        await this.fetchBots()
+        this.isLoaded = true // Set to true only after successful load
+      } catch (err) {
+        this.handleError(err, 'loading the store')
+      } finally {
+        this.loading = false // Always clear loading flag, even if there's an error
+      }
+    },
+
+    // Update multiple bots
+    async updateBots(botsData: Partial<Bot>[]): Promise<void> {
+      try {
         const response = await fetch('/api/bots', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(botsData),
         })
 
@@ -102,31 +117,17 @@ export const useBotStore = defineStore({
           const updatedBot = data.bots.find((b: Bot) => b.id === bot.id)
           return updatedBot || bot
         })
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            `Failed to update bots: ${err.message}`,
-          )
-        } else {
-          errorStore.setError(
-            ErrorType.UNKNOWN_ERROR,
-            'An unknown error occurred while updating bots.',
-          )
-        }
+      } catch (err) {
+        this.handleError(err, 'updating bots')
       }
     },
 
+    // Update a single bot
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
-      const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return
-
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         })
 
@@ -136,28 +137,16 @@ export const useBotStore = defineStore({
 
         const updatedBot = await response.json()
         this.currentBot = updatedBot
-        this.currentImagePath = updatedBot.avatarImage 
-        await this.fetchBots()
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            `Failed to update bot: ${err.message}`,
-          )
-        } else {
-          errorStore.setError(
-            ErrorType.UNKNOWN_ERROR,
-            'An unknown error occurred while updating the bot.',
-          )
-        }
+        this.currentImagePath = updatedBot.avatarImage
+        await this.fetchBots() // Refresh bots after update
+      } catch (err) {
+        this.handleError(err, 'updating the bot')
       }
     },
 
+    // Delete a bot by ID
     async deleteBot(id: number): Promise<void> {
-      const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return
-
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'DELETE',
         })
@@ -166,32 +155,18 @@ export const useBotStore = defineStore({
           throw new Error(`HTTP error! Status: ${response.status}`)
         }
 
-        await this.fetchBots()
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            `Failed to delete bot: ${err.message}`,
-          )
-        } else {
-          errorStore.setError(
-            ErrorType.UNKNOWN_ERROR,
-            'An unknown error occurred while deleting the bot.',
-          )
-        }
+        await this.fetchBots() // Refresh bots after deletion
+      } catch (err) {
+        this.handleError(err, 'deleting the bot')
       }
     },
 
+    // Add bots
     async addBots(botsData: Partial<Bot>[]): Promise<void> {
-      const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return
-
         const response = await fetch('/api/bots', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(botsData),
         })
 
@@ -202,26 +177,14 @@ export const useBotStore = defineStore({
         const data = await response.json()
         this.bots = [...this.bots, ...data.bots]
         this.totalBots += data.bots.length
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            `Failed to add bots: ${err.message}`,
-          )
-        } else {
-          errorStore.setError(
-            ErrorType.UNKNOWN_ERROR,
-            'An unknown error occurred while adding bots.',
-          )
-        }
+      } catch (err) {
+        this.handleError(err, 'adding bots')
       }
     },
 
+    // Fetch bot by ID
     async getBotById(id: number): Promise<void> {
-      const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return
-
         const response = await fetch(`/api/bot/id/${id}`)
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`)
@@ -229,26 +192,14 @@ export const useBotStore = defineStore({
         const data = await response.json()
         this.currentBot = data.bot
         this.currentImagePath = data.bot.avatarImage
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            `Failed to fetch bot by id: ${err.message}`,
-          )
-        } else {
-          errorStore.setError(
-            ErrorType.UNKNOWN_ERROR,
-            'An unknown error occurred while fetching bot by id.',
-          )
-        }
+      } catch (err) {
+        this.handleError(err, 'fetching bot by id')
       }
     },
 
+    // Fetch bot by name
     async getBotByName(name: string): Promise<void> {
-      const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return
-
         const response = await fetch(`/api/bot/name/${name}`)
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`)
@@ -256,40 +207,18 @@ export const useBotStore = defineStore({
         const data = await response.json()
         this.currentBot = data.bot
         this.currentImagePath = data.bot.avatarImage
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            `Failed to fetch bot by name: ${err.message}`,
-          )
-        } else {
-          errorStore.setError(
-            ErrorType.UNKNOWN_ERROR,
-            'An unknown error occurred while fetching bot by name.',
-          )
-        }
+      } catch (err) {
+        this.handleError(err, 'fetching bot by name')
       }
     },
 
+    // Seed bots (used for development)
     async seedBots(): Promise<void> {
-      const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return
-
         await this.addBots(botData)
         await this.fetchBots()
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            `Failed to seed bots: ${err.message}`,
-          )
-        } else {
-          errorStore.setError(
-            ErrorType.UNKNOWN_ERROR,
-            'An unknown error occurred while seeding bots.',
-          )
-        }
+      } catch (err) {
+        this.handleError(err, 'seeding bots')
       }
     },
   },

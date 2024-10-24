@@ -35,7 +35,7 @@ export const useBotStore = defineStore({
         const foundBot = this.bots.find((bot) => bot.id === botId)
         console.log('Found bot:', foundBot)
         this.currentBot = foundBot || null
-        this.currentImagePath = foundBot?.imagePath || '' // Set the image path if available
+        this.currentImagePath = foundBot?.avatarImage || '' 
       }
     },
 
@@ -137,7 +137,7 @@ export const useBotStore = defineStore({
 
         const updatedBot = await response.json()
         this.currentBot = updatedBot
-        this.currentImagePath = updatedBot.imagePath // Update current image path
+        this.currentImagePath = updatedBot.avatarImage 
         await this.fetchBots()
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -229,7 +229,7 @@ export const useBotStore = defineStore({
         }
         const data = await response.json()
         this.currentBot = data.bot
-        this.currentImagePath = data.bot.imagePath // Update current image path
+        this.currentImagePath = data.bot.avatarImage
       } catch (err: unknown) {
         if (err instanceof Error) {
           errorStore.setError(
@@ -256,7 +256,7 @@ export const useBotStore = defineStore({
         }
         const data = await response.json()
         this.currentBot = data.bot
-        this.currentImagePath = data.bot.imagePath // Update current image path
+        this.currentImagePath = data.bot.avatarImage
       } catch (err: unknown) {
         if (err instanceof Error) {
           errorStore.setError(

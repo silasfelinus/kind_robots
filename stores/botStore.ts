@@ -40,7 +40,7 @@ selectBot(botId: number) {
     async fetchBots(): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return // Ensure this only runs on the client
+        if (typeof window === 'undefined') return
 
         const response = await fetch('/api/bots')
         if (!response.ok) {
@@ -64,7 +64,7 @@ selectBot(botId: number) {
     },
 
     async loadStore(): Promise<void> {
-      if (typeof window === 'undefined') return // Ensure this only runs on the client
+      if (typeof window === 'undefined') return 
       this.loading = true
       try {
         await this.fetchBots()
@@ -77,7 +77,7 @@ selectBot(botId: number) {
     async updateBots(botsData: Partial<Bot>[]): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return // Ensure this only runs on the client
+        if (typeof window === 'undefined') return 
 
         const response = await fetch('/api/bots', {
           method: 'POST',
@@ -114,7 +114,7 @@ selectBot(botId: number) {
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return // Ensure this only runs on the client
+        if (typeof window === 'undefined') return 
 
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'PATCH',
@@ -149,7 +149,7 @@ selectBot(botId: number) {
     async deleteBot(id: number): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return // Ensure this only runs on the client
+        if (typeof window === 'undefined') return 
 
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'DELETE',
@@ -178,7 +178,7 @@ selectBot(botId: number) {
     async addBots(botsData: Partial<Bot>[]): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return // Ensure this only runs on the client
+        if (typeof window === 'undefined') return 
 
         const response = await fetch('/api/bots', {
           method: 'POST',
@@ -213,7 +213,7 @@ selectBot(botId: number) {
     async getBotById(id: number): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return // Ensure this only runs on the client
+        if (typeof window === 'undefined') return 
 
         const response = await fetch(`/api/bot/id/${id}`)
         if (!response.ok) {
@@ -239,7 +239,7 @@ selectBot(botId: number) {
     async getBotByName(name: string): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return // Ensure this only runs on the client
+        if (typeof window === 'undefined') return
 
         const response = await fetch(`/api/bot/name/${name}`)
         if (!response.ok) {
@@ -265,7 +265,7 @@ selectBot(botId: number) {
     async seedBots(): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return // Ensure this only runs on the client
+        if (typeof window === 'undefined') return 
 
         await this.addBots(botData)
         await this.fetchBots()

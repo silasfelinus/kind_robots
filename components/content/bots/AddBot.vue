@@ -94,6 +94,9 @@
 
       <!-- Form Feedback & Submit Button -->
       <span v-if="isLoading" class="loading loading-ring loading-lg"></span>
+      <div v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</div>
+      <div v-if="successMessage" class="text-green-500 mt-2">{{ successMessage }}</div>
+      
       <button type="submit" class="btn btn-success w-full" :disabled="isLoading">
         <span v-if="isLoading">Saving...</span>
         <span v-else>Save Bot</span>
@@ -116,6 +119,9 @@ const userStore = useUserStore()
 const errorStore = useErrorStore()
 
 const isLoading = ref(false)
+const errorMessage = ref<string | null>(null)
+const successMessage = ref<string | null>(null)
+
 const selectedBotId = ref<number | null>(null)
 
 // Form fields
@@ -159,6 +165,9 @@ function resetForm() {
 // Handle form submission
 async function handleSubmit(e: Event) {
   e.preventDefault()
+  isLoading.value = true
+  errorMessage.value = null
+  successMessage.value = null
 
   try {
     const botData = {
@@ -178,13 +187,15 @@ async function handleSubmit(e: Event) {
 
     if (selectedBot?.userId === userId.value) {
       await botStore.updateBot(selectedBotId.value!, botData)
-      console.log('Bot updated successfully!')
+      successMessage.value = 'Bot updated successfully!'
     } else {
       await botStore.addBots([botData])
-      console.log('New bot created successfully!')
+      successMessage.value = 'New bot created successfully!'
     }
   } catch (error) {
-    errorStore.setError(ErrorType.GENERAL_ERROR, 'Error saving bot: ' + error)
+    errorMessage.value = 'Error saving bot: ' + error
+  } finally {
+    isLoading.value = false
   }
 }
 

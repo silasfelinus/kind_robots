@@ -207,17 +207,19 @@ async changeToRandomImage() {
 
     // Select a random image from the current gallery
     const randomImage = imagePaths[Math.floor(Math.random() * imagePaths.length)]
-    this.currentImage = randomImage
+
+    // Build the full image path using the gallery name and the selected image filename
+    this.currentImage = `/images/${this.currentGallery.name}/${randomImage}`
 
     // Store the selected image in localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('currentImage', this.currentImage)
     }
-
   } catch (error) {
     console.error('Error changing to random image:', error)
   }
 }
+
 
   },
 })

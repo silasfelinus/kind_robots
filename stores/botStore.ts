@@ -75,7 +75,6 @@ export const useBotStore = defineStore({
       this.loading = true
       try {
         await this.fetchBots()
-        this.selectBot(1) // Select default bot (ID 1)
       } finally {
         this.loading = false
       }

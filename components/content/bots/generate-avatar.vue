@@ -9,6 +9,8 @@
       class="w-full p-2 rounded border mb-4"
       placeholder="Enter a custom avatar image URL"
     />
+
+<image-upload />
     
     <!-- Avatar Preview -->
     <div class="mt-2">

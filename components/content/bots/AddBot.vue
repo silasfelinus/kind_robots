@@ -98,7 +98,7 @@
 
       <button type="submit" class="btn btn-success w-full" :disabled="isLoading">
         <span v-if="isLoading">Saving...</span>
-        <span v-else>Save Bot</span>
+        <span v-else>{{ selectedBotId ? 'Edit Bot' : 'Save New Bot' }}</span>
       </button>
     </form>
   </div>

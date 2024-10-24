@@ -208,7 +208,17 @@ const isNameChanged = computed(
   () => originalBotName.value && originalBotName.value !== name.value,
 )
 
-// Load the data of the selected bot into the form fields
+// Watch for changes in selectedBotId to load bot data
+watch(selectedBotId, (newBotId) => {
+  if (newBotId) {
+    loadBotData()
+  } else {
+    resetForm()
+    botStore.currentBot = null // Clear currentBot if no bot is selected
+  }
+})
+
+// Load the data of the selected bot into the form fields and update currentBot in the store
 function loadBotData() {
   const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
   if (bot) {
@@ -222,6 +232,10 @@ function loadBotData() {
     underConstruction.value = bot.underConstruction ?? false
     botFeedbackMessage.value = `Editing Bot: ${bot.name}`
     botFeedbackClass.value = 'bg-blue-100 text-blue-700'
+
+    // Update currentBot in the store
+    botStore.currentBot = bot
+    botStore.currentImagePath = bot.avatarImage || ''
   } else {
     resetForm()
   }

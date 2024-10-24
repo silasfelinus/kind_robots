@@ -1,6 +1,31 @@
 // /server/api/bot/id/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
-import { fetchBotById, updateBot } from '../../bots'
+
+
+
+async function fetchBotById(id: number): Promise<Bot | null> {
+  return await prisma.bot.findUnique({
+    where: { id },
+  })
+}
+
+
+export async function updateBot(
+  id: number,
+  data: Partial<Bot>,
+): Promise<Bot | null> {
+  const botExists = await prisma.bot.findUnique({ where: { id } })
+
+  if (!botExists) {
+    return null
+  }
+
+  return await prisma.bot.update({
+    where: { id },
+    data: data as Prisma.BotUpdateInput,
+  })
+}
+
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)

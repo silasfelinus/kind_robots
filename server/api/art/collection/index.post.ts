@@ -6,9 +6,7 @@ import { errorHandler } from './../../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
-    const { userId, artIds } = await readBody(event) // Expect `userId` and optional `artIds`
-
-    // Ensure `userId` is provided
+    const { userId, artIds } = await readBody(event) 
     if (!userId) {
       return { success: false, message: 'Missing userId' }
     }

@@ -39,9 +39,9 @@
       class="bg-white shadow-md rounded-xl p-6 w-full"
       @submit.prevent="handleSubmit"
     >
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         <!-- Name Field -->
-        <div>
+        <div class="col-span-1">
           <label for="name" class="block text-lg font-medium">Name:</label>
           <input
             id="name"
@@ -53,7 +53,7 @@
         </div>
 
         <!-- Subtitle Field -->
-        <div>
+        <div class="col-span-1">
           <label for="subtitle" class="block text-lg font-medium"
             >Subtitle:</label
           >
@@ -66,7 +66,7 @@
         </div>
 
         <!-- Description Field -->
-        <div class="col-span-2">
+        <div class="col-span-1 md:col-span-2">
           <label for="description" class="block text-lg font-medium"
             >Description:</label
           >
@@ -80,7 +80,7 @@
         </div>
 
         <!-- Bot Intro -->
-        <div class="col-span-2">
+        <div class="col-span-1 md:col-span-2">
           <label for="botIntro" class="block text-lg font-medium"
             >Bot Intro:</label
           >
@@ -94,7 +94,7 @@
         </div>
 
         <!-- User Intro -->
-        <div class="col-span-2">
+        <div class="col-span-1 md:col-span-2">
           <label for="userIntro" class="block text-lg font-medium"
             >User Intro:</label
           >
@@ -108,7 +108,7 @@
         </div>
 
         <!-- Public Visibility -->
-        <div>
+        <div class="col-span-1">
           <label for="isPublic" class="block text-lg font-medium"
             >Public Visibility:</label
           >
@@ -123,7 +123,7 @@
         </div>
 
         <!-- Under Construction -->
-        <div class="flex items-center">
+        <div class="col-span-1 flex items-center">
           <input
             id="underConstruction"
             v-model="underConstruction"
@@ -146,12 +146,12 @@
       </div>
 
       <!-- Two Buttons -->
-      <div class="flex space-x-4 mt-6">
+      <div class="flex flex-col md:flex-row md:space-x-4 mt-6">
         <!-- Edit Bot Button (only if editing) -->
         <button
           v-if="selectedBotId && !isNameChanged"
           type="submit"
-          class="btn btn-primary w-full"
+          class="btn btn-primary w-full md:w-auto"
           :disabled="isLoading"
         >
           <span v-if="isLoading">Editing...</span>
@@ -162,7 +162,7 @@
         <button
           v-if="!selectedBotId || isNameChanged"
           type="button"
-          class="btn btn-success w-full"
+          class="btn btn-success w-full md:w-auto"
           :disabled="isLoading"
           @click="handleSaveNewBot"
         >

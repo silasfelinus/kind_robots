@@ -21,25 +21,6 @@
       />
     </div>
 
-    <!-- Gallery Selection Dropdown -->
-    <div class="w-full mb-4">
-      <label for="selectGallery" class="block text-sm font-medium">Select Gallery:</label>
-      <select
-        id="selectGallery"
-        v-model="selectedGallery"
-        class="w-full p-2 rounded border"
-      >
-        <option value="" disabled>Select a gallery</option>
-        <option
-          v-for="gallery in galleryStore.galleries"
-          :key="gallery.name"
-          :value="gallery.name"
-        >
-          {{ gallery.name }}
-        </option>
-      </select>
-    </div>
-
     <!-- Generate Random Avatar Button -->
     <button
       class="btn btn-primary"
@@ -53,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { useBotStore } from './../../../stores/botStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
@@ -66,7 +47,7 @@ const isLoading = ref(false)
 const selectedGallery = ref<string | null>(null)
 const defaultAvatar = '/images/wonderchest/wonderchest-1630.webp'
 
-// Avatar image is bound to the current bot's image path or the default
+// Bind avatarImage to currentImagePath from botStore
 const avatarImage = computed({
   get() {
     return botStore.currentImagePath || defaultAvatar
@@ -105,13 +86,5 @@ async function generateRandomAvatar() {
 // Load initial gallery data
 onMounted(async () => {
   await galleryStore.initializeStore()
-})
-
-// Watch for changes in the selected bot
-watch(() => botStore.selectedBotId, (newBotId) => {
-  if (newBotId) {
-    // Update the avatar image when a new bot is selected
-    avatarImage.value = botStore.currentImagePath || defaultAvatar
-  }
 })
 </script>

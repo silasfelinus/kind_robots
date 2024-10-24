@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Bot } from '@prisma/client'
 import { botData } from './seeds/seedBots'
-import { useErrorStore, ErrorType } from './../stores/errorStore' // Import your errorStore
+import { useErrorStore, ErrorType } from './../stores/errorStore'
 
 export const useBotStore = defineStore({
   id: 'botStore',
@@ -11,31 +11,38 @@ export const useBotStore = defineStore({
     currentBot: null as Bot | null,
     totalBots: 0,
     selectedBotId: null as number | null,
+    currentImagePath: '', // Track the image path of the current bot
     loading: false,
     _initialized: false,
     page: 1,
     pageSize: 100,
-    botPrompt: '',  
+    botPrompt: '',
   }),
 
   actions: {
-selectBot(botId: number) {
-   console.log('Trying to select bot with ID:', botId)
-   if (this.selectedBotId === botId) {
-     console.log('Deselecting bot')
-     this.selectedBotId = null
-     this.currentBot = null
-   } else {
-     this.selectedBotId = botId
-     const foundBot = this.bots.find((bot) => bot.id === botId)
-     console.log('Found bot:', foundBot)
-     this.currentBot = foundBot || null
-   }
- },
-        // Action to reset botPrompt
-        resetBotPrompt() {
-          this.botPrompt = '';
-        },
+    // Select a bot by ID and update currentImagePath
+    selectBot(botId: number) {
+      console.log('Trying to select bot with ID:', botId)
+      if (this.selectedBotId === botId) {
+        // If already selected, deselect
+        console.log('Deselecting bot')
+        this.selectedBotId = null
+        this.currentBot = null
+        this.currentImagePath = '' // Clear image path on deselect
+      } else {
+        // Select the new bot
+        this.selectedBotId = botId
+        const foundBot = this.bots.find((bot) => bot.id === botId)
+        console.log('Found bot:', foundBot)
+        this.currentBot = foundBot || null
+        this.currentImagePath = foundBot?.imagePath || '' // Set the image path if available
+      }
+    },
+
+    // Reset botPrompt
+    resetBotPrompt() {
+      this.botPrompt = ''
+    },
 
     async fetchBots(): Promise<void> {
       const errorStore = useErrorStore()
@@ -64,11 +71,11 @@ selectBot(botId: number) {
     },
 
     async loadStore(): Promise<void> {
-      if (typeof window === 'undefined') return 
+      if (typeof window === 'undefined') return
       this.loading = true
       try {
         await this.fetchBots()
-        this.selectBot(1)
+        this.selectBot(1) // Select default bot (ID 1)
       } finally {
         this.loading = false
       }
@@ -77,7 +84,7 @@ selectBot(botId: number) {
     async updateBots(botsData: Partial<Bot>[]): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return 
+        if (typeof window === 'undefined') return
 
         const response = await fetch('/api/bots', {
           method: 'POST',
@@ -114,7 +121,7 @@ selectBot(botId: number) {
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return 
+        if (typeof window === 'undefined') return
 
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'PATCH',
@@ -130,6 +137,7 @@ selectBot(botId: number) {
 
         const updatedBot = await response.json()
         this.currentBot = updatedBot
+        this.currentImagePath = updatedBot.imagePath // Update current image path
         await this.fetchBots()
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -149,7 +157,7 @@ selectBot(botId: number) {
     async deleteBot(id: number): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return 
+        if (typeof window === 'undefined') return
 
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'DELETE',
@@ -178,7 +186,7 @@ selectBot(botId: number) {
     async addBots(botsData: Partial<Bot>[]): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return 
+        if (typeof window === 'undefined') return
 
         const response = await fetch('/api/bots', {
           method: 'POST',
@@ -213,7 +221,7 @@ selectBot(botId: number) {
     async getBotById(id: number): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return 
+        if (typeof window === 'undefined') return
 
         const response = await fetch(`/api/bot/id/${id}`)
         if (!response.ok) {
@@ -221,6 +229,7 @@ selectBot(botId: number) {
         }
         const data = await response.json()
         this.currentBot = data.bot
+        this.currentImagePath = data.bot.imagePath // Update current image path
       } catch (err: unknown) {
         if (err instanceof Error) {
           errorStore.setError(
@@ -247,6 +256,7 @@ selectBot(botId: number) {
         }
         const data = await response.json()
         this.currentBot = data.bot
+        this.currentImagePath = data.bot.imagePath // Update current image path
       } catch (err: unknown) {
         if (err instanceof Error) {
           errorStore.setError(
@@ -265,7 +275,7 @@ selectBot(botId: number) {
     async seedBots(): Promise<void> {
       const errorStore = useErrorStore()
       try {
-        if (typeof window === 'undefined') return 
+        if (typeof window === 'undefined') return
 
         await this.addBots(botData)
         await this.fetchBots()

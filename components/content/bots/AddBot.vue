@@ -202,6 +202,7 @@ async function handleSubmit(e: Event) {
       description: description.value ?? '',
       botIntro: botIntro.value ?? '',
       userIntro: userIntro.value ?? '',
+      imagePath: botStore.currentImagePath, // Include the current image path
       isPublic: isPublic.value,
       underConstruction: underConstruction.value,
       userId: userId.value,
@@ -231,6 +232,7 @@ async function handleSaveNewBot() {
       description: description.value ?? '',
       botIntro: botIntro.value ?? '',
       userIntro: userIntro.value ?? '',
+      imagePath: botStore.currentImagePath, // Include the current image path for new bot
       isPublic: isPublic.value,
       underConstruction: underConstruction.value,
       userId: userId.value,

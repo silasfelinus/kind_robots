@@ -191,27 +191,34 @@ export const useGalleryStore = defineStore({
       }
     },
 
-    // Change to a random image by fetching from the API
-    async changeToRandomImage() {
-      try {
-        const response = await fetch('/api/galleries/random/image')
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success && data.image) {
-            this.currentImage = data.image
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('currentImage', this.currentImage)
-            }
-          } else {
-            console.error('No image found in the response.')
-          }
-        } else {
-          console.error('Failed to fetch a random image.')
-        }
-      } catch (error) {
-        console.error('Error fetching random image:', error)
-      }
-    },
+// Change to a random image from the currently selected gallery
+async changeToRandomImage() {
+  try {
+    if (!this.currentGallery || !this.currentGallery.imagePaths) {
+      throw new Error('No gallery selected or no images available in the selected gallery.')
+    }
+
+    // Get the image paths for the current gallery
+    const imagePaths = this.currentGallery.imagePaths.split(',')
+
+    if (imagePaths.length === 0) {
+      throw new Error('No images available in the selected gallery.')
+    }
+
+    // Select a random image from the current gallery
+    const randomImage = imagePaths[Math.floor(Math.random() * imagePaths.length)]
+    this.currentImage = randomImage
+
+    // Store the selected image in localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('currentImage', this.currentImage)
+    }
+
+  } catch (error) {
+    console.error('Error changing to random image:', error)
+  }
+}
+
   },
 })
 

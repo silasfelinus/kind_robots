@@ -1,7 +1,11 @@
 <template>
-  <div class="w-full max-w-2xl mx-auto mb-6 flex flex-col items-center space-y-4">
+  <div
+    class="w-full max-w-2xl mx-auto mb-6 flex flex-col items-center space-y-4"
+  >
     <!-- Avatar Image URL Input -->
-    <label for="avatarImageInput" class="block text-sm font-medium">Avatar Image (URL):</label>
+    <label for="avatarImageInput" class="block text-sm font-medium"
+      >Avatar Image (URL):</label
+    >
     <input
       id="avatarImageInput"
       v-model="avatarImage"
@@ -51,9 +55,11 @@ const defaultAvatar = '/images/wonderchest/wonderchest-1630.webp'
 // Bind avatarImage to currentImagePath from botStore
 const avatarImage = computed({
   get() {
+    console.log('Computed avatarImage getter:', botStore.currentImagePath)
     return botStore.currentImagePath || defaultAvatar
   },
   set(newValue) {
+    console.log('Computed avatarImage setter:', newValue)
     botStore.currentImagePath = newValue
   },
 })

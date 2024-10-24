@@ -1,6 +1,7 @@
 // /server/api/bot/id/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
-import { Prisma, Bot } from '@prisma/client'
+import type { Prisma, Bot } from '@prisma/client'
+import prisma from './../../utils/prisma'
 
 async function updateBot(id: number, data: Partial<Bot>): Promise<Bot | null> {
   try {
@@ -9,7 +10,6 @@ async function updateBot(id: number, data: Partial<Bot>): Promise<Bot | null> {
       data: data as Prisma.BotUpdateInput,
     })
   } catch (error) {
-    // This catch block handles cases where the bot doesn't exist or other Prisma errors
     console.error(`Failed to update bot with id "${id}": ${error}`)
     return null
   }
@@ -23,14 +23,12 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Read the body data (fields to update)
     const data = await readBody(event)
 
     if (!data || Object.keys(data).length === 0) {
       return { success: false, message: 'No data provided for update.' }
     }
 
-    // Attempt to update the bot with the provided data
     const updatedBot = await updateBot(id, data)
 
     if (!updatedBot) {

@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: 'Missing userId' }
     }
 
-    // Create a new collection for the user
     const newCollection = await prisma.artCollection.create({
       data: {
         userId,
@@ -20,12 +19,12 @@ export default defineEventHandler(async (event) => {
         },
       },
       include: {
-        art: true, // Include the connected art entries
+        art: true,
       },
     })
 
     return { success: true, collection: newCollection }
   } catch (error: unknown) {
-    return errorHandler(error + 'Failed to create art collection.')
+    return errorHandler(error) // 
   }
 })

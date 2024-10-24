@@ -1,7 +1,6 @@
 // /server/api/bot/id/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
 import { Prisma, Bot } from '@prisma/client'
-import { prisma } from '~/server/db' // Assuming you have prisma set up here
 
 async function updateBot(id: number, data: Partial<Bot>): Promise<Bot | null> {
   try {

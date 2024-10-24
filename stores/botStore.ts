@@ -30,6 +30,7 @@ export const useBotStore = defineStore({
         const foundBot = this.bots.find((bot) => bot.id === botId)
         this.currentBot = foundBot || null
         this.currentImagePath = foundBot?.avatarImage || '' 
+        console.log('Current Image Path:', this.currentImagePath)
       }
     },
 

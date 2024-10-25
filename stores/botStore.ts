@@ -9,8 +9,6 @@ export const useBotStore = defineStore({
   state: () => ({
     bots: [] as Bot[],
     currentBot: null as Bot | null,
-    totalBots: 0,
-    selectedBotId: null as number | null,
     currentImagePath: '', // Track the image path of the current bot
     loading: false,
     isLoaded: false, // Track whether the store has been loaded
@@ -19,81 +17,18 @@ export const useBotStore = defineStore({
     botPrompt: '',
   }),
 
+  getters: {
+    // Computed property to return the total number of bots
+    totalBots: (state) => state.bots.length,
+
+    // Computed property to return the selected bot's ID
+    selectedBotId: (state) => state.currentBot?.id ?? null,
+  },
+
   actions: {
-    // Select a bot by ID and update currentImagePath
-    selectBot(botId: number) {
-      try {
-        // Check if the bot is already selected to avoid deselecting it
-        if (this.selectedBotId === botId) {
-          console.log('Bot is already selected, no action needed.')
-          return // Exit early if the bot is already selected
-        }
-
-        // Update the selected bot ID
-        this.selectedBotId = botId
-
-        // Find the bot in the list of bots
-        const foundBot = this.bots.find((bot) => bot.id === botId)
-
-        if (!foundBot) {
-          throw new Error(`Bot with ID ${botId} not found`)
-        }
-
-        // Update the current bot and image path
-        this.currentBot = foundBot
-        this.currentImagePath = foundBot.avatarImage || ''
-        console.log('Bot selected successfully:', this.currentBot)
-        console.log('Current Image Path:', this.currentImagePath)
-      } catch (error) {
-        // Log error details
-        console.error('Error selecting bot:', error)
-
-        // Optionally handle errors in a user-friendly way
-        const errorStore = useErrorStore()
-        errorStore.setError(
-          ErrorType.GENERAL_ERROR,
-          `Error selecting bot: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-      }
-    },
-
-    // Helper function to deselect bot
-    deselectBot() {
-      console.log('Deselecting bot')
-      this.selectedBotId = null
-      this.currentBot = null
-      this.currentImagePath = '' // Clear image path on deselect
-    },
-
-    // Reset botPrompt
-    resetBotPrompt() {
-      this.botPrompt = ''
-    },
-
-    // Fetch bots only if not loaded already
-    async fetchBots(): Promise<void> {
-      if (this.isLoaded) return // Skip if bots are already loaded
-
-      this.loading = true
-      try {
-        const response = await fetch('/api/bots')
-        if (!response.ok) {
-          throw new Error(`Failed to fetch bots: ${response.statusText}`)
-        }
-        const data = await response.json()
-        this.bots = data.bots
-        this.totalBots = this.bots.length
-        this.isLoaded = true // Set loaded flag to true
-      } catch (err) {
-        this.handleError(err, 'fetching bots')
-      } finally {
-        this.loading = false
-      }
-    },
-
     // Universal error handler
     handleError(err: unknown, action: string) {
-      const errorStore = useErrorStore() // Directly call the error store
+      const errorStore = useErrorStore()
 
       if (err instanceof Error) {
         errorStore.setError(
@@ -108,49 +43,72 @@ export const useBotStore = defineStore({
       }
     },
 
-    // Load store, called during initial app launch
-    async loadStore(): Promise<void> {
-      if (typeof window === 'undefined' || this.isLoaded || this.loading) return
-      this.loading = true // Ensure no concurrent loading happens
-
+    // Select a bot by ID and update currentBot and currentImagePath
+    async selectBot(botId: number) {
       try {
-        await this.fetchBots()
-        this.isLoaded = true // Set to true only after successful load
-      } catch (err) {
-        this.handleError(err, 'loading the store')
-      } finally {
-        this.loading = false // Always clear loading flag, even if there's an error
-      }
-    },
-
-    // Update multiple bots
-    async updateBots(botsData: Partial<Bot>[]): Promise<void> {
-      try {
-        const response = await fetch('/api/bots', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(botsData),
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
+        if (this.currentBot?.id === botId) {
+          console.log('Bot is already selected.')
+          return
         }
 
-        const data = await response.json()
-        this.bots = this.bots.map((bot) => {
-          const updatedBot = data.bots.find((b: Bot) => b.id === bot.id)
-          return updatedBot || bot
-        })
-      } catch (err) {
-        this.handleError(err, 'updating bots')
+        const foundBot = this.bots.find((bot) => bot.id === botId)
+        if (!foundBot) {
+          throw new Error(`Bot with ID ${botId} not found`)
+        }
+
+        this.currentBot = foundBot
+        this.currentImagePath = foundBot.avatarImage || ''
+        console.log('Bot selected successfully:', this.currentBot)
+      } catch (error) {
+        this.handleError(error, 'selecting bot')
       }
     },
 
-    // Update a single bot without reloading the entire list
+    // Deselect current bot
+    deselectBot() {
+      this.currentBot = null
+      this.currentImagePath = ''
+      console.log('Bot deselected.')
+    },
+
+    // Fetch bots only if not loaded already
+    async fetchBots(): Promise<void> {
+      if (this.isLoaded) return
+
+      this.loading = true
+      try {
+        const response = await fetch('/api/bots')
+        if (!response.ok) {
+          throw new Error(`Failed to fetch bots: ${response.statusText}`)
+        }
+        const data = await response.json()
+        this.bots = data.bots
+        this.isLoaded = true
+      } catch (error) {
+        this.handleError(error, 'fetching bots')
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // Load store, called during initial app launch
+    async loadStore(): Promise<void> {
+      if (this.isLoaded || this.loading) return
+
+      this.loading = true
+      try {
+        await this.fetchBots()
+        this.isLoaded = true
+      } catch (error) {
+        this.handleError(error, 'loading store')
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // Update a single bot
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
       try {
-        console.log('Updating bot with ID:', id)
-
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -158,38 +116,21 @@ export const useBotStore = defineStore({
         })
 
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
+          throw new Error(`Failed to update bot: ${response.statusText}`)
         }
 
         const updatedBot = await response.json()
-        console.log('Bot updated successfully:', updatedBot)
-
-        // Update the bot in the `bots` array
         const botIndex = this.bots.findIndex((bot) => bot.id === id)
+
         if (botIndex !== -1) {
           this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot }
         }
 
-        // Update the `currentBot` and `currentImagePath` to reflect the updated bot
         this.currentBot = updatedBot
         this.currentImagePath = updatedBot.avatarImage
-
-        // Ensure that the `selectedBotId` is still the updated bot's ID
-        this.selectedBotId = updatedBot.id
-
-        console.log(
-          'Updated currentBot, currentImagePath, and selectedBotId:',
-          this.currentBot,
-          this.currentImagePath,
-          this.selectedBotId,
-        )
-      } catch (err) {
-        console.error('Error while updating the bot:', err)
-        const errorStore = useErrorStore()
-        errorStore.setError(
-          ErrorType.GENERAL_ERROR,
-          `Error updating bot: ${err}`,
-        )
+        console.log('Bot updated successfully:', this.currentBot)
+      } catch (error) {
+        this.handleError(error, 'updating bot')
       }
     },
 
@@ -201,16 +142,17 @@ export const useBotStore = defineStore({
         })
 
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
+          throw new Error(`Failed to delete bot: ${response.statusText}`)
         }
 
-        await this.fetchBots() // Refresh bots after deletion
-      } catch (err) {
-        this.handleError(err, 'deleting the bot')
+        this.bots = this.bots.filter((bot) => bot.id !== id)
+        console.log('Bot deleted successfully.')
+      } catch (error) {
+        this.handleError(error, 'deleting bot')
       }
     },
 
-    // Add bots
+    // Add bots to the store
     async addBots(botsData: Partial<Bot>[]): Promise<void> {
       try {
         const response = await fetch('/api/bots', {
@@ -220,14 +162,13 @@ export const useBotStore = defineStore({
         })
 
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
+          throw new Error(`Failed to add bots: ${response.statusText}`)
         }
 
         const data = await response.json()
         this.bots = [...this.bots, ...data.bots]
-        this.totalBots += data.bots.length
-      } catch (err) {
-        this.handleError(err, 'adding bots')
+      } catch (error) {
+        this.handleError(error, 'adding bots')
       }
     },
 
@@ -236,28 +177,14 @@ export const useBotStore = defineStore({
       try {
         const response = await fetch(`/api/bot/id/${id}`)
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
+          throw new Error(`Failed to fetch bot: ${response.statusText}`)
         }
-        const data = await response.json()
-        this.currentBot = data.bot
-        this.currentImagePath = data.bot.avatarImage
-      } catch (err) {
-        this.handleError(err, 'fetching bot by id')
-      }
-    },
 
-    // Fetch bot by name
-    async getBotByName(name: string): Promise<void> {
-      try {
-        const response = await fetch(`/api/bot/name/${name}`)
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
-        }
         const data = await response.json()
         this.currentBot = data.bot
         this.currentImagePath = data.bot.avatarImage
-      } catch (err) {
-        this.handleError(err, 'fetching bot by name')
+      } catch (error) {
+        this.handleError(error, 'fetching bot by id')
       }
     },
 
@@ -266,8 +193,8 @@ export const useBotStore = defineStore({
       try {
         await this.addBots(botData)
         await this.fetchBots()
-      } catch (err) {
-        this.handleError(err, 'seeding bots')
+      } catch (error) {
+        this.handleError(error, 'seeding bots')
       }
     },
   },

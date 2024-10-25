@@ -116,7 +116,6 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
       where: { id },
       include: {
         Channels: true, // Include Channels relation
-        Players: true, // Include Players relation
       },
     })
   } catch (error) {

@@ -36,7 +36,6 @@ export async function createPrompt(prompt: PromptData): Promise<Prompt> {
         prompt: prompt.prompt,
         galleryId: prompt.galleryId || null,
         pitchId: prompt.pitchId || null,
-        playerId: prompt.playerId || null,
       },
     })
   } catch (error: unknown) {

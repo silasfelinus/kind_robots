@@ -12,7 +12,8 @@
       placeholder="Enter a custom avatar image URL"
     />
 
-    <image-upload />
+    <!-- Moved image upload and art card confirmation to generate-avatar -->
+    <generate-avatar />
 
     <!-- Avatar Preview with tighter spacing and centered focus -->
     <div class="mt-4 flex flex-col items-center space-y-2">
@@ -25,11 +26,6 @@
     </div>
 
     <gallery-selector />
-
-    <!-- Display the uploaded image as an ArtCard for confirmation -->
-    <div v-if="newArt" class="mt-6">
-      <art-card :art="newArt" />
-    </div>
 
     <!-- Generate Random Avatar Button -->
     <button
@@ -44,20 +40,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useGalleryStore } from './../../../stores/galleryStore'
+import { ref, computed } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
-import { useArtStore } from './../../../stores/artStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { useGalleryStore } from './../../../stores/galleryStore'
 
-const galleryStore = useGalleryStore()
 const botStore = useBotStore()
-const artStore = useArtStore()
+const galleryStore = useGalleryStore()
 const errorStore = useErrorStore()
 
 const isLoading = ref(false)
 const defaultAvatar = '/images/wonderchest/wonderchest-1630.webp'
-const newArt = ref(null)
 
 // Bind avatarImage to currentImagePath from botStore
 const avatarImage = computed({
@@ -90,27 +83,4 @@ async function generateRandomAvatar() {
     isLoading.value = false
   }
 }
-
-// Handle the uploaded image and create an Art object
-async function uploadImage(event: Event) {
-  const input = event.target as HTMLInputElement
-  const uploadedFile = input?.files?.[0]
-
-  if (uploadedFile) {
-    const formData = new FormData()
-    formData.append('image', uploadedFile)
-
-    try {
-      const art = await artStore.uploadImage(formData)
-      newArt.value = art
-    } catch (error) {
-      console.error('Error uploading image:', error)
-    }
-  }
-}
-
-// Load initial gallery data
-onMounted(async () => {
-  await galleryStore.initializeStore()
-})
 </script>

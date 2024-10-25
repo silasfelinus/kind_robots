@@ -214,7 +214,6 @@ const canEditDesigner = computed(() => {
 function loadBotData() {
   const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
   if (bot) {
-    console.log('Loading bot data for:', bot.name)
     originalBotName.value = bot.name
     name.value = bot.name || ''
     subtitle.value = bot.subtitle || ''
@@ -231,7 +230,6 @@ function loadBotData() {
     botFeedbackMessage.value = `Editing Bot: ${bot.name}`
     botFeedbackClass.value = 'bg-blue-100 text-blue-700'
     botStore.currentBot = bot
-    console.log('Bot old image path is:', botStore.currentImagePath)
     botStore.currentImagePath = bot.avatarImage || ''
     console.log('Bot image path set to:', botStore.currentImagePath)
   } else {
@@ -270,8 +268,6 @@ async function handleSubmit() {
     underConstruction: underConstruction.value,
     userId: userStore.userId,
   }
-
-  console.log('Bot data to be submitted:', botData)
 
   try {
     if (selectedBotId.value) {

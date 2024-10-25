@@ -22,15 +22,38 @@ export const useBotStore = defineStore({
   actions: {
     // Select a bot by ID and update currentImagePath
     selectBot(botId: number) {
-      console.log('Trying to select bot with ID:', botId)
-      if (this.selectedBotId === botId) {
-        this.deselectBot() // Use helper method for deselecting
-      } else {
+      try {
+        // Check if the bot is already selected to avoid deselecting it
+        if (this.selectedBotId === botId) {
+          console.log('Bot is already selected, no action needed.')
+          return // Exit early if the bot is already selected
+        }
+
+        // Update the selected bot ID
         this.selectedBotId = botId
+
+        // Find the bot in the list of bots
         const foundBot = this.bots.find((bot) => bot.id === botId)
-        this.currentBot = foundBot || null
-        this.currentImagePath = foundBot?.avatarImage || ''
+
+        if (!foundBot) {
+          throw new Error(`Bot with ID ${botId} not found`)
+        }
+
+        // Update the current bot and image path
+        this.currentBot = foundBot
+        this.currentImagePath = foundBot.avatarImage || ''
+        console.log('Bot selected successfully:', this.currentBot)
         console.log('Current Image Path:', this.currentImagePath)
+      } catch (error) {
+        // Log error details
+        console.error('Error selecting bot:', error)
+
+        // Optionally handle errors in a user-friendly way
+        const errorStore = useErrorStore()
+        errorStore.setError(
+          ErrorType.GENERAL_ERROR,
+          `Error selecting bot: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
       }
     },
 
@@ -123,10 +146,10 @@ export const useBotStore = defineStore({
       }
     },
 
+    // Update a single bot without reloading the entire list
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
       try {
         console.log('Updating bot with ID:', id)
-        console.log('Data being sent:', data)
 
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'PATCH',
@@ -141,19 +164,24 @@ export const useBotStore = defineStore({
         const updatedBot = await response.json()
         console.log('Bot updated successfully:', updatedBot)
 
-        // Update the current bot
-        this.currentBot = updatedBot
-        this.currentImagePath = updatedBot.avatarImage
-        console.log('Updated currentImagePath:', this.currentImagePath)
-
-        // Update the bots array by replacing the updated bot
+        // Update the bot in the `bots` array
         const botIndex = this.bots.findIndex((bot) => bot.id === id)
         if (botIndex !== -1) {
           this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot }
         }
 
+        // Update the `currentBot` and `currentImagePath` to reflect the updated bot
+        this.currentBot = updatedBot
+        this.currentImagePath = updatedBot.avatarImage
+
+        // Ensure that the `selectedBotId` is still the updated bot's ID
+        this.selectedBotId = updatedBot.id
+
         console.log(
-          'Bots array updated successfully after the bot was updated.',
+          'Updated currentBot, currentImagePath, and selectedBotId:',
+          this.currentBot,
+          this.currentImagePath,
+          this.selectedBotId,
         )
       } catch (err) {
         console.error('Error while updating the bot:', err)
@@ -164,6 +192,7 @@ export const useBotStore = defineStore({
         )
       }
     },
+
     // Delete a bot by ID
     async deleteBot(id: number): Promise<void> {
       try {

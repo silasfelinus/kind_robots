@@ -8,9 +8,9 @@
       {{ art?.promptString || 'No prompt available' }}
     </h3>
     <div class="relative overflow-hidden max-h-[200px]">
-      <!-- Use art.path or fallback to imageData from artImage or placeholder -->
+      <!-- Use artImage.imageData or art.path, fallback to placeholder -->
       <img
-        :src="art.path || getArtImage()"
+        :src="getArtImage()"
         alt="Artwork"
         class="rounded-2xl transition-transform ease-in-out hover:scale-105 w-full h-auto object-cover"
         loading="lazy"
@@ -47,10 +47,10 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useReactionStore } from '@/stores/reactionStore'
-import { computed, ref, onMounted } from 'vue'
 
 // Props: art is required, artImage is optional
 const props = defineProps<{
@@ -76,7 +76,7 @@ const reactions = computed(() =>
 
 // Fetch prompt and reactions on mount
 onMounted(() => {
-console.log('Art Data:', props.art)
+  console.log('Art Data:', props.art)
   if (props.art.promptId) promptStore.fetchPromptById(props.art.promptId)
   reactionStore.fetchReactionsByArtId(props.art.id)
 })
@@ -86,12 +86,17 @@ const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 
-// Get the image path, fallback to artImage.imageData if path is missing
+// Get the image path, prioritize artImage.imageData if available
 const getArtImage = () => {
   if (props.artImage && props.artImage.imageData) {
+    console.log('Using artImage.imageData for display:', props.artImage.imageData)
     // Assuming the imageData is base64, construct the data URL
     return `data:image/png;base64,${props.artImage.imageData}`
+  } else if (props.art.path) {
+    console.log('Using art.path for display:', props.art.path)
+    return props.art.path
   }
-  return '/images/backtree.webp' // Fallback to a placeholder image
+  // Fallback to a placeholder image
+  return '/images/backtree.webp'
 }
 </script>

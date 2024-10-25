@@ -13,7 +13,7 @@
         id="selectBot"
         v-model="selectedBotId"
         class="w-full p-3 rounded-lg border"
-        @change="loadBotData"
+        @change="selectBot"
       >
         <option value="" disabled>Select a bot</option>
         <option v-for="bot in botStore.bots" :key="bot.id" :value="bot.id">
@@ -193,66 +193,64 @@ const promptStore = usePromptStore()
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
-const selectedBotId = ref<number | null>(null)
-const originalBotName = ref<string | null>(null)
 const botFeedbackMessage = ref<string | null>(null)
 const botFeedbackClass = ref<string>('')
 
-const name = ref('')
-const subtitle = ref('')
-const description = ref('')
-const designer = ref('')
-const botIntro = ref('')
-const isPublic = ref(true)
-const underConstruction = ref(false)
+// Computed property for selectedBotId
+const selectedBotId = computed({
+  get() {
+    return botStore.currentBot?.id || null
+  },
+  set(id: number | null) {
+    const bot = botStore.bots.find((b) => b.id === id)
+    botStore.currentBot = bot || null
+  },
+})
+
+// Make `isPublic` a writable computed property
+const isPublic = computed({
+  get() {
+    return botStore.currentBot?.isPublic ?? true
+  },
+  set(value: boolean) {
+    if (botStore.currentBot) {
+      botStore.currentBot.isPublic = value
+    }
+  },
+})
+
+// Function to toggle visibility
+function toggleVisibility(value: boolean) {
+  isPublic.value = value
+}
+
+// Bind other bot-related data to computed properties
+const name = computed(() => botStore.currentBot?.name || '')
+const subtitle = computed(() => botStore.currentBot?.subtitle || '')
+const description = computed(
+  () => botStore.currentBot?.description || 'Another helpful robot',
+)
+const designer = computed(() => botStore.currentBot?.designer || 'Kind Guest')
+const botIntro = computed(
+  () => botStore.currentBot?.botIntro || "I'm a kind robot",
+)
+const underConstruction = computed(
+  () => botStore.currentBot?.underConstruction ?? false,
+)
 
 const canEditDesigner = computed(() => {
   const bot = botStore.currentBot
   return bot && bot.userId === userStore.userId
 })
 
-function loadBotData() {
-  const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
-  if (bot) {
-    originalBotName.value = bot.name
-    name.value = bot.name || ''
-    subtitle.value = bot.subtitle || ''
-    description.value = bot.description || 'Another helpful robot'
-    designer.value = bot.designer || 'Kind Guest'
-    botIntro.value = bot.botIntro || "I'm a kind robot"
-
-    promptStore.updatePromptArray(
-      bot.userIntro ? bot.userIntro.split('|').map((p) => p.trim()) : [],
-    )
-
-    isPublic.value = bot.isPublic ?? true
-    underConstruction.value = bot.underConstruction ?? false
-    botFeedbackMessage.value = `Editing Bot: ${bot.name}`
-    botFeedbackClass.value = 'bg-blue-100 text-blue-700'
-    botStore.currentBot = bot
-    botStore.currentImagePath = bot.avatarImage || ''
-    console.log('Bot image path set to:', botStore.currentImagePath)
-  } else {
-    resetForm()
-  }
-}
-
-function resetForm() {
-  originalBotName.value = null
-  name.value = ''
-  subtitle.value = ''
-  description.value = ''
-  designer.value = ''
-  botIntro.value = ''
-  promptStore.updatePromptArray([])
-  isPublic.value = true
-  underConstruction.value = false
-  botFeedbackMessage.value = 'Creating a New Bot'
-  botFeedbackClass.value = 'bg-green-100 text-green-700'
-}
-
-function toggleVisibility(value: boolean) {
-  isPublic.value = value
+// Function to handle bot selection
+function selectBot() {
+  botFeedbackMessage.value = selectedBotId.value
+    ? `Editing Bot: ${botStore.currentBot?.name}`
+    : 'Creating a New Bot'
+  botFeedbackClass.value = selectedBotId.value
+    ? 'bg-blue-100 text-blue-700'
+    : 'bg-green-100 text-green-700'
 }
 
 async function handleSubmit() {

@@ -1,11 +1,11 @@
 <template>
   <div
-    class="rounded-2xl border p-2 m-2 mx-auto bg-base-200 grid grid-cols-1 md:grid-cols-2 space-y-2"
+    class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
   >
-    <h1 class="text-4xl text-center">Create or Edit a Bot</h1>
+    <h1 class="text-4xl text-center col-span-full">Create or Edit a Bot</h1>
 
     <!-- Bot Selection Dropdown -->
-    <div class="w-full">
+    <div class="w-full col-span-full lg:col-span-2">
       <label for="selectBot" class="block text-lg font-medium mb-2"
         >Select Existing Bot:</label
       >
@@ -26,13 +26,13 @@
     <div
       v-if="botFeedbackMessage"
       :class="botFeedbackClass"
-      class="p-3 rounded-lg w-full text-center"
+      class="p-3 rounded-lg w-full text-center col-span-full"
     >
       {{ botFeedbackMessage }}
     </div>
 
     <!-- Designer Field -->
-    <div class="col-span-1">
+    <div class="col-span-full sm:col-span-1">
       <label for="designer" class="block text-lg font-medium">Designer:</label>
       <input
         v-if="canEditDesigner"
@@ -45,18 +45,20 @@
     </div>
 
     <!-- Avatar Image and Generation Component -->
-    <generate-avatar />
+    <div class="col-span-full sm:col-span-1 lg:col-span-1">
+      <generate-avatar />
+    </div>
 
     <!-- Form for Bot Details -->
     <form
-      class="bg-white shadow-md rounded-xl p-6 w-full"
+      class="bg-white shadow-md rounded-xl p-6 w-full col-span-full"
       @submit.prevent="handleSubmit"
     >
       <div
         class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       >
         <!-- Name Field -->
-        <div class="col-span-1">
+        <div class="col-span-full sm:col-span-1">
           <label for="name" class="block text-lg font-medium">Name:</label>
           <input
             id="name"
@@ -68,7 +70,7 @@
         </div>
 
         <!-- Subtitle Field -->
-        <div class="col-span-1">
+        <div class="col-span-full sm:col-span-1">
           <label for="subtitle" class="block text-lg font-medium"
             >Subtitle:</label
           >
@@ -81,7 +83,7 @@
         </div>
 
         <!-- Description Field -->
-        <div class="col-span-1 md:col-span-2">
+        <div class="col-span-full">
           <label for="description" class="block text-lg font-medium"
             >Description:</label
           >
@@ -95,7 +97,7 @@
         </div>
 
         <!-- bot Intro Field -->
-        <div class="col-span-1 md:col-span-2">
+        <div class="col-span-full">
           <label for="botIntro" class="block text-lg font-medium"
             >Bot Intro:</label
           >
@@ -109,7 +111,7 @@
         </div>
 
         <!-- Prompt Creator Component -->
-        <div class="col-span-1 md:col-span-2">
+        <div class="col-span-full">
           <label for="userIntro" class="block text-lg font-medium"
             >User Prompts:</label
           >
@@ -117,7 +119,7 @@
         </div>
 
         <!-- Public Visibility Toggle -->
-        <div class="col-span-1">
+        <div class="col-span-full sm:col-span-1">
           <label class="block text-lg font-medium">Public Visibility:</label>
           <div class="flex space-x-2">
             <button
@@ -143,7 +145,7 @@
           </div>
         </div>
 
-        <div class="col-span-1 flex items-center">
+        <div class="col-span-full sm:col-span-1 flex items-center">
           <input
             id="underConstruction"
             v-model="underConstruction"

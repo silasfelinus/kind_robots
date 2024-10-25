@@ -86,6 +86,7 @@ model Bot {
   canDelete         Boolean       @default(false)
   userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
+  designer          String        @default("silasfelinus")
   ChatExchanges     ChatExchange[]
   Messages          Message[]
   Posts             Post[]

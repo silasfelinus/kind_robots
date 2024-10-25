@@ -79,38 +79,22 @@
           ></textarea>
         </div>
 
-        <!-- User Intro (PromptCreator Component) -->
-        <div class="col-span-1 md:col-span-2">
-          <PromptCreator @update-prompts="updatePrompts" />
-        </div>
-
-        <!-- Public Visibility -->
+        <!-- Designer Field (Editable if the user matches the bot's userId) -->
         <div class="col-span-1">
-          <label for="isPublic" class="block text-lg font-medium"
-            >Public Visibility:</label
+          <label for="designer" class="block text-lg font-medium"
+            >Designer:</label
           >
-          <select
-            id="isPublic"
-            v-model="isPublic"
+          <input
+            v-if="canEditDesigner"
+            id="designer"
+            v-model="designer"
+            type="text"
             class="w-full p-3 rounded-lg border"
-          >
-            <option :value="true">Public</option>
-            <option :value="false">Private</option>
-          </select>
+          />
+          <p v-else>{{ designer }}</p>
         </div>
 
-        <!-- Under Construction -->
-        <div class="col-span-1 flex items-center">
-          <input
-            id="underConstruction"
-            v-model="underConstruction"
-            type="checkbox"
-            class="mr-2"
-          />
-          <label for="underConstruction" class="block text-lg font-medium">
-            Mark as under construction
-          </label>
-        </div>
+        <!-- Other form fields (like isPublic, underConstruction, etc.) -->
       </div>
 
       <!-- Form Feedback & Submit Buttons -->
@@ -122,29 +106,15 @@
         {{ successMessage }}
       </div>
 
-      <!-- Two Buttons -->
+      <!-- Submit Button -->
       <div class="flex flex-col md:flex-row md:space-x-4 mt-6">
-        <!-- Edit Bot Button (only if editing) -->
         <button
-          v-if="selectedBotId && !isNameChanged"
           type="submit"
           class="btn btn-primary w-full md:w-auto"
           :disabled="isLoading"
         >
-          <span v-if="isLoading">Editing...</span>
-          <span v-else>Edit Bot</span>
-        </button>
-
-        <!-- Save as New Bot Button (if name is changed or no bot selected) -->
-        <button
-          v-if="!selectedBotId || isNameChanged"
-          type="button"
-          class="btn btn-success w-full md:w-auto"
-          :disabled="isLoading"
-          @click="handleSaveNewBot"
-        >
           <span v-if="isLoading">Saving...</span>
-          <span v-else>Save as New Bot</span>
+          <span v-else>Save Bot</span>
         </button>
       </div>
     </form>
@@ -176,15 +146,17 @@ const botFeedbackClass = ref<string>('')
 const name = ref('')
 const subtitle = ref('')
 const description = ref('')
+const designer = ref('')
 const botIntro = ref('')
 const isPublic = ref(true)
 const underConstruction = ref(false)
-const userId = computed(() => userStore.userId)
 
-// Computed to track if the name has changed
-const isNameChanged = computed(
-  () => originalBotName.value && originalBotName.value !== name.value,
-)
+
+// Check if the current user can edit the designer field
+const canEditDesigner = computed(() => {
+  const bot = botStore.currentBot
+  return bot && bot.userId === userStore.userId
+})
 
 // Load the data of the selected bot into the form fields
 function loadBotData() {
@@ -194,6 +166,7 @@ function loadBotData() {
     name.value = bot.name || ''
     subtitle.value = bot.subtitle || ''
     description.value = bot.description || ''
+    designer.value = bot.designer || 'Unknown'
     botIntro.value = bot.botIntro || ''
 
     // Load existing prompts into the promptStore
@@ -216,6 +189,7 @@ function resetForm() {
   name.value = ''
   subtitle.value = ''
   description.value = ''
+  designer.value = ''
   botIntro.value = ''
   promptStore.updatePromptArray([]) // Reset prompt array in store
   isPublic.value = true
@@ -224,12 +198,7 @@ function resetForm() {
   botFeedbackClass.value = 'bg-green-100 text-green-700'
 }
 
-// Update prompts in promptStore from PromptCreator
-function updatePrompts(newPrompts: string[]) {
-  promptStore.updatePromptArray(newPrompts)
-}
-
-// Handle form submission (Edit bot)
+// Handle form submission
 async function handleSubmit() {
   isLoading.value = true
   errorMessage.value = null
@@ -241,11 +210,12 @@ async function handleSubmit() {
       subtitle: subtitle.value ?? '',
       description: description.value ?? '',
       botIntro: botIntro.value ?? '',
-      userIntro: promptStore.promptArray.join(' '), // Save prompts as a single string from store
+      designer: designer.value, // Save the designer
+      userIntro: promptStore.promptArray.join(' '), // Save prompts as a single string
       imagePath: botStore.currentImagePath,
       isPublic: isPublic.value,
       underConstruction: underConstruction.value,
-      userId: userId.value,
+      userId: userStore.userId,
     }
 
     if (selectedBotId.value) {
@@ -254,34 +224,6 @@ async function handleSubmit() {
     }
   } catch (error) {
     errorMessage.value = 'Error editing bot: ' + error
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// Handle save as new bot
-async function handleSaveNewBot() {
-  isLoading.value = true
-  errorMessage.value = null
-  successMessage.value = null
-
-  try {
-    const botData = {
-      name: name.value,
-      subtitle: subtitle.value ?? '',
-      description: description.value ?? '',
-      botIntro: botIntro.value ?? '',
-      userIntro: promptStore.promptArray.join(' '), // Save prompts as a single string from store
-      imagePath: botStore.currentImagePath,
-      isPublic: isPublic.value,
-      underConstruction: underConstruction.value,
-      userId: userId.value,
-    }
-
-    await botStore.addBots([botData])
-    successMessage.value = 'New bot created successfully!'
-  } catch (error) {
-    errorMessage.value = 'Error saving bot: ' + error
   } finally {
     isLoading.value = false
   }

@@ -42,6 +42,7 @@ export async function addBot(
       theme: botData.theme || null,
       personality: botData.personality || null,
       sampleResponse: botData.sampleResponse || null,
+      designer: botData.designer || 'Kind Guest',
       isPublic: botData.isPublic ?? false,
       underConstruction: botData.underConstruction ?? false,
       canDelete: botData.canDelete ?? false,

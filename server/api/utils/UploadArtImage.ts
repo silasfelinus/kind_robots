@@ -1,10 +1,10 @@
 // server/api/utils/UploadArtImage.ts
+// server/api/utils/UploadArtImage.ts
 import { PrismaClient } from '@prisma/client'
 import type { ArtImage } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import path from 'path'
 import fs from 'fs/promises'
-import { fileTypeFromBuffer } from 'file-type' // Use for detecting file type
 
 const prisma = new PrismaClient()
 
@@ -13,18 +13,17 @@ export async function uploadArtImage(
   galleryName: string,
   userId: number,
   galleryId: number,
+  fileType: string, // Assuming fileType is already validated and sent
 ): Promise<{ artImage: ArtImage }> {
   try {
-    // Detect the file type based on the file buffer
-    const fileType = await fileTypeFromBuffer(uploadedFile.data)
-
-    if (!fileType || !['image/png', 'image/jpeg', 'image/webp'].includes(fileType.mime)) {
-      throw new Error('Unsupported or invalid file type')
+    // Ensure fileType has a valid value and sanitize input
+    const validExtensions = ['png', 'jpeg', 'jpg', 'webp']
+    if (!validExtensions.includes(fileType.toLowerCase())) {
+      throw new Error(`Unsupported file type: ${fileType}. Accepted types are ${validExtensions.join(', ')}`)
     }
 
-    const extension = fileType.ext || '.webp' // Use the detected file extension or fallback
     const timestamp = Date.now()
-    const fileName = `${galleryName}-${timestamp}.${extension}`
+    const fileName = `${galleryName}-${timestamp}.${fileType}`
 
     // Save to the local filesystem (if not in production)
     if (process.env.APP_ENV !== 'production') {
@@ -54,15 +53,13 @@ export async function uploadArtImage(
         galleryId,
         imageData: uploadedFile.data.toString('base64'), // Store the image in base64 format
         fileName,
-        fileType: `.${fileType.ext}`, // Store the file type (e.g., ".png")
+        fileType: `.${fileType}`, // Ensure proper file extension format (e.g., ".png")
         userId,
       },
     })
 
     // Return the image object from the database as 'artImage'
-    return {
-      artImage,
-    }
+    return { artImage }
   } catch (error: unknown) {
     throw errorHandler(error)
   }

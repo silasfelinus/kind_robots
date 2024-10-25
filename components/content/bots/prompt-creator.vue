@@ -15,7 +15,7 @@
         placeholder="Enter user prompt"
       />
       <button class="text-red-500" @click="removePrompt(index)">
-        <kind-icon name="trash" class="w-6 h-6" />
+        <Icon name="kind-icon:trash" class="w-6 h-6" />
       </button>
     </div>
 

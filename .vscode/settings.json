@@ -31,5 +31,8 @@
 
   // Controls the order of operations, running Prettier after ESLint fixes
   "vs-code-prettier-eslint.prettierLast": true,
-  "cmake.sourceDirectory": "C:/code/kind_robots/node_modules/bare-fs"
+  "cmake.sourceDirectory": "C:/code/kind_robots/node_modules/bare-fs",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

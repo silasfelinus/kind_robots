@@ -2,8 +2,6 @@
   <div
     class="bot-factory-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
   >
-    
-
     <!-- Section Buttons -->
     <div
       class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full mb-3"
@@ -25,7 +23,7 @@
 
     <!-- Bot Sections -->
     <div
-      class="bot-sections flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6"
+      class="bot-sections flex-grow w-full overflow-y-auto p-2 md:p-4 lg:p-6"
     >
       <lazy-add-bot v-if="activeTab === 'add-bot'" />
       <lazy-kind-robot v-if="activeTab === 'kind-robot'" />

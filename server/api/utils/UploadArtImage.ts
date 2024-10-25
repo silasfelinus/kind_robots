@@ -13,7 +13,7 @@ export async function uploadArtImage(
   galleryName: string,
   userId: number,
   galleryId: number,
-  fileType: string, // Assuming fileType is already validated and sent
+  fileType: string = 'png', // Assuming fileType is already validated and sent
 ): Promise<{ artImage: ArtImage }> {
   try {
     // Ensure fileType has a valid value and sanitize input

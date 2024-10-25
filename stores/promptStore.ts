@@ -75,15 +75,26 @@ export const usePromptStore = defineStore('promptStore', {
       this.promptArray = newPrompts
     },
 
-    // Add new prompt to the array
-    addPromptToArray(newPrompt: string) {
-      this.promptArray.push(newPrompt)
-    },
+// Store the prompt strings as they are entered
+addPromptToArray(prompt: string) {
+  this.promptArray.push(prompt);
+},
 
-    // Remove a prompt from the array by index
-    removePromptFromArray(index: number) {
-      this.promptArray.splice(index, 1)
-    },
+// Remove prompt by index
+removePromptFromArray(index: number) {
+  this.promptArray.splice(index, 1);
+},
+
+// Construct the final prompt string (joined by quotes)
+getFinalPromptString(): string {
+  return this.promptArray.map(prompt => `"${prompt}"`).join('');
+},
+
+// Split a final prompt string back into an array (split by quotes)
+setPromptsFromString(finalString: string) {
+  this.promptArray = finalString.split(/"(?=[^"]*"(?![^"]*"))/).filter(Boolean).map(p => p.replace(/"/g, ''));
+},
+
 
     // Save the promptArray when creating or editing a bot
     async savePromptsForBot(botId: number) {

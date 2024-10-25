@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col w-full bg-base-300 rounded-2xl p-2">
+  <div class="flex flex-col w-1/4 bg-base-300 rounded-2xl p-2">
     <label class="font-bold text-lg m-2" for="bot-selector">
       🤖 Please Select your Bot:
     </label>

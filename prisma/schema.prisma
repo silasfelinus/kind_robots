@@ -43,7 +43,7 @@ model ArtImage {
   updatedAt         DateTime?     @updatedAt @default(now())
   imageData         String        @db.LongText 
   fileName          String?       @db.VarChar(764)
-  fileType          String        @default(".png")
+  fileType          String        @default("png")
   galleryId         Int?          @default(21)          
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
   userId            Int?          @default(1)

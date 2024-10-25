@@ -109,7 +109,7 @@
         <!-- Prompt Creator Component -->
         <div class="col-span-1 md:col-span-2">
           <label for="userIntro" class="block text-lg font-medium"
-            >Bot Prompts:</label
+            >User Prompts:</label
           >
           <prompt-creator />
         </div>
@@ -214,6 +214,7 @@ const canEditDesigner = computed(() => {
 function loadBotData() {
   const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
   if (bot) {
+    console.log('Loading bot data for:', bot.name)
     originalBotName.value = bot.name
     name.value = bot.name || ''
     subtitle.value = bot.subtitle || ''
@@ -230,7 +231,9 @@ function loadBotData() {
     botFeedbackMessage.value = `Editing Bot: ${bot.name}`
     botFeedbackClass.value = 'bg-blue-100 text-blue-700'
     botStore.currentBot = bot
+    console.log('Bot old image path is:', botStore.currentImagePath)
     botStore.currentImagePath = bot.avatarImage || ''
+    console.log('Bot image path set to:', botStore.currentImagePath)
   } else {
     resetForm()
   }
@@ -255,29 +258,31 @@ function toggleVisibility(value: boolean) {
 }
 
 async function handleSubmit() {
-  isLoading.value = true
-  errorMessage.value = null
-  successMessage.value = null
+  console.log('Submitting bot form...')
+
+  const botData = {
+    name: name.value,
+    subtitle: subtitle.value ?? '',
+    description: description.value ?? '',
+    botIntro: botIntro.value ?? '',
+    designer: designer.value,
+    userIntro: promptStore.promptArray.join(' | '),
+    imagePath: botStore.currentImagePath,
+    isPublic: isPublic.value,
+    underConstruction: underConstruction.value,
+    userId: userStore.userId,
+  }
+
+  console.log('Bot data to be submitted:', botData)
 
   try {
-    const botData = {
-      name: name.value,
-      subtitle: subtitle.value ?? '',
-      description: description.value ?? '',
-      botIntro: botIntro.value ?? '',
-      designer: designer.value,
-      userIntro: promptStore.promptArray.join(' | '),
-      imagePath: botStore.currentImagePath,
-      isPublic: isPublic.value,
-      underConstruction: underConstruction.value,
-      userId: userStore.userId,
-    }
-
     if (selectedBotId.value) {
       await botStore.updateBot(selectedBotId.value, botData)
+      console.log('Bot updated successfully:', selectedBotId.value)
       successMessage.value = 'Bot updated successfully!'
     }
   } catch (error) {
+    console.error('Error editing bot:', error)
     errorMessage.value = 'Error editing bot: ' + error
   } finally {
     isLoading.value = false

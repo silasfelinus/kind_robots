@@ -9,6 +9,7 @@ interface State {
   fetchedPrompts: Record<number, Prompt | null>
   promptField: string
   isInitialized: boolean
+  promptArray: string[] 
 }
 
 export const usePromptStore = defineStore('promptStore', {
@@ -19,25 +20,23 @@ export const usePromptStore = defineStore('promptStore', {
     fetchedPrompts: {}, // Initialize fetched prompts as an empty object
     promptField: 'kind robots',
     isInitialized: false, 
+    promptArray: [], 
   }),
 
   actions: {
-       // Initialize promptStore
-       async initialize() {
-        if (this.isInitialized) return // Skip if already initialized
-  
-        if (typeof window !== 'undefined') {
-          // Restore promptField from localStorage
-          this.loadPromptField()
-        }
-  
-        // Fetch prompts
-        await this.fetchPrompts()
-  
-        // Mark as initialized
-        this.isInitialized = true
-      },
-          // Save prompt field to localStorage
+    // Initialize promptStore
+    async initialize() {
+      if (this.isInitialized) return 
+
+      if (typeof window !== 'undefined') {
+        this.loadPromptField()
+      }
+
+      await this.fetchPrompts()
+      this.isInitialized = true
+    },
+
+    // Save prompt field to localStorage
     savePromptField() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('promptField', this.promptField)
@@ -70,6 +69,45 @@ export const usePromptStore = defineStore('promptStore', {
         )
       }
     },
+
+    // Directly update prompt array
+    updatePromptArray(newPrompts: string[]) {
+      this.promptArray = newPrompts
+    },
+
+    // Add new prompt to the array
+    addPromptToArray(newPrompt: string) {
+      this.promptArray.push(newPrompt)
+    },
+
+    // Remove a prompt from the array by index
+    removePromptFromArray(index: number) {
+      this.promptArray.splice(index, 1)
+    },
+
+    // Save the promptArray when creating or editing a bot
+    async savePromptsForBot(botId: number) {
+      const errorStore = useErrorStore()
+      try {
+        const response = await fetch('/api/prompts/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            botId,
+            prompts: this.promptArray,
+          }),
+        })
+        if (!response.ok) throw new Error(await response.text())
+        const savedData = await response.json()
+        this.prompts.push(...savedData.savedPrompts) // Append saved prompts to store
+      } catch (error) {
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `Error saving prompts: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
+      }
+    },
+
 
     // Fetch a prompt by ID and store it in fetchedPrompts
     async fetchPromptById(promptId: number) {

@@ -4,23 +4,7 @@
   >
     <h1 class="text-4xl text-center col-span-full">Create or Edit a Bot</h1>
 
-    <!-- Bot Selection Dropdown -->
-    <div class="w-full col-span-full lg:col-span-2">
-      <label for="selectBot" class="block text-lg font-medium mb-2"
-        >Select Existing Bot:</label
-      >
-      <select
-        id="selectBot"
-        v-model="selectedBotId"
-        class="w-full p-3 rounded-lg border"
-        @change="selectBot"
-      >
-        <option value="" disabled>Select a bot</option>
-        <option v-for="bot in botStore.bots" :key="bot.id" :value="bot.id">
-          {{ bot.name }}
-        </option>
-      </select>
-    </div>
+    <bot-selector />
 
     <!-- Feedback Message -->
     <div
@@ -181,7 +165,6 @@
     </form>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
@@ -200,18 +183,19 @@ const successMessage = ref<string | null>(null)
 const botFeedbackMessage = ref<string | null>(null)
 const botFeedbackClass = ref<string>('')
 
-// Computed property for selectedBotId
 const selectedBotId = computed({
   get() {
     return botStore.currentBot?.id || null
   },
   set(id: number | null) {
-    const bot = botStore.bots.find((b) => b.id === id)
-    botStore.currentBot = bot || null
+    if (id !== null) {
+      botStore.selectBot(id)
+    } else {
+      botStore.deselectBot()
+    }
   },
 })
 
-// Make `isPublic` a writable computed property
 const isPublic = computed({
   get() {
     return botStore.currentBot?.isPublic ?? true
@@ -223,12 +207,10 @@ const isPublic = computed({
   },
 })
 
-// Function to toggle visibility
 function toggleVisibility(value: boolean) {
   isPublic.value = value
 }
 
-// Bind other bot-related data to computed properties
 const name = computed(() => botStore.currentBot?.name || '')
 const subtitle = computed(() => botStore.currentBot?.subtitle || '')
 const description = computed(
@@ -246,16 +228,6 @@ const canEditDesigner = computed(() => {
   const bot = botStore.currentBot
   return bot && bot.userId === userStore.userId
 })
-
-// Function to handle bot selection
-function selectBot() {
-  botFeedbackMessage.value = selectedBotId.value
-    ? `Editing Bot: ${botStore.currentBot?.name}`
-    : 'Creating a New Bot'
-  botFeedbackClass.value = selectedBotId.value
-    ? 'bg-blue-100 text-blue-700'
-    : 'bg-green-100 text-green-700'
-}
 
 async function handleSubmit() {
   const botData = {

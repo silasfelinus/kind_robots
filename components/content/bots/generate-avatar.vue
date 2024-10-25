@@ -20,7 +20,7 @@
     <!-- Avatar Preview with tighter spacing and centered focus -->
     <div class="mt-4 flex flex-col items-center space-y-2">
       <img
-        :src="avatarImage || defaultAvatar"
+        :src="avatarImage"
         alt="Avatar Preview"
         class="w-40 h-40 object-cover rounded-full shadow-lg border-2 border-gray-300"
       />
@@ -58,9 +58,11 @@ const defaultAvatar = '/images/wonderchest/wonderchest-1630.webp'
 // Bind avatarImage to currentImagePath from botStore
 const avatarImage = computed({
   get() {
+    console.log('Current avatar image in store:', botStore.currentImagePath)
     return botStore.currentImagePath || defaultAvatar
   },
   set(newValue) {
+    console.log('Updating avatar image to:', newValue)
     botStore.currentImagePath = newValue
   },
 })
@@ -68,25 +70,28 @@ const avatarImage = computed({
 // Function to generate a random avatar from the current gallery
 async function generateRandomAvatar() {
   try {
+    console.log('Attempting to generate a random avatar...')
+
     if (!galleryStore.currentGallery) {
       throw new Error('Please select a gallery first.')
     }
 
     isLoading.value = true
-    // Change the current gallery to a random image
     await galleryStore.changeToRandomImage()
 
-    // Check if the random image was successfully fetched
     if (galleryStore.currentImage) {
+      console.log('Random avatar generated:', galleryStore.currentImage)
       // Update botStore's currentImagePath with the new random avatar
       botStore.currentImagePath = galleryStore.currentImage
     } else {
       throw new Error('Failed to fetch a random avatar image.')
     }
   } catch (error) {
+    console.error('Error generating avatar:', error)
+    // Use errorStore to handle the error properly
     errorStore.setError(
       ErrorType.GENERAL_ERROR,
-      'Error generating or fetching avatar: ' + error,
+      `Error generating or fetching avatar: ${error}`,
     )
   } finally {
     isLoading.value = false

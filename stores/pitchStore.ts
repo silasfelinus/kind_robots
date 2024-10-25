@@ -184,6 +184,8 @@ export const usePitchStore = defineStore('pitch', {
           userId: 1,
           playerId: null,
           channelId: null,
+          description: null,
+          imagePrompt: null,
         } as Pitch
       })
     },

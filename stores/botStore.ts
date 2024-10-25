@@ -29,7 +29,7 @@ export const useBotStore = defineStore({
         this.selectedBotId = botId
         const foundBot = this.bots.find((bot) => bot.id === botId)
         this.currentBot = foundBot || null
-        this.currentImagePath = foundBot?.avatarImage || '' 
+        this.currentImagePath = foundBot?.avatarImage || ''
         console.log('Current Image Path:', this.currentImagePath)
       }
     },
@@ -70,18 +70,18 @@ export const useBotStore = defineStore({
 
     // Universal error handler
     handleError(err: unknown, action: string) {
-      const errorStore = useErrorStore();  // Directly call the error store
+      const errorStore = useErrorStore() // Directly call the error store
 
       if (err instanceof Error) {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
           `An error occurred while ${action}: ${err.message}`,
-        );
+        )
       } else {
         errorStore.setError(
           ErrorType.UNKNOWN_ERROR,
           `An unknown error occurred while ${action}.`,
-        );
+        )
       }
     },
 
@@ -126,6 +126,9 @@ export const useBotStore = defineStore({
     // Update a single bot
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
       try {
+        console.log('Updating bot with ID:', id)
+        console.log('Data being sent:', data)
+
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -137,14 +140,23 @@ export const useBotStore = defineStore({
         }
 
         const updatedBot = await response.json()
+        console.log('Bot updated successfully:', updatedBot)
+
         this.currentBot = updatedBot
         this.currentImagePath = updatedBot.avatarImage
+        console.log('Updated currentImagePath:', this.currentImagePath)
+
         await this.fetchBots() // Refresh bots after update
+        console.log('Bots refreshed successfully after update.')
       } catch (err) {
-        this.handleError(err, 'updating the bot')
+        console.error('Error while updating the bot:', err)
+        const errorStore = useErrorStore()
+        errorStore.setError(
+          ErrorType.GENERAL_ERROR,
+          `Error updating bot: ${err}`,
+        )
       }
     },
-
     // Delete a bot by ID
     async deleteBot(id: number): Promise<void> {
       try {

@@ -82,7 +82,7 @@
               type="button"
               :class="{
                 'btn btn-primary': isPublic,
-                'btn btn-secondary': !isPublic
+                'btn btn-grey-200': !isPublic
               }"
               @click="toggleVisibility(true)"
             >
@@ -92,7 +92,7 @@
               type="button"
               :class="{
                 'btn btn-primary': !isPublic,
-                'btn btn-secondary': isPublic
+                'btn btn-grey-200': isPublic
               }"
               @click="toggleVisibility(false)"
             >

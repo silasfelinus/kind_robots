@@ -52,7 +52,9 @@
       class="bg-white shadow-md rounded-xl p-6 w-full"
       @submit.prevent="handleSubmit"
     >
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div
+        class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      >
         <!-- Name Field -->
         <div class="col-span-1">
           <label for="name" class="block text-lg font-medium">Name:</label>

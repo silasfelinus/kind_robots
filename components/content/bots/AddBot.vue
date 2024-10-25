@@ -1,6 +1,6 @@
 <template>
-  <div class="rounded-2xl border p-6 m-4 max-w-screen-lg mx-auto bg-base-200 space-y-6">
-    <h1 class="text-4xl mb-6 text-center">Create or Edit a Bot</h1>
+  <div class="rounded-2xl border p-2 m-2 mx-auto bg-base-200 space-y-2">
+    <h1 class="text-4xl text-center">Create or Edit a Bot</h1>
 
     <!-- Bot Selection Dropdown -->
     <div class="w-full">

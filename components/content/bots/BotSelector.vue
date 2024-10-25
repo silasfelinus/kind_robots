@@ -8,7 +8,7 @@
       v-model="selectedBotId"
       class="form-select text-black bg-primary rounded"
     >
-      <option disabled value="">Please select a bot</option>
+      <option value="">Make New Bot</option>
       <option
         v-for="bot in bots"
         :key="bot.id"
@@ -34,7 +34,11 @@ const bots = computed<Bot[]>(() => botStore.bots)
 const selectedBotId = computed({
   get: () => botStore.currentBot?.id || '',
   set: (id) => {
-    if (id) botStore.selectBot(id)
+    if (id) {
+      botStore.selectBot(id) // Select the bot by ID
+    } else {
+      botStore.deselectBot() // Deselect the bot to create a new one
+    }
   },
 })
 

@@ -55,7 +55,6 @@ export const getUserDataByToken = async (token: string) => {
       where: { id: userId },
       include: {
         Channels: true, // Include Channels relation
-        Players: true, // Include Players relation
       },
     })
 

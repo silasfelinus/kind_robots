@@ -236,7 +236,6 @@ async function validateAndLoadPromptId(
           userId: validatedData.userId || 10, // Use validated userId
           galleryId: data.galleryId ?? 21,
           pitchId: data.pitchId ?? null,
-          playerId: data.playerId || null,
         },
       })
       return newPrompt.id
@@ -282,7 +281,6 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
           isMature: data.isMature || false,
           isPublic: data.isPublic || true,
           userId: data.userId || null,
-          playerId: data.playerId || null,
           channelId: data.channelId || null,
         },
       })

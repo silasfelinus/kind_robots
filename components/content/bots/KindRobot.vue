@@ -45,11 +45,7 @@
             <div class="card mt-2 p-2 bg-base-300">
               {{ currentBot.description ?? 'Description' }}
             </div>
-          </div>
-
-          <!-- Stream Test component positioned at the bottom, taking remaining space -->
-          <div class="flex-grow flex items-end">
-            <stream-test class="h-48 md:h-auto w-full" />
+            <div><stream-test class="h-48 md:h-auto w-full" /></div>
           </div>
         </div>
       </div>

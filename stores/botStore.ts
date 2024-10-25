@@ -123,7 +123,6 @@ export const useBotStore = defineStore({
       }
     },
 
-    // Update a single bot
     async updateBot(id: number, data: Partial<Bot>): Promise<void> {
       try {
         console.log('Updating bot with ID:', id)
@@ -142,12 +141,20 @@ export const useBotStore = defineStore({
         const updatedBot = await response.json()
         console.log('Bot updated successfully:', updatedBot)
 
+        // Update the current bot
         this.currentBot = updatedBot
         this.currentImagePath = updatedBot.avatarImage
         console.log('Updated currentImagePath:', this.currentImagePath)
 
-        await this.fetchBots() // Refresh bots after update
-        console.log('Bots refreshed successfully after update.')
+        // Update the bots array by replacing the updated bot
+        const botIndex = this.bots.findIndex((bot) => bot.id === id)
+        if (botIndex !== -1) {
+          this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot }
+        }
+
+        console.log(
+          'Bots array updated successfully after the bot was updated.',
+        )
       } catch (err) {
         console.error('Error while updating the bot:', err)
         const errorStore = useErrorStore()

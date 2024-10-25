@@ -79,32 +79,9 @@
           ></textarea>
         </div>
 
-        <!-- Bot Intro -->
+        <!-- User Intro (PromptCreator Component) -->
         <div class="col-span-1 md:col-span-2">
-          <label for="botIntro" class="block text-lg font-medium"
-            >Bot Intro:</label
-          >
-          <textarea
-            id="botIntro"
-            v-model="botIntro"
-            rows="4"
-            class="w-full p-3 rounded-lg border"
-            placeholder="Bot introduction message"
-          ></textarea>
-        </div>
-
-        <!-- User Intro -->
-        <div class="col-span-1 md:col-span-2">
-          <label for="userIntro" class="block text-lg font-medium"
-            >User Intro:</label
-          >
-          <textarea
-            id="userIntro"
-            v-model="userIntro"
-            rows="4"
-            class="w-full p-3 rounded-lg border"
-            placeholder="Intro message for the user"
-          ></textarea>
+          <PromptCreator @update-prompts="updatePrompts" />
         </div>
 
         <!-- Public Visibility -->
@@ -130,9 +107,9 @@
             type="checkbox"
             class="mr-2"
           />
-          <label for="underConstruction" class="block text-lg font-medium"
-            >Mark as under construction</label
-          >
+          <label for="underConstruction" class="block text-lg font-medium">
+            Mark as under construction
+          </label>
         </div>
       </div>
 
@@ -175,15 +152,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { useUserStore } from './../../../stores/userStore'
+import { usePromptStore } from './../../../stores/promptStore'
+import PromptCreator from './PromptCreator.vue'
 
 // Store and form references
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()
 const userStore = useUserStore()
+const promptStore = usePromptStore()
 
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
@@ -198,7 +178,6 @@ const name = ref('')
 const subtitle = ref('')
 const description = ref('')
 const botIntro = ref('')
-const userIntro = ref('')
 const isPublic = ref(true)
 const underConstruction = ref(false)
 const userId = computed(() => userStore.userId)
@@ -208,32 +187,23 @@ const isNameChanged = computed(
   () => originalBotName.value && originalBotName.value !== name.value,
 )
 
-// Watch for changes in selectedBotId to load bot data
-watch(selectedBotId, (newBotId) => {
-  if (newBotId) {
-    loadBotData()
-  } else {
-    resetForm()
-    botStore.currentBot = null // Clear currentBot if no bot is selected
-  }
-})
-
-// Load the data of the selected bot into the form fields and update currentBot in the store
+// Load the data of the selected bot into the form fields
 function loadBotData() {
   const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
   if (bot) {
-    originalBotName.value = bot.name // Store original name
+    originalBotName.value = bot.name
     name.value = bot.name || ''
     subtitle.value = bot.subtitle || ''
     description.value = bot.description || ''
     botIntro.value = bot.botIntro || ''
-    userIntro.value = bot.userIntro || ''
+
+    // Load existing prompts into the promptStore
+    promptStore.updatePromptArray(bot.userIntro ? bot.userIntro.split(' ') : [])
+
     isPublic.value = bot.isPublic ?? true
     underConstruction.value = bot.underConstruction ?? false
     botFeedbackMessage.value = `Editing Bot: ${bot.name}`
     botFeedbackClass.value = 'bg-blue-100 text-blue-700'
-
-    // Update currentBot in the store
     botStore.currentBot = bot
     botStore.currentImagePath = bot.avatarImage || ''
   } else {
@@ -248,25 +218,20 @@ function resetForm() {
   subtitle.value = ''
   description.value = ''
   botIntro.value = ''
-  userIntro.value = ''
+  promptStore.updatePromptArray([]) // Reset prompt array in store
   isPublic.value = true
   underConstruction.value = false
   botFeedbackMessage.value = 'Creating a New Bot'
   botFeedbackClass.value = 'bg-green-100 text-green-700'
 }
 
-// Watch for changes in selectedBotId to load bot data
-watch(selectedBotId, (newBotId) => {
-  if (newBotId) {
-    loadBotData()
-  } else {
-    resetForm()
-  }
-})
+// Update prompts in promptStore from PromptCreator
+function updatePrompts(newPrompts: string[]) {
+  promptStore.updatePromptArray(newPrompts)
+}
 
 // Handle form submission (Edit bot)
-async function handleSubmit(e: Event) {
-  e.preventDefault()
+async function handleSubmit() {
   isLoading.value = true
   errorMessage.value = null
   successMessage.value = null
@@ -277,8 +242,8 @@ async function handleSubmit(e: Event) {
       subtitle: subtitle.value ?? '',
       description: description.value ?? '',
       botIntro: botIntro.value ?? '',
-      userIntro: userIntro.value ?? '',
-      imagePath: botStore.currentImagePath, // Include the current image path
+      userIntro: promptStore.promptArray.join(' '), // Save prompts as a single string from store
+      imagePath: botStore.currentImagePath,
       isPublic: isPublic.value,
       underConstruction: underConstruction.value,
       userId: userId.value,
@@ -307,8 +272,8 @@ async function handleSaveNewBot() {
       subtitle: subtitle.value ?? '',
       description: description.value ?? '',
       botIntro: botIntro.value ?? '',
-      userIntro: userIntro.value ?? '',
-      imagePath: botStore.currentImagePath, // Include the current image path for new bot
+      userIntro: promptStore.promptArray.join(' '), // Save prompts as a single string from store
+      imagePath: botStore.currentImagePath,
       isPublic: isPublic.value,
       underConstruction: underConstruction.value,
       userId: userId.value,

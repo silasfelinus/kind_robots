@@ -85,15 +85,16 @@ export const usePromptStore = defineStore('promptStore', {
       this.promptArray.splice(index, 1)
     },
 
-    // Construct the final prompt string, joined by the '|' delimiter
-    getFinalPromptString(): string {
-      return this.promptArray.filter(prompt => prompt.trim() !== '').join(' | ')
-    },
+    // Construct the final prompt string, each prompt as a whole, joined by the '|' delimiter
+getFinalPromptString(): string {
+  return this.promptArray.filter(prompt => prompt.trim() !== '').join(' | ')
+},
 
-    // Split a final prompt string back into an array (split by '|')
-    setPromptsFromString(finalString: string) {
-      this.promptArray = finalString.split('|').map(prompt => prompt.trim())
-    },
+
+    // Split a final prompt string back into an array, splitting by '|'
+setPromptsFromString(finalString: string) {
+  this.promptArray = finalString.split('|').map(prompt => prompt.trim())
+},
 
     // Save the promptArray when creating or editing a bot
     async savePromptsForBot(botId: number) {

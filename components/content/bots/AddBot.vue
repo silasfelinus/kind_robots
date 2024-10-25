@@ -184,6 +184,8 @@ const successMessage = ref<string | null>(null)
 const botFeedbackMessage = ref<string | null>(null)
 const botFeedbackClass = ref<string>('')
 
+
+
 const selectedBotId = computed({
   get() {
     return botStore.currentBot?.id || null
@@ -239,38 +241,49 @@ const subtitle = computed(() => botStore.currentBot?.subtitle || '')
 const description = computed(
   () => botStore.currentBot?.description || 'Another helpful robot',
 )
-const botIntro = computed(
-  () => botStore.currentBot?.botIntro || "I'm a kind robot",
-)
+const botIntro = computed({
+  get() {
+    return botStore.currentBot?.botIntro || "I'm a kind robot";
+  },
+  set(value: string) {
+    if (botStore.currentBot) {
+      botStore.currentBot.botIntro = value;
+    }
+  },
+});
+
 const underConstruction = computed(
   () => botStore.currentBot?.underConstruction ?? false,
 )
 
 async function handleSubmit() {
-  const botData = {
-    name: name.value,
-    subtitle: subtitle.value ?? '',
-    description: description.value ?? '',
-    botIntro: botIntro.value ?? '',
-    designer: designer.value,
-    userIntro: promptStore.promptArray.join(' | '),
-    avatarImage: botStore.currentImagePath,
-    isPublic: isPublic.value,
-    underConstruction: underConstruction.value,
-    userId: userStore.userId,
-  }
-
+  isLoading.value = true;
   try {
+    const botData = {
+      name: name.value,
+      subtitle: subtitle.value ?? '',
+      description: description.value ?? '',
+      botIntro: botIntro.value ?? '',
+      designer: designer.value,
+      userIntro: promptStore.promptArray.join(' | '),
+      avatarImage: botStore.currentImagePath,
+      isPublic: isPublic.value,
+      underConstruction: underConstruction.value,
+      userId: userStore.userId,
+    };
+
     if (selectedBotId.value) {
-      await botStore.updateBot(selectedBotId.value, botData)
-      console.log('Bot updated successfully:', selectedBotId.value)
-      successMessage.value = 'Bot updated successfully!'
+      await botStore.updateBot(selectedBotId.value, botData);
+      console.log('Bot updated successfully:', selectedBotId.value);
+      successMessage.value = 'Bot updated successfully!';
+      // Ensure bot remains selected after update
+      botStore.selectBot(selectedBotId.value);
     }
   } catch (error) {
-    console.error('Error editing bot:', error)
-    errorMessage.value = 'Error editing bot: ' + error
+    console.error('Error editing bot:', error);
+    errorMessage.value = 'Error editing bot: ' + error;
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 }
 

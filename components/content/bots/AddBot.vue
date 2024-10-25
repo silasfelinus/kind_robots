@@ -1,5 +1,6 @@
 <template>
-  <div class="rounded-2xl border p-2 m-2 mx-auto bg-base-200 space-y-2">
+   <div class="rounded-2xl border p-2 m-2 mx-auto bg-base-200 grid grid-cols-1 md:grid-cols-2 space-y-2">
+   
     <h1 class="text-4xl text-center">Create or Edit a Bot</h1>
 
     <!-- Bot Selection Dropdown -->
@@ -74,13 +75,31 @@
           <prompt-creator />
         </div>
 
-        <!-- Other form fields (like isPublic, underConstruction, etc.) -->
+        <!-- Public Visibility Toggle -->
         <div class="col-span-1">
-          <label for="isPublic" class="block text-lg font-medium">Public Visibility:</label>
-          <select id="isPublic" v-model="isPublic" class="w-full p-3 rounded-lg border">
-            <option :value="true">Public</option>
-            <option :value="false">Private</option>
-          </select>
+          <label class="block text-lg font-medium">Public Visibility:</label>
+          <div class="flex space-x-2">
+            <button
+              type="button"
+              :class="{
+                'btn btn-primary': isPublic,
+                'btn btn-grey-200': !isPublic
+              }"
+              @click="toggleVisibility(true)"
+            >
+              Public
+            </button>
+            <button
+              type="button"
+              :class="{
+                'btn btn-primary': !isPublic,
+                'btn btn-grey-200': isPublic
+              }"
+              @click="toggleVisibility(false)"
+            >
+              Private
+            </button>
+          </div>
         </div>
 
         <div class="col-span-1 flex items-center">
@@ -112,7 +131,6 @@ import { useGalleryStore } from './../../../stores/galleryStore'
 import { useUserStore } from './../../../stores/userStore'
 import { usePromptStore } from './../../../stores/promptStore'
 
-// Store and form references
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()
 const userStore = useUserStore()
@@ -126,7 +144,6 @@ const originalBotName = ref<string | null>(null)
 const botFeedbackMessage = ref<string | null>(null)
 const botFeedbackClass = ref<string>('')
 
-// Form fields
 const name = ref('')
 const subtitle = ref('')
 const description = ref('')
@@ -135,13 +152,11 @@ const botIntro = ref('')
 const isPublic = ref(true)
 const underConstruction = ref(false)
 
-// Check if the current user can edit the designer field
 const canEditDesigner = computed(() => {
   const bot = botStore.currentBot
   return bot && bot.userId === userStore.userId
 })
 
-// Load the data of the selected bot into the form fields
 function loadBotData() {
   const bot = botStore.bots.find((b) => b.id === selectedBotId.value)
   if (bot) {
@@ -151,7 +166,10 @@ function loadBotData() {
     description.value = bot.description || ''
     designer.value = bot.designer || 'Unknown'
     botIntro.value = bot.botIntro || ''
-    promptStore.updatePromptArray(bot.userIntro ? bot.userIntro.split(' ') : [])
+    
+    
+    promptStore.updatePromptArray(bot.userIntro ? bot.userIntro.split('|').map(p => p.trim()) : [])
+    
     isPublic.value = bot.isPublic ?? true
     underConstruction.value = bot.underConstruction ?? false
     botFeedbackMessage.value = `Editing Bot: ${bot.name}`
@@ -163,7 +181,7 @@ function loadBotData() {
   }
 }
 
-// Reset the form fields
+
 function resetForm() {
   originalBotName.value = null
   name.value = ''
@@ -171,14 +189,17 @@ function resetForm() {
   description.value = ''
   designer.value = ''
   botIntro.value = ''
-  promptStore.updatePromptArray([]) // Reset prompt array in store
+  promptStore.updatePromptArray([])
   isPublic.value = true
   underConstruction.value = false
   botFeedbackMessage.value = 'Creating a New Bot'
   botFeedbackClass.value = 'bg-green-100 text-green-700'
 }
 
-// Handle form submission
+function toggleVisibility(value: boolean) {
+  isPublic.value = value
+}
+
 async function handleSubmit() {
   isLoading.value = true
   errorMessage.value = null
@@ -190,8 +211,8 @@ async function handleSubmit() {
       subtitle: subtitle.value ?? '',
       description: description.value ?? '',
       botIntro: botIntro.value ?? '',
-      designer: designer.value, // Save the designer
-      userIntro: promptStore.promptArray.join(' '), // Save prompts as a single string
+      designer: designer.value,
+      userIntro: promptStore.promptArray.join(' | '),
       imagePath: botStore.currentImagePath,
       isPublic: isPublic.value,
       underConstruction: underConstruction.value,
@@ -209,7 +230,6 @@ async function handleSubmit() {
   }
 }
 
-// Initialize stores when the component is mounted
 onMounted(async () => {
   await botStore.loadStore()
   await galleryStore.initializeStore()

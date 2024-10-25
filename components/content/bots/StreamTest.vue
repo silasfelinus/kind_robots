@@ -1,14 +1,14 @@
 <template>
-  <!-- Main container for the stream test, rounded and padded -->
+  <!-- Main container for the stream test, set to full height with flex properties -->
   <div
-    class="container rounded-2xl mx-auto p-2 bg-base-300 h-full flex flex-col"
+    class="container mx-auto p-4 bg-base-300 rounded-2xl flex flex-col h-full"
   >
     <!-- Message Interaction Area -->
     <div
-      class="message-container bg-base-300 p-1 rounded-2xl flex flex-col h-full"
+      class="message-container flex flex-col bg-base-300 p-2 rounded-2xl flex-grow"
     >
       <!-- Scrollable conversation area -->
-      <div class="conversation-area flex-grow overflow-y-auto p-2">
+      <div class="conversation-area flex-grow overflow-y-auto p-4">
         <ConversationDisplay
           :conversations="conversations"
           :active-conversation-index="activeConversationIndex"
@@ -18,7 +18,7 @@
       </div>
 
       <!-- Input area stays at the bottom -->
-      <div class="prompt-area p-2 rounded-lg flex-shrink-0 bg-base-200">
+      <div class="prompt-area p-3 bg-base-200 rounded-lg flex-shrink-0">
         <label for="newMessage" class="block mb-1 font-semibold text-md">
           <div v-if="currentBot" class="user-intro p-1 rounded-md">
             <p class="text-base">{{ currentBot.userIntro ?? 'User Intro' }}</p>
@@ -28,13 +28,13 @@
         <textarea
           id="newMessage"
           v-model="message"
-          rows="3"
-          class="message-input w-full p-1 rounded-md border-2 resize-none"
+          rows="2"
+          class="message-input w-full p-2 rounded-md border resize-none"
           placeholder="Type your message..."
           @keyup.enter="sendMessage"
         ></textarea>
         <!-- Button and error message -->
-        <div class="flex justify-between items-center mt-1">
+        <div class="flex justify-between items-center mt-2">
           <button
             class="btn btn-primary text-sm px-4 py-1"
             :disabled="isLoading"
@@ -53,7 +53,7 @@
       </div>
 
       <!-- Loading Indicator -->
-      <div v-if="isLoading" class="loader flex justify-center mt-2">
+      <div v-if="isLoading" class="loader flex justify-center mt-4">
         <ami-butterfly />
       </div>
     </div>
@@ -116,3 +116,7 @@ const sendMessage = async () => {
   }
 }
 </script>
+
+<style scoped>
+/* Add necessary styles here */
+</style>

@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="w-full max-w-2xl mx-auto mb-6 flex flex-col items-center space-y-4"
-  >
+  <div class="w-full max-w-2xl mx-auto mb-6 flex flex-col items-center space-y-4">
     <!-- Avatar Image URL Input -->
     <label for="avatarImageInput" class="block text-sm font-medium">
       Avatar Image (URL):
@@ -28,6 +26,11 @@
 
     <gallery-selector />
 
+    <!-- Display the uploaded image as an ArtCard for confirmation -->
+    <div v-if="newArt" class="mt-6">
+      <art-card :art="newArt" />
+    </div>
+
     <!-- Generate Random Avatar Button -->
     <button
       class="btn btn-primary w-full sm:w-auto px-4 py-2 rounded-lg shadow-md"
@@ -44,23 +47,24 @@
 import { ref, onMounted, computed } from 'vue'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { useBotStore } from './../../../stores/botStore'
+import { useArtStore } from './../../../stores/artStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
 const galleryStore = useGalleryStore()
 const botStore = useBotStore()
+const artStore = useArtStore()
 const errorStore = useErrorStore()
 
 const isLoading = ref(false)
 const defaultAvatar = '/images/wonderchest/wonderchest-1630.webp'
+const newArt = ref(null)
 
 // Bind avatarImage to currentImagePath from botStore
 const avatarImage = computed({
   get() {
-    console.log('Computed avatarImage getter:', botStore.currentImagePath)
     return botStore.currentImagePath || defaultAvatar
   },
   set(newValue) {
-    console.log('Computed avatarImage setter:', newValue)
     botStore.currentImagePath = newValue
   },
 })
@@ -68,40 +72,40 @@ const avatarImage = computed({
 // Function to generate a random avatar from the current gallery
 async function generateRandomAvatar() {
   try {
-    console.log('Starting avatar generation...')
     if (!galleryStore.currentGallery) {
-      const errorMsg = 'Please select a gallery first.'
-      console.error(errorMsg)
-      throw new Error(errorMsg)
+      throw new Error('Please select a gallery first.')
     }
 
     isLoading.value = true
-    console.log(`Selected gallery: ${galleryStore.currentGallery.name}`)
-
-    // Change to a random image from the current gallery
     await galleryStore.changeToRandomImage()
 
-    // Check if the current image was updated
     if (galleryStore.currentImage) {
-      console.log(
-        'Random avatar fetched successfully:',
-        galleryStore.currentImage,
-      )
       avatarImage.value = galleryStore.currentImage
     } else {
-      const errorMsg = 'Failed to fetch a random avatar image.'
-      console.error(errorMsg)
-      throw new Error(errorMsg)
+      throw new Error('Failed to fetch a random avatar image.')
     }
   } catch (error) {
-    console.error('Error generating or fetching avatar:', error)
-    errorStore.setError(
-      ErrorType.GENERAL_ERROR,
-      'Error generating or fetching avatar: ' + error,
-    )
+    errorStore.setError(ErrorType.GENERAL_ERROR, 'Error generating or fetching avatar: ' + error)
   } finally {
     isLoading.value = false
-    console.log('Avatar generation complete.')
+  }
+}
+
+// Handle the uploaded image and create an Art object
+async function uploadImage(event: Event) {
+  const input = event.target as HTMLInputElement
+  const uploadedFile = input?.files?.[0]
+
+  if (uploadedFile) {
+    const formData = new FormData()
+    formData.append('image', uploadedFile)
+
+    try {
+      const art = await artStore.uploadImage(formData)
+      newArt.value = art
+    } catch (error) {
+      console.error('Error uploading image:', error)
+    }
   }
 }
 

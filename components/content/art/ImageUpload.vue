@@ -9,8 +9,8 @@
     />
 
     <!-- Display the uploaded image as an ArtCard for confirmation -->
-    <div v-if="newArt" class="mt-6">
-      <art-card :art="newArt" />
+    <div v-if="newArtImage" class="mt-6">
+      <art-card :art="newArtImage" />
     </div>
   </div>
 </template>
@@ -20,9 +20,9 @@ import { ref } from 'vue'
 import { useArtStore } from './../../../stores/artStore'
 
 const artStore = useArtStore()
-const newArt = ref(null)
+const newArtImage = ref(null) // Store the most recently uploaded ArtImage
 
-// Handle the uploaded image and create an Art object
+// Handle the uploaded image and create an ArtImage object
 async function uploadImage(event: Event) {
   const input = event.target as HTMLInputElement
   const uploadedFile = input?.files?.[0]
@@ -32,8 +32,10 @@ async function uploadImage(event: Event) {
     formData.append('image', uploadedFile)
 
     try {
-      const art = await artStore.uploadImage(formData)
-      newArt.value = art
+      await artStore.uploadImage(formData)
+
+      // After uploading, assign the last item in artStore.artImages as the newArtImage
+      newArtImage.value = artStore.artImages[artStore.artImages.length - 1]
     } catch (error) {
       console.error('Error uploading image:', error)
     }

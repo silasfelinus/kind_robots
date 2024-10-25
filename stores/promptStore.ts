@@ -96,28 +96,6 @@ setPromptsFromString(finalString: string) {
   this.promptArray = finalString.split('|').map(prompt => prompt.trim())
 },
 
-    // Save the promptArray when creating or editing a bot
-    async savePromptsForBot(botId: number) {
-      const errorStore = useErrorStore()
-      try {
-        const response = await fetch('/api/prompts/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            botId,
-            prompts: this.promptArray,
-          }),
-        })
-        if (!response.ok) throw new Error(await response.text())
-        const savedData = await response.json()
-        this.prompts.push(...savedData.savedPrompts) // Append saved prompts to store
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error saving prompts: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-      }
-    },
 
     // Fetch a prompt by ID and store it in fetchedPrompts
     async fetchPromptById(promptId: number) {

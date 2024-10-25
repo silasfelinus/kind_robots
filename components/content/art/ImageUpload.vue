@@ -22,7 +22,11 @@ const uploadImage = async (event: Event) => {
     formData.append('image', uploadedFile)
 
     try {
-      await artStore.uploadImage(formData)
+      // Call the store's upload method, which should handle storing the image and creating an Art object
+      const newArt = await artStore.uploadImage(formData)
+
+      // Optionally, confirm that the Art object has been created successfully
+      console.log('Uploaded image and created Art object:', newArt)
     } catch (error) {
       console.error('Error uploading image:', error)
     }

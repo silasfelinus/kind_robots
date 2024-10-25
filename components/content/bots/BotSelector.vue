@@ -5,9 +5,8 @@
     </label>
     <select
       id="bot-selector"
-      v-model="selectedBot"
+      v-model="selectedBotId"
       class="form-select text-black bg-primary rounded"
-      @change="handleChange"
     >
       <option disabled value="">Please select a bot</option>
       <option
@@ -23,41 +22,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useBotStore, type Bot } from './../../../stores/botStore'
 
 const botStore = useBotStore()
-const selectedBot = ref('')
-const bots = computed<Bot[]>(() => botStore.bots)
-const currentBot = computed(() => botStore.currentBot)
 
-// Load the bots on mount and set default bot if available
+// Computed property for the list of bots
+const bots = computed<Bot[]>(() => botStore.bots)
+
+// Computed property for the selected bot's ID
+const selectedBotId = computed({
+  get: () => botStore.currentBot?.id || '',
+  set: (id) => {
+    if (id) botStore.selectBot(id)
+  },
+})
+
+// Load the bots on mount and set the default bot if available
 onMounted(async () => {
   try {
     await botStore.loadStore()
-    if (bots.value.length > 0) {
-      selectedBot.value = bots.value[0].id.toString() // Convert to string for select
-      await botStore.getBotById(Number(selectedBot.value)) // Load the default bot
+    if (!selectedBotId.value && bots.value.length > 0) {
+      selectedBotId.value = bots.value[0].id
     }
   } catch (err) {
     console.error('🚨 Failed to load store', err)
   }
 })
-
-// Handle change in bot selection
-const handleChange = async () => {
-  await botStore.getBotById(Number(selectedBot.value))
-}
-
-// Sync selected bot with current bot without any scrolling
-watch(
-  () => currentBot.value,
-  (newCurrentBot) => {
-    if (newCurrentBot) {
-      selectedBot.value = newCurrentBot.id.toString() // Convert to string for select element
-    }
-  },
-)
 </script>
 
 <style scoped>

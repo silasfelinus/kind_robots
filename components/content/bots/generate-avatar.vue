@@ -13,7 +13,7 @@
     />
 
     <!-- Moved image upload and art card confirmation to generate-avatar -->
-    <generate-avatar />
+    <upload-image />
 
     <!-- Avatar Preview with tighter spacing and centered focus -->
     <div class="mt-4 flex flex-col items-center space-y-2">

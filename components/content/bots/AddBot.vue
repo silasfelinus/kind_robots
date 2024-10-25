@@ -165,7 +165,10 @@ function loadBotData() {
     description.value = bot.description || ''
     designer.value = bot.designer || 'Unknown'
     botIntro.value = bot.botIntro || ''
-    promptStore.updatePromptArray(bot.userIntro ? bot.userIntro.split(' ') : [])
+    
+    
+    promptStore.updatePromptArray(bot.userIntro ? bot.userIntro.split('|').map(p => p.trim()) : [])
+    
     isPublic.value = bot.isPublic ?? true
     underConstruction.value = bot.underConstruction ?? false
     botFeedbackMessage.value = `Editing Bot: ${bot.name}`
@@ -176,6 +179,7 @@ function loadBotData() {
     resetForm()
   }
 }
+
 
 function resetForm() {
   originalBotName.value = null
@@ -207,7 +211,7 @@ async function handleSubmit() {
       description: description.value ?? '',
       botIntro: botIntro.value ?? '',
       designer: designer.value,
-      userIntro: promptStore.promptArray.join(' '),
+      userIntro: promptStore.promptArray.join(' | '),
       imagePath: botStore.currentImagePath,
       isPublic: isPublic.value,
       underConstruction: underConstruction.value,

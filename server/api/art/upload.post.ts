@@ -1,5 +1,7 @@
+// /server/api/art/upload.post.ts
 import { defineEventHandler, readMultipartFormData } from 'h3'
 import { uploadArtImage } from './../utils/UploadArtImage'
+import { errorHandler } from './../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -50,14 +52,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, artImage }
   } catch (error: unknown) {
-    // Type guard for error
-    if (error instanceof Error) {
-      return {
-        success: false,
-        message: 'Image upload failed: ' + error.message,
-      }
-    } else {
-      return { success: false, message: 'An unknown error occurred' }
-    }
+    // Use errorHandler for consistent error handling
+    return errorHandler('error uploading the art image: ' + error)
   }
 })

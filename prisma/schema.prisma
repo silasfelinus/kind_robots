@@ -33,8 +33,6 @@ model Art {
   channelId         Int?          @default(1)
   Channel           Channel?      @relation(fields: [channelId], references: [id]) 
   Reaction          Reaction[]
-  Game              Game[]
-  Player            Player[]
   ArtImage          ArtImage[]
   ArtCollection     ArtCollection[]
 }
@@ -93,28 +91,7 @@ model Bot {
   Prompts           Prompt[]
 }
 
-model Cart {
-  id                Int           @id @unique @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  customerId        Int
-  Customer          Customer      @relation(fields: [customerId], references: [id])
-  items             CartItem[]
 
-  @@index([customerId], map: "Cart_customerId_fkey")
-}
-
-model CartItem {
-  id                Int           @id @unique @default(autoincrement())
-  quantity          Int           @default(1)
-  cartId            Int
-  Cart              Cart          @relation(fields: [cartId], references: [id])
-  productId         Int
-  Product           Product       @relation(fields: [productId], references: [id])
-
-  @@index([cartId], map: "CartItem_cartId_fkey")
-  @@index([productId], map: "CartItem_productId_fkey")
-}
 
 model Channel {
   id                Int           @id @default(autoincrement())
@@ -128,7 +105,6 @@ model Channel {
   componentId       Int?
   Component         Component?    @relation(fields: [componentId], references: [id])
   Messages          Message[]
-  Players           Player[]
   Pitches           Pitch[]
   Prompts           Prompt[]
   Posts             Post[]
@@ -174,17 +150,6 @@ model Component {
 }
 
 
-model Customer {
-  id                Int           @id @unique @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  email             String        @unique
-  name              String?
-  userId            Int?          @default(1)
-  User              User?         @relation(fields: [userId], references: [id])
-  Carts             Cart[]
-}
-
 model Gallery {
   id                Int           @id @default(autoincrement())
   createdAt         DateTime      @default(now())
@@ -207,21 +172,6 @@ model Gallery {
   ArtImage          ArtImage[]
 }
 
-model Game {
-  id                Int           @id @unique @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  category          String        @default("Blue Sky Tasks")
-  descriptor        String?       @db.Text
-  designer          String?
-  winner            String?
-  isFinished        Boolean       @default(false)
-  isPrivate         Boolean       @default(false)
-  Users             User[]
-  Art               Art[]
-  Prompt            Prompt[]
-  Players           Player[]
-}
 
 model Log {
   id                Int           @id @default(autoincrement())
@@ -292,8 +242,6 @@ model Pitch {
   isPublic          Boolean       @default(true)
   userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
-  playerId          Int?      
-  Player            Player?       @relation(fields: [playerId], references: [id])
   channelId         Int?
   Channel           Channel?      @relation(fields: [channelId], references: [id])
   Reactions         Reaction[]
@@ -308,32 +256,6 @@ enum PitchType {
   BOT
   ARTGALLERY
   INSPIRATION
-}
-
-model Player {
-  id                Int           @id @default(autoincrement())
-  name              String
-  points            Int           @default(0)
-  avatarImage       String?
-  artId             Int?
-  status            PlayerStatus  @default(WAITING)
-  gameId            Int?   
-  Game              Game?         @relation(fields: [gameId], references: [id])
-  userId            Int?
-  User              User?         @relation(fields: [userId], references: [id])
-  Art               Art[]
-  Prompt            Prompt[]
-  channelId         Int?
-  Channel           Channel?         @relation(fields: [channelId], references: [id])
-  Pitches           Pitch[]
-}
-
-enum PlayerStatus {
-  WAITING
-  CHOOSING
-  FINISHED
-  PLAYING
-  LEFT
 }
 
 model Post {
@@ -355,21 +277,6 @@ model Post {
   Tags              Tag[]
 }
 
-model Product {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  title             String        @db.VarChar(764)
-  category          String        @db.VarChar(764)
-  flavorText        String?       @db.VarChar(764)
-  description       String        @db.VarChar(8000)
-  costInPennies     Int           @default(0)
-  passcode          String?       @db.VarChar(764)
-  imagePath         String?       @db.VarChar(764)
-  userId            Int?          @default(1)
-  User              User?         @relation(fields: [userId], references: [id])
-  CartItem          CartItem[]
-}
 
 model Prompt {
   id                Int           @id @default(autoincrement())
@@ -384,9 +291,6 @@ model Prompt {
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
   pitchId           Int?
   Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
-  playerId          Int?
-  Player            Player?       @relation(fields: [playerId], references: [id])
-  Game              Game[]
   Art               Art[]
   Chats             ChatExchange[]
   botId             Int?   
@@ -513,17 +417,6 @@ model Tag {
   Components        Component[]
 }
 
-model Todo {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  content           String
-  notes             String?       @default(" ")
-  isCompleted       Boolean       @default(false)
-  task              String?       @default("todo")
-  userId            Int
-  User              User          @relation(fields: [userId], references: [id])
-}
 
 
 model User {
@@ -562,10 +455,7 @@ model User {
   Role              Role @default(USER)
   Art               Art[]
   Reactions         Reaction[]
-  Customers         Customer[]
-  Games             Game[]
   Milestones        MilestoneRecord[]
-  Players           Player[]
   Pitches           Pitch[]
   Galleries         Gallery[]
   Prompts           Prompt[]
@@ -573,14 +463,12 @@ model User {
   ChatExchanges     ChatExchange[]
   Messages          Message[]
   Posts             Post[]
-  Products          Product[]
   RandomLists       RandomList[]
   Resources         Resource[]
   Rewards           Reward[]
   Tags              Tag[]
   Logs              Log[]
   ArtImage          ArtImage[]
-  Todos             Todo[]
   ArtCollections    ArtCollection[]
 }
 

@@ -49,16 +49,16 @@ async function uploadImage(event: Event) {
 
       // Create a simple art object
       const newArtData = {
-        promptString: 'UserUpload',
-        path: ' ',
+        promptString: '[ArtImage]',
+        path: '[ArtImage]',
         seed: null,
         steps: null,
         channelId: null,
         galleryId: 23,
         promptId: null,
         pitchId: null,
-        userId: userId.value ?? null, // Ensure userId is never undefined, default to null
-        designer: username.value ?? null, // Ensure designer is never undefined, default to null
+        userId: userId.value ?? 10, // Ensure userId is never undefined, default to null
+        designer: username.value ?? 'Kind Guest', // Ensure designer is never undefined, default to null
       }
 
       // Step 3: Call createArt in the store to save the art object and assign the result

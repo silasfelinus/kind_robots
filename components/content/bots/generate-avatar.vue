@@ -1,5 +1,7 @@
 <template>
-  <div class="w-full max-w-2xl mx-auto mb-6 flex flex-col items-center space-y-4">
+  <div
+    class="w-full max-w-2xl mx-auto mb-6 flex flex-col items-center space-y-4"
+  >
     <!-- Avatar Image URL Input -->
     <label for="avatarImageInput" class="block text-sm font-medium">
       Avatar Image (URL):
@@ -12,7 +14,7 @@
       placeholder="Enter a custom avatar image URL"
     />
 
-    <!-- Moved image upload and art card confirmation to generate-avatar -->
+    <!-- Image Upload and ArtCard Confirmation -->
     <image-upload />
 
     <!-- Avatar Preview with tighter spacing and centered focus -->
@@ -25,6 +27,7 @@
       <p class="text-sm text-gray-500">Preview your avatar</p>
     </div>
 
+    <!-- Gallery Selector -->
     <gallery-selector />
 
     <!-- Generate Random Avatar Button -->
@@ -70,15 +73,21 @@ async function generateRandomAvatar() {
     }
 
     isLoading.value = true
+    // Change the current gallery to a random image
     await galleryStore.changeToRandomImage()
 
+    // Check if the random image was successfully fetched
     if (galleryStore.currentImage) {
-      avatarImage.value = galleryStore.currentImage
+      // Update botStore's currentImagePath with the new random avatar
+      botStore.currentImagePath = galleryStore.currentImage
     } else {
       throw new Error('Failed to fetch a random avatar image.')
     }
   } catch (error) {
-    errorStore.setError(ErrorType.GENERAL_ERROR, 'Error generating or fetching avatar: ' + error)
+    errorStore.setError(
+      ErrorType.GENERAL_ERROR,
+      'Error generating or fetching avatar: ' + error,
+    )
   } finally {
     isLoading.value = false
   }

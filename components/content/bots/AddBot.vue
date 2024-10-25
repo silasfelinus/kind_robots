@@ -165,6 +165,7 @@
     </form>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
@@ -196,6 +197,28 @@ const selectedBotId = computed({
   },
 })
 
+// Determine if the designer field can be edited
+const canEditDesigner = computed(
+  () =>
+    !selectedBotId.value || botStore.currentBot?.userId === userStore.userId,
+)
+
+const designer = computed({
+  get() {
+    if (!selectedBotId.value) {
+      return userStore.user?.username || 'Kind Guest'
+    }
+    return botStore.currentBot?.designer || 'Unknown Designer'
+  },
+  set(value) {
+    if (canEditDesigner.value) {
+      if (selectedBotId.value) {
+        botStore.currentBot!.designer = value // Update current bot if selected
+      }
+    }
+  },
+})
+
 const isPublic = computed({
   get() {
     return botStore.currentBot?.isPublic ?? true
@@ -216,18 +239,12 @@ const subtitle = computed(() => botStore.currentBot?.subtitle || '')
 const description = computed(
   () => botStore.currentBot?.description || 'Another helpful robot',
 )
-const designer = computed(() => botStore.currentBot?.designer || 'Kind Guest')
 const botIntro = computed(
   () => botStore.currentBot?.botIntro || "I'm a kind robot",
 )
 const underConstruction = computed(
   () => botStore.currentBot?.underConstruction ?? false,
 )
-
-const canEditDesigner = computed(() => {
-  const bot = botStore.currentBot
-  return bot && bot.userId === userStore.userId
-})
 
 async function handleSubmit() {
   const botData = {

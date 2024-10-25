@@ -258,8 +258,6 @@ function toggleVisibility(value: boolean) {
 }
 
 async function handleSubmit() {
-  console.log('Submitting bot form...')
-
   const botData = {
     name: name.value,
     subtitle: subtitle.value ?? '',

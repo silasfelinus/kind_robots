@@ -58,11 +58,9 @@ const defaultAvatar = '/images/wonderchest/wonderchest-1630.webp'
 // Bind avatarImage to currentImagePath from botStore
 const avatarImage = computed({
   get() {
-    console.log('Current avatar image in store:', botStore.currentImagePath)
     return botStore.currentImagePath || defaultAvatar
   },
   set(newValue) {
-    console.log('Updating avatar image to:', newValue)
     botStore.currentImagePath = newValue
   },
 })
@@ -70,8 +68,6 @@ const avatarImage = computed({
 // Function to generate a random avatar from the current gallery
 async function generateRandomAvatar() {
   try {
-    console.log('Attempting to generate a random avatar...')
-
     if (!galleryStore.currentGallery) {
       throw new Error('Please select a gallery first.')
     }
@@ -80,7 +76,6 @@ async function generateRandomAvatar() {
     await galleryStore.changeToRandomImage()
 
     if (galleryStore.currentImage) {
-      console.log('Random avatar generated:', galleryStore.currentImage)
       // Update botStore's currentImagePath with the new random avatar
       botStore.currentImagePath = galleryStore.currentImage
     } else {

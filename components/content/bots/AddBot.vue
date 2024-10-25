@@ -1,11 +1,14 @@
 <template>
-   <div class="rounded-2xl border p-2 m-2 mx-auto bg-base-200 grid grid-cols-1 md:grid-cols-2 space-y-2">
-   
+  <div
+    class="rounded-2xl border p-2 m-2 mx-auto bg-base-200 grid grid-cols-1 md:grid-cols-2 space-y-2"
+  >
     <h1 class="text-4xl text-center">Create or Edit a Bot</h1>
 
     <!-- Bot Selection Dropdown -->
     <div class="w-full">
-      <label for="selectBot" class="block text-lg font-medium mb-2">Select Existing Bot:</label>
+      <label for="selectBot" class="block text-lg font-medium mb-2"
+        >Select Existing Bot:</label
+      >
       <select
         id="selectBot"
         v-model="selectedBotId"
@@ -13,7 +16,9 @@
         @change="loadBotData"
       >
         <option value="" disabled>Select a bot</option>
-        <option v-for="bot in botStore.bots" :key="bot.id" :value="bot.id">{{ bot.name }}</option>
+        <option v-for="bot in botStore.bots" :key="bot.id" :value="bot.id">
+          {{ bot.name }}
+        </option>
       </select>
     </div>
 
@@ -43,23 +48,41 @@
     <generate-avatar />
 
     <!-- Form for Bot Details -->
-    <form class="bg-white shadow-md rounded-xl p-6 w-full" @submit.prevent="handleSubmit">
+    <form
+      class="bg-white shadow-md rounded-xl p-6 w-full"
+      @submit.prevent="handleSubmit"
+    >
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         <!-- Name Field -->
         <div class="col-span-1">
           <label for="name" class="block text-lg font-medium">Name:</label>
-          <input id="name" v-model="name" type="text" class="w-full p-3 rounded-lg border" required />
+          <input
+            id="name"
+            v-model="name"
+            type="text"
+            class="w-full p-3 rounded-lg border"
+            required
+          />
         </div>
 
         <!-- Subtitle Field -->
         <div class="col-span-1">
-          <label for="subtitle" class="block text-lg font-medium">Subtitle:</label>
-          <input id="subtitle" v-model="subtitle" type="text" class="w-full p-3 rounded-lg border" />
+          <label for="subtitle" class="block text-lg font-medium"
+            >Subtitle:</label
+          >
+          <input
+            id="subtitle"
+            v-model="subtitle"
+            type="text"
+            class="w-full p-3 rounded-lg border"
+          />
         </div>
 
         <!-- Description Field -->
         <div class="col-span-1 md:col-span-2">
-          <label for="description" class="block text-lg font-medium">Description:</label>
+          <label for="description" class="block text-lg font-medium"
+            >Description:</label
+          >
           <textarea
             id="description"
             v-model="description"
@@ -69,9 +92,25 @@
           ></textarea>
         </div>
 
+        <!-- bot Intro Field -->
+        <div class="col-span-1 md:col-span-2">
+          <label for="botIntro" class="block text-lg font-medium"
+            >Bot Intro:</label
+          >
+          <textarea
+            id="botIntro"
+            v-model="botIntro"
+            rows="4"
+            class="w-full p-3 rounded-lg border"
+            placeholder="Enter the introduction sent to the language modeller"
+          ></textarea>
+        </div>
+
         <!-- Prompt Creator Component -->
         <div class="col-span-1 md:col-span-2">
-          <label for="userIntro" class="block text-lg font-medium">Bot Prompts:</label>
+          <label for="userIntro" class="block text-lg font-medium"
+            >Bot Prompts:</label
+          >
           <prompt-creator />
         </div>
 
@@ -83,7 +122,7 @@
               type="button"
               :class="{
                 'btn btn-primary': isPublic,
-                'btn btn-grey-200': !isPublic
+                'btn btn-grey-200': !isPublic,
               }"
               @click="toggleVisibility(true)"
             >
@@ -93,7 +132,7 @@
               type="button"
               :class="{
                 'btn btn-primary': !isPublic,
-                'btn btn-grey-200': isPublic
+                'btn btn-grey-200': isPublic,
               }"
               @click="toggleVisibility(false)"
             >
@@ -103,19 +142,34 @@
         </div>
 
         <div class="col-span-1 flex items-center">
-          <input id="underConstruction" v-model="underConstruction" type="checkbox" class="mr-2" />
-          <label for="underConstruction" class="block text-lg font-medium">Mark as under construction</label>
+          <input
+            id="underConstruction"
+            v-model="underConstruction"
+            type="checkbox"
+            class="mr-2"
+          />
+          <label for="underConstruction" class="block text-lg font-medium"
+            >Mark as under construction</label
+          >
         </div>
       </div>
 
       <!-- Form Feedback & Submit Buttons -->
       <div v-if="isLoading" class="loading loading-ring loading-lg"></div>
-      <div v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</div>
-      <div v-if="successMessage" class="text-green-500 mt-2">{{ successMessage }}</div>
+      <div v-if="errorMessage" class="text-red-500 mt-2">
+        {{ errorMessage }}
+      </div>
+      <div v-if="successMessage" class="text-green-500 mt-2">
+        {{ successMessage }}
+      </div>
 
       <!-- Submit Button -->
       <div class="flex flex-col md:flex-row md:space-x-4 mt-6">
-        <button type="submit" class="btn btn-primary w-full md:w-auto" :disabled="isLoading">
+        <button
+          type="submit"
+          class="btn btn-primary w-full md:w-auto"
+          :disabled="isLoading"
+        >
           <span v-if="isLoading">Saving...</span>
           <span v-else>Save Bot</span>
         </button>
@@ -163,13 +217,14 @@ function loadBotData() {
     originalBotName.value = bot.name
     name.value = bot.name || ''
     subtitle.value = bot.subtitle || ''
-    description.value = bot.description || ''
-    designer.value = bot.designer || 'Unknown'
-    botIntro.value = bot.botIntro || ''
-    
-    
-    promptStore.updatePromptArray(bot.userIntro ? bot.userIntro.split('|').map(p => p.trim()) : [])
-    
+    description.value = bot.description || 'Another helpful robot'
+    designer.value = bot.designer || 'Kind Guest'
+    botIntro.value = bot.botIntro || "I'm a kind robot"
+
+    promptStore.updatePromptArray(
+      bot.userIntro ? bot.userIntro.split('|').map((p) => p.trim()) : [],
+    )
+
     isPublic.value = bot.isPublic ?? true
     underConstruction.value = bot.underConstruction ?? false
     botFeedbackMessage.value = `Editing Bot: ${bot.name}`
@@ -180,7 +235,6 @@ function loadBotData() {
     resetForm()
   }
 }
-
 
 function resetForm() {
   originalBotName.value = null

@@ -30,6 +30,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const updatedBot = await updateBot(id, data)
+    console.log('updating bot ', updatedBot)
 
     if (!updatedBot) {
       return { success: false, message: `Bot with id "${id}" not found.` }
@@ -37,7 +38,9 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, bot: updatedBot }
   } catch (error: unknown) {
-    console.error(`Failed to update bot with id "${id}": ${error instanceof Error ? error.message : 'Unknown error'}`)
+    console.error(
+      `Failed to update bot with id "${id}": ${error instanceof Error ? error.message : 'Unknown error'}`,
+    )
     return {
       success: false,
       message: `Failed to update bot with id "${id}". ${error instanceof Error ? error.message : 'Unknown error'}`,

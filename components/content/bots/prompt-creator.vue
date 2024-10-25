@@ -23,6 +23,10 @@
     <button class="btn btn-primary mt-4" @click="addPrompt">
       Add New Prompt
     </button>
+
+    <!-- Display final prompt string -->
+    <h3 class="text-lg font-medium mt-4">Final Prompt String</h3>
+    <p>{{ finalPromptString }}</p>
   </div>
 </template>
 
@@ -41,4 +45,7 @@ function addPrompt() {
 function removePrompt(index: number) {
   promptStore.removePromptFromArray(index)
 }
+
+// Computed property to display the final constructed prompt string
+const finalPromptString = computed(() => promptStore.getFinalPromptString())
 </script>

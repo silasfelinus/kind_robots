@@ -157,7 +157,6 @@ import { useBotStore } from './../../../stores/botStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { useUserStore } from './../../../stores/userStore'
 import { usePromptStore } from './../../../stores/promptStore'
-import PromptCreator from './PromptCreator.vue'
 
 // Store and form references
 const botStore = useBotStore()

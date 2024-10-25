@@ -75,26 +75,25 @@ export const usePromptStore = defineStore('promptStore', {
       this.promptArray = newPrompts
     },
 
-// Store the prompt strings as they are entered
-addPromptToArray(prompt: string) {
-  this.promptArray.push(prompt);
-},
+    // Add new prompt to the store's array
+    addPromptToArray(prompt: string) {
+      this.promptArray.push(prompt)
+    },
 
-// Remove prompt by index
-removePromptFromArray(index: number) {
-  this.promptArray.splice(index, 1);
-},
+    // Remove a prompt from the store's array by index
+    removePromptFromArray(index: number) {
+      this.promptArray.splice(index, 1)
+    },
 
-// Construct the final prompt string (joined by quotes)
-getFinalPromptString(): string {
-  return this.promptArray.map(prompt => `"${prompt}"`).join('');
-},
+    // Construct the final prompt string, joined by the '|' delimiter
+    getFinalPromptString(): string {
+      return this.promptArray.filter(prompt => prompt.trim() !== '').join(' | ')
+    },
 
-// Split a final prompt string back into an array (split by quotes)
-setPromptsFromString(finalString: string) {
-  this.promptArray = finalString.split(/"(?=[^"]*"(?![^"]*"))/).filter(Boolean).map(p => p.replace(/"/g, ''));
-},
-
+    // Split a final prompt string back into an array (split by '|')
+    setPromptsFromString(finalString: string) {
+      this.promptArray = finalString.split('|').map(prompt => prompt.trim())
+    },
 
     // Save the promptArray when creating or editing a bot
     async savePromptsForBot(botId: number) {
@@ -118,7 +117,6 @@ setPromptsFromString(finalString: string) {
         )
       }
     },
-
 
     // Fetch a prompt by ID and store it in fetchedPrompts
     async fetchPromptById(promptId: number) {
@@ -154,31 +152,32 @@ setPromptsFromString(finalString: string) {
         )
       }
     },
-        // Add a new prompt (general text prompt)
-        async addPrompt(newPrompt: string, userId: number, botId: number) {
-          const errorStore = useErrorStore()
-    
-          try {
-            const response = await fetch('/api/prompts', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                prompt: newPrompt,
-                userId,
-                botId,
-              }),
-            })
-            if (!response.ok) throw new Error(await response.text())
-            const createdPrompt = await response.json()
-            this.prompts.push(createdPrompt)
-            return createdPrompt
-          } catch (error) {
-            errorStore.setError(
-              ErrorType.NETWORK_ERROR,
-              `Error creating prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            )
-          }
-        },
+
+    // Add a new prompt (general text prompt)
+    async addPrompt(newPrompt: string, userId: number, botId: number) {
+      const errorStore = useErrorStore()
+
+      try {
+        const response = await fetch('/api/prompts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: newPrompt,
+            userId,
+            botId,
+          }),
+        })
+        if (!response.ok) throw new Error(await response.text())
+        const createdPrompt = await response.json()
+        this.prompts.push(createdPrompt)
+        return createdPrompt
+      } catch (error) {
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `Error creating prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
+      }
+    },
 
     // Create a new art prompt
     async createPrompt(newPrompt: string) {

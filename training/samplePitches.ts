@@ -18,7 +18,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -36,7 +35,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -54,7 +52,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -72,7 +69,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -90,7 +86,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -108,7 +103,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -126,7 +120,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -144,7 +137,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -162,7 +154,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -180,7 +171,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -198,7 +188,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -216,7 +205,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -234,7 +222,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -252,7 +239,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -270,7 +256,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -288,7 +273,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -306,7 +290,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -324,7 +307,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -342,7 +324,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -360,7 +341,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -378,7 +358,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -396,7 +375,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -414,7 +392,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -432,7 +409,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -450,7 +426,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -468,7 +443,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -486,7 +460,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -504,7 +477,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -522,7 +494,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -540,7 +511,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
   {
@@ -558,7 +528,6 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    playerId: null,
     channelId: null,
   },
 ]

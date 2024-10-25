@@ -16,7 +16,6 @@ describe('Pitch Management API Tests', () => {
         pitch: uniquePitchName,
         PitchType: 'INSPIRATION', // Align with your schema's `PitchType`
         userId: 1,
-        playerId: 1, // Ensure playerId is correctly passed as per your schema
       },
     }).then((response) => {
       console.log(response.body) // Log response for debugging

@@ -1,19 +1,29 @@
 <template>
   <div>
+    <!-- Image Upload -->
     <input
       type="file"
       accept="image/png, image/jpeg, image/webp"
       @change="uploadImage"
+      class="mb-4"
     />
+
+    <!-- Display the uploaded image as an ArtCard for confirmation -->
+    <div v-if="newArt" class="mt-6">
+      <art-card :art="newArt" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useArtStore } from '../../../stores/artStore'
+import { ref } from 'vue'
+import { useArtStore } from './../../../stores/artStore'
 
 const artStore = useArtStore()
+const newArt = ref(null)
 
-const uploadImage = async (event: Event) => {
+// Handle the uploaded image and create an Art object
+async function uploadImage(event: Event) {
   const input = event.target as HTMLInputElement
   const uploadedFile = input?.files?.[0]
 
@@ -22,11 +32,8 @@ const uploadImage = async (event: Event) => {
     formData.append('image', uploadedFile)
 
     try {
-      // Call the store's upload method, which should handle storing the image and creating an Art object
-      const newArt = await artStore.uploadImage(formData)
-
-      // Optionally, confirm that the Art object has been created successfully
-      console.log('Uploaded image and created Art object:', newArt)
+      const art = await artStore.uploadImage(formData)
+      newArt.value = art
     } catch (error) {
       console.error('Error uploading image:', error)
     }

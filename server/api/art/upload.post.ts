@@ -21,14 +21,23 @@ export default defineEventHandler(async (event) => {
     const galleryId = form
       .find((field) => field.name === 'galleryId')
       ?.data.toString()
+    const fileType = form
+      .find((field) => field.name === 'fileType')
+      ?.data.toString()
 
     // Check if the image file and necessary fields exist
-    if (!imageFile?.data || !galleryName || !userId || !galleryId) {
+    if (
+      !imageFile?.data ||
+      !galleryName ||
+      !userId ||
+      !galleryId ||
+      !fileType
+    ) {
       return { success: false, message: 'Missing required fields' }
     }
 
     // Call your uploadArtImage function and pass both the data and filename
-    const result = await uploadArtImage(
+    const artImage = await uploadArtImage(
       {
         data: imageFile.data, // file data as Buffer
         filename: imageFile.filename || 'default-filename.webp', // use a fallback filename if missing
@@ -36,9 +45,10 @@ export default defineEventHandler(async (event) => {
       galleryName,
       Number(userId),
       Number(galleryId),
+      fileType,
     )
 
-    return { success: true, imageId: result.id, fileName: result.fileName }
+    return { success: true, artImage }
   } catch (error: unknown) {
     // Type guard for error
     if (error instanceof Error) {

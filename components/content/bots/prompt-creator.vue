@@ -2,11 +2,11 @@
   <div>
     <h2 class="text-lg font-medium mb-2">User Intro Prompts</h2>
 
-    <!-- Display all prompts with input fields -->
+    <!-- Display all prompts with input fields and remove buttons -->
     <div
       v-for="(prompt, index) in promptStore.promptArray"
       :key="index"
-      class="mb-4"
+      class="flex items-center space-x-4 mb-4"
     >
       <input
         v-model="promptStore.promptArray[index]"
@@ -14,8 +14,8 @@
         class="w-full p-3 rounded-lg border"
         placeholder="Enter user prompt"
       />
-      <button class="text-red-500 mt-2" @click="removePrompt(index)">
-        Remove
+      <button class="text-red-500" @click="removePrompt(index)">
+        <kind-icon name="trash" class="w-6 h-6" />
       </button>
     </div>
 
@@ -32,7 +32,6 @@
 
 <script setup lang="ts">
 import { usePromptStore } from '@/stores/promptStore'
-import { computed } from 'vue'
 
 // Access the promptStore
 const promptStore = usePromptStore()
@@ -47,8 +46,6 @@ function removePrompt(index: number) {
   promptStore.removePromptFromArray(index)
 }
 
-// Computed property to display the final constructed prompt string, separated by '|'
-const finalPromptString = computed(() => {
-  return promptStore.promptArray.filter(prompt => prompt.trim() !== '').join(' | ')
-})
+// Computed property to display the final constructed prompt string
+const finalPromptString = computed(() => promptStore.getFinalPromptString())
 </script>

@@ -263,7 +263,7 @@ async function handleSubmit() {
     botIntro: botIntro.value ?? '',
     designer: designer.value,
     userIntro: promptStore.promptArray.join(' | '),
-    imagePath: botStore.currentImagePath,
+    avatarImage: botStore.currentImagePath,
     isPublic: isPublic.value,
     underConstruction: underConstruction.value,
     userId: userStore.userId,

@@ -32,6 +32,7 @@
 
 <script setup lang="ts">
 import { usePromptStore } from '@/stores/promptStore'
+import { computed } from 'vue'
 
 // Access the promptStore
 const promptStore = usePromptStore()
@@ -46,6 +47,8 @@ function removePrompt(index: number) {
   promptStore.removePromptFromArray(index)
 }
 
-// Computed property to display the final constructed prompt string
-const finalPromptString = computed(() => promptStore.getFinalPromptString())
+// Computed property to display the final constructed prompt string, separated by '|'
+const finalPromptString = computed(() => {
+  return promptStore.promptArray.filter(prompt => prompt.trim() !== '').join(' | ')
+})
 </script>

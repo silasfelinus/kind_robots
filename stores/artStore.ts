@@ -129,9 +129,39 @@ export const useArtStore = defineStore({
         'Failed to fetch art.',
       )
     },
-    async generateArt(
-      artData?: GenerateArtData,
-    ): Promise<{
+    // Simplified createArt action
+    async createArt(artData: {
+      promptString: string
+      path: string
+      seed: number | null
+      steps: number | null
+      channelId: number | null
+      galleryId: number | null
+      promptId: number | null
+      pitchId: number | null
+      userId: number | null
+      designer: string | null
+    }): Promise<Art> {
+      // Ensure it returns a Promise<Art>
+      const response = await fetch('/api/art/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(artData),
+      })
+
+      if (!response.ok) {
+        const errorResponse = await response.json()
+        throw new Error(errorResponse.message)
+      }
+
+      const createdArt = await response.json()
+      this.art.push(createdArt) // Add the newly created art to the store's state
+
+      return createdArt // Return the created art object
+    },
+    async generateArt(artData?: GenerateArtData): Promise<{
       success: boolean
       message?: string
       newArt?: Art
@@ -364,6 +394,31 @@ export const useArtStore = defineStore({
     validatePromptString(prompt: string): boolean {
       const validPattern = /^[a-zA-Z0-9 ,]+$/ // Adjust the pattern as necessary
       return validPattern.test(prompt)
+    },
+    async updateArtImageWithArtId(
+      artImageId: number,
+      artId: number,
+    ): Promise<void> {
+      const errorStore = useErrorStore()
+
+      return errorStore.handleError(
+        async () => {
+          const response = await fetch(`/api/art-image/${artImageId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ artId }), // Update the artId in the ArtImage
+          })
+
+          if (!response.ok) {
+            const errorResponse = await response.json()
+            throw new Error(errorResponse.message)
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to update ArtImage with artId.',
+      )
     },
     // New uploadImage action
     async uploadImage(formData: FormData): Promise<void> {

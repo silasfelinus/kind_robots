@@ -16,11 +16,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
+import { useUserStore } from '@/stores/userStore'
 
-// Initialize the store
+// Initialize the stores
 const artStore = useArtStore()
+const userStore = useUserStore()
+
+const userId = computed(() => userStore.user?.id)
+const username = computed(() => userStore.user?.username)
 
 // Use undefined instead of null to match optional type expectations
 const newArt = ref<(typeof artStore.art)[0] | undefined>(undefined)
@@ -36,14 +41,38 @@ async function uploadImage(event: Event) {
     formData.append('image', uploadedFile)
 
     try {
-      // Call the store's uploadImage action
+      // Step 1: Upload the image
       await artStore.uploadImage(formData)
 
-      // After uploading, assign the last items from the store as the new art and new art image
-      newArt.value = artStore.art[artStore.art.length - 1]
+      // After uploading, assign the last items from the store as the new art image
       newArtImage.value = artStore.artImages[artStore.artImages.length - 1]
+
+      // Create a simple art object
+      const newArtData = {
+        promptString: 'UserUpload',
+        path: ' ',
+        seed: null,
+        steps: null,
+        channelId: null,
+        galleryId: 23,
+        promptId: null,
+        pitchId: null,
+        userId: userId.value ?? null, // Ensure userId is never undefined, default to null
+        designer: username.value ?? null, // Ensure designer is never undefined, default to null
+      }
+
+      // Step 3: Call createArt in the store to save the art object and assign the result
+      newArt.value = await artStore.createArt(newArtData)
+
+      // Step 4: Link the created artId to the ArtImage
+      if (newArt.value && newArtImage.value) {
+        await artStore.updateArtImageWithArtId(
+          newArtImage.value.id,
+          newArt.value.id,
+        )
+      }
     } catch (error) {
-      console.error('Error uploading image:', error)
+      console.error('Error uploading image or creating art:', error)
     }
   }
 }

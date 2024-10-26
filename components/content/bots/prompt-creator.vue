@@ -13,6 +13,7 @@
         type="text"
         class="w-full p-3 rounded-lg border"
         placeholder="Enter user prompt"
+        @keyup.enter="handleEnterKey"
       />
       <button class="text-red-500" @click="removePrompt(index)">
         <Icon name="kind-icon:trash" class="w-6 h-6" />
@@ -86,8 +87,11 @@ async function saveUserIntroToBot() {
   if (finalPromptString === lastSavedPromptString.value) return
 
   showSaveIcon.value = true // Show the save icon when update starts
+  const minSaveTime = 1000 // Minimum time (1 second) the save icon should be visible
 
   try {
+    const saveStart = Date.now()
+
     // If updating an existing bot, save to currentBot; otherwise, save to botForm
     if (botStore.currentBot) {
       await botStore.saveUserIntro(finalPromptString) // Save to the current bot
@@ -98,9 +102,13 @@ async function saveUserIntroToBot() {
 
     lastSavedPromptString.value = finalPromptString // Update the last saved prompt string
 
+    // Ensure the icon is shown for at least the minimum time
+    const elapsed = Date.now() - saveStart
+    const remainingTime = Math.max(0, minSaveTime - elapsed)
+
     setTimeout(() => {
-      showSaveIcon.value = false // Hide the icon after 500ms
-    }, 500)
+      showSaveIcon.value = false // Hide the icon after the minimum time
+    }, remainingTime)
   } catch (error) {
     console.error('Failed to save user intro:', error)
     showSaveIcon.value = false // Hide the icon in case of failure
@@ -134,5 +142,10 @@ function removePrompt(index: number) {
   const updatedPrompts = [...currentPrompts.value]
   updatedPrompts.splice(index, 1)
   currentPrompts.value = updatedPrompts // Update the prompts after removal
+}
+
+// Handle Enter key press
+function handleEnterKey() {
+  saveUserIntroToBot() // Immediately save the current prompt when "Enter" is pressed
 }
 </script>

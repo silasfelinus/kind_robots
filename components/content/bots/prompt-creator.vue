@@ -9,11 +9,11 @@
       class="flex items-center space-x-4 mb-4"
     >
       <input
-        v-model="promptStore.promptArray[index]"
-        @input="updatePrompt(index, promptStore.promptArray[index])"
+        v-model="localPrompts[index]"
         type="text"
         class="w-full p-3 rounded-lg border"
         placeholder="Enter user prompt"
+        @input="updatePrompt(index, localPrompts[index])"
       />
       <button class="text-red-500" @click="removePrompt(index)">
         <Icon name="kind-icon:trash" class="w-6 h-6" />
@@ -32,27 +32,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { usePromptStore } from '@/stores/promptStore'
 
 // Access the promptStore
 const promptStore = usePromptStore()
 
-// Add new prompt to the store's array
+// Local copy of the prompt array to handle input before committing changes
+const localPrompts = ref([...promptStore.promptArray])
+
+// Add new prompt to the local array
 function addPrompt() {
-  promptStore.addPromptToArray('') // Add an empty prompt string
+  localPrompts.value.push('') // Add an empty prompt locally
 }
 
-// Update prompt when user modifies an input
+// Update prompt when user modifies an input, committing changes to the store
 function updatePrompt(index: number, value: string) {
-  promptStore.updatePromptAtIndex(index, value)
+  localPrompts.value[index] = value // Update local array
+  promptStore.updatePromptAtIndex(index, value) // Commit to store
 }
 
-// Remove a prompt from the store's array by index
+// Remove a prompt from both the local array and the store
 function removePrompt(index: number) {
-  promptStore.removePromptFromArray(index)
+  localPrompts.value.splice(index, 1) // Remove from local array
+  promptStore.removePromptFromArray(index) // Remove from store
 }
 
 // Computed property to display the final constructed prompt string
 const finalPromptString = computed(() => promptStore.getFinalPromptString())
+
+// Sync localPrompts with promptStore on mount
+onMounted(() => {
+  localPrompts.value = [...promptStore.promptArray] // Sync on mount
+})
 </script>

@@ -48,6 +48,10 @@ export const useBotStore = defineStore({
         this.currentBot = foundBot
         this.botForm = { ...foundBot } // Copy to botForm for editing
         this.currentImagePath = foundBot.avatarImage || ''
+        console.log("bot selected with id " + botId)
+        console.log("currentBot after selection: ", this.currentBot);
+        console.log("botForm after selection: ", this.botForm);
+
 
       } catch (error) {
         this.handleError(error, 'selecting bot')
@@ -97,6 +101,7 @@ export const useBotStore = defineStore({
 
     // Fetch prompt string from promptStore and include it in the bot update
     async updateBot(id: number): Promise<void> {
+    console.log("updating bot")
   try {
     const botData = {
       ...this.botForm,
@@ -127,6 +132,9 @@ export const useBotStore = defineStore({
     // Update the form with the new data
     this.botForm = { ...updatedBot };
     this.currentImagePath = updatedBot.avatarImage;
+    console.log("bot updated" + updatedBot)
+        console.log("currentBot after update: ", this.currentBot);
+        console.log("botForm after update: ", this.botForm);
 
   } catch (error) {
     this.handleError(error, 'updating bot');
@@ -166,6 +174,7 @@ export const useBotStore = defineStore({
         this.currentBot = data.bot
         this.botForm = { ...data.bot }
         this.currentImagePath = data.bot.avatarImage
+        console.log("bot got by id" + id)
       } catch (error) {
         this.handleError(error, 'fetching bot by id')
       }

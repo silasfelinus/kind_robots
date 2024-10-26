@@ -1,16 +1,22 @@
 <template>
-  <div class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1">
+  <div
+    class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1"
+  >
     <h1 class="text-4xl text-center col-span-full">Create or Edit a Bot</h1>
 
     <!-- Top section with Bot Selector, Designer, and Toggles -->
-    <div class="flex flex-wrap justify-between items-center col-span-full gap-4">
+    <div
+      class="flex flex-wrap justify-between items-center col-span-full gap-4"
+    >
       <div class="w-full lg:w-auto">
         <bot-selector />
       </div>
 
       <!-- Designer Field -->
       <div class="flex-grow lg:w-1/4">
-        <label for="designer" class="block text-lg font-medium">Designer:</label>
+        <label for="designer" class="block text-lg font-medium"
+          >Designer:</label
+        >
         <input
           v-if="canEditDesigner"
           id="designer"
@@ -87,7 +93,9 @@
 
           <!-- Subtitle Field -->
           <div :class="highlightIfChanged('subtitle')">
-            <label for="subtitle" class="block text-lg font-medium">Subtitle:</label>
+            <label for="subtitle" class="block text-lg font-medium"
+              >Subtitle:</label
+            >
             <input
               id="subtitle"
               v-model="botStore.botForm.subtitle"
@@ -98,7 +106,9 @@
 
           <!-- Description Field -->
           <div :class="highlightIfChanged('description')">
-            <label for="description" class="block text-lg font-medium">Description:</label>
+            <label for="description" class="block text-lg font-medium"
+              >Description:</label
+            >
             <textarea
               id="description"
               v-model="botStore.botForm.description"
@@ -110,7 +120,9 @@
 
           <!-- Bot Intro Field -->
           <div :class="highlightIfChanged('botIntro')">
-            <label for="botIntro" class="block text-lg font-medium">Bot Intro:</label>
+            <label for="botIntro" class="block text-lg font-medium"
+              >Bot Intro:</label
+            >
             <textarea
               id="botIntro"
               v-model="botStore.botForm.botIntro"
@@ -120,10 +132,10 @@
             ></textarea>
           </div>
 
-  <label for="userIntro" class="block text-lg font-medium">User Prompts:</label>
-      <prompt-creator />
-
-
+          <label for="userIntro" class="block text-lg font-medium"
+            >User Prompts:</label
+          >
+          <prompt-creator />
         </div>
       </div>
     </div>
@@ -133,7 +145,6 @@
       class="bg-white shadow-md rounded-xl p-6 w-full mt-4"
       @submit.prevent="handleSubmit"
     >
-    
       <div v-if="isLoading" class="loading loading-ring loading-lg mt-4"></div>
       <div v-if="errorMessage" class="text-red-500 mt-2">
         {{ errorMessage }}
@@ -149,13 +160,14 @@
           :disabled="isLoading"
         >
           <span v-if="isLoading">Saving...</span>
-          <span v-else>{{ botStore.selectedBotId ? 'Update Bot' : 'Create New Bot' }}</span>
+          <span v-else>{{
+            botStore.selectedBotId ? 'Update Bot' : 'Create New Bot'
+          }}</span>
         </button>
       </div>
     </form>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
@@ -171,7 +183,6 @@ const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
 const botFeedbackMessage = ref<string | null>(null)
-const botFeedbackClass = ref<string>('')
 
 // Determine if the designer field can be edited
 const canEditDesigner = computed(
@@ -197,7 +208,7 @@ function toggleVisibility(value: boolean) {
 async function handleSubmit() {
   isLoading.value = true
   try {
-    console.log('Submitting bot form: ', botStore.botForm)  // Check the botForm before submitting
+    console.log('Submitting bot form: ', botStore.botForm) // Check the botForm before submitting
     if (botStore.selectedBotId) {
       await botStore.updateBot(botStore.selectedBotId)
       successMessage.value = 'Bot updated successfully!'
@@ -214,7 +225,6 @@ async function handleSubmit() {
     isLoading.value = false
   }
 }
-
 
 onMounted(async () => {
   await botStore.loadStore()

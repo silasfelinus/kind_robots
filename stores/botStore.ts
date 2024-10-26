@@ -182,6 +182,7 @@ export const useBotStore = defineStore({
 
         console.log('Current bot after update: ', this.currentBot)
         console.log('botForm after update: ', this.botForm)
+        console.log('currentImagePAth: ', this.currentImagePath)
       } catch (error) {
         this.handleError(error, 'updating bot')
         console.error('Error updating current bot: ', error)

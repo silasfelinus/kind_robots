@@ -4,12 +4,12 @@
 
     <!-- Display all prompts with input fields and remove buttons -->
     <div
-      v-for="(prompt, index) in localPrompts"
+      v-for="(prompt, index) in promptStore.promptArray"
       :key="index"
       class="flex items-center space-x-4 mb-4"
     >
       <input
-        v-model="localPrompts[index]"
+        v-model="promptStore.promptArray[index]"
         type="text"
         class="w-full p-3 rounded-lg border"
         placeholder="Enter user prompt"
@@ -26,7 +26,7 @@
 
     <!-- Display final prompt string -->
     <h3 class="text-lg font-medium mt-4">Final Prompt String</h3>
-    <p>{{ finalPromptString }}</p>
+    <p>{{ promptStore.finalPromptString }}</p>
 
     <!-- Save icon that appears when updating -->
     <div v-if="showSaveIcon" class="flex items-center space-x-2">
@@ -37,69 +37,52 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
+import { usePromptStore } from '@/stores/promptStore'
 import { useBotStore } from '@/stores/botStore'
 
-// Access the botStore
+// Access the promptStore and botStore
+const promptStore = usePromptStore()
 const botStore = useBotStore()
-
-// Local copy of the prompts, split from the current bot's userIntro
-const localPrompts = ref<string[]>([])
 
 // Save icon visibility state
 const showSaveIcon = ref(false)
 
-// Function to update botForm.userIntro and save to the store
-async function saveUserIntro(newPrompts: string[]) {
+// Function to save the final prompt string to botStore's currentBot
+async function saveUserIntroToBot() {
   showSaveIcon.value = true // Show the save icon when update starts
 
-  const newUserIntro = newPrompts.join(' | ')
+  const finalPromptString = promptStore.finalPromptString // Get the final prompt string from the promptStore
 
-  // Update the botStore with the new intro
   try {
-    await botStore.updateUserIntro(newUserIntro) // Save the userIntro to the store
+    // Call the botStore to save the userIntro (final prompt string)
+    await botStore.saveUserIntro(finalPromptString)
+
     setTimeout(() => {
       showSaveIcon.value = false // Hide the icon after 500ms
     }, 500)
   } catch (error) {
-    console.error('Failed to save user intro:', error)
+    console.error('Failed to save user intro to bot:', error)
     showSaveIcon.value = false // Hide the icon in case of failure
   }
 }
 
-// Watch botForm.userIntro to update the localPrompts when switching bots
+// Watch for changes in the promptArray and trigger save
 watch(
-  () => botStore.botForm.userIntro,
-  (newUserIntro) => {
-    if (newUserIntro && localPrompts.value.join(' | ') !== newUserIntro) {
-      localPrompts.value = newUserIntro.split('|') // Only update if different
-    } else if (!newUserIntro) {
-      localPrompts.value = [''] // Initialize with one empty prompt if no userIntro
-    }
-  },
-)
-
-// Watch localPrompts and save changes
-watch(
-  localPrompts,
-  (newPrompts) => {
-    saveUserIntro(newPrompts) // Use saveUserIntro to save the new prompts
+  () => promptStore.promptArray,
+  () => {
+    saveUserIntroToBot() // Automatically save to botStore whenever the prompt array changes
   },
   { deep: true },
 )
 
-// Add new prompt to the local array
+// Add new prompt to the array
 function addPrompt() {
-  localPrompts.value.push('') // Add an empty prompt locally
+  promptStore.addPromptToArray('') // Add an empty prompt using the store action
 }
 
-// Remove a prompt from the local array
+// Remove a prompt from the array
 function removePrompt(index: number) {
-  localPrompts.value.splice(index, 1) // Remove from local array
+  promptStore.removePromptFromArray(index) // Remove the prompt using the store action
 }
-
-// Computed property to display the final constructed prompt string
-const finalPromptString = computed(() => {
-  return localPrompts.value.join(' | ') // Preserve spaces in the final string
-})
 </script>

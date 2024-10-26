@@ -9,7 +9,7 @@ interface State {
   fetchedPrompts: Record<number, Prompt | null>
   promptField: string
   isInitialized: boolean
-  promptArray: string[]
+  promptArray: string[] // Stores user-created prompts
 }
 
 export const usePromptStore = defineStore('promptStore', {
@@ -17,11 +17,20 @@ export const usePromptStore = defineStore('promptStore', {
     prompts: [],
     artByPromptId: [],
     selectedPrompt: null,
-    fetchedPrompts: {}, // Initialize fetched prompts as an empty object
+    fetchedPrompts: {},
     promptField: 'kind robots',
     isInitialized: false,
-    promptArray: [], // Stores user-created prompts
+    promptArray: [], // Array to hold user prompts
   }),
+
+  getters: {
+    // Computed property to return final prompt string joined by ' | '
+    finalPromptString: (state) => {
+      return state.promptArray
+        .filter((prompt) => prompt.trim() !== '')
+        .join(' | ')
+    },
+  },
 
   actions: {
     // Initialize promptStore
@@ -85,14 +94,9 @@ export const usePromptStore = defineStore('promptStore', {
       this.promptArray.splice(index, 1)
     },
 
-    // Construct the final prompt string, each prompt as a whole, joined by the '|' delimiter
-    getFinalPromptString(): string {
-      return this.promptArray.filter(prompt => prompt.trim() !== '').join(' | ')
-    },
-
     // Split a final prompt string back into an array, splitting by '|'
     setPromptsFromString(finalString: string) {
-      this.promptArray = finalString.split('|').map(prompt => prompt.trim())
+      this.promptArray = finalString.split('|').map((prompt) => prompt.trim())
     },
 
     // Fetch a prompt by ID and store it in fetchedPrompts
@@ -152,53 +156,6 @@ export const usePromptStore = defineStore('promptStore', {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
           `Error creating prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-      }
-    },
-
-    // Create a new art prompt
-    async createPrompt(newPrompt: string) {
-      const errorStore = useErrorStore()
-
-      try {
-        const response = await fetch('/api/art/prompts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: newPrompt }),
-        })
-        if (!response.ok) throw new Error(await response.text())
-        const createdPrompt = await response.json()
-        this.prompts.push(createdPrompt)
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error creating art prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-      }
-    },
-
-    // Edit an art prompt
-    async editPrompt(id: number, newPrompt: string) {
-      const errorStore = useErrorStore()
-
-      try {
-        const response = await fetch('/api/art/prompts', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, prompt: newPrompt }),
-        })
-        const data = await response.json()
-
-        if (data.success) {
-          const index = this.prompts.findIndex((prompt) => prompt.id === id)
-          if (index !== -1) this.prompts[index].prompt = newPrompt
-        } else {
-          throw new Error(data.message)
-        }
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error editing art prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
         )
       }
     },

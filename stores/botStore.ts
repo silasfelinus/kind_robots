@@ -99,14 +99,15 @@ export const useBotStore = defineStore({
       }
     },
 
-    // Fetch prompt string from promptStore and include it in the bot update
     async updateBot(id: number): Promise<void> {
-    console.log("updating bot")
+  console.log("Updating bot...");
   try {
     const botData = {
       ...this.botForm,
       avatarImage: this.currentImagePath,
     };
+
+    console.log('Submitting bot data: ', botData);  // Log botData before sending
 
     const response = await fetch(`/api/bot/id/${id}`, {
       method: 'PATCH',
@@ -119,6 +120,7 @@ export const useBotStore = defineStore({
     }
 
     const updatedBot = await response.json();
+    console.log('API Response (Updated bot): ', updatedBot);  // Log the response
 
     // Find the bot in the list and update it
     const botIndex = this.bots.findIndex((bot) => bot.id === id);
@@ -127,17 +129,16 @@ export const useBotStore = defineStore({
     }
 
     // Ensure `currentBot` is updated to the selected one after the update
-    this.currentBot = updatedBot;  // Re-assign the updated bot as the current bot
-
-    // Update the form with the new data
+    this.currentBot = updatedBot;
     this.botForm = { ...updatedBot };
     this.currentImagePath = updatedBot.avatarImage;
-    console.log("bot updated" + updatedBot)
-        console.log("currentBot after update: ", this.currentBot);
-        console.log("botForm after update: ", this.botForm);
+
+    console.log("Current bot after update: ", this.currentBot);
+    console.log("botForm after update: ", this.botForm);
 
   } catch (error) {
     this.handleError(error, 'updating bot');
+    console.error('Error updating bot: ', error);  // Add error logging
   }
 },
 

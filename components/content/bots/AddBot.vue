@@ -207,16 +207,30 @@ function toggleVisibility(value: boolean) {
 
 async function handleSubmit() {
   isLoading.value = true
+  errorMessage.value = null
+  successMessage.value = null
+
   try {
-    console.log('Submitting bot form: ', botStore.botForm) // Check the botForm before submitting
+    console.log('Submitting bot form: ', botStore.botForm)
+
     if (botStore.selectedBotId) {
+      // Update an existing bot
       await botStore.updateBot(botStore.selectedBotId)
       successMessage.value = 'Bot updated successfully!'
       botFeedbackMessage.value = 'Bot saved successfully!'
     } else {
-      await botStore.addBots([botStore.botForm])
-      successMessage.value = 'New bot created successfully!'
-      botFeedbackMessage.value = 'New bot saved successfully!'
+      // Create a new bot
+      const addedBots = await botStore.addBots([botStore.botForm])
+
+      if (addedBots.length > 0) {
+        const newBot = addedBots[0] // Assuming the first bot returned is the newly created one
+        botStore.currentBot = newBot // Set the currentBot to the newly created bot
+        botStore.botForm = { ...newBot } // Also set botForm to the newly created bot
+        successMessage.value = 'New bot created successfully!'
+        botFeedbackMessage.value = 'New bot saved successfully!'
+      } else {
+        errorMessage.value = 'Failed to create a new bot.'
+      }
     }
   } catch (error) {
     console.error('Error editing bot:', error)

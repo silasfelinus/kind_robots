@@ -54,11 +54,23 @@ const lastSavedPromptString = ref('')
 // Debounce timeout
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null
 
-// Determine whether to use currentBot or promptStore for prompts
-const currentPrompts = computed(() => {
-  return botStore.currentBot
-    ? botStore.currentBot.userIntro?.split(' | ') || [] // Split string into array for currentBot.userIntro
-    : promptStore.promptArray // Otherwise use promptStore for new bot creation
+// Boolean to determine if we are creating a new bot or updating
+const isCreatingNewBot = computed(() => !botStore.currentBot)
+
+// Computed property to determine which prompts to use (botForm for new, currentBot for update)
+const currentPrompts = computed({
+  get() {
+    return isCreatingNewBot.value
+      ? promptStore.promptArray
+      : botStore.currentBot?.userIntro?.split(' | ') || []
+  },
+  set(value: string[]) {
+    if (isCreatingNewBot.value) {
+      promptStore.promptArray = value
+    } else if (botStore.currentBot) {
+      botStore.currentBot.userIntro = value.join(' | ')
+    }
+  },
 })
 
 // Computed property for the final prompt string
@@ -76,7 +88,7 @@ async function saveUserIntroToBot() {
   showSaveIcon.value = true // Show the save icon when update starts
 
   try {
-    // If currentBot exists, save to currentBot; otherwise, save to botForm
+    // If updating an existing bot, save to currentBot; otherwise, save to botForm
     if (botStore.currentBot) {
       await botStore.saveUserIntro(finalPromptString) // Save to the current bot
     } else {
@@ -114,21 +126,13 @@ watch(
 
 // Add new prompt to the array
 function addPrompt() {
-  if (botStore.currentBot) {
-    botStore.currentBot.userIntro = [...currentPrompts.value, ''].join(' | ') // Add an empty prompt for currentBot
-  } else {
-    promptStore.addPromptToArray('') // Add an empty prompt using the store action for new bot
-  }
+  currentPrompts.value = [...currentPrompts.value, ''] // Add an empty prompt
 }
 
 // Remove a prompt from the array
 function removePrompt(index: number) {
-  if (botStore.currentBot) {
-    const updatedPrompts = [...currentPrompts.value]
-    updatedPrompts.splice(index, 1)
-    botStore.currentBot.userIntro = updatedPrompts.join(' | ') // Update currentBot prompts after removal
-  } else {
-    promptStore.removePromptFromArray(index) // Remove the prompt using the store action for new bot
-  }
+  const updatedPrompts = [...currentPrompts.value]
+  updatedPrompts.splice(index, 1)
+  currentPrompts.value = updatedPrompts // Update the prompts after removal
 }
 </script>

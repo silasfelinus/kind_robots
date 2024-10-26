@@ -230,31 +230,38 @@ export const useBotStore = defineStore({
       }
     },
 
-    async addBots(botsData: Partial<Bot>[]): Promise<void> {
+    async addBots(botsData: Partial<Bot>[]): Promise<Bot[]> {
       try {
         const response = await fetch('/api/bots', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(botsData),
         })
+
         if (!response.ok) throw new Error(`Failed to add bots`)
 
         const data = await response.json()
         console.log('API Response (Added bot): ', data) // Log the response
 
+        let addedBots: Bot[] = []
+
         // Ensure we extract the 'bots' or 'bot' from the response
         if (data.bots) {
-          this.bots = [...this.bots, ...data.bots] // Add multiple bots if returned
+          addedBots = data.bots // Multiple bots returned
+          this.bots = [...this.bots, ...data.bots] // Add multiple bots to the store
         } else if (data.bot) {
-          this.bots = [...this.bots, data.bot] // Add a single bot if returned
+          addedBots = [data.bot] // Single bot returned
+          this.bots = [...this.bots, data.bot] // Add single bot to the store
         } else {
           throw new Error('API response does not contain bot data')
         }
 
         console.log('Bots after adding: ', this.bots)
+        return addedBots // Return the newly added bots
       } catch (error) {
         this.handleError(error, 'adding bots')
         console.error('Error adding bots: ', error)
+        return [] // Return an empty array in case of an error
       }
     },
 

@@ -238,10 +238,23 @@ export const useBotStore = defineStore({
           body: JSON.stringify(botsData),
         })
         if (!response.ok) throw new Error(`Failed to add bots`)
+
         const data = await response.json()
-        this.bots = [...this.bots, ...data.bots]
+        console.log('API Response (Added bot): ', data) // Log the response
+
+        // Ensure we extract the 'bots' or 'bot' from the response
+        if (data.bots) {
+          this.bots = [...this.bots, ...data.bots] // Add multiple bots if returned
+        } else if (data.bot) {
+          this.bots = [...this.bots, data.bot] // Add a single bot if returned
+        } else {
+          throw new Error('API response does not contain bot data')
+        }
+
+        console.log('Bots after adding: ', this.bots)
       } catch (error) {
         this.handleError(error, 'adding bots')
+        console.error('Error adding bots: ', error)
       }
     },
 
@@ -249,13 +262,23 @@ export const useBotStore = defineStore({
       try {
         const response = await fetch(`/api/bot/id/${id}`)
         if (!response.ok) throw new Error(`Failed to fetch bot`)
+
         const data = await response.json()
+        console.log('API Response (Fetched bot by ID): ', data)
+
+        // Ensure we extract the 'bot' from the response
+        if (!data.bot) {
+          throw new Error('API response does not contain bot data')
+        }
+
         this.currentBot = data.bot
         this.botForm = { ...data.bot }
         this.currentImagePath = data.bot.avatarImage
-        console.log('bot got by id' + id)
+
+        console.log('Current bot after fetching: ', this.currentBot)
       } catch (error) {
         this.handleError(error, 'fetching bot by id')
+        console.error('Error fetching bot by id: ', error)
       }
     },
 

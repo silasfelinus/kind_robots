@@ -49,21 +49,34 @@ const localPrompts = ref<string[]>([])
 // Save icon visibility state
 const showSaveIcon = ref(false)
 
-// Delay function to simulate a small pause before updating the botForm.userIntro
-function delayedUpdate(newPrompts: string[]) {
+// Function to update botForm.userIntro and save to the store
+async function saveUserIntro(newUserIntro: string) {
   showSaveIcon.value = true // Show the save icon when update starts
 
-  setTimeout(() => {
-    const newUserIntro = newPrompts.join(' | ')
-    if (botStore.botForm.userIntro !== newUserIntro) {
-      botStore.botForm.userIntro = newUserIntro
-    }
-
-    // Flash the save icon twice and then hide it
+  // Update the botStore with the new intro
+  try {
+    // Assuming the botStore has a save or update function that returns a promise
+    await botStore.updateUserIntro(newUserIntro)
+    // Successfully saved, hide the save icon after flashing it for 500ms
     setTimeout(() => {
       showSaveIcon.value = false
-    }, 500) // Flash save icon for 500ms
-  }, 300) // Introduce a 300ms delay before updating
+    }, 500)
+  } catch (error) {
+    // Handle the error (e.g., show a notification)
+    console.error('Failed to save user intro:', error)
+    showSaveIcon.value = false // Hide the icon in case of failure
+  }
+}
+
+// Delay function to update the botForm.userIntro and save it
+function delayedUpdate(newPrompts: string[]) {
+  const newUserIntro = newPrompts.join(' | ')
+  if (botStore.botForm.userIntro !== newUserIntro) {
+    botStore.botForm.userIntro = newUserIntro
+
+    // Call save function with the updated userIntro
+    saveUserIntro(newUserIntro)
+  }
 }
 
 // Watch botForm.userIntro to update the localPrompts when switching bots

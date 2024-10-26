@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Bot } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
-import { usePromptStore } from './promptStore' // Import promptStore
+
 
 export const useBotStore = defineStore({
   id: 'botStore',
@@ -48,15 +48,6 @@ export const useBotStore = defineStore({
         this.currentBot = foundBot
         this.botForm = { ...foundBot } // Copy to botForm for editing
         this.currentImagePath = foundBot.avatarImage || ''
-
-        // Update the promptStore with the bot's userIntro
-        const promptStore = usePromptStore()
-        if (foundBot.userIntro) {
-          // Use the setPromptsFromString method to parse the userIntro
-          promptStore.setPromptsFromString(foundBot.userIntro)
-        } else {
-          promptStore.promptArray = [] // Reset if no userIntro
-        }
 
       } catch (error) {
         this.handleError(error, 'selecting bot')
@@ -106,13 +97,11 @@ export const useBotStore = defineStore({
 
     // Fetch prompt string from promptStore and include it in the bot update
     async updateBot(id: number): Promise<void> {
-      const promptStore = usePromptStore() // Use promptStore
 
       try {
         const botData = {
           ...this.botForm,
           avatarImage: this.currentImagePath,
-          userIntro: promptStore.getFinalPromptString(), // Get prompt string
         }
 
         const response = await fetch(`/api/bot/id/${id}`, {

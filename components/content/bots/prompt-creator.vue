@@ -50,32 +50,20 @@ const localPrompts = ref<string[]>([])
 const showSaveIcon = ref(false)
 
 // Function to update botForm.userIntro and save to the store
-async function saveUserIntro(newUserIntro: string) {
+async function saveUserIntro(newPrompts: string[]) {
   showSaveIcon.value = true // Show the save icon when update starts
+
+  const newUserIntro = newPrompts.join(' | ')
 
   // Update the botStore with the new intro
   try {
-    // Assuming the botStore has a save or update function that returns a promise
-    await botStore.updateUserIntro(newUserIntro)
-    // Successfully saved, hide the save icon after flashing it for 500ms
+    await botStore.updateUserIntro(newUserIntro) // Save the userIntro to the store
     setTimeout(() => {
-      showSaveIcon.value = false
+      showSaveIcon.value = false // Hide the icon after 500ms
     }, 500)
   } catch (error) {
-    // Handle the error (e.g., show a notification)
     console.error('Failed to save user intro:', error)
     showSaveIcon.value = false // Hide the icon in case of failure
-  }
-}
-
-// Delay function to update the botForm.userIntro and save it
-function delayedUpdate(newPrompts: string[]) {
-  const newUserIntro = newPrompts.join(' | ')
-  if (botStore.botForm.userIntro !== newUserIntro) {
-    botStore.botForm.userIntro = newUserIntro
-
-    // Call save function with the updated userIntro
-    saveUserIntro(newUserIntro)
   }
 }
 
@@ -91,11 +79,11 @@ watch(
   },
 )
 
-// Watch localPrompts and update botForm.userIntro with a delay
+// Watch localPrompts and save changes
 watch(
   localPrompts,
   (newPrompts) => {
-    delayedUpdate(newPrompts) // Use delayed update with a save icon flash
+    saveUserIntro(newPrompts) // Use saveUserIntro to save the new prompts
   },
   { deep: true },
 )

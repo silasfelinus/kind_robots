@@ -137,7 +137,56 @@ export const useBotStore = defineStore({
         console.error('Error updating bot: ', error) // Add error logging
       }
     },
-    // Update the bot's userIntro field
+    // Update the currentBot without needing to pass the id manually
+    async updateCurrentBot(): Promise<void> {
+      if (!this.currentBot) {
+        console.error('No bot selected to update')
+        return
+      }
+
+      console.log('Updating current bot...')
+
+      try {
+        const botData = {
+          ...this.botForm,
+          avatarImage: this.currentImagePath,
+        }
+
+        console.log('Submitting bot data: ', botData)
+
+        const response = await fetch(`/api/bot/id/${this.currentBot.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(botData),
+        })
+
+        if (!response.ok) {
+          throw new Error(`Failed to update bot: ${response.statusText}`)
+        }
+
+        const updatedBot = await response.json()
+        console.log('API Response (Updated bot): ', updatedBot)
+
+        // Update the bot in the list
+        const botIndex = this.bots.findIndex(
+          (bot) => bot.id === this.currentBot?.id,
+        )
+        if (botIndex !== -1) {
+          this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot }
+        }
+
+        // Ensure `currentBot` and `botForm` are updated after the update
+        this.currentBot = updatedBot
+        this.botForm = { ...updatedBot }
+        this.currentImagePath = updatedBot.avatarImage
+
+        console.log('Current bot after update: ', this.currentBot)
+        console.log('botForm after update: ', this.botForm)
+      } catch (error) {
+        this.handleError(error, 'updating bot')
+        console.error('Error updating current bot: ', error)
+      }
+    },
     async updateUserIntro(newUserIntro: string): Promise<void> {
       if (!this.currentBot) {
         console.error('No bot selected to update')
@@ -148,8 +197,8 @@ export const useBotStore = defineStore({
         // Update only the userIntro field in botForm
         this.botForm.userIntro = newUserIntro
 
-        // Use the existing updateBot method to send the update to the backend
-        await this.updateBot(this.currentBot.id)
+        // Use the updateCurrentBot method to send the update to the backend
+        await this.updateCurrentBot()
         console.log('User intro updated successfully')
       } catch (error) {
         this.handleError(error, 'updating user intro')

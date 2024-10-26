@@ -40,10 +40,10 @@ const botStore = useBotStore()
 // Local copy of the prompts, split from the current bot's userIntro
 const localPrompts = ref<string[]>([])
 
-// When component is mounted, sync localPrompts with bot's userIntro
-onMounted(() => {
-  if (botStore.botForm?.userIntro) {
-    localPrompts.value = botStore.botForm.userIntro.split('|').map(prompt => prompt.trim())
+// Watch `botForm.userIntro` to update the localPrompts when switching bots
+watch(() => botStore.botForm.userIntro, (newUserIntro) => {
+  if (newUserIntro) {
+    localPrompts.value = newUserIntro.split('|').map(prompt => prompt.trim())
   } else {
     localPrompts.value = [''] // Initialize with one empty prompt if no userIntro
   }

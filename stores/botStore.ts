@@ -199,7 +199,7 @@ export const useBotStore = defineStore({
 
         // Use the updateCurrentBot method to send the update to the backend
         await this.updateCurrentBot()
-        console.log('User intro updated successfully')
+        console.log('User intro updated successfully: ' + newUserIntro)
       } catch (error) {
         this.handleError(error, 'updating user intro')
         console.error('Error updating user intro: ', error)

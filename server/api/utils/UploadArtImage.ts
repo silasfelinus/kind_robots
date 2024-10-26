@@ -1,5 +1,4 @@
 // server/api/utils/UploadArtImage.ts
-// server/api/utils/UploadArtImage.ts
 import { PrismaClient } from '@prisma/client'
 import type { ArtImage } from '@prisma/client'
 import { errorHandler } from '../utils/error'
@@ -19,7 +18,9 @@ export async function uploadArtImage(
     // Ensure fileType has a valid value and sanitize input
     const validExtensions = ['png', 'jpeg', 'jpg', 'webp']
     if (!validExtensions.includes(fileType.toLowerCase())) {
-      throw new Error(`Unsupported file type: ${fileType}. Accepted types are ${validExtensions.join(', ')}`)
+      throw new Error(
+        `Unsupported file type: ${fileType}. Accepted types are ${validExtensions.join(', ')}`,
+      )
     }
 
     const timestamp = Date.now()

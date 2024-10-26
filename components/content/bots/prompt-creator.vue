@@ -48,21 +48,26 @@ const botStore = useBotStore()
 // Save icon visibility state
 const showSaveIcon = ref(false)
 
-// Function to save the final prompt string to botStore's currentBot
+// Function to save the final prompt string to botForm or currentBot
 async function saveUserIntroToBot() {
   showSaveIcon.value = true // Show the save icon when update starts
 
   const finalPromptString = promptStore.finalPromptString // Get the final prompt string from the promptStore
 
   try {
-    // Call the botStore to save the userIntro (final prompt string)
-    await botStore.saveUserIntro(finalPromptString)
+    // If currentBot exists, save to currentBot; otherwise, save to botForm
+    if (botStore.currentBot) {
+      await botStore.saveUserIntro(finalPromptString) // Save to the current bot
+    } else {
+      botStore.botForm.userIntro = finalPromptString // Temporarily store in botForm
+      console.log('Saved user intro to botForm:', finalPromptString)
+    }
 
     setTimeout(() => {
       showSaveIcon.value = false // Hide the icon after 500ms
     }, 500)
   } catch (error) {
-    console.error('Failed to save user intro to bot:', error)
+    console.error('Failed to save user intro:', error)
     showSaveIcon.value = false // Hide the icon in case of failure
   }
 }
@@ -71,7 +76,7 @@ async function saveUserIntroToBot() {
 watch(
   () => promptStore.promptArray,
   () => {
-    saveUserIntroToBot() // Automatically save to botStore whenever the prompt array changes
+    saveUserIntroToBot() // Automatically save to botStore or botForm whenever the prompt array changes
   },
   { deep: true },
 )

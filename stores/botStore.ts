@@ -8,7 +8,8 @@ export const useBotStore = defineStore({
 
   state: () => ({
     bots: [] as Bot[],
-    currentBot: null as Bot | null,
+    currentBot: null as Bot | null, // Original bot from the backend
+    botForm: {} as Partial<Bot>, // Bot form to hold temporary changes
     currentImagePath: '', // Track the image path of the current bot
     loading: false,
     isLoaded: false, // Track whether the store has been loaded
@@ -23,6 +24,10 @@ export const useBotStore = defineStore({
 
     // Computed property to return the selected bot's ID
     selectedBotId: (state) => state.currentBot?.id ?? null,
+
+    // Check if there are unsaved changes between `currentBot` and `botForm`
+    hasUnsavedChanges: (state) =>
+      JSON.stringify(state.currentBot) !== JSON.stringify(state.botForm),
   },
 
   actions: {
@@ -43,7 +48,7 @@ export const useBotStore = defineStore({
       }
     },
 
-    // Select a bot by ID and update currentBot and currentImagePath
+    // Select a bot by ID, update currentBot and botForm
     async selectBot(botId: number) {
       try {
         if (this.currentBot?.id === botId) {
@@ -57,6 +62,7 @@ export const useBotStore = defineStore({
         }
 
         this.currentBot = foundBot
+        this.botForm = { ...foundBot } // Copy to botForm for editing
         this.currentImagePath = foundBot.avatarImage || ''
         console.log('Bot selected successfully:', this.currentBot)
       } catch (error) {
@@ -64,9 +70,18 @@ export const useBotStore = defineStore({
       }
     },
 
-    // Deselect current bot
+    // Revert botForm to currentBot values (discard changes)
+    revertBotForm() {
+      if (this.currentBot) {
+        this.botForm = { ...this.currentBot }
+        console.log('Form reverted to original bot values.')
+      }
+    },
+
+    // Deselect current bot and clear the form
     deselectBot() {
       this.currentBot = null
+      this.botForm = {}
       this.currentImagePath = ''
       console.log('Bot deselected.')
     },
@@ -107,12 +122,18 @@ export const useBotStore = defineStore({
     },
 
     // Update a single bot
-    async updateBot(id: number, data: Partial<Bot>): Promise<void> {
+    async updateBot(id: number, promptArray: string): Promise<void> {
       try {
+        const botData = {
+          ...this.botForm,
+          avatarImage: this.currentImagePath,
+          userIntro: promptArray,
+        }
+
         const response = await fetch(`/api/bot/id/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          body: JSON.stringify(botData),
         })
 
         if (!response.ok) {
@@ -127,6 +148,7 @@ export const useBotStore = defineStore({
         }
 
         this.currentBot = updatedBot
+        this.botForm = { ...updatedBot } // Update the form to match saved data
         this.currentImagePath = updatedBot.avatarImage
         console.log('Bot updated successfully:', this.currentBot)
       } catch (error) {
@@ -182,6 +204,7 @@ export const useBotStore = defineStore({
 
         const data = await response.json()
         this.currentBot = data.bot
+        this.botForm = { ...data.bot }
         this.currentImagePath = data.bot.avatarImage
       } catch (error) {
         this.handleError(error, 'fetching bot by id')

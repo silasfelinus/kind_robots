@@ -187,7 +187,7 @@ export const useBotStore = defineStore({
         console.error('Error updating current bot: ', error)
       }
     },
-    async updateUserIntro(newUserIntro: string): Promise<void> {
+    async saveUserIntro(newUserIntro: string): Promise<void> {
       if (!this.currentBot) {
         console.error('No bot selected to update')
         return

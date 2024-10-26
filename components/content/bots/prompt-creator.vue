@@ -13,18 +13,9 @@
         type="text"
         class="w-full p-3 rounded-lg border"
         placeholder="Enter user prompt"
-        @input="markAsChanged(index)"
       />
       <button class="text-red-500" @click="removePrompt(index)">
         <Icon name="kind-icon:trash" class="w-6 h-6" />
-      </button>
-      <!-- Show save button when the prompt has been changed -->
-      <button
-        v-if="changedPrompts[index]"
-        class="btn btn-primary"
-        @click="savePrompt(index)"
-      >
-        Save
       </button>
     </div>
 
@@ -39,62 +30,43 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { usePromptStore } from '@/stores/promptStore'
+import { useBotStore } from '@/stores/botStore'
 
-// Access the promptStore
-const promptStore = usePromptStore()
+// Access the botStore
+const botStore = useBotStore()
 
-// Local copy of the prompt array to handle input before committing changes
-const localPrompts = ref([...promptStore.promptArray])
+// Local copy of the prompts, split from the current bot's userIntro
+const localPrompts = ref<string[]>([])
 
-// Track which prompts have unsaved changes
-const changedPrompts = ref<boolean[]>([])
-
-// Sync localPrompts with promptStore on mount
+// When component is mounted, sync localPrompts with bot's userIntro
 onMounted(() => {
-  localPrompts.value = [...promptStore.promptArray] // Sync on mount
-  resetChangedPrompts()
+  if (botStore.currentBot?.userIntro) {
+    localPrompts.value = botStore.currentBot.userIntro.split('|').map(prompt => prompt.trim())
+  } else {
+    localPrompts.value = [''] // Initialize with one empty prompt if no userIntro
+  }
 })
 
-// Watch for changes in promptStore.promptArray and update localPrompts accordingly
-watch(() => promptStore.promptArray, (newPrompts) => {
-  localPrompts.value = [...newPrompts]
-  resetChangedPrompts()
-})
+// Watch localPrompts and update the currentBot.userIntro in real time
+watch(localPrompts, (newPrompts) => {
+  botStore.currentBot!.userIntro = newPrompts.filter(prompt => prompt.trim() !== '').join(' | ')
+}, { deep: true })
 
-// Add new prompt to the local array and the store
+// Add new prompt to the local array
 function addPrompt() {
   localPrompts.value.push('') // Add an empty prompt locally
-  promptStore.addPrompt('') // Add an empty prompt to the store
-  changedPrompts.value.push(false) // Initialize as not changed
 }
 
-// Mark a prompt as changed when user modifies it
-function markAsChanged(index: number) {
-  changedPrompts.value[index] = true
-}
-
-// Save the prompt to the store when user clicks "Save"
-function savePrompt(index: number) {
-  const updatedPrompt = localPrompts.value[index]
-  promptStore.updatePromptAtIndex(index, updatedPrompt) // Commit to store
-  changedPrompts.value[index] = false // Mark as saved
-}
-
-// Remove a prompt from both the local array and the store
+// Remove a prompt from the local array
 function removePrompt(index: number) {
   localPrompts.value.splice(index, 1) // Remove from local array
-  promptStore.removePromptFromArray(index) // Remove from store
-  changedPrompts.value.splice(index, 1) // Remove change tracking
-}
-
-// Reset change tracking for all prompts (after syncing)
-function resetChangedPrompts() {
-  changedPrompts.value = localPrompts.value.map(() => false)
 }
 
 // Computed property to display the final constructed prompt string
-const finalPromptString = computed(() => promptStore.getFinalPromptString())
+const finalPromptString = computed(() => {
+  return localPrompts.value.filter(prompt => prompt.trim() !== '').join(' | ')
+})
 </script>

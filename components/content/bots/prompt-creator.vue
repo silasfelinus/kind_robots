@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 
 // Access the botStore
@@ -43,7 +43,7 @@ const localPrompts = ref<string[]>([])
 // Watch `botForm.userIntro` to update the localPrompts when switching bots
 watch(() => botStore.botForm.userIntro, (newUserIntro) => {
   if (newUserIntro) {
-    localPrompts.value = newUserIntro.split('|').map(prompt => prompt.trim())
+    localPrompts.value = newUserIntro.split('|') // Removed trim() to preserve spaces
   } else {
     localPrompts.value = [''] // Initialize with one empty prompt if no userIntro
   }
@@ -51,7 +51,7 @@ watch(() => botStore.botForm.userIntro, (newUserIntro) => {
 
 // Watch localPrompts and update botForm.userIntro in real time
 watch(localPrompts, (newPrompts) => {
-  botStore.botForm.userIntro = newPrompts.filter(prompt => prompt.trim() !== '').join(' | ')
+  botStore.botForm.userIntro = newPrompts.join(' | ') // Removed filter() and trim()
 }, { deep: true })
 
 // Add new prompt to the local array
@@ -66,6 +66,6 @@ function removePrompt(index: number) {
 
 // Computed property to display the final constructed prompt string
 const finalPromptString = computed(() => {
-  return localPrompts.value.filter(prompt => prompt.trim() !== '').join(' | ')
+  return localPrompts.value.join(' | ') // Preserve spaces in the final string
 })
 </script>

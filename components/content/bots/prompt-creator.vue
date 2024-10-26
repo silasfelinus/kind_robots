@@ -4,12 +4,12 @@
 
     <!-- Display all prompts with input fields and remove buttons -->
     <div
-      v-for="(prompt, index) in promptStore.promptArray"
+      v-for="(prompt, index) in currentPrompts"
       :key="index"
       class="flex items-center space-x-4 mb-4"
     >
       <input
-        v-model="promptStore.promptArray[index]"
+        v-model="currentPrompts[index]"
         type="text"
         class="w-full p-3 rounded-lg border"
         placeholder="Enter user prompt"
@@ -26,7 +26,7 @@
 
     <!-- Display final prompt string -->
     <h3 class="text-lg font-medium mt-4">Final Prompt String</h3>
-    <p>{{ promptStore.finalPromptString }}</p>
+    <p>{{ finalPromptString }}</p>
 
     <!-- Save icon that appears when updating -->
     <div v-if="showSaveIcon" class="flex items-center space-x-2">
@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { usePromptStore } from '@/stores/promptStore'
 import { useBotStore } from '@/stores/botStore'
 
@@ -48,18 +48,31 @@ const botStore = useBotStore()
 // Save icon visibility state
 const showSaveIcon = ref(false)
 
+// Determine whether to use currentBot or promptStore for prompts
+const currentPrompts = computed(() => {
+  // Use currentBot's userIntro if it exists, otherwise use the promptArray from promptStore
+  return botStore.currentBot
+    ? botStore.currentBot.userIntro?.split(' | ') || [] // Split string into array for currentBot.userIntro
+    : promptStore.promptArray // Otherwise use promptStore for new bot creation
+})
+
+// Computed property for the final prompt string
+const finalPromptString = computed(() => {
+  return currentPrompts.value.join(' | ')
+})
+
 // Function to save the final prompt string to botForm or currentBot
 async function saveUserIntroToBot() {
   showSaveIcon.value = true // Show the save icon when update starts
 
-  const finalPromptString = promptStore.finalPromptString // Get the final prompt string from the promptStore
-
   try {
+    const finalPromptString = currentPrompts.value.join(' | ') // Get the final prompt string
+
     // If currentBot exists, save to currentBot; otherwise, save to botForm
     if (botStore.currentBot) {
       await botStore.saveUserIntro(finalPromptString) // Save to the current bot
     } else {
-      botStore.botForm.userIntro = finalPromptString // Temporarily store in botForm
+      botStore.botForm.userIntro = finalPromptString // Temporarily store in botForm for new bot creation
       console.log('Saved user intro to botForm:', finalPromptString)
     }
 
@@ -72,9 +85,9 @@ async function saveUserIntroToBot() {
   }
 }
 
-// Watch for changes in the promptArray and trigger save
+// Watch for changes in currentPrompts and trigger save
 watch(
-  () => promptStore.promptArray,
+  () => currentPrompts.value,
   () => {
     saveUserIntroToBot() // Automatically save to botStore or botForm whenever the prompt array changes
   },
@@ -83,11 +96,21 @@ watch(
 
 // Add new prompt to the array
 function addPrompt() {
-  promptStore.addPromptToArray('') // Add an empty prompt using the store action
+  if (botStore.currentBot) {
+    botStore.currentBot.userIntro = [...currentPrompts.value, ''].join(' | ') // Add an empty prompt for currentBot
+  } else {
+    promptStore.addPromptToArray('') // Add an empty prompt using the store action for new bot
+  }
 }
 
 // Remove a prompt from the array
 function removePrompt(index: number) {
-  promptStore.removePromptFromArray(index) // Remove the prompt using the store action
+  if (botStore.currentBot) {
+    const updatedPrompts = [...currentPrompts.value]
+    updatedPrompts.splice(index, 1)
+    botStore.currentBot.userIntro = updatedPrompts.join(' | ') // Update currentBot prompts after removal
+  } else {
+    promptStore.removePromptFromArray(index) // Remove the prompt using the store action for new bot
+  }
 }
 </script>

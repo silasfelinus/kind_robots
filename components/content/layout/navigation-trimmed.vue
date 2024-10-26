@@ -3,12 +3,12 @@
     <!-- View Toggle -->
     <div class="absolute top-4 right-4 flex space-x-2 z-40">
       <Icon
-        name="icon-park-outline:grid-sixteen"
+        name="kind-icon:grid"
         class="text-2xl cursor-pointer"
         @click="setView('fourRow')"
       />
       <Icon
-        name="ion:grid-outline"
+        name="kind-icon:gridsquare"
         class="text-2xl cursor-pointer"
         @click="setView('twoRow')"
       />

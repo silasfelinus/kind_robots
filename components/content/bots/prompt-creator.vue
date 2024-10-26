@@ -10,6 +10,7 @@
     >
       <input
         v-model="promptStore.promptArray[index]"
+        @input="updatePrompt(index, promptStore.promptArray[index])"
         type="text"
         class="w-full p-3 rounded-lg border"
         placeholder="Enter user prompt"
@@ -31,6 +32,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { usePromptStore } from '@/stores/promptStore'
 
 // Access the promptStore
@@ -39,6 +41,11 @@ const promptStore = usePromptStore()
 // Add new prompt to the store's array
 function addPrompt() {
   promptStore.addPromptToArray('') // Add an empty prompt string
+}
+
+// Update prompt when user modifies an input
+function updatePrompt(index: number, value: string) {
+  promptStore.updatePromptAtIndex(index, value)
 }
 
 // Remove a prompt from the store's array by index

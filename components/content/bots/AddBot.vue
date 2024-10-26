@@ -197,6 +197,7 @@ function toggleVisibility(value: boolean) {
 async function handleSubmit() {
   isLoading.value = true
   try {
+    console.log('Submitting bot form: ', botStore.botForm)  // Check the botForm before submitting
     if (botStore.selectedBotId) {
       await botStore.updateBot(botStore.selectedBotId)
       successMessage.value = 'Bot updated successfully!'
@@ -213,6 +214,7 @@ async function handleSubmit() {
     isLoading.value = false
   }
 }
+
 
 onMounted(async () => {
   await botStore.loadStore()

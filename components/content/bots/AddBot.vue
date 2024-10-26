@@ -6,6 +6,46 @@
 
     <bot-selector />
 
+    <!-- Toggles for Public Visibility and Under Construction -->
+    <div class="col-span-full flex justify-between items-center mb-4">
+      <div>
+        <label class="block text-lg font-medium">Public Visibility:</label>
+        <div class="flex space-x-2">
+          <button
+            type="button"
+            :class="{
+              'btn btn-primary': botStore.botForm.isPublic,
+              'btn btn-grey-200': !botStore.botForm.isPublic,
+            }"
+            @click="toggleVisibility(true)"
+          >
+            Public
+          </button>
+          <button
+            type="button"
+            :class="{
+              'btn btn-primary': !botStore.botForm.isPublic,
+              'btn btn-grey-200': botStore.botForm.isPublic,
+            }"
+            @click="toggleVisibility(false)"
+          >
+            Private
+          </button>
+        </div>
+      </div>
+      <div class="flex items-center">
+        <input
+          id="underConstruction"
+          v-model="botStore.botForm.underConstruction"
+          type="checkbox"
+          class="mr-2"
+        />
+        <label for="underConstruction" class="block text-lg font-medium"
+          >Mark as under construction</label
+        >
+      </div>
+    </div>
+
     <!-- Feedback Message -->
     <div
       v-if="botFeedbackMessage"
@@ -21,11 +61,11 @@
       <input
         v-if="canEditDesigner"
         id="designer"
-        v-model="designer"
+        v-model="botStore.botForm.designer"
         type="text"
         class="w-full p-3 rounded-lg border"
       />
-      <p v-else>{{ designer }}</p>
+      <p v-else>{{ botStore.botForm.designer }}</p>
     </div>
 
     <!-- Avatar Image and Generation Component -->
@@ -42,11 +82,14 @@
         class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       >
         <!-- Name Field -->
-        <div class="col-span-full sm:col-span-1">
+        <div
+          :class="highlightIfChanged('name')"
+          class="col-span-full sm:col-span-1"
+        >
           <label for="name" class="block text-lg font-medium">Name:</label>
           <input
             id="name"
-            v-model="name"
+            v-model="botStore.botForm.name"
             type="text"
             class="w-full p-3 rounded-lg border"
             required
@@ -54,40 +97,43 @@
         </div>
 
         <!-- Subtitle Field -->
-        <div class="col-span-full sm:col-span-1">
+        <div
+          :class="highlightIfChanged('subtitle')"
+          class="col-span-full sm:col-span-1"
+        >
           <label for="subtitle" class="block text-lg font-medium"
             >Subtitle:</label
           >
           <input
             id="subtitle"
-            v-model="subtitle"
+            v-model="botStore.botForm.subtitle"
             type="text"
             class="w-full p-3 rounded-lg border"
           />
         </div>
 
         <!-- Description Field -->
-        <div class="col-span-full">
+        <div :class="highlightIfChanged('description')" class="col-span-full">
           <label for="description" class="block text-lg font-medium"
             >Description:</label
           >
           <textarea
             id="description"
-            v-model="description"
+            v-model="botStore.botForm.description"
             rows="4"
             class="w-full p-3 rounded-lg border"
             placeholder="Enter a short description for the bot"
           ></textarea>
         </div>
 
-        <!-- bot Intro Field -->
-        <div class="col-span-full">
+        <!-- Bot Intro Field -->
+        <div :class="highlightIfChanged('botIntro')" class="col-span-full">
           <label for="botIntro" class="block text-lg font-medium"
             >Bot Intro:</label
           >
           <textarea
             id="botIntro"
-            v-model="botIntro"
+            v-model="botStore.botForm.botIntro"
             rows="4"
             class="w-full p-3 rounded-lg border"
             placeholder="Enter the introduction sent to the language modeller"
@@ -100,45 +146,6 @@
             >User Prompts:</label
           >
           <prompt-creator />
-        </div>
-
-        <!-- Public Visibility Toggle -->
-        <div class="col-span-full sm:col-span-1">
-          <label class="block text-lg font-medium">Public Visibility:</label>
-          <div class="flex space-x-2">
-            <button
-              type="button"
-              :class="{
-                'btn btn-primary': isPublic,
-                'btn btn-grey-200': !isPublic,
-              }"
-              @click="toggleVisibility(true)"
-            >
-              Public
-            </button>
-            <button
-              type="button"
-              :class="{
-                'btn btn-primary': !isPublic,
-                'btn btn-grey-200': isPublic,
-              }"
-              @click="toggleVisibility(false)"
-            >
-              Private
-            </button>
-          </div>
-        </div>
-
-        <div class="col-span-full sm:col-span-1 flex items-center">
-          <input
-            id="underConstruction"
-            v-model="underConstruction"
-            type="checkbox"
-            class="mr-2"
-          />
-          <label for="underConstruction" class="block text-lg font-medium"
-            >Mark as under construction</label
-          >
         </div>
       </div>
 
@@ -159,7 +166,9 @@
           :disabled="isLoading"
         >
           <span v-if="isLoading">Saving...</span>
-          <span v-else>Save Bot</span>
+          <span v-else>{{
+            botStore.selectedBotId ? 'Update Bot' : 'Create New Bot'
+          }}</span>
         </button>
       </div>
     </form>
@@ -184,106 +193,50 @@ const successMessage = ref<string | null>(null)
 const botFeedbackMessage = ref<string | null>(null)
 const botFeedbackClass = ref<string>('')
 
-
-
-const selectedBotId = computed({
-  get() {
-    return botStore.currentBot?.id || null
-  },
-  set(id: number | null) {
-    if (id !== null) {
-      botStore.selectBot(id)
-    } else {
-      botStore.deselectBot()
-    }
-  },
-})
-
 // Determine if the designer field can be edited
 const canEditDesigner = computed(
-  () =>
-    !selectedBotId.value || botStore.currentBot?.userId === userStore.userId,
+  () => !botStore.selectedBotId || botStore.botForm.userId === userStore.userId,
 )
 
-const designer = computed({
-  get() {
-    if (!selectedBotId.value) {
-      return userStore.user?.username || 'Kind Guest'
-    }
-    return botStore.currentBot?.designer || 'Unknown Designer'
-  },
-  set(value) {
-    if (canEditDesigner.value) {
-      if (selectedBotId.value) {
-        botStore.currentBot!.designer = value // Update current bot if selected
-      }
-    }
-  },
-})
-
-const isPublic = computed({
-  get() {
-    return botStore.currentBot?.isPublic ?? true
-  },
-  set(value: boolean) {
-    if (botStore.currentBot) {
-      botStore.currentBot.isPublic = value
-    }
-  },
-})
-
-function toggleVisibility(value: boolean) {
-  isPublic.value = value
+// Highlight any fields that have changed compared to the original bot
+function highlightIfChanged(field: string) {
+  const original = botStore.currentBot || {}
+  if (
+    botStore.botForm[field as keyof typeof botStore.botForm] !==
+    original[field as keyof typeof original]
+  ) {
+    return 'border border-info' // Highlight changed fields
+  }
+  return ''
 }
 
-const name = computed(() => botStore.currentBot?.name || '')
-const subtitle = computed(() => botStore.currentBot?.subtitle || '')
-const description = computed(
-  () => botStore.currentBot?.description || 'Another helpful robot',
-)
-const botIntro = computed({
-  get() {
-    return botStore.currentBot?.botIntro || "I'm a kind robot";
-  },
-  set(value: string) {
-    if (botStore.currentBot) {
-      botStore.currentBot.botIntro = value;
-    }
-  },
-});
-
-const underConstruction = computed(
-  () => botStore.currentBot?.underConstruction ?? false,
-)
+function toggleVisibility(value: boolean) {
+  botStore.botForm.isPublic = value
+}
 
 async function handleSubmit() {
-  isLoading.value = true;
+  isLoading.value = true
   try {
     const botData = {
-      name: name.value,
-      subtitle: subtitle.value ?? '',
-      description: description.value ?? '',
-      botIntro: botIntro.value ?? '',
-      designer: designer.value,
-      userIntro: promptStore.promptArray.join(' | '),
+      ...botStore.botForm,
       avatarImage: botStore.currentImagePath,
-      isPublic: isPublic.value,
-      underConstruction: underConstruction.value,
-      userId: userStore.userId,
-    };
+      userIntro: promptStore.promptArray.join(' | '), // Join prompt array into a single string
+    }
 
-    if (selectedBotId.value) {
-      await botStore.updateBot(selectedBotId.value, botData);
-      console.log('Bot updated successfully:', selectedBotId.value);
-      successMessage.value = 'Bot updated successfully!';
-      // Ensure bot remains selected after update
-      botStore.selectBot(selectedBotId.value);
+    if (botStore.selectedBotId) {
+      await botStore.updateBot(botStore.selectedBotId, botData.userIntro)
+      successMessage.value = 'Bot updated successfully!'
+      botFeedbackMessage.value = 'Bot saved successfully!'
+    } else {
+      await botStore.addBots([botData])
+      successMessage.value = 'New bot created successfully!'
+      botFeedbackMessage.value = 'New bot saved successfully!'
     }
   } catch (error) {
-    console.error('Error editing bot:', error);
-    errorMessage.value = 'Error editing bot: ' + error;
+    console.error('Error editing bot:', error)
+    errorMessage.value = `Error editing bot: ${error}`
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 

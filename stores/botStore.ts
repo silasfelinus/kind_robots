@@ -128,7 +128,7 @@ export const useBotStore = defineStore({
         // Ensure `currentBot` is updated to the selected one after the update
         this.currentBot = updatedBot
         this.botForm = { ...updatedBot }
-        this.currentImagePath = updatedBot.avatarImage
+        this.currentImagePath = updatedBot.bot.avatarImage
 
         console.log('Current bot after update: ', this.currentBot)
         console.log('botForm after update: ', this.botForm)

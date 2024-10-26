@@ -48,9 +48,14 @@ const botStore = useBotStore()
 // Save icon visibility state
 const showSaveIcon = ref(false)
 
+// To store the previous prompt string to avoid unnecessary saves
+const lastSavedPromptString = ref('')
+
+// Debounce timeout
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null
+
 // Determine whether to use currentBot or promptStore for prompts
 const currentPrompts = computed(() => {
-  // Use currentBot's userIntro if it exists, otherwise use the promptArray from promptStore
   return botStore.currentBot
     ? botStore.currentBot.userIntro?.split(' | ') || [] // Split string into array for currentBot.userIntro
     : promptStore.promptArray // Otherwise use promptStore for new bot creation
@@ -63,11 +68,14 @@ const finalPromptString = computed(() => {
 
 // Function to save the final prompt string to botForm or currentBot
 async function saveUserIntroToBot() {
+  const finalPromptString = currentPrompts.value.join(' | ') // Get the final prompt string
+
+  // Only save if the new prompt string differs from the last saved one
+  if (finalPromptString === lastSavedPromptString.value) return
+
   showSaveIcon.value = true // Show the save icon when update starts
 
   try {
-    const finalPromptString = currentPrompts.value.join(' | ') // Get the final prompt string
-
     // If currentBot exists, save to currentBot; otherwise, save to botForm
     if (botStore.currentBot) {
       await botStore.saveUserIntro(finalPromptString) // Save to the current bot
@@ -75,6 +83,8 @@ async function saveUserIntroToBot() {
       botStore.botForm.userIntro = finalPromptString // Temporarily store in botForm for new bot creation
       console.log('Saved user intro to botForm:', finalPromptString)
     }
+
+    lastSavedPromptString.value = finalPromptString // Update the last saved prompt string
 
     setTimeout(() => {
       showSaveIcon.value = false // Hide the icon after 500ms
@@ -85,11 +95,19 @@ async function saveUserIntroToBot() {
   }
 }
 
+// Debounced save function
+function debouncedSave() {
+  if (debounceTimeout) clearTimeout(debounceTimeout)
+  debounceTimeout = setTimeout(() => {
+    saveUserIntroToBot()
+  }, 300) // Adjust delay as necessary
+}
+
 // Watch for changes in currentPrompts and trigger save
 watch(
   () => currentPrompts.value,
   () => {
-    saveUserIntroToBot() // Automatically save to botStore or botForm whenever the prompt array changes
+    debouncedSave() // Debounce the save function to avoid excessive calls
   },
   { deep: true },
 )

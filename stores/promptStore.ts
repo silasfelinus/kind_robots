@@ -9,7 +9,7 @@ interface State {
   fetchedPrompts: Record<number, Prompt | null>
   promptField: string
   isInitialized: boolean
-  promptArray: string[] 
+  promptArray: string[]
 }
 
 export const usePromptStore = defineStore('promptStore', {
@@ -19,14 +19,14 @@ export const usePromptStore = defineStore('promptStore', {
     selectedPrompt: null,
     fetchedPrompts: {}, // Initialize fetched prompts as an empty object
     promptField: 'kind robots',
-    isInitialized: false, 
-    promptArray: [], 
+    isInitialized: false,
+    promptArray: [], // Stores user-created prompts
   }),
 
   actions: {
     // Initialize promptStore
     async initialize() {
-      if (this.isInitialized) return 
+      if (this.isInitialized) return
 
       if (typeof window !== 'undefined') {
         this.loadPromptField()
@@ -70,14 +70,14 @@ export const usePromptStore = defineStore('promptStore', {
       }
     },
 
-    // Directly update prompt array
-    updatePromptArray(newPrompts: string[]) {
-      this.promptArray = newPrompts
-    },
-
     // Add new prompt to the store's array
     addPromptToArray(prompt: string) {
       this.promptArray.push(prompt)
+    },
+
+    // Update a prompt at a specific index
+    updatePromptAtIndex(index: number, value: string) {
+      this.promptArray[index] = value
     },
 
     // Remove a prompt from the store's array by index
@@ -86,16 +86,14 @@ export const usePromptStore = defineStore('promptStore', {
     },
 
     // Construct the final prompt string, each prompt as a whole, joined by the '|' delimiter
-getFinalPromptString(): string {
-  return this.promptArray.filter(prompt => prompt.trim() !== '').join(' | ')
-},
-
+    getFinalPromptString(): string {
+      return this.promptArray.filter(prompt => prompt.trim() !== '').join(' | ')
+    },
 
     // Split a final prompt string back into an array, splitting by '|'
-setPromptsFromString(finalString: string) {
-  this.promptArray = finalString.split('|').map(prompt => prompt.trim())
-},
-
+    setPromptsFromString(finalString: string) {
+      this.promptArray = finalString.split('|').map(prompt => prompt.trim())
+    },
 
     // Fetch a prompt by ID and store it in fetchedPrompts
     async fetchPromptById(promptId: number) {

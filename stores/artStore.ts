@@ -449,6 +449,7 @@ export const useArtStore = defineStore({
           if (!formData.get('fileType')) {
             formData.append('fileType', fileType)
           }
+          console.log('FormData contents:', Array.from(formData.entries()))
 
           // Send request to upload the image
           const response = await fetch('/api/utils/UploadArtImage', {

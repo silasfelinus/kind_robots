@@ -62,6 +62,7 @@ const avatarImage = computed({
   },
   set(newValue) {
     botStore.currentImagePath = newValue
+    console.log('setting image path ' + newValue)
   },
 })
 

@@ -35,10 +35,8 @@ const selectedBotId = computed({
   get: () => botStore.currentBot?.id || '',
   set: (id) => {
     if (id) {
-      console.log('calling select')
       botStore.selectBot(Number(id)) // Convert ID to number and select the bot
     } else {
-      console.log('calling deselect')
       botStore.deselectBot() // Deselect to create a new bot
     }
   },

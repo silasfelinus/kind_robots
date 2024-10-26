@@ -30,7 +30,6 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useBotStore } from '@/stores/botStore'
@@ -43,16 +42,16 @@ const localPrompts = ref<string[]>([])
 
 // When component is mounted, sync localPrompts with bot's userIntro
 onMounted(() => {
-  if (botStore.currentBot?.userIntro) {
-    localPrompts.value = botStore.currentBot.userIntro.split('|').map(prompt => prompt.trim())
+  if (botStore.botForm?.userIntro) {
+    localPrompts.value = botStore.botForm.userIntro.split('|').map(prompt => prompt.trim())
   } else {
     localPrompts.value = [''] // Initialize with one empty prompt if no userIntro
   }
 })
 
-// Watch localPrompts and update the currentBot.userIntro in real time
+// Watch localPrompts and update botForm.userIntro in real time
 watch(localPrompts, (newPrompts) => {
-  botStore.currentBot!.userIntro = newPrompts.filter(prompt => prompt.trim() !== '').join(' | ')
+  botStore.botForm.userIntro = newPrompts.filter(prompt => prompt.trim() !== '').join(' | ')
 }, { deep: true })
 
 // Add new prompt to the local array

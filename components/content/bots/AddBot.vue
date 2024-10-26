@@ -119,6 +119,11 @@
               placeholder="Enter the introduction sent to the language modeller"
             ></textarea>
           </div>
+
+  <label for="userIntro" class="block text-lg font-medium">User Prompts:</label>
+      <prompt-creator />
+
+
         </div>
       </div>
     </div>
@@ -128,9 +133,7 @@
       class="bg-white shadow-md rounded-xl p-6 w-full mt-4"
       @submit.prevent="handleSubmit"
     >
-      <label for="userIntro" class="block text-lg font-medium">User Prompts:</label>
-      <prompt-creator />
-
+    
       <div v-if="isLoading" class="loading loading-ring loading-lg mt-4"></div>
       <div v-if="errorMessage" class="text-red-500 mt-2">
         {{ errorMessage }}

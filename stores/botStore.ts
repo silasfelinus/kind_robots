@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import type { Bot } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
 
-
 export const useBotStore = defineStore({
   id: 'botStore',
 
@@ -48,11 +47,9 @@ export const useBotStore = defineStore({
         this.currentBot = foundBot
         this.botForm = { ...foundBot } // Copy to botForm for editing
         this.currentImagePath = foundBot.avatarImage || ''
-        console.log("bot selected with id " + botId)
-        console.log("currentBot after selection: ", this.currentBot);
-        console.log("botForm after selection: ", this.botForm);
-
-
+        console.log('bot selected with id ' + botId)
+        console.log('currentBot after selection: ', this.currentBot)
+        console.log('botForm after selection: ', this.botForm)
       } catch (error) {
         this.handleError(error, 'selecting bot')
       }
@@ -100,47 +97,65 @@ export const useBotStore = defineStore({
     },
 
     async updateBot(id: number): Promise<void> {
-  console.log("Updating bot...");
-  try {
-    const botData = {
-      ...this.botForm,
-      avatarImage: this.currentImagePath,
-    };
+      console.log('Updating bot...')
+      try {
+        const botData = {
+          ...this.botForm,
+          avatarImage: this.currentImagePath,
+        }
 
-    console.log('Submitting bot data: ', botData);  // Log botData before sending
+        console.log('Submitting bot data: ', botData) // Log botData before sending
 
-    const response = await fetch(`/api/bot/id/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(botData),
-    });
+        const response = await fetch(`/api/bot/id/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(botData),
+        })
 
-    if (!response.ok) {
-      throw new Error(`Failed to update bot: ${response.statusText}`);
-    }
+        if (!response.ok) {
+          throw new Error(`Failed to update bot: ${response.statusText}`)
+        }
 
-    const updatedBot = await response.json();
-    console.log('API Response (Updated bot): ', updatedBot);  // Log the response
+        const updatedBot = await response.json()
+        console.log('API Response (Updated bot): ', updatedBot) // Log the response
 
-    // Find the bot in the list and update it
-    const botIndex = this.bots.findIndex((bot) => bot.id === id);
-    if (botIndex !== -1) {
-      this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot };
-    }
+        // Find the bot in the list and update it
+        const botIndex = this.bots.findIndex((bot) => bot.id === id)
+        if (botIndex !== -1) {
+          this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot }
+        }
 
-    // Ensure `currentBot` is updated to the selected one after the update
-    this.currentBot = updatedBot;
-    this.botForm = { ...updatedBot };
-    this.currentImagePath = updatedBot.avatarImage;
+        // Ensure `currentBot` is updated to the selected one after the update
+        this.currentBot = updatedBot
+        this.botForm = { ...updatedBot }
+        this.currentImagePath = updatedBot.avatarImage
 
-    console.log("Current bot after update: ", this.currentBot);
-    console.log("botForm after update: ", this.botForm);
+        console.log('Current bot after update: ', this.currentBot)
+        console.log('botForm after update: ', this.botForm)
+      } catch (error) {
+        this.handleError(error, 'updating bot')
+        console.error('Error updating bot: ', error) // Add error logging
+      }
+    },
+    // Update the bot's userIntro field
+    async updateUserIntro(newUserIntro: string): Promise<void> {
+      if (!this.currentBot) {
+        console.error('No bot selected to update')
+        return
+      }
 
-  } catch (error) {
-    this.handleError(error, 'updating bot');
-    console.error('Error updating bot: ', error);  // Add error logging
-  }
-},
+      try {
+        // Update only the userIntro field in botForm
+        this.botForm.userIntro = newUserIntro
+
+        // Use the existing updateBot method to send the update to the backend
+        await this.updateBot(this.currentBot.id)
+        console.log('User intro updated successfully')
+      } catch (error) {
+        this.handleError(error, 'updating user intro')
+        console.error('Error updating user intro: ', error)
+      }
+    },
 
     async deleteBot(id: number): Promise<void> {
       try {
@@ -175,7 +190,7 @@ export const useBotStore = defineStore({
         this.currentBot = data.bot
         this.botForm = { ...data.bot }
         this.currentImagePath = data.bot.avatarImage
-        console.log("bot got by id" + id)
+        console.log('bot got by id' + id)
       } catch (error) {
         this.handleError(error, 'fetching bot by id')
       }

@@ -44,9 +44,20 @@ export const useBotStore = defineStore({
         const foundBot = this.bots.find((bot) => bot.id === botId)
         if (!foundBot) throw new Error(`Bot with ID ${botId} not found`)
 
+        // Set the current bot and bot form for editing
         this.currentBot = foundBot
         this.botForm = { ...foundBot } // Copy to botForm for editing
         this.currentImagePath = foundBot.avatarImage || ''
+
+        // Update the promptStore with the bot's userIntro
+        const promptStore = usePromptStore()
+        if (foundBot.userIntro) {
+          // Use the setPromptsFromString method to parse the userIntro
+          promptStore.setPromptsFromString(foundBot.userIntro)
+        } else {
+          promptStore.promptArray = [] // Reset if no userIntro
+        }
+
       } catch (error) {
         this.handleError(error, 'selecting bot')
       }

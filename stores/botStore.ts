@@ -97,36 +97,41 @@ export const useBotStore = defineStore({
 
     // Fetch prompt string from promptStore and include it in the bot update
     async updateBot(id: number): Promise<void> {
+  try {
+    const botData = {
+      ...this.botForm,
+      avatarImage: this.currentImagePath,
+    };
 
-      try {
-        const botData = {
-          ...this.botForm,
-          avatarImage: this.currentImagePath,
-        }
+    const response = await fetch(`/api/bot/id/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(botData),
+    });
 
-        const response = await fetch(`/api/bot/id/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(botData),
-        })
+    if (!response.ok) {
+      throw new Error(`Failed to update bot: ${response.statusText}`);
+    }
 
-        if (!response.ok) {
-          throw new Error(`Failed to update bot: ${response.statusText}`)
-        }
+    const updatedBot = await response.json();
 
-        const updatedBot = await response.json()
-        const botIndex = this.bots.findIndex((bot) => bot.id === id)
-        if (botIndex !== -1) {
-          this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot }
-        }
+    // Find the bot in the list and update it
+    const botIndex = this.bots.findIndex((bot) => bot.id === id);
+    if (botIndex !== -1) {
+      this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot };
+    }
 
-        this.currentBot = updatedBot
-        this.botForm = { ...updatedBot }
-        this.currentImagePath = updatedBot.avatarImage
-      } catch (error) {
-        this.handleError(error, 'updating bot')
-      }
-    },
+    // Ensure `currentBot` is updated to the selected one after the update
+    this.currentBot = updatedBot;  // Re-assign the updated bot as the current bot
+
+    // Update the form with the new data
+    this.botForm = { ...updatedBot };
+    this.currentImagePath = updatedBot.avatarImage;
+
+  } catch (error) {
+    this.handleError(error, 'updating bot');
+  }
+},
 
     async deleteBot(id: number): Promise<void> {
       try {

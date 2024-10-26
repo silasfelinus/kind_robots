@@ -180,12 +180,10 @@ import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { useUserStore } from './../../../stores/userStore'
-import { usePromptStore } from './../../../stores/promptStore'
 
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()
 const userStore = useUserStore()
-const promptStore = usePromptStore()
 
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
@@ -217,18 +215,12 @@ function toggleVisibility(value: boolean) {
 async function handleSubmit() {
   isLoading.value = true
   try {
-    const botData = {
-      ...botStore.botForm,
-      avatarImage: botStore.currentImagePath,
-      userIntro: promptStore.promptArray.join(' | '), // Join prompt array into a single string
-    }
-
     if (botStore.selectedBotId) {
-      await botStore.updateBot(botStore.selectedBotId, botData.userIntro)
+      await botStore.updateBot(botStore.selectedBotId)
       successMessage.value = 'Bot updated successfully!'
       botFeedbackMessage.value = 'Bot saved successfully!'
     } else {
-      await botStore.addBots([botData])
+      await botStore.addBots([botStore.botForm])
       successMessage.value = 'New bot created successfully!'
       botFeedbackMessage.value = 'New bot saved successfully!'
     }

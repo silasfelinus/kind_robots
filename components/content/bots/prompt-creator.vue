@@ -27,6 +27,12 @@
     <!-- Display final prompt string -->
     <h3 class="text-lg font-medium mt-4">Final Prompt String</h3>
     <p>{{ finalPromptString }}</p>
+
+    <!-- Save icon that appears when updating -->
+    <div v-if="showSaveIcon" class="flex items-center space-x-2">
+      <Icon name="kind-icon:save" class="w-6 h-6 text-green-500" />
+      <span>Saving...</span>
+    </div>
   </div>
 </template>
 
@@ -40,10 +46,30 @@ const botStore = useBotStore()
 // Local copy of the prompts, split from the current bot's userIntro
 const localPrompts = ref<string[]>([])
 
+// Save icon visibility state
+const showSaveIcon = ref(false)
+
+// Delay function to simulate a small pause before updating the botForm.userIntro
+function delayedUpdate(newPrompts: string[]) {
+  showSaveIcon.value = true // Show the save icon when update starts
+
+  setTimeout(() => {
+    const newUserIntro = newPrompts.join(' | ')
+    if (botStore.botForm.userIntro !== newUserIntro) {
+      botStore.botForm.userIntro = newUserIntro
+    }
+
+    // Flash the save icon twice and then hide it
+    setTimeout(() => {
+      showSaveIcon.value = false
+    }, 500) // Flash save icon for 500ms
+  }, 300) // Introduce a 300ms delay before updating
+}
+
+// Watch botForm.userIntro to update the localPrompts when switching bots
 watch(
   () => botStore.botForm.userIntro,
   (newUserIntro) => {
-    console.log('new intro')
     if (newUserIntro && localPrompts.value.join(' | ') !== newUserIntro) {
       localPrompts.value = newUserIntro.split('|') // Only update if different
     } else if (!newUserIntro) {
@@ -52,14 +78,11 @@ watch(
   },
 )
 
+// Watch localPrompts and update botForm.userIntro with a delay
 watch(
   localPrompts,
   (newPrompts) => {
-    console.log('new prompt')
-    const newUserIntro = newPrompts.join(' | ')
-    if (botStore.botForm.userIntro !== newUserIntro) {
-      botStore.botForm.userIntro = newUserIntro // Only update if different
-    }
+    delayedUpdate(newPrompts) // Use delayed update with a save icon flash
   },
   { deep: true },
 )

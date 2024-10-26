@@ -1,0 +1,17 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  fill="currentColor"
+  width="24" height="24"
+>
+  <!-- Outer shape of the floppy disk -->
+  <path
+    d="M4 3C3.44772 3 3 3.44772 3 4V20C3 20.5523 3.44772 21 4 21H20C20.5523 21 21 20.5523 21 20V7.41421C21 7.149 20.8946 6.89464 20.7071 6.70711L17.2929 3.29289C17.1054 3.10536 16.851 3 16.5858 3H4Z"
+    stroke="currentColor"
+    stroke-width="2"
+  />
+  <!-- Save button label -->
+  <rect x="7" y="13" width="10" height="6" rx="1" fill="currentColor" />
+  <!-- Disk slot -->
+  <rect x="7" y="3" width="10" height="5" fill="currentColor" />
+</svg>

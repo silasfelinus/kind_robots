@@ -40,19 +40,29 @@ const botStore = useBotStore()
 // Local copy of the prompts, split from the current bot's userIntro
 const localPrompts = ref<string[]>([])
 
-// Watch `botForm.userIntro` to update the localPrompts when switching bots
-watch(() => botStore.botForm.userIntro, (newUserIntro) => {
-  if (newUserIntro) {
-    localPrompts.value = newUserIntro.split('|') // Removed trim() to preserve spaces
-  } else {
-    localPrompts.value = [''] // Initialize with one empty prompt if no userIntro
-  }
-})
+watch(
+  () => botStore.botForm.userIntro,
+  (newUserIntro) => {
+    console.log('new intro')
+    if (newUserIntro && localPrompts.value.join(' | ') !== newUserIntro) {
+      localPrompts.value = newUserIntro.split('|') // Only update if different
+    } else if (!newUserIntro) {
+      localPrompts.value = [''] // Initialize with one empty prompt if no userIntro
+    }
+  },
+)
 
-// Watch localPrompts and update botForm.userIntro in real time
-watch(localPrompts, (newPrompts) => {
-  botStore.botForm.userIntro = newPrompts.join(' | ') // Removed filter() and trim()
-}, { deep: true })
+watch(
+  localPrompts,
+  (newPrompts) => {
+    console.log('new prompt')
+    const newUserIntro = newPrompts.join(' | ')
+    if (botStore.botForm.userIntro !== newUserIntro) {
+      botStore.botForm.userIntro = newUserIntro // Only update if different
+    }
+  },
+  { deep: true },
+)
 
 // Add new prompt to the local array
 function addPrompt() {

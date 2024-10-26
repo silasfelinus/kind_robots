@@ -119,15 +119,21 @@ export const useBotStore = defineStore({
         const updatedBot = await response.json()
         console.log('API Response (Updated bot): ', updatedBot) // Log the response
 
+        // Ensure we extract the 'bot' from the response
+        if (!updatedBot.bot) {
+          throw new Error('API response does not contain bot data')
+        }
+
         // Find the bot in the list and update it
         const botIndex = this.bots.findIndex((bot) => bot.id === id)
         if (botIndex !== -1) {
-          this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot }
+          this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot.bot }
+          console.log('bot updated!')
         }
 
         // Ensure `currentBot` is updated to the selected one after the update
-        this.currentBot = updatedBot
-        this.botForm = { ...updatedBot }
+        this.currentBot = updatedBot.bot
+        this.botForm = { ...updatedBot.bot }
         this.currentImagePath = updatedBot.bot.avatarImage
 
         console.log('Current bot after update: ', this.currentBot)
@@ -138,7 +144,7 @@ export const useBotStore = defineStore({
         console.error('Error updating bot: ', error) // Add error logging
       }
     },
-    // Update the currentBot without needing to pass the id manually
+
     async updateCurrentBot(): Promise<void> {
       if (!this.currentBot) {
         console.error('No bot selected to update')
@@ -168,27 +174,33 @@ export const useBotStore = defineStore({
         const updatedBot = await response.json()
         console.log('API Response (Updated bot): ', updatedBot)
 
+        // Ensure we extract the 'bot' from the response
+        if (!updatedBot.bot) {
+          throw new Error('API response does not contain bot data')
+        }
+
         // Update the bot in the list
         const botIndex = this.bots.findIndex(
           (bot) => bot.id === this.currentBot?.id,
         )
         if (botIndex !== -1) {
-          this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot }
+          this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot.bot }
         }
 
         // Ensure `currentBot` and `botForm` are updated after the update
-        this.currentBot = updatedBot
-        this.botForm = { ...updatedBot }
-        this.currentImagePath = updatedBot.avatarImage
+        this.currentBot = updatedBot.bot
+        this.botForm = { ...updatedBot.bot }
+        this.currentImagePath = updatedBot.bot.avatarImage
 
         console.log('Current bot after update: ', this.currentBot)
         console.log('botForm after update: ', this.botForm)
-        console.log('currentImagePAth: ', this.currentImagePath)
+        console.log('currentImagePath: ', this.currentImagePath)
       } catch (error) {
         this.handleError(error, 'updating bot')
         console.error('Error updating current bot: ', error)
       }
     },
+
     async saveUserIntro(newUserIntro: string): Promise<void> {
       if (!this.currentBot) {
         console.error('No bot selected to update')

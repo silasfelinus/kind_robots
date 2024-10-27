@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-primary border border-accent rounded-2xl p-2 m-2 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer flex flex-col justify-between h-full"
+    class="bg-primary bg-opacity-30 border border-accent rounded-2xl p-2 m-2 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer flex flex-col justify-between h-full"
     @click="selectArt"
   >
     <!-- Art Information -->
@@ -53,6 +53,16 @@
       </label>
     </div>
 
+    <!-- Toggle Button for Art Details -->
+    <div class="mt-4 flex justify-center">
+      <button
+        class="bg-secondary text-white rounded-lg px-4 py-2"
+        @click="toggleDetails"
+      >
+        {{ showDetails ? 'Hide' : 'Show' }} Details
+      </button>
+    </div>
+
     <!-- Art Details Toggle Section -->
     <div
       v-if="showDetails"
@@ -86,7 +96,7 @@ const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 
 // Local state for toggling art image, details visibility, and fullscreen mode
-const showDetails = ref(false)
+const showDetails = ref(false) // Controls the toggle for showing art details
 const showArtImage = ref(false) // Controls the toggle for showing art image
 const fullscreenMode = ref(false) // Controls whether the image is in fullscreen mode
 
@@ -134,6 +144,11 @@ const fetchArtImage = async () => {
 // Function to toggle fullscreen mode for the image
 const toggleFullscreenMode = () => {
   fullscreenMode.value = !fullscreenMode.value
+}
+
+// Function to toggle showing art details
+const toggleDetails = () => {
+  showDetails.value = !showDetails.value
 }
 
 // Get the image path, prioritize artImage.imageData if available and toggled

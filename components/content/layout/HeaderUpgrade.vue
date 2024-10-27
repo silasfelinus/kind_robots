@@ -21,7 +21,7 @@
 
     <!-- Middle Section: Title and Subtitle -->
     <div
-      class="flex flex-col justify-center items-center text-center mx-2 flex-grow max-w-[50%] lg:flex-row lg:max-w-[60%] lg:space-x-4"
+      class="flex flex-col justify-center items-center text-center mx-2 flex-grow max-w-[50%] lg:flex-row lg:max-w-[60%] lg:space-x-4 xl:flex-col"
     >
       <h1
         class="text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold max-w-full text-ellipsis overflow-hidden whitespace-nowrap"

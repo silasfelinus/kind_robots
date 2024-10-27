@@ -105,7 +105,7 @@ export const usePromptStore = defineStore('promptStore', {
 
       try {
         if (this.fetchedPrompts[promptId]) return // Return cached prompt if it exists
-        const response = await fetch(`/api/art/prompts/${promptId}`)
+        const response = await fetch(`/api/prompts/${promptId}`)
         if (!response.ok) throw new Error(await response.text())
         const fetchedPrompt = await response.json()
         this.fetchedPrompts[promptId] = fetchedPrompt
@@ -139,7 +139,7 @@ export const usePromptStore = defineStore('promptStore', {
       const errorStore = useErrorStore()
 
       try {
-        const response = await fetch('/api/prompts', {
+        const response = await fetch('/api/prompt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -165,7 +165,7 @@ export const usePromptStore = defineStore('promptStore', {
       const errorStore = useErrorStore()
 
       try {
-        const response = await fetch(`/api/art/prompts/${promptId}`, {
+        const response = await fetch(`/api/prompt/${promptId}`, {
           method: 'DELETE',
         })
         if (!response.ok) throw new Error(await response.text())

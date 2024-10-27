@@ -2,20 +2,18 @@
   <div
     class="art-lab-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
   >
-    
-    <!-- Tabs for toggling components -->
+    <!-- Adjust the button container with w-full or a max-width -->
     <div
-      class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full mb-3"
+      class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full max-w-xl mb-3"
     >
       <button
         v-for="tab in tabs"
         :key="tab.name"
-        :class="[
-          'px-2 md:px-4 lg:px-6 text-lg font-semibold border-accent rounded-lg',
-          tab.name === choice
-            ? 'bg-primary text-white'
-            : 'bg-accent hover:bg-secondary text-white',
-        ]"
+        class="flex-1 px-4 py-2 text-lg font-semibold border-accent rounded-lg text-center"
+        :class="{
+          'bg-primary text-white': tab.name === choice,
+          'bg-accent hover:bg-secondary text-white': tab.name !== choice,
+        }"
         @click="choice = tab.name"
       >
         {{ tab.label }}

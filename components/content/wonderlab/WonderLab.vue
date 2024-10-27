@@ -77,7 +77,7 @@
               <!-- Reactions (when a component is selected) -->
               <div
                 v-else
-                class="reactions-screen p-4 bg-base-200 h-full overflow-auto"
+                class="reactions-screen bg-base-200 h-full overflow-auto"
               >
                 <h2 class="text-2xl font-semibold">
                   Reactions for {{ componentStore.selectedComponent.title }}

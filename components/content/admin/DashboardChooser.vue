@@ -1,10 +1,8 @@
 <template>
   <div
-    class="dashboard-chooser-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
+    class="button-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
   >
-    
-
-    <!-- Tabs for toggling components -->
+    <!-- Section Buttons -->
     <div
       class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full mb-3"
     >

@@ -84,6 +84,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { usePromptStore, type Prompt } from './../../../stores/promptStore'
 import { useUserStore } from './../../../stores/userStore'
+import { useGalleryStore } from './../../../stores/galleryStore'
 
 const promptStore = usePromptStore()
 const {
@@ -91,11 +92,14 @@ const {
   selectPrompt,
   prompts,
   selectedPrompt,
-  createPrompt,
+  addPrompt,
   deletePrompt,
 } = promptStore
 
 const userStore = useUserStore()
+const galleryStore = useGalleryStore()
+const userId = computed(() => userStore.user?.id || 10)
+const galleryId = computed(() => galleryStore.currentGallery?.id || 21)
 
 // User role (this should come from your user management logic)
 const userRole = userStore.role
@@ -124,7 +128,7 @@ const isValidPrompt = computed(() => {
 // Add a new prompt
 const addNewPrompt = () => {
   if (isValidPrompt.value) {
-    createPrompt(newPrompt.value.trim())
+    addPrompt(newPrompt.value.trim(), userId.value, galleryId.value)
     newPrompt.value = ''
   }
 }

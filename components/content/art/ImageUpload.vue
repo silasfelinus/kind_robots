@@ -54,7 +54,7 @@ async function uploadImage(event: Event) {
         seed: null,
         steps: null,
         channelId: null,
-        galleryId: 23,
+        galleryId: 21,
         promptId: null,
         pitchId: null,
         userId: userId.value ?? 10, // Ensure userId is never undefined, default to null

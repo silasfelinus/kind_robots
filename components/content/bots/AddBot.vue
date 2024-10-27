@@ -221,8 +221,10 @@ async function handleSubmit() {
     } else {
       // Create a new bot
       const addedBots = await botStore.addBots([botStore.botForm])
+      console.log("we got addedBots: " + addedBots)
 
       if (addedBots.length > 0) {
+        console.log("we got addedBots with length: " + addedBots)
         const newBot = addedBots[0] // Assuming the first bot returned is the newly created one
         botStore.currentBot = newBot // Set the currentBot to the newly created bot
         botStore.botForm = { ...newBot } // Also set botForm to the newly created bot

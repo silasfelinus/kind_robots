@@ -264,6 +264,34 @@ export const useBotStore = defineStore({
         return [] // Return an empty array in case of an error
       }
     },
+    async addBot(botData: Partial<Bot>): Promise<Bot | null> {
+  try {
+    const response = await fetch('/api/bot', {  // Adjusted the endpoint to /api/bot for a single bot
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(botData),
+    })
+
+    if (!response.ok) throw new Error(`Failed to add bot`)
+
+    const data = await response.json()
+    console.log('API Response (Added bot): ', data) // Log the response
+
+    if (data.bot) {
+      // Add the newly created bot to the store
+      this.bots = [...this.bots, data.bot]
+      console.log('Bots after adding: ', this.bots)
+      return data.bot // Return the newly added bot
+    } else {
+      throw new Error('API response does not contain bot data')
+    }
+  } catch (error) {
+    this.handleError(error, 'adding bot')
+    console.error('Error adding bot: ', error)
+    return null // Return null in case of an error
+  }
+},
+
 
     async getBotById(id: number): Promise<void> {
       try {

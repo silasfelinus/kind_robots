@@ -42,23 +42,17 @@ import { ref, computed, watch } from 'vue'
 import { usePromptStore } from '@/stores/promptStore'
 import { useBotStore } from '@/stores/botStore'
 
-// Access the promptStore and botStore
 const promptStore = usePromptStore()
 const botStore = useBotStore()
 
-// Save icon visibility state
 const showSaveIcon = ref(false)
 
-// To store the previous prompt string to avoid unnecessary saves
 const lastSavedPromptString = ref('')
 
-// Debounce timeout
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null
 
-// Boolean to determine if we are creating a new bot or updating
 const isCreatingNewBot = computed(() => !botStore.currentBot)
 
-// Computed property to determine which prompts to use (botForm for new, currentBot for update)
 const currentPrompts = computed({
   get() {
     return isCreatingNewBot.value
@@ -74,78 +68,67 @@ const currentPrompts = computed({
   },
 })
 
-// Computed property for the final prompt string
 const finalPromptString = computed(() => {
   return currentPrompts.value.join(' | ')
 })
 
-// Function to save the final prompt string to botForm or currentBot
 async function saveUserIntroToBot() {
-  const finalPromptString = currentPrompts.value.join(' | ') // Get the final prompt string
+  const finalPromptString = currentPrompts.value.join(' | ')
 
-  // Only save if the new prompt string differs from the last saved one
   if (finalPromptString === lastSavedPromptString.value) return
 
-  showSaveIcon.value = true // Show the save icon when update starts
-  const minSaveTime = 1000 // Minimum time (1 second) the save icon should be visible
+  showSaveIcon.value = true
+  const minSaveTime = 1000
 
   try {
     const saveStart = Date.now()
 
-    // If updating an existing bot, save to currentBot; otherwise, save to botForm
     if (botStore.currentBot) {
-      await botStore.saveUserIntro(finalPromptString) // Save to the current bot
+      await botStore.saveUserIntro(finalPromptString)
     } else {
-      botStore.botForm.userIntro = finalPromptString // Temporarily store in botForm for new bot creation
-      console.log('Saved user intro to botForm:', finalPromptString)
+      botStore.botForm.userIntro = finalPromptString
     }
 
-    lastSavedPromptString.value = finalPromptString // Update the last saved prompt string
+    lastSavedPromptString.value = finalPromptString
 
-    // Ensure the icon is shown for at least the minimum time
     const elapsed = Date.now() - saveStart
     const remainingTime = Math.max(0, minSaveTime - elapsed)
 
     setTimeout(() => {
-      showSaveIcon.value = false // Hide the icon after the minimum time
+      showSaveIcon.value = false
     }, remainingTime)
   } catch (error) {
     console.error('Failed to save user intro:', error)
-    showSaveIcon.value = false // Hide the icon in case of failure
+    showSaveIcon.value = false
   }
 }
 
-// Debounced save function
 function debouncedSave() {
   if (debounceTimeout) clearTimeout(debounceTimeout)
   debounceTimeout = setTimeout(() => {
     saveUserIntroToBot()
-  }, 300) // Adjust delay as necessary
+  }, 300)
 }
 
-// Watch for changes in currentPrompts and trigger save
 watch(
   () => currentPrompts.value,
   () => {
-    debouncedSave() // Debounce the save function to avoid excessive calls
+    debouncedSave()
   },
   { deep: true },
 )
 
-// Add new prompt to the array
 function addPrompt() {
-  currentPrompts.value = [...currentPrompts.value, ''] // Add an empty prompt
+  currentPrompts.value = [...currentPrompts.value, '']
 }
 
-// Remove a prompt from the array
 function removePrompt(index: number) {
   const updatedPrompts = [...currentPrompts.value]
   updatedPrompts.splice(index, 1)
-  currentPrompts.value = updatedPrompts // Update the prompts after removal
+  currentPrompts.value = updatedPrompts
 }
 
-// Handle Enter key press
 function handleEnterKey() {
-  saveUserIntroToBot() // Immediately save the current prompt when "Enter" is pressed
+  saveUserIntroToBot()
 }
 </script>

@@ -7,7 +7,7 @@
     <h3 class="text-lg font-semibold mb-2 truncate text-center" title="Prompt">
       {{ art?.promptString || 'No prompt available' }}
     </h3>
-    
+
     <!-- Image Section -->
     <div
       class="relative flex-grow flex justify-center items-center overflow-hidden"
@@ -18,9 +18,11 @@
         :src="getArtImage()"
         alt="Artwork"
         class="rounded-2xl transition-transform ease-in-out hover:scale-105 w-full object-cover cursor-pointer"
-        @click.stop="toggleFullscreenMode"
-        :class="fullscreenMode ? 'h-auto w-auto max-h-screen max-w-screen' : 'h-auto'"
+        :class="
+          fullscreenMode ? 'h-auto w-auto max-h-screen max-w-screen' : 'h-auto'
+        "
         loading="lazy"
+        @click.stop="toggleFullscreenMode"
       />
     </div>
 
@@ -41,13 +43,21 @@
     <!-- Toggle Button for Art Image -->
     <div class="mt-4 flex justify-center">
       <label class="flex items-center">
-        <input v-model="showArtImage" type="checkbox" @change="toggleArtImage" class="mr-2" />
+        <input
+          v-model="showArtImage"
+          type="checkbox"
+          class="mr-2"
+          @change="toggleArtImage"
+        />
         <span>Show Art Image</span>
       </label>
     </div>
 
     <!-- Art Details Toggle Section -->
-    <div v-if="showDetails" class="mt-4 p-4 bg-base-200 overflow-y-auto rounded-xl">
+    <div
+      v-if="showDetails"
+      class="mt-4 p-4 bg-base-200 overflow-y-auto rounded-xl"
+    >
       <pre class="text-sm whitespace-pre-wrap">
         {{ artData }}
       </pre>
@@ -123,7 +133,10 @@ const toggleFullscreenMode = () => {
 // Get the image path, prioritize artImage.imageData if available and toggled
 const getArtImage = () => {
   if (showArtImage.value && props.artImage && props.artImage.imageData) {
-    console.log('Using artImage.imageData for display:', props.artImage.imageData)
+    console.log(
+      'Using artImage.imageData for display:',
+      props.artImage.imageData,
+    )
     // Assuming the imageData is base64, construct the data URL
     return `data:image/png;base64,${props.artImage.imageData}`
   } else if (props.art.path) {

@@ -1,9 +1,13 @@
 <template>
-  <div class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1">
+  <div
+    class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1"
+  >
     <h1 class="text-4xl text-center col-span-full">Create or Edit a Bot</h1>
 
     <!-- Top section with Bot Selector, Designer, and Toggles -->
-    <div class="flex flex-wrap justify-between items-center col-span-full gap-4">
+    <div
+      class="flex flex-wrap justify-between items-center col-span-full gap-4"
+    >
       <div class="w-full lg:w-auto">
         <bot-selector />
       </div>
@@ -13,12 +17,14 @@
         <button class="btn btn-icon" @click="deselectCurrentBot">
           <icon name="kind-icon:addbot" class="text-3xl" />
         </button>
-        <p class="ml-2">Deselect current bot</p>
+        <p class="ml-2">Create new bot</p>
       </div>
 
       <!-- Designer Field -->
-      <div class="flex-grow lg:w-1/4">
-        <label for="designer" class="block text-lg font-medium">Designer:</label>
+      <div class="flex-grow w-1/4">
+        <label for="designer" class="block text-lg font-medium"
+          >Designer:</label
+        >
         <input
           v-if="canEditDesigner"
           id="designer"
@@ -65,7 +71,7 @@
             class="mr-2"
           />
           <label for="underConstruction" class="block text-lg font-medium">
-            Mark as under construction
+            Under construction
           </label>
         </div>
       </div>
@@ -95,7 +101,9 @@
 
           <!-- Subtitle Field -->
           <div :class="highlightIfChanged('subtitle')">
-            <label for="subtitle" class="block text-lg font-medium">Subtitle:</label>
+            <label for="subtitle" class="block text-lg font-medium"
+              >Subtitle:</label
+            >
             <input
               id="subtitle"
               v-model="botStore.botForm.subtitle"
@@ -106,19 +114,23 @@
 
           <!-- Description Field -->
           <div :class="highlightIfChanged('description')">
-            <label for="description" class="block text-lg font-medium">Description:</label>
-            <textarea
+            <label for="description" class="block text-lg font-medium"
+              >Description:</label
+            >
+            <input
               id="description"
               v-model="botStore.botForm.description"
               rows="4"
               class="w-full p-3 rounded-lg border"
               placeholder="Enter a short description for the bot"
-            ></textarea>
+            />
           </div>
 
           <!-- Bot Intro Field -->
           <div :class="highlightIfChanged('botIntro')">
-            <label for="botIntro" class="block text-lg font-medium">Bot Intro:</label>
+            <label for="botIntro" class="block text-lg font-medium"
+              >Bot Intro:</label
+            >
             <textarea
               id="botIntro"
               v-model="botStore.botForm.botIntro"
@@ -128,22 +140,37 @@
             ></textarea>
           </div>
 
-          <label for="userIntro" class="block text-lg font-medium">User Prompts:</label>
+          <label for="userIntro" class="block text-lg font-medium"
+            >User Prompts:</label
+          >
           <prompt-creator />
         </div>
       </div>
     </div>
 
     <!-- Form for User Prompts and Submit Button -->
-    <form class="bg-white shadow-md rounded-xl p-6 w-full mt-4" @submit.prevent="handleSubmit">
+    <form
+      class="bg-white shadow-md rounded-xl p-6 w-full mt-4"
+      @submit.prevent="handleSubmit"
+    >
       <div v-if="isLoading" class="loading loading-ring loading-lg mt-4"></div>
-      <div v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</div>
-      <div v-if="successMessage" class="text-green-500 mt-2">{{ successMessage }}</div>
+      <div v-if="errorMessage" class="text-red-500 mt-2">
+        {{ errorMessage }}
+      </div>
+      <div v-if="successMessage" class="text-green-500 mt-2">
+        {{ successMessage }}
+      </div>
 
       <div class="flex flex-col md:flex-row md:space-x-4 mt-6">
-        <button type="submit" class="btn btn-primary w-full md:w-auto" :disabled="isLoading">
+        <button
+          type="submit"
+          class="btn btn-primary w-full md:w-auto"
+          :disabled="isLoading"
+        >
           <span v-if="isLoading">Saving...</span>
-          <span v-else>{{ botStore.selectedBotId ? 'Update Bot' : 'Create New Bot' }}</span>
+          <span v-else>{{
+            botStore.selectedBotId ? 'Update Bot' : 'Create New Bot'
+          }}</span>
         </button>
       </div>
     </form>
@@ -214,7 +241,7 @@ async function handleSubmit() {
     }
   } catch (error) {
     console.error('Error editing bot:', error)
-    errorMessage.value = `Error editing bot: ${error.message || error}`
+    errorMessage.value = `Error editing bot: ${error}`
   } finally {
     isLoading.value = false
   }

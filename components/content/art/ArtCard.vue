@@ -13,7 +13,7 @@
       class="relative flex-grow flex justify-center items-center overflow-hidden"
       :class="fullscreenMode ? 'h-screen' : 'max-h-[50vh]'"
     >
-      <!-- Use artImage.imageData or art.path, fallback to placeholder -->
+      <!-- Display artImage.imageData (base64) or art.path -->
       <img
         :src="getArtImage()"
         alt="Artwork"
@@ -68,9 +68,7 @@
       v-if="showDetails"
       class="mt-4 p-4 bg-base-200 overflow-y-auto rounded-xl"
     >
-      <pre class="text-sm whitespace-pre-wrap">
-        {{ artData }}
-      </pre>
+      <pre class="text-sm whitespace-pre-wrap">{{ artData }}</pre>
     </div>
   </div>
 </template>
@@ -88,7 +86,7 @@ const props = defineProps<{
 }>()
 
 // Local state for fetched art image
-const localArtImage = ref<ArtImage | null>(null) // Stores the fetched image locally
+const localArtImage = ref<ArtImage | null>(null)
 
 // Initialize stores
 const artStore = useArtStore()
@@ -96,9 +94,9 @@ const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 
 // Local state for toggling art image, details visibility, and fullscreen mode
-const showDetails = ref(false) // Controls the toggle for showing art details
-const showArtImage = ref(false) // Controls the toggle for showing art image
-const fullscreenMode = ref(false) // Controls whether the image is in fullscreen mode
+const showDetails = ref(false)
+const showArtImage = ref(false)
+const fullscreenMode = ref(false)
 
 // Art data to display in the toggle box
 const artData = computed(() => props.art)
@@ -110,7 +108,6 @@ const reactions = computed(() =>
 
 // Fetch prompt and reactions on mount
 onMounted(() => {
-  console.log('Art Data:', props.art)
   if (props.art.promptId) promptStore.fetchPromptById(props.art.promptId)
   reactionStore.fetchReactionsByArtId(props.art.id)
 })
@@ -123,7 +120,6 @@ const selectArt = () => {
 // Function to toggle art image and fetch a single image if necessary
 const toggleArtImage = async () => {
   if (showArtImage.value && !localArtImage.value && !props.artImage) {
-    // Fetch the single art image if it's not already available and showArtImage is true
     await fetchArtImage()
   }
 }
@@ -131,10 +127,9 @@ const toggleArtImage = async () => {
 // Method to fetch a single art image if not already present
 const fetchArtImage = async () => {
   try {
-    console.log('Fetching art image for art ID:', props.art.id)
-    const artImage = await artStore.fetchArtImageById(props.art.id) // Fetch one image by artId
+    const artImage = await artStore.fetchArtImageById(props.art.id)
     if (artImage) {
-      localArtImage.value = artImage // Update local state with the fetched image
+      localArtImage.value = artImage
     }
   } catch (error) {
     console.error('Error fetching art image:', error)
@@ -153,33 +148,18 @@ const toggleDetails = () => {
 
 // Get the image path, prioritize artImage.imageData if available and toggled
 const getArtImage = () => {
-  if (
-    showArtImage.value &&
-    localArtImage.value &&
-    localArtImage.value.imageData
-  ) {
-    console.log(
-      'Using localArtImage.imageData for display:',
-      localArtImage.value.imageData,
-    )
+  if (showArtImage.value && localArtImage.value?.imageData) {
     return `data:image/png;base64,${localArtImage.value.imageData}`
-  } else if (props.artImage && props.artImage.imageData) {
-    console.log(
-      'Using props.artImage.imageData for display:',
-      props.artImage.imageData,
-    )
+  } else if (props.artImage?.imageData) {
     return `data:image/png;base64,${props.artImage.imageData}`
   } else if (props.art.path) {
-    console.log('Using art.path for display:', props.art.path)
     return props.art.path
   }
-  // Fallback to a placeholder image
   return '/images/backtree.webp'
 }
 </script>
 
 <style scoped>
-/* Fullscreen image custom styles if needed */
 .fullscreen-img {
   max-width: 100vw;
   max-height: 100vh;

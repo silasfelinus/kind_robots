@@ -123,7 +123,7 @@ export const usePromptStore = defineStore('promptStore', {
       const errorStore = useErrorStore()
 
       try {
-        const response = await fetch(`/api/art/prompts/${promptId}/art`)
+        const response = await fetch(`/api/art/prompt/${promptId}`)
         if (!response.ok) throw new Error(await response.text())
         this.artByPromptId = await response.json()
       } catch (error) {

@@ -22,6 +22,8 @@ export interface GenerateArtData {
   isMature?: boolean
   isPublic?: boolean
   pitch?: string
+  artImageId?: number
+  hasArtImage: boolean
 }
 
 export const useArtStore = defineStore({
@@ -157,7 +159,6 @@ export const useArtStore = defineStore({
       }
     },
 
-    // Simplified createArt action
     async createArt(artData: {
       promptString: string
       path: string
@@ -169,6 +170,8 @@ export const useArtStore = defineStore({
       pitchId: number | null
       userId: number | null
       designer: string | null
+      artImageId: number | null
+      hasArtImage: boolean | false
     }): Promise<Art> {
       const response = await fetch('/api/art/', {
         method: 'POST',
@@ -184,6 +187,12 @@ export const useArtStore = defineStore({
       }
 
       const createdArt = await response.json()
+
+      // Set hasArtImage based on artImageId
+      if (createdArt.artImageId) {
+        createdArt.hasArtImage = true
+      }
+
       this.art.push(createdArt)
 
       return createdArt
@@ -233,6 +242,7 @@ export const useArtStore = defineStore({
               const result = await response.json()
 
               if (result.art) {
+                result.art.hasArtImage = !!result.artImage // Set hasArtImage if an artImage is returned
                 this.art.push(result.art)
                 this.generatedArt.push(result.art)
 
@@ -362,12 +372,11 @@ export const useArtStore = defineStore({
       return validPattern.test(prompt)
     },
 
-    // Fetch a single art image by its art ID
-    async fetchArtImageById(artId: number): Promise<ArtImage | null> {
+    async fetchArtImageById(id: number): Promise<ArtImage | null> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
-          const response = await fetch(`/api/art-image/${artId}`)
+          const response = await fetch(`/api/art/image/${id}`)
           if (response.ok) {
             const artImage = (await response.json()) as ArtImage
             this.artImages.push(artImage) // Store it in the artImages array
@@ -381,6 +390,7 @@ export const useArtStore = defineStore({
       )
     },
 
+    // Updating the art image and the art relationship
     async updateArtImageWithArtId(
       artImageId: number,
       artId: number,
@@ -389,7 +399,7 @@ export const useArtStore = defineStore({
 
       return errorStore.handleError(
         async () => {
-          const response = await fetch(`/api/art-image/${artImageId}`, {
+          const response = await fetch(`/api/art/image/${artImageId}`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -397,7 +407,14 @@ export const useArtStore = defineStore({
             body: JSON.stringify({ artId }), // Update the artId in the ArtImage
           })
 
-          if (!response.ok) {
+          if (response.ok) {
+            // Update the art entity with the new artImageId and set hasArtImage to true
+            const art = this.art.find((art: Art) => art.id === artId)
+            if (art) {
+              art.artImageId = artImageId
+              art.hasArtImage = true
+            }
+          } else {
             const errorResponse = await response.json()
             throw new Error(errorResponse.message)
           }

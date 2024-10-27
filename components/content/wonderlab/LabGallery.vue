@@ -1,9 +1,9 @@
 <template>
-  <div class="p-2 bg-base-300 min-h-screen grid grid-rows-2 gap-2">
+  <div class="p-2 bg-base-300 min-h-screen">
     <!-- Folder View -->
     <div
       v-if="folderNames.length && !selectedComponents.length"
-      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
+      class="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] gap-4"
     >
       <div
         v-for="folder in folderNames"
@@ -21,7 +21,7 @@
     <!-- Component List View -->
     <div
       v-if="selectedComponents.length"
-      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
+      class="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] gap-4"
     >
       <div
         v-for="component in selectedComponents"

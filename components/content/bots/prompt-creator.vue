@@ -8,13 +8,13 @@
       :key="index"
       class="flex items-center space-x-4 mb-4"
     >
-      <input
+      <textarea
         v-model="currentPrompts[index]"
         type="text"
         class="w-full p-3 rounded-lg border"
         placeholder="Enter user prompt"
         @keyup.enter="handleEnterKey"
-      />
+      ></textarea>
       <button class="text-red-500" @click="removePrompt(index)">
         <Icon name="kind-icon:trash" class="w-6 h-6" />
       </button>

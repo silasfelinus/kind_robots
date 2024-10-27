@@ -4,7 +4,7 @@ import { useErrorStore, ErrorType } from './../stores/errorStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useUserStore } from '@/stores/userStore'
 
-const isClient = typeof window !== 'undefined' // Check if running in a browser environment
+const isClient = typeof window !== 'undefined'
 
 export interface GenerateArtData {
   title?: string
@@ -36,11 +36,13 @@ export const useArtStore = defineStore({
     currentArt: null as Art | null,
     pitch: '',
     collectedArt: [] as Art[], // Store user's collected art
-    isInitialized: false, // Boolean to ensure initialization happens once
+    isInitialized: false,
     generatedArt: [] as Art[],
+    currentPage: 1, // For pagination
+    totalArtCount: 0, // Total art count from the API
+    pageSize: 100, // Items per page
   }),
   actions: {
-    // Initialize the artStore and load data from localStorage if available
     // Initialize the artStore and load data from localStorage if available
     async initialize() {
       const errorStore = useErrorStore()
@@ -106,20 +108,24 @@ export const useArtStore = defineStore({
       )
     },
 
-    // Fetch all art entries
-    async fetchAllArt(): Promise<void> {
+    // Fetch all art entries with pagination
+    async fetchAllArt(page: number = 1, limit: number = 100): Promise<void> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
-          const response = await fetch('/api/art')
+          const response = await fetch(`/api/art?page=${page}&limit=${limit}`)
           if (response.ok) {
             const data = await response.json()
             this.art = data.artEntries as Art[]
+            this.totalArtCount = data.totalArtCount
 
             // Store art in localStorage
             if (isClient) {
               localStorage.setItem('art', JSON.stringify(this.art))
             }
+
+            // Update pagination state
+            this.currentPage = page
           } else {
             const errorResponse = await response.json()
             throw new Error(errorResponse.message)
@@ -129,6 +135,28 @@ export const useArtStore = defineStore({
         'Failed to fetch art.',
       )
     },
+
+    // Pagination helpers
+    hasNextPage(): boolean {
+      return this.currentPage * this.pageSize < this.totalArtCount
+    },
+
+    hasPreviousPage(): boolean {
+      return this.currentPage > 1
+    },
+
+    async nextPage() {
+      if (this.hasNextPage()) {
+        await this.fetchAllArt(this.currentPage + 1)
+      }
+    },
+
+    async previousPage() {
+      if (this.hasPreviousPage()) {
+        await this.fetchAllArt(this.currentPage - 1)
+      }
+    },
+
     // Simplified createArt action
     async createArt(artData: {
       promptString: string
@@ -142,7 +170,6 @@ export const useArtStore = defineStore({
       userId: number | null
       designer: string | null
     }): Promise<Art> {
-      // Ensure it returns a Promise<Art>
       const response = await fetch('/api/art/', {
         method: 'POST',
         headers: {
@@ -157,10 +184,11 @@ export const useArtStore = defineStore({
       }
 
       const createdArt = await response.json()
-      this.art.push(createdArt) // Add the newly created art to the store's state
+      this.art.push(createdArt)
 
-      return createdArt // Return the created art object
+      return createdArt
     },
+
     async generateArt(artData?: GenerateArtData): Promise<{
       success: boolean
       message?: string
@@ -171,7 +199,6 @@ export const useArtStore = defineStore({
       const userStore = useUserStore()
       const errorStore = useErrorStore()
 
-      // Set loading to true before starting the generation process
       this.loading = true
 
       const data = {
@@ -206,11 +233,9 @@ export const useArtStore = defineStore({
               const result = await response.json()
 
               if (result.art) {
-                // Push the new art into the art array
                 this.art.push(result.art)
                 this.generatedArt.push(result.art)
 
-                // Update localStorage to persist changes
                 if (isClient) {
                   localStorage.setItem('art', JSON.stringify(this.art))
                   localStorage.setItem(
@@ -219,7 +244,6 @@ export const useArtStore = defineStore({
                   )
                 }
 
-                // Handle any new art image
                 if (result.artImage) {
                   this.artImages.push(result.artImage)
                 }
@@ -239,7 +263,6 @@ export const useArtStore = defineStore({
           'Failed to generate art.',
         )
         .finally(() => {
-          // Ensure loading is set to false after completion
           this.loading = false
         })
     },
@@ -264,7 +287,7 @@ export const useArtStore = defineStore({
         }
         const data = await response.json()
         this.art = data.art as Art[]
-      } catch (error: unknown) {
+      } catch (error) {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
           error instanceof Error
@@ -272,61 +295,6 @@ export const useArtStore = defineStore({
             : 'An unexpected error occurred',
         )
       }
-    },
-
-    // Add an art piece to the user's collection
-    async addArtToCollection(userId: number, artId: number): Promise<void> {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch(`/api/art/collection/${userId}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ action: 'add', artId }),
-          })
-
-          if (!response.ok) {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
-          }
-
-          // Refetch the updated collected art after adding
-          await this.fetchCollectedArt(userId)
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to add art to the collection.',
-      )
-    },
-
-    // Remove an art piece from the user's collection
-    async removeArtFromCollection(
-      userId: number,
-      artId: number,
-    ): Promise<void> {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch(`/api/art/collection/${userId}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ action: 'remove', artId }),
-          })
-
-          if (!response.ok) {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
-          }
-
-          // Refetch the updated collected art after removing
-          await this.fetchCollectedArt(userId)
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to remove art from the collection.',
-      )
     },
 
     getArtById(id: number): Art | undefined {
@@ -369,7 +337,6 @@ export const useArtStore = defineStore({
       )
     },
 
-    // Fetch art by ID
     async fetchArtById(id: number): Promise<Art | null> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
@@ -385,16 +352,35 @@ export const useArtStore = defineStore({
         'Failed to fetch art by ID.',
       )
     },
-    // Initialize the artStore and load data from localStorage if available
+
     extractPitch(promptString: string): string {
       return promptString.split(',')[0].trim() || 'Untitled Pitch'
     },
 
-    // Validate the prompt string for invalid characters or patterns
     validatePromptString(prompt: string): boolean {
       const validPattern = /^[a-zA-Z0-9 ,]+$/ // Adjust the pattern as necessary
       return validPattern.test(prompt)
     },
+
+    // Fetch a single art image by its art ID
+    async fetchArtImageById(artId: number): Promise<ArtImage | null> {
+      const errorStore = useErrorStore()
+      return errorStore.handleError(
+        async () => {
+          const response = await fetch(`/api/art-image/${artId}`)
+          if (response.ok) {
+            const artImage = (await response.json()) as ArtImage
+            this.artImages.push(artImage) // Store it in the artImages array
+            return artImage
+          } else {
+            return null
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to fetch art image by ID.',
+      )
+    },
+
     async updateArtImageWithArtId(
       artImageId: number,
       artId: number,
@@ -420,22 +406,20 @@ export const useArtStore = defineStore({
         'Failed to update ArtImage with artId.',
       )
     },
-    // New uploadImage action
+
     async uploadImage(formData: FormData): Promise<void> {
       const errorStore = useErrorStore()
 
       return errorStore.handleError(
         async () => {
-          // Fetch file type from the formData (assuming file input name is 'image')
           const file = formData.get('image') as File | null
-          let fileType = 'png' // Default fileType
+          let fileType = 'png'
 
           if (file) {
             const fileName = file.name
-            const extension = fileName.split('.').pop()?.toLowerCase() || 'png' // Extract extension
+            const extension = fileName.split('.').pop()?.toLowerCase() || 'png'
             const validExtensions = ['png', 'jpeg', 'jpg', 'webp']
 
-            // Validate the file type
             if (!validExtensions.includes(extension)) {
               throw new Error(
                 `Unsupported file type: ${extension}. Supported types are ${validExtensions.join(', ')}`,
@@ -445,23 +429,17 @@ export const useArtStore = defineStore({
             fileType = extension
           }
 
-          // Append fileType to formData (if not already included)
           if (!formData.get('fileType')) {
             formData.append('fileType', fileType)
           }
-          console.log('FormData contents:', Array.from(formData.entries()))
 
-          // Send request to upload the image
           const response = await fetch('/api/art/upload', {
             method: 'POST',
-            body: formData, // Send the FormData object with the image file and fileType
+            body: formData,
           })
 
           if (response.ok) {
             const data = await response.json()
-            console.log('Image uploaded successfully:', data)
-
-            // You can now push the uploaded image details to your state if needed
             this.artImages.push(data.artImage)
           } else {
             const errorResponse = await response.json()

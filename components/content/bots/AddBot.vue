@@ -219,8 +219,6 @@ async function handleSubmit() {
   successMessage.value = null
 
   try {
-    console.log('Submitting bot form: ', botStore.botForm)
-
     if (botStore.selectedBotId) {
       // Update an existing bot
       await botStore.updateBot(botStore.selectedBotId)
@@ -230,7 +228,6 @@ async function handleSubmit() {
       // Create a new bot
       const newBot = await botStore.addBot(botStore.botForm)
       if (newBot) {
-        console.log('New bot created: ', newBot)
         botStore.currentBot = newBot // Set the currentBot to the newly created bot
         botStore.botForm = { ...newBot } // Also set botForm to the newly created bot
         successMessage.value = 'New bot created successfully!'

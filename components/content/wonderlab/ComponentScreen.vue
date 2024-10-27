@@ -1,12 +1,6 @@
 <template>
   <div class="p-6 bg-base-300 min-h-screen flex flex-col items-center relative">
-    <!-- Back button as overlay at the top of the screen -->
-    <button
-      class="absolute top-4 left-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition"
-      @click="handleBackButton"
-    >
-      Back
-    </button>
+
 
     <!-- Display status message while loading -->
     <div v-if="loadingStatus" class="text-xl text-center text-blue-500 mb-4">
@@ -70,8 +64,5 @@ watch(selectedComponent, (newComponent) => {
   }
 })
 
-// Function to handle the "Back" button
-const handleBackButton = () => {
-  componentStore.clearSelectedComponent() // Deselect the component
-}
+
 </script>

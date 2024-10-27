@@ -1,19 +1,19 @@
 <template>
-  <div class="relative h-full w-full">
-    <div class="flip-card" @click="handleAvatarClick">
+  <div class="relative w-full h-full">
+    <div class="flip-card w-full h-full" @click="handleAvatarClick">
       <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
         <div class="flip-card-front">
           <img
             :src="selectImage"
             alt="Avatar"
-            class="avatar-img shadow-lg hover:shadow-xl rounded-2xl transition-transform duration-300 transform hover:scale-105"
+            class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
           />
         </div>
         <div class="flip-card-back">
           <img
             :src="currentBot?.avatarImage || selectImage"
             alt="New Avatar"
-            class="avatar-img shadow-lg hover:shadow-xl rounded-2xl transition-transform duration-300 transform hover:scale-105"
+            class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
           />
         </div>
       </div>
@@ -76,9 +76,7 @@ const handleAvatarClick = () => {
 <style scoped>
 .flip-card {
   perspective: 1000px;
-  width: 100%;
-  max-width: 100px;
-  aspect-ratio: 1;
+  aspect-ratio: 1; /* Ensure avatar remains square */
   cursor: pointer;
 }
 

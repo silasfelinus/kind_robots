@@ -1,26 +1,35 @@
 <template>
   <div
-    class="bg-primary border-1 border-accent overflow-y-auto rounded-2xl p-1 m-1 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer"
+    class="bg-primary border border-accent rounded-2xl p-2 m-2 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer flex flex-col justify-between h-full"
     @click="selectArt"
   >
     <!-- Art Information -->
-    <h3 class="text-lg font-semibold mb-2 truncate" title="Prompt">
+    <h3 class="text-lg font-semibold mb-2 truncate text-center" title="Prompt">
       {{ art?.promptString || 'No prompt available' }}
     </h3>
-    <div class="relative overflow-hidden max-h-[200px]">
+    
+    <!-- Image Section -->
+    <div
+      class="relative flex-grow flex justify-center items-center overflow-hidden"
+      :class="fullscreenMode ? 'h-screen' : 'max-h-[50vh]'"
+    >
       <!-- Use artImage.imageData or art.path, fallback to placeholder -->
       <img
         :src="getArtImage()"
         alt="Artwork"
-        class="rounded-2xl transition-transform ease-in-out hover:scale-105 w-full h-auto object-cover"
+        class="rounded-2xl transition-transform ease-in-out hover:scale-105 w-full object-cover cursor-pointer"
+        @click.stop="toggleFullscreenMode"
+        :class="fullscreenMode ? 'h-auto w-auto max-h-screen max-w-screen' : 'h-auto'"
         loading="lazy"
       />
     </div>
-    <div class="mt-2">
+
+    <!-- Art Metadata -->
+    <div class="mt-2 flex flex-col items-center">
       <p class="text-base truncate" title="Pitch">
         {{ art?.pitchId || 'No pitch available' }}
       </p>
-      <div class="flex justify-between items-center mt-2">
+      <div class="flex justify-between items-center w-full mt-2 px-4">
         <p class="text-base">Claps: {{ reactions.length || 0 }}</p>
         <p class="text-base">
           isPublic?:
@@ -29,11 +38,11 @@
       </div>
     </div>
 
-    <!-- Toggle Button for Detailed Info -->
-    <div class="mt-4">
+    <!-- Toggle Button for Art Image -->
+    <div class="mt-4 flex justify-center">
       <label class="flex items-center">
-        <input v-model="showDetails" type="checkbox" class="mr-2" />
-        <span>Show Art Details</span>
+        <input v-model="showArtImage" type="checkbox" @change="toggleArtImage" class="mr-2" />
+        <span>Show Art Image</span>
       </label>
     </div>
 
@@ -63,8 +72,10 @@ const artStore = useArtStore()
 const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 
-// Local state for toggling details visibility
+// Local state for toggling art image, details visibility, and fullscreen mode
 const showDetails = ref(false)
+const showArtImage = ref(false) // Controls the toggle for showing art image
+const fullscreenMode = ref(false) // Controls whether the image is in fullscreen mode
 
 // Art data to display in the toggle box
 const artData = computed(() => props.art)
@@ -86,9 +97,32 @@ const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 
-// Get the image path, prioritize artImage.imageData if available
+// Function to toggle art image and fetch it if necessary
+const toggleArtImage = async () => {
+  if (showArtImage.value && !props.artImage) {
+    // Fetch the art image if it's not already available and showArtImage is true
+    await fetchArtImage()
+  }
+}
+
+// Method to fetch art image if not already present
+const fetchArtImage = async () => {
+  try {
+    console.log('Fetching art image for art ID:', props.art.id)
+    await artStore.fetchArtImageById(props.art.id)
+  } catch (error) {
+    console.error('Error fetching art image:', error)
+  }
+}
+
+// Function to toggle fullscreen mode for the image
+const toggleFullscreenMode = () => {
+  fullscreenMode.value = !fullscreenMode.value
+}
+
+// Get the image path, prioritize artImage.imageData if available and toggled
 const getArtImage = () => {
-  if (props.artImage && props.artImage.imageData) {
+  if (showArtImage.value && props.artImage && props.artImage.imageData) {
     console.log('Using artImage.imageData for display:', props.artImage.imageData)
     // Assuming the imageData is base64, construct the data URL
     return `data:image/png;base64,${props.artImage.imageData}`
@@ -100,3 +134,12 @@ const getArtImage = () => {
   return '/images/backtree.webp'
 }
 </script>
+
+<style scoped>
+/* Fullscreen image custom styles if needed */
+.fullscreen-img {
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain;
+}
+</style>

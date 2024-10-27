@@ -21,7 +21,7 @@
 
     <!-- Middle Section: Title and Subtitle -->
     <div
-      class="flex flex-col justify-center items-center text-center mx-2 flex-grow max-w-[50%]"
+      class="flex flex-col justify-center items-center text-center mx-2 flex-grow max-w-[50%] lg:flex-row lg:max-w-[60%] lg:space-x-4"
     >
       <h1
         class="text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold max-w-full text-ellipsis overflow-hidden whitespace-nowrap"
@@ -29,7 +29,7 @@
         The {{ page.title || 'Room' }} Room
       </h1>
       <h2
-        class="text-md md:text-lg lg:text-xl xl:text-2xl italic max-w-full text-ellipsis overflow-hidden whitespace-nowrap"
+        class="text-md md:text-lg lg:text-xl xl:text-2xl italic max-w-full text-ellipsis overflow-hidden whitespace-nowrap lg:mt-0"
       >
         {{ subtitle }}
       </h2>

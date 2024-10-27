@@ -6,7 +6,6 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-
 model Art {
   id                Int           @id @default(autoincrement())
   createdAt         DateTime?     @default(now())
@@ -33,7 +32,9 @@ model Art {
   channelId         Int?          @default(1)
   Channel           Channel?      @relation(fields: [channelId], references: [id]) 
   Reaction          Reaction[]
-  ArtImage          ArtImage[]
+  hasArtImage       Boolean       @default(false)
+  artImageId        Int?
+  ArtImage          ArtImage?
   ArtCollection     ArtCollection[]
 }
 
@@ -48,9 +49,10 @@ model ArtImage {
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
   userId            Int?          @default(1)
   User              User?         @relation(fields: [userId], references: [id])
-  artId             Int?
   Art               Art?          @relation(fields: [artId], references: [id])
+  artId             Int?          @unique 
 }
+
 
 model ArtCollection {
   id                Int           @id @default(autoincrement())

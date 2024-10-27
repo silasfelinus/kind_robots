@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bot-factory-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
+    class="button-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
   >
     <!-- Section Buttons -->
     <div

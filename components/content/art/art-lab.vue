@@ -1,8 +1,10 @@
 <template>
-  <div class="art-lab-container flex flex-col items-center h-full w-full">
-    <!-- Adjust the button container with w-full or a max-width -->
+  <div
+    class="button-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
+  >
+    <!-- Section Buttons -->
     <div
-      class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full max-w-xl mb-3"
+      class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full mb-3"
     >
       <button
         v-for="tab in tabs"

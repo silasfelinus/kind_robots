@@ -1,11 +1,8 @@
-<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="bg-base-300 rounded-2xl p-8 text-lg">
     <h1 class="text-2xl mb-4">Art-Generator</h1>
-    Enter your Art Prompt. We will automatically begin with the pitch:
-    <div class="font-bold">
-      {{ pitch }}
-    </div>
+    <p>Enter your Art Prompt. We will automatically begin with the pitch:</p>
+    <div class="font-bold">{{ pitch }}</div>
 
     <!-- Prompt Input -->
     <div class="mt-4">
@@ -18,15 +15,16 @@
 
     <!-- Generate Art Button -->
     <button
-      :disabled="isLoading"
+      :disabled="isLoading || !promptString"
       class="bg-primary rounded-2xl p-2 text-white mt-4 w-full hover:bg-primary-dark"
       @click="generateArt"
     >
-      Generate Art for Pitch
+      {{ isLoading ? 'Generating...' : 'Generate Art for Pitch' }}
     </button>
 
-    Active Prompt
-    <h1>{{ activePrompt }}</h1>
+    <p>
+      Active Prompt: <span class="font-bold">{{ activePrompt }}</span>
+    </p>
 
     <!-- Loading State -->
     <div v-if="isLoading" class="mt-4 flex flex-col items-center">
@@ -36,62 +34,57 @@
       </div>
     </div>
 
-    <!-- Add this line where you want to display the milestone-check -->
+    <!-- Milestone Reward Check -->
     <milestone-reward v-if="shouldShowMilestoneCheck" :id="11" />
 
     <!-- Display Created Art -->
-    <div v-for="art in createdArts" :key="art.id" class="mt-4">
+    <div v-for="(art, index) in createdArts" :key="index" class="mt-4">
       <art-card :art="art" />
     </div>
+
+    <!-- Error Message -->
+    <p v-if="errorMessage" class="text-red-500 mt-4">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useDreamStore } from './../../../stores/dreamStore'
+import { ref, computed } from 'vue'
+import { useArtStore } from './../../../stores/artStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useLoadStore } from './../../../stores/loadStore'
 import { usePitchStore } from './../../../stores/pitchStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { usePromptStore } from './../../../stores/promptStore'
-import type { Art } from './../../../stores/artStore'
 
 // Load stores
-const dreamStore = useDreamStore()
+const artStore = useArtStore()
+const errorStore = useErrorStore()
 const userStore = useUserStore()
 const loadStore = useLoadStore()
 const pitchStore = usePitchStore()
 const galleryStore = useGalleryStore()
 const promptStore = usePromptStore()
-const errorStore = useErrorStore()
 
 // Computed properties from stores
 const currentPitch = computed(() => pitchStore.selectedPitch)
-const pitch = computed(() => pitchStore.selectedPitch?.pitch || '')
-const galleryName = computed(
-  () => galleryStore.currentGallery?.name || 'cafefred',
-)
+const pitch = computed(() => currentPitch.value?.pitch || '')
 const galleryId = computed(() => galleryStore.currentGallery?.id || 21)
 const activePrompt = computed(() => promptStore.selectedPrompt?.prompt)
-const flavorText = ref('')
-const username = computed(() => userStore.username)
 const userId = computed(() => userStore.userId)
-const promptString = ref('')
 
+// Reactive state
+const promptString = ref('')
+const flavorText = ref('')
 const isLoading = ref(false)
-const createdArts = ref<Art[]>([]) // Array to store created art
+const createdArts = computed(() => artStore.generatedArt) // Fetch generated art from the store
 const loadingMessage = ref<string | null>(null)
 const shouldShowMilestoneCheck = ref(false)
-
-// Function to get a loading message
-const getLoadingMessage = () => {
-  loadingMessage.value = loadStore.randomLoadMessage()
-}
+const errorMessage = ref<string | null>(null)
 
 // Function to set a random prompt
 const setRandomPrompt = () => {
-  const random = dreamStore.randomDream()
+  const random = promptStore.finalPromptString // Replace with correct method
   if (random) {
     promptString.value = random
   }
@@ -100,43 +93,48 @@ const setRandomPrompt = () => {
 // Initialize prompt with random value
 setRandomPrompt()
 
+// Get a loading message
+const getLoadingMessage = () => {
+  loadingMessage.value = loadStore.randomLoadMessage()
+}
+
+// Function to generate art using the artStore
 const generateArt = async () => {
+  if (!promptString.value) return
+
   getLoadingMessage()
   isLoading.value = true
-  try {
-    const response = await fetch('/api/art/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        promptString: `${pitch.value}, ${promptString.value}, ${flavorText.value}`,
-        username: username.value,
-        galleryName: galleryName.value,
-        galleryId: galleryId.value,
-        pitchId: currentPitch.value?.id,
-        title: currentPitch.value?.title,
-        isMature: false, // Assume default, can be set if required
-        isPublic: true, // Assume default, can be set if required
-        flavorText: flavorText.value,
-        userId: userId.value,
-      }),
-    })
+  errorMessage.value = null
 
-    if (response.ok) {
-      const data = await response.json()
-      createdArts.value.unshift(data.newArt as Art)
+  try {
+    // Prepare the art generation data
+    const generateArtData = {
+      promptString: `${pitch.value}, ${promptString.value}, ${flavorText.value}`,
+      userId: userId.value,
+      pitchId: currentPitch.value?.id,
+      galleryId: galleryId.value,
+      title: currentPitch.value?.title || '', // Ensure no null value
+      isMature: false,
+      isPublic: true,
+    }
+
+    // Use the artStore to generate art
+    const response = await artStore.generateArt(generateArtData)
+
+    if (response.success && response.newArt) {
       shouldShowMilestoneCheck.value = true
-      console.log('Art generated:', createdArts)
+      console.log('Art generated successfully:', response.newArt)
     } else {
-      const errorText = await response.text()
-      errorStore.setError(ErrorType.NETWORK_ERROR, errorText)
-      console.error('Failed to generate art:', errorText)
+      errorStore.setError(
+        ErrorType.NETWORK_ERROR,
+        response.message || 'Failed to generate art.',
+      )
+      errorMessage.value = 'Failed to generate art. Please try again.'
     }
   } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error.message : String(error)
     errorStore.setError(ErrorType.UNKNOWN_ERROR, errorMsg)
-    console.error('Error generating art:', errorMsg)
+    errorMessage.value = 'An unexpected error occurred. Please try again.'
   } finally {
     isLoading.value = false
   }

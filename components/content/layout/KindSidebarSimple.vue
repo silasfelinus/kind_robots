@@ -1,50 +1,50 @@
 <template>
-    <!-- Left Sidebar -->
-    <div
-      class="transition-all duration-300 bg-base-300 border-4 rounded-2xl left-0 h-full overflow-y-auto no-scrollbar flex flex-col justify-between flex-grow"
-    >
-      <!-- Sidebar Links with Icons and Titles -->
-      <div class="flex flex-col justify-between flex-grow">
-        <div
-          v-for="link in hardcodedLinks"
-          :key="link.title"
-          class="Icon-link-container flex items-center space-x-1 md:space-x-2 hover:bg-primary hover:scale-110 box-border rounded-xl p-1 md:p-2"
+  <!-- Left Sidebar -->
+  <div
+    class="transition-all duration-300 bg-base-300 border-4 rounded-2xl left-0 h-full overflow-y-auto no-scrollbar flex flex-col justify-between flex-grow"
+  >
+    <!-- Sidebar Links with Icons and Titles -->
+    <div class="flex flex-col justify-between flex-grow">
+      <div
+        v-for="link in hardcodedLinks"
+        :key="link.title"
+        class="Icon-link-container flex items-center space-x-1 md:space-x-2 hover:bg-primary hover:scale-110 box-border rounded-xl p-1 md:p-2"
+      >
+        <!-- Navigation click event -->
+        <a
+          v-if="displayStore.sidebarLeftState !== 'hidden'"
+          class="flex flex-col items-center cursor-pointer w-full"
+          @click.prevent="navigate(link.path)"
         >
-          <!-- Navigation click event -->
-          <a
-            v-if="displayStore.sidebarLeftState !== 'hidden'"
-            class="flex flex-col items-center cursor-pointer w-full"
-            @click.prevent="navigate(link.path)"
+          <!-- Show icon in all states except hidden -->
+          <Icon
+            v-if="
+              displayStore.sidebarLeftState === 'open' ||
+              displayStore.sidebarLeftState === 'compact'
+            "
+            :name="link.icon"
+            class="h-12 w-12 transition-all duration-300 ease-in-out text-accent"
+          />
+
+          <!-- Show the link title below the icon in compact state -->
+          <span
+            v-if="displayStore.sidebarLeftState === 'compact' && !isMobile"
+            class="text-xs md:text-md lg:text-lg font-semibold mt-1 text-center bg-secondary text-white px-2 py-1 rounded-lg"
           >
-            <!-- Show icon in all states except hidden -->
-            <Icon
-              v-if="
-                displayStore.sidebarLeftState === 'open' ||
-                displayStore.sidebarLeftState === 'compact'
-              "
-              :name="link.icon"
-              class="h-6 w-6 md:h-12 md:w-12 transition-all duration-300 ease-in-out text-accent"
-            />
+            {{ link.title }}
+          </span>
 
-            <!-- Show the link title below the icon in compact state -->
-            <span
-              v-if="displayStore.sidebarLeftState === 'compact' && !isMobile"
-              class="text-xs md:text-md lg:text-lg font-semibold mt-1 text-center bg-secondary text-white px-2 py-1 rounded-lg"
-            >
-              {{ link.title }}
-            </span>
-
-            <!-- Only show the link title to the right in fully open state -->
-            <span
-              v-if="displayStore.sidebarLeftState === 'open'"
-              class="text-xs md:text-md lg:text-lg font-semibold ml-2 transition-opacity duration-300"
-            >
-              {{ link.title }}
-            </span>
-          </a>
-        </div>
+          <!-- Only show the link title to the right in fully open state -->
+          <span
+            v-if="displayStore.sidebarLeftState === 'open'"
+            class="text-xs md:text-md lg:text-lg font-semibold ml-2 transition-opacity duration-300"
+          >
+            {{ link.title }}
+          </span>
+        </a>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">

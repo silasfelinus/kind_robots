@@ -5,7 +5,7 @@
   >
     <!-- Left Section: Avatar -->
     <div
-      class="flex items-center justify-center w-[15%] h-full relative rounded-2xl"
+      class="flex items-center justify-center w-[12%] sm:w-[10%] h-full relative rounded-2xl"
     >
       <avatar-image
         alt="User Avatar"
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Right Section: Icons and Login -->
-    <div class="flex items-center justify-end space-x-2 w-[30%]">
+    <div class="flex items-center justify-end space-x-2 w-[28%] sm:w-[25%]">
       <login-path class="w-1/3" />
       <theme-icon class="w-1/3" />
       <swarm-icon class="w-1/3" />

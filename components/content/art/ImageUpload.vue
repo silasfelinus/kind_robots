@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Image Upload -->
     <input
       type="file"
       accept="image/png, image/jpeg, image/webp"
@@ -8,7 +7,8 @@
       @change="uploadImage"
     />
 
-    <!-- Display the uploaded image as an ArtCard for confirmation -->
+    <div v-if="isUploading">Uploading image...</div>
+
     <div v-if="newArt" class="mt-6">
       <art-card :art="newArt" :art-image="newArtImage" />
     </div>
@@ -24,27 +24,43 @@ import { useUserStore } from '@/stores/userStore'
 const artStore = useArtStore()
 const userStore = useUserStore()
 
+// Computed values for user data
 const userId = computed(() => userStore.user?.id)
 const username = computed(() => userStore.user?.username)
 
-// Use undefined instead of null to match optional type expectations
+// Refs to store new art and image data
 const newArt = ref<(typeof artStore.art)[0] | undefined>(undefined)
 const newArtImage = ref<(typeof artStore.artImages)[0] | undefined>(undefined)
+const isUploading = ref(false)
 
-// Handle the uploaded image and process through the store
+// Allowed file types
+const allowedFileTypes = ['image/png', 'image/jpeg', 'image/webp']
+
+// Handle the image upload
 async function uploadImage(event: Event) {
   const input = event.target as HTMLInputElement
   const uploadedFile = input?.files?.[0]
 
   if (uploadedFile) {
+    // Check if the file type is valid
+    if (!allowedFileTypes.includes(uploadedFile.type)) {
+      console.error(
+        'Unsupported file type. Please upload a PNG, JPEG, or WebP image.',
+      )
+      return
+    }
+
+    // Create a new FormData object
     const formData = new FormData()
     formData.append('image', uploadedFile)
+
+    isUploading.value = true // Set uploading state to true
 
     try {
       // Step 1: Upload the image
       await artStore.uploadImage(formData)
 
-      // After uploading, assign the last items from the store as the new art image
+      // After uploading, assign the last item from the store as the new art image
       newArtImage.value = artStore.artImages[artStore.artImages.length - 1]
 
       // Create a simple art object
@@ -57,11 +73,11 @@ async function uploadImage(event: Event) {
         galleryId: 21,
         promptId: null,
         pitchId: null,
-        userId: userId.value ?? 10, // Ensure userId is never undefined, default to null
-        designer: username.value ?? 'Kind Guest', // Ensure designer is never undefined, default to null
+        userId: userId.value ?? 10, // Default userId if undefined
+        designer: username.value ?? 'Kind Guest', // Default designer if undefined
       }
 
-      // Step 3: Call createArt in the store to save the art object and assign the result
+      // Step 3: Create the art entry
       newArt.value = await artStore.createArt(newArtData)
 
       // Step 4: Link the created artId to the ArtImage
@@ -73,6 +89,8 @@ async function uploadImage(event: Event) {
       }
     } catch (error) {
       console.error('Error uploading image or creating art:', error)
+    } finally {
+      isUploading.value = false // Set uploading state back to false
     }
   }
 }

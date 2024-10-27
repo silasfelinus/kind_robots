@@ -19,20 +19,27 @@
     </div>
 
     <!-- Component List View -->
-    <div
-      v-if="selectedComponents.length"
-      class="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] gap-4"
-    >
-      <div
-        v-for="component in selectedComponents"
-        :key="component.id"
-        class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition-transform transform hover:scale-105"
-        @click="selectComponent(component)"
+    <div v-if="selectedComponents.length">
+      <!-- Back Button -->
+      <button
+        @click="goBackToFolders"
+        class="mb-4 bg-primary text-default px-4 py-2 rounded hover:bg-secondary transition"
       >
-        <div class="text-center">
-          <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
-          <p>{{ component.componentName }}</p>
-          <p v-if="component.title" class="text-xs">{{ component.title }}</p>
+        Back to Folders
+      </button>
+
+      <div class="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] gap-4">
+        <div
+          v-for="component in selectedComponents"
+          :key="component.id"
+          class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition-transform transform hover:scale-105"
+          @click="selectComponent(component)"
+        >
+          <div class="text-center">
+            <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
+            <p>{{ component.componentName }}</p>
+            <p v-if="component.title" class="text-xs">{{ component.title }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -74,6 +81,12 @@ const selectComponent = (component: Component) => {
   componentStore.selectedComponent = component
 }
 
+// Go back to the folder view by clearing the selected components
+const goBackToFolders = () => {
+  selectedComponents.value = []
+  selectedFolder.value = null
+}
+
 // Initial fetch from store on component mount
 onMounted(() => {
   if (!componentStore.components.length) {
@@ -82,6 +95,3 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-/* Add custom styling if needed */
-</style>

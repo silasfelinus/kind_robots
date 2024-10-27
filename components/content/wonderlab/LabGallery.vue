@@ -22,8 +22,8 @@
     <div v-if="selectedComponents.length">
       <!-- Back Button -->
       <button
-        @click="goBackToFolders"
         class="mb-4 bg-primary text-default px-4 py-2 rounded hover:bg-secondary transition"
+        @click="goBackToFolders"
       >
         Back to Folders
       </button>
@@ -94,4 +94,3 @@ onMounted(() => {
   }
 })
 </script>
-

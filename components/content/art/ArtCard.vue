@@ -77,6 +77,9 @@ const props = defineProps<{
   artImage?: ArtImage
 }>()
 
+// Local state for fetched art image
+const localArtImage = ref<ArtImage | null>(null) // Stores the fetched image locally
+
 // Initialize stores
 const artStore = useArtStore()
 const promptStore = usePromptStore()
@@ -107,19 +110,22 @@ const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 
-// Function to toggle art image and fetch it if necessary
+// Function to toggle art image and fetch a single image if necessary
 const toggleArtImage = async () => {
-  if (showArtImage.value && !props.artImage) {
-    // Fetch the art image if it's not already available and showArtImage is true
+  if (showArtImage.value && !localArtImage.value && !props.artImage) {
+    // Fetch the single art image if it's not already available and showArtImage is true
     await fetchArtImage()
   }
 }
 
-// Method to fetch art image if not already present
+// Method to fetch a single art image if not already present
 const fetchArtImage = async () => {
   try {
     console.log('Fetching art image for art ID:', props.art.id)
-    await artStore.fetchArtImageById(props.art.id)
+    const artImage = await artStore.fetchArtImageById(props.art.id) // Fetch one image by artId
+    if (artImage) {
+      localArtImage.value = artImage // Update local state with the fetched image
+    }
   } catch (error) {
     console.error('Error fetching art image:', error)
   }
@@ -132,12 +138,21 @@ const toggleFullscreenMode = () => {
 
 // Get the image path, prioritize artImage.imageData if available and toggled
 const getArtImage = () => {
-  if (showArtImage.value && props.artImage && props.artImage.imageData) {
+  if (
+    showArtImage.value &&
+    localArtImage.value &&
+    localArtImage.value.imageData
+  ) {
     console.log(
-      'Using artImage.imageData for display:',
+      'Using localArtImage.imageData for display:',
+      localArtImage.value.imageData,
+    )
+    return `data:image/png;base64,${localArtImage.value.imageData}`
+  } else if (props.artImage && props.artImage.imageData) {
+    console.log(
+      'Using props.artImage.imageData for display:',
       props.artImage.imageData,
     )
-    // Assuming the imageData is base64, construct the data URL
     return `data:image/png;base64,${props.artImage.imageData}`
   } else if (props.art.path) {
     console.log('Using art.path for display:', props.art.path)

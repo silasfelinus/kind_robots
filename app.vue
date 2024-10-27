@@ -30,7 +30,7 @@
 
     <!-- Main Content -->
     <main
-      class="fixed z-10 border-4 rounded-2xl overflow-hidden box-border transition-all duration-600 ease-in-out"
+      class="fixed z-10 border-4 rounded-2xl overflow-hidden box-border bg-base-300 transition-all duration-600 ease-in-out"
       :style="mainContentStyle"
     >
       <main-content />

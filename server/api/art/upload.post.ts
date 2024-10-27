@@ -3,6 +3,14 @@ import { defineEventHandler, readMultipartFormData } from 'h3'
 import { uploadArtImage } from './../utils/UploadArtImage'
 import { errorHandler } from './../utils/error'
 
+function validUserId(userId: string | undefined): boolean {
+  return !isNaN(Number(userId)) && Number(userId) > 0
+}
+
+function validGalleryId(galleryId: string | undefined): boolean {
+  return !isNaN(Number(galleryId)) && Number(galleryId) > 0
+}
+
 export default defineEventHandler(async (event) => {
   try {
     // Parse the multipart form data
@@ -14,28 +22,26 @@ export default defineEventHandler(async (event) => {
 
     // Extract the image file and form fields
     const imageFile = form.find((file) => file.name === 'image')
-    const galleryName = form
-      .find((field) => field.name === 'galleryName')
-      ?.data.toString()
-    const userId = form
-      .find((field) => field.name === 'userId')
-      ?.data.toString()
-    const galleryId = form
-      .find((field) => field.name === 'galleryId')
-      ?.data.toString()
-    const fileType = form
-      .find((field) => field.name === 'fileType')
-      ?.data.toString()
+    const galleryName =
+      form.find((field) => field.name === 'galleryName')?.data.toString() ||
+      'userUpload' // Default to 'userUpload' if missing
+    const userId =
+      form.find((field) => field.name === 'userId')?.data.toString() || '10' // Default to '10' if missing
+    const galleryId =
+      form.find((field) => field.name === 'galleryId')?.data.toString() || '21' // Default to '21' if missing
+    const fileType =
+      form.find((field) => field.name === 'fileType')?.data.toString() || 'png' // Default to 'png' if missing
 
-    // Check if the image file and necessary fields exist
+    // Ensure required fields are present and valid
     if (
       !imageFile?.data ||
-      !galleryName ||
-      !userId ||
-      !galleryId ||
-      !fileType
+      !validUserId(userId) ||
+      !validGalleryId(galleryId)
     ) {
-      return { success: false, message: 'Missing required fields' }
+      return {
+        success: false,
+        message: 'Missing required fields or invalid data',
+      }
     }
 
     // Call your uploadArtImage function and pass both the data and filename

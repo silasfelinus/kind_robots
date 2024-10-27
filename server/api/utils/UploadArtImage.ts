@@ -9,9 +9,9 @@ const prisma = new PrismaClient()
 
 export async function uploadArtImage(
   uploadedFile: { data: Buffer; filename: string }, // Adjusted for Nuxt's file handling
-  galleryName: string,
-  userId: number,
-  galleryId: number,
+  galleryName: string = 'userUpload',
+  userId: number = 10,
+  galleryId: number = 21,
   fileType: string = 'png', // Assuming fileType is already validated and sent
 ): Promise<{ artImage: ArtImage }> {
   try {

@@ -28,6 +28,7 @@
       <lazy-add-bot v-if="activeTab === 'add-bot'" />
       <lazy-kind-robot v-if="activeTab === 'kind-robot'" />
       <lazy-bot-gallery v-if="activeTab === 'bot-gallery'" />
+       <lazy-use-bot v-if="activeTab === 'use-bot'" />
     </div>
   </div>
 </template>
@@ -40,6 +41,7 @@ const tabs = [
   { name: 'add-bot', label: 'Add Bot' },
   { name: 'kind-robot', label: 'Kind Robot' },
   { name: 'bot-gallery', label: 'Bot Gallery' },
+  { name: 'use-bot', label: 'Use Bot' },
 ]
 
 const activeTab = ref('add-bot') // Default to the first tab

@@ -151,7 +151,7 @@ export const useChatStore = defineStore({
     )
     throw error
   }
-}
+},
 
 // Updated continueExchange to pass previous promptId when continuing a chat
 async continueExchange(previousExchangeId: number, newPrompt: string) {

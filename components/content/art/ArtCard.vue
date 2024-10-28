@@ -29,7 +29,7 @@
     <!-- Display if showing art-image or art-path -->
     <div class="text-center mt-2">
       <span class="text-sm text-info">
-        Displaying: {{ showArtImage.value ? 'Art Image (Base64)' : 'Art Path' }}
+        Displaying: {{ showArtImage ? 'Art Image (Base64)' : 'Art Path' }}
       </span>
     </div>
 
@@ -62,9 +62,11 @@
       v-if="showDetails"
       class="mt-4 p-4 bg-base-200 overflow-y-auto rounded-xl"
     >
-      <pre class="text-sm whitespace-pre-wrap">{{ artData }}</pre>
+      <pre class="text-sm whitespace-pre-wrap">{{ props.art }}</pre>
       <!-- Show artImage details if available -->
-      <pre v-if="hasImage" class="text-sm whitespace-pre-wrap">{{ localArtImage }}</pre>
+      <pre v-if="hasImage" class="text-sm whitespace-pre-wrap">{{
+        localArtImage
+      }}</pre>
     </div>
   </div>
 </template>
@@ -85,7 +87,9 @@ const fullscreenMode = ref(false)
 const showDetails = ref(false)
 
 // Check if we have an art image locally or via props
-const hasImage = computed(() => !!(localArtImage.value || props.artImage?.imageData))
+const hasImage = computed(
+  () => !!(localArtImage.value || props.artImage?.imageData),
+)
 
 const artStore = useArtStore()
 const reactionStore = useReactionStore()
@@ -124,13 +128,17 @@ onMounted(() => {
 
 const fetchArtImage = async () => {
   try {
-    const artImage = await artStore.fetchArtImageById(props.art.artImageId)
-    if (artImage) {
-      console.log("Art image fetched:", artImage)
-      localArtImage.value = artImage
-      showArtImage.value = true
+    if (props.art.artImageId) {
+      const artImage = await artStore.fetchArtImageById(props.art.artImageId)
+      if (artImage) {
+        console.log('Art image fetched:', artImage)
+        localArtImage.value = artImage
+        showArtImage.value = true
+      } else {
+        console.warn(`No art image found for artId ${props.art.artImageId}`)
+      }
     } else {
-      console.warn(`No art image found for artId ${props.art.artImageId}`)
+      console.warn('No artImageId available to fetch.')
     }
   } catch (error) {
     console.error('Error fetching art image:', error)

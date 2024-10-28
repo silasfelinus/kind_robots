@@ -13,7 +13,8 @@
       />
       <!-- Special Overlay: Shows viewportSize, positioned inside avatar-image -->
       <div
-        class="absolute bottom-2 right-2 text-white bg-primary rounded-md text-xs md:text-sm lg:text-base p-1"
+        v-if="isAdmin"
+        class="absolute bottom-2 right-2 text-white bg-primary rounded-md text-xs md:text-sm lg:text-base p-1 opacity-5"
       >
         {{ displayStore.viewportSize }}
       </div>
@@ -47,9 +48,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useUserStore } from '@/stores/userStore'
 
 // Access display store
 const displayStore = useDisplayStore()
+const userStore = useUserStore()
+const isAdmin = computed(() => userStore.user?.Role === 'ADMIN')
 
 // Access page content and subtitle
 const { page } = useContent()

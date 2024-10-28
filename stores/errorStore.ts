@@ -6,6 +6,7 @@ export enum ErrorType {
   AUTH_ERROR = 'Authentication Error',
   UNKNOWN_ERROR = 'Unknown Error',
   GENERAL_ERROR = 'General Error',
+  PARSE_ERROR = 'Parse Error',
   REGISTRATION_ERROR = 'Registration Error',
   INTERACTION_ERROR = 'Interaction Error',
   STORE_ERROR = 'Store Error',
@@ -45,22 +46,21 @@ export const useErrorStore = defineStore('error', {
      */
     setError(type: ErrorType, message: unknown): void {
       let errorMessage: string = 'An unknown error occurred'
-    
+
       if (message instanceof Error) {
         errorMessage = message.message
       } else if (typeof message === 'string' && message !== undefined) {
         errorMessage = message
       }
-    
+
       this.message = errorMessage
       this.type = type
       this.history.push({ type, message: errorMessage, timestamp: new Date() })
-    
+
       if (this.history.length > MAX_HISTORY) {
         this.history.shift()
       }
     },
-    
 
     addError(type: ErrorType, message: unknown): void {
       this.setError(type, message) // Use the existing setError function

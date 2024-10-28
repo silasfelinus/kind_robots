@@ -108,11 +108,11 @@ const computedArtImage = computed(() => {
 })
 
 onMounted(() => {
-  if (props.art.artImageId && !props.artImage?.imageData) {
+  if (props.art.artImageId && !props.artImage?.artImage.imageData) {
     fetchArtImage()
 showArtImage.value = true 
-  } else if (props.artImage?.imageData) {
-    localArtImage.value = props.artImage
+  } else if (props.artImage?.artImage.imageData) {
+    localArtImage.value = props.artImage.artImage
 showArtImage.value = true 
   }
 })
@@ -122,7 +122,7 @@ const fetchArtImage = async () => {
     const artImage = await artStore.fetchArtImageById(props.art.artImageId)
     if (artImage) {
 console.log("art image fetched " + artImage)
-      localArtImage.value = artImage
+      localArtImage.value = artImage.artImage
       
     }
   } catch (error) {

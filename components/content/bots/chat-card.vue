@@ -51,19 +51,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, defineProps } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
+import type { PropType } from 'vue'
 
-// Props: chatExchangeId to fetch the relevant chat exchange
+// Props with correct type definitions
 const props = defineProps({
   chatExchangeId: {
     type: Number,
     required: true,
   },
   sendMessage: {
-    type: Function as unknown as () => (
-      updatedMessages: { role: string; content: string }[],
-    ) => Promise<void>,
+    type: Function as PropType<
+      (updatedMessages: { role: string; content: string }[]) => Promise<void>
+    >,
     default: () => async () => {},
   },
 })
@@ -75,14 +76,13 @@ const chatStore = useChatStore()
 const showReply = ref(false)
 const replyMessage = ref('')
 
-// Fetch the chat exchange from the store based on the chatExchangeId prop
+// Computed properties for chat exchange and messages
 const chatExchange = computed(() => {
   return chatStore.chatExchanges.find(
-    (exchange: ChatExchange) => exchange.id === props.chatExchangeId,
+    (exchange) => exchange.id === props.chatExchangeId,
   )
 })
 
-// Messages of the chat exchange
 const chatExchangeMessages = computed(() => {
   if (chatExchange.value) {
     return [
@@ -93,39 +93,42 @@ const chatExchangeMessages = computed(() => {
   return []
 })
 
-// Get the content of the last message
 const getLastMessageContent = computed(() => {
   return chatExchangeMessages.value.length
     ? chatExchangeMessages.value[chatExchangeMessages.value.length - 1].content
     : ''
 })
 
-// Toggle the reply box
+// Toggle reply box
 const toggleReply = () => {
   showReply.value = !showReply.value
 }
 
-// Send a reply
+// Send a reply, utilizing continueExchange
 const sendReply = async () => {
   if (replyMessage.value.trim()) {
-    const updatedMessages = [
-      ...chatExchangeMessages.value,
-      { role: 'user', content: replyMessage.value },
-    ]
-    await props.sendMessage(updatedMessages)
-    replyMessage.value = ''
-    showReply.value = false
+    try {
+      const updatedMessages = [
+        ...chatExchangeMessages.value,
+        { role: 'user', content: replyMessage.value },
+      ]
+      await chatStore.continueExchange(props.chatExchangeId, replyMessage.value)
+      await props.sendMessage(updatedMessages)
+      replyMessage.value = ''
+      showReply.value = false
+    } catch (error) {
+      console.error('Error sending reply:', error)
+    }
   }
 }
 
-// Save message action
+// Additional action functions (saveMessage, share, react, deleteMessage)
 const saveMessage = async () => {
   if (chatExchange.value) {
     try {
-      await chatStore.addOrUpdateExchange(
+      await chatStore.continueExchange(
+        props.chatExchangeId,
         chatExchange.value.userPrompt,
-        chatExchange.value.userId,
-        chatExchange.value.botId ?? undefined,
       )
       console.log('Message saved successfully.')
     } catch (error) {
@@ -134,19 +137,14 @@ const saveMessage = async () => {
   }
 }
 
-// Share message action
 const share = (platform: string) => {
   console.log(`Shared on ${platform}`)
-  // Logic for sharing could be added here, based on platform
 }
 
-// React to message
 const react = (reaction: string) => {
   console.log(`Reacted with ${reaction}`)
-  // You could add a call to your reactionStore if needed
 }
 
-// Delete message
 const deleteMessage = async () => {
   if (chatExchange.value) {
     try {

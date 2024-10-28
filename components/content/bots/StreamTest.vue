@@ -1,5 +1,4 @@
 <template>
-  <!-- Main container for the stream test, set to full height with flex properties -->
   <div
     class="container mx-auto p-4 bg-base-300 rounded-2xl flex flex-col h-full"
   >
@@ -10,8 +9,7 @@
       <!-- Scrollable conversation area -->
       <div class="conversation-area flex-grow overflow-y-auto p-4">
         <ConversationDisplay
-          :conversations="conversations"
-          :active-conversation-index="activeConversationIndex"
+          :chat-exchange-id="activeChatExchangeId"
           :current-bot="currentBot"
           :is-reply-loading="isReplyLoading"
         />
@@ -71,41 +69,67 @@ const botStore = useBotStore()
 const chatStore = useChatStore()
 const userStore = useUserStore()
 
-// Get conversations and activeConversationIndex from chatStore
-const conversations = computed(() => chatStore.chatExchanges) // Assuming this holds your conversations
-const activeConversationIndex = ref<number | null>(null) // Could track the active index if needed
-
 // Define state for the message, loading indicators, and current bot
 const message = ref('')
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 const isReplyLoading = ref(false)
 
-// Computed value to get the current bot
-const currentBot = computed(
+// Computed properties
+const conversations = computed(() => chatStore.chatExchanges)
+const activeConversationIndex = ref<number | null>(null) // Use this to track the current conversation index
+
+const defaultBot = {
+  id: -1,
+  name: 'Unknown Bot',
+  subtitle: 'No subtitle available',
+  description: 'No description available',
+  userIntro: 'Hi Bot',
+  prompt: 'I am a kind robot',
+  avatarImage: '/images/amibotsquare1.webp',
+}
+
+// Use fallback values if activeConversationIndex or chatExchange ID is null
+const activeChatExchangeId = computed(
   () =>
-    botStore.currentBot ?? {
-      name: 'Unknown Bot',
-      subtitle: 'No subtitle available',
-      description: 'No description available',
-      userIntro: 'Hi Bot',
-      prompt: 'I am a kind robot',
-      avatarImage: '/images/amibotsquare1.webp',
-    },
+    activeConversationIndex.value !== null &&
+    chatStore.chatExchanges[activeConversationIndex.value]
+      ? chatStore.chatExchanges[activeConversationIndex.value].id
+      : -1, // Fallback to -1 or any invalid ID if not set
 )
+
+// Use defaultBot when botStore.currentBot is null
+const currentBot = computed(() => botStore.currentBot ?? defaultBot)
 
 // Send message function
 const sendMessage = async () => {
   if (!message.value.trim()) return
+
   isLoading.value = true
+  error.value = null // Reset error on new send attempt
+
   try {
     const userId = userStore.user?.id
     const botId = botStore.currentBot?.id
+
     if (!userId || !botId)
       throw new Error('User or Bot information is missing.')
 
-    // Use chatStore to handle sending the message
-    await chatStore.addOrUpdateExchange(message.value, userId, botId)
+    // Add or continue conversation based on activeConversationIndex
+    if (activeConversationIndex.value === null) {
+      const newExchange = await chatStore.addExchange(
+        message.value,
+        userId,
+        botId,
+      )
+      activeConversationIndex.value = newExchange
+        ? chatStore.chatExchanges.length - 1
+        : null
+    } else {
+      const previousExchange =
+        conversations.value[activeConversationIndex.value!]
+      await chatStore.continueExchange(previousExchange.id, message.value)
+    }
 
     message.value = '' // Clear input after sending
   } catch (err) {
@@ -116,7 +140,3 @@ const sendMessage = async () => {
   }
 }
 </script>
-
-<style scoped>
-/* Add necessary styles here */
-</style>

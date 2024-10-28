@@ -15,6 +15,7 @@
     >
       <!-- Display artImage.imageData (base64) or art.path -->
       <img
+        v-if="computedArtImage"
         :src="computedArtImage"
         alt="Artwork"
         class="rounded-2xl transition-transform ease-in-out hover:scale-105 w-full object-cover cursor-pointer"
@@ -64,7 +65,7 @@
     >
       <pre class="text-sm whitespace-pre-wrap">{{ artData }}</pre>
       <!-- Show artImage details if available -->
-      <pre v-if="hasImage" class="text-sm whitespace-pre-wrap">
+      <pre v-if="hasImage && localArtImage" class="text-sm whitespace-pre-wrap">
         {{ localArtImage }}
       </pre>
     </div>
@@ -105,7 +106,7 @@ const computedArtImage = computed(() => {
   } else if (props.art.path) {
     return props.art.path
   }
-  return '/images/backtree.webp'
+  return null
 })
 
 onMounted(() => {

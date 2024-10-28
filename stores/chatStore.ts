@@ -3,6 +3,25 @@ import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
+import type { ChatExchange } from '@prisma/client' // Adjust the import path as needed
+
+function isValidChatExchange(obj: unknown): obj is ChatExchange {
+  if (typeof obj !== 'object' || obj === null) return false
+
+  const exchange = obj as Partial<ChatExchange> // Temporarily cast for checks
+  return (
+    typeof exchange.id === 'number' &&
+    typeof exchange.userId === 'number' &&
+    exchange.createdAt instanceof Date &&
+    exchange.updatedAt instanceof Date &&
+    typeof exchange.username === 'string' &&
+    typeof exchange.userPrompt === 'string' &&
+    typeof exchange.botResponse === 'string' &&
+    typeof exchange.isPublic === 'boolean' &&
+    (typeof exchange.botId === 'number' || exchange.botId === null) &&
+    (typeof exchange.promptId === 'number' || exchange.promptId === null)
+  )
+}
 
 export const useChatStore = defineStore({
   id: 'chat',
@@ -33,6 +52,11 @@ export const useChatStore = defineStore({
     },
   },
   actions: {
+    handleError(type: ErrorType, message: string) {
+      const errorStore = useErrorStore()
+      errorStore.setError(type, message)
+      console.error(message)
+    },
     // Enhanced initialize function
     async initialize() {
       if (this.isInitialized) return
@@ -60,8 +84,8 @@ export const useChatStore = defineStore({
       }
     },
 
-    // Enhanced addExchange function
     async addExchange(prompt: string, userId: number, botId?: number) {
+      // Validation check for required data
       if (!prompt || !userId) {
         this.handleError(
           ErrorType.VALIDATION_ERROR,
@@ -78,6 +102,7 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
+        // Step 1: Add the prompt to the prompt store
         const promptData = await promptStore.addPrompt(
           prompt,
           userId,
@@ -89,31 +114,32 @@ export const useChatStore = defineStore({
           throw new Error('Failed to add the prompt to the promptStore.')
         }
 
+        // Step 2: Prepare the exchange object
         const botName = botId
           ? (botStore.currentBot?.name ?? 'Unknown Bot')
           : 'No Bot Assigned'
 
-        const exchange: ChatExchange = {
-          createdAt: new Date(),
-          updatedAt: new Date(),
+        const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
+          userId,
           username: userStore.username ?? 'Unknown User',
           previousEntryId: null,
-          botName: botName,
+          botName,
           userPrompt: prompt,
           botResponse: '',
           isPublic: false,
-          userId,
           botId: botId ?? null,
           promptId: promptData.id,
         }
 
         console.log('Prepared exchange object:', exchange)
 
+        // Step 3: Send the exchange to the backend API
         const response = await this.fetch('/api/chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(exchange),
         })
+
         console.log('API response from /api/chats:', response)
 
         if (!response.success) {
@@ -122,16 +148,25 @@ export const useChatStore = defineStore({
           )
         }
 
-        const newExchange: ChatExchange = response.newExchange
+        // Step 4: Ensure the response contains a valid ChatExchange
+        const newExchange = response.newExchange as ChatExchange
+        if (!isValidChatExchange(newExchange)) {
+          throw new Error('Invalid ChatExchange object returned from API')
+        }
+
+        // Step 5: Add the validated exchange to the store and save it
         this.chatExchanges.push(newExchange)
         this.activeChats.push(newExchange)
         this.saveToLocalStorage()
         console.log('Exchange successfully added and saved.')
+
         return newExchange
       } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error'
         this.handleError(
           ErrorType.NETWORK_ERROR,
-          `Error in addExchange: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Error in addExchange: ${errorMessage}`,
         )
         console.error('Error adding exchange:', error)
         throw error
@@ -215,8 +250,8 @@ export const useChatStore = defineStore({
 
       return await this.addExchange(
         newPrompt,
-        previousExchange.userId,
-        previousExchange.botId,
+        previousExchange.userId ?? 10,
+        previousExchange.botId ?? 1,
       )
     },
 
@@ -312,11 +347,33 @@ export const useChatStore = defineStore({
     },
 
     loadFromLocalStorage() {
-      if (typeof window !== 'undefined') {
-        const savedExchanges = localStorage.getItem('chatExchanges')
-        if (savedExchanges) {
-          this.chatExchanges = JSON.parse(savedExchanges)
+      if (typeof window === 'undefined') return
+
+      const savedExchanges = localStorage.getItem('chatExchanges')
+      if (!savedExchanges) {
+        console.log('No saved chat exchanges found in localStorage.')
+        return
+      }
+
+      try {
+        const parsedExchanges = JSON.parse(savedExchanges) as unknown
+
+        if (
+          Array.isArray(parsedExchanges) &&
+          parsedExchanges.every(isValidChatExchange)
+        ) {
+          this.chatExchanges = parsedExchanges as ChatExchange[]
+          console.log(
+            'Loaded chat exchanges from localStorage:',
+            this.chatExchanges,
+          )
+        } else {
+          console.warn(
+            'Invalid data format for chat exchanges in localStorage.',
+          )
         }
+      } catch (error) {
+        console.error('Error parsing chat exchanges from localStorage:', error)
       }
     },
 
@@ -327,12 +384,6 @@ export const useChatStore = defineStore({
           JSON.stringify(this.chatExchanges),
         )
       }
-    },
-
-    handleError(type: ErrorType, message: string) {
-      const errorStore = useErrorStore()
-      errorStore.setError(type, message)
-      console.error(message)
     },
   },
 })

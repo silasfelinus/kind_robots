@@ -68,7 +68,6 @@ export const useChatStore = defineStore({
     async initialize() {
       if (this.isInitialized) return
       try {
-        console.log('Initializing chat exchanges...')
         this.loadFromLocalStorage()
 
         const userStore = useUserStore()
@@ -79,7 +78,6 @@ export const useChatStore = defineStore({
         }
 
         this.isInitialized = true
-        console.log('Chat exchanges initialized successfully.')
       } catch (error) {
         this.handleError(
           ErrorType.NETWORK_ERROR,
@@ -88,7 +86,12 @@ export const useChatStore = defineStore({
       }
     },
 
-    async addExchange(prompt: string, userId: number, botId?: number) {
+    async addExchange(
+      prompt: string,
+      userId: number,
+      botId?: number,
+      previousEntryId?: number,
+    ) {
       if (!prompt || !userId) {
         this.handleError(
           ErrorType.VALIDATION_ERROR,
@@ -114,7 +117,7 @@ export const useChatStore = defineStore({
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
           username: userStore.username ?? 'Unknown User',
-          previousEntryId: null,
+          previousEntryId: previousEntryId ?? null,
           botName: botStore.currentBot?.name ?? 'Unknown Bot',
           userPrompt: prompt,
           botResponse: '',
@@ -168,6 +171,7 @@ export const useChatStore = defineStore({
         newPrompt,
         previousExchange.userId ?? 10,
         previousExchange.botId ?? 1,
+        previousExchange.id,
       )
     },
 
@@ -286,7 +290,6 @@ export const useChatStore = defineStore({
       }
     },
 
-    // Validation for ChatExchange structure
     isValidChatExchange(obj: unknown): obj is ChatExchange {
       if (typeof obj !== 'object' || obj === null) return false
       const exchange = obj as Partial<ChatExchange>

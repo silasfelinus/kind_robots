@@ -1,5 +1,7 @@
 <template>
-  <div class="rounded-2xl border p-6 m-4 mx-auto bg-base-200 grid gap-6 max-w-screen-lg">
+  <div
+    class="rounded-2xl border p-6 m-4 mx-auto bg-base-200 grid gap-6 max-w-screen-lg"
+  >
     <h1 class="text-4xl text-center col-span-full">Use a Bot</h1>
 
     <!-- Bot Selector at the Top -->
@@ -8,7 +10,10 @@
     </div>
 
     <!-- Avatar and Bot Information -->
-    <div v-if="botStore.currentBot" class="flex flex-wrap justify-center col-span-full gap-6">
+    <div
+      v-if="botStore.currentBot"
+      class="flex flex-wrap justify-center col-span-full gap-6"
+    >
       <div class="w-full md:w-1/3 p-4">
         <img
           v-if="botStore.currentBot.avatarImage"
@@ -26,7 +31,10 @@
     </div>
 
     <!-- User Prompts and Custom Prompt Input -->
-    <div v-if="botStore.currentBot" class="flex flex-col gap-4 items-center mt-6 w-full">
+    <div
+      v-if="botStore.currentBot"
+      class="flex flex-col gap-4 items-center mt-6 w-full"
+    >
       <div class="flex flex-wrap gap-2 justify-center">
         <div
           v-for="(prompt, index) in parsedUserPrompts"
@@ -39,7 +47,11 @@
             @click="sendPrompt(prompt)"
           >
             <span v-if="!loading">{{ prompt }}</span>
-            <span v-else class="spinner-border spinner-border-sm" role="status"></span>
+            <span
+              v-else
+              class="spinner-border spinner-border-sm"
+              role="status"
+            ></span>
           </button>
         </div>
       </div>
@@ -66,7 +78,11 @@
         @click="submitCustomPrompt"
       >
         <span v-if="!loading">Submit Prompt</span>
-        <span v-else class="spinner-border spinner-border-sm" role="status"></span>
+        <span
+          v-else
+          class="spinner-border spinner-border-sm"
+          role="status"
+        ></span>
       </button>
     </div>
 
@@ -106,7 +122,7 @@ async function sendPrompt(prompt: string) {
   loading.value = true // Start loading
   try {
     if (userStore.user?.id && botStore.currentBot?.id) {
-      await chatStore.addOrUpdateExchange(
+      await chatStore.addExchange(
         prompt,
         userStore.user.id,
         botStore.currentBot.id,
@@ -124,7 +140,7 @@ async function submitCustomPrompt() {
   loading.value = true // Start loading
   try {
     if (userStore.user?.id && botStore.currentBot?.id) {
-      await chatStore.addOrUpdateExchange(
+      await chatStore.addExchange(
         chatStore.currentPrompt,
         userStore.user.id,
         botStore.currentBot.id,

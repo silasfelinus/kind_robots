@@ -118,14 +118,17 @@ const parsedUserPrompts = computed(() => {
 })
 
 // Function to handle sending a selected prompt
-async function sendPrompt(prompt: string) {
+async function sendPrompt(prompt: string, promptId?: number) {
   loading.value = true // Start loading
   try {
     if (userStore.user?.id && botStore.currentBot?.id) {
+      // Call addExchange with promptId if provided, otherwise, a new prompt will be created
       await chatStore.addExchange(
         prompt,
         userStore.user.id,
         botStore.currentBot.id,
+        undefined,
+        promptId
       )
     }
   } finally {
@@ -135,15 +138,17 @@ async function sendPrompt(prompt: string) {
 
 // Function to handle submitting a custom prompt
 async function submitCustomPrompt() {
-  if (!chatStore.currentPrompt.trim()) return // Prevent empty submissions
+  const trimmedPrompt = chatStore.currentPrompt.trim()
+  if (!trimmedPrompt) return // Prevent empty submissions
 
   loading.value = true // Start loading
   try {
     if (userStore.user?.id && botStore.currentBot?.id) {
+      // Optionally, if there's logic to retrieve a prompt ID, pass it here
       await chatStore.addExchange(
-        chatStore.currentPrompt,
+        trimmedPrompt,
         userStore.user.id,
-        botStore.currentBot.id,
+        botStore.currentBot.id
       )
       chatStore.currentPrompt = '' // Clear the input after submitting
     }

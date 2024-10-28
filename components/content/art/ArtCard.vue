@@ -68,7 +68,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
@@ -79,41 +78,47 @@ const props = defineProps<{
   artImage?: ArtImage
 }>()
 
+// Local state to store fetched art image and track whether to show art image or path
 const localArtImage = ref<ArtImage | null>(null)
 const showArtImage = ref(false)
 const fullscreenMode = ref(false)
 const showDetails = ref(false)
 
+// Check if we have an art image locally or via props
 const hasImage = computed(() => !!(localArtImage.value || props.artImage?.imageData))
 
 const artStore = useArtStore()
 const reactionStore = useReactionStore()
 
-const artData = computed(() => props.art)
-
+// Reactions associated with the art
 const reactions = computed(() =>
   reactionStore.reactions.filter((r) => r.artId === props.art.id),
 )
 
-// Computed for artImage or fallback to path
+// Computed property to decide whether to display art image or art path
 const computedArtImage = computed(() => {
   if (localArtImage.value?.imageData) {
-    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}` // Use dynamic file type
+    // Return art image as base64 if available locally
+    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`
   } else if (props.artImage?.imageData) {
+    // Return art image from props if available
     return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`
   } else if (props.art.path) {
+    // Fallback to art path if no image is available
     return props.art.path
   }
-  return '/images/backtree.webp'
+  return '/images/backtree.webp' // Default image if nothing is available
 })
 
+// Fetch art image by artImageId on component mount
 onMounted(() => {
-  if (props.art.artImageId && !props.artImage?.artImage.imageData) {
+  if (props.art.artImageId && !props.artImage?.imageData) {
+    // If there's an artImageId but no image data, fetch from backend
     fetchArtImage()
-showArtImage.value = true 
-  } else if (props.artImage?.artImage.imageData) {
-    localArtImage.value = props.artImage.artImage
-showArtImage.value = true 
+  } else if (props.artImage?.imageData) {
+    // If image data exists in props, use it directly
+    localArtImage.value = props.artImage
+    showArtImage.value = true
   }
 })
 
@@ -121,33 +126,29 @@ const fetchArtImage = async () => {
   try {
     const artImage = await artStore.fetchArtImageById(props.art.artImageId)
     if (artImage) {
-console.log("art image fetched " + artImage)
-      localArtImage.value = artImage.artImage
-      
+      console.log("Art image fetched:", artImage)
+      localArtImage.value = artImage
+      showArtImage.value = true
+    } else {
+      console.warn(`No art image found for artId ${props.art.artImageId}`)
     }
   } catch (error) {
     console.error('Error fetching art image:', error)
   }
 }
 
+// Toggle fullscreen mode for the image
 const toggleFullscreenMode = () => {
   fullscreenMode.value = !fullscreenMode.value
 }
 
+// Toggle detailed view section
 const toggleDetails = () => {
   showDetails.value = !showDetails.value
 }
 
+// Select art when clicked
 const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 </script>
-
-
-<style scoped>
-.fullscreen-img {
-  max-width: 100vw;
-  max-height: 100vh;
-  object-fit: contain;
-}
-</style>

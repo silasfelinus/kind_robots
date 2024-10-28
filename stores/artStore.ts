@@ -109,6 +109,33 @@ export const useArtStore = defineStore({
         'Failed to fetch collected art.',
       )
     },
+    // Fetch ArtImage from backend by artId if not available in local state
+    async fetchArtImageByArtId(artId: number): Promise<ArtImage | null> {
+      const errorStore = useErrorStore()
+
+      return errorStore.handleError(
+        async () => {
+          // First, check if the image exists in the local state
+          let artImage = this.getArtImageByArtId(artId)
+
+          if (!artImage) {
+            // Fetch from the backend if not found in local state
+            const response = await fetch(`/api/art/${artId}/image`)
+            if (response.ok) {
+              artImage = await response.json() as ArtImage
+              this.artImages.push(artImage) // Cache the fetched image in local state
+            } else {
+              const errorResponse = await response.json()
+              throw new Error(errorResponse.message)
+            }
+          }
+
+          return artImage || null
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to fetch art image by art ID.'
+      )
+    },
 
     // Fetch all art entries with pagination
     async fetchAllArt(page: number = 1, limit: number = 100): Promise<void> {
@@ -317,6 +344,11 @@ export const useArtStore = defineStore({
 
     getArtImagesById(artId: number): ArtImage[] {
       return this.artImages.filter((image: ArtImage) => image.artId === artId)
+    },
+
+     // Get a single ArtImage for a given artId from the local state
+    getArtImageByArtId(artId: number): ArtImage | undefined {
+      return this.artImages.find((image: ArtImage) => image.artId === artId)
     },
 
     getReactionsById(id: number): Reaction[] {

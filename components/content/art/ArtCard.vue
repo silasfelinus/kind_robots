@@ -15,7 +15,7 @@
     >
       <!-- Display artImage.imageData (base64) or art.path -->
       <img
-        :src="getArtImage()"
+        :src="computedArtImage"
         alt="Artwork"
         class="rounded-2xl transition-transform ease-in-out hover:scale-105 w-full object-cover cursor-pointer"
         :class="
@@ -45,19 +45,6 @@
           <span class="font-semibold">{{ art.isPublic ? 'Yes' : 'No' }}</span>
         </p>
       </div>
-    </div>
-
-    <!-- Toggle Button for Art Image -->
-    <div class="mt-4 flex justify-center">
-      <label class="flex items-center">
-        <input
-          v-model="showArtImage"
-          type="checkbox"
-          class="mr-2"
-          @change="toggleArtImage"
-        />
-        <span>Show Art Image</span>
-      </label>
     </div>
 
     <!-- Toggle Button for Art Details -->
@@ -92,14 +79,13 @@ const props = defineProps<{
 }>()
 
 const localArtImage = ref<ArtImage | null>(null)
+const showArtImage = ref(false)
+const fullscreenMode = ref(false)
+const showDetails = ref(false)
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
-
-const showDetails = ref(false)
-const showArtImage = ref(false)
-const fullscreenMode = ref(false)
 
 const artData = computed(() => props.art)
 
@@ -107,20 +93,26 @@ const reactions = computed(() =>
   reactionStore.reactions.filter((r) => r.artId === props.art.id),
 )
 
-onMounted(() => {
-  if (props.art.promptId) promptStore.fetchPromptById(props.art.promptId)
-  reactionStore.fetchReactionsByArtId(props.art.id)
+// Computed for artImage or fallback to path
+const computedArtImage = computed(() => {
+  if (showArtImage.value && localArtImage.value?.imageData) {
+    return `data:image/png;base64,${localArtImage.value.imageData}`
+  } else if (props.artImage?.imageData) {
+    return `data:image/png;base64,${props.artImage.imageData}`
+  } else if (props.art.path) {
+    return props.art.path
+  }
+  return '/images/backtree.webp'
 })
 
-const selectArt = () => {
-  artStore.selectArt(props.art.id)
-}
-
-const toggleArtImage = async () => {
-  if (showArtImage.value && !localArtImage.value && !props.artImage) {
-    await fetchArtImage()
+onMounted(() => {
+  if (props.artImage?.imageData || props.art.artImageId) {
+    showArtImage.value = true
+    if (!props.artImage?.imageData) {
+      fetchArtImage()
+    }
   }
-}
+})
 
 const fetchArtImage = async () => {
   try {
@@ -141,15 +133,8 @@ const toggleDetails = () => {
   showDetails.value = !showDetails.value
 }
 
-const getArtImage = () => {
-  if (showArtImage.value && localArtImage.value?.imageData) {
-    return `data:image/png;base64,${localArtImage.value.imageData}`
-  } else if (props.artImage?.imageData) {
-    return `data:image/png;base64,${props.artImage.imageData}`
-  } else if (props.art.path) {
-    return props.art.path
-  }
-  return '/images/backtree.webp'
+const selectArt = () => {
+  artStore.selectArt(props.art.id)
 }
 </script>
 

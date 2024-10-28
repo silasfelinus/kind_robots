@@ -21,13 +21,6 @@
         <h3 class="text-lg font-semibold">
           {{ message.username }} (Bot: {{ message.botName }})
         </h3>
-        <!-- Toggle Public Button -->
-        <button
-          class="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
-          @click="togglePublic(message.id)"
-        >
-          {{ message.isPublic ? 'Unshare' : 'Share' }}
-        </button>
       </div>
       <p class="user-prompt mb-1 text-gray-600">{{ message.userPrompt }}</p>
       <p class="bot-response font-medium">{{ message.botResponse }}</p>
@@ -45,7 +38,7 @@ import { useBotStore } from './../../../stores/botStore'
 // Get stores and necessary properties
 const { userId } = useUserStore()
 const { selectedBotId, bots } = useBotStore()
-const { fetchChatExchangesByUserId, chatExchanges, togglePublic } =
+const { fetchChatExchangesByUserId, chatExchanges } =
   useChatStore()
 
 // Fetch chat exchanges on mount

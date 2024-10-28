@@ -97,17 +97,17 @@ const artData = computed(() => props.art)
 // Check if artImage is available
 const hasImage = computed(() => !!(localArtImage.value || props.artImage?.imageData))
 
-// Computed for artImage or fallback to path
 const computedArtImage = computed(() => {
-  if (localArtImage.value?.imageData) {
-    return `data:image/png;base64,${localArtImage.value.imageData}`
+  if (showArtImage.value && localArtImage.value?.imageData) {
+    return `data:image/png;base64,${localArtImage.value.imageData}`  // Add the backticks here
   } else if (props.artImage?.imageData) {
-    return `data:image/png;base64,${props.artImage.imageData}`
+    return `data:image/png;base64,${props.artImage.imageData}`  // Add the backticks here
   } else if (props.art.path) {
     return props.art.path
   }
-  return null
+  return '/images/backtree.webp'
 })
+
 
 onMounted(() => {
   if (props.artImage?.imageData || props.art.artImageId) {

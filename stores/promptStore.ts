@@ -99,66 +99,102 @@ export const usePromptStore = defineStore('promptStore', {
       this.promptArray = finalString.split('|').map((prompt) => prompt.trim())
     },
 
-    // Fetch a prompt by ID and store it in fetchedPrompts
-    async fetchPromptById(promptId: number) {
-      const errorStore = useErrorStore()
+// Enhanced addPrompt method
+async addPrompt(newPrompt: string, userId: number, botId: number) {
+  const errorStore = useErrorStore()
+  console.log('Attempting to add new prompt:', { newPrompt, userId, botId })
 
-      try {
-        if (this.fetchedPrompts[promptId]) return // Return cached prompt if it exists
-        const response = await fetch(`/api/prompts/${promptId}`)
-        if (!response.ok) throw new Error(await response.text())
-        const fetchedPrompt = await response.json()
-        this.fetchedPrompts[promptId] = fetchedPrompt
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error fetching prompt by ID: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-        this.fetchedPrompts[promptId] = null
-      }
-    },
+  try {
+    const response = await fetch('/api/prompt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: newPrompt,
+        userId,
+        botId,
+      }),
+    })
+    
+    if (!response.ok) {
+      const errorMessage = await response.text()
+      console.error('Error response from /api/prompt:', errorMessage)
+      throw new Error(errorMessage)
+    }
 
-    // Fetch art by a specific prompt ID
-    async fetchArtByPromptId(promptId: number) {
-      const errorStore = useErrorStore()
+    const createdPrompt = await response.json()
+    console.log('Prompt created successfully:', createdPrompt)
+    this.prompts.push(createdPrompt)
+    return createdPrompt
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error in addPrompt:', errorMessage)
+    
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      `Error creating prompt: ${errorMessage}`,
+    )
+  }
+}
 
-      try {
-        const response = await fetch(`/api/art/prompt/${promptId}`)
-        if (!response.ok) throw new Error(await response.text())
-        this.artByPromptId = await response.json()
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error fetching art by prompt ID: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-      }
-    },
+// Enhanced fetchPromptById method
+async fetchPromptById(promptId: number) {
+  const errorStore = useErrorStore()
+  console.log('Fetching prompt by ID:', promptId)
 
-    // Add a new prompt (general text prompt)
-    async addPrompt(newPrompt: string, userId: number, botId: number) {
-      const errorStore = useErrorStore()
+  try {
+    if (this.fetchedPrompts[promptId]) {
+      console.log('Using cached prompt for ID:', promptId)
+      return
+    }
 
-      try {
-        const response = await fetch('/api/prompt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: newPrompt,
-            userId,
-            botId,
-          }),
-        })
-        if (!response.ok) throw new Error(await response.text())
-        const createdPrompt = await response.json()
-        this.prompts.push(createdPrompt)
-        return createdPrompt
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error creating prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-      }
-    },
+    const response = await fetch(`/api/prompts/${promptId}`)
+    if (!response.ok) {
+      const errorMessage = await response.text()
+      console.error('Error response from /api/prompts/{promptId}:', errorMessage)
+      throw new Error(errorMessage)
+    }
+
+    const fetchedPrompt = await response.json()
+    console.log('Fetched prompt successfully:', fetchedPrompt)
+    this.fetchedPrompts[promptId] = fetchedPrompt
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error fetching prompt by ID:', errorMessage)
+    
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      `Error fetching prompt by ID: ${errorMessage}`,
+    )
+    this.fetchedPrompts[promptId] = null
+  }
+}
+
+// Enhanced fetchArtByPromptId method
+async fetchArtByPromptId(promptId: number) {
+  const errorStore = useErrorStore()
+  console.log('Fetching art by prompt ID:', promptId)
+
+  try {
+    const response = await fetch(`/api/art/prompt/${promptId}`)
+    if (!response.ok) {
+      const errorMessage = await response.text()
+      console.error('Error response from /api/art/prompt/{promptId}:', errorMessage)
+      throw new Error(errorMessage)
+    }
+
+    this.artByPromptId = await response.json()
+    console.log('Art fetched successfully for prompt ID:', promptId, this.artByPromptId)
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error fetching art by prompt ID:', errorMessage)
+    
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      `Error fetching art by prompt ID: ${errorMessage}`,
+    )
+  }
+},
+
 
     // Delete an art prompt by ID
     async deletePrompt(promptId: number) {

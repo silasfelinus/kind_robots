@@ -65,7 +65,7 @@ import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import ArtCard from './ArtCard.vue' 
+import ArtCard from './ArtCard.vue'
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()
@@ -73,11 +73,11 @@ const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 
 const localError = ref<string | null>(null)
-const logs = ref<string[]>([])  // Store for logs
+const logs = ref<string[]>([]) // Store for logs
 const originalConsoleLog = console.log // Save original console.log function
 
 // Hijack the console.log function
-console.log = function(...args) {
+console.log = function (...args) {
   originalConsoleLog.apply(console, args) // Still call original log
   logs.value.push(args.join(' ')) // Add the log to the UI logs
 }
@@ -98,7 +98,7 @@ const savePrompt = () => {
 
 const generatedArtWithImages = computed(() => {
   return artStore.generatedArt.map((art) => {
-    const artImage = artStore.getArtImagesById(art.id)[0] 
+    const artImage = artStore.getArtImagesById(art.id)[0]
     return {
       art,
       artImage,

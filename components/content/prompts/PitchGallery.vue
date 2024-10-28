@@ -8,7 +8,7 @@
     >
       <div class="flex space-x-2">
         <Icon
-          name="grommet-Icons:grid"
+          name="kind-icon:grid"
           class="text-2xl cursor-pointer"
           @click="setView('fourRow')"
         />

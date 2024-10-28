@@ -124,6 +124,9 @@ export const useArtStore = defineStore({
             if (response.ok) {
               artImage = (await response.json()) as ArtImage
               this.artImages.push(artImage) // Cache the fetched image in local state
+
+              // Update the artImageId if it wasn't set initially
+              await this.updateArtImageId(artId, artImage.id)
             } else {
               const errorResponse = await response.json()
               throw new Error(errorResponse.message)
@@ -134,6 +137,36 @@ export const useArtStore = defineStore({
         },
         ErrorType.NETWORK_ERROR,
         'Failed to fetch art image by art ID.',
+      )
+    },
+    // Updating artImageId if it wasn't set initially
+    async updateArtImageId(artId: number, artImageId: number): Promise<void> {
+      const errorStore = useErrorStore()
+
+      return errorStore.handleError(
+        async () => {
+          const response = await fetch(`/api/art/${artId}/image`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ artImageId }), // Update the art with the new artImageId
+          })
+
+          if (response.ok) {
+            // Update the local art array with the new artImageId
+            const art = this.art.find((art) => art.id === artId)
+            if (art) {
+              art.artImageId = artImageId
+              art.hasArtImage = true
+            }
+          } else {
+            const errorResponse = await response.json()
+            throw new Error(errorResponse.message)
+          }
+        },
+        ErrorType.NETWORK_ERROR,
+        'Failed to update artImageId.',
       )
     },
 

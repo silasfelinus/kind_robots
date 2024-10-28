@@ -119,7 +119,7 @@ onMounted(() => {
   console.log('artimage: ' + props.artImage)
   console.log('art: ' + props.art)
   if (props.art.artImageId && !props.artImage?.imageData) {
-    // If there's an artImageId but no image data, fetch from backend
+    console.log('no artImage, fetching')
 
     fetchArtImage()
   } else if (props.artImage?.imageData) {
@@ -138,10 +138,24 @@ const fetchArtImage = async () => {
         localArtImage.value = artImage
         showArtImage.value = true
       } else {
-        console.warn(`No art image found for artId ${props.art.artImageId}`)
+        console.warn(
+          `No art image found for artImageId ${props.art.artImageId}`,
+        )
       }
     } else {
-      console.warn('No artImageId available to fetch.')
+      console.warn('No artImageId available, trying to search by artId')
+      const artImage = await artStore.fetchArtImageByArtId(props.art.id)
+      if (artImage) {
+        console.log('Art image fetched on second attempt:', artImage)
+        localArtImage.value = artImage
+        showArtImage.value = true
+
+        // Update artImageId in artStore if it was found via artId
+        await artStore.updateArtImageId(props.art.id, artImage.id)
+        console.log(`ArtImageId updated to ${artImage.id}`)
+      } else {
+        console.warn('No art image found for this art item.')
+      }
     }
   } catch (error) {
     console.error('Error fetching art image:', error)

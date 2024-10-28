@@ -72,7 +72,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
-import { usePromptStore } from '@/stores/promptStore'
 import { useReactionStore } from '@/stores/reactionStore'
 
 const props = defineProps<{
@@ -88,7 +87,6 @@ const showDetails = ref(false)
 const hasImage = computed(() => !!(localArtImage.value || props.artImage?.imageData))
 
 const artStore = useArtStore()
-const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 
 const artData = computed(() => props.art)
@@ -99,10 +97,10 @@ const reactions = computed(() =>
 
 // Computed for artImage or fallback to path
 const computedArtImage = computed(() => {
-  if (showArtImage.value && localArtImage.value?.imageData) {
-    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`  // Use dynamic file type
+  if (localArtImage.value?.imageData) {
+    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}` // Use dynamic file type
   } else if (props.artImage?.imageData) {
-    return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`  // Use dynamic file type
+    return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`
   } else if (props.art.path) {
     return props.art.path
   }
@@ -110,11 +108,10 @@ const computedArtImage = computed(() => {
 })
 
 onMounted(() => {
-  if (props.artImage?.imageData || props.art.artImageId) {
-    showArtImage.value = true
-    if (!props.artImage?.imageData) {
-      fetchArtImage()
-    }
+  if (props.art.artImageId && !props.artImage?.imageData) {
+    fetchArtImage()
+  } else if (props.artImage?.imageData) {
+    localArtImage.value = props.artImage
   }
 })
 
@@ -123,6 +120,7 @@ const fetchArtImage = async () => {
     const artImage = await artStore.fetchArtImageById(props.art.artImageId)
     if (artImage) {
       localArtImage.value = artImage
+      showArtImage.value = true // Ensure showArtImage is updated after fetching
     }
   } catch (error) {
     console.error('Error fetching art image:', error)
@@ -141,6 +139,7 @@ const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 </script>
+
 
 <style scoped>
 .fullscreen-img {

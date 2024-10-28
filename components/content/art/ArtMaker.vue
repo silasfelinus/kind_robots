@@ -98,7 +98,7 @@ const savePrompt = () => {
 
 const generatedArtWithImages = computed(() => {
   return artStore.generatedArt.map((art) => {
-    const artImage = artStore.getArtImagesById(art.id)[0]
+    const artImage = artStore.getArtImageById(art.id)
     return {
       art,
       artImage,

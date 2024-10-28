@@ -29,7 +29,7 @@
     <!-- Display if showing art-image or art-path -->
     <div class="text-center mt-2">
       <span class="text-sm text-info">
-        Displaying: {{ showArtImage ? 'Art Image (Base64)' : 'Art Path' }}
+        Displaying: {{ hasImage ? 'Art Image (Base64)' : 'Art Path' }}
       </span>
     </div>
 
@@ -63,6 +63,10 @@
       class="mt-4 p-4 bg-base-200 overflow-y-auto rounded-xl"
     >
       <pre class="text-sm whitespace-pre-wrap">{{ artData }}</pre>
+      <!-- Show artImage details if available -->
+      <pre v-if="hasImage" class="text-sm whitespace-pre-wrap">
+        {{ localArtImage }}
+      </pre>
     </div>
   </div>
 </template>
@@ -79,7 +83,6 @@ const props = defineProps<{
 }>()
 
 const localArtImage = ref<ArtImage | null>(null)
-const showArtImage = ref(false)
 const fullscreenMode = ref(false)
 const showDetails = ref(false)
 
@@ -87,15 +90,15 @@ const artStore = useArtStore()
 const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 
+// Computed art data
 const artData = computed(() => props.art)
 
-const reactions = computed(() =>
-  reactionStore.reactions.filter((r) => r.artId === props.art.id),
-)
+// Check if artImage is available
+const hasImage = computed(() => !!(localArtImage.value || props.artImage?.imageData))
 
 // Computed for artImage or fallback to path
 const computedArtImage = computed(() => {
-  if (showArtImage.value && localArtImage.value?.imageData) {
+  if (localArtImage.value?.imageData) {
     return `data:image/png;base64,${localArtImage.value.imageData}`
   } else if (props.artImage?.imageData) {
     return `data:image/png;base64,${props.artImage.imageData}`
@@ -107,9 +110,10 @@ const computedArtImage = computed(() => {
 
 onMounted(() => {
   if (props.artImage?.imageData || props.art.artImageId) {
-    showArtImage.value = true
     if (!props.artImage?.imageData) {
       fetchArtImage()
+    } else {
+      localArtImage.value = props.artImage
     }
   }
 })

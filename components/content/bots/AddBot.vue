@@ -1,13 +1,9 @@
 <template>
-  <div
-    class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1"
-  >
+  <div class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1">
     <h1 class="text-4xl text-center col-span-full">Create or Edit a Bot</h1>
 
     <!-- Top section with Bot Selector, Designer, and Toggles -->
-    <div
-      class="flex flex-wrap justify-between items-center col-span-full gap-4"
-    >
+    <div class="flex flex-wrap justify-between items-center col-span-full gap-4">
       <div class="w-full lg:w-auto">
         <bot-selector />
       </div>
@@ -22,9 +18,7 @@
 
       <!-- Designer Field -->
       <div class="flex-grow w-1/4">
-        <label for="designer" class="block text-lg font-medium"
-          >Designer:</label
-        >
+        <label for="designer" class="block text-lg font-medium">Designer:</label>
         <input
           v-if="canEditDesigner"
           id="designer"
@@ -101,9 +95,7 @@
 
           <!-- Subtitle Field -->
           <div :class="highlightIfChanged('subtitle')">
-            <label for="subtitle" class="block text-lg font-medium"
-              >Subtitle:</label
-            >
+            <label for="subtitle" class="block text-lg font-medium">Subtitle:</label>
             <input
               id="subtitle"
               v-model="botStore.botForm.subtitle"
@@ -114,13 +106,10 @@
 
           <!-- Description Field -->
           <div :class="highlightIfChanged('description')">
-            <label for="description" class="block text-lg font-medium"
-              >Description:</label
-            >
+            <label for="description" class="block text-lg font-medium">Description:</label>
             <input
               id="description"
               v-model="botStore.botForm.description"
-              rows="4"
               class="w-full p-3 rounded-lg border"
               placeholder="Enter a short description for the bot"
             />
@@ -128,9 +117,7 @@
 
           <!-- Bot Intro Field -->
           <div :class="highlightIfChanged('botIntro')">
-            <label for="botIntro" class="block text-lg font-medium"
-              >Bot Intro:</label
-            >
+            <label for="botIntro" class="block text-lg font-medium">Bot Intro:</label>
             <textarea
               id="botIntro"
               v-model="botStore.botForm.botIntro"
@@ -140,37 +127,22 @@
             ></textarea>
           </div>
 
-          <label for="userIntro" class="block text-lg font-medium"
-            >User Prompts:</label
-          >
+          <label for="userIntro" class="block text-lg font-medium">User Prompts:</label>
           <prompt-creator />
         </div>
       </div>
     </div>
 
     <!-- Form for User Prompts and Submit Button -->
-    <form
-      class="bg-white shadow-md rounded-xl p-6 w-full mt-4"
-      @submit.prevent="handleSubmit"
-    >
+    <form class="bg-white shadow-md rounded-xl p-6 w-full mt-4" @submit.prevent="handleSubmit">
       <div v-if="isLoading" class="loading loading-ring loading-lg mt-4"></div>
-      <div v-if="errorMessage" class="text-red-500 mt-2">
-        {{ errorMessage }}
-      </div>
-      <div v-if="successMessage" class="text-green-500 mt-2">
-        {{ successMessage }}
-      </div>
+      <div v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</div>
+      <div v-if="successMessage" class="text-green-500 mt-2">{{ successMessage }}</div>
 
       <div class="flex flex-col md:flex-row md:space-x-4 mt-6">
-        <button
-          type="submit"
-          class="btn btn-primary w-full md:w-auto"
-          :disabled="isLoading"
-        >
+        <button type="submit" class="btn btn-primary w-full md:w-auto" :disabled="isLoading">
           <span v-if="isLoading">Saving...</span>
-          <span v-else>{{
-            botStore.selectedBotId ? 'Update Bot' : 'Create New Bot'
-          }}</span>
+          <span v-else>{{ botStore.selectedBotId ? 'Update Bot' : 'Create New Bot' }}</span>
         </button>
       </div>
     </form>
@@ -192,19 +164,12 @@ const errorMessage = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
 const botFeedbackMessage = ref<string | null>(null)
 
-// Determine if the designer field can be edited
-const canEditDesigner = computed(
-  () => !botStore.selectedBotId || botStore.botForm.userId === userStore.userId,
-)
+const canEditDesigner = computed(() => !botStore.selectedBotId || botStore.botForm.userId === userStore.userId)
 
-// Highlight any fields that have changed compared to the original bot
 function highlightIfChanged(field: string) {
   const original = botStore.currentBot || {}
-  if (
-    botStore.botForm[field as keyof typeof botStore.botForm] !==
-    original[field as keyof typeof original]
-  ) {
-    return 'border border-info' // Highlight changed fields
+  if (botStore.botForm[field as keyof typeof botStore.botForm] !== original[field as keyof typeof original]) {
+    return 'border border-info'
   }
   return ''
 }
@@ -220,32 +185,28 @@ async function handleSubmit() {
 
   try {
     if (botStore.selectedBotId) {
-      // Update an existing bot
       await botStore.updateBot(botStore.selectedBotId)
       successMessage.value = 'Bot updated successfully!'
-      botFeedbackMessage.value = 'Bot saved successfully!'
     } else {
-      // Create a new bot
       const newBot = await botStore.addBot(botStore.botForm)
       if (newBot) {
-        botStore.currentBot = newBot // Set the currentBot to the newly created bot
-        botStore.botForm = { ...newBot } // Also set botForm to the newly created bot
+        botStore.currentBot = newBot
+        botStore.botForm = { ...newBot }
         successMessage.value = 'New bot created successfully!'
-        botFeedbackMessage.value = 'New bot saved successfully!'
       } else {
         errorMessage.value = 'Failed to create a new bot.'
       }
     }
   } catch (error) {
     console.error('Error editing bot:', error)
-    errorMessage.value = Error editing bot: ${error}
+    errorMessage.value = `Error editing bot: ${error}`
   } finally {
     isLoading.value = false
   }
 }
 
 function deselectCurrentBot() {
-  botStore.deselectBot() // Deselects the current bot via store action
+  botStore.deselectBot()
 }
 
 onMounted(async () => {

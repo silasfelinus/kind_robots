@@ -35,25 +35,20 @@
       v-if="botStore.currentBot"
       class="flex flex-col gap-4 items-center mt-6 w-full"
     >
-      <div class="flex flex-wrap gap-2 justify-center">
-        <div
-          v-for="(prompt, index) in parsedUserPrompts"
-          :key="index"
-          class="w-auto"
-        >
-          <button
-            :disabled="loading"
-            class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
-            @click="sendPrompt(prompt)"
-          >
-            <span v-if="!loading">{{ prompt }}</span>
-            <span
-              v-else
-              class="spinner-border spinner-border-sm"
-              role="status"
-            ></span>
-          </button>
-        </div>
+   <div
+  v-for="(prompt, index) in parsedUserPrompts"
+  :key="index"
+  class="w-auto"
+>
+  <button
+    :disabled="loading"
+    class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
+    @click="sendPrompt(prompt.text, prompt.id)"
+  >
+    <span v-if="!loading">{{ prompt.text }}</span>
+    <span v-else class="spinner-border spinner-border-sm" role="status"></span>
+  </button>
+</div>
       </div>
 
       <div class="flex flex-col w-full sm:w-1/2 mt-6">

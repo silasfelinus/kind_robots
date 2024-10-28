@@ -15,7 +15,6 @@
     >
       <!-- Display artImage.imageData (base64) or art.path -->
       <img
-        v-if="computedArtImage"
         :src="computedArtImage"
         alt="Artwork"
         class="rounded-2xl transition-transform ease-in-out hover:scale-105 w-full object-cover cursor-pointer"
@@ -30,7 +29,7 @@
     <!-- Display if showing art-image or art-path -->
     <div class="text-center mt-2">
       <span class="text-sm text-info">
-        Displaying: {{ hasImage ? 'Art Image (Base64)' : 'Art Path' }}
+        Displaying: {{ showArtImage.value ? 'Art Image (Base64)' : 'Art Path' }}
       </span>
     </div>
 
@@ -65,9 +64,7 @@
     >
       <pre class="text-sm whitespace-pre-wrap">{{ artData }}</pre>
       <!-- Show artImage details if available -->
-      <pre v-if="hasImage && localArtImage" class="text-sm whitespace-pre-wrap">
-        {{ localArtImage }}
-      </pre>
+      <pre v-if="hasImage" class="text-sm whitespace-pre-wrap">{{ localArtImage }}</pre>
     </div>
   </div>
 </template>
@@ -84,37 +81,39 @@ const props = defineProps<{
 }>()
 
 const localArtImage = ref<ArtImage | null>(null)
+const showArtImage = ref(false)
 const fullscreenMode = ref(false)
 const showDetails = ref(false)
+
+const hasImage = computed(() => !!(localArtImage.value || props.artImage?.imageData))
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 
-// Computed art data
 const artData = computed(() => props.art)
 
-// Check if artImage is available
-const hasImage = computed(() => !!(localArtImage.value || props.artImage?.imageData))
+const reactions = computed(() =>
+  reactionStore.reactions.filter((r) => r.artId === props.art.id),
+)
 
+// Computed for artImage or fallback to path
 const computedArtImage = computed(() => {
   if (showArtImage.value && localArtImage.value?.imageData) {
-    return `data:image/png;base64,${localArtImage.value.imageData}`  // Add the backticks here
+    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`  // Use dynamic file type
   } else if (props.artImage?.imageData) {
-    return `data:image/png;base64,${props.artImage.imageData}`  // Add the backticks here
+    return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`  // Use dynamic file type
   } else if (props.art.path) {
     return props.art.path
   }
   return '/images/backtree.webp'
 })
 
-
 onMounted(() => {
   if (props.artImage?.imageData || props.art.artImageId) {
+    showArtImage.value = true
     if (!props.artImage?.imageData) {
       fetchArtImage()
-    } else {
-      localArtImage.value = props.artImage
     }
   }
 })

@@ -116,9 +116,11 @@ const computedArtImage = computed(() => {
 
 // Fetch art image by artImageId on component mount
 onMounted(() => {
+  console.log('artimage: ' + props.artImage)
+  console.log('art: ' + props.art)
   if (props.art.artImageId && !props.artImage?.imageData) {
     // If there's an artImageId but no image data, fetch from backend
-    console.log(props.artImage)
+
     fetchArtImage()
   } else if (props.artImage?.imageData) {
     // If image data exists in props, use it directly

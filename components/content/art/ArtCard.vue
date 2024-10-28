@@ -26,6 +26,13 @@
       />
     </div>
 
+    <!-- Display if showing art-image or art-path -->
+    <div class="text-center mt-2">
+      <span class="text-sm text-info">
+        Displaying: {{ showArtImage ? 'Art Image (Base64)' : 'Art Path' }}
+      </span>
+    </div>
+
     <!-- Art Metadata -->
     <div class="mt-2 flex flex-col items-center">
       <p class="text-base truncate" title="Pitch">
@@ -79,52 +86,42 @@ import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useReactionStore } from '@/stores/reactionStore'
 
-// Props: art is required, artImage is optional
 const props = defineProps<{
   art: Art
   artImage?: ArtImage
 }>()
 
-// Local state for fetched art image
 const localArtImage = ref<ArtImage | null>(null)
 
-// Initialize stores
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 
-// Local state for toggling art image, details visibility, and fullscreen mode
 const showDetails = ref(false)
 const showArtImage = ref(false)
 const fullscreenMode = ref(false)
 
-// Art data to display in the toggle box
 const artData = computed(() => props.art)
 
-// Filter reactions for the current art
 const reactions = computed(() =>
   reactionStore.reactions.filter((r) => r.artId === props.art.id),
 )
 
-// Fetch prompt and reactions on mount
 onMounted(() => {
   if (props.art.promptId) promptStore.fetchPromptById(props.art.promptId)
   reactionStore.fetchReactionsByArtId(props.art.id)
 })
 
-// Handle art selection
 const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 
-// Function to toggle art image and fetch a single image if necessary
 const toggleArtImage = async () => {
   if (showArtImage.value && !localArtImage.value && !props.artImage) {
     await fetchArtImage()
   }
 }
 
-// Method to fetch a single art image if not already present
 const fetchArtImage = async () => {
   try {
     const artImage = await artStore.fetchArtImageById(props.art.artImageId)
@@ -136,17 +133,14 @@ const fetchArtImage = async () => {
   }
 }
 
-// Function to toggle fullscreen mode for the image
 const toggleFullscreenMode = () => {
   fullscreenMode.value = !fullscreenMode.value
 }
 
-// Function to toggle showing art details
 const toggleDetails = () => {
   showDetails.value = !showDetails.value
 }
 
-// Get the image path, prioritize artImage.imageData if available and toggled
 const getArtImage = () => {
   if (showArtImage.value && localArtImage.value?.imageData) {
     return `data:image/png;base64,${localArtImage.value.imageData}`

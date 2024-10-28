@@ -56,7 +56,7 @@ async initialize() {
     )
     console.error('Error during initialization:', error)
   }
-}
+},
 
 // Enhanced addExchange function
 async addExchange(prompt: string, userId: number, botId?: number) {

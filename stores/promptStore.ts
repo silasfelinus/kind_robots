@@ -134,7 +134,7 @@ async addPrompt(newPrompt: string, userId: number, botId: number) {
       `Error creating prompt: ${errorMessage}`,
     )
   }
-}
+},
 
 // Enhanced fetchPromptById method
 async fetchPromptById(promptId: number) {
@@ -167,7 +167,7 @@ async fetchPromptById(promptId: number) {
     )
     this.fetchedPrompts[promptId] = null
   }
-}
+},
 
 // Enhanced fetchArtByPromptId method
 async fetchArtByPromptId(promptId: number) {

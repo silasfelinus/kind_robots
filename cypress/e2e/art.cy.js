@@ -69,7 +69,7 @@ describe('Art Management API Tests', () => {
         steps: 10,
         designer: 'kinddesigner',
         pitch: 'Beauty',
-        promptString: 'A beautiful sunrise over the mountains',
+        promptString: 'A beautiful sunrise over pancake mountains',
         galleryId: 21,
         userId: 1,
       },
@@ -134,14 +134,14 @@ describe('Art Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        path: 'cafefred-1695613612691.webp', // Testing with a truncated path
+        path: 'notreal.webp', // Testing with a truncated path
         designer: 'newdesigner',
         isPublic: false,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
 
-      const expectedPathEnd = 'cafefred-1695613612691.webp'
+      const expectedPathEnd = 'notreal.webp'
       const actualPath = response.body.updatedArt.path
 
       // Ensure the path ends with the expected filename, allowing for truncation

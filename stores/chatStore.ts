@@ -103,7 +103,7 @@ export const useChatStore = defineStore({
           throw new Error(`Failed to add/update exchange: ${response.message || 'Unknown error'}`)
         }
 
-        const newExchange = response.newExchange
+        const newExchange = response.chatExchanges
         this.chatExchanges.push(newExchange)
         this.activeChats.push(newExchange)
         this.saveToLocalStorage()

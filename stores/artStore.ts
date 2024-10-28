@@ -70,7 +70,7 @@ export const useArtStore = defineStore({
         const userId = userStore.user?.id || 10
 
         await this.fetchCollectedArt(userId)
-        if (this.art.length === 0) await this.fetchAllArt()
+        this.fetchAllArt()
 
         this.isInitialized = true
       } catch (error) {
@@ -171,11 +171,11 @@ export const useArtStore = defineStore({
     },
 
     // Fetch all art entries with pagination
-    async fetchAllArt(page: number = 1, limit: number = 100): Promise<void> {
+    async fetchAllArt(): Promise<void> {
       const errorStore = useErrorStore()
       return errorStore.handleError(
         async () => {
-          const response = await fetch(`/api/art?page=${page}&limit=${limit}`)
+          const response = await fetch(`/api/art`)
           if (response.ok) {
             const data = await response.json()
             this.art = data.artEntries as Art[]
@@ -185,9 +185,6 @@ export const useArtStore = defineStore({
             if (isClient) {
               localStorage.setItem('art', JSON.stringify(this.art))
             }
-
-            // Update pagination state
-            this.currentPage = page
           } else {
             const errorResponse = await response.json()
             throw new Error(errorResponse.message)
@@ -196,27 +193,6 @@ export const useArtStore = defineStore({
         ErrorType.NETWORK_ERROR,
         'Failed to fetch art.',
       )
-    },
-
-    // Pagination helpers
-    hasNextPage(): boolean {
-      return this.currentPage * this.pageSize < this.totalArtCount
-    },
-
-    hasPreviousPage(): boolean {
-      return this.currentPage > 1
-    },
-
-    async nextPage() {
-      if (this.hasNextPage()) {
-        await this.fetchAllArt(this.currentPage + 1)
-      }
-    },
-
-    async previousPage() {
-      if (this.hasPreviousPage()) {
-        await this.fetchAllArt(this.currentPage - 1)
-      }
     },
 
     async createArt(artData: {
@@ -375,9 +351,10 @@ export const useArtStore = defineStore({
       return this.tags.find((tag: Tag) => tag.id === id)
     },
 
-    getArtImagesById(artId: number): ArtImage[] {
-      return this.artImages.filter((image: ArtImage) => image.artId === artId)
+    getArtImageById(artId: number): ArtImage | undefined {
+      return this.artImages.find((image: ArtImage) => image.artId === artId)
     },
+    
 
     // Get a single ArtImage for a given artId from the local state
     getArtImageByArtId(artId: number): ArtImage | undefined {

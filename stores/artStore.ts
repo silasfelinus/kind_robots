@@ -122,7 +122,7 @@ export const useArtStore = defineStore({
             // Fetch from the backend if not found in local state
             const response = await fetch(`/api/art/image/imagebyart/${artId}`)
             if (response.ok) {
-              artImage = await response.json() as ArtImage
+              artImage = (await response.json()) as ArtImage
               this.artImages.push(artImage) // Cache the fetched image in local state
             } else {
               const errorResponse = await response.json()
@@ -133,7 +133,7 @@ export const useArtStore = defineStore({
           return artImage || null
         },
         ErrorType.NETWORK_ERROR,
-        'Failed to fetch art image by art ID.'
+        'Failed to fetch art image by art ID.',
       )
     },
 
@@ -346,7 +346,7 @@ export const useArtStore = defineStore({
       return this.artImages.filter((image: ArtImage) => image.artId === artId)
     },
 
-     // Get a single ArtImage for a given artId from the local state
+    // Get a single ArtImage for a given artId from the local state
     getArtImageByArtId(artId: number): ArtImage | undefined {
       return this.artImages.find((image: ArtImage) => image.artId === artId)
     },
@@ -410,7 +410,7 @@ export const useArtStore = defineStore({
         async () => {
           const response = await fetch(`/api/art/image/${id}`)
           if (response.ok) {
-            const artImage = (await response.json()) as ArtImage
+            const artImage = (await response.json()).artImage as ArtImage
             this.artImages.push(artImage) // Store it in the artImages array
             return artImage
           } else {

@@ -87,93 +87,123 @@ export const useChatStore = defineStore({
     },
 
     async addExchange(
-      prompt: string,
-      userId: number,
-      botId?: number,
-      previousEntryId?: number,
-    ) {
-      if (!prompt || !userId) {
-        this.handleError(
-          ErrorType.VALIDATION_ERROR,
-          'Missing prompt or userId.',
-        )
-        return
-      }
+  prompt: string,
+  userId: number,
+  botId?: number,
+  previousEntryId?: number,
+  promptId?: number,
+) {
+  if (!prompt || !userId) {
+    this.handleError(
+      ErrorType.VALIDATION_ERROR,
+      'Missing prompt or userId.',
+    )
+    return
+  }
 
-      const userStore = useUserStore()
-      const botStore = useBotStore()
-      const promptStore = usePromptStore()
+  const userStore = useUserStore()
+  const botStore = useBotStore()
+  const promptStore = usePromptStore()
 
-      try {
-        const promptData = await promptStore.addPrompt(
-          prompt,
-          userId,
-          botId ?? 1,
-        )
-        if (!promptData?.id) {
-          throw new Error('Prompt creation failed.')
-        }
+  try {
+    // Use provided promptId, or create a new prompt if promptId is not passed
+    const finalPromptId = promptId || (await promptStore.addPrompt(prompt, userId, botId ?? 1))?.id
 
-        const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
-          userId,
-          username: userStore.username ?? 'Unknown User',
-          previousEntryId: previousEntryId ?? null,
-          botName: botStore.currentBot?.name ?? 'Unknown Bot',
-          userPrompt: prompt,
-          botResponse: '',
-          isPublic: false,
-          botId: botId ?? null,
-          promptId: promptData.id,
-        }
+    if (!finalPromptId) {
+      throw new Error('Failed to obtain a prompt ID.')
+    }
 
-        const response = await this.fetch('/api/chats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(exchange),
-        })
+    const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
+      userId,
+      username: userStore.username ?? 'Unknown User',
+      previousEntryId: previousEntryId ?? null,
+      botName: botStore.currentBot?.name ?? 'Unknown Bot',
+      userPrompt: prompt,
+      botResponse: '',
+      isPublic: true,
+      botId: botId ?? null,
+      promptId: finalPromptId, // Use the final prompt ID
+    }
 
-        if (!response.success) {
-          throw new Error(response.message || 'Unknown error')
-        }
+    const response = await this.fetch('/api/chats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(exchange),
+    })
 
-        const newExchange = response.newExchange as ChatExchange
-        if (!this.isValidChatExchange(newExchange)) {
-          throw new Error('Invalid ChatExchange object returned from API')
-        }
+    if (!response.success) {
+      throw new Error(response.message || 'Unknown error')
+    }
 
-        this.chatExchanges.push(newExchange)
-        this.activeChats.push(newExchange)
-        this.saveToLocalStorage()
-        return newExchange
-      } catch (error) {
-        this.handleError(
-          ErrorType.NETWORK_ERROR,
-          `Error in addExchange: ${error}`,
-        )
-        throw error
-      }
-    },
+    const newExchange = response.newExchange as ChatExchange
+    if (!this.isValidChatExchange(newExchange)) {
+      throw new Error('Invalid ChatExchange object returned from API')
+    }
 
-    async continueExchange(previousExchangeId: number, newPrompt: string) {
-      const previousExchange = this.chatExchanges.find(
-        (exchange: ChatExchange) => exchange.id === previousExchangeId,
-      )
+    this.chatExchanges.push(newExchange)
+    this.activeChats.push(newExchange)
+    this.saveToLocalStorage()
+    return newExchange
+  } catch (error) {
+    this.handleError(
+      ErrorType.NETWORK_ERROR,
+      `Error in addExchange: ${error}`,
+    )
+    throw error
+  }
+}
 
-      if (!previousExchange) {
-        this.handleError(
-          ErrorType.VALIDATION_ERROR,
-          'Previous exchange not found.',
-        )
-        return
-      }
+// Updated continueExchange to pass previous promptId when continuing a chat
+async continueExchange(previousExchangeId: number, newPrompt: string) {
+  const previousExchange = this.chatExchanges.find(
+    (exchange: ChatExchange) => exchange.id === previousExchangeId,
+  )
 
-      return await this.addExchange(
-        newPrompt,
-        previousExchange.userId ?? 10,
-        previousExchange.botId ?? 1,
-        previousExchange.id,
-      )
-    },
+  if (!previousExchange) {
+    this.handleError(
+      ErrorType.VALIDATION_ERROR,
+      'Previous exchange not found.',
+    )
+    return
+  }
+
+  // Passing the previous prompt ID to addExchange
+  return await this.addExchange(
+    newPrompt,
+    previousExchange.userId,
+    previousExchange.botId,
+    previousExchange.id,
+    previousExchange.promptId, // Use existing promptId for continuity
+  )
+},
+
+
+    async continueExchange(
+  previousExchangeId: number,
+  newPrompt: string,
+  promptId?: number,
+) {
+  const previousExchange = this.chatExchanges.find(
+    (exchange: ChatExchange) => exchange.id === previousExchangeId,
+  )
+
+  if (!previousExchange) {
+    this.handleError(
+      ErrorType.VALIDATION_ERROR,
+      'Previous exchange not found.',
+    )
+    return
+  }
+
+  // Pass promptId if provided, otherwise use the previous exchange's promptId
+  return await this.addExchange(
+    newPrompt,
+    previousExchange.userId,
+    previousExchange.botId,
+    previousExchange.id,
+    promptId ?? previousExchange.promptId, // Use passed promptId if available, else fallback to previousExchange.promptId
+  )
+},
 
     async fetchChatExchangesByUserId(userId: number) {
       try {
@@ -291,22 +321,24 @@ export const useChatStore = defineStore({
     },
 
     isValidChatExchange(obj: unknown): obj is ChatExchange {
-      if (typeof obj !== 'object' || obj === null) return false
-      const exchange = obj as Partial<ChatExchange>
-      return (
-        typeof exchange.id === 'number' &&
-        typeof exchange.userId === 'number' &&
-        exchange.createdAt instanceof Date &&
-        exchange.updatedAt instanceof Date &&
-        typeof exchange.username === 'string' &&
-        typeof exchange.userPrompt === 'string' &&
-        typeof exchange.botResponse === 'string' &&
-        typeof exchange.isPublic === 'boolean' &&
-        (typeof exchange.botId === 'number' || exchange.botId === null) &&
-        (typeof exchange.promptId === 'number' || exchange.promptId === null)
-      )
-    },
-  },
+  if (typeof obj !== 'object' || obj === null) return false
+  const exchange = obj as Partial<ChatExchange>
+  
+  return (
+    typeof exchange.id === 'number' &&
+    typeof exchange.userId === 'number' &&
+    exchange.createdAt instanceof Date &&
+    exchange.updatedAt instanceof Date &&
+    typeof exchange.username === 'string' &&
+    typeof exchange.userPrompt === 'string' &&
+    typeof exchange.botResponse === 'string' &&
+    typeof exchange.isPublic === 'boolean' &&
+    (typeof exchange.botId === 'number' || exchange.botId === null) &&
+    (typeof exchange.promptId === 'number' || exchange.promptId === null) &&
+    (typeof exchange.previousEntryId === 'number' || exchange.previousEntryId === null) // New check for previousEntryId
+  )
+},
+
 })
 
 export type { ChatExchange }

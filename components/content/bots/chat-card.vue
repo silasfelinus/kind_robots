@@ -1,5 +1,7 @@
 <template>
-  <div class="chat-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6">
+  <div
+    class="chat-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6"
+  >
     <!-- Message Thread -->
     <div class="message-thread mb-4">
       <div
@@ -7,7 +9,9 @@
         :key="index"
         class="message p-2 mb-2 rounded-md bg-gray-100"
       >
-        <p class="text-sm text-gray-700"><strong>{{ message.role }}:</strong></p>
+        <p class="text-sm text-gray-700">
+          <strong>{{ message.role }}:</strong>
+        </p>
         <p class="text-base">{{ message.content }}</p>
       </div>
     </div>
@@ -20,8 +24,12 @@
     <!-- Actions -->
     <div class="actions flex justify-around mt-4">
       <button class="btn btn-secondary" @click="saveMessage">Save</button>
-      <button class="btn btn-secondary" @click="share('facebook')">Share on Facebook</button>
-      <button class="btn btn-secondary" @click="share('twitter')">Share on Twitter</button>
+      <button class="btn btn-secondary" @click="share('facebook')">
+        Share on Facebook
+      </button>
+      <button class="btn btn-secondary" @click="share('twitter')">
+        Share on Twitter
+      </button>
       <button class="btn btn-secondary" @click="react('like')">👍</button>
       <button class="btn btn-secondary" @click="react('dislike')">👎</button>
       <button class="btn btn-error" @click="deleteMessage">X</button>
@@ -35,7 +43,9 @@
         placeholder="Type your reply here..."
         class="w-full p-3 border rounded-md mb-2"
       />
-      <button @click="sendReply" class="btn btn-primary w-full">Send Reply</button>
+      <button class="btn btn-primary w-full" @click="sendReply">
+        Send Reply
+      </button>
     </div>
   </div>
 </template>
@@ -67,7 +77,9 @@ const replyMessage = ref('')
 
 // Fetch the chat exchange from the store based on the chatExchangeId prop
 const chatExchange = computed(() => {
-  return chatStore.chatExchanges.find((exchange) => exchange.id === props.chatExchangeId)
+  return chatStore.chatExchanges.find(
+    (exchange: ChatExchange) => exchange.id === props.chatExchangeId,
+  )
 })
 
 // Messages of the chat exchange

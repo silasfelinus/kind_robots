@@ -91,9 +91,12 @@
       "card-back",
       "card-front",
       "carousel-working",
+      "chat-area",
+      "chat-card",
       "generate-avatar",
       "prompt-creator",
-      "response-card"
+      "response-card",
+      "use-bot"
     ]
   },
   {

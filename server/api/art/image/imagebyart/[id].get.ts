@@ -1,4 +1,5 @@
-import { defineEventHandler, useQuery } from 'h3'
+// server/api/art/image/imagebyart/[id].get.ts
+import { defineEventHandler } from 'h3'
 import { PrismaClient } from '@prisma/client'
 import { errorHandler } from '@/server/api/utils/error'
 
@@ -6,24 +7,20 @@ const prisma = new PrismaClient()
 
 export default defineEventHandler(async (event) => {
   try {
-    // Extract artId from the route parameters
-    const { id: artId } = event.context.params
+    // Extract artId from route parameters and ensure it is a valid number
+    const artId = Number(event.context.params?.id)
 
-    // Convert artId to a number to use in the query
-    const numericArtId = parseInt(artId, 10)
-
-    // Validate the artId
-    if (isNaN(numericArtId)) {
+    if (isNaN(artId) || artId <= 0) {
       return errorHandler({
         success: false,
-        message: 'Invalid art ID',
+        message: 'Invalid art ID provided',
         statusCode: 400,
       })
     }
 
     // Query the ArtImage by artId
     const artImage = await prisma.artImage.findUnique({
-      where: { artId: numericArtId },
+      where: { artId },
     })
 
     // If no artImage is found, return a 404 error
@@ -44,7 +41,10 @@ export default defineEventHandler(async (event) => {
     // Handle any unexpected errors
     return errorHandler({
       success: false,
-      message: error instanceof Error ? error.message : 'Unknown error',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Unknown error occurred while fetching the art image',
       statusCode: 500,
     })
   }

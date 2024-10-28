@@ -14,13 +14,7 @@
           <h3 class="text-lg font-semibold">
             {{ message.username }} (Bot: {{ message.botName }})
           </h3>
-          <!-- Toggle Public Button for user messages -->
-          <button
-            class="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
-            @click="togglePublic(message.id)"
-          >
-            {{ message.isPublic ? 'Unshare' : 'Share' }}
-          </button>
+
         </div>
         <p class="user-prompt mb-1 text-gray-600">{{ message.userPrompt }}</p>
         <p class="bot-response font-medium">{{ message.botResponse }}</p>
@@ -48,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useChatStore } from './../../../stores/chatStore'
 import { useUserStore } from './../../../stores/userStore'
 
@@ -70,19 +64,6 @@ const otherPublicMessages = computed(() => {
   )
 })
 
-// Function to toggle the visibility of the user's own chat exchanges
-const togglePublic = async (exchangeId: number) => {
-  try {
-    await chatStore.togglePublic(exchangeId)
-  } catch (error) {
-    console.error('Error toggling public state:', error)
-  }
-}
-
-// Fetch public messages and user's own exchanges on mount
-onMounted(async () => {
-  await chatStore.getPublic() // Fetch public messages
-})
 </script>
 
 <style scoped>

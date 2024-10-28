@@ -116,6 +116,7 @@ const generateArt = async () => {
       title: currentPitch.value?.title || '', // Ensure no null value
       isMature: false,
       isPublic: true,
+      hasArtImage: false,
     }
 
     // Use the artStore to generate art

@@ -38,7 +38,6 @@ const publicPitches = computed(() => pitchStore.publicPitches)
 // Ref for error messages
 const errorMessage = ref<string | null>(null)
 
-
 // Method to generate art based on the selected pitch
 const generateArtBasedOnPitch = async () => {
   if (pitchStore.selectedPitch) {
@@ -46,8 +45,8 @@ const generateArtBasedOnPitch = async () => {
     const data = {
       promptString: pitch.title || '', // Correct field: promptString
       galleryName: 'cafefred',
-      pitchName: pitch.title || '', // Ensure pitchName is a string
-      // Add other fields if needed based on your schema
+      pitchName: pitch.title || '',
+      hasArtImage: false,
     }
     try {
       const result = await artStore.generateArt(data)

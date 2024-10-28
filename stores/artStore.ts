@@ -120,7 +120,7 @@ export const useArtStore = defineStore({
 
           if (!artImage) {
             // Fetch from the backend if not found in local state
-            const response = await fetch(`/api/art/${artId}/image`)
+            const response = await fetch(`/api/art/image/imagebyart/${artId}`)
             if (response.ok) {
               artImage = await response.json() as ArtImage
               this.artImages.push(artImage) // Cache the fetched image in local state

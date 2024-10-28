@@ -127,7 +127,7 @@ const toggleArtImage = async () => {
 // Method to fetch a single art image if not already present
 const fetchArtImage = async () => {
   try {
-    const artImage = await artStore.fetchArtImageById(props.art.id)
+    const artImage = await artStore.fetchArtImageById(props.art.artImageId)
     if (artImage) {
       localArtImage.value = artImage
     }

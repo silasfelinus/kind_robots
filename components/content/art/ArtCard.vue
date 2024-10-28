@@ -118,6 +118,7 @@ const computedArtImage = computed(() => {
 onMounted(() => {
   if (props.art.artImageId && !props.artImage?.imageData) {
     // If there's an artImageId but no image data, fetch from backend
+    console.log(props.artImage)
     fetchArtImage()
   } else if (props.artImage?.imageData) {
     // If image data exists in props, use it directly
@@ -160,3 +161,11 @@ const selectArt = () => {
   artStore.selectArt(props.art.id)
 }
 </script>
+
+<style scoped>
+.fullscreen-img {
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain;
+}
+</style>

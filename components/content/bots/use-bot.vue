@@ -29,27 +29,22 @@
         <p class="text-gray-700 mt-4">{{ botStore.currentBot.botIntro }}</p>
       </div>
     </div>
-
-    <!-- User Prompts and Custom Prompt Input -->
-    <div
-      v-if="botStore.currentBot"
-      class="flex flex-col gap-4 items-center mt-6 w-full"
-    >
-   <div
-  v-for="(prompt, index) in parsedUserPrompts"
-  :key="index"
-  class="w-auto"
->
-  <button
-    :disabled="loading"
-    class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
-    @click="sendPrompt(prompt.text, prompt.id)"
-  >
-    <span v-if="!loading">{{ prompt.text }}</span>
-    <span v-else class="spinner-border spinner-border-sm" role="status"></span>
-  </button>
+<div v-if="botStore.currentBot" class="flex flex-col gap-4 items-center mt-6 w-full">
+  <div class="flex flex-wrap gap-2 justify-center">
+    <div v-for="(prompt, index) in parsedUserPrompts" :key="prompt.id" class="w-auto">
+      <button
+        :disabled="loading"
+        class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
+        @click="sendPrompt(prompt.text, prompt.id)"
+      >
+        <span v-if="!loading">{{ prompt.text }}</span>
+        <span v-else class="spinner-border spinner-border-sm" role="status"></span>
+      </button>
+    </div>
+  </div>
 </div>
-      </div>
+
+     
 
       <div class="flex flex-col w-full sm:w-1/2 mt-6">
         <label for="customPrompt" class="block text-lg font-medium mb-2"
@@ -105,12 +100,15 @@ const userStore = useUserStore()
 
 const loading = ref(false) // Loading state
 
-// Parse userIntro by splitting on "|"
 const parsedUserPrompts = computed(() => {
   return botStore.currentBot?.userIntro
-    ? botStore.currentBot.userIntro.split('|')
+    ? botStore.currentBot.userIntro.split('|').map((text, index) => ({
+        text: text.trim(),
+        id: index + 1, // Assign a unique id to each prompt
+      }))
     : []
 })
+
 
 // Function to handle sending a selected prompt
 async function sendPrompt(prompt: string, promptId?: number) {

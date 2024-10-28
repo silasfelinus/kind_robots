@@ -37,7 +37,7 @@ export const useChatStore = defineStore({
         this.saveToLocalStorage()
         this.isInitialized = true
       } catch (error) {
-        this.handleError(ErrorType.NETWORK_ERROR, 'Failed to initialize chat exchanges.' + error)
+        this.handleError(ErrorType.NETWORK_ERROR, `Failed to initialize chat exchanges: ${error}`)
       }
     },
 
@@ -61,15 +61,15 @@ export const useChatStore = defineStore({
       }
     },
 
-    async addOrUpdateExchange(prompt: string, userId: number, botId?: number) {
-      const userStore = useUserStore()
-      const botStore = useBotStore()
-      const promptStore = usePromptStore()
-
+    async addExchange(prompt: string, userId: number, botId?: number) {
       if (!prompt || !userId) {
         this.handleError(ErrorType.VALIDATION_ERROR, 'Required data missing: prompt or userId.')
         return
       }
+
+      const userStore = useUserStore()
+      const botStore = useBotStore()
+      const promptStore = usePromptStore()
 
       try {
         const promptData = await promptStore.addPrompt(prompt, userId, botId ?? 1)
@@ -100,7 +100,7 @@ export const useChatStore = defineStore({
         })
 
         if (!response.success) {
-          throw new Error(`Failed to add/update exchange: ${response.message || 'Unknown error'}`)
+          throw new Error(`Failed to add exchange: ${response.message || 'Unknown error'}`)
         }
 
         const newExchange = response.chatExchanges
@@ -109,19 +109,47 @@ export const useChatStore = defineStore({
         this.saveToLocalStorage()
         return newExchange
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
-        this.handleError(ErrorType.NETWORK_ERROR, errorMessage)
+        this.handleError(ErrorType.NETWORK_ERROR, `Error in addExchange: ${error instanceof Error ? error.message : 'Unknown error'}`)
         throw error
       }
     },
 
-    async fetchChatExchanges() {
+    async editExchange(exchangeId: number, updatedData: Partial<ChatExchange>) {
       try {
-        const data = await this.fetch('/api/chats')
-        this.chatExchanges = data.chatExchanges
-      } catch (error) {
-        this.handleError(ErrorType.NETWORK_ERROR, 'Failed to fetch chat exchanges' + error)
+        const response = await this.fetch(`/api/chats/${exchangeId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData),
+        })
+
+        if (!response.success) {
+          throw new Error(`Failed to edit exchange: ${response.message || 'Unknown error'}`)
+        }
+
+        const updatedExchange = response.chatExchanges
+        this.chatExchanges = this.chatExchanges.map((exchange) =>
+          exchange.id === exchangeId ? updatedExchange : exchange
+        )
+        this.activeChats = this.activeChats.map((exchange) =>
+          exchange.id === exchangeId ? updatedExchange : exchange
+        )
+        this.saveToLocalStorage()
+        return updatedExchange
+      } catch (error: unknown) {
+        this.handleError(ErrorType.NETWORK_ERROR, `Error in editExchange: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        throw error
       }
+    },
+
+    async continueExchange(previousExchangeId: number, newPrompt: string) {
+      const previousExchange = this.chatExchanges.find((exchange) => exchange.id === previousExchangeId)
+
+      if (!previousExchange) {
+        this.handleError(ErrorType.VALIDATION_ERROR, 'Previous exchange not found.')
+        return
+      }
+
+      return await this.addExchange(newPrompt, previousExchange.userId, previousExchange.botId)
     },
 
     async fetchChatExchangesByUserId(userId: number) {
@@ -133,7 +161,7 @@ export const useChatStore = defineStore({
           this.handleError(ErrorType.VALIDATION_ERROR, `Failed to fetch exchanges for user ${userId}: ${data.message}`)
         }
       } catch (error) {
-        this.handleError(ErrorType.NETWORK_ERROR, 'Failed to fetch chat exchanges by user.' + error)
+        this.handleError(ErrorType.NETWORK_ERROR, `Failed to fetch chat exchanges by userId: ${error}`)
       }
     },
 
@@ -153,37 +181,6 @@ export const useChatStore = defineStore({
     saveToLocalStorage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('chatExchanges', JSON.stringify(this.chatExchanges))
-      }
-    },
-
-    // Save active chats to localStorage
-    saveActiveChats() {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('activeChats', JSON.stringify(this.activeChats))
-      }
-    },
-
-    // Load active chats from localStorage
-    loadActiveChats() {
-      if (typeof window !== 'undefined') {
-        const savedActiveChats = localStorage.getItem('activeChats')
-        if (savedActiveChats) {
-          this.activeChats = JSON.parse(savedActiveChats)
-        }
-      }
-    },
-
-    async deleteExchange(exchangeId: number) {
-      try {
-        await this.fetch(`/api/chats/${exchangeId}`, {
-          method: 'DELETE',
-        })
-        this.chatExchanges = this.chatExchanges.filter((exchange) => exchange.id !== exchangeId)
-        this.activeChats = this.activeChats.filter((exchange) => exchange.id !== exchangeId)
-        this.saveToLocalStorage()
-        this.saveActiveChats()
-      } catch (error) {
-        this.handleError(ErrorType.NETWORK_ERROR, 'Failed to delete chat exchange.' + error)
       }
     },
 

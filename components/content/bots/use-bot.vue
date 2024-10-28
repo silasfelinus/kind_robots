@@ -35,9 +35,11 @@
         >
           <button
             @click="sendPrompt(prompt)"
-            class="btn btn-outline btn-info rounded-full px-4 py-2"
+            :disabled="loading"
+            class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
           >
-            {{ prompt }}
+            <span v-if="!loading">{{ prompt }}</span>
+            <span v-else class="spinner-border spinner-border-sm" role="status"></span>
           </button>
         </div>
       </div>
@@ -60,9 +62,11 @@
     <div class="w-full flex justify-center mt-6">
       <button
         @click="submitCustomPrompt"
-        class="btn btn-primary w-full sm:w-auto"
+        :disabled="loading"
+        class="btn btn-primary w-full sm:w-auto transition duration-300 ease-in-out"
       >
-        Submit Prompt
+        <span v-if="!loading">Submit Prompt</span>
+        <span v-else class="spinner-border spinner-border-sm" role="status"></span>
       </button>
     </div>
 
@@ -81,6 +85,8 @@ const botStore = useBotStore()
 const chatStore = useChatStore()
 const userStore = useUserStore()
 
+const loading = ref(false)  // Loading state
+
 // Parse userIntro by splitting on "|"
 const parsedUserPrompts = computed(() => {
   return botStore.currentBot?.userIntro ? botStore.currentBot.userIntro.split('|') : []
@@ -88,16 +94,26 @@ const parsedUserPrompts = computed(() => {
 
 // Function to handle sending a selected prompt
 async function sendPrompt(prompt: string) {
-  if (userStore.user?.id) {
-    await chatStore.addOrUpdateExchange(prompt, userStore.user.id, botStore.currentBot.id)
+  loading.value = true  // Start loading
+  try {
+    if (userStore.user?.id) {
+      await chatStore.addOrUpdateExchange(prompt, userStore.user.id, botStore.currentBot.id)
+    }
+  } finally {
+    loading.value = false  // End loading
   }
 }
 
 // Function to handle submitting a custom prompt
 async function submitCustomPrompt() {
-  if (chatStore.currentPrompt && userStore.user?.id) {
-    await chatStore.addOrUpdateExchange(chatStore.currentPrompt, userStore.user.id, botStore.currentBot.id)
-    chatStore.currentPrompt = '' // Clear the input after submitting
+  loading.value = true  // Start loading
+  try {
+    if (chatStore.currentPrompt && userStore.user?.id) {
+      await chatStore.addOrUpdateExchange(chatStore.currentPrompt, userStore.user.id, botStore.currentBot.id)
+      chatStore.currentPrompt = '' // Clear the input after submitting
+    }
+  } finally {
+    loading.value = false  // End loading
   }
 }
 
@@ -106,3 +122,21 @@ onMounted(async () => {
   await chatStore.initialize()
 })
 </script>
+
+<style scoped>
+.spinner-border {
+  border-width: 2px;
+  width: 1rem;
+  height: 1rem;
+  border-color: white;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>

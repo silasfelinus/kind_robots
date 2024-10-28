@@ -29,7 +29,7 @@
     <!-- Display if showing art-image or art-path -->
     <div class="text-center mt-2">
       <span class="text-sm text-info">
-        Displaying: {{ hasImage ? 'Art Image (Base64)' : 'Art Path' }}
+        Displaying: {{ showArtImage.value ? 'Art Image (Base64)' : 'Art Path' }}
       </span>
     </div>
 

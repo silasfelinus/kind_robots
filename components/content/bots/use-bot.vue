@@ -85,7 +85,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
-import ChatCard from '@/components/chat-card.vue'
 
 const botStore = useBotStore()
 const chatStore = useChatStore()

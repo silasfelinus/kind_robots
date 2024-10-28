@@ -68,6 +68,11 @@ const hardcodedLinks = [
   },
   { title: 'Wonder Lab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
   { title: 'Dash', path: '/dashboard', icon: 'kind-icon:settings' },
+  {
+    title: 'Weird Land',
+    path: '/weirdlandia',
+    icon: 'kind-icon:alien',
+  },
 ]
 
 // Access router to handle navigation

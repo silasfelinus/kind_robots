@@ -5,7 +5,7 @@
   >
     <!-- Left Section: Avatar -->
     <div
-      class="flex items-center justify-center w-[12%] sm:w-[10%] h-full relative rounded-2xl"
+      class="flex items-center justify-center w-1/4 h-full relative rounded-2xl"
     >
       <avatar-image
         alt="User Avatar"
@@ -22,7 +22,7 @@
 
     <!-- Middle Section: Title and Subtitle -->
     <div
-      class="flex flex-col justify-center items-center text-center mx-2 flex-grow max-w-[50%] lg:flex-row lg:max-w-[60%] lg:space-x-4 xl:flex-col"
+      class="flex flex-col justify-center items-center text-center flex-grow lg:flex-row xl:flex-col w-1/2"
     >
       <h1
         class="text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold max-w-full text-ellipsis overflow-hidden whitespace-nowrap"
@@ -37,7 +37,7 @@
     </div>
 
     <!-- Right Section: Icons and Login -->
-    <div class="flex items-center justify-end space-x-2 w-[28%] sm:w-[25%]">
+    <div class="flex items-center justify-end space-x-2 w-1/4">
       <login-path class="w-1/3" />
       <theme-icon class="w-1/3" />
       <swarm-icon class="w-1/3" />

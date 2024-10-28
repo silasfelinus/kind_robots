@@ -45,9 +45,7 @@
       </div>
 
       <div class="flex flex-col w-full sm:w-1/2 mt-6">
-        <label for="customPrompt" class="block text-lg font-medium mb-2"
-          >Custom Prompt:</label
-        >
+        <label for="customPrompt" class="block text-lg font-medium mb-2">Custom Prompt:</label>
         <input
           v-model="chatStore.currentPrompt"
           id="customPrompt"
@@ -70,8 +68,15 @@
       </button>
     </div>
 
-    <!-- Chat Area -->
-    <chat-area class="mt-8 w-full" />
+    <!-- Active Chat Cards -->
+    <div v-if="activeChatCards.length" class="mt-8 w-full grid gap-4">
+      <chat-card
+        v-for="(exchange, index) in activeChatCards"
+        :key="index"
+        :chatExchangeId="exchange.id"
+      />
+    </div>
+    <p v-else class="text-center text-gray-600 mt-6">No active chats yet.</p>
   </div>
 </template>
 
@@ -80,6 +85,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
+import ChatCard from '@/components/chat-card.vue'
 
 const botStore = useBotStore()
 const chatStore = useChatStore()
@@ -117,6 +123,12 @@ async function submitCustomPrompt() {
   }
 }
 
+// Get active chat cards for the current bot
+const activeChatCards = computed(() => {
+  return chatStore.activeChatsByBotId(botStore.currentBot.id)
+})
+
+// Initialize stores
 onMounted(async () => {
   await botStore.loadStore()
   await chatStore.initialize()

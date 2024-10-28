@@ -53,7 +53,7 @@
         :key="item.art.id"
         class="mb-6"
       >
-        <ArtCard :art="item.art" :image-data="item.artImage.artImage" />
+        <ArtCard :art="item.art" :image-data="item.artImage" />
       </div>
     </div>
   </div>

@@ -20,12 +20,8 @@
     <!-- Actions -->
     <div class="actions flex justify-around mt-4">
       <button class="btn btn-secondary" @click="saveMessage">Save</button>
-      <button class="btn btn-secondary" @click="share('facebook')">
-        Share on Facebook
-      </button>
-      <button class="btn btn-secondary" @click="share('twitter')">
-        Share on Twitter
-      </button>
+      <button class="btn btn-secondary" @click="share('facebook')">Share on Facebook</button>
+      <button class="btn btn-secondary" @click="share('twitter')">Share on Twitter</button>
       <button class="btn btn-secondary" @click="react('like')">👍</button>
       <button class="btn btn-secondary" @click="react('dislike')">👎</button>
       <button class="btn btn-error" @click="deleteMessage">X</button>
@@ -45,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
 
 // Props: chatExchangeId to fetch the relevant chat exchange
@@ -111,26 +107,43 @@ const sendReply = async () => {
 }
 
 // Save message action
-const saveMessage = () => {
-  // Implement save logic here
-  console.log('Message saved!')
+const saveMessage = async () => {
+  if (chatExchange.value) {
+    try {
+      await chatStore.addOrUpdateExchange(
+        chatExchange.value.userPrompt,
+        chatExchange.value.userId,
+        chatExchange.value.botId ?? undefined,
+      )
+      console.log('Message saved successfully.')
+    } catch (error) {
+      console.error('Error saving message:', error)
+    }
+  }
 }
 
 // Share message action
 const share = (platform: string) => {
-  // Implement sharing logic based on the platform
   console.log(`Shared on ${platform}`)
+  // Logic for sharing could be added here, based on platform
 }
 
 // React to message
 const react = (reaction: string) => {
   console.log(`Reacted with ${reaction}`)
+  // You could add a call to your reactionStore if needed
 }
 
 // Delete message
-const deleteMessage = () => {
-  // Implement delete logic
-  console.log('Message deleted!')
+const deleteMessage = async () => {
+  if (chatExchange.value) {
+    try {
+      await chatStore.deleteExchange(chatExchange.value.id)
+      console.log('Message deleted successfully.')
+    } catch (error) {
+      console.error('Error deleting message:', error)
+    }
+  }
 }
 </script>
 

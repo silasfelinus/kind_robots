@@ -131,14 +131,15 @@ console.log("loaded from storage")
         }
 
         const response = await this.fetch('/api/chats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(exchange),
-        })
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(exchange),
+})
 
-        if (!response.success) {
-          throw new Error(response.message || 'Unknown error')
-        }
+console.log('API response:', response)  // Log response to inspect structure
+if (!response.success) {
+  throw new Error(response.message || 'Unknown error from API')
+}
 
         const newExchange = response.newExchange as ChatExchange
         if (!this.isValidChatExchange(newExchange)) {

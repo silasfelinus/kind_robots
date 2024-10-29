@@ -88,7 +88,6 @@ export const useChatStore = defineStore({
         )
       }
     },
-
     async addExchange(
       prompt: string,
       userId: number,
@@ -121,6 +120,7 @@ export const useChatStore = defineStore({
         }
         console.log('Final prompt ID:', finalPromptId)
 
+        // Extract only the id for promptId in the exchange object
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
           username: userStore.username ?? 'Unknown User',
@@ -130,7 +130,10 @@ export const useChatStore = defineStore({
           botResponse: '',
           isPublic: true,
           botId: botId ?? null,
-          promptId: finalPromptId,
+          promptId:
+            typeof finalPromptId === 'object'
+              ? finalPromptId.id
+              : finalPromptId,
         }
 
         console.log('Exchange object to be sent:', JSON.stringify(exchange))

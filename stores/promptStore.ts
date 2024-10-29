@@ -120,7 +120,7 @@ export const usePromptStore = defineStore('promptStore', {
           console.error('Error response from /api/prompts:', errorMessage)
           throw new Error(errorMessage)
         }
-
+        console.log('created prompt:', + response )
         const createdPrompt = await response.json()
         console.log('Prompt created successfully:', createdPrompt)
         this.prompts.push(createdPrompt)

@@ -264,31 +264,33 @@ export const useChatStore = defineStore({
     },
 
     loadFromLocalStorage() {
-      if (typeof window === 'undefined') return
-      const savedExchanges = localStorage.getItem('chatExchanges')
+  if (typeof window === 'undefined') return
+  const savedExchanges = localStorage.getItem('chatExchanges')
 
-      if (savedExchanges) {
-        try {
-          const parsedExchanges = JSON.parse(savedExchanges) as unknown
-          if (
-            Array.isArray(parsedExchanges) &&
-            parsedExchanges.every(this.isValidChatExchange)
-          ) {
-            this.chatExchanges = parsedExchanges
-          } else {
-            this.handleError(
-              ErrorType.VALIDATION_ERROR,
-              'Invalid chat exchanges format in localStorage.',
-            )
-          }
-        } catch (error) {
-          this.handleError(
-            ErrorType.PARSE_ERROR,
-            `Failed to parse exchanges: ${error}`,
-          )
-        }
+  if (savedExchanges) {
+    try {
+      const parsedExchanges = JSON.parse(savedExchanges)
+      
+      if (Array.isArray(parsedExchanges)) {
+        this.chatExchanges = parsedExchanges.map((exchange) => ({
+          ...exchange,
+          createdAt: new Date(exchange.createdAt),
+          updatedAt: new Date(exchange.updatedAt),
+        }))
+      } else {
+        this.handleError(
+          ErrorType.VALIDATION_ERROR,
+          'Invalid chat exchanges format in localStorage.',
+        )
       }
-    },
+    } catch (error) {
+      this.handleError(
+        ErrorType.PARSE_ERROR,
+        `Failed to parse exchanges: ${error}`,
+      )
+    }
+  }},
+
 
     saveToLocalStorage() {
       if (typeof window !== 'undefined') {

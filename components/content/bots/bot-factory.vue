@@ -29,7 +29,7 @@
       <lazy-kind-robot v-if="activeTab === 'kind-robot'" />
       <lazy-bot-gallery v-if="activeTab === 'bot-gallery'" />
       <lazy-use-bot v-if="activeTab === 'use-bot'" />
-      <lazy-chat-test v-if="activeTab === 'chat-testt'" />
+      <lazy-chat-test v-if="activeTab === 'chat-test'" />
     </div>
   </div>
 </template>

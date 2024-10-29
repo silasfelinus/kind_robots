@@ -2,6 +2,19 @@
   <div
     class="chat-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6"
   >
+    <!-- Header with User and Bot Details -->
+    <div class="header flex items-center mb-4">
+      <img
+        v-if="botAvatar"
+        :src="botAvatar"
+        alt="Bot Avatar"
+        class="w-10 h-10 rounded-full mr-3"
+      />
+      <div>
+        <p class="text-lg font-semibold">{{ username }} <span class="text-sm text-gray-500">to</span> {{ botName }}</p>
+      </div>
+    </div>
+
     <!-- Message Thread -->
     <div class="message-thread mb-4">
       <div
@@ -50,9 +63,11 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 import { ref, computed, defineProps } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
+import { useBotStore } from '@/stores/botStore'
 import type { PropType } from 'vue'
 
 // Props with correct type definitions
@@ -71,6 +86,7 @@ const props = defineProps({
 
 // Stores
 const chatStore = useChatStore()
+const botStore = useBotStore()
 
 // Local state
 const showReply = ref(false)
@@ -98,6 +114,11 @@ const getLastMessageContent = computed(() => {
     ? chatExchangeMessages.value[chatExchangeMessages.value.length - 1].content
     : ''
 })
+
+// User and Bot Details
+const username = computed(() => chatExchange.value?.username || 'User')
+const botName = computed(() => chatExchange.value?.botName || 'Bot')
+const botAvatar = computed(() => botStore.currentBot?.avatarImage || '')
 
 // Toggle reply box
 const toggleReply = () => {
@@ -156,6 +177,7 @@ const deleteMessage = async () => {
   }
 }
 </script>
+
 
 <style scoped>
 .reply-container textarea {

@@ -2,7 +2,6 @@
   <div class="container mx-auto p-6 bg-base-300 rounded-2xl">
     <h2 class="text-2xl mb-4 text-center">Chat Store Tester</h2>
 
-
     <!-- Feedback Message -->
     <p v-if="feedbackMessage" :class="feedbackClass" class="text-center mb-4">
       {{ feedbackMessage }}
@@ -25,7 +24,7 @@
     <!-- Display existing exchanges or placeholder if none -->
     <div class="border-t pt-4">
       <h3 class="text-lg mb-2">Chat Exchanges</h3>
-      <ul v-if="chatExchanges.length">
+      <ul v-if="Array.isArray(chatExchanges) && chatExchanges.length">
         <li
           v-for="exchange in chatExchanges"
           :key="exchange.id"
@@ -84,11 +83,24 @@ const feedbackClass = ref('text-green-500')
 
 // Initialize chatStore on component mount
 onMounted(async () => {
-  await chatStore.initialize()
+  try {
+    await chatStore.initialize()
+    console.log("All stores initialized successfully.")
+  } catch (error) {
+    showFeedback("Failed to initialize chat store.", true)
+    console.error(error)
+  }
 })
 
-// Computed properties for chat exchanges
-const chatExchanges = computed(() => chatStore.chatExchanges)
+// Computed properties for chat exchanges with fallback to an empty array
+const chatExchanges = computed(() => {
+  try {
+    return chatStore.chatExchanges || []
+  } catch (error) {
+    console.error("Error retrieving chat exchanges:", error)
+    return [] // Fallback to an empty array
+  }
+})
 
 // Function to display feedback
 function showFeedback(message: string, isError: boolean = false) {
@@ -147,5 +159,3 @@ async function deleteExchange(exchangeId: number) {
   }
 }
 </script>
-
-

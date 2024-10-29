@@ -68,11 +68,13 @@ export const useChatStore = defineStore({
     async initialize() {
       if (this.isInitialized) return
       try {
+            console.log("starting init")
         this.loadFromLocalStorage()
 
         const userStore = useUserStore()
         if (userStore.user?.id) {
           await this.fetchChatExchangesByUserId(userStore.user.id)
+    console.log("fetched user exchanges")
         } else {
           this.handleError(ErrorType.VALIDATION_ERROR, 'User ID not found.')
         }

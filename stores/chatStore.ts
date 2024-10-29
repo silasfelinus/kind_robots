@@ -264,7 +264,7 @@ export const useChatStore = defineStore({
     },
 
 loadFromLocalStorage() {
-  if (typeof window === 'undefined') return // Prevent server-side execution
+  if (typeof window === 'undefined') return // Prevent running on the server
 
   const savedExchanges = localStorage.getItem('chatExchanges')
 
@@ -272,13 +272,13 @@ loadFromLocalStorage() {
     try {
       const parsedExchanges = JSON.parse(savedExchanges)
 
+      // Validate the parsed data
       if (Array.isArray(parsedExchanges)) {
-        // Map parsed exchanges with validation for required fields and date parsing
         this.chatExchanges = parsedExchanges.map((exchange) => ({
           ...exchange,
           createdAt: exchange.createdAt ? new Date(exchange.createdAt) : new Date(),
           updatedAt: exchange.updatedAt ? new Date(exchange.updatedAt) : new Date(),
-          userId: exchange.userId ?? 0, // Default to 0 or another fallback for missing userId
+          userId: exchange.userId ?? 0, // Fallback for missing userId
           username: exchange.username || 'Unknown User',
           userPrompt: exchange.userPrompt || 'No prompt available',
           botResponse: exchange.botResponse || '',
@@ -288,26 +288,27 @@ loadFromLocalStorage() {
           previousEntryId: exchange.previousEntryId ?? null,
         }))
       } else {
-        // Handle case where data is not an array as expected
-        this.handleError(
-          ErrorType.VALIDATION_ERROR,
-          'Invalid format in localStorage. Expected an array but found another structure.',
-        )
+        // If data is not in the expected format, clear `localStorage` and reset
+        console.warn("Invalid data format in localStorage, clearing data.")
+        localStorage.removeItem('chatExchanges')
         this.chatExchanges = []
       }
     } catch (error) {
-      // Handle JSON parsing errors gracefully
+      // Handle JSON parse errors by clearing localStorage and resetting
       this.handleError(
         ErrorType.PARSE_ERROR,
         `Failed to parse chat exchanges from localStorage: ${error}`,
       )
-      this.chatExchanges = [] // Reset to empty array on error
+      console.warn("Clearing corrupted data from localStorage.")
+      localStorage.removeItem('chatExchanges') // Clear corrupted data
+      this.chatExchanges = [] // Reset to empty array
     }
   } else {
-    // If no data exists in localStorage, initialize with an empty array
+    // Initialize as empty array if no data exists in localStorage
     this.chatExchanges = []
   }
 },
+
 
 
     saveToLocalStorage() {

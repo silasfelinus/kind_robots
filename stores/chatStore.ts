@@ -263,33 +263,43 @@ export const useChatStore = defineStore({
       }
     },
 
-    loadFromLocalStorage() {
+loadFromLocalStorage() {
   if (typeof window === 'undefined') return
+
   const savedExchanges = localStorage.getItem('chatExchanges')
 
   if (savedExchanges) {
     try {
       const parsedExchanges = JSON.parse(savedExchanges)
-      
+
       if (Array.isArray(parsedExchanges)) {
+        // Ensure each exchange has required fields and valid dates
         this.chatExchanges = parsedExchanges.map((exchange) => ({
           ...exchange,
-          createdAt: new Date(exchange.createdAt),
-          updatedAt: new Date(exchange.updatedAt),
+          createdAt: exchange.createdAt ? new Date(exchange.createdAt) : new Date(),
+          updatedAt: exchange.updatedAt ? new Date(exchange.updatedAt) : new Date(),
         }))
       } else {
+        // Handle non-array data in localStorage
         this.handleError(
           ErrorType.VALIDATION_ERROR,
-          'Invalid chat exchanges format in localStorage.',
+          'Invalid chat exchanges format in localStorage. Resetting to an empty array.',
         )
+        this.chatExchanges = []
       }
     } catch (error) {
+      // Catch JSON parsing errors
       this.handleError(
         ErrorType.PARSE_ERROR,
         `Failed to parse exchanges: ${error}`,
       )
+      this.chatExchanges = [] // Set to empty array if parsing fails
     }
-  }},
+  } else {
+    // Initialize as empty array if no data in localStorage
+    this.chatExchanges = []
+  }
+},
 
 
     saveToLocalStorage() {
@@ -302,24 +312,23 @@ export const useChatStore = defineStore({
     },
 
     isValidChatExchange(obj: unknown): obj is ChatExchange {
-      if (typeof obj !== 'object' || obj === null) return false
-      const exchange = obj as Partial<ChatExchange>
+  if (typeof obj !== 'object' || obj === null) return false
+  const exchange = obj as Partial<ChatExchange>
 
-      return (
-        typeof exchange.id === 'number' &&
-        typeof exchange.userId === 'number' &&
-        exchange.createdAt instanceof Date &&
-        exchange.updatedAt instanceof Date &&
-        typeof exchange.username === 'string' &&
-        typeof exchange.userPrompt === 'string' &&
-        typeof exchange.botResponse === 'string' &&
-        typeof exchange.isPublic === 'boolean' &&
-        (typeof exchange.botId === 'number' || exchange.botId === null) &&
-        (typeof exchange.promptId === 'number' || exchange.promptId === null) &&
-        (typeof exchange.previousEntryId === 'number' ||
-          exchange.previousEntryId === null) // New check for previousEntryId
-      )
-    },
+  return (
+    typeof exchange.id === 'number' &&
+    typeof exchange.userId === 'number' &&
+    (exchange.createdAt instanceof Date || !isNaN(Date.parse(exchange.createdAt as string))) &&
+    (exchange.updatedAt instanceof Date || !isNaN(Date.parse(exchange.updatedAt as string))) &&
+    typeof exchange.username === 'string' &&
+    typeof exchange.userPrompt === 'string' &&
+    typeof exchange.botResponse === 'string' &&
+    typeof exchange.isPublic === 'boolean' &&
+    (typeof exchange.botId === 'number' || exchange.botId === null) &&
+    (typeof exchange.promptId === 'number' || exchange.promptId === null) &&
+    (typeof exchange.previousEntryId === 'number' || exchange.previousEntryId === null)
+  )
+},
   },
 })
 

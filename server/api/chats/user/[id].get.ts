@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
   try {
     const userId = Number(event.context.params?.id)
     const userChats = await prisma.chatExchange.findMany({ where: { userId } })
+    console.log ("user chats: " + userChats)
 
     return {
       success: true,

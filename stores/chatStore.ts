@@ -68,11 +68,14 @@ export const useChatStore = defineStore({
     async initialize() {
       if (this.isInitialized) return
       try {
+            console.log("starting init")
         this.loadFromLocalStorage()
+console.log("loaded from storage")
 
         const userStore = useUserStore()
         if (userStore.user?.id) {
           await this.fetchChatExchangesByUserId(userStore.user.id)
+    console.log("fetched user exchanges")
         } else {
           this.handleError(ErrorType.VALIDATION_ERROR, 'User ID not found.')
         }
@@ -85,98 +88,86 @@ export const useChatStore = defineStore({
         )
       }
     },
-    async addExchange(
-      prompt: string,
-      userId: number,
-      botId?: number,
-      previousEntryId?: number,
-      promptId?: number,
-    ) {
-      if (!prompt || !userId) {
-        this.handleError(
-          ErrorType.VALIDATION_ERROR,
-          'Missing prompt or userId.',
-        )
-        return
-      }
+async addExchange(
+  prompt: string,
+  userId: number,
+  botId?: number,
+  previousEntryId?: number,
+  promptId?: number,
+) {
+  if (!prompt || !userId) {
+    this.handleError(ErrorType.VALIDATION_ERROR, 'Missing prompt or userId.')
+    return
+  }
 
-      const userStore = useUserStore()
-      const botStore = useBotStore()
-      const promptStore = usePromptStore()
+  const userStore = useUserStore()
+  const botStore = useBotStore()
+  const promptStore = usePromptStore()
 
-      try {
-        // Determine finalPromptId by using provided promptId or creating a new prompt
-        const finalPromptId =
-          promptId ||
-          (await promptStore.addPrompt(prompt, userId, botId ?? 1))?.id
+  try {
+    // Determine finalPromptId by using provided promptId or creating a new prompt
+    const finalPromptId = 
+      promptId || 
+      (await promptStore.addPrompt(prompt, userId, botId ?? 1))?.id
 
-        if (!finalPromptId) {
-          throw new Error('Failed to obtain a prompt ID.')
-        }
-        console.log('Final prompt ID:', finalPromptId)
+    if (!finalPromptId) {
+      throw new Error('Failed to obtain a prompt ID.')
+    }
 
-        // Extract only the id for promptId in the exchange object
-        const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
-          userId,
-          username: userStore.username ?? 'Unknown User',
-          previousEntryId: previousEntryId ?? null,
-          botName: botStore.currentBot?.name ?? 'Unknown Bot',
-          userPrompt: prompt,
-          botResponse: '',
-          isPublic: true,
-          botId: botId ?? null,
-          promptId:
-            typeof finalPromptId === 'object'
-              ? finalPromptId.id
-              : finalPromptId,
-        }
+    // Define initial ChatExchange data
+    const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
+      userId,
+      username: userStore.username ?? 'Unknown User',
+      previousEntryId: previousEntryId ?? null,
+      botName: botStore.currentBot?.name ?? 'Unknown Bot',
+      userPrompt: prompt,
+      botResponse: '',
+      isPublic: true,
+      botId: botId ?? null,
+      promptId: finalPromptId,
+    }
 
-        console.log('Exchange object to be sent:', JSON.stringify(exchange))
+    // Step 1: Send initial exchange to /api/chats
+    const response = await this.fetch('/api/chats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(exchange),
+    })
 
-        // Make API request to add chat exchange
-        const response = await this.fetch('/api/chats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(exchange),
-        })
+    if (!response.success) {
+      throw new Error(response.message || 'Unknown error from API')
+    }
 
-        // Log the full response object for troubleshooting
-        console.log('API response:', JSON.stringify(response))
+    const newExchange = response.newExchange as ChatExchange
+    if (!this.isValidChatExchange(newExchange)) {
+      throw new Error('Invalid ChatExchange object returned from API')
+    }
 
-        // Validate response success and content
-        if (!response.success) {
-          console.warn('API responded with failure:', response.message)
-          throw new Error(response.message || 'Unknown error from API')
-        }
+    // Step 2: Retrieve botResponse from /api/botcafe
+    const botResponse = await this.fetch('/api/botcafe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, botId }),
+    })
 
-        const newExchange = response.newExchange as ChatExchange
-        console.log(
-          'New exchange received from API:',
-          JSON.stringify(newExchange),
-        )
+    if (!botResponse.success || !botResponse.reply) {
+      throw new Error(botResponse.message || 'Failed to retrieve bot response.')
+    }
 
-        if (!this.isValidChatExchange(newExchange)) {
-          throw new Error('Invalid ChatExchange object returned from API')
-        }
+    // Update exchange with bot response
+    newExchange.botResponse = botResponse.reply
 
-        // Update local data with the new exchange
-        this.chatExchanges.push(newExchange)
-        this.activeChats.push(newExchange)
-        this.saveToLocalStorage()
-        console.log(
-          'New exchange added successfully to local storage and chat exchanges.',
-        )
-
-        return newExchange
-      } catch (error) {
-        console.error('Error in addExchange:', error)
-        this.handleError(
-          ErrorType.NETWORK_ERROR,
-          `Error in addExchange: ${error}`,
-        )
-        throw error
-      }
-    },
+    // Step 3: Store updated exchange and save to local storage
+    this.chatExchanges.push(newExchange)
+    this.activeChats.push(newExchange)
+    this.saveToLocalStorage()
+    return newExchange
+  } catch (error) {
+    console.error('Error in addExchange:', error)
+    this.handleError(ErrorType.NETWORK_ERROR, `Error in addExchange: ${error}`)
+    throw error
+  }
+},
 
     async continueExchange(
       previousExchangeId: number,
@@ -286,61 +277,53 @@ export const useChatStore = defineStore({
       }
     },
 
-    loadFromLocalStorage() {
-      if (typeof window === 'undefined') return // Prevent running on the server
+loadFromLocalStorage() {
+  if (typeof window === 'undefined') return // Prevent running on the server
 
-      const savedExchanges = localStorage.getItem('chatExchanges')
+  const savedExchanges = localStorage.getItem('chatExchanges')
 
-      if (savedExchanges) {
-        try {
-          const parsedExchanges = JSON.parse(savedExchanges)
+  if (savedExchanges) {
+    try {
+      const parsedExchanges = JSON.parse(savedExchanges)
 
-          // Validate the parsed data structure
-          if (Array.isArray(parsedExchanges)) {
-            this.chatExchanges = parsedExchanges.map((exchange) => ({
-              ...exchange,
-              createdAt: exchange.createdAt
-                ? new Date(exchange.createdAt)
-                : new Date(),
-              updatedAt: exchange.updatedAt
-                ? new Date(exchange.updatedAt)
-                : new Date(),
-              userId: exchange.userId ?? 0, // Fallback for missing userId
-              username: exchange.username || 'Unknown User',
-              userPrompt: exchange.userPrompt || 'No prompt available',
-              botResponse: exchange.botResponse || '',
-              isPublic: exchange.isPublic ?? true,
-              botId: exchange.botId ?? null,
-              promptId: exchange.promptId ?? null,
-              previousEntryId: exchange.previousEntryId ?? null,
-            }))
-          } else {
-            console.warn(
-              'Invalid data format in localStorage, expected an array. Clearing data.',
-            )
-            localStorage.removeItem('chatExchanges')
-            this.chatExchanges = []
-          }
-        } catch (error) {
-          console.error('JSON parse error:', error)
-          this.handleError(
-            ErrorType.PARSE_ERROR,
-            `Failed to parse chat exchanges from localStorage: ${error}`,
-          )
-
-          console.warn(
-            'Clearing corrupted data from localStorage due to parse error.',
-          )
-          localStorage.removeItem('chatExchanges') // Clear corrupted data
-          this.chatExchanges = [] // Reset to empty array
-        }
+      // Validate the parsed data
+      if (Array.isArray(parsedExchanges)) {
+        this.chatExchanges = parsedExchanges.map((exchange) => ({
+          ...exchange,
+          createdAt: exchange.createdAt ? new Date(exchange.createdAt) : new Date(),
+          updatedAt: exchange.updatedAt ? new Date(exchange.updatedAt) : new Date(),
+          userId: exchange.userId ?? 0, // Fallback for missing userId
+          username: exchange.username || 'Unknown User',
+          userPrompt: exchange.userPrompt || 'No prompt available',
+          botResponse: exchange.botResponse || '',
+          isPublic: exchange.isPublic ?? true,
+          botId: exchange.botId ?? null,
+          promptId: exchange.promptId ?? null,
+          previousEntryId: exchange.previousEntryId ?? null,
+        }))
       } else {
-        console.log(
-          'No chat exchanges found in localStorage, initializing as an empty array.',
-        )
+        // If data is not in the expected format, clear `localStorage` and reset
+        console.warn("Invalid data format in localStorage, clearing data.")
+        localStorage.removeItem('chatExchanges')
         this.chatExchanges = []
       }
-    },
+    } catch (error) {
+      // Handle JSON parse errors by clearing localStorage and resetting
+      this.handleError(
+        ErrorType.PARSE_ERROR,
+        `Failed to parse chat exchanges from localStorage: ${error}`,
+      )
+      console.warn("Clearing corrupted data from localStorage.")
+      localStorage.removeItem('chatExchanges') // Clear corrupted data
+      this.chatExchanges = [] // Reset to empty array
+    }
+  } else {
+    // Initialize as empty array if no data exists in localStorage
+    this.chatExchanges = []
+  }
+},
+
+
 
     saveToLocalStorage() {
       if (typeof window !== 'undefined') {
@@ -352,26 +335,23 @@ export const useChatStore = defineStore({
     },
 
     isValidChatExchange(obj: unknown): obj is ChatExchange {
-      if (typeof obj !== 'object' || obj === null) return false
-      const exchange = obj as Partial<ChatExchange>
+  if (typeof obj !== 'object' || obj === null) return false
+  const exchange = obj as Partial<ChatExchange>
 
-      return (
-        typeof exchange.id === 'number' &&
-        typeof exchange.userId === 'number' &&
-        (exchange.updatedAt instanceof Date ||
-          (typeof exchange.updatedAt === 'string' &&
-            !isNaN(Date.parse(exchange.updatedAt)))) &&
-        typeof exchange.username === 'string' &&
-        typeof exchange.username === 'string' &&
-        typeof exchange.userPrompt === 'string' &&
-        typeof exchange.botResponse === 'string' &&
-        typeof exchange.isPublic === 'boolean' &&
-        (typeof exchange.botId === 'number' || exchange.botId === null) &&
-        (typeof exchange.promptId === 'number' || exchange.promptId === null) &&
-        (typeof exchange.previousEntryId === 'number' ||
-          exchange.previousEntryId === null)
-      )
-    },
+  return (
+    typeof exchange.id === 'number' &&
+    typeof exchange.userId === 'number' &&
+    (exchange.createdAt instanceof Date || !isNaN(Date.parse(exchange.createdAt as string))) &&
+    (exchange.updatedAt instanceof Date || !isNaN(Date.parse(exchange.updatedAt as string))) &&
+    typeof exchange.username === 'string' &&
+    typeof exchange.userPrompt === 'string' &&
+    typeof exchange.botResponse === 'string' &&
+    typeof exchange.isPublic === 'boolean' &&
+    (typeof exchange.botId === 'number' || exchange.botId === null) &&
+    (typeof exchange.promptId === 'number' || exchange.promptId === null) &&
+    (typeof exchange.previousEntryId === 'number' || exchange.previousEntryId === null)
+  )
+},
   },
 })
 

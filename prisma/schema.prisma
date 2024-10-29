@@ -298,7 +298,6 @@ model Prompt {
   Chats             ChatExchange[]
   botId             Int?   
   Bot               Bot?          @relation(fields: [botId], references: [id])
-
 }
 
 model RandomList {

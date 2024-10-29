@@ -109,6 +109,8 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
+        console.log('Starting addExchange...')
+
         // Determine finalPromptId by using provided promptId or creating a new prompt
         const finalPromptId =
           promptId ||
@@ -117,6 +119,7 @@ export const useChatStore = defineStore({
         if (!finalPromptId) {
           throw new Error('Failed to obtain a prompt ID.')
         }
+        console.log('Final prompt ID:', finalPromptId)
 
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
@@ -130,29 +133,42 @@ export const useChatStore = defineStore({
           promptId: finalPromptId,
         }
 
+        console.log('Exchange object to be sent:', JSON.stringify(exchange))
+
+        // Make API request to add chat exchange
         const response = await this.fetch('/api/chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(exchange),
         })
 
-        // Log the entire response object to inspect
+        // Log the full response object for troubleshooting
         console.log('API response:', JSON.stringify(response))
 
-        // Check for success status in the response
+        // Validate response success and content
         if (!response.success) {
+          console.warn('API responded with failure:', response.message)
           throw new Error(response.message || 'Unknown error from API')
         }
 
         const newExchange = response.newExchange as ChatExchange
+        console.log(
+          'New exchange received from API:',
+          JSON.stringify(newExchange),
+        )
+
         if (!this.isValidChatExchange(newExchange)) {
           throw new Error('Invalid ChatExchange object returned from API')
         }
 
-        // Update stores and local storage
+        // Update local data with the new exchange
         this.chatExchanges.push(newExchange)
         this.activeChats.push(newExchange)
         this.saveToLocalStorage()
+        console.log(
+          'New exchange added successfully to local storage and chat exchanges.',
+        )
+
         return newExchange
       } catch (error) {
         console.error('Error in addExchange:', error)

@@ -11,7 +11,9 @@ interface ExchangeData {
   username: string
   userPrompt: string
   botResponse: string
-  previousEntryId: number
+  previousEntryId?: number
+  promptId?: number
+  isPublic?: boolean
 }
 
 export default defineEventHandler(async (event) => {
@@ -19,43 +21,39 @@ export default defineEventHandler(async (event) => {
     // Read and validate the exchange data
     const exchangeData: ExchangeData = await readBody(event)
 
-    // Validate required fields
-    if (
-      !exchangeData.botId ||
-      !exchangeData.botName ||
-      !exchangeData.username ||
-      !exchangeData.userPrompt ||
-      !exchangeData.botResponse
-    ) {
+    // Check required fields against schema
+    const requiredFields = ['userId', 'botId', 'botName', 'username', 'userPrompt', 'botResponse']
+    const missingFields = requiredFields.filter(field => !exchangeData[field as keyof ExchangeData])
+
+    if (missingFields.length > 0) {
       return errorHandler({
         success: false,
-        message: 'Invalid exchange data. Missing required fields.',
-        statusCode: 400, // Bad request
+        message: `Invalid exchange data. Missing required fields: ${missingFields.join(', ')}`,
+        statusCode: 400,
       })
     }
 
-    // Optional: Check if the user and bot exist in the database
-    const user = exchangeData.userId
-      ? await prisma.user.findUnique({ where: { id: exchangeData.userId } })
-      : null
-
+    // Optional: Verify that `userId` and `botId` exist in the database
+    const user = await prisma.user.findUnique({
+      where: { id: exchangeData.userId }
+    })
     const bot = await prisma.bot.findUnique({
-      where: { id: exchangeData.botId },
+      where: { id: exchangeData.botId }
     })
 
-    if (exchangeData.userId && !user) {
+    if (!user) {
       return errorHandler({
         success: false,
         message: `User with id ${exchangeData.userId} does not exist.`,
-        statusCode: 404, // Not found
+        statusCode: 404
       })
     }
-
+    
     if (!bot) {
       return errorHandler({
         success: false,
         message: `Bot with id ${exchangeData.botId} does not exist.`,
-        statusCode: 404, // Not found
+        statusCode: 404
       })
     }
 
@@ -68,8 +66,10 @@ export default defineEventHandler(async (event) => {
         username: exchangeData.username,
         userPrompt: exchangeData.userPrompt,
         botResponse: exchangeData.botResponse,
-        previousEntryId: exchangeData.previousEntryId,
-      },
+        previousEntryId: exchangeData.previousEntryId ?? null,
+        promptId: exchangeData.promptId ?? null,
+        isPublic: exchangeData.isPublic ?? false
+      }
     })
 
     return {
@@ -81,23 +81,21 @@ export default defineEventHandler(async (event) => {
     let statusCode = 500 // Internal server error by default
 
     if (error instanceof Error) {
-      // Prisma-specific error handling (if any)
       if (error.name === 'PrismaClientKnownRequestError') {
         message = `Database error: ${error.message}`
-        statusCode = 500
       } else {
         message = error.message
       }
     }
 
-    // Log the error for further investigation
+    // Log error for detailed analysis
     console.error('Error in /server/api/chats/index.post.ts:', error)
 
-    // Use custom error handling with improved message and status code
+    // Return structured error response
     return errorHandler({
       success: false,
       message,
-      statusCode,
+      statusCode
     })
   }
 })

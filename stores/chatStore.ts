@@ -68,14 +68,11 @@ export const useChatStore = defineStore({
     async initialize() {
       if (this.isInitialized) return
       try {
-        console.log('starting init')
         this.loadFromLocalStorage()
-        console.log('loaded from storage')
 
         const userStore = useUserStore()
         if (userStore.user?.id) {
           await this.fetchChatExchangesByUserId(userStore.user.id)
-          console.log('fetched user exchanges')
         } else {
           this.handleError(ErrorType.VALIDATION_ERROR, 'User ID not found.')
         }
@@ -108,8 +105,6 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
-        console.log('Starting addExchange...')
-
         // Determine finalPromptId by using provided promptId or creating a new prompt
         const finalPromptId =
           promptId ||

@@ -89,75 +89,75 @@ console.log("loaded from storage")
       }
     },
 
-    async addExchange(
-      prompt: string,
-      userId: number,
-      botId?: number,
-      previousEntryId?: number,
-      promptId?: number,
-    ) {
-      if (!prompt || !userId) {
-        this.handleError(
-          ErrorType.VALIDATION_ERROR,
-          'Missing prompt or userId.',
-        )
-        return
-      }
+ async addExchange(
+  prompt: string,
+  userId: number,
+  botId?: number,
+  previousEntryId?: number,
+  promptId?: number,
+) {
+  if (!prompt || !userId) {
+    this.handleError(ErrorType.VALIDATION_ERROR, 'Missing prompt or userId.')
+    return
+  }
 
-      const userStore = useUserStore()
-      const botStore = useBotStore()
-      const promptStore = usePromptStore()
+  const userStore = useUserStore()
+  const botStore = useBotStore()
+  const promptStore = usePromptStore()
 
-      try {
-        // Use provided promptId, or create a new prompt if promptId is not passed
-        const finalPromptId =
-          promptId ||
-          (await promptStore.addPrompt(prompt, userId, botId ?? 1))?.id
+  try {
+    // Determine finalPromptId by using provided promptId or creating a new prompt
+    const finalPromptId = 
+      promptId || 
+      (await promptStore.addPrompt(prompt, userId, botId ?? 1))?.id
 
-        if (!finalPromptId) {
-          throw new Error('Failed to obtain a prompt ID.')
-        }
+    if (!finalPromptId) {
+      throw new Error('Failed to obtain a prompt ID.')
+    }
 
-        const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
-          userId,
-          username: userStore.username ?? 'Unknown User',
-          previousEntryId: previousEntryId ?? null,
-          botName: botStore.currentBot?.name ?? 'Unknown Bot',
-          userPrompt: prompt,
-          botResponse: '',
-          isPublic: true,
-          botId: botId ?? null,
-          promptId: finalPromptId, // Use the final prompt ID
-        }
+    const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
+      userId,
+      username: userStore.username ?? 'Unknown User',
+      previousEntryId: previousEntryId ?? null,
+      botName: botStore.currentBot?.name ?? 'Unknown Bot',
+      userPrompt: prompt,
+      botResponse: '',
+      isPublic: true,
+      botId: botId ?? null,
+      promptId: finalPromptId,
+    }
 
-        const response = await this.fetch('/api/chats', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(exchange),
-})
+    const response = await this.fetch('/api/chats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(exchange),
+    })
 
-console.log('API response:', response)  // Log response to inspect structure
-if (!response.success) {
-  throw new Error(response.message || 'Unknown error from API')
-}
+    // Log the entire response object to inspect
+    console.log('API response:', JSON.stringify(response))
 
-        const newExchange = response.newExchange as ChatExchange
-        if (!this.isValidChatExchange(newExchange)) {
-          throw new Error('Invalid ChatExchange object returned from API')
-        }
+    // Check for success status in the response
+    if (!response.success) {
+      throw new Error(response.message || 'Unknown error from API')
+    }
 
-        this.chatExchanges.push(newExchange)
-        this.activeChats.push(newExchange)
-        this.saveToLocalStorage()
-        return newExchange
-      } catch (error) {
-        this.handleError(
-          ErrorType.NETWORK_ERROR,
-          `Error in addExchange: ${error}`,
-        )
-        throw error
-      }
-    },
+    const newExchange = response.newExchange as ChatExchange
+    if (!this.isValidChatExchange(newExchange)) {
+      throw new Error('Invalid ChatExchange object returned from API')
+    }
+
+    // Update stores and local storage
+    this.chatExchanges.push(newExchange)
+    this.activeChats.push(newExchange)
+    this.saveToLocalStorage()
+    return newExchange
+  } catch (error) {
+    console.error('Error in addExchange:', error)
+    this.handleError(ErrorType.NETWORK_ERROR, `Error in addExchange: ${error}`)
+    throw error
+  }
+},
+
 
     async continueExchange(
       previousExchangeId: number,

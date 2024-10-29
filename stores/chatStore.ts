@@ -191,7 +191,7 @@ console.log("loaded from storage")
       try {
         const data = await this.fetch(`/api/chats/user/${userId}`)
         if (data.success) {
-          this.chatExchanges = data.chatExchanges
+          this.chatExchanges = data.userChats
           this.saveToLocalStorage()
         } else {
           this.handleError(ErrorType.NETWORK_ERROR, data.message)

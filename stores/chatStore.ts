@@ -291,20 +291,14 @@ export const useChatStore = defineStore({
     loadFromLocalStorage() {
       if (typeof window === 'undefined') return // Prevent running on the server
 
-      console.log('Attempting to load chat exchanges from localStorage.')
-
       const savedExchanges = localStorage.getItem('chatExchanges')
 
       if (savedExchanges) {
         try {
-          console.log('Data retrieved from localStorage:', savedExchanges) // Log the raw data
-
           const parsedExchanges = JSON.parse(savedExchanges)
 
           // Validate the parsed data structure
           if (Array.isArray(parsedExchanges)) {
-            console.log('Data parsed successfully, validating entries...')
-
             this.chatExchanges = parsedExchanges.map((exchange) => ({
               ...exchange,
               createdAt: exchange.createdAt
@@ -322,8 +316,6 @@ export const useChatStore = defineStore({
               promptId: exchange.promptId ?? null,
               previousEntryId: exchange.previousEntryId ?? null,
             }))
-
-            console.log('Chat exchanges loaded and validated successfully.')
           } else {
             console.warn(
               'Invalid data format in localStorage, expected an array. Clearing data.',

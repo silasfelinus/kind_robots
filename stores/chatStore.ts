@@ -70,6 +70,7 @@ export const useChatStore = defineStore({
       try {
             console.log("starting init")
         this.loadFromLocalStorage()
+console.log("loaded from storage")
 
         const userStore = useUserStore()
         if (userStore.user?.id) {

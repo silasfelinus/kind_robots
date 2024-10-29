@@ -1,6 +1,7 @@
 <template>
   <div class="container mx-auto p-6 bg-base-300 rounded-2xl">
     <h2 class="text-2xl mb-4 text-center">Chat Store Tester</h2>
+chat test
 
     <!-- Feedback Message -->
     <p v-if="feedbackMessage" :class="feedbackClass" class="text-center mb-4">
@@ -147,8 +148,4 @@ async function deleteExchange(exchangeId: number) {
 }
 </script>
 
-<style scoped>
-.container {
-  max-width: 600px;
-}
-</style>
+

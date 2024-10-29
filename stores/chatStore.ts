@@ -264,7 +264,7 @@ export const useChatStore = defineStore({
     },
 
 loadFromLocalStorage() {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined') return // Prevent server-side execution
 
   const savedExchanges = localStorage.getItem('chatExchanges')
 
@@ -273,30 +273,38 @@ loadFromLocalStorage() {
       const parsedExchanges = JSON.parse(savedExchanges)
 
       if (Array.isArray(parsedExchanges)) {
-        // Ensure each exchange has required fields and valid dates
+        // Map parsed exchanges with validation for required fields and date parsing
         this.chatExchanges = parsedExchanges.map((exchange) => ({
           ...exchange,
           createdAt: exchange.createdAt ? new Date(exchange.createdAt) : new Date(),
           updatedAt: exchange.updatedAt ? new Date(exchange.updatedAt) : new Date(),
+          userId: exchange.userId ?? 0, // Default to 0 or another fallback for missing userId
+          username: exchange.username || 'Unknown User',
+          userPrompt: exchange.userPrompt || 'No prompt available',
+          botResponse: exchange.botResponse || '',
+          isPublic: exchange.isPublic ?? true,
+          botId: exchange.botId ?? null,
+          promptId: exchange.promptId ?? null,
+          previousEntryId: exchange.previousEntryId ?? null,
         }))
       } else {
-        // Handle non-array data in localStorage
+        // Handle case where data is not an array as expected
         this.handleError(
           ErrorType.VALIDATION_ERROR,
-          'Invalid chat exchanges format in localStorage. Resetting to an empty array.',
+          'Invalid format in localStorage. Expected an array but found another structure.',
         )
         this.chatExchanges = []
       }
     } catch (error) {
-      // Catch JSON parsing errors
+      // Handle JSON parsing errors gracefully
       this.handleError(
         ErrorType.PARSE_ERROR,
-        `Failed to parse exchanges: ${error}`,
+        `Failed to parse chat exchanges from localStorage: ${error}`,
       )
-      this.chatExchanges = [] // Set to empty array if parsing fails
+      this.chatExchanges = [] // Reset to empty array on error
     }
   } else {
-    // Initialize as empty array if no data in localStorage
+    // If no data exists in localStorage, initialize with an empty array
     this.chatExchanges = []
   }
 },

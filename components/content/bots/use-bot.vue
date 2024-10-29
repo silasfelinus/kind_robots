@@ -9,6 +9,11 @@
       <bot-selector />
     </div>
 
+    <!-- Error Message Display -->
+    <p v-if="errorMessage" class="text-red-500 text-center mt-4">
+      {{ errorMessage }}
+    </p>
+
     <!-- Avatar and Bot Information -->
     <div
       v-if="botStore.currentBot"
@@ -107,6 +112,7 @@ const chatStore = useChatStore()
 const userStore = useUserStore()
 
 const loading = ref(false) // Loading state
+const errorMessage = ref()
 
 const parsedUserPrompts = computed(() => {
   return botStore.currentBot?.userIntro
@@ -119,39 +125,69 @@ const parsedUserPrompts = computed(() => {
 
 // Function to handle sending a selected prompt
 async function sendPrompt(prompt: string, promptId?: number) {
+  if (!prompt) return console.warn('Prompt is empty, cannot send.')
+
+  // Set the selected prompt to chatStore.currentPrompt to display it in the input field
+  chatStore.currentPrompt = prompt
+
   loading.value = true // Start loading
   try {
-    if (userStore.user?.id && botStore.currentBot?.id) {
-      // Call addExchange with promptId if provided, otherwise, a new prompt will be created
-      await chatStore.addExchange(
+    const { id: userId } = userStore.user || {}
+    const { id: botId } = botStore.currentBot || {}
+
+    if (userId && botId) {
+      console.log('Sending prompt packet:', {
         prompt,
-        userStore.user.id,
-        botStore.currentBot.id,
-        undefined,
+        userId,
+        botId,
         promptId,
-      )
+      })
+
+      // Call addExchange with the packet data
+      await chatStore.addExchange(prompt, userId, botId, undefined, promptId)
+
+      // Clear the prompt field after successful submission
+      chatStore.currentPrompt = ''
+    } else {
+      console.warn('Missing user or bot ID, cannot proceed.')
     }
+  } catch (error) {
+    console.error('Error sending prompt:', error)
   } finally {
     loading.value = false // End loading
   }
 }
 
-// Function to handle submitting a custom prompt
+// Function to handle submitting a custom or modified prompt
 async function submitCustomPrompt() {
   const trimmedPrompt = chatStore.currentPrompt.trim()
-  if (!trimmedPrompt) return // Prevent empty submissions
+  if (!trimmedPrompt) {
+    errorMessage.value = 'Custom prompt is empty. Please enter text.'
+    return // Prevent empty submissions
+  }
 
   loading.value = true // Start loading
   try {
-    if (userStore.user?.id && botStore.currentBot?.id) {
-      // Optionally, if there's logic to retrieve a prompt ID, pass it here
-      await chatStore.addExchange(
-        trimmedPrompt,
-        userStore.user.id,
-        botStore.currentBot.id,
-      )
-      chatStore.currentPrompt = '' // Clear the input after submitting
+    const { id: userId } = userStore.user || {}
+    const { id: botId } = botStore.currentBot || {}
+
+    if (userId && botId) {
+      console.log('Submitting custom prompt packet:', {
+        prompt: trimmedPrompt,
+        userId,
+        botId,
+      })
+
+      await chatStore.addExchange(trimmedPrompt, userId, botId)
+
+      // Clear the prompt field after successful submission
+      chatStore.currentPrompt = ''
+    } else {
+      errorMessage.value = 'Please select a bot and ensure you are logged in.'
     }
+  } catch (error) {
+    errorMessage.value = 'An error occurred while submitting the custom prompt.'
+    console.error('Error submitting custom prompt:', error)
   } finally {
     loading.value = false // End loading
   }

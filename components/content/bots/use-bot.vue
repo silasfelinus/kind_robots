@@ -29,21 +29,30 @@
         <p class="text-gray-700 mt-4">{{ botStore.currentBot.botIntro }}</p>
       </div>
     </div>
-<div v-if="botStore.currentBot" class="flex flex-col gap-4 items-center mt-6 w-full">
-  <div class="flex flex-wrap gap-2 justify-center">
-    <div v-for="(prompt, index) in parsedUserPrompts" :key="prompt.id" class="w-auto">
-      <button
-        :disabled="loading"
-        class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
-        @click="sendPrompt(prompt.text, prompt.id)"
-      >
-        <span v-if="!loading">{{ prompt.text }}</span>
-        <span v-else class="spinner-border spinner-border-sm" role="status"></span>
-      </button>
-    </div>
-  </div>
-
-     
+    <div
+      v-if="botStore.currentBot"
+      class="flex flex-col gap-4 items-center mt-6 w-full"
+    >
+      <div class="flex flex-wrap gap-2 justify-center">
+        <div
+          v-for="prompt in parsedUserPrompts"
+          :key="prompt.id"
+          class="w-auto"
+        >
+          <button
+            :disabled="loading"
+            class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
+            @click="sendPrompt(prompt.text, prompt.id)"
+          >
+            <span v-if="!loading">{{ prompt.text }}</span>
+            <span
+              v-else
+              class="spinner-border spinner-border-sm"
+              role="status"
+            ></span>
+          </button>
+        </div>
+      </div>
 
       <div class="flex flex-col w-full sm:w-1/2 mt-6">
         <label for="customPrompt" class="block text-lg font-medium mb-2"
@@ -108,7 +117,6 @@ const parsedUserPrompts = computed(() => {
     : []
 })
 
-
 // Function to handle sending a selected prompt
 async function sendPrompt(prompt: string, promptId?: number) {
   loading.value = true // Start loading
@@ -120,7 +128,7 @@ async function sendPrompt(prompt: string, promptId?: number) {
         userStore.user.id,
         botStore.currentBot.id,
         undefined,
-        promptId
+        promptId,
       )
     }
   } finally {
@@ -140,7 +148,7 @@ async function submitCustomPrompt() {
       await chatStore.addExchange(
         trimmedPrompt,
         userStore.user.id,
-        botStore.currentBot.id
+        botStore.currentBot.id,
       )
       chatStore.currentPrompt = '' // Clear the input after submitting
     }

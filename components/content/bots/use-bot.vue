@@ -47,7 +47,7 @@
           <button
             :disabled="loading"
             class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
-            @click="sendPrompt(prompt.text, prompt.id)"
+            @click="sendPrompt(prompt.text)"
           >
             <span v-if="!loading">{{ prompt.text }}</span>
             <span
@@ -106,10 +106,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
+import { usePromptStore } from '@/stores/promptStore'
 
 const botStore = useBotStore()
 const chatStore = useChatStore()
 const userStore = useUserStore()
+const promptStore = usePromptStore()
 
 const loading = ref(false) // Loading state
 const errorMessage = ref()
@@ -124,7 +126,7 @@ const parsedUserPrompts = computed(() => {
 })
 
 // Function to handle sending a selected prompt
-async function sendPrompt(prompt: string, promptId?: number) {
+async function sendPrompt(prompt: string) {
   if (!prompt) return console.warn('Prompt is empty, cannot send.')
 
   // Set the selected prompt to chatStore.currentPrompt to display it in the input field
@@ -136,14 +138,21 @@ async function sendPrompt(prompt: string, promptId?: number) {
     const { id: botId } = botStore.currentBot || {}
 
     if (userId && botId) {
-      console.log('Sending prompt packet:', {
+      console.log('Preparing prompt packet:', {
         prompt,
         userId,
         botId,
-        promptId,
       })
 
-      // Call addExchange with the packet data
+      // Generate a new prompt ID by creating the prompt in the backend
+      const promptId = await promptStore.addPrompt(prompt, userId, botId)
+      if (!promptId) {
+        throw new Error('Failed to generate a prompt ID.')
+      }
+
+      console.log('Sending prompt packet with promptId:', promptId)
+
+      // Call addExchange with the generated promptId
       await chatStore.addExchange(prompt, userId, botId, undefined, promptId)
 
       // Clear the prompt field after successful submission
@@ -152,6 +161,7 @@ async function sendPrompt(prompt: string, promptId?: number) {
       console.warn('Missing user or bot ID, cannot proceed.')
     }
   } catch (error) {
+    errorMessage.value = 'An error occurred while sending the prompt.'
     console.error('Error sending prompt:', error)
   } finally {
     loading.value = false // End loading

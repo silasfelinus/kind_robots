@@ -135,90 +135,103 @@ export const useChatStore = defineStore({
       }
     },
 
-    async fetchStream(messages: Array<{ role: string; content: string }>) {
-      const errorStore = useErrorStore()
-      const url = '/api/botcafe/chat'
-      const model = 'gpt-4o-mini'
-      const isStreaming = true
+    async fetchStream(
+  messages: Array<{ role: string; content: string }>,
+  exchangeId: number
+) {
+  const errorStore = useErrorStore();
+  const url = "/api/botcafe/chat";
+  const model = "gpt-4o-mini";
+  const isStreaming = true;
 
-      console.log('--- FetchStream Initiated ---')
-      console.log('Model:', model)
-      console.log('Messages:', JSON.stringify(messages, null, 2))
-      console.log('Streaming:', isStreaming)
+  console.log("--- FetchStream Initiated ---");
+  console.log("Model:", model);
+  console.log("Messages:", JSON.stringify(messages, null, 2));
+  console.log("Streaming:", isStreaming);
 
-      try {
-        const payload = {
-          model,
-          messages,
-          temperature: 1,
-          n: 1,
-          maxTokens: 300,
-          stream: isStreaming,
-        }
-        console.log('Payload:', payload)
+  try {
+    const payload = {
+      model,
+      messages,
+      temperature: 1,
+      n: 1,
+      maxTokens: 300,
+      stream: isStreaming,
+    };
+    console.log("Payload:", payload);
 
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-        if (!response.ok) {
-          const errorDetails = await response.json().catch(() => null)
-          const errorMessage = errorDetails?.message
-            ? `HTTP error! ${response.status} - ${errorDetails.message}`
-            : `HTTP error! Status: ${response.status}`
-          console.error('Failed API Response:', errorMessage)
-          console.error('Detailed error:', JSON.stringify(errorDetails, null, 2))
+    if (!response.ok) {
+      const errorDetails = await response.json().catch(() => null);
+      const errorMessage = errorDetails?.message
+        ? `HTTP error! ${response.status} - ${errorDetails.message}`
+        : `HTTP error! Status: ${response.status}`;
+      console.error("Failed API Response:", errorMessage);
+      throw new Error(errorMessage);
+    }
 
-          if (errorDetails?.details === 'HTTP method is not allowed.') {
-            console.warn('Check if POST requests are allowed on the server endpoint.')
+    console.log("Response status:", response.status);
+
+    if (response.body) {
+      console.log("--- Stream Opened Successfully ---");
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        console.log("Received chunk:", chunk);
+
+        // Parse each chunk and extract the content
+        const events = chunk.split("\n\n").filter(Boolean);
+        for (const event of events) {
+          if (event.startsWith("data: ")) {
+            const jsonData = event.replace("data: ", "").trim();
+            if (jsonData === "[DONE]") {
+              console.log("Stream End Signal Received");
+              return;
+            }
+
+            try {
+              const parsedData = JSON.parse(jsonData);
+              const content = parsedData.choices[0]?.delta?.content || "";
+
+              // Update the botResponse in real-time
+              const exchange = this.activeChats.find(
+                (exchange) => exchange.id === exchangeId
+              );
+              if (exchange) {
+                exchange.botResponse += content;
+                this.chatExchanges = [...this.chatExchanges]; // Trigger reactivity
+              }
+            } catch (parseError) {
+              console.warn("Failed to parse JSON data chunk:", jsonData);
+            }
           }
-
-          throw new Error(errorMessage)
         }
-
-        console.log('Response status:', response.status)
-
-        if (response.body) {
-          console.log('--- Stream Opened Successfully ---')
-          const reader = response.body.getReader()
-          const decoder = new TextDecoder()
-
-          let responseData = ''
-
-          while (true) {
-            const { done, value } = await reader.read()
-            if (done) break
-
-            const chunk = decoder.decode(value, { stream: true })
-            console.log('Received chunk:', chunk)
-
-            responseData += chunk
-          }
-          console.log('--- Stream Ended ---')
-
-          try {
-            return JSON.parse(responseData)
-          } catch (parseError) {
-            console.warn('Failed to parse complete response:', responseData)
-            throw parseError
-          }
-        } else {
-          throw new Error('Response body is null or undefined')
-        }
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'An unknown error occurred during fetchStream'
-        console.error('fetchStream encountered an error:', errorMessage)
-        console.error('Complete error details:', error)
-
-        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
-        throw error
       }
-    },
+      console.log("--- Stream Ended ---");
+    } else {
+      throw new Error("Response body is null or undefined");
+    }
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "An unknown error occurred during fetchStream";
+    console.error("fetchStream encountered an error:", errorMessage);
+
+    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage);
+    throw error;
+  }
+},
 
     
 

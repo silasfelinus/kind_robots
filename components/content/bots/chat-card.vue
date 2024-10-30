@@ -11,7 +11,11 @@
         class="w-10 h-10 rounded-full mr-3"
       />
       <div>
-        <p class="text-lg font-semibold">{{ username }} <span class="text-sm text-gray-500">to</span> {{ botName }}</p>
+        <p class="text-lg font-semibold">
+          {{ username }}
+          <span class="text-sm text-gray-500">to</span>
+          {{ botName }}
+        </p>
       </div>
     </div>
 
@@ -27,11 +31,6 @@
         </p>
         <p class="text-base">{{ message.content }}</p>
       </div>
-    </div>
-
-    <!-- Last message -->
-    <div class="message p-3 bg-gray-100 rounded-md mb-4">
-      {{ getLastMessageContent }}
     </div>
 
     <!-- Actions -->
@@ -62,7 +61,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, computed, defineProps } from 'vue'
@@ -99,6 +97,7 @@ const chatExchange = computed(() => {
   )
 })
 
+// Computed property to dynamically update messages as botResponse streams in
 const chatExchangeMessages = computed(() => {
   if (chatExchange.value) {
     return [
@@ -109,13 +108,7 @@ const chatExchangeMessages = computed(() => {
   return []
 })
 
-const getLastMessageContent = computed(() => {
-  return chatExchangeMessages.value.length
-    ? chatExchangeMessages.value[chatExchangeMessages.value.length - 1].content
-    : ''
-})
-
-// User and Bot Details
+// Computed properties for user and bot details
 const username = computed(() => chatExchange.value?.username || 'User')
 const botName = computed(() => chatExchange.value?.botName || 'Bot')
 const botAvatar = computed(() => botStore.currentBot?.avatarImage || '')
@@ -177,7 +170,6 @@ const deleteMessage = async () => {
   }
 }
 </script>
-
 
 <style scoped>
 .reply-container textarea {

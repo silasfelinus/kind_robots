@@ -84,6 +84,7 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
+        // Ensure finalPromptId is only the ID integer
         let finalPromptId = promptId
 
         if (!finalPromptId) {
@@ -99,7 +100,7 @@ export const useChatStore = defineStore({
           }
         }
 
-        console.log(finalPromptId)
+        console.log('Using finalPromptId:', finalPromptId) // Debugging: should print an integer
 
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
@@ -110,9 +111,10 @@ export const useChatStore = defineStore({
           botResponse: '',
           isPublic: true,
           botId: botId ?? null,
-          promptId: finalPromptId,
+          promptId: finalPromptId, // Ensure only integer ID is set here
         }
 
+        // Send exchange to API
         const response = await this.fetch('/api/chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -128,15 +130,18 @@ export const useChatStore = defineStore({
           throw new Error('Invalid ChatExchange object returned from API')
         }
 
+        // Initialize bot response as an empty string
         newExchange.botResponse = ''
         this.activeChats.push(newExchange)
 
+        // Fetch bot response as a stream
         await this.fetchStream(
           'https://kind-robots.vercel.app/api/botcafe/chat',
           {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              Authorization: `Bearer ${userStore.apiKey || process.env.OPENAI_API_KEY}`,
             },
             body: JSON.stringify({
               model: 'gpt-4o-mini',
@@ -150,7 +155,6 @@ export const useChatStore = defineStore({
             newExchange.botResponse += chunk
             this.chatExchanges = [...this.chatExchanges]
           },
-          userStore.openAPIKey || process.env.OPENAI_API_KEY,
         )
 
         this.saveToLocalStorage()
@@ -164,6 +168,7 @@ export const useChatStore = defineStore({
         throw error
       }
     },
+
     async fetchStream(
       url: string,
       options: RequestInit = {},

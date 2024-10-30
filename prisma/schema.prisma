@@ -46,30 +46,43 @@ model Art {
 
 model ArtImage {
   id             Int       @id @default(autoincrement())
-  galleryId      Int?      @default(21)
   imageData      String    @db.LongText
   createdAt      DateTime  @default(now())
   updatedAt      DateTime? @default(now()) @updatedAt
-  userId         Int?      @default(1)
   artId          Int?      @unique
+  galleryId      Int?      @default(21)
+  userId         Int?      @default(10)
   fileName       String?   @db.VarChar(764)
   fileType       String    @default("png")
-  botId          Int?
-  channelId      Int?
-  chatExchangeId Int?
-  componentId    Int?
-  messageId      Int?
-  milestoneId    Int?
-  pitchId        Int?
-  postId         Int?
-  promptId       Int?
-  reactionId     Int?
-  resourceId     Int?
-  rewardId       Int?
-  tagId          Int?
+  botId          Int?      @unique
+  channelId      Int?      @unique
+  chatExchangeId Int?      @unique
+  componentId    Int?      @unique
+  messageId      Int?      @unique
+  milestoneId    Int?      @unique
+  pitchId        Int?      @unique
+  postId         Int?      @unique
+  promptId       Int?      @unique
+  reactionId     Int?      @unique
+  resourceId     Int?      @unique
+  rewardId       Int?      @unique
+  tagId          Int?      @unique
   Art            Art?      @relation(fields: [artId], references: [id])
   Gallery        Gallery?  @relation(fields: [galleryId], references: [id])
   User           User?     @relation(fields: [userId], references: [id])
+  Channel        Channel?   @relation(fields: [channelId], references: [id])
+  Bot            Bot?      @relation(fields: [botId], references: [id])      
+  ChatExchange   ChatExchange?       @relation(fields: [chatExchangeId], references: [id])   
+  Component      Component?          @relation(fields: [componentId], references: [id])
+  Message        Message?           @relation(fields: [messageId], references: [id])
+  Milestone      Milestone?           @relation(fields: [milestoneId], references: [id])
+  Pitch          Pitch?           @relation(fields: [pitchId], references: [id])
+  Post           Post?           @relation(fields: [postId], references: [id])
+  Prompt         Prompt?           @relation(fields: [promptId], references: [id])
+  Reaction       Reaction?          @relation(fields: [reactionId], references: [id])
+  Resource       Resource?           @relation(fields: [resourceId], references: [id])
+  Reward         Reward?           @relation(fields: [rewardId], references: [id])
+  Tag            Tag?          @relation(fields: [tagId], references: [id])
 
   @@index([galleryId], map: "ArtImage_galleryId_fkey")
   @@index([userId], map: "ArtImage_userId_fkey")
@@ -110,6 +123,7 @@ model Bot {
   userId            Int?           @default(1)
   designer          String         @default("silasfelinus")
   artImageId        Int?
+  ArtImage          ArtImage?
   User              User?          @relation(fields: [userId], references: [id])
   ChatExchanges     ChatExchange[]
   Messages          Message[]
@@ -129,6 +143,7 @@ model Channel {
   userId      Int?
   componentId Int?
   artImageId  Int?
+  ArtImage    ArtImage?
   Art         Art[]
   Component   Component? @relation(fields: [componentId], references: [id])
   User        User?      @relation(fields: [userId], references: [id])
@@ -158,6 +173,7 @@ model ChatExchange {
   userId          Int?
   promptId        Int?
   artImageId      Int?
+  ArtImage        ArtImage?
   Bot             Bot?       @relation(fields: [botId], references: [id])
   Prompt          Prompt?    @relation(fields: [promptId], references: [id])
   User            User?      @relation(fields: [userId], references: [id])
@@ -180,6 +196,7 @@ model Component {
   title             String?
   notes             String?
   artImageId        Int?
+  ArtImage          ArtImage?
   Channels          Channel[]
   Reactions         Reaction[]
   Tags              Tag[]      @relation("ComponentToTag")
@@ -232,6 +249,7 @@ model Message {
   botId      Int?
   userId     Int?
   artImageId Int?
+  ArtImage   ArtImage?
   Bot        Bot?      @relation(fields: [botId], references: [id])
   channel    Channel   @relation(fields: [channelId], references: [id])
   User       User?     @relation(fields: [userId], references: [id])
@@ -255,6 +273,7 @@ model Milestone {
   tooltip          String?           @db.VarChar(764)
   isActive         Boolean           @default(false)
   isRepeatable     Boolean           @default(true)
+  ArtImage         ArtImage?
   artImageId       Int?
   MilestoneRecords MilestoneRecord[]
 }
@@ -290,6 +309,7 @@ model Pitch {
   imagePrompt    String?    @db.VarChar(256)
   description    String?    @db.VarChar(256)
   artImageId     Int?
+  ArtImage       ArtImage?
   Art            Art[]
   Channel        Channel?   @relation(fields: [channelId], references: [id])
   User           User?      @relation(fields: [userId], references: [id])
@@ -315,6 +335,7 @@ model Post {
   botId      Int?
   channelId  Int?
   artImageId Int?
+  ArtImage   ArtImage?
   Bot        Bot?      @relation(fields: [botId], references: [id])
   Channel    Channel?  @relation(fields: [channelId], references: [id])
   User       User?     @relation(fields: [userId], references: [id])
@@ -336,6 +357,7 @@ model Prompt {
   channelId  Int?           @default(1)
   botId      Int?
   artImageId Int?
+  ArtImage   ArtImage?
   Art        Art[]
   Chats      ChatExchange[]
   Bot        Bot?           @relation(fields: [botId], references: [id])
@@ -376,6 +398,7 @@ model Reaction {
   reactionCategory ReactionCategory @default(CHANNEL)
   rating           Int              @default(0)
   artImageId       Int?
+  ArtImage        ArtImage?
   Art              Art?             @relation(fields: [artId], references: [id])
   Channel          Channel?         @relation(fields: [channelId], references: [id])
   ChatExchange     ChatExchange?    @relation(fields: [chatExchangeId], references: [id])
@@ -407,6 +430,7 @@ model Resource {
   resourceType ResourceType @default(EMBEDDING)
   userId       Int?         @default(1)
   artImageId   Int?
+  ArtImage     ArtImage?
   User         User?        @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Resource_userId_fkey")
@@ -424,6 +448,7 @@ model Reward {
   label      String?   @db.VarChar(764)
   userId     Int?      @default(1)
   artImageId Int?
+  ArtImage   ArtImage?
   User       User?     @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Reward_userId_fkey")
@@ -442,6 +467,7 @@ model Tag {
   userId     Int?        @default(1)
   channelId  Int?        @default(1)
   artImageId Int?
+  ArtImage   ArtImage?
   Channel    Channel?    @relation(fields: [channelId], references: [id])
   User       User?       @relation(fields: [userId], references: [id])
   Components Component[] @relation("ComponentToTag")

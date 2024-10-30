@@ -4,9 +4,7 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import type { ChatExchange } from '@prisma/client'
-import OpenAI from 'openai'
 
-const openai = new OpenAI()
 
 export const useChatStore = defineStore({
   id: 'chat',
@@ -167,28 +165,66 @@ export const useChatStore = defineStore({
       }
     },
 
-    async fetchStream(
+       async fetchStream(
       model: string,
       messages: Array<{ role: string; content: string }>,
       onData: (chunk: string) => void,
     ) {
       const errorStore = useErrorStore()
+      const apiKey = process.env.OPENAI_API_KEY
+      const url = 'https://api.openai.com/v1/chat/completions'
+
       console.log('fetchStream initiated with model:', model)
 
       try {
-        const stream = await openai.chat.completions.create({
-          model,
-          messages,
-          stream: true,
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages,
+            stream: true,
+          }),
         })
 
-        console.log('Stream opened successfully')
+        if (!response.ok) {
+          const errorDetails = await response.json().catch(() => null)
+          const errorMessage = errorDetails?.message
+            ? `HTTP error! ${response.status} - ${errorDetails.message}`
+            : `HTTP error! Status: ${response.status}`
+          console.error('Failed API Response:', errorMessage)
+          throw new Error(errorMessage)
+        }
 
-        for await (const chunk of stream) {
-          const content = chunk.choices[0]?.delta?.content
-          if (content) {
-            console.log('Received content:', content)
-            onData(content)
+        if (!response.body) {
+          console.error('Response body is null or undefined')
+          throw new Error('Failed to receive a valid response body')
+        }
+        
+        console.log('Stream opened successfully')
+        
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value, { stream: true })
+          console.log('Received chunk:', chunk)
+
+          try {
+            const parsedChunk = JSON.parse(chunk)
+            const content = parsedChunk.choices[0]?.delta?.content
+            if (content) {
+              console.log('Parsed content:', content)
+              onData(content)
+            }
+          } catch (error) {
+            console.warn('Failed to parse chunk as JSON:', chunk, error)
           }
         }
 

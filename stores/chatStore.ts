@@ -64,6 +64,53 @@ export const useChatStore = defineStore({
         throw error
       }
     },
+    async fetchStream(
+      url: string,
+      options: RequestInit = {},
+      onData: (chunk: string) => void,
+    ) {
+      const errorStore = useErrorStore()
+      try {
+        const response = await fetch(url, options)
+        if (!response.ok || !response.body) {
+          const errorDetails = await response.json().catch(() => null)
+          const errorMessage = errorDetails?.message
+            ? `HTTP error! ${response.status} - ${errorDetails.message}`
+            : `HTTP error! Status: ${response.status}`
+          throw new Error(errorMessage)
+        }
+
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value, { stream: true })
+          try {
+            // Parse JSON chunk to extract 'choices' content if available
+            const parsedChunk = JSON.parse(chunk)
+            const messageContent = parsedChunk?.choices?.[0]?.message?.content
+
+            if (messageContent) {
+              onData(messageContent) // Send the extracted content to the callback
+            }
+          } catch (error) {
+            console.warn('Failed to parse chunk as JSON:', chunk, error)
+          }
+        }
+
+        return true // Indicates successful completion
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred during fetch'
+        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+        throw error
+      }
+    },
 
     async initialize() {
       if (this.isInitialized) return
@@ -105,19 +152,13 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
-        console.log('Starting addExchange...')
-
-        // Fetch or create a promptId
         const finalPromptId =
           promptId ||
           (await promptStore.addPrompt(prompt, userId, botId ?? 1))?.id
-
         if (!finalPromptId) {
           throw new Error('Failed to obtain a prompt ID.')
         }
-        console.log('Final prompt ID:', finalPromptId)
 
-        // Define initial ChatExchange data
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
           username: userStore.username ?? 'Unknown User',
@@ -130,7 +171,6 @@ export const useChatStore = defineStore({
           promptId: finalPromptId,
         }
 
-        // Step 1: Send initial exchange to /api/chats
         const response = await this.fetch('/api/chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -146,8 +186,12 @@ export const useChatStore = defineStore({
           throw new Error('Invalid ChatExchange object returned from API')
         }
 
-        // Step 2: Retrieve botResponse from /api/botcafe/chat
-        const botResponse = await this.fetch(
+        // Initialize botResponse as an empty string and display chunks as they come in
+        newExchange.botResponse = ''
+        this.activeChats.push(newExchange)
+
+        // Stream bot response in real-time with parsed content
+        await this.fetchStream(
           'https://kind-robots.vercel.app/api/botcafe/chat',
           {
             method: 'POST',
@@ -163,20 +207,15 @@ export const useChatStore = defineStore({
               maxTokens: 300,
             }),
           },
+          (chunk) => {
+            // Update botResponse with the parsed content
+            newExchange.botResponse += chunk
+            // Trigger UI update for real-time display
+            this.chatExchanges = [...this.chatExchanges]
+          },
         )
 
-        if (!botResponse || !botResponse.choices?.[0]?.message?.content) {
-          throw new Error(
-            botResponse.message || 'Failed to retrieve bot response.',
-          )
-        }
-
-        // Update exchange with bot response
-        newExchange.botResponse = botResponse.choices[0].message.content
-
-        // Step 3: Store updated exchange and save to local storage
-        this.chatExchanges.push(newExchange)
-        this.activeChats.push(newExchange)
+        // Save final response in local storage
         this.saveToLocalStorage()
         return newExchange
       } catch (error) {

@@ -108,7 +108,6 @@ export const useChatStore = defineStore({
       finalPromptId = finalPromptId.id
     }
 
-        console.log('Using finalPromptId:', finalPromptId) // Debugging: should print an integer
 
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
@@ -147,10 +146,6 @@ export const useChatStore = defineStore({
           'https://kind-robots.vercel.app/api/botcafe/chat',
           {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${userStore.apiKey || process.env.OPENAI_API_KEY}`,
-            },
             body: JSON.stringify({
               model: 'gpt-4o-mini',
               messages: [{ role: 'user', content: prompt }],
@@ -176,62 +171,59 @@ export const useChatStore = defineStore({
         throw error
       }
     },
+async fetchStream(
+  url: string,
+  options: RequestInit = {},
+  onData: (chunk: string) => void,
+) {
+  const errorStore = useErrorStore()
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Content-Type': 'application/json',
+      },
+    })
 
-    async fetchStream(
-      url: string,
-      options: RequestInit = {},
-      onData: (chunk: string) => void,
-      apiKey: string = process.env.OPENAI_API_KEY || '',
-    ) {
-      const errorStore = useErrorStore()
+    if (!response.ok || !response.body) {
+      const errorDetails = await response.json().catch(() => null)
+      const errorMessage = errorDetails?.message
+        ? `HTTP error! ${response.status} - ${errorDetails.message}`
+        : `HTTP error! Status: ${response.status}`
+      throw new Error(errorMessage)
+    }
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      const chunk = decoder.decode(value, { stream: true })
       try {
-        const response = await fetch(url, {
-          ...options,
-          headers: {
-            ...options.headers,
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`, // Attach the API key here
-          },
-        })
+        const parsedChunk = JSON.parse(chunk)
+        const messageContent = parsedChunk?.choices?.[0]?.message?.content
 
-        if (!response.ok || !response.body) {
-          const errorDetails = await response.json().catch(() => null)
-          const errorMessage = errorDetails?.message
-            ? `HTTP error! ${response.status} - ${errorDetails.message}`
-            : `HTTP error! Status: ${response.status}`
-          throw new Error(errorMessage)
+        if (messageContent) {
+          onData(messageContent) // Send the extracted content to the callback
         }
-
-        const reader = response.body.getReader()
-        const decoder = new TextDecoder()
-
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          const chunk = decoder.decode(value, { stream: true })
-          try {
-            const parsedChunk = JSON.parse(chunk)
-            const messageContent = parsedChunk?.choices?.[0]?.message?.content
-
-            if (messageContent) {
-              onData(messageContent) // Send the extracted content to the callback
-            }
-          } catch (error) {
-            console.warn('Failed to parse chunk as JSON:', chunk, error)
-          }
-        }
-
-        return true
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'An unknown error occurred during fetch'
-        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
-        throw error
+      } catch (error) {
+        console.warn('Failed to parse chunk as JSON:', chunk, error)
       }
-    },
+    }
+
+    return true
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'An unknown error occurred during fetch'
+    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+    throw error
+  }
+},
 
     async initialize() {
       if (this.isInitialized) return

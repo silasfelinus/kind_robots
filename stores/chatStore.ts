@@ -65,7 +65,7 @@ export const useChatStore = defineStore({
       }
     },
 
- async addExchange(
+    async addExchange(
       prompt: string,
       userId: number,
       botId?: number,
@@ -123,7 +123,7 @@ export const useChatStore = defineStore({
         newExchange.botResponse = ''
         this.activeChats.push(newExchange)
 
-        // Now call fetchStream
+        // Call fetchStream to get the bot response
         await this.fetchStream([{ role: 'user', content: prompt }])
 
         this.saveToLocalStorage()
@@ -155,7 +155,7 @@ export const useChatStore = defineStore({
           maxTokens: 300,
           stream: isStreaming,
         }
-        console.log('Payload before JSON.stringify:', payload)
+        console.log('Payload:', payload)
 
         const response = await fetch(url, {
           method: 'POST',
@@ -192,7 +192,7 @@ export const useChatStore = defineStore({
             if (done) break
 
             const chunk = decoder.decode(value, { stream: true })
-            console.log('Received raw chunk:', chunk)
+            console.log('Received chunk:', chunk)
 
             responseData += chunk
           }
@@ -219,6 +219,9 @@ export const useChatStore = defineStore({
         throw error
       }
     },
+
+    
+
 
 
     async initialize() {

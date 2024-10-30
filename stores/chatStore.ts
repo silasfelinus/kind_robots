@@ -126,7 +126,7 @@ export const useChatStore = defineStore({
 
     // Now call fetchStream using cleaned data
     await this.fetchStream(
-      'gpt-4o-mini',
+      '/api/botcafe/chat',
       [{ role: 'user', content: prompt }],
       (chunk) => {
         newExchange.botResponse += chunk

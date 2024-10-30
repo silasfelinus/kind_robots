@@ -23,7 +23,6 @@ export interface GenerateArtData {
   isPublic?: boolean
   pitch?: string
   artImageId?: number
-  hasArtImage: boolean
 }
 
 export const useArtStore = defineStore({
@@ -158,7 +157,6 @@ export const useArtStore = defineStore({
             const art = this.art.find((art) => art.id === artId)
             if (art) {
               art.artImageId = artImageId
-              art.hasArtImage = true
             }
           } else {
             const errorResponse = await response.json()
@@ -207,7 +205,6 @@ export const useArtStore = defineStore({
       userId: number | null
       designer: string | null
       artImageId: number | null
-      hasArtImage: boolean | false
     }): Promise<Art> {
       const response = await fetch('/api/art/', {
         method: 'POST',
@@ -223,11 +220,6 @@ export const useArtStore = defineStore({
       }
 
       const createdArt = await response.json()
-
-      // Set hasArtImage based on artImageId
-      if (createdArt.artImageId) {
-        createdArt.hasArtImage = true
-      }
 
       this.art.push(createdArt)
 
@@ -278,7 +270,6 @@ export const useArtStore = defineStore({
               const result = await response.json()
 
               if (result.art) {
-                result.art.hasArtImage = !!result.artImage // Set hasArtImage if an artImage is returned
                 this.art.push(result.art)
                 this.generatedArt.push(result.art)
 
@@ -354,7 +345,6 @@ export const useArtStore = defineStore({
     getArtImageById(artId: number): ArtImage | undefined {
       return this.artImages.find((image: ArtImage) => image.artId === artId)
     },
-    
 
     // Get a single ArtImage for a given artId from the local state
     getArtImageByArtId(artId: number): ArtImage | undefined {
@@ -450,11 +440,10 @@ export const useArtStore = defineStore({
           })
 
           if (response.ok) {
-            // Update the art entity with the new artImageId and set hasArtImage to true
+            // Update the art entity with the new artImageId
             const art = this.art.find((art: Art) => art.id === artId)
             if (art) {
               art.artImageId = artImageId
-              art.hasArtImage = true
             }
           } else {
             const errorResponse = await response.json()

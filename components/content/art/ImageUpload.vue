@@ -75,7 +75,6 @@ async function uploadImage(event: Event) {
         pitchId: null,
         userId: userId.value ?? 10, // Default userId if undefined
         designer: username.value ?? 'Kind Guest', // Default designer if undefined
-        hasArtImage: true,
         artImageId: newArtImage.value.id,
       }
 

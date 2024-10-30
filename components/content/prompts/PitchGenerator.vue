@@ -46,7 +46,6 @@ const generateArtBasedOnPitch = async () => {
       promptString: pitch.title || '', // Correct field: promptString
       galleryName: 'cafefred',
       pitchName: pitch.title || '',
-      hasArtImage: false,
     }
     try {
       const result = await artStore.generateArt(data)

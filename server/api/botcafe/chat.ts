@@ -14,11 +14,13 @@ export default defineEventHandler(async (event) => {
   }
   const post = body.post || 'https://api.openai.com/v1/chat/completions'
 
+  console.log('Sending request to OpenAI API with data:', JSON.stringify(data))
+
   const response = await fetch(post, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`, // Confirm API Key is attached
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(data),
   })
@@ -31,33 +33,40 @@ export default defineEventHandler(async (event) => {
     )
   }
 
-  // Process streamed response chunks
   const reader = response.body?.getReader()
   const decoder = new TextDecoder("utf-8")
   let responseData = ""
 
+  console.log('Starting to read streamed response...')
+
   while (true) {
     const { done, value } = await reader.read()
-    if (done) break
+    if (done) {
+      console.log('Stream reading complete.')
+      break
+    }
     
-    // Decode and accumulate chunk
     const chunk = decoder.decode(value)
     responseData += chunk
+    console.log('Received chunk:', chunk)
 
     try {
-      // Try parsing the current accumulated data as JSON
       const json = JSON.parse(responseData)
-      return json  // Successfully parsed JSON, return it
+      console.log('Successfully parsed JSON:', json)
+      return json
     } catch (error) {
-      // Continue accumulating chunks until valid JSON
+      console.warn('JSON parse attempt failed. Accumulating more chunks...')
     }
   }
 
-  // Final parsing attempt (for non-streaming responses)
+  console.log('Final accumulated responseData:', responseData)
+
   try {
-    return JSON.parse(responseData)
+    const finalJson = JSON.parse(responseData)
+    console.log('Final parsed JSON:', finalJson)
+    return finalJson
   } catch (error) {
-    console.error('Final parse error:', error)
-    throw new Error('Failed to parse final response')
+    console.error('Final parse error after stream completion:', error)
+    throw new Error('Failed to parse final response after stream completion')
   }
 })

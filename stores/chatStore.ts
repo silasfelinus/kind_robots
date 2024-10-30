@@ -102,6 +102,12 @@ export const useChatStore = defineStore({
           }
         }
 
+
+    // Final safety check to ensure finalPromptId is an integer
+    if (typeof finalPromptId === 'object' && 'id' in finalPromptId) {
+      finalPromptId = finalPromptId.id
+    }
+
         console.log('Using finalPromptId:', finalPromptId) // Debugging: should print an integer
 
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {

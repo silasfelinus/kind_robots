@@ -99,6 +99,8 @@ export const useChatStore = defineStore({
           }
         }
 
+        console.log(finalPromptId)
+
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
           username: userStore.username ?? 'Unknown User',

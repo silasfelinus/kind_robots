@@ -152,13 +152,16 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
+        // Fetch or create the prompt and ensure finalPromptId is an integer
         const finalPromptId =
           promptId ||
           (await promptStore.addPrompt(prompt, userId, botId ?? 1))?.id
+
         if (!finalPromptId) {
           throw new Error('Failed to obtain a prompt ID.')
         }
 
+        // Define the ChatExchange data, ensuring promptId is an integer
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
           username: userStore.username ?? 'Unknown User',
@@ -168,9 +171,10 @@ export const useChatStore = defineStore({
           botResponse: '',
           isPublic: true,
           botId: botId ?? null,
-          promptId: finalPromptId,
+          promptId: finalPromptId, // Ensure this is an integer
         }
 
+        // Proceed with storing the exchange and streaming bot response
         const response = await this.fetch('/api/chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -186,11 +190,10 @@ export const useChatStore = defineStore({
           throw new Error('Invalid ChatExchange object returned from API')
         }
 
-        // Initialize botResponse as an empty string and display chunks as they come in
         newExchange.botResponse = ''
         this.activeChats.push(newExchange)
 
-        // Stream bot response in real-time with parsed content
+        // Stream bot response in real-time
         await this.fetchStream(
           'https://kind-robots.vercel.app/api/botcafe/chat',
           {
@@ -208,14 +211,11 @@ export const useChatStore = defineStore({
             }),
           },
           (chunk) => {
-            // Update botResponse with the parsed content
             newExchange.botResponse += chunk
-            // Trigger UI update for real-time display
             this.chatExchanges = [...this.chatExchanges]
           },
         )
 
-        // Save final response in local storage
         this.saveToLocalStorage()
         return newExchange
       } catch (error) {

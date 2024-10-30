@@ -6,528 +6,504 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
 model Art {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime?     @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  path              String?       @db.VarChar(764) @default("UNDEFINED")
-  checkpoint        String?       @db.VarChar(256)
-  sampler           String?       @db.VarChar(764)
-  seed              Int?          @default(-1)
-  cfg               Int?          @default(3)
-  cfgHalf           Boolean?      @default(false)
-  steps             Int?
-  designer          String?       @db.VarChar(764)
-  promptString      String        @default(" ")
-  isPublic          Boolean?      @default(false)
-  isMature          Boolean?      @default(false)
-  promptId          Int?
-  Prompt            Prompt?       @relation(fields: [promptId], references: [id])
-  userId            Int?          @default(10)
-  User              User?         @relation(fields: [userId], references: [id])
-  pitchId           Int?
-  Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
-  galleryId         Int?          @default(21)
-  Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
-  channelId         Int?          @default(1)
-  Channel           Channel?      @relation(fields: [channelId], references: [id]) 
-  Reaction          Reaction[]
-  artImageId        Int?
-  ArtImage          ArtImage?
-  ArtCollection     ArtCollection[]
+  id            Int             @id @default(autoincrement())
+  createdAt     DateTime?       @default(now())
+  updatedAt     DateTime?       @default(now()) @updatedAt
+  path          String?         @default("UNDEFINED") @db.VarChar(764)
+  checkpoint    String?         @db.VarChar(256)
+  sampler       String?         @db.VarChar(764)
+  seed          Int?            @default(-1)
+  steps         Int?
+  designer      String?         @db.VarChar(764)
+  isPublic      Boolean?        @default(false)
+  isMature      Boolean?        @default(false)
+  promptId      Int?
+  userId        Int?            @default(10)
+  pitchId       Int?
+  galleryId     Int?            @default(21)
+  promptString  String          @default(" ")
+  cfg           Int?            @default(3)
+  cfgHalf       Boolean?        @default(false)
+  channelId     Int?            @default(1)
+  artImageId    Int?
+  Channel       Channel?        @relation(fields: [channelId], references: [id])
+  Gallery       Gallery?        @relation(fields: [galleryId], references: [id])
+  Pitch         Pitch?          @relation(fields: [pitchId], references: [id])
+  Prompt        Prompt?         @relation(fields: [promptId], references: [id])
+  User          User?           @relation(fields: [userId], references: [id])
+  ArtImage      ArtImage?
+  Reaction      Reaction[]
+  ArtCollection ArtCollection[] @relation("ArtToArtCollection")
+
+  @@index([channelId], map: "Art_channelId_fkey")
+  @@index([galleryId], map: "Art_galleryId_fkey")
+  @@index([pitchId], map: "Art_pitchId_fkey")
+  @@index([promptId], map: "Art_promptId_fkey")
+  @@index([userId], map: "Art_userId_fkey")
 }
 
 model ArtImage {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  imageData         String        @db.LongText 
-  fileName          String?       @db.VarChar(764)
-  fileType          String        @default("png")
+  id             Int       @id @default(autoincrement())
+  galleryId      Int?      @default(21)
+  imageData      String    @db.LongText
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @default(now()) @updatedAt
+  userId         Int?      @default(1)
+  artId          Int?      @unique
+  fileName       String?   @db.VarChar(764)
+  fileType       String    @default("png")
+  botId          Int?
+  channelId      Int?
+  chatExchangeId Int?
+  componentId    Int?
+  messageId      Int?
+  milestoneId    Int?
+  pitchId        Int?
+  postId         Int?
+  promptId       Int?
+  reactionId     Int?
+  resourceId     Int?
+  rewardId       Int?
+  tagId          Int?
+  Art            Art?      @relation(fields: [artId], references: [id])
+  Gallery        Gallery?  @relation(fields: [galleryId], references: [id])
+  User           User?     @relation(fields: [userId], references: [id])
 
-  // Optional relations to other models
-  artId             Int?          @unique
-  Art               Art?          @relation(fields: [artId], references: [id])
-  galleryId         Int?          @default(21)          
-  Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
-  userId            Int?          @default(1)     @unique
-  User              User?         @relation(fields: [userId], references: [id])
-  botId             Int?          @unique
-  Bot               Bot?          @relation(fields: [botId], references: [id])
-  channelId         Int?          @unique
-  Channel           Channel?      @relation(fields: [channelId], references: [id])
-  chatExchangeId    Int?          @unique
-  ChatExchange      ChatExchange? @relation(fields: [chatExchangeId], references: [id])
-  componentId       Int?          @unique
-  Component         Component?    @relation(fields: [componentId], references: [id])
-  messageId         Int?          @unique
-  Message           Message?      @relation(fields: [messageId], references: [id])
-  milestoneId       Int?          @unique
-  Milestone         Milestone?    @relation(fields: [milestoneId], references: [id])
-  pitchId           Int?          @unique
-  Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
-  postId            Int?          @unique
-  Post              Post?         @relation(fields: [postId], references: [id])
-  promptId          Int?          @unique
-  Prompt            Prompt?       @relation(fields: [promptId], references: [id])
-  reactionId        Int?          @unique
-  Reaction          Reaction?     @relation(fields: [reactionId], references: [id])
-  resourceId        Int?          @unique
-  Resource          Resource?     @relation(fields: [resourceId], references: [id])
-  rewardId          Int?          @unique
-  Reward            Reward?       @relation(fields: [rewardId], references: [id])
-  tagId             Int?          @unique
-  Tag               Tag?          @relation(fields: [tagId], references: [id])
-
+  @@index([galleryId], map: "ArtImage_galleryId_fkey")
+  @@index([userId], map: "ArtImage_userId_fkey")
 }
-
-
 
 model ArtCollection {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  userId            Int          @default(10)
-  User              User         @relation(fields: [userId], references: [id])
-  art               Art[]
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+  userId    Int       @default(10)
+  User      User      @relation(fields: [userId], references: [id])
+  art       Art[]     @relation("ArtToArtCollection")
+
+  @@index([userId], map: "ArtCollection_userId_fkey")
 }
 
-
 model Bot {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  BotType           String        @db.VarChar(764)
-  name              String        @unique(map: "Bot_id_key", length: 200) @db.VarChar(256)
-  subtitle          String?       @db.VarChar(764)
-  description       String?       @db.VarChar(764)
-  avatarImage       String?       @db.VarChar(764)
-  botIntro          String        @db.VarChar(764)
-  userIntro         String        @db.VarChar(764)
-  prompt            String        @db.VarChar(764)
-  trainingPath      String?       @db.VarChar(764)
-  theme             String?       @db.VarChar(764)
-  personality       String?       @db.VarChar(764)
-  modules           String?       @db.VarChar(764)
-  sampleResponse    String?       @db.VarChar(764)
-  tagline           String?       @db.VarChar(764)
-  isPublic          Boolean       @default(false)
-  underConstruction Boolean       @default(false)
-  canDelete         Boolean       @default(false)
-  userId            Int?          @default(1)
-  User              User?         @relation(fields: [userId], references: [id])
-  designer          String        @default("silasfelinus")
+  id                Int            @id @default(autoincrement())
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime?      @default(now()) @updatedAt
+  BotType           String         @db.VarChar(764)
+  name              String         @unique(map: "Bot_id_key", length: 200) @db.VarChar(256)
+  subtitle          String?        @db.VarChar(764)
+  description       String?        @db.VarChar(764)
+  avatarImage       String?        @db.VarChar(764)
+  botIntro          String         @db.VarChar(764)
+  userIntro         String         @db.VarChar(764)
+  prompt            String         @db.VarChar(764)
+  trainingPath      String?        @db.VarChar(764)
+  theme             String?        @db.VarChar(764)
+  personality       String?        @db.VarChar(764)
+  modules           String?        @db.VarChar(764)
+  sampleResponse    String?        @db.VarChar(764)
+  tagline           String?        @db.VarChar(764)
+  isPublic          Boolean        @default(false)
+  underConstruction Boolean        @default(false)
+  canDelete         Boolean        @default(false)
+  userId            Int?           @default(1)
+  designer          String         @default("silasfelinus")
+  artImageId        Int?
+  User              User?          @relation(fields: [userId], references: [id])
   ChatExchanges     ChatExchange[]
   Messages          Message[]
   Posts             Post[]
   Prompts           Prompt[]
-  artImageId        Int?
-  ArtImage          ArtImage?
+
+  @@index([userId], map: "Bot_userId_fkey")
 }
 
-
-
 model Channel {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  label             String        @unique(map: "Channel_id_key", length: 200) @db.VarChar(764)
-  description       String?       @db.VarChar(2000)
-  title             String?       @db.VarChar(256)
-  userId            Int?
-  User              User?         @relation(fields: [userId], references: [id])
-  componentId       Int?
-  Component         Component?    @relation(fields: [componentId], references: [id])
-  Messages          Message[]
-  Pitches           Pitch[]
-  Prompts           Prompt[]
-  Posts             Post[]
-  Tags              Tag[]
-  Art               Art[]
-  Reactions         Reaction[]
-  Galleries         Gallery[]
-  artImageId        Int?
-  ArtImage          ArtImage?
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
+  label       String     @unique(map: "Channel_id_key", length: 200) @db.VarChar(764)
+  description String?    @db.VarChar(2000)
+  title       String?    @db.VarChar(256)
+  userId      Int?
+  componentId Int?
+  artImageId  Int?
+  Art         Art[]
+  Component   Component? @relation(fields: [componentId], references: [id])
+  User        User?      @relation(fields: [userId], references: [id])
+  Galleries   Gallery[]
+  Messages    Message[]
+  Pitches     Pitch[]
+  Posts       Post[]
+  Prompts     Prompt[]
+  Reactions   Reaction[]
+  Tags        Tag[]
+
+  @@index([componentId], map: "Channel_componentId_fkey")
+  @@index([userId], map: "Channel_userId_fkey")
 }
 
 model ChatExchange {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt @default(now())
-  username          String        @db.VarChar(255)
-  previousEntryId   Int?          @default(0)
-  botName           String        @db.VarChar(255)
-  userPrompt        String        @db.Text
-  botResponse       String        @db.Text
-  isPublic          Boolean       @default(false)
-  botId             Int?
-  Bot               Bot?          @relation(fields: [botId], references: [id])
-  userId            Int?
-  User              User?         @relation(fields: [userId], references: [id])
-  promptId          Int?         
-  Prompt            Prompt?        @relation(fields: [promptId], references: [id])
-  Reactions         Reaction[]
-  artImageId        Int?
-  ArtImage          ArtImage?
+  id              Int        @id @default(autoincrement())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @default(now()) @updatedAt
+  username        String     @db.VarChar(255)
+  isPublic        Boolean    @default(false)
+  previousEntryId Int?       @default(0)
+  botName         String     @db.VarChar(255)
+  userPrompt      String     @db.Text
+  botResponse     String     @db.Text
+  botId           Int?
+  userId          Int?
+  promptId        Int?
+  artImageId      Int?
+  Bot             Bot?       @relation(fields: [botId], references: [id])
+  Prompt          Prompt?    @relation(fields: [promptId], references: [id])
+  User            User?      @relation(fields: [userId], references: [id])
+  Reactions       Reaction[]
+
+  @@index([botId], map: "ChatExchange_botId_fkey")
+  @@index([promptId], map: "ChatExchange_promptId_fkey")
+  @@index([userId], map: "ChatExchange_userId_fkey")
 }
 
 model Component {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
+  id                Int        @id @default(autoincrement())
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime?  @default(now()) @updatedAt
   folderName        String
-  componentName     String        @unique// Individual component name
-  isWorking         Boolean       @default(true)
-  underConstruction Boolean       @default(false)
-  isBroken          Boolean       @default(false)
-  title             String?       // Optional title derived from componentName if not provided
-  notes             String?       //optional notes for development wonderlab
-  Channels          Channel[]
-  Tags              Tag[]
-  Reactions         Reaction[]
+  componentName     String     @unique
+  isWorking         Boolean    @default(true)
+  underConstruction Boolean    @default(false)
+  isBroken          Boolean    @default(false)
+  title             String?
+  notes             String?
   artImageId        Int?
-  ArtImage          ArtImage?
+  Channels          Channel[]
+  Reactions         Reaction[]
+  Tags              Tag[]      @relation("ComponentToTag")
 }
-
 
 model Gallery {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  name              String        @unique(map: "Gallery_id_key", length: 200) @db.VarChar(764)
-  description       String?       @db.Text
-  url               String?       @db.VarChar(764)
-  custodian         String?       @db.VarChar(764)
-  content           String        @db.VarChar(764)
-  highlightImage    String?       @db.VarChar(764)
-  imagePaths        String?       @db.Text
-  isMature          Boolean       @default(false)
-  isPublic          Boolean       @default(true)
-  userId            Int?          @default(1)
-  User              User?         @relation(fields: [userId], references: [id])
-  channelId         Int?          @default(1)
-  Channel           Channel?      @relation(fields: [channelId], references: [id])
-  Art               Art[]
-  Prompts           Prompt[]
-  ArtImage          ArtImage[]
+  id             Int        @id @default(autoincrement())
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime?  @default(now()) @updatedAt
+  name           String     @unique(map: "Gallery_id_key", length: 200) @db.VarChar(764)
+  description    String?    @db.Text
+  url            String?    @db.VarChar(764)
+  custodian      String?    @db.VarChar(764)
+  content        String     @db.VarChar(764)
+  highlightImage String?    @db.VarChar(764)
+  imagePaths     String?    @db.Text
+  isMature       Boolean    @default(false)
+  userId         Int?       @default(1)
+  isPublic       Boolean    @default(true)
+  channelId      Int?       @default(1)
+  Art            Art[]
+  ArtImage       ArtImage[]
+  Channel        Channel?   @relation(fields: [channelId], references: [id])
+  User           User?      @relation(fields: [userId], references: [id])
+  Prompts        Prompt[]
+
+  @@index([channelId], map: "Gallery_channelId_fkey")
+  @@index([userId], map: "Gallery_userId_fkey")
 }
 
-
 model Log {
-  id                Int           @id @default(autoincrement())
-  message           String        @db.Text
-  timestamp         DateTime      @db.DateTime(0)
-  username          String?       @db.VarChar(764)
-  userId            Int?
-  User              User?   @relation(fields: [userId], references: [id])
+  id        Int      @id @default(autoincrement())
+  message   String   @db.Text
+  timestamp DateTime @db.DateTime(0)
+  username  String?  @db.VarChar(764)
+  userId    Int?
+  User      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Log_userId_fkey")
 }
 
 model Message {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  sender            String        @db.VarChar(764)
-  recipient         String        @db.VarChar(764)
-  content           String        @db.Text
-  channelId         Int
-  channel           Channel       @relation(fields: [channelId], references: [id])
-  botId             Int?
-  Bot               Bot?          @relation(fields: [botId], references: [id])
-  userId            Int?
-  User              User?         @relation(fields: [userId], references: [id])
-  artImageId        Int?
-  ArtImage          ArtImage?
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @default(now()) @updatedAt
+  sender     String    @db.VarChar(764)
+  recipient  String    @db.VarChar(764)
+  content    String    @db.Text
+  channelId  Int
+  botId      Int?
+  userId     Int?
+  artImageId Int?
+  Bot        Bot?      @relation(fields: [botId], references: [id])
+  channel    Channel   @relation(fields: [channelId], references: [id])
+  User       User?     @relation(fields: [userId], references: [id])
+
+  @@index([botId], map: "Message_botId_fkey")
+  @@index([channelId], map: "Message_channelId_fkey")
+  @@index([userId], map: "Message_userId_fkey")
 }
 
 model Milestone {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  label             String        @db.VarChar(764)
-  message           String        @db.VarChar(764)
-  icon              String?       @db.VarChar(764)
-  karma             Int           @default(0)
-  pageHint          String?       @db.VarChar(764)
-  subtleHint        String?       @db.VarChar(764)
-  triggerCode       String?       @db.VarChar(764)
-  tooltip           String?       @db.VarChar(764)
-  isActive          Boolean       @default(false)
-  isRepeatable      Boolean       @default(true)
-  artImageId        Int?
-  ArtImage          ArtImage?
-  MilestoneRecords  MilestoneRecord[]
-
+  id               Int               @id @default(autoincrement())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime?         @default(now()) @updatedAt
+  label            String            @db.VarChar(764)
+  message          String            @db.VarChar(764)
+  icon             String?           @db.VarChar(764)
+  karma            Int               @default(0)
+  pageHint         String?           @db.VarChar(764)
+  subtleHint       String?           @db.VarChar(764)
+  triggerCode      String?           @db.VarChar(764)
+  tooltip          String?           @db.VarChar(764)
+  isActive         Boolean           @default(false)
+  isRepeatable     Boolean           @default(true)
+  artImageId       Int?
+  MilestoneRecords MilestoneRecord[]
 }
 
 model MilestoneRecord {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  username          String?       @db.VarChar(764)
-  milestoneId       Int
-  Milestones        Milestone     @relation(fields: [milestoneId], references: [id])
-  userId            Int
-  User              User          @relation(fields: [userId], references: [id])
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @default(now()) @updatedAt
+  username    String?   @db.VarChar(764)
+  milestoneId Int
+  userId      Int
+  Milestones  Milestone @relation(fields: [milestoneId], references: [id])
+  User        User      @relation(fields: [userId], references: [id])
+
+  @@index([milestoneId], map: "MilestoneRecord_milestoneId_fkey")
+  @@index([userId], map: "MilestoneRecord_userId_fkey")
 }
 
 model Pitch {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  title             String?       @db.VarChar(256)
-  pitch             String        @unique @db.VarChar(764)
-  designer          String?       @db.VarChar(256)
-  flavorText        String?       @db.VarChar(512)
-  description       String?       @db.VarChar(256)
-  highlightImage    String?       @db.VarChar(256)
-  imagePrompt       String?       @db.VarChar(256)
-  PitchType         PitchType     @default(ARTPITCH)
-  isMature          Boolean       @default(false)
-  isPublic          Boolean       @default(true)
-  userId            Int?          @default(1)
-  User              User?         @relation(fields: [userId], references: [id])
-  channelId         Int?
-  Channel           Channel?      @relation(fields: [channelId], references: [id])
-  Reactions         Reaction[]
-  Tags              Tag[]
-  Art               Art[]
-  Prompts           Prompt[]
-  artImageId        Int?
-  ArtImage          ArtImage?
-}
+  id             Int        @id @default(autoincrement())
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime?  @default(now()) @updatedAt
+  title          String?    @db.VarChar(256)
+  pitch          String     @unique @db.VarChar(764)
+  designer       String?    @db.VarChar(256)
+  flavorText     String?    @db.VarChar(512)
+  highlightImage String?    @db.VarChar(256)
+  PitchType      PitchType  @default(ARTPITCH)
+  isMature       Boolean    @default(false)
+  isPublic       Boolean    @default(true)
+  userId         Int?       @default(1)
+  channelId      Int?
+  imagePrompt    String?    @db.VarChar(256)
+  description    String?    @db.VarChar(256)
+  artImageId     Int?
+  Art            Art[]
+  Channel        Channel?   @relation(fields: [channelId], references: [id])
+  User           User?      @relation(fields: [userId], references: [id])
+  Prompts        Prompt[]
+  Reactions      Reaction[]
+  Tags           Tag[]      @relation("PitchToTag")
 
-enum PitchType {
-  ARTPITCH
-  BRAINSTORM
-  BOT
-  ARTGALLERY
-  INSPIRATION
+  @@index([channelId], map: "Pitch_channelId_fkey")
+  @@index([userId], map: "Pitch_userId_fkey")
 }
 
 model Post {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  username          String        @db.VarChar(764)
-  content           String        @db.VarChar(764)
-  title             String?       @db.VarChar(764)
-  label             String        @db.VarChar(764)
-  imagePath         String?       @db.VarChar(764)
-  isFavorite        Boolean       @default(false)
-  userId            Int?
-  User              User?         @relation(fields: [userId], references: [id])
-  botId             Int?
-  Bot               Bot?          @relation(fields: [botId], references: [id])
-  channelId         Int?
-  Channel           Channel?      @relation(fields: [channelId], references: [id])
-  Tags              Tag[]
-  artImageId        Int?
-  ArtImage          ArtImage?
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @default(now()) @updatedAt
+  username   String    @db.VarChar(764)
+  content    String    @db.VarChar(764)
+  title      String?   @db.VarChar(764)
+  label      String    @db.VarChar(764)
+  imagePath  String?   @db.VarChar(764)
+  isFavorite Boolean   @default(false)
+  userId     Int?
+  botId      Int?
+  channelId  Int?
+  artImageId Int?
+  Bot        Bot?      @relation(fields: [botId], references: [id])
+  Channel    Channel?  @relation(fields: [channelId], references: [id])
+  User       User?     @relation(fields: [userId], references: [id])
+  Tags       Tag[]     @relation("PostToTag")
+
+  @@index([botId], map: "Post_botId_fkey")
+  @@index([channelId], map: "Post_channelId_fkey")
+  @@index([userId], map: "Post_userId_fkey")
 }
 
-
 model Prompt {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  prompt            String        @db.VarChar(764)
-  userId            Int?          @default(1)
-  User              User?         @relation(fields: [userId], references: [id])
-  channelId         Int?          @default(1)
-  Channel           Channel?      @relation(fields: [channelId], references: [id])
-  galleryId         Int?          @default(21)
-  Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
-  pitchId           Int?
-  Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
-  Art               Art[]
-  Chats             ChatExchange[]
-  botId             Int?   
-  Bot               Bot?          @relation(fields: [botId], references: [id])
-  artImageId        Int?
-  ArtImage          ArtImage?
+  id         Int            @id @default(autoincrement())
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime?      @default(now()) @updatedAt
+  prompt     String         @db.VarChar(764)
+  userId     Int?           @default(1)
+  galleryId  Int?           @default(21)
+  pitchId    Int?
+  channelId  Int?           @default(1)
+  botId      Int?
+  artImageId Int?
+  Art        Art[]
+  Chats      ChatExchange[]
+  Bot        Bot?           @relation(fields: [botId], references: [id])
+  Channel    Channel?       @relation(fields: [channelId], references: [id])
+  Gallery    Gallery?       @relation(fields: [galleryId], references: [id])
+  Pitch      Pitch?         @relation(fields: [pitchId], references: [id])
+  User       User?          @relation(fields: [userId], references: [id])
+
+  @@index([botId], map: "Prompt_botId_fkey")
+  @@index([channelId], map: "Prompt_channelId_fkey")
+  @@index([galleryId], map: "Prompt_galleryId_fkey")
+  @@index([pitchId], map: "Prompt_pitchId_fkey")
+  @@index([userId], map: "Prompt_userId_fkey")
 }
 
 model RandomList {
-  id                Int           @id @default(autoincrement())
-  title             String        @db.VarChar(764) @unique
-  items             String        @db.LongText
-  userId            Int?          @default(1)
-  User              User?         @relation(fields: [userId], references: [id])
+  id     Int    @id @default(autoincrement())
+  title  String @unique @db.VarChar(764)
+  items  String @db.LongText
+  userId Int?   @default(1)
+  User   User?  @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "RandomList_userId_fkey")
 }
 
 model Reaction {
-  id                Int               @id @unique @default(autoincrement())
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime?         @updatedAt @default(now())
-  reactionType      ReactionType      
-  rating            Int               @default(0)         
-  comment           String?           @db.Text
-  userId            Int               @default(10)
-  User              User              @relation(fields: [userId], references: [id])
-  artId             Int?
-  Art               Art?              @relation(fields: [artId], references: [id])
-  pitchId           Int?
-  Pitch             Pitch?            @relation(fields: [pitchId], references: [id])
-  componentId       Int?
-  Component         Component?        @relation(fields: [componentId], references: [id])
-  channelId         Int?              @default(1)
-  Channel           Channel?          @relation(fields: [channelId], references: [id])
-  chatExchangeId    Int?              @default(1)
-  ChatExchange      ChatExchange?     @relation(fields: [chatExchangeId], references: [id])
-  reactionCategory  ReactionCategory  @default(CHANNEL)
-  artImageId        Int?
-  ArtImage          ArtImage?
+  id               Int              @id @unique @default(autoincrement())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime?        @default(now()) @updatedAt
+  comment          String?          @db.Text
+  userId           Int              @default(10)
+  artId            Int?
+  pitchId          Int?
+  componentId      Int?
+  channelId        Int?             @default(1)
+  chatExchangeId   Int?             @default(1)
+  reactionType     ReactionType
+  reactionCategory ReactionCategory @default(CHANNEL)
+  rating           Int              @default(0)
+  artImageId       Int?
+  Art              Art?             @relation(fields: [artId], references: [id])
+  Channel          Channel?         @relation(fields: [channelId], references: [id])
+  ChatExchange     ChatExchange?    @relation(fields: [chatExchangeId], references: [id])
+  Component        Component?       @relation(fields: [componentId], references: [id])
+  Pitch            Pitch?           @relation(fields: [pitchId], references: [id])
+  User             User             @relation(fields: [userId], references: [id])
 
   @@index([artId], map: "Reaction_artId_fkey")
   @@index([pitchId], map: "Reaction_pitchId_fkey")
   @@index([userId], map: "Reaction_userId_fkey")
   @@index([channelId], map: "Reaction_channelId_fkey")
   @@index([componentId], map: "Reaction_componentId_fkey")
+  @@index([chatExchangeId], map: "Reaction_chatExchangeId_fkey")
 }
-
-
-enum ReactionType {
-  LOVED
-  CLAPPED
-  BOOED
-  HATED
-  NEUTRAL
-  FLAGGED
-}
-
-enum ReactionCategory {
-  ART
-  PITCH
-  COMPONENT
-  CHANNEL
-  TITLE
-}
-
 
 model Resource {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  name              String        @unique(map: "Resource_id_key", length: 200) @db.VarChar(764)
-  customLabel       String?       @db.VarChar(764)
-  MediaPath         String?       @db.VarChar(764)
-  customUrl         String?       @db.VarChar(764)
-  civitaiUrl        String?       @db.VarChar(764)
-  huggingUrl        String?       @db.VarChar(764)
-  localPath         String?       @db.VarChar(764)
-  description       String?       @db.Text
-  isMature          Boolean       @default(false)
-  resourceType      ResourceType @default(EMBEDDING)
-  userId            Int?          @default(1)
-  User              User?         @relation(fields: [userId], references: [id])
-  artImageId        Int?
-  ArtImage          ArtImage?
-}
+  id           Int          @id @default(autoincrement())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime?    @default(now()) @updatedAt
+  name         String       @unique(map: "Resource_id_key", length: 200) @db.VarChar(764)
+  customLabel  String?      @db.VarChar(764)
+  MediaPath    String?      @db.VarChar(764)
+  customUrl    String?      @db.VarChar(764)
+  civitaiUrl   String?      @db.VarChar(764)
+  huggingUrl   String?      @db.VarChar(764)
+  localPath    String?      @db.VarChar(764)
+  description  String?      @db.Text
+  isMature     Boolean      @default(false)
+  resourceType ResourceType @default(EMBEDDING)
+  userId       Int?         @default(1)
+  artImageId   Int?
+  User         User?        @relation(fields: [userId], references: [id])
 
-enum ResourceType {
-  CHECKPOINT
-  EMBEDDING
-  LORA
-  LYCORIS
-  HYPERNETWORK
-  CONTROLNET
-  URL
-  API
+  @@index([userId], map: "Resource_userId_fkey")
 }
 
 model Reward {
-  id                Int            @id @default(autoincrement())
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime?      @updatedAt @default(now())
-  icon              String         @db.VarChar(256)
-  text              String         @db.VarChar(764)
-  power             String         @db.VarChar(764)
-  collection        String         @db.VarChar(764)
-  rarity            Int            @default(0)
-  label             String?        @db.VarChar(764)
-  userId            Int?           @default(1)
-  User              User?          @relation(fields: [userId], references: [id])
-  artImageId        Int?
-  ArtImage          ArtImage?
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @default(now()) @updatedAt
+  icon       String    @db.VarChar(256)
+  text       String    @db.VarChar(764)
+  power      String    @db.VarChar(764)
+  collection String    @db.VarChar(764)
+  rarity     Int       @default(0)
+  label      String?   @db.VarChar(764)
+  userId     Int?      @default(1)
+  artImageId Int?
+  User       User?     @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Reward_userId_fkey")
 }
-
-
 
 model Tag {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now()) 
-  updatedAt         DateTime?     @updatedAt @default(now())
-  label             String        @db.VarChar(256)
-  title             String        @db.VarChar(256)
-  flavorText        String?       @db.VarChar(764)
-  pitch             String?       @db.VarChar(764)
-  isPublic          Boolean?      @default(false)
-  isMature          Boolean       @default(false)
-  userId            Int?          @default(1)
-  User              User?         @relation(fields: [userId], references: [id])
-  channelId         Int?          @default(1)
-  Channel           Channel?      @relation(fields: [channelId], references: [id])
-  Posts             Post[]
-  Pitches           Pitch[]
-  Components        Component[]
-  artImageId        Int?
-  ArtImage          ArtImage?
+  id         Int         @id @default(autoincrement())
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime?   @default(now()) @updatedAt
+  label      String      @db.VarChar(256)
+  title      String      @db.VarChar(256)
+  flavorText String?     @db.VarChar(764)
+  pitch      String?     @db.VarChar(764)
+  isPublic   Boolean?    @default(false)
+  isMature   Boolean     @default(false)
+  userId     Int?        @default(1)
+  channelId  Int?        @default(1)
+  artImageId Int?
+  Channel    Channel?    @relation(fields: [channelId], references: [id])
+  User       User?       @relation(fields: [userId], references: [id])
+  Components Component[] @relation("ComponentToTag")
+  Pitches    Pitch[]     @relation("PitchToTag")
+  Posts      Post[]      @relation("PostToTag")
+
+  @@index([channelId], map: "Tag_channelId_fkey")
+  @@index([userId], map: "Tag_userId_fkey")
 }
 
-
-
 model User {
-  id                Int           @id @default(autoincrement())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime?     @updatedAt @default(now())
-  username          String        @unique @db.VarChar(255)
-  email             String?       @db.VarChar(255) @unique
-  questPoints       Int           @default(0)
-  emailVerified     DateTime?     @db.DateTime(0)
-  name              String?       @db.VarChar(255)
-  address1          String?       @db.Text
-  address2          String?       @db.Text
-  avatarImage       String?       @db.Text
-  bio               String?       @db.Text
-  birthday          DateTime?     @db.DateTime(0)
-  city              String?       @db.Text
-  country           String?       @db.Text
-  discordUrl        String?       @db.Text
-  facebookUrl       String?       @db.Text
-  instagramUrl      String?       @db.Text
-  kindrobotsUrl     String?       @db.Text
-  languages         String?       @db.Text
-  phone             String?       @db.VarChar(255)
-  state             String?       @db.VarChar(255)
-  timezone          String?       @db.VarChar(255)
-  twitterUrl        String?       @db.Text
-  apiKey            String?       @db.Text
-  password          String?       @db.Text
-  karma             Int           @default(0)
-  mana              Int           @default(0)
-  clickRecord       Int?          @default(0)
-  matchRecord       Int?          @default(0)
-  showMature        Boolean       @default(false)
-  Channels          Channel[]
-  Role              Role @default(USER)
-  Art               Art[]
-  Reactions         Reaction[]
-  Milestones        MilestoneRecord[]
-  Pitches           Pitch[]
-  Galleries         Gallery[]
-  Prompts           Prompt[]
-  Bots              Bot[]
-  ChatExchanges     ChatExchange[]
-  Messages          Message[]
-  Posts             Post[]
-  RandomLists       RandomList[]
-  Resources         Resource[]
-  Rewards           Reward[]
-  Tags              Tag[]
-  Logs              Log[]
-  artImageId        Int?
-  ArtImage          ArtImage?
-  ArtCollections    ArtCollection[]
+  id             Int               @id @default(autoincrement())
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime?         @default(now()) @updatedAt
+  username       String            @unique @db.VarChar(255)
+  email          String?           @unique @db.VarChar(255)
+  questPoints    Int               @default(0)
+  emailVerified  DateTime?         @db.DateTime(0)
+  name           String?           @db.VarChar(255)
+  address1       String?           @db.Text
+  address2       String?           @db.Text
+  avatarImage    String?           @db.Text
+  bio            String?           @db.Text
+  birthday       DateTime?         @db.DateTime(0)
+  city           String?           @db.Text
+  country        String?           @db.Text
+  discordUrl     String?           @db.Text
+  facebookUrl    String?           @db.Text
+  instagramUrl   String?           @db.Text
+  kindrobotsUrl  String?           @db.Text
+  languages      String?           @db.Text
+  phone          String?           @db.VarChar(255)
+  state          String?           @db.VarChar(255)
+  timezone       String?           @db.VarChar(255)
+  twitterUrl     String?           @db.Text
+  apiKey         String?           @db.Text
+  password       String?           @db.Text
+  karma          Int               @default(0)
+  mana           Int               @default(0)
+  clickRecord    Int?              @default(0)
+  matchRecord    Int?              @default(0)
+  showMature     Boolean           @default(false)
+  Role           Role              @default(USER)
+  artImageId     Int?
+  Art            Art[]
+  ArtCollections ArtCollection[]
+  ArtImages      ArtImage[]
+  Bots           Bot[]
+  Channels       Channel[]
+  ChatExchanges  ChatExchange[]
+  Galleries      Gallery[]
+  Logs           Log[]
+  Messages       Message[]
+  Milestones     MilestoneRecord[]
+  Pitches        Pitch[]
+  Posts          Post[]
+  Prompts        Prompt[]
+  RandomLists    RandomList[]
+  Reactions      Reaction[]
+  Resources      Resource[]
+  Rewards        Reward[]
+  Tags           Tag[]
 }
 
 model ReactionToTag {
@@ -575,6 +551,42 @@ model RewardToUser {
   @@map("_RewardToUser")
 }
 
+enum PitchType {
+  ARTPITCH
+  BRAINSTORM
+  BOT
+  ARTGALLERY
+  INSPIRATION
+}
+
+enum ReactionType {
+  LOVED
+  CLAPPED
+  BOOED
+  HATED
+  NEUTRAL
+  FLAGGED
+}
+
+enum ReactionCategory {
+  ART
+  PITCH
+  COMPONENT
+  CHANNEL
+  TITLE
+}
+
+enum ResourceType {
+  CHECKPOINT
+  EMBEDDING
+  LORA
+  LYCORIS
+  HYPERNETWORK
+  CONTROLNET
+  URL
+  API
+}
+
 enum Role {
   SYSTEM
   USER
@@ -585,5 +597,3 @@ enum Role {
   DESIGNER
   CHILD
 }
-
-

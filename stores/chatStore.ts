@@ -174,7 +174,9 @@ export const useChatStore = defineStore({
       const apiKey = process.env.OPENAI_API_KEY
       const url = 'https://api.openai.com/v1/chat/completions'
 
-      console.log('fetchStream initiated with model:', model)
+      console.log('--- FetchStream Initiated ---')
+      console.log('Model:', model)
+      console.log('Messages:', JSON.stringify(messages, null, 2))
 
       try {
         const response = await fetch(url, {
@@ -190,6 +192,7 @@ export const useChatStore = defineStore({
           }),
         })
 
+        // Check if response is OK and log status
         if (!response.ok) {
           const errorDetails = await response.json().catch(() => null)
           const errorMessage = errorDetails?.message
@@ -199,43 +202,55 @@ export const useChatStore = defineStore({
           throw new Error(errorMessage)
         }
 
+        console.log('Response status:', response.status)
+
         if (!response.body) {
           console.error('Response body is null or undefined')
           throw new Error('Failed to receive a valid response body')
         }
         
-        console.log('Stream opened successfully')
-        
+        console.log('--- Stream Opened Successfully ---')
+
         const reader = response.body.getReader()
         const decoder = new TextDecoder()
 
         while (true) {
+          // Attempt to read next chunk
           const { done, value } = await reader.read()
-          if (done) break
+          if (done) {
+            console.log('--- Stream Ended ---')
+            break
+          }
 
           const chunk = decoder.decode(value, { stream: true })
-          console.log('Received chunk:', chunk)
+          console.log('Received raw chunk:', chunk)
 
           try {
+            // Attempt to parse the chunk
             const parsedChunk = JSON.parse(chunk)
             const content = parsedChunk.choices[0]?.delta?.content
             if (content) {
               console.log('Parsed content:', content)
               onData(content)
+            } else {
+              console.warn('Chunk received with no content:', parsedChunk)
             }
-          } catch (error) {
-            console.warn('Failed to parse chunk as JSON:', chunk, error)
+          } catch (parseError) {
+            console.warn('JSON parsing failed for chunk:', chunk)
+            console.error('Parsing error details:', parseError)
           }
         }
 
-        console.log('Stream ended successfully')
         return true
       } catch (error: unknown) {
+        // Detailed error logging
         const errorMessage =
           error instanceof Error
             ? error.message
             : 'An unknown error occurred during fetchStream'
-        console.error('fetchStream Error:', errorMessage)
+        console.error('fetchStream encountered an error:', errorMessage)
+        console.error('Complete error details:', error)
+
         errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
         throw error
       }

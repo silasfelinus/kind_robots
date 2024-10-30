@@ -97,16 +97,16 @@ const chatExchange = computed(() => {
   )
 })
 
-// Computed property to dynamically update messages as botResponse streams in
 const chatExchangeMessages = computed(() => {
   if (chatExchange.value) {
     return [
       { role: 'user', content: chatExchange.value.userPrompt },
-      { role: 'bot', content: chatExchange.value.botResponse },
+      { role: 'bot', content: chatExchange.value.botResponse || '' },
     ]
   }
   return []
 })
+
 
 // Computed properties for user and bot details
 const username = computed(() => chatExchange.value?.username || 'User')

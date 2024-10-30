@@ -110,6 +110,7 @@ export const useChatStore = defineStore({
           isPublic: true,
           botId: botId ?? null,
           promptId: finalPromptId,
+          artImageId: null,
         }
 
         const response = await this.fetch('/api/chats', {

@@ -5,9 +5,6 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const apiKey = event.node.req.headers['authorization']?.split(' ')[1]
 
-  // Debug: log the API key
-  console.log('API Key from headers:', apiKey)
-
   const data = {
     model: body.model || 'gpt-4o-mini',
     messages: body.messages,

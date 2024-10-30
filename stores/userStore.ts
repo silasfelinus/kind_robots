@@ -14,6 +14,7 @@ interface UserState {
   stayLoggedIn: boolean
   milestones: number[]
   showMatureContent: boolean
+  openAPIKey: string | null
 }
 
 export interface ApiResponse {
@@ -40,6 +41,10 @@ export const useUserStore = defineStore({
     stayLoggedIn: true,
     milestones: [],
     showMatureContent: false,
+    openAPIKey:
+      typeof window !== 'undefined'
+        ? localStorage.getItem('api_key') || import.meta.env.OPENAI_API_KEY
+        : null,
   }),
   getters: {
     karma(state): number {
@@ -90,9 +95,13 @@ export const useUserStore = defineStore({
     initializeUser() {
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
+      const openAPIKey = this.getFromLocalStorage('openAPIKey')
       this.setStayLoggedIn(stayLoggedIn)
       if (storedToken) {
         this.token = storedToken
+      }
+      if (openAPIKey) {
+        this.openAPIKey = openAPIKey
       }
       if (stayLoggedIn && storedToken) {
         this.fetchUserDataByToken(storedToken)
@@ -378,6 +387,7 @@ export const useUserStore = defineStore({
       this.removeFromLocalStorage('token')
       this.removeFromLocalStorage('user')
       this.removeFromLocalStorage('stayLoggedIn')
+      this.removeFromLocalStorage('openAPIKey')
       this.setStayLoggedIn(false)
     },
     setToken(newToken: string): void {
@@ -387,6 +397,10 @@ export const useUserStore = defineStore({
     setApiKey(apiKey: string): void {
       this.apiKey = apiKey
       this.saveToLocalStorage('api_key', apiKey)
+    },
+    setOpenApiKey(apiKey: string): void {
+      this.openAPIKey = apiKey
+      this.saveToLocalStorage('openAPIKey', apiKey)
     },
     startLoading() {
       this.loading = true
@@ -445,4 +459,4 @@ export const useUserStore = defineStore({
   },
 })
 
-export type { User}
+export type { User }

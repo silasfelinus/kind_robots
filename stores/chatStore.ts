@@ -177,6 +177,8 @@ async fetchStream(
   onData: (chunk: string) => void,
 ) {
   const errorStore = useErrorStore()
+  console.log('Starting fetchStream:', { url, options })
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -186,28 +188,41 @@ async fetchStream(
       },
     })
 
+    // Log the response status
+    console.log('fetchStream response status:', response.status)
+
     if (!response.ok || !response.body) {
       const errorDetails = await response.json().catch(() => null)
       const errorMessage = errorDetails?.message
         ? `HTTP error! ${response.status} - ${errorDetails.message}`
         : `HTTP error! Status: ${response.status}`
+      console.error('fetchStream failed:', errorMessage)
       throw new Error(errorMessage)
     }
 
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
+    console.log('Reading stream data...')
 
     while (true) {
       const { done, value } = await reader.read()
-      if (done) break
+      if (done) {
+        console.log('Stream reading completed')
+        break
+      }
 
       const chunk = decoder.decode(value, { stream: true })
+      console.log('Received chunk:', chunk) // Log raw chunk data
+
       try {
         const parsedChunk = JSON.parse(chunk)
         const messageContent = parsedChunk?.choices?.[0]?.message?.content
 
         if (messageContent) {
-          onData(messageContent) // Send the extracted content to the callback
+          console.log('Parsed message content:', messageContent) // Log parsed content
+          onData(messageContent)
+        } else {
+          console.warn('No content in parsed chunk:', parsedChunk)
         }
       } catch (error) {
         console.warn('Failed to parse chunk as JSON:', chunk, error)
@@ -219,11 +234,13 @@ async fetchStream(
     const errorMessage =
       error instanceof Error
         ? error.message
-        : 'An unknown error occurred during fetch'
+        : 'An unknown error occurred during fetchStream'
+    console.error('fetchStream encountered an error:', errorMessage)
     errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
     throw error
   }
 },
+
 
     async initialize() {
       if (this.isInitialized) return

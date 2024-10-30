@@ -66,104 +66,86 @@ export const useChatStore = defineStore({
     },
 
     async addExchange(
-      prompt: string,
-      userId: number,
-      botId?: number,
-      previousEntryId?: number,
-      promptId?: number,
-    ) {
-      if (!prompt || !userId) {
-        this.handleError(
-          ErrorType.VALIDATION_ERROR,
-          'Missing prompt or userId.',
-        )
-        return
+  prompt: string,
+  userId: number,
+  botId?: number,
+  previousEntryId?: number,
+  promptId?: { id: number }
+) {
+  if (!prompt || !userId) {
+    this.handleError(ErrorType.VALIDATION_ERROR, 'Missing prompt or userId.')
+    return
+  }
+
+  const userStore = useUserStore()
+  const botStore = useBotStore()
+  const promptStore = usePromptStore()
+
+  try {
+    let finalPromptId = promptId ? promptId.id : undefined
+
+    if (!finalPromptId) {
+      const promptResult = await promptStore.addPrompt(prompt, userId, botId ?? 1)
+      finalPromptId = promptResult ? promptResult.id : null
+
+      if (!finalPromptId) {
+        throw new Error('Failed to obtain a prompt ID.')
       }
+    }
 
-      const userStore = useUserStore()
-      const botStore = useBotStore()
-      const promptStore = usePromptStore()
+    const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
+      userId,
+      username: userStore.username ?? 'Unknown User',
+      previousEntryId: previousEntryId ?? null,
+      botName: botStore.currentBot?.name ?? 'Unknown Bot',
+      userPrompt: prompt,
+      botResponse: '',
+      isPublic: true,
+      botId: botId ?? null,
+      promptId: finalPromptId, // Only the ID integer is sent here
+    }
 
-      try {
-        let finalPromptId = promptId
+    // Send exchange to API
+    const response = await this.fetch('/api/chats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(exchange),
+    })
 
-        if (!finalPromptId) {
-          const promptResult = await promptStore.addPrompt(
-            prompt,
-            userId,
-            botId ?? 1,
-          )
-          finalPromptId = promptResult ? promptResult.id : null
+    if (!response.success) {
+      throw new Error(response.message || 'Unknown error from API')
+    }
 
-          if (!finalPromptId) {
-            throw new Error('Failed to obtain a prompt ID.')
-          }
-        }
+    const newExchange = response.newExchange as ChatExchange
+    if (!this.isValidChatExchange(newExchange)) {
+      throw new Error('Invalid ChatExchange object returned from API')
+    }
 
-        const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
-          userId,
-          username: userStore.username ?? 'Unknown User',
-          previousEntryId: previousEntryId ?? null,
-          botName: botStore.currentBot?.name ?? 'Unknown Bot',
-          userPrompt: prompt,
-          botResponse: '',
-          isPublic: true,
-          botId: botId ?? null,
-          promptId: finalPromptId,
-        }
+    newExchange.botResponse = ''
+    this.activeChats.push(newExchange)
 
-        const response = await this.fetch('/api/chats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(exchange),
-        })
+    // Now call fetchStream using cleaned data
+    await this.fetchStream(
+      'gpt-4o-mini',
+      [{ role: 'user', content: prompt }],
+      (chunk) => {
+        newExchange.botResponse += chunk
+        this.chatExchanges = [...this.chatExchanges]
+      },
+    )
 
-        if (!response.success) {
-          throw new Error(response.message || 'Unknown error from API')
-        }
+    this.saveToLocalStorage()
+    return newExchange
+  } catch (error) {
+    console.error('Error in addExchange:', error)
+    this.handleError(
+      ErrorType.NETWORK_ERROR,
+      `Error in addExchange: ${error}`,
+    )
+    throw error
+  }
+},
 
-        const newExchange = response.newExchange as ChatExchange
-        if (!this.isValidChatExchange(newExchange)) {
-          throw new Error('Invalid ChatExchange object returned from API')
-        }
-
-        newExchange.botResponse = ''
-        this.activeChats.push(newExchange)
-
-        // Stream bot response
-        await this.fetchStream(
-          'https://kind-robots.vercel.app/api/botcafe/chat',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: 'gpt-4o-mini',
-              messages: [{ role: 'user', content: prompt }],
-              temperature: 1,
-              n: 1,
-              maxTokens: 300,
-              stream: true,
-            }),
-            onData: (chunk) => {
-              newExchange.botResponse += chunk
-              this.chatExchanges = [...this.chatExchanges]
-            },
-          },
-        )
-
-        this.saveToLocalStorage()
-        return newExchange
-      } catch (error) {
-        console.error('Error in addExchange:', error)
-        this.handleError(
-          ErrorType.NETWORK_ERROR,
-          `Error in addExchange: ${error}`,
-        )
-        throw error
-      }
-    },
 
     async fetchStream(
       url: string,

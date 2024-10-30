@@ -3,9 +3,7 @@ import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const apiKey = event.node.req.headers['authorization']?.split(' ')[1]
-
-  const data = {
+  const {Open_AI_API_Key } = useRuntimeConfig()   const data = {
     model: body.model || 'gpt-4o-mini',
     messages: body.messages,
     temperature: body.temperature,

@@ -50,32 +50,35 @@ model ArtImage {
   Art               Art?          @relation(fields: [artId], references: [id])
   galleryId         Int?          @default(21)          
   Gallery           Gallery?      @relation(fields: [galleryId], references: [id])
-  userId            Int?          @default(1)
+  userId            Int?          @default(1)     @unique
   User              User?         @relation(fields: [userId], references: [id])
-  botId             Int?
+  botId             Int?          @unique
   Bot               Bot?          @relation(fields: [botId], references: [id])
-  channelId         Int?
+  channelId         Int?          @unique
   Channel           Channel?      @relation(fields: [channelId], references: [id])
-  chatExchangeId    Int?
+  chatExchangeId    Int?          @unique
   ChatExchange      ChatExchange? @relation(fields: [chatExchangeId], references: [id])
-  componentId       Int?
+  componentId       Int?          @unique
   Component         Component?    @relation(fields: [componentId], references: [id])
-  pitchId           Int?
-  Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
-  postId            Int?
-  Post              Post?         @relation(fields: [postId], references: [id])
-  promptId          Int?
-  Prompt            Prompt?       @relation(fields: [promptId], references: [id])
-  reactionId        Int?
-  Reaction          Reaction?     @relation(fields: [reactionId], references: [id])
-  resourceId        Int?
-  Resource          Resource?     @relation(fields: [resourceId], references: [id])
-  rewardId          Int?
-  Reward            Reward?       @relation(fields: [rewardId], references: [id])
-  tagId             Int?
-  Tag               Tag?          @relation(fields: [tagId], references: [id])
-  milestoneId       Int?
+  messageId         Int?          @unique
+  Message           Message?      @relation(fields: [messageId], references: [id])
+  milestoneId       Int?          @unique
   Milestone         Milestone?    @relation(fields: [milestoneId], references: [id])
+  pitchId           Int?          @unique
+  Pitch             Pitch?        @relation(fields: [pitchId], references: [id])
+  postId            Int?          @unique
+  Post              Post?         @relation(fields: [postId], references: [id])
+  promptId          Int?          @unique
+  Prompt            Prompt?       @relation(fields: [promptId], references: [id])
+  reactionId        Int?          @unique
+  Reaction          Reaction?     @relation(fields: [reactionId], references: [id])
+  resourceId        Int?          @unique
+  Resource          Resource?     @relation(fields: [resourceId], references: [id])
+  rewardId          Int?          @unique
+  Reward            Reward?       @relation(fields: [rewardId], references: [id])
+  tagId             Int?          @unique
+  Tag               Tag?          @relation(fields: [tagId], references: [id])
+
 }
 
 
@@ -164,6 +167,8 @@ model ChatExchange {
   promptId          Int?         
   Prompt            Prompt?        @relation(fields: [promptId], references: [id])
   Reactions         Reaction[]
+  artImageId        Int?
+  ArtImage          ArtImage?
 }
 
 model Component {
@@ -248,6 +253,8 @@ model Milestone {
   tooltip           String?       @db.VarChar(764)
   isActive          Boolean       @default(false)
   isRepeatable      Boolean       @default(true)
+  artImageId        Int?
+  ArtImage          ArtImage?
   MilestoneRecords  MilestoneRecord[]
 
 }

@@ -18,7 +18,6 @@ export default defineEventHandler(async (event) => {
   }
   const post = body.post || 'https://api.openai.com/v1/chat/completions'
 
-  console.log('Sending request to OpenAI with API Key:', apiKey)
   const response = await fetch(post, {
     method: 'POST',
     headers: {

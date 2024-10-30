@@ -1,5 +1,7 @@
 <template>
-  <div class="response-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6">
+  <div
+    class="response-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6"
+  >
     <!-- Message Thread -->
     <div class="message-thread mb-4">
       <div
@@ -7,7 +9,9 @@
         :key="index"
         class="message p-2 mb-2 rounded-md bg-gray-100"
       >
-        <p class="text-sm text-gray-700"><strong>{{ message.role }}:</strong></p>
+        <p class="text-sm text-gray-700">
+          <strong>{{ message.role }}:</strong>
+        </p>
         <p class="text-base">{{ message.content }}</p>
       </div>
     </div>
@@ -39,7 +43,9 @@
         placeholder="Type your reply here..."
         class="w-full p-3 border rounded-md mb-2"
       />
-      <button @click="sendReply" class="btn btn-primary w-full">Send Reply</button>
+      <button class="btn btn-primary w-full" @click="sendReply">
+        Send Reply
+      </button>
     </div>
   </div>
 </template>

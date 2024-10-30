@@ -161,6 +161,8 @@ export const useChatStore = defineStore({
           throw new Error('Failed to obtain a prompt ID.')
         }
 
+        console.log('promptId is: ', finalPromptId)
+
         // Define the ChatExchange data, ensuring promptId is an integer
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,

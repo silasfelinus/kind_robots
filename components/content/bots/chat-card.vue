@@ -29,21 +29,13 @@
       </div>
     </div>
 
-    <!-- Debug JSON Display -->
+    <!-- Debug JSON Display (for development purposes) -->
     <pre class="bg-gray-100 p-3 rounded-md mt-4 text-xs overflow-auto">
       {{ fullChatExchange }}
     </pre>
 
-    <!-- Actions -->
-    <div class="actions flex justify-around mt-4">
-      <button class="btn btn-secondary" @click="saveMessage">Save</button>
-      <button class="btn btn-secondary" @click="share('facebook')">Share on Facebook</button>
-      <button class="btn btn-secondary" @click="share('twitter')">Share on Twitter</button>
-      <button class="btn btn-secondary" @click="react('like')">👍</button>
-      <button class="btn btn-secondary" @click="react('dislike')">👎</button>
-      <button class="btn btn-error" @click="deleteMessage">X</button>
-      <button class="btn btn-accent" @click="toggleReply">Reply</button>
-    </div>
+    <!-- Reactions and Sharing with ReactionCard component -->
+    <ReactionCard :chatExchangeId="props.chatExchangeId" />
 
     <!-- Reply Section -->
     <div v-if="showReply" class="reply-container mt-4">
@@ -58,21 +50,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps } from 'vue'
+import { ref, computed } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
 import { useBotStore } from '@/stores/botStore'
-import type { PropType } from 'vue'
+import ReactionCard from '@/components/ReactionCard.vue'
 
 const props = defineProps({
   chatExchangeId: {
     type: Number,
     required: true,
-  },
-  sendMessage: {
-    type: Function as PropType<
-      (updatedMessages: { role: string; content: string }[]) => Promise<void>
-    >,
-    default: () => async () => {},
   },
 })
 
@@ -103,52 +89,15 @@ const toggleReply = () => {
   showReply.value = !showReply.value
 }
 
-// Send a reply, utilizing continueExchange
+// Send a reply
 const sendReply = async () => {
   if (replyMessage.value.trim()) {
     try {
-      const updatedMessages = [
-        { role: 'user', content: userPrompt.value },
-        { role: 'bot', content: botResponse.value },
-        { role: 'user', content: replyMessage.value },
-      ]
       await chatStore.continueExchange(props.chatExchangeId, replyMessage.value)
-      await props.sendMessage(updatedMessages)
       replyMessage.value = ''
       showReply.value = false
     } catch (error) {
       console.error('Error sending reply:', error)
-    }
-  }
-}
-
-// Additional action functions (saveMessage, share, react, deleteMessage)
-const saveMessage = async () => {
-  if (chatExchange.value) {
-    try {
-      await chatStore.continueExchange(props.chatExchangeId, chatExchange.value.userPrompt)
-      console.log('Message saved successfully.')
-    } catch (error) {
-      console.error('Error saving message:', error)
-    }
-  }
-}
-
-const share = (platform: string) => {
-  console.log(`Shared on ${platform}`)
-}
-
-const react = (reaction: string) => {
-  console.log(`Reacted with ${reaction}`)
-}
-
-const deleteMessage = async () => {
-  if (chatExchange.value) {
-    try {
-      await chatStore.deleteExchange(chatExchange.value.id)
-      console.log('Message deleted successfully.')
-    } catch (error) {
-      console.error('Error deleting message:', error)
     }
   }
 }

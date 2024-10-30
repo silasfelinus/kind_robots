@@ -126,11 +126,8 @@ export const useChatStore = defineStore({
 
     // Now call fetchStream using cleaned data
     await this.fetchStream(
-      '/api/botcafe/chat',
-      [{ role: 'user', content: prompt }],
-      (chunk) => {
-        newExchange.botResponse += chunk
-        this.chatExchanges = [...this.chatExchanges]
+         [{ role: 'user', content: prompt }],
+      )
       },
     )
 
@@ -147,82 +144,95 @@ export const useChatStore = defineStore({
 },
 
 
-    async fetchStream(
-      url: string,
-      options: RequestInit & { onData: (chunk: string) => void },
-    ) {
-      const errorStore = useErrorStore()
-      const { onData, ...fetchOptions } = options
+    async fetchStream(messages: Array<{ role: string, content: string }>) {
+  const errorStore = useErrorStore()
+  const url = '/api/botcafe/chat'
+  const model = 'gpt-4o-mini'  // Hardcoded model
+  const isStreaming = true     // Hardcoded to always stream
 
-      console.log('--- FetchStream Initiated ---')
-      console.log('URL:', url)
-      console.log('Options:', fetchOptions)
+  console.log('--- FetchStream Initiated ---')
+  console.log('Model:', model)
+  console.log('Messages:', JSON.stringify(messages, null, 2))
+  console.log('Streaming:', isStreaming)
 
-      try {
-        const response = await fetch(url, {
-          ...fetchOptions,
-          headers: {
-            'Content-Type': 'application/json',
-            ...fetchOptions.headers,
-          },
-        })
+  try {
+    const payload = {
+      model,
+      messages,
+      temperature: 1,
+      n: 1,
+      maxTokens: 300,
+      stream: isStreaming,
+    }
+    console.log('Payload before JSON.stringify:', payload)
 
-        if (!response.ok) {
-          const errorDetails = await response.json().catch(() => null)
-          const errorMessage = errorDetails?.message
-            ? `HTTP error! ${response.status} - ${errorDetails.message}`
-            : `HTTP error! Status: ${response.status}`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
 
-          console.error('Failed API Response:', errorMessage)
-          console.error(
-            'Detailed error:',
-            JSON.stringify(errorDetails, null, 2),
-          )
+    if (!response.ok) {
+      const errorDetails = await response.json().catch(() => null)
+      const errorMessage = errorDetails?.message
+        ? `HTTP error! ${response.status} - ${errorDetails.message}`
+        : `HTTP error! Status: ${response.status}`
+      console.error('Failed API Response:', errorMessage)
+      console.error('Detailed error:', JSON.stringify(errorDetails, null, 2))
 
-          throw new Error(errorMessage)
-        }
-
-        console.log('Response status:', response.status)
-
-        if (response.body) {
-          console.log('--- Stream Opened Successfully ---')
-          const reader = response.body.getReader()
-          const decoder = new TextDecoder()
-
-          let responseData = ''
-
-          while (true) {
-            const { done, value } = await reader.read()
-            if (done) break
-
-            const chunk = decoder.decode(value, { stream: true })
-            console.log('Received raw chunk:', chunk)
-
-            try {
-              responseData += chunk
-              onData(chunk)
-            } catch (parseError) {
-              console.warn('Failed to handle chunk:', chunk, parseError)
-            }
-          }
-          console.log('--- Stream Ended ---')
-          return JSON.parse(responseData)
-        } else {
-          console.log('--- Non-streaming response ---')
-          const responseData = await response.json()
-          console.log('Response data:', responseData)
-          return responseData
-        }
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'An unknown error occurred during fetchStream'
-        console.error('fetchStream encountered an error:', errorMessage)
-        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
-        throw error
+      if (errorDetails?.details === 'HTTP method is not allowed.') {
+        console.warn('Check if POST requests are allowed on the server endpoint.')
       }
-    },
+
+      throw new Error(errorMessage)
+    }
+
+    console.log('Response status:', response.status)
+
+    if (response.body) {
+      console.log('--- Stream Opened Successfully ---')
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+
+      let responseData = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        console.log('Received raw chunk:', chunk)
+
+        // Append each chunk to responseData for final processing
+        responseData += chunk
+      }
+      console.log('--- Stream Ended ---')
+      
+      // Process or return the complete responseData here as needed
+      try {
+        return JSON.parse(responseData)
+      } catch (parseError) {
+        console.warn('Failed to parse complete response:', responseData)
+        throw parseError
+      }
+    } else {
+      throw new Error('Response body is null or undefined')
+    }
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'An unknown error occurred during fetchStream'
+    console.error('fetchStream encountered an error:', errorMessage)
+    console.error('Complete error details:', error)
+
+    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+    throw error
+  }
+}},
+
 
     async initialize() {
       if (this.isInitialized) return

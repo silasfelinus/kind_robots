@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Construct the payload for the OpenAI API
+    // Prepare data for the OpenAI API request
     const data = {
       model: body.model || 'gpt-4o-mini',
       messages: body.messages,
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
       n: body.n,
       stream: body.stream || false,
     }
-    console.log('Payload Data:', data) // Log payload data before API call
+    console.log('Payload Data:', JSON.stringify(data, null, 2)) // Log payload data before API call
 
     const post = body.post || 'https://api.openai.com/v1/chat/completions'
     console.log('API Endpoint:', post) // Confirm the endpoint
@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Check if response is a stream
+    // Check if the response is a stream
     if (data.stream && response.body) {
       console.log('Streaming response detected') // Log streaming initiation
       const reader = response.body.getReader()
@@ -67,29 +67,33 @@ export default defineEventHandler(async (event) => {
         const { done, value } = await reader.read()
         if (done) break
 
-        // Decode chunk and log each one for debugging
+        // Decode chunk and handle server-sent events
         const chunk = decoder.decode(value, { stream: true })
-        console.log('Received Chunk:', chunk)
+        console.log('Received Raw Chunk:', chunk) // Log raw chunk for debugging
 
-        // Append each chunk to responseData
-        responseData += chunk
-      }
-
-      // Attempt to parse the final concatenated response
-      try {
-        const parsedResponse = JSON.parse(responseData)
-        console.log('Final Parsed Response:', parsedResponse)
-        return { success: true, data: parsedResponse }
-      } catch (parseError) {
-        console.error('JSON Parse Error:', parseError)
-        console.error('Raw Response Data:', responseData)
-        return {
-          success: false,
-          statusCode: 500,
-          message: 'Failed to parse streamed response',
-          details: parseError.message,
+        // Split by double newlines to capture individual JSON objects
+        const events = chunk.split('\n\n').filter(Boolean)
+        for (const event of events) {
+          if (event.startsWith('data: ')) {
+            const jsonData = event.replace('data: ', '').trim()
+            if (jsonData === '[DONE]') {
+              console.log('Stream End Signal Received')
+              return { success: true, data: responseData }
+            }
+            try {
+              const parsedData = JSON.parse(jsonData)
+              const content = parsedData.choices[0]?.delta?.content || ''
+              console.log('Parsed Content Chunk:', content)
+              responseData += content // Append content to final response data
+            } catch (parseError) {
+              console.warn('Failed to parse JSON data chunk:', jsonData)
+            }
+          }
         }
       }
+
+      console.log('--- Stream Ended ---')
+      return { success: true, data: responseData }
     } else {
       // Handle non-streaming response (standard JSON)
       const responseData = await response.json()

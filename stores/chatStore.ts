@@ -93,7 +93,9 @@ export const useChatStore = defineStore({
             userId,
             botId ?? 1,
           )
-          finalPromptId = promptResult?.id ?? null
+          
+      finalPromptId = promptResult ? promptResult.id : null
+
 
           if (!finalPromptId) {
             throw new Error('Failed to obtain a prompt ID.')

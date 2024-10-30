@@ -138,19 +138,16 @@ await this.fetchStream([{ role: "user", content: prompt }], newExchange.id);
       }
     },
 
-    async fetchStream(
-  messages: Array<{ role: string; content: string }>,
-  exchangeId: number
-) {
-  const errorStore = useErrorStore();
-  const url = "/api/botcafe/chat";
-  const model = "gpt-4o-mini";
-  const isStreaming = true;
+    async fetchStream(messages: Array<{ role: string; content: string }>, exchangeId: number) {
+  const errorStore = useErrorStore()
+  const url = '/api/botcafe/chat'
+  const model = 'gpt-4o-mini'
+  const isStreaming = true
 
-  console.log("--- FetchStream Initiated ---");
-  console.log("Model:", model);
-  console.log("Messages:", JSON.stringify(messages, null, 2));
-  console.log("Streaming:", isStreaming);
+  console.log('--- FetchStream Initiated ---')
+  console.log('Model:', model)
+  console.log('Messages:', JSON.stringify(messages, null, 2))
+  console.log('Streaming:', isStreaming)
 
   try {
     const payload = {
@@ -160,79 +157,78 @@ await this.fetchStream([{ role: "user", content: prompt }], newExchange.id);
       n: 1,
       maxTokens: 300,
       stream: isStreaming,
-    };
-    console.log("Payload:", payload);
+    }
+    console.log('Payload:', payload)
 
     const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-    });
+    })
 
     if (!response.ok) {
-      const errorDetails = await response.json().catch(() => null);
+      const errorDetails = await response.json().catch(() => null)
       const errorMessage = errorDetails?.message
         ? `HTTP error! ${response.status} - ${errorDetails.message}`
-        : `HTTP error! Status: ${response.status}`;
-      console.error("Failed API Response:", errorMessage);
-      throw new Error(errorMessage);
+        : `HTTP error! Status: ${response.status}`
+      console.error('Failed API Response:', errorMessage)
+      throw new Error(errorMessage)
     }
 
-    console.log("Response status:", response.status);
+    console.log('Response status:', response.status)
 
     if (response.body) {
-      console.log("--- Stream Opened Successfully ---");
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
+      console.log('--- Stream Opened Successfully ---')
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
 
       while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        const { done, value } = await reader.read()
+        if (done) break
 
-        const chunk = decoder.decode(value, { stream: true });
-        console.log("Received chunk:", chunk);
+        const chunk = decoder.decode(value, { stream: true })
+        console.log('Received chunk:', chunk)
 
-        // Parse each chunk and extract the content
-        const events = chunk.split("\n\n").filter(Boolean);
+        const events = chunk.split('\n\n').filter(Boolean)
         for (const event of events) {
-          if (event.startsWith("data: ")) {
-            const jsonData = event.replace("data: ", "").trim();
-            if (jsonData === "[DONE]") {
-              console.log("Stream End Signal Received");
-              return;
+          if (event.startsWith('data: ')) {
+            const jsonData = event.replace('data: ', '').trim()
+            if (jsonData === '[DONE]') {
+              console.log('Stream End Signal Received')
+              return
             }
 
             try {
-              const parsedData = JSON.parse(jsonData);
-              const content = parsedData.choices[0]?.delta?.content || "";
+              const parsedData = JSON.parse(jsonData)
+              const content = parsedData.choices[0]?.delta?.content || ''
 
-              // Update the botResponse in real-time
-              const exchange = this.activeChats.find(
+              // Append to botResponse for the active chat exchange
+              const exchange = this.chatExchanges.find(
                 (exchange) => exchange.id === exchangeId
-              );
+              )
               if (exchange) {
-                exchange.botResponse += content;
-                this.chatExchanges = [...this.chatExchanges]; // Trigger reactivity
+                exchange.botResponse += content
+                this.chatExchanges = [...this.chatExchanges] // Trigger reactivity
               }
             } catch (parseError) {
-              console.warn("Failed to parse JSON data chunk:", jsonData);
+              console.warn('Failed to parse JSON data chunk:', jsonData)
             }
           }
         }
       }
-      console.log("--- Stream Ended ---");
+      console.log('--- Stream Ended ---')
     } else {
-      throw new Error("Response body is null or undefined");
+      throw new Error('Response body is null or undefined')
     }
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error
         ? error.message
-        : "An unknown error occurred during fetchStream";
-    console.error("fetchStream encountered an error:", errorMessage);
+        : 'An unknown error occurred during fetchStream'
+    console.error('fetchStream encountered an error:', errorMessage)
 
-    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage);
-    throw error;
+    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+    throw error
   }
 },
 

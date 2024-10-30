@@ -137,8 +137,7 @@ await this.fetchStream([{ role: "user", content: prompt }], newExchange.id);
         throw error
       }
     },
-
-    async fetchStream(messages: Array<{ role: string; content: string }>, exchangeId: number) {
+async fetchStream(messages: Array<{ role: string; content: string }>) {
   const errorStore = useErrorStore()
   const url = '/api/botcafe/chat'
   const model = 'gpt-4o-mini'
@@ -172,67 +171,63 @@ await this.fetchStream([{ role: "user", content: prompt }], newExchange.id);
         ? `HTTP error! ${response.status} - ${errorDetails.message}`
         : `HTTP error! Status: ${response.status}`
       console.error('Failed API Response:', errorMessage)
+      console.error('Detailed error:', JSON.stringify(errorDetails, null, 2))
+
       throw new Error(errorMessage)
     }
 
     console.log('Response status:', response.status)
 
-    if (response.body) {
-      console.log('--- Stream Opened Successfully ---')
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
+    if (!response.body) {
+      throw new Error('Response body is null or undefined')
+    }
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+    console.log('--- Stream Opened Successfully ---')
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let responseData = ''
 
-        const chunk = decoder.decode(value, { stream: true })
-        console.log('Received chunk:', chunk)
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
 
-        const events = chunk.split('\n\n').filter(Boolean)
-        for (const event of events) {
-          if (event.startsWith('data: ')) {
-            const jsonData = event.replace('data: ', '').trim()
-            if (jsonData === '[DONE]') {
-              console.log('Stream End Signal Received')
-              return
-            }
+      const chunk = decoder.decode(value, { stream: true })
+      console.log('Received chunk:', chunk)
 
-            try {
-              const parsedData = JSON.parse(jsonData)
-              const content = parsedData.choices[0]?.delta?.content || ''
-
-              // Append to botResponse for the active chat exchange
-              const exchange = this.chatExchanges.find(
-                (exchange) => exchange.id === exchangeId
-              )
-              if (exchange) {
-                exchange.botResponse += content
-                this.chatExchanges = [...this.chatExchanges] // Trigger reactivity
-              }
-            } catch (parseError) {
-              console.warn('Failed to parse JSON data chunk:', jsonData)
-            }
+      // Parse and handle the chunk if it contains data
+      const events = chunk.split('\n\n').filter(Boolean)
+      for (const event of events) {
+        if (event.startsWith('data: ')) {
+          const jsonData = event.replace('data: ', '').trim()
+          if (jsonData === '[DONE]') {
+            console.log('Stream End Signal Received')
+            return { success: true, data: responseData }
+          }
+          try {
+            const parsedData = JSON.parse(jsonData)
+            const content = parsedData.choices[0]?.delta?.content || ''
+            console.log('Parsed Content Chunk:', content)
+            responseData += content
+          } catch (parseError) {
+            console.warn('Failed to parse JSON data chunk:', jsonData)
           }
         }
       }
-      console.log('--- Stream Ended ---')
-    } else {
-      throw new Error('Response body is null or undefined')
     }
+    console.log('--- Stream Ended ---')
+    return { success: true, data: responseData }
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error
         ? error.message
         : 'An unknown error occurred during fetchStream'
     console.error('fetchStream encountered an error:', errorMessage)
+    console.error('Complete error details:', error)
 
     errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
     throw error
   }
 },
-
-    
 
 
 

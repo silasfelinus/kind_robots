@@ -152,13 +152,22 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
-        // Fetch or create the prompt and ensure finalPromptId is an integer
-        const finalPromptId =
-          promptId ||
-          (await promptStore.addPrompt(prompt, userId, botId ?? 1))?.id
+        // First, attempt to use promptId if provided
+        let finalPromptId = promptId
 
+        // If promptId is not provided, add or retrieve the prompt and extract its ID
         if (!finalPromptId) {
-          throw new Error('Failed to obtain a prompt ID.')
+          const promptResult = await promptStore.addPrompt(
+            prompt,
+            userId,
+            botId ?? 1,
+          )
+          finalPromptId = promptResult?.id ?? null
+
+          // Check if we successfully obtained an ID from the prompt result
+          if (!finalPromptId) {
+            throw new Error('Failed to obtain a prompt ID.')
+          }
         }
 
         console.log('promptId is: ', finalPromptId)

@@ -5,7 +5,6 @@ import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import type { ChatExchange } from '@prisma/client'
 
-
 export const useChatStore = defineStore({
   id: 'chat',
   state: () => ({
@@ -101,10 +100,6 @@ export const useChatStore = defineStore({
           }
         }
 
-        if (typeof finalPromptId === 'object' && 'id' in finalPromptId) {
-          finalPromptId = finalPromptId.id
-        }
-
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
           username: userStore.username ?? 'Unknown User',
@@ -135,21 +130,26 @@ export const useChatStore = defineStore({
         newExchange.botResponse = ''
         this.activeChats.push(newExchange)
 
+        // Stream bot response
         await this.fetchStream(
           'https://kind-robots.vercel.app/api/botcafe/chat',
           {
             method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify({
               model: 'gpt-4o-mini',
               messages: [{ role: 'user', content: prompt }],
               temperature: 1,
               n: 1,
               maxTokens: 300,
+              stream: true,
             }),
-          },
-          (chunk) => {
-            newExchange.botResponse += chunk
-            this.chatExchanges = [...this.chatExchanges]
+            onData: (chunk) => {
+              newExchange.botResponse += chunk
+              this.chatExchanges = [...this.chatExchanges]
+            },
           },
         )
 
@@ -165,102 +165,82 @@ export const useChatStore = defineStore({
       }
     },
 
-  async fetchStream(
-  model: string,
-  messages: Array<{ role: string; content: string }>,
-  onData: (chunk: string) => void,
-  isStreaming = true
-) {
-  const errorStore = useErrorStore()
-  const url = '/api/botcafe/chat'
+    async fetchStream(
+      url: string,
+      options: RequestInit & { onData: (chunk: string) => void },
+    ) {
+      const errorStore = useErrorStore()
+      const { onData, ...fetchOptions } = options
 
-  console.log('--- FetchStream Initiated ---')
-  console.log('Model:', model)
-  console.log('Messages:', JSON.stringify(messages, null, 2))
-  console.log('Streaming:', isStreaming)
+      console.log('--- FetchStream Initiated ---')
+      console.log('URL:', url)
+      console.log('Options:', fetchOptions)
 
-  try {
-    // Construct payload as an object and log before stringifying
-    const payload = {
-      model,
-      messages,
-      temperature: 1,
-      n: 1,
-      maxTokens: 300,
-      stream: isStreaming,
-    }
-    console.log('Payload before JSON.stringify:', payload)
+      try {
+        const response = await fetch(url, {
+          ...fetchOptions,
+          headers: {
+            'Content-Type': 'application/json',
+            ...fetchOptions.headers,
+          },
+        })
 
-    // Ensure body is stringified only once
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
+        if (!response.ok) {
+          const errorDetails = await response.json().catch(() => null)
+          const errorMessage = errorDetails?.message
+            ? `HTTP error! ${response.status} - ${errorDetails.message}`
+            : `HTTP error! Status: ${response.status}`
 
-    if (!response.ok) {
-      const errorDetails = await response.json().catch(() => null)
-      const errorMessage = errorDetails?.message
-        ? `HTTP error! ${response.status} - ${errorDetails.message}`
-        : `HTTP error! Status: ${response.status}`
+          console.error('Failed API Response:', errorMessage)
+          console.error(
+            'Detailed error:',
+            JSON.stringify(errorDetails, null, 2),
+          )
 
-      console.error('Failed API Response:', errorMessage)
-      console.error('Detailed error:', JSON.stringify(errorDetails, null, 2))
-
-      if (errorDetails?.error?.message === 'invalid model ID') {
-        console.warn(`The model ID "${model}" may be invalid. Double-check model name.`)
-      }
-
-      throw new Error(errorMessage)
-    }
-
-    console.log('Response status:', response.status)
-
-    if (isStreaming && response.body) {
-      console.log('--- Stream Opened Successfully ---')
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-
-      let responseData = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const chunk = decoder.decode(value, { stream: true })
-        console.log('Received raw chunk:', chunk)
-
-        try {
-          responseData += chunk
-          onData(chunk)
-        } catch (parseError) {
-          console.warn('Failed to handle chunk:', chunk, parseError)
+          throw new Error(errorMessage)
         }
+
+        console.log('Response status:', response.status)
+
+        if (response.body) {
+          console.log('--- Stream Opened Successfully ---')
+          const reader = response.body.getReader()
+          const decoder = new TextDecoder()
+
+          let responseData = ''
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            const chunk = decoder.decode(value, { stream: true })
+            console.log('Received raw chunk:', chunk)
+
+            try {
+              responseData += chunk
+              onData(chunk)
+            } catch (parseError) {
+              console.warn('Failed to handle chunk:', chunk, parseError)
+            }
+          }
+          console.log('--- Stream Ended ---')
+          return JSON.parse(responseData)
+        } else {
+          console.log('--- Non-streaming response ---')
+          const responseData = await response.json()
+          console.log('Response data:', responseData)
+          return responseData
+        }
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred during fetchStream'
+        console.error('fetchStream encountered an error:', errorMessage)
+        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+        throw error
       }
-      console.log('--- Stream Ended ---')
-      return JSON.parse(responseData)
-    } else {
-      console.log('--- Non-streaming response ---')
-      const responseData = await response.json()
-      console.log('Response data:', responseData)
-      return responseData
-    }
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'An unknown error occurred during fetchStream'
-    console.error('fetchStream encountered an error:', errorMessage)
-    console.error('Complete error details:', error)
-
-    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
-    throw error
-  }
-},
-
-
+    },
 
     async initialize() {
       if (this.isInitialized) return

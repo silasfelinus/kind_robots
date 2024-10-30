@@ -2,111 +2,75 @@
 import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {
-  try {
-    const body = await readBody(event)
-    console.log('Request Body:', body) // Log request body for validation
+  const body = await readBody(event)
+  console.log('Request Body:', body)
 
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey) {
-      console.error('Missing OpenAI API Key')
-      return {
-        success: false,
-        statusCode: 500,
-        message: 'API key not found',
-      }
-    }
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    event.res.writeHead(500, { 'Content-Type': 'application/json' })
+    event.res.end(JSON.stringify({ success: false, message: 'API key not found' }))
+    return
+  }
 
-    // Prepare data for the OpenAI API request
-    const data = {
-      model: body.model || 'gpt-4o-mini',
-      messages: body.messages,
-      temperature: body.temperature,
-      max_tokens: body.maxTokens,
-      n: body.n,
-      stream: body.stream || false,
-    }
-    console.log('Payload Data:', JSON.stringify(data, null, 2)) // Log payload data before API call
+  const data = {
+    model: body.model || 'gpt-4o-mini',
+    messages: body.messages,
+    temperature: body.temperature,
+    max_tokens: body.maxTokens,
+    n: body.n,
+    stream: body.stream || true,
+  }
+  
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(data),
+  })
 
-    const post = body.post || 'https://api.openai.com/v1/chat/completions'
-    console.log('API Endpoint:', post) // Confirm the endpoint
+  if (!response.ok) {
+    const errorData = await response.json()
+    event.res.writeHead(response.status, { 'Content-Type': 'application/json' })
+    event.res.end(JSON.stringify({ success: false, message: response.statusText, details: errorData }))
+    return
+  }
 
-    // Send the API request to OpenAI
-    const response = await fetch(post, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(data),
-    })
+  // Set up SSE headers
+  event.res.setHeader('Content-Type', 'text/event-stream')
+  event.res.setHeader('Cache-Control', 'no-cache')
+  event.res.setHeader('Connection', 'keep-alive')
 
-    if (!response.ok) {
-      // Log detailed error info from API if request fails
-      const errorData = await response.json()
-      console.error('API Response Error:', {
-        statusCode: response.status,
-        statusText: response.statusText,
-        details: errorData,
-      })
-      return {
-        success: false,
-        statusCode: response.status,
-        message: response.statusText,
-        details: errorData,
-      }
-    }
+  const reader = response.body?.getReader()
+  const decoder = new TextDecoder()
 
-    // Check if the response is a stream
-    if (data.stream && response.body) {
-      console.log('Streaming response detected') // Log streaming initiation
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-      let responseData = ''
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+    const chunk = decoder.decode(value, { stream: true })
+    const events = chunk.split('\n\n').filter(Boolean)
 
-        // Decode chunk and handle server-sent events
-        const chunk = decoder.decode(value, { stream: true })
-        console.log('Received Raw Chunk:', chunk) // Log raw chunk for debugging
+    for (const event of events) {
+      if (event.startsWith('data: ')) {
+        const jsonData = event.replace('data: ', '').trim()
+        if (jsonData === '[DONE]') {
+          event.res.write(`data: [DONE]\n\n`)
+          event.res.end()
+          return
+        }
+        try {
+          const parsedData = JSON.parse(jsonData)
+          const content = parsedData.choices[0]?.delta?.content || ''
+          console.log('Parsed Content Chunk:', content)
 
-        // Split by double newlines to capture individual JSON objects
-        const events = chunk.split('\n\n').filter(Boolean)
-        for (const event of events) {
-          if (event.startsWith('data: ')) {
-            const jsonData = event.replace('data: ', '').trim()
-            if (jsonData === '[DONE]') {
-              console.log('Stream End Signal Received')
-              return { success: true, data: responseData }
-            }
-            try {
-              const parsedData = JSON.parse(jsonData)
-              const content = parsedData.choices[0]?.delta?.content || ''
-              console.log('Parsed Content Chunk:', content)
-              responseData += content // Append content to final response data
-            } catch (parseError) {
-              console.warn('Failed to parse JSON data chunk:', jsonData)
-            }
-          }
+          // Send the chunk as SSE
+          event.res.write(`data: ${JSON.stringify(content)}\n\n`)
+        } catch (parseError) {
+          console.warn('Failed to parse JSON data chunk:', jsonData)
         }
       }
-
-      console.log('--- Stream Ended ---')
-      return { success: true, data: responseData }
-    } else {
-      // Handle non-streaming response (standard JSON)
-      const responseData = await response.json()
-      console.log('Successful API Response:', responseData) // Log successful response data
-      return { success: true, data: responseData }
-    }
-  } catch (error) {
-    console.error('Unhandled Error:', error)
-    return {
-      success: false,
-      statusCode: 500,
-      message: 'Internal Server Error',
-      details: error instanceof Error ? error.message : String(error),
     }
   }
 })

@@ -192,9 +192,9 @@ async fetchStream(messages: Array<{ role: string; content: string }>) {
       if (done) break
 
       const chunk = decoder.decode(value, { stream: true })
-      console.log('Received chunk:', chunk)
+      console.log('Received raw chunk:', chunk)
 
-      // Parse and handle the chunk if it contains data
+      // Parse each event in the chunk
       const events = chunk.split('\n\n').filter(Boolean)
       for (const event of events) {
         if (event.startsWith('data: ')) {
@@ -205,9 +205,14 @@ async fetchStream(messages: Array<{ role: string; content: string }>) {
           }
           try {
             const parsedData = JSON.parse(jsonData)
-            const content = parsedData.choices[0]?.delta?.content || ''
-            console.log('Parsed Content Chunk:', content)
-            responseData += content
+            const content = parsedData.choices[0]?.delta?.content || null
+
+            if (content) {
+              console.log('Parsed Content Chunk:', content)
+              responseData += content // Append content to final response data
+            } else {
+              console.log('No content in chunk; skipping.')
+            }
           } catch (parseError) {
             console.warn('Failed to parse JSON data chunk:', jsonData)
           }

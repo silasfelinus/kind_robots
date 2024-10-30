@@ -273,6 +273,7 @@ export const useReactionStore = defineStore('reactionStore', {
       rating,
       comment = '',
       artId = null,
+      artImageId = null,
       pitchId = null,
       componentId = null,
       channelId = null,
@@ -285,12 +286,14 @@ export const useReactionStore = defineStore('reactionStore', {
       resourceId = null,
       rewardId = null,
       tagId = null,
+      reactionCategory = ReactionCategoryEnum.COMPONENT,
     }: {
       userId: number
       reactionType: ReactionTypeEnum
       rating: number
       comment?: string
       artId?: number | null
+      artImageId?: number | null
       pitchId?: number | null
       componentId?: number | null
       channelId?: number | null
@@ -303,6 +306,7 @@ export const useReactionStore = defineStore('reactionStore', {
       resourceId?: number | null
       rewardId?: number | null
       tagId?: number | null
+      reactionCategory?: ReactionCategoryEnum
     }) {
       console.log('Creating reaction with data:', {
         userId,
@@ -320,6 +324,7 @@ export const useReactionStore = defineStore('reactionStore', {
             rating,
             comment,
             artId,
+            artImageId,
             pitchId,
             componentId,
             channelId,
@@ -330,6 +335,7 @@ export const useReactionStore = defineStore('reactionStore', {
             postId,
             promptId,
             resourceId,
+            reactionCategory,
             rewardId,
             tagId,
           }),

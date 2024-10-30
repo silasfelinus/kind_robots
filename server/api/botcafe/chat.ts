@@ -1,5 +1,4 @@
 // server/api/botcafe/chat.ts
-// server/api/botcafe/chat.ts
 import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {
@@ -8,10 +7,10 @@ export default defineEventHandler(async (event) => {
 
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
-    if (event.res) {
-      event.res.writeHead(500, { 'Content-Type': 'application/json' })
-      event.res.end(JSON.stringify({ success: false, message: 'API key not found' }))
-    }
+    event.node.res.statusCode = 500
+    event.node.res.end(
+      JSON.stringify({ success: false, message: 'API key not found' }),
+    )
     return
   }
 
@@ -35,21 +34,34 @@ export default defineEventHandler(async (event) => {
 
   if (!response.ok) {
     const errorData = await response.json()
-    if (event.res) {
-      event.res.writeHead(response.status, { 'Content-Type': 'application/json' })
-      event.res.end(JSON.stringify({ success: false, message: response.statusText, details: errorData }))
-    }
+    event.node.res.statusCode = response.status
+    event.node.res.end(
+      JSON.stringify({
+        success: false,
+        message: response.statusText,
+        details: errorData,
+      }),
+    )
     return
   }
 
   // Set up SSE headers
-  if (event.res) {
-    event.res.setHeader('Content-Type', 'text/event-stream')
-    event.res.setHeader('Cache-Control', 'no-cache')
-    event.res.setHeader('Connection', 'keep-alive')
-  }
+  event.node.res.setHeader('Content-Type', 'text/event-stream')
+  event.node.res.setHeader('Cache-Control', 'no-cache')
+  event.node.res.setHeader('Connection', 'keep-alive')
 
   const reader = response.body?.getReader()
+  if (!reader) {
+    event.node.res.statusCode = 500
+    event.node.res.end(
+      JSON.stringify({
+        success: false,
+        message: 'No readable stream from response',
+      }),
+    )
+    return
+  }
+
   const decoder = new TextDecoder()
 
   try {
@@ -60,12 +72,12 @@ export default defineEventHandler(async (event) => {
       const chunk = decoder.decode(value, { stream: true })
       const events = chunk.split('\n\n').filter(Boolean)
 
-      for (const event of events) {
-        if (event.startsWith('data: ')) {
-          const jsonData = event.replace('data: ', '').trim()
+      for (const eventChunk of events) {
+        if (eventChunk.startsWith('data: ')) {
+          const jsonData = eventChunk.replace('data: ', '').trim()
           if (jsonData === '[DONE]') {
-            if (event.res) event.res.write(`data: [DONE]\n\n`)
-            if (event.res) event.res.end()
+            event.node.res.write(`data: [DONE]\n\n`)
+            event.node.res.end()
             return
           }
           try {
@@ -74,10 +86,8 @@ export default defineEventHandler(async (event) => {
             console.log('Parsed Content Chunk:', content)
 
             // Send the chunk as SSE
-            if (event.res) {
-              event.res.write(`data: ${JSON.stringify(content)}\n\n`)
-            }
-          } catch (parseError) {
+            event.node.res.write(`data: ${JSON.stringify(content)}\n\n`)
+          } catch {
             console.warn('Failed to parse JSON data chunk:', jsonData)
           }
         }
@@ -85,8 +95,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (streamError) {
     console.error('Error during data streaming:', streamError)
-    if (event.res) {
-      event.res.end() // Ensure we close the response in case of an error
-    }
+    event.node.res.end() // Ensure we close the response in case of an error
   }
 })

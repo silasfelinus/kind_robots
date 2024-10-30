@@ -70,10 +70,13 @@ export const useChatStore = defineStore({
       userId: number,
       botId?: number,
       previousEntryId?: number,
-      promptId?: { id: number }
+      promptId?: number,
     ) {
       if (!prompt || !userId) {
-        this.handleError(ErrorType.VALIDATION_ERROR, 'Missing prompt or userId.')
+        this.handleError(
+          ErrorType.VALIDATION_ERROR,
+          'Missing prompt or userId.',
+        )
         return
       }
 
@@ -82,10 +85,14 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
-        let finalPromptId = promptId ? promptId.id : undefined
+        let finalPromptId = promptId
 
         if (!finalPromptId) {
-          const promptResult = await promptStore.addPrompt(prompt, userId, botId ?? 1)
+          const promptResult = await promptStore.addPrompt(
+            prompt,
+            userId,
+            botId ?? 1,
+          )
           finalPromptId = promptResult ? promptResult.id : null
 
           if (!finalPromptId) {
@@ -115,126 +122,125 @@ export const useChatStore = defineStore({
           throw new Error(response.message || 'Unknown error from API')
         }
 
-const newExchange = response.newExchange as ChatExchange;
-if (!this.isValidChatExchange(newExchange)) {
-  throw new Error("Invalid ChatExchange object returned from API");
-}
+        const newExchange = response.newExchange as ChatExchange
+        if (!this.isValidChatExchange(newExchange)) {
+          throw new Error('Invalid ChatExchange object returned from API')
+        }
 
-newExchange.botResponse = "";
-this.activeChats.push(newExchange);
+        newExchange.botResponse = ''
+        this.activeChats.push(newExchange)
 
-// Call fetchStream to get the bot response and update in real-time
-await this.fetchStream([{ role: "user", content: prompt }], newExchange.id);
-
-
-        
+        // Stream bot response
+        await this.fetchStream(
+          'https://kind-robots.vercel.app/api/botcafe/chat',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [{ role: 'user', content: prompt }],
+              temperature: 1,
+              n: 1,
+              maxTokens: 300,
+              stream: true,
+            }),
+            onData: (chunk) => {
+              newExchange.botResponse += chunk
+              this.chatExchanges = [...this.chatExchanges]
+            },
+          },
+        )
 
         this.saveToLocalStorage()
         return newExchange
       } catch (error) {
         console.error('Error in addExchange:', error)
-        this.handleError(ErrorType.NETWORK_ERROR, `Error in addExchange: ${error}`)
+        this.handleError(
+          ErrorType.NETWORK_ERROR,
+          `Error in addExchange: ${error}`,
+        )
         throw error
       }
     },
-async fetchStream(messages: Array<{ role: string; content: string }>) {
-  const errorStore = useErrorStore()
-  const url = '/api/botcafe/chat'
-  const model = 'gpt-4o-mini'
-  const isStreaming = true
 
-  console.log('--- FetchStream Initiated ---')
-  console.log('Model:', model)
-  console.log('Messages:', JSON.stringify(messages, null, 2))
-  console.log('Streaming:', isStreaming)
+    async fetchStream(
+      url: string,
+      options: RequestInit & { onData: (chunk: string) => void },
+    ) {
+      const errorStore = useErrorStore()
+      const { onData, ...fetchOptions } = options
 
-  try {
-    const payload = {
-      model,
-      messages,
-      temperature: 1,
-      n: 1,
-      maxTokens: 300,
-      stream: isStreaming,
-    }
-    console.log('Payload:', payload)
+      console.log('--- FetchStream Initiated ---')
+      console.log('URL:', url)
+      console.log('Options:', fetchOptions)
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
+      try {
+        const response = await fetch(url, {
+          ...fetchOptions,
+          headers: {
+            'Content-Type': 'application/json',
+            ...fetchOptions.headers,
+          },
+        })
 
-    if (!response.ok) {
-      const errorDetails = await response.json().catch(() => null)
-      const errorMessage = errorDetails?.message
-        ? `HTTP error! ${response.status} - ${errorDetails.message}`
-        : `HTTP error! Status: ${response.status}`
-      console.error('Failed API Response:', errorMessage)
-      console.error('Detailed error:', JSON.stringify(errorDetails, null, 2))
+        if (!response.ok) {
+          const errorDetails = await response.json().catch(() => null)
+          const errorMessage = errorDetails?.message
+            ? `HTTP error! ${response.status} - ${errorDetails.message}`
+            : `HTTP error! Status: ${response.status}`
 
-      throw new Error(errorMessage)
-    }
+          console.error('Failed API Response:', errorMessage)
+          console.error(
+            'Detailed error:',
+            JSON.stringify(errorDetails, null, 2),
+          )
 
-    console.log('Response status:', response.status)
-
-    if (!response.body) {
-      throw new Error('Response body is null or undefined')
-    }
-
-    console.log('--- Stream Opened Successfully ---')
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
-    let responseData = ''
-
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-
-      const chunk = decoder.decode(value, { stream: true })
-      console.log('Received raw chunk:', chunk)
-
-      // Parse each event in the chunk
-      const events = chunk.split('\n\n').filter(Boolean)
-      for (const event of events) {
-        if (event.startsWith('data: ')) {
-          const jsonData = event.replace('data: ', '').trim()
-          if (jsonData === '[DONE]') {
-            console.log('Stream End Signal Received')
-            return { success: true, data: responseData }
-          }
-          try {
-            const parsedData = JSON.parse(jsonData)
-            const content = parsedData.choices[0]?.delta?.content || null
-
-            if (content) {
-              console.log('Parsed Content Chunk:', content)
-              responseData += content // Append content to final response data
-            } else {
-              console.log('No content in chunk; skipping.')
-            }
-          } catch (parseError) {
-            console.warn('Failed to parse JSON data chunk:', jsonData)
-          }
+          throw new Error(errorMessage)
         }
+
+        console.log('Response status:', response.status)
+
+        if (response.body) {
+          console.log('--- Stream Opened Successfully ---')
+          const reader = response.body.getReader()
+          const decoder = new TextDecoder()
+
+          let responseData = ''
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            const chunk = decoder.decode(value, { stream: true })
+            console.log('Received raw chunk:', chunk)
+
+            try {
+              responseData += chunk
+              onData(chunk)
+            } catch (parseError) {
+              console.warn('Failed to handle chunk:', chunk, parseError)
+            }
+          }
+          console.log('--- Stream Ended ---')
+          return JSON.parse(responseData)
+        } else {
+          console.log('--- Non-streaming response ---')
+          const responseData = await response.json()
+          console.log('Response data:', responseData)
+          return responseData
+        }
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred during fetchStream'
+        console.error('fetchStream encountered an error:', errorMessage)
+        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+        throw error
       }
-    }
-    console.log('--- Stream Ended ---')
-    return { success: true, data: responseData }
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'An unknown error occurred during fetchStream'
-    console.error('fetchStream encountered an error:', errorMessage)
-    console.error('Complete error details:', error)
-
-    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
-    throw error
-  }
-},
-
-
+    },
 
     async initialize() {
       if (this.isInitialized) return

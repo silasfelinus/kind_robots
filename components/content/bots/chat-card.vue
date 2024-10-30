@@ -1,5 +1,7 @@
 <template>
-  <div class="chat-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6">
+  <div
+    class="chat-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6"
+  >
     <!-- Header with User and Bot Details -->
     <div class="header flex items-center mb-4">
       <img
@@ -35,7 +37,7 @@
     </pre>
 
     <!-- Reactions and Sharing with ReactionCard component -->
-    <ReactionCard :chatExchangeId="props.chatExchangeId" />
+    <ReactionCard :chat-exchange-id="props.chatExchangeId" />
 
     <!-- Reply Section -->
     <div v-if="showReply" class="reply-container mt-4">
@@ -44,7 +46,9 @@
         placeholder="Type your reply here..."
         class="w-full p-3 border rounded-md mb-2"
       />
-      <button class="btn btn-primary w-full" @click="sendReply">Send Reply</button>
+      <button class="btn btn-primary w-full" @click="sendReply">
+        Send Reply
+      </button>
     </div>
   </div>
 </template>
@@ -53,7 +57,6 @@
 import { ref, computed } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
 import { useBotStore } from '@/stores/botStore'
-import ReactionCard from '@/components/ReactionCard.vue'
 
 const props = defineProps({
   chatExchangeId: {
@@ -71,23 +74,22 @@ const showReply = ref(false)
 const replyMessage = ref('')
 
 // Computed properties for chat exchange and messages
-const chatExchange = computed(() => 
+const chatExchange = computed(() =>
   chatStore.chatExchanges.find(
     (exchange) => exchange.id === props.chatExchangeId,
-  )
+  ),
 )
 
-const fullChatExchange = computed(() => JSON.stringify(chatExchange.value, null, 2))
-const userPrompt = computed(() => chatExchange.value?.userPrompt || 'No prompt available')
+const fullChatExchange = computed(() =>
+  JSON.stringify(chatExchange.value, null, 2),
+)
+const userPrompt = computed(
+  () => chatExchange.value?.userPrompt || 'No prompt available',
+)
 const botResponse = computed(() => chatExchange.value?.botResponse || '')
 const username = computed(() => chatExchange.value?.username || 'User')
 const botName = computed(() => chatExchange.value?.botName || 'Bot')
 const botAvatar = computed(() => botStore.currentBot?.avatarImage || '')
-
-// Toggle reply box
-const toggleReply = () => {
-  showReply.value = !showReply.value
-}
 
 // Send a reply
 const sendReply = async () => {

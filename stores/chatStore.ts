@@ -115,16 +115,19 @@ export const useChatStore = defineStore({
           throw new Error(response.message || 'Unknown error from API')
         }
 
-        const newExchange = response.newExchange as ChatExchange
-        if (!this.isValidChatExchange(newExchange)) {
-          throw new Error('Invalid ChatExchange object returned from API')
-        }
+const newExchange = response.newExchange as ChatExchange;
+if (!this.isValidChatExchange(newExchange)) {
+  throw new Error("Invalid ChatExchange object returned from API");
+}
 
-        newExchange.botResponse = ''
-        this.activeChats.push(newExchange)
+newExchange.botResponse = "";
+this.activeChats.push(newExchange);
 
-        // Call fetchStream to get the bot response
-        await this.fetchStream([{ role: 'user', content: prompt }])
+// Call fetchStream to get the bot response and update in real-time
+await this.fetchStream([{ role: "user", content: prompt }], newExchange.id);
+
+
+        
 
         this.saveToLocalStorage()
         return newExchange

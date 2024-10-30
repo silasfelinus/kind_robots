@@ -1,48 +1,161 @@
-import { defineEventHandler, readBody } from 'h3'
+<template>
+  <div class="chat-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6">
+    <!-- Header with User and Bot Details -->
+    <div class="header flex items-center mb-4">
+      <img
+        v-if="botAvatar"
+        :src="botAvatar"
+        alt="Bot Avatar"
+        class="w-10 h-10 rounded-full mr-3"
+      />
+      <div>
+        <p class="text-lg font-semibold">
+          {{ username }}
+          <span class="text-sm text-gray-500">to</span>
+          {{ botName }}
+        </p>
+      </div>
+    </div>
 
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const apiKey = process.env.OPENAI_API_KEY
-  const data = {
-    model: body.model || 'gpt-4o-mini',
-    messages: body.messages,
-    temperature: body.temperature,
-    max_tokens: body.maxTokens,
-    n: body.n,
-    stream: body.stream || false,
-  }
-  const post = body.post || 'https://api.openai.com/v1/chat/completions'
+    <!-- Message Thread -->
+    <div class="message-thread mb-4">
+      <div class="message p-2 mb-2 rounded-md bg-gray-100">
+        <p class="text-sm text-gray-700"><strong>User:</strong></p>
+        <p class="text-base">{{ userPrompt }}</p>
+      </div>
+      <div class="message p-2 mb-2 rounded-md bg-gray-100">
+        <p class="text-sm text-gray-700"><strong>Bot:</strong></p>
+        <p class="text-base">{{ botResponse }}</p>
+      </div>
+    </div>
 
-  try {
-    const response = await fetch(post, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`, // Confirm API Key is attached
-      },
-      body: JSON.stringify(data),
-    })
+    <!-- Debug JSON Display -->
+    <pre class="bg-gray-100 p-3 rounded-md mt-4 text-xs overflow-auto">
+      {{ fullChatExchange }}
+    </pre>
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      console.error('Failed API Call with error:', errorData)
-      return {
-        success: false,
-        statusCode: response.status,
-        message: response.statusText,
-        details: errorData,
-      }
-    }
+    <!-- Actions -->
+    <div class="actions flex justify-around mt-4">
+      <button class="btn btn-secondary" @click="saveMessage">Save</button>
+      <button class="btn btn-secondary" @click="share('facebook')">Share on Facebook</button>
+      <button class="btn btn-secondary" @click="share('twitter')">Share on Twitter</button>
+      <button class="btn btn-secondary" @click="react('like')">👍</button>
+      <button class="btn btn-secondary" @click="react('dislike')">👎</button>
+      <button class="btn btn-error" @click="deleteMessage">X</button>
+      <button class="btn btn-accent" @click="toggleReply">Reply</button>
+    </div>
 
-    const responseData = await response.json()
-    return { success: true, data: responseData }
-  } catch (error) {
-    console.error('Server Error:', error)
-    return {
-      success: false,
-      statusCode: 500,
-      message: 'Internal Server Error',
-      details: error instanceof Error ? error.message : String(error),
-    }
-  }
+    <!-- Reply Section -->
+    <div v-if="showReply" class="reply-container mt-4">
+      <textarea
+        v-model="replyMessage"
+        placeholder="Type your reply here..."
+        class="w-full p-3 border rounded-md mb-2"
+      />
+      <button class="btn btn-primary w-full" @click="sendReply">Send Reply</button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, defineProps } from 'vue'
+import { useChatStore } from '@/stores/chatStore'
+import { useBotStore } from '@/stores/botStore'
+import type { PropType } from 'vue'
+
+const props = defineProps({
+  chatExchangeId: {
+    type: Number,
+    required: true,
+  },
+  sendMessage: {
+    type: Function as PropType<
+      (updatedMessages: { role: string; content: string }[]) => Promise<void>
+    >,
+    default: () => async () => {},
+  },
 })
+
+// Stores
+const chatStore = useChatStore()
+const botStore = useBotStore()
+
+// Local state
+const showReply = ref(false)
+const replyMessage = ref('')
+
+// Computed properties for chat exchange and messages
+const chatExchange = computed(() => 
+  chatStore.chatExchanges.find(
+    (exchange) => exchange.id === props.chatExchangeId,
+  )
+)
+
+const fullChatExchange = computed(() => JSON.stringify(chatExchange.value, null, 2))
+const userPrompt = computed(() => chatExchange.value?.userPrompt || 'No prompt available')
+const botResponse = computed(() => chatExchange.value?.botResponse || '')
+const username = computed(() => chatExchange.value?.username || 'User')
+const botName = computed(() => chatExchange.value?.botName || 'Bot')
+const botAvatar = computed(() => botStore.currentBot?.avatarImage || '')
+
+// Toggle reply box
+const toggleReply = () => {
+  showReply.value = !showReply.value
+}
+
+// Send a reply, utilizing continueExchange
+const sendReply = async () => {
+  if (replyMessage.value.trim()) {
+    try {
+      const updatedMessages = [
+        { role: 'user', content: userPrompt.value },
+        { role: 'bot', content: botResponse.value },
+        { role: 'user', content: replyMessage.value },
+      ]
+      await chatStore.continueExchange(props.chatExchangeId, replyMessage.value)
+      await props.sendMessage(updatedMessages)
+      replyMessage.value = ''
+      showReply.value = false
+    } catch (error) {
+      console.error('Error sending reply:', error)
+    }
+  }
+}
+
+// Additional action functions (saveMessage, share, react, deleteMessage)
+const saveMessage = async () => {
+  if (chatExchange.value) {
+    try {
+      await chatStore.continueExchange(props.chatExchangeId, chatExchange.value.userPrompt)
+      console.log('Message saved successfully.')
+    } catch (error) {
+      console.error('Error saving message:', error)
+    }
+  }
+}
+
+const share = (platform: string) => {
+  console.log(`Shared on ${platform}`)
+}
+
+const react = (reaction: string) => {
+  console.log(`Reacted with ${reaction}`)
+}
+
+const deleteMessage = async () => {
+  if (chatExchange.value) {
+    try {
+      await chatStore.deleteExchange(chatExchange.value.id)
+      console.log('Message deleted successfully.')
+    } catch (error) {
+      console.error('Error deleting message:', error)
+    }
+  }
+}
+</script>
+
+<style scoped>
+.reply-container textarea {
+  resize: vertical;
+}
+</style>

@@ -180,19 +180,24 @@ export const useChatStore = defineStore({
   console.log('Streaming:', isStreaming)
 
   try {
+    // Construct payload as an object and log before stringifying
+    const payload = {
+      model,
+      messages,
+      temperature: 1,
+      n: 1,
+      maxTokens: 300,
+      stream: isStreaming,
+    }
+    console.log('Payload before JSON.stringify:', payload)
+
+    // Ensure body is stringified only once
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature: 1,
-        n: 1,
-        maxTokens: 300,
-        stream: isStreaming,
-      }),
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
@@ -200,7 +205,14 @@ export const useChatStore = defineStore({
       const errorMessage = errorDetails?.message
         ? `HTTP error! ${response.status} - ${errorDetails.message}`
         : `HTTP error! Status: ${response.status}`
+
       console.error('Failed API Response:', errorMessage)
+      console.error('Detailed error:', JSON.stringify(errorDetails, null, 2))
+
+      if (errorDetails?.error?.message === 'invalid model ID') {
+        console.warn(`The model ID "${model}" may be invalid. Double-check model name.`)
+      }
+
       throw new Error(errorMessage)
     }
 
@@ -247,6 +259,7 @@ export const useChatStore = defineStore({
     throw error
   }
 },
+
 
 
     async initialize() {

@@ -105,7 +105,9 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
-        // Determine finalPromptId by using provided promptId or creating a new prompt
+        console.log('Starting addExchange...')
+
+        // Fetch or create a promptId
         const finalPromptId =
           promptId ||
           (await promptStore.addPrompt(prompt, userId, botId ?? 1))?.id
@@ -113,6 +115,7 @@ export const useChatStore = defineStore({
         if (!finalPromptId) {
           throw new Error('Failed to obtain a prompt ID.')
         }
+        console.log('Final prompt ID:', finalPromptId)
 
         // Define initial ChatExchange data
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -143,21 +146,33 @@ export const useChatStore = defineStore({
           throw new Error('Invalid ChatExchange object returned from API')
         }
 
-        // Step 2: Retrieve botResponse from /api/botcafe
-        const botResponse = await this.fetch('/api/botcafe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, botId }),
-        })
+        // Step 2: Retrieve botResponse from /api/botcafe/chat
+        const botResponse = await this.fetch(
+          'https://kind-robots.vercel.app/api/botcafe/chat',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [{ role: 'user', content: prompt }],
+              temperature: 1,
+              n: 1,
+              maxTokens: 300,
+            }),
+          },
+        )
 
-        if (!botResponse.success || !botResponse.reply) {
+        if (!botResponse || !botResponse.choices?.[0]?.message?.content) {
           throw new Error(
             botResponse.message || 'Failed to retrieve bot response.',
           )
         }
 
         // Update exchange with bot response
-        newExchange.botResponse = botResponse.reply
+        newExchange.botResponse = botResponse.choices[0].message.content
 
         // Step 3: Store updated exchange and save to local storage
         this.chatExchanges.push(newExchange)

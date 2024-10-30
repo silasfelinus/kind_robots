@@ -146,7 +146,6 @@ export default defineEventHandler(async (event) => {
         promptId: validatedData.promptId,
         pitchId: validatedData.pitchId,
         galleryId: validatedData.galleryId,
-        hasArtImage: true,
         artImageId: imageId,
       },
     })

@@ -165,37 +165,33 @@ export const useChatStore = defineStore({
       }
     },
 
-       async fetchStream(
+  async fetchStream(
   model: string,
   messages: Array<{ role: string; content: string }>,
   onData: (chunk: string) => void,
+  isStreaming = true
 ) {
   const errorStore = useErrorStore()
-  const apiKey = process.env.OPENAI_API_KEY
-  const url = 'https://api.openai.com/v1/chat/completions'
+  const url = '/api/botcafe/chat'
 
   console.log('--- FetchStream Initiated ---')
   console.log('Model:', model)
   console.log('Messages:', JSON.stringify(messages, null, 2))
-  console.log('API Key Present:', !!apiKey) // Logs if the API key is loaded
-
-  if (!apiKey) {
-    console.error('API Key is missing.')
-    errorStore.setError(ErrorType.AUTH_ERROR, 'API Key is missing.')
-    throw new Error('API Key is missing. Please set it in your environment variables.')
-  }
+  console.log('Streaming:', isStreaming)
 
   try {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model,
         messages,
-        stream: true,
+        temperature: 1,
+        n: 1,
+        maxTokens: 300,
+        stream: isStreaming,
       }),
     })
 
@@ -210,42 +206,35 @@ export const useChatStore = defineStore({
 
     console.log('Response status:', response.status)
 
-    if (!response.body) {
-      console.error('Response body is null or undefined')
-      throw new Error('Failed to receive a valid response body')
-    }
-    
-    console.log('--- Stream Opened Successfully ---')
+    if (isStreaming && response.body) {
+      console.log('--- Stream Opened Successfully ---')
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
 
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
+      let responseData = ''
 
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) {
-        console.log('--- Stream Ended ---')
-        break
-      }
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
 
-      const chunk = decoder.decode(value, { stream: true })
-      console.log('Received raw chunk:', chunk)
+        const chunk = decoder.decode(value, { stream: true })
+        console.log('Received raw chunk:', chunk)
 
-      try {
-        const parsedChunk = JSON.parse(chunk)
-        const content = parsedChunk.choices[0]?.delta?.content
-        if (content) {
-          console.log('Parsed content:', content)
-          onData(content)
-        } else {
-          console.warn('Chunk received with no content:', parsedChunk)
+        try {
+          responseData += chunk
+          onData(chunk)
+        } catch (parseError) {
+          console.warn('Failed to handle chunk:', chunk, parseError)
         }
-      } catch (parseError) {
-        console.warn('JSON parsing failed for chunk:', chunk)
-        console.error('Parsing error details:', parseError)
       }
+      console.log('--- Stream Ended ---')
+      return JSON.parse(responseData)
+    } else {
+      console.log('--- Non-streaming response ---')
+      const responseData = await response.json()
+      console.log('Response data:', responseData)
+      return responseData
     }
-
-    return true
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error

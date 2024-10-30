@@ -4,6 +4,9 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import type { ChatExchange } from '@prisma/client'
+import OpenAI from 'openai'
+
+const openai = new OpenAI()
 
 export const useChatStore = defineStore({
   id: 'chat',
@@ -64,6 +67,7 @@ export const useChatStore = defineStore({
         throw error
       }
     },
+
     async addExchange(
       prompt: string,
       userId: number,
@@ -84,7 +88,6 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
-        // Ensure finalPromptId is only the ID integer
         let finalPromptId = promptId
 
         if (!finalPromptId) {
@@ -93,21 +96,16 @@ export const useChatStore = defineStore({
             userId,
             botId ?? 1,
           )
-          
-      finalPromptId = promptResult ? promptResult.id : null
-
+          finalPromptId = promptResult ? promptResult.id : null
 
           if (!finalPromptId) {
             throw new Error('Failed to obtain a prompt ID.')
           }
         }
 
-
-    // Final safety check to ensure finalPromptId is an integer
-    if (typeof finalPromptId === 'object' && 'id' in finalPromptId) {
-      finalPromptId = finalPromptId.id
-    }
-
+        if (typeof finalPromptId === 'object' && 'id' in finalPromptId) {
+          finalPromptId = finalPromptId.id
+        }
 
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
@@ -118,10 +116,9 @@ export const useChatStore = defineStore({
           botResponse: '',
           isPublic: true,
           botId: botId ?? null,
-          promptId: finalPromptId, // Ensure only integer ID is set here
+          promptId: finalPromptId,
         }
 
-        // Send exchange to API
         const response = await this.fetch('/api/chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -137,11 +134,9 @@ export const useChatStore = defineStore({
           throw new Error('Invalid ChatExchange object returned from API')
         }
 
-        // Initialize bot response as an empty string
         newExchange.botResponse = ''
         this.activeChats.push(newExchange)
 
-        // Fetch bot response as a stream
         await this.fetchStream(
           'https://kind-robots.vercel.app/api/botcafe/chat',
           {
@@ -171,76 +166,44 @@ export const useChatStore = defineStore({
         throw error
       }
     },
-async fetchStream(
-  url: string,
-  options: RequestInit = {},
-  onData: (chunk: string) => void,
-) {
-  const errorStore = useErrorStore()
-  console.log('Starting fetchStream:', { url, options })
 
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        ...options.headers,
-        'Content-Type': 'application/json',
-      },
-    })
-
-    // Log the response status
-    console.log('fetchStream response status:', response.status)
-
-    if (!response.ok || !response.body) {
-      const errorDetails = await response.json().catch(() => null)
-      const errorMessage = errorDetails?.message
-        ? `HTTP error! ${response.status} - ${errorDetails.message}`
-        : `HTTP error! Status: ${response.status}`
-      console.error('fetchStream failed:', errorMessage)
-      throw new Error(errorMessage)
-    }
-
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
-    console.log('Reading stream data...')
-
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) {
-        console.log('Stream reading completed')
-        break
-      }
-
-      const chunk = decoder.decode(value, { stream: true })
-      console.log('Received chunk:', chunk) // Log raw chunk data
+    async fetchStream(
+      model: string,
+      messages: Array<{ role: string; content: string }>,
+      onData: (chunk: string) => void,
+    ) {
+      const errorStore = useErrorStore()
+      console.log('fetchStream initiated with model:', model)
 
       try {
-        const parsedChunk = JSON.parse(chunk)
-        const messageContent = parsedChunk?.choices?.[0]?.message?.content
+        const stream = await openai.chat.completions.create({
+          model,
+          messages,
+          stream: true,
+        })
 
-        if (messageContent) {
-          console.log('Parsed message content:', messageContent) // Log parsed content
-          onData(messageContent)
-        } else {
-          console.warn('No content in parsed chunk:', parsedChunk)
+        console.log('Stream opened successfully')
+
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content
+          if (content) {
+            console.log('Received content:', content)
+            onData(content)
+          }
         }
-      } catch (error) {
-        console.warn('Failed to parse chunk as JSON:', chunk, error)
+
+        console.log('Stream ended successfully')
+        return true
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred during fetchStream'
+        console.error('fetchStream Error:', errorMessage)
+        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+        throw error
       }
-    }
-
-    return true
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'An unknown error occurred during fetchStream'
-    console.error('fetchStream encountered an error:', errorMessage)
-    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
-    throw error
-  }
-},
-
+    },
 
     async initialize() {
       if (this.isInitialized) return
@@ -262,6 +225,7 @@ async fetchStream(
         )
       }
     },
+
     async continueExchange(
       previousExchangeId: number,
       newPrompt: string,
@@ -281,13 +245,12 @@ async fetchStream(
 
       const userStore = useUserStore()
 
-      // Pass promptId if provided, otherwise use the previous exchange's promptId
       return await this.addExchange(
         newPrompt,
         userStore.userId,
         previousExchange.botId ?? 1,
         previousExchange.id,
-        promptId ?? previousExchange.promptId ?? undefined, // Use passed promptId if available, else fallback to previousExchange.promptId
+        promptId ?? previousExchange.promptId ?? undefined,
       )
     },
 
@@ -371,7 +334,7 @@ async fetchStream(
     },
 
     loadFromLocalStorage() {
-      if (typeof window === 'undefined') return // Prevent running on the server
+      if (typeof window === 'undefined') return
 
       const savedExchanges = localStorage.getItem('chatExchanges')
 
@@ -379,7 +342,6 @@ async fetchStream(
         try {
           const parsedExchanges = JSON.parse(savedExchanges)
 
-          // Validate the parsed data
           if (Array.isArray(parsedExchanges)) {
             this.chatExchanges = parsedExchanges.map((exchange) => ({
               ...exchange,
@@ -389,7 +351,7 @@ async fetchStream(
               updatedAt: exchange.updatedAt
                 ? new Date(exchange.updatedAt)
                 : new Date(),
-              userId: exchange.userId ?? 0, // Fallback for missing userId
+              userId: exchange.userId ?? 0,
               username: exchange.username || 'Unknown User',
               userPrompt: exchange.userPrompt || 'No prompt available',
               botResponse: exchange.botResponse || '',
@@ -399,23 +361,20 @@ async fetchStream(
               previousEntryId: exchange.previousEntryId ?? null,
             }))
           } else {
-            // If data is not in the expected format, clear `localStorage` and reset
             console.warn('Invalid data format in localStorage, clearing data.')
             localStorage.removeItem('chatExchanges')
             this.chatExchanges = []
           }
         } catch (error) {
-          // Handle JSON parse errors by clearing localStorage and resetting
           this.handleError(
             ErrorType.PARSE_ERROR,
             `Failed to parse chat exchanges from localStorage: ${error}`,
           )
           console.warn('Clearing corrupted data from localStorage.')
-          localStorage.removeItem('chatExchanges') // Clear corrupted data
-          this.chatExchanges = [] // Reset to empty array
+          localStorage.removeItem('chatExchanges')
+          this.chatExchanges = []
         }
       } else {
-        // Initialize as empty array if no data exists in localStorage
         this.chatExchanges = []
       }
     },

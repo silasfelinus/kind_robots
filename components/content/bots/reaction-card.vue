@@ -85,25 +85,39 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useReactionStore } from '@/stores/reactionStore'
 import { useUserStore } from '@/stores/userStore'
+import {
+  useReactionStore,
+  ReactionTypeEnum,
+  ReactionCategoryEnum,
+} from '@/stores/reactionStore'
 
 const props = defineProps({
   chatExchangeId: { type: Number, default: null },
   artId: { type: Number, default: null },
   pitchId: { type: Number, default: null },
   componentId: { type: Number, default: null },
+  artImageId: { type: Number, default: null },
+  galleryId: { type: Number, default: null },
+  botId: { type: Number, default: null },
+  messageId: { type: Number, default: null },
+  postId: { type: Number, default: null },
+  promptId: { type: Number, default: null },
+  resourceId: { type: Number, default: null },
+  rewardId: { type: Number, default: null },
+  tagId: { type: Number, default: null },
 })
 
 const reactionStore = useReactionStore()
 const userStore = useUserStore()
 
 const rating = ref(0)
-const selectedReactionType = ref('NEUTRAL') // Example default
+const selectedReactionType = ref(ReactionTypeEnum.NEUTRAL) // Default enum value
 const comment = ref('')
 const showComment = ref(false)
 
-const reactionTypes = ['NEUTRAL', 'LIKE', 'LOVE', 'DISLIKE', 'HATE'] // Example values
+// Reaction type options
+const reactionTypes = Object.values(ReactionTypeEnum)
 
 const toggleComment = () => {
   showComment.value = !showComment.value
@@ -125,10 +139,20 @@ const submitReaction = async () => {
       artId: props.artId,
       pitchId: props.pitchId,
       componentId: props.componentId,
+      artImageId: props.artImageId,
+      galleryId: props.galleryId,
+      botId: props.botId,
+      messageId: props.messageId,
+      postId: props.postId,
+      promptId: props.promptId,
+      resourceId: props.resourceId,
+      rewardId: props.rewardId,
+      tagId: props.tagId,
       userId: userStore.user.id,
       rating: rating.value,
-      reactionType: selectedReactionType.value,
+      reactionType: selectedReactionType.value as ReactionTypeEnum, // Use enum type
       comment: comment.value,
+      reactionCategory: ReactionCategoryEnum.COMPONENT, // Example default category
     })
     console.log('Reaction submitted successfully.')
   } catch (error) {
@@ -138,7 +162,7 @@ const submitReaction = async () => {
 
 const clearReaction = () => {
   rating.value = 0
-  selectedReactionType.value = 'NEUTRAL'
+  selectedReactionType.value = ReactionTypeEnum.NEUTRAL
   comment.value = ''
   showComment.value = false
 }

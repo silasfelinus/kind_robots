@@ -33,6 +33,7 @@
 
     <!-- Debug JSON Display (for development purposes) -->
     <pre class="bg-gray-100 p-3 rounded-md mt-4 text-xs overflow-auto">
+exchange:
       {{ fullChatExchange }}
     </pre>
 

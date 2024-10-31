@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Extract the token from the Authorization header
-    const authorizationHeader = event.req.headers['authorization']
+    const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader) {
       throw createError({
         statusCode: 401, // Unauthorized

@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     temperature: body.temperature,
     max_tokens: body.maxTokens,
     n: body.n,
-    stream: body.stream || false,
+    stream: false,
   }
   const post = body.post || 'https://api.openai.com/v1/chat/completions'
 

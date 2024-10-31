@@ -33,8 +33,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const reader = response.body?.getReader()
-  const decoder = new TextDecoder("utf-8")
-  let responseData = ""
+  if (!reader) {
+    console.error('Response body reader is undefined.')
+    throw new Error('Failed to obtain response body reader')
+  }
+
+  const decoder = new TextDecoder('utf-8')
+  let responseData = ''
 
   if (data.stream) {
     console.log('--- Streamed Response Mode ---')
@@ -46,7 +51,7 @@ export default defineEventHandler(async (event) => {
         console.log('Stream reading complete.')
         break
       }
-      
+
       const chunk = decoder.decode(value, { stream: true })
       responseData += chunk
       console.log('Received chunk:', chunk)
@@ -57,7 +62,10 @@ export default defineEventHandler(async (event) => {
         console.log('Successfully parsed JSON from stream:', json)
         return json
       } catch (error) {
-        console.warn('Incomplete JSON received; waiting for more data...')
+        console.warn(
+          'Incomplete JSON received; waiting for more data...',
+          error,
+        )
       }
     }
 

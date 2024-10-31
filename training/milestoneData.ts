@@ -17,6 +17,7 @@ export const milestoneData: Milestone[] = [
     isActive: true,
     pageHint: '/',
     subtleHint: 'Venture into a new realm',
+    artImageId: null,
   },
   {
     id: 2,
@@ -32,6 +33,7 @@ export const milestoneData: Milestone[] = [
     isActive: false,
     pageHint: '/brainstorm',
     subtleHint: 'Flex your cranium',
+    artImageId: null,
   },
   {
     id: 3,
@@ -47,6 +49,7 @@ export const milestoneData: Milestone[] = [
     isActive: false,
     pageHint: '/weirdlandia',
     subtleHint: 'Venture into a new realm',
+    artImageId: null,
   },
   {
     id: 4,
@@ -62,6 +65,7 @@ export const milestoneData: Milestone[] = [
     isActive: false,
     pageHint: '/botcafe',
     subtleHint: 'Palaver with a pseudo-intelligence',
+    artImageId: null,
   },
   {
     id: 5,
@@ -77,6 +81,7 @@ export const milestoneData: Milestone[] = [
     isActive: false,
     pageHint: '/artmaker',
     subtleHint: 'What does it take to become an artist?',
+    artImageId: null,
   },
   {
     id: 6,
@@ -92,6 +97,7 @@ export const milestoneData: Milestone[] = [
     isActive: false,
     pageHint: '/fate',
     subtleHint: 'There are no wrong answers',
+    artImageId: null,
   },
   {
     id: 7,
@@ -107,6 +113,7 @@ export const milestoneData: Milestone[] = [
     isActive: false,
     pageHint: '/galleries',
     subtleHint: 'Express an opinion',
+    artImageId: null,
   },
   {
     id: 8,
@@ -122,6 +129,7 @@ export const milestoneData: Milestone[] = [
     isActive: false,
     pageHint: '/ammibot',
     subtleHint: 'Contribute to a social movement',
+    artImageId: null,
   },
   {
     id: 9,
@@ -137,6 +145,7 @@ export const milestoneData: Milestone[] = [
     isActive: false,
     pageHint: '/theme',
     subtleHint: 'Try out a new look',
+    artImageId: null,
   },
   {
     id: 10,
@@ -152,6 +161,7 @@ export const milestoneData: Milestone[] = [
     isActive: false,
     pageHint: '/milestones',
     subtleHint: 'Aspire for greatness',
+    artImageId: null,
   },
 ]
 

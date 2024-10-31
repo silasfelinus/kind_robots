@@ -48,24 +48,7 @@
         <div>
           <h4 class="text-md md:text-lg font-semibold">{{ idea.title }}</h4>
           <p class="text-xs md:text-sm">{{ idea.pitch }}</p>
-          <button
-            class="bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded-full transition duration-300 ml-2"
-            @click.stop="reactToPitch(idea, ReactionTypeEnum.CLAPPED)"
-          >
-            Clap Reaction
-          </button>
-          <button
-            class="bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded-full transition duration-300 ml-2"
-            @click.stop="reactToPitch(idea, ReactionTypeEnum.LOVED)"
-          >
-            Love Reaction
-          </button>
-          <button
-            class="bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded-full transition duration-300 ml-2"
-            @click.stop="reactToPitch(idea, ReactionTypeEnum.HATED)"
-          >
-            Hate Reaction
-          </button>
+          
         </div>
       </div>
     </transition-group>
@@ -95,15 +78,10 @@
 import { ref, computed } from 'vue'
 import { usePitchStore, type Pitch } from './../../../stores/pitchStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
-import {
-  useReactionStore,
-  ReactionTypeEnum,
-} from '../../../stores/reactionStore'
 
 // Stores and States
 const pitchStore = usePitchStore()
 const errorStore = useErrorStore()
-const reactionStore = useReactionStore()
 const selectedPitches = ref<(Pitch | null)[]>([null, null, null, null, null])
 
 // Computed brainstorm pitches
@@ -117,20 +95,6 @@ const handlePitchCreated = (pitch: Pitch) => {
   }
 }
 
-const reactToPitch = async (pitch: Pitch, reactionType: ReactionTypeEnum) => {
-  try {
-    const userStore = useUserStore()
-    await reactionStore.createReaction({
-      pitchId: pitch.id,
-      userId: userStore.userId,
-      reactionType, // Use ReactionType enum
-    })
-  } catch (error: unknown) {
-    const err = error as Error
-    errorStore.setError(ErrorType.NETWORK_ERROR, err)
-    console.error('Failed to react to pitch:', err.message)
-  }
-}
 
 const selectPitch = (pitch: Pitch) => {
   selectedPitches.value = selectedPitches.value.filter(

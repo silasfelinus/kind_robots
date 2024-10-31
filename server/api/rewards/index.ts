@@ -21,6 +21,22 @@ export function createReward(reward: Partial<Reward>): Promise<Reward> {
   })
 }
 
+/**
+ * Fetches a reward by its ID from the database.
+ * @param {number} id - The ID of the reward to retrieve.
+ * @returns {Promise<Reward | null>} - The reward if found, otherwise null.
+ */
+export async function fetchRewardById(id: number): Promise<Reward | null> {
+  try {
+    const reward = await prisma.reward.findUnique({
+      where: { id },
+    })
+    return reward
+  } catch (error: unknown) {
+    throw new Error(`Failed to fetch reward by ID: ${(error as Error).message}`)
+  }
+}
+
 // Function to update a Reward by its ID using Prisma's built-in types
 export const updateRewardById = async (
   id: number,

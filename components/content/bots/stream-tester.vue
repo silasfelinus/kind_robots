@@ -42,9 +42,6 @@
 
 
 
-
-
-
     <!-- Display Bot Response -->
     <div v-if="responseText" class="mt-6 p-4 bg-gray-100 rounded-lg">
       <h2 class="text-xl font-semibold mb-2">Bot Response:</h2>
@@ -75,7 +72,7 @@ async function submitPrompt() {
   errorMessage.value = '';
 
   // Display the prompt at the top of the responseText
-  responseText.value = `You: ${prompt.value}\n\n`; // Add prompt as "You: [Prompt]"
+  responseText.value = `You: ${prompt.value}\n\n`; // Add prompt as "You: [Prompt]\n\n"
 
   const apiEndpoint = '/api/botcafe/chat';
 

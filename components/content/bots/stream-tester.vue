@@ -65,11 +65,20 @@ async function submitPrompt() {
   errorMessage.value = ''
 
   const apiEndpoint = 'https://api.openai.com/v1/chat/completions'
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY // Adjust this to the correct environment variable name
+
+  if (!apiKey) {
+    errorMessage.value = 'API key is missing. Please check your environment configuration.'
+    loading.value = false
+    console.error('API key is missing.')
+    return
+  }
+
   const requestOptions = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${import.meta.env.OPENAI_API_KEY}`
+      'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
       model: 'gpt-4',
@@ -85,12 +94,21 @@ async function submitPrompt() {
       await fetchStream(apiEndpoint, requestOptions)
     } else {
       const response = await fetch(apiEndpoint, requestOptions)
-      if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`)
+      if (!response.ok) {
+        if (response.status === 401) {
+          errorMessage.value = 'Unauthorized: Check your API key.'
+        } else {
+          errorMessage.value = `Error ${response.status}: ${response.statusText}`
+        }
+        console.error(`Request failed with status ${response.status}: ${response.statusText}`)
+        throw new Error(`Error ${response.status}: ${response.statusText}`)
+      }
       const data = await response.json()
       responseText.value = data.choices?.[0]?.message?.content || 'No response received'
     }
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'An unknown error occurred'
+    console.error('Error during API request:', error)
   } finally {
     loading.value = false
   }
@@ -99,7 +117,15 @@ async function submitPrompt() {
 // Function to handle streaming response
 async function fetchStream(url: string, options: RequestInit) {
   const response = await fetch(url, options)
-  if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`)
+  if (!response.ok) {
+    if (response.status === 401) {
+      errorMessage.value = 'Unauthorized: Check your API key.'
+    } else {
+      errorMessage.value = `Error ${response.status}: ${response.statusText}`
+    }
+    console.error(`Stream request failed with status ${response.status}: ${response.statusText}`)
+    throw new Error(`Error ${response.status}: ${response.statusText}`)
+  }
 
   if (response.body) {
     const reader = response.body.getReader()

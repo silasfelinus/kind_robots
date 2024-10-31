@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const OPENAI_API_KEY = useRuntimeConfig()
 
   const data = {
-    model: body.model || 'gpt-4',
+    model: body.model || 'gpt-4o-mini',
     messages: body.messages,
     temperature: body.temperature,
     max_tokens: body.max_tokens,

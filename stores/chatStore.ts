@@ -329,7 +329,7 @@ export const useChatStore = defineStore({
 async deleteExchange(exchangeId: number): Promise<boolean> {
   const errorStore = useErrorStore()
   const userStore = useUserStore()
-  const currentUserId = userStore.userId
+  const currentUserId = userStore.userId()
 
   if (!currentUserId) {
     errorStore.setError(ErrorType.AUTHORIZATION_ERROR, 'User not authenticated.')

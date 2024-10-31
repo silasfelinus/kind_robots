@@ -85,28 +85,32 @@ export const useChatStore = defineStore({
       const promptStore = usePromptStore()
 
       try {
-        let finalPromptId = promptId
+     let finalPromptId = promptId
 
-        if (!finalPromptId) {
-          const promptResult = await promptStore.addPrompt(
-            prompt,
-            userId,
-            botId ?? 1,
-          )
-console.log("prompt result:", promptResult)
-          finalPromptId = promptResult ? promptResult.id : null
-console.log("final promptId:", finalPromptId)
+    if (!finalPromptId) {
+      const promptResult = await promptStore.addPrompt(
+        prompt,
+        userId,
+        botId ?? 1,
+      )
+      console.log("Prompt result:", promptResult)
+      
+      // Extract the ID from the promptResult if it exists
+      finalPromptId = promptResult ? promptResult.id : null
+      console.log("Extracted final promptId:", finalPromptId)
 
-          if (!finalPromptId) {
-            throw new Error('Failed to obtain a prompt ID.')
-          }
-        }
+      if (!finalPromptId) {
+        throw new Error('Failed to obtain a prompt ID.')
+      }
+    }
 
-if (finalPromptId.id) {
-finalPromptId = finalPromptId.id
-}
+    // Ensure finalPromptId is an integer
+    if (typeof finalPromptId === 'object' && finalPromptId.id) {
+      finalPromptId = finalPromptId.id
+    }
+    
+    console.log("Confirmed final promptId:", finalPromptId)
 
-console.log("final final promptId:", finalPromptId)
 
 
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {

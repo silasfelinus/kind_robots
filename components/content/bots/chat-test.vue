@@ -148,14 +148,19 @@ async function editExchange(exchangeId: number, updatedPrompt: string) {
   }
 }
 
-// Delete an existing exchange
+
 async function deleteExchange(exchangeId: number) {
   try {
-    await chatStore.deleteExchange(exchangeId)
-    showFeedback('Exchange deleted successfully!')
+    const wasDeleted = await chatStore.deleteExchange(exchangeId)
+    if (wasDeleted) {
+      showFeedback('Exchange deleted successfully!')
+    } else {
+      showFeedback('Failed to delete exchange due to authorization or other error.', true)
+    }
   } catch (error) {
     showFeedback('Failed to delete exchange.', true)
     console.error(error)
   }
 }
+
 </script>

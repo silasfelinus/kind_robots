@@ -1,4 +1,3 @@
-// server/api/botcafe/chat.ts
 import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {
@@ -10,7 +9,7 @@ export default defineEventHandler(async (event) => {
     temperature: body.temperature,
     max_tokens: body.maxTokens,
     n: body.n,
-    stream: false,
+    stream: body.stream || false,
   }
   const post = body.post || 'https://api.openai.com/v1/chat/completions'
 
@@ -37,36 +36,51 @@ export default defineEventHandler(async (event) => {
   const decoder = new TextDecoder("utf-8")
   let responseData = ""
 
-  console.log('Starting to read streamed response...')
+  if (data.stream) {
+    console.log('--- Streamed Response Mode ---')
 
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) {
-      console.log('Stream reading complete.')
-      break
+    // Handle streamed response
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) {
+        console.log('Stream reading complete.')
+        break
+      }
+      
+      const chunk = decoder.decode(value, { stream: true })
+      responseData += chunk
+      console.log('Received chunk:', chunk)
+
+      // Try parsing as JSON only if we have a complete JSON string
+      try {
+        const json = JSON.parse(responseData)
+        console.log('Successfully parsed JSON from stream:', json)
+        return json
+      } catch (error) {
+        console.warn('Incomplete JSON received; waiting for more data...')
+      }
     }
-    
-    const chunk = decoder.decode(value)
-    responseData += chunk
-    console.log('Received chunk:', chunk)
 
+    // Final attempt to parse accumulated data after stream completion
     try {
-      const json = JSON.parse(responseData)
-      console.log('Successfully parsed JSON:', json)
-      return json
+      const finalJson = JSON.parse(responseData)
+      console.log('Final parsed JSON after stream:', finalJson)
+      return finalJson
     } catch (error) {
-      console.warn('JSON parse attempt failed. Accumulating more chunks...')
+      console.error('Final parse error after stream completion:', error)
+      throw new Error('Failed to parse final response after stream completion')
     }
-  }
+  } else {
+    console.log('--- Non-streamed Response Mode ---')
 
-  console.log('Final accumulated responseData:', responseData)
-
-  try {
-    const finalJson = JSON.parse(responseData)
-    console.log('Final parsed JSON:', finalJson)
-    return finalJson
-  } catch (error) {
-    console.error('Final parse error after stream completion:', error)
-    throw new Error('Failed to parse final response after stream completion')
+    // Handle non-streamed response
+    try {
+      const responseData = await response.json()
+      console.log('Parsed JSON from non-stream response:', responseData)
+      return responseData
+    } catch (error) {
+      console.error('Error parsing non-streamed response:', error)
+      throw new Error('Failed to parse non-streamed response')
+    }
   }
 })

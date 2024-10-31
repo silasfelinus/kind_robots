@@ -27,7 +27,6 @@ export default defineEventHandler(async (event) => {
   }
 
   if (data.stream) {
-    // Stream chunks to frontend as they arrive
     const reader = response.body?.getReader()
     const decoder = new TextDecoder('utf-8')
 
@@ -51,8 +50,10 @@ export default defineEventHandler(async (event) => {
           const jsonChunk = buffer.slice(0, boundary).trim()
           buffer = buffer.slice(boundary + 1)
 
-          // Send each chunk as SSE to the frontend
-          event.node.res.write(`data: ${jsonChunk}\n\n`)
+          // Only send non-empty chunks with a single data prefix
+          if (jsonChunk) {
+            event.node.res.write(`data: ${jsonChunk}\n\n`)
+          }
         }
       }
       event.node.res.end()

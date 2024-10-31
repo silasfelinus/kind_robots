@@ -326,56 +326,79 @@ export const useChatStore = defineStore({
     },
 
     async deleteExchange(exchangeId: number): Promise<boolean> {
-      const errorStore = useErrorStore()
-      const userStore = useUserStore()
-      const currentUserId = userStore.user?.id
+  const errorStore = useErrorStore()
+  const userStore = useUserStore()
+  const currentUserId = userStore.user?.id
 
-      if (!currentUserId) {
-        errorStore.setError(ErrorType.AUTH_ERROR, 'User not authenticated.')
-        return false
-      }
+  console.log("Starting deleteExchange process", { exchangeId, currentUserId })
 
-      // Find the exchange to check ownership
-      const exchange = this.chatExchanges.find(
-        (exchange) => exchange.id === exchangeId,
-      )
-      if (!exchange) {
-        errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Exchange not found.')
-        return false
-      }
+  if (!currentUserId) {
+    errorStore.setError(ErrorType.AUTH_ERROR, 'User not authenticated.')
+    console.log("Error: User not authenticated.")
+    return false
+  }
 
-      // Client-side authorization check
-      if (exchange.userId !== currentUserId) {
-        errorStore.setError(
-          ErrorType.AUTH_ERROR,
-          'You are not authorized to delete this exchange.',
-        )
-        return false
-      }
+  // Find the exchange to check ownership
+  const exchange = this.chatExchanges.find(
+    (exchange) => exchange.id === exchangeId
+  )
+  console.log("Exchange found", { exchange })
 
-      try {
-        // Proceed to delete if authorized
-        const response = await fetch(`/api/exchanges/${exchangeId}`, {
-          method: 'DELETE',
-        })
+  if (!exchange) {
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Exchange not found.')
+    console.log("Error: Exchange not found with the provided exchangeId.")
+    return false
+  }
 
-        if (!response.ok) {
-          throw new Error(await response.text())
-        }
+  // Client-side authorization check
+  if (exchange.userId !== currentUserId) {
+    errorStore.setError(
+      ErrorType.AUTH_ERROR,
+      'You are not authorized to delete this exchange.'
+    )
+    console.log("Error: User not authorized", {
+      exchangeUserId: exchange.userId,
+      currentUserId,
+    })
+    return false
+  }
 
-        // Remove from local state after successful deletion
-        this.chatExchanges = this.chatExchanges.filter(
-          (exchange) => exchange.id !== exchangeId,
-        )
-        return true
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error deleting exchange: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-        return false
-      }
-    },
+  try {
+    // Proceed to delete if authorized
+    console.log("Attempting to delete exchange on server", { exchangeId })
+
+    const response = await fetch(`/api/exchanges/${exchangeId}`, {
+      method: 'DELETE',
+    })
+
+    console.log("Response from server", {
+      status: response.status,
+      ok: response.ok,
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.log("Server response error text", { errorText })
+      throw new Error(errorText)
+    }
+
+    // Remove from local state after successful deletion
+    this.chatExchanges = this.chatExchanges.filter(
+      (exchange) => exchange.id !== exchangeId
+    )
+    console.log("Exchange successfully deleted from local state", { exchangeId })
+    return true
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      `Error deleting exchange: ${errorMessage}`
+    )
+    console.log("Network error occurred during delete", { errorMessage })
+    return false
+  }
+},
+
 
     loadFromLocalStorage() {
       if (typeof window === 'undefined') return

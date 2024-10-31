@@ -26,7 +26,6 @@ describe('Component Reactions API Tests', () => {
         title: 'Test Component',
       },
     }).then((response) => {
-      // Log the entire response for debugging
       cy.log('Component Creation Response:', JSON.stringify(response.body))
 
       // Check the response status and capture the componentId
@@ -42,7 +41,7 @@ describe('Component Reactions API Tests', () => {
 
   // Step 2: Create a new reaction for the created component
   it('Create a New Component Reaction', () => {
-    cy.wrap(componentId).should('exist') // Ensure the componentId exists before creating a reaction
+    cy.wrap(componentId).should('exist') // Ensure componentId exists
 
     cy.request({
       method: 'POST',
@@ -55,26 +54,26 @@ describe('Component Reactions API Tests', () => {
         userId: userId,
         reactionType: 'CLAPPED', // Example reaction type
         reactionCategory: 'COMPONENT',
-        componentId: componentId, // Use the created componentId
+        componentId: componentId, // Use created componentId
         comment: 'Great job on this component!',
+        rating: 4, // Example rating
       },
     }).then((response) => {
-      // Log the entire response for debugging
       cy.log('Reaction Creation Response:', JSON.stringify(response.body))
 
-      // Check the response status and capture the reactionId
+      // Check response and capture reactionId
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('reaction')
       reactionId = response.body.reaction.id
       expect(reactionId).to.be.a('number')
 
-      console.log('Created Reaction ID:', reactionId) // Log for debugging
+      console.log('Created Reaction ID:', reactionId)
     })
   })
 
   // Step 3: Fetch all reactions for the component
   it("Get a Component's Reactions", () => {
-    cy.wrap(componentId).should('exist') // Ensure the componentId exists before fetching reactions
+    cy.wrap(componentId).should('exist') // Ensure componentId exists
 
     cy.request({
       method: 'GET',
@@ -88,7 +87,7 @@ describe('Component Reactions API Tests', () => {
       expect(response.body.success).to.be.true
       expect(response.body.reactions)
         .to.be.an('array')
-        .and.have.length.greaterThan(0) // Check that reactions are returned
+        .and.have.length.greaterThan(0) // Check reactions returned
     })
   })
 
@@ -113,6 +112,7 @@ describe('Component Reactions API Tests', () => {
       expect(reaction.componentId).to.eq(componentId)
       expect(reaction.userId).to.eq(userId)
       expect(reaction.comment).to.eq('Great job on this component!')
+      expect(reaction.rating).to.eq(4)
     })
   })
 
@@ -131,6 +131,7 @@ describe('Component Reactions API Tests', () => {
         reactionType: 'BOOED', // Change reaction type
         comment: 'Actually, I have second thoughts...',
         reactionCategory: 'COMPONENT',
+        rating: 2, // Update rating
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -139,6 +140,7 @@ describe('Component Reactions API Tests', () => {
       expect(response.body.reaction.comment).to.eq(
         'Actually, I have second thoughts...',
       )
+      expect(response.body.reaction.rating).to.eq(2)
     })
   })
 

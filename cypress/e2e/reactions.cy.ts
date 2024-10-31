@@ -26,22 +26,21 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
         pitchId: null,
       },
     }).then((response) => {
-      // Log the entire response to debug structure
       cy.log('Art Creation Response:', JSON.stringify(response.body))
 
-      // Check the response status and capture the artId
+      // Check response and capture artId
       expect(response.status).to.eq(200)
       expect(response.body.art).to.have.property('id')
 
       artId = response.body.art.id
       expect(artId).to.be.a('number')
 
-      console.log('Created Art ID:', artId) // Log for debugging
+      console.log('Created Art ID:', artId)
     })
   })
 
   it('Create a New Art Reaction', () => {
-    cy.wrap(artId).should('exist') // Ensure the artId exists before creating a reaction
+    cy.wrap(artId).should('exist') // Ensure artId exists
 
     cy.request({
       method: 'POST',
@@ -54,25 +53,25 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
         userId: userId,
         reactionType: 'LOVED', // Example reaction type
         reactionCategory: 'ART',
-        artId: artId, // Use the created artId
-        comment: 'Love this goth kitten art!',
+        artId: artId, // Use created artId
+        comment: 'Love this pancake sunrise art!',
+        rating: 5, // Example rating
       },
     }).then((response) => {
-      // Log the entire response to debug structure
       cy.log('Reaction Creation Response:', JSON.stringify(response.body))
 
-      // Check the response status and capture the reactionId
+      // Check response and capture reactionId
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('reaction')
       reactionId = response.body.reaction.id
       expect(reactionId).to.be.a('number')
 
-      console.log('Created Reaction ID:', reactionId) // Log for debugging
+      console.log('Created Reaction ID:', reactionId)
     })
   })
 
   it('Edit the Existing Art Reaction', () => {
-    cy.wrap(reactionId).should('exist') // Ensure the reactionId exists before editing
+    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
 
     cy.request({
       method: 'PATCH',
@@ -82,18 +81,20 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
         'x-api-key': apiKey,
       },
       body: {
-        reactionType: 'CLAPPED', // Changing the reaction type
+        reactionType: 'CLAPPED', // Changing reaction type
         comment: 'Actually, clapping for this artwork!',
         reactionCategory: 'ART',
+        rating: 4, // Updating the rating
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+      expect(response.body.reaction).to.have.property('rating', 4)
     })
   })
 
   it('Delete the Art Reaction', () => {
-    cy.wrap(reactionId).should('exist') // Ensure the reactionId exists before deleting
+    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
 
     cy.request({
       method: 'DELETE',
@@ -109,7 +110,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
   })
 
   it('Delete the Created Art Piece', () => {
-    cy.wrap(artId).should('exist') // Ensure the artId exists before deleting
+    cy.wrap(artId).should('exist') // Ensure artId exists
 
     cy.request({
       method: 'DELETE',

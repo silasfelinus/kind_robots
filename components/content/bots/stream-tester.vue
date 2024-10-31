@@ -62,7 +62,7 @@
 import { ref } from 'vue';
 
 const prompt = ref('');
-const responseText = ref('');
+const responseText = ref('testing. tell me a joke.');
 const loading = ref(false);
 const errorMessage = ref('');
 const useStreaming = ref(false);
@@ -113,7 +113,6 @@ async function submitPrompt() {
   }
 }
 
-// Function to handle streaming response
 async function fetchStream(url: string, options: RequestInit) {
   const response = await fetch(url, options);
   if (!response.ok) {
@@ -124,7 +123,7 @@ async function fetchStream(url: string, options: RequestInit) {
   if (response.body) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = ''; // Accumulates partial data from chunks
+    let buffer = ''; // Accumulate partial data from chunks
 
     while (true) {
       const { done, value } = await reader.read();
@@ -138,9 +137,9 @@ async function fetchStream(url: string, options: RequestInit) {
         let chunk = buffer.slice(0, boundary).trim();
         buffer = buffer.slice(boundary + 2); // Move past the current chunk
 
-        // Remove a single "data:" prefix if present
+        // Remove multiple "data:" prefixes if they exist
         if (chunk.startsWith('data:')) {
-          chunk = chunk.replace(/^data:\s*/, '');
+          chunk = chunk.replace(/^data:\s*/, '').replace(/^data:\s*/, '');
         }
 
         // Skip empty chunks and "[DONE]"
@@ -164,6 +163,7 @@ async function fetchStream(url: string, options: RequestInit) {
     throw new Error('Stream not supported in response');
   }
 }
+
 
 
 

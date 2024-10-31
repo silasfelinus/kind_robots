@@ -5,14 +5,16 @@
     <!-- Toggle for Streaming -->
     <div class="mb-4 flex justify-center">
       <label class="flex items-center gap-2">
-        <input type="checkbox" v-model="useStreaming" class="checkbox" />
+        <input v-model="useStreaming" type="checkbox" class="checkbox" />
         <span>Enable Streaming</span>
       </label>
     </div>
 
     <!-- Prompt Input -->
     <div class="mb-6">
-      <label for="prompt" class="block text-lg font-medium mb-2">Enter Prompt:</label>
+      <label for="prompt" class="block text-lg font-medium mb-2"
+        >Enter Prompt:</label
+      >
       <input
         id="prompt"
         v-model="prompt"
@@ -30,7 +32,11 @@
         @click="submitPrompt"
       >
         <span v-if="!loading">Submit Prompt</span>
-        <span v-else class="spinner-border spinner-border-sm" role="status"></span>
+        <span
+          v-else
+          class="spinner-border spinner-border-sm"
+          role="status"
+        ></span>
       </button>
     </div>
 
@@ -69,7 +75,7 @@ async function submitPrompt() {
   const requestOptions = {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
       // The Authorization header is now handled by middleware
     },
     body: JSON.stringify({
@@ -92,14 +98,18 @@ async function submitPrompt() {
         } else {
           errorMessage.value = `Error ${response.status}: ${response.statusText}`
         }
-        console.error(`Request failed with status ${response.status}: ${response.statusText}`)
+        console.error(
+          `Request failed with status ${response.status}: ${response.statusText}`,
+        )
         throw new Error(`Error ${response.status}: ${response.statusText}`)
       }
       const data = await response.json()
-      responseText.value = data.choices?.[0]?.message?.content || 'No response received'
+      responseText.value =
+        data.choices?.[0]?.message?.content || 'No response received'
     }
   } catch (error) {
-    errorMessage.value = error instanceof Error ? error.message : 'An unknown error occurred'
+    errorMessage.value =
+      error instanceof Error ? error.message : 'An unknown error occurred'
     console.error('Error during API request:', error)
   } finally {
     loading.value = false
@@ -115,7 +125,9 @@ async function fetchStream(url: string, options: RequestInit) {
     } else {
       errorMessage.value = `Error ${response.status}: ${response.statusText}`
     }
-    console.error(`Stream request failed with status ${response.status}: ${response.statusText}`)
+    console.error(
+      `Stream request failed with status ${response.status}: ${response.statusText}`,
+    )
     throw new Error(`Error ${response.status}: ${response.statusText}`)
   }
 

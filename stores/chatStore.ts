@@ -136,6 +136,7 @@ export const useChatStore = defineStore({
 
         newExchange.botResponse = ''
         this.activeChats.push(newExchange)
+        this.chatExchanges.push(newExchange)
 
         await this.fetchStream(
   'https://kind-robots.vercel.app/api/botcafe/chat',

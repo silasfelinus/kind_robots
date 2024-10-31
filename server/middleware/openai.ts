@@ -3,6 +3,7 @@ import { defineEventHandler, getHeader, setHeader, sendError, createError } from
 
 export default defineEventHandler((event) => {
   const { OPENAI_API_KEY } = useRuntimeConfig()
+console.log("checking header")
 
   // Only process requests going to OpenAI's API
   const targetUrl = event.req.url || ''
@@ -12,6 +13,7 @@ export default defineEventHandler((event) => {
 
   if (!OPENAI_API_KEY) {
     // Send an error if API key is missing in environment variables
+console.log("no key found")
     return sendError(
       event,
       createError({

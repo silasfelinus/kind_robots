@@ -15,22 +15,21 @@ interface FetchResponse {
 
 // Create an object for runtime use
 export enum PitchTypeEnum {
-  ARTPITCH= 'Art Pitch',
-  BRAINSTORM= 'Brainstorm',
-  BOT= 'Bot',
-  ARTGALLERY= 'Art Gallery',
-  INSPIRATION= 'Inspiration',
+  ARTPITCH = 'Art Pitch',
+  BRAINSTORM = 'Brainstorm',
+  BOT = 'Bot',
+  ARTGALLERY = 'Art Gallery',
+  INSPIRATION = 'Inspiration',
 }
 
 // Assuming Prisma PitchType is something like 'ARTPITCH', 'BRAINSTORM', etc.
 export const pitchTypeMap: Record<string, PitchTypeEnum> = {
-  'ARTPITCH': PitchTypeEnum.ARTPITCH,
-  'BRAINSTORM': PitchTypeEnum.BRAINSTORM,
-  'BOT': PitchTypeEnum.BOT,
-  'ARTGALLERY': PitchTypeEnum.ARTGALLERY,
-  'INSPIRATION': PitchTypeEnum.INSPIRATION,
+  ARTPITCH: PitchTypeEnum.ARTPITCH,
+  BRAINSTORM: PitchTypeEnum.BRAINSTORM,
+  BOT: PitchTypeEnum.BOT,
+  ARTGALLERY: PitchTypeEnum.ARTGALLERY,
+  INSPIRATION: PitchTypeEnum.INSPIRATION,
 }
-
 
 interface ErrorWithMessage {
   message: string
@@ -51,7 +50,7 @@ export const usePitchStore = defineStore('pitch', {
 
   getters: {
     pitchTypes: () => {
-      return Object.values(PitchTypeEnum);
+      return Object.values(PitchTypeEnum)
     },
     // Get selected pitch, which is the first in the selectedPitches array
     selectedPitch: (state) => {
@@ -64,20 +63,22 @@ export const usePitchStore = defineStore('pitch', {
     },
     getPitchesByType: (state) => (pitchType: PitchTypeEnum) => {
       return state.pitches.filter(
-        (pitch: Pitch) => pitchTypeMap[pitch.PitchType] === pitchType
+        (pitch: Pitch) => pitchTypeMap[pitch.PitchType] === pitchType,
       )
     },
-    
+
     getPitchesBySelectedType: (state) => {
       if (!state.selectedPitchType) return []
       return state.pitches.filter(
-        (pitch: Pitch) => pitchTypeMap[pitch.PitchType] === state.selectedPitchType
+        (pitch: Pitch) =>
+          pitchTypeMap[pitch.PitchType] === state.selectedPitchType,
       )
     },
-    
 
     brainstormPitches: (state) => {
-      return state.pitches.filter((pitch: Pitch) => pitch.PitchType === 'BRAINSTORM')
+      return state.pitches.filter(
+        (pitch: Pitch) => pitch.PitchType === 'BRAINSTORM',
+      )
     },
 
     pitchesByTitle: (state) => {
@@ -97,21 +98,23 @@ export const usePitchStore = defineStore('pitch', {
       const userStore = useUserStore()
       return state.pitches.filter(
         (pitch) =>
-          pitch.isPublic || pitch.userId === userStore.userId || pitch.userId === 0,
+          pitch.isPublic ||
+          pitch.userId === userStore.userId ||
+          pitch.userId === 0,
       )
     },
   },
 
   actions: {
     async initializePitches() {
-  if (!isClient) {
-    return;
-  }
-  if (!this.isInitialized) {
-    await this.fetchPitches(); // Fetches pitches
-    this.isInitialized = true;
-  }
-},
+      if (!isClient) {
+        return
+      }
+      if (!this.isInitialized) {
+        await this.fetchPitches() // Fetches pitches
+        this.isInitialized = true
+      }
+    },
 
     setSelectedPitch(pitchId: number) {
       const pitch = this.pitches.find((p) => p.id === pitchId)
@@ -121,8 +124,7 @@ export const usePitchStore = defineStore('pitch', {
     },
 
     setSelectedPitchType(pitchType: PitchTypeEnum | null) {
-
-        this.selectedPitchType = pitchType
+      this.selectedPitchType = pitchType
     },
     async fetchRandomPitches(count: number) {
       try {
@@ -134,7 +136,6 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-
     async fetchBrainstormPitches() {
       try {
         const response = await fetch('/api/botcafe/brainstorm', {
@@ -144,7 +145,9 @@ export const usePitchStore = defineStore('pitch', {
           },
           body: JSON.stringify({
             n: 5,
-            messages: [{ role: 'user', content: '1 more original brainstorm.' }],
+            messages: [
+              { role: 'user', content: '1 more original brainstorm.' },
+            ],
             max_tokens: 500,
           }),
         })
@@ -186,13 +189,16 @@ export const usePitchStore = defineStore('pitch', {
           channelId: null,
           description: null,
           imagePrompt: null,
+          artImageId: null,
         } as Pitch
       })
     },
 
     addPitches(newPitches: Pitch[]) {
       newPitches.forEach((newPitch) => {
-        const existingPitch = this.pitches.find((pitch) => pitch.id === newPitch.id)
+        const existingPitch = this.pitches.find(
+          (pitch) => pitch.id === newPitch.id,
+        )
         if (!existingPitch) {
           this.pitches.push(newPitch)
         }
@@ -207,7 +213,10 @@ export const usePitchStore = defineStore('pitch', {
 
       if (isClient) {
         localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
+        localStorage.setItem(
+          'selectedPitches',
+          JSON.stringify(this.selectedPitches),
+        )
       }
     },
 
@@ -244,35 +253,35 @@ export const usePitchStore = defineStore('pitch', {
     },
 
     async createPitch(newPitch: Partial<Pitch>) {
-      const errorStore = useErrorStore();
+      const errorStore = useErrorStore()
       try {
         const response = await fetch('/api/pitches', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newPitch),
-        });
-    
-        const data = await response.json();
-    
+        })
+
+        const data = await response.json()
+
         if (response.ok && data.pitch) {
-          this.pitches.push(data.pitch);
+          this.pitches.push(data.pitch)
           if (isClient) {
-            localStorage.setItem('pitches', JSON.stringify(this.pitches));
+            localStorage.setItem('pitches', JSON.stringify(this.pitches))
           }
-          return { success: true, message: 'Pitch created successfully' };
+          return { success: true, message: 'Pitch created successfully' }
         } else {
-          throw new Error(data.message || 'Pitch creation failed');
+          throw new Error(data.message || 'Pitch creation failed')
         }
       } catch (error) {
         if (isErrorWithMessage(error)) {
-          errorStore.setError(ErrorType.NETWORK_ERROR, error.message);
-          return { success: false, message: error.message };
+          errorStore.setError(ErrorType.NETWORK_ERROR, error.message)
+          return { success: false, message: error.message }
         } else {
-          errorStore.setError(ErrorType.NETWORK_ERROR, 'Unknown error');
+          errorStore.setError(ErrorType.NETWORK_ERROR, 'Unknown error')
           return {
             success: false,
             message: 'Unknown error during pitch creation',
-          };
+          }
         }
       }
     },
@@ -346,68 +355,72 @@ export const usePitchStore = defineStore('pitch', {
       url: string,
       options: RequestInit = {},
       retries = 3,
-      timeout = 8000
+      timeout = 8000,
     ): Promise<FetchResponse> {
-      const errorStore = useErrorStore();
+      const errorStore = useErrorStore()
 
       if (!isClient) {
-        return { success: false, message: 'Cannot fetch on the server.' };
+        return { success: false, message: 'Cannot fetch on the server.' }
       }
 
-      const fetchWithTimeout = (url: string, options: RequestInit, timeout: number): Promise<Response> => {
+      const fetchWithTimeout = (
+        url: string,
+        options: RequestInit,
+        timeout: number,
+      ): Promise<Response> => {
         return new Promise((resolve, reject) => {
           const timer = setTimeout(() => {
-            reject(new Error('Request timed out'));
-          }, timeout);
+            reject(new Error('Request timed out'))
+          }, timeout)
 
           fetch(url, options)
             .then((response) => {
-              clearTimeout(timer);
-              resolve(response);
+              clearTimeout(timer)
+              resolve(response)
             })
             .catch((error) => {
-              clearTimeout(timer);
-              reject(error);
-            });
-        });
-      };
+              clearTimeout(timer)
+              reject(error)
+            })
+        })
+      }
 
       // Retry logic for transient errors
       for (let attempt = 1; attempt <= retries; attempt++) {
         try {
-          const response = await fetchWithTimeout(url, options, timeout);
-          const data = await response.json();
+          const response = await fetchWithTimeout(url, options, timeout)
+          const data = await response.json()
 
           // Handle non-OK responses
           if (!response.ok) {
-            const errorMessage = `Error: ${response.status} - ${response.statusText}`;
-            logAndSetError(errorMessage, data.message || errorMessage);
-            return { success: false, message: data.message || errorMessage };
+            const errorMessage = `Error: ${response.status} - ${response.statusText}`
+            logAndSetError(errorMessage, data.message || errorMessage)
+            return { success: false, message: data.message || errorMessage }
           }
 
           // Success case
-          return { ...data, success: true };
+          return { ...data, success: true }
         } catch (error) {
-          const isLastAttempt = attempt === retries;
+          const isLastAttempt = attempt === retries
           const errorMessage = isErrorWithMessage(error)
             ? error.message
-            : 'Unknown network error';
+            : 'Unknown network error'
 
-          console.error(`Attempt ${attempt} failed: ${errorMessage}`);
+          console.error(`Attempt ${attempt} failed: ${errorMessage}`)
 
           if (isLastAttempt) {
-            logAndSetError('Network Error', errorMessage);
-            return { success: false, message: errorMessage };
+            logAndSetError('Network Error', errorMessage)
+            return { success: false, message: errorMessage }
           }
         }
       }
 
       // Fallback in case retries are exhausted
-      return { success: false, message: 'All fetch attempts failed' };
+      return { success: false, message: 'All fetch attempts failed' }
 
       function logAndSetError(logMessage: string, userMessage: string) {
-        console.error(logMessage);
-        errorStore.setError(ErrorType.NETWORK_ERROR, userMessage);
+        console.error(logMessage)
+        errorStore.setError(ErrorType.NETWORK_ERROR, userMessage)
       }
     },
   },

@@ -17,13 +17,6 @@
       <Icon :name="publicIcon" class="w-6 h-6" />
     </button>
     <!-- Clap Button -->
-    <button
-      class="bg-info hover:bg-info-dark rounded-full p-2"
-      aria-label="Add Clap"
-      @click="addClap"
-    >
-      <Icon name="kind-icon:hand" class="w-6 h-6" />
-    </button>
   </div>
   <div v-else>
     <!-- Placeholder or error message when pitch is null -->
@@ -34,11 +27,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePitchStore, type Pitch } from '../../../stores/pitchStore'
-import {
-  useReactionStore,
-  ReactionTypeEnum,
-  ReactionCategoryEnum,
-} from '../../../stores/reactionStore'
 import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 
 const props = defineProps<{
@@ -46,7 +34,6 @@ const props = defineProps<{
 }>()
 
 const pitchStore = usePitchStore()
-const reactionStore = useReactionStore()
 const errorStore = useErrorStore()
 
 const matureButtonClass = computed(() => {
@@ -97,22 +84,6 @@ const togglePublic = async () => {
   } catch (error) {
     errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)
     console.error('Error updating pitch:', error)
-  }
-}
-
-const addClap = async () => {
-  errorStore.clearError()
-  try {
-    if (!props.pitch) throw new Error('Pitch data is not available.')
-    await reactionStore.createReaction({
-      pitchId: props.pitch.id,
-      reactionType: ReactionTypeEnum.CLAPPED, // Use reactionType instead of isClapped
-      userId: 10, // Assuming a default userId, adjust as needed
-      reactionCategory: ReactionCategoryEnum.PITCH, // Ensure the correct category is used
-    })
-  } catch (error) {
-    errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)
-    console.error('Error adding clap reaction:', error)
   }
 }
 </script>

@@ -55,73 +55,14 @@
         </label>
       </div>
     </div>
-
-    <!-- Reaction buttons -->
-    <div
-      class="fixed bottom-0 left-0 right-0 p-4 bg-gray-800 flex justify-around"
-    >
-      <Icon
-        name="kind-icon:thumbup"
-        class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
-        :class="{ 'text-green-500': reactionType === 'CLAPPED' }"
-        @click="toggleReaction('CLAPPED')"
-      />
-      <Icon
-        name="kind-icon:thumbdown"
-        class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
-        :class="{ 'text-red-500': reactionType === 'BOOED' }"
-        @click="toggleReaction('BOOED')"
-      />
-      <Icon
-        name="kind-icon:heart"
-        class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
-        :class="{ 'text-pink-500': reactionType === 'LOVED' }"
-        @click="toggleReaction('LOVED')"
-      />
-      <Icon
-        name="kind-icon:angry"
-        class="text-6xl cursor-pointer transition-transform transform hover:scale-110"
-        :class="{ 'text-yellow-500': reactionType === 'HATED' }"
-        @click="toggleReaction('HATED')"
-      />
-    </div>
-
-    <!-- Comment Section -->
-    <div class="mt-4 p-4 bg-gray-100 rounded-lg shadow-sm">
-      <textarea
-        v-model="commentTitle"
-        placeholder="Title"
-        class="w-full mb-2 p-2 border border-gray-300 rounded focus:ring focus:ring-primary"
-      ></textarea>
-      <textarea
-        v-model="commentDescription"
-        placeholder="Add your comment..."
-        class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-primary"
-      ></textarea>
-      <button
-        class="btn btn-primary mt-2 w-full text-white bg-primary hover:bg-primary-focus"
-        @click="submitComment"
-      >
-        Submit Comment
-      </button>
-    </div>
-
-    <!-- Comment Display Section -->
-    <div v-if="selectedComponent" class="mt-6">
-      <CommentDisplay :component-id="selectedComponent?.id" />
-    </div>
+    <reaction-card />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue'
 import { useComponentStore } from './../../../stores/componentStore'
-import {
-  useReactionStore,
-  type ReactionTypeEnum as ReactionType,
-} from './../../../stores/reactionStore'
 import { useUserStore } from './../../../stores/userStore'
-import CommentDisplay from './CommentDisplay.vue'
 
 // Pinia stores
 const reactionStore = useReactionStore()
@@ -130,8 +71,6 @@ const userStore = useUserStore()
 
 // State for reaction and comments
 const reactionType = ref<string | null>(null)
-const commentTitle = ref('')
-const commentDescription = ref('')
 
 // Get the selected component from the store
 const selectedComponent = computed(() => componentStore.selectedComponent)
@@ -167,51 +106,6 @@ const updateComponent = async () => {
       selectedComponent.value,
       'update',
     )
-  }
-}
-
-const toggleReaction = async (newReactionType: string) => {
-  // Cast the string value to ReactionType
-  reactionType.value = newReactionType as ReactionType
-
-  const existingReaction = reactionStore.getUserReactionForComponent(
-    selectedComponent.value?.id || 0,
-    userId.value,
-  )
-  if (existingReaction) {
-    await reactionStore.updateReaction(existingReaction.id, {
-      reactionType: newReactionType as ReactionType, // Cast to ReactionType
-    })
-  } else {
-    await reactionStore.createReaction({
-      userId: userId.value,
-      componentId: selectedComponent.value?.id || 0,
-      reactionType: newReactionType as ReactionType, // Cast to ReactionType
-      reactionCategory: 'COMPONENT',
-    })
-  }
-}
-
-// Submit comment and reaction
-const submitComment = async () => {
-  if (commentTitle.value && commentDescription.value) {
-    await reactionStore.createReactionWithChannel(
-      {
-        userId: userId.value,
-        componentId: selectedComponent.value?.id || 0,
-        reactionType: (reactionType.value as ReactionType) || 'NEUTRAL',
-        reactionCategory: 'COMPONENT',
-      },
-      {
-        title: commentTitle.value,
-        description: commentDescription.value,
-      },
-    )
-
-    commentTitle.value = ''
-    commentDescription.value = ''
-  } else {
-    alert('Please add both a title and a comment.')
   }
 }
 

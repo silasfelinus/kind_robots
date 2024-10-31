@@ -51,41 +51,6 @@
             :subtitle="msg.subtitle ?? 'Your friendly neighborhood AI'"
           />
         </div>
-
-        <!-- Reaction Buttons -->
-        <div class="reaction-buttons mt-2 flex space-x-2">
-          <button
-            class="hover:bg-gray-200"
-            :class="{
-              'bg-primary': isReactionActive(index, ReactionTypeEnum.LOVED),
-            }"
-            @click="toggleReaction(index, ReactionTypeEnum.LOVED)"
-          >
-            ❤️
-          </button>
-          <div
-            v-if="showPopup[index]?.LOVED"
-            class="popup bg-info text-lg rounded-2xl"
-          >
-            Favorited <Icon name="heart" />
-          </div>
-
-          <button
-            class="hover:bg-gray-200"
-            :class="{
-              'bg-primary': isReactionActive(index, ReactionTypeEnum.HATED),
-            }"
-            @click="toggleReaction(index, ReactionTypeEnum.HATED)"
-          >
-            👎
-          </button>
-          <div
-            v-if="showPopup[index]?.HATED"
-            class="popup bg-info text-lg rounded-2xl"
-          >
-            Disliked <Icon name="thumb-down" />
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -95,10 +60,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
 import { useUserStore } from '../../../stores/userStore'
-import {
-  useReactionStore,
-  ReactionTypeEnum,
-} from '../../../stores/reactionStore'
 
 let userKey: string | null = null
 
@@ -118,7 +79,6 @@ interface Message {
 const conversations = ref<Message[][]>([])
 const botStore = useBotStore()
 const userStore = useUserStore()
-const reactionStore = useReactionStore()
 
 const currentBot = computed(() => {
   return (
@@ -136,73 +96,6 @@ const currentBot = computed(() => {
 const message = ref('')
 const isLoading = ref(false)
 const error = ref<string | null>(null)
-
-const userId = computed(() => userStore.userId) // Default to 10 if userId is undefined
-
-const showPopup = ref<{ [key: number]: { [key: string]: boolean } }>({})
-
-const isReactionActive = (index: number, reactionType: ReactionTypeEnum) => {
-  const conversationId = conversations.value[index]?.[0]?.id ?? 0
-
-  const reaction = reactionStore.getUserReactionForComponent(
-    conversationId,
-    userId.value,
-  )
-
-  return reaction?.reactionType === reactionType // Compare reactionType directly
-}
-
-const toggleReaction = async (
-  index: number,
-  reactionType: ReactionTypeEnum,
-) => {
-  const conversation = conversations.value[index]
-  const conversationId = conversation?.[0]?.id
-
-  // Exit early if no conversationId is found
-  if (!conversationId) return
-
-  // Retrieve the existing reaction for the current conversation and user
-  const existingReaction = reactionStore.getUserReactionForComponent(
-    conversationId,
-    userId.value ?? 10, // Ensure userId is a number (default to 10 if undefined)
-  )
-
-  // Prepare reaction data ensuring userId is a valid number
-  const reactionData: {
-    userId: number
-    componentId: number
-    reactionType: ReactionTypeEnum // Ensure reactionType is always defined here
-    pitchId?: number | null
-  } = {
-    userId: userId.value ?? 10, // Ensure userId is a number (default to 10)
-    componentId: conversationId,
-    reactionType, // Ensure reactionType is passed as a required field
-    pitchId: existingReaction?.pitchId ?? undefined, // Convert null to undefined
-  }
-
-  // Toggle the existing reaction or create a new one
-  if (existingReaction) {
-    // If the reaction already exists, update its type (if necessary)
-    if (existingReaction.reactionType === reactionType) {
-      // If the user tries to apply the same reaction, you may want to delete it instead of updating
-      await reactionStore.deleteReaction(existingReaction.id)
-    } else {
-      await reactionStore.updateReaction(existingReaction.id, reactionData)
-    }
-  } else {
-    // Create new reaction if it doesn't exist
-    await reactionStore.createReaction(reactionData)
-  }
-
-  // Show popup for the reaction
-  showPopup.value[index] = { ...showPopup.value[index], [reactionType]: true }
-
-  // Hide the popup after 2 seconds
-  setTimeout(() => {
-    showPopup.value[index][reactionType] = false
-  }, 2000)
-}
 
 const sendMessage = async () => {
   isLoading.value = true

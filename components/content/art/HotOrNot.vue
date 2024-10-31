@@ -11,28 +11,6 @@
           alt="Current Art"
           class="art-image"
         />
-        <div class="button-container">
-          <button class="gallery-button" @click="vote(ReactionTypeEnum.HATED)">
-            Hate
-            <Icon name="mdi-delete" />
-          </button>
-          <button class="gallery-button" @click="vote(ReactionTypeEnum.LOVED)">
-            Love
-            <Icon name="mdi-heart" />
-          </button>
-          <button class="gallery-button" @click="vote(ReactionTypeEnum.BOOED)">
-            Boo
-            <Icon name="mdi-thumb-down-outline" />
-          </button>
-          <button
-            class="gallery-button"
-            @click="vote(ReactionTypeEnum.FLAGGED)"
-          >
-            Flag
-            <Icon name="mdi-flag" />
-          </button>
-        </div>
-        <Icon v-if="activeIcon" :name="activeIcon" class="vote-icon" />
       </div>
     </div>
   </div>
@@ -40,15 +18,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useGalleryStore } from './../../../stores/galleryStore'
-import {
-  useReactionStore,
-  ReactionTypeEnum,
-} from './../../../stores/reactionStore'
 
 const showSplash = ref(true)
-const galleryStore = useGalleryStore()
-const reactionStore = useReactionStore()
 
 interface ArtImage {
   id: number
@@ -56,49 +27,6 @@ interface ArtImage {
 }
 
 const currentImage = ref<ArtImage | null>(null)
-const activeIcon = ref<string | null>(null)
-
-// Assume userId is available in the session or store
-const userId = 1 // Replace with actual logic to get the logged-in user ID
-
-// Vote function to handle reactions
-const vote = async (reactionType: ReactionTypeEnum) => {
-  if (currentImage.value) {
-    try {
-      // Call the reactionStore to create a reaction using ReactionTypeEnum
-      await reactionStore.createReaction({
-        userId,
-        reactionType,
-        artId: currentImage.value.id,
-        reactionCategory: 'ART',
-      })
-
-      // Change to a random image in the current gallery
-      await galleryStore.changeToRandomImage()
-
-      // Update active icon based on vote choice
-      switch (reactionType) {
-        case ReactionTypeEnum.LOVED:
-          activeIcon.value = 'mdi-heart'
-          break
-        case ReactionTypeEnum.HATED:
-          activeIcon.value = 'mdi-delete'
-          break
-        case ReactionTypeEnum.BOOED:
-          activeIcon.value = 'mdi-thumb-down-outline'
-          break
-        case ReactionTypeEnum.FLAGGED:
-          activeIcon.value = 'mdi-flag'
-          break
-      }
-
-      // Reset icon after 1 second
-      setTimeout(() => (activeIcon.value = null), 1000)
-    } catch (error) {
-      console.error('Error recording reaction or fetching new image:', error)
-    }
-  }
-}
 </script>
 
 <style scoped>

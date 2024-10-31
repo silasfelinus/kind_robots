@@ -95,7 +95,9 @@
       "chat-test",
       "generate-avatar",
       "prompt-creator",
+      "reaction-card",
       "response-card",
+      "stream-tester",
       "use-bot"
     ]
   },

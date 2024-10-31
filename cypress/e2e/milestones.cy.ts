@@ -1,8 +1,11 @@
+// cypress/e2e/milestones.cy.ts
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+
 describe('Milestone Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/milestones'
   const apiKey = Cypress.env('API_KEY')
-  let milestoneId: number // Explicitly define the type as number
+  let milestoneId: number
 
   it('Get All Milestones', () => {
     cy.request({
@@ -45,8 +48,7 @@ describe('Milestone Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.milestones).to.be.an('array').that.is.not.empty
-      milestoneId = response.body.milestones[0].id // Capture correct ID
-      console.log('Created Milestone ID:', milestoneId) // Log for debugging
+      milestoneId = response.body.milestones[0].id
     })
   })
 
@@ -60,19 +62,18 @@ describe('Milestone Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('milestone') // Check if 'milestone' exists
-      expect(response.body.milestone.label).to.eq('Artist!') // Correct structure access
+      expect(response.body).to.have.property('milestone')
+      expect(response.body.milestone.label).to.eq('Artist!')
       expect(response.body.milestone).to.have.property('isActive')
     })
   })
 
-  it('Update a Milestone', () => {
+  it('Update Milestone', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${milestoneId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
       body: {
         label: 'Master Artist!',
@@ -81,6 +82,7 @@ describe('Milestone Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+
       // Verify the update
       cy.request({
         method: 'GET',
@@ -91,7 +93,7 @@ describe('Milestone Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body.milestone.label).to.eq('Master Artist!') // Correct structure access
+        expect(response.body.milestone.label).to.eq('Master Artist!')
         expect(response.body.milestone.message).to.eq(
           'You created a masterpiece!',
         )
@@ -100,7 +102,7 @@ describe('Milestone Management API Tests', () => {
     })
   })
 
-  it('Delete a Milestone', () => {
+  it('Delete Milestone', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${milestoneId}`,
@@ -124,7 +126,6 @@ describe('Milestone Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        console.log('Reverted Milestone ID:', milestoneId)
       })
     }
   })

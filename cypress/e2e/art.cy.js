@@ -1,3 +1,4 @@
+// cypress/e2e/art.cy.js
 /* eslint-disable no-undef */
 
 describe('Art Management API Tests', () => {
@@ -24,8 +25,10 @@ describe('Art Management API Tests', () => {
         galleryId: null,
         promptId: null,
         pitchId: null,
+
+        userId: 9,
       },
-      failOnStatusCode: false, // Prevent Cypress from failing immediately if the status is not 200
+      failOnStatusCode: false,
     }).then((response) => {
       cy.log('API Response:', JSON.stringify(response.body))
 
@@ -41,7 +44,7 @@ describe('Art Management API Tests', () => {
       expect(response.body.art).to.be.an('object')
 
       artId = response.body.art?.id
-      generatedPath = response.body.art?.path // Capture the generated path
+      generatedPath = response.body.art?.path
 
       cy.log('Captured artId:', artId)
       cy.log('Captured generatedPath:', generatedPath)
@@ -71,7 +74,7 @@ describe('Art Management API Tests', () => {
         pitch: 'Beauty',
         promptString: 'A beautiful sunrise over pancake mountains',
         galleryId: 21,
-        userId: 1,
+        userId: 9,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -92,12 +95,10 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
 
-      // Check that the path includes 'cafefred' and ends with '.webp'
       expect(response.body.art.path).to.include('cafefred')
       expect(response.body.art.path).to.match(/\.webp$/)
 
-      // Ensure cfg is checked as a number
-      expect(response.body.art.cfg).to.eq(7) // Compare cfg as a number
+      expect(response.body.art.cfg).to.eq(7)
 
       expect(response.body.art).to.include({
         id: artId,
@@ -126,6 +127,24 @@ describe('Art Management API Tests', () => {
   })
 
   it('Update an Art', () => {
+    // Attempt update without API key (expect failure)
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${artId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        path: 'notreal.webp',
+        designer: 'newdesigner',
+        isPublic: false,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Expect forbidden status without API key
+    })
+
+    // Attempt update with API key (expect success)
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${artId}`,
@@ -134,7 +153,7 @@ describe('Art Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        path: 'notreal.webp', // Testing with a truncated path
+        path: 'notreal.webp',
         designer: 'newdesigner',
         isPublic: false,
       },
@@ -144,9 +163,7 @@ describe('Art Management API Tests', () => {
       const expectedPathEnd = 'notreal.webp'
       const actualPath = response.body.updatedArt.path
 
-      // Ensure the path ends with the expected filename, allowing for truncation
       expect(actualPath).to.include(expectedPathEnd)
-
       expect(response.body.updatedArt).to.include({
         id: artId,
         designer: 'newdesigner',
@@ -156,6 +173,19 @@ describe('Art Management API Tests', () => {
   })
 
   it('Delete an Art', () => {
+    // Attempt delete without API key (expect failure)
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${artId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Expect forbidden status without API key
+    })
+
+    // Attempt delete with API key (expect success)
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${artId}`,

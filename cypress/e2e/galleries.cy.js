@@ -1,4 +1,4 @@
-// cypress/e2e/api/galleries.cy.js
+// cypress/e2e/galleries.cy.js
 /* eslint-disable no-undef */
 
 describe('Gallery Management API Tests', () => {
@@ -20,6 +20,7 @@ describe('Gallery Management API Tests', () => {
           content: '/images/testgallery/gallery.json',
           description: 'A gallery for testing purposes',
           highlightImage: '/images/testgallery/highlight.webp',
+          userId: 9,
         },
       ],
     }).then((response) => {
@@ -62,6 +63,25 @@ describe('Gallery Management API Tests', () => {
   })
 
   it('Update a Gallery', () => {
+    // Attempt update without API key (expect failure)
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/batch`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: [
+        {
+          name: 'Test Gallery',
+          description: 'Updated description for the gallery',
+        },
+      ],
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Expect forbidden status without API key
+    })
+
+    // Attempt update with API key (expect success)
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/batch`,
@@ -81,6 +101,19 @@ describe('Gallery Management API Tests', () => {
   })
 
   it('Delete a Gallery', () => {
+    // Attempt delete without API key (expect failure)
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/id/${galleryId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Expect forbidden status without API key
+    })
+
+    // Attempt delete with API key (expect success)
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/id/${galleryId}`,

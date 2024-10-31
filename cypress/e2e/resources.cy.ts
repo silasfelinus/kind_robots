@@ -1,10 +1,11 @@
-// cypress/e2e/api/resource.cy.ts
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+// cypress/e2e/resources.cy.ts
 
 describe('Resource Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/resources'
   const apiKey = Cypress.env('API_KEY')
-  let resourceId: number | undefined // Updated to include undefined type
-  const uniqueResourceName = `Resource-${Date.now()}` // Generate a unique resource name using Date.now()
+  let resourceId: number | undefined
+  const uniqueResourceName = `Resource-${Date.now()}`
 
   it('Create a New Resource', () => {
     cy.request({
@@ -15,7 +16,7 @@ describe('Resource Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        userId: 1,
+        userId: 9,
         name: uniqueResourceName,
         customLabel: 'Custom Label',
         MediaPath: '/media/test-resource.jpg',
@@ -24,28 +25,53 @@ describe('Resource Management API Tests', () => {
         huggingUrl: 'https://huggingface-url.com',
         localPath: '/local/test-resource',
         description: 'This is a test resource description.',
-        resourceType: 'URL', // Assuming 'IMAGE' is a valid resource type
+        resourceType: 'URL',
         isMature: false,
       },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.resource).to.be.an('object').that.is.not.empty
+      resourceId = response.body.resource.id
     })
-      .then((response) => {
-        expect(response.status).to.eq(200)
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        expect(response.body.resource).to.be.an('object').that.is.not.empty
-        resourceId = response.body.resource.id // Ensure the correct ID is captured
-        console.log('Created Resource ID:', resourceId) // Log for debugging
-      })
-      .then(() => {
-        if (!resourceId) {
-          throw new Error('Resource ID was not set')
-        }
-      })
+  })
+
+  it('Attempt to Update Resource without Authentication (expect failure)', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${resourceId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        name: 'Unauthorized Update Attempt',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Update Resource with Authentication', () => {
+    const updatedResourceName = `Updated-${uniqueResourceName}`
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${resourceId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        name: updatedResourceName,
+        description: 'This is an updated test resource description.',
+        userId: 10,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.resource.name).to.eq(updatedResourceName)
+    })
   })
 
   it('Get Resource by ID', () => {
-    if (!resourceId) {
-      throw new Error('resourceId is undefined, cannot fetch resource by ID')
-    }
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${resourceId}`,
@@ -53,10 +79,10 @@ describe('Resource Management API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      failOnStatusCode: false, // This prevents Cypress from failing the test immediately on a 500 error
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.resource.name).to.eq(uniqueResourceName) // Expect the correct name
+      expect(response.body.resource).to.be.an('object')
+      expect(response.body.resource.name).to.eq(uniqueResourceName)
     })
   })
 
@@ -76,33 +102,20 @@ describe('Resource Management API Tests', () => {
     })
   })
 
-  it('Update a Resource', () => {
-    if (!resourceId) {
-      throw new Error('resourceId is undefined, cannot update resource by ID')
-    }
-    const updatedResourceName = `Updated-${uniqueResourceName}`
+  it('Attempt to Delete Resource without Authentication (expect failure)', () => {
     cy.request({
-      method: 'PATCH',
+      method: 'DELETE',
       url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
-      body: {
-        name: updatedResourceName,
-        description: 'This is an updated test resource description.',
-        userId: 10,
-      },
+      failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body.resource.name).to.eq(updatedResourceName) // Verify name is updated
+      expect(response.status).to.eq(403) // Forbidden without API key
     })
   })
 
-  it('Delete a Resource', () => {
-    if (!resourceId) {
-      throw new Error('resourceId is undefined, cannot delete resource by ID')
-    }
+  it('Delete Resource with Authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${resourceId}`,
@@ -115,7 +128,7 @@ describe('Resource Management API Tests', () => {
     })
   })
 
-  // Ensure all changes are reverted by deleting the resource created during the test
+  // Ensure cleanup: delete resource if it wasn't already removed
   after(() => {
     if (resourceId) {
       cy.request({
@@ -125,12 +138,10 @@ describe('Resource Management API Tests', () => {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
+        failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(200)
-        console.log('Reverted Resource ID:', resourceId)
       })
-    } else {
-      console.log('No resourceId to delete.')
     }
   })
 })

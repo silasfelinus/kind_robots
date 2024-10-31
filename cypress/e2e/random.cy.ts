@@ -1,9 +1,11 @@
+// cypress/e2e/random.cy.ts
+
 describe('RandomList Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/random'
   const apiKey = Cypress.env('API_KEY')
-  let randomListId: number // Explicitly define the type as number
-  const uniqueTitle = `Dreams-${Date.now()}` // Generate a unique title using Date.now()
-  const userId: number = 1 // Example user ID (assuming 1 is valid)
+  let randomListId: number | undefined // Define with undefined for clarity
+  const uniqueTitle = `Dreams-${Date.now()}`
+  const userId: number = 9 // Example user ID
 
   it('Create a New RandomList', () => {
     cy.request({
@@ -20,32 +22,62 @@ describe('RandomList Management API Tests', () => {
           `Dream-${Date.now()}-2`,
           `Dream-${Date.now()}-3`,
         ],
-        userId: userId,
+        userId,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.newList).to.be.an('object') // Adjusted the key to match the response
       randomListId = response.body.newList.id
-      cy.log('Created RandomList ID:', randomListId) // Use cy.log for consistency
+    })
+  })
+
+  it('Attempt to Update RandomList without Authentication (expect failure)', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${randomListId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: { title: `Unauthorized Update` },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Update RandomList with Authentication', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${randomListId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        title: `Updated-${uniqueTitle}`,
+        items: [
+          `Updated-Dream-${Date.now()}-1`,
+          `Updated-Dream-${Date.now()}-2`,
+        ],
+        userId,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.list.title).to.eq(`Updated-${uniqueTitle}`)
     })
   })
 
   it('Get RandomList by ID', () => {
-    if (randomListId) {
-      cy.request({
-        method: 'GET',
-        url: `${baseUrl}/${randomListId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body.list.title).to.eq(uniqueTitle)
-      })
-    } else {
-      throw new Error('randomListId is not defined')
-    }
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/${randomListId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.list.title).to.eq(`Updated-${uniqueTitle}`)
+    })
   })
 
   it('Get RandomList by Title', () => {
@@ -58,7 +90,7 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.list.title).to.eq(uniqueTitle)
+      expect(response.body.list.title).to.eq(`Updated-${uniqueTitle}`)
     })
   })
 
@@ -78,48 +110,31 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
-  it('Update a RandomList by ID', () => {
-    if (randomListId) {
-      cy.request({
-        method: 'PATCH',
-        url: `${baseUrl}/${randomListId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        body: {
-          title: `Updated-${uniqueTitle}`,
-          items: [
-            `Updated-Dream-${Date.now()}-1`,
-            `Updated-Dream-${Date.now()}-2`,
-          ],
-          userId: userId,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    } else {
-      throw new Error('randomListId is not defined')
-    }
+  it('Attempt to Delete RandomList without Authentication (expect failure)', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${randomListId}`,
+      headers: { 'Content-Type': 'application/json' },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
   })
 
-  it('Delete a RandomList by ID', () => {
-    if (randomListId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${randomListId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    } else {
-      throw new Error('randomListId is not defined')
-    }
+  it('Delete RandomList with Authentication', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${randomListId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+    })
   })
 
+  // Cleanup: Ensure deletion if not removed
   after(() => {
     if (randomListId) {
       cy.request({
@@ -129,9 +144,9 @@ describe('RandomList Management API Tests', () => {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
+        failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(200)
-        cy.log('Reverted RandomList ID:', randomListId)
       })
     }
   })

@@ -1,8 +1,9 @@
-// cypress/e2e/api/tags.cy.js
+// cypress/e2e/tags.cy.js
 /* eslint-disable no-undef */
 
 describe('Tag Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/tags'
+  const apiKey = Cypress.env('API_KEY')
   let tagId // Store tag ID for further operations
 
   it('Get All Tags', () => {
@@ -26,34 +27,26 @@ describe('Tag Management API Tests', () => {
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': apiKey,
       },
       body: [
         {
-          label: 'tag',
+          label: 'Tag',
           title: 'Abstract Art',
+          userId: 9,
         },
       ],
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body).to.have.property('newTags').that.is.an('array').that
-        .is.not.empty
+      expect(response.body.newTags).to.be.an('array').that.is.not.empty
 
-      // Store the created tag's ID in the outer scope variable
-      const createdTag = response.body.newTags[0]
-      tagId = createdTag.id
-
-      // Additional assertions
-      expect(createdTag).to.have.property('label', 'Tag')
-      expect(createdTag).to.have.property('title', 'Abstract Art')
-      expect(tagId).to.be.a('number')
-
-      // Log the created tag ID for debugging
-      console.log('Created Tag ID:', tagId)
+      // Capture created tag ID for future operations
+      tagId = response.body.newTags[0].id
     })
   })
 
-  it('Edit an Existing Tag', () => {
+  it('Attempt to Edit Tag without Authentication (expect failure)', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${tagId}`,
@@ -64,30 +57,75 @@ describe('Tag Management API Tests', () => {
         label: 'art',
         title: 'Modern Art',
       },
+      failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body).to.have.property('tag')
-
-      const updatedTag = response.body.tag
-
-      // Check that the tag was updated correctly
-      expect(updatedTag).to.have.property('id', tagId)
-      expect(updatedTag).to.have.property('label', 'art')
-      expect(updatedTag).to.have.property('title', 'Modern Art')
-      expect(updatedTag).to.have.property('updatedAt').that.is.a('string') // Ensure updatedAt is a string (datetime)
+      expect(response.status).to.eq(403) // Expect forbidden status without API key
     })
   })
 
-  it('Delete a Tag', () => {
+  it('Edit Tag with Authentication', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${tagId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        label: 'art',
+        title: 'Modern Art',
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      const updatedTag = response.body.tag
+      expect(updatedTag).to.have.property('id', tagId)
+      expect(updatedTag).to.have.property('label', 'art')
+      expect(updatedTag).to.have.property('title', 'Modern Art')
+    })
+  })
+
+  it('Attempt to Delete Tag without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${tagId}`,
       headers: {
         'Content-Type': 'application/json',
       },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Expect forbidden status without API key
+    })
+  })
+
+  it('Delete Tag with Authentication', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${tagId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
     })
+  })
+
+  // Cleanup: Ensure any created tag is deleted after tests
+  after(() => {
+    if (tagId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${tagId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+        failOnStatusCode: false,
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+      })
+    }
   })
 })

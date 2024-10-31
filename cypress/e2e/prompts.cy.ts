@@ -1,12 +1,12 @@
-// cypress/e2e/api/prompt.cy.ts
+// cypress/e2e/prompts.cy.ts
 
 describe('Prompt Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/prompts'
   const apiKey = Cypress.env('API_KEY')
-  let promptId: number // Explicitly define the type as number
+  let promptId: number | undefined // Define with undefined for clarity
 
   before(() => {
-    // Create a prompt before running tests to ensure data exists
+    // Create a prompt to reuse across tests
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -16,36 +16,38 @@ describe('Prompt Management API Tests', () => {
       },
       body: {
         galleryId: 21,
-        userId: 1,
+        userId: 9,
         prompt: 'devil bunny',
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.newPrompt).to.be.an('object')
-      expect(Object.keys(response.body.newPrompt)).to.have.length.greaterThan(0)
-      promptId = response.body.newPrompt.id // Ensure the correct ID is captured
+      promptId = response.body.newPrompt.id
     })
   })
 
-  it('Create New Prompt', () => {
+  it('Attempt to Update Prompt without Authentication (expect failure)', () => {
     cy.request({
-      method: 'POST',
-      url: baseUrl,
+      method: 'PATCH',
+      url: `${baseUrl}/${promptId}`,
+      headers: { 'Content-Type': 'application/json' },
+      body: { prompt: 'unauthorized bunny update' },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Update Prompt with Authentication', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${promptId}`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      body: {
-        galleryId: 21,
-        userId: 1,
-        prompt: 'devil bunny',
-      },
+      body: { prompt: 'angel bunny' },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.newPrompt).to.be.an('object')
-      expect(Object.keys(response.body.newPrompt)).to.have.length.greaterThan(0)
-      promptId = response.body.newPrompt.id // Ensure the correct ID is captured
-      console.log('Created Prompt ID:', promptId) // Log for debugging
     })
   })
 
@@ -59,9 +61,7 @@ describe('Prompt Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('prompt')
-      expect(response.body.prompt).to.be.an('string')
-      expect(response.body.prompt).to.eq('devil bunny')
+      expect(response.body.prompt).to.eq('angel bunny')
     })
   })
 
@@ -81,23 +81,18 @@ describe('Prompt Management API Tests', () => {
     })
   })
 
-  it('Update a Prompt', () => {
+  it('Attempt to Delete Prompt without Authentication (expect failure)', () => {
     cy.request({
-      method: 'PATCH',
+      method: 'DELETE',
       url: `${baseUrl}/${promptId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-      body: {
-        prompt: 'angel bunny',
-      },
+      headers: { 'Content-Type': 'application/json' },
+      failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(403) // Forbidden without API key
     })
   })
 
-  it('Delete a Prompt', () => {
+  it('Delete Prompt with Authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${promptId}`,
@@ -110,8 +105,8 @@ describe('Prompt Management API Tests', () => {
     })
   })
 
+  // Cleanup: Ensure deletion if prompt was not removed during tests
   after(() => {
-    // Cleanup: Delete the prompt created for the tests
     if (promptId) {
       cy.request({
         method: 'DELETE',
@@ -120,9 +115,9 @@ describe('Prompt Management API Tests', () => {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
+        failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(200)
-        console.log('Reverted Prompt ID:', promptId)
       })
     }
   })

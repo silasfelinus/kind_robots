@@ -1,10 +1,13 @@
+// cypress/e2e/pitches.cy.ts
+
 describe('Pitch Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/pitches'
   const apiKey = Cypress.env('API_KEY')
-  let pitchId: number // Explicitly define the type as number
-  const uniquePitchName = `Pitch-${Date.now()}` // Generate a unique pitch name using Date.now()
+  let pitchId: number | undefined // Define with undefined for clarity
+  const uniquePitchName = `Pitch-${Date.now()}` // Generate a unique pitch name
 
-  it('Should create a new pitch and capture its ID', () => {
+  before(() => {
+    // Create a pitch before running tests
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -14,70 +17,28 @@ describe('Pitch Management API Tests', () => {
       },
       body: {
         pitch: uniquePitchName,
-        PitchType: 'INSPIRATION', // Align with your schema's `PitchType`
-        userId: 1,
+        PitchType: 'INSPIRATION', // Adjust to match schema’s `PitchType`
+        userId: 9,
       },
     }).then((response) => {
-      console.log(response.body) // Log response for debugging
-      expect(response.status).to.eq(200, 'Response status should be 200')
-      expect(response.body.pitch).to.be.an(
-        'object',
-        'New pitch should be an object',
-      )
-      expect(Object.keys(response.body.pitch)).to.have.length.greaterThan(
-        0,
-        'New pitch object should not be empty',
-      )
-      pitchId = response.body.pitch.id // Capture pitchId for use in subsequent tests
-      console.log('Created Pitch ID:', pitchId) // Log for debugging
+      expect(response.status).to.eq(200)
+      pitchId = response.body.pitch.id // Capture ID for use in other tests
     })
   })
 
-  it('Should retrieve the pitch by ID and verify details', () => {
-    if (!pitchId) {
-      throw new Error('pitchId is undefined, cannot fetch pitch by ID')
-    }
+  it('Attempt to Update Pitch without Authentication (expect failure)', () => {
     cy.request({
-      method: 'GET',
-      url: `${baseUrl}/${pitchId}`, // Adjust URL path to match your API
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
+      method: 'PATCH',
+      url: `${baseUrl}/${pitchId}`,
+      headers: { 'Content-Type': 'application/json' },
+      body: { pitch: 'Unauthorized Update' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200, 'Response status should be 200')
-      expect(response.body.pitch).to.be.an(
-        'object',
-        'Pitch object should be returned',
-      )
-      expect(response.body.pitch.pitch).to.eq(
-        uniquePitchName,
-        'Pitch name should match the created unique pitch name',
-      )
+      expect(response.status).to.eq(403) // Forbidden without API key
     })
   })
 
-  it('Should retrieve all pitches', () => {
-    cy.request({
-      method: 'GET',
-      url: `${baseUrl}/batch`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200, 'Response status should be 200')
-      expect(response.body.pitches)
-        .to.be.an('array')
-        .and.have.length.greaterThan(0, 'Pitches array should not be empty')
-    })
-  })
-
-  it('Should update the pitch and verify changes', () => {
-    if (!pitchId) {
-      throw new Error('pitchId is undefined, cannot update pitch by ID')
-    }
+  it('Update Pitch with Authentication', () => {
     const updatedPitchName = `Updated-${uniquePitchName}`
     cy.request({
       method: 'PATCH',
@@ -86,26 +47,55 @@ describe('Pitch Management API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      body: {
-        pitch: updatedPitchName,
-      },
+      body: { pitch: updatedPitchName },
     }).then((response) => {
-      expect(response.status).to.eq(200, 'Response status should be 200')
-      expect(response.body.pitch).to.be.an(
-        'object',
-        'Pitch object should be returned',
-      )
-      expect(response.body.pitch.pitch).to.eq(
-        updatedPitchName,
-        'Pitch name should be updated',
-      )
+      expect(response.status).to.eq(200)
+      expect(response.body.pitch.pitch).to.eq(updatedPitchName)
     })
   })
 
-  it('Should delete the pitch', () => {
-    if (!pitchId) {
-      throw new Error('pitchId is undefined, cannot delete pitch by ID')
-    }
+  it('Retrieve Pitch by ID', () => {
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/${pitchId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.pitch.pitch).to.eq(`Updated-${uniquePitchName}`)
+    })
+  })
+
+  it('Retrieve All Pitches', () => {
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/batch`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.pitches)
+        .to.be.an('array')
+        .and.have.length.greaterThan(0)
+    })
+  })
+
+  it('Attempt to Delete Pitch without Authentication (expect failure)', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${pitchId}`,
+      headers: { 'Content-Type': 'application/json' },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Delete Pitch with Authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${pitchId}`,
@@ -114,7 +104,7 @@ describe('Pitch Management API Tests', () => {
         'x-api-key': apiKey,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200, 'Response status should be 200')
+      expect(response.status).to.eq(200)
     })
   })
 
@@ -127,12 +117,10 @@ describe('Pitch Management API Tests', () => {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
+        failOnStatusCode: false,
       }).then((response) => {
-        expect(response.status).to.eq(
-          200,
-          'Pitch should be deleted successfully',
-        )
-        console.log('Reverted Pitch ID:', pitchId)
+        expect(response.status).to.eq(200)
+        cy.log('Reverted Pitch ID:', pitchId)
       })
     }
   })

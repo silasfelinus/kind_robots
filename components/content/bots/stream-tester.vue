@@ -107,8 +107,6 @@ async function submitPrompt() {
     loading.value = false
   }
 }
-
-// Function to handle streaming response
 async function fetchStream(url: string, options: RequestInit) {
   const response = await fetch(url, options)
   if (!response.ok) {
@@ -121,10 +119,35 @@ async function fetchStream(url: string, options: RequestInit) {
     const decoder = new TextDecoder()
     responseText.value = ''
 
+    let buffer = '' // Buffer to hold partial chunks
+
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
-      responseText.value += decoder.decode(value, { stream: true })
+
+      buffer += decoder.decode(value, { stream: true })
+
+      let boundary
+      while ((boundary = buffer.indexOf('\n\n')) >= 0) {
+        const chunk = buffer.slice(0, boundary).trim()
+        buffer = buffer.slice(boundary + 2)
+
+        // Only process JSON chunks prefixed correctly
+        if (chunk.startsWith('data:')) {
+          const dataString = chunk.slice(5).trim() // Remove "data:" prefix
+          if (dataString && dataString !== '[DONE]') {
+            try {
+              const parsed = JSON.parse(dataString)
+              const content = parsed.choices[0]?.delta?.content
+              if (content) {
+                responseText.value += content
+              }
+            } catch (err) {
+              console.error('Error parsing chunk:', err)
+            }
+          }
+        }
+      }
     }
   } else {
     throw new Error('Stream not supported in response')

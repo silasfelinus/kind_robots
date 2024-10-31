@@ -324,40 +324,30 @@ export const useChatStore = defineStore({
       }
     },
 
-    async deleteExchange(exchangeId: number) {
-      const userStore = useUserStore()
-      const exchange = this.chatExchanges.find(
-        (exchange) => exchange.id === exchangeId,
-      )
+    // chatStore.ts
+async deleteExchange(exchangeId: number): Promise<boolean> {
+  const errorStore = useErrorStore()
+  try {
+    const response = await fetch(`/api/exchanges/${exchangeId}`, {
+      method: 'DELETE',
+    })
+    
+    if (!response.ok) {
+      throw new Error(await response.text())
+    }
+    
+    // Remove from local state if deletion was successful
+    this.chatExchanges = this.chatExchanges.filter(exchange => exchange.id !== exchangeId)
+    return true
+  } catch (error) {
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      `Error deleting exchange: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+    return false
+  }
+},
 
-      if (!exchange) {
-        this.handleError(ErrorType.VALIDATION_ERROR, 'Exchange not found.')
-        return
-      }
-
-      if (exchange.userId !== userStore.user?.id) {
-        this.handleError(
-          ErrorType.VALIDATION_ERROR,
-          'No permission to delete this exchange.',
-        )
-        return
-      }
-
-      try {
-        this.chatExchanges = this.chatExchanges.filter(
-          (exchange) => exchange.id !== exchangeId,
-        )
-        this.saveToLocalStorage()
-
-        await this.fetch(`/api/chats/${exchangeId}`, { method: 'DELETE' })
-      } catch (error) {
-        this.handleError(
-          ErrorType.NETWORK_ERROR,
-          `Error deleting exchange: ${error}`,
-        )
-        throw error
-      }
-    },
 
     loadFromLocalStorage() {
       if (typeof window === 'undefined') return

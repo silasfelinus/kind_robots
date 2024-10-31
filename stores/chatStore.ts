@@ -325,81 +325,55 @@ export const useChatStore = defineStore({
       }
     },
 
-    async deleteExchange(exchangeId: number): Promise<boolean> {
-  const errorStore = useErrorStore()
-  const userStore = useUserStore()
-  const currentUserId = userStore.user?.id
+   async deleteChat(exchangeId: number): Promise<boolean> {
+      const errorStore = useErrorStore()
+      const userStore = useUserStore()
+      const currentUserId = userStore.user?.id
 
-  console.log("Starting deleteExchange process", { exchangeId, currentUserId })
+      console.log("Attempting to delete exchange", { exchangeId, currentUserId })
 
-  if (!currentUserId) {
-    errorStore.setError(ErrorType.AUTH_ERROR, 'User not authenticated.')
-    console.log("Error: User not authenticated.")
-    return false
-  }
+      if (!currentUserId) {
+        this.handleError(ErrorType.AUTH_ERROR, "User not authenticated.")
+        return false
+      }
 
-  // Find the exchange to check ownership
-  const exchange = this.chatExchanges.find(
-    (exchange) => exchange.id === exchangeId
-  )
-  console.log("Exchange found", { exchange })
+      const exchange = this.chatExchanges.find(
+        (exchange) => exchange.id === exchangeId
+      )
+      if (!exchange) {
+        this.handleError(ErrorType.UNKNOWN_ERROR, "Exchange not found.")
+        console.log("Exchange not found with the provided exchangeId:", exchangeId)
+        return false
+      }
 
-  if (!exchange) {
-    errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Exchange not found.')
-    console.log("Error: Exchange not found with the provided exchangeId.")
-    return false
-  }
+      if (exchange.userId !== currentUserId) {
+        this.handleError(ErrorType.AUTH_ERROR, "Unauthorized delete attempt.")
+        console.log("Unauthorized deletion attempt by user", { userId: currentUserId, exchangeUserId: exchange.userId })
+        return false
+      }
 
-  // Client-side authorization check
-  if (exchange.userId !== currentUserId) {
-    errorStore.setError(
-      ErrorType.AUTH_ERROR,
-      'You are not authorized to delete this exchange.'
-    )
-    console.log("Error: User not authorized", {
-      exchangeUserId: exchange.userId,
-      currentUserId,
-    })
-    return false
-  }
+      try {
+        const response = await this.fetch(`/api/chats/${exchangeId}`, {
+          method: 'DELETE',
+        })
 
-  try {
-    // Proceed to delete if authorized
-    console.log("Attempting to delete exchange on server", { exchangeId })
+        if (!response.success) {
+          throw new Error(response.message || "Unknown error from API")
+        }
 
-    const response = await fetch(`/api/exchanges/${exchangeId}`, {
-      method: 'DELETE',
-    })
-
-    console.log("Response from server", {
-      status: response.status,
-      ok: response.ok,
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.log("Server response error text", { errorText })
-      errorStore.setError(ErrorType.NETWORK_ERROR, `Delete failed: ${errorText}`)
-      return false
-    }
-
-    // Remove from local state after successful deletion
-    this.chatExchanges = this.chatExchanges.filter(
-      (exchange) => exchange.id !== exchangeId
-    )
-    console.log("Exchange successfully deleted from local state", { exchangeId })
-    return true
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    errorStore.setError(
-      ErrorType.NETWORK_ERROR,
-      `Error deleting exchange: ${errorMessage}`
-    )
-    console.log("Network error occurred during delete", { errorMessage })
-    return false
-  }
-},
-
+        // Successfully delete from local state
+        this.chatExchanges = this.chatExchanges.filter(
+          (ex) => ex.id !== exchangeId
+        )
+        this.saveToLocalStorage()
+        console.log("Exchange successfully deleted from local state", { exchangeId })
+        return true
+      } catch (error) {
+        this.handleError(ErrorType.NETWORK_ERROR, `Error deleting exchange: ${error}`)
+        console.error("Network error during deleteChat:", error)
+        return false
+      }
+    },
 
 
     loadFromLocalStorage() {

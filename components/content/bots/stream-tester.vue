@@ -40,6 +40,11 @@
       </button>
     </div>
 
+
+
+
+
+
     <!-- Display Bot Response -->
     <div v-if="responseText" class="mt-6 p-4 bg-gray-100 rounded-lg">
       <h2 class="text-xl font-semibold mb-2">Bot Response:</h2>
@@ -54,23 +59,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const prompt = ref('this is a test')
-const responseText = ref('')
-const loading = ref(false)
-const errorMessage = ref('')
-const useStreaming = ref(false)
+const prompt = ref('');
+const responseText = ref('');
+const loading = ref(false);
+const errorMessage = ref('');
+const useStreaming = ref(false);
 
 // Function to submit the prompt to the /api/botcafe/chat endpoint
 async function submitPrompt() {
-  if (!prompt.value.trim()) return
+  if (!prompt.value.trim()) return;
 
-  loading.value = true
-  responseText.value = ''
-  errorMessage.value = ''
+  loading.value = true;
+  errorMessage.value = '';
 
-  const apiEndpoint = '/api/botcafe/chat' // Updated endpoint
+  // Display the prompt at the top of the responseText
+  responseText.value = `You: ${prompt.value}\n\n`; // Add prompt as "You: [Prompt]"
+
+  const apiEndpoint = '/api/botcafe/chat';
 
   const requestOptions = {
     method: 'POST',
@@ -84,29 +91,29 @@ async function submitPrompt() {
       max_tokens: 300,
       stream: useStreaming.value,
     }),
-  }
+  };
 
   try {
     if (useStreaming.value) {
-      await fetchStream(apiEndpoint, requestOptions)
+      await fetchStream(apiEndpoint, requestOptions);
     } else {
-      const response = await fetch(apiEndpoint, requestOptions)
+      const response = await fetch(apiEndpoint, requestOptions);
       if (!response.ok) {
-        errorMessage.value = `Error ${response.status}: ${response.statusText}`
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
+        errorMessage.value = `Error ${response.status}: ${response.statusText}`;
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-      const data = await response.json()
-      responseText.value =
-        data.choices?.[0]?.message?.content || 'No response received'
+      const data = await response.json();
+      responseText.value += data.choices?.[0]?.message?.content || 'No response received';
     }
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error ? error.message : 'An unknown error occurred'
-    console.error('Error during API request:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error('Error during API request:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
+
+// Function to handle streaming response
 async function fetchStream(url: string, options: RequestInit) {
   const response = await fetch(url, options);
   if (!response.ok) {
@@ -117,7 +124,6 @@ async function fetchStream(url: string, options: RequestInit) {
   if (response.body) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    responseText.value = '';  // Reset response text for new output
     let buffer = ''; // Accumulates partial data from chunks
 
     while (true) {
@@ -132,7 +138,7 @@ async function fetchStream(url: string, options: RequestInit) {
         let chunk = buffer.slice(0, boundary).trim();
         buffer = buffer.slice(boundary + 2); // Move past the current chunk
 
-        // Ensure only the first "data:" prefix is removed, if present
+        // Remove a single "data:" prefix if present
         if (chunk.startsWith('data:')) {
           chunk = chunk.replace(/^data:\s*/, '');
         }
@@ -141,11 +147,11 @@ async function fetchStream(url: string, options: RequestInit) {
         if (!chunk || chunk === '[DONE]') continue;
 
         try {
-          // Attempt to parse the JSON and extract content
+          // Parse the JSON and extract the content
           const parsed = JSON.parse(chunk);
           const content = parsed.choices[0]?.delta?.content;
 
-          // Append content to response text, showing prompt if it's the start of streaming
+          // Append content to response text
           if (content) {
             responseText.value += content;
           }
@@ -158,6 +164,7 @@ async function fetchStream(url: string, options: RequestInit) {
     throw new Error('Stream not supported in response');
   }
 }
+
 
 
 </script>

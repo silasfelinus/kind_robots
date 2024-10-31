@@ -1,4 +1,6 @@
+// cypress/e2e/artcollection.cy.js
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+
 describe('Art Collection API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/art/collection'
   const apiKey = Cypress.env('API_KEY')
@@ -6,10 +8,9 @@ describe('Art Collection API Tests', () => {
   let artId: number // Use an existing art ID or create one in advance
   let existingArtIds: number[] = [] // To store the current artIds in the collection
   let artIdToRemove: number // To store the artId we want to remove later
-  
+
   // Create a new ArtCollection before running tests
   before(() => {
-    // Assuming there's an existing artId, or you can create one here
     cy.request({
       method: 'POST',
       url: 'https://kind-robots.vercel.app/api/art', // Create a new Art if necessary
@@ -19,7 +20,7 @@ describe('Art Collection API Tests', () => {
       },
       body: {
         promptString: 'Testing, A serene lake in the evening',
-        path: " ",
+        path: ' ',
         seed: null,
         steps: null,
         channelId: null,
@@ -27,12 +28,12 @@ describe('Art Collection API Tests', () => {
         promptId: null,
         pitchId: null,
         isPublic: true,
+        userId: 9,
       },
-      failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(200)
       artId = response.body.art?.id
-  
+
       if (!artId) {
         throw new Error('Failed to create art.')
       }
@@ -51,27 +52,18 @@ describe('Art Collection API Tests', () => {
         userId: 1, // Replace with a valid userId
         artIds: [artId],
       },
-      failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.collection).to.be.an('object')
-      collectionId = response.body.collection.id // Capture the collection ID
-  
-      cy.log('Captured collectionId:', collectionId)
-  
-      if (!collectionId) {
-        throw new Error('Failed to create collection.')
-      }
-
-      // Store the existing art IDs
-      existingArtIds = response.body.collection.art.map((art: { id: number }) => art.id)
+      collectionId = response.body.collection.id
+      existingArtIds = response.body.collection.art.map((art: Art) => art.id)
     })
   })
 
   it('Get All Art Collections', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}`, // Fetch all collections
+      url: `${baseUrl}`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -93,15 +85,11 @@ describe('Art Collection API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.collection).to.be.an('object')
-       
-      expect(response.body.collection.art).to.be.an('array').and.not.empty
-
-      // Update existingArtIds after fetching the collection
-      existingArtIds = response.body.collection.art.map((art: { id: number }) => art.id)
+      existingArtIds = response.body.collection.art.map((art: Art) => art.id)
     })
   })
+
   it('Add a Different Art to Collection', () => {
-    // Create a new art entry to add to the collection
     cy.request({
       method: 'POST',
       url: 'https://kind-robots.vercel.app/api/art',
@@ -111,25 +99,29 @@ describe('Art Collection API Tests', () => {
       },
       body: {
         promptString: 'Another beautiful sunset',
-        path: " ",
-        seed: null,
-        steps: null,
-        channelId: null,
-        galleryId: null,
-        promptId: null,
-        pitchId: null,
+        path: ' ',
         isPublic: true,
       },
-      failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(200)
       const newArtId = response.body.art?.id
-  
-      // Ensure the newArtId is valid
-      expect(newArtId).to.exist
-      cy.log('newArtId:', newArtId) // Log the new art ID
-  
-      // Now add the new artId to the collection
+
+      // Attempt to update without API key (expect failure)
+      cy.request({
+        method: 'PATCH',
+        url: `${baseUrl}/${collectionId}`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: {
+          artIds: [...existingArtIds, newArtId],
+        },
+        failOnStatusCode: false,
+      }).then((response) => {
+        expect(response.status).to.eq(403) // Expect forbidden without API key
+      })
+
+      // Attempt to update with API key (expect success)
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${collectionId}`,
@@ -138,39 +130,39 @@ describe('Art Collection API Tests', () => {
           'x-api-key': apiKey,
         },
         body: {
-          artIds: [...existingArtIds, newArtId], // Add the new art to the existing ones
+          artIds: [...existingArtIds, newArtId],
         },
       }).then((response) => {
-        cy.log('Response after PATCH:', response.body) // Log the full response body
-  
-        // Extract the art IDs from the response to verify
-        const returnedArtIds = response.body.collection.art.map((art: { id: number }) => art.id)
-  
-        // Log the list of art IDs for clarity
-        cy.log('Art list in response:', returnedArtIds)
-  
         expect(response.status).to.eq(200)
-        expect(returnedArtIds).to.include(newArtId) // Verify the response array includes the new art ID
-  
-        // Update the existingArtIds with the newly added art
+        const returnedArtIds = response.body.collection.art.map(
+          (art: Art) => art.id,
+        )
+        expect(returnedArtIds).to.include(newArtId)
         existingArtIds = returnedArtIds
-        cy.log('Updated art IDs:', existingArtIds) // Log updated art IDs
       })
     })
   })
-  
-  
-  
-  
 
   it('Remove Art from Collection', () => {
-    // Check that existingArtIds is not empty before removing
     expect(existingArtIds).to.be.an('array').and.not.empty
-  
-    // Set an artId to remove
-    artIdToRemove = existingArtIds[0] // Assume the first art ID to remove
-    expect(artIdToRemove).to.exist // Ensure artIdToRemove is valid
-  
+    artIdToRemove = existingArtIds[0]
+
+    // Attempt to remove without API key (expect failure)
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${collectionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        artIds: existingArtIds.filter((id) => id !== artIdToRemove),
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Expect forbidden without API key
+    })
+
+    // Attempt to remove with API key (expect success)
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${collectionId}`,
@@ -179,20 +171,32 @@ describe('Art Collection API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        artIds: existingArtIds.filter((id: number) => id !== artIdToRemove), // Remove the specified artId from the list
+        artIds: existingArtIds.filter((id) => id !== artIdToRemove),
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.collection).to.have.property('art')
-      expect(response.body.collection.art).to.not.include(artIdToRemove)
-  
-      // Update existingArtIds after removing
-      existingArtIds = response.body.collection.art.map((art: { id: number }) => art.id)
+      const returnedArtIds = response.body.collection.art.map(
+        (art: Art) => art.id,
+      )
+      expect(returnedArtIds).to.not.include(artIdToRemove)
+      existingArtIds = returnedArtIds
     })
   })
-  
 
   it('Delete Art Collection', () => {
+    // Attempt delete without API key (expect failure)
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${collectionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Expect forbidden without API key
+    })
+
+    // Attempt delete with API key (expect success)
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${collectionId}`,

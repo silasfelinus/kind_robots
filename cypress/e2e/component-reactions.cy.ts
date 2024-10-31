@@ -6,7 +6,7 @@ describe('Component Reactions API Tests', () => {
   const apiKey = Cypress.env('API_KEY')
   let componentId: number | undefined
   let reactionId: number | undefined
-  const userId: number = 1 // Example user ID
+  const userId: number = 9 // Example user ID
 
   // Step 1: Create a new component before the tests
   before(() => {
@@ -120,6 +120,25 @@ describe('Component Reactions API Tests', () => {
   it('Update an Existing Component Reaction', () => {
     cy.wrap(reactionId).should('exist') // Ensure reactionId exists
 
+    // Attempt update without API key (expect failure)
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/reactions/${reactionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        reactionType: 'BOOED',
+        comment: 'Actually, I have second thoughts...',
+        reactionCategory: 'COMPONENT',
+        rating: 2,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Expect forbidden status without API key
+    })
+
+    // Attempt update with API key (expect success)
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/reactions/${reactionId}`,
@@ -128,10 +147,10 @@ describe('Component Reactions API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        reactionType: 'BOOED', // Change reaction type
+        reactionType: 'BOOED',
         comment: 'Actually, I have second thoughts...',
         reactionCategory: 'COMPONENT',
-        rating: 2, // Update rating
+        rating: 2,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -148,6 +167,19 @@ describe('Component Reactions API Tests', () => {
   it('Delete a Component Reaction', () => {
     cy.wrap(reactionId).should('exist') // Ensure reactionId exists
 
+    // Attempt delete without API key (expect failure)
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/reactions/${reactionId}`,
+      headers: {
+        Accept: 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Expect forbidden status without API key
+    })
+
+    // Attempt delete with API key (expect success)
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/reactions/${reactionId}`,
@@ -165,6 +197,19 @@ describe('Component Reactions API Tests', () => {
   after(() => {
     cy.wrap(componentId).should('exist') // Ensure componentId exists
 
+    // Attempt delete without API key (expect failure)
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/components/${componentId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Expect forbidden status without API key
+    })
+
+    // Attempt delete with API key (expect success)
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/components/${componentId}`,

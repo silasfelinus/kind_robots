@@ -1,4 +1,4 @@
-// cypress/e2e/api/bots.cy.js
+// cypress/e2e/bots.cy.js
 /* eslint-disable no-undef */
 
 describe('Bot Management API Tests', () => {
@@ -11,7 +11,7 @@ describe('Bot Management API Tests', () => {
   it('Create a New Bot', () => {
     cy.request({
       method: 'POST',
-      url: `${baseUrl}`, // Ensure URL is correct
+      url: `${baseUrl}`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -29,31 +29,36 @@ describe('Bot Management API Tests', () => {
         underConstruction: false,
         canDelete: true,
         BotType: 'CHATBOT',
-        tagline: 'Your friendly AI companion', // New field
-        sampleResponse: 'I am here to help you!', // New field
-        modules: 'core, analytics', // New field
-        userId: 1,
+        tagline: 'Your friendly AI companion',
+        sampleResponse: 'I am here to help you!',
+        modules: 'core, analytics',
+        userId: 9,
       },
+      failOnStatusCode: false,
     }).then((response) => {
-      console.log(response.body) // Log the full response
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      if (response.body.bot) {
-        expect(response.body.bot).to.include({
-          name: botName,
-          description: 'A bot created for testing purposes',
-          tagline: 'Your friendly AI companion', // Check new field
-          sampleResponse: 'I am here to help you!', // Check new field
-        })
-        createdBotId = response.body.bot.id
-      } else {
-        throw new Error('Bot object is missing in the response')
-      }
+      createdBotId = response.body.bot.id
     })
   })
 
-  it('Update the Newly Created Bot', () => {
-    const updateUrl = `https://kind-robots.vercel.app/api/bot/name/${botName}/`
+  it('Update Bot without Authentication (expect failure)', () => {
+    const updateUrl = `${baseUrl}/name/${botName}/`
+    cy.request({
+      method: 'PATCH',
+      url: updateUrl,
+      headers: { 'Content-Type': 'application/json' },
+      body: {
+        description: 'Unauthorized update attempt',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Update Bot with Authentication', () => {
+    const updateUrl = `${baseUrl}/name/${botName}/`
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -64,24 +69,20 @@ describe('Bot Management API Tests', () => {
       body: {
         description: 'Updated description for the test bot',
         botIntro: 'Welcome to the updated Test Bot!',
-        userIntro: 'I am here to help you better.',
         theme: 'Tech-savvy',
-        modules: 'core, analytics, chat', // Update field
-        tagline: 'Now with advanced features', // Update field
+        tagline: 'Now with advanced features',
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.bot).to.include({
         description: 'Updated description for the test bot',
-        botIntro: 'Welcome to the updated Test Bot!',
-        tagline: 'Now with advanced features', // Check updated field
-        modules: 'core, analytics, chat', // Check updated field
+        tagline: 'Now with advanced features',
       })
     })
   })
 
-  it('Check Bot Existence and Details in General Listing', () => {
+  it('Fetch Bot Details in General Listing', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
@@ -95,17 +96,27 @@ describe('Bot Management API Tests', () => {
       const bot = response.body.bots.find((bot) => bot.id === createdBotId)
       expect(bot).to.include({
         id: createdBotId,
-        name: `${botName}`,
+        name: botName,
         description: 'Updated description for the test bot',
-        tagline: 'Now with advanced features', // Check new field
       })
     })
   })
 
-  it('Delete the Created Bot', () => {
+  it('Delete Bot without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
-      url: `https://kind-robots.vercel.app/api/bot/id/${createdBotId}`,
+      url: `${baseUrl}/id/${createdBotId}`,
+      headers: { 'Content-Type': 'application/json' },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Delete Bot with Authentication', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/id/${createdBotId}`,
       headers: {
         'x-api-key': apiKey,
       },

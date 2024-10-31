@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+// cypress/e2e/components.cy.ts
 
 describe('Component Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/components'
-  let componentId: number // Store component ID for further operations
-  const uniqueFolderName = `test-folder-${Date.now()}` // Unique folder name for each test run
-  const uniqueComponentName = `TestComponent-${Date.now()}` // Unique component name for each test run
+  const apiKey = Cypress.env('API_KEY')
+  let componentId: number
+  const uniqueFolderName = `test-folder-${Date.now()}`
+  const uniqueComponentName = `TestComponent-${Date.now()}`
 
   it('Get All Folder Names', () => {
     cy.request({
@@ -37,11 +39,12 @@ describe('Component Management API Tests', () => {
         underConstruction: false,
         isBroken: false,
         title: 'Test Component',
+        userId: 9,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      componentId = response.body.component.id // Save the component ID for use in later tests
+      componentId = response.body.component.id
     })
   })
 
@@ -71,19 +74,12 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-
-      // Define the expected type of the component
       const components = response.body.components as Array<{
         componentName: string
-        // Other properties of the component can be added here if needed
       }>
-
-      // Extract the component names from the array of components
       const componentNames = components.map(
         (component) => component.componentName,
       )
-
-      // Ensure the array includes the expected component name
       expect(componentNames).to.include(uniqueComponentName)
     })
   })
@@ -98,8 +94,6 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.component).to.exist
-
       const component = response.body.component
       expect(component.id).to.eq(componentId)
       expect(component.componentName).to.eq(uniqueComponentName)
@@ -109,7 +103,7 @@ describe('Component Management API Tests', () => {
     })
   })
 
-  it('Update Specific Component by ID', () => {
+  it('Attempt to Update Component without Authentication (expect failure)', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${componentId}`,
@@ -120,31 +114,59 @@ describe('Component Management API Tests', () => {
       body: {
         isWorking: false,
         underConstruction: true,
+        title: 'Unauthorized Update Attempt',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Update Component with Authentication', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${componentId}`,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        isWorking: false,
+        underConstruction: true,
         title: 'Updated Test Component',
       },
     }).then((response) => {
-      // Debug the response body to ensure the structure is correct
-      cy.log(JSON.stringify(response.body)) // Log the response for debugging
-
+      cy.log(JSON.stringify(response.body))
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-
-      // Check if 'component' exists before accessing its properties
-      expect(response.body).to.have.property('component')
       const updatedComponent = response.body.component
-
       expect(updatedComponent.isWorking).to.be.false
       expect(updatedComponent.underConstruction).to.be.true
       expect(updatedComponent.title).to.eq('Updated Test Component')
     })
   })
 
-  it('Delete Specific Component by ID', () => {
+  it('Attempt to Delete Component without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${componentId}`,
       headers: {
         Accept: 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Delete Component with Authentication', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${componentId}`,
+      headers: {
+        Accept: 'application/json',
+        'x-api-key': apiKey,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

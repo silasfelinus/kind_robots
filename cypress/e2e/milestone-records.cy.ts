@@ -1,41 +1,16 @@
-// cypress/e2e/api/milestone-record.cy.ts
+// cypress/e2e/milestone-records.cy.ts
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Milestone Record Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/milestones/records'
-  const registerUrl = 'https://kind-robots.vercel.app/api/users/register'
-  const userUrl = 'https://kind-robots.vercel.app/api/users/'
-  const deleteUrl = 'https://kind-robots.vercel.app/api/milestones/records'
   const apiKey = Cypress.env('API_KEY')
 
   let milestoneRecordId: number
-  let userId: number
-  const milestoneId: number = 1 // Example milestone ID (assuming 1 is valid)
-  const newUserName = `testuser-${Date.now()}` // Generate unique username using Date.now()
+  const userId = 9 // Use existing test user
+  const milestoneId = 10 // Set milestone ID for testing
 
-  it('Create a New User', () => {
-    cy.request({
-      method: 'POST',
-      url: registerUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-      body: {
-        username: newUserName,
-        email: `${newUserName}@example.com`,
-        password: 'password123',
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body.user).to.be.an('object').that.is.not.empty
-      userId = response.body.user.id // Capture the newly created user ID
-      console.log('Created User ID:', userId) // Log for debugging
-    })
-  })
-
-  it('Create a New Milestone Record for the New User', () => {
+  it('Create a New Milestone Record for Test User', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -44,47 +19,56 @@ describe('Milestone Record Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        userId: userId,
-        milestoneId: milestoneId,
+        userId,
+        milestoneId,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.record).to.be.an('object').that.is.not.empty
-      milestoneRecordId = response.body.record.id // Ensure the correct Milestone Record ID is captured
-      console.log('Created Milestone Record ID:', milestoneRecordId) // Log for debugging
+      milestoneRecordId = response.body.record.id
+      cy.log('Created Milestone Record ID:', milestoneRecordId)
     })
   })
 
-  it('Delete the Milestone Record', () => {
+  it('Attempt to Delete Milestone Record without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
-      url: `${deleteUrl}/${milestoneRecordId}`, // Use updated delete URL
+      url: `${baseUrl}/${milestoneRecordId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Delete Milestone Record with Authentication', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${milestoneRecordId}`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      failOnStatusCode: false, // Allow Cypress to log the response even if it fails
     }).then((response) => {
-      if (response.status !== 200) {
-        console.error('Failed to delete milestone record:', response.body) // Log error details
-      }
       expect(response.status).to.eq(200)
     })
   })
 
-  // Clean up: Ensure the newly created user is deleted after the tests
   after(() => {
-    if (userId) {
+    if (milestoneRecordId) {
       cy.request({
         method: 'DELETE',
-        url: `${userUrl}/${userId}`,
+        url: `${baseUrl}/${milestoneRecordId}`,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
+        failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(200)
-        console.log('Deleted User ID:', userId) // Log for debugging
+        cy.log('Cleaned up Milestone Record ID:', milestoneRecordId)
       })
     }
   })

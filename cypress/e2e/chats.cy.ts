@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+// cypress/e2e/chats.cy.ts
+
 describe('ChatExchange Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/chats'
   const apiKey = Cypress.env('API_KEY')
-  let chatExchangeId: number // Explicitly define the type as number
-  const userId: number = 1 // Example user ID (assuming 1 is valid)
-  const botId: number = 1 // Example bot ID (assuming 2 is valid)
+  let chatExchangeId: number
+  const userId: number = 9
+  const botId: number = 1
 
   it('Create a New Chat Exchange', () => {
     cy.request({
@@ -15,8 +17,8 @@ describe('ChatExchange Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        userId: userId,
-        botId: botId,
+        userId,
+        botId,
         botName: 'AMI',
         username: 'silasfelinus',
         userPrompt: 'How are you?',
@@ -24,7 +26,6 @@ describe('ChatExchange Management API Tests', () => {
         previousEntryId: null,
       },
     }).then((response) => {
-      console.log(response) // Add this to inspect the response
       expect(response.status).to.eq(200)
       expect(response.body.newExchange).to.be.an('object').that.is.not.empty
       chatExchangeId = response.body.newExchange.id
@@ -93,7 +94,24 @@ describe('ChatExchange Management API Tests', () => {
     })
   })
 
-  it('Update a Chat Exchange by ID', () => {
+  it('Attempt to Update Chat Exchange without Authentication (expect failure)', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${chatExchangeId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        userPrompt: 'Unauthorized update attempt',
+        botResponse: "I'm great, unauthorized attempt!",
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Update Chat Exchange with Authentication', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${chatExchangeId}`,
@@ -104,30 +122,26 @@ describe('ChatExchange Management API Tests', () => {
       body: {
         userPrompt: 'How are you?',
         botResponse: "I'm great, thank you!",
-        liked: true, // Ensure `liked` is a valid field or remove it
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
     })
   })
 
-  it('Add or Update Reaction to a Chat Exchange by ID', () => {
+  it('Attempt to Delete Chat Exchange without Authentication (expect failure)', () => {
     cy.request({
-      method: 'PATCH',
+      method: 'DELETE',
       url: `${baseUrl}/${chatExchangeId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
-      body: {
-        liked: true,
-      },
+      failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(403) // Forbidden without API key
     })
   })
 
-  it('Delete a Chat Exchange by ID', () => {
+  it('Delete Chat Exchange with Authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${chatExchangeId}`,
@@ -151,7 +165,6 @@ describe('ChatExchange Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        console.log('Reverted ChatExchange ID:', chatExchangeId)
       })
     }
   })

@@ -1,9 +1,9 @@
-// cypress/e2e/api/reward.cy.ts
+// cypress/e2e/rewards.cy.ts
 
 describe('Reward Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/rewards'
   const apiKey = Cypress.env('API_KEY')
-  let rewardId: number // Explicitly define the type as number
+  let rewardId: number // Store reward ID for further operations
 
   it('Create a New Reward', () => {
     cy.request({
@@ -20,18 +20,52 @@ describe('Reward Management API Tests', () => {
         collection: 'Test Collection',
         rarity: 5,
         label: 'Test Label',
+        userId: 9,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      assert.isObject(response.body.reward, 'reward is an object')
+      expect(response.body.reward).to.be.an('object')
       expect(response.body.reward.label).to.eq('Test Label')
-      rewardId = response.body.reward.id // Ensure the correct ID is captured
-      console.log('Created Reward ID:', rewardId) // Log for debugging
+      rewardId = response.body.reward.id
+    })
+  })
+
+  it('Attempt to Update Reward without Authentication (expect failure)', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${rewardId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        text: 'Unauthorized Update',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403) // Forbidden without API key
+    })
+  })
+
+  it('Update Reward with Authentication', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${rewardId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: {
+        text: 'Updated Test Reward Text',
+        rarity: 10,
+        label: 'Updated Test Label',
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.reward.label).to.eq('Updated Test Label')
     })
   })
 
   it('Get Reward by ID', () => {
-    cy.log('Checking reward ID:', rewardId) // Debugging: Log the reward ID
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${rewardId}`,
@@ -39,14 +73,10 @@ describe('Reward Management API Tests', () => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      failOnStatusCode: false, // Do not fail immediately on status code error
     }).then((response) => {
-      cy.log('Response status:', response.status) // Log response status for debugging
-      cy.log('Response body:', response.body) // Log response body for debugging
-
       expect(response.status).to.eq(200)
       expect(response.body.reward).to.be.an('object')
-      expect(response.body.reward.text).to.eq('Test Reward Text')
+      expect(response.body.reward.text).to.eq('Updated Test Reward Text')
     })
   })
 
@@ -66,26 +96,20 @@ describe('Reward Management API Tests', () => {
     })
   })
 
-  it('Update a Reward', () => {
+  it('Attempt to Delete Reward without Authentication (expect failure)', () => {
     cy.request({
-      method: 'PATCH',
+      method: 'DELETE',
       url: `${baseUrl}/${rewardId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
-      body: {
-        text: 'Updated Test Reward Text',
-        rarity: 10,
-        label: 'Updated Test Label',
-      },
+      failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body.reward.label).to.eq('Updated Test Label') // Verify label is updated
+      expect(response.status).to.eq(403) // Forbidden without API key
     })
   })
 
-  it('Delete a Reward', () => {
+  it('Delete Reward with Authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${rewardId}`,
@@ -98,7 +122,7 @@ describe('Reward Management API Tests', () => {
     })
   })
 
-  // Ensure all changes are reverted by deleting the reward created during the test
+  // Ensure cleanup: Delete reward after tests if it wasn't removed
   after(() => {
     if (rewardId) {
       cy.request({
@@ -108,9 +132,9 @@ describe('Reward Management API Tests', () => {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
+        failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(200)
-        console.log('Reverted Reward ID:', rewardId)
       })
     }
   })

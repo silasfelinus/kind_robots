@@ -324,19 +324,45 @@ export const useChatStore = defineStore({
       }
     },
 
-    // chatStore.ts
+
+
 async deleteExchange(exchangeId: number): Promise<boolean> {
   const errorStore = useErrorStore()
+  const userStore = useUserStore()
+  const currentUserId = userStore.user?.id
+
+  if (!currentUserId) {
+    errorStore.setError(ErrorType.AUTHORIZATION_ERROR, 'User not authenticated.')
+    return false
+  }
+
+  // Find the exchange to check ownership
+  const exchange = this.chatExchanges.find(exchange => exchange.id === exchangeId)
+  if (!exchange) {
+    errorStore.setError(ErrorType.NOT_FOUND, 'Exchange not found.')
+    return false
+  }
+
+  // Client-side authorization check
+  if (exchange.userId !== currentUserId) {
+    errorStore.setError(
+      ErrorType.AUTHORIZATION_ERROR,
+      'You are not authorized to delete this exchange.'
+    )
+    return false
+  }
+
   try {
+    // Proceed to delete if authorized
     const response = await fetch(`/api/exchanges/${exchangeId}`, {
       method: 'DELETE',
     })
-    
+
     if (!response.ok) {
       throw new Error(await response.text())
     }
-    
-    // Remove from local state if deletion was successful
+
+    // Remove from local state after successful deletion
     this.chatExchanges = this.chatExchanges.filter(exchange => exchange.id !== exchangeId)
     return true
   } catch (error) {
@@ -347,6 +373,7 @@ async deleteExchange(exchangeId: number): Promise<boolean> {
     return false
   }
 },
+
 
 
     loadFromLocalStorage() {

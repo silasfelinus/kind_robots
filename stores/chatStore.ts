@@ -12,6 +12,7 @@ export const useChatStore = defineStore({
     activeChats: [] as ChatExchange[],
     currentPrompt: '',
     isInitialized: false,
+    currentStream: '',  // Track the latest stream chunk
   }),
 
   getters: {
@@ -42,29 +43,6 @@ export const useChatStore = defineStore({
       console.error(message)
     },
 
-    async fetch(url: string, options: RequestInit = {}) {
-      const errorStore = useErrorStore()
-      try {
-        const response = await fetch(url, options)
-        if (!response.ok) {
-          let errorMessage = `HTTP error! Status: ${response.status}`
-          const errorDetails = await response.json().catch(() => null)
-          if (errorDetails?.message) {
-            errorMessage += ` - ${errorDetails.message}`
-          }
-          throw new Error(errorMessage)
-        }
-        return await response.json()
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'An unknown error occurred during fetch'
-        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
-        throw error
-      }
-    },
-
     async addExchange(
       prompt: string,
       userId: number,
@@ -93,18 +71,9 @@ export const useChatStore = defineStore({
             userId,
             botId ?? 1,
           )
-          console.log('Prompt result:', promptResult)
-
-          // Extract the ID from the promptResult if it exists
           finalPromptId = promptResult?.id
-          console.log('Extracted final promptId:', finalPromptId)
-
-          if (!finalPromptId) {
-            throw new Error('Failed to obtain a prompt ID.')
-          }
+          if (!finalPromptId) throw new Error('Failed to obtain a prompt ID.')
         }
-
-        console.log('Confirmed final promptId:', finalPromptId)
 
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
@@ -125,44 +94,40 @@ export const useChatStore = defineStore({
           body: JSON.stringify(exchange),
         })
 
-        if (!response.success) {
-          throw new Error(response.message || 'Unknown error from API')
-        }
+        if (!response.success) throw new Error(response.message || 'Unknown error from API')
 
         const newExchange = response.newExchange as ChatExchange
-        if (!this.isValidChatExchange(newExchange)) {
-          throw new Error('Invalid ChatExchange object returned from API')
-        }
-
         newExchange.botResponse = ''
         this.activeChats.push(newExchange)
         this.chatExchanges.push(newExchange)
 
+        // Start streaming the bot response and update currentStream
         await this.fetchStream(
-  'https://kind-robots.vercel.app/api/botcafe/chat',
-  {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 1,
-      n: 1,
-      maxTokens: 300,
-      stream: true,
-    }),
-    onData: (chunk) => {
-      newExchange.botResponse += chunk;
-      this.chatExchanges = [...this.chatExchanges];
-    },
-  },
-);
+          'https://kind-robots.vercel.app/api/botcafe/chat',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [{ role: 'user', content: prompt }],
+              temperature: 1,
+              n: 1,
+              maxTokens: 300,
+              stream: true,
+            }),
+            onData: (chunk) => {
+              newExchange.botResponse += chunk;
+              this.currentStream = chunk;  // Update currentStream with the latest chunk
+              this.chatExchanges = [...this.chatExchanges];
+            },
+          },
+        );
+
         this.saveToLocalStorage()
         return newExchange
       } catch (error) {
-        console.error('Error in addExchange:', error)
         this.handleError(
           ErrorType.NETWORK_ERROR,
           `Error in addExchange: ${error}`,
@@ -171,98 +136,100 @@ export const useChatStore = defineStore({
       }
     },
 
-async fetchStream(
-  url: string,
-  options: RequestInit & { onData: (chunk: string) => void },
-) {
-  const errorStore = useErrorStore();
-  const { onData, ...fetchOptions } = options;
+    async fetchStream(
+      url: string,
+      options: RequestInit & { onData: (chunk: string) => void },
+    ) {
+      const errorStore = useErrorStore()
+      const { onData, ...fetchOptions } = options
 
-  console.log('--- FetchStream Initiated ---');
-  console.log('URL:', url);
-  console.log('Options:', fetchOptions);
+      try {
+        const response = await fetch(url, {
+          ...fetchOptions,
+          headers: {
+            'Content-Type': 'application/json',
+            ...fetchOptions.headers,
+          },
+        })
 
-  try {
-    const response = await fetch(url, {
-      ...fetchOptions,
-      headers: {
-        'Content-Type': 'application/json',
-        ...fetchOptions.headers,
-      },
-    });
+        if (!response.ok) {
+          const errorDetails = await response.json().catch(() => null)
+          const errorMessage = errorDetails?.message
+            ? `HTTP error! ${response.status} - ${errorDetails.message}`
+            : `HTTP error! Status: ${response.status}`
 
-    if (!response.ok) {
-      const errorDetails = await response.json().catch(() => null);
-      const errorMessage = errorDetails?.message
-        ? `HTTP error! ${response.status} - ${errorDetails.message}`
-        : `HTTP error! Status: ${response.status}`;
+          throw new Error(errorMessage)
+        }
 
-      console.error('Failed API Response:', errorMessage);
-      console.error('Detailed error:', JSON.stringify(errorDetails, null, 2));
+        if (response.body) {
+          const reader = response.body.getReader()
+          const decoder = new TextDecoder()
 
-      throw new Error(errorMessage);
-    }
+          let buffer = ''
 
-    console.log('Response status:', response.status);
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
 
-    if (response.body) {
-      console.log('--- Stream Opened Successfully ---');
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
+            buffer += decoder.decode(value, { stream: true })
 
-      let buffer = ''; // Accumulates partial data from chunks
+            let boundary
+            while ((boundary = buffer.indexOf('\n\n')) >= 0) {
+              let chunk = buffer.slice(0, boundary).trim()
+              buffer = buffer.slice(boundary + 2)
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+              if (chunk.startsWith('data:')) {
+                chunk = chunk.replace(/^data:\s*/, '').replace(/^data:\s*/, '')
+              }
 
-        // Decode current chunk and add to the buffer
-        buffer += decoder.decode(value, { stream: true });
+              if (!chunk || chunk === '[DONE]') continue
 
-        let boundary;
-        while ((boundary = buffer.indexOf('\n\n')) >= 0) {
-          let chunk = buffer.slice(0, boundary).trim();
-          buffer = buffer.slice(boundary + 2); // Move past the current chunk
+              try {
+                const parsed = JSON.parse(chunk)
+                const content = parsed.choices[0]?.delta?.content
 
-          // Remove multiple "data:" prefixes if they exist
-          if (chunk.startsWith('data:')) {
-            chunk = chunk.replace(/^data:\s*/, '').replace(/^data:\s*/, '');
-          }
-
-          // Skip empty chunks and "[DONE]"
-          if (!chunk || chunk === '[DONE]') continue;
-
-          try {
-            // Parse the JSON and extract the content
-            const parsed = JSON.parse(chunk);
-            const content = parsed.choices[0]?.delta?.content;
-
-            // Use the onData callback to update the chat with content
-            if (content) {
-              onData(content);
+                if (content) {
+                  onData(content)
+                  this.currentStream = content  // Update currentStream with each new content chunk
+                }
+              } catch (parseError) {
+                console.warn('Failed to handle chunk:', chunk, parseError)
+              }
             }
-          } catch (parseError) {
-            console.warn('Failed to handle chunk:', chunk, parseError);
           }
         }
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred during fetchStream'
+        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+        throw error
       }
-      console.log('--- Stream Ended ---');
-    } else {
-      console.log('--- Non-streaming response ---');
-      const responseData = await response.json();
-      return responseData;
-    }
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'An unknown error occurred during fetchStream';
-    console.error('fetchStream encountered an error:', errorMessage);
-    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage);
-    throw error;
-  }
-},
+    },
 
+    async fetch(url: string, options: RequestInit = {}) {
+      const errorStore = useErrorStore()
+      try {
+        const response = await fetch(url, options)
+        if (!response.ok) {
+          let errorMessage = `HTTP error! Status: ${response.status}`
+          const errorDetails = await response.json().catch(() => null)
+          if (errorDetails?.message) {
+            errorMessage += ` - ${errorDetails.message}`
+          }
+          throw new Error(errorMessage)
+        }
+        return await response.json()
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred during fetch'
+        errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+        throw error
+      }
+    },
 
     async initialize() {
       if (this.isInitialized) return

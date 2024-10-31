@@ -117,33 +117,35 @@ async function fetchStream(url: string, options: RequestInit) {
   if (response.body) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    responseText.value = '';
-
-    let buffer = ''; // Buffer to accumulate partial JSON data
+    responseText.value = '';  // Reset response text for new output
+    let buffer = ''; // Accumulates partial data from chunks
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
+      // Decode current chunk and add to the buffer
       buffer += decoder.decode(value, { stream: true });
 
       let boundary;
       while ((boundary = buffer.indexOf('\n\n')) >= 0) {
         let chunk = buffer.slice(0, boundary).trim();
-        buffer = buffer.slice(boundary + 2); // Remove processed chunk and separator
+        buffer = buffer.slice(boundary + 2); // Move past the current chunk
 
-        // Clean up `data:` prefix if present
+        // Ensure only the first "data:" prefix is removed, if present
         if (chunk.startsWith('data:')) {
-          chunk = chunk.slice(5).trim();
+          chunk = chunk.replace(/^data:\s*/, '');
         }
 
-        // Skip if the chunk is empty or "[DONE]"
+        // Skip empty chunks and "[DONE]"
         if (!chunk || chunk === '[DONE]') continue;
 
         try {
-          // Parse JSON and append `content` to the response text
+          // Attempt to parse the JSON and extract content
           const parsed = JSON.parse(chunk);
           const content = parsed.choices[0]?.delta?.content;
+
+          // Append content to response text, showing prompt if it's the start of streaming
           if (content) {
             responseText.value += content;
           }
@@ -156,6 +158,7 @@ async function fetchStream(url: string, options: RequestInit) {
     throw new Error('Stream not supported in response');
   }
 }
+
 
 </script>
 

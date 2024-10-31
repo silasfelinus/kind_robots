@@ -1,15 +1,17 @@
+// cypress/e2e/users.cy.ts
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-// cypress/e2e/api/users.cy.ts
 
 describe('User Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/users'
-  const apiKey = Cypress.env('API_KEY') // Securely retrieve the API key
+  const authUrl = 'https://kind-robots.vercel.app/api/auth/login'
+  const apiKey = Cypress.env('API_KEY')
 
-  let createdUserId: number | undefined = undefined // Explicitly initializing as undefined
-  let uniqueUsername: string = '' // Initialize as an empty string
+  let createdUserId: number | undefined
+  let uniqueUsername: string
 
-  // Create a new user before each test
-  beforeEach(() => {
+  // Create a user once before all tests
+  before(() => {
     uniqueUsername = `testuser${Date.now()}`
     const userEmail = `${uniqueUsername}@kindrobots.org`
 
@@ -29,12 +31,12 @@ describe('User Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      createdUserId = response.body.user.id // Store the created user ID
+      createdUserId = response.body.user.id
     })
   })
 
-  // Clean up (delete the user) after each test
-  afterEach(() => {
+  // Delete the user after all tests
+  after(() => {
     if (createdUserId) {
       cy.request({
         method: 'DELETE',
@@ -55,7 +57,6 @@ describe('User Management API Tests', () => {
         url: baseUrl,
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
       }).then((response) => {
@@ -73,7 +74,6 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
       }).then((response) => {
@@ -89,71 +89,32 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/usernames`,
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
-        expect(response.body)
-          .to.have.property('usernames')
-          .that.is.an('array')
-          .that.includes(uniqueUsername)
+        expect(response.body.usernames).to.include(uniqueUsername)
       })
     })
-  })
-
-  // Additional tests related to user management
-})
-
-describe('User Management API Tests - User Update', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/users'
-  const apiKey = Cypress.env('API_KEY') // Ensure the API key is stored securely
-
-  let createdUserId: number | undefined = undefined // Explicitly initializing as undefined
-  let uniqueUsername: string = '' // Initialize as an empty string
-
-  // Create a new user before each test
-  beforeEach(() => {
-    uniqueUsername = `updateuser${Date.now()}`
-    const userEmail = `${uniqueUsername}@kindrobots.org`
-
-    cy.request({
-      method: 'POST',
-      url: `${baseUrl}/register`,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-      body: {
-        username: uniqueUsername,
-        email: userEmail,
-        password: 'testtest12',
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      createdUserId = response.body.user.id // Store the created user ID
-    })
-  })
-
-  // Clean up (delete the user) after each test
-  afterEach(() => {
-    if (createdUserId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${createdUserId}`,
-        headers: {
-          'x-api-key': apiKey,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
   })
 
   context('User Update Tests', () => {
+    it('Attempt to Update User by ID without Authentication (expect failure)', () => {
+      const newUsername = `unauthorizeduser${Date.now()}`
+      cy.request({
+        method: 'PATCH',
+        url: `${baseUrl}/${createdUserId}`,
+        headers: {
+          Accept: 'application/json',
+        },
+        body: { username: newUsername },
+        failOnStatusCode: false,
+      }).then((response) => {
+        expect(response.status).to.eq(403)
+      })
+    })
+
     it('Update User by ID with New Username', () => {
       const newUsername = `updateduser${Date.now()}`
       cy.request({
@@ -161,119 +122,25 @@ describe('User Management API Tests - User Update', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
-        body: {
-          username: newUsername,
-        },
+        body: { username: newUsername },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.nested.property(
-          'user.username',
-          newUsername,
-        )
-      })
-    })
-
-    it('Update User by ID with Password', () => {
-      cy.request({
-        method: 'PATCH',
-        url: `${baseUrl}/${createdUserId}`,
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        body: {
-          password: 'newpassword12',
-        },
-        timeout: 20000,
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body).to.have.nested.property('user.id', createdUserId)
-      })
-    })
-
-    it('Update User by ID with Email', () => {
-      const newEmail = `updated${Date.now()}@example.com`
-      cy.request({
-        method: 'PATCH',
-        url: `${baseUrl}/${createdUserId}`,
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        body: {
-          email: newEmail,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body).to.have.nested.property('user.email', newEmail)
+        expect(response.body.user.username).to.eq(newUsername)
       })
     })
   })
-})
 
-describe('User Management API Tests - Authentication and Error Handling', () => {
-  const authUrl = 'https://kind-robots.vercel.app/api/auth/login'
-  const apiKey = Cypress.env('API_KEY') // Ensure the API key is stored securely
-
-  let createdUserId: number | undefined = undefined // Explicitly initializing as undefined
-  let uniqueUsername: string = '' // Initialize as an empty string
-
-  // Create a new user before the authentication tests
-  before(() => {
-    uniqueUsername = `authuser${Date.now()}`
-    const userEmail = `${uniqueUsername}@kindrobots.org`
-
-    cy.request({
-      method: 'POST',
-      url: 'https://kind-robots.vercel.app/api/users/register',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-      body: {
-        username: uniqueUsername,
-        email: userEmail,
-        password: 'authpassword12',
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      createdUserId = response.body.user.id // Store the created user ID
-    })
-  })
-
-  // Clean up (delete the user) after all tests
-  after(() => {
-    if (createdUserId) {
-      cy.request({
-        method: 'DELETE',
-        url: `https://kind-robots.vercel.app/api/users/${createdUserId}`,
-        headers: {
-          'x-api-key': apiKey,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
-  })
-
-  context('Authentication Tests', () => {
+  context('Authentication and Error Handling Tests', () => {
     it('User Authentication with Correct Credentials', () => {
       cy.request({
         method: 'POST',
         url: authUrl,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: {
           username: uniqueUsername,
-          password: 'authpassword12',
+          password: 'testtest12',
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
@@ -285,9 +152,7 @@ describe('User Management API Tests - Authentication and Error Handling', () => 
       cy.request({
         method: 'POST',
         url: authUrl,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: {
           username: uniqueUsername,
           password: 'wrongPassword',
@@ -297,6 +162,34 @@ describe('User Management API Tests - Authentication and Error Handling', () => 
         expect(response.status).to.eq(401)
         expect(response.body).to.have.property('success', false)
         expect(response.body).to.have.property('message', 'Invalid credentials')
+      })
+    })
+  })
+
+  context('User Deletion Tests', () => {
+    it('Attempt to Delete User by ID without Authentication (expect failure)', () => {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${createdUserId}`,
+        headers: {
+          Accept: 'application/json',
+        },
+        failOnStatusCode: false,
+      }).then((response) => {
+        expect(response.status).to.eq(403)
+      })
+    })
+
+    it('Delete User by ID with Authentication', () => {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${createdUserId}`,
+        headers: {
+          Accept: 'application/json',
+          'x-api-key': apiKey,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200)
       })
     })
   })

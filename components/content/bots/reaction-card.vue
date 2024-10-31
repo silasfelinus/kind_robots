@@ -34,19 +34,19 @@
         class="btn btn-sm btn-secondary flex items-center"
         @click="share('facebook')"
       >
-        <Icon name="kindicon:facebook" class="mr-1" /> Facebook
+        <Icon name="kind-icon:facebook" class="mr-1" /> Facebook
       </button>
       <button
         class="btn btn-sm btn-secondary flex items-center"
         @click="share('twitter')"
       >
-        <Icon name="kindicon:twitter" class="mr-1" /> Twitter
+        <Icon name="kind-icon:twitter" class="mr-1" /> Twitter
       </button>
       <button
         class="btn btn-sm btn-secondary flex items-center"
         @click="share('instagram')"
       >
-        <Icon name="kindicon:instagram" class="mr-1" /> Instagram
+        <Icon name="kind-icon:instagram" class="mr-1" /> Instagram
       </button>
     </div>
 
@@ -56,19 +56,19 @@
         class="btn btn-sm btn-accent flex items-center"
         @click="toggleComment"
       >
-        <Icon name="kindicon:comment" class="mr-1" /> Comment
+        <Icon name="kind-icon:comment" class="mr-1" /> Comment
       </button>
       <button
         class="btn btn-sm btn-primary flex items-center"
         @click="submitReaction"
       >
-        <Icon name="kindicon:submit" class="mr-1" /> Submit
+        <Icon name="kind-icon:submit" class="mr-1" /> Submit
       </button>
       <button
         class="btn btn-sm btn-error flex items-center"
         @click="clearReaction"
       >
-        <Icon name="kindicon:clear" class="mr-1" /> Clear
+        <Icon name="kind-icon:clear" class="mr-1" /> Clear
       </button>
     </div>
 

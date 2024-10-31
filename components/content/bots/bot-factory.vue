@@ -30,6 +30,7 @@
       <lazy-bot-gallery v-if="activeTab === 'bot-gallery'" />
       <lazy-use-bot v-if="activeTab === 'use-bot'" />
       <lazy-chat-test v-if="activeTab === 'chat-test'" />
+    <lazy-stream-tester v-if="activeTab === 'stream-tester'" />
     </div>
   </div>
 </template>
@@ -44,6 +45,7 @@ const tabs = [
   { name: 'bot-gallery', label: 'Bot Gallery' },
   { name: 'use-bot', label: 'Use Bot' },
   { name: 'chat-test', label: 'Chat Test' },
+{ name: 'stream-tester', label: 'Stream Tester' },
 ]
 
 const activeTab = ref('add-bot') // Default to the first tab

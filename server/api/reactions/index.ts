@@ -135,30 +135,6 @@ export async function fetchAllReactions() {
   }
 }
 
-export const deleteReaction = async (reactionId: number): Promise<boolean> => {
-  try {
-    // Check if the reaction exists before attempting to delete it
-    const reaction = await prisma.reaction.findUnique({
-      where: { id: reactionId },
-    })
-
-    if (!reaction) {
-      throw new Error(`Reaction with ID ${reactionId} not found.`)
-    }
-
-    // Delete the reaction
-    await prisma.reaction.delete({
-      where: { id: reactionId },
-    })
-
-    // If deletion is successful, return true
-    return true
-  } catch (error) {
-    console.error(`Error deleting reaction with ID ${reactionId}:`, error)
-    return false
-  }
-}
-
 // Function to fetch a single Reaction by ID
 export async function fetchReactionById(id: number) {
   try {

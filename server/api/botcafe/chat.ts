@@ -2,8 +2,7 @@ import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { OPENAI_API_KEY } = useRuntimeConfig()
-  const apiKey = OPENAI_API_KEY
+  const OPENAI_API_KEY = useRuntimeConfig()
 
   const data = {
     model: body.model || 'gpt-4',
@@ -17,7 +16,7 @@ export default defineEventHandler(async (event) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify(data),
   })

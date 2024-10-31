@@ -62,7 +62,7 @@ const loading = ref(false)
 const errorMessage = ref('')
 const useStreaming = ref(false)
 
-// Function to submit the prompt to OpenAI API
+// Function to submit the prompt to the /api/botcafe/chat endpoint
 async function submitPrompt() {
   if (!prompt.value.trim()) return
 
@@ -70,13 +70,12 @@ async function submitPrompt() {
   responseText.value = ''
   errorMessage.value = ''
 
-  const apiEndpoint = 'https://api.openai.com/v1/chat/completions'
+  const apiEndpoint = '/api/botcafe/chat' // Updated endpoint
 
   const requestOptions = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // The Authorization header is now handled by middleware
     },
     body: JSON.stringify({
       model: 'gpt-4',
@@ -93,14 +92,7 @@ async function submitPrompt() {
     } else {
       const response = await fetch(apiEndpoint, requestOptions)
       if (!response.ok) {
-        if (response.status === 401) {
-          errorMessage.value = 'Unauthorized: Check your API key.'
-        } else {
-          errorMessage.value = `Error ${response.status}: ${response.statusText}`
-        }
-        console.error(
-          `Request failed with status ${response.status}: ${response.statusText}`,
-        )
+        errorMessage.value = `Error ${response.status}: ${response.statusText}`
         throw new Error(`Error ${response.status}: ${response.statusText}`)
       }
       const data = await response.json()
@@ -120,14 +112,7 @@ async function submitPrompt() {
 async function fetchStream(url: string, options: RequestInit) {
   const response = await fetch(url, options)
   if (!response.ok) {
-    if (response.status === 401) {
-      errorMessage.value = 'Unauthorized: Check your API key.'
-    } else {
-      errorMessage.value = `Error ${response.status}: ${response.statusText}`
-    }
-    console.error(
-      `Stream request failed with status ${response.status}: ${response.statusText}`,
-    )
+    errorMessage.value = `Error ${response.status}: ${response.statusText}`
     throw new Error(`Error ${response.status}: ${response.statusText}`)
   }
 

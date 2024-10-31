@@ -2,7 +2,7 @@ import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { OPENAI_API_KEY } = useRuntimeConfig()
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
   const data = {
     model: body.model || 'gpt-4o-mini',

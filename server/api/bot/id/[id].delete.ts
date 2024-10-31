@@ -1,28 +1,74 @@
 // server/api/bots/[id].delete.ts
-import { defineEventHandler } from 'h3'
-import { deleteBot } from '../../bots'
-import { errorHandler } from '../../utils/error' // Import centralized error handler
+import { defineEventHandler, createError } from 'h3'
+import { deleteBot, fetchBotById } from '../../bots'
+import { errorHandler } from '../../utils/error' // Centralized error handler
+import { verifyJwtToken } from '../../auth'
 
 export default defineEventHandler(async (event) => {
-  const id = Number(event.context.params?.id)
-
-  if (!id) {
-    return { success: false, message: 'Invalid bot ID.' }
-  }
+  let id: number | null = null
 
   try {
-    const deleted = await deleteBot(id)
-
-    if (!deleted) {
-      return { success: false, message: `Bot with id ${id} does not exist.` }
+    // Validate bot ID
+    id = Number(event.context.params?.id)
+    if (isNaN(id) || id <= 0) {
+      throw createError({
+        statusCode: 400, // Bad Request
+        message: 'Invalid bot ID. It must be a positive integer.',
+      })
     }
 
-    return { success: true, message: `Bot with id ${id} successfully deleted.` }
+    // Extract the token from the Authorization header
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401, // Unauthorized
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
+      throw createError({
+        statusCode: 401, // Unauthorized
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    // Fetch the bot to check if the user is the owner
+    const bot = await fetchBotById(id)
+    if (!bot) {
+      throw createError({
+        statusCode: 404, // Not Found
+        message: `Bot with ID ${id} does not exist.`,
+      })
+    }
+
+    // Verify ownership of the bot
+    if (bot.userId !== verificationResult.userId) {
+      throw createError({
+        statusCode: 403, // Forbidden
+        message: 'You do not have permission to delete this bot.',
+      })
+    }
+
+    // Attempt to delete the bot
+    const deleted = await deleteBot(id)
+    if (!deleted) {
+      throw createError({
+        statusCode: 500, // Internal Server Error
+        message: `Failed to delete bot with ID ${id}.`,
+      })
+    }
+
+    return { success: true, message: `Bot with ID ${id} successfully deleted.` }
   } catch (error: unknown) {
-    const { message } = errorHandler(error)
+    const handledError = errorHandler(error)
     return {
       success: false,
-      message: `Failed to delete bot with id ${id}: ${message}`,
+      message: handledError.message || `Failed to delete bot with ID ${id}.`,
+      statusCode: handledError.statusCode || 500,
     }
   }
 })

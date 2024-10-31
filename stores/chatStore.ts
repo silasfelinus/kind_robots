@@ -379,7 +379,8 @@ export const useChatStore = defineStore({
     if (!response.ok) {
       const errorText = await response.text()
       console.log("Server response error text", { errorText })
-      throw new Error(errorText)
+      errorStore.setError(ErrorType.NETWORK_ERROR, `Delete failed: ${errorText}`)
+      return false
     }
 
     // Remove from local state after successful deletion
@@ -398,6 +399,7 @@ export const useChatStore = defineStore({
     return false
   }
 },
+
 
 
     loadFromLocalStorage() {

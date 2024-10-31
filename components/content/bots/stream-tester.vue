@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const prompt = ref('')
+const prompt = ref('this is a test')
 const responseText = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
@@ -65,20 +65,12 @@ async function submitPrompt() {
   errorMessage.value = ''
 
   const apiEndpoint = 'https://api.openai.com/v1/chat/completions'
-  const apiKey = process.env.NUXT_PUBLIC_OPENAI_API_KEY // Adjust this to the correct environment variable name
-
-  if (!apiKey) {
-    errorMessage.value = 'API key is missing. Please check your environment configuration.'
-    loading.value = false
-    console.error('API key is missing.')
-    return
-  }
 
   const requestOptions = {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+      'Content-Type': 'application/json'
+      // The Authorization header is now handled by middleware
     },
     body: JSON.stringify({
       model: 'gpt-4',

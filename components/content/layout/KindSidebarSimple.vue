@@ -23,13 +23,13 @@
               displayStore.sidebarLeftState === 'compact'
             "
             :name="link.icon"
-            class="h-12 w-12 transition-all duration-300 ease-in-out text-accent"
+            class="h-10 w-10 md:h-12 md:w-12 lg:h-16 lg:w-16 xl:w-20 xl:h-20 transition-all duration-300 ease-in-out text-accent"
           />
 
           <!-- Show the link title below the icon in compact state -->
           <span
             v-if="displayStore.sidebarLeftState === 'compact' && !isMobile"
-            class="text-xs md:text-md lg:text-lg font-semibold mt-1 text-center bg-secondary text-white px-2 py-1 rounded-lg"
+            class="text-xs md:text-md lg:text-lg font-semibold mt-1 text-center px-2 py-1 rounded-lg"
           >
             {{ link.title }}
           </span>

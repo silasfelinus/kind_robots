@@ -78,7 +78,7 @@ async function submitPrompt() {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4',
+      model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: prompt.value }],
       temperature: 1,
       max_tokens: 300,

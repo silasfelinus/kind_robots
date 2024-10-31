@@ -2,93 +2,71 @@ import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const apiKey = process.env.OPENAI_API_KEY
+  const { OPENAI_API_KEY } = useRuntimeConfig()
+  const apiKey = OPENAI_API_KEY
+
+  if (apiKey) {
+    console.log('we have a key')
+  }
+
   const data = {
-    model: body.model || 'gpt-4o-mini',
+    model: body.model || 'gpt-4',
     messages: body.messages,
     temperature: body.temperature,
     max_tokens: body.maxTokens,
-    n: body.n,
     stream: body.stream || false,
   }
-  const post = body.post || 'https://api.openai.com/v1/chat/completions'
 
-  console.log('Sending request to OpenAI API with data:', JSON.stringify(data))
-
-  const response = await fetch(post, {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(data),
   })
 
   if (!response.ok) {
     const errorData = await response.json()
-    console.error('Failed API Call with error:', errorData)
-    throw new Error(
-      `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
-    )
+    throw new Error(`API Error: ${errorData.error.message}`)
   }
-
-  const reader = response.body?.getReader()
-  if (!reader) {
-    console.error('Response body reader is undefined.')
-    throw new Error('Failed to obtain response body reader')
-  }
-
-  const decoder = new TextDecoder('utf-8')
-  let responseData = ''
 
   if (data.stream) {
-    console.log('--- Streamed Response Mode ---')
-
     // Handle streamed response
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) {
-        console.log('Stream reading complete.')
-        break
+    const reader = response.body?.getReader()
+    const decoder = new TextDecoder('utf-8')
+
+    event.node.res.setHeader('Content-Type', 'text/event-stream')
+    event.node.res.setHeader('Cache-Control', 'no-cache')
+    event.node.res.setHeader('Connection', 'keep-alive')
+
+    if (reader) {
+      let buffer = '' // Buffer to accumulate chunks until a complete JSON object is ready
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        // Decode the incoming chunk
+        const chunk = decoder.decode(value, { stream: true })
+        buffer += chunk
+
+        // Process complete JSON chunks
+        let boundary
+        while ((boundary = buffer.indexOf('\n')) >= 0) {
+          const jsonChunk = buffer.slice(0, boundary).trim()
+          buffer = buffer.slice(boundary + 1)
+
+          // Send each chunk as SSE to the frontend
+          event.node.res.write(`data: ${jsonChunk}\n\n`)
+        }
       }
-
-      const chunk = decoder.decode(value, { stream: true })
-      responseData += chunk
-      console.log('Received chunk:', chunk)
-
-      // Try parsing as JSON only if we have a complete JSON string
-      try {
-        const json = JSON.parse(responseData)
-        console.log('Successfully parsed JSON from stream:', json)
-        return json
-      } catch (error) {
-        console.warn(
-          'Incomplete JSON received; waiting for more data...',
-          error,
-        )
-      }
-    }
-
-    // Final attempt to parse accumulated data after stream completion
-    try {
-      const finalJson = JSON.parse(responseData)
-      console.log('Final parsed JSON after stream:', finalJson)
-      return finalJson
-    } catch (error) {
-      console.error('Final parse error after stream completion:', error)
-      throw new Error('Failed to parse final response after stream completion')
+      event.node.res.end()
+    } else {
+      throw new Error('Streaming not supported.')
     }
   } else {
-    console.log('--- Non-streamed Response Mode ---')
-
-    // Handle non-streamed response
-    try {
-      const responseData = await response.json()
-      console.log('Parsed JSON from non-stream response:', responseData)
-      return responseData
-    } catch (error) {
-      console.error('Error parsing non-streamed response:', error)
-      throw new Error('Failed to parse non-streamed response')
-    }
+    // For non-streamed response
+    const jsonData = await response.json()
+    return jsonData
   }
 })

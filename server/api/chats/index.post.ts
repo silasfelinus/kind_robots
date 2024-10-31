@@ -20,9 +20,18 @@ export default defineEventHandler(async (event) => {
     const exchangeData: ExchangeData = await readBody(event)
 
     // Validate fields with stricter check for null/undefined values
-    const requiredFields = ['userId', 'botId', 'botName', 'username', 'userPrompt', 'botResponse']
-    const missingFields = requiredFields.filter(field => 
-      exchangeData[field as keyof ExchangeData] === undefined || exchangeData[field as keyof ExchangeData] === null
+    const requiredFields = [
+      'userId',
+      'botId',
+      'botName',
+      'username',
+      'userPrompt',
+      'botResponse',
+    ]
+    const missingFields = requiredFields.filter(
+      (field) =>
+        exchangeData[field as keyof ExchangeData] === undefined ||
+        exchangeData[field as keyof ExchangeData] === null,
     )
 
     if (missingFields.length > 0) {
@@ -78,7 +87,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     let message = 'An unknown error occurred.'
-    let statusCode = 500
+    const statusCode = 500
 
     if (error instanceof Error) {
       message = error.message

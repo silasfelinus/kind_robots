@@ -145,7 +145,8 @@ async function sendPrompt(prompt: string) {
       })
 
       // Generate a new prompt ID by creating the prompt in the backend
-      const promptId = await promptStore.addPrompt(prompt, userId, botId)
+      const newPrompt = await promptStore.addPrompt(prompt, userId, botId)
+      const promptId = newPrompt.id
       if (!promptId) {
         throw new Error('Failed to generate a prompt ID.')
       }

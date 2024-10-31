@@ -93,12 +93,21 @@ export const useChatStore = defineStore({
             userId,
             botId ?? 1,
           )
+console.log("prompt result:", promptResult)
           finalPromptId = promptResult ? promptResult.id : null
+console.log("final promptId:", finalPromptId)
 
           if (!finalPromptId) {
             throw new Error('Failed to obtain a prompt ID.')
           }
         }
+
+if (finalPromptId.id) {
+finalPromptId = finalPromptId.id
+}
+
+console.log("final final promptId:", finalPromptId)
+
 
         const exchange: Omit<ChatExchange, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,

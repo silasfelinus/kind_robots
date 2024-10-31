@@ -84,10 +84,6 @@ export const usePromptStore = defineStore('promptStore', {
       this.promptArray.push(prompt)
     },
 
-    // Update a prompt at a specific index
-    updatePromptAtIndex(index: number, value: string) {
-      this.promptArray[index] = value
-    },
 
     // Remove a prompt from the store's array by index
     removePromptFromArray(index: number) {
@@ -207,24 +203,71 @@ export const usePromptStore = defineStore('promptStore', {
         )
       }
     },
-
-    // Delete an art prompt by ID
+    // Delete a prompt by ID with ownership check
     async deletePrompt(promptId: number) {
       const errorStore = useErrorStore()
+      const userStore = useUserStore()
+      const currentUserId = userStore.userId
 
       try {
+        // Fetch the prompt to check if it belongs to the current user
+        const prompt = await this.fetchPromptById(promptId)
+        if (!prompt || prompt.userId !== currentUserId) {
+          errorStore.setError(
+            ErrorType.AUTHORIZATION_ERROR,
+            'You are not authorized to delete this prompt.'
+          )
+          return
+        }
+
+        // Proceed to delete if the user owns the prompt
         const response = await fetch(`/api/prompts/${promptId}`, {
           method: 'DELETE',
         })
+
         if (!response.ok) throw new Error(await response.text())
+
+        // Update store after successful deletion
         this.prompts = this.prompts.filter((prompt) => prompt.id !== promptId)
       } catch (error) {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
-          `Error deleting art prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Error deleting prompt: ${error instanceof Error ? error.message : 'Unknown error'}`
         )
       }
     },
+
+    // Update a prompt at a specific index with ownership check
+    async updatePromptAtIndex(index: number, value: string) {
+      const errorStore = useErrorStore()
+      const userStore = useUserStore()
+      const currentUserId = userStore.userId
+
+      try {
+        const prompt = this.prompts[index]
+
+        // Check if prompt exists and the user owns it
+        if (!prompt || prompt.userId !== currentUserId) {
+          errorStore.setError(
+            ErrorType.AUTHORIZATION_ERROR,
+            'You are not authorized to edit this prompt.'
+          )
+          return
+        }
+
+        // Proceed to update prompt if the user owns it
+        prompt.promptField = value
+        this.prompts[index] = prompt // Update local state
+        // Optionally, send update to server if required
+      } catch (error) {
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `Error updating prompt: ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
+      }
+    },
+
+    
 
     // Select a prompt
     selectPrompt(prompt: Prompt) {

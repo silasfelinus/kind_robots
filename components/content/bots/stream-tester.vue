@@ -65,7 +65,7 @@ async function submitPrompt() {
   errorMessage.value = ''
 
   const apiEndpoint = 'https://api.openai.com/v1/chat/completions'
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY // Adjust this to the correct environment variable name
+  const apiKey = import.meta.env.NUXT_PUBLIC_OPENAI_API_KEY // Adjust this to the correct environment variable name
 
   if (!apiKey) {
     errorMessage.value = 'API key is missing. Please check your environment configuration.'

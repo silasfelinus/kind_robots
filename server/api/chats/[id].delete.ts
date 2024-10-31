@@ -16,7 +16,16 @@ export default defineEventHandler(async (event) => {
     }
 
     const isDeleted = await deleteChat(id, userId)
-    return { success: isDeleted }
+    if (isDeleted) {
+      return { success: true }
+    } else {
+      // if `deleteChat` fails silently, return a generic error
+      return errorHandler({
+        success: false,
+        message: 'Deletion failed due to authorization or missing chat.',
+        statusCode: 403,
+      })
+    }
   } catch (error: unknown) {
     console.error("Error in deleteChat handler:", error)
     return errorHandler({
@@ -35,21 +44,23 @@ export async function deleteChat(id: number, userId: number): Promise<boolean> {
 
     if (!chatExchange) {
       console.error(`Chat with id ${id} not found`)
-      return errorHandler({
+      errorHandler({
         success: false,
         message: 'Exchange not found.',
         statusCode: 404,
       })
+      return false
     }
 
     // Verify the user owns this chat
     if (chatExchange.userId !== userId) {
       console.error(`Unauthorized deletion attempt by user ${userId} on chat ${id}`)
-      return errorHandler({
+      errorHandler({
         success: false,
         message: 'You are not authorized to delete this exchange.',
         statusCode: 403,
       })
+      return false
     }
 
     // Proceed to delete if authorized

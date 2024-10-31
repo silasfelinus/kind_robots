@@ -325,7 +325,7 @@ export const useChatStore = defineStore({
       }
     },
 
-   async deleteChat(exchangeId: number): Promise<boolean> {
+   async deleteExchange(exchangeId: number): Promise<boolean> {
   const errorStore = useErrorStore()
   const userStore = useUserStore()
   const currentUserId = userStore.user?.id
@@ -375,6 +375,7 @@ export const useChatStore = defineStore({
     return false
   }
 },
+
 
 
 

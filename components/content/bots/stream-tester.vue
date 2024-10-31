@@ -108,51 +108,55 @@ async function submitPrompt() {
   }
 }
 async function fetchStream(url: string, options: RequestInit) {
-  const response = await fetch(url, options)
+  const response = await fetch(url, options);
   if (!response.ok) {
-    errorMessage.value = `Error ${response.status}: ${response.statusText}`
-    throw new Error(`Error ${response.status}: ${response.statusText}`)
+    errorMessage.value = `Error ${response.status}: ${response.statusText}`;
+    throw new Error(`Error ${response.status}: ${response.statusText}`);
   }
 
   if (response.body) {
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
-    responseText.value = ''
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    responseText.value = '';
 
-    let buffer = '' // Buffer to hold partial chunks
+    let buffer = ''; // Buffer to accumulate partial JSON data
 
     while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
+      const { done, value } = await reader.read();
+      if (done) break;
 
-      buffer += decoder.decode(value, { stream: true })
+      buffer += decoder.decode(value, { stream: true });
 
-      let boundary
+      let boundary;
       while ((boundary = buffer.indexOf('\n\n')) >= 0) {
-        const chunk = buffer.slice(0, boundary).trim()
-        buffer = buffer.slice(boundary + 2)
+        let chunk = buffer.slice(0, boundary).trim();
+        buffer = buffer.slice(boundary + 2); // Remove processed chunk and separator
 
-        // Only process JSON chunks prefixed correctly
+        // Clean up `data:` prefix if present
         if (chunk.startsWith('data:')) {
-          const dataString = chunk.slice(5).trim() // Remove "data:" prefix
-          if (dataString && dataString !== '[DONE]') {
-            try {
-              const parsed = JSON.parse(dataString)
-              const content = parsed.choices[0]?.delta?.content
-              if (content) {
-                responseText.value += content
-              }
-            } catch (err) {
-              console.error('Error parsing chunk:', err)
-            }
+          chunk = chunk.slice(5).trim();
+        }
+
+        // Skip if the chunk is empty or "[DONE]"
+        if (!chunk || chunk === '[DONE]') continue;
+
+        try {
+          // Parse JSON and append `content` to the response text
+          const parsed = JSON.parse(chunk);
+          const content = parsed.choices[0]?.delta?.content;
+          if (content) {
+            responseText.value += content;
           }
+        } catch (err) {
+          console.error('Error parsing chunk:', err);
         }
       }
     }
   } else {
-    throw new Error('Stream not supported in response')
+    throw new Error('Stream not supported in response');
   }
 }
+
 </script>
 
 <style scoped>

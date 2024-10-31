@@ -1,9 +1,8 @@
 // server/middleware/openai.ts
 import { defineEventHandler, getHeader, setHeader, sendError, createError } from 'h3'
-import { useRuntimeConfig } from '#imports'
 
 export default defineEventHandler((event) => {
-  const { OPENAI_API_KEY } = useRuntimeConfig().public
+  const { OPENAI_API_KEY } = useRuntimeConfig()
 
   // Only process requests going to OpenAI's API
   const targetUrl = event.req.url || ''

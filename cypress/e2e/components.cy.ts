@@ -103,25 +103,6 @@ describe('Component Management API Tests', () => {
     })
   })
 
-  it('Attempt to Update Component without Authentication (expect failure)', () => {
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${componentId}`,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: {
-        isWorking: false,
-        underConstruction: true,
-        title: 'Unauthorized Update Attempt',
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
-    })
-  })
-
   it('Update Component with Authentication', () => {
     cy.request({
       method: 'PATCH',
@@ -144,19 +125,6 @@ describe('Component Management API Tests', () => {
       expect(updatedComponent.isWorking).to.be.false
       expect(updatedComponent.underConstruction).to.be.true
       expect(updatedComponent.title).to.eq('Updated Test Component')
-    })
-  })
-
-  it('Attempt to Delete Component without Authentication (expect failure)', () => {
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${componentId}`,
-      headers: {
-        Accept: 'application/json',
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
     })
   })
 

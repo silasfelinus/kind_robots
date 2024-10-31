@@ -50,30 +50,6 @@ export function updateReward(
   })
 }
 
-// Function to delete a Reward by ID
-export async function deleteReward(id: number): Promise<boolean> {
-  const rewardExists = await prisma.reward.findUnique({ where: { id } })
-
-  if (!rewardExists) {
-    return false
-  }
-
-  await prisma.reward.delete({ where: { id } })
-  return true
-}
-
-// Function to fetch all Rewards
-export function fetchAllRewards(): Promise<Reward[]> {
-  return prisma.reward.findMany()
-}
-
-// Function to fetch a single Reward by ID
-export function fetchRewardById(id: number): Promise<Reward | null> {
-  return prisma.reward.findUnique({
-    where: { id },
-  })
-}
-
 // Function to create multiple Rewards in a batch
 export async function createRewardsBatch(
   rewardsData: Partial<Reward>[],

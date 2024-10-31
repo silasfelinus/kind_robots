@@ -1,78 +1,71 @@
-import { defineEventHandler } from 'h3'
+// server/api/chats/[id].delete.ts
+import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { verifyJwtToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
-  try {
-    const id = Number(event.context.params?.id)
-    const userId = event.context.user?.id // Assuming user ID is added to the request context
+  let id: number | null = null
 
-    if (!userId) {
-      return errorHandler({
-        success: false,
-        message: 'User not authenticated.',
-        statusCode: 401,
+  try {
+    // Validate and parse the chat ID
+    id = Number(event.context.params?.id)
+    if (isNaN(id) || id <= 0) {
+      throw createError({
+        statusCode: 400, // Bad Request
+        message: 'Invalid Chat ID. It must be a positive integer.',
       })
     }
 
-    const isDeleted = await deleteChat(id, userId)
-    if (isDeleted) {
-      return { success: true }
-    } else {
-      // if `deleteChat` fails silently, return a generic error
-      return errorHandler({
-        success: false,
-        message: 'Deletion failed due to authorization or missing chat.',
-        statusCode: 403,
+    // Extract and verify the JWT token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401, // Unauthorized
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
       })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
+      throw createError({
+        statusCode: 401, // Unauthorized
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    // Check if the chat entry exists and verify ownership
+    const chatExchange = await prisma.chatExchange.findUnique({ where: { id } })
+    if (!chatExchange) {
+      throw createError({
+        statusCode: 404, // Not Found
+        message: `Chat exchange with ID ${id} does not exist.`,
+      })
+    }
+
+    if (chatExchange.userId !== verificationResult.userId) {
+      throw createError({
+        statusCode: 403, // Forbidden
+        message: 'You are not authorized to delete this chat exchange.',
+      })
+    }
+
+    // Proceed to delete the chat entry
+    await prisma.chatExchange.delete({ where: { id } })
+
+    return {
+      success: true,
+      message: `Chat exchange with ID ${id} successfully deleted.`,
     }
   } catch (error: unknown) {
-    console.error("Error in deleteChat handler:", error)
-    return errorHandler({
+    const handledError = errorHandler(error)
+    return {
       success: false,
-      message: `Error in deleteChat: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      statusCode: 500,
-    })
+      message:
+        handledError.message || `Failed to delete chat exchange with ID ${id}.`,
+      statusCode: handledError.statusCode || 500,
+    }
   }
 })
-
-// Function to delete a chat by ID with user authorization
-export async function deleteChat(id: number, userId: number): Promise<boolean> {
-  try {
-    // Check if chat exists
-    const chatExchange = await prisma.chatExchange.findUnique({ where: { id } })
-
-    if (!chatExchange) {
-      console.error(`Chat with id ${id} not found`)
-      errorHandler({
-        success: false,
-        message: 'Exchange not found.',
-        statusCode: 404,
-      })
-      return false
-    }
-
-    // Verify the user owns this chat
-    if (chatExchange.userId !== userId) {
-      console.error(`Unauthorized deletion attempt by user ${userId} on chat ${id}`)
-      errorHandler({
-        success: false,
-        message: 'You are not authorized to delete this exchange.',
-        statusCode: 403,
-      })
-      return false
-    }
-
-    // Proceed to delete if authorized
-    await prisma.chatExchange.delete({ where: { id } })
-    console.log(`Chat with id ${id} successfully deleted by user ${userId}`)
-    return true
-  } catch (error: unknown) {
-    console.error("Error in deleteChat function:", error)
-    throw errorHandler({
-      success: false,
-      message: `Error deleting exchange: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      statusCode: 500,
-    })
-  }
-}

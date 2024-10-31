@@ -1,20 +1,75 @@
-import { defineEventHandler } from 'h3'
-import { errorHandler } from '../utils/error' // Import centralized error handler
+// /server/api/tags/[id].delete.ts
+import { defineEventHandler, createError } from 'h3'
+import { errorHandler } from '../utils/error'
+import { verifyJwtToken } from '../auth'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
-  try {
-    const id = Number(event.context.params?.id)
-    if (!id) throw new Error('Invalid tag ID.')
+  let tagId: number | null = null
 
-    const existingTag = await prisma.tag.findUnique({ where: { id } })
-    if (!existingTag) {
-      return { success: false, message: 'Tag not found.' }
+  try {
+    // Parse and validate the tag ID
+    tagId = Number(event.context.params?.id)
+    if (isNaN(tagId) || tagId <= 0) {
+      throw createError({
+        statusCode: 400, // Bad Request
+        message: 'Invalid tag ID. ID must be a positive integer.',
+      })
     }
 
-    await prisma.tag.delete({ where: { id } })
-    return { success: true, message: 'Tag successfully deleted.' }
+    console.log(`Attempting to delete tag with ID: ${tagId}`)
+
+    // Extract and verify the JWT token from the request
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401, // Unauthorized
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
+      throw createError({
+        statusCode: 401, // Unauthorized
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    // Check if the tag exists and if the user is authorized to delete it
+    const tag = await prisma.tag.findUnique({ where: { id: tagId } })
+    if (!tag) {
+      throw createError({
+        statusCode: 404, // Not Found
+        message: `Tag with ID ${tagId} not found.`,
+      })
+    }
+
+    // Only the creator or admin should be able to delete the tag
+    if (tag.userId !== verificationResult.userId) {
+      throw createError({
+        statusCode: 403, // Forbidden
+        message: 'You do not have permission to delete this tag.',
+      })
+    }
+
+    // Delete the tag
+    await prisma.tag.delete({ where: { id: tagId } })
+    console.log(`Successfully deleted tag with ID: ${tagId}`)
+
+    return {
+      success: true,
+      message: `Tag with ID ${tagId} successfully deleted.`,
+    }
   } catch (error: unknown) {
-    return errorHandler(error)
+    console.error('Error deleting tag:', error)
+    const handledError = errorHandler(error)
+    return {
+      success: false,
+      message: handledError.message || `Failed to delete tag with ID ${tagId}.`,
+      statusCode: handledError.statusCode || 500,
+    }
   }
 })

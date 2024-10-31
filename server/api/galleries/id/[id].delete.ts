@@ -1,79 +1,72 @@
 // server/api/galleries/[id].delete.ts
+
 import { defineEventHandler, createError } from 'h3'
 import { deleteGallery, fetchGalleryById } from '..'
 import { errorHandler } from '../../utils/error'
 import { verifyJwtToken } from '../../auth'
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null // Declare 'id' outside of try-catch for broader scope
+  let id: number | null = null // Declare 'id' for broader scope
 
   try {
-    // Extract and validate the gallery ID from the request parameters
-    id = Number(event.context.params?.id) // Reverting back to 'id' for clarity
-
+    // 1. Extract and validate the gallery ID from the request parameters
+    id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
       throw createError({
         statusCode: 400, // Bad Request
-        message: 'Invalid Gallery ID.',
+        message: 'Invalid Gallery ID. Gallery ID must be a positive integer.',
       })
     }
 
-    // Extract the token from the Authorization header
+    // 2. Extract the token from the Authorization header
     const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader) {
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401, // Unauthorized
-        message: 'Authorization token is required.',
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
-    // Assuming the token is prefixed with 'Bearer'
     const token = authorizationHeader.split(' ')[1]
-    if (!token) {
-      throw createError({
-        statusCode: 401, // Unauthorized
-        message: 'Invalid authorization format. Expected Bearer token.',
-      })
-    }
-
-    // Verify the JWT token and fetch user details
     const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult.userId) {
+    if (!verificationResult || !verificationResult.userId) {
       throw createError({
         statusCode: 401, // Unauthorized
-        message: 'Invalid token.',
+        message: 'Invalid or expired token.',
       })
     }
 
-    // Find the gallery to check if the user is the owner
-    const gallery = await fetchGalleryById(id) // Using 'id' consistently
+    // 3. Fetch the gallery to verify ownership
+    const gallery = await fetchGalleryById(id)
     if (!gallery) {
       throw createError({
         statusCode: 404, // Not Found
-        message: `Gallery with id ${id} does not exist.`,
+        message: `Gallery with ID ${id} does not exist.`,
       })
     }
 
-    // Check if the logged-in user is the owner of the gallery
+    // 4. Check if the logged-in user is the owner of the gallery
     if (gallery.userId !== verificationResult.userId) {
       throw createError({
         statusCode: 403, // Forbidden
-        message: 'You are not authorized to delete this gallery.',
+        message: 'You do not have permission to delete this gallery.',
       })
     }
 
-    // Attempt to delete the gallery
-    const deleted = await deleteGallery(id) // Using 'id' consistently
+    // 5. Attempt to delete the gallery
+    const deleted = await deleteGallery(id)
     if (!deleted) {
       throw createError({
         statusCode: 500, // Internal Server Error
-        message: `Failed to delete gallery with id ${id}.`,
+        message: `Failed to delete gallery with ID ${id}.`,
       })
     }
 
+    // Success response
     return {
       success: true,
-      message: `Gallery with id ${id} successfully deleted.`,
+      message: `Gallery with ID ${id} successfully deleted.`,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -81,7 +74,7 @@ export default defineEventHandler(async (event) => {
       success: false,
       message:
         handledError.message ||
-        `Failed to delete gallery with id ${id !== null ? id : 'unknown'}.`, // Handle the case when 'id' is not defined
+        `Failed to delete gallery with ID ${id !== null ? id : 'unknown'}.`, // Handles when 'id' is undefined
       statusCode: handledError.statusCode || 500,
     }
   }

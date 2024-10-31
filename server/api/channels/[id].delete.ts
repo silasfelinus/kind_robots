@@ -1,30 +1,72 @@
 // servers/api/channels/[id].delete.ts
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { verifyJwtToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
-  try {
-    const id = Number(event.context.params?.id)
-    const isDeleted = await deleteChannel(id)
-    return { success: isDeleted }
-  } catch (error: unknown) {
-    return errorHandler(error)
-  }
-})
+  let id: number | null = null
 
-// Function to delete a Channel by ID
-export async function deleteChannel(id: number): Promise<boolean> {
   try {
-    const channelExists = await prisma.channel.findUnique({ where: { id } })
-
-    if (!channelExists) {
-      return false
+    // Validate and parse the channel ID
+    id = Number(event.context.params?.id)
+    if (isNaN(id) || id <= 0) {
+      throw createError({
+        statusCode: 400, // Bad Request
+        message: 'Invalid Channel ID. It must be a positive integer.',
+      })
     }
 
+    // Extract the token from the Authorization header
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401, // Unauthorized
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
+      throw createError({
+        statusCode: 401, // Unauthorized
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    // Fetch the channel to verify ownership
+    const channel = await prisma.channel.findUnique({ where: { id } })
+    if (!channel) {
+      throw createError({
+        statusCode: 404, // Not Found
+        message: `Channel with ID ${id} does not exist.`,
+      })
+    }
+
+    // Verify that the user is the owner of the channel
+    if (channel.userId !== verificationResult.userId) {
+      throw createError({
+        statusCode: 403, // Forbidden
+        message: 'You do not have permission to delete this channel.',
+      })
+    }
+
+    // Attempt to delete the channel
     await prisma.channel.delete({ where: { id } })
-    return true
+
+    return {
+      success: true,
+      message: `Channel with ID ${id} successfully deleted.`,
+    }
   } catch (error: unknown) {
-    throw errorHandler(error)
+    const handledError = errorHandler(error)
+    return {
+      success: false,
+      message:
+        handledError.message || `Failed to delete channel with ID ${id}.`,
+      statusCode: handledError.statusCode || 500,
+    }
   }
-}
+})

@@ -1,37 +1,77 @@
 // /server/api/posts/[id].delete.ts
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { verifyJwtToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
-  try {
-    const id = Number(event.context.params?.id)
-    if (!id) throw new Error('Invalid post ID.')
+  let id: number | null = null
 
-    const existingPost = await prisma.post.findUnique({ where: { id } })
-    if (!existingPost) {
-      return { success: false, message: 'Post not found.' }
+  try {
+    // 1. Validate and parse the post ID
+    id = Number(event.context.params?.id)
+    if (isNaN(id) || id <= 0) {
+      throw createError({
+        statusCode: 400, // Bad Request
+        message: 'Invalid Post ID. It must be a positive integer.',
+      })
     }
 
+    console.log('Attempting to delete Post with ID:', id)
+
+    // 2. Extract and verify the JWT token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401, // Unauthorized
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
+      throw createError({
+        statusCode: 401, // Unauthorized
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    // 3. Fetch the post to verify ownership
+    const post = await prisma.post.findUnique({ where: { id } })
+    if (!post) {
+      throw createError({
+        statusCode: 404, // Not Found
+        message: `Post with ID ${id} does not exist.`,
+      })
+    }
+
+    // 4. Check if the logged-in user is the owner of the post
+    if (post.userId !== verificationResult.userId) {
+      throw createError({
+        statusCode: 403, // Forbidden
+        message: 'You are not authorized to delete this post.',
+      })
+    }
+
+    // 5. Proceed to delete the post
     await prisma.post.delete({ where: { id } })
-    return { success: true, message: 'Post successfully deleted.' }
+
+    console.log(
+      `Post with ID ${id} successfully deleted by user ${verificationResult.userId}`,
+    )
+    return {
+      success: true,
+      message: `Post with ID ${id} successfully deleted.`,
+    }
   } catch (error: unknown) {
-    return errorHandler(error)
+    console.error('Error while deleting Post:', error)
+    const handledError = errorHandler(error)
+    return {
+      success: false,
+      message: handledError.message || `Failed to delete Post with ID ${id}.`,
+      statusCode: handledError.statusCode || 500,
+    }
   }
 })
-
-// Function to delete a Post by ID
-export async function deletePost(id: number): Promise<boolean> {
-  try {
-    const postExists = await prisma.post.findUnique({ where: { id } })
-
-    if (!postExists) {
-      throw new Error('Post not found')
-    }
-
-    await prisma.post.delete({ where: { id } })
-    return true
-  } catch (error: unknown) {
-    throw errorHandler(error)
-  }
-}

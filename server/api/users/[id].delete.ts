@@ -1,20 +1,24 @@
 // /server/api/users/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
-  let userId: number | null = null
+  let response
+  let id
 
   try {
     // Parse and validate the User ID from the URL params
-    userId = Number(event.context.params?.id)
-    if (isNaN(userId) || userId <= 0) {
+    id = Number(event.context.params?.id)
+    if (isNaN(id) || id <= 0) {
       event.node.res.statusCode = 400
-      throw createError({ statusCode: 400, message: 'Invalid User ID.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid User ID. It must be a positive integer.',
+      })
     }
 
-    // Extract and verify the API key from the Authorization header
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401
@@ -38,7 +42,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (user.id !== userId) {
+    // Verify that the requesting user is authorized to delete this user
+    if (user.id !== id) {
       event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
@@ -46,17 +51,28 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Delete the user in the database
-    await prisma.user.delete({ where: { id: userId } })
+    // Attempt to delete the user
+    await prisma.user.delete({ where: { id } })
 
-    return {
+    // Successful deletion response
+    response = {
       success: true,
-      message: `User with ID ${userId} successfully deleted.`,
+      message: `User with ID ${id} successfully deleted.`,
+      statusCode: 200,
     }
+    event.node.res.statusCode = 200
   } catch (error) {
-    return errorHandler({
-      error,
-      context: `Deleting user with ID ${userId}`,
-    })
+    const handledError = errorHandler(error)
+    console.log('Error Handled:', handledError)
+
+    // Explicitly set the status code based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
+      success: false,
+      message: handledError.message || `Failed to delete user with ID ${id}.`,
+      statusCode: event.node.res.statusCode,
+    }
   }
+
+  return response
 })

@@ -2,23 +2,24 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import type { Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
   let response
+  let tagId: number | null = null
 
   try {
-    // Parse and validate the tag ID from the URL params
-    id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+    // Parse and validate the Tag ID from the URL params
+    tagId = Number(event.context.params?.id)
+    if (isNaN(tagId) || tagId <= 0) {
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
-        message: 'Invalid tag ID.',
+        message: 'Invalid tag ID. It must be a positive integer.',
       })
     }
 
-    // Extract and validate the API key from the Authorization header
+    // Extract and validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401
@@ -43,15 +44,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const userId = user.id // Use userId from the validated token
+    const userId = user.id
 
     // Fetch the existing tag to verify ownership
-    const existingTag = await prisma.tag.findUnique({ where: { id } })
+    const existingTag = await prisma.tag.findUnique({
+      where: { id: tagId },
+      select: { userId: true },
+    })
+
     if (!existingTag) {
       event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
-        message: 'Tag not found.',
+        message: `Tag with ID ${tagId} does not exist.`,
       })
     }
 
@@ -64,15 +69,23 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Parse the request body as partial Tag data
+    // Parse and validate request body
     const tagData: Partial<Tag> = await readBody(event)
+    if (!tagData || Object.keys(tagData).length === 0) {
+      event.node.res.statusCode = 400
+      throw createError({
+        statusCode: 400,
+        message: 'No data provided for update.',
+      })
+    }
 
     // Update the tag in the database
     const updatedTag = await prisma.tag.update({
-      where: { id },
+      where: { id: tagId },
       data: tagData,
     })
 
+    // Successful update response
     response = {
       success: true,
       tag: updatedTag,
@@ -81,10 +94,13 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
+    console.error('Error updating tag:', handledError)
+
+    // Set the appropriate status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to update tag with ID ${id}.`,
+      message: handledError.message || `Failed to update tag with ID ${tagId}.`,
       statusCode: event.node.res.statusCode,
     }
   }

@@ -8,11 +8,12 @@ export default defineEventHandler(async (event) => {
   let tagId: number | null = null
 
   try {
-    // Parse and validate the tag ID
+    // Parse and validate the Tag ID
     tagId = Number(event.context.params?.id)
     if (isNaN(tagId) || tagId <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
-        statusCode: 400, // Bad Request
+        statusCode: 400,
         message: 'Invalid Tag ID. It must be a positive integer.',
       })
     }
@@ -22,8 +23,9 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
-        statusCode: 401, // Unauthorized
+        statusCode: 401,
         message:
           'Authorization token is required in the format "Bearer <token>".',
       })
@@ -36,8 +38,9 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
-        statusCode: 401, // Unauthorized
+        statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
@@ -51,16 +54,18 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!tag) {
+      event.node.res.statusCode = 404
       throw createError({
-        statusCode: 404, // Not Found
+        statusCode: 404,
         message: `Tag with ID ${tagId} does not exist.`,
       })
     }
 
     // Ensure the user is the creator of the tag
     if (tag.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
-        statusCode: 403, // Forbidden
+        statusCode: 403,
         message: 'You do not have permission to delete this tag.',
       })
     }
@@ -76,7 +81,7 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
     }
     event.node.res.statusCode = 200
-  } catch (error: unknown) {
+  } catch (error) {
     const handledError = errorHandler(error)
     console.error('Error deleting tag:', handledError)
 

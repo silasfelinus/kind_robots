@@ -44,6 +44,7 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`, // Authorization to delete
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
@@ -101,23 +102,25 @@ describe('User Management API Tests', () => {
   })
 
   context('User Update Tests', () => {
-    it('Attempt to Update User by ID without Authentication (expect failure)', () => {
+    it('Attempt to Update User by ID without Authentication (expect 401)', () => {
       const newUsername = `unauthorizeduser${Date.now()}`
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
-          'x-api-key': apiKey,
         },
         body: { username: newUsername },
         failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(401)
+        expect(response.body.message).to.include(
+          'Authorization token is required',
+        )
       })
     })
 
-    it('Update User by ID with New Username (with auth', () => {
+    it('Update User by ID with New Username (with auth)', () => {
       const newUsername = `updateduser${Date.now()}`
       cy.request({
         method: 'PATCH',
@@ -170,7 +173,7 @@ describe('User Management API Tests', () => {
   })
 
   context('User Deletion Tests', () => {
-    it('Attempt to Delete User by ID without Authentication (expect failure)', () => {
+    it('Attempt to Delete User by ID without Authentication (expect 401)', () => {
       cy.request({
         method: 'DELETE',
         url: `${baseUrl}/${createdUserId}`,
@@ -179,7 +182,10 @@ describe('User Management API Tests', () => {
         },
         failOnStatusCode: false,
       }).then((response) => {
-        expect(response.status).to.eq(403)
+        expect(response.status).to.eq(401)
+        expect(response.body.message).to.include(
+          'Authorization token is required',
+        )
       })
     })
 
@@ -194,6 +200,9 @@ describe('User Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
+        expect(response.body.message).to.include(
+          `User with ID ${createdUserId} successfully deleted`,
+        )
       })
     })
   })

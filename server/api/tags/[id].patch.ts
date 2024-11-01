@@ -2,25 +2,26 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import { verifyJwtToken } from '../auth'
-import type { Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   let id: number | null = null
+  let response
 
   try {
     // Parse and validate the tag ID from the URL params
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid tag ID.',
       })
     }
 
-    // Extract and validate the JWT token
+    // Extract and validate the API key from the Authorization header
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -29,25 +30,34 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    const userId = verificationResult.userId // Use userId from the token
+    const userId = user.id // Use userId from the validated token
 
-    // Fetch the existing tag and verify ownership
+    // Fetch the existing tag to verify ownership
     const existingTag = await prisma.tag.findUnique({ where: { id } })
     if (!existingTag) {
+      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: 'Tag not found.',
       })
     }
+
+    // Verify ownership of the tag
     if (existingTag.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this tag.',
@@ -63,11 +73,21 @@ export default defineEventHandler(async (event) => {
       data: tagData,
     })
 
-    return { success: true, tag: updatedTag }
+    response = {
+      success: true,
+      tag: updatedTag,
+      statusCode: 200,
+    }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
-    return errorHandler({
-      error,
-      context: `Updating tag with ID ${id}`,
-    })
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
+      success: false,
+      message: handledError.message || `Failed to update tag with ID ${id}.`,
+      statusCode: event.node.res.statusCode,
+    }
   }
+
+  return response
 })

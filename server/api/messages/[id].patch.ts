@@ -3,7 +3,6 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import type { Message } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import { verifyJwtToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
   let id: number | null = null
@@ -18,7 +17,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Extract and validate the JWT token
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
@@ -29,13 +28,19 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
+
+    const userId = user.id
 
     // Fetch the existing message to verify ownership
     const existingMessage = await prisma.message.findUnique({
@@ -50,7 +55,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Verify ownership of the message
-    if (existingMessage.userId !== verificationResult.userId) {
+    if (existingMessage.userId !== userId) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this message.',

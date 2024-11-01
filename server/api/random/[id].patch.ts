@@ -2,24 +2,26 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import { verifyJwtToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
   let id: number | null = null
+  let response
 
   try {
     // Parse and validate the list ID from the URL params
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid list ID.',
       })
     }
 
-    // Extract and validate the JWT token
+    // Extract and validate the API key from the Authorization header
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -28,17 +30,25 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
+    const userId = user.id
+
     // Fetch the existing list to verify ownership
     const existingList = await prisma.randomList.findUnique({ where: { id } })
     if (!existingList) {
+      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: 'List not found.',
@@ -46,7 +56,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Verify ownership of the list
-    if (existingList.userId !== verificationResult.userId) {
+    if (existingList.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this list.',
@@ -56,6 +67,7 @@ export default defineEventHandler(async (event) => {
     // Parse and validate the incoming request body
     const updatedListData = await readBody(event)
     if (!updatedListData || Object.keys(updatedListData).length === 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -63,6 +75,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (updatedListData.title && typeof updatedListData.title !== 'string') {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Title must be a string.',
@@ -70,6 +83,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (updatedListData.items && !Array.isArray(updatedListData.items)) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Items must be an array.',
@@ -87,14 +101,22 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    // Return the updated list
-    return { success: true, updatedList }
+    // Success response with updated list
+    response = {
+      success: true,
+      updatedList,
+      statusCode: 200,
+    }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    return {
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
       message: handledError.message || `Failed to update list with ID ${id}.`,
-      statusCode: handledError.statusCode || 500,
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

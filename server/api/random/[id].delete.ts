@@ -2,74 +2,98 @@
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import { verifyJwtToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
+  let response
+  let id
 
   try {
     // Validate and parse the item ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
-        statusCode: 400, // Bad Request
-        message: 'Invalid ID. ID must be a positive integer.',
+        statusCode: 400,
+        message: 'Invalid ID. It must be a positive integer.',
       })
     }
 
     console.log(`Attempting to delete item with ID: ${id}`)
 
-    // Extract and verify the JWT token from the request
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
-        statusCode: 401, // Unauthorized
+        statusCode: 401,
         message:
           'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
-        statusCode: 401, // Unauthorized
+        statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
+    const userId = user.id
+
     // Fetch the item to verify ownership
-    const item = await prisma.randomList.findUnique({ where: { id } })
+    const item = await prisma.randomList.findUnique({
+      where: { id },
+      select: { userId: true },
+    })
+
     if (!item) {
+      event.node.res.statusCode = 404
       throw createError({
-        statusCode: 404, // Not Found
+        statusCode: 404,
         message: `Item with ID ${id} does not exist.`,
       })
     }
 
     // Ensure the user owns this item
-    if (item.userId !== verificationResult.userId) {
+    if (item.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
-        statusCode: 403, // Forbidden
+        statusCode: 403,
         message: 'You do not have permission to delete this item.',
       })
     }
 
     // Delete the item
     await prisma.randomList.delete({ where: { id } })
+
     console.log(`Successfully deleted item with ID: ${id}`)
 
-    return {
+    // Successful deletion response
+    response = {
       success: true,
       message: `Item with ID ${id} successfully deleted.`,
+      statusCode: 200,
     }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
-    console.error('Error deleting item:', error)
     const handledError = errorHandler(error)
-    return {
+    console.error('Error deleting item:', handledError)
+
+    // Explicitly set the status code based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
       message: handledError.message || `Failed to delete item with ID ${id}.`,
-      statusCode: handledError.statusCode || 500,
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

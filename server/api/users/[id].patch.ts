@@ -12,27 +12,38 @@ export default defineEventHandler(async (event) => {
     userId = Number(event.context.params?.id)
     if (isNaN(userId) || userId <= 0) {
       event.node.res.statusCode = 400
+      console.error(`Invalid User ID: ${userId}`)
       throw createError({ statusCode: 400, message: 'Invalid User ID.' })
     }
 
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
+    if (!authorizationHeader) {
+      console.error('Authorization header is missing.')
       throw createError({
         statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
+        message: 'Authorization header is missing.',
+      })
+    }
+    if (!authorizationHeader.startsWith('Bearer ')) {
+      console.error('Authorization token format is incorrect.')
+      throw createError({
+        statusCode: 401,
+        message: 'Authorization token format is incorrect.',
       })
     }
 
     const token = authorizationHeader.split(' ')[1]
+    console.log(`Received token: ${token}`)
+
+    // Check if the token matches any user in the database
     const user = await prisma.user.findFirst({
       where: { apiKey: token },
       select: { id: true },
     })
 
     if (!user) {
+      console.error(`Invalid or expired token: ${token}`)
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
@@ -40,7 +51,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (user.id !== userId) {
+    const userIdFromToken = user.id
+    if (userIdFromToken !== userId) {
+      console.error(
+        `Token user ID (${userIdFromToken}) does not match target user ID (${userId})`,
+      )
       event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
@@ -51,18 +66,21 @@ export default defineEventHandler(async (event) => {
     // Parse and validate the update data
     const updateData = await readBody(event)
     if (!updateData || Object.keys(updateData).length === 0) {
+      console.error('No data provided for update.')
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
+    console.log(`Update data received:`, updateData)
 
     // Update the user in the database
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: updateData,
     })
+    console.log(`User updated successfully:`, updatedUser)
 
     // Successful update response
     response = {
@@ -74,7 +92,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
   } catch (error) {
     const handledError = errorHandler(error)
-    console.log('Error Handled:', handledError)
+    console.error(`Error handling user update for ID ${userId}:`, handledError)
 
     // Explicitly set the status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500

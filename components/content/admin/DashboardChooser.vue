@@ -26,12 +26,7 @@
       class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6"
     >
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
-      <lazy-private-generator
-        v-if="choice === 'private-generator' && role === 'ADMIN'"
-      />
-      <lazy-rebel-button
-        v-if="choice === 'private-generator' && role !== 'ADMIN'"
-      />
+      <lazy-rebel-button />
       <lazy-jellybean-counter v-if="choice === 'jellybean-counter'" />
       <lazy-about-page v-if="choice === 'about-page'" />
       <lazy-sponsor-page v-if="choice === 'sponsor-page'" />
@@ -40,17 +35,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-
-// Access user information from the user store
-const userStore = useUserStore()
-const role = computed(() => userStore.user?.Role)
+import { ref } from 'vue'
 
 // Tabs setup for Dashboard Chooser
 const tabs = [
   { name: 'user-dashboard', label: 'User Dashboard' },
-  { name: 'private-generator', label: 'Private Generator' },
+  { name: 'rebel-button', label: 'Rebel Button' },
   { name: 'jellybean-counter', label: 'Jellybean Counter' },
   { name: 'about-page', label: 'About Page' },
   { name: 'sponsor-page', label: 'Sponsor Page' },

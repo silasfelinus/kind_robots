@@ -2,7 +2,6 @@
 import { defineEventHandler, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import { verifyJwtToken } from '../../auth'
 
 export default defineEventHandler(async (event) => {
   let recordId: number | null = null
@@ -19,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     console.log('Attempting to delete Milestone Record with ID:', recordId)
 
-    // Extract and verify the JWT token
+    // Extract and validate the API key from the Authorization header
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
@@ -30,13 +29,19 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
       throw createError({
         statusCode: 401, // Unauthorized
         message: 'Invalid or expired token.',
       })
     }
+
+    const userId = user.id
 
     // Check if the milestone record exists and verify ownership
     const milestoneRecord = await prisma.milestoneRecord.findUnique({
@@ -49,7 +54,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (milestoneRecord.userId !== verificationResult.userId) {
+    if (milestoneRecord.userId !== userId) {
       throw createError({
         statusCode: 403, // Forbidden
         message: 'You are not authorized to delete this milestone record.',
@@ -57,11 +62,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Proceed to delete the milestone record
-    const deletedRecord = await prisma.milestoneRecord.delete({
+    await prisma.milestoneRecord.delete({
       where: { id: recordId },
     })
 
-    console.log('Milestone Record deleted successfully:', deletedRecord)
+    console.log('Milestone Record deleted successfully:', recordId)
 
     return {
       success: true,

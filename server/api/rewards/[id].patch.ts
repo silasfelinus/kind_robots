@@ -2,7 +2,6 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import { verifyJwtToken } from '../auth'
 import type { Reward } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -29,20 +28,24 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    const userId = verificationResult.userId // Use userId from the token
+    const userId = user.id
 
-    // Fetch the existing reward to ensure it exists
+    // Fetch the existing reward to ensure it exists and verify ownership
     const existingReward = await prisma.reward.findUnique({
       where: { id: rewardId },
-      select: { userId: true }, // Fetch userId to check ownership
+      select: { userId: true },
     })
     if (!existingReward) {
       throw createError({

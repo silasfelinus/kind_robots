@@ -1,9 +1,8 @@
 // /server/api/users/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import { hashPassword, validatePassword, verifyJwtToken } from '../auth'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { User } from '@prisma/client'
+import { hashPassword } from '../auth'
 
 export default defineEventHandler(async (event) => {
   let userId: number | null = null
@@ -18,7 +17,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Extract and validate the JWT token
+    // Extract and validate the API key from the Authorization header
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
@@ -29,13 +28,19 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || verificationResult.userId !== userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token }, // Validate API key
+      select: { id: true },
+    })
+
+    if (!user) {
       throw createError({
-        statusCode: 403,
-        message: 'You do not have permission to update this user.',
+        statusCode: 401,
+        message: 'Invalid or expired token.',
       })
     }
+
+    const userIdFromToken = user.id
 
     // Fetch the existing user to ensure it exists
     const existingUser = await prisma.user.findUnique({
@@ -48,19 +53,21 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Check if the user is authorized to update this user
+    if (existingUser.id !== userIdFromToken) {
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to update this user.',
+      })
+    }
+
     // Parse the incoming request body as partial User data, excluding password
     const data: Partial<User> = await readBody(event)
 
     // Handle password update if present in request data
     const updateData: Partial<User> = { ...data }
     if ('password' in data) {
-      const passwordValidation = validatePassword(data.password as string)
-      if (!passwordValidation.isValid) {
-        throw createError({
-          statusCode: 400,
-          message: passwordValidation.message,
-        })
-      }
+      // Validation for the password can be included here
       updateData.password = await hashPassword(data.password as string)
     }
 

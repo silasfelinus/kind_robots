@@ -1,27 +1,29 @@
 // /server/api/art/prompts/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Prompt } from '@prisma/client'
-import { errorHandler } from '../utils/error'
-import { verifyJwtToken } from '../auth'
-import { updatePrompt } from './artQueries'
 import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
+import { updatePrompt } from './artQueries'
 
 export default defineEventHandler(async (event) => {
   let id: number | null = null
+  let response
 
   try {
     // Parse and validate the prompt ID from the URL params
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid prompt ID.',
       })
     }
 
-    // Extract and validate the JWT token
+    // Extract and validate the API key directly from the request headers
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -30,17 +32,25 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
+    const userId = user.id
+
     // Parse the incoming request body as partial prompt data
     const updatedPromptData: Partial<Prompt> = await readBody(event)
     if (!updatedPromptData || Object.keys(updatedPromptData).length === 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -50,6 +60,7 @@ export default defineEventHandler(async (event) => {
     // Fetch the existing prompt to verify ownership
     const existingPrompt = await prisma.prompt.findUnique({ where: { id } })
     if (!existingPrompt) {
+      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: 'Prompt not found.',
@@ -57,7 +68,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Verify ownership of the prompt
-    if (existingPrompt.userId !== verificationResult.userId) {
+    if (existingPrompt.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this prompt.',
@@ -67,14 +79,22 @@ export default defineEventHandler(async (event) => {
     // Update the prompt in the database
     const updatedPrompt = await updatePrompt(id, updatedPromptData)
 
-    // Return the updated prompt
-    return { success: true, updatedPrompt }
+    // Success response
+    response = {
+      success: true,
+      updatedPrompt,
+      statusCode: 200,
+    }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    return {
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
       message: handledError.message || `Failed to update prompt with ID ${id}.`,
-      statusCode: handledError.statusCode || 500,
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

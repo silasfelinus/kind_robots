@@ -325,29 +325,36 @@ export const useChatStore = defineStore({
       }
     },
 
-   async deleteExchange(exchangeId: number): Promise<boolean> {
-      const errorStore = useErrorStore()
+    async deleteExchange(exchangeId: number): Promise<boolean> {
       const userStore = useUserStore()
       const currentUserId = userStore.user?.id
 
-      console.log("Attempting to delete exchange", { exchangeId, currentUserId })
+      console.log('Attempting to delete exchange', {
+        exchangeId,
+        currentUserId,
+      })
 
       if (!currentUserId) {
-        this.handleError(ErrorType.AUTH_ERROR, "User not authenticated.")
-        console.log("Error: User not authenticated.")
+        this.handleError(ErrorType.AUTH_ERROR, 'User not authenticated.')
+        console.log('Error: User not authenticated.')
         return false
       }
 
       const exchange = this.chatExchanges.find((ex) => ex.id === exchangeId)
       if (!exchange) {
-        this.handleError(ErrorType.UNKNOWN_ERROR, "Exchange not found.")
-        console.log("Error: Exchange not found with provided exchangeId:", exchangeId)
+        this.handleError(ErrorType.UNKNOWN_ERROR, 'Exchange not found.')
+        console.log(
+          'Error: Exchange not found with provided exchangeId:',
+          exchangeId,
+        )
         return false
       }
 
       if (exchange.userId !== currentUserId) {
-        this.handleError(ErrorType.AUTH_ERROR, "Unauthorized delete attempt.")
-        console.log(`Unauthorized deletion attempt by user ${currentUserId} on exchange with userId ${exchange.userId}`)
+        this.handleError(ErrorType.AUTH_ERROR, 'Unauthorized delete attempt.')
+        console.log(
+          `Unauthorized deletion attempt by user ${currentUserId} on exchange with userId ${exchange.userId}`,
+        )
         return false
       }
 
@@ -357,21 +364,27 @@ export const useChatStore = defineStore({
         })
 
         if (!response.success) {
-          throw new Error(response.message || "Unknown error from API")
+          throw new Error(response.message || 'Unknown error from API')
         }
 
         // Successfully delete from local state
-        this.chatExchanges = this.chatExchanges.filter((ex) => ex.id !== exchangeId)
+        this.chatExchanges = this.chatExchanges.filter(
+          (ex) => ex.id !== exchangeId,
+        )
         this.saveToLocalStorage()
-        console.log("Exchange successfully deleted from local state", { exchangeId })
+        console.log('Exchange successfully deleted from local state', {
+          exchangeId,
+        })
         return true
       } catch (error) {
-        this.handleError(ErrorType.NETWORK_ERROR, `Error deleting exchange: ${error}`)
-        console.error("Network error during deleteExchange:", error)
+        this.handleError(
+          ErrorType.NETWORK_ERROR,
+          `Error deleting exchange: ${error}`,
+        )
+        console.error('Network error during deleteExchange:', error)
         return false
       }
     },
-
 
     loadFromLocalStorage() {
       if (typeof window === 'undefined') return

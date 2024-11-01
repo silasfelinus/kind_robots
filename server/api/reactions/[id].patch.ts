@@ -1,49 +1,79 @@
 // /server/api/reactions/[id].patch.ts
-import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error'
+import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
+import { verifyJwtToken } from '../auth'
+import type { Reaction } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
+  let reactionId: number | null = null
+
   try {
-    const reactionId = Number(event.context.params?.id)
-    if (!reactionId) {
-      throw new Error('Missing or invalid reaction ID.')
-    }
-
-    const requestData = await readBody(event)
-
-    const { comment, reactionType, reactionCategory } = requestData
-
-    // Ensure the required fields are provided
-    if (!reactionType || !reactionCategory) {
-      return {
-        success: false,
-        message: 'Reaction type and category are required.',
+    // Parse and validate the reaction ID from the URL params
+    reactionId = Number(event.context.params?.id)
+    if (isNaN(reactionId) || reactionId <= 0) {
+      throw createError({
         statusCode: 400,
-      }
+        message: 'Missing or invalid reaction ID.',
+      })
     }
 
-    // Fetch the existing reaction to ensure it exists
+    // Extract and validate the JWT token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const userId = verificationResult.userId // Use userId from the token
+
+    // Read and parse the request data as partial Reaction data
+    const requestData: Partial<Reaction> = await readBody(event)
+    const { reactionType, reactionCategory } = requestData
+
+    // Ensure required fields are provided if necessary
+    if (!reactionType || !reactionCategory) {
+      throw createError({
+        statusCode: 400,
+        message: 'Reaction type and category are required.',
+      })
+    }
+
+    // Fetch the existing reaction to ensure it exists and verify ownership
     const existingReaction = await prisma.reaction.findUnique({
       where: { id: reactionId },
     })
 
     if (!existingReaction) {
-      return {
-        success: false,
-        message: 'Reaction not found.',
+      throw createError({
         statusCode: 404,
-      }
+        message: 'Reaction not found.',
+      })
+    }
+
+    if (existingReaction.userId !== userId) {
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to update this reaction.',
+      })
     }
 
     // Update the reaction in the database
     const updatedReaction = await prisma.reaction.update({
       where: { id: reactionId },
-      data: {
-        comment,
-        reactionType, // Updating the reactionType field
-        reactionCategory: reactionCategory, // Updating the reactionCategory field
-      },
+      data: requestData,
     })
 
     return {

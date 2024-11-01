@@ -1,97 +1,96 @@
 // server/api/chats/[id].patch.ts
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, createError, readBody } from 'h3'
+import type { Reaction } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-
-type ReactionData = {
-  reactionType: 'LOVED' | 'CLAPPED' | 'BOOED' | 'HATED' | 'NEUTRAL' | 'FLAGGED'
-  comment?: string
-  userId: number
-  artId?: number
-  pitchId?: number
-  componentId?: number
-  channelId?: number
-  chatExchangeId?: number
-  reactionCategory: 'ART' | 'PITCH' | 'COMPONENT' | 'CHANNEL' | 'TITLE'
-}
+import { verifyJwtToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
+  let id: number | null = null
+
   try {
-    // Extract and validate ID
-    const id = Number(event.context.params?.id)
-    if (isNaN(id)) {
-      throw new TypeError('Invalid ID.')
+    // Validate chat exchange ID
+    id = Number(event.context.params?.id)
+    if (isNaN(id) || id <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid chat exchange ID.',
+      })
     }
 
-    // Read and validate reaction data
-    const reactionData: ReactionData = await readBody(event)
-
-    // Validate reactionType and reactionCategory
-    const validReactionTypes = [
-      'LOVED',
-      'CLAPPED',
-      'BOOED',
-      'HATED',
-      'NEUTRAL',
-      'FLAGGED',
-    ]
-    const validReactionCategories = [
-      'ART',
-      'PITCH',
-      'COMPONENT',
-      'CHANNEL',
-      'TITLE',
-    ]
-
-    if (!validReactionTypes.includes(reactionData.reactionType)) {
-      throw new TypeError('Invalid reaction type.')
+    // Extract and validate the JWT token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
     }
 
-    if (!validReactionCategories.includes(reactionData.reactionCategory)) {
-      throw new TypeError('Invalid reaction category.')
+    const token = authorizationHeader.split(' ')[1]
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
 
-    // Adjusting the Prisma where clause
+    // Read and validate reaction data as a partial Reaction model
+    const reactionData: Partial<Reaction> = await readBody(event)
+
+    // Ensure at least one field is provided for the update
+    if (!reactionData || Object.keys(reactionData).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No data provided for update.',
+      })
+    }
+
+    // Check if reactionType is provided, as it’s required for both create and update operations
+    if (!reactionData.reactionType) {
+      throw createError({
+        statusCode: 400,
+        message: 'reactionType is required.',
+      })
+    }
+
+    // Ensure the user is authorized to modify this reaction
+    if (
+      reactionData.userId &&
+      reactionData.userId !== verificationResult.userId
+    ) {
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to update this reaction.',
+      })
+    }
+
+    // Check if the reaction already exists for the user and chat exchange
     const existingReaction = await prisma.reaction.findFirst({
       where: {
-        chatExchangeId: reactionData.chatExchangeId ?? id, // Use chatExchangeId or id from route params
-        userId: reactionData.userId,
-      },
-    })
-
-    // Update or create reaction for the chat exchange
-    const updatedReaction = await prisma.reaction.upsert({
-      where: { id: existingReaction?.id }, // Use existing reaction id or a dummy value (0 will trigger creation)
-
-      update: {
-        reactionType: reactionData.reactionType,
-        comment: reactionData.comment,
-        artId: reactionData.artId,
-        pitchId: reactionData.pitchId,
-        componentId: reactionData.componentId,
-        channelId: reactionData.channelId,
-        reactionCategory: reactionData.reactionCategory, // Correct field name
-      },
-      create: {
-        reactionType: reactionData.reactionType,
-        comment: reactionData.comment,
-        userId: reactionData.userId,
-        artId: reactionData.artId,
-        pitchId: reactionData.pitchId,
-        componentId: reactionData.componentId,
-        channelId: reactionData.channelId,
         chatExchangeId: reactionData.chatExchangeId ?? id,
-        reactionCategory: reactionData.reactionCategory, // Correct field name
+        userId: verificationResult.userId,
       },
     })
 
-    return {
-      success: true,
-      updatedReaction,
-    }
+    // Update or create the reaction based on its existence
+    const updatedReaction = await prisma.reaction.upsert({
+      where: { id: existingReaction?.id || 0 }, // 0 triggers creation if no existing reaction
+      update: reactionData as Reaction, // Cast to Reaction to satisfy TypeScript expectations
+      create: {
+        ...reactionData,
+        reactionType: reactionData.reactionType, // Ensure reactionType is present
+        userId: verificationResult.userId,
+        chatExchangeId: reactionData.chatExchangeId ?? id,
+      } as Reaction,
+    })
+
+    return { success: true, updatedReaction }
   } catch (error: unknown) {
     console.error(
-      `Error while updating reaction for chat exchange with id ${event.context.params?.id}:`,
+      `Error updating reaction for chat exchange with id ${id}:`,
       error,
     )
     const { success, message, statusCode } = errorHandler(error)

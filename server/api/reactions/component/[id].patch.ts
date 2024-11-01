@@ -1,23 +1,59 @@
-//server/api/reactions/component/[id].patch.ts
-import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../../utils/error'
+// server/api/reactions/component/[id].patch.ts
+import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { verifyJwtToken } from '../../auth'
+import type { Reaction } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
+  let componentId: number | null = null
+
   try {
-    // Extract componentId from the route parameters
-    const componentId = Number(event.context.params?.id)
-    if (!componentId) {
-      throw new Error('Component ID is required.')
+    // Parse and validate the component ID from the URL params
+    componentId = Number(event.context.params?.id)
+    if (isNaN(componentId) || componentId <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'Component ID is required and must be a valid number.',
+      })
     }
 
-    // Parse the request body to get the reaction updates
-    const body = await readBody(event)
-    const { reactionType, userId } = body // Ensure 'reaction' is used, not 'reactionType'
+    // Extract and validate the JWT token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
 
-    // Ensure that both reaction and userId are provided
-    if (!reactionType || !userId) {
-      throw new Error('Reaction and User ID are required.')
+    const token = authorizationHeader.split(' ')[1]
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const userId = verificationResult.userId // Use userId from the token
+
+    // Parse the request body as a partial reaction
+    const reactionData: Partial<Reaction> = await readBody(event)
+
+    // Ensure that reactionData includes at least one updatable field and required fields for creation
+    if (!reactionData || Object.keys(reactionData).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No data provided for update.',
+      })
+    }
+    if (!reactionData.reactionType) {
+      throw createError({
+        statusCode: 400,
+        message: 'Reaction type is required.',
+      })
     }
 
     // Check if the reaction already exists for this user and component
@@ -31,35 +67,32 @@ export default defineEventHandler(async (event) => {
     let updatedReaction
 
     if (existingReaction) {
-      // If reaction exists, update it
+      // If the reaction exists, update it with the provided fields
       updatedReaction = await prisma.reaction.update({
         where: { id: existingReaction.id },
-        data: {
-          reactionType, // Use 'reaction' here, not 'reactionType'
-        },
+        data: reactionData,
       })
     } else {
-      // If no reaction exists, create a new one
+      // If no reaction exists, create a new one with required fields and provided data
       updatedReaction = await prisma.reaction.create({
         data: {
           componentId,
           userId,
-          reactionType, // Use 'reaction' here, not 'reactionType'
+          reactionType: reactionData.reactionType, // Required field for creation
+          ...reactionData,
         },
       })
     }
 
-    if (!updatedReaction) {
-      throw new Error(
-        `Failed to update/create reaction for component with ID ${componentId}.`,
-      )
-    }
-
-    return {
-      success: true,
-      updatedReaction,
-    }
+    return { success: true, updatedReaction }
   } catch (error: unknown) {
-    return errorHandler(error)
+    const handledError = errorHandler(error)
+    return {
+      success: false,
+      message:
+        handledError.message ||
+        `Failed to update/create reaction for component with ID ${componentId}.`,
+      statusCode: handledError.statusCode || 500,
+    }
   }
 })

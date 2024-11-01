@@ -1,14 +1,11 @@
-// cypress/e2e/random.cy.ts
-
 describe('RandomList Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/random'
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
   let randomListId: number | undefined
-  let uniqueTitle = `Dreams-${Date.now()}` // Changed to let
+  let uniqueTitle = `Dreams-${Date.now()}`
   const userId: number = 9 // Example user ID
 
-  // Create a new RandomList before running tests
   it('Create a New RandomList', () => {
     cy.request({
       method: 'POST',
@@ -32,23 +29,21 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
-  // Attempt to Update RandomList without authentication
   it('Attempt to Update RandomList without Authentication (expect failure)', () => {
+    if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${randomListId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: { title: `Unauthorized Update` },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
     })
   })
 
-  // Attempt to Update RandomList with an invalid token
   it('Attempt to Update RandomList with Invalid Token (expect failure)', () => {
+    if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${randomListId}`,
@@ -59,12 +54,13 @@ describe('RandomList Management API Tests', () => {
       body: { title: `Unauthorized Update` },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.status).to.eq(401)
     })
   })
 
   it('Update RandomList with Authentication', () => {
     const newTitle = `Updated-${uniqueTitle}`
+    if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${randomListId}`,
@@ -83,14 +79,12 @@ describe('RandomList Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.list.title).to.eq(newTitle)
-
-      // Update `uniqueTitle` to reflect the new title for following tests
-      uniqueTitle = newTitle
+      uniqueTitle = newTitle // Update for following tests
     })
   })
 
-  // Retrieve RandomList by ID
   it('Get RandomList by ID', () => {
+    if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${randomListId}`,
@@ -100,11 +94,10 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.list.title).to.eq(uniqueTitle)
+      expect(response.body.list.title).to.eq(uniqueTitle) // Use updated uniqueTitle
     })
   })
 
-  // Retrieve RandomList by Title
   it('Get RandomList by Title', () => {
     cy.request({
       method: 'GET',
@@ -119,7 +112,6 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
-  // Retrieve all RandomLists
   it('Get All RandomLists', () => {
     cy.request({
       method: 'GET',
@@ -136,22 +128,20 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
-  // Attempt to Delete RandomList without authentication
   it('Attempt to Delete RandomList without Authentication (expect failure)', () => {
+    if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${randomListId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
     })
   })
 
-  // Attempt to Delete RandomList with invalid token
   it('Attempt to Delete RandomList with Invalid Token (expect failure)', () => {
+    if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${randomListId}`,
@@ -161,12 +151,12 @@ describe('RandomList Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.status).to.eq(401)
     })
   })
 
-  // Delete RandomList with valid authentication
   it('Delete RandomList with Authentication', () => {
+    if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${randomListId}`,
@@ -179,7 +169,6 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
-  // Cleanup: Ensure deletion if not removed during tests
   after(() => {
     if (randomListId) {
       cy.request({

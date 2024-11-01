@@ -3,17 +3,21 @@
 describe('Art Collection API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/art/collection'
   const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
   let collectionId: number
   let artId: number
   let existingArtIds: number[] = []
   let artIdToRemove: number
+  let newArtId: number
 
   before(() => {
+    // Create a new Art before testing collections
     cy.request({
       method: 'POST',
       url: 'https://kind-robots.vercel.app/api/art',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         promptString: 'surreal, A beautiful pancake sunrise over the mountains',
@@ -39,6 +43,7 @@ describe('Art Collection API Tests', () => {
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         userId: 9,
@@ -51,47 +56,65 @@ describe('Art Collection API Tests', () => {
     })
   })
 
-  it('Get All Art Collections', () => {
+  it('should not allow adding art to collection without an authorization token', () => {
     cy.request({
-      method: 'GET',
-      url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body.collections).to.be.an('array')
-    })
-  })
-
-  it('Get Art Collection by ID', () => {
-    cy.request({
-      method: 'GET',
+      method: 'PATCH',
       url: `${baseUrl}/${collectionId}`,
       headers: {
         'Content-Type': 'application/json',
       },
+      failOnStatusCode: false,
+      body: {
+        artIds: [artId],
+      },
     }).then((response) => {
-      expect(response.status).to.eq(200)
-      existingArtIds = response.body.collection.art.map((art: Art) => art.id)
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
-  it('Add a Different Art to Collection', () => {
+  it('should not allow adding art to collection with an invalid authorization token', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${collectionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+      body: {
+        artIds: [artId],
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Add a Different Art to Collection with Valid Token', () => {
+    // Create another art entry for testing
     cy.request({
       method: 'POST',
       url: 'https://kind-robots.vercel.app/api/art',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
-        promptString: 'Another beautiful sunset',
+        promptString: 'surreal, A beautiful pancake sunrise over the mountains',
+        steps: 10,
         path: ' ',
-        isPublic: true,
+        seed: null,
+        channelId: null,
+        galleryId: null,
+        promptId: null,
+        pitchId: null,
+        userId: 9,
       },
     }).then((response) => {
-      const newArtId = response.body.art?.id
-
+      newArtId = response.body.art?.id
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${collectionId}`,
@@ -115,7 +138,6 @@ describe('Art Collection API Tests', () => {
 
   it('Remove Art from Collection', () => {
     artIdToRemove = existingArtIds[0]
-
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${collectionId}`,
@@ -136,7 +158,38 @@ describe('Art Collection API Tests', () => {
     })
   })
 
-  it('Delete Art Collection', () => {
+  it('should not allow deleting a collection without an authorization token', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${collectionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
+    })
+  })
+
+  it('should not allow deleting a collection with an invalid authorization token', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${collectionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Delete Art Collection with Valid Token', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${collectionId}`,
@@ -150,10 +203,25 @@ describe('Art Collection API Tests', () => {
   })
 
   after(() => {
+    // Delete first art entry if it exists
     if (artId) {
       cy.request({
         method: 'DELETE',
         url: `https://kind-robots.vercel.app/api/art/${artId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+      })
+    }
+
+    // Delete second art entry if it exists
+    if (newArtId) {
+      cy.request({
+        method: 'DELETE',
+        url: `https://kind-robots.vercel.app/api/art/${newArtId}`,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${userToken}`,

@@ -1,19 +1,20 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/messages.cy.ts
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Message Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/messages'
-  const apiKey = Cypress.env('API_KEY')
-  let messageId: number
-  const channelId: number = 2
+  const userToken = Cypress.env('USER_TOKEN')
+  let messageId: number | undefined
+  const channelId: number = 2 // Sample channel ID
 
+  // Step 1: Create a new message
   it('Create New Message', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         sender: 'WELCOMEBOT',
@@ -29,13 +30,14 @@ describe('Message Management API Tests', () => {
     })
   })
 
+  // Step 2: Retrieve all messages
   it('Get All Messages', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -45,13 +47,15 @@ describe('Message Management API Tests', () => {
     })
   })
 
+  // Step 3: Retrieve message by ID
   it('Get Message by ID', () => {
+    cy.wrap(messageId).should('exist') // Ensure messageId exists
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${messageId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -59,6 +63,7 @@ describe('Message Management API Tests', () => {
     })
   })
 
+  // Step 4: Attempt to update message without authentication
   it('Attempt to Update Message without Authentication (expect failure)', () => {
     cy.request({
       method: 'PATCH',
@@ -71,31 +76,32 @@ describe('Message Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Step 5: Update message with valid authentication
   it('Update Message with Authentication', () => {
+    cy.wrap(messageId).should('exist') // Ensure messageId exists
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${messageId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         content: 'Hello! Welcome to our updated Livechat!',
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-
       // Verify the update
       cy.request({
         method: 'GET',
         url: `${baseUrl}/${messageId}`,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
@@ -106,7 +112,9 @@ describe('Message Management API Tests', () => {
     })
   })
 
+  // Step 6: Attempt to delete message without authentication
   it('Attempt to Delete Message without Authentication (expect failure)', () => {
+    cy.wrap(messageId).should('exist') // Ensure messageId exists
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${messageId}`,
@@ -115,24 +123,26 @@ describe('Message Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Step 7: Delete message with valid authentication
   it('Delete Message with Authentication', () => {
+    cy.wrap(messageId).should('exist') // Ensure messageId exists
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${messageId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
     })
   })
 
-  // Ensure any created messages are cleaned up
+  // Step 8: Cleanup created messages in case any remain
   after(() => {
     if (messageId) {
       cy.request({
@@ -140,7 +150,7 @@ describe('Message Management API Tests', () => {
         url: `${baseUrl}/${messageId}`,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
         },
       }).then((response) => {
         expect(response.status).to.eq(200)

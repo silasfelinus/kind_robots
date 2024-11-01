@@ -3,16 +3,18 @@
 
 describe('Gallery Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/galleries'
-  const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
   let galleryId // Store gallery ID for further operations
 
+  // Step 1: Create a new gallery for testing
   it('Create New Gallery', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: [
         {
@@ -24,35 +26,35 @@ describe('Gallery Management API Tests', () => {
         },
       ],
     }).then((response) => {
-      console.log(response)
       expect(response.status).to.eq(200)
       expect(response.body.newGalleries).to.be.an('array').that.is.not.empty
       galleryId = response.body.newGalleries[0].id // Ensure the correct ID is captured
-      console.log('Created Gallery ID:', galleryId) // Log for debugging
     })
   })
 
+  // Step 2: Retrieve the created gallery by ID
   it('Get Gallery by ID', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/id/${galleryId}`, // Ensure galleryId is not undefined
+      url: `${baseUrl}/id/${galleryId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.gallery.name).to.eq('Test Gallery') // Expect the correct name
+      expect(response.body.gallery.name).to.eq('Test Gallery')
     })
   })
 
+  // Step 3: Retrieve all galleries
   it('Get All Galleries', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -62,8 +64,9 @@ describe('Gallery Management API Tests', () => {
     })
   })
 
+  // Step 4: Update gallery details with and without authentication
   it('Update a Gallery', () => {
-    // Attempt update without API key (expect failure)
+    // Attempt update without token (expect failure)
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/batch`,
@@ -73,21 +76,40 @@ describe('Gallery Management API Tests', () => {
       body: [
         {
           name: 'Test Gallery',
-          description: 'Updated description for the gallery',
+          description: 'Updated description without token',
         },
       ],
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Expect forbidden status without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
 
-    // Attempt update with API key (expect success)
+    // Attempt update with invalid token
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/batch`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: [
+        {
+          name: 'Test Gallery',
+          description: 'Updated description with invalid token',
+        },
+      ],
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+
+    // Attempt update with valid token (expect success)
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/batch`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
       body: [
         {
@@ -100,8 +122,9 @@ describe('Gallery Management API Tests', () => {
     })
   })
 
+  // Step 5: Delete the gallery with and without authentication
   it('Delete a Gallery', () => {
-    // Attempt delete without API key (expect failure)
+    // Attempt delete without token (expect failure)
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/id/${galleryId}`,
@@ -110,16 +133,29 @@ describe('Gallery Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Expect forbidden status without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
 
-    // Attempt delete with API key (expect success)
+    // Attempt delete with invalid token
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/id/${galleryId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+
+    // Attempt delete with valid token (expect success)
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/id/${galleryId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

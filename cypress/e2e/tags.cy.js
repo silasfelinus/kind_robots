@@ -1,11 +1,13 @@
-// cypress/e2e/tags.cy.js
 /* eslint-disable no-undef */
+// cypress/e2e/tags.cy.js
 
 describe('Tag Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/tags'
-  const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
   let tagId // Store tag ID for further operations
 
+  // Test to get all tags
   it('Get All Tags', () => {
     cy.request({
       method: 'GET',
@@ -21,13 +23,14 @@ describe('Tag Management API Tests', () => {
     })
   })
 
-  it('Create New Tag', () => {
+  // Test to create a new tag with valid authentication
+  it('Create New Tag with Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: [
         {
@@ -46,6 +49,7 @@ describe('Tag Management API Tests', () => {
     })
   })
 
+  // Attempt to edit the tag without authentication
   it('Attempt to Edit Tag without Authentication (expect failure)', () => {
     cy.request({
       method: 'PATCH',
@@ -59,17 +63,38 @@ describe('Tag Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Expect forbidden status without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Attempt to edit the tag with an invalid token
+  it('Attempt to Edit Tag with Invalid Token (expect failure)', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${tagId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        label: 'art',
+        title: 'Modern Art',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  // Edit the tag with valid authentication
   it('Edit Tag with Authentication', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${tagId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         label: 'art',
@@ -85,6 +110,7 @@ describe('Tag Management API Tests', () => {
     })
   })
 
+  // Attempt to delete the tag without authentication
   it('Attempt to Delete Tag without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
@@ -94,17 +120,34 @@ describe('Tag Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Expect forbidden status without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Attempt to delete the tag with an invalid token
+  it('Attempt to Delete Tag with Invalid Token (expect failure)', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${tagId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  // Delete the tag with valid authentication
   it('Delete Tag with Authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${tagId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -112,7 +155,7 @@ describe('Tag Management API Tests', () => {
     })
   })
 
-  // Cleanup: Ensure any created tag is deleted after tests
+  // Cleanup: Ensure tag deletion after tests
   after(() => {
     if (tagId) {
       cy.request({
@@ -120,7 +163,7 @@ describe('Tag Management API Tests', () => {
         url: `${baseUrl}/${tagId}`,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
         },
         failOnStatusCode: false,
       }).then((response) => {

@@ -2,18 +2,19 @@
 
 describe('Post Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/posts'
-  const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
   let postId: number | undefined // Define with undefined for clarity
   const userId: number = 9
 
+  // Step 1: Create a post once before running tests
   before(() => {
-    // Create a post once before running tests
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         userId,
@@ -30,6 +31,7 @@ describe('Post Management API Tests', () => {
     })
   })
 
+  // Step 2: Attempt to update post without authentication
   it('Attempt to Update Post without Authentication (expect failure)', () => {
     cy.request({
       method: 'PATCH',
@@ -38,17 +40,34 @@ describe('Post Management API Tests', () => {
       body: { title: 'Unauthorized Update' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Step 3: Attempt to update post with invalid token
+  it('Attempt to Update Post with Invalid Token (expect failure)', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${postId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: { title: 'Invalid Update Attempt' },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+  })
+
+  // Step 4: Update post with valid authentication
   it('Update Post with Authentication', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${postId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         title: 'Updated Test Post Title',
@@ -65,13 +84,15 @@ describe('Post Management API Tests', () => {
     })
   })
 
+  // Step 5: Retrieve post by ID
   it('Get Post by ID', () => {
+    cy.wrap(postId).should('exist') // Ensure postId exists
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${postId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -79,13 +100,14 @@ describe('Post Management API Tests', () => {
     })
   })
 
+  // Step 6: Retrieve all posts
   it('Get All Posts', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -95,31 +117,51 @@ describe('Post Management API Tests', () => {
     })
   })
 
+  // Step 7: Attempt to delete post without authentication
   it('Attempt to Delete Post without Authentication (expect failure)', () => {
+    cy.wrap(postId).should('exist') // Ensure postId exists
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${postId}`,
       headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
-  it('Delete Post with Authentication', () => {
+  // Step 8: Attempt to delete post with invalid token
+  it('Attempt to Delete Post with Invalid Token (expect failure)', () => {
+    cy.wrap(postId).should('exist') // Ensure postId exists
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${postId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+  })
+
+  // Step 9: Delete post with valid authentication
+  it('Delete Post with Authentication', () => {
+    cy.wrap(postId).should('exist') // Ensure postId exists
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${postId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
     })
   })
 
-  // Cleanup: Ensure deletion if post wasn't removed during tests
+  // Step 10: Cleanup: Ensure deletion if post wasn't removed during tests
   after(() => {
     if (postId) {
       cy.request({
@@ -127,7 +169,7 @@ describe('Post Management API Tests', () => {
         url: `${baseUrl}/${postId}`,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
         },
         failOnStatusCode: false,
       }).then((response) => {

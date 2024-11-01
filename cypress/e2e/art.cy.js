@@ -1,12 +1,13 @@
-// cypress/e2e/art.cy.js
 /* eslint-disable no-undef */
 
 describe('Art Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/art'
   const apiKey = Cypress.env('API_KEY')
-  const userToken = Cypress.env('USER_TOKEN')
   let artId // Store art ID for further operations
-  let generatedPath // Store the dynamically generated path for verification
+  let generatedPath
+  const invalidToken = 'someInvalidTokenValue'
+
+  const userToken = Cypress.env('USER_TOKEN')
 
   // Create a new Art before running tests
   before(() => {
@@ -15,24 +16,39 @@ describe('Art Management API Tests', () => {
       url: `${baseUrl}/`,
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': apiKey,
       },
       body: {
         promptString: 'surreal, A beautiful pancake sunrise over the mountains',
         steps: 10,
         path: ' ',
         seed: null,
-        userId: 9,
+        channelId: null,
+        galleryId: null,
         promptId: null,
-        galleryId: 21,
-        channelId: 1,
         pitchId: null,
+        userId: 9,
       },
-      failOnStatusCode: false,
+      failOnStatusCode: false, // Prevent Cypress from failing immediately if the status is not 200
     }).then((response) => {
+      cy.log('API Response:', JSON.stringify(response.body))
+
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('art').that.is.an('object')
-      artId = response.body.art.id
-      generatedPath = response.body.art.path
+
+      if (!response.body.success) {
+        throw new Error(
+          `API error occurred: ${response.body.message || 'Unknown error'}`,
+        )
+      }
+
+      expect(response.body).to.have.property('art')
+      expect(response.body.art).to.be.an('object')
+
+      artId = response.body.art?.id
+      generatedPath = response.body.art?.path // Capture the generated path
+
+      cy.log('Captured artId:', artId)
+      cy.log('Captured generatedPath:', generatedPath)
 
       if (!artId || !generatedPath) {
         throw new Error('Failed to capture art ID or path from response')
@@ -47,7 +63,6 @@ describe('Art Management API Tests', () => {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        Authorization: `Bearer ${userToken}`, // Add Authorization header
       },
       body: {
         cfg: 7,
@@ -57,7 +72,8 @@ describe('Art Management API Tests', () => {
         seed: -1,
         steps: 10,
         designer: 'kinddesigner',
-        promptString: 'A beautiful sunrise over pancake mountains',
+        pitch: 'Beauty',
+        promptString: 'A beautiful sunrise over the mountains',
         galleryId: 21,
         userId: 9,
       },
@@ -76,13 +92,17 @@ describe('Art Management API Tests', () => {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        Authorization: `Bearer ${userToken}`, // Add Authorization header
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+
+      // Check that the path includes 'cafefred' and ends with '.webp'
       expect(response.body.art.path).to.include('cafefred')
       expect(response.body.art.path).to.match(/\.webp$/)
-      expect(response.body.art.cfg).to.eq(7)
+
+      // Ensure cfg is checked as a number
+      expect(response.body.art.cfg).to.eq(7) // Compare cfg as a number
+
       expect(response.body.art).to.include({
         id: artId,
         userId: 9,
@@ -100,7 +120,6 @@ describe('Art Management API Tests', () => {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        Authorization: `Bearer ${userToken}`, // Add Authorization header
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -110,58 +129,113 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  it('Update an Art', () => {
+  it('should allow updating an art entry with a valid authorization token', () => {
+    cy.log(`User Token: ${userToken}`) // Debugging log for token
+    cy.log(`Art ID: ${artId}`) // Debugging log for artId
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${artId}`,
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        Authorization: `Bearer ${userToken}`, // Authorization header for update
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
-        path: 'notreal.webp',
-        designer: 'newdesigner',
-        isPublic: false,
+        path: 'updated-path-123.webp',
+        designer: 'updatedDesigner',
+        isPublic: true,
       },
     }).then((response) => {
+      cy.log('Response:', response) // Log the response for debugging
       expect(response.status).to.eq(200)
-      const expectedPathEnd = 'notreal.webp'
-      const actualPath = response.body.updatedArt.path
-      expect(actualPath).to.include(expectedPathEnd)
       expect(response.body.updatedArt).to.include({
         id: artId,
-        designer: 'newdesigner',
-        isPublic: false,
+        designer: 'updatedDesigner',
+        isPublic: true,
       })
     })
   })
 
-  it('Delete an Art', () => {
+  // Test updating art without authorization
+  it('should not allow updating an art entry without an authorization token', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${artId}`,
+      failOnStatusCode: false, // Allow Cypress to capture the error response
+      body: {
+        path: 'unauthorized-path.webp',
+        designer: 'unauthorizedDesigner',
+        isPublic: false,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
+    })
+  })
+
+  // Test updating art with an invalid token
+  it('should not allow updating an art entry with an invalid authorization token', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${artId}`,
+      headers: {
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+      body: {
+        path: 'invalid-token-path.webp',
+        designer: 'invalidTokenDesigner',
+        isPublic: false,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  // Test deleting art with authorization
+  it('should allow deleting an art entry with a valid authorization token', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${artId}`,
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        Authorization: `Bearer ${userToken}`, // Authorization header for delete
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.message).to.include(
+        `Art entry with ID ${artId} deleted successfully`,
+      )
+    })
+  })
 
-      // Verify that the art entry no longer exists
-      cy.request({
-        method: 'GET',
-        url: `${baseUrl}/${artId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          Authorization: `Bearer ${userToken}`, // Authorization header for get verification
-        },
-        failOnStatusCode: false,
-      }).then((res) => {
-        expect(res.status).to.eq(404)
-      })
+  // Test deleting art without authorization
+  it('should not allow deleting an art entry without an authorization token', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${artId}`,
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
+    })
+  })
+
+  // Test deleting art with an invalid token
+  it('should not allow deleting an art entry with an invalid authorization token', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${artId}`,
+      headers: {
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 })

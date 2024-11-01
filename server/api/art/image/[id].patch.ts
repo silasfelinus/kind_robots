@@ -1,24 +1,27 @@
+//server/api/art/image/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from './../../utils/prisma'
 import { errorHandler } from './../../utils/error'
-import { verifyJwtToken } from '../../auth'
 
 export default defineEventHandler(async (event) => {
-  let imageId
-  try {
-    imageId = Number(event.context.params?.id)
+  let response
+  let imageId: number | null = null
 
-    // Validate imageId
+  try {
+    // Parse and validate image ID
+    imageId = Number(event.context.params?.id)
     if (isNaN(imageId) || imageId <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid image ID. It must be a positive integer.',
       })
     }
 
-    // Extract and validate the JWT token
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -27,27 +30,35 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    // Check if the art image exists
+    const userId = user.id
+
+    // Check if the art image exists and verify ownership
     const artImage = await prisma.artImage.findUnique({
       where: { id: imageId },
     })
     if (!artImage) {
+      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Art image with ID ${imageId} not found.`,
       })
     }
 
-    // Verify ownership of the art image
-    if (artImage.userId !== verificationResult.userId) {
+    if (artImage.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this art image.',
@@ -58,8 +69,8 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const { imageData, fileName, fileType } = body
 
-    // Ensure at least one field is provided for update
     if (!imageData && !fileName && !fileType) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message:
@@ -77,19 +88,26 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    return {
+    response = {
       success: true,
       artImage: updatedArtImage,
-      statusCode: 200, // Explicitly set statusCode for successful update
+      statusCode: 200,
     }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    return {
+    console.log('Error Handled:', handledError)
+
+    // Set the appropriate status code based on the error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
       message:
         handledError.message ||
         `Failed to update art image with ID ${imageId}.`,
-      statusCode: handledError.statusCode || 500,
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

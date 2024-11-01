@@ -1,16 +1,17 @@
+//server/api/chats/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import type { Reaction } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import { verifyJwtToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
+  let response
   let id: number | null = null
 
   try {
     // Validate chat exchange ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid chat exchange ID.',
@@ -20,6 +21,7 @@ export default defineEventHandler(async (event) => {
     // Extract and validate the JWT token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -28,27 +30,34 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    // Read and validate reaction data as a partial Reaction model
-    const reactionData: Partial<Reaction> = await readBody(event)
+    const userId = user.id
 
-    // Ensure at least one field is provided for the update
+    // Read and validate reaction data as a partial Reaction model
+    const reactionData = await readBody(event)
     if (!reactionData || Object.keys(reactionData).length === 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    // Check if reactionType is provided, as it’s required for both create and update operations
+    // Validate presence of required fields in reactionData
     if (!reactionData.reactionType) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'reactionType is required.',
@@ -56,10 +65,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Ensure the user is authorized to modify this reaction
-    if (
-      reactionData.userId &&
-      reactionData.userId !== verificationResult.userId
-    ) {
+    if (reactionData.userId && reactionData.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this reaction.',
@@ -70,37 +77,43 @@ export default defineEventHandler(async (event) => {
     const existingReaction = await prisma.reaction.findFirst({
       where: {
         chatExchangeId: reactionData.chatExchangeId ?? id,
-        userId: verificationResult.userId,
+        userId: userId,
       },
     })
 
     // Update or create the reaction based on its existence
     const updatedReaction = await prisma.reaction.upsert({
-      where: { id: existingReaction?.id ?? 0 }, // Using existing reaction ID or 0 to trigger creation
-      update: reactionData as Reaction, // Cast to Reaction to satisfy TypeScript expectations
+      where: { id: existingReaction?.id ?? 0 },
+      update: reactionData,
       create: {
         ...reactionData,
-        reactionType: reactionData.reactionType, // Ensure reactionType is present
-        userId: verificationResult.userId,
+        userId: userId,
         chatExchangeId: reactionData.chatExchangeId ?? id,
-      } as Reaction,
+      },
     })
 
-    return {
+    response = {
       success: true,
       updatedReaction,
-      statusCode: 200, // Ensure successful response includes statusCode for Cypress assertions
+      statusCode: 200,
     }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
+    const handledError = errorHandler(error)
     console.error(
-      `Error updating reaction for chat exchange with id ${id}:`,
-      error,
+      `Error updating reaction for chat exchange with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
     )
-    const { success, message, statusCode } = errorHandler(error)
-    return {
-      success,
-      message,
-      statusCode: statusCode || 500,
+
+    // Set appropriate status code based on error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
+      success: false,
+      message:
+        handledError.message ||
+        `Failed to update reaction for chat exchange with ID ${id}.`,
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

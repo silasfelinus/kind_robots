@@ -1,3 +1,4 @@
+//server/api/art/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Art } from '@prisma/client'
 import prisma from '../utils/prisma'

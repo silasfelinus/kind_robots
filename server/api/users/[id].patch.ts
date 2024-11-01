@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid User ID.' })
     }
 
-    // Extract and verify the API key from the Authorization header
+    // Extract and verify the Authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401
@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
           'Authorization token is required in the format "Bearer <token>".',
       })
     }
+
     const token = authorizationHeader.split(' ')[1]
     const user = await prisma.user.findFirst({
       where: { apiKey: token },
@@ -46,8 +47,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Parse the request body for update data
+    // Parse the request body and validate fields for the update
     const updateData = await readBody(event)
+    // Add additional checks on `updateData` properties if needed
 
     // Update the user in the database
     const updatedUser = await prisma.user.update({
@@ -55,10 +57,13 @@ export default defineEventHandler(async (event) => {
       data: updateData,
     })
 
+    // Success response
+    event.node.res.statusCode = 200
     return {
       success: true,
       user: updatedUser,
       message: 'User updated successfully.',
+      statusCode: 200,
     }
   } catch (error) {
     return errorHandler({

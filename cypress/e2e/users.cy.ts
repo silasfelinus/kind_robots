@@ -6,6 +6,7 @@ describe('User Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/users'
   const authUrl = 'https://kind-robots.vercel.app/api/auth/login'
   const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
 
   let createdUserId: number | undefined
   let uniqueUsername: string
@@ -107,21 +108,23 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
+          'x-api-key': apiKey,
         },
         body: { username: newUsername },
         failOnStatusCode: false,
       }).then((response) => {
-        expect(response.status).to.eq(403)
+        expect(response.status).to.eq(401)
       })
     })
 
-    it('Update User by ID with New Username', () => {
+    it('Update User by ID with New Username (with auth', () => {
       const newUsername = `updateduser${Date.now()}`
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${userToken}`,
           'x-api-key': apiKey,
         },
         body: { username: newUsername },
@@ -186,6 +189,7 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${userToken}`,
           'x-api-key': apiKey,
         },
       }).then((response) => {

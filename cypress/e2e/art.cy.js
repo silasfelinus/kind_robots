@@ -4,8 +4,14 @@
 describe('Art Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/art'
   const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
   let artId // Store art ID for further operations
   let generatedPath // Store the dynamically generated path for verification
+
+  before(() => {
+    // Set up API key for each test if required
+    Cypress.env('API_KEY', apiKey)
+  })
 
   // Create a new Art before running tests
   before(() => {
@@ -14,40 +20,20 @@ describe('Art Management API Tests', () => {
       url: `${baseUrl}/`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
       body: {
         promptString: 'surreal, A beautiful pancake sunrise over the mountains',
         steps: 10,
         path: ' ',
         seed: null,
-        channelId: null,
-        galleryId: null,
-        promptId: null,
-        pitchId: null,
-
         userId: 9,
       },
       failOnStatusCode: false,
     }).then((response) => {
-      cy.log('API Response:', JSON.stringify(response.body))
-
       expect(response.status).to.eq(200)
-
-      if (!response.body.success) {
-        throw new Error(
-          `API error occurred: ${response.body.message || 'Unknown error'}`,
-        )
-      }
-
-      expect(response.body).to.have.property('art')
-      expect(response.body.art).to.be.an('object')
-
-      artId = response.body.art?.id
-      generatedPath = response.body.art?.path
-
-      cy.log('Captured artId:', artId)
-      cy.log('Captured generatedPath:', generatedPath)
+      expect(response.body).to.have.property('art').that.is.an('object')
+      artId = response.body.art.id
+      generatedPath = response.body.art.path
 
       if (!artId || !generatedPath) {
         throw new Error('Failed to capture art ID or path from response')
@@ -61,7 +47,6 @@ describe('Art Management API Tests', () => {
       url: `${baseUrl}/generate`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
       body: {
         cfg: 7,
@@ -71,7 +56,6 @@ describe('Art Management API Tests', () => {
         seed: -1,
         steps: 10,
         designer: 'kinddesigner',
-        pitch: 'Beauty',
         promptString: 'A beautiful sunrise over pancake mountains',
         galleryId: 21,
         userId: 9,
@@ -90,16 +74,12 @@ describe('Art Management API Tests', () => {
       url: `${baseUrl}/${artId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-
       expect(response.body.art.path).to.include('cafefred')
       expect(response.body.art.path).to.match(/\.webp$/)
-
       expect(response.body.art.cfg).to.eq(7)
-
       expect(response.body.art).to.include({
         id: artId,
         userId: 1,
@@ -116,7 +96,6 @@ describe('Art Management API Tests', () => {
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -141,7 +120,7 @@ describe('Art Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Expect forbidden status without API key
+      expect(response.status).to.eq(403)
     })
 
     // Attempt update with API key (expect success)
@@ -150,7 +129,7 @@ describe('Art Management API Tests', () => {
       url: `${baseUrl}/${artId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         path: 'notreal.webp',
@@ -159,10 +138,8 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-
       const expectedPathEnd = 'notreal.webp'
       const actualPath = response.body.updatedArt.path
-
       expect(actualPath).to.include(expectedPathEnd)
       expect(response.body.updatedArt).to.include({
         id: artId,
@@ -182,7 +159,7 @@ describe('Art Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Expect forbidden status without API key
+      expect(response.status).to.eq(403)
     })
 
     // Attempt delete with API key (expect success)
@@ -191,10 +168,22 @@ describe('Art Management API Tests', () => {
       url: `${baseUrl}/${artId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+
+      // Verify that the art entry no longer exists
+      cy.request({
+        method: 'GET',
+        url: `${baseUrl}/${artId}`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        failOnStatusCode: false,
+      }).then((res) => {
+        expect(res.status).to.eq(404)
+      })
     })
   })
 })

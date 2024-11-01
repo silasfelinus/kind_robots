@@ -3,6 +3,7 @@
 
 describe('Bot Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/bots'
+  const botUrl = 'https://kind-robots.vercel.app/api/bot'
   const apiKey = Cypress.env('API_KEY')
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
@@ -45,7 +46,7 @@ describe('Bot Management API Tests', () => {
   })
 
   it('should not allow updating a bot without an authorization token', () => {
-    const updateUrl = `${baseUrl}/name/${botName}/`
+    const updateUrl = `${botUrl}/name/${botName}/`
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -63,7 +64,7 @@ describe('Bot Management API Tests', () => {
   })
 
   it('should not allow updating a bot with an invalid authorization token', () => {
-    const updateUrl = `${baseUrl}/name/${botName}/`
+    const updateUrl = `${botUrl}/name/${botName}/`
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -82,7 +83,7 @@ describe('Bot Management API Tests', () => {
   })
 
   it('Update Bot with Valid Authentication', () => {
-    const updateUrl = `${baseUrl}/name/${botName}/`
+    const updateUrl = `${botUrl}/name/${botName}/`
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -129,7 +130,7 @@ describe('Bot Management API Tests', () => {
   it('should not allow deleting a bot without an authorization token', () => {
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/id/${createdBotId}`,
+      url: `${botUrl}/id/${createdBotId}`,
       headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
@@ -143,7 +144,7 @@ describe('Bot Management API Tests', () => {
   it('should not allow deleting a bot with an invalid authorization token', () => {
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/id/${createdBotId}`,
+      url: `${botUrl}/id/${createdBotId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
@@ -158,7 +159,7 @@ describe('Bot Management API Tests', () => {
   it('Delete Bot with Valid Authentication', () => {
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/id/${createdBotId}`,
+      url: `${botUrl}/id/${createdBotId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,

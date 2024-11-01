@@ -1,7 +1,11 @@
-// server/api/utils/error.ts
 import { Prisma } from '@prisma/client'
 
 type ErrorHandlerInput = Prisma.PrismaClientKnownRequestError | Error | unknown
+
+// Extend the Error type to include `statusCode` as an optional property
+interface CustomError extends Error {
+  statusCode?: number
+}
 
 export type ErrorHandlerOutput = {
   success: boolean
@@ -25,10 +29,15 @@ export function errorHandler(error: ErrorHandlerInput): ErrorHandlerOutput {
   }
 
   if (error instanceof Error) {
+    // Use type assertion to handle `statusCode` if present on error
+    const customError = error as CustomError
+    const statusCode = customError.statusCode || 400
+
     // Check for specific error messages that indicate a 401 Unauthorized error
     if (
       error.message.includes('Authentication required') ||
-      error.message.includes('Invalid API Key')
+      error.message.includes('Invalid API Key') ||
+      error.message.includes('Authorization token is required')
     ) {
       return {
         success: false,
@@ -36,11 +45,11 @@ export function errorHandler(error: ErrorHandlerInput): ErrorHandlerOutput {
         statusCode: 401,
       }
     }
-    // Default error handling for generic errors
+
     return {
       success: false,
       message: error.message,
-      statusCode: 400,
+      statusCode,
     }
   }
 

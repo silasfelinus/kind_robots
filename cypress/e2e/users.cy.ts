@@ -1,15 +1,13 @@
-// cypress/e2e/users.cy.ts
-
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+// cypress/e2e/users.cy.ts
 
 describe('User Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/users'
   const authUrl = 'https://kind-robots.vercel.app/api/auth/login'
-  const apiKey = Cypress.env('API_KEY')
-  const userToken = Cypress.env('USER_TOKEN')
-
+  const apiKey = Cypress.env('API_KEY') // Global API key
   let createdUserId: number | undefined
   let uniqueUsername: string
+  let createdUserToken: string // This will store the specific token for the created user
 
   // Create a user once before all tests
   before(() => {
@@ -33,6 +31,7 @@ describe('User Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       createdUserId = response.body.user.id
+      createdUserToken = response.body.user.apiKey // Store the user-specific token
     })
   })
 
@@ -44,7 +43,7 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           'x-api-key': apiKey,
-          Authorization: `Bearer ${userToken}`, // Authorization to delete
+          Authorization: `Bearer ${createdUserToken}`, // Use the created user’s specific token
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
@@ -115,7 +114,7 @@ describe('User Management API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(401)
         expect(response.body.message).to.include(
-          'Authorization token is required',
+          'Authorization header is missing',
         )
       })
     })
@@ -127,7 +126,7 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${createdUserToken}`, // Use the correct token for created user
         },
         body: { username: newUsername },
       }).then((response) => {
@@ -194,7 +193,7 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${createdUserToken}`, // Use the created user’s token for delete
         },
       }).then((response) => {
         expect(response.status).to.eq(200)

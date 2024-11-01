@@ -1,16 +1,16 @@
+// /server/api/tags/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   let response
-  let tagId
+  let tagId: number | null = null
 
   try {
     // Parse and validate the tag ID
     tagId = Number(event.context.params?.id)
     if (isNaN(tagId) || tagId <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400, // Bad Request
         message: 'Invalid Tag ID. It must be a positive integer.',
@@ -22,7 +22,6 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401, // Unauthorized
         message:
@@ -37,7 +36,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401, // Unauthorized
         message: 'Invalid or expired token.',
@@ -53,16 +51,14 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!tag) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404, // Not Found
         message: `Tag with ID ${tagId} does not exist.`,
       })
     }
 
-    // Only the creator of the tag should be able to delete it
+    // Ensure the user is the creator of the tag
     if (tag.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403, // Forbidden
         message: 'You do not have permission to delete this tag.',
@@ -71,6 +67,7 @@ export default defineEventHandler(async (event) => {
 
     // Delete the tag
     await prisma.tag.delete({ where: { id: tagId } })
+    console.log(`Successfully deleted tag with ID: ${tagId}`)
 
     // Successful deletion response
     response = {
@@ -81,7 +78,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.log('Error deleting tag:', handledError)
+    console.error('Error deleting tag:', handledError)
 
     // Explicitly set the status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500

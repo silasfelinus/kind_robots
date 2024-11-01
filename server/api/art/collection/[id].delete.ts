@@ -1,3 +1,4 @@
+//server/api/art/collection/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'

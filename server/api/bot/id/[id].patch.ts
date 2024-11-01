@@ -1,52 +1,28 @@
+//server/api/bot/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import type { Prisma, Bot } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 import prisma from './../../utils/prisma'
-import { verifyJwtToken } from '../../auth'
 import { errorHandler } from '../../utils/error'
 
-// Fetch bot by id
-export async function fetchBotById(id: number): Promise<Bot | null> {
-  try {
-    const bot = await prisma.bot.findUnique({ where: { id } })
-    console.log(`Fetched bot with id "${id}":`, bot)
-    return bot
-  } catch (error) {
-    console.error(`Error fetching bot with id "${id}":`, error)
-    return null
-  }
-}
-
-// Update bot by id
-async function updateBot(id: number, data: Partial<Bot>): Promise<Bot | null> {
-  try {
-    const updatedBot = await prisma.bot.update({
-      where: { id },
-      data: data as Prisma.BotUpdateInput,
-    })
-    console.log(`Bot with id "${id}" updated successfully:`, updatedBot)
-    return updatedBot
-  } catch (error) {
-    console.error(`Failed to update bot with id "${id}":`, error)
-    return null
-  }
-}
-
 export default defineEventHandler(async (event) => {
+  let response
   let id: number | null = null
 
   try {
     // Validate bot ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid bot ID.',
       })
     }
 
-    // Extract and validate JWT token
+    // Extract and validate the JWT token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -55,25 +31,36 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    // Fetch bot by ID to ensure it exists
-    const existingBot = await fetchBotById(id)
+    const userId = user.id
+
+    // Fetch bot by ID to ensure it exists and verify ownership
+    const existingBot = await prisma.bot.findUnique({
+      where: { id },
+    })
+
     if (!existingBot) {
+      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Bot with id "${id}" not found.`,
       })
     }
 
-    // Verify ownership of the bot
-    if (existingBot.userId !== verificationResult.userId) {
+    if (existingBot.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this bot.',
@@ -83,35 +70,38 @@ export default defineEventHandler(async (event) => {
     // Parse and validate request body
     const data = await readBody(event)
     if (!data || Object.keys(data).length === 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    // Attempt to update the bot
-    const updatedBot = await updateBot(id, data)
-    if (!updatedBot) {
-      throw createError({
-        statusCode: 404,
-        message: `Bot with id "${id}" not found.`,
-      })
-    }
+    // Update the bot with validated data
+    const updatedBot = await prisma.bot.update({
+      where: { id },
+      data: data as Prisma.BotUpdateInput,
+    })
 
-    return {
+    response = {
       success: true,
       bot: updatedBot,
-      statusCode: 200, // Explicit status code for success
+      statusCode: 200,
     }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error(
       `Failed to update bot with id "${id}": ${error instanceof Error ? error.message : 'Unknown error'}`,
     )
-    return {
+
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
       message: handledError.message || `Failed to update bot with id "${id}".`,
-      statusCode: handledError.statusCode || 500,
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

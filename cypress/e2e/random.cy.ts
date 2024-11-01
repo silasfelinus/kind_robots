@@ -5,7 +5,7 @@ describe('RandomList Management API Tests', () => {
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
   let randomListId: number | undefined
-  const uniqueTitle = `Dreams-${Date.now()}`
+  let uniqueTitle = `Dreams-${Date.now()}` // Changed to let
   const userId: number = 9 // Example user ID
 
   // Create a new RandomList before running tests
@@ -63,8 +63,8 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
-  // Update RandomList with valid authentication
   it('Update RandomList with Authentication', () => {
+    const newTitle = `Updated-${uniqueTitle}`
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${randomListId}`,
@@ -73,7 +73,7 @@ describe('RandomList Management API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
       body: {
-        title: `Updated-${uniqueTitle}`,
+        title: newTitle,
         items: [
           `Updated-Dream-${Date.now()}-1`,
           `Updated-Dream-${Date.now()}-2`,
@@ -82,7 +82,10 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.list.title).to.eq(`Updated-${uniqueTitle}`)
+      expect(response.body.list.title).to.eq(newTitle)
+
+      // Update `uniqueTitle` to reflect the new title for following tests
+      uniqueTitle = newTitle
     })
   })
 
@@ -97,7 +100,7 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.list.title).to.eq(`Updated-${uniqueTitle}`)
+      expect(response.body.list.title).to.eq(uniqueTitle)
     })
   })
 
@@ -112,7 +115,7 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.list.title).to.eq(`Updated-${uniqueTitle}`)
+      expect(response.body.list.title).to.eq(uniqueTitle)
     })
   })
 

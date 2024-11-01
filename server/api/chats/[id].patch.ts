@@ -5,27 +5,33 @@ import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response
-  let id: number | null = null
+  let chatId: number | null = null
 
   try {
-    // Validate chat exchange ID
-    id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+    // Parse and validate the Chat ID from the URL params
+    chatId = Number(event.context.params?.id)
+    if (isNaN(chatId) || chatId <= 0) {
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
-        message: 'Invalid chat exchange ID.',
+        message: 'Invalid chat ID.',
       })
     }
 
-    // Extract and validate the JWT token
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
+    if (!authorizationHeader) {
+      console.error('Authorization header is missing.')
       throw createError({
         statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
+        message: 'Authorization header is missing.',
+      })
+    }
+    if (!authorizationHeader.startsWith('Bearer ')) {
+      console.error('Authorization token format is incorrect.')
+      throw createError({
+        statusCode: 401,
+        message: 'Authorization token format is incorrect.',
       })
     }
 
@@ -36,6 +42,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      console.error(`Invalid or expired token: ${token}`)
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
@@ -43,11 +50,36 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const userId = user.id
+    const userIdFromToken = user.id
 
-    // Read and validate reaction data as a partial Reaction model
-    const reactionData = await readBody(event)
-    if (!reactionData || Object.keys(reactionData).length === 0) {
+    // Fetch the chat entry to ensure it exists and verify ownership
+    const chat = await prisma.chatExchange.findUnique({
+      where: { id: chatId },
+    })
+
+    if (!chat) {
+      event.node.res.statusCode = 404
+      throw createError({
+        statusCode: 404,
+        message: `Chat with ID ${chatId} not found.`,
+      })
+    }
+
+    if (chat.userId !== userIdFromToken) {
+      console.error(
+        `User ID mismatch. Token user ID: ${userIdFromToken}, Chat owner ID: ${chat.userId}`,
+      )
+      event.node.res.statusCode = 403
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to update this chat.',
+      })
+    }
+
+    // Parse and validate the update data
+    const updatedChatData = await readBody(event)
+    if (!updatedChatData || Object.keys(updatedChatData).length === 0) {
+      console.error('No data provided for update.')
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
@@ -55,62 +87,29 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Validate presence of required fields in reactionData
-    if (!reactionData.reactionType) {
-      event.node.res.statusCode = 400
-      throw createError({
-        statusCode: 400,
-        message: 'reactionType is required.',
-      })
-    }
-
-    // Ensure the user is authorized to modify this reaction
-    if (reactionData.userId && reactionData.userId !== userId) {
-      event.node.res.statusCode = 403
-      throw createError({
-        statusCode: 403,
-        message: 'You do not have permission to update this reaction.',
-      })
-    }
-
-    // Check if the reaction already exists for the user and chat exchange
-    const existingReaction = await prisma.reaction.findFirst({
-      where: {
-        chatExchangeId: reactionData.chatExchangeId ?? id,
-        userId: userId,
-      },
+    // Update the chat entry with validated data
+    const updatedChat = await prisma.chatExchange.update({
+      where: { id: chatId },
+      data: updatedChatData,
     })
 
-    // Update or create the reaction based on its existence
-    const updatedReaction = await prisma.reaction.upsert({
-      where: { id: existingReaction?.id ?? 0 },
-      update: reactionData,
-      create: {
-        ...reactionData,
-        userId: userId,
-        chatExchangeId: reactionData.chatExchangeId ?? id,
-      },
-    })
-
+    // Successful update response
     response = {
       success: true,
-      updatedReaction,
+      updatedChat,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
-  } catch (error: unknown) {
+  } catch (error) {
     const handledError = errorHandler(error)
-    console.error(
-      `Error updating reaction for chat exchange with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    )
+    console.error(`Failed to update chat with ID "${chatId}":`, handledError)
 
-    // Set appropriate status code based on error
+    // Set the appropriate status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
       message:
-        handledError.message ||
-        `Failed to update reaction for chat exchange with ID ${id}.`,
+        handledError.message || `Failed to update chat with ID ${chatId}.`,
       statusCode: event.node.res.statusCode,
     }
   }

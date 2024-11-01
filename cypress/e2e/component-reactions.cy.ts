@@ -25,6 +25,7 @@ describe('Component Reactions API Tests', () => {
         underConstruction: false,
         isBroken: false,
         title: 'Test Component',
+        channelId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

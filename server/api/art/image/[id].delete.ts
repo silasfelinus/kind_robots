@@ -1,7 +1,7 @@
+// server/api/art/image/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import { verifyJwtToken } from '../../auth'
 
 export default defineEventHandler(async (event) => {
   let imageId: number | null = null
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 2. Check for Authorization header and verify JWT token
+    // 2. Extract and validate the API key from the Authorization header
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
@@ -27,17 +27,23 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
       throw createError({
         statusCode: 401, // Unauthorized
         message: 'Invalid or expired token.',
       })
     }
+    const userId = user.id
 
     // 3. Fetch the art image and verify ownership
     const artImage = await prisma.artImage.findUnique({
       where: { id: imageId },
+      select: { userId: true },
     })
     if (!artImage) {
       throw createError({
@@ -46,8 +52,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if the authenticated user is the owner of the art image
-    if (artImage.userId !== verificationResult.userId) {
+    if (artImage.userId !== userId) {
       throw createError({
         statusCode: 403, // Forbidden
         message: 'You do not have permission to delete this art image.',
@@ -59,14 +64,13 @@ export default defineEventHandler(async (event) => {
       where: { id: imageId },
     })
 
-    // Success response with statusCode
+    // Success response
     return {
       success: true,
       message: `Art image ${imageId} deleted successfully.`,
-      statusCode: 200, // Explicit success status code for testing
+      statusCode: 200,
     }
   } catch (error: unknown) {
-    // Use errorHandler for consistent error responses
     const handledError = errorHandler(error)
     return {
       success: false,

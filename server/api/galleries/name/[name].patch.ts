@@ -1,22 +1,26 @@
 // /server/api/galleries/[name].patch.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import { fetchGalleryByName, updateGallery } from '..' // Import the correct methods
-import { verifyJwtToken } from '../../auth'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
-  // Extract and validate the gallery name from the request parameters
+  let response
   const name = String(event.context.params?.name).trim()
-  if (!name) {
-    throw createError({
-      statusCode: 400,
-      message: 'Gallery name is required.',
-    })
-  }
 
   try {
-    // Extract and validate the JWT token
+    // Validate the gallery name
+    if (!name) {
+      event.node.res.statusCode = 400
+      throw createError({
+        statusCode: 400,
+        message: 'Gallery name is required.',
+      })
+    }
+
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -25,52 +29,78 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    // Fetch the gallery by its name and check if it exists
-    const gallery = await fetchGalleryByName(name)
+    const userId = user.id
+
+    // Fetch the gallery by its name to ensure it exists and belongs to the user
+    const gallery = await prisma.gallery.findUnique({
+      where: { name },
+    })
     if (!gallery) {
+      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Gallery with name '${name}' not found.`,
       })
     }
 
-    // Verify ownership of the gallery
-    if (gallery.userId !== verificationResult.userId) {
+    if (gallery.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this gallery.',
       })
     }
 
-    // Read and parse the body of the request
-    const data = await readBody(event)
-    if (!data || Object.keys(data).length === 0) {
+    // Read and validate the request body
+    const updatedGalleryData = await readBody(event)
+    if (!updatedGalleryData || Object.keys(updatedGalleryData).length === 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    // Update the gallery using its ID and the provided data
-    const updatedGallery = await updateGallery(gallery.id, data)
+    // Update the gallery with validated data
+    const updatedGallery = await prisma.gallery.update({
+      where: { id: gallery.id },
+      data: updatedGalleryData,
+    })
 
-    return { success: true, gallery: updatedGallery }
+    response = {
+      success: true,
+      gallery: updatedGallery,
+      statusCode: 200,
+    }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
-    // Handle any errors that occur during the update process
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
-    return {
+    const handledError = errorHandler(error)
+    console.error(
+      `Failed to update gallery with name "${name}": ${error instanceof Error ? error.message : 'Unknown error'}`,
+    )
+
+    // Set the appropriate status code based on the error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
-      message: `Failed to update gallery with name '${name}'. Reason: ${errorMessage}`,
-      statusCode: 500,
+      message:
+        handledError.message || `Failed to update gallery with name '${name}'.`,
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

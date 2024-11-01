@@ -1,86 +1,82 @@
 // server/api/users/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
-import { verifyJwtToken } from '../auth'
 import prisma from '../utils/prisma'
-import auth from '../../middleware/auth'
 
 export default defineEventHandler(async (event) => {
-  let userId: number | null = null
+  let response
+  let userId
 
   try {
     console.log('User deletion endpoint invoked.')
 
-    event.context.route = { auth: true } // This line sets the auth property
-    auth(event)
-
-    // Extract and validate the user ID
+    // Validate and parse the User ID
     userId = Number(event.context.params?.id)
     if (isNaN(userId) || userId <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
-        statusCode: 400, // Bad Request
+        statusCode: 400,
         message: 'Invalid User ID. ID must be a positive integer.',
       })
     }
 
-    // Extract and verify the JWT token
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
-        statusCode: 401, // Unauthorized
+        statusCode: 401,
         message:
           'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || verificationResult.userId !== userId) {
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
-        statusCode: 403, // Forbidden
-        message: 'Unauthorized to delete this user.',
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    // Ensure the user has permission to delete the requested user
+    if (user.id !== userId) {
+      event.node.res.statusCode = 403
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to delete this user.',
       })
     }
 
     // Attempt to delete the user
-    const deleted = await deleteUser(userId)
-    if (!deleted) {
-      throw createError({
-        statusCode: 404, // Not Found
-        message: `User with ID ${userId} does not exist.`,
-      })
-    }
+    await prisma.user.delete({ where: { id: userId } })
 
-    console.log(`Successfully deleted user with ID: ${userId}`)
-    return {
+    // Successful deletion response
+    response = {
       success: true,
       message: `User with ID ${userId} successfully deleted.`,
+      statusCode: 200,
     }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
-    console.error('Error deleting user:', error)
     const handledError = errorHandler(error)
-    return {
+    console.log('Error Handled:', handledError)
+
+    // Explicitly set the status code based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
       message:
         handledError.message || `Failed to delete user with ID ${userId}.`,
-      statusCode: handledError.statusCode || 500,
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })
-
-// Function to delete a user by ID
-async function deleteUser(id: number): Promise<boolean> {
-  try {
-    const user = await prisma.user.findUnique({ where: { id } })
-    if (!user) {
-      console.error(`User with ID ${id} does not exist.`)
-      return false
-    }
-
-    await prisma.user.delete({ where: { id } })
-    return true
-  } catch (error: unknown) {
-    console.error(`Failed to delete user: ${(error as Error).message}`)
-    throw errorHandler(error)
-  }
-}

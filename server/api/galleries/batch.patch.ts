@@ -1,10 +1,10 @@
 // server/api/galleries/batch.patch.ts
-import { defineEventHandler, readBody } from 'h3'
-import { fetchGalleryByName, updateGallery } from '.'
+import { defineEventHandler, readBody, createError } from 'h3'
+import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import type { Prisma, Gallery } from '@prisma/client'
 
-// Define types for the gallery update data and response
+// Define types for gallery update data and batch response
 type GalleryUpdateData = Partial<{
   name: string
   content: string
@@ -26,65 +26,79 @@ type BatchUpdateResponse = {
 }
 
 export default defineEventHandler(async (event) => {
+  let response: BatchUpdateResponse
   try {
     const galleriesData: GalleryUpdateData[] = await readBody(event)
 
     if (!Array.isArray(galleriesData)) {
-      throw new TypeError('Expected an array of gallery updates')
+      event.node.res.statusCode = 400
+      throw createError({
+        statusCode: 400,
+        message: 'Expected an array of gallery updates.',
+      })
     }
 
     const updatedGalleries: Gallery[] = []
     const errors: string[] = []
 
+    // Loop through each gallery data object to perform updates
     for (const galleryData of galleriesData) {
       const { name, ...data } = galleryData
 
       if (!name) {
-        errors.push('Gallery name is missing.')
+        errors.push('Gallery name is missing in update data.')
         continue
       }
 
       // Fetch the gallery by name
-      const gallery = await fetchGalleryByName(name)
+      const gallery = await prisma.gallery.findUnique({ where: { name } })
 
       if (!gallery) {
-        errors.push(`Gallery named ${name} not found.`)
+        errors.push(`Gallery named '${name}' not found.`)
         continue
       }
 
-      // Ensure data conforms to Prisma.GalleryUpdateInput
-      const updateData: Prisma.GalleryUpdateInput = {
-        ...data,
+      // Confirm gallery ID exists and is a number before proceeding
+      const galleryId = gallery.id
+      if (typeof galleryId !== 'number') {
+        errors.push(`Gallery '${name}' has an invalid ID.`)
+        continue
       }
 
-      // Update the gallery
+      // Prepare Prisma update input for the gallery
+      const updateData: Prisma.GalleryUpdateInput = { ...data }
+
       try {
-        const updatedGallery = await updateGallery(gallery.id, updateData)
-        if (updatedGallery) {
-          updatedGalleries.push(updatedGallery)
-        } else {
-          errors.push(`Failed to update gallery named ${name}.`)
-        }
+        const updatedGallery = await prisma.gallery.update({
+          where: { id: galleryId },
+          data: updateData,
+        })
+        updatedGalleries.push(updatedGallery)
       } catch (err: unknown) {
-        // Handle errors during the update process
+        // Log individual update failures
         const errorMessage =
           err instanceof Error ? err.message : 'Unknown error'
-        errors.push(`Failed to update gallery named ${name}: ${errorMessage}`)
+        errors.push(`Failed to update gallery '${name}': ${errorMessage}`)
       }
     }
 
-    return {
+    // Build response based on update results
+    response = {
       success: errors.length === 0,
       updatedGalleries,
       errors,
-    } as BatchUpdateResponse
+      statusCode: errors.length > 0 ? 207 : 200, // 207 for partial success
+    }
+    event.node.res.statusCode = response.statusCode ?? 500
   } catch (error: unknown) {
-    // Use the errorHandler to handle and format the error
     const handledError = errorHandler(error)
-    return {
+    response = {
       success: false,
       message: handledError.message || 'Failed to update galleries.',
       statusCode: handledError.statusCode || 500,
-    } as BatchUpdateResponse
+    }
+    event.node.res.statusCode = response.statusCode ?? 500
   }
+
+  return response
 })

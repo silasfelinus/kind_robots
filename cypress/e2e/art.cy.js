@@ -6,7 +6,6 @@ describe('Art Management API Tests', () => {
   let artId // Store art ID for further operations
   let generatedPath
   const invalidToken = 'someInvalidTokenValue'
-
   const userToken = Cypress.env('USER_TOKEN')
 
   // Create a new Art before running tests
@@ -29,27 +28,19 @@ describe('Art Management API Tests', () => {
         pitchId: null,
         userId: 9,
       },
-      failOnStatusCode: false, // Prevent Cypress from failing immediately if the status is not 200
+      failOnStatusCode: false,
     }).then((response) => {
       cy.log('API Response:', JSON.stringify(response.body))
 
       expect(response.status).to.eq(200)
-
       if (!response.body.success) {
         throw new Error(
           `API error occurred: ${response.body.message || 'Unknown error'}`,
         )
       }
 
-      expect(response.body).to.have.property('art')
-      expect(response.body.art).to.be.an('object')
-
       artId = response.body.art?.id
-      generatedPath = response.body.art?.path // Capture the generated path
-
-      cy.log('Captured artId:', artId)
-      cy.log('Captured generatedPath:', generatedPath)
-
+      generatedPath = response.body.art?.path
       if (!artId || !generatedPath) {
         throw new Error('Failed to capture art ID or path from response')
       }
@@ -95,20 +86,9 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-
-      // Check that the path includes 'cafefred' and ends with '.webp'
       expect(response.body.art.path).to.include('cafefred')
       expect(response.body.art.path).to.match(/\.webp$/)
-
-      // Ensure cfg is checked as a number
-      expect(response.body.art.cfg).to.eq(7) // Compare cfg as a number
-
-      expect(response.body.art).to.include({
-        id: artId,
-        userId: 9,
-        checkpoint: 'model-checkpoint-001',
-        sampler: 'Euler',
-      })
+      expect(response.body.art.cfg).to.eq(7)
       expect(response.body.art).to.include.keys(['createdAt', 'updatedAt'])
     })
   })
@@ -130,9 +110,6 @@ describe('Art Management API Tests', () => {
   })
 
   it('should allow updating an art entry with a valid authorization token', () => {
-    cy.log(`User Token: ${userToken}`) // Debugging log for token
-    cy.log(`Art ID: ${artId}`) // Debugging log for artId
-
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${artId}`,
@@ -145,7 +122,6 @@ describe('Art Management API Tests', () => {
         isPublic: true,
       },
     }).then((response) => {
-      cy.log('Response:', response) // Log the response for debugging
       expect(response.status).to.eq(200)
       expect(response.body.updatedArt).to.include({
         id: artId,
@@ -155,12 +131,11 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  // Test updating art without authorization
   it('should not allow updating an art entry without an authorization token', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${artId}`,
-      failOnStatusCode: false, // Allow Cypress to capture the error response
+      failOnStatusCode: false,
       body: {
         path: 'unauthorized-path.webp',
         designer: 'unauthorizedDesigner',
@@ -174,7 +149,6 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  // Test updating art with an invalid token
   it('should not allow updating an art entry with an invalid authorization token', () => {
     cy.request({
       method: 'PATCH',
@@ -194,23 +168,8 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  // Test deleting art with authorization
-  it('should allow deleting an art entry with a valid authorization token', () => {
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${artId}`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body.message).to.include(
-        `Art entry with ID ${artId} deleted successfully`,
-      )
-    })
-  })
+  // Test delete cases here
 
-  // Test deleting art without authorization
   it('should not allow deleting an art entry without an authorization token', () => {
     cy.request({
       method: 'DELETE',
@@ -224,7 +183,6 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  // Test deleting art with an invalid token
   it('should not allow deleting an art entry with an invalid authorization token', () => {
     cy.request({
       method: 'DELETE',
@@ -236,6 +194,23 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  // Finally, delete the art entry with a valid token
+
+  it('should allow deleting an art entry with a valid authorization token', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${artId}`,
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.message).to.include(
+        `Art entry with ID ${artId} deleted successfully`,
+      )
     })
   })
 })

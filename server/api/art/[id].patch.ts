@@ -1,13 +1,18 @@
+//server/api/art/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Art } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import { verifyJwtToken } from '../auth'
+import {
+  extractTokenFromHeader,
+  getUserIdFromToken,
+  authorizeUserForArtEntry,
+} from '.'
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
-
+  let id
   try {
+    // Validate Art ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
       throw createError({
@@ -16,8 +21,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Extract and verify authorization token
     const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    const token = extractTokenFromHeader(authorizationHeader)
+    if (!token) {
       throw createError({
         statusCode: 401,
         message:
@@ -25,37 +32,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    console.log('Verification Result:', verificationResult) // Debugging
-
-    if (!verificationResult || !verificationResult.userId) {
+    // Get userId from token
+    const userId = await getUserIdFromToken(token)
+    if (!userId) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    const artEntry = await prisma.art.findUnique({ where: { id } })
-    console.log('Art Entry:', artEntry) // Debugging
+    // Authorize user for the art entry
+    await authorizeUserForArtEntry(userId, id)
 
-    if (!artEntry) {
-      throw createError({
-        statusCode: 404,
-        message: `Art entry with ID ${id} does not exist.`,
-      })
-    }
-
-    if (artEntry.userId !== verificationResult.userId) {
-      throw createError({
-        statusCode: 403,
-        message: 'You do not have permission to update this art entry.',
-      })
-    }
-
+    // Retrieve update data and validate
     const updatedArtData: Partial<Art> = await readBody(event)
-    console.log('Updated Art Data:', updatedArtData) // Debugging
-
     if (!updatedArtData || Object.keys(updatedArtData).length === 0) {
       throw createError({
         statusCode: 400,
@@ -63,6 +53,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Update the art entry in the database
     const updatedArt = await prisma.art.update({
       where: { id },
       data: updatedArtData,
@@ -75,7 +66,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.log('Error Handled:', handledError) // Debugging
+    console.log('Error Handled:', handledError)
 
     return {
       success: false,

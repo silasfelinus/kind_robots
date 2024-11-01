@@ -1,14 +1,12 @@
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import { authorizeUserForArtEntry } from '.'
 import { extractTokenFromHeader, getUserIdFromToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
-
+  let id
   try {
-    // Validate Art ID
+    // Validate the Art ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
       throw createError({
@@ -17,7 +15,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Extract and verify authorization token
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     const token = extractTokenFromHeader(authorizationHeader)
     if (!token) {
@@ -37,8 +35,25 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Authorize user for the art entry
-    await authorizeUserForArtEntry(userId, id)
+    // Fetch the art entry and verify ownership in a single step
+    const artEntry = await prisma.art.findUnique({
+      where: { id },
+      select: { userId: true },
+    })
+    if (!artEntry) {
+      throw createError({
+        statusCode: 404,
+        message: `Art entry with ID ${id} does not exist.`,
+      })
+    }
+
+    // Check if the user is authorized to delete this art entry
+    if (artEntry.userId !== userId) {
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to delete this art entry.',
+      })
+    }
 
     // Attempt to delete the art entry
     await prisma.art.delete({ where: { id } })

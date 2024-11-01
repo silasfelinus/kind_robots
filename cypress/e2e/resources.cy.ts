@@ -3,17 +3,18 @@
 
 describe('Resource Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/resources'
-  const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
   let resourceId: number | undefined
   const uniqueResourceName = `Resource-${Date.now()}`
 
+  // Step 1: Create a new resource with proper authentication
   it('Create a New Resource', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         userId: 9,
@@ -35,6 +36,7 @@ describe('Resource Management API Tests', () => {
     })
   })
 
+  // Step 2: Attempt to update resource without authentication
   it('Attempt to Update Resource without Authentication (expect failure)', () => {
     cy.request({
       method: 'PATCH',
@@ -47,10 +49,11 @@ describe('Resource Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Step 3: Update resource with valid authentication
   it('Update Resource with Authentication', () => {
     const updatedResourceName = `Updated-${uniqueResourceName}`
     cy.request({
@@ -58,12 +61,11 @@ describe('Resource Management API Tests', () => {
       url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         name: updatedResourceName,
         description: 'This is an updated test resource description.',
-        userId: 10,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -71,28 +73,30 @@ describe('Resource Management API Tests', () => {
     })
   })
 
+  // Step 4: Retrieve resource by ID and validate the response
   it('Get Resource by ID', () => {
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.resource).to.be.an('object')
-      expect(response.body.resource.name).to.eq(uniqueResourceName)
+      expect(response.body.resource.name).to.eq(`Updated-${uniqueResourceName}`)
     })
   })
 
+  // Step 5: Retrieve all resources
   it('Get All Resources', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -102,6 +106,7 @@ describe('Resource Management API Tests', () => {
     })
   })
 
+  // Step 6: Attempt to delete resource without authentication
   it('Attempt to Delete Resource without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
@@ -111,24 +116,25 @@ describe('Resource Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Step 7: Delete resource with valid authentication
   it('Delete Resource with Authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
     })
   })
 
-  // Ensure cleanup: delete resource if it wasn't already removed
+  // Cleanup in case the resource was not deleted during tests
   after(() => {
     if (resourceId) {
       cy.request({
@@ -136,7 +142,7 @@ describe('Resource Management API Tests', () => {
         url: `${baseUrl}/${resourceId}`,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
         },
         failOnStatusCode: false,
       }).then((response) => {

@@ -5,6 +5,7 @@ describe('Bot Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/bots'
   const apiKey = Cypress.env('API_KEY')
   const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
 
   let createdBotId
   const botName = `testbot-${Date.now()}`
@@ -15,6 +16,7 @@ describe('Bot Management API Tests', () => {
       url: `${baseUrl}`,
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         name: botName,
@@ -42,7 +44,7 @@ describe('Bot Management API Tests', () => {
     })
   })
 
-  it('Update Bot without Authentication (expect failure)', () => {
+  it('should not allow updating a bot without an authorization token', () => {
     const updateUrl = `${baseUrl}/name/${botName}/`
     cy.request({
       method: 'PATCH',
@@ -53,11 +55,33 @@ describe('Bot Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
-  it('Update Bot with Authentication', () => {
+  it('should not allow updating a bot with an invalid authorization token', () => {
+    const updateUrl = `${baseUrl}/name/${botName}/`
+    cy.request({
+      method: 'PATCH',
+      url: updateUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        description: 'Invalid token update attempt',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Update Bot with Valid Authentication', () => {
     const updateUrl = `${baseUrl}/name/${botName}/`
     cy.request({
       method: 'PATCH',
@@ -102,18 +126,36 @@ describe('Bot Management API Tests', () => {
     })
   })
 
-  it('Delete Bot without Authentication (expect failure)', () => {
+  it('should not allow deleting a bot without an authorization token', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/id/${createdBotId}`,
       headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
-  it('Delete Bot with Authentication', () => {
+  it('should not allow deleting a bot with an invalid authorization token', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/id/${createdBotId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Delete Bot with Valid Authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/id/${createdBotId}`,

@@ -2,18 +2,19 @@
 
 describe('Pitch Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/pitches'
-  const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
   let pitchId: number | undefined // Define with undefined for clarity
   const uniquePitchName = `Pitch-${Date.now()}` // Generate a unique pitch name
 
+  // Step 1: Create a pitch before running tests
   before(() => {
-    // Create a pitch before running tests
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         pitch: uniquePitchName,
@@ -26,6 +27,7 @@ describe('Pitch Management API Tests', () => {
     })
   })
 
+  // Step 2: Attempt to update pitch without authentication
   it('Attempt to Update Pitch without Authentication (expect failure)', () => {
     cy.request({
       method: 'PATCH',
@@ -34,10 +36,27 @@ describe('Pitch Management API Tests', () => {
       body: { pitch: 'Unauthorized Update' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Step 3: Attempt to update pitch with invalid token
+  it('Attempt to Update Pitch with Invalid Token (expect failure)', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${pitchId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: { pitch: 'Invalid Update Attempt' },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+  })
+
+  // Step 4: Update pitch with valid authentication
   it('Update Pitch with Authentication', () => {
     const updatedPitchName = `Updated-${uniquePitchName}`
     cy.request({
@@ -45,7 +64,7 @@ describe('Pitch Management API Tests', () => {
       url: `${baseUrl}/${pitchId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: { pitch: updatedPitchName },
     }).then((response) => {
@@ -54,13 +73,15 @@ describe('Pitch Management API Tests', () => {
     })
   })
 
+  // Step 5: Retrieve pitch by ID
   it('Retrieve Pitch by ID', () => {
+    cy.wrap(pitchId).should('exist') // Ensure pitchId exists
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${pitchId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -68,13 +89,14 @@ describe('Pitch Management API Tests', () => {
     })
   })
 
+  // Step 6: Retrieve all pitches
   it('Retrieve All Pitches', () => {
     cy.request({
       method: 'GET',
       url: `${baseUrl}/batch`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -84,30 +106,51 @@ describe('Pitch Management API Tests', () => {
     })
   })
 
+  // Step 7: Attempt to delete pitch without authentication
   it('Attempt to Delete Pitch without Authentication (expect failure)', () => {
+    cy.wrap(pitchId).should('exist') // Ensure pitchId exists
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${pitchId}`,
       headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
-  it('Delete Pitch with Authentication', () => {
+  // Step 8: Attempt to delete pitch with invalid token
+  it('Attempt to Delete Pitch with Invalid Token (expect failure)', () => {
+    cy.wrap(pitchId).should('exist') // Ensure pitchId exists
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${pitchId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+  })
+
+  // Step 9: Delete pitch with valid authentication
+  it('Delete Pitch with Authentication', () => {
+    cy.wrap(pitchId).should('exist') // Ensure pitchId exists
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${pitchId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
     })
   })
 
+  // Step 10: Ensure any created pitch is cleaned up in case of test failure
   after(() => {
     if (pitchId) {
       cy.request({
@@ -115,7 +158,7 @@ describe('Pitch Management API Tests', () => {
         url: `${baseUrl}/${pitchId}`,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
         },
         failOnStatusCode: false,
       }).then((response) => {

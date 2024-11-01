@@ -2,28 +2,24 @@
 
 describe('Reaction Management API Tests with Art Cleanup', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api'
-  const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
   let artId: number | undefined
   let reactionId: number | undefined
   const userId: number = 9 // Example user ID
 
+  // Step 1: Create a new art piece
   it('Create a New Art Piece', () => {
     cy.request({
       method: 'POST',
       url: `${baseUrl}/art`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         promptString: 'surreal, A beautiful pancake sunrise over the mountains',
         steps: 10,
         path: ' ',
-        seed: null,
-        channelId: null,
-        galleryId: null,
-        promptId: null,
-        pitchId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -31,6 +27,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
     })
   })
 
+  // Step 2: Attempt to Create Reaction without Authentication
   it('Attempt to Create Reaction without Authentication (expect failure)', () => {
     cy.request({
       method: 'POST',
@@ -46,10 +43,11 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403)
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Step 3: Create a New Reaction with Authentication
   it('Create a New Art Reaction with Authentication', () => {
     cy.wrap(artId).should('exist') // Ensure artId exists
 
@@ -58,7 +56,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
       url: `${baseUrl}/reactions`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         userId,
@@ -74,7 +72,8 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
     })
   })
 
-  it('Edit the Art Reaction', () => {
+  // Step 4: Edit the Reaction
+  it('Edit the Art Reaction with Authentication', () => {
     cy.wrap(reactionId).should('exist') // Ensure reactionId exists
 
     cy.request({
@@ -82,7 +81,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
       url: `${baseUrl}/reactions/${reactionId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         reactionType: 'CLAPPED',
@@ -95,6 +94,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
     })
   })
 
+  // Step 5: Attempt to Delete Reaction without Authentication
   it('Attempt to Delete Reaction without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
@@ -102,10 +102,11 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
       headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403)
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Step 6: Delete Reaction with Authentication
   it('Delete the Art Reaction with Authentication', () => {
     cy.wrap(reactionId).should('exist') // Ensure reactionId exists
 
@@ -114,13 +115,14 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
       url: `${baseUrl}/reactions/${reactionId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
     })
   })
 
+  // Step 7: Delete the Created Art Piece with Authentication
   it('Delete the Created Art Piece with Authentication', () => {
     cy.wrap(artId).should('exist') // Ensure artId exists
 
@@ -129,7 +131,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
       url: `${baseUrl}/art/${artId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -144,7 +146,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
         url: `${baseUrl}/reactions/${reactionId}`,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
         },
         failOnStatusCode: false,
       }).then((response) => {
@@ -157,7 +159,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
         url: `${baseUrl}/art/${artId}`,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
         },
         failOnStatusCode: false,
       }).then((response) => {

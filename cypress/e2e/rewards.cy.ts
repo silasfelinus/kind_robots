@@ -2,16 +2,17 @@
 
 describe('Reward Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/rewards'
-  const apiKey = Cypress.env('API_KEY')
-  let rewardId: number // Store reward ID for further operations
+  const userToken = Cypress.env('USER_TOKEN')
+  let rewardId: number | undefined // Define with undefined for clarity
 
-  it('Create a New Reward', () => {
+  // Step 1: Create a new reward with valid authentication
+  it('Create a New Reward with Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         icon: 'kind-icon:star',
@@ -30,29 +31,27 @@ describe('Reward Management API Tests', () => {
     })
   })
 
+  // Step 2: Attempt to update the reward without authentication
   it('Attempt to Update Reward without Authentication (expect failure)', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${rewardId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: {
-        text: 'Unauthorized Update',
-      },
+      headers: { 'Content-Type': 'application/json' },
+      body: { text: 'Unauthorized Update' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Step 3: Update the reward with valid authentication
   it('Update Reward with Authentication', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${rewardId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         text: 'Updated Test Reward Text',
@@ -65,13 +64,14 @@ describe('Reward Management API Tests', () => {
     })
   })
 
+  // Step 4: Retrieve the reward by ID and validate the response
   it('Get Reward by ID', () => {
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${rewardId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -80,13 +80,14 @@ describe('Reward Management API Tests', () => {
     })
   })
 
+  // Step 5: Retrieve all rewards and validate
   it('Get All Rewards', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -96,33 +97,33 @@ describe('Reward Management API Tests', () => {
     })
   })
 
+  // Step 6: Attempt to delete the reward without authentication
   it('Attempt to Delete Reward without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${rewardId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Step 7: Delete the reward with valid authentication
   it('Delete Reward with Authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${rewardId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
     })
   })
 
-  // Ensure cleanup: Delete reward after tests if it wasn't removed
+  // Cleanup: Ensure deletion of reward if not removed during tests
   after(() => {
     if (rewardId) {
       cy.request({
@@ -130,7 +131,7 @@ describe('Reward Management API Tests', () => {
         url: `${baseUrl}/${rewardId}`,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
         },
         failOnStatusCode: false,
       }).then((response) => {

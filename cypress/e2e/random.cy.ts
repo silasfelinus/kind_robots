@@ -2,18 +2,20 @@
 
 describe('RandomList Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/random'
-  const apiKey = Cypress.env('API_KEY')
-  let randomListId: number | undefined // Define with undefined for clarity
+  const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
+  let randomListId: number | undefined
   const uniqueTitle = `Dreams-${Date.now()}`
   const userId: number = 9 // Example user ID
 
+  // Create a new RandomList before running tests
   it('Create a New RandomList', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         title: uniqueTitle,
@@ -30,6 +32,7 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Attempt to Update RandomList without authentication
   it('Attempt to Update RandomList without Authentication (expect failure)', () => {
     cy.request({
       method: 'PATCH',
@@ -40,17 +43,34 @@ describe('RandomList Management API Tests', () => {
       body: { title: `Unauthorized Update` },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Attempt to Update RandomList with an invalid token
+  it('Attempt to Update RandomList with Invalid Token (expect failure)', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${randomListId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: { title: `Unauthorized Update` },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+  })
+
+  // Update RandomList with valid authentication
   it('Update RandomList with Authentication', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${randomListId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         title: `Updated-${uniqueTitle}`,
@@ -66,13 +86,14 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Retrieve RandomList by ID
   it('Get RandomList by ID', () => {
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${randomListId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -80,13 +101,14 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Retrieve RandomList by Title
   it('Get RandomList by Title', () => {
     cy.request({
       method: 'GET',
       url: `${baseUrl}/title/${uniqueTitle}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -94,13 +116,14 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Retrieve all RandomLists
   it('Get All RandomLists', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -110,31 +133,50 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Attempt to Delete RandomList without authentication
   it('Attempt to Delete RandomList without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${randomListId}`,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
   })
 
+  // Attempt to Delete RandomList with invalid token
+  it('Attempt to Delete RandomList with Invalid Token (expect failure)', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${randomListId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+  })
+
+  // Delete RandomList with valid authentication
   it('Delete RandomList with Authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${randomListId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
     })
   })
 
-  // Cleanup: Ensure deletion if not removed
+  // Cleanup: Ensure deletion if not removed during tests
   after(() => {
     if (randomListId) {
       cy.request({
@@ -142,7 +184,7 @@ describe('RandomList Management API Tests', () => {
         url: `${baseUrl}/${randomListId}`,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
         },
         failOnStatusCode: false,
       }).then((response) => {

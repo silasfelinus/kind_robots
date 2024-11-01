@@ -2,7 +2,8 @@
 
 describe('Channel Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/channels'
-  const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
   let channelId: number
   const uniqueLabel = `feed-${Date.now()}`
 
@@ -12,7 +13,7 @@ describe('Channel Management API Tests', () => {
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         userId: 9,
@@ -33,7 +34,7 @@ describe('Channel Management API Tests', () => {
       url: `${baseUrl}/${channelId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -48,7 +49,7 @@ describe('Channel Management API Tests', () => {
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -58,7 +59,7 @@ describe('Channel Management API Tests', () => {
     })
   })
 
-  it('Attempt to Update Channel without Authentication (expect failure)', () => {
+  it('should not allow updating a channel without an authorization token', () => {
     const updatedLabel = `botcafe-${Date.now()}`
     cy.request({
       method: 'PATCH',
@@ -73,18 +74,42 @@ describe('Channel Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
-  it('Update Channel with Authentication', () => {
+  it('should not allow updating a channel with an invalid authorization token', () => {
     const updatedLabel = `botcafe-${Date.now()}`
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${channelId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        label: updatedLabel,
+        description: 'global botchat',
+        title: 'Bot Cafe',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Update Channel with Valid Authentication', () => {
+    const updatedLabel = `botcafe-${Date.now()}`
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${channelId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         label: updatedLabel,
@@ -101,7 +126,7 @@ describe('Channel Management API Tests', () => {
     })
   })
 
-  it('Attempt to Delete Channel without Authentication (expect failure)', () => {
+  it('should not allow deleting a channel without an authorization token', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${channelId}`,
@@ -110,17 +135,35 @@ describe('Channel Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
-  it('Delete Channel with Authentication', () => {
+  it('should not allow deleting a channel with an invalid authorization token', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${channelId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Delete Channel with Valid Authentication', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${channelId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

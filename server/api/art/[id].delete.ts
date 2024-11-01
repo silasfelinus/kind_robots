@@ -17,25 +17,10 @@ export default defineEventHandler(async (event) => {
 
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
-    const token = extractTokenFromHeader(authorizationHeader)
-    if (!token) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
+    const token = extractTokenFromHeader(authorizationHeader) // Extracts token or throws error
+    const userId = await getUserIdFromToken(token) // Fetches user ID or throws error
 
-    // Get userId from token
-    const userId = await getUserIdFromToken(token)
-    if (!userId) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
-    // Fetch the art entry and verify ownership in a single step
+    // Fetch the art entry and verify ownership
     const artEntry = await prisma.art.findUnique({
       where: { id },
       select: { userId: true },
@@ -47,7 +32,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if the user is authorized to delete this art entry
     if (artEntry.userId !== userId) {
       throw createError({
         statusCode: 403,
@@ -64,9 +48,9 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
     }
   } catch (error: unknown) {
-    // Error handling with detailed logging
     const handledError = errorHandler(error)
     console.log('Error Handled:', handledError)
+
     return {
       success: false,
       message:

@@ -67,7 +67,7 @@ export async function getUserIdFromToken(token: string): Promise<number> {
   if (!user) {
     throw createError({
       statusCode: 401,
-      message: 'User not found for the provided token.',
+      message: 'Invalid or expired token.',
     })
   }
 

@@ -1,4 +1,3 @@
-// server/api/art/collection/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from './../../utils/prisma'
 import { errorHandler } from './../../utils/error'
@@ -7,8 +6,8 @@ import { verifyJwtToken } from '../../auth'
 export default defineEventHandler(async (event) => {
   let collectionId: number | null = null
   try {
+    // Parse and validate collection ID
     collectionId = Number(event.context.params?.id)
-    // Validate collectionId
     if (isNaN(collectionId) || collectionId <= 0) {
       throw createError({
         statusCode: 400,
@@ -88,7 +87,11 @@ export default defineEventHandler(async (event) => {
       include: { art: true },
     })
 
-    return { success: true, collection: updatedCollection }
+    return {
+      success: true,
+      collection: updatedCollection,
+      statusCode: 200, // Explicit statusCode for successful update
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     return {

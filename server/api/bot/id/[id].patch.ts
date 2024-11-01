@@ -1,8 +1,8 @@
-// server/api/bot/id/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Prisma, Bot } from '@prisma/client'
 import prisma from './../../utils/prisma'
 import { verifyJwtToken } from '../../auth'
+import { errorHandler } from '../../utils/error'
 
 // Fetch bot by id
 export async function fetchBotById(id: number): Promise<Bot | null> {
@@ -91,7 +91,6 @@ export default defineEventHandler(async (event) => {
 
     // Attempt to update the bot
     const updatedBot = await updateBot(id, data)
-
     if (!updatedBot) {
       throw createError({
         statusCode: 404,
@@ -99,15 +98,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    return { success: true, bot: updatedBot }
+    return {
+      success: true,
+      bot: updatedBot,
+      statusCode: 200, // Explicit status code for success
+    }
   } catch (error: unknown) {
+    const handledError = errorHandler(error)
     console.error(
       `Failed to update bot with id "${id}": ${error instanceof Error ? error.message : 'Unknown error'}`,
     )
     return {
       success: false,
-      message: `Failed to update bot with id "${id}". ${error instanceof Error ? error.message : 'Unknown error'}`,
-      statusCode: 500,
+      message: handledError.message || `Failed to update bot with id "${id}".`,
+      statusCode: handledError.statusCode || 500,
     }
   }
 })

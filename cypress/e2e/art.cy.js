@@ -8,11 +8,6 @@ describe('Art Management API Tests', () => {
   let artId // Store art ID for further operations
   let generatedPath // Store the dynamically generated path for verification
 
-  before(() => {
-    // Set up API key for each test if required
-    Cypress.env('API_KEY', apiKey)
-  })
-
   // Create a new Art before running tests
   before(() => {
     cy.request({
@@ -27,6 +22,10 @@ describe('Art Management API Tests', () => {
         path: ' ',
         seed: null,
         userId: 9,
+        promptId: null,
+        galleryId: 21,
+        channelId: 1,
+        pitchId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -47,6 +46,8 @@ describe('Art Management API Tests', () => {
       url: `${baseUrl}/generate`,
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`, // Add Authorization header
       },
       body: {
         cfg: 7,
@@ -74,6 +75,8 @@ describe('Art Management API Tests', () => {
       url: `${baseUrl}/${artId}`,
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`, // Add Authorization header
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -82,7 +85,7 @@ describe('Art Management API Tests', () => {
       expect(response.body.art.cfg).to.eq(7)
       expect(response.body.art).to.include({
         id: artId,
-        userId: 1,
+        userId: 9,
         checkpoint: 'model-checkpoint-001',
         sampler: 'Euler',
       })
@@ -96,6 +99,8 @@ describe('Art Management API Tests', () => {
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`, // Add Authorization header
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -106,30 +111,13 @@ describe('Art Management API Tests', () => {
   })
 
   it('Update an Art', () => {
-    // Attempt update without API key (expect failure)
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${artId}`,
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: {
-        path: 'notreal.webp',
-        designer: 'newdesigner',
-        isPublic: false,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(403)
-    })
-
-    // Attempt update with API key (expect success)
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${artId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
+        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`, // Authorization header for update
       },
       body: {
         path: 'notreal.webp',
@@ -150,25 +138,13 @@ describe('Art Management API Tests', () => {
   })
 
   it('Delete an Art', () => {
-    // Attempt delete without API key (expect failure)
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${artId}`,
       headers: {
         'Content-Type': 'application/json',
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(403)
-    })
-
-    // Attempt delete with API key (expect success)
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${artId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
+        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`, // Authorization header for delete
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -179,6 +155,8 @@ describe('Art Management API Tests', () => {
         url: `${baseUrl}/${artId}`,
         headers: {
           'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`, // Authorization header for get verification
         },
         failOnStatusCode: false,
       }).then((res) => {

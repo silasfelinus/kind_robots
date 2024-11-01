@@ -1,4 +1,3 @@
-// /server/api/channels/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Channel } from '@prisma/client'
 import prisma from '../utils/prisma'
@@ -65,7 +64,11 @@ export default defineEventHandler(async (event) => {
 
     // Update the channel with validated data
     const updatedChannel = await updateChannel(id, updatedChannelData)
-    return { success: true, updatedChannel }
+    return {
+      success: true,
+      updatedChannel,
+      statusCode: 200, // Explicitly setting statusCode for Cypress testing
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     return {

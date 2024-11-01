@@ -1,4 +1,3 @@
-// server/api/chats/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Reaction } from '@prisma/client'
 import prisma from '../utils/prisma'
@@ -77,7 +76,7 @@ export default defineEventHandler(async (event) => {
 
     // Update or create the reaction based on its existence
     const updatedReaction = await prisma.reaction.upsert({
-      where: { id: existingReaction?.id || 0 }, // 0 triggers creation if no existing reaction
+      where: { id: existingReaction?.id ?? 0 }, // Using existing reaction ID or 0 to trigger creation
       update: reactionData as Reaction, // Cast to Reaction to satisfy TypeScript expectations
       create: {
         ...reactionData,
@@ -87,7 +86,11 @@ export default defineEventHandler(async (event) => {
       } as Reaction,
     })
 
-    return { success: true, updatedReaction }
+    return {
+      success: true,
+      updatedReaction,
+      statusCode: 200, // Ensure successful response includes statusCode for Cypress assertions
+    }
   } catch (error: unknown) {
     console.error(
       `Error updating reaction for chat exchange with id ${id}:`,

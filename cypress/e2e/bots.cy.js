@@ -4,6 +4,7 @@
 describe('Bot Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/bots'
   const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
 
   let createdBotId
   const botName = `testbot-${Date.now()}`
@@ -14,7 +15,6 @@ describe('Bot Management API Tests', () => {
       url: `${baseUrl}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
       body: {
         name: botName,
@@ -64,7 +64,7 @@ describe('Bot Management API Tests', () => {
       url: updateUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         description: 'Updated description for the test bot',
@@ -118,7 +118,8 @@ describe('Bot Management API Tests', () => {
       method: 'DELETE',
       url: `${baseUrl}/id/${createdBotId}`,
       headers: {
-        'x-api-key': apiKey,
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

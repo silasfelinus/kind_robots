@@ -84,7 +84,6 @@ export const usePromptStore = defineStore('promptStore', {
       this.promptArray.push(prompt)
     },
 
-
     // Remove a prompt from the store's array by index
     removePromptFromArray(index: number) {
       this.promptArray.splice(index, 1)
@@ -133,15 +132,14 @@ export const usePromptStore = defineStore('promptStore', {
       }
     },
 
-    // Enhanced fetchPromptById method
-    async fetchPromptById(promptId: number) {
+    async fetchPromptById(promptId: number): Promise<Prompt | null> {
       const errorStore = useErrorStore()
       console.log('Fetching prompt by ID:', promptId)
 
       try {
         if (this.fetchedPrompts[promptId]) {
           console.log('Using cached prompt for ID:', promptId)
-          return
+          return this.fetchedPrompts[promptId]
         }
 
         const response = await fetch(`/api/prompts/${promptId}`)
@@ -157,6 +155,7 @@ export const usePromptStore = defineStore('promptStore', {
         const fetchedPrompt = await response.json()
         console.log('Fetched prompt successfully:', fetchedPrompt)
         this.fetchedPrompts[promptId] = fetchedPrompt
+        return fetchedPrompt
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error'
@@ -167,6 +166,7 @@ export const usePromptStore = defineStore('promptStore', {
           `Error fetching prompt by ID: ${errorMessage}`,
         )
         this.fetchedPrompts[promptId] = null
+        return null
       }
     },
 
@@ -214,8 +214,8 @@ export const usePromptStore = defineStore('promptStore', {
         const prompt = await this.fetchPromptById(promptId)
         if (!prompt || prompt.userId !== currentUserId) {
           errorStore.setError(
-            ErrorType.AUTHORIZATION_ERROR,
-            'You are not authorized to delete this prompt.'
+            ErrorType.AUTH_ERROR,
+            'You are not authorized to delete this prompt.',
           )
           return
         }
@@ -232,12 +232,11 @@ export const usePromptStore = defineStore('promptStore', {
       } catch (error) {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
-          `Error deleting prompt: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Error deleting prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
         )
       }
     },
 
-    // Update a prompt at a specific index with ownership check
     async updatePromptAtIndex(index: number, value: string) {
       const errorStore = useErrorStore()
       const userStore = useUserStore()
@@ -246,28 +245,23 @@ export const usePromptStore = defineStore('promptStore', {
       try {
         const prompt = this.prompts[index]
 
-        // Check if prompt exists and the user owns it
         if (!prompt || prompt.userId !== currentUserId) {
           errorStore.setError(
-            ErrorType.AUTHORIZATION_ERROR,
-            'You are not authorized to edit this prompt.'
+            ErrorType.AUTH_ERROR,
+            'You are not authorized to edit this prompt.',
           )
           return
         }
 
-        // Proceed to update prompt if the user owns it
-        prompt.promptField = value
-        this.prompts[index] = prompt // Update local state
-        // Optionally, send update to server if required
+        prompt.prompt = value // Use 'prompt' field instead of 'promptField'
+        this.prompts[index] = prompt
       } catch (error) {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
-          `Error updating prompt: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Error updating prompt: ${error instanceof Error ? error.message : 'Unknown error'}`,
         )
       }
     },
-
-    
 
     // Select a prompt
     selectPrompt(prompt: Prompt) {

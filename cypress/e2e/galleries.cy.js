@@ -16,19 +16,17 @@ describe('Gallery Management API Tests', () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
-      body: [
-        {
-          name: 'Test Gallery',
-          content: '/images/testgallery/gallery.json',
-          description: 'A gallery for testing purposes',
-          highlightImage: '/images/testgallery/highlight.webp',
-          userId: 9,
-        },
-      ],
+      body: {
+        name: 'Test Gallery',
+        content: '/images/testgallery/gallery.json',
+        description: 'A gallery for testing purposes',
+        highlightImage: '/images/testgallery/highlight.webp',
+        userId: 9,
+      },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.newGalleries).to.be.an('array').that.is.not.empty
-      galleryId = response.body.newGalleries[0].id // Ensure the correct ID is captured
+      expect(response.body.success).to.be.true
+      galleryId = response.body.gallery?.id // Capture the gallery ID for further tests
     })
   })
 
@@ -36,7 +34,7 @@ describe('Gallery Management API Tests', () => {
   it('Get Gallery by ID', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/id/${galleryId}`,
+      url: `${baseUrl}/${galleryId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
@@ -65,20 +63,17 @@ describe('Gallery Management API Tests', () => {
   })
 
   // Step 4: Update gallery details with and without authentication
-  it('Update a Gallery', () => {
+  it('Update Gallery Details', () => {
     // Attempt update without token (expect failure)
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/batch`,
+      url: `${baseUrl}/id/${galleryId}`,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: [
-        {
-          name: 'Test Gallery',
-          description: 'Updated description without token',
-        },
-      ],
+      body: {
+        description: 'Updated description without token',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized without token
@@ -87,17 +82,14 @@ describe('Gallery Management API Tests', () => {
     // Attempt update with invalid token
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/batch`,
+      url: `${baseUrl}/id/${galleryId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
       },
-      body: [
-        {
-          name: 'Test Gallery',
-          description: 'Updated description with invalid token',
-        },
-      ],
+      body: {
+        description: 'Updated description with invalid token',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized with invalid token
@@ -106,19 +98,20 @@ describe('Gallery Management API Tests', () => {
     // Attempt update with valid token (expect success)
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/batch`,
+      url: `${baseUrl}/id/${galleryId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
-      body: [
-        {
-          name: 'Test Gallery',
-          description: 'Updated description for the gallery',
-        },
-      ],
+      body: {
+        description: 'Updated description for the gallery',
+      },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.gallery.description).to.eq(
+        'Updated description for the gallery',
+      )
     })
   })
 
@@ -159,6 +152,10 @@ describe('Gallery Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.message).to.include(
+        `Gallery with ID ${galleryId} deleted successfully`,
+      )
     })
   })
 })

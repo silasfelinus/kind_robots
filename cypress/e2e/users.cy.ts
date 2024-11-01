@@ -132,6 +132,9 @@ describe('User Management API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body.user.username).to.eq(newUsername)
+
+        // Update uniqueUsername to the new username to keep tests consistent
+        uniqueUsername = newUsername
       })
     })
   })

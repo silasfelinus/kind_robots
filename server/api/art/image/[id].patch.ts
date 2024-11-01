@@ -1,12 +1,12 @@
-// server/api/art/image/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from './../../utils/prisma'
 import { errorHandler } from './../../utils/error'
 import { verifyJwtToken } from '../../auth'
 
 export default defineEventHandler(async (event) => {
+  let imageId
   try {
-    const imageId = Number(event.context.params?.id)
+    imageId = Number(event.context.params?.id)
 
     // Validate imageId
     if (isNaN(imageId) || imageId <= 0) {
@@ -77,12 +77,18 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    return { success: true, artImage: updatedArtImage }
+    return {
+      success: true,
+      artImage: updatedArtImage,
+      statusCode: 200, // Explicitly set statusCode for successful update
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     return {
       success: false,
-      message: handledError.message || `Failed to update art image with ID.`,
+      message:
+        handledError.message ||
+        `Failed to update art image with ID ${imageId}.`,
       statusCode: handledError.statusCode || 500,
     }
   }

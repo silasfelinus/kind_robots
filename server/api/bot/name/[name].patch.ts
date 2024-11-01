@@ -1,7 +1,7 @@
-// /server/api/bots/[name].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import { fetchBotByName, updateBot } from '../../bots'
 import { verifyJwtToken } from '../../auth'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   const name = String(event.context.params?.name)
@@ -59,15 +59,17 @@ export default defineEventHandler(async (event) => {
 
     // Update only the provided fields
     const updatedBot = await updateBot(name, data)
-    return { success: true, bot: updatedBot }
+    return { success: true, bot: updatedBot, statusCode: 200 } // Success response with statusCode 200
   } catch (error: unknown) {
     console.error(
       `Failed to update bot with name "${name}": ${error instanceof Error ? error.message : 'Unknown error'}`,
     )
+    const handledError = errorHandler(error)
     return {
       success: false,
-      message: `Failed to update bot with name "${name}". ${error instanceof Error ? error.message : 'Unknown error'}`,
-      statusCode: 500,
+      message:
+        handledError.message || `Failed to update bot with name "${name}".`,
+      statusCode: handledError.statusCode || 500,
     }
   }
 })

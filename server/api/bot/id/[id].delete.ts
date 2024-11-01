@@ -1,4 +1,3 @@
-// server/api/bots/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { deleteBot, fetchBotById } from '../../bots'
 import { errorHandler } from '../../utils/error' // Centralized error handler
@@ -62,7 +61,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    return { success: true, message: `Bot with ID ${id} successfully deleted.` }
+    return {
+      success: true,
+      message: `Bot with ID ${id} successfully deleted.`,
+      statusCode: 200, // Explicitly set success statusCode for Cypress testing
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     return {

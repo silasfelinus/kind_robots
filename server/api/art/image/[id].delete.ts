@@ -1,5 +1,3 @@
-// server/api/art/image/[id].delete.ts
-
 import { defineEventHandler, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
@@ -61,10 +59,11 @@ export default defineEventHandler(async (event) => {
       where: { id: imageId },
     })
 
-    // Success response
+    // Success response with statusCode
     return {
       success: true,
       message: `Art image ${imageId} deleted successfully.`,
+      statusCode: 200, // Explicit success status code for testing
     }
   } catch (error: unknown) {
     // Use errorHandler for consistent error responses

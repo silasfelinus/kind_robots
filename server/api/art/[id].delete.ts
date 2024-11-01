@@ -58,6 +58,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: `Art entry with ID ${id} deleted successfully.`,
+      statusCode: 200, // Explicit statusCode for success
     }
   } catch (error: unknown) {
     // Use errorHandler for consistent error responses

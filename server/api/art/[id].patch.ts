@@ -1,9 +1,8 @@
-//server/api/art/[id].patch.ts
+// /server/api/art/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Art } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import { authorizeUserForArtEntry } from '.'
 import { extractTokenFromHeader, getUserIdFromToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
@@ -38,8 +37,25 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Authorize user for the art entry
-    await authorizeUserForArtEntry(userId, id)
+    // Verify user authorization for the art entry directly
+    const artEntry = await prisma.art.findUnique({
+      where: { id },
+      select: { userId: true },
+    })
+
+    if (!artEntry) {
+      throw createError({
+        statusCode: 404,
+        message: `Art entry with ID ${id} does not exist.`,
+      })
+    }
+
+    if (artEntry.userId !== userId) {
+      throw createError({
+        statusCode: 403,
+        message: 'User is not authorized to update this art entry.',
+      })
+    }
 
     // Retrieve update data and validate
     const updatedArtData: Partial<Art> = await readBody(event)

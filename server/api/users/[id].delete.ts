@@ -5,13 +5,14 @@ import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   let response
-  let id
+  let targetUserId // Clearer variable name for the user ID being targeted for deletion
 
   try {
-    // Parse and validate the User ID from the URL params
-    id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+    // Parse and validate the target User ID from the URL params
+    targetUserId = Number(event.context.params?.id)
+    if (isNaN(targetUserId) || targetUserId <= 0) {
       event.node.res.statusCode = 400
+      console.error(`Invalid User ID in request: ${targetUserId}`)
       throw createError({
         statusCode: 400,
         message: 'Invalid User ID. It must be a positive integer.',
@@ -20,21 +21,35 @@ export default defineEventHandler(async (event) => {
 
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    if (!authorizationHeader) {
+      console.error('Authorization header is missing.')
+      event.node.res.statusCode = 401
+      throw createError({
+        statusCode: 401,
+        message: 'Authorization header is missing.',
+      })
+    }
+    if (!authorizationHeader.startsWith('Bearer ')) {
+      console.error('Authorization token format is incorrect.')
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
-          'Authorization token is required in the format "Bearer <token>".',
+          'Authorization token format is incorrect. Expected "Bearer <token>".',
       })
     }
+
     const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
+    console.log(`Received token for validation: ${token}`)
+
+    // Check if the token matches a valid user in the database
+    const requestingUser = await prisma.user.findFirst({
       where: { apiKey: token },
       select: { id: true },
     })
 
-    if (!user) {
+    if (!requestingUser) {
+      console.error(`Invalid or expired token: ${token}`)
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
@@ -42,8 +57,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Verify that the requesting user is authorized to delete this user
-    if (user.id !== id) {
+    const requestingUserId = requestingUser.id
+    console.log(
+      `Requesting user ID from token: ${requestingUserId}, Target user ID: ${targetUserId}`,
+    )
+
+    // Verify that the requesting user is authorized to delete the target user
+    if (requestingUserId !== targetUserId) {
+      console.error(
+        `Permission denied. Requesting user ID (${requestingUserId}) does not match target user ID (${targetUserId})`,
+      )
       event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
@@ -52,24 +75,30 @@ export default defineEventHandler(async (event) => {
     }
 
     // Attempt to delete the user
-    await prisma.user.delete({ where: { id } })
+    await prisma.user.delete({ where: { id: targetUserId } })
+    console.log(`User with ID ${targetUserId} deleted successfully.`)
 
     // Successful deletion response
     response = {
       success: true,
-      message: `User with ID ${id} successfully deleted.`,
+      message: `User with ID ${targetUserId} successfully deleted.`,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
   } catch (error) {
     const handledError = errorHandler(error)
-    console.log('Error Handled:', handledError)
+    console.error(
+      `Error handling user deletion for ID ${targetUserId}:`,
+      handledError,
+    )
 
     // Explicitly set the status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to delete user with ID ${id}.`,
+      message:
+        handledError.message ||
+        `Failed to delete user with ID ${targetUserId}.`,
       statusCode: event.node.res.statusCode,
     }
   }

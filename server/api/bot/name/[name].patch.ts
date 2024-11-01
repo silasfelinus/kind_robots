@@ -1,4 +1,4 @@
-// server/api/bot/name/[name].patch.ts
+// server/api/bots/name/[name].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
@@ -13,11 +13,11 @@ export default defineEventHandler(async (event) => {
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
-        message: 'Invalid bot name.',
+        message: 'Invalid bot name. The name parameter is required.',
       })
     }
 
-    // Extract and validate JWT token
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401
@@ -44,9 +44,10 @@ export default defineEventHandler(async (event) => {
 
     const userId = user.id
 
-    // Fetch the bot from the database
+    // Fetch the bot by name and verify ownership
     const bot = await prisma.bot.findUnique({
       where: { name },
+      select: { userId: true },
     })
     if (!bot) {
       event.node.res.statusCode = 404
@@ -56,7 +57,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Verify ownership of the bot
     if (bot.userId !== userId) {
       event.node.res.statusCode = 403
       throw createError({
@@ -65,9 +65,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Read and validate the request body
-    const data = await readBody(event)
-    if (!data || Object.keys(data).length === 0) {
+    // Read and validate update data
+    const botData = await readBody(event)
+    if (!botData || Object.keys(botData).length === 0) {
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
@@ -75,12 +75,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Update the bot with provided fields
+    // Update the bot in the database
     const updatedBot = await prisma.bot.update({
       where: { name },
-      data: data,
+      data: botData,
     })
 
+    // Successful update response
     response = {
       success: true,
       bot: updatedBot,
@@ -89,10 +90,9 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error(
-      `Failed to update bot with name "${name}": ${error instanceof Error ? error.message : 'Unknown error'}`,
-    )
+    console.error('Error updating bot by name:', handledError)
 
+    // Set the response and status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

@@ -128,7 +128,6 @@ describe('User Management API Tests', () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${userToken}`,
-          'x-api-key': apiKey,
         },
         body: { username: newUsername },
       }).then((response) => {
@@ -196,7 +195,6 @@ describe('User Management API Tests', () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${userToken}`,
-          'x-api-key': apiKey,
         },
       }).then((response) => {
         expect(response.status).to.eq(200)

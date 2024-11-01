@@ -8,7 +8,6 @@ export default defineEventHandler(async (event) => {
   let id: number | null = null
 
   try {
-    // Extract and validate Art ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
       throw createError({
@@ -17,7 +16,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Extract token from Authorization header
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
@@ -29,6 +27,8 @@ export default defineEventHandler(async (event) => {
 
     const token = authorizationHeader.split(' ')[1]
     const verificationResult = await verifyJwtToken(token)
+    console.log('Verification Result:', verificationResult) // Debugging
+
     if (!verificationResult || !verificationResult.userId) {
       throw createError({
         statusCode: 401,
@@ -36,8 +36,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if the Art entry exists
     const artEntry = await prisma.art.findUnique({ where: { id } })
+    console.log('Art Entry:', artEntry) // Debugging
+
     if (!artEntry) {
       throw createError({
         statusCode: 404,
@@ -45,7 +46,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Verify ownership
     if (artEntry.userId !== verificationResult.userId) {
       throw createError({
         statusCode: 403,
@@ -53,8 +53,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Validate and update Art data
     const updatedArtData: Partial<Art> = await readBody(event)
+    console.log('Updated Art Data:', updatedArtData) // Debugging
+
     if (!updatedArtData || Object.keys(updatedArtData).length === 0) {
       throw createError({
         statusCode: 400,
@@ -70,10 +71,12 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       updatedArt,
-      statusCode: 200, // Explicit success status code for testing
+      statusCode: 200,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
+    console.log('Error Handled:', handledError) // Debugging
+
     return {
       success: false,
       message:

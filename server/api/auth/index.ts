@@ -31,7 +31,8 @@ export const verifyJwtToken = async (
       Buffer.from(JWT_SECRET as string, 'utf-8'),
     )
     const decoded = await jwtVerify(token, secretKey)
-    console.log('Decoded Object:', decoded) // Debug log here
+    console.log('Decoded Payload:', decoded.payload) // More specific logging
+    console.log('Protected Header:', decoded.protectedHeader)
 
     return { success: true, userId: decoded.payload.id as number | null }
   } catch (error: unknown) {

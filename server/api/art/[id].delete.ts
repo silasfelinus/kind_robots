@@ -1,12 +1,17 @@
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import { verifyJwtToken } from '../auth'
+import {
+  extractTokenFromHeader,
+  getUserIdFromToken,
+  authorizeUserForArtEntry,
+} from '.'
 
 export default defineEventHandler(async (event) => {
   let id: number | null = null
 
   try {
+    // Validate Art ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
       throw createError({
@@ -15,8 +20,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Extract and verify authorization token
     const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    const token = extractTokenFromHeader(authorizationHeader)
+    if (!token) {
       throw createError({
         statusCode: 401,
         message:
@@ -24,31 +31,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    console.log('Verification Result:', verificationResult) // DEBUG: Log verification result
-    if (!verificationResult || !verificationResult.userId) {
+    // Get userId from token
+    const userId = await getUserIdFromToken(token)
+    if (!userId) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    const artEntry = await prisma.art.findUnique({ where: { id } })
-    if (!artEntry) {
-      throw createError({
-        statusCode: 404,
-        message: `Art entry with ID ${id} does not exist.`,
-      })
-    }
+    // Authorize user for the art entry
+    await authorizeUserForArtEntry(userId, id)
 
-    if (artEntry.userId !== verificationResult.userId) {
-      throw createError({
-        statusCode: 403,
-        message: 'You do not have permission to delete this art entry.',
-      })
-    }
-
+    // Attempt to delete the art entry
     await prisma.art.delete({ where: { id } })
 
     return {
@@ -57,8 +52,9 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
     }
   } catch (error: unknown) {
+    // Error handling with detailed logging
     const handledError = errorHandler(error)
-    console.log('Error Handled:', handledError) // DEBUG: Log error details
+    console.log('Error Handled:', handledError)
     return {
       success: false,
       message:

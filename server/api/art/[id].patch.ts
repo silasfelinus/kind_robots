@@ -1,46 +1,81 @@
-import { defineEventHandler, readBody } from 'h3'
+// server/api/art/[id].patch.ts
+import { defineEventHandler, createError, readBody } from 'h3'
 import type { Art } from '@prisma/client'
-import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
+import { verifyJwtToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
+  let id: number | null = null
+
   try {
-    const id = Number(event.context.params?.id)
-
-    if (isNaN(id)) {
-      return { success: false, message: 'Invalid ID' }
+    // Extract and validate Art ID
+    id = Number(event.context.params?.id)
+    if (isNaN(id) || id <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid Art ID. It must be a positive integer.',
+      })
     }
 
+    // Extract token from Authorization header
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    // Check if the Art entry exists
+    const artEntry = await prisma.art.findUnique({ where: { id } })
+    if (!artEntry) {
+      throw createError({
+        statusCode: 404,
+        message: `Art entry with ID ${id} does not exist.`,
+      })
+    }
+
+    // Verify ownership
+    if (artEntry.userId !== verificationResult.userId) {
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to update this art entry.',
+      })
+    }
+
+    // Validate and update Art data
     const updatedArtData: Partial<Art> = await readBody(event)
-
-    if (!updatedArtData) {
-      return { success: false, message: 'No data provided for update' }
+    if (!updatedArtData || Object.keys(updatedArtData).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No data provided for update.',
+      })
     }
 
-    const updatedArt = await updateArt(id, updatedArtData)
-
-    if (!updatedArt) {
-      return { success: false, message: 'Art not found or update failed' }
-    }
+    const updatedArt = await prisma.art.update({
+      where: { id },
+      data: updatedArtData,
+    })
 
     return { success: true, updatedArt }
   } catch (error: unknown) {
-    return errorHandler(error)
+    const handledError = errorHandler(error)
+    return {
+      success: false,
+      message:
+        handledError.message || `Failed to update art entry with ID ${id}.`,
+      statusCode: handledError.statusCode || 500,
+    }
   }
 })
-
-// Function to update an existing Art entry by ID
-export async function updateArt(
-  id: number,
-  updatedArt: Partial<Art>,
-): Promise<Art | null> {
-  try {
-    const art = await prisma.art.update({
-      where: { id },
-      data: updatedArt,
-    })
-    return art
-  } catch (error: unknown) {
-    throw errorHandler(error)
-  }
-}

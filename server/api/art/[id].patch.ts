@@ -1,26 +1,26 @@
-// /server/api/art/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Art } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import { extractTokenFromHeader, getUserIdFromToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
-  let id
+  let response
+
   try {
-    // Validate Art ID
-    id = Number(event.context.params?.id)
+    // Validate the Art ID
+    const id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid Art ID. It must be a positive integer.',
       })
     }
 
-    // Extract and verify authorization token
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
-    const token = extractTokenFromHeader(authorizationHeader)
-    if (!token) {
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -28,22 +28,30 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Get userId from token
-    const userId = await getUserIdFromToken(token)
-    if (!userId) {
+    const token = authorizationHeader.split(' ')[1] // Extract token after "Bearer "
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    // Verify user authorization for the art entry directly
+    const userId = user.id
+
+    // Fetch the art entry and verify ownership
     const artEntry = await prisma.art.findUnique({
       where: { id },
       select: { userId: true },
     })
 
     if (!artEntry) {
+      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Art entry with ID ${id} does not exist.`,
@@ -51,15 +59,17 @@ export default defineEventHandler(async (event) => {
     }
 
     if (artEntry.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'User is not authorized to update this art entry.',
       })
     }
 
-    // Retrieve update data and validate
+    // Retrieve and validate update data
     const updatedArtData: Partial<Art> = await readBody(event)
     if (!updatedArtData || Object.keys(updatedArtData).length === 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -72,20 +82,26 @@ export default defineEventHandler(async (event) => {
       data: updatedArtData,
     })
 
-    return {
+    // Successful update response
+    response = {
       success: true,
       updatedArt,
       statusCode: 200,
     }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.log('Error Handled:', handledError)
 
-    return {
+    // Explicitly set the status code based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
       message:
         handledError.message || `Failed to update art entry with ID ${id}.`,
-      statusCode: handledError.statusCode || 500,
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

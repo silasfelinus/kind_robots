@@ -20,6 +20,12 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
         promptString: 'surreal, A beautiful pancake sunrise over the mountains',
         steps: 10,
         path: ' ',
+        seed: null,
+        channelId: null,
+        galleryId: null,
+        promptId: null,
+        pitchId: null,
+        userId: 9,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

@@ -1,26 +1,29 @@
 // server/api/art/collection/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
-  let collectionId: number | null = null
+  let response
+  let collectionId
 
   try {
-    // Validate and parse collection ID
+    // Validate the Collection ID
     collectionId = Number(event.context.params?.id)
     if (isNaN(collectionId) || collectionId <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
-        statusCode: 400, // Bad Request
+        statusCode: 400,
         message: 'Invalid Collection ID. It must be a positive integer.',
       })
     }
 
-    // Extract and validate the API key from the Authorization header
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
-        statusCode: 401, // Unauthorized
+        statusCode: 401,
         message:
           'Authorization token is required in the format "Bearer <token>".',
       })
@@ -32,51 +35,60 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
-        statusCode: 401, // Unauthorized
+        statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
+
     const userId = user.id
 
-    // Fetch the collection and verify ownership
+    // Fetch the collection entry and verify ownership
     const collection = await prisma.artCollection.findUnique({
       where: { id: collectionId },
       select: { userId: true },
     })
     if (!collection) {
+      event.node.res.statusCode = 404
       throw createError({
-        statusCode: 404, // Not Found
+        statusCode: 404,
         message: `Collection with ID ${collectionId} does not exist.`,
       })
     }
 
     if (collection.userId !== userId) {
+      event.node.res.statusCode = 403
       throw createError({
-        statusCode: 403, // Forbidden
+        statusCode: 403,
         message: 'You do not have permission to delete this collection.',
       })
     }
 
     // Attempt to delete the collection
-    await prisma.artCollection.delete({
-      where: { id: collectionId },
-    })
+    await prisma.artCollection.delete({ where: { id: collectionId } })
 
-    // Success response
-    return {
+    // Successful deletion response
+    response = {
       success: true,
-      message: `Collection ${collectionId} deleted successfully.`,
+      message: `Collection with ID ${collectionId} deleted successfully.`,
       statusCode: 200,
     }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    return {
+    console.error('Error deleting collection:', handledError)
+
+    // Explicitly set the status code based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
       message:
         handledError.message ||
-        `Failed to delete collection with ID ${collectionId ?? 'unknown'}.`,
-      statusCode: handledError.statusCode || 500,
+        `Failed to delete collection with ID ${collectionId}.`,
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

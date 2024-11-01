@@ -1,4 +1,3 @@
-// server/api/art/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Art } from '@prisma/client'
 import prisma from '../utils/prisma'
@@ -68,7 +67,11 @@ export default defineEventHandler(async (event) => {
       data: updatedArtData,
     })
 
-    return { success: true, updatedArt }
+    return {
+      success: true,
+      updatedArt,
+      statusCode: 200, // Explicit success status code for testing
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     return {

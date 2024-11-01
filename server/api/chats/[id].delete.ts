@@ -1,4 +1,3 @@
-// server/api/chats/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
@@ -58,6 +57,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: `Chat exchange with ID ${id} successfully deleted.`,
+      statusCode: 200,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

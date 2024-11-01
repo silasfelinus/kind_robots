@@ -1,28 +1,26 @@
 // /server/api/rewards/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import { updateRewardById } from './index'
-import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
+import { verifyJwtToken } from '../auth'
+import type { Reward } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
-  let response
+  let rewardId: number | null = null
 
   try {
     // Parse and validate the reward ID from the URL params
-    id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
+    rewardId = Number(event.context.params?.id)
+    if (isNaN(rewardId) || rewardId <= 0) {
       throw createError({
         statusCode: 400,
-        message: 'Invalid reward ID.',
+        message: 'Invalid Reward ID.',
       })
     }
 
     // Extract and validate the API key from the Authorization header
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -31,25 +29,22 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
-      event.node.res.statusCode = 401
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    const userId = user.id // Use userId from the validated token
+    const userId = verificationResult.userId // Use userId from the token
 
     // Fetch the existing reward to ensure it exists
-    const existingReward = await prisma.reward.findUnique({ where: { id } })
+    const existingReward = await prisma.reward.findUnique({
+      where: { id: rewardId },
+      select: { userId: true }, // Fetch userId to check ownership
+    })
     if (!existingReward) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: 'Reward not found.',
@@ -58,7 +53,6 @@ export default defineEventHandler(async (event) => {
 
     // Verify ownership of the reward
     if (existingReward.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this reward.',
@@ -66,26 +60,22 @@ export default defineEventHandler(async (event) => {
     }
 
     // Parse the request body as partial Reward data
-    const updatedRewardData: Partial<Reward> = await readBody(event)
+    const data: Partial<Reward> = await readBody(event)
 
     // Update the reward in the database
-    const updatedReward = await updateRewardById(id, updatedRewardData)
+    const updatedReward = await prisma.reward.update({
+      where: { id: rewardId },
+      data,
+    })
 
-    response = {
+    return {
       success: true,
       reward: updatedReward,
-      statusCode: 200,
     }
-    event.node.res.statusCode = 200
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
-      success: false,
-      message: handledError.message || `Failed to update reward with ID ${id}.`,
-      statusCode: event.node.res.statusCode,
-    }
+    return errorHandler({
+      error,
+      context: `Updating reward with ID ${rewardId}`,
+    })
   }
-
-  return response
 })

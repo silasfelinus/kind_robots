@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     console.log(`Attempting to delete resource with ID: ${resourceId}`)
 
-    // Extract the userId from the token and validate it
+    // Extract and validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({

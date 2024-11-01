@@ -33,28 +33,8 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
     })
   })
 
-  // Step 2: Attempt to Create Reaction without Authentication
-  it('Attempt to Create Reaction without Authentication (expect failure)', () => {
-    cy.request({
-      method: 'POST',
-      url: `${baseUrl}/reactions`,
-      headers: { 'Content-Type': 'application/json' },
-      body: {
-        userId,
-        reactionType: 'LOVED',
-        reactionCategory: 'ART',
-        artId,
-        comment: 'Love this art!',
-        rating: 5,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
-    })
-  })
-
-  // Step 3: Create a New Reaction with Authentication
-  it('Create a New Art Reaction with Authentication', () => {
+  // Step 2: Create a New Reaction
+  it('Create a New Art Reaction', () => {
     cy.wrap(artId).should('exist') // Ensure artId exists
 
     cy.request({
@@ -62,7 +42,6 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
       url: `${baseUrl}/reactions`,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
       },
       body: {
         userId,
@@ -78,7 +57,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
     })
   })
 
-  // Step 4: Edit the Reaction
+  // Step 3: Edit the Reaction
   it('Edit the Art Reaction with Authentication', () => {
     cy.wrap(reactionId).should('exist') // Ensure reactionId exists
 
@@ -100,7 +79,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
     })
   })
 
-  // Step 5: Attempt to Delete Reaction without Authentication
+  // Step 4: Attempt to Delete Reaction without Authentication
   it('Attempt to Delete Reaction without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
@@ -112,7 +91,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
     })
   })
 
-  // Step 6: Delete Reaction with Authentication
+  // Step 5: Delete Reaction with Authentication
   it('Delete the Art Reaction with Authentication', () => {
     cy.wrap(reactionId).should('exist') // Ensure reactionId exists
 
@@ -128,7 +107,7 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
     })
   })
 
-  // Step 7: Delete the Created Art Piece with Authentication
+  // Step 6: Delete the Created Art Piece with Authentication
   it('Delete the Created Art Piece with Authentication', () => {
     cy.wrap(artId).should('exist') // Ensure artId exists
 

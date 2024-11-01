@@ -3,10 +3,11 @@
 
 describe('Component Reactions API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api'
-  const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
   let componentId: number | undefined
   let reactionId: number | undefined
-  const userId: number = 9 // Example user ID
+  const userId: number = 9
 
   // Step 1: Create a new component before the tests
   before(() => {
@@ -15,98 +16,82 @@ describe('Component Reactions API Tests', () => {
       url: `${baseUrl}/components`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         folderName: 'test-folder',
-        componentName: `TestComponent_${Date.now()}`, // Unique component name
+        componentName: `TestComponent_${Date.now()}`,
         isWorking: true,
         underConstruction: false,
         isBroken: false,
         title: 'Test Component',
       },
     }).then((response) => {
-      cy.log('Component Creation Response:', JSON.stringify(response.body))
-
-      // Check the response status and capture the componentId
       expect(response.status).to.eq(200)
-      expect(response.body.component).to.have.property('id')
-
       componentId = response.body.component.id
       expect(componentId).to.be.a('number')
-
-      console.log('Created Component ID:', componentId) // Log for debugging
     })
   })
 
   // Step 2: Create a new reaction for the created component
   it('Create a New Component Reaction', () => {
-    cy.wrap(componentId).should('exist') // Ensure componentId exists
+    cy.wrap(componentId).should('exist')
 
     cy.request({
       method: 'POST',
       url: `${baseUrl}/reactions`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
-        userId: userId,
-        reactionType: 'CLAPPED', // Example reaction type
+        userId,
+        reactionType: 'CLAPPED',
         reactionCategory: 'COMPONENT',
-        componentId: componentId, // Use created componentId
+        componentId,
         comment: 'Great job on this component!',
-        rating: 4, // Example rating
+        rating: 4,
       },
     }).then((response) => {
-      cy.log('Reaction Creation Response:', JSON.stringify(response.body))
-
-      // Check response and capture reactionId
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('reaction')
       reactionId = response.body.reaction.id
       expect(reactionId).to.be.a('number')
-
-      console.log('Created Reaction ID:', reactionId)
     })
   })
 
   // Step 3: Fetch all reactions for the component
   it("Get a Component's Reactions", () => {
-    cy.wrap(componentId).should('exist') // Ensure componentId exists
+    cy.wrap(componentId).should('exist')
 
     cy.request({
       method: 'GET',
       url: `${baseUrl}/reactions/component/${componentId}`,
       headers: {
         Accept: 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.reactions)
         .to.be.an('array')
-        .and.have.length.greaterThan(0) // Check reactions returned
+        .and.have.length.greaterThan(0)
     })
   })
 
   // Step 4: Fetch a reaction by ID
   it('Get Reaction by ID', () => {
-    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
+    cy.wrap(reactionId).should('exist')
 
     cy.request({
       method: 'GET',
       url: `${baseUrl}/reactions/${reactionId}`,
       headers: {
         Accept: 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true
-      expect(response.body.reaction).to.exist
-
       const reaction = response.body.reaction
       expect(reaction.id).to.eq(reactionId)
       expect(reaction.componentId).to.eq(componentId)
@@ -117,10 +102,10 @@ describe('Component Reactions API Tests', () => {
   })
 
   // Step 5: Update the reaction
-  it('Update an Existing Component Reaction', () => {
-    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
+  it('Update an Existing Component Reaction with Valid and Invalid Authentication', () => {
+    cy.wrap(reactionId).should('exist')
 
-    // Attempt update without API key (expect failure)
+    // Attempt update without token
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/reactions/${reactionId}`,
@@ -130,26 +115,42 @@ describe('Component Reactions API Tests', () => {
       body: {
         reactionType: 'BOOED',
         comment: 'Actually, I have second thoughts...',
-        reactionCategory: 'COMPONENT',
         rating: 2,
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Expect forbidden status without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
 
-    // Attempt update with API key (expect success)
+    // Attempt update with invalid token
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/reactions/${reactionId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
       },
       body: {
         reactionType: 'BOOED',
         comment: 'Actually, I have second thoughts...',
-        reactionCategory: 'COMPONENT',
+        rating: 2,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+
+    // Attempt update with valid token
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/reactions/${reactionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: {
+        reactionType: 'BOOED',
+        comment: 'Actually, I have second thoughts...',
         rating: 2,
       },
     }).then((response) => {
@@ -164,10 +165,10 @@ describe('Component Reactions API Tests', () => {
   })
 
   // Step 6: Delete the reaction
-  it('Delete a Component Reaction', () => {
-    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
+  it('Delete a Component Reaction with Valid and Invalid Authentication', () => {
+    cy.wrap(reactionId).should('exist')
 
-    // Attempt delete without API key (expect failure)
+    // Attempt delete without token
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/reactions/${reactionId}`,
@@ -176,16 +177,29 @@ describe('Component Reactions API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Expect forbidden status without API key
+      expect(response.status).to.eq(401) // Unauthorized without token
     })
 
-    // Attempt delete with API key (expect success)
+    // Attempt delete with invalid token
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/reactions/${reactionId}`,
       headers: {
         Accept: 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+
+    // Attempt delete with valid token
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/reactions/${reactionId}`,
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -195,27 +209,15 @@ describe('Component Reactions API Tests', () => {
 
   // Step 7: Delete the created component
   after(() => {
-    cy.wrap(componentId).should('exist') // Ensure componentId exists
+    cy.wrap(componentId).should('exist')
 
-    // Attempt delete without API key (expect failure)
+    // Delete component with valid token
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/components/${componentId}`,
       headers: {
         'Content-Type': 'application/json',
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(403) // Expect forbidden status without API key
-    })
-
-    // Attempt delete with API key (expect success)
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/components/${componentId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

@@ -3,7 +3,8 @@
 
 describe('ChatExchange Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/chats'
-  const apiKey = Cypress.env('API_KEY')
+  const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
   let chatExchangeId: number
   const userId: number = 9
   const botId: number = 1
@@ -14,7 +15,7 @@ describe('ChatExchange Management API Tests', () => {
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         userId,
@@ -38,7 +39,7 @@ describe('ChatExchange Management API Tests', () => {
       url: `${baseUrl}/${chatExchangeId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -52,7 +53,7 @@ describe('ChatExchange Management API Tests', () => {
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -68,7 +69,7 @@ describe('ChatExchange Management API Tests', () => {
       url: `${baseUrl}/user/${userId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -84,7 +85,7 @@ describe('ChatExchange Management API Tests', () => {
       url: `${baseUrl}/bot/${botId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -94,7 +95,7 @@ describe('ChatExchange Management API Tests', () => {
     })
   })
 
-  it('Attempt to Update Chat Exchange without Authentication (expect failure)', () => {
+  it('should not allow updating a chat exchange without an authorization token', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${chatExchangeId}`,
@@ -107,17 +108,39 @@ describe('ChatExchange Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
-  it('Update Chat Exchange with Authentication', () => {
+  it('should not allow updating a chat exchange with an invalid authorization token', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${chatExchangeId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        userPrompt: 'Invalid token update attempt',
+        botResponse: "I'm great, invalid attempt!",
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Update Chat Exchange with Valid Authentication', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${chatExchangeId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         userPrompt: 'How are you?',
@@ -128,7 +151,7 @@ describe('ChatExchange Management API Tests', () => {
     })
   })
 
-  it('Attempt to Delete Chat Exchange without Authentication (expect failure)', () => {
+  it('should not allow deleting a chat exchange without an authorization token', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${chatExchangeId}`,
@@ -137,35 +160,38 @@ describe('ChatExchange Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
-  it('Delete Chat Exchange with Authentication', () => {
+  it('should not allow deleting a chat exchange with an invalid authorization token', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${chatExchangeId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Delete Chat Exchange with Valid Authentication', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${chatExchangeId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
     })
-  })
-
-  after(() => {
-    if (chatExchangeId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${chatExchangeId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
   })
 })

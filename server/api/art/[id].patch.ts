@@ -5,10 +5,11 @@ import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response
+  let id
 
   try {
     // Validate the Art ID
-    const id = Number(event.context.params?.id)
+    id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
       event.node.res.statusCode = 400
       throw createError({

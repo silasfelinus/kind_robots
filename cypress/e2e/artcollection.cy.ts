@@ -16,8 +16,14 @@ describe('Art Collection API Tests', () => {
         'Content-Type': 'application/json',
       },
       body: {
-        promptString: 'Testing, A serene lake in the evening',
+        promptString: 'surreal, A beautiful pancake sunrise over the mountains',
+        steps: 10,
         path: ' ',
+        seed: null,
+        channelId: null,
+        galleryId: null,
+        promptId: null,
+        pitchId: null,
         userId: 9,
       },
     }).then((response) => {

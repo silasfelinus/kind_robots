@@ -3,11 +3,8 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import type { Art } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import {
-  extractTokenFromHeader,
-  getUserIdFromToken,
-  authorizeUserForArtEntry,
-} from '.'
+import { authorizeUserForArtEntry } from '.'
+import { extractTokenFromHeader, getUserIdFromToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
   let id

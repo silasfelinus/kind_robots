@@ -1,11 +1,8 @@
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import {
-  extractTokenFromHeader,
-  getUserIdFromToken,
-  authorizeUserForArtEntry,
-} from '.'
+import { authorizeUserForArtEntry } from '.'
+import { extractTokenFromHeader, getUserIdFromToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
   let id: number | null = null

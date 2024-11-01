@@ -44,6 +44,42 @@ export const verifyJwtToken = async (
     }
   }
 }
+
+export function extractTokenFromHeader(
+  authorizationHeader: string | undefined,
+): string {
+  if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    throw createError({
+      statusCode: 401,
+      message:
+        'Authorization token is required in the format "Bearer <token>".',
+    })
+  }
+  return authorizationHeader.split(' ')[1] // Extract token after "Bearer "
+}
+
+export async function getUserIdFromToken(token: string): Promise<number> {
+  const verificationResult = await verifyJwtToken(token)
+  if (!verificationResult || !verificationResult.userId) {
+    throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
+  }
+
+  // Fetch userId using apiKey (if needed)
+  const user = await prisma.user.findFirst({
+    where: { apiKey: token },
+    select: { id: true },
+  })
+
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: 'User not found for the provided token.',
+    })
+  }
+
+  return user.id
+}
+
 export const getUserDataByToken = async (token: string) => {
   try {
     const { success, userId } = await verifyJwtToken(token)

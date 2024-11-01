@@ -1,34 +1,64 @@
-import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../../utils/error'
+// /server/api/reactions/pitch/[id].patch.ts
+import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { verifyJwtToken } from '../../auth'
+import type { Reaction } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
+  let pitchId: number | null = null
+
   try {
-    // Extract pitchId from the route parameters
-    const pitchId = Number(event.context.params?.id)
-
-    // Validate pitchId
+    // Parse and validate the pitch ID from the URL params
+    pitchId = Number(event.context.params?.id)
     if (isNaN(pitchId) || pitchId <= 0) {
-      throw new Error('A valid pitch ID is required.')
+      throw createError({
+        statusCode: 400,
+        message: 'A valid pitch ID is required.',
+      })
     }
 
-    // Read the request body for updates
-    const updates = await readBody(event)
+    // Extract and validate the JWT token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
 
-    // Validate the updates (for example, check for a valid reactionType)
+    const token = authorizationHeader.split(' ')[1]
+    const verificationResult = await verifyJwtToken(token)
+    if (!verificationResult || !verificationResult.userId) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const userId = verificationResult.userId // Use userId from the token
+
+    // Read the request body for updates, treating it as partial Reaction data
+    const updates: Partial<Reaction> = await readBody(event)
+
+    // Ensure that reactionType is provided if required for creation
     if (!updates.reactionType) {
-      throw new Error('A valid reaction type is required.')
+      throw createError({
+        statusCode: 400,
+        message: 'A valid reaction type is required.',
+      })
     }
 
-    // Fetch the existing reaction by the pitchId and userId (assuming userId comes from auth or the request body)
+    // Fetch the existing reaction by pitchId and userId
     const existingReaction = await prisma.reaction.findFirst({
       where: {
         pitchId,
-        userId: updates.userId, // You might need to get this from auth or request
+        userId,
       },
     })
 
-    // If the reaction exists, update it, otherwise return an error
+    // If the reaction exists, update it; otherwise, return a not found error
     if (existingReaction) {
       const updatedReaction = await prisma.reaction.update({
         where: { id: existingReaction.id },
@@ -42,7 +72,7 @@ export default defineEventHandler(async (event) => {
     } else {
       return {
         success: false,
-        message: `No reaction found for pitch with ID ${pitchId} and user ID ${updates.userId}.`,
+        message: `No reaction found for pitch with ID ${pitchId} and user ID ${userId}.`,
         statusCode: 404,
       }
     }

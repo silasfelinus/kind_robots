@@ -1,53 +1,56 @@
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import { verifyJwtToken } from '../auth'
+import { extractTokenFromHeader, getUserIdFromToken } from '../auth'
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
-
+  let id
   try {
     // Validate and parse the channel ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
       throw createError({
-        statusCode: 400, // Bad Request
+        statusCode: 400,
         message: 'Invalid Channel ID. It must be a positive integer.',
       })
     }
 
-    // Extract the token from the Authorization header
+    // Extract and verify authorization token
     const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    const token = extractTokenFromHeader(authorizationHeader)
+    if (!token) {
       throw createError({
-        statusCode: 401, // Unauthorized
+        statusCode: 401,
         message:
           'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
-    const token = authorizationHeader.split(' ')[1]
-    const verificationResult = await verifyJwtToken(token)
-    if (!verificationResult || !verificationResult.userId) {
+    // Get userId from token
+    const tokenUserId = await getUserIdFromToken(token)
+    if (!tokenUserId) {
       throw createError({
-        statusCode: 401, // Unauthorized
+        statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    // Fetch the channel to verify ownership
-    const channel = await prisma.channel.findUnique({ where: { id } })
+    // Fetch the channel and verify ownership in one step
+    const channel = await prisma.channel.findUnique({
+      where: { id },
+      select: { userId: true },
+    })
     if (!channel) {
       throw createError({
-        statusCode: 404, // Not Found
+        statusCode: 404,
         message: `Channel with ID ${id} does not exist.`,
       })
     }
 
-    // Verify that the user is the owner of the channel
-    if (channel.userId !== verificationResult.userId) {
+    // Check if the user is authorized to delete this channel
+    if (channel.userId !== tokenUserId) {
       throw createError({
-        statusCode: 403, // Forbidden
+        statusCode: 403,
         message: 'You do not have permission to delete this channel.',
       })
     }
@@ -58,7 +61,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: `Channel with ID ${id} successfully deleted.`,
-      statusCode: 200, // Explicitly setting statusCode for Cypress testing
+      statusCode: 200,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

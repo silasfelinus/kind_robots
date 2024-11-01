@@ -114,6 +114,7 @@ describe('Art Management API Tests', () => {
       method: 'PATCH',
       url: `${baseUrl}/${artId}`,
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
       body: {
@@ -136,8 +137,10 @@ describe('Art Management API Tests', () => {
       method: 'PATCH',
       url: `${baseUrl}/${artId}`,
       failOnStatusCode: false,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: {
-        path: 'unauthorized-path.webp',
         designer: 'unauthorizedDesigner',
         isPublic: false,
       },
@@ -154,6 +157,7 @@ describe('Art Management API Tests', () => {
       method: 'PATCH',
       url: `${baseUrl}/${artId}`,
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
       },
       failOnStatusCode: false,
@@ -174,6 +178,9 @@ describe('Art Management API Tests', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${artId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -188,6 +195,7 @@ describe('Art Management API Tests', () => {
       method: 'DELETE',
       url: `${baseUrl}/${artId}`,
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
       },
       failOnStatusCode: false,
@@ -204,6 +212,7 @@ describe('Art Management API Tests', () => {
       method: 'DELETE',
       url: `${baseUrl}/${artId}`,
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {

@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
     // Parse and validate the Tag ID from the URL params
     tagId = Number(event.context.params?.id)
     if (isNaN(tagId) || tagId <= 0) {
+      console.error(`Invalid tag ID provided: ${tagId}`)
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
@@ -22,6 +23,7 @@ export default defineEventHandler(async (event) => {
     // Extract and validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      console.error('Authorization token is missing or incorrectly formatted.')
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
@@ -37,6 +39,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      console.error(`Invalid or expired token: ${token}`)
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
@@ -45,6 +48,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const userId = user.id
+    console.log(`User ID from token: ${userId}`)
 
     // Fetch the existing tag to verify ownership
     const existingTag = await prisma.tag.findUnique({
@@ -53,6 +57,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!existingTag) {
+      console.error(`Tag with ID ${tagId} does not exist.`)
       event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
@@ -62,6 +67,9 @@ export default defineEventHandler(async (event) => {
 
     // Verify ownership of the tag
     if (existingTag.userId !== userId) {
+      console.error(
+        `User ID ${userId} does not match tag owner ID ${existingTag.userId}`,
+      )
       event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
@@ -72,6 +80,7 @@ export default defineEventHandler(async (event) => {
     // Parse and validate request body
     const tagData: Partial<Tag> = await readBody(event)
     if (!tagData || Object.keys(tagData).length === 0) {
+      console.error('No data provided for tag update.')
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
@@ -94,7 +103,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error('Error updating tag:', handledError)
+    console.error(`Error updating tag with ID ${tagId}:`, handledError)
 
     // Set the appropriate status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500

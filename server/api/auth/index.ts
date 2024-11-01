@@ -59,12 +59,6 @@ export function extractTokenFromHeader(
 }
 
 export async function getUserIdFromToken(token: string): Promise<number> {
-  const verificationResult = await verifyJwtToken(token)
-  if (!verificationResult || !verificationResult.userId) {
-    throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
-  }
-
-  // Fetch userId using apiKey (if needed)
   const user = await prisma.user.findFirst({
     where: { apiKey: token },
     select: { id: true },

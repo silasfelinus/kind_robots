@@ -4,7 +4,8 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
-  let userId: number | null = null
+  let response
+  let userId
 
   try {
     // Parse and validate the User ID from the URL params
@@ -14,7 +15,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid User ID.' })
     }
 
-    // Extract and verify the Authorization token
+    // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401
@@ -47,9 +48,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Parse the request body and validate fields for the update
+    // Parse and validate the update data
     const updateData = await readBody(event)
-    // Add additional checks on `updateData` properties if needed
+    if (!updateData || Object.keys(updateData).length === 0) {
+      event.node.res.statusCode = 400
+      throw createError({
+        statusCode: 400,
+        message: 'No data provided for update.',
+      })
+    }
 
     // Update the user in the database
     const updatedUser = await prisma.user.update({
@@ -57,18 +64,27 @@ export default defineEventHandler(async (event) => {
       data: updateData,
     })
 
-    // Success response
-    event.node.res.statusCode = 200
-    return {
+    // Successful update response
+    response = {
       success: true,
       user: updatedUser,
       message: 'User updated successfully.',
       statusCode: 200,
     }
+    event.node.res.statusCode = 200
   } catch (error) {
-    return errorHandler({
-      error,
-      context: `Updating user with ID ${userId}`,
-    })
+    const handledError = errorHandler(error)
+    console.log('Error Handled:', handledError)
+
+    // Explicitly set the status code based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
+      success: false,
+      message:
+        handledError.message || `Failed to update user with ID ${userId}.`,
+      statusCode: event.node.res.statusCode,
+    }
   }
+
+  return response
 })

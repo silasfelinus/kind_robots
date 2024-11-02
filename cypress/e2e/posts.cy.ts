@@ -4,9 +4,8 @@ describe('Post Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/posts'
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let postId: number | undefined // Define with undefined for clarity
-  const userId: number = 9
-
+  let postId: number // Define postId for storing created post ID
+  const userId = 9
   // Step 1: Create a post once before running tests
   before(() => {
     cy.request({
@@ -41,6 +40,9 @@ describe('Post Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -57,6 +59,7 @@ describe('Post Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
@@ -81,6 +84,7 @@ describe('Post Management API Tests', () => {
       expect(response.body.post.content).to.eq(
         'This is updated test post content.',
       )
+      expect(response.body.post.label).to.eq('Updated Label')
     })
   })
 
@@ -127,6 +131,9 @@ describe('Post Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -143,6 +150,7 @@ describe('Post Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
@@ -158,6 +166,9 @@ describe('Post Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.message).to.include(
+        `Post with ID ${postId} deleted successfully`,
+      )
     })
   })
 

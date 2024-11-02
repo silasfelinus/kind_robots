@@ -1,6 +1,6 @@
 // /server/api/posts/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error' // Import the error handler
+import { errorHandler } from '../utils/error'
 import prisma from './../utils/prisma'
 import type { Prisma, Post } from '@prisma/client'
 
@@ -8,17 +8,24 @@ export default defineEventHandler(async (event) => {
   try {
     const postData = await readBody(event)
     const result = await addPost(postData)
-    return { success: true, ...result }
-  } catch (error) {
-    // Use the error handler to process the error
-    const { message, statusCode } = errorHandler(error)
 
-    // Return the error response with the processed message and status code
+    // If addPost returns an error, return it in the response
+    if (result.error) {
+      return {
+        success: false,
+        message: result.error,
+        statusCode: 400, // Indicating a client error due to incomplete or malformed data
+      }
+    }
+
+    return { success: true, post: result.post }
+  } catch (error) {
+    const { message, statusCode } = errorHandler(error)
     return {
       success: false,
       message: 'Failed to create a new post',
       error: message,
-      statusCode: statusCode || 500, // Default to 500 if no status code is provided
+      statusCode: statusCode || 500,
     }
   }
 })
@@ -26,11 +33,8 @@ export default defineEventHandler(async (event) => {
 export async function addPost(
   postData: Partial<Post>,
 ): Promise<{ post: Post | null; error: string | null }> {
-  if (!postData.content) {
-    return { post: null, error: 'Post content is required.' }
-  }
-
   try {
+    // Verify the postData is a Partial<Post> without enforcing specific fields
     const post = await prisma.post.create({
       data: postData as Prisma.PostCreateInput,
     })

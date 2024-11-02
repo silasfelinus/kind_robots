@@ -168,20 +168,4 @@ describe('RandomList Management API Tests', () => {
       expect(response.status).to.eq(200)
     })
   })
-
-  after(() => {
-    if (randomListId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${randomListId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
-  })
 })

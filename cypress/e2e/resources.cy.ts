@@ -133,21 +133,4 @@ describe('Resource Management API Tests', () => {
       expect(response.status).to.eq(200)
     })
   })
-
-  // Cleanup in case the resource was not deleted during tests
-  after(() => {
-    if (resourceId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${resourceId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
-  })
 })

@@ -196,7 +196,7 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${createdUserToken}`, // Use the created user’s token for delete
+          Authorization: `Bearer ${createdUserToken}`,
         },
       }).then((response) => {
         expect(response.status).to.eq(200)

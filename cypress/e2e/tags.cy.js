@@ -24,13 +24,12 @@ describe('Tag Management API Tests', () => {
   })
 
   // Test to create a new tag with valid authentication
-  it('Create New Tag with Authentication', () => {
+  it('Create New Tag', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
       },
       body: [
         {

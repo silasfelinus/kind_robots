@@ -1,6 +1,6 @@
 // cypress/e2e/reactions.cy.ts
 
-describe('Reaction Management API Tests with Art Cleanup', () => {
+describe('Reaction Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api'
   const userToken = Cypress.env('USER_TOKEN')
   let artId: number | undefined
@@ -121,35 +121,5 @@ describe('Reaction Management API Tests with Art Cleanup', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
     })
-  })
-
-  // Cleanup in case art or reaction was not removed during tests
-  after(() => {
-    if (reactionId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/reactions/${reactionId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
-    if (artId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/art/${artId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
   })
 })

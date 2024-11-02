@@ -122,21 +122,4 @@ describe('Reward Management API Tests', () => {
       expect(response.status).to.eq(200)
     })
   })
-
-  // Cleanup: Ensure deletion of reward if not removed during tests
-  after(() => {
-    if (rewardId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${rewardId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
-  })
 })

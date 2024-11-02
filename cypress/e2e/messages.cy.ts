@@ -141,20 +141,4 @@ describe('Message Management API Tests', () => {
       expect(response.status).to.eq(200)
     })
   })
-
-  // Step 8: Cleanup created messages in case any remain
-  after(() => {
-    if (messageId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${messageId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
-  })
 })

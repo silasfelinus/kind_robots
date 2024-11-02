@@ -23,6 +23,8 @@ describe('Post Management API Tests', () => {
         label: 'General',
         imagePath: '/images/test-post.jpg',
         isFavorite: true,
+        botId: null,
+        channelId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -170,22 +172,5 @@ describe('Post Management API Tests', () => {
         `Post with ID ${postId} deleted successfully`,
       )
     })
-  })
-
-  // Step 10: Cleanup: Ensure deletion if post wasn't removed during tests
-  after(() => {
-    if (postId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${postId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
   })
 })

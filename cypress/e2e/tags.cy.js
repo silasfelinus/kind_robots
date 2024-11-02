@@ -31,20 +31,17 @@ describe('Tag Management API Tests', () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: [
-        {
-          label: 'Tag',
-          title: 'Abstract Art',
-          userId: 9,
-        },
-      ],
+      body: {
+        label: 'Tag',
+        title: 'Abstract Art',
+        userId: 9,
+      },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.newTags).to.be.an('array').that.is.not.empty
 
       // Capture created tag ID for future operations
-      tagId = response.body.newTags[0].id
+      tagId = response.body.tag.id
     })
   })
 
@@ -152,22 +149,5 @@ describe('Tag Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
     })
-  })
-
-  // Cleanup: Ensure tag deletion after tests
-  after(() => {
-    if (tagId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${tagId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
   })
 })

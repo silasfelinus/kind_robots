@@ -53,6 +53,7 @@ describe('Component Reactions API Tests', () => {
         componentId,
         comment: 'Great job on this component!',
         rating: 4,
+        channelId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

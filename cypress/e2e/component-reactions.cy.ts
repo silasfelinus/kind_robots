@@ -26,6 +26,7 @@ describe('Component Reactions API Tests', () => {
         isBroken: false,
         title: 'Test Component',
         channelId: null,
+        userId: 9,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -46,7 +47,7 @@ describe('Component Reactions API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
       body: {
-        userId,
+        userId: 9,
         reactionType: 'CLAPPED',
         reactionCategory: 'COMPONENT',
         componentId,

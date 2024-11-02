@@ -146,21 +146,4 @@ describe('Prompt Management API Tests', () => {
       expect(response.status).to.eq(200)
     })
   })
-
-  // Cleanup: Ensure deletion if prompt was not removed during tests
-  after(() => {
-    if (promptId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${promptId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
-  })
 })

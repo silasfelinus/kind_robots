@@ -6,25 +6,22 @@ import type { Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   let response
-  let tagId: number | null = null
+  const tagId = Number(event.context.params?.id)
 
   try {
-    // Parse and validate the Tag ID from the URL params
-    tagId = Number(event.context.params?.id)
+    // Validate Tag ID
     if (isNaN(tagId) || tagId <= 0) {
       console.error(`Invalid tag ID provided: ${tagId}`)
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid tag ID. It must be a positive integer.',
       })
     }
 
-    // Extract and validate the authorization token
+    // Extract and Validate Authorization Token
     const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    if (!authorizationHeader?.startsWith('Bearer ')) {
       console.error('Authorization token is missing or incorrectly formatted.')
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -37,64 +34,53 @@ export default defineEventHandler(async (event) => {
       where: { apiKey: token },
       select: { id: true },
     })
-
     if (!user) {
       console.error(`Invalid or expired token: ${token}`)
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    const userId = user.id
-    console.log(`User ID from token: ${userId}`)
-
-    // Fetch the existing tag to verify ownership
+    // Verify Tag Ownership
     const existingTag = await prisma.tag.findUnique({
       where: { id: tagId },
       select: { userId: true },
     })
-
     if (!existingTag) {
       console.error(`Tag with ID ${tagId} does not exist.`)
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Tag with ID ${tagId} does not exist.`,
       })
     }
-
-    // Verify ownership of the tag
-    if (existingTag.userId !== userId) {
+    if (existingTag.userId !== user.id) {
       console.error(
-        `User ID ${userId} does not match tag owner ID ${existingTag.userId}`,
+        `User ${user.id} does not have permission to update tag ${tagId}`,
       )
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this tag.',
       })
     }
 
-    // Parse and validate request body
+    // Read and Validate Update Data
     const tagData: Partial<Tag> = await readBody(event)
     if (!tagData || Object.keys(tagData).length === 0) {
       console.error('No data provided for tag update.')
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    // Update the tag in the database
+    // Perform Update
     const updatedTag = await prisma.tag.update({
       where: { id: tagId },
       data: tagData,
     })
 
-    // Successful update response
+    // Return Success Response
     response = {
       success: true,
       tag: updatedTag,
@@ -102,10 +88,11 @@ export default defineEventHandler(async (event) => {
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
+    // Process Error with Error Handler
     const handledError = errorHandler(error)
     console.error(`Error updating tag with ID ${tagId}:`, handledError)
 
-    // Set the appropriate status code based on the handled error
+    // Set Response with Error Information
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

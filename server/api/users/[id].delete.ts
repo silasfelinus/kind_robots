@@ -74,6 +74,21 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Verify the user still exists before attempting deletion
+    const userExists = await prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { id: true },
+    })
+
+    if (!userExists) {
+      console.error(`User with ID ${targetUserId} does not exist.`)
+      event.node.res.statusCode = 404
+      throw createError({
+        statusCode: 404,
+        message: `User with ID ${targetUserId} not found.`,
+      })
+    }
+
     // Attempt to delete the user
     await prisma.user.delete({ where: { id: targetUserId } })
     console.log(`User with ID ${targetUserId} deleted successfully.`)

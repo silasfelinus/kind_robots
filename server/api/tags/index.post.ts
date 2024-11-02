@@ -6,74 +6,47 @@ import type { Prisma, Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    const tagsData = await readBody(event)
+    const tagData = await readBody<Partial<Tag>>(event)
 
-    if (!Array.isArray(tagsData)) {
+    // Validate required fields
+    if (!tagData.title || !tagData.label) {
       return {
         success: false,
-        message: 'Invalid JSON body. Expected an array of tags or strings.',
+        message: '"title" and "label" are required fields.',
+        statusCode: 400,
       }
     }
 
-    // Transform to Title Case and validate
-    const transformedTags: Prisma.TagCreateManyInput[] = tagsData.map((tag) => {
-      if (typeof tag === 'string') {
-        return {
-          label: 'Default', // Default label
-          title: toTitleCase(tag),
-        }
-      }
+    const result = await addTag(tagData)
 
-      return {
-        label: toTitleCase(tag.label),
-        title: toTitleCase(tag.title),
-      }
-    })
+    if (result.error) {
+      throw new Error(result.error)
+    }
 
-    // Create tags in a batch and skip duplicates
-    const newTags = await addTags(transformedTags)
-
-    return { success: true, newTags }
+    return { success: true, tag: result.tag }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
 
     return {
       success: false,
-      message: 'Failed to create new tags',
-      error: message,
-      statusCode: statusCode || 500, // Default to 500 if no status code is provided
+      message: 'Failed to create a new tag',
+      error: message || 'An unknown error occurred',
+      statusCode: statusCode || 500,
     }
   }
 })
 
-function toTitleCase(str: string): string {
-  return str.replace(
-    /\w\S*/g,
-    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
-  )
-}
-
-async function addTags(tagsData: Prisma.TagCreateManyInput[]): Promise<Tag[]> {
+export async function addTag(
+  tagData: Partial<Tag>,
+): Promise<{ tag: Tag | null; error: string | null }> {
   try {
-    await prisma.tag.createMany({
-      data: tagsData,
-      skipDuplicates: true,
+    const tag = await prisma.tag.create({
+      data: tagData as Prisma.TagCreateInput,
     })
-
-    // Retrieve the created tags
-    const newTags = await prisma.tag.findMany({
-      where: {
-        OR: tagsData.map((tag) => ({
-          title: tag.title,
-          label: tag.label,
-        })),
-      },
-    })
-
-    return newTags
+    return { tag, error: null }
   } catch (error: unknown) {
     const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
-    throw new Error(errorMessage)
+      error instanceof Error ? error.message : 'Unknown database error'
+    return { tag: null, error: `Failed to create tag: ${errorMessage}` }
   }
 }

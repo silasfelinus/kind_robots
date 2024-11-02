@@ -35,22 +35,6 @@ describe('User Management API Tests', () => {
     })
   })
 
-  // Delete the user after all tests
-  after(() => {
-    if (createdUserId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${createdUserId}`,
-        headers: {
-          'x-api-key': apiKey,
-          Authorization: `Bearer ${createdUserToken}`, // Use the created user’s specific token
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
-  })
-
   context('User Retrieval Tests', () => {
     it('Get All Users with Authentication', () => {
       cy.request({

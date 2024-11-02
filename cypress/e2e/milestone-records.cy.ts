@@ -3,23 +3,53 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Milestone Record Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/milestones/records'
+  const baseUrl = 'https://kind-robots.vercel.app/api'
+  const recordsUrl = `${baseUrl}/milestones/records`
+  const usersUrl = `${baseUrl}/users`
   const apiKey = Cypress.env('API_KEY')
 
-  let milestoneRecordId: number
-  const userId = 9 // Use existing test user
+  let milestoneRecordId: number | undefined
+  let createdUserId: number | undefined
+  let createdUserToken: string | undefined // Store user-specific token for authentication
   const milestoneId = 10 // Set milestone ID for testing
 
-  it('Create a New Milestone Record for Test User', () => {
+  // Step 1: Create a new test user
+  before(() => {
+    const uniqueUsername = `testuser${Date.now()}`
+    const userEmail = `${uniqueUsername}@kindrobots.org`
+
     cy.request({
       method: 'POST',
-      url: baseUrl,
+      url: `${usersUrl}/register`,
       headers: {
+        Accept: 'application/json',
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
       body: {
-        userId,
+        username: uniqueUsername,
+        email: userEmail,
+        password: 'testpassword123',
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      createdUserId = response.body.user.id
+      createdUserToken = response.body.user.apiKey // Store the user-specific token
+    })
+  })
+
+  // Step 2: Create a new milestone record for the created user
+  it('Create a New Milestone Record for the New User', () => {
+    cy.request({
+      method: 'POST',
+      url: recordsUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${createdUserToken}`, // Use user-specific token
+      },
+      body: {
+        userId: createdUserId,
         milestoneId,
       },
     }).then((response) => {
@@ -30,10 +60,11 @@ describe('Milestone Record Management API Tests', () => {
     })
   })
 
+  // Step 3: Attempt to delete milestone record without authentication (expect failure)
   it('Attempt to Delete Milestone Record without Authentication (expect failure)', () => {
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${milestoneRecordId}`,
+      url: `${recordsUrl}/${milestoneRecordId}`,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -43,32 +74,41 @@ describe('Milestone Record Management API Tests', () => {
     })
   })
 
+  // Step 4: Delete milestone record with authentication
   it('Delete Milestone Record with Authentication', () => {
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${milestoneRecordId}`,
+      url: `${recordsUrl}/${milestoneRecordId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        Authorization: `Bearer ${createdUserToken}`, // Use user-specific token
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      cy.log('Deleted Milestone Record ID:', milestoneRecordId)
     })
   })
 
+  // Step 5: Clean up by deleting the user created at the beginning
   after(() => {
-    if (milestoneRecordId) {
+    if (createdUserId) {
       cy.request({
         method: 'DELETE',
-        url: `${baseUrl}/${milestoneRecordId}`,
+        url: `${usersUrl}/${createdUserId}`,
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
+          Accept: 'application/json',
+          Authorization: `Bearer ${createdUserToken}`, // Use the created user’s token
         },
         failOnStatusCode: false,
       }).then((response) => {
-        expect(response.status).to.eq(200)
-        cy.log('Cleaned up Milestone Record ID:', milestoneRecordId)
+        if (response.status === 200) {
+          expect(response.body).to.have.property('success', true)
+          cy.log(`User with ID ${createdUserId} successfully deleted`)
+        } else {
+          cy.log(
+            `User deletion failed or already deleted. Status: ${response.status}`,
+          )
+        }
       })
     }
   })

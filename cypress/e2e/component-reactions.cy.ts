@@ -16,7 +16,6 @@ describe('Component Reactions API Tests', () => {
       url: `${baseUrl}/components`,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
       },
       body: {
         folderName: 'test-folder',
@@ -25,8 +24,6 @@ describe('Component Reactions API Tests', () => {
         underConstruction: false,
         isBroken: false,
         title: 'Test Component',
-        channelId: null,
-        userId: 9,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

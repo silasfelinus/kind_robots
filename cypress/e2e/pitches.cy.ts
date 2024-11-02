@@ -149,22 +149,4 @@ describe('Pitch Management API Tests', () => {
       expect(response.status).to.eq(200)
     })
   })
-
-  // Step 10: Ensure any created pitch is cleaned up in case of test failure
-  after(() => {
-    if (pitchId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${pitchId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-        cy.log('Reverted Pitch ID:', pitchId)
-      })
-    }
-  })
 })

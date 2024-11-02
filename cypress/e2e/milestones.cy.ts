@@ -115,18 +115,4 @@ describe('Milestone Management API Tests', () => {
     })
   })
 
-  after(() => {
-    if (milestoneId) {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${milestoneId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-    }
-  })
 })

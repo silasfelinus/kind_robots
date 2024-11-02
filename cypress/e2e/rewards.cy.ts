@@ -40,7 +40,7 @@ describe('Reward Management API Tests', () => {
       body: { text: 'Unauthorized Update' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
     })
   })
 

@@ -32,7 +32,7 @@ describe('Art Collection API Tests', () => {
         userId: 9,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       artId = response.body.art?.id
       if (!artId) throw new Error('Failed to create art.')
     })
@@ -51,7 +51,7 @@ describe('Art Collection API Tests', () => {
         artIds: [artId],
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       collectionId = response.body.collection.id
       existingArtIds = response.body.collection.art.map((art: Art) => art.id)
     })
@@ -118,7 +118,7 @@ describe('Art Collection API Tests', () => {
           artIds: [...existingArtIds, newArtId],
         },
       }).then((response) => {
-        expect(response.status).to.eq(200)
+        expect(response.status).to.eq(201)
         const returnedArtIds = response.body.collection.art.map(
           (art: Art) => art.id,
         )

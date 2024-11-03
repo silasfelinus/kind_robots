@@ -1,14 +1,15 @@
 // /server/api/prompts/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import type { Prompt } from '@prisma/client'
-import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
+import type { Prompt, Prisma } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -36,6 +38,7 @@ export default defineEventHandler(async (event) => {
 
     // Ensure the "prompt" field is provided and is a string
     if (!promptData.prompt || typeof promptData.prompt !== 'string') {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'The "prompt" field is required and must be a string.',
@@ -44,6 +47,7 @@ export default defineEventHandler(async (event) => {
 
     // Verify that if userId is provided, it matches the authenticated user
     if (promptData.userId && promptData.userId !== authenticatedUserId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'User ID does not match the authenticated user.',
@@ -51,9 +55,14 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create the new prompt with the authenticated user ID
-    const newPrompt = await createPrompt({
-      ...promptData,
-      userId: authenticatedUserId,
+    const newPrompt = await prisma.prompt.create({
+      data: {
+        userId: authenticatedUserId,
+        prompt: promptData.prompt,
+        galleryId: promptData.galleryId || null,
+        pitchId: promptData.pitchId || null,
+        botId: promptData.botId || null,
+      } as Prisma.PromptCreateInput,
     })
 
     // Set status code to 201 Created for successful creation
@@ -70,23 +79,3 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
-
-// Function to create a new prompt
-export async function createPrompt(
-  promptData: Partial<Prompt>,
-): Promise<Prompt> {
-  try {
-    return await prisma.prompt.create({
-      data: {
-        userId: promptData.userId,
-        prompt: promptData.prompt as string, // Ensured to be a string by validation
-        galleryId: promptData.galleryId || null,
-        pitchId: promptData.pitchId || null,
-        botId: promptData.botId || null,
-      },
-    })
-  } catch (error: unknown) {
-    console.error('Error occurred while creating prompt:', error)
-    throw errorHandler(error)
-  }
-}

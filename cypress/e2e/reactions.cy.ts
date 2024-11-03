@@ -29,7 +29,7 @@ describe('Reaction Management API Tests', () => {
         userId,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       artId = response.body.art.id
     })
   })
@@ -56,7 +56,9 @@ describe('Reaction Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -105,7 +107,7 @@ describe('Reaction Management API Tests', () => {
         rating: 5,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       reactionId = response.body.reaction.id
     })
   })
@@ -144,7 +146,9 @@ describe('Reaction Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 

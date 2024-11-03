@@ -34,22 +34,22 @@ export default defineEventHandler(async (event) => {
     // Read and validate the request body
     const recordData = await readBody(event)
 
-    // Check if milestoneId and userId are provided and valid
-    if (
-      !recordData ||
-      typeof recordData.milestoneId !== 'number' ||
-      typeof recordData.userId !== 'number'
-    ) {
+    // Validate required fields for milestone creation
+    const missingFields = []
+    if (typeof recordData?.milestoneId !== 'number')
+      missingFields.push('milestoneId')
+    if (typeof recordData?.userId !== 'number') missingFields.push('userId')
+
+    if (missingFields.length > 0) {
       throw createError({
         statusCode: 400,
-        message:
-          '"milestoneId" and "userId" are required and must be integers.',
+        message: `Missing required fields: ${missingFields.join(', ')}.`,
       })
     }
 
     const { milestoneId, userId } = recordData
 
-    // Verify that the userId in recordData matches the authenticated user
+    // Verify that userId matches the authenticated user
     if (userId !== authenticatedUserId) {
       throw createError({
         statusCode: 403,
@@ -91,7 +91,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: 'Failed to create milestone record.',
-      error: handledError.message,
+      error: handledError.message || 'An unknown error occurred.',
       statusCode: handledError.statusCode || 500,
     }
   }

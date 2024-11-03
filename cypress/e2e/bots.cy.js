@@ -11,7 +11,50 @@ describe('Bot Management API Tests', () => {
   let createdBotId
   const botName = `testbot-${Date.now()}`
 
-  it('Create a New Bot', () => {
+  it('should not allow creating a bot without an authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        name: botName,
+        subtitle: 'Unauthorized bot',
+        description: 'Attempting to create a bot without token',
+        avatarImage: '/images/bot.webp',
+        botIntro: 'No token intro',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a bot with an invalid authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        name: botName,
+        subtitle: 'Unauthorized bot',
+        description: 'Attempting to create a bot with an invalid token',
+        avatarImage: '/images/bot.webp',
+        botIntro: 'Invalid token intro',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Create a New Bot with Valid Authentication', () => {
     cy.request({
       method: 'POST',
       url: `${baseUrl}`,

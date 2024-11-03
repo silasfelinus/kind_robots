@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import { Prisma } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 
 interface ReactionInput extends Prisma.ReactionCreateInput {
   componentName?: string
@@ -54,19 +54,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Prepare data with optional relational fields only if provided
+    // Prepare data and conditionally add optional fields
     const data: Prisma.ReactionCreateInput = {
       reactionType: reactionData.reactionType,
       reactionCategory: reactionData.reactionCategory,
       comment: reactionData.comment || '',
       rating: reactionData.rating || 0,
       User: { connect: { id: authenticatedUserId } },
-      Channel: reactionData.channelId
-        ? { connect: { id: reactionData.channelId } }
-        : Prisma.skip,
-      ChatExchange: reactionData.chatExchangeId
-        ? { connect: { id: reactionData.chatExchangeId } }
-        : Prisma.skip,
+      ...(reactionData.channelId && {
+        Channel: { connect: { id: reactionData.channelId } },
+      }),
+      ...(reactionData.chatExchangeId && {
+        ChatExchange: { connect: { id: reactionData.chatExchangeId } },
+      }),
     }
 
     const linked = await getLinkField(reactionData, data)
@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    console.log('Prepared data for Prisma:', data) // Log data to verify structure
+    console.log('Prepared data for Prisma:', data)
 
     const result = await addOrUpdateReaction(data, authenticatedUserId)
     if (!result.reaction) {

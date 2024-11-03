@@ -52,6 +52,9 @@ describe('Reaction Management API Tests', () => {
         artId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
+        channelId: null,
+        chatExchangeId: null,
+        artImageId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -79,6 +82,9 @@ describe('Reaction Management API Tests', () => {
         artId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
+        channelId: null,
+        chatExchangeId: null,
+        artImageId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -105,6 +111,9 @@ describe('Reaction Management API Tests', () => {
         artId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
+        channelId: null,
+        chatExchangeId: null,
+        artImageId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)

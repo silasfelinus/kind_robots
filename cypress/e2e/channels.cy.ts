@@ -7,7 +7,48 @@ describe('Channel Management API Tests', () => {
   let channelId: number
   const uniqueLabel = `feed-${Date.now()}`
 
-  it('Create New Channel', () => {
+  it('should not allow creating a new channel without an authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        userId: 9,
+        label: uniqueLabel,
+        description: 'global feed',
+        title: 'Global Feed',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a new channel with an invalid authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        userId: 9,
+        label: uniqueLabel,
+        description: 'global feed',
+        title: 'Global Feed',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Create New Channel with Valid Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,

@@ -7,8 +7,66 @@ describe('Gallery Management API Tests', () => {
   const invalidToken = 'someInvalidTokenValue'
   let galleryId // Store gallery ID for further operations
 
-  // Step 1: Create a new gallery for testing
-  it('Create New Gallery', () => {
+  // Step 1: Attempt to create a gallery with various authentication scenarios
+
+  it('should not allow creating a gallery without an authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        name: 'Test Gallery No Token',
+        content: '/images/testgallery/gallery.json',
+        description: 'Attempt without token',
+        highlightImage: '/images/testgallery/highlight.webp',
+        userId: 9,
+        url: 'https://art-collections/natures-wonders',
+        custodian: 'Curated by ArtBot',
+        imagePaths:
+          '/images/collection1/image1.webp,/images/collection1/image2.webp',
+        isMature: false,
+        isPublic: true,
+        channelId: null,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a gallery with an invalid authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        name: 'Test Gallery Invalid Token',
+        content: '/images/testgallery/gallery.json',
+        description: 'Attempt with invalid token',
+        highlightImage: '/images/testgallery/highlight.webp',
+        userId: 9,
+        url: 'https://art-collections/natures-wonders',
+        custodian: 'Curated by ArtBot',
+        imagePaths:
+          '/images/collection1/image1.webp,/images/collection1/image2.webp',
+        isMature: false,
+        isPublic: true,
+        channelId: null,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Create New Gallery with Valid Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,

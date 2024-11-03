@@ -1,6 +1,6 @@
 // server/api/art/image/index.post.ts
 
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from './../../utils/prisma'
 import { errorHandler } from './../../utils/error'
 
@@ -9,67 +9,66 @@ export default defineEventHandler(async (event) => {
     // Parse the request body
     const body = await readBody(event)
 
-    // Check if body is parsed correctly
+    // Check if body is a valid object
     if (!body || typeof body !== 'object') {
-      return { success: false, message: 'Invalid JSON body', statusCode: 400 }
+      event.node.res.statusCode = 400
+      throw createError({ statusCode: 400, message: 'Invalid JSON body' })
     }
 
-    // Destructure the fields from the body, with default values where necessary
-    const { imageData, fileName, fileType = 'png', artId, userId } = body
+    // Destructure required fields from the body
+    const { artId, userId, ...imageData } = body // Use rest to allow model partials
 
-    // Validate the required fields
+    // Validate artId
     if (!artId || typeof artId !== 'number') {
-      return {
-        success: false,
-        message: 'Invalid or missing artId',
-        statusCode: 400,
-      }
-    }
-    if (!imageData || typeof imageData !== 'string') {
-      return {
-        success: false,
-        message: 'Invalid or missing imageData',
-        statusCode: 400,
-      }
+      event.node.res.statusCode = 400
+      throw createError({ statusCode: 400, message: 'Invalid or missing artId' })
     }
 
-    // Ensure the artId exists in the Art table
+    // Validate userId
+    if (!userId || typeof userId !== 'number') {
+      event.node.res.statusCode = 400
+      throw createError({ statusCode: 400, message: 'Invalid or missing userId' })
+    }
+
+    // Verify Bearer token matches userId
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
+      throw createError({ statusCode: 401, message: 'Authorization token required in the format "Bearer <token>"' })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user || user.id !== userId) {
+      event.node.res.statusCode = 403
+      throw createError({ statusCode: 403, message: 'Token does not match user ID' })
+    }
+
+    // Ensure the artId exists
     const art = await prisma.art.findUnique({ where: { id: artId } })
     if (!art) {
-      return {
-        success: false,
-        message: `Art with ID ${artId} not found`,
-        statusCode: 404,
-      }
+      event.node.res.statusCode = 404
+      throw createError({ statusCode: 404, message: `Art with ID ${artId} not found` })
     }
 
-    // Optionally ensure the userId exists if provided
-    let user = null
-    if (userId) {
-      user = await prisma.user.findUnique({ where: { id: userId } })
-      if (!user) {
-        return {
-          success: false,
-          message: `User with ID ${userId} not found`,
-          statusCode: 404,
-        }
-      }
-    }
-
-    // Create the new art image
+    // Create the new art image with provided partial model data
     const newArtImage = await prisma.artImage.create({
       data: {
-        imageData,
-        fileName,
-        fileType,
+        ...imageData,
         artId,
         userId,
       },
     })
 
-    // Return the newly created art image
+    // Set status to 201 Created
+    event.node.res.statusCode = 201
     return { success: true, artImage: newArtImage }
   } catch (error: unknown) {
-    return errorHandler(error)
+    const handledError = errorHandler(error)
+    return { success: false, message: handledError.message, statusCode: handledError.statusCode || 500 }
   }
 })

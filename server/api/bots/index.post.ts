@@ -1,45 +1,70 @@
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from './../utils/prisma'
 import type { Prisma, Bot } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
+    // Validate authorization token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const authenticatedUserId = user.id
+
+    // Read and validate the bot data from the request body
     const botsData: Partial<Bot> = await readBody(event)
 
-    // Check for authorization token and userId match
-    const authHeader = event.req.headers.authorization
-    if (
-      botsData.userId &&
-      !authHeader?.startsWith(`Bearer ${botsData.userId}`)
-    ) {
-      event.node.res.statusCode = 403 // Forbidden
-      return {
-        success: false,
-        message: 'User ID does not match the provided authorization token.',
+    // Check if userId in botsData matches the authenticated user
+    const userId = botsData.userId ?? authenticatedUserId
+    if (userId !== authenticatedUserId) {
+      throw createError({
         statusCode: 403,
-      }
+        message: 'User ID does not match the authenticated user.',
+      })
     }
 
-    // Validate essential fields
+    // Ensure that essential fields like "name" are present
     if (!botsData.name) {
-      event.node.res.statusCode = 400 // Bad Request
-      return {
-        success: false,
-        message: 'Bot name is required.',
+      throw createError({
         statusCode: 400,
-      }
+        message: 'Bot name is required.',
+      })
     }
 
-    const result = await addBot(botsData)
+    // Proceed with bot creation
+    const result = await addBot({ ...botsData, userId })
+
     if (result.error) {
-      throw new Error(result.error)
+      throw createError({
+        statusCode: 400,
+        message: result.error,
+      })
     }
 
     event.node.res.statusCode = 201 // Created
-    return { success: true, bot: result.bot, statusCode: 201 }
+    return { success: true, bot: result.bot }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       message: 'Failed to create a new bot',
@@ -49,11 +74,11 @@ export default defineEventHandler(async (event) => {
   }
 })
 
+// Function to add a single bot
 export async function addBot(
   botData: Partial<Bot>,
 ): Promise<{ bot: Bot | null; error: string | null }> {
   try {
-    // Create data object based only on the provided fields, allowing partial input
     const dataToSave: Prisma.BotCreateInput = {
       BotType: botData.BotType ?? 'PROMPTBOT',
       name: botData.name!,
@@ -72,13 +97,10 @@ export async function addBot(
       underConstruction: botData.underConstruction ?? false,
       canDelete: botData.canDelete ?? false,
       tagline: botData.tagline ?? '',
-      // Connect the bot to a user if userId is provided
-      User: botData.userId ? { connect: { id: botData.userId } } : undefined,
+      User: { connect: { id: botData.userId as number } }, // Ensure userId is assigned
     }
 
-    const bot = await prisma.bot.create({
-      data: dataToSave,
-    })
+    const bot = await prisma.bot.create({ data: dataToSave })
     return { bot, error: null }
   } catch (error: unknown) {
     const errorMessage =

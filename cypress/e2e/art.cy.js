@@ -70,9 +70,7 @@ describe('Art Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('Authorization token required')
     })
   })
 
@@ -100,7 +98,9 @@ describe('Art Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message).to.include(
+        'Invalid or expired authorization token',
+      )
     })
   })
 

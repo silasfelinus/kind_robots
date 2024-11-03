@@ -1,4 +1,4 @@
-// server/api/reactions/index.post.ts
+// /server/api/reactions/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
     // Read and validate the reaction data
     const reactionData = (await readBody(event)) as Partial<Reaction>
 
+    // Check for required reaction type and category fields
     if (!reactionData.reactionType || !reactionData.reactionCategory) {
       event.node.res.statusCode = 400 // Bad Request
       throw createError({
@@ -80,21 +81,29 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Handle reaction creation or update
+    // Proceed with adding or updating the reaction
     const result = await addOrUpdateReaction(
       reactionData,
       requiredField,
       authenticatedUserId,
     )
 
+    if (!result.reaction) {
+      event.node.res.statusCode = 500
+      throw createError({
+        statusCode: 500,
+        message: result.message || 'Failed to create or update reaction.',
+      })
+    }
+
     event.node.res.statusCode = 201 // Created
-    return { success: true, ...result }
+    return { success: true, reaction: result.reaction, message: result.message }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create or update reaction',
-      error: message,
+      message: message || 'Failed to create or update reaction',
       statusCode: statusCode || 500,
     }
   }

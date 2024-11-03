@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message:
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -30,61 +32,59 @@ export default defineEventHandler(async (event) => {
     }
 
     const authenticatedUserId = user.id
-
     const randomListData = await readBody(event)
 
-    // Check if the data is an array or a single object
+    // Handle multiple or single RandomList creation
     const result = Array.isArray(randomListData)
-      ? await addRandomLists(randomListData, authenticatedUserId) // Handle multiple RandomLists
-      : await addRandomList(randomListData, authenticatedUserId) // Handle a single RandomList
+      ? await addRandomLists(randomListData, authenticatedUserId)
+      : await addRandomList(randomListData, authenticatedUserId)
 
+    event.node.res.statusCode = 201 // Created
     return { success: true, ...result }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create a new random list',
-      error: message,
+      message: message || 'Failed to create a new random list',
       statusCode: statusCode || 500,
     }
   }
 })
 
 // Function to add a single RandomList
-export async function addRandomList(
+async function addRandomList(
   randomListData: Partial<RandomList>,
   authenticatedUserId: number,
 ): Promise<{ randomList: RandomList | null; error: string | null }> {
   if (!randomListData.title) {
-    return { randomList: null, error: 'Title is required.' }
+    throw createError({ statusCode: 400, message: 'Title is required.' })
   }
 
-  // Verify that if userId is provided, it matches the authenticated user
+  // Verify userId matches authenticated user if provided
   if (randomListData.userId && randomListData.userId !== authenticatedUserId) {
-    return {
-      randomList: null,
-      error: 'User ID does not match the authenticated user.',
-    }
+    throw createError({
+      statusCode: 403,
+      message: 'User ID does not match the authenticated user.',
+    })
   }
 
   try {
     const data: Prisma.RandomListCreateInput = {
       title: randomListData.title,
       items: JSON.stringify(randomListData.items || []),
-      User: { connect: { id: authenticatedUserId } }, // Connect with the authenticated user ID
+      User: { connect: { id: authenticatedUserId } },
     }
 
     const randomList = await prisma.randomList.create({ data })
     return { randomList, error: null }
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
-    return { randomList: null, error: errorMessage }
+    throw errorHandler(error)
   }
 }
 
 // Function to handle adding multiple RandomLists
-export async function addRandomLists(
+async function addRandomLists(
   randomListsData: Partial<RandomList>[],
   authenticatedUserId: number,
 ): Promise<{ randomLists: RandomList[] | null; error: string | null }> {
@@ -97,7 +97,6 @@ export async function addRandomLists(
       continue
     }
 
-    // Verify userId matches authenticated user
     if (
       randomListData.userId &&
       randomListData.userId !== authenticatedUserId
@@ -110,7 +109,7 @@ export async function addRandomLists(
       const data: Prisma.RandomListCreateInput = {
         title: randomListData.title,
         items: JSON.stringify(randomListData.items || []),
-        User: { connect: { id: authenticatedUserId } }, // Connect with the authenticated user ID
+        User: { connect: { id: authenticatedUserId } },
       }
 
       const randomList = await prisma.randomList.create({ data })

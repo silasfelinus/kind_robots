@@ -41,7 +41,7 @@ describe('Gallery Management API Tests', () => {
   it('Get Gallery by ID', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/${galleryId}`,
+      url: `${baseUrl}/id/${galleryId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,

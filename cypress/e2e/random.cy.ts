@@ -25,7 +25,7 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      randomListId = response.body.newList.id
+      randomListId = response.body.randomList.id
     })
   })
 
@@ -76,7 +76,7 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.list.title).to.eq(newTitle)
+      expect(response.body.updatedList.title).to.eq(newTitle)
       uniqueTitle = newTitle // Update for following tests
     })
   })
@@ -88,11 +88,10 @@ describe('RandomList Management API Tests', () => {
       url: `${baseUrl}/${randomListId}`,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.list.title).to.eq(uniqueTitle) // Use updated uniqueTitle
+      expect(response.body.list.title).to.eq(uniqueTitle)
     })
   })
 
@@ -102,7 +101,6 @@ describe('RandomList Management API Tests', () => {
       url: `${baseUrl}/title/${uniqueTitle}`,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

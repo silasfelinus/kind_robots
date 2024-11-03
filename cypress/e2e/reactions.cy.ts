@@ -72,6 +72,7 @@ describe('Reaction Management API Tests', () => {
       },
       body: {
         reactionType: 'CLAPPED',
+        reactionCategory: 'ART',
         comment: 'Actually, clapping for this artwork!',
         rating: 4,
       },

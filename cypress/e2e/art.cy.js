@@ -116,7 +116,7 @@ describe('Art Management API Tests', () => {
       body: {
         promptString: 'A sunset over the ocean',
         steps: 20,
-        cfg: 5,
+        cfg: 7,
         path: ' ',
         seed: null,
         channelId: null,

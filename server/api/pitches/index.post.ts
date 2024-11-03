@@ -1,29 +1,56 @@
 // /server/api/pitches/index.post.ts
-import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error' // Import the error handler
-import prisma from './../utils/prisma'
+import { defineEventHandler, readBody, createError } from 'h3'
+import { errorHandler } from '../utils/error'
+import prisma from '../utils/prisma'
 import type { Prisma, Pitch } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
+    // Validate authorization token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const authenticatedUserId = user.id
+
+    // Read and validate the pitch data from the request body
     const pitchData = await readBody(event)
 
-    // Check if pitchData is an array or a single object
+    // Handle single or multiple pitch data
     const result = Array.isArray(pitchData)
-      ? await addPitches(pitchData) // Handle multiple pitches
-      : await addPitch(pitchData) // Handle a single pitch
+      ? await addPitches(pitchData, authenticatedUserId)
+      : await addPitch(pitchData, authenticatedUserId)
 
+    // Set status code to 201 Created
+    event.node.res.statusCode = 201
     return { success: true, ...result }
   } catch (error) {
-    // Use the error handler to process the error
+    // Handle and return error response
     const { message, statusCode } = errorHandler(error)
-
-    // Return the error response with the processed message and status code
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create a new pitch',
+      message: 'Failed to create a new pitch.',
       error: message,
-      statusCode: statusCode || 500, // Default to 500 if no status code is provided
+      statusCode: event.node.res.statusCode,
     }
   }
 })
@@ -31,17 +58,19 @@ export default defineEventHandler(async (event) => {
 // Function to add a single pitch
 export async function addPitch(
   pitchData: Partial<Pitch>,
+  userId: number,
 ): Promise<{ pitch: Pitch | null; error: string | null }> {
   if (!pitchData.pitch) {
     return { pitch: null, error: 'Pitch content is required.' }
   }
 
+  // Add userId to ensure ownership
   try {
     const pitch = await prisma.pitch.create({
-      data: pitchData as Prisma.PitchCreateInput,
+      data: { ...pitchData, userId } as Prisma.PitchCreateInput,
     })
     return { pitch, error: null }
-  } catch (error: unknown) {
+  } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'
     return { pitch: null, error: errorMessage }
@@ -51,6 +80,7 @@ export async function addPitch(
 // Function to handle adding multiple pitches
 export async function addPitches(
   pitchesData: Partial<Pitch>[],
+  userId: number,
 ): Promise<{ pitches: Pitch[] | null; error: string | null }> {
   const createdPitches: Pitch[] = []
   const errors: string[] = []
@@ -63,22 +93,18 @@ export async function addPitches(
 
     try {
       const pitch = await prisma.pitch.create({
-        data: pitchData as Prisma.PitchCreateInput,
+        data: { ...pitchData, userId } as Prisma.PitchCreateInput,
       })
       createdPitches.push(pitch)
-    } catch (error: unknown) {
+    } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error'
       errors.push(errorMessage)
     }
   }
 
-  if (errors.length > 0) {
-    return {
-      pitches: createdPitches.length > 0 ? createdPitches : null,
-      error: errors.join(', '), // Combine all error messages into one string
-    }
+  return {
+    pitches: createdPitches.length > 0 ? createdPitches : null,
+    error: errors.length > 0 ? errors.join(', ') : null,
   }
-
-  return { pitches: createdPitches, error: null }
 }

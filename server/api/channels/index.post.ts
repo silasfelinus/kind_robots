@@ -11,8 +11,23 @@ export default defineEventHandler(async (event) => {
     // Log the incoming channel data to debug
     console.log('Parsed channel data:', channelData)
 
+    // Check if the authorization token matches the userId if provided
+    const authHeader = event.req.headers.authorization
+    if (
+      channelData.userId &&
+      !authHeader?.startsWith(`Bearer ${channelData.userId}`)
+    ) {
+      event.node.res.statusCode = 403 // Forbidden
+      return {
+        success: false,
+        message: 'User ID does not match the provided authorization token.',
+        statusCode: 403,
+      }
+    }
+
     // Validate required fields
     if (!channelData.userId || !channelData.label || !channelData.title) {
+      event.node.res.statusCode = 400 // Bad Request
       return {
         success: false,
         message: 'Missing required fields: userId, label, or title',
@@ -22,7 +37,8 @@ export default defineEventHandler(async (event) => {
 
     // Create the channel
     const newChannel = await createChannel(channelData)
-    return { success: true, newChannel }
+    event.node.res.statusCode = 201 // Created
+    return { success: true, newChannel, statusCode: 201 }
   } catch (error: unknown) {
     // Check for Prisma-specific errors
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -30,6 +46,7 @@ export default defineEventHandler(async (event) => {
         error.code === 'P2002' &&
         (error.meta as { target: string[] }).target.includes('label')
       ) {
+        event.node.res.statusCode = 409 // Conflict
         return {
           success: false,
           message:
@@ -41,7 +58,13 @@ export default defineEventHandler(async (event) => {
 
     // Log and return a generic error
     console.error('Error creating channel:', error)
-    return errorHandler(error)
+    const { message, statusCode } = errorHandler(error)
+    return {
+      success: false,
+      message: 'Failed to create a new channel',
+      error: message,
+      statusCode: statusCode || 500,
+    }
   }
 })
 

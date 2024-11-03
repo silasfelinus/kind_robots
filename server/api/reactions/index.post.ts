@@ -46,90 +46,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Define data object explicitly cast to accommodate dynamic fields
+    // Prepare data object for Prisma, initializing required fields
     const data: Prisma.ReactionCreateInput = {
-      reactionType: reactionData.reactionType!,
-      reactionCategory: reactionData.reactionCategory!,
+      reactionType: reactionData.reactionType,
+      reactionCategory: reactionData.reactionCategory,
       comment: reactionData.comment || '',
       rating: reactionData.rating || 0,
       User: { connect: { id: authenticatedUserId } },
     }
 
-    // Handle each relation type explicitly
-    if (reactionData.reactionCategory === 'ART' && reactionData.artId) {
-      data.Art = { connect: { id: reactionData.artId } }
-    } else if (
-      reactionData.reactionCategory === 'ART_IMAGE' &&
-      reactionData.artImageId
-    ) {
-      data.ArtImage = { connect: { id: reactionData.artImageId } }
-    } else if (
-      reactionData.reactionCategory === 'COMPONENT' &&
-      reactionData.componentName
-    ) {
-      const component = await prisma.component.findFirst({
-        where: { componentName: reactionData.componentName },
-        select: { id: true },
-      })
+    // Link the appropriate relation based on reactionCategory
+    const linkField = await getLinkField(reactionData, data)
 
-      if (!component) {
-        throw createError({
-          statusCode: 404,
-          message: `Component with name "${reactionData.componentName}" not found.`,
-        })
-      }
-
-      data.Component = { connect: { id: component.id } }
-    } else if (
-      reactionData.reactionCategory === 'PITCH' &&
-      reactionData.pitchId
-    ) {
-      data.Pitch = { connect: { id: reactionData.pitchId } }
-    } else if (
-      reactionData.reactionCategory === 'CHANNEL' &&
-      reactionData.channelId
-    ) {
-      data.Channel = { connect: { id: reactionData.channelId } }
-    } else if (
-      reactionData.reactionCategory === 'CHAT_EXCHANGE' &&
-      reactionData.chatExchangeId
-    ) {
-      data.ChatExchange = { connect: { id: reactionData.chatExchangeId } }
-    } else if (reactionData.reactionCategory === 'BOT' && reactionData.botId) {
-      data.Bot = { connect: { id: reactionData.botId } }
-    } else if (
-      reactionData.reactionCategory === 'GALLERY' &&
-      reactionData.galleryId
-    ) {
-      data.Gallery = { connect: { id: reactionData.galleryId } }
-    } else if (
-      reactionData.reactionCategory === 'MESSAGE' &&
-      reactionData.messageId
-    ) {
-      data.Message = { connect: { id: reactionData.messageId } }
-    } else if (
-      reactionData.reactionCategory === 'POST' &&
-      reactionData.postId
-    ) {
-      data.Post = { connect: { id: reactionData.postId } }
-    } else if (
-      reactionData.reactionCategory === 'PROMPT' &&
-      reactionData.promptId
-    ) {
-      data.Prompt = { connect: { id: reactionData.promptId } }
-    } else if (
-      reactionData.reactionCategory === 'RESOURCE' &&
-      reactionData.resourceId
-    ) {
-      data.Resource = { connect: { id: reactionData.resourceId } }
-    } else if (
-      reactionData.reactionCategory === 'REWARD' &&
-      reactionData.rewardId
-    ) {
-      data.Reward = { connect: { id: reactionData.rewardId } }
-    } else if (reactionData.reactionCategory === 'TAG' && reactionData.tagId) {
-      data.Tag = { connect: { id: reactionData.tagId } }
-    } else {
+    if (!linkField) {
       throw createError({
         statusCode: 400,
         message: `${reactionData.reactionCategory} ID is required for ${reactionData.reactionCategory} reactions.`,
@@ -158,6 +87,7 @@ export default defineEventHandler(async (event) => {
   }
 })
 
+// Function to add or update a reaction in the database
 async function addOrUpdateReaction(
   data: Prisma.ReactionCreateInput,
   authenticatedUserId: number,
@@ -186,4 +116,111 @@ async function addOrUpdateReaction(
       error instanceof Error ? error.message : 'Unknown error'
     return { reaction: null, message: errorMessage }
   }
+}
+
+// Helper function to link the correct field based on reaction category
+async function getLinkField(
+  reactionData: ReactionInput,
+  data: Prisma.ReactionCreateInput,
+): Promise<boolean> {
+  switch (reactionData.reactionCategory) {
+    case 'ART':
+      if (reactionData.artId) {
+        data.Art = { connect: { id: reactionData.artId } }
+        return true
+      }
+      break
+    case 'ART_IMAGE':
+      if (reactionData.artImageId) {
+        data.ArtImage = { connect: { id: reactionData.artImageId } }
+        return true
+      }
+      break
+    case 'COMPONENT':
+      if (reactionData.componentName) {
+        const component = await prisma.component.findFirst({
+          where: { componentName: reactionData.componentName },
+          select: { id: true },
+        })
+        if (component) {
+          data.Component = { connect: { id: component.id } }
+          return true
+        } else {
+          throw createError({
+            statusCode: 404,
+            message: `Component with name "${reactionData.componentName}" not found.`,
+          })
+        }
+      }
+      break
+    case 'PITCH':
+      if (reactionData.pitchId) {
+        data.Pitch = { connect: { id: reactionData.pitchId } }
+        return true
+      }
+      break
+    case 'CHANNEL':
+      if (reactionData.channelId) {
+        data.Channel = { connect: { id: reactionData.channelId } }
+        return true
+      }
+      break
+    case 'CHAT_EXCHANGE':
+      if (reactionData.chatExchangeId) {
+        data.ChatExchange = { connect: { id: reactionData.chatExchangeId } }
+        return true
+      }
+      break
+    case 'BOT':
+      if (reactionData.botId) {
+        data.Bot = { connect: { id: reactionData.botId } }
+        return true
+      }
+      break
+    case 'GALLERY':
+      if (reactionData.galleryId) {
+        data.Gallery = { connect: { id: reactionData.galleryId } }
+        return true
+      }
+      break
+    case 'MESSAGE':
+      if (reactionData.messageId) {
+        data.Message = { connect: { id: reactionData.messageId } }
+        return true
+      }
+      break
+    case 'POST':
+      if (reactionData.postId) {
+        data.Post = { connect: { id: reactionData.postId } }
+        return true
+      }
+      break
+    case 'PROMPT':
+      if (reactionData.promptId) {
+        data.Prompt = { connect: { id: reactionData.promptId } }
+        return true
+      }
+      break
+    case 'RESOURCE':
+      if (reactionData.resourceId) {
+        data.Resource = { connect: { id: reactionData.resourceId } }
+        return true
+      }
+      break
+    case 'REWARD':
+      if (reactionData.rewardId) {
+        data.Reward = { connect: { id: reactionData.rewardId } }
+        return true
+      }
+      break
+    case 'TAG':
+      if (reactionData.tagId) {
+        data.Tag = { connect: { id: reactionData.tagId } }
+        return true
+      }
+      break
+    default:
+      return false
+  }
+  return false
 }

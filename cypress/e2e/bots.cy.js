@@ -86,12 +86,12 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      createdBotId = response.body.bot.id
+      createdBotId = response.body.newBot.id
     })
   })
 
   it('should not allow updating a bot without an authorization token', () => {
-    const updateUrl = `${botUrl}/name/${botName}/`
+    const updateUrl = `${botUrl}/id/${createdBotId}/`
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -109,7 +109,7 @@ describe('Bot Management API Tests', () => {
   })
 
   it('should not allow updating a bot with an invalid authorization token', () => {
-    const updateUrl = `${botUrl}/name/${botName}/`
+    const updateUrl = `${botUrl}/id/${createdBotId}/`
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -128,7 +128,7 @@ describe('Bot Management API Tests', () => {
   })
 
   it('Update Bot with Valid Authentication', () => {
-    const updateUrl = `${botUrl}/name/${botName}/`
+    const updateUrl = `${botUrl}/id/${createdBotId}/`
     cy.request({
       method: 'PATCH',
       url: updateUrl,

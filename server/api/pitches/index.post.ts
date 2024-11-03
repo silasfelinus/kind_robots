@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import type { Prisma, Pitch } from '@prisma/client'
+import { Prisma, type Pitch } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -34,17 +34,16 @@ export default defineEventHandler(async (event) => {
     // Read and validate the pitch data from the request body
     const pitchData = await readBody(event)
 
-    // Process single or multiple pitches with specific validation and error handling
+    // Handle single or multiple pitches with specific validation and error handling
     const result = Array.isArray(pitchData)
       ? await addPitches(pitchData, authenticatedUserId)
       : await addPitch(pitchData, authenticatedUserId)
 
     if (result.error) {
-      return {
-        success: false,
-        message: result.error,
+      throw createError({
         statusCode: 400,
-      }
+        message: result.error,
+      })
     }
 
     // Set status code to 201 Created
@@ -63,7 +62,7 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-// Function to add a single pitch with validation and error handling
+// Function to add a single pitch with validation and detailed error handling
 export async function addPitch(
   pitchData: Partial<Pitch>,
   userId: number,
@@ -79,9 +78,12 @@ export async function addPitch(
     return { pitch, error: null }
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'An unknown error occurred while creating the pitch.'
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+        ? 'A pitch with the same title already exists.'
+        : error instanceof Error
+          ? error.message
+          : 'An unknown error occurred while creating the pitch.'
     return { pitch: null, error: errorMessage }
   }
 }
@@ -107,9 +109,12 @@ export async function addPitches(
       createdPitches.push(pitch)
     } catch (error) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'An unknown error occurred while creating a pitch.'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+          ? 'Duplicate pitch content found.'
+          : error instanceof Error
+            ? error.message
+            : 'An unknown error occurred while creating a pitch.'
       errors.push(errorMessage)
     }
   }

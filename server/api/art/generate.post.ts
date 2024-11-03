@@ -182,9 +182,12 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create new art.',
+      message:
+        message.includes('token') || message.includes('required')
+          ? message
+          : 'Failed to create new art.',
       error: message,
-      statusCode: statusCode || 500,
+      statusCode: event.node.res.statusCode,
     }
   } finally {
     console.log('🎬 Art generation process completed.')

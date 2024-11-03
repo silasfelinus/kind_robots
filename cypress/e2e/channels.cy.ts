@@ -23,7 +23,9 @@ describe('Channel Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -63,7 +65,7 @@ describe('Channel Management API Tests', () => {
         title: 'Global Feed',
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       expect(response.body.newChannel).to.be.an('object')
       channelId = response.body.newChannel.id
     })

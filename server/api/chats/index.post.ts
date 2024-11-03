@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     // Validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message:
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -59,6 +61,7 @@ export default defineEventHandler(async (event) => {
 
     // Check if userId in exchangeData matches the authenticated user
     if (exchangeData.userId !== authenticatedUserId) {
+      event.node.res.statusCode = 403 // Forbidden
       throw createError({
         statusCode: 403,
         message: 'User ID does not match the authenticated user.',

@@ -3,22 +3,6 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import type { Prisma } from '@prisma/client'
 
-interface ReactionInput extends Prisma.ReactionCreateInput {
-  componentName?: string
-  channelId?: number
-  chatExchangeId?: number
-  artId?: number
-  artImageId?: number
-  componentId?: number
-  galleryId?: number
-  messageId?: number
-  postId?: number
-  promptId?: number
-  resourceId?: number
-  rewardId?: number
-  tagId?: number
-}
-
 export default defineEventHandler(async (event) => {
   try {
     const authorizationHeader = event.node.req.headers['authorization']
@@ -46,7 +30,24 @@ export default defineEventHandler(async (event) => {
     }
 
     const authenticatedUserId = user.id
-    const reactionData = (await readBody(event)) as ReactionInput
+    const reactionData = (await readBody(event)) as Partial<{
+      reactionType: Prisma.ReactionCreateInput['reactionType']
+      reactionCategory: Prisma.ReactionCreateInput['reactionCategory']
+      comment?: string
+      rating?: number
+      channelId?: number
+      chatExchangeId?: number
+      artId?: number
+      artImageId?: number
+      componentId?: number
+      galleryId?: number
+      messageId?: number
+      postId?: number
+      promptId?: number
+      resourceId?: number
+      rewardId?: number
+      tagId?: number
+    }>
 
     if (!reactionData.reactionType || !reactionData.reactionCategory) {
       console.error('Missing required fields: reactionType or reactionCategory')
@@ -57,7 +58,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Prepare data with all optional fields conditionally set to connect or null
+    // Prepare data with all optional fields conditionally set to connect or undefined
     const data: Prisma.ReactionCreateInput = {
       reactionType: reactionData.reactionType,
       reactionCategory: reactionData.reactionCategory,

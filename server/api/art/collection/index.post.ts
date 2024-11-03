@@ -83,8 +83,8 @@ export default defineEventHandler(async (event) => {
     })
 
     // Return the newly created collection
-    response = { success: true, collection: newCollection, statusCode: 200 }
-    event.node.res.statusCode = 200
+    response = { success: true, collection: newCollection, statusCode: 201 }
+    event.node.res.statusCode = 201
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500

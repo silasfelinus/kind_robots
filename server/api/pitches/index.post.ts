@@ -34,10 +34,18 @@ export default defineEventHandler(async (event) => {
     // Read and validate the pitch data from the request body
     const pitchData = await readBody(event)
 
-    // Handle single or multiple pitch data
+    // Process single or multiple pitches with specific validation and error handling
     const result = Array.isArray(pitchData)
       ? await addPitches(pitchData, authenticatedUserId)
       : await addPitch(pitchData, authenticatedUserId)
+
+    if (result.error) {
+      return {
+        success: false,
+        message: result.error,
+        statusCode: 400,
+      }
+    }
 
     // Set status code to 201 Created
     event.node.res.statusCode = 201
@@ -55,7 +63,7 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-// Function to add a single pitch
+// Function to add a single pitch with validation and error handling
 export async function addPitch(
   pitchData: Partial<Pitch>,
   userId: number,
@@ -64,7 +72,6 @@ export async function addPitch(
     return { pitch: null, error: 'Pitch content is required.' }
   }
 
-  // Add userId to ensure ownership
   try {
     const pitch = await prisma.pitch.create({
       data: { ...pitchData, userId } as Prisma.PitchCreateInput,
@@ -72,12 +79,14 @@ export async function addPitch(
     return { pitch, error: null }
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
+      error instanceof Error
+        ? error.message
+        : 'An unknown error occurred while creating the pitch.'
     return { pitch: null, error: errorMessage }
   }
 }
 
-// Function to handle adding multiple pitches
+// Function to handle adding multiple pitches with consolidated error handling
 export async function addPitches(
   pitchesData: Partial<Pitch>[],
   userId: number,
@@ -98,13 +107,15 @@ export async function addPitches(
       createdPitches.push(pitch)
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error'
+        error instanceof Error
+          ? error.message
+          : 'An unknown error occurred while creating a pitch.'
       errors.push(errorMessage)
     }
   }
 
   return {
     pitches: createdPitches.length > 0 ? createdPitches : null,
-    error: errors.length > 0 ? errors.join(', ') : null,
+    error: errors.length > 0 ? errors.join('; ') : null,
   }
 }

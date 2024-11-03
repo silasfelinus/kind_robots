@@ -8,15 +8,38 @@ export default defineEventHandler(async (event) => {
   try {
     const channelData: Partial<Channel> = await readBody(event)
 
-    // Log the incoming channel data to debug
+    // Log the incoming channel data for debugging purposes
     console.log('Parsed channel data:', channelData)
 
-    // Check if the authorization token matches the userId if provided
+    // Check authorization header
     const authHeader = event.req.headers.authorization
-    if (
-      channelData.userId &&
-      !authHeader?.startsWith(`Bearer ${channelData.userId}`)
-    ) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401 // Unauthorized
+      return {
+        success: false,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+        statusCode: 401,
+      }
+    }
+
+    const token = authHeader.split(' ')[1]
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401 // Unauthorized
+      return {
+        success: false,
+        message: 'Invalid or expired token.',
+        statusCode: 401,
+      }
+    }
+
+    // Verify user ID matches the authenticated user
+    if (channelData.userId && channelData.userId !== user.id) {
       event.node.res.statusCode = 403 // Forbidden
       return {
         success: false,
@@ -30,7 +53,7 @@ export default defineEventHandler(async (event) => {
       event.node.res.statusCode = 400 // Bad Request
       return {
         success: false,
-        message: 'Missing required fields: userId, label, or title',
+        message: 'Missing required fields: userId, label, or title.',
         statusCode: 400,
       }
     }
@@ -40,7 +63,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 201 // Created
     return { success: true, newChannel, statusCode: 201 }
   } catch (error: unknown) {
-    // Check for Prisma-specific errors
+    // Handle Prisma-specific errors for unique constraints
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (
         error.code === 'P2002' &&
@@ -68,15 +91,16 @@ export default defineEventHandler(async (event) => {
   }
 })
 
+// Helper function to create a new channel
 export async function createChannel(
   channel: Partial<Channel>,
 ): Promise<Channel> {
   return prisma.channel.create({
     data: {
-      userId: channel.userId ?? 0, // Provide a default value for userId
-      label: channel.label ?? 'default-label', // Ensure label is always a string
-      description: channel.description ?? null, // If description is not provided, default to null
-      title: channel.title ?? 'Untitled Channel', // Ensure title is always a string
+      userId: channel.userId ?? 0, // Ensure userId has a default
+      label: channel.label ?? 'default-label', // Provide default label if missing
+      description: channel.description ?? null, // Set description to null if not provided
+      title: channel.title ?? 'Untitled Channel', // Set a default title if missing
     },
   })
 }

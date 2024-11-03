@@ -151,13 +151,25 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Create art entry and update user karma
+    // Create a new art entry linked to the image
     newArt = await prisma.art.create({
       data: {
         path: savedImage.fileName,
+        cfg: requestData.cfg,
+        cfgHalf: requestData.cfgHalf,
+        checkpoint: requestData.checkpoint,
+        sampler: requestData.sampler,
+        seed: requestData.seed,
+        steps: requestData.steps,
+        designer: validatedData.designer,
         promptString: requestData.promptString,
-        userId: user.id,
-        // Additional fields here
+        isPublic: requestData.isPublic,
+        isMature: requestData.isMature,
+        userId: validatedData.userId,
+        promptId: validatedData.promptId,
+        pitchId: validatedData.pitchId,
+        galleryId: validatedData.galleryId,
+        artImageId: imageId,
       },
     })
 

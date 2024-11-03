@@ -12,8 +12,8 @@ export async function createGallery(
       throw new Error('Name must be provided')
     }
 
-    // Check for duplicate gallery name
-    const existingGallery = await prisma.gallery.findUnique({
+    // Check for duplicate gallery name using findFirst
+    const existingGallery = await prisma.gallery.findFirst({
       where: { name: gallery.name },
     })
 
@@ -169,7 +169,7 @@ export async function getAllGalleryImages(): Promise<{
 export async function fetchGalleryByName(
   name: string,
 ): Promise<Gallery | null> {
-  return prisma.gallery.findUnique({ where: { name } })
+  return prisma.gallery.findFirst({ where: { name } })
 }
 
 // Function to get images from a gallery by ID

@@ -6,13 +6,12 @@ describe('Reward Management API Tests', () => {
   let rewardId: number | undefined // Define with undefined for clarity
 
   // Step 1: Create a new reward with valid authentication
-  it('Create a New Reward with Authentication', () => {
+  it('Create a New Reward', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
       },
       body: {
         icon: 'kind-icon:star',
@@ -60,7 +59,7 @@ describe('Reward Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.reward.label).to.eq('Updated Test Label')
+      expect(response.body.updatedReward.label).to.eq('Updated Test Label')
     })
   })
 

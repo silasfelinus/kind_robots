@@ -137,7 +137,10 @@ async function getLinkField(
       }
       break
     case 'COMPONENT':
-      if (reactionData.componentName) {
+      if (reactionData.componentId) {
+        data.Component = { connect: { id: reactionData.componentId } }
+        return true
+      } else if (reactionData.componentName) {
         const component = await prisma.component.findFirst({
           where: { componentName: reactionData.componentName },
           select: { id: true },

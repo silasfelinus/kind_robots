@@ -33,7 +33,9 @@ describe('Gallery Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -89,7 +91,7 @@ describe('Gallery Management API Tests', () => {
         channelId: null,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
       galleryId = response.body.newGallery?.id // Capture the gallery ID for further tests
     })

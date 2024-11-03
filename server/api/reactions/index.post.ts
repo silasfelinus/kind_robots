@@ -1,3 +1,4 @@
+// /server/api/reactions/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -58,6 +59,7 @@ export default defineEventHandler(async (event) => {
     // Attempt to Link the Appropriate Field Based on Reaction Category
     const linked = await getLinkField(reactionData, data)
     if (!linked) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: `${reactionData.reactionCategory} ID is required for ${reactionData.reactionCategory} reactions.`,
@@ -156,8 +158,6 @@ async function getLinkField(
           }
         }
         break
-      // Add additional cases for each category, ensuring optional fields
-      // For example:
       case 'CHANNEL':
         if (reactionData.channelId) {
           data.Channel = { connect: { id: reactionData.channelId } }
@@ -213,7 +213,9 @@ async function getLinkField(
   } catch (error) {
     throw createError({
       statusCode: 500,
-      message: `Failed to process the linked field: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      message: `Failed to process the linked field: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     })
   }
 }

@@ -33,7 +33,7 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      galleryId = response.body.gallery?.id // Capture the gallery ID for further tests
+      galleryId = response.body.newGallery?.id // Capture the gallery ID for further tests
     })
   })
 

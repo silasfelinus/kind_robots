@@ -31,7 +31,9 @@ describe('Post Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -81,7 +83,7 @@ describe('Post Management API Tests', () => {
         channelId: null,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       postId = response.body.post.id
     })
   })

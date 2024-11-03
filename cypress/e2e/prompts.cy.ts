@@ -24,7 +24,9 @@ describe('Prompt Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -62,7 +64,7 @@ describe('Prompt Management API Tests', () => {
         prompt: uniquePrompt,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       promptId = response.body.newPrompt.id
     })
   })

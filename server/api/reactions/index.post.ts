@@ -46,34 +46,29 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Define required fields for each reaction category
-    const requiredFields: { [key: string]: keyof Reaction } = {
-      ART: 'artId',
-      ART_IMAGE: 'artImageId',
-      COMPONENT: 'componentId', // Adjusted to handle by name below
-      PITCH: 'pitchId',
-      CHANNEL: 'channelId',
-      CHAT_EXCHANGE: 'chatExchangeId',
-      BOT: 'botId',
-      GALLERY: 'galleryId',
-      MESSAGE: 'messageId',
-      POST: 'postId',
-      PROMPT: 'promptId',
-      RESOURCE: 'resourceId',
-      REWARD: 'rewardId',
-      TAG: 'tagId',
+    // Define data object explicitly cast to accommodate dynamic fields
+    const data: Prisma.ReactionCreateInput = {
+      reactionType: reactionData.reactionType!,
+      reactionCategory: reactionData.reactionCategory!,
+      comment: reactionData.comment || '',
+      rating: reactionData.rating || 0,
+      User: { connect: { id: authenticatedUserId } },
     }
 
-    let requiredField = requiredFields[reactionData.reactionCategory]
-
-    // Special handling for COMPONENT category by component name
-    // Special handling for COMPONENT category by component name
-    if (
+    // Handle each relation type explicitly
+    if (reactionData.reactionCategory === 'ART' && reactionData.artId) {
+      data.Art = { connect: { id: reactionData.artId } }
+    } else if (
+      reactionData.reactionCategory === 'ART_IMAGE' &&
+      reactionData.artImageId
+    ) {
+      data.ArtImage = { connect: { id: reactionData.artImageId } }
+    } else if (
       reactionData.reactionCategory === 'COMPONENT' &&
       reactionData.componentName
     ) {
       const component = await prisma.component.findFirst({
-        where: { componentName: reactionData.componentName }, // Use componentName instead of name
+        where: { componentName: reactionData.componentName },
         select: { id: true },
       })
 
@@ -84,22 +79,65 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      // Replace componentId in reactionData with the found ID
-      reactionData.componentId = component.id
-      requiredField = 'componentId'
-    } else if (!reactionData[requiredField]) {
+      data.Component = { connect: { id: component.id } }
+    } else if (
+      reactionData.reactionCategory === 'PITCH' &&
+      reactionData.pitchId
+    ) {
+      data.Pitch = { connect: { id: reactionData.pitchId } }
+    } else if (
+      reactionData.reactionCategory === 'CHANNEL' &&
+      reactionData.channelId
+    ) {
+      data.Channel = { connect: { id: reactionData.channelId } }
+    } else if (
+      reactionData.reactionCategory === 'CHAT_EXCHANGE' &&
+      reactionData.chatExchangeId
+    ) {
+      data.ChatExchange = { connect: { id: reactionData.chatExchangeId } }
+    } else if (reactionData.reactionCategory === 'BOT' && reactionData.botId) {
+      data.Bot = { connect: { id: reactionData.botId } }
+    } else if (
+      reactionData.reactionCategory === 'GALLERY' &&
+      reactionData.galleryId
+    ) {
+      data.Gallery = { connect: { id: reactionData.galleryId } }
+    } else if (
+      reactionData.reactionCategory === 'MESSAGE' &&
+      reactionData.messageId
+    ) {
+      data.Message = { connect: { id: reactionData.messageId } }
+    } else if (
+      reactionData.reactionCategory === 'POST' &&
+      reactionData.postId
+    ) {
+      data.Post = { connect: { id: reactionData.postId } }
+    } else if (
+      reactionData.reactionCategory === 'PROMPT' &&
+      reactionData.promptId
+    ) {
+      data.Prompt = { connect: { id: reactionData.promptId } }
+    } else if (
+      reactionData.reactionCategory === 'RESOURCE' &&
+      reactionData.resourceId
+    ) {
+      data.Resource = { connect: { id: reactionData.resourceId } }
+    } else if (
+      reactionData.reactionCategory === 'REWARD' &&
+      reactionData.rewardId
+    ) {
+      data.Reward = { connect: { id: reactionData.rewardId } }
+    } else if (reactionData.reactionCategory === 'TAG' && reactionData.tagId) {
+      data.Tag = { connect: { id: reactionData.tagId } }
+    } else {
       throw createError({
         statusCode: 400,
-        message: `${requiredField} is required for ${reactionData.reactionCategory} reactions.`,
+        message: `${reactionData.reactionCategory} ID is required for ${reactionData.reactionCategory} reactions.`,
       })
     }
 
     // Proceed with adding or updating the reaction
-    const result = await addOrUpdateReaction(
-      reactionData,
-      requiredField,
-      authenticatedUserId,
-    )
+    const result = await addOrUpdateReaction(data, authenticatedUserId)
 
     if (!result.reaction) {
       throw createError({
@@ -121,38 +159,26 @@ export default defineEventHandler(async (event) => {
 })
 
 async function addOrUpdateReaction(
-  reactionData: ReactionInput,
-  requiredField: keyof Reaction | undefined,
+  data: Prisma.ReactionCreateInput,
   authenticatedUserId: number,
 ): Promise<{ reaction: Reaction | null; message: string | null }> {
   try {
     const existingReaction = await prisma.reaction.findFirst({
       where: {
         userId: authenticatedUserId,
-        reactionType: reactionData.reactionType,
-        reactionCategory: reactionData.reactionCategory,
-        ...(requiredField && { [requiredField]: reactionData[requiredField] }),
+        reactionType: data.reactionType,
+        reactionCategory: data.reactionCategory,
       },
     })
 
     if (existingReaction) {
       const reaction = await prisma.reaction.update({
         where: { id: existingReaction.id },
-        data: {
-          ...reactionData,
-          userId: undefined, // Ensure userId is not directly assigned
-        } as Prisma.ReactionUpdateInput,
+        data,
       })
       return { reaction, message: 'Reaction updated successfully' }
     } else {
-      const { userId, ...reactionInput } = reactionData // Exclude userId from input data
-
-      const reaction = await prisma.reaction.create({
-        data: {
-          ...reactionInput,
-          User: { connect: { id: authenticatedUserId } }, // Connect authenticated user
-        } as Prisma.ReactionCreateInput,
-      })
+      const reaction = await prisma.reaction.create({ data })
       return { reaction, message: 'Reaction created successfully' }
     }
   } catch (error: unknown) {

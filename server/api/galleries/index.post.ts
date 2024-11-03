@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
     // Validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message:
@@ -24,7 +23,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -34,21 +32,8 @@ export default defineEventHandler(async (event) => {
     // Read and validate the gallery data from the request body
     const galleryData = (await readBody(event)) as Prisma.GalleryCreateInput
 
-    // Ensure the userId in galleryData matches the authenticated user's ID
-    if (
-      galleryData.User?.connect?.id &&
-      galleryData.User.connect.id !== user.id
-    ) {
-      event.node.res.statusCode = 403 // Forbidden
-      throw createError({
-        statusCode: 403,
-        message: 'User ID in request does not match authenticated user.',
-      })
-    }
-
     // Validate required fields
     if (!galleryData.name || !galleryData.content) {
-      event.node.res.statusCode = 400 // Bad Request
       throw createError({
         statusCode: 400,
         message:
@@ -56,10 +41,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Prepare data with optional relations
+    // Prepare data with optional relations, connecting the authenticated user
     const data: Prisma.GalleryCreateInput = {
       ...galleryData,
-      User: { connect: { id: user.id } }, // Use authenticated user ID
+      User: { connect: { id: user.id } }, // Link the gallery to the authenticated user
       ...(galleryData.Channel?.connect?.id && {
         Channel: { connect: { id: galleryData.Channel.connect.id } },
       }),
@@ -70,8 +55,7 @@ export default defineEventHandler(async (event) => {
       data,
     })
 
-    // Set status code to 201 Created for successful creation
-    event.node.res.statusCode = 201
+    event.node.res.statusCode = 201 // Set status code to 201 Created
     return {
       success: true,
       newGallery,

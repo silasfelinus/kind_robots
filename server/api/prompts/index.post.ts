@@ -1,4 +1,3 @@
-// /server/api/prompts/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -9,7 +8,6 @@ export default defineEventHandler(async (event) => {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -24,7 +22,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -38,7 +35,6 @@ export default defineEventHandler(async (event) => {
 
     // Ensure the "prompt" field is provided and is a string
     if (!promptData.prompt || typeof promptData.prompt !== 'string') {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'The "prompt" field is required and must be a string.',
@@ -47,7 +43,6 @@ export default defineEventHandler(async (event) => {
 
     // Verify that if userId is provided, it matches the authenticated user
     if (promptData.userId && promptData.userId !== authenticatedUserId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'User ID does not match the authenticated user.',
@@ -69,13 +64,13 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 201
     return { success: true, newPrompt }
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
+    // Capture specific error message and status code from errorHandler
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create prompt.',
-      error: handledError.message,
-      statusCode: handledError.statusCode || 500,
+      message,
+      statusCode,
     }
   }
 })

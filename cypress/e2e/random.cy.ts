@@ -29,7 +29,9 @@ describe('RandomList Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -67,7 +69,7 @@ describe('RandomList Management API Tests', () => {
         userId,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       randomListId = response.body.randomList.id
     })
   })

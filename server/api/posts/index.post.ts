@@ -1,4 +1,3 @@
-// /server/api/posts/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
@@ -9,6 +8,7 @@ export default defineEventHandler(async (event) => {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -32,24 +33,38 @@ export default defineEventHandler(async (event) => {
     const authenticatedUserId = user.id
 
     // Read and validate the post data from the request body
-    const postData = await readBody(event)
+    const postData = await readBody<Partial<Post>>(event)
+
+    // Check for required fields and provide specific error messages
+    const requiredFields = ['title', 'content'] // Adjust based on your actual requirements
+    const missingFields = requiredFields.filter(
+      (field) => !postData[field as keyof Post],
+    )
+    if (missingFields.length > 0) {
+      event.node.res.statusCode = 400
+      throw createError({
+        statusCode: 400,
+        message: `Missing required fields: ${missingFields.join(', ')}.`,
+      })
+    }
 
     // Check if userId in postData matches the authenticated user
     if (postData.userId && postData.userId !== authenticatedUserId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'User ID does not match the authenticated user.',
       })
     }
 
-    // Create the post
+    // Create the post, ensuring required fields and userId are included
     const result = await addPost({ ...postData, userId: authenticatedUserId })
 
     if (result.error) {
       return {
         success: false,
         message: result.error,
-        statusCode: 400, // Indicating a client error due to incomplete or malformed data
+        statusCode: 400,
       }
     }
 
@@ -68,7 +83,7 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-// Function to add a single post
+// Function to add a single post with enhanced error reporting
 export async function addPost(
   postData: Partial<Post>,
 ): Promise<{ post: Post | null; error: string | null }> {
@@ -79,7 +94,9 @@ export async function addPost(
     return { post, error: null }
   } catch (error: unknown) {
     const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
+      error instanceof Error
+        ? error.message
+        : 'An unknown error occurred while creating the post.'
     return { post: null, error: errorMessage }
   }
 }

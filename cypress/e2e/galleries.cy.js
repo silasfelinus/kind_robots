@@ -22,6 +22,13 @@ describe('Gallery Management API Tests', () => {
         description: 'A gallery for testing purposes',
         highlightImage: '/images/testgallery/highlight.webp',
         userId: 9,
+        url: 'https://art-collections/natures-wonders',
+        custodian: 'Curated by ArtBot',
+        imagePaths:
+          '/images/collection1/image1.webp,/images/collection1/image2.webp',
+        isMature: false,
+        isPublic: true,
+        channelId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

@@ -1,4 +1,3 @@
-// /server/api/chats/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -9,7 +8,6 @@ export default defineEventHandler(async (event) => {
     // Validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message:
@@ -24,7 +22,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -51,17 +48,14 @@ export default defineEventHandler(async (event) => {
     )
 
     if (missingFields.length > 0) {
-      event.node.res.statusCode = 400 // Bad Request
-      return {
-        success: false,
-        message: `Missing required fields: ${missingFields.join(', ')}`,
+      throw createError({
         statusCode: 400,
-      }
+        message: `Missing required fields: ${missingFields.join(', ')}`,
+      })
     }
 
     // Check if userId in exchangeData matches the authenticated user
     if (exchangeData.userId !== authenticatedUserId) {
-      event.node.res.statusCode = 403 // Forbidden
       throw createError({
         statusCode: 403,
         message: 'User ID does not match the authenticated user.',
@@ -75,21 +69,17 @@ export default defineEventHandler(async (event) => {
     ])
 
     if (!userExists) {
-      event.node.res.statusCode = 404 // Not Found
-      return {
-        success: false,
-        message: `User with id ${authenticatedUserId} does not exist.`,
+      throw createError({
         statusCode: 404,
-      }
+        message: `User with id ${authenticatedUserId} does not exist.`,
+      })
     }
 
     if (!botExists) {
-      event.node.res.statusCode = 404 // Not Found
-      return {
-        success: false,
-        message: `Bot with id ${exchangeData.botId} does not exist.`,
+      throw createError({
         statusCode: 404,
-      }
+        message: `Bot with id ${exchangeData.botId} does not exist.`,
+      })
     }
 
     // Create the chat exchange entry
@@ -114,14 +104,13 @@ export default defineEventHandler(async (event) => {
       statusCode: 201,
     }
   } catch (error) {
-    console.error('Error in /server/api/chats/index.post.ts:', error)
     const { message, statusCode } = errorHandler(error)
 
+    // Return the specific error message from errorHandler
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create a new chat exchange',
-      error: message,
+      message,
       statusCode: statusCode || 500,
     }
   }

@@ -50,13 +50,13 @@ describe('Component Reactions API Tests', () => {
         componentId,
         comment: 'Great job on this component!',
         rating: 4,
-        channelId: null,
-        chatExchangeId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -77,8 +77,6 @@ describe('Component Reactions API Tests', () => {
         componentId,
         comment: 'Great job on this component!',
         rating: 4,
-        channelId: null,
-        chatExchangeId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -104,8 +102,6 @@ describe('Component Reactions API Tests', () => {
         componentId,
         comment: 'Great job on this component!',
         rating: 4,
-        channelId: null,
-        chatExchangeId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

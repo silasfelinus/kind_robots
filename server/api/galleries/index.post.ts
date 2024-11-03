@@ -5,10 +5,13 @@ import { errorHandler } from '../utils/error'
 import type { Prisma } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     // Validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -23,11 +26,14 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
+
+    const userId = user.id
 
     // Read and validate the gallery data from the request body
     const galleryData = await readBody(event)
@@ -38,6 +44,7 @@ export default defineEventHandler(async (event) => {
       (field) => !galleryData[field as keyof typeof galleryData],
     )
     if (missingFields.length > 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: `Missing required fields: ${missingFields.join(', ')}.`,
@@ -55,7 +62,7 @@ export default defineEventHandler(async (event) => {
       imagePaths: galleryData.imagePaths || null,
       isMature: galleryData.isMature ?? false,
       isPublic: galleryData.isPublic ?? true,
-      User: { connect: { id: user.id } }, // Link to authenticated user
+      User: { connect: { id: userId } }, // Link to authenticated user
       ...(galleryData.Channel?.connect?.id && {
         Channel: { connect: { id: galleryData.Channel.connect.id } },
       }),
@@ -64,19 +71,18 @@ export default defineEventHandler(async (event) => {
     // Create the gallery entry
     const newGallery = await prisma.gallery.create({ data })
 
-    event.node.res.statusCode = 201 // Created
-    return {
-      success: true,
-      newGallery,
-    }
+    // Set status code to 201 Created
+    event.node.res.statusCode = 201
+    response = { success: true, newGallery, statusCode: 201 }
   } catch (error) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
-    return {
+    response = {
       success: false,
-      message: 'Failed to create gallery entry.',
-      error: handledError.message,
+      message: handledError.message || 'Failed to create gallery entry.',
       statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

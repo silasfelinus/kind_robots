@@ -4,10 +4,13 @@ import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
-    // Validate authorization token
+    // Validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -22,6 +25,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -41,6 +45,7 @@ export default defineEventHandler(async (event) => {
     if (typeof recordData?.userId !== 'number') missingFields.push('userId')
 
     if (missingFields.length > 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: `Missing required fields: ${missingFields.join(', ')}.`,
@@ -51,6 +56,7 @@ export default defineEventHandler(async (event) => {
 
     // Verify that userId matches the authenticated user
     if (userId !== authenticatedUserId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'User ID does not match the authenticated user.',
@@ -74,7 +80,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Create a new milestone record, including the username for readability
+    // Create a new milestone record
     const newRecord = await prisma.milestoneRecord.create({
       data: {
         milestoneId,
@@ -84,15 +90,16 @@ export default defineEventHandler(async (event) => {
     })
 
     event.node.res.statusCode = 201 // Created
-    return { success: true, record: newRecord }
+    response = { success: true, record: newRecord, statusCode: 201 }
   } catch (error) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
-    return {
+    response = {
       success: false,
-      message: 'Failed to create milestone record.',
-      error: handledError.message || 'An unknown error occurred.',
-      statusCode: handledError.statusCode || 500,
+      message: handledError.message || 'Failed to create milestone record.',
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

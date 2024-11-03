@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -35,6 +37,7 @@ export default defineEventHandler(async (event) => {
     const resourceData = (await readBody(event)) as Partial<Resource>
 
     if (!resourceData.name) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Resource name is required.',
@@ -43,6 +46,7 @@ export default defineEventHandler(async (event) => {
 
     // If userId is provided in resourceData, ensure it matches the authenticated user
     if (resourceData.userId && resourceData.userId !== authenticatedUserId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'User ID does not match the authenticated user.',
@@ -62,6 +66,7 @@ export default defineEventHandler(async (event) => {
     return { success: true, resource: newResource }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       message: 'Failed to create a new resource',

@@ -26,7 +26,9 @@ describe('Reward Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -74,7 +76,7 @@ describe('Reward Management API Tests', () => {
         userId: 9,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       expect(response.body.reward).to.be.an('object')
       expect(response.body.reward.label).to.eq('Test Label')
       rewardId = response.body.reward.id
@@ -91,7 +93,9 @@ describe('Reward Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -174,7 +178,9 @@ describe('Reward Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized without token
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 

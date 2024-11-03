@@ -53,6 +53,9 @@ export default defineEventHandler(async (event) => {
       comment: reactionData.comment || '',
       rating: reactionData.rating || 0,
       User: { connect: { id: authenticatedUserId } },
+      Channel: reactionData.channelId
+        ? { connect: { id: reactionData.channelId } }
+        : undefined, // Use Channel relation if channelId exists
     }
 
     // Attempt to Link the Appropriate Field Based on Reaction Category
@@ -160,12 +163,7 @@ async function getLinkField(
           }
         }
         break
-      case 'CHANNEL':
-        if (reactionData.channelId) {
-          data.Channel = { connect: { id: reactionData.channelId } }
-          return true
-        }
-        break
+      // Add additional cases for each category, ensuring optional fields
       case 'GALLERY':
         if (reactionData.galleryId) {
           data.Gallery = { connect: { id: reactionData.galleryId } }
@@ -215,9 +213,7 @@ async function getLinkField(
   } catch (error) {
     throw createError({
       statusCode: 500,
-      message: `Failed to process the linked field: ${
-        error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      message: `Failed to process the linked field: ${error instanceof Error ? error.message : 'Unknown error'}`,
     })
   }
 }

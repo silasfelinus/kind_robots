@@ -59,6 +59,13 @@ describe('Art Management API Tests', () => {
         promptString: 'A sunset over the ocean',
         steps: 20,
         cfg: 5,
+        path: ' ',
+        seed: null,
+        channelId: null,
+        galleryId: null,
+        promptId: null,
+        pitchId: null,
+        userId: 9,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -82,6 +89,13 @@ describe('Art Management API Tests', () => {
         promptString: 'A sunset over the ocean',
         steps: 20,
         cfg: 5,
+        path: ' ',
+        seed: null,
+        channelId: null,
+        galleryId: null,
+        promptId: null,
+        pitchId: null,
+        userId: 9,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -100,9 +114,16 @@ describe('Art Management API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
       body: {
-        promptString: 'A peaceful forest at dawn',
-        steps: 15,
-        cfg: 7,
+        promptString: 'A sunset over the ocean',
+        steps: 20,
+        cfg: 5,
+        path: ' ',
+        seed: null,
+        channelId: null,
+        galleryId: null,
+        promptId: null,
+        pitchId: null,
+        userId: 9,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
@@ -120,7 +141,7 @@ describe('Art Management API Tests', () => {
         'x-api-key': apiKey,
       },
     }).then((response) => {
-      expect(response.status).to.eq(201)
+      expect(response.status).to.eq(200)
       expect(response.body.art.path).to.include('cafefred')
       expect(response.body.art.path).to.match(/\.webp$/)
       expect(response.body.art.cfg).to.eq(7)

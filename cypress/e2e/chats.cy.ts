@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/chats.cy.ts
 
 describe('ChatExchange Management API Tests', () => {
@@ -27,7 +28,9 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -73,7 +76,7 @@ describe('ChatExchange Management API Tests', () => {
         previousEntryId: null,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       expect(response.body.newExchange).to.be.an('object').that.is.not.empty
       chatExchangeId = response.body.newExchange.id
     })
@@ -155,7 +158,9 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization header is missing')
+      expect(response.body.message).to.include(
+        'Authorization header is missing',
+      )
     })
   })
 
@@ -205,7 +210,9 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 

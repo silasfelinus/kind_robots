@@ -32,7 +32,7 @@ describe('Art Collection API Tests', () => {
         userId: 9,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       artId = response.body.art?.id
       if (!artId) throw new Error('Failed to create art.')
     })

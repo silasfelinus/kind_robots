@@ -34,13 +34,13 @@ export default defineEventHandler(async (event) => {
     const authenticatedUserId = user.id
 
     // Read and validate the request body
-    const resourceData = (await readBody(event)) as Partial<Resource>
+    const resourceData = await readBody<Partial<Resource>>(event)
 
-    if (!resourceData.name) {
+    if (!resourceData.name || typeof resourceData.name !== 'string') {
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
-        message: 'Resource name is required.',
+        message: '"name" is a required field and must be a string.',
       })
     }
 
@@ -49,19 +49,20 @@ export default defineEventHandler(async (event) => {
       event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
-        message: 'User ID does not match the authenticated user.',
+        message:
+          'User ID in the request does not match the authenticated user.',
       })
     }
 
-    // Create the resource with a connected User relation if userId is provided
+    // Create the resource with a connected User relation using authenticatedUserId
     const newResource = await prisma.resource.create({
       data: {
         ...resourceData,
-        User: { connect: { id: authenticatedUserId } }, // Ensure user relation is properly connected
+        User: { connect: { id: authenticatedUserId } }, // Connect authenticated user
       } as Prisma.ResourceCreateInput,
     })
 
-    // Set status code to 201 Created
+    // Set status code to 201 Created for successful creation
     event.node.res.statusCode = 201
     return { success: true, resource: newResource }
   } catch (error) {
@@ -69,7 +70,9 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create a new resource',
+      message: message.includes('token')
+        ? message
+        : 'Failed to create a new resource',
       error: message,
       statusCode: statusCode || 500,
     }

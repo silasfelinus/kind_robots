@@ -1,5 +1,5 @@
-/* eslint-disable no-undef */
 // cypress/e2e/tags.cy.js
+/* eslint-disable no-undef */
 
 describe('Tag Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/tags'
@@ -24,12 +24,13 @@ describe('Tag Management API Tests', () => {
   })
 
   // Test to create a new tag with valid authentication
-  it('Create New Tag', () => {
+  it('Create New Tag with Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         label: 'Tag',
@@ -39,9 +40,7 @@ describe('Tag Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-
-      // Capture created tag ID for future operations
-      tagId = response.body.tag.id
+      tagId = response.body.tag.id // Capture created tag ID for future operations
     })
   })
 

@@ -32,7 +32,9 @@ describe('Resource Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -87,7 +89,7 @@ describe('Resource Management API Tests', () => {
         isMature: false,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       expect(response.body.resource).to.be.an('object').that.is.not.empty
       resourceId = response.body.resource.id
     })
@@ -107,7 +109,9 @@ describe('Resource Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -194,7 +198,9 @@ describe('Resource Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 

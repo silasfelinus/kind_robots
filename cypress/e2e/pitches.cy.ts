@@ -1,5 +1,4 @@
 // cypress/e2e/pitches.cy.ts
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Pitch Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/pitches'
@@ -25,7 +24,9 @@ describe('Pitch Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -63,7 +64,7 @@ describe('Pitch Management API Tests', () => {
         userId: 9,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       pitchId = response.body.pitch.id // Capture ID for use in other tests
     })
   })

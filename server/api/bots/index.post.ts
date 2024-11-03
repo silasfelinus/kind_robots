@@ -1,6 +1,7 @@
+// /server/api/bots/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
-import prisma from './../utils/prisma'
+import prisma from '../utils/prisma'
 import type { Prisma, Bot } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -31,50 +32,41 @@ export default defineEventHandler(async (event) => {
     const authenticatedUserId = user.id
 
     // Read and validate the bot data from the request body
-    const botsData: Partial<Bot> = await readBody(event)
+    const botData = await readBody<Partial<Bot>>(event)
 
-    // Check if userId in botsData matches the authenticated user
-    const userId = botsData.userId ?? authenticatedUserId
-    if (userId !== authenticatedUserId) {
-      throw createError({
-        statusCode: 403,
-        message: 'User ID does not match the authenticated user.',
-      })
-    }
-
-    // Ensure that essential fields like "name" are present
-    if (!botsData.name) {
-      throw createError({
+    // Validate required fields
+    if (!botData.name) {
+      return {
+        success: false,
+        message: '"name" is a required field for creating a bot.',
         statusCode: 400,
-        message: 'Bot name is required.',
-      })
+      }
     }
 
-    // Proceed with bot creation
-    const result = await addBot({ ...botsData, userId })
+    // Set authenticated user ID
+    botData.userId = authenticatedUserId
+
+    // Create the bot
+    const result = await addBot(botData)
 
     if (result.error) {
-      throw createError({
-        statusCode: 400,
-        message: result.error,
-      })
+      throw new Error(result.error)
     }
 
-    event.node.res.statusCode = 201 // Created
-    return { success: true, bot: result.bot }
+    return { success: true, bot: result.bot, statusCode: 201 }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
+
     return {
       success: false,
       message: 'Failed to create a new bot',
-      error: message,
+      error: message || 'An unknown error occurred',
       statusCode: statusCode || 500,
     }
   }
 })
 
-// Function to add a single bot
+// Function to add a single bot with enhanced error handling
 export async function addBot(
   botData: Partial<Bot>,
 ): Promise<{ bot: Bot | null; error: string | null }> {
@@ -97,14 +89,14 @@ export async function addBot(
       underConstruction: botData.underConstruction ?? false,
       canDelete: botData.canDelete ?? false,
       tagline: botData.tagline ?? '',
-      User: { connect: { id: botData.userId as number } }, // Ensure userId is assigned
+      User: { connect: { id: botData.userId as number } },
     }
 
     const bot = await prisma.bot.create({ data: dataToSave })
     return { bot, error: null }
   } catch (error: unknown) {
     const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
+      error instanceof Error ? error.message : 'Unknown database error'
     return { bot: null, error: `Failed to create bot: ${errorMessage}` }
   }
 }

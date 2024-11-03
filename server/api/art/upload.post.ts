@@ -1,4 +1,3 @@
-// /server/api/art/upload.post.ts
 import { defineEventHandler, readMultipartFormData } from 'h3'
 import { uploadArtImage } from './../utils/UploadArtImage'
 import { errorHandler } from './../utils/error'
@@ -17,7 +16,8 @@ export default defineEventHandler(async (event) => {
     const form = await readMultipartFormData(event)
 
     if (!form) {
-      return { success: false, message: 'No form data received' }
+      event.node.res.statusCode = 400 // Bad Request
+      return { success: false, message: 'No form data received', statusCode: 400 }
     }
 
     // Extract the image file and form fields
@@ -33,22 +33,20 @@ export default defineEventHandler(async (event) => {
       form.find((field) => field.name === 'fileType')?.data.toString() || 'png' // Default to 'png' if missing
 
     // Ensure required fields are present and valid
-    if (
-      !imageFile?.data ||
-      !validUserId(userId) ||
-      !validGalleryId(galleryId)
-    ) {
+    if (!imageFile?.data || !validUserId(userId) || !validGalleryId(galleryId)) {
+      event.node.res.statusCode = 400 // Bad Request
       return {
         success: false,
         message: 'Missing required fields or invalid data',
+        statusCode: 400,
       }
     }
 
-    // Call your uploadArtImage function and pass both the data and filename
+    // Call the uploadArtImage function and pass both the data and filename
     const artImage = await uploadArtImage(
       {
         data: imageFile.data, // file data as Buffer
-        filename: imageFile.filename || 'default-filename.webp', // use a fallback filename if missing
+        filename: imageFile.filename || 'default-filename.webp', // fallback filename if missing
       },
       galleryName,
       Number(userId),
@@ -56,9 +54,18 @@ export default defineEventHandler(async (event) => {
       fileType,
     )
 
-    return { success: true, artImage }
+    event.node.res.statusCode = 201 // Created
+    return { success: true, artImage, statusCode: 201 }
   } catch (error: unknown) {
     // Use errorHandler for consistent error handling
-    return errorHandler('error uploading the art image: ' + error)
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500 // Default to 500 if no status code is provided
+
+    return {
+      success: false,
+      message: 'Error uploading the art image',
+      error: message || 'An unknown error occurred',
+      statusCode: statusCode || 500,
+    }
   }
 })

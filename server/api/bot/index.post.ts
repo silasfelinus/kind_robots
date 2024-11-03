@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -22,6 +23,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -30,19 +32,21 @@ export default defineEventHandler(async (event) => {
 
     const botData = await readBody<Partial<Bot>>(event)
 
-    // Validate essential fields
+    // Validate required fields
     if (!botData.name) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Bot name is required.',
       })
     }
 
-    // Pass the validated userId
+    // Pass the validated userId to the botData
     botData.userId = user.id
     const result = await addSingleBot(botData)
 
     if (result.error) {
+      event.node.res.statusCode = 500
       throw createError({
         statusCode: 500,
         message: result.error,
@@ -50,15 +54,19 @@ export default defineEventHandler(async (event) => {
     }
 
     // Successful bot creation
+    event.node.res.statusCode = 201
     return { success: true, bot: result.bot, statusCode: 201 }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
-
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create a new bot',
+      message:
+        message.includes('token') || message.includes('required')
+          ? message
+          : 'Failed to create a new bot',
       error: message,
-      statusCode: statusCode || 500,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

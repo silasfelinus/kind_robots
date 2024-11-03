@@ -47,7 +47,7 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  it('Create New Art with Generation', () => {
+  it('should not allow creating art without a bearer token', () => {
     cy.request({
       method: 'POST',
       url: `${baseUrl}/generate`,
@@ -56,21 +56,54 @@ describe('Art Management API Tests', () => {
         'x-api-key': apiKey,
       },
       body: {
-        cfg: 7,
-        cfgHalf: true,
-        checkpoint: 'model-checkpoint-001',
-        sampler: 'Euler',
-        seed: -1,
-        steps: 10,
-        designer: 'kinddesigner',
-        pitch: 'Beauty',
-        promptString: 'A beautiful sunrise over the mountains',
-        galleryId: 21,
-        userId: 9,
+        promptString: 'A sunset over the ocean',
+        steps: 20,
+        cfg: 5,
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating art with an invalid bearer token', () => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/generate`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        promptString: 'A sunset over the ocean',
+        steps: 20,
+        cfg: 5,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('should allow creating art with a valid bearer token', () => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/generate`,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: {
+        promptString: 'A peaceful forest at dawn',
+        steps: 15,
+        cfg: 7,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(201)
       expect(response.body.art).to.be.an('object').that.is.not.empty
       artId = response.body.art.id
     })
@@ -172,8 +205,6 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  // Test delete cases here
-
   it('should not allow deleting an art entry without an authorization token', () => {
     cy.request({
       method: 'DELETE',
@@ -204,8 +235,6 @@ describe('Art Management API Tests', () => {
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
-
-  // Finally, delete the art entry with a valid token
 
   it('should allow deleting an art entry with a valid authorization token', () => {
     cy.request({

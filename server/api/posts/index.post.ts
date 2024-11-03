@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     const postData = await readBody<Partial<Post>>(event)
 
     // Check for required fields and provide specific error messages
-    const requiredFields = ['title', 'content'] // Adjust based on your actual requirements
+    const requiredFields = ['title', 'content']
     const missingFields = requiredFields.filter(
       (field) => !postData[field as keyof Post],
     )
@@ -74,9 +74,13 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create a new post.',
+      // Ensure we use the specific error message if available
+      message:
+        message.includes('token') || message.includes('Missing required fields')
+          ? message
+          : 'Failed to create a new post.',
       error: message,
-      statusCode: event.node.res.statusCode,
+      statusCode: statusCode || 500,
     }
   }
 })

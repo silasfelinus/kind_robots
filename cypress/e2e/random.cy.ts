@@ -3,8 +3,12 @@ describe('RandomList Management API Tests', () => {
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
   let randomListId: number | undefined
-  let uniqueTitle = `Dreams-${Date.now()}`
   const userId: number = 9 // Example user ID
+
+  // Capture initial timestamp for unique values
+  const now = Date.now()
+  let uniqueTitle = `Dreams-${now}`
+  const initialItems = [`Dream-${now}-1`, `Dream-${now}-2`, `Dream-${now}-3`]
 
   it('Create a New RandomList', () => {
     cy.request({
@@ -16,11 +20,7 @@ describe('RandomList Management API Tests', () => {
       },
       body: {
         title: uniqueTitle,
-        items: [
-          `Dream-${Date.now()}-1`,
-          `Dream-${Date.now()}-2`,
-          `Dream-${Date.now()}-3`,
-        ],
+        items: initialItems,
         userId,
       },
     }).then((response) => {
@@ -60,6 +60,7 @@ describe('RandomList Management API Tests', () => {
 
   it('Update RandomList with Authentication', () => {
     const newTitle = `Updated-${uniqueTitle}`
+    const updatedItems = [`Updated-Dream-${now}-1`, `Updated-Dream-${now}-2`]
     if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
       method: 'PATCH',
@@ -70,10 +71,7 @@ describe('RandomList Management API Tests', () => {
       },
       body: {
         title: newTitle,
-        items: [
-          `Updated-Dream-${Date.now()}-1`,
-          `Updated-Dream-${Date.now()}-2`,
-        ],
+        items: updatedItems,
         userId,
       },
     }).then((response) => {

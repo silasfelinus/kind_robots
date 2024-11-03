@@ -207,12 +207,12 @@ model Gallery {
   id             Int        @id @default(autoincrement())
   createdAt      DateTime   @default(now())
   updatedAt      DateTime?  @default(now()) @updatedAt
-  name           String     @unique(map: "Gallery_id_key", length: 200) @db.VarChar(764)
+  name           String     @db.VarChar(256)
   description    String?    @db.Text
-  url            String?    @db.VarChar(764)
-  custodian      String?    @db.VarChar(764)
+  url            String?    @db.VarChar(256)
+  custodian      String?    @db.VarChar(256)
   content        String     @db.VarChar(764)
-  highlightImage String?    @db.VarChar(764)
+  highlightImage String?    @db.VarChar(256)
   imagePaths     String?    @db.Text
   isMature       Boolean    @default(false)
   userId         Int?       @default(1)

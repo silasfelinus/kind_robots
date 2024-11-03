@@ -151,6 +151,7 @@ describe('Component Reactions API Tests', () => {
       },
       body: {
         reactionType: 'BOOED',
+        reactionCategory: 'COMPONENT',
         comment: 'Actually, I have second thoughts...',
         rating: 2,
       },

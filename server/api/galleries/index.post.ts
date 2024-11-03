@@ -32,12 +32,15 @@ export default defineEventHandler(async (event) => {
     // Read and validate the gallery data from the request body
     const galleryData = await readBody(event)
 
-    // Validate required fields
-    if (!galleryData.name || !galleryData.content) {
+    // Check for required fields
+    const requiredFields = ['name', 'content']
+    const missingFields = requiredFields.filter(
+      (field) => !galleryData[field as keyof typeof galleryData],
+    )
+    if (missingFields.length > 0) {
       throw createError({
         statusCode: 400,
-        message:
-          '"name" and "content" fields are required for creating a gallery.',
+        message: `Missing required fields: ${missingFields.join(', ')}.`,
       })
     }
 
@@ -59,16 +62,14 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create the gallery entry
-    const newGallery = await prisma.gallery.create({
-      data,
-    })
+    const newGallery = await prisma.gallery.create({ data })
 
-    event.node.res.statusCode = 201 // Set status code to 201 Created
+    event.node.res.statusCode = 201 // Created
     return {
       success: true,
       newGallery,
     }
-  } catch (error: unknown) {
+  } catch (error) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
     return {

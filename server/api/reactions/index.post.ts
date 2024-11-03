@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
   try {
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      console.error('Missing or malformed authorization header')
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
@@ -36,6 +37,7 @@ export default defineEventHandler(async (event) => {
       select: { id: true },
     })
     if (!user) {
+      console.error('Invalid or expired token')
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
@@ -47,6 +49,7 @@ export default defineEventHandler(async (event) => {
     const reactionData = (await readBody(event)) as ReactionInput
 
     if (!reactionData.reactionType || !reactionData.reactionCategory) {
+      console.error('Missing required fields: reactionType or reactionCategory')
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
@@ -69,8 +72,20 @@ export default defineEventHandler(async (event) => {
       }),
     }
 
+    // Log each field for clarity
+    console.log('Field values:')
+    console.log('reactionType:', reactionData.reactionType)
+    console.log('reactionCategory:', reactionData.reactionCategory)
+    console.log('comment:', reactionData.comment)
+    console.log('rating:', reactionData.rating)
+    console.log('channelId:', reactionData.channelId)
+    console.log('chatExchangeId:', reactionData.chatExchangeId)
+
     const linked = await getLinkField(reactionData, data)
     if (!linked) {
+      console.error(
+        `${reactionData.reactionCategory} ID is required for this category.`,
+      )
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
@@ -82,6 +97,7 @@ export default defineEventHandler(async (event) => {
 
     const result = await addOrUpdateReaction(data, authenticatedUserId)
     if (!result.reaction) {
+      console.error('Failed to create or update reaction:', result.message)
       throw createError({
         statusCode: 500,
         message: result.message || 'Failed to create or update reaction.',
@@ -92,6 +108,7 @@ export default defineEventHandler(async (event) => {
     return { success: true, reaction: result.reaction, message: result.message }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
+    console.error('Error:', message)
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
@@ -120,12 +137,15 @@ async function addOrUpdateReaction(
         where: { id: existingReaction.id },
         data,
       })
+      console.log('Reaction updated successfully')
       return { reaction, message: 'Reaction updated successfully' }
     } else {
       const reaction = await prisma.reaction.create({ data })
+      console.log('Reaction created successfully')
       return { reaction, message: 'Reaction created successfully' }
     }
   } catch (error: unknown) {
+    console.error('Database error:', error)
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'
     return { reaction: null, message: errorMessage }
@@ -164,6 +184,9 @@ async function getLinkField(
             data.Component = { connect: { id: component.id } }
             return true
           } else {
+            console.error(
+              `Component with name "${reactionData.componentName}" not found.`,
+            )
             throw createError({
               statusCode: 404,
               message: `Component with name "${reactionData.componentName}" not found.`,
@@ -218,6 +241,7 @@ async function getLinkField(
     }
     return false
   } catch (error) {
+    console.error('Error linking field:', error)
     throw createError({
       statusCode: 500,
       message: `Failed to process the linked field: ${error instanceof Error ? error.message : 'Unknown error'}`,

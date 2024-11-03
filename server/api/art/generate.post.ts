@@ -324,8 +324,8 @@ async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
     if (data.galleryId === undefined) {
       const galleryName = data.galleryName ?? 'cafefred'
 
-      const existingGallery = await prisma.gallery.findUnique({
-        where: { name: galleryName },
+      const existingGallery = await prisma.gallery.findFirst({
+        where: { name: galleryName }, // Switch to findFirst for non-unique field search
       })
 
       if (existingGallery) {

@@ -1,14 +1,15 @@
-// /server/api/rewards/index.post.ts
+// /server/api/random/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { Prisma, Reward } from '@prisma/client'
+import type { Prisma, RandomList } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -31,48 +33,48 @@ export default defineEventHandler(async (event) => {
 
     const authenticatedUserId = user.id
 
-    // Read and validate the reward data from the request body
-    const rewardData = await readBody<Partial<Reward>>(event)
+    // Read and validate the random list data
+    const randomListData = await readBody<Partial<RandomList>>(event)
 
     // Validate required fields
-    if (!rewardData.text || !rewardData.power || !rewardData.icon) {
+    if (!randomListData.title) {
+      event.node.res.statusCode = 400
       return {
         success: false,
-        message: '"text", "power", and "icon" are required fields.',
+        message: '"title" is a required field.',
         statusCode: 400,
       }
     }
 
-    // Verify userId in rewardData matches the authenticated user
-    if (rewardData.userId && rewardData.userId !== authenticatedUserId) {
+    // Verify userId in randomListData matches the authenticated user
+    if (
+      randomListData.userId &&
+      randomListData.userId !== authenticatedUserId
+    ) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
-        message:
-          'User ID in the reward data does not match the authenticated user.',
+        message: 'User ID in the data does not match the authenticated user.',
       })
     }
 
-    // Create the reward, filling in defaults for missing optional fields
-    const newReward = await prisma.reward.create({
+    // Create the random list entry, defaulting to the authenticated user's ID
+    const newRandomList = await prisma.randomList.create({
       data: {
-        icon: rewardData.icon,
-        text: rewardData.text,
-        power: rewardData.power,
-        collection: rewardData.collection || 'genesis',
-        rarity: rewardData.rarity ?? 0,
-        label: rewardData.label || null,
-        userId: rewardData.userId ?? authenticatedUserId, // Use authenticated user ID as fallback
-        artImageId: rewardData.artImageId || null, // Optional artImageId
-      } as Prisma.RewardCreateInput,
+        title: randomListData.title,
+        items: JSON.stringify(randomListData.items || []),
+        userId: randomListData.userId ?? authenticatedUserId,
+      } as Prisma.RandomListCreateInput,
     })
 
     event.node.res.statusCode = 201 // Created
-    return { success: true, reward: newReward }
-  } catch (error: unknown) {
+    return { success: true, randomList: newRandomList }
+  } catch (error) {
     const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create a new reward',
+      message: 'Failed to create a new random list',
       error: message || 'An unknown error occurred',
       statusCode: statusCode || 500,
     }

@@ -50,8 +50,8 @@ export default defineEventHandler(async (event) => {
         continue
       }
 
-      // Fetch the gallery by name
-      const gallery = await prisma.gallery.findUnique({ where: { name } })
+      // Fetch the gallery by name using findFirst
+      const gallery = await prisma.gallery.findFirst({ where: { name } })
 
       if (!gallery) {
         errors.push(`Gallery named '${name}' not found.`)

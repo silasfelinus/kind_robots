@@ -161,7 +161,7 @@ describe('Gallery Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.message).to.include(
-        `Gallery with ID ${galleryId} deleted successfully`,
+        `Gallery with ID ${galleryId} successfully deleted`,
       )
     })
   })

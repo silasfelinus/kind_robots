@@ -45,15 +45,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Verify that if userId is provided, it matches the authenticated user
-    if (reactionData.userId && reactionData.userId !== authenticatedUserId) {
-      event.node.res.statusCode = 403 // Forbidden
-      throw createError({
-        statusCode: 403,
-        message: 'User ID does not match the authenticated user.',
-      })
-    }
-
     // Define required fields for each reaction category
     const requiredFields: { [key: string]: keyof Reaction } = {
       ART: 'artId',
@@ -134,10 +125,12 @@ async function addOrUpdateReaction(
       })
       return { reaction, message: 'Reaction updated successfully' }
     } else {
+      const { userId, ...reactionInput } = reactionData // Exclude userId from input data
+
       const reaction = await prisma.reaction.create({
         data: {
-          ...reactionData,
-          User: { connect: { id: authenticatedUserId } }, // Properly connect User relation
+          ...reactionInput,
+          User: { connect: { id: authenticatedUserId } }, // Connect authenticated user
         } as Prisma.ReactionCreateInput,
       })
       return { reaction, message: 'Reaction created successfully' }

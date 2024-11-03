@@ -277,34 +277,37 @@ async function validateAndLoadPromptId(
   }
 }
 
-async function validateAndLoadPitchId(data: RequestData): Promise<number> {
+async function validateAndLoadPitchId(
+  data: RequestData,
+): Promise<number | null> {
   console.log('🔍 Validating and loading pitch ID...')
 
-  // If pitchId is provided, use it
   if (data.pitchId) {
-    console.log(`✅ Pitch ID provided: ${data.pitchId}`)
+    const existingPitch = await prisma.pitch.findUnique({
+      where: { id: data.pitchId },
+    })
+    if (!existingPitch) {
+      throw createError({
+        statusCode: 400,
+        message: `Invalid pitchId: ${data.pitchId}. Pitch does not exist.`,
+      })
+    }
     return data.pitchId
   }
 
-  // If pitchName is provided, try to find it or create a new one
   if (data.pitch) {
-    try {
-      // Check if the pitch already exists by name
-      const existingPitch = await prisma.pitch.findUnique({
-        where: { pitch: data.pitch },
-      })
+    const existingPitch = await prisma.pitch.findUnique({
+      where: { pitch: data.pitch },
+    })
 
-      if (existingPitch) {
-        console.log(`✅ Existing pitch found: ${existingPitch.id}`)
-        return existingPitch.id
-      }
-
-      // If no existing pitch is found, create a new one
-      console.log('🔨 Creating a new pitch...')
+    if (existingPitch) {
+      console.log(`✅ Existing pitch found: ${existingPitch.id}`)
+      return existingPitch.id
+    } else {
       const newPitch = await prisma.pitch.create({
         data: {
-          title: data.title || 'Untitled', // Fallback to 'Untitled' if no title is provided
-          pitch: data.pitch, // Use provided pitchName
+          title: data.title || 'Untitled',
+          pitch: data.pitch,
           designer: data.designer,
           flavorText: data.flavorText || '',
           highlightImage: data.highlightImage || '',
@@ -318,15 +321,10 @@ async function validateAndLoadPitchId(data: RequestData): Promise<number> {
 
       console.log(`✅ New pitch created: ${newPitch.id}`)
       return newPitch.id
-    } catch (error) {
-      console.error('Error loading or creating pitch:', error)
-      throw new Error('Pitch validation failed.')
     }
   }
 
-  // If neither pitchId nor pitchName is provided, return 0
-  console.warn('No pitchId or pitchName provided.')
-  return 0
+  return null
 }
 
 async function validateAndLoadGalleryId(data: RequestData): Promise<number> {

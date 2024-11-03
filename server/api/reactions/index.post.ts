@@ -1,4 +1,3 @@
-// /server/api/reactions/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -76,6 +75,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    event.node.res.statusCode = 201
     return { success: true, reaction: result.reaction, message: result.message }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)

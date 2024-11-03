@@ -395,22 +395,22 @@ model Reaction {
   comment          String?          @db.Text
   userId           Int  
   rating           Int              @default(0)
-  artImageId       Int?            @default(10)
+  artImageId       Int?
   artId            Int?
   pitchId          Int?
   componentId      Int?
   channelId        Int? 
   chatExchangeId   Int?
-  botId          Int?
-  galleryId     Int?
-  messageId      Int?      
-  postId         Int?      
-  promptId       Int?      
-  resourceId     Int?     
-  rewardId       Int?     
-  tagId          Int?   
+  botId            Int?
+  galleryId        Int?
+  messageId        Int?      
+  postId           Int?      
+  promptId         Int?      
+  resourceId       Int?     
+  rewardId         Int?     
+  tagId            Int?   
   reactionType     ReactionType
-  reactionCategory ReactionCategory @default(CHANNEL)
+  reactionCategory ReactionCategory @default(ART)
   ArtImage         ArtImage?
   Art              Art?             @relation(fields: [artId], references: [id])
   Channel          Channel?         @relation(fields: [channelId], references: [id])
@@ -418,14 +418,14 @@ model Reaction {
   Component        Component?       @relation(fields: [componentId], references: [id])
   Pitch            Pitch?           @relation(fields: [pitchId], references: [id])
   User             User             @relation(fields: [userId], references: [id])
-  Gallery        Gallery?  @relation(fields: [galleryId], references: [id])
-  Bot            Bot?      @relation(fields: [botId], references: [id])       
-  Message        Message?           @relation(fields: [messageId], references: [id])
-  Post           Post?           @relation(fields: [postId], references: [id])
-  Prompt         Prompt?           @relation(fields: [promptId], references: [id])
-  Resource       Resource?           @relation(fields: [resourceId], references: [id])
-  Reward         Reward?           @relation(fields: [rewardId], references: [id])
-  Tag            Tag?          @relation(fields: [tagId], references: [id])
+  Gallery          Gallery?         @relation(fields: [galleryId], references: [id])
+  Bot              Bot?             @relation(fields: [botId], references: [id])       
+  Message          Message?         @relation(fields: [messageId], references: [id])
+  Post             Post?            @relation(fields: [postId], references: [id])
+  Prompt           Prompt?          @relation(fields: [promptId], references: [id])
+  Resource         Resource?        @relation(fields: [resourceId], references: [id])
+  Reward           Reward?          @relation(fields: [rewardId], references: [id])
+  Tag              Tag?             @relation(fields: [tagId], references: [id])
 
   @@index([artId], map: "Reaction_artId_fkey")
   @@index([pitchId], map: "Reaction_pitchId_fkey")

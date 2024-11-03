@@ -1,22 +1,38 @@
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
-import prisma from './../utils/prisma'
+import prisma from '../utils/prisma'
 import type { Prisma, Bot } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    const botData = await readBody<Partial<Bot>>(event)
-
-    // Validate essential fields if required
-    if (!botData.userId) {
-      event.node.res.statusCode = 400 // Bad Request
-      return {
-        success: false,
-        message: 'User ID is required.',
-        statusCode: 400,
-      }
+    // Validate authorization token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
     }
 
+    const token = authorizationHeader.split(' ')[1]
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      event.node.res.statusCode = 401
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const botData = await readBody<Partial<Bot>>(event)
+
+    // Validate essential fields
     if (!botData.name) {
       event.node.res.statusCode = 400 // Bad Request
       return {
@@ -26,6 +42,8 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // Pass the validated userId
+    botData.userId = user.id
     const result = await addSingleBot(botData)
 
     if (result.error) {
@@ -50,7 +68,6 @@ export async function addSingleBot(
   botData: Partial<Bot>,
 ): Promise<{ bot: Bot | null; error: string | null }> {
   try {
-    // Assemble data with safe defaults for optional fields, accepting only fields provided in botData
     const dataToSave: Prisma.BotCreateInput = {
       BotType: botData.BotType ?? 'PROMPTBOT',
       name: botData.name!,
@@ -60,7 +77,6 @@ export async function addSingleBot(
       botIntro: botData.botIntro ?? '',
       userIntro: botData.userIntro ?? '',
       prompt: botData.prompt ?? '',
-      trainingPath: botData.trainingPath ?? null,
       theme: botData.theme ?? null,
       personality: botData.personality ?? null,
       sampleResponse: botData.sampleResponse ?? null,
@@ -69,14 +85,10 @@ export async function addSingleBot(
       underConstruction: botData.underConstruction ?? false,
       canDelete: botData.canDelete ?? false,
       tagline: botData.tagline ?? '',
-      // Connect the bot to a user if userId is provided
       User: botData.userId ? { connect: { id: botData.userId } } : undefined,
     }
 
-    const bot = await prisma.bot.create({
-      data: dataToSave,
-    })
-
+    const bot = await prisma.bot.create({ data: dataToSave })
     return { bot, error: null }
   } catch (error: unknown) {
     const errorMessage =

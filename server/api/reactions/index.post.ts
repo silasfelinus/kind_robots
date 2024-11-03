@@ -57,40 +57,49 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Prepare data and conditionally add optional fields
+    // Prepare data with all optional fields conditionally set to connect or null
     const data: Prisma.ReactionCreateInput = {
       reactionType: reactionData.reactionType,
       reactionCategory: reactionData.reactionCategory,
       comment: reactionData.comment || '',
       rating: reactionData.rating || 0,
       User: { connect: { id: authenticatedUserId } },
-      ...(reactionData.channelId && {
-        Channel: { connect: { id: reactionData.channelId } },
-      }),
-      ...(reactionData.chatExchangeId && {
-        ChatExchange: { connect: { id: reactionData.chatExchangeId } },
-      }),
-    }
-
-    // Log each field for clarity
-    console.log('Field values:')
-    console.log('reactionType:', reactionData.reactionType)
-    console.log('reactionCategory:', reactionData.reactionCategory)
-    console.log('comment:', reactionData.comment)
-    console.log('rating:', reactionData.rating)
-    console.log('channelId:', reactionData.channelId)
-    console.log('chatExchangeId:', reactionData.chatExchangeId)
-
-    const linked = await getLinkField(reactionData, data)
-    if (!linked) {
-      console.error(
-        `${reactionData.reactionCategory} ID is required for this category.`,
-      )
-      event.node.res.statusCode = 400
-      throw createError({
-        statusCode: 400,
-        message: `${reactionData.reactionCategory} ID is required for this category.`,
-      })
+      Channel: reactionData.channelId
+        ? { connect: { id: reactionData.channelId } }
+        : undefined,
+      ChatExchange: reactionData.chatExchangeId
+        ? { connect: { id: reactionData.chatExchangeId } }
+        : undefined,
+      Art: reactionData.artId
+        ? { connect: { id: reactionData.artId } }
+        : undefined,
+      ArtImage: reactionData.artImageId
+        ? { connect: { id: reactionData.artImageId } }
+        : undefined,
+      Component: reactionData.componentId
+        ? { connect: { id: reactionData.componentId } }
+        : undefined,
+      Gallery: reactionData.galleryId
+        ? { connect: { id: reactionData.galleryId } }
+        : undefined,
+      Message: reactionData.messageId
+        ? { connect: { id: reactionData.messageId } }
+        : undefined,
+      Post: reactionData.postId
+        ? { connect: { id: reactionData.postId } }
+        : undefined,
+      Prompt: reactionData.promptId
+        ? { connect: { id: reactionData.promptId } }
+        : undefined,
+      Resource: reactionData.resourceId
+        ? { connect: { id: reactionData.resourceId } }
+        : undefined,
+      Reward: reactionData.rewardId
+        ? { connect: { id: reactionData.rewardId } }
+        : undefined,
+      Tag: reactionData.tagId
+        ? { connect: { id: reactionData.tagId } }
+        : undefined,
     }
 
     console.log('Prepared data for Prisma:', data)
@@ -149,102 +158,5 @@ async function addOrUpdateReaction(
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'
     return { reaction: null, message: errorMessage }
-  }
-}
-
-// Helper Function to Link the Correct Field Based on Reaction Category
-async function getLinkField(
-  reactionData: ReactionInput,
-  data: Prisma.ReactionCreateInput,
-): Promise<boolean> {
-  try {
-    switch (reactionData.reactionCategory) {
-      case 'ART':
-        if (reactionData.artId) {
-          data.Art = { connect: { id: reactionData.artId } }
-          return true
-        }
-        break
-      case 'ART_IMAGE':
-        if (reactionData.artImageId) {
-          data.ArtImage = { connect: { id: reactionData.artImageId } }
-          return true
-        }
-        break
-      case 'COMPONENT':
-        if (reactionData.componentId) {
-          data.Component = { connect: { id: reactionData.componentId } }
-          return true
-        } else if (reactionData.componentName) {
-          const component = await prisma.component.findFirst({
-            where: { componentName: reactionData.componentName },
-            select: { id: true },
-          })
-          if (component) {
-            data.Component = { connect: { id: component.id } }
-            return true
-          } else {
-            console.error(
-              `Component with name "${reactionData.componentName}" not found.`,
-            )
-            throw createError({
-              statusCode: 404,
-              message: `Component with name "${reactionData.componentName}" not found.`,
-            })
-          }
-        }
-        break
-      case 'GALLERY':
-        if (reactionData.galleryId) {
-          data.Gallery = { connect: { id: reactionData.galleryId } }
-          return true
-        }
-        break
-      case 'MESSAGE':
-        if (reactionData.messageId) {
-          data.Message = { connect: { id: reactionData.messageId } }
-          return true
-        }
-        break
-      case 'POST':
-        if (reactionData.postId) {
-          data.Post = { connect: { id: reactionData.postId } }
-          return true
-        }
-        break
-      case 'PROMPT':
-        if (reactionData.promptId) {
-          data.Prompt = { connect: { id: reactionData.promptId } }
-          return true
-        }
-        break
-      case 'RESOURCE':
-        if (reactionData.resourceId) {
-          data.Resource = { connect: { id: reactionData.resourceId } }
-          return true
-        }
-        break
-      case 'REWARD':
-        if (reactionData.rewardId) {
-          data.Reward = { connect: { id: reactionData.rewardId } }
-          return true
-        }
-        break
-      case 'TAG':
-        if (reactionData.tagId) {
-          data.Tag = { connect: { id: reactionData.tagId } }
-          return true
-        }
-        break
-      default:
-        return false
-    }
-    return false
-  } catch (error) {
-    console.error('Error linking field:', error)
-    throw createError({
-      statusCode: 500,
-      message: `Failed to process the linked field: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    })
   }
 }

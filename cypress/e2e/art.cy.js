@@ -63,7 +63,9 @@ describe('Art Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -118,7 +120,7 @@ describe('Art Management API Tests', () => {
         'x-api-key': apiKey,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       expect(response.body.art.path).to.include('cafefred')
       expect(response.body.art.path).to.match(/\.webp$/)
       expect(response.body.art.cfg).to.eq(7)

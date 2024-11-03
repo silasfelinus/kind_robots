@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     // Validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message:
@@ -23,13 +24,14 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    // Read and validate the single gallery data
+    // Read and validate the gallery data from the request body
     const galleryData = (await readBody(event)) as Prisma.GalleryCreateInput
 
     // Ensure the userId in galleryData matches the authenticated user's ID
@@ -37,6 +39,7 @@ export default defineEventHandler(async (event) => {
       galleryData.User?.connect?.id &&
       galleryData.User.connect.id !== user.id
     ) {
+      event.node.res.statusCode = 403 // Forbidden
       throw createError({
         statusCode: 403,
         message: 'User ID in request does not match authenticated user.',
@@ -45,6 +48,7 @@ export default defineEventHandler(async (event) => {
 
     // Validate required fields
     if (!galleryData.name || !galleryData.content) {
+      event.node.res.statusCode = 400 // Bad Request
       throw createError({
         statusCode: 400,
         message:
@@ -74,11 +78,12 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
     return {
       success: false,
       message: 'Failed to create gallery entry.',
       error: handledError.message,
-      statusCode: handledError.statusCode || 500,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

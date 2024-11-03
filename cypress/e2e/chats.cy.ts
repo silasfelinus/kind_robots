@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/chats.cy.ts
 
 describe('ChatExchange Management API Tests', () => {
@@ -9,7 +8,54 @@ describe('ChatExchange Management API Tests', () => {
   const userId: number = 9
   const botId: number = 1
 
-  it('Create a New Chat Exchange', () => {
+  it('should not allow creating a new chat exchange without an authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        userId,
+        botId,
+        botName: 'AMI',
+        username: 'silasfelinus',
+        userPrompt: 'How are you?',
+        botResponse: "I'm fine, thank you!",
+        previousEntryId: null,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a new chat exchange with an invalid authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        userId,
+        botId,
+        botName: 'AMI',
+        username: 'silasfelinus',
+        userPrompt: 'How are you?',
+        botResponse: "I'm fine, thank you!",
+        previousEntryId: null,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Create a New Chat Exchange with Valid Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -109,9 +155,7 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include(
-        'Authorization header is missing',
-      )
+      expect(response.body.message).to.include('Authorization header is missing')
     })
   })
 
@@ -161,9 +205,7 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('Authorization token is required')
     })
   })
 

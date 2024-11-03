@@ -4,11 +4,56 @@
 describe('Message Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/messages'
   const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
   let messageId: number | undefined
   const channelId: number = 2 // Sample channel ID
 
-  // Step 1: Create a new message
-  it('Create New Message', () => {
+  // Step 1: Attempt to create a message with various authentication scenarios
+
+  it('should not allow creating a message without an authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        sender: 'WELCOMEBOT',
+        recipient: 'Kind User',
+        content: 'Hello! Welcome to our Livechat!',
+        channelId,
+        userId: 9,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a message with an invalid authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        sender: 'WELCOMEBOT',
+        recipient: 'Kind User',
+        content: 'Hello! Welcome to our Livechat!',
+        channelId,
+        userId: 9,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Create New Message with Valid Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,

@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { Prisma, Gallery } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -30,28 +30,36 @@ export default defineEventHandler(async (event) => {
     }
 
     // Read and validate the gallery data from the request body
-    const galleryData = (await readBody(event)) as Prisma.GalleryCreateInput
+    const galleryData = await readBody(event)
 
     // Validate required fields
     if (!galleryData.name || !galleryData.content) {
       throw createError({
         statusCode: 400,
         message:
-          'Invalid data. "name" and "content" fields are required for creating a gallery.',
+          '"name" and "content" fields are required for creating a gallery.',
       })
     }
 
-    // Prepare data with optional relations, connecting the authenticated user
+    // Prepare data with the authenticated user connected
     const data: Prisma.GalleryCreateInput = {
-      ...galleryData,
-      User: { connect: { id: user.id } }, // Link the gallery to the authenticated user
+      name: galleryData.name,
+      content: galleryData.content,
+      description: galleryData.description || null,
+      highlightImage: galleryData.highlightImage || null,
+      url: galleryData.url || null,
+      custodian: galleryData.custodian || null,
+      imagePaths: galleryData.imagePaths || null,
+      isMature: galleryData.isMature ?? false,
+      isPublic: galleryData.isPublic ?? true,
+      User: { connect: { id: user.id } }, // Link to authenticated user
       ...(galleryData.Channel?.connect?.id && {
         Channel: { connect: { id: galleryData.Channel.connect.id } },
       }),
     }
 
     // Create the gallery entry
-    const newGallery: Gallery = await prisma.gallery.create({
+    const newGallery = await prisma.gallery.create({
       data,
     })
 

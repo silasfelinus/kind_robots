@@ -1,15 +1,18 @@
-// /server/api/reactions/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import type { Prisma, Reaction } from '@prisma/client'
+
+// Extend Reaction type to include componentName as an optional property
+interface ReactionInput extends Partial<Reaction> {
+  componentName?: string
+}
 
 export default defineEventHandler(async (event) => {
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message:
@@ -24,7 +27,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -34,11 +36,10 @@ export default defineEventHandler(async (event) => {
     const authenticatedUserId = user.id
 
     // Read and validate the reaction data
-    const reactionData = (await readBody(event)) as Partial<Reaction>
+    const reactionData = (await readBody(event)) as ReactionInput
 
     // Check for required reaction type and category fields
     if (!reactionData.reactionType || !reactionData.reactionCategory) {
-      event.node.res.statusCode = 400 // Bad Request
       throw createError({
         statusCode: 400,
         message: 'Reaction type and category are required.',
@@ -49,7 +50,7 @@ export default defineEventHandler(async (event) => {
     const requiredFields: { [key: string]: keyof Reaction } = {
       ART: 'artId',
       ART_IMAGE: 'artImageId',
-      COMPONENT: 'componentId',
+      COMPONENT: 'componentId', // Adjusted to handle by name below
       PITCH: 'pitchId',
       CHANNEL: 'channelId',
       CHAT_EXCHANGE: 'chatExchangeId',
@@ -63,9 +64,30 @@ export default defineEventHandler(async (event) => {
       TAG: 'tagId',
     }
 
-    const requiredField = requiredFields[reactionData.reactionCategory]
-    if (requiredField && !reactionData[requiredField]) {
-      event.node.res.statusCode = 400 // Bad Request
+    let requiredField = requiredFields[reactionData.reactionCategory]
+
+    // Special handling for COMPONENT category by component name
+    // Special handling for COMPONENT category by component name
+    if (
+      reactionData.reactionCategory === 'COMPONENT' &&
+      reactionData.componentName
+    ) {
+      const component = await prisma.component.findFirst({
+        where: { componentName: reactionData.componentName }, // Use componentName instead of name
+        select: { id: true },
+      })
+
+      if (!component) {
+        throw createError({
+          statusCode: 404,
+          message: `Component with name "${reactionData.componentName}" not found.`,
+        })
+      }
+
+      // Replace componentId in reactionData with the found ID
+      reactionData.componentId = component.id
+      requiredField = 'componentId'
+    } else if (!reactionData[requiredField]) {
       throw createError({
         statusCode: 400,
         message: `${requiredField} is required for ${reactionData.reactionCategory} reactions.`,
@@ -80,14 +102,12 @@ export default defineEventHandler(async (event) => {
     )
 
     if (!result.reaction) {
-      event.node.res.statusCode = 500
       throw createError({
         statusCode: 500,
         message: result.message || 'Failed to create or update reaction.',
       })
     }
 
-    event.node.res.statusCode = 201 // Created
     return { success: true, reaction: result.reaction, message: result.message }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
@@ -101,7 +121,7 @@ export default defineEventHandler(async (event) => {
 })
 
 async function addOrUpdateReaction(
-  reactionData: Partial<Reaction>,
+  reactionData: ReactionInput,
   requiredField: keyof Reaction | undefined,
   authenticatedUserId: number,
 ): Promise<{ reaction: Reaction | null; message: string | null }> {

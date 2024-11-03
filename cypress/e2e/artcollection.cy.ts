@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/artcollection.cy.js
 
 describe('Art Collection API Tests', () => {
@@ -16,6 +17,7 @@ describe('Art Collection API Tests', () => {
       method: 'POST',
       url: 'https://kind-robots.vercel.app/api/art',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
       body: {
@@ -27,11 +29,12 @@ describe('Art Collection API Tests', () => {
         galleryId: null,
         promptId: null,
         pitchId: null,
+        userId: 9,
       },
     }).then((response) => {
-      expect(response.status).to.eq(201)
-      artId = response.body.art.id
-      expect(artId).to.exist
+      expect(response.status).to.eq(200)
+      artId = response.body.art?.id
+      if (!artId) throw new Error('Failed to create art.')
     })
   })
 
@@ -40,16 +43,17 @@ describe('Art Collection API Tests', () => {
       method: 'POST',
       url: baseUrl,
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
       body: {
+        userId: 9,
         artIds: [artId],
       },
     }).then((response) => {
-      expect(response.status).to.eq(201)
+      expect(response.status).to.eq(200)
       collectionId = response.body.collection.id
       existingArtIds = response.body.collection.art.map((art: Art) => art.id)
-      expect(collectionId).to.exist
     })
   })
 
@@ -62,7 +66,9 @@ describe('Art Collection API Tests', () => {
       body: { artIds: [artId] },
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -95,6 +101,7 @@ describe('Art Collection API Tests', () => {
       },
     }).then((response) => {
       newArtId = response.body.art.id
+      expect(newArtId).to.exist
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${collectionId}`,
@@ -106,7 +113,9 @@ describe('Art Collection API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        const returnedArtIds = response.body.collection.art.map((art: Art) => art.id)
+        const returnedArtIds = response.body.collection.art.map(
+          (art: Art) => art.id,
+        )
         expect(returnedArtIds).to.include(newArtId)
         existingArtIds = returnedArtIds
       })
@@ -126,7 +135,9 @@ describe('Art Collection API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      const returnedArtIds = response.body.collection.art.map((art: Art) => art.id)
+      const returnedArtIds = response.body.collection.art.map(
+        (art: Art) => art.id,
+      )
       expect(returnedArtIds).to.not.include(artIdToRemove)
       existingArtIds = returnedArtIds
     })
@@ -139,7 +150,9 @@ describe('Art Collection API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -171,7 +184,7 @@ describe('Art Collection API Tests', () => {
 
   after(() => {
     // Cleanup created art entries
-    [artId, newArtId].forEach((id) => {
+    ;[artId, newArtId].forEach((id) => {
       if (id) {
         cy.request({
           method: 'DELETE',

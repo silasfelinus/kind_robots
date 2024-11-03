@@ -56,9 +56,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Link the appropriate relation based on reactionCategory
-    const linkField = await getLinkField(reactionData, data)
+    const linked = await getLinkField(reactionData, data)
 
-    if (!linkField) {
+    if (!linked) {
       throw createError({
         statusCode: 400,
         message: `${reactionData.reactionCategory} ID is required for ${reactionData.reactionCategory} reactions.`,

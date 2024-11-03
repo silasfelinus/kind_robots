@@ -1,4 +1,5 @@
 // cypress/e2e/pitches.cy.ts
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Pitch Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/pitches'
@@ -7,8 +8,48 @@ describe('Pitch Management API Tests', () => {
   let pitchId: number | undefined // Define with undefined for clarity
   const uniquePitchName = `Pitch-${Date.now()}` // Generate a unique pitch name
 
-  // Step 1: Create a pitch before running tests
-  before(() => {
+  // Step 1: Attempt to create a pitch with various authentication scenarios
+
+  it('should not allow creating a pitch without an authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        pitch: uniquePitchName,
+        PitchType: 'INSPIRATION',
+        userId: 9,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a pitch with an invalid authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        pitch: uniquePitchName,
+        PitchType: 'INSPIRATION',
+        userId: 9,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Create a New Pitch with Valid Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,

@@ -1,5 +1,4 @@
 // cypress/e2e/milestone-records.cy.ts
-
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Milestone Record Management API Tests', () => {
@@ -12,6 +11,7 @@ describe('Milestone Record Management API Tests', () => {
   let createdUserId: number | undefined
   let createdUserToken: string | undefined // Store user-specific token for authentication
   const milestoneId = 10 // Set milestone ID for testing
+  const invalidToken = 'invalidTokenValue'
 
   // Step 1: Create a new test user
   before(() => {
@@ -39,8 +39,46 @@ describe('Milestone Record Management API Tests', () => {
     })
   })
 
-  // Step 2: Create a new milestone record for the created user
-  it('Create a New Milestone Record for the New User', () => {
+  // Step 2: Attempt to create a milestone record with various authentication scenarios
+
+  it('should not allow creating a milestone record without an authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: recordsUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        userId: createdUserId,
+        milestoneId,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a milestone record with an invalid authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: recordsUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        userId: createdUserId,
+        milestoneId,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Create a New Milestone Record for the New User with Valid Authentication', () => {
     cy.request({
       method: 'POST',
       url: recordsUrl,
@@ -71,10 +109,27 @@ describe('Milestone Record Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
     })
   })
 
-  // Step 4: Delete milestone record with authentication
+  // Step 4: Attempt to delete milestone record with invalid authentication token (expect failure)
+  it('Attempt to Delete Milestone Record with Invalid Token (expect failure)', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${recordsUrl}/${milestoneRecordId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  // Step 5: Delete milestone record with valid authentication
   it('Delete Milestone Record with Authentication', () => {
     cy.request({
       method: 'DELETE',
@@ -89,7 +144,7 @@ describe('Milestone Record Management API Tests', () => {
     })
   })
 
-  // Step 5: Clean up by deleting the user created at the beginning
+  // Step 6: Clean up by deleting the user created at the beginning
   after(() => {
     if (createdUserId) {
       cy.request({

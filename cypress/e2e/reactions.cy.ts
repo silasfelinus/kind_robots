@@ -3,9 +3,10 @@
 describe('Reaction Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api'
   const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
   let artId: number | undefined
   let reactionId: number | undefined
-  const userId: number = 9 // Example user ID
+  const userId = 9 // Example user ID
 
   // Step 1: Create a new art piece
   it('Create a New Art Piece', () => {
@@ -25,7 +26,7 @@ describe('Reaction Management API Tests', () => {
         galleryId: null,
         promptId: null,
         pitchId: null,
-        userId: 9,
+        userId,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -33,8 +34,9 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  // Step 2: Create a New Reaction
-  it('Create a New Art Reaction', () => {
+  // Step 2: Attempt to create a reaction with missing and invalid tokens
+
+  it('should not allow creating a reaction without an authorization token', () => {
     cy.wrap(artId).should('exist') // Ensure artId exists
 
     cy.request({
@@ -50,8 +52,57 @@ describe('Reaction Management API Tests', () => {
         artId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
-        channelId: null,
-        chatExchangeId: null,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a reaction with an invalid authorization token', () => {
+    cy.wrap(artId).should('exist') // Ensure artId exists
+
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/reactions`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        userId,
+        reactionType: 'LOVED',
+        reactionCategory: 'ART',
+        artId,
+        comment: 'Love this pancake sunrise art!',
+        rating: 5,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  // Step 3: Create a reaction with valid authentication
+  it('Create a New Art Reaction with Authentication', () => {
+    cy.wrap(artId).should('exist') // Ensure artId exists
+
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/reactions`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: {
+        userId,
+        reactionType: 'LOVED',
+        reactionCategory: 'ART',
+        artId,
+        comment: 'Love this pancake sunrise art!',
+        rating: 5,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
@@ -59,7 +110,7 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  // Step 3: Edit the Reaction
+  // Step 4: Edit the reaction with valid authentication
   it('Edit the Art Reaction with Authentication', () => {
     cy.wrap(reactionId).should('exist') // Ensure reactionId exists
 
@@ -82,19 +133,40 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  // Step 4: Attempt to Delete Reaction without Authentication
+  // Step 5: Attempt to delete reaction without authentication
   it('Attempt to Delete Reaction without Authentication (expect failure)', () => {
+    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/reactions/${reactionId}`,
       headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
     })
   })
 
-  // Step 5: Delete Reaction with Authentication
+  // Step 6: Attempt to delete reaction with invalid token
+  it('Attempt to Delete Reaction with Invalid Token (expect failure)', () => {
+    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
+
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/reactions/${reactionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  // Step 7: Delete reaction with valid authentication
   it('Delete the Art Reaction with Authentication', () => {
     cy.wrap(reactionId).should('exist') // Ensure reactionId exists
 
@@ -110,7 +182,7 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  // Step 6: Delete the Created Art Piece with Authentication
+  // Step 8: Delete the created art piece with valid authentication
   it('Delete the Created Art Piece with Authentication', () => {
     cy.wrap(artId).should('exist') // Ensure artId exists
 

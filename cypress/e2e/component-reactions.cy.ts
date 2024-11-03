@@ -32,8 +32,62 @@ describe('Component Reactions API Tests', () => {
     })
   })
 
-  // Step 2: Create a new reaction for the created component
-  it('Create a New Component Reaction', () => {
+  // Step 2: Attempt to create a reaction with various authentication scenarios
+
+  it('should not allow creating a component reaction without an authorization token', () => {
+    cy.wrap(componentId).should('exist')
+
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/reactions`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        userId,
+        reactionType: 'CLAPPED',
+        reactionCategory: 'COMPONENT',
+        componentId,
+        comment: 'Great job on this component!',
+        rating: 4,
+        channelId: null,
+        chatExchangeId: null,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a component reaction with an invalid authorization token', () => {
+    cy.wrap(componentId).should('exist')
+
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/reactions`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        userId,
+        reactionType: 'CLAPPED',
+        reactionCategory: 'COMPONENT',
+        componentId,
+        comment: 'Great job on this component!',
+        rating: 4,
+        channelId: null,
+        chatExchangeId: null,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Create a New Component Reaction with Valid Authentication', () => {
     cy.wrap(componentId).should('exist')
 
     cy.request({
@@ -44,7 +98,7 @@ describe('Component Reactions API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
       body: {
-        userId: 9,
+        userId,
         reactionType: 'CLAPPED',
         reactionCategory: 'COMPONENT',
         componentId,

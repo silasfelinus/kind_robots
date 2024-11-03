@@ -1,13 +1,13 @@
-import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error'
+// server/api/art/image/index.post.ts
+
+import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
 import { generateSillyName } from './../../../utils/useRandomName'
 import { saveImage } from './../../../server/api/utils/saveImage'
 import type { PitchType } from '@prisma/client'
 
-console.log(
-  "🚀 Starting up the art generation engine! Let's create something amazing!",
-)
+console.log("🚀 Starting up the art generation engine! Let's create something amazing!")
 
 type GenerateImageResponse = {
   images: string[]
@@ -52,50 +52,46 @@ export default defineEventHandler(async (event) => {
     console.log('🌟 Event triggered! Reading request body...')
     const requestData: RequestData = await readBody(event)
 
-    // Debugging: Print out request data to verify pitchName
-    console.log('📬 Request data received:', requestData)
-
     if (!requestData.promptString) {
-      throw new Error('Missing prompt in request data.')
+      event.node.res.statusCode = 400
+      throw createError({ statusCode: 400, message: 'Missing prompt in request data.' })
     }
 
-    // Validate user, prompt, and pitch
+    // Authorization check
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
+      throw createError({ statusCode: 401, message: 'Authorization token required in the format "Bearer <token>"' })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const user = await prisma.user.findUnique({
+      where: { apiKey: token },
+      select: { id: true, karma: true },
+    })
+
+    if (!user || user.id !== requestData.userId) {
+      event.node.res.statusCode = 403
+      throw createError({ statusCode: 403, message: 'Token does not match user ID' })
+    }
+
+    // Rate-limiting and karma check
+    if (user.karma <= 0) {
+      event.node.res.statusCode = 403
+      throw createError({ statusCode: 403, message: 'Insufficient karma to generate image' })
+    }
+
+    // Validate and load required data
     const validatedData: Partial<RequestData> = {}
-
-    validatedData.userId = await validateAndLoadUserId(
-      requestData,
-      validatedData,
-    )
-    if (!validatedData.userId) {
-      throw new Error('User validation failed.')
-    }
-
-    validatedData.promptId = await validateAndLoadPromptId(
-      requestData,
-      validatedData,
-    )
-    if (!validatedData.promptId) {
-      throw new Error('Prompt validation failed.')
-    }
-
+    validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
+    validatedData.promptId = await validateAndLoadPromptId(requestData, validatedData)
     validatedData.pitchId = await validateAndLoadPitchId(requestData)
-    if (!validatedData.pitchId) {
-      throw new Error('Pitch validation failed.')
-    }
-
     validatedData.galleryId = await validateAndLoadGalleryId(requestData)
     validatedData.designer = validateAndLoadDesignerName(requestData)
 
-    // Calculate the final cfg value programmatically
-    const cfgValue = calculateCfg(
-      requestData.cfg ?? 3,
-      requestData.cfgHalf ?? false,
-    )
+    const cfgValue = calculateCfg(requestData.cfg ?? 3, requestData.cfgHalf ?? false)
 
-    console.log('🎉 All validations passed! Generating image...')
-    console.log('Sending steps:', requestData.steps)
-
-    // Generate Image Using Modeler
+    // Generate the image
     const response: GenerateImageResponse = await generateImage(
       requestData.promptString,
       validatedData.designer || 'kindguest',
@@ -105,14 +101,10 @@ export default defineEventHandler(async (event) => {
     )
 
     if (!response || !response.images?.length) {
-      throw new Error(
-        `Image generation failed: ${response?.error || 'No images generated.'}`,
-      )
+      throw new Error(`Image generation failed: ${response?.error || 'No images generated.'}`)
     }
 
-    console.log('🖼 Image generated! Response:', response)
-
-    // Save Generated Image to the database
+    // Save the generated image
     const base64Image = response.images[0]
     const savedImage = await saveImage(
       base64Image,
@@ -121,14 +113,12 @@ export default defineEventHandler(async (event) => {
       validatedData.galleryId,
     )
 
-    imageId = savedImage.id // Save the imageId for later use
+    imageId = savedImage.id
     if (!imageId) {
       throw new Error('Failed to save generated image.')
     }
 
-    console.log('📁 Image saved successfully with imageId:', imageId)
-
-    // Create Art Entry in Database and link the imageId
+    // Create a new art entry linked to the image
     newArt = await prisma.art.create({
       data: {
         path: savedImage.fileName,
@@ -150,44 +140,33 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    console.log('🎉 Art entry created successfully:', newArt)
+    // Link art ID back to the image and subtract 1 karma from the user
+    await prisma.artImage.update({ where: { id: imageId }, data: { artId: newArt.id } })
+    await prisma.user.update({ where: { id: user.id }, data: { karma: user.karma - 1 } })
 
-    // Link the artId back to the artImage
-    const updatedArtImage = await prisma.artImage.update({
-      where: { id: imageId },
-      data: { artId: newArt.id },
-    })
-
-    console.log(
-      `🔗 Successfully linked artId ${newArt.id} to artImage ${updatedArtImage.id}`,
-    )
-
-    // Return success response
+    event.node.res.statusCode = 201 // Created
     return {
       success: true,
       message: 'Art and image saved successfully!',
       art: newArt,
       artId: newArt.id,
       imageId: imageId,
-      artImage: updatedArtImage || null,
+      artImage: savedImage,
     }
   } catch (error) {
-    console.error('Art Generation Error:', error)
     return errorHandler({
       error,
       context: `Art Generation - Prompt: ${event.req.url}`,
     })
   } finally {
-    // This block executes regardless of success or failure
     console.log('🎬 Art generation process completed.')
-    if (imageId) {
-      console.log(`Image ID ${imageId} has been processed.`)
-    }
-    if (newArt) {
-      console.log(`Art ID ${newArt.id} has been created.`)
-    }
   }
 })
+
+// Utility and validation functions as in original (keep these unchanged, as they handle model partials)
+
+// calculateCfg, validateAndLoadUserId, validateAndLoadPromptId, etc.
+
 
 async function validateAndLoadUserId(
   data: RequestData,

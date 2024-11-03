@@ -1,16 +1,59 @@
+// cypress/e2e/random-list.cy.ts
+
 describe('RandomList Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/random'
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
   let randomListId: number | undefined
-  const userId: number = 9 // Example user ID
+  const userId = 9 // Example user ID for tests
 
-  // Capture initial timestamp for unique values
+  // Capture initial timestamp for unique titles and items
   const now = Date.now()
   let uniqueTitle = `Dreams-${now}`
   const initialItems = [`Dream-${now}-1`, `Dream-${now}-2`, `Dream-${now}-3`]
 
-  it('Create a New RandomList', () => {
+  // Step 1: Attempt to create a random list with various authentication cases
+
+  it('should not allow creating a RandomList without an authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        title: uniqueTitle,
+        items: initialItems,
+        userId,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a RandomList with an invalid authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        title: uniqueTitle,
+        items: initialItems,
+        userId,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Create a New RandomList with Valid Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -29,6 +72,7 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Step 2: Attempt to update random list without authentication
   it('Attempt to Update RandomList without Authentication (expect failure)', () => {
     if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
@@ -42,6 +86,7 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Step 3: Attempt to update random list with invalid token
   it('Attempt to Update RandomList with Invalid Token (expect failure)', () => {
     if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
@@ -58,6 +103,7 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Step 4: Update random list with valid authentication
   it('Update RandomList with Authentication', () => {
     const newTitle = `Updated-${uniqueTitle}`
     const updatedItems = [`Updated-Dream-${now}-1`, `Updated-Dream-${now}-2`]
@@ -81,6 +127,7 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Step 5: Retrieve random list by ID
   it('Get RandomList by ID', () => {
     if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
@@ -95,6 +142,7 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Step 6: Retrieve random list by title
   it('Get RandomList by Title', () => {
     cy.request({
       method: 'GET',
@@ -108,6 +156,7 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Step 7: Retrieve all random lists
   it('Get All RandomLists', () => {
     cy.request({
       method: 'GET',
@@ -124,6 +173,7 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Step 8: Attempt to delete random list without authentication
   it('Attempt to Delete RandomList without Authentication (expect failure)', () => {
     if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
@@ -136,6 +186,7 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Step 9: Attempt to delete random list with invalid token
   it('Attempt to Delete RandomList with Invalid Token (expect failure)', () => {
     if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({
@@ -151,6 +202,7 @@ describe('RandomList Management API Tests', () => {
     })
   })
 
+  // Step 10: Delete random list with valid authentication
   it('Delete RandomList with Authentication', () => {
     if (!randomListId) throw new Error('randomListId is undefined')
     cy.request({

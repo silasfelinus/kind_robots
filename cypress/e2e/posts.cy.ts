@@ -6,8 +6,62 @@ describe('Post Management API Tests', () => {
   const invalidToken = 'someInvalidTokenValue'
   let postId: number // Define postId for storing created post ID
   const userId = 9
-  // Step 1: Create a post once before running tests
-  before(() => {
+  const uniquePostTitle = `Test Post Title - ${Date.now()}`
+
+  // Step 1: Attempt to create a post with various authentication scenarios
+
+  it('should not allow creating a post without an authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        userId,
+        username: 'silasfelinus',
+        content: 'This is a test post content.',
+        title: uniquePostTitle,
+        label: 'General',
+        imagePath: '/images/test-post.jpg',
+        isFavorite: true,
+        botId: null,
+        channelId: null,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('should not allow creating a post with an invalid authorization token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        userId,
+        username: 'silasfelinus',
+        content: 'This is a test post content.',
+        title: uniquePostTitle,
+        label: 'General',
+        imagePath: '/images/test-post.jpg',
+        isFavorite: true,
+        botId: null,
+        channelId: null,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('Create a New Post with Valid Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -19,7 +73,7 @@ describe('Post Management API Tests', () => {
         userId,
         username: 'silasfelinus',
         content: 'This is a test post content.',
-        title: 'Test Post Title',
+        title: uniquePostTitle,
         label: 'General',
         imagePath: '/images/test-post.jpg',
         isFavorite: true,
@@ -41,7 +95,7 @@ describe('Post Management API Tests', () => {
       body: { title: 'Unauthorized Update' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -60,7 +114,7 @@ describe('Post Management API Tests', () => {
       body: { title: 'Invalid Update Attempt' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.status).to.eq(401)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -132,7 +186,7 @@ describe('Post Management API Tests', () => {
       headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -151,7 +205,7 @@ describe('Post Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.status).to.eq(401)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })

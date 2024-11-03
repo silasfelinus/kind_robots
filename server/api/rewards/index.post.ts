@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -34,16 +36,25 @@ export default defineEventHandler(async (event) => {
     // Read and validate the reward data from the request body
     const rewardData = await readBody<Partial<Reward>>(event)
 
-    // Validate required fields
-    if (!rewardData.text || !rewardData.power || !rewardData.icon) {
+    // Ensure required fields are present and of type string
+    const icon = rewardData.icon || ''
+    const text = rewardData.text || ''
+    const power = rewardData.power || ''
+
+    if (!icon || !text || !power) {
+      const missingFields = []
+      if (!icon) missingFields.push('"icon"')
+      if (!text) missingFields.push('"text"')
+      if (!power) missingFields.push('"power"')
       throw createError({
         statusCode: 400,
-        message: '"text", "power", and "icon" are required fields.',
+        message: `${missingFields.join(', ')} are required fields.`,
       })
     }
 
     // Verify userId in rewardData matches the authenticated user
     if (rewardData.userId && rewardData.userId !== authenticatedUserId) {
+      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message:
@@ -53,9 +64,9 @@ export default defineEventHandler(async (event) => {
 
     // Prepare data for the new reward, setting defaults for optional fields
     const data: Prisma.RewardCreateInput = {
-      icon: rewardData.icon,
-      text: rewardData.text,
-      power: rewardData.power,
+      icon,
+      text,
+      power,
       collection: rewardData.collection || 'genesis',
       rarity: rewardData.rarity ?? 0,
       label: rewardData.label || null,
@@ -75,8 +86,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create a new reward',
-      error: message || 'An unknown error occurred',
+      message: message || 'Failed to create a new reward',
       statusCode: statusCode || 500,
     }
   }

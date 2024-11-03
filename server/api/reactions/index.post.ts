@@ -1,13 +1,86 @@
 // server/api/reactions/index.post.ts
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import type { Prisma, Reaction } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    const reactionData = await readBody(event)
-    const result = await addOrUpdateReaction(reactionData)
+    // Validate authorization token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const authenticatedUserId = user.id
+
+    // Read and validate the reaction data
+    const reactionData = (await readBody(event)) as Partial<Reaction>
+
+    if (!reactionData.reactionType || !reactionData.reactionCategory) {
+      throw createError({
+        statusCode: 400,
+        message: 'Reaction type and category are required.',
+      })
+    }
+
+    // Verify that if userId is provided, it matches the authenticated user
+    if (reactionData.userId && reactionData.userId !== authenticatedUserId) {
+      throw createError({
+        statusCode: 403,
+        message: 'User ID does not match the authenticated user.',
+      })
+    }
+
+    // Define required fields for each reaction category
+    const requiredFields: { [key: string]: keyof Reaction } = {
+      ART: 'artId',
+      ART_IMAGE: 'artImageId',
+      COMPONENT: 'componentId',
+      PITCH: 'pitchId',
+      CHANNEL: 'channelId',
+      CHAT_EXCHANGE: 'chatExchangeId',
+      BOT: 'botId',
+      GALLERY: 'galleryId',
+      MESSAGE: 'messageId',
+      POST: 'postId',
+      PROMPT: 'promptId',
+      RESOURCE: 'resourceId',
+      REWARD: 'rewardId',
+      TAG: 'tagId',
+    }
+
+    const requiredField = requiredFields[reactionData.reactionCategory]
+    if (requiredField && !reactionData[requiredField]) {
+      throw createError({
+        statusCode: 400,
+        message: `${requiredField} is required for ${reactionData.reactionCategory} reactions.`,
+      })
+    }
+
+    // Handle reaction creation or update
+    const result = await addOrUpdateReaction(
+      reactionData,
+      requiredField,
+      authenticatedUserId,
+    )
     return { success: true, ...result }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
@@ -22,60 +95,34 @@ export default defineEventHandler(async (event) => {
 
 async function addOrUpdateReaction(
   reactionData: Partial<Reaction>,
+  requiredField: keyof Reaction | undefined,
+  authenticatedUserId: number,
 ): Promise<{ reaction: Reaction | null; message: string | null }> {
-  const { userId, reactionType, reactionCategory } = reactionData
-
-  if (!userId || !reactionType || !reactionCategory) {
-    return {
-      reaction: null,
-      message: 'userId, reactionType, and reactionCategory are required.',
-    }
-  }
-
-  const requiredFields: { [key: string]: keyof Reaction } = {
-    ART: 'artId',
-    ART_IMAGE: 'artImageId',
-    COMPONENT: 'componentId',
-    PITCH: 'pitchId',
-    CHANNEL: 'channelId',
-    CHAT_EXCHANGE: 'chatExchangeId',
-    BOT: 'botId',
-    GALLERY: 'galleryId',
-    MESSAGE: 'messageId',
-    POST: 'postId',
-    PROMPT: 'promptId',
-    RESOURCE: 'resourceId',
-    REWARD: 'rewardId',
-    TAG: 'tagId',
-  }
-
-  const requiredField = requiredFields[reactionCategory]
-  if (requiredField && !reactionData[requiredField]) {
-    return {
-      reaction: null,
-      message: `${requiredField} is required for ${reactionCategory} reactions.`,
-    }
-  }
-
   try {
     const existingReaction = await prisma.reaction.findFirst({
       where: {
-        userId,
-        reactionType,
-        reactionCategory,
-        [requiredField!]: reactionData[requiredField!],
+        userId: authenticatedUserId,
+        reactionType: reactionData.reactionType,
+        reactionCategory: reactionData.reactionCategory,
+        ...(requiredField && { [requiredField]: reactionData[requiredField] }),
       },
     })
 
     if (existingReaction) {
       const reaction = await prisma.reaction.update({
         where: { id: existingReaction.id },
-        data: reactionData as Prisma.ReactionUpdateInput,
+        data: {
+          ...reactionData,
+          userId: undefined, // Ensure userId is not directly assigned
+        } as Prisma.ReactionUpdateInput,
       })
       return { reaction, message: 'Reaction updated successfully' }
     } else {
       const reaction = await prisma.reaction.create({
-        data: reactionData as Prisma.ReactionCreateInput,
+        data: {
+          ...reactionData,
+          User: { connect: { id: authenticatedUserId } }, // Properly connect User relation
+        } as Prisma.ReactionCreateInput,
       })
       return { reaction, message: 'Reaction created successfully' }
     }

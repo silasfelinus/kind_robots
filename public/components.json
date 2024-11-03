@@ -3,8 +3,6 @@
     "folderName": "admin",
     "components": [
       "AdminPage",
-      "Authelia-Login",
-      "Authelia-Register",
       "DashboardChooser",
       "DebugLauncher",
       "GithubButton",

@@ -7,7 +7,9 @@ import { generateSillyName } from './../../../utils/useRandomName'
 import { saveImage } from './../../../server/api/utils/saveImage'
 import type { PitchType } from '@prisma/client'
 
-console.log("🚀 Starting up the art generation engine! Let's create something amazing!")
+console.log(
+  "🚀 Starting up the art generation engine! Let's create something amazing!",
+)
 
 type GenerateImageResponse = {
   images: string[]
@@ -54,42 +56,63 @@ export default defineEventHandler(async (event) => {
 
     if (!requestData.promptString) {
       event.node.res.statusCode = 400
-      throw createError({ statusCode: 400, message: 'Missing prompt in request data.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Missing prompt in request data.',
+      })
     }
 
     // Authorization check
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401
-      throw createError({ statusCode: 401, message: 'Authorization token required in the format "Bearer <token>"' })
+      throw createError({
+        statusCode: 401,
+        message: 'Authorization token required in the format "Bearer <token>"',
+      })
     }
 
     const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { apiKey: token },
       select: { id: true, karma: true },
     })
 
     if (!user || user.id !== requestData.userId) {
       event.node.res.statusCode = 403
-      throw createError({ statusCode: 403, message: 'Token does not match user ID' })
+      throw createError({
+        statusCode: 403,
+        message: 'Token does not match user ID',
+      })
     }
 
     // Rate-limiting and karma check
     if (user.karma <= 0) {
       event.node.res.statusCode = 403
-      throw createError({ statusCode: 403, message: 'Insufficient karma to generate image' })
+      throw createError({
+        statusCode: 403,
+        message: 'Insufficient karma to generate image',
+      })
     }
 
     // Validate and load required data
     const validatedData: Partial<RequestData> = {}
-    validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
-    validatedData.promptId = await validateAndLoadPromptId(requestData, validatedData)
+    validatedData.userId = await validateAndLoadUserId(
+      requestData,
+      validatedData,
+    )
+    validatedData.promptId = await validateAndLoadPromptId(
+      requestData,
+      validatedData,
+    )
     validatedData.pitchId = await validateAndLoadPitchId(requestData)
     validatedData.galleryId = await validateAndLoadGalleryId(requestData)
     validatedData.designer = validateAndLoadDesignerName(requestData)
 
-    const cfgValue = calculateCfg(requestData.cfg ?? 3, requestData.cfgHalf ?? false)
+    const cfgValue = calculateCfg(
+      requestData.cfg ?? 3,
+      requestData.cfgHalf ?? false,
+    )
 
     // Generate the image
     const response: GenerateImageResponse = await generateImage(
@@ -101,7 +124,9 @@ export default defineEventHandler(async (event) => {
     )
 
     if (!response || !response.images?.length) {
-      throw new Error(`Image generation failed: ${response?.error || 'No images generated.'}`)
+      throw new Error(
+        `Image generation failed: ${response?.error || 'No images generated.'}`,
+      )
     }
 
     // Save the generated image
@@ -141,8 +166,14 @@ export default defineEventHandler(async (event) => {
     })
 
     // Link art ID back to the image and subtract 1 karma from the user
-    await prisma.artImage.update({ where: { id: imageId }, data: { artId: newArt.id } })
-    await prisma.user.update({ where: { id: user.id }, data: { karma: user.karma - 1 } })
+    await prisma.artImage.update({
+      where: { id: imageId },
+      data: { artId: newArt.id },
+    })
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { karma: user.karma - 1 },
+    })
 
     event.node.res.statusCode = 201 // Created
     return {
@@ -162,11 +193,6 @@ export default defineEventHandler(async (event) => {
     console.log('🎬 Art generation process completed.')
   }
 })
-
-// Utility and validation functions as in original (keep these unchanged, as they handle model partials)
-
-// calculateCfg, validateAndLoadUserId, validateAndLoadPromptId, etc.
-
 
 async function validateAndLoadUserId(
   data: RequestData,

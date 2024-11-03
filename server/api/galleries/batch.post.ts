@@ -1,11 +1,36 @@
 // /server/api/galleries/batch.post.ts
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import type { Prisma } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
+    // Validate the authorization token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const userId = user.id
+
     // Read and validate incoming batch data
     const galleryData = (await readBody(
       event,
@@ -17,26 +42,33 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Perform batch creation, skipping duplicates
+    // Ensure all galleries are associated with the authenticated user
+    const validatedGalleryData = galleryData.map((gallery) => ({
+      ...gallery,
+      userId, // Enforce user ID from the authenticated token
+    }))
+
+    // Batch creation of galleries, with skipDuplicates to avoid duplicates
     const createdCount = await prisma.gallery.createMany({
-      data: galleryData,
+      data: validatedGalleryData,
       skipDuplicates: true,
     })
 
-    // Retrieve created galleries for verification
+    // Fetch created galleries for verification
     const createdGalleries = await prisma.gallery.findMany({
       where: {
-        name: { in: galleryData.map((g) => g.name) },
+        name: { in: validatedGalleryData.map((g) => g.name) },
       },
     })
 
+    // Set status code to 201 Created
+    event.node.res.statusCode = 201
     return {
       success: true,
       createdCount,
       createdGalleries,
-      statusCode: 200,
     }
-  } catch (error: unknown) {
+  } catch (error) {
     const handledError = errorHandler(error)
     return {
       success: false,

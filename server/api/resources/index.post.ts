@@ -1,14 +1,65 @@
 // /server/api/resources/index.post.ts
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import type { Prisma, Resource } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    const resourceData = await readBody(event)
-    const result = await addResource(resourceData)
-    return { success: true, ...result }
+    // Validate authorization token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const authenticatedUserId = user.id
+
+    // Read and validate the request body
+    const resourceData = (await readBody(event)) as Partial<Resource>
+
+    if (!resourceData.name) {
+      throw createError({
+        statusCode: 400,
+        message: 'Resource name is required.',
+      })
+    }
+
+    // If userId is provided in resourceData, ensure it matches the authenticated user
+    if (resourceData.userId && resourceData.userId !== authenticatedUserId) {
+      throw createError({
+        statusCode: 403,
+        message: 'User ID does not match the authenticated user.',
+      })
+    }
+
+    // Create the resource with a connected User relation if userId is provided
+    const newResource = await prisma.resource.create({
+      data: {
+        ...resourceData,
+        User: { connect: { id: authenticatedUserId } }, // Ensure user relation is properly connected
+      } as Prisma.ResourceCreateInput,
+    })
+
+    // Set status code to 201 Created
+    event.node.res.statusCode = 201
+    return { success: true, resource: newResource }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     return {
@@ -19,22 +70,3 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
-
-export async function addResource(
-  resourceData: Partial<Resource>,
-): Promise<{ resource: Resource | null; error: string | null }> {
-  if (!resourceData.name) {
-    return { resource: null, error: 'Resource name is required.' }
-  }
-
-  try {
-    const resource = await prisma.resource.create({
-      data: resourceData as Prisma.ResourceCreateInput,
-    })
-    return { resource, error: null }
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
-    return { resource: null, error: errorMessage }
-  }
-}

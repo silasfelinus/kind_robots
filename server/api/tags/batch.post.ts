@@ -1,11 +1,37 @@
 // /server/api/tags/batch.post.ts
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import type { Prisma, Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
+    // Validate authorization token
+    const authorizationHeader = event.node.req.headers['authorization']
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      throw createError({
+        statusCode: 401,
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
+    const user = await prisma.user.findFirst({
+      where: { apiKey: token },
+      select: { id: true },
+    })
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const authenticatedUserId = user.id
+
+    // Read and validate tags data from the request body
     const tagsData = await readBody<Partial<Tag>[]>(event)
 
     if (!Array.isArray(tagsData) || tagsData.length === 0) {
@@ -29,9 +55,11 @@ export default defineEventHandler(async (event) => {
       validTags.push({
         title: toTitleCase(tag.title),
         label: toTitleCase(tag.label),
+        userId: authenticatedUserId, // Ensure the tags are linked to the authenticated user
       })
     }
 
+    // Add tags to the database
     const result = await addTags(validTags)
 
     if (result.error) {

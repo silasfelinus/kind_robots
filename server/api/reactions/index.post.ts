@@ -65,6 +65,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    console.log('Prepared data for Prisma:', data) // Log data to verify structure
+
     // Add or Update Reaction in the Database
     const result = await addOrUpdateReaction(data, authenticatedUserId)
 

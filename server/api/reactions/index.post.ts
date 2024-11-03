@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message:
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -35,6 +37,7 @@ export default defineEventHandler(async (event) => {
     const reactionData = (await readBody(event)) as Partial<Reaction>
 
     if (!reactionData.reactionType || !reactionData.reactionCategory) {
+      event.node.res.statusCode = 400 // Bad Request
       throw createError({
         statusCode: 400,
         message: 'Reaction type and category are required.',
@@ -43,6 +46,7 @@ export default defineEventHandler(async (event) => {
 
     // Verify that if userId is provided, it matches the authenticated user
     if (reactionData.userId && reactionData.userId !== authenticatedUserId) {
+      event.node.res.statusCode = 403 // Forbidden
       throw createError({
         statusCode: 403,
         message: 'User ID does not match the authenticated user.',
@@ -69,6 +73,7 @@ export default defineEventHandler(async (event) => {
 
     const requiredField = requiredFields[reactionData.reactionCategory]
     if (requiredField && !reactionData[requiredField]) {
+      event.node.res.statusCode = 400 // Bad Request
       throw createError({
         statusCode: 400,
         message: `${requiredField} is required for ${reactionData.reactionCategory} reactions.`,
@@ -81,6 +86,8 @@ export default defineEventHandler(async (event) => {
       requiredField,
       authenticatedUserId,
     )
+
+    event.node.res.statusCode = 201 // Created
     return { success: true, ...result }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)

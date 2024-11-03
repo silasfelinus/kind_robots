@@ -1,4 +1,3 @@
-// /server/api/pitches/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
@@ -50,14 +49,16 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 201
     return { success: true, ...result }
   } catch (error) {
-    // Handle and return error response
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create a new pitch.',
+      message:
+        message.includes('token') || message.includes('required')
+          ? message
+          : 'Failed to create a new pitch.',
       error: message,
-      statusCode: event.node.res.statusCode,
+      statusCode: statusCode || 500,
     }
   }
 })
@@ -80,10 +81,11 @@ export async function addPitch(
     const errorMessage =
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2002'
-        ? 'A pitch with the same title already exists.'
+        ? 'A pitch with the same content already exists.'
         : error instanceof Error
           ? error.message
           : 'An unknown error occurred while creating the pitch.'
+
     return { pitch: null, error: errorMessage }
   }
 }

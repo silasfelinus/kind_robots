@@ -55,7 +55,9 @@ describe('Milestone Record Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -91,7 +93,7 @@ describe('Milestone Record Management API Tests', () => {
         milestoneId,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       expect(response.body.record).to.be.an('object').that.is.not.empty
       milestoneRecordId = response.body.record.id
       cy.log('Created Milestone Record ID:', milestoneRecordId)
@@ -109,7 +111,9 @@ describe('Milestone Record Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Authorization token is required')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 

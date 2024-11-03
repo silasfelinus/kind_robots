@@ -1,17 +1,14 @@
-// /server/api/random/index.post.ts
+// /server/api/rewards/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { Prisma, RandomList } from '@prisma/client'
+import type { Prisma, Reward } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let response
-
   try {
-    // Validate the authorization token
+    // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message:
@@ -26,7 +23,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -35,54 +31,53 @@ export default defineEventHandler(async (event) => {
 
     const authenticatedUserId = user.id
 
-    // Read and validate the random list data from the request body
-    const randomListData: Partial<RandomList> = await readBody(event)
+    // Read and validate the reward data from the request body
+    const rewardData = await readBody<Partial<Reward>>(event)
 
-    // Check for required fields
-    if (!randomListData.title || typeof randomListData.title !== 'string') {
-      event.node.res.statusCode = 400 // Bad Request
+    // Validate required fields
+    if (!rewardData.text || !rewardData.power || !rewardData.icon) {
       throw createError({
         statusCode: 400,
-        message: '"title" is a required field and must be a string.',
+        message: '"text", "power", and "icon" are required fields.',
       })
     }
 
-    // Ensure the provided userId matches the authenticated user's ID, if specified
-    if (
-      randomListData.userId &&
-      randomListData.userId !== authenticatedUserId
-    ) {
-      event.node.res.statusCode = 403 // Forbidden
+    // Verify userId in rewardData matches the authenticated user
+    if (rewardData.userId && rewardData.userId !== authenticatedUserId) {
       throw createError({
         statusCode: 403,
-        message: 'User ID in the data does not match the authenticated user.',
+        message:
+          'User ID in the reward data does not match the authenticated user.',
       })
     }
 
-    // Prepare data for new random list creation
-    const newRandomListData: Prisma.RandomListCreateInput = {
-      title: randomListData.title,
-      items: JSON.stringify(randomListData.items || []),
-      User: { connect: { id: authenticatedUserId } },
+    // Prepare data for the new reward, setting defaults for optional fields
+    const data: Prisma.RewardCreateInput = {
+      icon: rewardData.icon,
+      text: rewardData.text,
+      power: rewardData.power,
+      collection: rewardData.collection || 'genesis',
+      rarity: rewardData.rarity ?? 0,
+      label: rewardData.label || null,
+      User: { connect: { id: authenticatedUserId } }, // Link to authenticated user
+      ...(rewardData.artImageId && {
+        ArtImage: { connect: { id: rewardData.artImageId } },
+      }),
     }
 
-    // Create the new random list
-    const newRandomList = await prisma.randomList.create({
-      data: newRandomListData,
-    })
+    // Create the new reward in the database
+    const newReward = await prisma.reward.create({ data })
 
-    // Set status code to 201 Created
-    event.node.res.statusCode = 201
-    response = { success: true, randomList: newRandomList, statusCode: 201 }
-  } catch (error) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    event.node.res.statusCode = 201 // Created
+    return { success: true, reward: newReward }
+  } catch (error: unknown) {
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
+    return {
       success: false,
-      message: handledError.message || 'Failed to create a new random list.',
-      statusCode: event.node.res.statusCode,
+      message: 'Failed to create a new reward',
+      error: message || 'An unknown error occurred',
+      statusCode: statusCode || 500,
     }
   }
-
-  return response
 })

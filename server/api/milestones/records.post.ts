@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
     // Read and validate the request body
     const recordData = await readBody(event)
 
+    // Check if milestoneId and userId are provided and valid
     if (
       !recordData ||
       typeof recordData.milestoneId !== 'number' ||
@@ -42,13 +43,13 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message:
-          'Invalid data. "milestoneId" and "userId" must be provided as integers.',
+          '"milestoneId" and "userId" are required and must be integers.',
       })
     }
 
     const { milestoneId, userId } = recordData
 
-    // Verify that the userId in the recordData matches the authenticated user
+    // Verify that the userId in recordData matches the authenticated user
     if (userId !== authenticatedUserId) {
       throw createError({
         statusCode: 403,
@@ -65,10 +66,11 @@ export default defineEventHandler(async (event) => {
     })
 
     if (existingRecord) {
+      event.node.res.statusCode = 409 // Conflict
       return {
         success: false,
         message: 'Milestone already awarded to this user.',
-        statusCode: 409, // Conflict
+        statusCode: 409,
       }
     }
 

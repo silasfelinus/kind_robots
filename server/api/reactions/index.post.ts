@@ -1,22 +1,32 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { Prisma, Reaction } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 
-interface ReactionInput extends Partial<Reaction> {
+interface ReactionInput extends Prisma.ReactionCreateInput {
   componentName?: string
+  channelId?: number
+  chatExchangeId?: number
+  artId?: number
+  artImageId?: number
+  componentId?: number
+  galleryId?: number
+  messageId?: number
+  postId?: number
+  promptId?: number
+  resourceId?: number
+  rewardId?: number
+  tagId?: number
 }
 
 export default defineEventHandler(async (event) => {
   try {
-    // Authorization Token Validation
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
+        message: 'Authorization token required in format "Bearer <token>".',
       })
     }
 
@@ -25,7 +35,6 @@ export default defineEventHandler(async (event) => {
       where: { apiKey: token },
       select: { id: true },
     })
-
     if (!user) {
       event.node.res.statusCode = 401
       throw createError({
@@ -37,7 +46,6 @@ export default defineEventHandler(async (event) => {
     const authenticatedUserId = user.id
     const reactionData = (await readBody(event)) as ReactionInput
 
-    // Validate Required Fields
     if (!reactionData.reactionType || !reactionData.reactionCategory) {
       event.node.res.statusCode = 400
       throw createError({
@@ -46,38 +54,33 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Default channel and chatExchange ID assignment if not provided
-    const channelId = reactionData.channelId ?? 1
-    const chatExchangeId = reactionData.chatExchangeId ?? null
-
-    // Prepare Initial Data Object for Prisma
+    // Prepare data with optional relational fields only if provided
     const data: Prisma.ReactionCreateInput = {
       reactionType: reactionData.reactionType,
       reactionCategory: reactionData.reactionCategory,
       comment: reactionData.comment || '',
       rating: reactionData.rating || 0,
       User: { connect: { id: authenticatedUserId } },
-      Channel: { connect: { id: channelId } }, // Default or provided channelId
-      ...(chatExchangeId && {
-        ChatExchange: { connect: { id: chatExchangeId } },
-      }), // Optional chatExchangeId
+      Channel: reactionData.channelId
+        ? { connect: { id: reactionData.channelId } }
+        : Prisma.skip,
+      ChatExchange: reactionData.chatExchangeId
+        ? { connect: { id: reactionData.chatExchangeId } }
+        : Prisma.skip,
     }
 
-    // Attempt to Link the Appropriate Field Based on Reaction Category
     const linked = await getLinkField(reactionData, data)
     if (!linked) {
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
-        message: `${reactionData.reactionCategory} ID is required for ${reactionData.reactionCategory} reactions.`,
+        message: `${reactionData.reactionCategory} ID is required for this category.`,
       })
     }
 
     console.log('Prepared data for Prisma:', data) // Log data to verify structure
 
-    // Add or Update Reaction in the Database
     const result = await addOrUpdateReaction(data, authenticatedUserId)
-
     if (!result.reaction) {
       throw createError({
         statusCode: 500,
@@ -168,7 +171,6 @@ async function getLinkField(
           }
         }
         break
-      // Add additional cases for each category, ensuring optional fields
       case 'GALLERY':
         if (reactionData.galleryId) {
           data.Gallery = { connect: { id: reactionData.galleryId } }

@@ -118,7 +118,7 @@ describe('Art Collection API Tests', () => {
           artIds: [...existingArtIds, newArtId],
         },
       }).then((response) => {
-        expect(response.status).to.eq(200)
+        expect(response.status).to.eq(201)
         const returnedArtIds = response.body.collection.art.map(
           (art: Art) => art.id,
         )

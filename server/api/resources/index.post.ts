@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
     // Read and validate the request body
     const resourceData = await readBody<Partial<Resource>>(event)
 
+    // Validate required fields
     if (!resourceData.name || typeof resourceData.name !== 'string') {
       event.node.res.statusCode = 400
       throw createError({
@@ -44,20 +45,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // If userId is provided in resourceData, ensure it matches the authenticated user
-    if (resourceData.userId && resourceData.userId !== authenticatedUserId) {
-      event.node.res.statusCode = 403
-      throw createError({
-        statusCode: 403,
-        message:
-          'User ID in the request does not match the authenticated user.',
-      })
-    }
+    // Prepare the data object for the new resource, removing userId if it exists in resourceData
+    const { userId, ...resourceInput } = resourceData // Exclude userId from input data
 
-    // Create the resource with a connected User relation using authenticatedUserId
+    // Create the resource with the connected authenticated user
     const newResource = await prisma.resource.create({
       data: {
-        ...resourceData,
+        ...resourceInput,
         User: { connect: { id: authenticatedUserId } }, // Connect authenticated user
       } as Prisma.ResourceCreateInput,
     })

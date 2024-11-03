@@ -32,7 +32,7 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       cy.log('API Response:', JSON.stringify(response.body))
 
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       if (!response.body.success) {
         throw new Error(
           `API error occurred: ${response.body.message || 'Unknown error'}`,

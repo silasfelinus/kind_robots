@@ -37,11 +37,11 @@ export default defineEventHandler(async (event) => {
     const randomListData = await readBody<Partial<RandomList>>(event)
 
     // Validate required fields
-    if (!randomListData.title) {
+    if (!randomListData.title || typeof randomListData.title !== 'string') {
       event.node.res.statusCode = 400
       return {
         success: false,
-        message: '"title" is a required field.',
+        message: '"title" is a required field and must be a string.',
         statusCode: 400,
       }
     }

@@ -46,6 +46,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Default channel and chatExchange ID assignment if not provided
+    const channelId = reactionData.channelId ?? 1
+    const chatExchangeId = reactionData.chatExchangeId ?? null
+
     // Prepare Initial Data Object for Prisma
     const data: Prisma.ReactionCreateInput = {
       reactionType: reactionData.reactionType,
@@ -53,9 +57,10 @@ export default defineEventHandler(async (event) => {
       comment: reactionData.comment || '',
       rating: reactionData.rating || 0,
       User: { connect: { id: authenticatedUserId } },
-      Channel: reactionData.channelId
-        ? { connect: { id: reactionData.channelId } }
-        : undefined, // Use Channel relation if channelId exists
+      Channel: { connect: { id: channelId } }, // Default or provided channelId
+      ...(chatExchangeId && {
+        ChatExchange: { connect: { id: chatExchangeId } },
+      }), // Optional chatExchangeId
     }
 
     // Attempt to Link the Appropriate Field Based on Reaction Category

@@ -1,3 +1,4 @@
+// /server/api/milestones/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import type { Prisma, Milestone } from '@prisma/client'
 import { errorHandler } from '../utils/error'
@@ -5,29 +6,6 @@ import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Validate the authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
     // Read and validate the milestones data from the request body
     const milestonesData: Partial<Milestone>[] = await readBody(event)
 

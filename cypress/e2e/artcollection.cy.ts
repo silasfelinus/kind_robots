@@ -98,6 +98,12 @@ describe('Art Collection API Tests', () => {
         promptString: 'surreal, A magical castle in the clouds',
         steps: 15,
         path: ' ',
+        seed: null,
+        channelId: null,
+        galleryId: null,
+        promptId: null,
+        pitchId: null,
+        userId: 9,
       },
     }).then((response) => {
       newArtId = response.body.art.id

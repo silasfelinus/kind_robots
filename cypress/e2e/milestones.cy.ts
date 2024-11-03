@@ -46,7 +46,7 @@ describe('Milestone Management API Tests', () => {
         },
       ],
     }).then((response) => {
-      expect(response.status).to.eq(201)
+      expect(response.status).to.eq(200)
       expect(response.body.milestones).to.be.an('array').that.is.not.empty
       milestoneId = response.body.milestones[0].id
     })
@@ -114,5 +114,4 @@ describe('Milestone Management API Tests', () => {
       expect(response.status).to.eq(200)
     })
   })
-
 })

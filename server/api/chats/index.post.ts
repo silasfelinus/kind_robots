@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
     const authenticatedUserId = user.id
 
-    // Read the chat exchange data from the request body
+    // Read and validate the chat exchange data from the request body
     const exchangeData: Partial<ChatExchange> = await readBody(event)
 
     // Validate required fields
@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if user and bot exist
+    // Ensure bot and user exist
     const [userExists, botExists] = await Promise.all([
       prisma.user.findUnique({ where: { id: authenticatedUserId } }),
       prisma.bot.findUnique({ where: { id: exchangeData.botId ?? undefined } }),
@@ -92,7 +92,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Define and create the chat exchange
+    // Create the chat exchange entry
     const newExchange = await prisma.chatExchange.create({
       data: {
         userId: authenticatedUserId,
@@ -113,10 +113,11 @@ export default defineEventHandler(async (event) => {
       newExchange,
       statusCode: 201,
     }
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error in /server/api/chats/index.post.ts:', error)
     const { message, statusCode } = errorHandler(error)
 
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       message: 'Failed to create a new chat exchange',

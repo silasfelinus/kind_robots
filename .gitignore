@@ -24,3 +24,4 @@ backup.json
 _nuxt
 cypress.env.json
 cypress/screenshots/*
+http-client.env.json

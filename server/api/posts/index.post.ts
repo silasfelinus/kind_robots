@@ -1,14 +1,13 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import type { Prisma, Post } from '@prisma/client'
+import { Prisma, type Post } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -23,7 +22,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -41,7 +39,6 @@ export default defineEventHandler(async (event) => {
       (field) => !postData[field as keyof Post],
     )
     if (missingFields.length > 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: `Missing required fields: ${missingFields.join(', ')}.`,
@@ -50,22 +47,23 @@ export default defineEventHandler(async (event) => {
 
     // Check if userId in postData matches the authenticated user
     if (postData.userId && postData.userId !== authenticatedUserId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'User ID does not match the authenticated user.',
       })
     }
 
+    // Add authenticated userId to postData to ensure ownership
+    postData.userId = authenticatedUserId
+
     // Create the post, ensuring required fields and userId are included
-    const result = await addPost({ ...postData, userId: authenticatedUserId })
+    const result = await addPost(postData)
 
     if (result.error) {
-      return {
-        success: false,
-        message: result.error,
+      throw createError({
         statusCode: 400,
-      }
+        message: result.error,
+      })
     }
 
     // Set status code to 201 Created for successful creation
@@ -97,6 +95,15 @@ export async function addPost(
       error instanceof Error
         ? error.message
         : 'An unknown error occurred while creating the post.'
+
+    // Handle specific Prisma errors for more detail
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        // Unique constraint failed
+        return { post: null, error: 'A post with this title already exists.' }
+      }
+    }
+
     return { post: null, error: errorMessage }
   }
 }

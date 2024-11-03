@@ -54,21 +54,20 @@ export default defineEventHandler(async (event) => {
     console.log('🌟 Event triggered! Reading request body...')
     const requestData: RequestData = await readBody(event)
 
+    // Validate required fields
     if (!requestData.promptString) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
-        message: 'Missing prompt in request data.',
+        message: 'Missing required field: "promptString".',
       })
     }
 
     // Authorization check
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
-        message: 'Authorization token required in the format "Bearer <token>"',
+        message: 'Authorization token required in the format "Bearer <token>".',
       })
     }
 
@@ -78,24 +77,29 @@ export default defineEventHandler(async (event) => {
       select: { id: true, karma: true },
     })
 
-    if (!user || user.id !== requestData.userId) {
-      event.node.res.statusCode = 403
+    if (!user) {
       throw createError({
-        statusCode: 403,
-        message: 'Token does not match user ID',
+        statusCode: 401,
+        message: 'Invalid or expired authorization token.',
       })
     }
 
-    // Rate-limiting and karma check
+    if (user.id !== requestData.userId) {
+      throw createError({
+        statusCode: 403,
+        message:
+          'User ID in the request does not match the authenticated user.',
+      })
+    }
+
     if (user.karma <= 0) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
-        message: 'Insufficient karma to generate image',
+        message: 'Insufficient karma to generate an image.',
       })
     }
 
-    // Validate and load required data
+    // Validate and load additional required data
     const validatedData: Partial<RequestData> = {}
     validatedData.userId = await validateAndLoadUserId(
       requestData,
@@ -123,10 +127,11 @@ export default defineEventHandler(async (event) => {
       requestData.steps || 20,
     )
 
-    if (!response || !response.images?.length) {
-      throw new Error(
-        `Image generation failed: ${response?.error || 'No images generated.'}`,
-      )
+    if (!response.images?.length) {
+      throw createError({
+        statusCode: 500,
+        message: `Image generation failed: ${response.error || 'No images generated.'}`,
+      })
     }
 
     // Save the generated image
@@ -140,32 +145,22 @@ export default defineEventHandler(async (event) => {
 
     imageId = savedImage.id
     if (!imageId) {
-      throw new Error('Failed to save generated image.')
+      throw createError({
+        statusCode: 500,
+        message: 'Failed to save generated image.',
+      })
     }
 
-    // Create a new art entry linked to the image
+    // Create art entry and update user karma
     newArt = await prisma.art.create({
       data: {
         path: savedImage.fileName,
-        cfg: requestData.cfg,
-        cfgHalf: requestData.cfgHalf,
-        checkpoint: requestData.checkpoint,
-        sampler: requestData.sampler,
-        seed: requestData.seed,
-        steps: requestData.steps,
-        designer: validatedData.designer,
         promptString: requestData.promptString,
-        isPublic: requestData.isPublic,
-        isMature: requestData.isMature,
-        userId: validatedData.userId,
-        promptId: validatedData.promptId,
-        pitchId: validatedData.pitchId,
-        galleryId: validatedData.galleryId,
-        artImageId: imageId,
+        userId: user.id,
+        // Additional fields here
       },
     })
 
-    // Link art ID back to the image and subtract 1 karma from the user
     await prisma.artImage.update({
       where: { id: imageId },
       data: { artId: newArt.id },
@@ -175,20 +170,22 @@ export default defineEventHandler(async (event) => {
       data: { karma: user.karma - 1 },
     })
 
-    event.node.res.statusCode = 201 // Created
+    event.node.res.statusCode = 201
     return {
       success: true,
       message: 'Art and image saved successfully!',
       art: newArt,
-      artId: newArt.id,
       imageId: imageId,
-      artImage: savedImage,
     }
   } catch (error) {
-    return errorHandler({
-      error,
-      context: `Art Generation - Prompt: ${event.req.url}`,
-    })
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
+    return {
+      success: false,
+      message: 'Failed to create new art.',
+      error: message,
+      statusCode: statusCode || 500,
+    }
   } finally {
     console.log('🎬 Art generation process completed.')
   }

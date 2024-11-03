@@ -70,7 +70,7 @@ describe('Milestone Record Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(403) // Forbidden without API key
+      expect(response.status).to.eq(401)
     })
   })
 

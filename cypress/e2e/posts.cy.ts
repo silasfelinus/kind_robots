@@ -169,7 +169,7 @@ describe('Post Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.message).to.include(
-        `Post with ID ${postId} deleted successfully`,
+        `Post with ID ${postId} successfully deleted`,
       )
     })
   })

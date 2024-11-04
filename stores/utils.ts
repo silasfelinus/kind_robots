@@ -17,6 +17,7 @@ export async function performFetch<T>(
   const errorStore = useErrorStore()
   const userStore = useUserStore()
   const apiKey = userStore?.apiKey
+  console.log('apikey is : ', apiKey)
 
   // Setup headers, ensuring Authorization and Content-Type are set correctly
   const headers: HeadersInit = {

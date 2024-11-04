@@ -1,6 +1,93 @@
-// ~/types/util
+// ~/stores/util
+import { useErrorStore } from '~/stores/errorStore'
+
+// types/api.ts or utils.ts
+export type ApiResponse<T> = {
+  success: boolean
+  message: string
+  data?: T
+}
+
+export async function performFetch<T>(
+  url: string,
+  options: RequestInit = {},
+  retries = 3,
+  timeout = 8000,
+): Promise<ApiResponse<T>> {
+  const errorStore = useErrorStore()
+  const headers: HeadersInit = {
+    ...options.headers,
+    'Content-Type': 'application/json',
+  }
+
+  const fetchWithTimeout = (
+    url: string,
+    options: RequestInit,
+    timeout: number,
+  ): Promise<Response> => {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(
+        () => reject(new Error('Request timed out')),
+        timeout,
+      )
+
+      fetch(url, options)
+        .then((response) => {
+          clearTimeout(timer)
+          resolve(response)
+        })
+        .catch((error) => {
+          clearTimeout(timer)
+          reject(error)
+        })
+    })
+  }
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await fetchWithTimeout(
+        url,
+        { ...options, headers },
+        timeout,
+      )
+      const data = (await response.json()) as ApiResponse<T>
+
+      if (!response.ok || !data.success) {
+        const message = data.message || response.statusText || 'Unknown error'
+        errorStore.setError(ErrorType.NETWORK_ERROR, message)
+        return { success: false, message }
+      }
+
+      return { success: true, message: data.message, data: data.data }
+    } catch (error) {
+      if (attempt === retries) {
+        const message =
+          error instanceof Error ? error.message : 'Unknown network error'
+        errorStore.setError(ErrorType.NETWORK_ERROR, message)
+        return { success: false, message }
+      }
+    }
+  }
+
+  return { success: false, message: 'All fetch attempts failed' }
+}
 
 export type Timestamp = string
+
+export function handleError(err: unknown, action: string) {
+  const errorStore = useErrorStore()
+  if (err instanceof Error) {
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      `An error occurred while ${action}: ${err.message}`,
+    )
+  } else {
+    errorStore.setError(
+      ErrorType.UNKNOWN_ERROR,
+      `An unknown error occurred while ${action}.`,
+    )
+  }
+}
 
 export enum ModelType {
   BOT = 'BOT',

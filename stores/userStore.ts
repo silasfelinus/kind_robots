@@ -33,7 +33,7 @@ export const useUserStore = defineStore({
     user: null,
     token: typeof window !== 'undefined' ? localStorage.getItem('token') : '',
     apiKey:
-      typeof window !== 'undefined' ? localStorage.getItem('api_key') : null,
+      typeof window !== 'undefined' ? localStorage.getItem('api_key') : ' ',
     loading: false,
     lastError: null,
     highClickScores: [],

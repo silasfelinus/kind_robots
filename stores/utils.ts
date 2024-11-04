@@ -16,16 +16,14 @@ export async function performFetch<T>(
 ): Promise<ApiResponse<T>> {
   const errorStore = useErrorStore()
   const userStore = useUserStore()
-  const token = userStore?.token
+  const apiKey = userStore?.apiKey
 
   // Setup headers, ensuring Authorization and Content-Type are set correctly
   const headers: HeadersInit = {
     ...(options.headers || {}),
     'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
   }
-
-  console.log('token is ', token)
 
   // Nested function to handle request with timeout
   const fetchWithTimeout = (

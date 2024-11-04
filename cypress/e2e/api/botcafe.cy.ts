@@ -1,5 +1,4 @@
-// cypress/e2e/api/botcafe.cy.js
-/* eslint-disable no-undef */
+// cypress/e2e/api/botcafe.cy.ts
 
 describe('BotCafe API Tests', function () {
   // Changed to a function declaration

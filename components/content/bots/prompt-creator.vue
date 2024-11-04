@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { usePromptStore } from '@/stores/promptStore'
 import { useBotStore } from '@/stores/botStore'
 
@@ -46,7 +46,6 @@ const promptStore = usePromptStore()
 const botStore = useBotStore()
 
 const showSaveIcon = ref(false)
-
 const lastSavedPromptString = ref('')
 
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null
@@ -55,11 +54,14 @@ const isCreatingNewBot = computed(() => !botStore.currentBot)
 
 const currentPrompts = computed({
   get() {
-    return isCreatingNewBot.value
+    const prompts = isCreatingNewBot.value
       ? promptStore.promptArray
       : botStore.currentBot?.userIntro?.split(' | ') || []
+    console.log('Getting currentPrompts:', prompts)
+    return prompts
   },
   set(value: string[]) {
+    console.log('Setting currentPrompts to:', value)
     if (isCreatingNewBot.value) {
       promptStore.promptArray = value
     } else if (botStore.currentBot) {
@@ -69,12 +71,21 @@ const currentPrompts = computed({
 })
 
 const finalPromptString = computed(() => {
-  return currentPrompts.value.join(' | ')
+  const finalString = currentPrompts.value.join(' | ')
+  console.log('Computed finalPromptString:', finalString)
+  return finalString
 })
 
 async function saveUserIntroToBot() {
   const finalPromptString = currentPrompts.value.join(' | ')
 
+  // Log the condition that avoids unnecessary saves
+  console.log(
+    'Attempting to save:',
+    finalPromptString,
+    'Last saved:',
+    lastSavedPromptString.value,
+  )
   if (finalPromptString === lastSavedPromptString.value) return
 
   showSaveIcon.value = true
@@ -84,6 +95,7 @@ async function saveUserIntroToBot() {
     const saveStart = Date.now()
 
     if (botStore.currentBot) {
+      console.log('Saving userIntro to botStore.currentBot')
       await botStore.saveUserIntro(finalPromptString)
     } else {
       botStore.botForm.userIntro = finalPromptString
@@ -106,13 +118,15 @@ async function saveUserIntroToBot() {
 function debouncedSave() {
   if (debounceTimeout) clearTimeout(debounceTimeout)
   debounceTimeout = setTimeout(() => {
+    console.log('Debounced save triggered')
     saveUserIntroToBot()
   }, 300)
 }
 
 watch(
   () => currentPrompts.value,
-  () => {
+  (newPrompts) => {
+    console.log('currentPrompts changed:', newPrompts)
     debouncedSave()
   },
   { deep: true },
@@ -120,15 +134,24 @@ watch(
 
 function addPrompt() {
   currentPrompts.value = [...currentPrompts.value, '']
+  console.log('Added a new prompt, currentPrompts:', currentPrompts.value)
 }
 
 function removePrompt(index: number) {
   const updatedPrompts = [...currentPrompts.value]
   updatedPrompts.splice(index, 1)
   currentPrompts.value = updatedPrompts
+  console.log('Removed a prompt, currentPrompts:', currentPrompts.value)
 }
 
 function handleEnterKey() {
+  console.log('Enter key pressed, saving user intro')
   saveUserIntroToBot()
 }
+
+onMounted(() => {
+  console.log('PromptCreator component mounted')
+  console.log('Initial currentPrompts:', currentPrompts.value)
+  console.log('Initial finalPromptString:', finalPromptString.value)
+})
 </script>

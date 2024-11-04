@@ -196,10 +196,15 @@ const canEditDesigner = computed(
 
 function highlightIfChanged(field: string) {
   const original = botStore.currentBot || {}
-  if (
-    botStore.botForm[field as keyof typeof botStore.botForm] !==
-    original[field as keyof typeof original]
-  ) {
+  const currentFormValue =
+    botStore.botForm[field as keyof typeof botStore.botForm]
+  const originalValue = original[field as keyof typeof original]
+
+  console.log(`Checking field "${field}":`)
+  console.log('Original Value:', originalValue)
+  console.log('Current Form Value:', currentFormValue)
+
+  if (currentFormValue !== originalValue) {
     return 'border border-info'
   }
   return ''
@@ -241,7 +246,14 @@ function deselectCurrentBot() {
 }
 
 onMounted(async () => {
+  console.log('Component Mounted: Initial Bot Data')
+  console.log('Initial botStore.currentBot:', botStore.currentBot)
+  console.log('Initial botStore.botForm:', { ...botStore.botForm })
+
   await botStore.loadStore()
+  console.log('After loadStore - botStore.currentBot:', botStore.currentBot)
+  console.log('After loadStore - botStore.botForm:', { ...botStore.botForm })
+
   await galleryStore.initializeStore()
 })
 </script>

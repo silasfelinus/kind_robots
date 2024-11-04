@@ -6,7 +6,7 @@
       class="bg-primary text-white rounded-2xl p-4 m-4 border"
       @click="togglePopup"
     >
-      <Icon :name="milestone?.icon || 'default-Icon'" class="h-16 w-16" />
+      <Icon :name="milestone?.icon || 'kind-icon:map'" class="h-16 w-16" />
     </button>
 
     <!-- Popup Content -->

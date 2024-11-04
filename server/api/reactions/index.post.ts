@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
+      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -31,32 +33,37 @@ export default defineEventHandler(async (event) => {
 
     const authenticatedUserId = user.id
 
-    // Read and validate reaction data from the request body
+    // Read reaction data from the request body
     const reactionData = await readBody<Partial<Reaction>>(event)
 
-    // Validate required fields
+    // Ensure required fields are present
     if (!reactionData.reactionType || !reactionData.reactionCategory) {
-      return {
-        success: false,
-        message: '"reactionType" and "reactionCategory" are required fields.',
+      event.node.res.statusCode = 400
+      throw createError({
         statusCode: 400,
-      }
+        message: '"reactionType" and "reactionCategory" are required fields.',
+      })
     }
 
-    // Add the authenticated user's ID to the reaction data
+    // Ensure the user's ID matches the authenticated user
     reactionData.userId = authenticatedUserId
 
     // Create or update the reaction
     const result = await addOrUpdateReaction(reactionData)
 
     if (result.error) {
-      throw new Error(result.error)
+      event.node.res.statusCode = 500
+      throw createError({
+        statusCode: 500,
+        message: result.error,
+      })
     }
 
-    return { success: true, reaction: result.reaction, statusCode: 201 }
+    event.node.res.statusCode = 201 // Created
+    return { success: true, reaction: result.reaction }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
-
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       message: 'Failed to create or update reaction',
@@ -66,6 +73,7 @@ export default defineEventHandler(async (event) => {
   }
 })
 
+// Helper function to add or update a reaction
 export async function addOrUpdateReaction(
   reactionData: Partial<Reaction>,
 ): Promise<{ reaction: Reaction | null; error: string | null }> {

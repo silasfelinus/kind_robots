@@ -45,9 +45,12 @@ const selectedBotId = computed({
 // Load the bots on mount and set the default bot if available
 onMounted(async () => {
   try {
+    console.log('Loading bots from store...')
     await botStore.loadStore()
+    console.log('Bots loaded:', bots.value)
     if (!selectedBotId.value && bots.value.length > 0) {
       selectedBotId.value = bots.value[0].id
+      console.log('Default bot selected:', selectedBotId.value)
     }
   } catch (err) {
     console.error('🚨 Failed to load store', err)

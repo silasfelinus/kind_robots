@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Bot } from '@prisma/client'
-import { useErrorStore, ErrorType } from './errorStore'
+import { performFetch, handleError } from './utils' // Ensure performFetch is imported
 
 export const useBotStore = defineStore({
   id: 'botStore',
@@ -22,21 +22,6 @@ export const useBotStore = defineStore({
   },
 
   actions: {
-    handleError(err: unknown, action: string) {
-      const errorStore = useErrorStore()
-      if (err instanceof Error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `An error occurred while ${action}: ${err.message}`,
-        )
-      } else {
-        errorStore.setError(
-          ErrorType.UNKNOWN_ERROR,
-          `An unknown error occurred while ${action}.`,
-        )
-      }
-    },
-
     async selectBot(botId: number) {
       try {
         if (this.currentBot?.id === botId) return
@@ -48,7 +33,7 @@ export const useBotStore = defineStore({
         this.botForm = { ...foundBot } // Copy to botForm for editing
         this.currentImagePath = foundBot.avatarImage || ''
       } catch (error) {
-        this.handleError(error, 'selecting bot')
+        handleError(error, 'selecting bot')
       }
     },
 
@@ -67,14 +52,19 @@ export const useBotStore = defineStore({
     async fetchBots(): Promise<void> {
       if (this.isLoaded) return
       this.loading = true
+
       try {
-        const response = await fetch('/api/bots')
-        if (!response.ok) throw new Error(`Failed to fetch bots`)
-        const data = await response.json()
-        this.bots = data.bots
-        this.isLoaded = true
+        // Use performFetch with ApiResponse<Bot[]> as the type
+        const response = await performFetch<Bot[]>('/api/bots')
+
+        if (response.success) {
+          this.bots = response.data || []
+          this.isLoaded = true
+        } else {
+          throw new Error(response.message)
+        }
       } catch (error) {
-        this.handleError(error, 'fetching bots')
+        handleError(error, 'fetching bots')
       } finally {
         this.loading = false
       }
@@ -87,7 +77,7 @@ export const useBotStore = defineStore({
         await this.fetchBots()
         this.isLoaded = true
       } catch (error) {
-        this.handleError(error, 'loading store')
+        handleError(error, 'loading store')
       } finally {
         this.loading = false
       }
@@ -127,7 +117,7 @@ export const useBotStore = defineStore({
         this.botForm = { ...updatedBot.bot }
         this.currentImagePath = updatedBot.bot.avatarImage
       } catch (error) {
-        this.handleError(error, 'updating bot')
+        handleError(error, 'updating bot')
         console.error('Error updating bot: ', error)
       }
     },
@@ -174,7 +164,7 @@ export const useBotStore = defineStore({
         this.botForm = { ...updatedBot.bot }
         this.currentImagePath = updatedBot.bot.avatarImage
       } catch (error) {
-        this.handleError(error, 'updating bot')
+        handleError(error, 'updating bot')
         console.error('Error updating current bot: ', error)
       }
     },
@@ -192,7 +182,7 @@ export const useBotStore = defineStore({
         // Use the updateCurrentBot method to send the update to the backend
         await this.updateCurrentBot()
       } catch (error) {
-        this.handleError(error, 'updating user intro')
+        handleError(error, 'updating user intro')
         console.error('Error updating user intro: ', error)
       }
     },
@@ -203,7 +193,7 @@ export const useBotStore = defineStore({
         if (!response.ok) throw new Error(`Failed to delete bot`)
         this.bots = this.bots.filter((bot) => bot.id !== id)
       } catch (error) {
-        this.handleError(error, 'deleting bot')
+        handleError(error, 'deleting bot')
       }
     },
 
@@ -233,7 +223,7 @@ export const useBotStore = defineStore({
 
         return addedBots
       } catch (error) {
-        this.handleError(error, 'adding bots')
+        handleError(error, 'adding bots')
         console.error('Error adding bots: ', error)
         return []
       }
@@ -257,7 +247,7 @@ export const useBotStore = defineStore({
           throw new Error('API response does not contain bot data')
         }
       } catch (error) {
-        this.handleError(error, 'adding bot')
+        handleError(error, 'adding bot')
         console.error('Error adding bot: ', error)
         return null
       }
@@ -278,7 +268,7 @@ export const useBotStore = defineStore({
         this.botForm = { ...data.bot }
         this.currentImagePath = data.bot.avatarImage
       } catch (error) {
-        this.handleError(error, 'fetching bot by id')
+        handleError(error, 'fetching bot by id')
         console.error('Error fetching bot by id: ', error)
       }
     },
@@ -288,7 +278,7 @@ export const useBotStore = defineStore({
         await this.addBots(botData)
         await this.fetchBots()
       } catch (error) {
-        this.handleError(error, 'seeding bots')
+        handleError(error, 'seeding bots')
       }
     },
   },

@@ -1,12 +1,25 @@
 // /server/api/reactions/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import type { Reaction } from '@prisma/client'
+import { errorHandler } from '../utils/error'
+import { type ReactionType, ReactionCategory } from '@prisma/client'
+
+interface RequestData {
+  userId: number
+  reactionType: ReactionType
+  reactionCategory: ReactionCategory
+  artId?: number
+  componentId?: number
+  pitchId?: number
+  channelId?: number
+  comment?: string
+}
 
 export default defineEventHandler(async (event) => {
+  let requestData: RequestData | undefined
+
   try {
-    // Validate authorization token
+    // Authorization check
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401
@@ -34,56 +47,141 @@ export default defineEventHandler(async (event) => {
     }
 
     const authenticatedUserId = user.id
+    requestData = await readBody(event)
 
-    // Read and validate the request body
-    const reactionData = await readBody<Partial<Reaction>>(event)
+    // Ensure requestData is defined
+    if (!requestData) {
+      throw new Error('Invalid request data.')
+    }
 
-    // Validate required fields
-    if (!reactionData.reactionType || !reactionData.reactionCategory) {
-      event.node.res.statusCode = 400
+    const {
+      userId,
+      reactionType,
+      reactionCategory,
+      artId,
+      componentId,
+      pitchId,
+      channelId,
+      comment,
+    } = requestData
+
+    if (authenticatedUserId !== userId) {
+      event.node.res.statusCode = 403
       return {
         success: false,
-        message: '"reactionType" and "reactionCategory" are required fields.',
-        statusCode: 400,
+        message: 'User ID mismatch: authorization denied.',
+        statusCode: 403,
       }
     }
 
-    // Create the reaction with conditional relationships
-    const newReaction = await prisma.reaction.create({
-      data: {
-        reactionType: reactionData.reactionType,
-        reactionCategory: reactionData.reactionCategory,
-        comment: reactionData.comment || '',
-        rating: reactionData.rating || 0,
-        User: { connect: { id: authenticatedUserId } },
-        ...(reactionData.artId && {
-          Art: { connect: { id: reactionData.artId } },
-        }),
-        ...(reactionData.channelId && {
-          Channel: { connect: { id: reactionData.channelId } },
-        }),
-        ...(reactionData.chatExchangeId && {
-          ChatExchange: { connect: { id: reactionData.chatExchangeId } },
-        }),
-        ...(reactionData.artImageId && {
-          ArtImage: { connect: { id: reactionData.artImageId } },
-        }),
+    if (!userId || !reactionType || !reactionCategory) {
+      throw new Error(
+        'Missing required fields: userId, reactionType, or ReactionCategory.',
+      )
+    }
+
+    let reactionMatchCondition: { [key: string]: number } = {}
+
+    // Use the ReactionCategory enum values directly
+    switch (reactionCategory) {
+      case ReactionCategory.ART:
+        if (!artId) throw new Error('artId is required for Art reactions.')
+        reactionMatchCondition = { artId }
+        break
+      case ReactionCategory.COMPONENT:
+        if (!componentId)
+          throw new Error('componentId is required for Component reactions.')
+        reactionMatchCondition = { componentId }
+        break
+      case ReactionCategory.PITCH:
+        if (!pitchId)
+          throw new Error('pitchId is required for Pitch reactions.')
+        reactionMatchCondition = { pitchId }
+        break
+      case ReactionCategory.CHANNEL:
+        if (!channelId)
+          throw new Error('channelId is required for Channel reactions.')
+        reactionMatchCondition = { channelId }
+        break
+      default:
+        throw new Error('Unsupported ReactionCategory.')
+    }
+
+    // Check if the user already reacted to the same item (art, component, pitch, or channel)
+    const existingReaction = await prisma.reaction.findFirst({
+      where: {
+        userId,
+        reactionType,
+        reactionCategory,
+        ...reactionMatchCondition,
       },
     })
 
-    // Set status code to 201 Created for successful creation
-    event.node.res.statusCode = 201
-    return { success: true, reaction: newReaction }
-  } catch (error) {
-    const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
-    return {
-      success: false,
-      message: message.includes('token')
-        ? message
-        : 'Failed to create or update reaction',
-      error: message,
-      statusCode: statusCode || 500,
+    if (existingReaction) {
+      // Update the existing reaction
+      const updatedReaction = await prisma.reaction.update({
+        where: { id: existingReaction.id },
+        data: {
+          comment,
+          reactionType,
+          reactionCategory,
+          artId: reactionCategory === ReactionCategory.ART ? artId : undefined,
+          componentId:
+            reactionCategory === ReactionCategory.COMPONENT
+              ? componentId
+              : undefined,
+          pitchId:
+            reactionCategory === ReactionCategory.PITCH ? pitchId : undefined,
+          channelId:
+            reactionCategory === ReactionCategory.CHANNEL
+              ? channelId
+              : undefined,
+        },
+      })
+
+      return {
+        success: true,
+        reaction: updatedReaction,
+        message: 'Reaction updated successfully',
+      }
+    } else {
+      // Create a new reaction
+      const newReaction = await prisma.reaction.create({
+        data: {
+          userId,
+          reactionType,
+          reactionCategory,
+          artId: reactionCategory === ReactionCategory.ART ? artId : undefined,
+          componentId:
+            reactionCategory === ReactionCategory.COMPONENT
+              ? componentId
+              : undefined,
+          pitchId:
+            reactionCategory === ReactionCategory.PITCH ? pitchId : undefined,
+          channelId:
+            reactionCategory === ReactionCategory.CHANNEL
+              ? channelId
+              : undefined,
+          comment,
+        },
+      })
+
+      return {
+        success: true,
+        reaction: newReaction,
+        reactionId: newReaction.id,
+        message: 'Reaction created successfully',
+      }
     }
+  } catch (error) {
+    const err = error as Error
+    console.error('Error in Reaction Management:', {
+      error: err.message,
+      requestData,
+    })
+    return errorHandler({
+      error: err,
+      context: 'Reaction Management - POST',
+    })
   }
 })

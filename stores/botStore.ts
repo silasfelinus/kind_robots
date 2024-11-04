@@ -23,7 +23,6 @@ export const useBotStore = defineStore({
 
   actions: {
     async selectBot(botId: number) {
-      console.log('running selectBot')
       try {
         if (this.currentBot?.id === botId) return
         const foundBot = this.bots.find((bot) => bot.id === botId)
@@ -50,20 +49,15 @@ export const useBotStore = defineStore({
     },
 
     async fetchBots(): Promise<void> {
-      console.log('running fetchBots')
       if (this.isLoaded) return
       this.loading = true
 
       try {
-        console.log('Starting fetchBots...')
         const response = await performFetch<Bot[]>('/api/bots')
-
-        console.log('API response from fetchBots:', response)
 
         if (response.success) {
           this.bots = response.data || []
           this.isLoaded = true
-          console.log('Bots successfully fetched and state updated:', this.bots)
         } else {
           console.warn('Failed to fetch bots:', response.message)
           throw new Error(response.message)
@@ -78,7 +72,6 @@ export const useBotStore = defineStore({
     },
 
     async loadStore(): Promise<void> {
-      console.log('running loadStore')
       if (this.isLoaded || this.loading) return
       console.log('running loadStore first time')
       this.loading = true
@@ -93,15 +86,12 @@ export const useBotStore = defineStore({
     },
 
     async updateBot(id: number): Promise<void> {
-      console.log('running updateBot')
       try {
         const botData = { ...this.botForm, avatarImage: this.currentImagePath }
         const response = await performFetch<{ bot: Bot }>(`/api/bot/id/${id}`, {
           method: 'PATCH',
           body: JSON.stringify(botData),
         })
-
-        console.log('Response from updateBot:', response)
 
         if (response.success) {
           const updatedBot = response.data?.bot
@@ -124,7 +114,6 @@ export const useBotStore = defineStore({
     },
 
     async updateCurrentBot(): Promise<void> {
-      console.log('running updateCurrentBot')
       if (!this.currentBot) {
         console.error('No bot selected to update')
         return
@@ -151,7 +140,6 @@ export const useBotStore = defineStore({
 
         if (response.success) {
           this.bots = this.bots.filter((bot) => bot.id !== id)
-          console.log('Bot deleted. Updated bots:', this.bots)
         } else {
           throw new Error(response.message)
         }
@@ -162,14 +150,11 @@ export const useBotStore = defineStore({
     },
 
     async addBots(botsData: Partial<Bot>[]): Promise<Bot[]> {
-      console.log('running addBots')
       try {
         const response = await performFetch<{ bots: Bot[] }>('/api/bots', {
           method: 'POST',
           body: JSON.stringify(botsData),
         })
-
-        console.log('Response from addBots:', response)
 
         if (response.success) {
           const addedBots = response.data?.bots || []
@@ -187,13 +172,10 @@ export const useBotStore = defineStore({
 
     async addBot(botData: Partial<Bot>): Promise<Bot | null> {
       try {
-        console.log('running addBot')
         const response = await performFetch<{ bot: Bot }>('/api/bot', {
           method: 'POST',
           body: JSON.stringify(botData),
         })
-
-        console.log('Response from addBot:', response)
 
         if (response.success) {
           const newBot = response.data?.bot
@@ -213,8 +195,6 @@ export const useBotStore = defineStore({
     async getBotById(id: number): Promise<void> {
       try {
         const response = await performFetch<{ bot: Bot }>(`/api/bot/id/${id}`)
-
-        console.log('Response from getBotById:', response)
 
         if (response.success) {
           const bot = response.data?.bot

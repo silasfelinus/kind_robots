@@ -43,8 +43,8 @@ onMounted(async () => {
 
     // Initialize other stores in parallel
     await Promise.all([
-      botStore.loadStore?.(),
       userStore.initializeUser?.(),
+      botStore.loadStore?.(),
       artStore.initialize?.(),
       themeStore.initTheme?.(),
       milestoneStore.initializeMilestones?.(),

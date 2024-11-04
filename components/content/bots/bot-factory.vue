@@ -26,11 +26,9 @@
       class="bot-sections flex-grow w-full overflow-y-auto p-2 md:p-4 lg:p-6"
     >
       <lazy-add-bot v-if="activeTab === 'add-bot'" />
-      <lazy-kind-robot v-if="activeTab === 'kind-robot'" />
-      <lazy-bot-gallery v-if="activeTab === 'bot-gallery'" />
       <lazy-use-bot v-if="activeTab === 'use-bot'" />
       <lazy-chat-test v-if="activeTab === 'chat-test'" />
-    <lazy-stream-tester v-if="activeTab === 'stream-tester'" />
+      <lazy-stream-tester v-if="activeTab === 'stream-tester'" />
     </div>
   </div>
 </template>
@@ -41,11 +39,9 @@ import { ref } from 'vue'
 // Tabs setup for Bot Factory
 const tabs = [
   { name: 'add-bot', label: 'Add Bot' },
-  { name: 'kind-robot', label: 'Kind Robot' },
-  { name: 'bot-gallery', label: 'Bot Gallery' },
   { name: 'use-bot', label: 'Use Bot' },
   { name: 'chat-test', label: 'Chat Test' },
-{ name: 'stream-tester', label: 'Stream Tester' },
+  { name: 'stream-tester', label: 'Stream Tester' },
 ]
 
 const activeTab = ref('add-bot') // Default to the first tab

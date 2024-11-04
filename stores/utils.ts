@@ -25,6 +25,8 @@ export async function performFetch<T>(
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 
+  console.log('token is ', token)
+
   // Nested function to handle request with timeout
   const fetchWithTimeout = (
     url: string,

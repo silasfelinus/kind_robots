@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import type { Prisma, Reaction } from '@prisma/client'
+import type { Reaction } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -48,15 +48,27 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Prepare the data object for the new reaction, excluding userId from reactionData
-    const { userId, ...reactionInput } = reactionData
-
-    // Create the reaction with the connected authenticated user
+    // Create the reaction with conditional relationships
     const newReaction = await prisma.reaction.create({
       data: {
-        ...reactionInput,
+        reactionType: reactionData.reactionType,
+        reactionCategory: reactionData.reactionCategory,
+        comment: reactionData.comment || '',
+        rating: reactionData.rating || 0,
         User: { connect: { id: authenticatedUserId } },
-      } as Prisma.ReactionCreateInput,
+        ...(reactionData.artId && {
+          Art: { connect: { id: reactionData.artId } },
+        }),
+        ...(reactionData.channelId && {
+          Channel: { connect: { id: reactionData.channelId } },
+        }),
+        ...(reactionData.chatExchangeId && {
+          ChatExchange: { connect: { id: reactionData.chatExchangeId } },
+        }),
+        ...(reactionData.artImageId && {
+          ArtImage: { connect: { id: reactionData.artImageId } },
+        }),
+      },
     })
 
     // Set status code to 201 Created for successful creation

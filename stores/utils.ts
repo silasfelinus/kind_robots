@@ -16,7 +16,7 @@ export async function performFetch<T>(
 ): Promise<ApiResponse<T>> {
   const errorStore = useErrorStore()
   const userStore = useUserStore()
-  const token = userStore?.user?.apiKey
+  const token = userStore?.apiKey
 
   // Setup headers, ensuring Authorization and Content-Type are set correctly
   const headers: HeadersInit = {

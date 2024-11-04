@@ -1,8 +1,8 @@
-// /server/api/reactions/index.post.ts
+// /server/api/resources/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
-import type { Prisma, Reaction } from '@prisma/client'
+import type { Prisma, Resource } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -34,31 +34,31 @@ export default defineEventHandler(async (event) => {
     const authenticatedUserId = user.id
 
     // Read and validate the request body
-    const reactionData = await readBody<Partial<Reaction>>(event)
+    const resourceData = await readBody<Partial<Resource>>(event)
 
     // Validate required fields
-    if (!reactionData.reactionType || !reactionData.reactionCategory) {
+    if (!resourceData.name || typeof resourceData.name !== 'string') {
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
-        message: '"reactionType" and "reactionCategory" are required fields.',
+        message: '"name" is a required field and must be a string.',
       })
     }
 
-    // Prepare the data object for the new reaction, excluding userId from reactionData
-    const { userId, ...reactionInput } = reactionData
+    // Prepare the data object for the new resource, removing userId if it exists in resourceData
+    const { userId, ...resourceInput } = resourceData // Exclude userId from input data
 
-    // Create the reaction with the connected authenticated user
-    const newReaction = await prisma.reaction.create({
+    // Create the resource with the connected authenticated user
+    const newResource = await prisma.resource.create({
       data: {
-        ...reactionInput,
-        User: { connect: { id: authenticatedUserId } },
-      } as Prisma.ReactionCreateInput,
+        ...resourceInput,
+        User: { connect: { id: authenticatedUserId } }, // Connect authenticated user
+      } as Prisma.ResourceCreateInput,
     })
 
     // Set status code to 201 Created for successful creation
     event.node.res.statusCode = 201
-    return { success: true, reaction: newReaction }
+    return { success: true, resource: newResource }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
       success: false,
       message: message.includes('token')
         ? message
-        : 'Failed to create or update reaction',
+        : 'Failed to create a new resource',
       error: message,
       statusCode: statusCode || 500,
     }

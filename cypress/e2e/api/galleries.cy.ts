@@ -1,11 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/galleries.cy.js
-/* eslint-disable no-undef */
 
 describe('Gallery Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/galleries'
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let galleryId // Store gallery ID for further operations
+  let galleryId: number // Store gallery ID for further operations
 
   // Step 1: Attempt to create a gallery with various authentication scenarios
 

@@ -53,18 +53,25 @@ export const useBotStore = defineStore({
       this.loading = true
 
       try {
-        const response = await performFetch<{ bots: Bot[] }>('/api/bots')
+        console.log('Starting fetchBots...')
+        const response = await performFetch<Bot[]>('/api/bots')
+
+        console.log('API response from fetchBots:', response)
 
         if (response.success) {
-          this.bots = response.data?.bots || []
+          this.bots = response.data || []
           this.isLoaded = true
+          console.log('Bots successfully fetched and state updated:', this.bots)
         } else {
+          console.warn('Failed to fetch bots:', response.message)
           throw new Error(response.message)
         }
       } catch (error) {
+        console.error('Error in fetchBots:', error)
         handleError(error, 'fetching bots')
       } finally {
         this.loading = false
+        console.log('fetchBots completed.')
       }
     },
 
@@ -89,6 +96,8 @@ export const useBotStore = defineStore({
           body: JSON.stringify(botData),
         })
 
+        console.log('Response from updateBot:', response)
+
         if (response.success) {
           const updatedBot = response.data?.bot
           if (updatedBot) {
@@ -104,6 +113,7 @@ export const useBotStore = defineStore({
           throw new Error(response.message)
         }
       } catch (error) {
+        console.error('Error in updateBot:', error)
         handleError(error, 'updating bot')
       }
     },
@@ -131,12 +141,16 @@ export const useBotStore = defineStore({
           method: 'DELETE',
         })
 
+        console.log('Response from deleteBot:', response)
+
         if (response.success) {
           this.bots = this.bots.filter((bot) => bot.id !== id)
+          console.log('Bot deleted. Updated bots:', this.bots)
         } else {
           throw new Error(response.message)
         }
       } catch (error) {
+        console.error('Error in deleteBot:', error)
         handleError(error, 'deleting bot')
       }
     },
@@ -148,6 +162,8 @@ export const useBotStore = defineStore({
           body: JSON.stringify(botsData),
         })
 
+        console.log('Response from addBots:', response)
+
         if (response.success) {
           const addedBots = response.data?.bots || []
           this.bots = [...this.bots, ...addedBots]
@@ -156,6 +172,7 @@ export const useBotStore = defineStore({
           throw new Error(response.message)
         }
       } catch (error) {
+        console.error('Error in addBots:', error)
         handleError(error, 'adding bots')
         return []
       }
@@ -168,6 +185,8 @@ export const useBotStore = defineStore({
           body: JSON.stringify(botData),
         })
 
+        console.log('Response from addBot:', response)
+
         if (response.success) {
           const newBot = response.data?.bot
           if (newBot) {
@@ -175,10 +194,10 @@ export const useBotStore = defineStore({
             return newBot
           }
         }
-        throw new Error(response.message) // Explicit throw to ensure a return
+        throw new Error(response.message)
       } catch (error) {
+        console.error('Error in addBot:', error)
         handleError(error, 'adding bot')
-        console.error('Error adding bot: ', error)
         return null
       }
     },
@@ -186,6 +205,8 @@ export const useBotStore = defineStore({
     async getBotById(id: number): Promise<void> {
       try {
         const response = await performFetch<{ bot: Bot }>(`/api/bot/id/${id}`)
+
+        console.log('Response from getBotById:', response)
 
         if (response.success) {
           const bot = response.data?.bot
@@ -198,6 +219,7 @@ export const useBotStore = defineStore({
           throw new Error(response.message)
         }
       } catch (error) {
+        console.error('Error in getBotById:', error)
         handleError(error, 'fetching bot by id')
       }
     },

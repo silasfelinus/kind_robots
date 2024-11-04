@@ -78,14 +78,13 @@ const finalPromptString = computed(() => {
 
 async function saveUserIntroToBot() {
   const finalPromptString = currentPrompts.value.join(' | ')
-
-  // Log the condition that avoids unnecessary saves
   console.log(
     'Attempting to save:',
     finalPromptString,
     'Last saved:',
     lastSavedPromptString.value,
   )
+
   if (finalPromptString === lastSavedPromptString.value) return
 
   showSaveIcon.value = true
@@ -123,13 +122,17 @@ function debouncedSave() {
   }, 300)
 }
 
+// Watcher optimized for Pinia with JSON string comparison
 watch(
-  () => currentPrompts.value,
-  (newPrompts) => {
-    console.log('currentPrompts changed:', newPrompts)
-    debouncedSave()
+  () => JSON.stringify(currentPrompts.value),
+  (newPrompts, oldPrompts) => {
+    if (newPrompts !== oldPrompts) {
+      console.log('currentPrompts actually changed:', JSON.parse(newPrompts))
+      debouncedSave()
+    } else {
+      console.log('currentPrompts reference changed but content is identical')
+    }
   },
-  { deep: true },
 )
 
 function addPrompt() {

@@ -122,16 +122,22 @@ function debouncedSave() {
   }, 300)
 }
 
-// Watcher optimized for Pinia with JSON string comparison
 watch(
   () => JSON.stringify(currentPrompts.value),
   (newPrompts, oldPrompts) => {
+    const parsedNewPrompts = JSON.parse(newPrompts)
+    const parsedOldPrompts = JSON.parse(oldPrompts)
+
+    // Skip logging if the new prompts are temporarily empty
+    if (parsedNewPrompts.length === 0 && parsedOldPrompts.length > 0) {
+      console.log('currentPrompts temporarily emptied; skipping update')
+      return
+    }
+
+    // Log only if there is a meaningful change
     if (newPrompts !== oldPrompts) {
-      console.log(
-        'currentPrompts actually changed from:',
-        JSON.parse(oldPrompts),
-      )
-      console.log('currentPrompts changed to:', JSON.parse(newPrompts))
+      console.log('currentPrompts actually changed from:', parsedOldPrompts)
+      console.log('currentPrompts changed to:', parsedNewPrompts)
       debouncedSave()
     } else {
       console.log('currentPrompts reference changed but content is identical')

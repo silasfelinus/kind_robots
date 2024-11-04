@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     console.log('Parsed channel data:', channelData)
 
     // Check authorization header
-    const authHeader = event.req.headers.authorization
+    const authHeader = event.node.req.headers.authorization
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401 // Unauthorized
       return {

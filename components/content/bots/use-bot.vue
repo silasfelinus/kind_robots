@@ -122,11 +122,7 @@ const parsedUserPrompts = ref<{ text: string; id: number }[]>([])
 
 // Function to parse and update user prompts based on bot userIntro
 function updateParsedUserPrompts() {
-  const originalUserIntro = parsedUserPrompts.value.map((prompt) => prompt.text)
   const newUserIntro = botStore.currentBot?.userIntro
-
-  console.log('Original userIntro:', originalUserIntro)
-  console.log('New userIntro:', newUserIntro ? newUserIntro.split('|') : [])
 
   parsedUserPrompts.value = newUserIntro
     ? newUserIntro.split('|').map((text, index) => ({

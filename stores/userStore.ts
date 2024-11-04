@@ -96,9 +96,13 @@ export const useUserStore = defineStore({
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
       const openAPIKey = this.getFromLocalStorage('openAPIKey')
+      const apiKey = this.getFromLocalStorage('api_key')
       this.setStayLoggedIn(stayLoggedIn)
       if (storedToken) {
         this.token = storedToken
+      }
+      if (apiKey) {
+        this.apiKey = storedToken
       }
       if (openAPIKey) {
         this.openAPIKey = openAPIKey

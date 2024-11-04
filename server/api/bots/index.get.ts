@@ -8,11 +8,11 @@ export default defineEventHandler(async (event) => {
     const page = Number(event.context.query?.page) || 1
     const pageSize = Number(event.context.query?.pageSize) || 100
 
-    // Fetch bots with pagination
-    const bots = await fetchBots(page, pageSize)
+    // Fetch bots with pagination, now returns a flat data structure
+    const result = await fetchBots(page, pageSize)
 
-    // Standardized response format
-    return { success: true, data: { bots } }
+    // Return the standardized response
+    return result // { success: true, data: bots } is returned as-is
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
     throw createError({

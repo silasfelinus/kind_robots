@@ -5,7 +5,7 @@ describe('Bot Management API Tests', () => {
   const botUrl = 'https://kind-robots.vercel.app/api/bot'
   const apiKey = Cypress.env('API_KEY')
   const userToken = Cypress.env('USER_TOKEN')
-  const invalidToken: string = 'someInvalidTokenValue'
+  const invalidToken = 'someInvalidTokenValue'
 
   let createdBotId: number
   const botName = `testbot-${Date.now()}`
@@ -85,12 +85,13 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      createdBotId = response.body.newBot.id
+      expect(response.body.data).to.have.property('bot')
+      createdBotId = response.body.data.bot.id
     })
   })
 
   it('should not allow updating a bot without an authorization token', () => {
-    const updateUrl = `${botUrl}/id/${createdBotId}/`
+    const updateUrl = `${botUrl}/id/${createdBotId}`
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -108,7 +109,7 @@ describe('Bot Management API Tests', () => {
   })
 
   it('should not allow updating a bot with an invalid authorization token', () => {
-    const updateUrl = `${botUrl}/id/${createdBotId}/`
+    const updateUrl = `${botUrl}/id/${createdBotId}`
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -127,7 +128,7 @@ describe('Bot Management API Tests', () => {
   })
 
   it('Update Bot with Valid Authentication', () => {
-    const updateUrl = `${botUrl}/id/${createdBotId}/`
+    const updateUrl = `${botUrl}/id/${createdBotId}`
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -144,7 +145,8 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.bot).to.include({
+      expect(response.body.data).to.have.property('bot')
+      expect(response.body.data.bot).to.include({
         description: 'Updated description for the test bot',
         tagline: 'Now with advanced features',
       })
@@ -162,7 +164,9 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      const bot = response.body.bots.find((bot: Bot) => bot.id === createdBotId)
+      const bot = response.body.data.bots.find(
+        (bot: Bot) => bot.id === createdBotId,
+      )
       expect(bot).to.include({
         id: createdBotId,
         name: botName,
@@ -210,6 +214,10 @@ describe('Bot Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.message).to.include(
+        `Bot with ID ${createdBotId} successfully deleted.`,
+      )
     })
   })
 })

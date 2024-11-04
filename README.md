@@ -194,3 +194,13 @@ npx prisma migrate dev
 Update Database:
 npx prisma migrate dev --[name]
 npx prisma generate
+
+
+Run Typescript tests:
+npm run test
+
+Run cypress Tests:
+ npm run cypress:run
+
+ Run Single Cypress Test:
+npx cypress run --spec "cypress/e2e/store/artStore.cy.ts"

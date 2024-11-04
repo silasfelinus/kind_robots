@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { usePromptStore } from '@/stores/promptStore'
-import { useUserStore } from '@/stores/userStore'
-import { useBotStore } from '@/stores/botStore'
+import { useErrorStore, ErrorType } from './errorStore'
+import { usePromptStore } from './promptStore'
+import { useUserStore } from './userStore'
+import { useBotStore } from './botStore'
 import type { ChatExchange } from '@prisma/client'
 
 export const useChatStore = defineStore({

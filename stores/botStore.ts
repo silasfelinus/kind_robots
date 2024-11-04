@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Bot } from '@prisma/client'
-import { useErrorStore, ErrorType } from './../stores/errorStore'
+import { useErrorStore, ErrorType } from './errorStore'
 
 export const useBotStore = defineStore({
   id: 'botStore',

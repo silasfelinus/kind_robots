@@ -164,9 +164,7 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      const bot = response.body.data.bots.find(
-        (bot: Bot) => bot.id === createdBotId,
-      )
+      const bot = response.body.data.find((bot: Bot) => bot.id === createdBotId)
       expect(bot).to.include({
         id: createdBotId,
         name: botName,

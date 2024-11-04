@@ -1,7 +1,7 @@
 // ~/stores/util
-import { useErrorStore } from '~/stores/errorStore'
+import { useUserStore } from '~/stores/userStore'
+import { useErrorStore, ErrorType } from '~/stores/errorStore'
 
-// types/api.ts or utils.ts
 export type ApiResponse<T> = {
   success: boolean
   message: string
@@ -15,11 +15,17 @@ export async function performFetch<T>(
   timeout = 8000,
 ): Promise<ApiResponse<T>> {
   const errorStore = useErrorStore()
+  const userStore = useUserStore()
+  const token = userStore?.user?.apiKey
+
+  // Setup headers, ensuring Authorization and Content-Type are set correctly
   const headers: HeadersInit = {
-    ...options.headers,
+    ...(options.headers || {}),
     'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 
+  // Nested function to handle request with timeout
   const fetchWithTimeout = (
     url: string,
     options: RequestInit,
@@ -50,15 +56,16 @@ export async function performFetch<T>(
         { ...options, headers },
         timeout,
       )
-      const data = (await response.json()) as ApiResponse<T>
 
-      if (!response.ok || !data.success) {
-        const message = data.message || response.statusText || 'Unknown error'
+      if (!response.ok) {
+        const message = response.statusText || 'Unknown error'
         errorStore.setError(ErrorType.NETWORK_ERROR, message)
         return { success: false, message }
       }
 
-      return { success: true, message: data.message, data: data.data }
+      // Parse and return the JSON directly as data
+      const data = (await response.json()) as T
+      return { success: true, message: '', data }
     } catch (error) {
       if (attempt === retries) {
         const message =

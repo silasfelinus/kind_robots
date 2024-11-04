@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Ensure the user's ID matches the authenticated user
+    // Set the user's ID in reaction data
     reactionData.userId = authenticatedUserId
 
     // Create or update the reaction
@@ -66,8 +66,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: 'Failed to create or update reaction',
-      error: message || 'An unknown error occurred',
+      message: message || 'Failed to create or update reaction',
       statusCode: statusCode || 500,
     }
   }

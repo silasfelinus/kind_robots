@@ -5,7 +5,7 @@ import { useMilestoneStore } from './milestoneStore'
 
 interface UserState {
   user: User | null
-  token?: string
+  token?: string | null
   apiKey: string | null
   loading: boolean
   lastError: string | null
@@ -31,7 +31,7 @@ export const useUserStore = defineStore({
   id: 'user',
   state: (): UserState => ({
     user: null,
-    token: '',
+    token: typeof window !== 'undefined' ? localStorage.getItem('token') : '',
     apiKey:
       typeof window !== 'undefined' ? localStorage.getItem('api_key') : null,
     loading: false,

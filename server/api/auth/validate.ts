@@ -39,12 +39,14 @@ export default defineEventHandler(async (event) => {
         const verificationResult = await verifyJwtToken(token)
         if (verificationResult.userId) {
           const userData = await fetchUserById(verificationResult.userId)
+          console.log('validate succeeded')
           return {
             success: true,
             message: 'Token is valid.',
             user: userData, // No Channels or Players here
           }
         }
+        console.log('validate failed')
         return { success: false, message: 'Invalid token.' }
       }
 

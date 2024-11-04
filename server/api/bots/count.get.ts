@@ -6,7 +6,9 @@ import { errorHandler } from '../utils/error'
 export default defineEventHandler(async () => {
   try {
     const count = await countBots()
-    return { success: true, count }
+
+    // Standardized response format
+    return { success: true, data: { count } }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
     throw createError({

@@ -6,16 +6,16 @@ export default defineEventHandler(async (event) => {
   const name = String(event.context.params?.name)
 
   try {
-    const bot = await fetchBotByName(name)
+    const botResponse = await fetchBotByName(name)
 
-    if (!bot) {
+    if (!botResponse?.data?.bot) {
       return {
         success: false,
         message: `Bot with name ${name} does not exist.`,
       }
     }
 
-    return { success: true, bot }
+    return { success: true, data: { bot: botResponse.data.bot } }
   } catch (error: unknown) {
     console.error(
       `Failed to fetch bot with name ${name}:`,

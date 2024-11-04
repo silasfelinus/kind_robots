@@ -17,7 +17,7 @@ interface UserState {
   openAPIKey: string | null
 }
 
-export interface ApiResponse {
+interface ApiResponse {
   success: boolean
   data?: unknown
   message?: string

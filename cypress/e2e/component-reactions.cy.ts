@@ -107,7 +107,7 @@ describe('Component Reactions API Tests', () => {
         artImageId: null,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       reactionId = response.body.reaction.id
       expect(reactionId).to.be.a('number')
     })

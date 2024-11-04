@@ -1,5 +1,5 @@
 // /server/api/reactions/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import type { Prisma, Reaction } from '@prisma/client'
@@ -10,11 +10,12 @@ export default defineEventHandler(async (event) => {
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401
-      throw createError({
-        statusCode: 401,
+      return {
+        success: false,
         message:
           'Authorization token is required in the format "Bearer <token>".',
-      })
+        statusCode: 401,
+      }
     }
 
     const token = authorizationHeader.split(' ')[1]
@@ -25,10 +26,11 @@ export default defineEventHandler(async (event) => {
 
     if (!user) {
       event.node.res.statusCode = 401
-      throw createError({
-        statusCode: 401,
+      return {
+        success: false,
         message: 'Invalid or expired token.',
-      })
+        statusCode: 401,
+      }
     }
 
     const authenticatedUserId = user.id
@@ -39,10 +41,11 @@ export default defineEventHandler(async (event) => {
     // Validate required fields
     if (!reactionData.reactionType || !reactionData.reactionCategory) {
       event.node.res.statusCode = 400
-      throw createError({
-        statusCode: 400,
+      return {
+        success: false,
         message: '"reactionType" and "reactionCategory" are required fields.',
-      })
+        statusCode: 400,
+      }
     }
 
     // Prepare the data object for the new reaction, excluding userId from reactionData

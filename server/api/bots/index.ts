@@ -5,13 +5,13 @@ import prisma from './../utils/prisma'
 export async function fetchBots(
   page = 1,
   pageSize = 100,
-): Promise<{ success: boolean; data: { bots: Bot[] }; message?: string }> {
+): Promise<{ success: boolean; data: Bot[]; message?: string }> {
   const skip = (page - 1) * pageSize
   const bots = await prisma.bot.findMany({
     skip,
     take: pageSize,
   })
-  return { success: true, data: { bots } }
+  return { success: true, data: bots }
 }
 
 export async function fetchBotById(

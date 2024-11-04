@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import type { Milestone, MilestoneRecord } from '@prisma/client'
 import { useUserStore } from './userStore'
 import { milestoneData } from './../training/milestoneData'
-import { useErrorStore, ErrorType } from './../stores/errorStore'
+import { useErrorStore, ErrorType } from './errorStore'
 
 export const useMilestoneStore = defineStore({
   id: 'milestoneStore',

@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 import type { Pinia } from 'pinia'
-import { useArtStore } from '@/stores/artStore' // Adjust the import path as needed
+import { useArtStore } from '../../../stores/artStore' // Adjust the import path as needed
 
 // Extend Cypress window type to include `$pinia`
 declare global {

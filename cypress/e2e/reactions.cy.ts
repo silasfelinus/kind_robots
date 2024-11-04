@@ -191,7 +191,7 @@ describe('Reaction Management API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
     })
   })
 

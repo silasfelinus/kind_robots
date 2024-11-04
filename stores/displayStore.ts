@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { useErrorStore, ErrorType } from './../stores/errorStore'
+import { useErrorStore, ErrorType } from './errorStore'
 
 // Define the types for state values and other variables
 export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'

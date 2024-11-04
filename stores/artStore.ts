@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import type { Art, Reaction, ArtImage, Tag } from '@prisma/client'
 import { useErrorStore, ErrorType } from './../stores/errorStore'
-import { usePromptStore } from '@/stores/promptStore'
-import { useUserStore } from '@/stores/userStore'
+import { usePromptStore } from './promptStore'
+import { useUserStore } from './userStore'
 
 const isClient = typeof window !== 'undefined'
 

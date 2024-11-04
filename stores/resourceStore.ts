@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Resource } from '@prisma/client'
-import { useErrorStore, ErrorType } from './../stores/errorStore'
+import { useErrorStore, ErrorType } from './errorStore'
 import { resourceData } from './../stores/seeds/seedResources'
 
 const errorStore = useErrorStore()
@@ -19,7 +19,6 @@ export const useResourceStore = defineStore({
     currentResource: null,
     errors: [],
     isInitialized: false,
-    
   }),
   actions: {
     async loadStore(): Promise<void> {
@@ -32,8 +31,6 @@ export const useResourceStore = defineStore({
           }
           this.isInitialized = true
         }
-
-
       } catch (error) {
         console.error('Resource Store Load Error:', error)
         errorStore.setError(
@@ -75,13 +72,11 @@ export const useResourceStore = defineStore({
       await this.getResources()
     },
     async getResourceById(id: number): Promise<void> {
-
       try {
         const response = await fetch(`/api/resources/${id}`)
         if (!response.ok) throw new Error('Failed to fetch resource')
         const data = await response.json()
         this.currentResource = data
-
       } catch (error) {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
@@ -102,7 +97,6 @@ export const useResourceStore = defineStore({
         const data = await response.json()
         this.resources = [...this.resources, ...data.resources]
         this.errors = data.errors
-      
       } catch (error) {
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
@@ -111,7 +105,6 @@ export const useResourceStore = defineStore({
       }
     },
     async updateResource(id: number, data: Partial<Resource>): Promise<void> {
-      
       try {
         const response = await fetch(`/api/resources/${id}`, {
           method: 'PATCH',
@@ -123,7 +116,7 @@ export const useResourceStore = defineStore({
         if (!response.ok) throw new Error('Failed to update resource')
         const updatedResource = await response.json()
         this.currentResource = updatedResource
-       
+
         // Fetch the updated list of resources after updating a resource
         await this.getResources()
       } catch (error) {
@@ -134,13 +127,12 @@ export const useResourceStore = defineStore({
       }
     },
     async deleteResource(id: number): Promise<void> {
-     
       try {
         const response = await fetch(`/api/resources/${id}`, {
           method: 'DELETE',
         })
         if (!response.ok) throw new Error('Failed to delete resource')
-       
+
         // Fetch the updated list of resources and total resources count after deleting a resource
         await this.getResources()
       } catch (error) {

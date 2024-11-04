@@ -12,12 +12,12 @@
       >
         <button
           :aria-label="item.title"
-          class="group flex flex-col items-center justify-center w-full space-y-1 text-center transition-all transform p-1 md:p-2 hover:scale-105 hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+          class="group flex flex-col items-center justify-center w-full space-y-1 text-center transition-all transform p-1 hover:scale-105 hover:bg-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
           @click="navigateTo(item.path)"
         >
           <icon
             :name="item.icon"
-            class="w-8 h-8 md:w-10 md:h-10 xl:w-12 xl:h-12 text-accent transition-transform group-hover:scale-110"
+            class="w-6 h-6 md:w-8 md:h-8 xl:w-12 xl:h-12 text-accent transition-transform group-hover:scale-110"
           />
 
           <span

@@ -1,14 +1,13 @@
 // cypress/e2e/bots.cy.js
-/* eslint-disable no-undef */
 
 describe('Bot Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/bots'
   const botUrl = 'https://kind-robots.vercel.app/api/bot'
   const apiKey = Cypress.env('API_KEY')
   const userToken = Cypress.env('USER_TOKEN')
-  const invalidToken = 'someInvalidTokenValue'
+  const invalidToken: string = 'someInvalidTokenValue'
 
-  let createdBotId
+  let createdBotId: number
   const botName = `testbot-${Date.now()}`
 
   it('should not allow creating a bot without an authorization token', () => {
@@ -163,7 +162,7 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      const bot = response.body.bots.find((bot) => bot.id === createdBotId)
+      const bot = response.body.bots.find((bot: Bot) => bot.id === createdBotId)
       expect(bot).to.include({
         id: createdBotId,
         name: botName,

@@ -1,9 +1,8 @@
-/* eslint-disable no-undef */
-
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Art Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/art'
   const apiKey = Cypress.env('API_KEY')
-  let artId // Store art ID for further operations
+  let artId: number // Store art ID for further operations
   let generatedPath
   const invalidToken = 'someInvalidTokenValue'
   const userToken = Cypress.env('USER_TOKEN')

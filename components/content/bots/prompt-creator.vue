@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { usePromptStore } from '@/stores/promptStore'
 import { useBotStore } from '@/stores/botStore'
 
@@ -82,12 +82,6 @@ async function saveUserIntroToBot() {
     const saveStart = Date.now()
 
     if (botStore.currentBot) {
-      console.log(
-        'saving userIntro, from ',
-        lastSavedPromptString,
-        ' to ',
-        finalPromptString,
-      )
       await botStore.saveUserIntro(finalPromptString)
     } else {
       botStore.botForm.userIntro = finalPromptString
@@ -125,8 +119,4 @@ function removePrompt(index: number) {
 function handleEnterKey() {
   saveUserIntroToBot()
 }
-
-onMounted(() => {
-  console.log('PromptCreator component mounted')
-})
 </script>

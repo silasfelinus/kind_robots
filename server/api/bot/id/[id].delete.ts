@@ -12,7 +12,6 @@ export default defineEventHandler(async (event) => {
     // Validate the Bot ID
     botId = Number(event.context.params?.id)
     if (isNaN(botId) || botId <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid Bot ID. It must be a positive integer.',
@@ -22,7 +21,6 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -37,7 +35,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -47,9 +44,10 @@ export default defineEventHandler(async (event) => {
     const userId = user.id
 
     // Fetch the bot and verify ownership
-    const bot = await fetchBotById(botId)
+    const botResponse = await fetchBotById(botId)
+    const bot = botResponse?.data?.bot // Safely access bot
+
     if (!bot) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Bot with ID ${botId} does not exist.`,
@@ -57,7 +55,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (bot.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this bot.',
@@ -67,7 +64,6 @@ export default defineEventHandler(async (event) => {
     // Attempt to delete the bot
     const deleted = await deleteBot(botId)
     if (!deleted) {
-      event.node.res.statusCode = 500
       throw createError({
         statusCode: 500,
         message: `Failed to delete bot with ID ${botId}.`,
@@ -77,8 +73,7 @@ export default defineEventHandler(async (event) => {
     // Successful deletion response
     response = {
       success: true,
-      message: `Bot with ID ${botId} successfully deleted.`,
-      statusCode: 200,
+      data: { message: `Bot with ID ${botId} successfully deleted.` },
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
@@ -90,7 +85,6 @@ export default defineEventHandler(async (event) => {
     response = {
       success: false,
       message: handledError.message || `Failed to delete bot with ID ${botId}.`,
-      statusCode: event.node.res.statusCode,
     }
   }
 

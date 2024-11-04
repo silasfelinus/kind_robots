@@ -127,7 +127,11 @@ watch(
   () => JSON.stringify(currentPrompts.value),
   (newPrompts, oldPrompts) => {
     if (newPrompts !== oldPrompts) {
-      console.log('currentPrompts actually changed:', JSON.parse(newPrompts))
+      console.log(
+        'currentPrompts actually changed from:',
+        JSON.parse(oldPrompts),
+      )
+      console.log('currentPrompts changed to:', JSON.parse(newPrompts))
       debouncedSave()
     } else {
       console.log('currentPrompts reference changed but content is identical')

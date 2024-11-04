@@ -1,4 +1,4 @@
-// ~/stores/util
+// @/stores/util
 import { useUserStore } from '~/stores/userStore'
 import { useErrorStore, ErrorType } from '~/stores/errorStore'
 
@@ -57,15 +57,17 @@ export async function performFetch<T>(
         timeout,
       )
 
-      if (!response.ok) {
-        const message = response.statusText || 'Unknown error'
+      // Parse response as ApiResponse<T>
+      const parsedResponse = (await response.json()) as ApiResponse<T>
+
+      if (!parsedResponse.success || !response.ok) {
+        const message =
+          parsedResponse.message || response.statusText || 'Unknown error'
         errorStore.setError(ErrorType.NETWORK_ERROR, message)
         return { success: false, message }
       }
 
-      // Parse and return the JSON directly as data
-      const data = (await response.json()) as T
-      return { success: true, message: '', data }
+      return parsedResponse // Directly return parsed ApiResponse<T>
     } catch (error) {
       if (attempt === retries) {
         const message =

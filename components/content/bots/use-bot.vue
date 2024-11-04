@@ -34,6 +34,8 @@
         <p class="text-gray-700 mt-4">{{ botStore.currentBot.botIntro }}</p>
       </div>
     </div>
+
+    <!-- Prompt Options -->
     <div
       v-if="botStore.currentBot"
       class="flex flex-col gap-4 items-center mt-6 w-full"
@@ -59,6 +61,7 @@
         </div>
       </div>
 
+      <!-- Custom Prompt Input -->
       <div class="flex flex-col w-full sm:w-1/2 mt-6">
         <label for="customPrompt" class="block text-lg font-medium mb-2"
           >Custom Prompt:</label
@@ -113,50 +116,37 @@ const chatStore = useChatStore()
 const userStore = useUserStore()
 const promptStore = usePromptStore()
 
-const loading = ref(false) // Loading state
-const errorMessage = ref()
+const loading = ref(false)
+const errorMessage = ref<string | undefined>()
+const parsedUserPrompts = ref<{ text: string; id: number }[]>([])
 
-const parsedUserPrompts = computed(() => {
-  return botStore.currentBot?.userIntro
+// Function to parse and update user prompts based on bot userIntro
+function updateParsedUserPrompts() {
+  parsedUserPrompts.value = botStore.currentBot?.userIntro
     ? botStore.currentBot.userIntro.split('|').map((text, index) => ({
         text: text.trim(),
-        id: index + 1, // Assign a unique id to each prompt
+        id: index + 1,
       }))
     : []
-})
+}
 
 // Function to handle sending a selected prompt
 async function sendPrompt(prompt: string) {
   if (!prompt) return console.warn('Prompt is empty, cannot send.')
 
-  // Set the selected prompt to chatStore.currentPrompt to display it in the input field
   chatStore.currentPrompt = prompt
+  loading.value = true
 
-  loading.value = true // Start loading
   try {
     const { id: userId } = userStore.user || {}
     const { id: botId } = botStore.currentBot || {}
 
     if (userId && botId) {
-      console.log('Preparing prompt packet:', {
-        prompt,
-        userId,
-        botId,
-      })
-
-      // Generate a new prompt ID by creating the prompt in the backend
       const newPrompt = await promptStore.addPrompt(prompt, userId, botId)
       const promptId = newPrompt.id
-      if (!promptId) {
-        throw new Error('Failed to generate a prompt ID.')
-      }
+      if (!promptId) throw new Error('Failed to generate a prompt ID.')
 
-      console.log('Sending prompt packet with promptId:', promptId)
-
-      // Call addExchange with the generated promptId
       await chatStore.addExchange(prompt, userId, botId, undefined, promptId)
-
-      // Clear the prompt field after successful submission
       chatStore.currentPrompt = ''
     } else {
       console.warn('Missing user or bot ID, cannot proceed.')
@@ -165,33 +155,25 @@ async function sendPrompt(prompt: string) {
     errorMessage.value = 'An error occurred while sending the prompt.'
     console.error('Error sending prompt:', error)
   } finally {
-    loading.value = false // End loading
+    loading.value = false
   }
 }
 
-// Function to handle submitting a custom or modified prompt
+// Function to handle submitting a custom prompt
 async function submitCustomPrompt() {
   const trimmedPrompt = chatStore.currentPrompt.trim()
   if (!trimmedPrompt) {
     errorMessage.value = 'Custom prompt is empty. Please enter text.'
-    return // Prevent empty submissions
+    return
   }
 
-  loading.value = true // Start loading
+  loading.value = true
   try {
     const { id: userId } = userStore.user || {}
     const { id: botId } = botStore.currentBot || {}
 
     if (userId && botId) {
-      console.log('Submitting custom prompt packet:', {
-        prompt: trimmedPrompt,
-        userId,
-        botId,
-      })
-
       await chatStore.addExchange(trimmedPrompt, userId, botId)
-
-      // Clear the prompt field after successful submission
       chatStore.currentPrompt = ''
     } else {
       errorMessage.value = 'Please select a bot and ensure you are logged in.'
@@ -200,21 +182,22 @@ async function submitCustomPrompt() {
     errorMessage.value = 'An error occurred while submitting the custom prompt.'
     console.error('Error submitting custom prompt:', error)
   } finally {
-    loading.value = false // End loading
+    loading.value = false
   }
 }
 
-// Get active chat cards for the current bot
+// Computed property for active chat cards for the current bot
 const activeChatCards = computed(() => {
   return botStore.currentBot
     ? chatStore.activeChatsByBotId(botStore.currentBot.id)
     : []
 })
 
-// Initialize stores
+// Initialize stores and parsed prompts on load
 onMounted(async () => {
   await botStore.loadStore()
   await chatStore.initialize()
+  updateParsedUserPrompts() // Populate parsed prompts initially
 })
 </script>
 

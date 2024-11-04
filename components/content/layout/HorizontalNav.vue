@@ -17,7 +17,7 @@
         >
           <icon
             :name="item.icon"
-            class="w-6 h-6 md:w-8 md:h-8 xl:w-12 xl:h-12 text-accent transition-transform group-hover:scale-110"
+            class="w-6 h-6 text-accent transition-transform group-hover:scale-110"
           />
 
           <span

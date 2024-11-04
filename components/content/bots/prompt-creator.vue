@@ -82,6 +82,12 @@ async function saveUserIntroToBot() {
     const saveStart = Date.now()
 
     if (botStore.currentBot) {
+      console.log(
+        'saving userIntro, from ',
+        lastSavedPromptString,
+        ' to ',
+        finalPromptString,
+      )
       await botStore.saveUserIntro(finalPromptString)
     } else {
       botStore.botForm.userIntro = finalPromptString

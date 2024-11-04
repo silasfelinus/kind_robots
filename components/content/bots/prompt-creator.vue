@@ -85,7 +85,11 @@ async function saveUserIntroToBot() {
     lastSavedPromptString.value,
   )
 
-  if (finalPromptString === lastSavedPromptString.value) return
+  if (
+    finalPromptString === lastSavedPromptString.value ||
+    finalPromptString === botStore.botForm.userIntro
+  )
+    return
 
   showSaveIcon.value = true
   const minSaveTime = 1000

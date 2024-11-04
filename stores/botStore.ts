@@ -23,6 +23,7 @@ export const useBotStore = defineStore({
 
   actions: {
     async selectBot(botId: number) {
+      console.log('running selectBot')
       try {
         if (this.currentBot?.id === botId) return
         const foundBot = this.bots.find((bot) => bot.id === botId)
@@ -49,6 +50,7 @@ export const useBotStore = defineStore({
     },
 
     async fetchBots(): Promise<void> {
+      console.log('running fetchBots')
       if (this.isLoaded) return
       this.loading = true
 
@@ -76,7 +78,9 @@ export const useBotStore = defineStore({
     },
 
     async loadStore(): Promise<void> {
+      console.log('running loadStore')
       if (this.isLoaded || this.loading) return
+      console.log('running loadStore first time')
       this.loading = true
       try {
         await this.fetchBots()
@@ -89,6 +93,7 @@ export const useBotStore = defineStore({
     },
 
     async updateBot(id: number): Promise<void> {
+      console.log('running updateBot')
       try {
         const botData = { ...this.botForm, avatarImage: this.currentImagePath }
         const response = await performFetch<{ bot: Bot }>(`/api/bot/id/${id}`, {
@@ -119,6 +124,7 @@ export const useBotStore = defineStore({
     },
 
     async updateCurrentBot(): Promise<void> {
+      console.log('running updateCurrentBot')
       if (!this.currentBot) {
         console.error('No bot selected to update')
         return
@@ -156,6 +162,7 @@ export const useBotStore = defineStore({
     },
 
     async addBots(botsData: Partial<Bot>[]): Promise<Bot[]> {
+      console.log('running addBots')
       try {
         const response = await performFetch<{ bots: Bot[] }>('/api/bots', {
           method: 'POST',
@@ -180,6 +187,7 @@ export const useBotStore = defineStore({
 
     async addBot(botData: Partial<Bot>): Promise<Bot | null> {
       try {
+        console.log('running addBot')
         const response = await performFetch<{ bot: Bot }>('/api/bot', {
           method: 'POST',
           body: JSON.stringify(botData),

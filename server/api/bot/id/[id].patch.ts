@@ -1,4 +1,4 @@
-//server/api/bots/[id].patch.ts
+// server/api/bots/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Prisma } from '@prisma/client'
 import prisma from '../../utils/prisma'
@@ -12,7 +12,6 @@ export default defineEventHandler(async (event) => {
     // Validate bot ID
     botId = Number(event.context.params?.id)
     if (isNaN(botId) || botId <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid Bot ID. It must be a positive integer.',
@@ -22,7 +21,6 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -37,7 +35,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -52,7 +49,6 @@ export default defineEventHandler(async (event) => {
       select: { userId: true },
     })
     if (!existingBot) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Bot with ID ${botId} does not exist.`,
@@ -60,7 +56,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (existingBot.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this bot.',
@@ -70,7 +65,6 @@ export default defineEventHandler(async (event) => {
     // Parse and validate update data
     const botData = await readBody(event)
     if (!botData || Object.keys(botData).length === 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -86,8 +80,7 @@ export default defineEventHandler(async (event) => {
     // Successful update response
     response = {
       success: true,
-      bot: updatedBot,
-      statusCode: 200,
+      data: { bot: updatedBot },
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
@@ -99,7 +92,6 @@ export default defineEventHandler(async (event) => {
     response = {
       success: false,
       message: handledError.message || `Failed to update bot with ID ${botId}.`,
-      statusCode: event.node.res.statusCode,
     }
   }
 

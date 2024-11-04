@@ -2,53 +2,67 @@
 import type { Prisma, Bot } from '@prisma/client'
 import prisma from './../utils/prisma'
 
-export async function fetchBots(page = 1, pageSize = 100): Promise<Bot[]> {
+export async function fetchBots(
+  page = 1,
+  pageSize = 100,
+): Promise<{ success: boolean; data: { bots: Bot[] }; message?: string }> {
   const skip = (page - 1) * pageSize
-  return await prisma.bot.findMany({
+  const bots = await prisma.bot.findMany({
     skip,
     take: pageSize,
   })
+  return { success: true, data: { bots } }
 }
 
-export async function fetchBotById(id: number): Promise<Bot | null> {
-  return await prisma.bot.findUnique({
-    where: { id },
-  })
+export async function fetchBotById(
+  id: number,
+): Promise<{ success: boolean; data?: { bot: Bot | null }; message?: string }> {
+  const bot = await prisma.bot.findUnique({ where: { id } })
+  if (!bot) {
+    return { success: false, message: 'Bot not found', data: { bot: null } }
+  }
+  return { success: true, data: { bot } }
 }
 
-export async function fetchBotByName(name: string): Promise<Bot | null> {
-  return await prisma.bot.findUnique({
-    where: { name },
-  })
+export async function fetchBotByName(
+  name: string,
+): Promise<{ success: boolean; data?: { bot: Bot | null }; message?: string }> {
+  const bot = await prisma.bot.findUnique({ where: { name } })
+  if (!bot) {
+    return { success: false, message: 'Bot not found', data: { bot: null } }
+  }
+  return { success: true, data: { bot } }
 }
 
 export async function addBot(
   botData: Partial<Bot>,
-): Promise<{ bot: Bot | null; error: string | null }> {
+): Promise<{ success: boolean; data?: { bot: Bot }; message?: string }> {
   if (!botData.name) {
-    return { bot: null, error: 'Bot name is required.' }
+    return { success: false, message: 'Bot name is required.' }
   }
 
   try {
     const bot = await prisma.bot.create({
       data: botData as Prisma.BotCreateInput,
     })
-    return { bot, error: null }
+    return { success: true, data: { bot } }
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'
-    return { bot: null, error: errorMessage }
+    return { success: false, message: errorMessage }
   }
 }
 
-export async function addBots(
-  botsData: Partial<Bot>[],
-): Promise<{ count: number; bots: Bot[]; errors: string[] }> {
+export async function addBots(botsData: Partial<Bot>[]): Promise<{
+  success: boolean
+  data: { count: number; bots: Bot[] }
+  errors: string[]
+}> {
   const errors: string[] = []
   const data: Prisma.BotCreateManyInput[] = botsData
     .filter((botData) => {
       if (!botData.name) {
-        errors.push(`Bot with ID ${botData.id} does not have a name.`)
+        errors.push(`Bot with missing name.`)
         return false
       }
       return true
@@ -60,30 +74,48 @@ export async function addBots(
     skipDuplicates: true,
   })
 
-  const bots = await fetchBots()
-
-  return { count: result.count, bots, errors }
+  const bots = await prisma.bot.findMany() // Retrieve all bots if needed for confirmation
+  return { success: true, data: { count: result.count, bots }, errors }
 }
 
 export async function updateBot(
   name: string,
   data: Partial<Bot>,
-): Promise<Bot | null> {
+): Promise<{ success: boolean; data?: { bot: Bot }; message?: string }> {
   const botExists = await prisma.bot.findUnique({ where: { name } })
 
   if (!botExists) {
-    return null
+    return { success: false, message: 'Bot not found' }
   }
 
-  return await prisma.bot.update({
+  const bot = await prisma.bot.update({
     where: { name },
     data: data as Prisma.BotUpdateInput,
   })
+  return { success: true, data: { bot } }
+}
+
+export async function randomBot(): Promise<{
+  success: boolean
+  data?: { bot: Bot | null }
+  message?: string
+}> {
+  const totalBots = await prisma.bot.count()
+
+  if (totalBots === 0) {
+    return { success: false, message: 'No bots available', data: { bot: null } }
+  }
+
+  const randomIndex = Math.floor(Math.random() * totalBots)
+  const bot = await prisma.bot.findFirst({
+    skip: randomIndex,
+  })
+  return { success: true, data: { bot } }
 }
 
 export async function updateBots(
   botsData: Partial<Bot>[],
-): Promise<{ updated: number; errors: string[] }> {
+): Promise<{ success: boolean; data: { updated: number }; errors: string[] }> {
   let updated = 0
   const errors: string[] = []
 
@@ -93,7 +125,6 @@ export async function updateBots(
         await updateBot(botData.name, botData)
         updated++
       } catch (error: unknown) {
-        // Assuming `error.message` will always be a string, but type guard can be used if needed
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error'
         errors.push(
@@ -105,35 +136,28 @@ export async function updateBots(
     }
   }
 
-  return { updated, errors }
+  return { success: true, data: { updated }, errors }
 }
 
-export async function deleteBot(id: number): Promise<boolean> {
+export async function deleteBot(
+  id: number,
+): Promise<{ success: boolean; message?: string }> {
   const botExists = await prisma.bot.findUnique({ where: { id } })
 
   if (!botExists) {
-    return false
+    return { success: false, message: 'Bot not found' }
   }
 
   await prisma.bot.delete({ where: { id } })
-  return true
+  return { success: true, message: 'Bot deleted successfully' }
 }
 
-export async function randomBot(): Promise<Bot | null> {
-  const totalBots = await prisma.bot.count()
-
-  if (totalBots === 0) {
-    return null
-  }
-
-  const randomIndex = Math.floor(Math.random() * totalBots)
-  return await prisma.bot.findFirst({
-    skip: randomIndex,
-  })
-}
-
-export async function countBots(): Promise<number> {
-  return await prisma.bot.count()
+export async function countBots(): Promise<{
+  success: boolean
+  data: { count: number }
+}> {
+  const count = await prisma.bot.count()
+  return { success: true, data: { count } }
 }
 
 export type { Bot }

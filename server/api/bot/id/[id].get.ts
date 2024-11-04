@@ -4,18 +4,19 @@ import { fetchBotById } from '../../bots'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
-  if (!id) {
+
+  if (isNaN(id) || id <= 0) {
     return { success: false, message: 'Invalid bot ID.' }
   }
 
   try {
-    const bot = await fetchBotById(id)
+    const botResponse = await fetchBotById(id)
 
-    if (!bot) {
+    if (!botResponse?.data?.bot) {
       return { success: false, message: `Bot with id ${id} does not exist.` }
     }
 
-    return { success: true, bot }
+    return { success: true, data: { bot: botResponse.data.bot } }
   } catch (error: unknown) {
     console.error(
       `Failed to fetch bot with id ${id}:`,

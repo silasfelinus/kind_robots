@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
     // Create the bot
     const newBot = await createBot(botData)
     event.node.res.statusCode = 201
-    return { success: true, newBot, statusCode: 201 }
+    return { success: true, data: { bot: newBot }, statusCode: 201 }
   } catch (error) {
     // Handle Prisma-specific errors for unique constraints
     if (error instanceof Prisma.PrismaClientKnownRequestError) {

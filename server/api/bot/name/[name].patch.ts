@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
   try {
     // Validate bot name
     if (!name) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid bot name. The name parameter is required.',
@@ -20,7 +19,6 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -35,7 +33,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -50,7 +47,6 @@ export default defineEventHandler(async (event) => {
       select: { userId: true },
     })
     if (!bot) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Bot with name "${name}" not found.`,
@@ -58,7 +54,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (bot.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this bot.',
@@ -68,7 +63,6 @@ export default defineEventHandler(async (event) => {
     // Read and validate update data
     const botData = await readBody(event)
     if (!botData || Object.keys(botData).length === 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -84,8 +78,7 @@ export default defineEventHandler(async (event) => {
     // Successful update response
     response = {
       success: true,
-      bot: updatedBot,
-      statusCode: 200,
+      data: { bot: updatedBot },
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
@@ -98,7 +91,6 @@ export default defineEventHandler(async (event) => {
       success: false,
       message:
         handledError.message || `Failed to update bot with name "${name}".`,
-      statusCode: event.node.res.statusCode,
     }
   }
 

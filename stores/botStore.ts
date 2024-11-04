@@ -1,17 +1,17 @@
 import { defineStore } from 'pinia'
 import type { Bot } from '@prisma/client'
-import { performFetch, handleError } from './utils' // Ensure performFetch is imported
+import { performFetch, handleError } from './utils'
 
 export const useBotStore = defineStore({
   id: 'botStore',
 
   state: () => ({
     bots: [] as Bot[],
-    currentBot: null as Bot | null, // Original bot from the backend
-    botForm: {} as Partial<Bot>, // Bot form to hold temporary changes
-    currentImagePath: '', // Track the image path of the current bot
+    currentBot: null as Bot | null,
+    botForm: {} as Partial<Bot>,
+    currentImagePath: '',
     loading: false,
-    isLoaded: false, // Track whether the store has been loaded
+    isLoaded: false,
   }),
 
   getters: {
@@ -28,9 +28,8 @@ export const useBotStore = defineStore({
         const foundBot = this.bots.find((bot) => bot.id === botId)
         if (!foundBot) throw new Error(`Bot with ID ${botId} not found`)
 
-        // Set the current bot and bot form for editing
         this.currentBot = foundBot
-        this.botForm = { ...foundBot } // Copy to botForm for editing
+        this.botForm = { ...foundBot }
         this.currentImagePath = foundBot.avatarImage || ''
       } catch (error) {
         handleError(error, 'selecting bot')
@@ -52,33 +51,20 @@ export const useBotStore = defineStore({
     async fetchBots(): Promise<void> {
       if (this.isLoaded) return
       this.loading = true
-      console.log('Starting fetchBots...')
 
       try {
-        // Log the request URL
-        console.log('Requesting bots from /api/bots...')
-
-        const response = await performFetch<Bot[]>('/api/bots')
-
-        // Log the raw response
-        console.log('Response received:', response)
+        const response = await performFetch<{ bots: Bot[] }>('/api/bots')
 
         if (response.success) {
-          this.bots = response.data || []
+          this.bots = response.data?.bots || []
           this.isLoaded = true
-          console.log('Bots successfully fetched and state updated:', this.bots)
         } else {
-          // Log any specific message received from the response
-          console.warn('Failed to fetch bots:', response.message)
           throw new Error(response.message)
         }
       } catch (error) {
-        // Log error details
-        console.error('Error in fetchBots:', error)
         handleError(error, 'fetching bots')
       } finally {
         this.loading = false
-        console.log('fetchBots completed.')
       }
     },
 
@@ -97,40 +83,28 @@ export const useBotStore = defineStore({
 
     async updateBot(id: number): Promise<void> {
       try {
-        const botData = {
-          ...this.botForm,
-          avatarImage: this.currentImagePath,
-        }
-
-        const response = await fetch(`/api/bot/id/${id}`, {
+        const botData = { ...this.botForm, avatarImage: this.currentImagePath }
+        const response = await performFetch<{ bot: Bot }>(`/api/bot/id/${id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(botData),
         })
 
-        if (!response.ok) {
-          throw new Error(`Failed to update bot: ${response.statusText}`)
+        if (response.success) {
+          const updatedBot = response.data?.bot
+          if (updatedBot) {
+            const botIndex = this.bots.findIndex((bot) => bot.id === id)
+            if (botIndex !== -1) {
+              this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot }
+            }
+            this.currentBot = updatedBot
+            this.botForm = { ...updatedBot }
+            this.currentImagePath = updatedBot.avatarImage ?? ' '
+          }
+        } else {
+          throw new Error(response.message)
         }
-
-        const updatedBot = await response.json()
-
-        // Ensure we extract the 'bot' from the response
-        if (!updatedBot.bot) {
-          throw new Error('API response does not contain bot data')
-        }
-
-        // Find the bot in the list and update it
-        const botIndex = this.bots.findIndex((bot) => bot.id === id)
-        if (botIndex !== -1) {
-          this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot.bot }
-        }
-
-        this.currentBot = updatedBot.bot
-        this.botForm = { ...updatedBot.bot }
-        this.currentImagePath = updatedBot.bot.avatarImage
       } catch (error) {
         handleError(error, 'updating bot')
-        console.error('Error updating bot: ', error)
       }
     },
 
@@ -139,46 +113,7 @@ export const useBotStore = defineStore({
         console.error('No bot selected to update')
         return
       }
-
-      try {
-        const botData = {
-          ...this.botForm,
-          avatarImage: this.currentImagePath,
-        }
-
-        const response = await fetch(`/api/bot/id/${this.currentBot.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(botData),
-        })
-
-        if (!response.ok) {
-          throw new Error(`Failed to update bot: ${response.statusText}`)
-        }
-
-        const updatedBot = await response.json()
-
-        // Ensure we extract the 'bot' from the response
-        if (!updatedBot.bot) {
-          throw new Error('API response does not contain bot data')
-        }
-
-        // Update the bot in the list
-        const botIndex = this.bots.findIndex(
-          (bot) => bot.id === this.currentBot?.id,
-        )
-        if (botIndex !== -1) {
-          this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot.bot }
-        }
-
-        // Ensure `currentBot` and `botForm` are updated after the update
-        this.currentBot = updatedBot.bot
-        this.botForm = { ...updatedBot.bot }
-        this.currentImagePath = updatedBot.bot.avatarImage
-      } catch (error) {
-        handleError(error, 'updating bot')
-        console.error('Error updating current bot: ', error)
-      }
+      await this.updateBot(this.currentBot.id)
     },
 
     async saveUserIntro(newUserIntro: string): Promise<void> {
@@ -186,24 +121,21 @@ export const useBotStore = defineStore({
         console.error('No bot selected to update')
         return
       }
-
-      try {
-        // Update only the userIntro field in botForm
-        this.botForm.userIntro = newUserIntro
-
-        // Use the updateCurrentBot method to send the update to the backend
-        await this.updateCurrentBot()
-      } catch (error) {
-        handleError(error, 'updating user intro')
-        console.error('Error updating user intro: ', error)
-      }
+      this.botForm.userIntro = newUserIntro
+      await this.updateCurrentBot()
     },
 
     async deleteBot(id: number): Promise<void> {
       try {
-        const response = await fetch(`/api/bot/id/${id}`, { method: 'DELETE' })
-        if (!response.ok) throw new Error(`Failed to delete bot`)
-        this.bots = this.bots.filter((bot) => bot.id !== id)
+        const response = await performFetch(`/api/bot/id/${id}`, {
+          method: 'DELETE',
+        })
+
+        if (response.success) {
+          this.bots = this.bots.filter((bot) => bot.id !== id)
+        } else {
+          throw new Error(response.message)
+        }
       } catch (error) {
         handleError(error, 'deleting bot')
       }
@@ -211,53 +143,39 @@ export const useBotStore = defineStore({
 
     async addBots(botsData: Partial<Bot>[]): Promise<Bot[]> {
       try {
-        const response = await fetch('/api/bots', {
+        const response = await performFetch<{ bots: Bot[] }>('/api/bots', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(botsData),
         })
 
-        if (!response.ok) throw new Error(`Failed to add bots`)
-
-        const data = await response.json()
-
-        let addedBots: Bot[] = []
-
-        if (data.bots) {
-          addedBots = data.bots
-          this.bots = [...this.bots, ...data.bots]
-        } else if (data.bot) {
-          addedBots = [data.bot]
-          this.bots = [...this.bots, data.bot]
+        if (response.success) {
+          const addedBots = response.data?.bots || []
+          this.bots = [...this.bots, ...addedBots]
+          return addedBots
         } else {
-          throw new Error('API response does not contain bot data')
+          throw new Error(response.message)
         }
-
-        return addedBots
       } catch (error) {
         handleError(error, 'adding bots')
-        console.error('Error adding bots: ', error)
         return []
       }
     },
+
     async addBot(botData: Partial<Bot>): Promise<Bot | null> {
       try {
-        const response = await fetch('/api/bot', {
+        const response = await performFetch<{ bot: Bot }>('/api/bot', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(botData),
         })
 
-        if (!response.ok) throw new Error(`Failed to add bot`)
-
-        const data = await response.json()
-
-        if (data.bot) {
-          this.bots = [...this.bots, data.bot]
-          return data.bot
-        } else {
-          throw new Error('API response does not contain bot data')
+        if (response.success) {
+          const newBot = response.data?.bot
+          if (newBot) {
+            this.bots = [...this.bots, newBot]
+            return newBot
+          }
         }
+        throw new Error(response.message) // Explicit throw to ensure a return
       } catch (error) {
         handleError(error, 'adding bot')
         console.error('Error adding bot: ', error)
@@ -267,21 +185,20 @@ export const useBotStore = defineStore({
 
     async getBotById(id: number): Promise<void> {
       try {
-        const response = await fetch(`/api/bot/id/${id}`)
-        if (!response.ok) throw new Error(`Failed to fetch bot`)
+        const response = await performFetch<{ bot: Bot }>(`/api/bot/id/${id}`)
 
-        const data = await response.json()
-
-        if (!data.bot) {
-          throw new Error('API response does not contain bot data')
+        if (response.success) {
+          const bot = response.data?.bot
+          if (bot) {
+            this.currentBot = bot
+            this.botForm = { ...bot }
+            this.currentImagePath = bot.avatarImage ?? ''
+          }
+        } else {
+          throw new Error(response.message)
         }
-
-        this.currentBot = data.bot
-        this.botForm = { ...data.bot }
-        this.currentImagePath = data.bot.avatarImage
       } catch (error) {
         handleError(error, 'fetching bot by id')
-        console.error('Error fetching bot by id: ', error)
       }
     },
 

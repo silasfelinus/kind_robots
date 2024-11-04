@@ -1,15 +1,14 @@
 // /server/api/reactions/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import prisma from '../utils/prisma'
 import type { Prisma, Reaction } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Authorization token validation
+    // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -24,7 +23,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -33,82 +31,75 @@ export default defineEventHandler(async (event) => {
 
     const authenticatedUserId = user.id
 
-    // Parse the reaction data from the request
+    // Read and validate reaction data from the request body
     const reactionData = await readBody<Partial<Reaction>>(event)
 
-    // Simple authorization check for userId
-    if (reactionData.userId && reactionData.userId !== authenticatedUserId) {
-      event.node.res.statusCode = 403
-      throw createError({
-        statusCode: 403,
-        message:
-          'User ID in the request data does not match the authenticated user.',
-      })
+    // Validate required fields
+    if (!reactionData.reactionType || !reactionData.reactionCategory) {
+      return {
+        success: false,
+        message: '"reactionType" and "reactionCategory" are required fields.',
+        statusCode: 400,
+      }
     }
 
-    // Construct data object for Prisma, with conditionally included relations
-    const data: Prisma.ReactionCreateInput = {
-      reactionType: reactionData.reactionType ?? 'NEUTRAL',
-      reactionCategory: reactionData.reactionCategory ?? 'ART',
-      comment: reactionData.comment || '',
-      rating: reactionData.rating ?? 0,
-      User: { connect: { id: authenticatedUserId } },
-      ...(reactionData.artImageId && {
-        ArtImage: { connect: { id: reactionData.artImageId } },
-      }),
-      ...(reactionData.artId && {
-        Art: { connect: { id: reactionData.artId } },
-      }),
-      ...(reactionData.pitchId && {
-        Pitch: { connect: { id: reactionData.pitchId } },
-      }),
-      ...(reactionData.componentId && {
-        Component: { connect: { id: reactionData.componentId } },
-      }),
-      ...(reactionData.channelId && {
-        Channel: { connect: { id: reactionData.channelId } },
-      }),
-      ...(reactionData.chatExchangeId && {
-        ChatExchange: { connect: { id: reactionData.chatExchangeId } },
-      }),
-      ...(reactionData.botId && {
-        Bot: { connect: { id: reactionData.botId } },
-      }),
-      ...(reactionData.galleryId && {
-        Gallery: { connect: { id: reactionData.galleryId } },
-      }),
-      ...(reactionData.messageId && {
-        Message: { connect: { id: reactionData.messageId } },
-      }),
-      ...(reactionData.postId && {
-        Post: { connect: { id: reactionData.postId } },
-      }),
-      ...(reactionData.promptId && {
-        Prompt: { connect: { id: reactionData.promptId } },
-      }),
-      ...(reactionData.resourceId && {
-        Resource: { connect: { id: reactionData.resourceId } },
-      }),
-      ...(reactionData.rewardId && {
-        Reward: { connect: { id: reactionData.rewardId } },
-      }),
-      ...(reactionData.tagId && {
-        Tag: { connect: { id: reactionData.tagId } },
-      }),
+    // Add the authenticated user's ID to the reaction data
+    reactionData.userId = authenticatedUserId
+
+    // Create or update the reaction
+    const result = await addOrUpdateReaction(reactionData)
+
+    if (result.error) {
+      throw new Error(result.error)
     }
 
-    // Create the new reaction in the database
-    const newReaction = await prisma.reaction.create({ data })
-
-    event.node.res.statusCode = 201 // Created
-    return { success: true, reaction: newReaction }
-  } catch (error: unknown) {
+    return { success: true, reaction: result.reaction, statusCode: 201 }
+  } catch (error) {
     const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
+
     return {
       success: false,
-      message: message || 'Failed to create or update reaction',
+      message: 'Failed to create or update reaction',
+      error: message || 'An unknown error occurred',
       statusCode: statusCode || 500,
     }
   }
 })
+
+export async function addOrUpdateReaction(
+  reactionData: Partial<Reaction>,
+): Promise<{ reaction: Reaction | null; error: string | null }> {
+  try {
+    // Check if a similar reaction exists to determine update vs create
+    const existingReaction = await prisma.reaction.findFirst({
+      where: {
+        userId: reactionData.userId,
+        reactionType: reactionData.reactionType,
+        reactionCategory: reactionData.reactionCategory,
+      },
+    })
+
+    let reaction
+    if (existingReaction) {
+      // Update the existing reaction
+      reaction = await prisma.reaction.update({
+        where: { id: existingReaction.id },
+        data: reactionData as Prisma.ReactionUpdateInput,
+      })
+    } else {
+      // Create a new reaction
+      reaction = await prisma.reaction.create({
+        data: reactionData as Prisma.ReactionCreateInput,
+      })
+    }
+
+    return { reaction, error: null }
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown database error'
+    return {
+      reaction: null,
+      error: `Failed to process reaction: ${errorMessage}`,
+    }
+  }
+}

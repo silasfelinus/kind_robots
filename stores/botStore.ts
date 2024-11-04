@@ -52,21 +52,33 @@ export const useBotStore = defineStore({
     async fetchBots(): Promise<void> {
       if (this.isLoaded) return
       this.loading = true
+      console.log('Starting fetchBots...')
 
       try {
-        // Use performFetch with ApiResponse<Bot[]> as the type
+        // Log the request URL
+        console.log('Requesting bots from /api/bots...')
+
         const response = await performFetch<Bot[]>('/api/bots')
+
+        // Log the raw response
+        console.log('Response received:', response)
 
         if (response.success) {
           this.bots = response.data || []
           this.isLoaded = true
+          console.log('Bots successfully fetched and state updated:', this.bots)
         } else {
+          // Log any specific message received from the response
+          console.warn('Failed to fetch bots:', response.message)
           throw new Error(response.message)
         }
       } catch (error) {
+        // Log error details
+        console.error('Error in fetchBots:', error)
         handleError(error, 'fetching bots')
       } finally {
         this.loading = false
+        console.log('fetchBots completed.')
       }
     },
 

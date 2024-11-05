@@ -135,6 +135,9 @@ import milestones from '../../../assets/buttonMilestones'
 import { useUserStore } from './../../../stores/userStore'
 
 const userStore = useUserStore()
+
+const milestoneStore = useMilestoneStore()
+
 const state = reactive({
   pressed: false,
   pressCount: 0,
@@ -209,10 +212,10 @@ const pressedButton = () => {
   state.previousMessage = tempMessage // Set the previous message after updating the buttonText
 }
 const submitTopScore = async () => {
-  const updateStatus = await userStore.updateClickRecord(state.topScore)
+  const updateStatus = await milestoneStore.updateClickRecord(state.topScore)
   if (updateStatus === 'Updated') {
     // Refresh the leaderboard
-    await userStore.fetchHighClickScores()
+    await milestoneStore.fetchHighClickScores()
   }
 }
 

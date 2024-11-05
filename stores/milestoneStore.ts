@@ -11,6 +11,8 @@ export const useMilestoneStore = defineStore({
     milestoneRecords: [] as MilestoneRecord[],
     isInitialized: false,
     currentMilestone: null as Milestone | null,
+    highClickScores: [],
+    highMatchScores: [],
   }),
 
   actions: {
@@ -59,6 +61,65 @@ export const useMilestoneStore = defineStore({
       }
 
       this.isInitialized = true
+    },
+    async fetchHighClickScores() {
+      try {
+        const response = await fetch('/api/milestones/highClickScores')
+        const data = await response.json()
+        this.highClickScores = data.milestones
+      } catch (error: unknown) {
+        this.setError(error)
+      }
+    },
+    async fetchHighMatchScores() {
+      try {
+        const response = await fetch('/api/milestones/highMatchScores')
+        const data = await response.json()
+        this.highMatchScores = data.milestones
+      } catch (error: unknown) {
+        this.setError(error)
+      }
+    },
+    async updateClickRecord(newScore: number) {
+      try {
+        const userStore = useUserStore()
+        const userId = userStore.userId
+        if (!userId) throw new Error('User ID is not available')
+        const response = await fetch('/api/milestones/updateClickRecord', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newScore, userId }),
+        })
+        const data = await response.json()
+        if (data.success) return 'Updated'
+      } catch (error: unknown) {
+        this.setError(error)
+      }
+    },
+    setError(error: unknown): string {
+      const message =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message: string }).message
+          : 'An unknown error occurred.'
+      const errorStore = useErrorStore()
+      errorStore.setError(ErrorType.UNKNOWN_ERROR, message)
+      return message
+    },
+    async updateMatchRecord(newScore: number) {
+      try {
+        const userStore = useUserStore()
+        const userId = userStore.userId
+        if (!userId) throw new Error('User ID is not available')
+        const response = await fetch('/api/milestones/updateMatchRecord', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newScore, userId }),
+        })
+        const data = await response.json()
+        if (data.success) await this.fetchHighMatchScores()
+      } catch (error: unknown) {
+        this.setError(error)
+      }
     },
 
     async fetchMilestoneById(id: number) {

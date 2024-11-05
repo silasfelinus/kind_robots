@@ -97,9 +97,12 @@
 import { ref, computed } from 'vue'
 import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
+import { useMilestoneStore } from '../../../stores/milestoneStore'
 import { useWindowSize } from '@vueuse/core'
 
 const { width, height } = useWindowSize()
+
+const milestoneStore = useMilestoneStore()
 
 const difficulties = [
   { label: 'Easy', value: 8 },
@@ -271,7 +274,7 @@ function handleGalleryClick(clickedGallery: GalleryImage) {
       gameWon.value = true
       triggerConfetti()
       if (matchRecord.value < score.value || matchRecord.value === null) {
-        userStore.updateMatchRecord(score.value)
+        milestoneStore.updateMatchRecord(score.value)
       }
       if (score.value >= 50) {
         shouldShowMilestoneCheck.value = true

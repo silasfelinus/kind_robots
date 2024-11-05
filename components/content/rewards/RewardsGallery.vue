@@ -21,7 +21,7 @@
       </p>
       <p class="text-xl">🌟 Rarity: {{ rewardStore.currentReward.rarity }}</p>
       <button class="bg-primary p-2 rounded" @click="endReward">
-        <Icon name="game-Icons:fast-backward-button" class="text-6xl" />
+        <Icon name="kind-icon:back-arrow" class="text-6xl" />
       </button>
       <button class="bg-accent p-2 rounded" @click="showEditReward = true">
         ✏️ Edit
@@ -44,7 +44,7 @@
         @click="selectReward(reward)"
       >
         <div class="text-center">
-          <Icon name="game-Icons:open-treasure-chest" class="text-6xl" />
+          <Icon name="kind-icon:open-treasure-chest" class="text-6xl" />
           <p class="mt-2 text-lg">
             {{ reward.text }}
           </p>

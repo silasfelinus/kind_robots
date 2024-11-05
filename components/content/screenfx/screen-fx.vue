@@ -90,7 +90,7 @@ const effects = ref([
   {
     id: 'bubble-effect',
     label: 'Bubble Fiesta',
-    Icon: 'game-Icons:bubbles',
+    Icon: 'kind-icon:bubbles',
     tooltip: 'rainbow clown bubbles 🌈',
     reveal: 'Bubble Overload!',
     isActive: false,

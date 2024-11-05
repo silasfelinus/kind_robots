@@ -33,7 +33,10 @@ export const useUserStore = defineStore({
     user: null,
     token: typeof window !== 'undefined' ? localStorage.getItem('token') : '',
     apiKey:
-      typeof window !== 'undefined' ? localStorage.getItem('api_key') : ' ',
+      typeof window !== 'undefined'
+        ? (localStorage.getItem('api_key') ?? '')
+        : '',
+
     loading: false,
     lastError: null,
     highClickScores: [],
@@ -102,7 +105,7 @@ export const useUserStore = defineStore({
         this.token = storedToken
       }
       if (apiKey) {
-        this.apiKey = storedToken
+        this.apiKey = apiKey
       }
       if (openAPIKey) {
         this.openAPIKey = openAPIKey

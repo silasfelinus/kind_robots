@@ -7,7 +7,7 @@
     </NuxtLink>
     <!-- Other Links... -->
     <NuxtLink :to="randomHighlightPage._path" class="nav-link">
-      <Icon name="game-Icons:galaxy" class="hover:scale-125" />
+      <Icon name="kind-icon:galaxy" class="hover:scale-125" />
       <span class="nav-text">{{ randomLinkText }}</span>
     </NuxtLink>
     <NuxtLink v-if="next" :to="next._path" class="nav-link">

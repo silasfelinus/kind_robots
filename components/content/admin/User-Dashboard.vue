@@ -7,7 +7,7 @@
       class="absolute top-1 left-1 z-10"
       @click.stop="toggleMinimize"
     >
-      <Icon name="game-Icons:expand" class="text-lg" />
+      <Icon name="kind-icon:expand" class="text-lg" />
     </button>
     <span class="absolute top-2 right-2"
       >Role: {{ user?.Role || 'Guest' }}</span

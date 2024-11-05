@@ -6,7 +6,7 @@
       class="group flex flex-col items-center justify-center rounded-2xl text-center hover:scale-110 transition-all ease-in-out"
     >
       <Icon
-        name="game-Icons:galaxy"
+        name="kind-icon:galaxy"
         :title="'Go to Random Highlight Page'"
         class="Icon-effect w-6 h-6 md:w-12 md:h-12 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
       />

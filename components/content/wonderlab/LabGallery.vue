@@ -36,7 +36,7 @@
           @click="selectComponent(component)"
         >
           <div class="text-center">
-            <Icon name="game-Icons:companion-cube" class="text-4xl mb-2" />
+            <Icon name="kind-icon:companion-cube" class="text-4xl mb-2" />
             <p>{{ component.componentName }}</p>
             <p v-if="component.title" class="text-xs">{{ component.title }}</p>
           </div>

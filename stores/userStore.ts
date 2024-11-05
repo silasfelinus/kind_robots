@@ -88,6 +88,7 @@ export const useUserStore = defineStore({
   },
   actions: {
     initializeUser() {
+      console.log('Initializing User - apiKey:', this.apiKey) // Debugging
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
       this.setStayLoggedIn(stayLoggedIn)
@@ -112,7 +113,11 @@ export const useUserStore = defineStore({
       }
     },
     async fetchUserByApiKey(): Promise<void> {
-      if (!this.apiKey) return
+      console.log('Fetching User by apiKey:', this.apiKey) // Debugging
+      if (!this.apiKey) {
+        console.warn('fetchUserByApiKey called with empty apiKey')
+        return
+      }
       try {
         const response = await this.apiCall('/api/user')
         if (response.success && response.user) {
@@ -124,6 +129,36 @@ export const useUserStore = defineStore({
         this.setError(error)
       }
     },
+    setApiKey(apiKey: string): void {
+      console.log('Setting apiKey:', apiKey) // Debugging
+      this.apiKey = apiKey
+      this.saveToLocalStorage('api_key', apiKey)
+    },
+    async validate(): Promise<boolean> {
+      console.log('Validating with apiKey:', this.apiKey) // Debugging
+      try {
+        const credentials = this.token
+          ? { token: this.token }
+          : { apiKey: this.apiKey }
+        const response = await fetch('/api/auth/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(credentials),
+        })
+        const responseData = await response.json()
+        if (responseData.success) {
+          this.setUser(responseData.user)
+          return true
+        } else {
+          this.setError(new Error('Invalid token or API key'))
+          return false
+        }
+      } catch (error: unknown) {
+        this.setError(error)
+        return false
+      }
+    },
+
     setUser(userData: User): void {
       this.user = userData
       this.showMatureContent = userData.showMature
@@ -305,29 +340,7 @@ export const useUserStore = defineStore({
         }
       }
     },
-    async validate(): Promise<boolean> {
-      try {
-        const credentials = this.token
-          ? { token: this.token }
-          : { apiKey: this.apiKey }
-        const response = await fetch('/api/auth/validate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(credentials),
-        })
-        const responseData = await response.json()
-        if (responseData.success) {
-          this.setUser(responseData.user)
-          return true
-        } else {
-          this.setError(new Error('Invalid token or API key'))
-          return false
-        }
-      } catch (error: unknown) {
-        this.setError(error)
-        return false
-      }
-    },
+
     async register(userData: {
       username: string
       email?: string
@@ -371,6 +384,7 @@ export const useUserStore = defineStore({
       }
     },
     logout(): void {
+      console.log('Logging out, clearing apiKey') // Debugging
       this.user = null
       this.token = ''
       this.apiKey = null
@@ -384,10 +398,7 @@ export const useUserStore = defineStore({
       this.token = newToken
       this.saveToLocalStorage('token', newToken)
     },
-    setApiKey(apiKey: string): void {
-      this.apiKey = apiKey
-      this.saveToLocalStorage('api_key', apiKey)
-    },
+
     startLoading() {
       this.loading = true
     },

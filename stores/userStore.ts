@@ -455,7 +455,7 @@ export const useUserStore = defineStore({
             method,
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${this.token}`,
+              Authorization: `Bearer ${this.apiKey}`,
             },
             body: body ? JSON.stringify(body) : undefined,
           })

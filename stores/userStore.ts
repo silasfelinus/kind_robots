@@ -98,6 +98,9 @@ export const useUserStore = defineStore({
       if (stayLoggedIn && storedToken) {
         this.fetchUserDataByToken(storedToken)
       }
+      console.log('user logged in: ', this.user)
+      console.log('user token: ', this.token)
+      console.log('user apikey: ', this.apiKey)
     },
     async fetchUserDataByToken(token: string): Promise<void> {
       try {

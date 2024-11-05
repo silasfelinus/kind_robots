@@ -6,14 +6,12 @@ import { useMilestoneStore } from './milestoneStore'
 interface UserState {
   user: User | null
   token?: string
-  apiKey: string | null
   loading: boolean
   lastError: string | null
   highClickScores: number[]
   highMatchScores: number[]
   stayLoggedIn: boolean
   milestones: number[]
-  showMatureContent: boolean
 }
 
 export interface ApiResponse {
@@ -31,22 +29,19 @@ export const useUserStore = defineStore({
   state: (): UserState => ({
     user: null,
     token: '',
-    apiKey:
-      typeof window !== 'undefined' ? localStorage.getItem('api_key') : null,
     loading: false,
     lastError: null,
     highClickScores: [],
     highMatchScores: [],
     stayLoggedIn: true,
     milestones: [],
-    showMatureContent: false,
   }),
   getters: {
     karma(state): number {
       return state.user ? state.user.karma : 1000
     },
     showMature(state): boolean {
-      return state.showMatureContent
+      return state.user ? state.user.showMature : false
     },
     mana(state): number {
       const manaValue = state.user?.mana || state.milestones.length
@@ -85,6 +80,9 @@ export const useUserStore = defineStore({
     isAdmin(state): boolean {
       return state.user?.Role === 'ADMIN'
     },
+    apiKey(state): string | null {
+      return state.user?.apiKey || null
+    },
   },
   actions: {
     initializeUser() {
@@ -95,20 +93,24 @@ export const useUserStore = defineStore({
       if (storedToken) {
         this.token = storedToken
       }
+      console.log('will I call fetchUserByDataToken?')
       if (stayLoggedIn && storedToken) {
+        console.log('calling fetchUserByDataToken')
         this.fetchUserDataByToken(storedToken)
       }
       console.log('user logged in: ', this.user)
       console.log('user token: ', this.token)
-      console.log('user apikey: ', this.apiKey)
     },
     async fetchUserDataByToken(token: string): Promise<void> {
       try {
+        console.log('Fetching User by data token:', token)
         const response = await this.apiCall('/api/auth/validate', 'POST', {
           type: 'token',
           data: { token },
         })
+        console.log('will I set user with this : ', response.user)
         if (response.success && response.user) {
+          console.log('success, setting user') // Debugging
           this.setUser(response.user)
         }
       } catch (error: unknown) {
@@ -116,11 +118,6 @@ export const useUserStore = defineStore({
       }
     },
     async fetchUserByApiKey(): Promise<void> {
-      console.log('Fetching User by apiKey:', this.apiKey) // Debugging
-      if (!this.apiKey) {
-        console.warn('fetchUserByApiKey called with empty apiKey')
-        return
-      }
       try {
         const response = await this.apiCall('/api/user')
         if (response.success && response.user) {
@@ -132,13 +129,8 @@ export const useUserStore = defineStore({
         this.setError(error)
       }
     },
-    setApiKey(apiKey: string): void {
-      console.log('Setting apiKey:', apiKey) // Debugging
-      this.apiKey = apiKey
-      this.saveToLocalStorage('api_key', apiKey)
-    },
+
     async validate(): Promise<boolean> {
-      console.log('Validating with apiKey:', this.apiKey) // Debugging
       try {
         const credentials = this.token
           ? { token: this.token }
@@ -163,8 +155,8 @@ export const useUserStore = defineStore({
     },
 
     setUser(userData: User): void {
+      console.log('setting user: ', userData)
       this.user = userData
-      this.showMatureContent = userData.showMature
     },
     setStayLoggedIn(value: boolean) {
       try {
@@ -367,9 +359,6 @@ export const useUserStore = defineStore({
           if (response.token) {
             this.setToken(response.token)
           }
-          if (response.apiKey) {
-            this.setApiKey(response.apiKey)
-          }
           return { success: true, user: response.user, token: response.token }
         } else {
           return {
@@ -390,8 +379,6 @@ export const useUserStore = defineStore({
       console.log('Logging out, clearing apiKey') // Debugging
       this.user = null
       this.token = ''
-      this.apiKey = null
-      this.removeFromLocalStorage('api_key')
       this.removeFromLocalStorage('token')
       this.removeFromLocalStorage('user')
       this.removeFromLocalStorage('stayLoggedIn')

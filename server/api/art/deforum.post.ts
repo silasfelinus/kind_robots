@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
     console.error('Video Generation Error:', error)
     return errorHandler({
       error,
-      context: `Video Generation - ${event.req.url}`,
+      context: `Video Generation - ${event.node.req.url}`,
     })
   }
 })

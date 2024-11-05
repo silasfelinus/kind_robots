@@ -46,7 +46,7 @@ export const useUserStore = defineStore({
     showMatureContent: false,
     openAPIKey:
       typeof window !== 'undefined'
-        ? localStorage.getItem('api_key') || import.meta.env.OPENAI_API_KEY
+        ? localStorage.getItem('openAPIKey') || import.meta.env.OPENAI_API_KEY
         : null,
   }),
   getters: {
@@ -303,8 +303,10 @@ export const useUserStore = defineStore({
         if (response.success && response.user && response.token) {
           this.setUser(response.user)
           this.setToken(response.token)
+          this.setApiKey(response.user.apiKey ?? ' ')
           if (this.stayLoggedIn) {
             this.saveToLocalStorage('token', response.token)
+            this.saveToLocalStorage('api_key', response.user.apiKey ?? ' ')
           }
           this.stopLoading()
           return { success: true }
@@ -367,8 +369,8 @@ export const useUserStore = defineStore({
           if (response.token) {
             this.setToken(response.token)
           }
-          if (response.apiKey) {
-            this.setApiKey(response.apiKey)
+          if (response.user?.apiKey) {
+            this.setApiKey(response.user.apiKey)
           }
           return { success: true, user: response.user, token: response.token }
         } else {

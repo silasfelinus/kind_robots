@@ -308,6 +308,9 @@ export const useUserStore = defineStore({
             this.saveToLocalStorage('token', response.token)
             this.saveToLocalStorage('api_key', response.user.apiKey ?? ' ')
           }
+
+          console.log('API Key in login response:', response.user?.apiKey)
+
           this.stopLoading()
           return { success: true }
         } else {
@@ -406,6 +409,7 @@ export const useUserStore = defineStore({
     setApiKey(apiKey: string): void {
       this.apiKey = apiKey
       this.saveToLocalStorage('api_key', apiKey)
+      console.log('set api key: ', apiKey)
     },
     setOpenApiKey(apiKey: string): void {
       this.openAPIKey = apiKey
@@ -456,6 +460,8 @@ export const useUserStore = defineStore({
             body: body ? JSON.stringify(body) : undefined,
           })
           if (response.ok) {
+            console.log('API call response:', response)
+
             return await response.json()
           } else {
             throw new Error(`API call failed with status ${response.status}`)

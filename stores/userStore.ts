@@ -95,11 +95,11 @@ export const useUserStore = defineStore({
     },
   },
   actions: {
-    // Updating initializeUser action with proper logging and retrieval
     initializeUser() {
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
       const openAPIKey = this.getFromLocalStorage('openAPIKey')
+
       console.log('Initializing user with:', {
         stayLoggedIn,
         storedToken,
@@ -107,18 +107,45 @@ export const useUserStore = defineStore({
       })
 
       this.setStayLoggedIn(stayLoggedIn)
+
+      // Load token from storage if available
       if (storedToken) {
         this.token = storedToken
         console.log('Token loaded from storage:', storedToken)
       }
+
+      // Load open API key from storage or fallback to env variable
       if (openAPIKey) {
         this.openAPIKey = openAPIKey
         console.log('Open API Key loaded from storage:', openAPIKey)
+      } else {
+        this.openAPIKey = import.meta.env.OPENAI_API_KEY
+        console.log(
+          'Using fallback OPENAI_API_KEY from environment:',
+          this.openAPIKey,
+        )
       }
+
+      // Attempt to fetch user data if logged in and token exists
       if (stayLoggedIn && storedToken) {
         this.fetchUserDataByToken(storedToken)
       }
+
+      // Ensure apiKey is populated or report missing key
+      this.verifyApiKey()
     },
+
+    verifyApiKey() {
+      if (!this.apiKey) {
+        const message =
+          'API Key is missing or blank. Ensure it is set correctly in localStorage or environment variables.'
+        console.error(message)
+        this.setError(new Error(message))
+      } else {
+        console.log('API Key successfully loaded:', this.apiKey)
+      }
+    },
+
     async fetchUserDataByToken(token: string): Promise<void> {
       try {
         const response = await this.apiCall('/api/auth/validate', 'POST', {

@@ -8,8 +8,6 @@ interface UserState {
   token?: string
   loading: boolean
   lastError: string | null
-  highClickScores: number[]
-  highMatchScores: number[]
   stayLoggedIn: boolean
   milestones: number[]
 }
@@ -31,8 +29,6 @@ export const useUserStore = defineStore({
     token: '',
     loading: false,
     lastError: null,
-    highClickScores: [],
-    highMatchScores: [],
     stayLoggedIn: true,
     milestones: [],
   }),
@@ -166,24 +162,7 @@ export const useUserStore = defineStore({
         this.setError(error)
       }
     },
-    async fetchHighClickScores() {
-      try {
-        const response = await fetch('/api/milestones/highClickScores')
-        const data = await response.json()
-        this.highClickScores = data.milestones
-      } catch (error: unknown) {
-        this.setError(error)
-      }
-    },
-    async fetchHighMatchScores() {
-      try {
-        const response = await fetch('/api/milestones/highMatchScores')
-        const data = await response.json()
-        this.highMatchScores = data.milestones
-      } catch (error: unknown) {
-        this.setError(error)
-      }
-    },
+
     async fetchUsernameById(userId: number): Promise<string | null> {
       try {
         const response = await fetch(`/api/users/${userId}`)
@@ -200,36 +179,7 @@ export const useUserStore = defineStore({
         return null
       }
     },
-    async updateClickRecord(newScore: number) {
-      try {
-        const userId = this.userId
-        if (!userId) throw new Error('User ID is not available')
-        const response = await fetch('/api/milestones/updateClickRecord', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ newScore, userId }),
-        })
-        const data = await response.json()
-        if (data.success) return 'Updated'
-      } catch (error: unknown) {
-        this.setError(error)
-      }
-    },
-    async updateMatchRecord(newScore: number) {
-      try {
-        const userId = this.userId
-        if (!userId) throw new Error('User ID is not available')
-        const response = await fetch('/api/milestones/updateMatchRecord', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ newScore, userId }),
-        })
-        const data = await response.json()
-        if (data.success) await this.fetchHighMatchScores()
-      } catch (error: unknown) {
-        this.setError(error)
-      }
-    },
+
     async updateKarmaAndMana(): Promise<{ success: boolean; message: string }> {
       try {
         const milestoneStore = useMilestoneStore()

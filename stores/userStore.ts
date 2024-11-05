@@ -133,6 +133,7 @@ export const useUserStore = defineStore({
 
       // Ensure apiKey is populated or report missing key
       this.verifyApiKey()
+      console.log('APIKey loaded:', this.apiKey)
     },
 
     verifyApiKey() {

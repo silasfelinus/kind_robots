@@ -3,7 +3,7 @@ import { defineEventHandler, sendError, createError } from 'h3'
 import { errorHandler } from '../api/utils/error'
 
 export default defineEventHandler(async (event) => {
-  const secretKey = event.req.headers['x-api-key']
+  const secretKey = event.node.req.headers['x-api-key']
 
   // Check if the route requires authentication
   if (event.context.route?.auth !== true) {

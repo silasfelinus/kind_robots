@@ -6,7 +6,6 @@ import { useMilestoneStore } from './milestoneStore'
 interface UserState {
   user: User | null
   token?: string | null
-  apiKey: string | null
   loading: boolean
   lastError: string | null
   highClickScores: number[]
@@ -32,11 +31,6 @@ export const useUserStore = defineStore({
   state: (): UserState => ({
     user: null,
     token: typeof window !== 'undefined' ? localStorage.getItem('token') : '',
-    apiKey:
-      typeof window !== 'undefined'
-        ? (localStorage.getItem('api_key') ?? '')
-        : '',
-
     loading: false,
     lastError: null,
     highClickScores: [],
@@ -50,6 +44,9 @@ export const useUserStore = defineStore({
         : null,
   }),
   getters: {
+    apiKey(state): string {
+      return state.user?.apiKey || ' '
+    },
     karma(state): number {
       return state.user ? state.user.karma : 1000
     },
@@ -99,14 +96,11 @@ export const useUserStore = defineStore({
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
       const openAPIKey = this.getFromLocalStorage('openAPIKey')
-      const apiKey = this.getFromLocalStorage('api_key')
       this.setStayLoggedIn(stayLoggedIn)
       if (storedToken) {
         this.token = storedToken
       }
-      if (apiKey) {
-        this.apiKey = apiKey
-      }
+
       if (openAPIKey) {
         this.openAPIKey = openAPIKey
       }
@@ -303,10 +297,8 @@ export const useUserStore = defineStore({
         if (response.success && response.user && response.token) {
           this.setUser(response.user)
           this.setToken(response.token)
-          this.setApiKey(response.user.apiKey ?? ' ')
           if (this.stayLoggedIn) {
             this.saveToLocalStorage('token', response.token)
-            this.saveToLocalStorage('api_key', response.user.apiKey ?? ' ')
           }
 
           console.log('API Key in login response:', response.user?.apiKey)
@@ -372,9 +364,6 @@ export const useUserStore = defineStore({
           if (response.token) {
             this.setToken(response.token)
           }
-          if (response.user?.apiKey) {
-            this.setApiKey(response.user.apiKey)
-          }
           return { success: true, user: response.user, token: response.token }
         } else {
           return {
@@ -394,8 +383,6 @@ export const useUserStore = defineStore({
     logout(): void {
       this.user = null
       this.token = ''
-      this.apiKey = null
-      this.removeFromLocalStorage('api_key')
       this.removeFromLocalStorage('token')
       this.removeFromLocalStorage('user')
       this.removeFromLocalStorage('stayLoggedIn')
@@ -406,11 +393,7 @@ export const useUserStore = defineStore({
       this.token = newToken
       this.saveToLocalStorage('token', newToken)
     },
-    setApiKey(apiKey: string): void {
-      this.apiKey = apiKey
-      this.saveToLocalStorage('api_key', apiKey)
-      console.log('set api key: ', apiKey)
-    },
+
     setOpenApiKey(apiKey: string): void {
       this.openAPIKey = apiKey
       this.saveToLocalStorage('openAPIKey', apiKey)

@@ -5,7 +5,7 @@ import { useMilestoneStore } from './milestoneStore'
 
 interface UserState {
   user: User | null
-  token?: string | null
+  token?: string
   apiKey: string | null
   loading: boolean
   lastError: string | null
@@ -14,10 +14,9 @@ interface UserState {
   stayLoggedIn: boolean
   milestones: number[]
   showMatureContent: boolean
-  openAPIKey: string | null
 }
 
-interface ApiResponse {
+export interface ApiResponse {
   success: boolean
   data?: unknown
   message?: string
@@ -31,9 +30,9 @@ export const useUserStore = defineStore({
   id: 'user',
   state: (): UserState => ({
     user: null,
-    token: typeof window !== 'undefined' ? localStorage.getItem('token') : '',
+    token: '',
     apiKey:
-      typeof window !== 'undefined' ? localStorage.getItem('apiKey') : null,
+      typeof window !== 'undefined' ? localStorage.getItem('api_key') : null,
     loading: false,
     lastError: null,
     highClickScores: [],
@@ -41,15 +40,8 @@ export const useUserStore = defineStore({
     stayLoggedIn: true,
     milestones: [],
     showMatureContent: false,
-    openAPIKey:
-      typeof window !== 'undefined'
-        ? localStorage.getItem('openAPIKey') || import.meta.env.OPENAI_API_KEY
-        : null,
   }),
   getters: {
-    apiKey(state): string | null {
-      return state.apiKey || state.user?.apiKey || null
-    },
     karma(state): number {
       return state.user ? state.user.karma : 1000
     },
@@ -98,55 +90,14 @@ export const useUserStore = defineStore({
     initializeUser() {
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
-      const openAPIKey = this.getFromLocalStorage('openAPIKey')
-
-      console.log('Initializing user with:', {
-        stayLoggedIn,
-        storedToken,
-        openAPIKey,
-      })
-
       this.setStayLoggedIn(stayLoggedIn)
-
-      // Load token from storage if available
       if (storedToken) {
         this.token = storedToken
-        console.log('Token loaded from storage:', storedToken)
       }
-
-      // Load open API key from storage or fallback to env variable
-      if (openAPIKey) {
-        this.openAPIKey = openAPIKey
-        console.log('Open API Key loaded from storage:', openAPIKey)
-      } else {
-        this.openAPIKey = import.meta.env.OPENAI_API_KEY
-        console.log(
-          'Using fallback OPENAI_API_KEY from environment:',
-          this.openAPIKey,
-        )
-      }
-
-      // Attempt to fetch user data if logged in and token exists
       if (stayLoggedIn && storedToken) {
         this.fetchUserDataByToken(storedToken)
       }
-
-      // Ensure apiKey is populated or report missing key
-      this.verifyApiKey()
-      console.log('APIKey loaded:', this.apiKey)
     },
-
-    verifyApiKey() {
-      if (!this.apiKey) {
-        const message =
-          'API Key is missing or blank. Ensure it is set correctly in localStorage or environment variables.'
-        console.error(message)
-        this.setError(new Error(message))
-      } else {
-        console.log('API Key successfully loaded:', this.apiKey)
-      }
-    },
-
     async fetchUserDataByToken(token: string): Promise<void> {
       try {
         const response = await this.apiCall('/api/auth/validate', 'POST', {
@@ -339,9 +290,6 @@ export const useUserStore = defineStore({
           if (this.stayLoggedIn) {
             this.saveToLocalStorage('token', response.token)
           }
-
-          console.log('API Key after login:', this.apiKey)
-
           this.stopLoading()
           return { success: true }
         } else {
@@ -403,6 +351,9 @@ export const useUserStore = defineStore({
           if (response.token) {
             this.setToken(response.token)
           }
+          if (response.apiKey) {
+            this.setApiKey(response.apiKey)
+          }
           return { success: true, user: response.user, token: response.token }
         } else {
           return {
@@ -423,21 +374,19 @@ export const useUserStore = defineStore({
       this.user = null
       this.token = ''
       this.apiKey = null
-      this.removeFromLocalStorage('apiKey')
+      this.removeFromLocalStorage('api_key')
       this.removeFromLocalStorage('token')
       this.removeFromLocalStorage('user')
       this.removeFromLocalStorage('stayLoggedIn')
-      this.removeFromLocalStorage('openAPIKey')
       this.setStayLoggedIn(false)
     },
     setToken(newToken: string): void {
       this.token = newToken
       this.saveToLocalStorage('token', newToken)
     },
-
-    setOpenApiKey(apiKey: string): void {
-      this.openAPIKey = apiKey
-      this.saveToLocalStorage('openAPIKey', apiKey)
+    setApiKey(apiKey: string): void {
+      this.apiKey = apiKey
+      this.saveToLocalStorage('api_key', apiKey)
     },
     startLoading() {
       this.loading = true
@@ -479,13 +428,11 @@ export const useUserStore = defineStore({
             method,
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${this.apiKey}`,
+              Authorization: `Bearer ${this.token}`,
             },
             body: body ? JSON.stringify(body) : undefined,
           })
           if (response.ok) {
-            console.log('API call response:', response)
-
             return await response.json()
           } else {
             throw new Error(`API call failed with status ${response.status}`)

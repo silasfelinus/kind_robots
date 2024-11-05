@@ -6,6 +6,7 @@ import { useMilestoneStore } from './milestoneStore'
 interface UserState {
   user: User | null
   token?: string | null
+  apiKey: string | null
   loading: boolean
   lastError: string | null
   highClickScores: number[]
@@ -31,6 +32,8 @@ export const useUserStore = defineStore({
   state: (): UserState => ({
     user: null,
     token: typeof window !== 'undefined' ? localStorage.getItem('token') : '',
+    apiKey:
+      typeof window !== 'undefined' ? localStorage.getItem('apiKey') : null,
     loading: false,
     lastError: null,
     highClickScores: [],
@@ -44,8 +47,8 @@ export const useUserStore = defineStore({
         : null,
   }),
   getters: {
-    apiKey(state): string {
-      return state.user?.apiKey || ' '
+    apiKey(state): string | null {
+      return state.apiKey || state.user?.apiKey || null
     },
     karma(state): number {
       return state.user ? state.user.karma : 1000
@@ -92,17 +95,25 @@ export const useUserStore = defineStore({
     },
   },
   actions: {
+    // Updating initializeUser action with proper logging and retrieval
     initializeUser() {
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
       const openAPIKey = this.getFromLocalStorage('openAPIKey')
+      console.log('Initializing user with:', {
+        stayLoggedIn,
+        storedToken,
+        openAPIKey,
+      })
+
       this.setStayLoggedIn(stayLoggedIn)
       if (storedToken) {
         this.token = storedToken
+        console.log('Token loaded from storage:', storedToken)
       }
-
       if (openAPIKey) {
         this.openAPIKey = openAPIKey
+        console.log('Open API Key loaded from storage:', openAPIKey)
       }
       if (stayLoggedIn && storedToken) {
         this.fetchUserDataByToken(storedToken)
@@ -301,7 +312,7 @@ export const useUserStore = defineStore({
             this.saveToLocalStorage('token', response.token)
           }
 
-          console.log('API Key in login response:', response.user?.apiKey)
+          console.log('API Key after login:', this.apiKey)
 
           this.stopLoading()
           return { success: true }
@@ -383,6 +394,8 @@ export const useUserStore = defineStore({
     logout(): void {
       this.user = null
       this.token = ''
+      this.apiKey = null
+      this.removeFromLocalStorage('apiKey')
       this.removeFromLocalStorage('token')
       this.removeFromLocalStorage('user')
       this.removeFromLocalStorage('stayLoggedIn')

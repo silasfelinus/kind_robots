@@ -32,10 +32,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Return the found ArtImage
+    // Return the found ArtImage wrapped in a data object
     return {
       success: true,
-      artImage,
+      data: { artImage },
     }
   } catch (error) {
     // Handle any unexpected errors

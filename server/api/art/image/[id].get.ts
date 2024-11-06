@@ -7,16 +7,23 @@ export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
 
   try {
+    // Validate the ID
+    if (isNaN(id) || id <= 0) {
+      throw new Error('Invalid ID provided.')
+    }
+
     const artImage = await prisma.artImage.findUnique({
       where: { id },
     })
 
     if (!artImage) {
-      throw new Error(`Collection with ID ${id} not found.`)
+      throw new Error(`ArtImage with ID ${id} not found.`)
     }
 
-    return { success: true, artImage }
+    // Return the found ArtImage, wrapped in a data object
+    return { success: true, data: { artImage } }
   } catch (error) {
+    // Handle errors through errorHandler
     return errorHandler(error)
   }
 })

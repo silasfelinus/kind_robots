@@ -5,14 +5,13 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
-  let response
+  let response: { success: boolean; message: string; updatedMessage?: Message; statusCode: number }
   let id: number | null = null
 
   try {
     // Parse and validate the message ID from the URL params
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid or missing message ID.',
@@ -22,7 +21,6 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -37,7 +35,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -52,7 +49,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!existingMessage) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: 'Message not found.',
@@ -61,7 +57,6 @@ export default defineEventHandler(async (event) => {
 
     // Verify ownership of the message
     if (existingMessage.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this message.',
@@ -73,7 +68,6 @@ export default defineEventHandler(async (event) => {
 
     // Ensure that the request body contains valid fields
     if (!updatedMessageData || Object.keys(updatedMessageData).length === 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -86,6 +80,7 @@ export default defineEventHandler(async (event) => {
       data: updatedMessageData,
     })
 
+    // Successful update response
     response = {
       success: true,
       message: 'Message updated successfully.',

@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
     if (!tagData.title || !tagData.label) {
       return {
         success: false,
+        data: null,
         message: '"title" and "label" are required fields.',
         statusCode: 400,
       }
@@ -53,12 +54,18 @@ export default defineEventHandler(async (event) => {
       throw new Error(result.error)
     }
 
-    return { success: true, tag: result.tag, statusCode: 201 }
+    return {
+      success: true,
+      data: { tag: result.tag },
+      message: 'Tag created successfully',
+      statusCode: 201,
+    }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
 
     return {
       success: false,
+      data: null,
       message: 'Failed to create a new tag',
       error: message || 'An unknown error occurred',
       statusCode: statusCode || 500,

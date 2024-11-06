@@ -1,17 +1,19 @@
+// /server/api/posts/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { Prisma, type Post } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
+        message: 'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
@@ -45,14 +47,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if userId in postData matches the authenticated user
-    if (postData.userId && postData.userId !== authenticatedUserId) {
-      throw createError({
-        statusCode: 403,
-        message: 'User ID does not match the authenticated user.',
-      })
-    }
-
     // Add authenticated userId to postData to ensure ownership
     postData.userId = authenticatedUserId
 
@@ -68,13 +62,16 @@ export default defineEventHandler(async (event) => {
 
     // Set status code to 201 Created for successful creation
     event.node.res.statusCode = 201
-    return { success: true, post: result.post }
+    return {
+      success: true,
+      post: result.post,
+      message: 'Post created successfully.',
+    }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      // Ensure we use the specific error message if available
       message:
         message.includes('token') || message.includes('Missing required fields')
           ? message

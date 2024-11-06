@@ -9,11 +9,8 @@ export default defineEventHandler(async (event) => {
   try {
     // Validate promptId
     if (!promptId || isNaN(promptId)) {
-      return {
-        success: false,
-        message: 'Invalid or missing prompt ID.',
-        statusCode: 400,
-      }
+      event.node.res.statusCode = 400
+      throw new Error('Invalid or missing prompt ID.')
     }
 
     // Fetch all art entries related to the specific promptId
@@ -25,14 +22,12 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!artByPromptId || artByPromptId.length === 0) {
-      return {
-        success: false,
-        message: `No art found for prompt ID ${promptId}.`,
-        statusCode: 404,
-      }
+      event.node.res.statusCode = 404
+      throw new Error(`No art found for prompt ID ${promptId}.`)
     }
 
-    return { success: true, artByPromptId }
+    // Return the art entries wrapped in a data object
+    return { success: true, data: { artByPromptId } }
   } catch (error: unknown) {
     return errorHandler(error)
   }

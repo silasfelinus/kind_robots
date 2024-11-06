@@ -11,13 +11,13 @@ export default defineEventHandler(async () => {
       return {
         success: false,
         message: 'No art collections found.',
-        statusCode: 404
       }
     }
 
-    return { success: true, collections }
+    // Wrap collections in a data object for consistent response format
+    return { success: true, data: { collections } }
   } catch (error) {
-    return errorHandler(error) // Do not concatenate error with string
+    return errorHandler(error)
   }
 })
 

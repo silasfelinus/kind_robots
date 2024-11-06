@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     // Validate and parse the pitch ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid Pitch ID. It must be a positive integer.',
@@ -23,11 +22,9 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
+        message: 'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
@@ -38,7 +35,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -54,7 +50,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!pitch) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Pitch with ID ${id} does not exist.`,
@@ -62,7 +57,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (pitch.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You are not authorized to delete this pitch.',
@@ -83,7 +77,7 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     console.error('Error while deleting Pitch:', handledError)
 
-    // Explicitly set the status code based on the handled error
+    // Set the status code and response message based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

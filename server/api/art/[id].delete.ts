@@ -20,11 +20,12 @@ export default defineEventHandler(async (event) => {
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
-        message: 'Authorization token is required in the format "Bearer <token>".',
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
-    const token = authorizationHeader.split(' ')[1] // Extract token after "Bearer "
+    const token = authorizationHeader.split(' ')[1]
     const user = await prisma.user.findFirst({
       where: { apiKey: token },
       select: { id: true },
@@ -69,9 +70,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: {
-        message: `Art entry with ID ${id} deleted successfully.`,
-      },
+      message: `Art entry with ID ${id} deleted successfully.`,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

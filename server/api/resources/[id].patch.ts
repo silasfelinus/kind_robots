@@ -5,24 +5,21 @@ import { errorHandler } from '../utils/error'
 import type { Resource } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
   let response
+  const resourceId = Number(event.context.params?.id)
 
   try {
-    // Parse and validate the resource ID from the URL params
-    id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
+    // Validate the Resource ID
+    if (isNaN(resourceId) || resourceId <= 0) {
       throw createError({
         statusCode: 400,
-        message: 'Invalid resource ID.',
+        message: 'Invalid resource ID. It must be a positive integer.',
       })
     }
 
-    // Extract and validate the API key from the Authorization header
+    // Validate the Authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -37,48 +34,46 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    const userId = user.id // Use userId from the validated token
+    const userId = user.id
 
-    // Fetch the existing resource to ensure it exists
+    // Fetch and validate resource ownership
     const existingResource = await prisma.resource.findUnique({
-      where: { id },
+      where: { id: resourceId },
     })
     if (!existingResource) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: 'Resource not found.',
       })
     }
 
-    // Check that the user is authorized to update the resource
     if (existingResource.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this resource.',
       })
     }
 
-    // Parse the incoming request body as partial resource data
+    // Parse and validate the request body data
     const resourceData: Partial<Resource> = await readBody(event)
 
-    // Update the resource in the database
+    // Perform the update operation
     const updatedResource = await prisma.resource.update({
-      where: { id },
+      where: { id: resourceId },
       data: resourceData,
     })
 
+    // Successful update response
     response = {
       success: true,
-      resource: updatedResource,
+      message: `Resource with ID ${resourceId} updated successfully.`,
+      data: updatedResource,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
@@ -88,7 +83,9 @@ export default defineEventHandler(async (event) => {
     response = {
       success: false,
       message:
-        handledError.message || `Failed to update resource with ID ${id}.`,
+        handledError.message ||
+        `Failed to update resource with ID ${resourceId}.`,
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }

@@ -6,14 +6,28 @@ import type { Resource } from '@prisma/client'
 
 export default defineEventHandler(async () => {
   try {
+    // Fetch all resources from the database
     const resources = await prisma.resource.findMany()
-    return { success: true, resources }
+
+    return {
+      success: true,
+      message: 'Resources fetched successfully.',
+      data: { resources },
+      statusCode: 200,
+    }
   } catch (error: unknown) {
-    return errorHandler(error)
+    // Handle error using the centralized error handler
+    const { success, message, statusCode } = errorHandler(error)
+    return {
+      success,
+      message: message || 'Failed to fetch resources.',
+      data: null,
+      statusCode: statusCode || 500,
+    }
   }
 })
 
-// Function to fetch all Resources
+// Function to fetch all Resources, to be used elsewhere if needed
 export async function fetchAllResources(): Promise<Resource[]> {
   return await prisma.resource.findMany()
 }

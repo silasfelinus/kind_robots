@@ -1,18 +1,27 @@
-import type { User } from '@prisma/client'
+// /server/api/user/[id].get.ts
+
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
+const AUTH_SECRET = process.env.AUTH_SECRET // Set your auth-secret as an environment variable
+
 export default defineEventHandler(async (event) => {
+  console.log('Fetching user by ID with optional API key inclusion.')
+
   try {
-    // Extract the user ID from the query parameters
+    // Extract the user ID from the route parameters
     const userId = Number(event.context.params?.id)
     if (isNaN(userId) || userId <= 0) {
       return { success: false, message: 'Invalid User ID.' }
     }
 
-    // Fetch the user by their ID
-    const user = await fetchUserById(userId)
+    // Check for the auth-secret header and validate it
+    const authSecretHeader = event.req.headers['auth-secret']
+    const returnApiKey = authSecretHeader === AUTH_SECRET
+
+    // Fetch the user, including the apiKey if returnApiKey is true
+    const user = await fetchUserById(userId, returnApiKey)
     if (!user) {
       return { success: false, message: 'User not found.' }
     }
@@ -24,7 +33,8 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-export async function fetchUserById(id: number): Promise<Partial<User> | null> {
+// Modify fetchUserById to conditionally include apiKey
+export async function fetchUserById(id: number, includeApiKey = false): Promise<Partial<User> | null> {
   try {
     return await prisma.user.findUnique({
       where: { id },
@@ -34,7 +44,6 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         updatedAt: true,
         Role: true,
         username: true,
-        // email: true, // Email is commented to exclude it from the response
         emailVerified: true,
         clickRecord: true,
         matchRecord: true,
@@ -49,6 +58,7 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
         karma: true,
         mana: true,
         showMature: true,
+        ...(includeApiKey && { apiKey: true }), // Conditionally include apiKey
       },
     })
   } catch (error: unknown) {

@@ -73,7 +73,6 @@ export const useBotStore = defineStore({
 
     async loadStore(): Promise<void> {
       if (this.isLoaded || this.loading) return
-      console.log('running loadStore first time')
       this.loading = true
       try {
         await this.fetchBots()

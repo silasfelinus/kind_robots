@@ -1,4 +1,4 @@
-// ~/server/api/galleries/[name].random.ts
+// ~/server/api/galleries/random/[name].get.ts
 import { defineEventHandler, createError } from 'h3'
 import { getRandomImageByGalleryName } from '../..'
 import { errorHandler } from '../../utils/error'

@@ -6,6 +6,10 @@ export type ApiResponse<T> = {
   success: boolean
   message: string
   data?: T
+  user?: User
+  token?: string
+  apiKey?: string
+  usernames?: string[]
 }
 
 export async function performFetch<T>(

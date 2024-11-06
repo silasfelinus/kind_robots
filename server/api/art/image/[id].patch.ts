@@ -1,4 +1,4 @@
-//server/api/art/image/[id].patch.ts
+// server/api/art/image/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from './../../utils/prisma'
 import { errorHandler } from './../../utils/error'
@@ -88,15 +88,15 @@ export default defineEventHandler(async (event) => {
       },
     })
 
+    // Successful response with updated art image wrapped in a data object
     response = {
       success: true,
-      artImage: updatedArtImage,
-      statusCode: 200,
+      data: { artImage: updatedArtImage },
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.log('Error Handled:', handledError)
+    console.error('Error updating art image:', handledError)
 
     // Set the appropriate status code based on the error
     event.node.res.statusCode = handledError.statusCode || 500
@@ -105,7 +105,6 @@ export default defineEventHandler(async (event) => {
       message:
         handledError.message ||
         `Failed to update art image with ID ${imageId}.`,
-      statusCode: event.node.res.statusCode,
     }
   }
 

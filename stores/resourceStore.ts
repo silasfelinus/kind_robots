@@ -1,9 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Resource } from '@prisma/client'
-import { useErrorStore, ErrorType } from './errorStore'
+import { performFetch, handleError } from './utils'
 import { resourceData } from './../stores/seeds/seedResources'
-
-const errorStore = useErrorStore()
 
 interface ResourceStoreState {
   resources: Resource[]
@@ -20,9 +18,10 @@ export const useResourceStore = defineStore({
     errors: [],
     isInitialized: false,
   }),
+
   actions: {
     async loadStore(): Promise<void> {
-      try {
+      return handleError(async () => {
         if (!this.isInitialized) {
           await this.getResources()
           if (this.resources.length === 0) {
@@ -31,116 +30,89 @@ export const useResourceStore = defineStore({
           }
           this.isInitialized = true
         }
-      } catch (error) {
-        console.error('Resource Store Load Error:', error)
-        errorStore.setError(
-          ErrorType.UNKNOWN_ERROR,
-          `Error initializing resource store: ${error instanceof Error ? error.message : error}`,
-        )
-        this.errors.push(`Resource Store Load Error: ${error}`)
-      }
+      }, 'initializing resource store')
     },
 
     async getResources(): Promise<void> {
-      try {
-        const response = await fetch(`/api/resources`)
-        if (!response.ok) throw new Error('Failed to fetch resources')
-        const data = await response.json()
-        this.resources = [...this.resources, ...data]
-      } catch (error) {
-        console.error('Failed to fetch resources:', error) // Log detailed error
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Failed to fetch resources: ${error instanceof Error ? error.message : error}`,
+      return handleError(async () => {
+        const response = await performFetch<{ resources: Resource[] }>(
+          '/api/resources',
         )
-        this.errors.push(`Fetch Resources Error: ${error}`)
-      }
+        if (response.success) {
+          this.resources = response.data?.resources || []
+        } else {
+          throw new Error(response.message || 'Failed to fetch resources')
+        }
+      }, 'fetching resources')
     },
 
     async seedResources(): Promise<void> {
-      try {
+      return handleError(async () => {
         await this.addResources(resourceData)
-      } catch (error) {
-        console.error('Error seeding resources:', error) // Log detailed error
-        errorStore.setError(
-          ErrorType.UNKNOWN_ERROR,
-          `Error loading resources: ${error instanceof Error ? error.message : error}`,
-        )
-        this.errors.push(`Seed Resources Error: ${error}`)
-      }
+        await this.getResources() // Refresh after seeding
+      }, 'seeding resources')
+    },
 
-      await this.getResources()
-    },
     async getResourceById(id: number): Promise<void> {
-      try {
-        const response = await fetch(`/api/resources/${id}`)
-        if (!response.ok) throw new Error('Failed to fetch resource')
-        const data = await response.json()
-        this.currentResource = data
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          'Failed to fetch resource by id: ' + error,
+      return handleError(async () => {
+        const response = await performFetch<{ resource: Resource }>(
+          `/api/resources/${id}`,
         )
-      }
+        if (response.success && response.data?.resource) {
+          this.currentResource = response.data.resource
+        } else {
+          throw new Error(response.message || 'Failed to fetch resource by ID')
+        }
+      }, `fetching resource by ID: ${id}`)
     },
+
     async addResources(resourceData: Partial<Resource>[]): Promise<void> {
-      try {
-        const response = await fetch(`/api/resources`, {
+      return handleError(async () => {
+        const response = await performFetch<{
+          resources: Resource[]
+          errors: string[]
+        }>('/api/resources', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify(resourceData),
         })
-        if (!response.ok) throw new Error('Failed to add resources')
-        const data = await response.json()
-        this.resources = [...this.resources, ...data.resources]
-        this.errors = data.errors
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          'Failed to add resources: ' + error,
-        )
-      }
+        if (response.success && response.data?.resources) {
+          this.resources = [...this.resources, ...response.data.resources]
+          this.errors = response.data.errors || []
+        } else {
+          throw new Error(response.message || 'Failed to add resources')
+        }
+      }, 'adding resources')
     },
-    async updateResource(id: number, data: Partial<Resource>): Promise<void> {
-      try {
-        const response = await fetch(`/api/resources/${id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        })
-        if (!response.ok) throw new Error('Failed to update resource')
-        const updatedResource = await response.json()
-        this.currentResource = updatedResource
 
-        // Fetch the updated list of resources after updating a resource
-        await this.getResources()
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          'Failed to update resource: ' + error,
+    async updateResource(id: number, data: Partial<Resource>): Promise<void> {
+      return handleError(async () => {
+        const response = await performFetch<{ updatedResource: Resource }>(
+          `/api/resources/${id}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+          },
         )
-      }
+        if (response.success && response.data?.updatedResource) {
+          this.currentResource = response.data.updatedResource
+          await this.getResources() // Refresh after updating
+        } else {
+          throw new Error(response.message || 'Failed to update resource')
+        }
+      }, `updating resource ID: ${id}`)
     },
+
     async deleteResource(id: number): Promise<void> {
-      try {
-        const response = await fetch(`/api/resources/${id}`, {
+      return handleError(async () => {
+        const response = await performFetch(`/api/resources/${id}`, {
           method: 'DELETE',
         })
-        if (!response.ok) throw new Error('Failed to delete resource')
-
-        // Fetch the updated list of resources and total resources count after deleting a resource
-        await this.getResources()
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          'Failed to delete resource: ' + error,
-        )
-      }
+        if (response.success) {
+          await this.getResources() // Refresh after deleting
+        } else {
+          throw new Error(response.message || 'Failed to delete resource')
+        }
+      }, `deleting resource ID: ${id}`)
     },
   },
 })

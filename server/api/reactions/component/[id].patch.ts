@@ -86,17 +86,22 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    response = { success: true, updatedReaction, statusCode: 200 }
+    // Consistently wrap the response in a data object
     event.node.res.statusCode = 200
+    response = {
+      success: true,
+      data: { updatedReaction },
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message:
-        handledError.message ||
-        `Failed to update/create reaction for component with ID ${componentId}.`,
-      statusCode: event.node.res.statusCode,
+      data: {
+        message:
+          handledError.message ||
+          `Failed to update/create reaction for component with ID ${componentId}.`,
+      },
     }
   }
 

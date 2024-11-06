@@ -6,7 +6,6 @@ import type { Reaction } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   let chatExchangeId: number | null = null
-  let response
 
   try {
     // Parse and validate the chatExchangeId from the URL params
@@ -66,17 +65,16 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    let updatedReaction
-
+    let reaction
     if (existingReaction) {
       // Update the existing reaction
-      updatedReaction = await prisma.reaction.update({
+      reaction = await prisma.reaction.update({
         where: { id: existingReaction.id },
         data: reactionData,
       })
     } else {
       // Create a new reaction
-      updatedReaction = await prisma.reaction.create({
+      reaction = await prisma.reaction.create({
         data: {
           chatExchangeId,
           userId,
@@ -86,19 +84,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    response = { success: true, updatedReaction, statusCode: 200 }
     event.node.res.statusCode = 200
+    return { success: true, data: { reaction } }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    return {
       success: false,
-      message:
-        handledError.message ||
-        `Failed to update/create reaction for chat exchange with ID ${chatExchangeId}.`,
-      statusCode: event.node.res.statusCode,
+      data: {
+        message:
+          handledError.message ||
+          `Failed to update/create reaction for chat exchange with ID ${chatExchangeId}.`,
+      },
     }
   }
-
-  return response
 })

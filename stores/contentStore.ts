@@ -96,14 +96,5 @@ export const useContentStore = defineStore({
     toggleInfo() {
       this.showInfo = !this.showInfo
     },
-    async getPages() {
-      try {
-        const response = await fetch('/api/pages') // Adjust your API endpoint as needed
-        const data = await response.json()
-        this.pages = data // Assume the API returns an array of Page objects
-      } catch (error) {
-        console.error('Failed to fetch pages:', error)
-      }
-    },
   },
 })

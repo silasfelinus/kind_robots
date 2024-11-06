@@ -4,12 +4,14 @@ import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
+  let chatExchangeId
   try {
     // Extract chatExchangeId from the route parameters
-    const chatExchangeId = Number(event.context.params?.id)
+    chatExchangeId = Number(event.context.params?.id)
 
     // Validate chatExchangeId
     if (isNaN(chatExchangeId) || chatExchangeId <= 0) {
+      event.node.res.statusCode = 400
       throw new Error('A valid ChatExchange ID is required.')
     }
 
@@ -22,27 +24,36 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!reactions || reactions.length === 0) {
+      event.node.res.statusCode = 404
       return {
         success: false,
-        message: `No reactions found for chat exchange with ID ${chatExchangeId}.`,
-        statusCode: 404,
+        data: {
+          message: `No reactions found for chat exchange with ID ${chatExchangeId}.`,
+        },
       }
     }
 
-    // Return the reactions
+    // Return the reactions in a data object
+    event.node.res.statusCode = 200
     return {
       success: true,
-      reactions,
+      data: { reactions },
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(
       `Error fetching reactions for chat exchange ID ${event.context.params?.id}:`,
       error,
     )
-    // Use the errorHandler for consistent error handling
-    return errorHandler({
-      error,
-      context: `Fetching reactions for chat exchange ID ${event.context.params?.id}`,
-    })
+    // Consistent error handling with errorHandler
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
+    return {
+      success: false,
+      data: {
+        message:
+          handledError.message ||
+          `Failed to retrieve reactions for chat exchange with ID ${chatExchangeId}.`,
+      },
+    }
   }
 })

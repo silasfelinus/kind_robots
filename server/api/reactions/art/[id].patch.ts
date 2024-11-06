@@ -5,7 +5,6 @@ import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   let artId: number | null = null
-  let response
 
   try {
     // Extract and validate the art ID from the URL params
@@ -66,17 +65,16 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    let updatedReaction
-
+    let reaction
     if (existingReaction) {
       // Update the existing reaction
-      updatedReaction = await prisma.reaction.update({
+      reaction = await prisma.reaction.update({
         where: { id: existingReaction.id },
         data: { reactionType },
       })
     } else {
       // Create a new reaction if none exists
-      updatedReaction = await prisma.reaction.create({
+      reaction = await prisma.reaction.create({
         data: {
           artId,
           userId,
@@ -85,19 +83,22 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    response = { success: true, updatedReaction, statusCode: 200 }
+    // Return the updated/created reaction in a data object
     event.node.res.statusCode = 200
+    return {
+      success: true,
+      data: { reaction },
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    return {
       success: false,
-      message:
-        handledError.message ||
-        `Failed to update/create reaction for art with ID ${artId}.`,
-      statusCode: event.node.res.statusCode,
+      data: {
+        message:
+          handledError.message ||
+          `Failed to update/create reaction for art with ID ${artId}.`,
+      },
     }
   }
-
-  return response
 })

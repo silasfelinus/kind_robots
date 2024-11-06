@@ -27,13 +27,12 @@ describe('Component Reactions API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      componentId = response.body.component.id
+      componentId = response.body.data.component.id
       expect(componentId).to.be.a('number')
     })
   })
 
   // Step 2: Attempt to create a reaction with various authentication scenarios
-
   it('should not allow creating a component reaction without an authorization token', () => {
     cy.wrap(componentId).should('exist')
 
@@ -108,7 +107,7 @@ describe('Component Reactions API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      reactionId = response.body.reaction.id
+      reactionId = response.body.data.reaction.id
       expect(reactionId).to.be.a('number')
     })
   })
@@ -127,7 +126,7 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.reactions)
+      expect(response.body.data.reactions)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -146,7 +145,7 @@ describe('Component Reactions API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      const reaction = response.body.reaction
+      const reaction = response.body.data.reaction
       expect(reaction.id).to.eq(reactionId)
       expect(reaction.componentId).to.eq(componentId)
       expect(reaction.userId).to.eq(userId)
@@ -211,11 +210,11 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.reaction.reactionType).to.eq('BOOED')
-      expect(response.body.reaction.comment).to.eq(
+      expect(response.body.data.reaction.reactionType).to.eq('BOOED')
+      expect(response.body.data.reaction.comment).to.eq(
         'Actually, I have second thoughts...',
       )
-      expect(response.body.reaction.rating).to.eq(2)
+      expect(response.body.data.reaction.rating).to.eq(2)
     })
   })
 
@@ -259,6 +258,9 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
+      expect(response.body.data.message).to.include(
+        `Reaction with ID ${reactionId} successfully deleted.`,
+      )
     })
   })
 

@@ -1,4 +1,4 @@
-// /server/api/messages/[id].delete.ts
+// /server/api/messages/[id].get.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'

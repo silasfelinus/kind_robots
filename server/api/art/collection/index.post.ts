@@ -82,8 +82,8 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    // Return the newly created collection
-    response = { success: true, collection: newCollection, statusCode: 201 }
+    // Return the newly created collection, wrapped in a data object
+    response = { success: true, data: { collection: newCollection } }
     event.node.res.statusCode = 201
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -91,7 +91,6 @@ export default defineEventHandler(async (event) => {
     response = {
       success: false,
       message: handledError.message || 'Failed to create art collection.',
-      statusCode: event.node.res.statusCode,
     }
   }
 

@@ -1,10 +1,12 @@
 // /server/api/rewards/batch.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import { createRewardsBatch } from './' // Import the batch creation function
-import { errorHandler } from '../utils/error' // Import centralized error handler
+import { createRewardsBatch } from './'
+import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
@@ -62,24 +64,36 @@ export default defineEventHandler(async (event) => {
     // Create rewards in batch
     const { count, rewards, errors } = await createRewardsBatch(rewardsData)
 
+    // Check for partial success and set response accordingly
     if (errors.length > 0) {
-      return {
+      response = {
         success: false,
         message: 'Some rewards could not be created.',
         errors,
         createdCount: count,
+        statusCode: 207, // 207 indicates partial success
       }
+      event.node.res.statusCode = 207
+    } else {
+      response = {
+        success: true,
+        count,
+        rewards,
+        statusCode: 201,
+      }
+      event.node.res.statusCode = 201
     }
-
-    event.node.res.statusCode = 201 // Created
-    return { success: true, count, rewards }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
     console.error(`Failed to create new rewards: ${message}`)
-    return {
+
+    response = {
       success: false,
       message: `Failed to create new rewards: ${message}`,
       statusCode: statusCode || 500,
     }
+    event.node.res.statusCode = response.statusCode
   }
+
+  return response
 })

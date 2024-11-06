@@ -1,3 +1,4 @@
+// /server/api/channels/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
@@ -10,7 +11,6 @@ export default defineEventHandler(async (event) => {
     // Validate the Channel ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid Channel ID. It must be a positive integer.',
@@ -20,7 +20,6 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -35,7 +34,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -51,7 +49,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!channel) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Channel with ID ${id} does not exist.`,
@@ -59,7 +56,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (channel.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this channel.',
@@ -73,6 +69,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: `Channel with ID ${id} deleted successfully.`,
+      data: { message: `Channel with ID ${id} deleted successfully.` },
       statusCode: 200,
     }
     event.node.res.statusCode = 200
@@ -80,13 +77,13 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     console.log('Error Handled:', handledError)
 
-    // Explicitly set the status code based on the handled error
+    // Set response and status code based on handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
       message:
         handledError.message || `Failed to delete channel with ID ${id}.`,
-      statusCode: event.node.res.statusCode,
+      statusCode: handledError.statusCode || 500,
     }
   }
 

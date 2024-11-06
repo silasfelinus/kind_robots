@@ -6,13 +6,11 @@ import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response
-  let rewardId
+  const rewardId = Number(event.context.params?.id)
 
   try {
     // Validate the Reward ID
-    rewardId = Number(event.context.params?.id)
     if (isNaN(rewardId) || rewardId <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid Reward ID. It must be a positive integer.',
@@ -22,7 +20,6 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -37,7 +34,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -53,7 +49,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!existingReward) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Reward with ID ${rewardId} does not exist.`,
@@ -61,7 +56,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (existingReward.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'User is not authorized to update this reward.',
@@ -71,7 +65,6 @@ export default defineEventHandler(async (event) => {
     // Parse and validate the update data
     const updatedRewardData: Partial<Reward> = await readBody(event)
     if (!updatedRewardData || Object.keys(updatedRewardData).length === 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -87,7 +80,7 @@ export default defineEventHandler(async (event) => {
     // Successful update response
     response = {
       success: true,
-      updatedReward,
+      reward: updatedReward,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
@@ -95,14 +88,13 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     console.error(`Error updating reward with ID ${rewardId}:`, handledError)
 
-    // Explicitly set the status code based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
       message:
         handledError.message || `Failed to update reward with ID ${rewardId}.`,
-      statusCode: event.node.res.statusCode,
+      statusCode: handledError.statusCode || 500,
     }
+    event.node.res.statusCode = response.statusCode
   }
 
   return response

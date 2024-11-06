@@ -5,11 +5,10 @@ import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   let response
-  let rewardId
+  const rewardId = Number(event.context.params?.id)
 
   try {
-    // Parse and validate the Reward ID
-    rewardId = Number(event.context.params?.id)
+    // Validate Reward ID
     if (isNaN(rewardId) || rewardId <= 0) {
       event.node.res.statusCode = 400
       throw createError({
@@ -18,7 +17,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Extract and validate the Authorization token
+    // Validate Authorization Token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       event.node.res.statusCode = 401
@@ -45,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
     const userId = user.id
     console.log(
-      `Token valid. User ID ${userId} is requesting deletion for Reward ID ${rewardId}`,
+      `User ID ${userId} is requesting deletion for Reward ID ${rewardId}`,
     )
 
     // Check if the reward exists and if the user is authorized to delete it
@@ -71,11 +70,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Perform deletion of the reward
+    // Perform Deletion
     await prisma.reward.delete({ where: { id: rewardId } })
     console.log(`Successfully deleted reward with ID: ${rewardId}`)
 
-    // Return success response
+    // Return Success Response
     response = {
       success: true,
       message: `Reward with ID ${rewardId} successfully deleted.`,
@@ -86,7 +85,7 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     console.error(`Error deleting reward with ID ${rewardId}:`, handledError)
 
-    // Explicitly set the status code based on the handled error
+    // Set response with error information
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

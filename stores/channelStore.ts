@@ -38,8 +38,8 @@ export const useChannelStore = defineStore({
         const response = await performFetch<{ channels: Channel[] }>(
           '/api/channels',
         )
-        if (response.success) {
-          this.channels = response.data?.channels || []
+        if (response.success && response.data?.channels) {
+          this.channels = response.data.channels
           this.isInitialized = true
         } else {
           throw new Error(response.message)

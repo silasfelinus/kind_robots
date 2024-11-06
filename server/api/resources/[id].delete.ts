@@ -8,10 +8,9 @@ export default defineEventHandler(async (event) => {
   let resourceId
 
   try {
-    // Parse and validate the resource ID
+    // Parse and validate the Resource ID
     resourceId = Number(event.context.params?.id)
     if (isNaN(resourceId) || resourceId <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid Resource ID. It must be a positive integer.',
@@ -20,10 +19,9 @@ export default defineEventHandler(async (event) => {
 
     console.log(`Attempting to delete resource with ID: ${resourceId}`)
 
-    // Extract and validate the authorization token
+    // Extract and validate the Authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -38,7 +36,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -47,14 +44,13 @@ export default defineEventHandler(async (event) => {
 
     const userId = user.id
 
-    // Verify the resource exists and that the user is authorized to delete it
+    // Verify the Resource exists and that the user is authorized to delete it
     const resource = await prisma.resource.findUnique({
       where: { id: resourceId },
       select: { userId: true },
     })
 
     if (!resource) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Resource with ID ${resourceId} does not exist.`,
@@ -62,18 +58,17 @@ export default defineEventHandler(async (event) => {
     }
 
     if (resource.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this resource.',
       })
     }
 
-    // Perform the delete operation
+    // Perform the deletion
     await prisma.resource.delete({ where: { id: resourceId } })
     console.log(`Successfully deleted resource with ID: ${resourceId}`)
 
-    // Return success response
+    // Successful deletion response
     response = {
       success: true,
       message: `Resource with ID ${resourceId} successfully deleted.`,
@@ -84,7 +79,7 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     console.error('Error deleting resource:', handledError)
 
-    // Set the status code based on the handled error
+    // Set response based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

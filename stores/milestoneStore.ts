@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import type { Milestone, MilestoneRecord } from '@prisma/client'
 import { useUserStore } from './userStore'
 import { milestoneData } from './../training/milestoneData'
-import { useErrorStore, ErrorType } from './errorStore'
+import { performFetch, handleError } from './utils'
 
 export const useMilestoneStore = defineStore({
   id: 'milestoneStore',
@@ -11,18 +11,14 @@ export const useMilestoneStore = defineStore({
     milestoneRecords: [] as MilestoneRecord[],
     isInitialized: false,
     currentMilestone: null as Milestone | null,
-    highClickScores: [],
-    highMatchScores: [],
+    highClickScores: [] as number[],
+    highMatchScores: [] as number[],
   }),
 
   actions: {
-    // Initialize milestones with localStorage fallback
     async initializeMilestones() {
-      const errorStore = useErrorStore()
-
       if (this.isInitialized) return
 
-      // Load milestones from localStorage (only on client-side)
       if (typeof window !== 'undefined') {
         const storedMilestones = localStorage.getItem('milestones')
         const storedRecords = localStorage.getItem('milestoneRecords')
@@ -36,177 +32,125 @@ export const useMilestoneStore = defineStore({
         }
       }
 
-      // Fetch from database if not loaded or empty in localStorage
-      if (this.milestones.length === 0) {
-        try {
-          await this.fetchMilestones()
-        } catch (error) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            `Failed to fetch milestones from database: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          )
-        }
-      }
-
-      // Fetch records
-      if (this.milestoneRecords.length === 0) {
-        try {
-          await this.fetchMilestoneRecords()
-        } catch (error) {
-          errorStore.setError(
-            ErrorType.NETWORK_ERROR,
-            `Failed to fetch milestone records from database: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          )
-        }
-      }
+      if (!this.milestones.length) await this.fetchMilestones()
+      if (!this.milestoneRecords.length) await this.fetchMilestoneRecords()
 
       this.isInitialized = true
     },
+
     async fetchHighClickScores() {
       try {
-        const response = await fetch('/api/milestones/highClickScores')
-        const data = await response.json()
-        this.highClickScores = data.milestones
-      } catch (error: unknown) {
-        this.setError(error)
+        const response = await performFetch<{ milestones: number[] }>(
+          '/api/milestones/highClickScores',
+        )
+        this.highClickScores = response.data?.milestones || []
+      } catch (error) {
+        handleError(error, 'fetching high click scores')
       }
     },
+
     async fetchHighMatchScores() {
       try {
-        const response = await fetch('/api/milestones/highMatchScores')
-        const data = await response.json()
-        this.highMatchScores = data.milestones
-      } catch (error: unknown) {
-        this.setError(error)
+        const response = await performFetch<{ milestones: number[] }>(
+          '/api/milestones/highMatchScores',
+        )
+        this.highMatchScores = response.data?.milestones || []
+      } catch (error) {
+        handleError(error, 'fetching high match scores')
       }
     },
-    async updateClickRecord(newScore: number) {
+
+    // Inside milestoneStore
+    async updateClickRecord(newScore: number): Promise<string> {
       try {
         const userStore = useUserStore()
         const userId = userStore.userId
         if (!userId) throw new Error('User ID is not available')
+
         const response = await fetch('/api/milestones/updateClickRecord', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ newScore, userId }),
         })
+
         const data = await response.json()
-        if (data.success) return 'Updated'
+        if (data.success) {
+          return 'Updated'
+        } else {
+          return 'Failed'
+        }
       } catch (error: unknown) {
-        this.setError(error)
+        handleError(error, 'updating click record')
+        return 'Failed'
       }
     },
-    setError(error: unknown): string {
-      const message =
-        typeof error === 'object' && error !== null && 'message' in error
-          ? (error as { message: string }).message
-          : 'An unknown error occurred.'
-      const errorStore = useErrorStore()
-      errorStore.setError(ErrorType.UNKNOWN_ERROR, message)
-      return message
-    },
+
     async updateMatchRecord(newScore: number) {
       try {
-        const userStore = useUserStore()
-        const userId = userStore.userId
+        const userId = useUserStore().userId
         if (!userId) throw new Error('User ID is not available')
-        const response = await fetch('/api/milestones/updateMatchRecord', {
+
+        await performFetch('/api/milestones/updateMatchRecord', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ newScore, userId }),
         })
-        const data = await response.json()
-        if (data.success) await this.fetchHighMatchScores()
-      } catch (error: unknown) {
-        this.setError(error)
+        await this.fetchHighMatchScores()
+      } catch (error) {
+        handleError(error, 'updating match record')
       }
     },
 
     async fetchMilestoneById(id: number) {
-      const errorStore = useErrorStore()
-
       try {
-        const response = await fetch(`/api/milestones/${id}`)
-        const data = await response.json()
-
-        if (data.success && data.milestone) {
-          return {
-            success: true,
-            message: 'Milestone fetched successfully',
-            data: data.milestone as Milestone,
-          }
-        } else {
-          const message = `Failed to fetch milestone by ID ${id}: ${data.message}`
-          errorStore.setError(ErrorType.VALIDATION_ERROR, message)
-          console.error(message)
-          return { success: false, message: data.message }
-        }
+        const response = await performFetch<{ milestone: Milestone }>(
+          `/api/milestones/${id}`,
+        )
+        return response.success && response.data
+          ? {
+              success: true,
+              message: 'Milestone fetched successfully',
+              data: response.data.milestone,
+            }
+          : {
+              success: false,
+              message: response.message || 'Failed to fetch milestone by ID',
+            }
       } catch (error) {
-        const message = `Error fetching milestone by ID ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
-        errorStore.setError(ErrorType.NETWORK_ERROR, message)
-        console.error(message)
-        return { success: false, message }
+        handleError(error, `fetching milestone by ID ${id}`)
+        return { success: false, message: 'An error occurred' }
       }
     },
 
-    // Fetch milestones from the API
     async fetchMilestones() {
-      const errorStore = useErrorStore()
-
       try {
-        const response = await fetch('/api/milestones/')
-        const data = await response.json()
-
-        if (data.success) {
-          this.milestones = data.milestones
-          this.saveMilestonesToLocalStorage()
-        } else {
-          errorStore.setError(
-            ErrorType.VALIDATION_ERROR,
-            `Failed to fetch milestones: ${data.message}`,
-          )
-        }
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error fetching milestones: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        const response = await performFetch<{ milestones: Milestone[] }>(
+          '/api/milestones/',
         )
+        this.milestones = response.data?.milestones || []
+        this.saveMilestonesToLocalStorage()
+      } catch (error) {
+        handleError(error, 'fetching milestones')
       }
     },
 
-    // Fetch milestone records from the API
     async fetchMilestoneRecords() {
-      const errorStore = useErrorStore()
-
       try {
-        const response = await fetch('/api/milestones/records')
-        const data = await response.json()
-
-        if (data.success) {
-          this.milestoneRecords = data.records
-          this.saveMilestoneRecordsToLocalStorage()
-        } else {
-          errorStore.setError(
-            ErrorType.VALIDATION_ERROR,
-            `Failed to fetch milestone records: ${data.message}`,
-          )
-        }
-      } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error fetching milestone records: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        const response = await performFetch<{ records: MilestoneRecord[] }>(
+          '/api/milestones/records',
         )
+        this.milestoneRecords = response.data?.records || []
+        this.saveMilestoneRecordsToLocalStorage()
+      } catch (error) {
+        handleError(error, 'fetching milestone records')
       }
     },
 
-    // Save milestones to localStorage (only if in the client)
     saveMilestonesToLocalStorage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('milestones', JSON.stringify(this.milestones))
       }
     },
 
-    // Save milestone records to localStorage
     saveMilestoneRecordsToLocalStorage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem(
@@ -216,7 +160,6 @@ export const useMilestoneStore = defineStore({
       }
     },
 
-    // Update milestones from static data
     async updateMilestonesFromData() {
       for (const updatedMilestone of milestoneData) {
         const existingMilestone = this.milestones.find(
@@ -229,54 +172,29 @@ export const useMilestoneStore = defineStore({
       }
     },
 
-    // Update a specific milestone via API
     async updateMilestone(milestone: Milestone) {
-      const errorStore = useErrorStore()
-
       if (!milestone.id) {
         console.error('Milestone ID is required for updating.')
         return
       }
 
       try {
-        const response = await fetch(`/api/milestones/${milestone.id}`, {
+        const response = await performFetch(`/api/milestones/${milestone.id}`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify(milestone),
         })
-
-        const data = await response.json()
-        if (data.success) {
-          await this.fetchMilestones() // Refresh the milestones list
-        } else {
-          errorStore.setError(
-            ErrorType.VALIDATION_ERROR,
-            `Failed to update milestone: ${data.message}`,
-          )
-        }
+        if (response.success) await this.fetchMilestones()
       } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error updating milestone: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
+        handleError(error, 'updating milestone')
       }
     },
 
-    // Record a milestone for a specific user
     async recordMilestone(userId: number, milestoneId: number) {
-      const errorStore = useErrorStore()
-      const userStore = useUserStore()
-      const username = userStore.username
-
-      if (userId === 0) {
+      if (userId === 0)
         return {
           success: true,
           message: 'Guest accounts cannot record milestones.',
         }
-      }
-
       if (this.hasMilestone(userId, milestoneId)) {
         return {
           success: true,
@@ -284,62 +202,43 @@ export const useMilestoneStore = defineStore({
         }
       }
 
-      const milestoneRecord = { userId, milestoneId, username }
-
       try {
-        const response = await this.addMilestoneRecord(milestoneRecord)
+        const response = await this.addMilestoneRecord({
+          userId,
+          milestoneId,
+          username: useUserStore().username,
+        })
         return response
       } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error recording milestone: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
+        handleError(error, 'recording milestone')
         return {
           success: false,
-          message: `Error recording milestone: ${error}`,
+          message: 'An error occurred while recording milestone',
         }
       }
     },
 
-    // Add a milestone record to the database
     async addMilestoneRecord(record: Partial<MilestoneRecord>) {
-      const errorStore = useErrorStore()
-
       try {
-        const response = await fetch('/api/milestones/records', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await performFetch<{ record: MilestoneRecord }>(
+          '/api/milestones/records',
+          {
+            method: 'POST',
+            body: JSON.stringify(record),
           },
-          body: JSON.stringify(record),
-        })
-
-        const data = await response.json()
-
-        if (data.success) {
-          this.milestoneRecords.push(data.record)
+        )
+        if (response.success && response.data) {
+          this.milestoneRecords.push(response.data.record)
           this.saveMilestoneRecordsToLocalStorage()
           return { success: true, message: 'Milestone recorded successfully.' }
-        } else {
-          errorStore.setError(
-            ErrorType.VALIDATION_ERROR,
-            `Failed to add milestone record: ${data.message}`,
-          )
-          return { success: false, message: data.message }
         }
+        throw new Error(response.message)
       } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          `Error adding milestone record: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-        return {
-          success: false,
-          message: `Error adding milestone record: ${error}`,
-        }
+        handleError(error, 'adding milestone record')
+        return { success: false, message: 'An error occurred' }
       }
     },
 
-    // Check if a user has a specific milestone
     hasMilestone(userId: number, milestoneId: number) {
       return this.milestoneRecords.some(
         (record) =>
@@ -347,7 +246,6 @@ export const useMilestoneStore = defineStore({
       )
     },
 
-    // Get the milestone count for a user
     getMilestoneCountForUser(userId: number) {
       return this.milestoneRecords.filter((record) => record.userId === userId)
         .length

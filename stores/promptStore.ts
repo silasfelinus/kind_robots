@@ -3,7 +3,6 @@ import type { Prompt, Art } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 import { useUserStore } from './userStore'
 
-// Define the State interface here to ensure TypeScript recognizes it
 interface State {
   prompts: Prompt[]
   artByPromptId: Art[]
@@ -60,11 +59,7 @@ export const usePromptStore = defineStore('promptStore', {
         const response = await performFetch<{ prompts: Prompt[] }>(
           '/api/prompts/',
         )
-        if (response.success) {
-          this.prompts = response.data?.prompts || []
-        } else {
-          throw new Error(response.message)
-        }
+        this.prompts = response.data?.prompts || []
       } catch (error) {
         handleError(error, 'fetching prompts')
       }
@@ -94,14 +89,11 @@ export const usePromptStore = defineStore('promptStore', {
           },
         )
 
-        if (response.success) {
-          const createdPrompt = response.data?.newPrompt || null
-          if (createdPrompt) {
-            this.prompts.push(createdPrompt)
-          }
-          return createdPrompt
+        const createdPrompt = response.data?.newPrompt || null
+        if (createdPrompt) {
+          this.prompts.push(createdPrompt)
         }
-        throw new Error(response.message)
+        return createdPrompt
       } catch (error) {
         handleError(error, 'adding prompt')
       }
@@ -113,12 +105,9 @@ export const usePromptStore = defineStore('promptStore', {
         const response = await performFetch<{ prompt?: Prompt }>(
           `/api/prompts/${promptId}`,
         )
-        if (response.success) {
-          const fetchedPrompt = response.data?.prompt || null
-          this.fetchedPrompts[promptId] = fetchedPrompt
-          return fetchedPrompt
-        }
-        throw new Error(response.message)
+        const fetchedPrompt = response.data?.prompt || null
+        this.fetchedPrompts[promptId] = fetchedPrompt
+        return fetchedPrompt
       } catch (error) {
         handleError(error, 'fetching prompt by ID')
         this.fetchedPrompts[promptId] = null
@@ -131,11 +120,7 @@ export const usePromptStore = defineStore('promptStore', {
         const response = await performFetch<{ art: Art[] }>(
           `/api/art/prompt/${promptId}`,
         )
-        if (response.success) {
-          this.artByPromptId = response.data?.art || []
-        } else {
-          throw new Error(response.message)
-        }
+        this.artByPromptId = response.data?.art || []
       } catch (error) {
         handleError(error, 'fetching art by prompt ID')
       }

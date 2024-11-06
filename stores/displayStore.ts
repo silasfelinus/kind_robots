@@ -213,7 +213,7 @@ export const useDisplayStore = defineStore('display', {
     },
     initialize() {
       if (this.isInitialized) {
-        return // Skip initialization if already initialized
+        return
       }
 
       try {

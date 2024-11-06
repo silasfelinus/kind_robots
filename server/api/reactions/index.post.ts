@@ -5,6 +5,8 @@ import prisma from '../utils/prisma'
 import type { Prisma, Reaction } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
@@ -64,14 +66,16 @@ export default defineEventHandler(async (event) => {
         })
 
     event.node.res.statusCode = 201 // Created
-    return { success: true, reaction }
+    response = { success: true, data: { reaction } } // Wrapped reaction in data
   } catch (error) {
-    const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
-    return {
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
-      message,
-      statusCode: statusCode || 500,
+      message: handledError.message || 'Failed to create/update reaction.',
+      statusCode: event.node.res.statusCode,
     }
   }
+
+  return response
 })

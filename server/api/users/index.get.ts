@@ -15,13 +15,19 @@ export default defineEventHandler(async (event) => {
     // Fetch users with pagination logic
     const users = await fetchUsers()
 
-    return { success: true, users }
+    return {
+      success: true,
+      message: 'Users fetched successfully.',
+      data: { users },
+      statusCode: 200,
+    }
   } catch (error) {
-    const { message } = errorHandler(error)
-    console.error('Failed to fetch users:', message) // Log the formatted error message for debugging
+    const handledError = errorHandler(error)
+    console.error('Failed to fetch users:', handledError.message) // Log the formatted error message for debugging
     return {
       success: false,
-      message: `Failed to fetch users. Reason: ${message}`,
+      message: `Failed to fetch users. Reason: ${handledError.message}`,
+      statusCode: handledError.statusCode || 500,
     }
   }
 })

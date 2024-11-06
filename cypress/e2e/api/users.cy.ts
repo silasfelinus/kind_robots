@@ -30,6 +30,7 @@ describe('User Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+      expect(response.body).to.have.property('message').that.is.a('string')
       createdUserId = response.body.user.id
       createdUserToken = response.body.user.apiKey // Store the user-specific token
     })
@@ -47,8 +48,9 @@ describe('User Management API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
+        expect(response.body).to.have.property('message').that.is.a('string')
         expect(response.body)
-          .to.have.nested.property('users.users')
+          .to.have.nested.property('data.users')
           .that.is.an('array').that.is.not.empty
       })
     })
@@ -64,7 +66,11 @@ describe('User Management API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
-        expect(response.body).to.have.nested.property('user.id', createdUserId)
+        expect(response.body).to.have.property('message').that.is.a('string')
+        expect(response.body).to.have.nested.property(
+          'data.user.id',
+          createdUserId,
+        )
       })
     })
 
@@ -79,7 +85,11 @@ describe('User Management API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
-        expect(response.body.usernames).to.include(uniqueUsername)
+        expect(response.body).to.have.property('message').that.is.a('string')
+        expect(response.body)
+          .to.have.property('data.usernames')
+          .that.is.an('array')
+        expect(response.body.data.usernames).to.include(uniqueUsername)
       })
     })
   })
@@ -97,9 +107,10 @@ describe('User Management API Tests', () => {
         failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(401)
-        expect(response.body.message).to.include(
-          'Authorization header is missing',
-        )
+        expect(response.body).to.have.property('success', false)
+        expect(response.body)
+          .to.have.property('message')
+          .that.includes('Authorization header is missing')
       })
     })
 
@@ -115,7 +126,11 @@ describe('User Management API Tests', () => {
         body: { username: newUsername },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body.user.username).to.eq(newUsername)
+        expect(response.body).to.have.property('success', true)
+        expect(response.body)
+          .to.have.property('message')
+          .that.includes('User updated successfully')
+        expect(response.body.data.user.username).to.eq(newUsername)
 
         // Update uniqueUsername to the new username to keep tests consistent
         uniqueUsername = newUsername
@@ -135,7 +150,8 @@ describe('User Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('data')
+        expect(response.body).to.have.property('success', true)
+        expect(response.body).to.have.property('data').that.is.an('object')
       })
     })
 
@@ -168,9 +184,10 @@ describe('User Management API Tests', () => {
         failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(401)
-        expect(response.body.message).to.include(
-          'Authorization header is missing',
-        )
+        expect(response.body).to.have.property('success', false)
+        expect(response.body)
+          .to.have.property('message')
+          .that.includes('Authorization header is missing')
       })
     })
 
@@ -184,9 +201,10 @@ describe('User Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body.message).to.include(
-          `User with ID ${createdUserId} successfully deleted`,
-        )
+        expect(response.body).to.have.property('success', true)
+        expect(response.body)
+          .to.have.property('message')
+          .that.includes(`User with ID ${createdUserId} successfully deleted`)
       })
     })
   })

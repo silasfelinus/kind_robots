@@ -1,8 +1,8 @@
-// server/api/galleries/index.get.ts
+// /server/api/galleries/index.get.ts
 import { defineEventHandler } from 'h3'
 import { fetchGalleries } from '.'
 import { errorHandler } from '../utils/error'
-import type { Gallery } from '@prisma/client' // Importing Gallery type for clarity
+import type { Gallery } from '@prisma/client'
 
 type GalleriesResponse = {
   success: boolean
@@ -24,13 +24,12 @@ export default defineEventHandler(async (): Promise<GalleriesResponse> => {
       message: 'Galleries fetched successfully.',
       statusCode: 200,
     }
-  } catch (error: unknown) {
+  } catch (error) {
     // Use the errorHandler to handle and format the error
     const handledError = errorHandler(error)
     response = {
       success: false,
-      message: 'Failed to fetch galleries.',
-      error: handledError.message,
+      message: handledError.message || 'Failed to fetch galleries.',
       statusCode: handledError.statusCode || 500,
     }
   }

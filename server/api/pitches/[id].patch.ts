@@ -1,6 +1,6 @@
 // /server/api/pitches/[id]/patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import type { Prisma, Pitch } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
@@ -23,7 +23,8 @@ export default defineEventHandler(async (event) => {
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401,
-        message: 'Authorization token is required in the format "Bearer <token>".',
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
       })
     }
 

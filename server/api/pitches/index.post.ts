@@ -1,11 +1,24 @@
 // /server/api/pitches/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import {
+  defineEventHandler,
+  readBody,
+  createError,
+  setResponseStatus,
+} from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { Prisma, type Pitch } from '@prisma/client'
 
-export default defineEventHandler(async (event) => {
-  let response
+interface PitchResponse {
+  success: boolean
+  message: string
+  data?: Pitch | Pitch[]
+  errors?: string[]
+  statusCode?: number
+}
+
+export default defineEventHandler(async (event): Promise<PitchResponse> => {
+  let response: PitchResponse
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
@@ -47,26 +60,26 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Successful creation response
+    // Successful creation response with conditional data
     response = {
       success: true,
       message: Array.isArray(pitchData)
         ? 'All pitches created successfully.'
         : 'Pitch created successfully.',
-      data: result.pitches || result.pitch, // Return created pitch(s)
+      data: 'pitches' in result ? result.pitches : result.pitch, // Access based on type check
       statusCode: 201,
     }
-    event.node.res.statusCode = 201
+    setResponseStatus(event, 201)
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
+    setResponseStatus(event, statusCode || 500)
     response = {
       success: false,
       message:
         message.includes('token') || message.includes('required')
           ? message
           : 'Failed to create a new pitch.',
-      error: message,
+      errors: [message], // Changed error to errors for consistency with type
       statusCode: statusCode || 500,
     }
   }
@@ -78,9 +91,9 @@ export default defineEventHandler(async (event) => {
 export async function addPitch(
   pitchData: Partial<Pitch>,
   userId: number,
-): Promise<{ pitch: Pitch | null; error: string | null }> {
+): Promise<{ pitch: Pitch | undefined; error: string | null }> {
   if (!pitchData.pitch) {
-    return { pitch: null, error: 'Pitch content is required.' }
+    return { pitch: undefined, error: 'Pitch content is required.' }
   }
 
   try {
@@ -97,7 +110,7 @@ export async function addPitch(
           ? error.message
           : 'An unknown error occurred while creating the pitch.'
 
-    return { pitch: null, error: errorMessage }
+    return { pitch: undefined, error: errorMessage }
   }
 }
 
@@ -105,7 +118,7 @@ export async function addPitch(
 export async function addPitches(
   pitchesData: Partial<Pitch>[],
   userId: number,
-): Promise<{ pitches: Pitch[] | null; error: string | null }> {
+): Promise<{ pitches: Pitch[] | undefined; error: string | null }> {
   const createdPitches: Pitch[] = []
   const errors: string[] = []
 
@@ -133,7 +146,7 @@ export async function addPitches(
   }
 
   return {
-    pitches: createdPitches.length > 0 ? createdPitches : null,
+    pitches: createdPitches.length > 0 ? createdPitches : undefined,
     error: errors.length > 0 ? errors.join('; ') : null,
   }
 }

@@ -1,33 +1,31 @@
 // /server/api/milestones/index.get.ts
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, setResponseStatus } from 'h3'
 import type { Milestone } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   let response
 
   try {
     const milestones = await prisma.milestone.findMany()
-    
-    // Return success response with milestones data
+
+    // Set response for successful fetch
     response = {
       success: true,
       message: 'Milestones fetched successfully.',
       data: milestones,
-      statusCode: 200,
     }
-    event.node.res.statusCode = 200
+    setResponseStatus(event, 200)
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error('Error fetching milestones:', handledError)
 
-    // Set the response and status code based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
+    // Set error response with appropriate status code
+    setResponseStatus(event, handledError.statusCode || 500)
     response = {
       success: false,
       message: handledError.message || 'Failed to fetch milestones.',
-      statusCode: event.node.res.statusCode,
     }
   }
 

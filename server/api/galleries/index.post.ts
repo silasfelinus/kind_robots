@@ -2,16 +2,22 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { Prisma } from '@prisma/client'
+import type { Prisma, Gallery } from '@prisma/client'
 
-export default defineEventHandler(async (event) => {
-  let response
+type GalleryResponse = {
+  success: boolean
+  message?: string
+  newGallery?: Gallery
+  statusCode?: number
+}
+
+export default defineEventHandler(async (event): Promise<GalleryResponse> => {
+  let response: GalleryResponse
 
   try {
     // Validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -26,7 +32,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -44,7 +49,6 @@ export default defineEventHandler(async (event) => {
       (field) => !galleryData[field as keyof typeof galleryData],
     )
     if (missingFields.length > 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: `Missing required fields: ${missingFields.join(', ')}.`,
@@ -71,18 +75,23 @@ export default defineEventHandler(async (event) => {
     // Create the gallery entry
     const newGallery = await prisma.gallery.create({ data })
 
-    // Set status code to 201 Created
-    event.node.res.statusCode = 201
-    response = { success: true, newGallery, statusCode: 201 }
+    // Successful creation response
+    response = {
+      success: true,
+      newGallery,
+      message: 'Gallery created successfully.',
+      statusCode: 201,
+    }
   } catch (error) {
     const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
       message: handledError.message || 'Failed to create gallery entry.',
-      statusCode: event.node.res.statusCode,
+      statusCode: handledError.statusCode || 500,
     }
   }
 
+  // Set the status code in the response object
+  event.node.res.statusCode = response.statusCode || 500
   return response
 })

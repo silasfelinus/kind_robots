@@ -135,7 +135,7 @@ describe('User Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('user')
+        expect(response.body).to.have.property('data')
       })
     })
 

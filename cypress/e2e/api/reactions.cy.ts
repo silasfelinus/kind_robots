@@ -30,21 +30,19 @@ describe('Reaction Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      artId = response.body.art.id
+      expect(response.body).to.have.property('success', true)
+      artId = response.body.data?.art.id
     })
   })
 
-  // Step 2: Attempt to create a reaction with missing and invalid tokens
-
+  // Step 2: Attempt to create a reaction without an authorization token
   it('should not allow creating a reaction without an authorization token', () => {
     cy.wrap(artId).should('exist') // Ensure artId exists
 
     cy.request({
       method: 'POST',
       url: `${baseUrl}/reactions`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: {
         userId,
         reactionType: 'LOVED',
@@ -52,9 +50,6 @@ describe('Reaction Management API Tests', () => {
         artId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
-        channelId: null,
-        chatExchangeId: null,
-        artImageId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -82,9 +77,6 @@ describe('Reaction Management API Tests', () => {
         artId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
-        channelId: null,
-        chatExchangeId: null,
-        artImageId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -111,13 +103,11 @@ describe('Reaction Management API Tests', () => {
         artId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
-        channelId: null,
-        chatExchangeId: null,
-        artImageId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      reactionId = response.body.reaction.id
+      expect(response.body).to.have.property('success', true)
+      reactionId = response.body.data?.reaction.id
     })
   })
 
@@ -140,7 +130,8 @@ describe('Reaction Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.reaction).to.have.property('rating', 4)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data?.reaction).to.have.property('rating', 4)
     })
   })
 
@@ -192,6 +183,10 @@ describe('Reaction Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data?.message).to.include(
+        `Reaction with ID ${reactionId} deleted successfully`,
+      )
     })
   })
 
@@ -208,6 +203,10 @@ describe('Reaction Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data?.message).to.include(
+        `Art piece with ID ${artId} deleted successfully`,
+      )
     })
   })
 })

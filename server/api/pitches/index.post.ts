@@ -1,9 +1,11 @@
+// /server/api/pitches/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 import { Prisma, type Pitch } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
+  let response
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
@@ -33,7 +35,7 @@ export default defineEventHandler(async (event) => {
     // Read and validate the pitch data from the request body
     const pitchData = await readBody(event)
 
-    // Handle single or multiple pitches with specific validation and error handling
+    // Handle single or multiple pitches
     const result = Array.isArray(pitchData)
       ? await addPitches(pitchData, authenticatedUserId)
       : await addPitch(pitchData, authenticatedUserId)
@@ -45,13 +47,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Set status code to 201 Created
+    // Successful creation response
+    response = {
+      success: true,
+      message: Array.isArray(pitchData)
+        ? 'All pitches created successfully.'
+        : 'Pitch created successfully.',
+      data: result.pitches || result.pitch, // Return created pitch(s)
+      statusCode: 201,
+    }
     event.node.res.statusCode = 201
-    return { success: true, ...result }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
-    return {
+    response = {
       success: false,
       message:
         message.includes('token') || message.includes('required')
@@ -61,9 +70,11 @@ export default defineEventHandler(async (event) => {
       statusCode: statusCode || 500,
     }
   }
+
+  return response
 })
 
-// Function to add a single pitch with validation and detailed error handling
+// Function to add a single pitch with validation
 export async function addPitch(
   pitchData: Partial<Pitch>,
   userId: number,
@@ -90,7 +101,7 @@ export async function addPitch(
   }
 }
 
-// Function to handle adding multiple pitches with consolidated error handling
+// Function to handle adding multiple pitches
 export async function addPitches(
   pitchesData: Partial<Pitch>[],
   userId: number,

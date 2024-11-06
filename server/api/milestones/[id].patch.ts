@@ -1,41 +1,64 @@
 // /server/api/milestones/[id].patch.ts
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import type { Milestone } from '@prisma/client'
 import { errorHandler } from '../utils/error'
-import prisma from './../utils/prisma'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
+  let response
+  let milestoneId: number | null = null
+
   try {
-    const id = Number(event.context.params?.id)
-    if (!id) throw new Error('Invalid milestone ID.')
-    const existingMilestone = await prisma.milestone.findUnique({
-      where: { id },
-    })
-    const milestoneData: Partial<Milestone> = await readBody(event)
-    if (!existingMilestone) {
-      throw new Error('Milestone not found.')
+    // Validate and parse the milestone ID from the URL parameters
+    milestoneId = Number(event.context.params?.id)
+    if (isNaN(milestoneId) || milestoneId <= 0) {
+      throw createError({
+        statusCode: 400, // Bad Request
+        message: 'Invalid Milestone ID. It must be a positive integer.',
+      })
     }
+
+    // Fetch the existing milestone to ensure it exists
+    const existingMilestone = await prisma.milestone.findUnique({
+      where: { id: milestoneId },
+    })
+
+    if (!existingMilestone) {
+      throw createError({
+        statusCode: 404, // Not Found
+        message: 'Milestone not found.',
+      })
+    }
+
+    // Read the update data from the request body
+    const milestoneData: Partial<Milestone> = await readBody(event)
+
+    // Update the milestone in the database
     const updatedMilestone = await prisma.milestone.update({
-      where: { id },
+      where: { id: milestoneId },
       data: milestoneData,
     })
-    return { success: true, milestone: updatedMilestone }
-  } catch (error: unknown) {
-    return errorHandler(error)
-  }
-})
 
-// Function to update an existing Milestone by ID
-export async function updateMilestone(
-  id: number,
-  updatedMilestone: Partial<Milestone>,
-): Promise<Milestone | null> {
-  try {
-    return await prisma.milestone.update({
-      where: { id },
-      data: updatedMilestone,
-    })
+    // Return success response
+    response = {
+      success: true,
+      milestone: updatedMilestone,
+      statusCode: 200,
+    }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
-    throw errorHandler(error)
+    const handledError = errorHandler(error)
+    console.error(`Error updating milestone with ID ${milestoneId}:`, handledError)
+
+    // Set the response and status code based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
+      success: false,
+      message:
+        handledError.message || `Failed to update milestone with ID ${milestoneId}.`,
+      statusCode: event.node.res.statusCode,
+    }
   }
-}
+
+  return response
+})

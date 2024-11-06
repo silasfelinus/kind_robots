@@ -1,4 +1,4 @@
-// /server/api/user/[id].get.ts
+// /server/api/users/[id].get.ts
 
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'

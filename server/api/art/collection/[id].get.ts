@@ -18,8 +18,9 @@ export default defineEventHandler(async (event) => {
       throw new Error(`Collection with ID ${collectionId} not found.`)
     }
 
-    return { success: true, collection }
+    // Wrap the collection in a data object for consistent response format
+    return { success: true, data: { collection } }
   } catch (error: unknown) {
-    return errorHandler(error) // 
+    return errorHandler(error)
   }
 })

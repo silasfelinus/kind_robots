@@ -1,7 +1,7 @@
 // ~/server/api/galleries/random/id/[id].get.ts
 import { defineEventHandler, createError } from 'h3'
 import { getRandomGalleryImage } from '../..'
-import { errorHandler } from '../../utils/error'
+import { errorHandler } from '../../../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response

@@ -1,7 +1,7 @@
 // server/api/galleries/random/image/index.get.ts
 import { defineEventHandler, createError } from 'h3'
 import { fetchRandomImage } from '../..'
-import { errorHandler } from '../../utils/error'
+import { errorHandler } from '../../../utils/error'
 
 interface RandomImageResponse {
   success: boolean

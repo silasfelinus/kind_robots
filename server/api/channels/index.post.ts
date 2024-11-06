@@ -1,3 +1,4 @@
+// /server/api/channels/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import type { Channel } from '@prisma/client'
 import { errorHandler } from '../utils/error'
@@ -5,6 +6,8 @@ import prisma from '../utils/prisma'
 import { Prisma } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     const channelData: Partial<Channel> = await readBody(event)
 
@@ -60,8 +63,13 @@ export default defineEventHandler(async (event) => {
 
     // Create the channel
     const newChannel = await createChannel(channelData)
+    response = {
+      success: true,
+      message: 'Channel created successfully.',
+      data: { newChannel },
+      statusCode: 201,
+    }
     event.node.res.statusCode = 201 // Created
-    return { success: true, newChannel, statusCode: 201 }
   } catch (error: unknown) {
     // Handle Prisma-specific errors for unique constraints
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -70,25 +78,28 @@ export default defineEventHandler(async (event) => {
         (error.meta as { target: string[] }).target.includes('label')
       ) {
         event.node.res.statusCode = 409 // Conflict
-        return {
+        response = {
           success: false,
           message:
             'Channel label already exists. Please choose a different label.',
           statusCode: 409,
         }
       }
-    }
-
-    // Log and return a generic error
-    console.error('Error creating channel:', error)
-    const { message, statusCode } = errorHandler(error)
-    return {
-      success: false,
-      message: 'Failed to create a new channel',
-      error: message,
-      statusCode: statusCode || 500,
+    } else {
+      // Log and return a generic error
+      console.error('Error creating channel:', error)
+      const { message, statusCode } = errorHandler(error)
+      response = {
+        success: false,
+        message: 'Failed to create a new channel',
+        error: message,
+        statusCode: statusCode || 500,
+      }
+      event.node.res.statusCode = response.statusCode
     }
   }
+
+  return response
 })
 
 // Helper function to create a new channel

@@ -1,9 +1,12 @@
+// /server/api/chats/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import type { ChatExchange } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     // Validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
@@ -71,14 +74,14 @@ export default defineEventHandler(async (event) => {
     if (!userExists) {
       throw createError({
         statusCode: 404,
-        message: `User with id ${authenticatedUserId} does not exist.`,
+        message: `User with ID ${authenticatedUserId} does not exist.`,
       })
     }
 
     if (!botExists) {
       throw createError({
         statusCode: 404,
-        message: `Bot with id ${exchangeData.botId} does not exist.`,
+        message: `Bot with ID ${exchangeData.botId} does not exist.`,
       })
     }
 
@@ -97,21 +100,24 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    event.node.res.statusCode = 201 // Created
-    return {
+    response = {
       success: true,
-      newExchange,
+      data: { newExchange },
+      message: 'Chat exchange created successfully.',
       statusCode: 201,
     }
+    event.node.res.statusCode = 201 // Created
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
 
     // Return the specific error message from errorHandler
     event.node.res.statusCode = statusCode || 500
-    return {
+    response = {
       success: false,
       message,
       statusCode: statusCode || 500,
     }
   }
+
+  return response
 })

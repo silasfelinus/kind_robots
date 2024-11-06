@@ -5,24 +5,22 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
   let response
+  let id: number | null = null
 
   try {
     // Parse and validate the post ID from the URL params
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
-        message: 'Invalid post ID.',
+        message: 'Invalid post ID. It must be a positive integer.',
       })
     }
 
     // Extract and validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -37,7 +35,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -47,9 +44,10 @@ export default defineEventHandler(async (event) => {
     const userId = user.id
 
     // Fetch the existing post to verify ownership
-    const existingPost = await prisma.post.findUnique({ where: { id } })
+    const existingPost = await prisma.post.findUnique({
+      where: { id },
+    })
     if (!existingPost) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: 'Post not found.',
@@ -58,7 +56,6 @@ export default defineEventHandler(async (event) => {
 
     // Verify ownership of the post
     if (existingPost.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this post.',
@@ -68,7 +65,6 @@ export default defineEventHandler(async (event) => {
     // Parse the incoming request body as partial post data
     const postData: Prisma.PostUpdateInput = await readBody(event)
     if (!postData || Object.keys(postData).length === 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -78,15 +74,19 @@ export default defineEventHandler(async (event) => {
     // Update the post in the database
     const updatedPost = await updatePost(id, postData)
 
-    // Success response with updated post
+    // Successful response with updated post
     response = {
       success: true,
       post: updatedPost,
+      message: `Post with ID ${id} updated successfully.`,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
+    console.error('Error while updating Post:', handledError)
+
+    // Set the response and status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

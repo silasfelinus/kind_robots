@@ -155,16 +155,16 @@ onMounted(() => {
   // Fetch the leaderboard if the user is logged in
   if (userStore.isLoggedIn) {
     // Fetch the user's click record from the store
-    const userClickRecord = userStore.clickRecord
+    const userClickRecord = userStore.clickRecord ?? 0
     const localHighScore =
-      parseInt(localStorage.getItem('topScore') || '0') || 0
+      parseInt(localStorage.getItem('topScore') ?? '0') || 0
 
     // Set both to the higher number
     const highestScore = Math.max(userClickRecord, localHighScore)
     state.topScore = highestScore
-    localStorage.setItem('Local TopScore', highestScore.toString())
+    localStorage.setItem('topScore', highestScore.toString()) // ensure consistent key naming
 
-    state.topScore = parseInt(localStorage.getItem('topScore') || '0') || 0
+    state.topScore = parseInt(localStorage.getItem('topScore') ?? '0') || 0
   }
 })
 

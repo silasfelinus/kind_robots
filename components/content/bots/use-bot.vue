@@ -145,10 +145,18 @@ async function sendPrompt(prompt: string) {
 
     if (userId && botId) {
       const newPrompt = await promptStore.addPrompt(prompt, userId, botId)
-      const promptId = newPrompt.id
-      if (!promptId) throw new Error('Failed to generate a prompt ID.')
 
-      await chatStore.addExchange(prompt, userId, botId, undefined, promptId)
+      if (!newPrompt || !newPrompt.id) {
+        throw new Error('Failed to generate a prompt ID.')
+      }
+
+      await chatStore.addExchange(
+        prompt,
+        userId,
+        botId,
+        undefined,
+        newPrompt.id,
+      )
       chatStore.currentPrompt = ''
     } else {
       console.warn('Missing user or bot ID, cannot proceed.')

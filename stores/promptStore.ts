@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
 import type { Prompt, Art } from '@prisma/client'
 import { performFetch, handleError } from './utils'
-import { useErrorStore } from './errorStore'
 import { useUserStore } from './userStore'
 
+// Define the State interface here to ensure TypeScript recognizes it
 interface State {
   prompts: Prompt[]
   artByPromptId: Art[]
@@ -26,7 +26,10 @@ export const usePromptStore = defineStore('promptStore', {
   }),
 
   getters: {
-    finalPromptString: (state) => state.promptArray.filter(prompt => prompt.trim() !== '').join(' | ')
+    finalPromptString: (state): string =>
+      state.promptArray
+        .filter((prompt: string) => prompt.trim() !== '')
+        .join(' | '),
   },
 
   actions: {
@@ -54,7 +57,9 @@ export const usePromptStore = defineStore('promptStore', {
 
     async fetchPrompts() {
       try {
-        const response = await performFetch<{ prompts: Prompt[] }>('/api/prompts/')
+        const response = await performFetch<{ prompts: Prompt[] }>(
+          '/api/prompts/',
+        )
         if (response.success) {
           this.prompts = response.data?.prompts || []
         } else {
@@ -74,19 +79,26 @@ export const usePromptStore = defineStore('promptStore', {
     },
 
     setPromptsFromString(finalString: string) {
-      this.promptArray = finalString.split('|').map(prompt => prompt.trim())
+      this.promptArray = finalString
+        .split('|')
+        .map((prompt: string) => prompt.trim())
     },
 
     async addPrompt(newPrompt: string, userId: number, botId: number) {
       try {
-        const response = await performFetch<{ newPrompt: Prompt }>('/api/prompts', {
-          method: 'POST',
-          body: JSON.stringify({ prompt: newPrompt, userId, botId })
-        })
+        const response = await performFetch<{ newPrompt?: Prompt }>(
+          '/api/prompts',
+          {
+            method: 'POST',
+            body: JSON.stringify({ prompt: newPrompt, userId, botId }),
+          },
+        )
 
         if (response.success) {
-          const createdPrompt = response.data?.newPrompt
-          this.prompts.push(createdPrompt)
+          const createdPrompt = response.data?.newPrompt || null
+          if (createdPrompt) {
+            this.prompts.push(createdPrompt)
+          }
           return createdPrompt
         }
         throw new Error(response.message)
@@ -98,9 +110,11 @@ export const usePromptStore = defineStore('promptStore', {
     async fetchPromptById(promptId: number): Promise<Prompt | null> {
       if (this.fetchedPrompts[promptId]) return this.fetchedPrompts[promptId]
       try {
-        const response = await performFetch<{ prompt: Prompt }>(`/api/prompts/${promptId}`)
+        const response = await performFetch<{ prompt?: Prompt }>(
+          `/api/prompts/${promptId}`,
+        )
         if (response.success) {
-          const fetchedPrompt = response.data?.prompt
+          const fetchedPrompt = response.data?.prompt || null
           this.fetchedPrompts[promptId] = fetchedPrompt
           return fetchedPrompt
         }
@@ -114,9 +128,11 @@ export const usePromptStore = defineStore('promptStore', {
 
     async fetchArtByPromptId(promptId: number) {
       try {
-        const response = await performFetch<Art[]>(`/api/art/prompt/${promptId}`)
+        const response = await performFetch<{ art: Art[] }>(
+          `/api/art/prompt/${promptId}`,
+        )
         if (response.success) {
-          this.artByPromptId = response.data || []
+          this.artByPromptId = response.data?.art || []
         } else {
           throw new Error(response.message)
         }
@@ -130,14 +146,19 @@ export const usePromptStore = defineStore('promptStore', {
       const currentUserId = userStore.userId
       const prompt = await this.fetchPromptById(promptId)
       if (!prompt || prompt.userId !== currentUserId) {
-        handleError(new Error('Unauthorized deletion attempt'), 'deleting prompt')
+        handleError(
+          new Error('Unauthorized deletion attempt'),
+          'deleting prompt',
+        )
         return
       }
 
       try {
-        const response = await performFetch(`/api/prompts/${promptId}`, { method: 'DELETE' })
+        const response = await performFetch(`/api/prompts/${promptId}`, {
+          method: 'DELETE',
+        })
         if (response.success) {
-          this.prompts = this.prompts.filter(prompt => prompt.id !== promptId)
+          this.prompts = this.prompts.filter((prompt) => prompt.id !== promptId)
         } else {
           throw new Error(response.message)
         }

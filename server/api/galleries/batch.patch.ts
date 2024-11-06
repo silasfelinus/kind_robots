@@ -19,9 +19,9 @@ type GalleryUpdateData = Partial<{
 
 type BatchUpdateResponse = {
   success: boolean
+  message?: string
   updatedGalleries?: Gallery[]
   errors?: string[]
-  message?: string
   statusCode?: number
 }
 
@@ -31,7 +31,6 @@ export default defineEventHandler(async (event) => {
     const galleriesData: GalleryUpdateData[] = await readBody(event)
 
     if (!Array.isArray(galleriesData)) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Expected an array of gallery updates.',
@@ -58,19 +57,12 @@ export default defineEventHandler(async (event) => {
         continue
       }
 
-      // Confirm gallery ID exists and is a number before proceeding
-      const galleryId = gallery.id
-      if (typeof galleryId !== 'number') {
-        errors.push(`Gallery '${name}' has an invalid ID.`)
-        continue
-      }
-
       // Prepare Prisma update input for the gallery
       const updateData: Prisma.GalleryUpdateInput = { ...data }
 
       try {
         const updatedGallery = await prisma.gallery.update({
-          where: { id: galleryId },
+          where: { id: gallery.id }, // Use the found gallery's ID
           data: updateData,
         })
         updatedGalleries.push(updatedGallery)
@@ -87,6 +79,7 @@ export default defineEventHandler(async (event) => {
       success: errors.length === 0,
       updatedGalleries,
       errors,
+      message: errors.length > 0 ? 'Some galleries were not updated.' : 'All galleries updated successfully.',
       statusCode: errors.length > 0 ? 207 : 200, // 207 for partial success
     }
     event.node.res.statusCode = response.statusCode ?? 500

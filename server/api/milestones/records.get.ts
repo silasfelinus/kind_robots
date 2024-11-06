@@ -4,10 +4,29 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async () => {
+  let response
+
   try {
     const records = await prisma.milestoneRecord.findMany()
-    return { success: true, records }
+
+    // Prepare the success response
+    response = {
+      success: true,
+      message: 'Milestone records fetched successfully.',
+      data: records, // Wrap records in a data field
+      statusCode: 200,
+    }
   } catch (error: unknown) {
-    return errorHandler(error)
+    const handledError = errorHandler(error)
+    console.error('Error fetching milestone records:', handledError)
+
+    // Set the response and status code based on the handled error
+    response = {
+      success: false,
+      message: handledError.message || 'Failed to fetch milestone records.',
+      statusCode: handledError.statusCode || 500,
+    }
   }
+
+  return response
 })

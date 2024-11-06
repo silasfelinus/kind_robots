@@ -2,9 +2,19 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { Prisma } from '@prisma/client'
+import type { Prisma, Gallery } from '@prisma/client'
+
+type BatchCreateResponse = {
+  success: boolean
+  message?: string
+  createdCount?: number
+  createdGalleries?: Gallery[]
+  errors?: string[]
+  statusCode?: number
+}
 
 export default defineEventHandler(async (event) => {
+  let response: BatchCreateResponse
   try {
     // Validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
@@ -32,9 +42,7 @@ export default defineEventHandler(async (event) => {
     const userId = user.id
 
     // Read and validate incoming batch data
-    const galleryData = (await readBody(
-      event,
-    )) as Prisma.GalleryCreateManyInput[]
+    const galleryData = (await readBody(event)) as Prisma.GalleryCreateManyInput[]
     if (!Array.isArray(galleryData)) {
       throw createError({
         statusCode: 400,
@@ -61,20 +69,25 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    // Set status code to 201 Created
-    event.node.res.statusCode = 201
-    return {
+    // Set success response
+    response = {
       success: true,
-      createdCount,
+      message: `Successfully created ${createdCount.count} galleries.`,
+      createdCount: createdCount.count,
       createdGalleries,
+      statusCode: 201, // Created
     }
+    event.node.res.statusCode = response.statusCode
   } catch (error) {
     const handledError = errorHandler(error)
-    return {
+    response = {
       success: false,
       message: 'Failed to create galleries in batch.',
       error: handledError.message,
       statusCode: handledError.statusCode || 500,
     }
+    event.node.res.statusCode = response.statusCode
   }
+
+  return response
 })

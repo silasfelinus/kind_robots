@@ -1,4 +1,4 @@
-//server/api/channels/[id].patch.ts
+// /server/api/channels/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     // Validate channel ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid channel ID.',
@@ -21,7 +20,6 @@ export default defineEventHandler(async (event) => {
     // Extract and validate the JWT token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -36,7 +34,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -50,7 +47,6 @@ export default defineEventHandler(async (event) => {
       where: { id },
     })
     if (!channel) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Channel with ID ${id} not found.`,
@@ -58,7 +54,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (channel.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this channel.',
@@ -68,7 +63,6 @@ export default defineEventHandler(async (event) => {
     // Read and validate the request body
     const updatedChannelData = await readBody(event)
     if (!updatedChannelData || Object.keys(updatedChannelData).length === 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -83,22 +77,24 @@ export default defineEventHandler(async (event) => {
 
     response = {
       success: true,
-      updatedChannel,
+      data: { updatedChannel },
+      message: `Channel with ID ${id} updated successfully.`,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error(
-      `Failed to update channel with ID "${id}": ${error instanceof Error ? error.message : 'Unknown error'}`,
+      `Failed to update channel with ID "${id}": ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     )
 
     // Set the appropriate status code based on the error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message:
-        handledError.message || `Failed to update channel with ID ${id}.`,
+      message: handledError.message || `Failed to update channel with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }

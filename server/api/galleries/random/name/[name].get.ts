@@ -1,12 +1,27 @@
-// ~/server/api/galleries/[name].random.ts
-import { defineEventHandler } from 'h3'
+// ~/server/api/galleries/random/[name].get.ts
+import { defineEventHandler, createError } from 'h3'
 import { getRandomImageByGalleryName } from '../..'
+import { errorHandler } from '../../utils/error'
 
-export default defineEventHandler(async (event) => {
+interface RandomImageResponse {
+  success: boolean
+  message?: string
+  data?: {
+    image: string
+  }
+  error?: string
+}
+
+export default defineEventHandler(async (event): Promise<RandomImageResponse> => {
+  let response: RandomImageResponse
   const galleryName = String(event.context.params?.name)
 
   if (!galleryName) {
-    return { success: false, message: 'Invalid gallery name.' }
+    return {
+      success: false,
+      message: 'Invalid gallery name.',
+      statusCode: 400,
+    }
   }
 
   try {
@@ -16,15 +31,28 @@ export default defineEventHandler(async (event) => {
       return {
         success: false,
         message: `No images found in gallery with name: ${galleryName}`,
+        statusCode: 404,
       }
     }
 
-    return { success: true, image }
+    // Return success response with the fetched image
+    response = {
+      success: true,
+      message: `Random image fetched from gallery: ${galleryName}.`,
+      data: { image },
+    }
   } catch (error: unknown) {
-    return {
+    // Handle the error using the centralized error handler
+    const handledError = errorHandler(error)
+    console.error(`Error fetching random image for gallery "${galleryName}":`, handledError)
+
+    // Set the response based on the handled error
+    response = {
       success: false,
-      message: `Failed to get random image for gallery name ${galleryName}.`,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      message: handledError.message || `Failed to get random image for gallery name ${galleryName}.`,
+      error: handledError.message,
     }
   }
+
+  return response
 })

@@ -153,6 +153,7 @@ export const useUserStore = defineStore({
     setUser(userData: User): void {
       console.log('setting user: ', userData)
       this.user = userData
+      console.log('apikey is now: ', this.apiKey)
     },
     setStayLoggedIn(value: boolean) {
       try {

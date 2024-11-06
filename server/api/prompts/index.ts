@@ -1,16 +1,18 @@
 import prisma from '../utils/prisma'
 import type { Prompt, Art } from '@prisma/client'
 import { errorHandler } from '../utils/error'
+import { createError } from 'h3' // Ensure createError is imported for specific error handling
 
 export async function updatePrompt(
   id: number,
   updatedData: Partial<Prompt>,
 ): Promise<Prompt | null> {
   try {
-    return await prisma.prompt.update({
+    const updatedPrompt = await prisma.prompt.update({
       where: { id },
       data: updatedData,
     })
+    return updatedPrompt
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error
@@ -27,7 +29,8 @@ export async function updatePrompt(
 
 export async function fetchAllPrompts(): Promise<Prompt[]> {
   try {
-    return await prisma.prompt.findMany()
+    const prompts = await prisma.prompt.findMany()
+    return prompts
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : 'An unknown error occurred.'
@@ -42,9 +45,10 @@ export async function fetchAllPrompts(): Promise<Prompt[]> {
 
 export async function fetchArtByPromptId(promptId: number): Promise<Art[]> {
   try {
-    return await prisma.art.findMany({
+    const artPieces = await prisma.art.findMany({
       where: { promptId },
     })
+    return artPieces
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : 'An unknown error occurred.'

@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     // Validate and parse the prompt ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid Prompt ID. It must be a positive integer.',
@@ -23,7 +22,6 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -38,7 +36,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -53,7 +50,6 @@ export default defineEventHandler(async (event) => {
       select: { userId: true },
     })
     if (!prompt) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Prompt with ID ${id} does not exist.`,
@@ -61,7 +57,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (prompt.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this prompt.',
@@ -82,7 +77,7 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     console.error('Error deleting prompt:', handledError)
 
-    // Use `id` if it exists; otherwise, a generic message
+    // Use `id` if it exists; otherwise, provide a generic message
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

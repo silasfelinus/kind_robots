@@ -1,5 +1,5 @@
 // /server/api/random/[id].delete.ts
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
@@ -11,11 +11,11 @@ export default defineEventHandler(async (event) => {
     // Validate and parse the item ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
-      throw createError({
-        statusCode: 400,
+      return {
+        success: false,
         message: 'Invalid ID. It must be a positive integer.',
-      })
+        statusCode: 400,
+      }
     }
 
     console.log(`Attempting to delete item with ID: ${id}`)
@@ -23,12 +23,12 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
-      throw createError({
-        statusCode: 401,
+      return {
+        success: false,
         message:
           'Authorization token is required in the format "Bearer <token>".',
-      })
+        statusCode: 401,
+      }
     }
 
     const token = authorizationHeader.split(' ')[1]
@@ -38,11 +38,11 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
-      throw createError({
-        statusCode: 401,
+      return {
+        success: false,
         message: 'Invalid or expired token.',
-      })
+        statusCode: 401,
+      }
     }
 
     const userId = user.id
@@ -54,20 +54,20 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!item) {
-      event.node.res.statusCode = 404
-      throw createError({
-        statusCode: 404,
+      return {
+        success: false,
         message: `Item with ID ${id} does not exist.`,
-      })
+        statusCode: 404,
+      }
     }
 
     // Ensure the user owns this item
     if (item.userId !== userId) {
-      event.node.res.statusCode = 403
-      throw createError({
-        statusCode: 403,
+      return {
+        success: false,
         message: 'You do not have permission to delete this item.',
-      })
+        statusCode: 403,
+      }
     }
 
     // Delete the item
@@ -86,7 +86,7 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     console.error('Error deleting item:', handledError)
 
-    // Explicitly set the status code based on the handled error
+    // Set the response and status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

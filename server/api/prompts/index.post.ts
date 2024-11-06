@@ -60,13 +60,16 @@ export default defineEventHandler(async (event) => {
       } as Prisma.PromptCreateInput,
     })
 
-    // Set status code to 201 Created for successful creation
-    event.node.res.statusCode = 201
-    return { success: true, data: { newPrompt }, statusCode: 201 }
+    // Return success response
+    return {
+      success: true,
+      data: { newPrompt },
+      message: 'Prompt created successfully.',
+      statusCode: 201,
+    }
   } catch (error: unknown) {
     // Capture specific error message and status code from errorHandler
     const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       message,

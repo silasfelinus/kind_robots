@@ -203,4 +203,4 @@ Run cypress Tests:
  npm run cypress:run
 
  Run Single Cypress Test:
-npx cypress run --spec "cypress/e2e/store/artStore.cy.ts"
+npx cypress run --spec "cypress/e2e/api/users.cy.ts"

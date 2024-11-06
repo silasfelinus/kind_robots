@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
       validTags.push({
         title: toTitleCase(tag.title),
         label: toTitleCase(tag.label),
-        userId: authenticatedUserId, // Ensure the tags are linked to the authenticated user
+        userId: authenticatedUserId,
       })
     }
 
@@ -66,12 +66,17 @@ export default defineEventHandler(async (event) => {
       throw new Error(result.error)
     }
 
-    return { success: true, tags: result.tags }
+    return {
+      success: true,
+      data: { tags: result.tags },
+      statusCode: 201,
+    }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
 
     return {
       success: false,
+      data: null,
       message: 'Failed to create tags in batch',
       error: message || 'An unknown error occurred',
       statusCode: statusCode || 500,
@@ -92,7 +97,7 @@ async function addTags(
   try {
     await prisma.tag.createMany({
       data: tagsData,
-      skipDuplicates: true, // Skip duplicates
+      skipDuplicates: true,
     })
 
     // Retrieve created tags

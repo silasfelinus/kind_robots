@@ -273,13 +273,23 @@ function handleGalleryClick(clickedGallery: GalleryImage) {
     if (galleryImages.value.every((g) => g.matched)) {
       gameWon.value = true
       triggerConfetti()
-      if (matchRecord.value < score.value || matchRecord.value === null) {
+
+      // Set default value of 0 for matchRecord if it is null
+      const currentMatchRecord = matchRecord.value ?? 0
+
+      if (currentMatchRecord < score.value) {
         milestoneStore.updateMatchRecord(score.value)
       }
+
       if (score.value >= 50) {
         shouldShowMilestoneCheck.value = true
       }
-      if (score.value > highScore.value || score.value > matchRecord.value) {
+
+      // Ensure highScore and matchRecord have default values for comparison
+      if (
+        score.value > (highScore.value ?? 0) ||
+        score.value > currentMatchRecord
+      ) {
         highScore.value = score.value
         if (typeof window !== 'undefined') {
           localStorage.setItem('highScore', highScore.value.toString())

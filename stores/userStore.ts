@@ -27,6 +27,12 @@ export const useUserStore = defineStore({
     karma(state): number {
       return state.user ? state.user.karma : 1000
     },
+    mana(state): number {
+      return state.user ? state.user.mana : 0
+    },
+    avatarImage(state): string {
+      return state.user?.avatarImage || 'default'
+    },
     isLoggedIn(state): boolean {
       return Boolean(state.token) && Boolean(state.user)
     },
@@ -36,8 +42,20 @@ export const useUserStore = defineStore({
     username(state): string {
       return state.user ? state.user.username : 'Kind Guest'
     },
+    role(state): string {
+      return state.user?.Role || 'USER'
+    },
     apiKey(state): string | null {
       return state.user?.apiKey || null
+    },
+    showMature(state): boolean {
+      return state.user?.showMature || false
+    },
+    matchRecord(state): number | null {
+      return state.user?.matchRecord || 0
+    },
+    clickRecord(state): number | null {
+      return state.user?.clickRecord || 0
     },
   },
   actions: {

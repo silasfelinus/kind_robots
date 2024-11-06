@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
     // Validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -25,7 +24,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -40,12 +38,10 @@ export default defineEventHandler(async (event) => {
 
     // Validate required fields for milestone creation
     const missingFields = []
-    if (typeof recordData?.milestoneId !== 'number')
-      missingFields.push('milestoneId')
+    if (typeof recordData?.milestoneId !== 'number') missingFields.push('milestoneId')
     if (typeof recordData?.userId !== 'number') missingFields.push('userId')
 
     if (missingFields.length > 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: `Missing required fields: ${missingFields.join(', ')}.`,
@@ -56,7 +52,6 @@ export default defineEventHandler(async (event) => {
 
     // Verify that userId matches the authenticated user
     if (userId !== authenticatedUserId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'User ID does not match the authenticated user.',
@@ -72,11 +67,10 @@ export default defineEventHandler(async (event) => {
     })
 
     if (existingRecord) {
-      event.node.res.statusCode = 409 // Conflict
       return {
         success: false,
         message: 'Milestone already awarded to this user.',
-        statusCode: 409,
+        statusCode: 409, // Conflict
       }
     }
 
@@ -89,10 +83,18 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    event.node.res.statusCode = 201 // Created
-    response = { success: true, record: newRecord, statusCode: 201 }
+    response = {
+      success: true,
+      message: 'Milestone record created successfully.',
+      data: newRecord, // Include created record in data field
+      statusCode: 201, // Created
+    }
+    event.node.res.statusCode = 201
   } catch (error) {
     const handledError = errorHandler(error)
+    console.error('Error creating milestone record:', handledError)
+
+    // Set the response and status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

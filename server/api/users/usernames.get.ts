@@ -40,8 +40,7 @@ export async function fetchUsernameById(
       where: { id },
       select: {
         id: true,
-        username: true, // Include username
-        // ... other fields if needed
+        username: true,
       },
     })
   } catch (error: unknown) {

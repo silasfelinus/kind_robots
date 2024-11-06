@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -26,7 +25,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -46,15 +44,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Verify that the provided userId (if any) matches the authenticated userId
-    if (messageData.userId && messageData.userId !== userId) {
-      event.node.res.statusCode = 403
-      throw createError({
-        statusCode: 403,
-        message: 'User ID mismatch.',
-      })
-    }
-
     // Prepare the message data for creation
     const newMessageData = {
       sender: messageData.sender,
@@ -70,9 +59,14 @@ export default defineEventHandler(async (event) => {
       data: newMessageData,
     })
 
-    // Set status code to 201 Created
+    // Successful creation response
+    response = {
+      success: true,
+      message: 'Message created successfully.',
+      data: newMessage, // Wrap the new message in a 'data' field
+      statusCode: 201,
+    }
     event.node.res.statusCode = 201
-    response = { success: true, newMessage, statusCode: 201 }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500

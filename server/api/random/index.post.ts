@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message:
@@ -24,7 +23,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401 // Unauthorized
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -40,7 +38,11 @@ export default defineEventHandler(async (event) => {
       : await addRandomList(randomListData, authenticatedUserId)
 
     event.node.res.statusCode = 201 // Created
-    return { success: true, ...result }
+    return {
+      success: true,
+      data: result, // Wrap result in data
+      message: 'Random list(s) created successfully.',
+    }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
@@ -73,7 +75,7 @@ async function addRandomList(
     const data: Prisma.RandomListCreateInput = {
       title: randomListData.title,
       items: JSON.stringify(randomListData.items || []),
-      User: { connect: { id: authenticatedUserId } },
+      User: { connect: { id: authenticatedUserId } }, // Connect to authenticated user
     }
 
     const randomList = await prisma.randomList.create({ data })
@@ -109,7 +111,7 @@ async function addRandomLists(
       const data: Prisma.RandomListCreateInput = {
         title: randomListData.title,
         items: JSON.stringify(randomListData.items || []),
-        User: { connect: { id: authenticatedUserId } },
+        User: { connect: { id: authenticatedUserId } }, // Connect to authenticated user
       }
 
       const randomList = await prisma.randomList.create({ data })

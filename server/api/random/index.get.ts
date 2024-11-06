@@ -1,3 +1,4 @@
+// /server/api/random/index.get.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
@@ -33,11 +34,13 @@ export default defineEventHandler(async () => {
       }
     })
 
-    return { success: true, randomLists: randomListDetails }
+    return { success: true, data: { randomLists: randomListDetails } } // Wrap randomLists in data
   } catch (error: unknown) {
-    return errorHandler({
-      error,
-      context: 'Fetching Random Lists',
-    })
+    const handledError = errorHandler(error)
+    return {
+      success: false,
+      message: handledError.message || 'Failed to fetch random lists.',
+      statusCode: handledError.statusCode || 500,
+    }
   }
 })
